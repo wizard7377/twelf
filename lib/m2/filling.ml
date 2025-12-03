@@ -1,19 +1,19 @@
 (* Filling *)
 (* Author: Carsten Schuermann *)
 
-functor Filling (structure MetaSyn' : METASYN
-                 structure MetaAbstract : METAABSTRACT
+let recctor Filling (module MetaSyn' : METASYN
+                 module MetaAbstract : METAABSTRACT
                  sharing MetaAbstract.MetaSyn = MetaSyn'
-                 structure Search   : OLDSEARCH
+                 module Search   : OLDSEARCH
                  sharing Search.MetaSyn = MetaSyn'
-                 structure Whnf : WHNF
+                 module Whnf : WHNF
                  (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                 structure Print : PRINT
+                 module Print : PRINT
                  (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
                    )
   : FILLING =
 struct
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   exception Error of string
 
@@ -22,8 +22,8 @@ struct
   type operator = (MetaSyn.State * int) * (unit -> MetaSyn.State list)
 
   local
-    structure M = MetaSyn
-    structure I = IntSyn
+    module M = MetaSyn
+    module I = IntSyn
 
     exception Success of M.State
 
@@ -53,12 +53,12 @@ struct
           operatorsW (G, GE, Whnf.whnf Vs, abstractAll, abstractEx,  makeAddress)
     and operatorsW (G, GE, Vs as (I.Root (C, S), _), abstractAll, abstractEx,  makeAddress) =
           (nil,
-           (makeAddress 0, delay (fn Params => (Search.searchEx Params handle Success S => [S]),
+           (makeAddress 0, delay (fun Params -> (Search.searchEx Params handle Success S => [S]),
                                   (G, GE, Vs, abstractEx))))
       | operatorsW (G, GE, (I.Pi ((D as I.Dec (_, V1), P), V2), s),
                     abstractAll, abstractEx,  makeAddress) =
         let
-          val (GO', O) = operators (I.Decl (G, I.decSub (D, s)), GE, (V2, I.dot1 s),
+          let (GO', O) = operators (I.Decl (G, I.decSub (D, s)), GE, (V2, I.dot1 s),
                                     abstractAll, abstractEx,
                                     makeAddressCont makeAddress)
         in
@@ -82,16 +82,16 @@ struct
           (M.Prefix (I.Null, I.Null, I.Null), I.id, nil)
       | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
         let
-          val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
+          let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s', GE')
         end
       | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
         let
-          val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
-          val X = I.newEVar (G', I.EClo (V, s'))
-          val X' = Whnf.lowerEVar X
+          let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
+          let X = I.newEVar (G', I.EClo (V, s'))
+          let X' = Whnf.lowerEVar X
         in
           (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'), X' :: GE')
         end
@@ -113,7 +113,7 @@ struct
     *)
     fun expand (S as M.State (name, M.Prefix (G, M, B), V)) =
         let
-          val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
+          let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
           fun abstractAll acc = (MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
                                                                 I.EClo (V, s'))) :: acc
                                 handle MetaAbstract.Error s => acc)
@@ -147,8 +147,8 @@ struct
         end
 
   in
-    val expand = expand
-    val apply = apply
-    val menu = menu
+    let expand = expand
+    let apply = apply
+    let menu = menu
   end (* local *)
 end; (* functor Filling *)

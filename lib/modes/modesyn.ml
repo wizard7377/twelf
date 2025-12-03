@@ -2,27 +2,27 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-signature MODESYN =
+module type MODESYN =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
-  datatype Mode = Plus | Star | Minus | Minus1
-  datatype ModeSpine = Mnil | Mapp of Marg * ModeSpine
+  type Mode = Plus | Star | Minus | Minus1
+  type ModeSpine = Mnil | Mapp of Marg * ModeSpine
   and Marg = Marg of Mode * string option
 
-  val modeEqual : Mode * Mode -> bool
-  val modeToString : Mode -> string
-end;  (* signature MODESYN *)
+  let modeEqual : Mode * Mode -> bool
+  let modeToString : Mode -> string
+end;  (* module type MODESYN *)
 
 
-structure ModeSyn :> MODESYN =
+module ModeSyn :> MODESYN =
 struct
 
   exception Error of string
 
-  datatype Mode = Plus | Star | Minus | Minus1
-  datatype ModeSpine = Mnil | Mapp of Marg * ModeSpine
+  type Mode = Plus | Star | Minus | Minus1
+  type ModeSpine = Mnil | Mapp of Marg * ModeSpine
   and  Marg = Marg of Mode * string option
    
 
@@ -42,4 +42,4 @@ struct
     | modeToString Minus = "output (-)"
     | modeToString Minus1 = "unique output (-1)"
 
-end;  (* structure ModeSyn *)
+end;  (* module ModeSyn *)

@@ -1,10 +1,10 @@
 (* Tabled Syntax *)
 (* Author: Brigitte Pientka *)
 
-signature TABLEDSYN =
+module type TABLEDSYN =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   exception Error of string
 
@@ -16,4 +16,4 @@ sig
 
   val keepTable : IntSyn.cid -> bool
 
-end;  (* signature TABLEDSYN *)
+end;  (* module type TABLEDSYN *)

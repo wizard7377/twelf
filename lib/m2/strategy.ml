@@ -1,29 +1,29 @@
 (* Strategy *)
 (* Author: Carsten Schuermann *)
 
-functor StrategyFRS (structure MetaGlobal : METAGLOBAL
-                     structure MetaSyn' : METASYN
-                     structure Filling : FILLING
+let recctor StrategyFRS (module MetaGlobal : METAGLOBAL
+                     module MetaSyn' : METASYN
+                     module Filling : FILLING
                      sharing Filling.MetaSyn = MetaSyn'
-                     structure Splitting : SPLITTING
+                     module Splitting : SPLITTING
                      sharing Splitting.MetaSyn = MetaSyn'
-                     structure Recursion : RECURSION
+                     module Recursion : RECURSION
                      sharing Recursion.MetaSyn = MetaSyn'
-                     structure Lemma : LEMMA
+                     module Lemma : LEMMA
                      sharing Lemma.MetaSyn = MetaSyn'
-                     structure Qed : QED
+                     module Qed : QED
                      sharing Qed.MetaSyn = MetaSyn'
-                     structure MetaPrint : METAPRINT
+                     module MetaPrint : METAPRINT
                      sharing MetaPrint.MetaSyn = MetaSyn'
-                     structure Timers : TIMERS)
+                     module Timers : TIMERS)
   : STRATEGY =
 struct
 
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   local
 
-    structure M = MetaSyn
+    module M = MetaSyn
 
     fun printInit () =
         if !Global.chatter > 3 then print "Strategy 1.0: FRS\n"
@@ -72,7 +72,7 @@ struct
           fun findMin' (nil, k, result) = result
             | findMin' (O' :: L', k ,result)=
                 let
-                  val k' = Splitting.index O'
+                  let k' = Splitting.index O'
                 in
                   if Splitting.index O' < k then findMin' (L', k', SOME O')
                   else findMin' (L', k, result)
@@ -98,9 +98,9 @@ struct
           of NONE => fill (givenStates, (S :: openStates, solvedStates))
            | SOME splitOp =>
              let
-               val _ = printSplitting ()
-               val SL = (Timers.time Timers.splitting Splitting.apply) splitOp
-               val _ = printCloseBracket ()
+               let _ = printSplitting ()
+               let SL = (Timers.time Timers.splitting Splitting.apply) splitOp
+               let _ = printCloseBracket ()
              in
                (fill (SL @ givenStates, os)
                 handle Splitting.Error _ => fill (givenStates, (S :: openStates, solvedStates)))
@@ -111,9 +111,9 @@ struct
           of nil => split (S :: givenStates, os)
            | (recursionOp :: _) =>
              let
-               val _ = printRecursion ()
-               val S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
-               val _ = printCloseBracket ()
+               let _ = printRecursion ()
+               let S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
+               let _ = printCloseBracket ()
              in
                (fill (S' :: givenStates, (openStates, solvedStates))
                 handle Recursion.Error _ => split (S :: givenStates, os))
@@ -126,9 +126,9 @@ struct
           case (Timers.time Timers.filling Filling.expand) S
             of (_, fillingOp) =>
               (let
-                 val _ = printFilling ()
-                 val [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
-                 val _ = printCloseBracket ()
+                 let _ = printFilling ()
+                 let [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
+                 let _ = printCloseBracket ()
                in
                  if Qed.subgoal S'
                    then (printFinish S'; fill (givenStates, (openStates, S' :: solvedStates)))
@@ -152,44 +152,44 @@ struct
      *)
     fun run givenStates =
         let
-          val _ = printInit ()
-          val os = fill (givenStates, (nil, nil))
-          val _ = case os
+          let _ = printInit ()
+          let os = fill (givenStates, (nil, nil))
+          let _ = case os
                     of (nil, _) => printQed ()
                      | _ => ()
         in
           os
         end
   in
-    val run = run
+    let run = run
   end (* local *)
 end;  (* functor StrategyFRS *)
 
 
 
-functor StrategyRFS (structure MetaGlobal : METAGLOBAL
-                     structure MetaSyn' : METASYN
-                     structure Filling : FILLING
+let recctor StrategyRFS (module MetaGlobal : METAGLOBAL
+                     module MetaSyn' : METASYN
+                     module Filling : FILLING
                      sharing Filling.MetaSyn = MetaSyn'
-                     structure Splitting : SPLITTING
+                     module Splitting : SPLITTING
                      sharing Splitting.MetaSyn = MetaSyn'
-                     structure Recursion : RECURSION
+                     module Recursion : RECURSION
                      sharing Recursion.MetaSyn = MetaSyn'
-                     structure Lemma : LEMMA
+                     module Lemma : LEMMA
                      sharing Lemma.MetaSyn = MetaSyn'
-                     structure Qed : QED
+                     module Qed : QED
                      sharing Qed.MetaSyn = MetaSyn'
-                     structure MetaPrint : METAPRINT
+                     module MetaPrint : METAPRINT
                      sharing MetaPrint.MetaSyn = MetaSyn'
-                     structure Timers : TIMERS)
+                     module Timers : TIMERS)
   : STRATEGY =
 struct
 
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   local
 
-    structure M = MetaSyn
+    module M = MetaSyn
 
     fun printInit () =
         if !Global.chatter > 3 then print "Strategy 1.0: RFS\n"
@@ -238,7 +238,7 @@ struct
             fun findMin' (nil, k, result) = result
               | findMin' (O' :: L', k ,result)=
                   let
-                    val k' = Splitting.index O'
+                    let k' = Splitting.index O'
                   in
                     if Splitting.index O' < k then findMin' (L', k', SOME O')
                     else findMin' (L', k, result)
@@ -264,9 +264,9 @@ struct
           NONE => recurse (givenStates, (S :: openStates, solvedStates))
         | SOME splitOp =>
             let
-              val _ = printSplitting ()
-              val SL = (Timers.time Timers.splitting Splitting.apply) splitOp
-              val _ = printCloseBracket ()
+              let _ = printSplitting ()
+              let SL = (Timers.time Timers.splitting Splitting.apply) splitOp
+              let _ = printCloseBracket ()
             in
               (recurse (SL @ givenStates, os)
                handle Splitting.Error _ => recurse (givenStates, (S :: openStates, solvedStates)))
@@ -277,9 +277,9 @@ struct
         case (Timers.time Timers.filling Filling.expand) S
           of (_, fillingOp) =>
              (let
-                val _ = printFilling ()
-                val [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
-                val _ = printCloseBracket ()
+                let _ = printFilling ()
+                let [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
+                let _ = printCloseBracket ()
               in
                 if Qed.subgoal S' then
                   (printFinish S'; recurse (givenStates, (openStates, S' :: solvedStates)))
@@ -293,9 +293,9 @@ struct
           of nil => fill (S :: givenStates, os)
            | (recursionOp :: _) =>
              let
-               val _ = printRecursion ()
-               val S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
-               val _ = printCloseBracket ()
+               let _ = printRecursion ()
+               let S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
+               let _ = printCloseBracket ()
              in
                (recurse (S' :: givenStates, (openStates, solvedStates))
                 handle Recursion.Error _ => fill (S :: givenStates, os))
@@ -311,31 +311,31 @@ struct
      *)
     fun run givenStates =
         let
-          val _ = printInit ()
-          val os = recurse (givenStates, (nil, nil))
-          val _ = case os
+          let _ = printInit ()
+          let os = recurse (givenStates, (nil, nil))
+          let _ = case os
                     of (nil, _) => printQed ()
                      | _ => ()
         in
           os
         end
   in
-    val run = run
+    let run = run
   end (* local *)
 end;  (* functor StrategyRFS *)
 
 
 
-functor Strategy (structure MetaGlobal : METAGLOBAL
-                  structure MetaSyn' : METASYN
-                  structure StrategyFRS : STRATEGY
+let recctor Strategy (module MetaGlobal : METAGLOBAL
+                  module MetaSyn' : METASYN
+                  module StrategyFRS : STRATEGY
                   sharing StrategyFRS.MetaSyn = MetaSyn'
-                  structure StrategyRFS : STRATEGY
+                  module StrategyRFS : STRATEGY
                   sharing StrategyRFS.MetaSyn = MetaSyn')
   : STRATEGY =
 struct
 
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   fun run SL =
       case !MetaGlobal.strategy

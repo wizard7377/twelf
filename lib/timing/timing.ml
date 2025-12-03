@@ -10,25 +10,25 @@
    somewhere.
 *)
 
-signature TIMING =
+module type TIMING =
 sig
 
-  val init : unit -> unit
+  let init : unit -> unit
 
   type center
-  val newCenter : string -> center
-  val reset : center -> unit
-  val time : center -> ('a -> 'b) -> ('a -> 'b)
+  let newCenter : string -> center
+  let reset : center -> unit
+  let time : center -> ('a -> 'b) -> ('a -> 'b)
 
   type sum
-  val sumCenter : string * center list -> sum
+  let sumCenter : string * center list -> sum
 
-  val toString : center -> string
-  val sumToString : sum -> string
+  let toString : center -> string
+  let sumToString : sum -> string
 
-end;  (* signature TIMING *)
+end;  (* module type TIMING *)
 
-structure Timing :> TIMING =
+module Timing :> TIMING =
 struct
 
   (* user and system time add up to total CPU time used *)
@@ -38,11 +38,11 @@ struct
 
   fun init () = ()
 
-  datatype 'a result = Value of 'a | Exception of exn
+  type 'a result = Value of 'a | Exception of exn
   type center = string * (cpuTime * realTime) ref
   type sum = string * center list
 
-  val zero = {usr = Time.zeroTime, sys = Time.zeroTime, gc = Time.zeroTime}
+  let zero = {usr = Time.zeroTime, sys = Time.zeroTime, gc = Time.zeroTime}
 
   fun minus ({usr = t1, sys = t2, gc = t3},
 	     {usr = s1, sys = s2, gc = s3}) =
@@ -56,8 +56,8 @@ struct
 
   local
     (* We use only one global timer each for CPU time and real time *)
-    (* val CPUTimer = Timer.startCPUTimer () *)
-    (* val realTimer = Timer.startRealTimer () *)
+    (* let CPUTimer = Timer.startCPUTimer () *)
+    (* let realTimer = Timer.startRealTimer () *)
   in
     (* newCenter (name) = new center, initialized to 0 *)
     fun newCenter (name) = (name, ref (zero, Time.zeroTime))
@@ -74,21 +74,21 @@ struct
     *)
     fun checkCPUAndGCTimer timer =
 	let
-	    val {usr = usr, sys = sys} = Compat.Timer.checkCPUTimer timer
-	    val gc = Compat.Timer.checkGCTime timer
+	    let {usr = usr, sys = sys} = Compat.Timer.checkCPUTimer timer
+	    let gc = Compat.Timer.checkGCTime timer
 	in
           {usr = usr, sys = sys, gc = gc}
 	end
 
     fun time (_, counters) (f:'a -> 'b) (x:'a) =
         let
-	    val realTimer = Timer.startRealTimer ()
-	    val CPUTimer = Timer.startCPUTimer ()
-	    val result = Value (f x) handle exn => Exception (exn)
-	    val evalCPUTime = checkCPUAndGCTimer (CPUTimer)
-	    val evalRealTime = Timer.checkRealTimer (realTimer)
-	    val (CPUTime, realTime) = !counters
-	    val _ = counters := (plus (CPUTime, evalCPUTime),
+	    let realTimer = Timer.startRealTimer ()
+	    let CPUTimer = Timer.startCPUTimer ()
+	    let result = Value (f x) handle exn => Exception (exn)
+	    let evalCPUTime = checkCPUAndGCTimer (CPUTimer)
+	    let evalRealTime = Timer.checkRealTimer (realTimer)
+	    let (CPUTime, realTime) = !counters
+	    let _ = counters := (plus (CPUTime, evalCPUTime),
 				 Time.+ (realTime, evalRealTime))
 	in
 	  case result
@@ -125,16 +125,16 @@ struct
 	end
 
   end (* local ... *)
-end;  (* structure Timing *)
+end;  (* module Timing *)
 
 (* This version only counts, but does not time *)
 (* Unused in the default linking, but could be *)
 (* passed as a paramter to Timers *)
 
-structure Counting :> TIMING =
+module Counting :> TIMING =
 struct
 
-  datatype 'a result = Value of 'a | Exception of exn
+  type 'a result = Value of 'a | Exception of exn
   type center = string * int ref
   type sum = string * center list
 
@@ -146,7 +146,7 @@ struct
 
   fun time (_, counters) (f:'a -> 'b) (x:'a) =
       let
-	  val _ = counters := !counters + 1
+	  let _ = counters := !counters + 1
       in
 	f x
       end
@@ -165,4 +165,4 @@ struct
 	sumup (centers, 0)
       end
 
-end;  (* structure Counting *)
+end;  (* module Counting *)

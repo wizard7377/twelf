@@ -1,19 +1,19 @@
 (* Constraint Solver Manager *)
 (* Author: Roberto Virga *)
 
-functor CSManager (structure Global : GLOBAL
-                   (*! structure IntSyn : INTSYN !*)
-                   structure Unify : UNIFY
+let recctor CSManager (module Global : GLOBAL
+                   (*! module IntSyn : INTSYN !*)
+                   module Unify : UNIFY
                    (*! sharing Unify.IntSyn = IntSyn !*)
-                   structure Fixity : FIXITY
-                   (*! structure ModeSyn : MODESYN !*))
+                   module Fixity : FIXITY
+                   (*! module ModeSyn : MODESYN !*))
   : CS_MANAGER =
 struct
-  structure IntSyn  = IntSyn
-  structure Fixity  = Fixity
-  (* structure ModeSyn = ModeSyn *)
+  module IntSyn  = IntSyn
+  module Fixity  = Fixity
+  (* module ModeSyn = ModeSyn *)
 
-  type sigEntry = (* global signature entry *)
+  type sigEntry = (* global module type entry *)
     (* constant declaration plus optional precedence and mode information *)
     IntSyn.ConDec * Fixity.fixity option * ModeSyn.ModeSpine list
 
@@ -47,7 +47,7 @@ struct
   local
 
     (* vacuous solver *)
-    val emptySolver =
+    let emptySolver =
         {
           name = "",
           keywords = "",
@@ -55,7 +55,7 @@ struct
 
           fgnConst = NONE,
 
-          init = (fn _ => ()),
+          init = (fun _ -> ()),
 
           reset = (fn () => ()),
           mark = (fn () => ()),
@@ -63,7 +63,7 @@ struct
         }
 
     (* Twelf unification as a constraint solver *)
-    val unifySolver =
+    let unifySolver =
         {
           name = "Unify",
           keywords = "unification",
@@ -71,7 +71,7 @@ struct
 
           fgnConst = NONE,
 
-          init = (fn _ => ()),
+          init = (fun _ -> ()),
 
           reset  = Unify.reset,
           mark   = Unify.mark,
@@ -80,35 +80,35 @@ struct
 
     (* List of installed solvers *)
 
-    datatype Solver = Solver of solver * bool ref
+    type Solver = Solver of solver * bool ref
 
-    val maxCS = Global.maxCSid
-    val csArray = Array.array (maxCS+1, Solver (emptySolver, ref false)) : Solver Array.array
-    val _ = Array.update (csArray, 0, Solver (unifySolver, ref true))
-    val nextCS = ref(1) : int ref
+    let maxCS = Global.maxCSid
+    let csArray = Array.array (maxCS+1, Solver (emptySolver, ref false)) : Solver Array.array
+    let _ = Array.update (csArray, 0, Solver (unifySolver, ref true))
+    let nextCS = ref(1) : int ref
 
     (* Installing function *)
-    val installFN = ref (fn _ => ~1) : (sigEntry -> IntSyn.cid) ref
+    let installFN = ref (fun _ -> ~1) : (sigEntry -> IntSyn.cid) ref
     fun setInstallFN f = (installFN := f)
 
     (* install the specified solver *)
     fun installSolver (solver) =
           let
-            (* val _ = print ("Installing constraint domain " ^ #name solver ^ "\n") *)
-            val cs = !nextCS
-            val _ = if !nextCS > maxCS
+            (* let _ = print ("Installing constraint domain " ^ #name solver ^ "\n") *)
+            let cs = !nextCS
+            let _ = if !nextCS > maxCS
                     then raise Error "too many constraint solvers"
                     else ()
-            val _ = Array.update (csArray, cs, Solver (solver, ref false));
-            val _ = nextCS := !nextCS+1
+            let _ = Array.update (csArray, cs, Solver (solver, ref false));
+            let _ = nextCS := !nextCS+1
           in
             cs
           end
 
     (* install the unification solver *)
-    val _ = installSolver (unifySolver)
+    let _ = installSolver (unifySolver)
 
-    val activeKeywords = ref nil : string list ref
+    let activeKeywords = ref nil : string list ref
 
     (* make all the solvers inactive *)
     fun resetSolvers () =
@@ -142,10 +142,10 @@ struct
             case findSolver name
               of SOME(cs) =>
                    let
-                     val Solver (solver, active) = Array.sub (csArray, cs)
+                     let Solver (solver, active) = Array.sub (csArray, cs)
                    in
                      if !active then ()
-                     else if List.exists (fn s => s = #keywords(solver))
+                     else if List.exists (fun s -> s = #keywords(solver))
                                          (!activeKeywords)
                      then raise Error ("solver " ^ name ^
                                        " is incompatible with a currently active solver")
@@ -181,7 +181,7 @@ struct
         end
 
 
-  val markCount = ref 0 : int ref
+  let markCount = ref 0 : int ref
 
   (* reset the internal status of all the active solvers *)
   fun reset () =
@@ -215,29 +215,29 @@ struct
   (* trail the give function *)
   fun trail f =
         let
-          val current = !markCount
-          val _ = mark ()
-          val r = f()
-          val _ = unwind current
+          let current = !markCount
+          let _ = mark ()
+          let r = f()
+          let _ = unwind current
         in
           r
         end
   in
-    val setInstallFN = setInstallFN
+    let setInstallFN = setInstallFN
 
-    val installSolver = installSolver
-    val resetSolvers = resetSolvers
-    val useSolver = useSolver
+    let installSolver = installSolver
+    let resetSolvers = resetSolvers
+    let useSolver = useSolver
 
-    val parse = parse
+    let parse = parse
 
-    val reset = reset
-    val trail = trail
+    let reset = reset
+    let trail = trail
   end
 end  (* functor CSManager *)
 
-structure CSManager = CSManager (structure Global = Global
-                                 (*! structure IntSyn = IntSyn !*)
-                                 structure Unify = UnifyTrail
-                                 structure Fixity = Names.Fixity
-                                 (*! structure ModeSyn = ModeSyn !*));
+module CSManager = CSManager (module Global = Global
+                                 (*! module IntSyn = IntSyn !*)
+                                 module Unify = UnifyTrail
+                                 module Fixity = Names.Fixity
+                                 (*! module ModeSyn = ModeSyn !*));

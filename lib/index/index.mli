@@ -2,10 +2,10 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-signature INDEX =
+module type INDEX =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
     
   val reset : unit -> unit
   val resetFrom : IntSyn.cid -> unit
@@ -17,4 +17,4 @@ sig
   (* in order of declaration, defined constants are omitted *)
   val lookup : IntSyn.cid -> IntSyn.Head list
 
-end;  (* signature INDEX *)
+end;  (* module type INDEX *)

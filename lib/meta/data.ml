@@ -1,7 +1,7 @@
 (* Meta Global parameters *)
 (* Author: Carsten Schuermann *)
 
-functor MTPData (structure MTPGlobal : MTPGLOBAL) : MTPDATA =
+let recctor MTPData (module MTPGlobal : MTPGLOBAL) : MTPDATA =
 struct
-  val maxFill = ref 0
-end; (* structure MTPData*)
+  let maxFill = ref 0
+end; (* module MTPData*)

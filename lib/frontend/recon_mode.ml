@@ -1,35 +1,35 @@
 (* Reconstructing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-functor ReconMode (structure Global : GLOBAL
-                   (*! structure ModeSyn' : MODESYN !*)
-                   structure Whnf : WHNF
+let recctor ReconMode (module Global : GLOBAL
+                   (*! module ModeSyn' : MODESYN !*)
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = ModeSyn'.IntSyn !*)
-                   (*! structure Paths' : PATHS !*)
-                   structure Names : NAMES
+                   (*! module Paths' : PATHS !*)
+                   module Names : NAMES
                    (*! sharing Names.IntSyn = ModeSyn'.IntSyn !*)
-                   structure ModePrint : MODEPRINT
+                   module ModePrint : MODEPRINT
                    (*! sharing ModePrint.ModeSyn = ModeSyn' !*)
-                   structure ModeDec : MODEDEC
+                   module ModeDec : MODEDEC
 
-                   structure ReconTerm' : RECON_TERM
+                   module ReconTerm' : RECON_TERM
                    (*! sharing ReconTerm'.IntSyn = ModeSyn'.IntSyn !*)
                    (*! sharing ReconTerm'.Paths = Paths' !*)
                        )
   : RECON_MODE =
 struct
-  (*! structure ModeSyn = ModeSyn' !*)
-  structure ExtSyn = ReconTerm'
-  (*! structure Paths = Paths' !*)
+  (*! module ModeSyn = ModeSyn' !*)
+  module ExtSyn = ReconTerm'
+  (*! module Paths = Paths' !*)
 
   exception Error of string
   fun error (r, msg) = raise Error (Paths.wrap (r, msg))
 
   local
-    structure M = ModeSyn
-    structure I = IntSyn
-    structure T = ExtSyn
-    structure P = Paths
+    module M = ModeSyn
+    module I = IntSyn
+    module T = ExtSyn
+    module P = Paths
 
     type mode = M.Mode * P.region
 
@@ -40,7 +40,7 @@ struct
 
     type modedec = (I.cid * M.ModeSpine) * P.region
 
-    structure Short =
+    module Short =
     struct
       type mterm = (I.cid * M.ModeSpine) * P.region
       type mspine = M.ModeSpine * P.region
@@ -49,8 +49,8 @@ struct
       fun mapp (((m, r1), name), (mS, r2)) = (M.Mapp (M.Marg (m, name), mS), P.join (r1, r2))
       fun mroot (ids, id, r1, (mS, r2)) =
           let
-            val r = P.join (r1, r2)
-            val qid = Names.Qid (ids, id)
+            let r = P.join (r1, r2)
+            let qid = Names.Qid (ids, id)
           in
             case Names.constLookup qid
               of NONE => error (r, "Undeclared identifier "
@@ -60,9 +60,9 @@ struct
           end
 
       fun toModedec nmS = nmS
-    end  (* structure Short *)
+    end  (* module Short *)
 
-    structure Full =
+    module Full =
     struct
       type mterm = T.dec I.Ctx * M.Mode I.Ctx
                      -> (I.cid * M.ModeSpine) * P.region
@@ -72,23 +72,23 @@ struct
 
       fun mroot (tm, r) (g, D) =
           let
-            val T.JWithCtx (G, T.JOf ((V, _), _, _)) =
+            let T.JWithCtx (G, T.JOf ((V, _), _, _)) =
                   T.recon (T.jwithctx (g, T.jof (tm, T.typ (r))))
-            val _ = T.checkErrors (r)
+            let _ = T.checkErrors (r)
 
             (* convert term spine to mode spine *)
             (* Each argument must be contractible to variable *)
             fun convertSpine (I.Nil) = M.Mnil
               | convertSpine (I.App (U, S)) =
                 let
-                  val k = Whnf.etaContract U
+                  let k = Whnf.etaContract U
                           handle Whnf.Eta =>
                             error (r, "Argument " ^
                                       (Print.expToString(G, U)) ^
                                       " not a variable")
                                       (* print U? -fp *) (* yes, print U. -gaw *)
-                  val I.Dec (name, _) = I.ctxLookup (G, k)
-                  val mode = I.ctxLookup (D, k)
+                  let I.Dec (name, _) = I.ctxLookup (G, k)
+                  let mode = I.ctxLookup (D, k)
                 in
                   M.Mapp (M.Marg (mode, name), convertSpine S)
                 end
@@ -103,35 +103,35 @@ struct
                   error (r, "Call pattern not an atomic type")
               (* convertExp (I.Root (I.Skonst _, S)) can't occur *)
 
-            val (a, mS) = convertExp (Whnf.normalize (V, I.id))
+            let (a, mS) = convertExp (Whnf.normalize (V, I.id))
           in
             (ModeDec.checkFull (a, mS, r);  ((a, mS), r))
           end
 
       fun toModedec t =
           let
-            val _ = Names.varReset I.Null
-            val t' = t (I.Null, I.Null)
+            let _ = Names.varReset I.Null
+            let t' = t (I.Null, I.Null)
           in
             t'
           end
 
-    end  (* structure Full *)
+    end  (* module Full *)
 
     fun modeToMode (m, r) = (m, r)
 
   in
     type mode = mode
-    val plus = plus
-    val star = star
-    val minus = minus
-    val minus1 = minus1
+    let plus = plus
+    let star = star
+    let minus = minus
+    let minus1 = minus1
 
     type modedec = modedec
 
-    structure Short = Short
-    structure Full = Full
+    module Short = Short
+    module Full = Full
 
-    val modeToMode = modeToMode
+    let modeToMode = modeToMode
   end   (* local ... *)
 end;  (* functor ReconMode *)

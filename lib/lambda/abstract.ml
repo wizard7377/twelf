@@ -2,12 +2,12 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor Abstract ((*! structure IntSyn' : INTSYN !*)
-                  structure Whnf    : WHNF
+let recctor Abstract ((*! module IntSyn' : INTSYN !*)
+                  module Whnf    : WHNF
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
-                  structure Unify   : UNIFY
+                  module Unify   : UNIFY
                   (*! sharing Unify.IntSyn = IntSyn' !*)
-                  structure Constraints : CONSTRAINTS
+                  module Constraints : CONSTRAINTS
                     )
   : ABSTRACT =
 struct
@@ -16,14 +16,14 @@ struct
 
   local
 
-    structure I = IntSyn
-    structure T = Tomega
-    structure C = Constraints
-    structure O = Order
+    module I = IntSyn
+    module T = Tomega
+    module C = Constraints
+    module O = Order
 
     (* Intermediate Data Structure *)
 
-    datatype EFLVar =
+    type EFLVar =
       EV of I.Exp                       (* Y ::= X         for  GX |- X : VX *)
     | FV of string * I.Exp              (*     | (F, V)        if . |- F : V *)
     | LV of I.Block                     (*     | L             if . |- L in W *)
@@ -61,8 +61,8 @@ struct
     *)
     fun checkConstraints (K) =
         let
-          val constraints = collectConstraints K
-          val _ = case constraints
+          let constraints = collectConstraints K
+          let _ = case constraints
                     of nil => ()
                      | _ => raise C.Error (constraints)
         in
@@ -240,9 +240,9 @@ struct
         if exists (eqEVar X) K
           then collectSub(G, s, K)
         else let
-               (* val _ = checkEmpty !cnstrs *)
-               val V' = raiseType (GX, V) (* inefficient *)
-               val K' = collectExp (I.Null, (V', I.id), K)
+               (* let _ = checkEmpty !cnstrs *)
+               let V' = raiseType (GX, V) (* inefficient *)
+               let K' = collectExp (I.Null, (V', I.id), K)
              in
                collectSub(G, s, I.Decl (K', EV (X)))
              end
@@ -327,8 +327,8 @@ struct
     fun collectCtx (G0, I.Null, K) = (G0, K)
       | collectCtx (G0, I.Decl (G, D), K) =
         let
-          val (G0', K') = collectCtx (G0, G, K)
-          val K'' = collectDec (G0', (D, I.id), K')
+          let (G0', K') = collectCtx (G0, G, K)
+          let K'' = collectDec (G0', (D, I.id), K')
         in
           (I.Decl (G0, D), K'')
         end
@@ -340,7 +340,7 @@ struct
     fun collectCtxs (G0, nil, K) = K
       | collectCtxs (G0, G::Gs, K) =
         let
-          val (G0', K') = collectCtx (G0, G, K)
+          let (G0', K') = collectCtx (G0, G, K)
         in
           collectCtxs (G0', Gs, K')
         end
@@ -425,7 +425,7 @@ struct
           I.Root (abstractEVar (K, depth, X),
                   abstractSub (K, depth, s, I.Nil))
       | abstractExpW (K, depth, (I.FgnExp csfe, s)) =
-          I.FgnExpStd.Map.apply csfe (fn U => abstractExp (K, depth, (U, s)))
+          I.FgnExpStd.Map.apply csfe (fun U -> abstractExp (K, depth, (U, s)))
 
     (* abstractExp (K, depth, (U, s)) = U'
 
@@ -524,8 +524,8 @@ struct
     fun abstractCtx (K, depth, I.Null) = (I.Null, depth)
       | abstractCtx (K, depth, I.Decl (G, D)) =
         let
-          val (G', depth') = abstractCtx (K, depth, G)
-          val D' = abstractDec (K, depth', (D, I.id))
+          let (G', depth') = abstractCtx (K, depth, G)
+          let D' = abstractDec (K, depth', (D, I.id))
         in
           (I.Decl (G', D'), depth'+1)
         end
@@ -543,8 +543,8 @@ struct
     fun abstractCtxlist (K, depth, nil) = nil
       | abstractCtxlist (K, depth, G::Gs) =
         let
-          val (G', depth') = abstractCtx (K, depth, G)
-          val Gs' = abstractCtxlist (K, depth', Gs)
+          let (G', depth') = abstractCtx (K, depth, G)
+          let Gs' = abstractCtxlist (K, depth', Gs)
         in
           G'::Gs'
         end
@@ -585,24 +585,24 @@ struct
     fun abstractKPi (I.Null, V) = V
       | abstractKPi (I.Decl (K', EV (I.EVar (_, GX, VX, _))), V) =
         let
-          val V' = raiseType (GX, VX)
-          val V'' = abstractExp (K', 0, (V', I.id))
+          let V' = raiseType (GX, VX)
+          let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
-          val _ = checkType V'' *)
+          let _ = checkType V'' *)
         in
           abstractKPi (K', I.Pi ((I.Dec(NONE, V''), I.Maybe), V))
         end
       | abstractKPi (I.Decl (K', FV (name,V')), V) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
+          let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
-          val _ = checkType V'' *)
+          let _ = checkType V'' *)
         in
           abstractKPi (K', I.Pi ((I.Dec(SOME(name), V''), I.Maybe), V))
         end
       | abstractKPi (I.Decl (K', LV (I.LVar (r, _, (l, t)))), V) =
         let
-          val t' = abstractSOME (K', t)
+          let t' = abstractSOME (K', t)
         in
           abstractKPi (K', I.Pi ((I.BDec (NONE, (l, t')), I.Maybe), V))
         end
@@ -622,7 +622,7 @@ struct
     fun abstractKLam (I.Null, U) = U
       | abstractKLam (I.Decl (K', EV (I.EVar (_, GX, VX, _))), U) =
         let
-          val V' = raiseType (GX, VX)
+          let V' = raiseType (GX, VX)
         in
           abstractKLam (K', I.Lam (I.Dec(NONE, abstractExp (K', 0, (V', I.id))), U))
         end
@@ -633,24 +633,24 @@ struct
     fun abstractKCtx (I.Null) = I.Null
       | abstractKCtx (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
         let
-          val V' = raiseType (GX, VX)
-          val V'' = abstractExp (K', 0, (V', I.id))
+          let V' = raiseType (GX, VX)
+          let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
-          val _ = checkType V'' *)
+          let _ = checkType V'' *)
         in
           I.Decl (abstractKCtx K', I.Dec (NONE, V''))
         end
       | abstractKCtx (I.Decl (K', FV (name, V'))) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
+          let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
-          val _ = checkType V'' *)
+          let _ = checkType V'' *)
         in
           I.Decl (abstractKCtx K', I.Dec (SOME(name), V''))
         end
       | abstractKCtx (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
         let
-          val t' = abstractSOME (K', t)
+          let t' = abstractSOME (K', t)
         in
           I.Decl (abstractKCtx K', I.BDec (NONE, (l, t')))
         end
@@ -669,8 +669,8 @@ struct
     *)
     fun abstractDecImp V =
         let
-          val K = collectExp (I.Null, (V, I.id), I.Null)
-          val _ = checkConstraints (K)
+          let K = collectExp (I.Null, (V, I.id), I.Null)
+          let _ = checkConstraints (K)
         in
           (I.ctxLength K, abstractKPi (K, abstractExp (K, 0, (V, I.id))))
         end
@@ -694,8 +694,8 @@ struct
     *)
     fun abstractDef (U, V) =
         let
-          val K = collectExp (I.Null, (U, I.id), collectExp (I.Null, (V, I.id), I.Null))
-          val _ = checkConstraints K
+          let K = collectExp (I.Null, (U, I.id), collectExp (I.Null, (V, I.id), I.Null))
+          let _ = checkConstraints K
         in
           (I.ctxLength K, (abstractKLam (K, abstractExp (K, 0, (U, I.id))),
                            abstractKPi  (K, abstractExp (K, 0, (V, I.id)))))
@@ -704,10 +704,10 @@ struct
 
     fun abstractSpineExt (S, s) =
         let
-          val K = collectSpine (I.Null, (S, s), I.Null)
-          val _ = checkConstraints (K)
-          val G = abstractKCtx (K)
-          val S = abstractSpine (K, 0, (S, s))
+          let K = collectSpine (I.Null, (S, s), I.Null)
+          let _ = checkConstraints (K)
+          let G = abstractKCtx (K)
+          let S = abstractSpine (K, 0, (S, s))
         in
           (G, S)
         end
@@ -722,8 +722,8 @@ struct
     *)
     fun abstractCtxs (Gs) =
         let
-          val K = collectCtxs (I.Null, Gs, I.Null)
-          val _ = checkConstraints K
+          let K = collectCtxs (I.Null, Gs, I.Null)
+          let _ = checkConstraints K
         in
           (abstractKCtx (K), abstractCtxlist (K, 0, Gs))
         end
@@ -828,9 +828,9 @@ struct
           O.Arg ((abstractExp (K, depth, Us1), I.id),
                  (abstractExp (K, depth, Us2), I.id))
       | abstractOrder (K, depth, O.Simul (Os)) =
-          O.Simul (map (fn O => abstractOrder (K, depth, O)) Os)
+          O.Simul (map (fun O -> abstractOrder (K, depth, O)) Os)
       | abstractOrder (K, depth, O.Lex (Os)) =
-          O.Lex (map (fn O => abstractOrder (K, depth, O)) Os)
+          O.Lex (map (fun O -> abstractOrder (K, depth, O)) Os)
 
     fun abstractTC (K, depth, T.Abs (D, TC)) =
           T.Abs (abstractDec (K, depth, (D, I.id)),
@@ -864,24 +864,24 @@ struct
     fun abstractPsi (I.Null) = I.Null
       | abstractPsi (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
         let
-          val V' = raiseType (GX, VX)
-          val V'' = abstractExp (K', 0, (V', I.id))
+          let V' = raiseType (GX, VX)
+          let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
-          val _ = checkType V'' *)
+          let _ = checkType V'' *)
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (NONE, V'')))
         end
       | abstractPsi (I.Decl (K', FV (name, V'))) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
+          let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
-          val _ = checkType V'' *)
+          let _ = checkType V'' *)
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (SOME(name), V'')))
         end
       | abstractPsi (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
         let
-          val t' = abstractSOME (K', t)
+          let t' = abstractSOME (K', t)
         in
           I.Decl (abstractPsi K', T.UDec (I.BDec (NONE, (l, t'))))
         end
@@ -889,18 +889,18 @@ struct
         (* What's happening with GX? *)
         (* What's happening with TCs? *)
         let
-          val F' = abstractFor (K', 0, T.forSub (FX, T.id))
-          val TC1' = abstractTCOpt (K', 0, TC1)
-          val TC2' = abstractTCOpt (K', 0, TC2)
+          let F' = abstractFor (K', 0, T.forSub (FX, T.id))
+          let TC1' = abstractTCOpt (K', 0, TC1)
+          let TC2' = abstractTCOpt (K', 0, TC2)
         in
           I.Decl (abstractPsi K', T.PDec (NONE, F', TC1, TC2))
         end
 
     fun abstractTomegaSub t =
       let
-        val K = collectTomegaSub t
-        val t' = abstractTomegaSub' (K, 0, t)
-        val Psi = abstractPsi K
+        let K = collectTomegaSub t
+        let t' = abstractTomegaSub' (K, 0, t)
+        let Psi = abstractPsi K
       in
         (Psi, t')
       end
@@ -918,9 +918,9 @@ struct
 
     fun abstractTomegaPrg P =
       let
-        val K = collectPrg (I.Null, P, I.Null)
-        val P' = abstractPrg (K, 0, P)
-        val Psi = abstractPsi K
+        let K = collectPrg (I.Null, P, I.Null)
+        let P' = abstractPrg (K, 0, P)
+        let Psi = abstractPsi K
       in
         (Psi, P')
       end
@@ -933,25 +933,25 @@ struct
 
 
   in
-    val raiseType = raiseType
-    val raiseTerm = raiseTerm
+    let raiseType = raiseType
+    let raiseTerm = raiseTerm
 
-    val piDepend = piDepend
-    val closedDec = closedDec
-    val closedSub = closedSub
-    val closedExp = closedExp
+    let piDepend = piDepend
+    let closedDec = closedDec
+    let closedSub = closedSub
+    let closedExp = closedExp
 
-    val abstractDecImp = abstractDecImp
-    val abstractDef = abstractDef
-    val abstractCtxs = abstractCtxs
-    val abstractTomegaSub = abstractTomegaSub
-    val abstractTomegaPrg = abstractTomegaPrg
-    val abstractSpine = abstractSpineExt
+    let abstractDecImp = abstractDecImp
+    let abstractDef = abstractDef
+    let abstractCtxs = abstractCtxs
+    let abstractTomegaSub = abstractTomegaSub
+    let abstractTomegaPrg = abstractTomegaPrg
+    let abstractSpine = abstractSpineExt
 
-    val collectEVars = collectEVars
-    val collectEVarsSpine = collectEVarsSpine
+    let collectEVars = collectEVars
+    let collectEVarsSpine = collectEVarsSpine
 
-    val closedCtx = closedCtx
-    val closedCTX = closedCTX
+    let closedCtx = closedCtx
+    let closedCTX = closedCTX
   end
 end;  (* functor Abstract *)

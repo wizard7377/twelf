@@ -1,11 +1,11 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-signature INTERACTIVE =
+module type INTERACTIVE =
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  structure State  : STATE
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
+  module State  : STATE
 
   exception Error of string 
   
@@ -19,6 +19,6 @@ sig
 
   val reset  : unit -> unit
 (*  val undo   : unit -> unit *)
-end;  (* signature Interactive *)
+end;  (* module type Interactive *)
 
 

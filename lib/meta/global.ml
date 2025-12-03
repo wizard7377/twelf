@@ -1,13 +1,13 @@
 (* Meta Global parameters *)
 (* Author: Carsten Schuermann *)
 
-functor MTPGlobal
-  (structure MetaGlobal : METAGLOBAL): MTPGLOBAL =
+let recctor MTPGlobal
+  (module MetaGlobal : METAGLOBAL): MTPGLOBAL =
 struct
-  datatype ProverType = New | Old
+  type ProverType = New | Old
 
-  val prover = ref New
-  val maxFill = MetaGlobal.maxFill
-  val maxSplit = MetaGlobal.maxSplit
-  val maxRecurse = MetaGlobal.maxRecurse
-end; (* structure MTPGlobal *)
+  let prover = ref New
+  let maxFill = MetaGlobal.maxFill
+  let maxSplit = MetaGlobal.maxSplit
+  let maxRecurse = MetaGlobal.maxRecurse
+end; (* module MTPGlobal *)

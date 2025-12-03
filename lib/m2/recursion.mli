@@ -1,9 +1,9 @@
 (* Recursion *)
 (* Author: Carsten Schuermann *)
 
-signature RECURSION = 
+module type RECURSION = 
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
 
   exception Error of string
 
@@ -15,4 +15,4 @@ sig
   val apply : operator -> MetaSyn.State
 
   val menu : operator -> string
-end;  (* signature RECURSION *)
+end;  (* module type RECURSION *)

@@ -1,9 +1,9 @@
 (* Basic search engine *)
 (* Author: Carsten Schuermann *)
 
-signature OLDSEARCH = 
+module type OLDSEARCH = 
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
 
   exception Error of string
 
@@ -18,4 +18,4 @@ sig
       * (IntSyn.Exp * IntSyn.Sub)
       * (MetaSyn.State list -> MetaSyn.State list)
       -> MetaSyn.State list
-end;  (* signature SEARCH *)
+end;  (* module type SEARCH *)

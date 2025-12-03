@@ -1,42 +1,42 @@
 (* Solver for a linearly ordered field, based on the simplex method *)
 (* Author: Roberto Virga *)
 
-functor CSIneqField (structure OrderedField : ORDERED_FIELD
-                     (*! structure IntSyn : INTSYN !*)
-                     structure Trail : TRAIL
-                     structure Unify : UNIFY
+let recctor CSIneqField (module OrderedField : ORDERED_FIELD
+                     (*! module IntSyn : INTSYN !*)
+                     module Trail : TRAIL
+                     module Unify : UNIFY
                      (*! sharing Unify.IntSyn = IntSyn !*)
-                     structure SparseArray  : SPARSE_ARRAY
-                     structure SparseArray2 : SPARSE_ARRAY2
-                     (*! structure CSManager : CS_MANAGER !*)
+                     module SparseArray  : SPARSE_ARRAY
+                     module SparseArray2 : SPARSE_ARRAY2
+                     (*! module CSManager : CS_MANAGER !*)
                      (*! sharing CSManager.IntSyn = IntSyn !*)
-                     structure CSEqField : CS_EQ_FIELD
+                     module CSEqField : CS_EQ_FIELD
                        sharing CSEqField.Field = OrderedField
                        (*! sharing CSEqField.IntSyn = IntSyn !*)
                        (*! sharing CSEqField.CSManager = CSManager !*)
-                     structure Compat : COMPAT
+                     module Compat : COMPAT
                          )
  : CS =
 struct
-  (*! structure CSManager = CSManager !*)
+  (*! module CSManager = CSManager !*)
 
   local
     open IntSyn
     open OrderedField
     open CSEqField
 
-    structure FX = CSManager.Fixity
-    structure MS = ModeSyn (* CSManager.ModeSyn *)
+    module FX = CSManager.Fixity
+    module MS = ModeSyn (* CSManager.ModeSyn *)
 
-    structure Array  = SparseArray
-    structure Array2 = SparseArray2
+    module Array  = SparseArray
+    module Array2 = SparseArray2
 
     (* solver ID of this solver *)
-    val myID = ref ~1 : cid ref
+    let myID = ref ~1 : cid ref
 
     (* constant IDs of the declared type constants *)
-    val gtID   = ref ~1 : cid ref
-    val geqID  = ref ~1 : cid ref
+    let gtID   = ref ~1 : cid ref
+    let geqID  = ref ~1 : cid ref
 
     (* constructors for the declared types *)
     fun gt (U, V) = Root (Const (!gtID), App (U, App (V, Nil)))
@@ -47,10 +47,10 @@ struct
     fun geq0 (U) = geq (U, constant (zero))
 
     (* constant IDs of the declared object constants *)
-    val gtAddID  = ref ~1 : cid ref
-    val geqAddID = ref ~1 : cid ref
-    val gtGeqID = ref ~1 : cid ref
-    val geq00ID = ref ~1 : cid ref
+    let gtAddID  = ref ~1 : cid ref
+    let geqAddID = ref ~1 : cid ref
+    let gtGeqID = ref ~1 : cid ref
+    let geq00ID = ref ~1 : cid ref
 
     (* constructors for the declared objects *)
     fun gtAdd (U1, U2, V, W) =
@@ -76,10 +76,10 @@ struct
     (* parsing proof objects d>0 *)
     fun parseGtN string =
           let
-            val suffix   = (">" ^ (toString (zero)))
-            val stringLen  = String.size string
-            val suffixLen = String.size suffix
-            val numLen  = Int.-(stringLen, suffixLen)
+            let suffix   = (">" ^ (toString (zero)))
+            let stringLen  = String.size string
+            let suffixLen = String.size suffix
+            let numLen  = Int.-(stringLen, suffixLen)
           in
             if Int.>(stringLen, suffixLen)
               andalso (String.substring (string, numLen, suffixLen) = suffix)
@@ -92,31 +92,31 @@ struct
               NONE
           end
 
-    datatype Position =                               (* Position of a tableau entry       *)
+    type position =                               (* position of a tableau entry       *)
       Row of int
     | Col of int
 
-    datatype Owner =                                  (* Owner of an entry:                *)
+    type owner =                                  (* owner of an entry:                *)
       Var of IntSyn.dctx * Mon                        (*   - monomial                      *)
-    | Exp of IntSyn.dctx * Sum                        (*   - sum                           *)
+    | Exp of IntSyn.dctx * sum                        (*   - sum                           *)
 
-    datatype Restriction =                            (* Restriction: (proof object)       *)
+    type Restriction =                            (* Restriction: (proof object)       *)
       Restr of IntSyn.dctx * IntSyn.Exp * bool        (*   Restr (G, U, strict)            *)
 
     type label =
-           {owner : Owner,                            (* owner of the row/column (if any)  *)
+           {owner : owner,                            (* owner of the row/column (if any)  *)
             tag   : int ref,                          (* tag: used to keep track of the    *)
                                                       (* position of a tableau entry       *)
             restr : Restriction option ref,           (* restriction (if any)              *)
             dead  : bool ref}                         (* has the row/column already been   *)
                                                       (* solved?                           *)
 
-    datatype Operation =                              (* Undoable operations:              *)
-      Insert of Position                              (* insert a new row/column           *)
+    type Operation =                              (* Undoable operations:              *)
+      Insert of position                              (* insert a new row/column           *)
     | Pivot of int * int                              (* pivot on (i, j)                   *)
-    | Kill of Position                                (* mark the given position solved    *)
-    | Restrict of Position                            (* restrict the given position       *)
-    | UpdateOwner of Position * Owner * int ref       (* change the owner                  *)
+    | Kill of position                                (* mark the given position solved    *)
+    | Restrict of position                            (* restrict the given position       *)
+    | UpdateOwner of position * owner * int ref       (* change the owner                  *)
 
     type tableau =                                    (* Tableau:                          *)
            {rlabels : label Array.array,              (* row labels                        *)
@@ -136,21 +136,21 @@ struct
          const[i] = zero
          coeff[i,j] = zero
        for i >= !nrows or j > !ncols, where "vacuous" is the vacuous label:
-          #owner(vacuous) = Exp (Null, Sum (zero, nil))
+          #owner(vacuous) = Exp (Null, sum (zero, nil))
           #restr(vacuous) = ref NONE
           #dead(vacuous) = ref true
     *)
 
     (* little random generation routine taken from Paulson '91 *)
     local
-      val a = 16807.0 and m = 2147483647.0
-      val seed = ref 1999.0
+      let a = 16807.0 and m = 2147483647.0
+      let seed = ref 1999.0
     in
       fun rand (min, size) =
         let
           fun nextrand ()=
                 let
-                  val t = Real.*(a, !seed)
+                  let t = Real.*(a, !seed)
                 in
                   (
                     seed := Real.-(t, Real.*(m, Real.fromInt(Real.floor(t/m))));
@@ -163,9 +163,9 @@ struct
     end
 
     (* create a new (empty) tableau *)
-    val tableau =
+    let tableau =
           let
-            val l = {owner = Exp (Null, Sum (zero, nil)), tag = ref 0,
+            let l = {owner = Exp (Null, sum (zero, nil)), tag = ref 0,
                      restr = ref NONE, dead = ref true}
           in
             {rlabels = Array.array (l), clabels = Array.array (l),
@@ -198,7 +198,7 @@ struct
     (* increase the number of rows, and return the index of the last row *)
     fun incrNRows () =
           let
-            val old = nRows ()
+            let old = nRows ()
           in
             (#nrows(tableau) := Int.+(old, 1); old)
           end
@@ -206,7 +206,7 @@ struct
     (* increase the number of columns, and return the index of the last column *)
     fun incrNCols () =
           let
-            val old = nCols ()
+            let old = nCols ()
           in
             (#ncols(tableau) := Int.+(old, 1); old)
           end
@@ -270,8 +270,8 @@ struct
     (* set the ownership of the given position *)
     fun setOwnership (pos, owner, tag) =
           let
-            val old = label(pos)
-            val new = {owner = owner,
+            let old = label(pos)
+            let new = {owner = owner,
                        tag = tag,
                        restr = ref (restriction (old)),
                        dead = ref (dead (old))}
@@ -288,7 +288,7 @@ struct
       | ownerContext (Exp (G, sum)) = G
 
     (* return the owner as a sum *)
-    fun ownerSum (Var (G, mon)) = Sum(zero, [mon])
+    fun ownerSum (Var (G, mon)) = sum(zero, [mon])
       | ownerSum (Exp (G, sum)) = sum
 
     (* debugging code - REMOVE *)
@@ -298,13 +298,13 @@ struct
           print ("column " ^ Int.toString(col) ^ "\n")
 
     (* debugging code - REMOVE *)
-    fun displaySum (Sum(m, Mon(n, _) :: monL)) =
+    fun displaySum (sum(m, Mon(n, _) :: monL)) =
           (
             print (OrderedField.toString n);
             print " ? + ";
-            displaySum (Sum(m, monL))
+            displaySum (sum(m, monL))
           )
-      | displaySum (Sum(m, nil)) =
+      | displaySum (sum(m, nil)) =
           (
             print (OrderedField.toString m);
             print " >= 0\n"
@@ -327,7 +327,7 @@ struct
                             print "\t";
                             print (toString d)
                           )
-                    val vec = Array2.row (#coeffs(tableau), row, (0, nCols()))
+                    let vec = Array2.row (#coeffs(tableau), row, (0, nCols()))
                   in
                     (
                       (case (#owner(l)) of Var _ => print "V" | Exp _ => print "E");
@@ -404,13 +404,13 @@ struct
        given row redundant *)
     fun isSubsumed (row) =
           let
-            val constRow = const (row)
+            let constRow = const (row)
 
             fun isSubsumedByRow () =
                   let
                     (* the candidates are those (active) rows with the same constant
                        term *)
-                    val candidates =
+                    let candidates =
                           Array.foldl
                             (fn (i, l : label, rest) =>
                                if (i <> row)
@@ -428,7 +428,7 @@ struct
                           if not (dead (l))
                           then
                              List.filter
-                               (fn i => (coeff (i, j) = coeff (row, j)))
+                               (fun i -> (coeff (i, j) = coeff (row, j)))
                                candidates
                           else
                             candidates
@@ -444,13 +444,13 @@ struct
                   then
                     let
                       (* compute the list of non-null coefficients in the row *)
-                      val nonNull =
+                      let nonNull =
                             Array.foldl
                               (fn (j, l : label, rest) =>
                                  if not (dead (l))
                                  then
                                    let
-                                     val value = coeff (row, j)
+                                     let value = coeff (row, j)
                                    in
                                      if (value <> zero)
                                      then ((j, value) :: rest)
@@ -490,17 +490,17 @@ struct
             (* find the best pivot candidates for the given row *)
             fun findPivotCol (j, l : label, result as (score, champs)) =
                   let
-                    val value = coeff(row, j)
+                    let value = coeff(row, j)
                     (* find the best pivot candidates for the given row and column *)
                     fun findPivotRow sgn (i, l : label, result as (score, champs)) =
                           let
-                            val value = coeff (i, j)
+                            let value = coeff (i, j)
                           in
                             if (not (dead (l))) andalso (i <> row) andalso restricted (l)
                               andalso ((fromInt (sgn) * value) < zero)
                             then
                               let
-                                val score' = SOME(abs (const (i) * inverse (value)))
+                                let score' = SOME(abs (const (i) * inverse (value)))
                               in
                                 case compareScore (score, score')
                                   (* always choose the smallest *)
@@ -516,7 +516,7 @@ struct
                       andalso (not (restricted (l)) orelse (value > zero))
                     then
                       let
-                        val (result' as (score', champs')) =
+                        let (result' as (score', champs')) =
                               Array.foldl (findPivotRow (sign value))
                                                 (NONE, [(row, j)])
                                                 (#rlabels(tableau), 0, nRows ())
@@ -542,20 +542,20 @@ struct
     (* pivot the element at the given coordinates *)
     fun pivot (row, col) =
           let
-            val pCoeffInverse = inverse (coeff (row, col))
+            let pCoeffInverse = inverse (coeff (row, col))
 
-            val pRowVector =
+            let pRowVector =
                   Array2.row (#coeffs(tableau), row, (0, nCols ()))
             fun pRow(j) = Vector.sub (pRowVector, j)
 
-            val pColVector =
+            let pColVector =
                   Array2.column (#coeffs(tableau), col, (0, nRows ()))
             fun pCol(i) = Vector.sub (pColVector, i)
 
-            val pConst = const (row)
+            let pConst = const (row)
 
-            val pRLabel = rlabel (row)
-            val pCLabel = clabel (col)
+            let pRLabel = rlabel (row)
+            let pCLabel = clabel (col)
           in
             (
                Array.modify
@@ -591,7 +591,7 @@ struct
             )
           end
 
-    datatype MaximizeResult =              (* Result of maximization of a row:             *)
+    type MaximizeResult =              (* Result of maximization of a row:             *)
       Positive                             (* manifestly maximized at some value > 0       *)
     | Maximized of number                  (* manifestly maximized at c <= 0               *)
     | Unbounded of int                     (* manifestly unbounded, pivoting on column col *)
@@ -601,7 +601,7 @@ struct
     *)
     fun maximizeRow (row) =
           let
-            val value = const(row)
+            let value = const(row)
           in
             if (value <= zero)
             then
@@ -623,7 +623,7 @@ struct
 
     (* delay all terms of a monomial on the given constraint *)
     fun delayMon (Mon(n, UsL), cnstr) =
-          List.app (fn Us => Unify.delay (Us, cnstr)) UsL
+          List.app (fun Us -> Unify.delay (Us, cnstr)) UsL
 
     (* unify two restrictions *)
     fun unifyRestr (Restr (G, proof, strict), proof') =
@@ -636,22 +636,22 @@ struct
           else raise Error
 
     (* decomposition of an expression as the weighted sum of tableau positions *)
-    type decomp = number * (number * Position) list
+    type decomp = number * (number * position) list
 
     (* change sign to the given decomposition *)
     fun unaryMinusDecomp ((d, wposL)) =
           (~d, List.map (fn (d, pos) => (~d, pos)) wposL)
 
     (* decompose a sum in whnf into a weighted sum of tableau positions *)
-    fun decomposeSum (G, Sum (m, monL)) =
+    fun decomposeSum (G, sum (m, monL)) =
           let
             fun monToWPos (mon as (Mon (n, UsL))) =
                   (case findMon (mon)
                      of SOME(pos) => (n, pos)
                       | NONE =>
                           let
-                            val new = incrNCols()
-                            val l = {owner = Var (G, Mon (one, UsL)),
+                            let new = incrNCols()
+                            let l = {owner = Var (G, Mon (one, UsL)),
                                      tag = ref 0,
                                      restr = ref NONE,
                                      dead = ref false}
@@ -670,7 +670,7 @@ struct
     (* insert the given expression in the tableau, labelling it with owner *)
     and insertDecomp (decomp as (d, wposL), owner) =
           let
-            val new = incrNRows ()
+            let new = incrNRows ()
 
             fun insertWPos (d, pos) =
                   (case pos
@@ -714,7 +714,7 @@ struct
     (* insert the given (unrestricted) expression in the tableau *)
     and insert (G, Us) =
           let
-            val sum = fromExp Us
+            let sum = fromExp Us
           in
             insertDecomp (decomposeSum (G, sum), Exp (G, sum))
           end
@@ -772,7 +772,7 @@ struct
                       case isSubsumed (i)
                         of SOME(pos') =>
                              let
-                               val l' = label(pos')
+                               let l' = label(pos')
                              in
                                (
                                  Trail.log (#trail(tableau), Kill(Row(i)));
@@ -803,7 +803,7 @@ struct
     (* restrict the given row/column to be nonnegative *)
     and restrict (pos as Col(col), restr) =
           let
-            val l = label(pos)
+            let l = label(pos)
           in
             if dead(l)
             then
@@ -815,13 +815,13 @@ struct
                  | NONE =>
                      let
                        (* compute the list of non-null row entries *)
-                       val nonNull =
+                       let nonNull =
                              Array.foldl
                                (fn (i, l : label, rest) =>
                                   if not (dead(l))
                                   then
                                     let
-                                      val value = coeff (i, col)
+                                      let value = coeff (i, col)
                                     in
                                       if (value <> zero) then (i :: rest)
                                       else rest
@@ -853,7 +853,7 @@ struct
           end
       | restrict (pos as Row(row), restr) =
           let
-            val l = label(pos)
+            let l = label(pos)
           in
             if dead(l)
             then
@@ -900,13 +900,13 @@ struct
     *)
     and insertEqual (G, pos, sum) =
           let
-            val (m, wposL) = decomposeSum (G, sum)
+            let (m, wposL) = decomposeSum (G, sum)
 
-            val decomp' = (m, (~one, pos) :: wposL)
-            val pos' = insertDecomp (decomp', Exp (G, Sum(zero, nil)))
+            let decomp' = (m, (~one, pos) :: wposL)
+            let pos' = insertDecomp (decomp', Exp (G, sum(zero, nil)))
 
-            val decomp'' = unaryMinusDecomp (decomp')
-            val tag'' = #tag(label (insertDecomp (decomp'', Exp (G, Sum(zero, nil)))))
+            let decomp'' = unaryMinusDecomp (decomp')
+            let tag'' = #tag(label (insertDecomp (decomp'', Exp (G, sum(zero, nil)))))
           in
             (
                (* the second expression may change position when we
@@ -921,7 +921,7 @@ struct
     (* update the tableau upon discovery that Var(pos) = sum *)
     and update (G, pos, sum) =
           let
-            val l = label (pos)
+            let l = label (pos)
           in
             (
               (* if the given position has a owner, delete it, since not doing so
@@ -948,7 +948,7 @@ struct
                         unifySum (G, sum, zero))
               else
                 let
-                  fun isVar (Sum(m, [mon as Mon(n, _)])) =
+                  fun isVar (sum(m, [mon as Mon(n, _)])) =
                         if (m = zero) andalso (n = one)
                         then SOME(mon)
                         else NONE
@@ -961,7 +961,7 @@ struct
                             of SOME _ => insertEqual (G, pos, sum)
                              | NONE =>
                                 let
-                                  val tag = ref 0
+                                  let tag = ref 0
                                 in
                                   (
                                     (* recycle the current label *)
@@ -979,14 +979,14 @@ struct
     (* returns the list of unsolved constraints associated with the given position *)
     and restrictions (pos) =
           let
-            fun member (x, l) = List.exists (fn y => x = y) l
+            fun member (x, l) = List.exists (fun y -> x = y) l
             fun test (l) = restricted(l) andalso not (dead(l))
             fun reachable ((pos as Row(row)) :: candidates, tried, closure) =
                   if member (pos, tried)
                   then reachable (candidates, tried, closure)
                   else
                     let
-                      val new_candidates =
+                      let new_candidates =
                             Array.foldl
                               (fn (col, _, candidates) =>
                                     if (coeff(row, col) <> zero)
@@ -994,7 +994,7 @@ struct
                                     else candidates)
                               nil
                               (#clabels(tableau), 0, nCols())
-                      val closure' = if test (label(pos)) then (pos :: closure)
+                      let closure' = if test (label(pos)) then (pos :: closure)
                                      else closure
                     in
                       reachable (new_candidates @ candidates,
@@ -1006,7 +1006,7 @@ struct
                   then reachable (candidates, tried, closure)
                   else
                     let
-                      val candidates' =
+                      let candidates' =
                             Array.foldl
                               (fn (row, _, candidates) =>
                                     if (coeff(row, col) <> zero)
@@ -1014,7 +1014,7 @@ struct
                                     else candidates)
                               nil
                               (#rlabels(tableau), 0, nRows())
-                      val closure' = if test (label(pos)) then (pos :: closure)
+                      let closure' = if test (label(pos)) then (pos :: closure)
                                      else closure
                     in
                       reachable (candidates' @ candidates,
@@ -1024,10 +1024,10 @@ struct
               | reachable (nil, _, closure) = closure
             fun restrExp (pos) =
                   let
-                    val l = label(pos)
-                    val owner = #owner(l)
-                    val G = ownerContext (owner)
-                    val U = toExp (ownerSum (owner))
+                    let l = label(pos)
+                    let owner = #owner(l)
+                    let G = ownerContext (owner)
+                    let U = toExp (ownerSum (owner))
                   in
                     (case restriction (label(pos))
                        of SOME(Restr(_, _, true)) => (G, gt0 (U))
@@ -1054,9 +1054,9 @@ struct
             (case findTag (tag)
                of SOME(pos) =>
                     let
-                      val owner = #owner(label (pos))
-                      val G = ownerContext(owner)
-                      val sum = normalize (ownerSum (owner))
+                      let owner = #owner(label (pos))
+                      let G = ownerContext(owner)
+                      let sum = normalize (ownerSum (owner))
                     in
                       (update (G, pos, sum) ; true)
                     end
@@ -1096,21 +1096,21 @@ struct
     (* reset the internal status of the tableau *)
     fun reset () =
           let
-            val l = {owner = Exp (Null, Sum(zero, nil)), tag = ref 0,
+            let l = {owner = Exp (Null, sum(zero, nil)), tag = ref 0,
                      restr = ref NONE, dead = ref true}
           in
             (
                Array.modify
-                 (fn _ => l)
+                 (fun _ -> l)
                  (#rlabels(tableau), 0, nRows());
                Array.modify
-                 (fn _ => l)
+                 (fun _ -> l)
                  (#clabels(tableau), 0, nCols());
                Array.modify
-                 (fn _ => zero)
+                 (fun _ -> zero)
                  (#consts(tableau), 0, nRows());
                Array2.modify
-                 Array2.RowMajor (fn _ => zero)
+                 Array2.RowMajor (fun _ -> zero)
                  {base = #coeffs(tableau), row = 0, col = 0,
                   nrows = nRows(), ncols = nCols()};
                #nrows(tableau) := 0; #ncols(tableau) := 0;
@@ -1136,7 +1136,7 @@ struct
     (* checks if the given foreign term can be simplified to a constant *)
     fun isConstantExp (U) =
           (case (fromExp (U, id))
-             of (Sum (m, nil)) => SOME(m)
+             of (sum (m, nil)) => SOME(m)
               | _ => NONE)
 
     (* checks if the given foreign term can be simplified to zero *)
@@ -1154,23 +1154,23 @@ struct
                           if (d > zero) then gtNExp (d) else raise Error
                       | NONE =>
                           let
-                            val proof = newEVar (G, gt0 (W))
-                            val _ = restrict (insert (G, (W, id)),
+                            let proof = newEVar (G, gt0 (W))
+                            let _ = restrict (insert (G, (W, id)),
                                               Restr (G, gtGeq (W, constant (zero), proof), true));
                           in
                             proof
                           end)
 
-            val U1 = EClo (fst (S, id))
-            val U2 = EClo (snd (S, id))
+            let U1 = EClo (fst (S, id))
+            let U2 = EClo (snd (S, id))
           in
             (
               if isZeroExp (U2)
               then SOME(solveGt0 (U1))
               else
                 let
-                  val W = minus (U1, U2)
-                  val proof = solveGt0 (W)
+                  let W = minus (U1, U2)
+                  let proof = solveGt0 (W)
                 in
                   SOME(gtAdd (W, constant (zero), U2, proof))
                 end
@@ -1187,23 +1187,23 @@ struct
                           if (d >= zero) then geqN0 (d) else raise Error
                       | NONE =>
                           let
-                            val proof = newEVar (G, geq0 (W))
-                            val _ = restrict (insert (G, (W, id)),
+                            let proof = newEVar (G, geq0 (W))
+                            let _ = restrict (insert (G, (W, id)),
                                        Restr (G, proof, false))
                           in
                             proof
                           end)
 
-            val U1 = EClo (fst (S, id))
-            val U2 = EClo (snd (S, id))
+            let U1 = EClo (fst (S, id))
+            let U2 = EClo (snd (S, id))
           in
             (
               if isZeroExp (U2)
               then SOME(solveGeq0 (U1))
               else
                 let
-                  val W = minus (U1, U2)
-                  val proof = solveGeq0 (W)
+                  let W = minus (U1, U2)
+                  let proof = solveGeq0 (W)
                 in
                   SOME(geqAdd (W, constant (zero), U2, proof))
                 end
@@ -1216,21 +1216,21 @@ struct
     fun arrow (U, V) = Pi ((Dec (NONE, U), No), V)
 
     fun installFgnCnstrOps () = let
-        val csid = !myID
-        val _ = FgnCnstrStd.ToInternal.install (csid,
+        let csid = !myID
+        let _ = FgnCnstrStd.ToInternal.install (csid,
                                                 (fn (MyFgnCnstrRep tag) => toInternal (tag)
                                                   | fc => raise UnexpectedFgnCnstr fc))
-        val _ = FgnCnstrStd.Awake.install (csid,
+        let _ = FgnCnstrStd.Awake.install (csid,
                                            (fn (MyFgnCnstrRep tag) => awake (tag)
                                              | fc => raise UnexpectedFgnCnstr fc))
-        val _ = FgnCnstrStd.Simplify.install (csid,
+        let _ = FgnCnstrStd.Simplify.install (csid,
                                               (fn (MyFgnCnstrRep tag) => simplify (tag)
                                                 | fc => raise UnexpectedFgnCnstr fc))
     in
         ()
     end
 
-    (* install the signature *)
+    (* install the module type *)
     fun init (cs, installF) =
           (
             myID := cs;
@@ -1301,7 +1301,7 @@ struct
             ()
           )
   in
-    val solver =
+    let solver =
           {
             name = ("inequality/" ^ OrderedField.name ^ "s"),
             keywords = "arithmetic,inequality",

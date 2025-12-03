@@ -1,25 +1,25 @@
 (* Parsing Signature Entries *)
 (* Author: Frank Pfenning *)
 
-functor ParseConDec
-  ((*! structure Parsing' : PARSING !*)
-   structure ExtConDec' : EXTCONDEC
-   structure ParseTerm : PARSE_TERM
+let recctor ParseConDec
+  ((*! module Parsing' : PARSING !*)
+   module ExtConDec' : EXTCONDEC
+   module ParseTerm : PARSE_TERM
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ExtConDec'.ExtSyn)
      : PARSE_CONDEC =
 struct
-  (*! structure Parsing = Parsing' !*)
-  structure ExtConDec = ExtConDec'
+  (*! module Parsing = Parsing' !*)
+  module ExtConDec = ExtConDec'
 
   local
-    structure L = Lexer
-    structure LS = Lexer.Stream
+    module L = Lexer
+    module LS = Lexer.Stream
 
     (* parseConDec3  "U" *)
     fun parseConDec3 (optName, optTm, s) =
         let
-          val (tm', f') = ParseTerm.parseTerm' (LS.expose s)
+          let (tm', f') = ParseTerm.parseTerm' (LS.expose s)
         in
           (ExtConDec.condef (optName, tm', optTm), f')
         end
@@ -51,14 +51,14 @@ struct
 
     fun parseSome (name, LS.Cons ((L.ID (_, "some"), r), s')) =
         let
-          val (g1, f') = ParseTerm.parseCtx' (LS.expose s')
-          val (g2, f'') = parseBlock f'
+          let (g1, f') = ParseTerm.parseCtx' (LS.expose s')
+          let (g2, f'') = parseBlock f'
         in
           (ExtConDec.blockdec (name, g1, g2), f'')
         end
       | parseSome (name, f as LS.Cons ((L.ID (_, "block"), r), s')) =
         let
-          val (g2, f') = parseBlock f
+          let (g2, f') = parseBlock f
         in
           (ExtConDec.blockdec (name, nil, g2), f')
         end
@@ -68,7 +68,7 @@ struct
     fun parseBlockDec1 (name, LS.Cons ((L.COLON, r), s')) =
           parseSome (name, LS.expose s')
       | parseBlockDec1 (name, LS.Cons ((L.EQUAL, r), s')) =
-          let val (g, f) = ParseTerm.parseQualIds' (LS.expose s')
+          let let (g, f) = ParseTerm.parseQualIds' (LS.expose s')
           in (ExtConDec.blockdef (name, g), f)
           end
       | parseBlockDec1 (name, LS.Cons ((t, r), s')) =
@@ -99,9 +99,9 @@ struct
     fun parseClause' (LS.Cons ((L.CLAUSE, r), s)) = parseConDec (s) (* -fp *)
 
   in
-    val parseConDec' = parseConDec'
-    val parseAbbrev' = parseAbbrev'
-    val parseClause' = parseClause'
+    let parseConDec' = parseConDec'
+    let parseAbbrev' = parseAbbrev'
+    let parseClause' = parseClause'
   end  (* local ... in *)
 
 end;  (* functor ParseConDec *)

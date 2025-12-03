@@ -1,34 +1,34 @@
 (* Meta Printer Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor MTPrint (structure Global : GLOBAL
-                 (*! structure IntSyn : INTSYN !*)
-                 (*! structure FunSyn : FUNSYN !*)
+let recctor MTPrint (module Global : GLOBAL
+                 (*! module IntSyn : INTSYN !*)
+                 (*! module FunSyn : FUNSYN !*)
                  (*! sharing FunSyn.IntSyn = IntSyn !*)
-                 structure Names : NAMES
+                 module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn !*)
-                 structure StateSyn' : STATESYN
+                 module StateSyn' : STATESYN
                  (*! sharing StateSyn'.FunSyn = FunSyn !*)
                    (*! sharing StateSyn'.IntSyn = IntSyn !*)
-                 structure Formatter' : FORMATTER
-                 structure Print : PRINT
+                 module Formatter' : FORMATTER
+                 module Print : PRINT
                    sharing Print.Formatter = Formatter'
                    (*! sharing Print.IntSyn = IntSyn !*)
-                 structure FunPrint : FUNPRINT
+                 module FunPrint : FUNPRINT
                  (*! sharing FunPrint.FunSyn = FunSyn !*)
                    sharing FunPrint.Formatter = Formatter')
   : MTPRINT =
 struct
-  structure Formatter = Formatter'
-  structure StateSyn = StateSyn'
+  module Formatter = Formatter'
+  module StateSyn = StateSyn'
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure N = Names
-    structure S = StateSyn
-    structure Fmt = Formatter
+    module I = IntSyn
+    module N = Names
+    module S = StateSyn
+    module Fmt = Formatter
 
 
     (* nameState S = S'
@@ -40,8 +40,8 @@ struct
     *)
     fun nameState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
         let
-          val _ = Names.varReset I.Null
-          val G' = Names.ctxName G
+          let _ = Names.varReset I.Null
+          let G' = Names.ctxName G
         in
           S.State (n, (G', B), (IH, OH), d, O, H, F)
         end
@@ -125,8 +125,8 @@ struct
 
 
   in
-    val nameState = nameState
-    val formatState = formatState
-    val stateToString = stateToString
+    let nameState = nameState
+    let formatState = formatState
+    let stateToString = stateToString
   end (* local *)
 end (* functor MTPrint *)

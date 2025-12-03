@@ -2,53 +2,53 @@
 (* Author: Carsten Schuermann *)
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
-functor Recursion (structure Global : GLOBAL
-                   structure MetaSyn' : METASYN
-                   structure Whnf : WHNF
+let recctor Recursion (module Global : GLOBAL
+                   module MetaSyn' : METASYN
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Unify : UNIFY
+                   module Unify : UNIFY
                    (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Conv : CONV
+                   module Conv : CONV
                    (*! sharing Conv.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Names : NAMES
+                   module Names : NAMES
                    (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Subordinate : SUBORDINATE
+                   module Subordinate : SUBORDINATE
                    (*! sharing Subordinate.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Print : PRINT
+                   module Print : PRINT
                    (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Order : ORDER
+                   module Order : ORDER
                    (*! sharing Order.IntSyn = MetaSyn'.IntSyn !*)
-                   structure ModeTable : MODETABLE
+                   module ModeTable : MODETABLE
                    (*! sharing ModeSyn.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Lemma : LEMMA
+                   module Lemma : LEMMA
                    sharing Lemma.MetaSyn = MetaSyn'
-                   structure Filling : FILLING
+                   module Filling : FILLING
                    sharing Filling.MetaSyn = MetaSyn'
-                   structure MetaPrint : METAPRINT
+                   module MetaPrint : METAPRINT
                    sharing MetaPrint.MetaSyn = MetaSyn'
-                   structure MetaAbstract : METAABSTRACT
+                   module MetaAbstract : METAABSTRACT
                    sharing MetaAbstract.MetaSyn = MetaSyn'
-                   structure Formatter : FORMATTER
-                   (*! structure CSManager : CS_MANAGER !*)
+                   module Formatter : FORMATTER
+                   (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = MetaSyn'.IntSyn !*)
 )  : RECURSION =
 struct
 
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   exception Error of string
 
   type operator = MetaSyn.State
 
   local
-    structure M = MetaSyn
-    structure I = IntSyn
-    structure O = Order
-    structure N = Names
-    structure F = Formatter
+    module M = MetaSyn
+    module I = IntSyn
+    module O = Order
+    module N = Names
+    module F = Formatter
 
 
-    datatype Quantifier =                     (* Quantifier to mark parameters *)
+    type Quantifier =                     (* Quantifier to mark parameters *)
       Universal                               (* Q ::= Uni                     *)
     | Existential                             (*     | Ex                      *)
 
@@ -86,7 +86,7 @@ struct
     *)
     fun vector (c, (S, s)) =
         let
-          val Vid = (I.constType c, I.id)
+          let Vid = (I.constType c, I.id)
           fun select' (n, (Ss', Vs'')) =
                 select'W (n, (Ss', Whnf.whnf Vs''))
           and select'W (1, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V''), _), _), s''))) =
@@ -114,8 +114,8 @@ struct
           fun set_parameter' (0, ops') =  ops'
             | set_parameter' (k', ops') =
                 let
-                  val D' as I.Dec (_, V') = I.ctxDec (G, k')
-                  val ops'' =
+                  let D' as I.Dec (_, V') = I.ctxDec (G, k')
+                  let ops'' =
                     CSManager.trail (fn () =>
                                  if Unify.unifiable (G, (V, I.id), (V', I.id))
                                    andalso Unify.unifiable (G, (X, I.id), (I.Root (I.BVar k', I.Nil), I.id))
@@ -184,7 +184,7 @@ struct
       | ltW (G, k, (Us, Vs), ((I.Root (I.BVar n, S'), s'), Vs'), sc, ops) =
           if n <= k then  (* n must be a local variable *)
             let
-              val I.Dec (_, V') = I.ctxDec (G, n)
+              let I.Dec (_, V') = I.ctxDec (G, n)
             in
               ltSpine (G, k, (Us, Vs), ((S', s'), (V', I.id)), sc, ops)
             end
@@ -194,8 +194,8 @@ struct
                                         (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, ops) =
         if Subordinate.equiv (I.targetFam V, I.targetFam V1') (* == I.targetFam V2' *) then
           let  (* enforce that X gets only bound to parameters *)
-            val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-            val sc' = fn ops' => set_parameter (G, X, k, sc, ops')
+            let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+            let sc' = fn ops' => set_parameter (G, X, k, sc, ops')
           in
             lt (G, k, ((U, s1), (V, s2)),
                 ((U', I.Dot (I.Exp (X), s1')),
@@ -204,7 +204,7 @@ struct
         else
           if Subordinate.below (I.targetFam V1', I.targetFam V) then
             let
-              val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+              let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
             in
               lt (G, k, ((U, s1), (V, s2)),
                   ((U', I.Dot (I.Exp (X), s1')),
@@ -220,7 +220,7 @@ struct
       | ltSpineW (G, k, (Us, Vs), ((I.App (U', S'), s1'),
                                    (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, ops) =
         let
-          val ops' = le (G, k, (Us, Vs), ((U', s1'), (V1', s2')), sc, ops)
+          let ops' = le (G, k, (Us, Vs), ((U', s1'), (V1', s2')), sc, ops)
         in
           ltSpine (G, k, (Us, Vs), ((S', s1'),
                                  (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, ops')
@@ -268,7 +268,7 @@ struct
 
     and le (G, k, (Us, Vs), (Us', Vs'), sc, ops) =
         let
-          val ops' = eq (G, (Us, Vs), (Us', Vs'), sc, ops)
+          let ops' = eq (G, (Us, Vs), (Us', Vs'), sc, ops)
         in
           leW (G, k, (Us, Vs), Whnf.whnfEta (Us', Vs'), sc, ops')
         end
@@ -277,8 +277,8 @@ struct
                                         (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, ops) =
         if Subordinate.equiv (I.targetFam V, I.targetFam V1') (* == I.targetFam V2' *) then
           let
-            val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-            val sc' = fn ops' => set_parameter (G, X, k, sc, ops')
+            let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+            let sc' = fn ops' => set_parameter (G, X, k, sc, ops')
           (* enforces that X can only bound to parameter *)
           in
             le (G, k, ((U, s1), (V, s2)),
@@ -288,7 +288,7 @@ struct
         else
           if Subordinate.below  (I.targetFam V1', I.targetFam V) then
             let
-              val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+              let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
             in
               le (G, k, ((U, s1), (V, s2)),
                   ((U', I.Dot (I.Exp (X), s1')),
@@ -328,7 +328,7 @@ struct
     and ordltLex (G, nil, nil, sc, ops) = ops
       | ordltLex (G, O :: L, O' :: L', sc, ops) =
         let
-          val ops' = CSManager.trail (fn () => ordlt (G, O, O', sc, ops))
+          let ops' = CSManager.trail (fn () => ordlt (G, O, O', sc, ops))
         in
           ordeq (G, O, O', fn ops'' =>  ordltLex (G, L, L', sc, ops''), ops')
         end
@@ -347,7 +347,7 @@ struct
     and ordltSimul (G, nil, nil, sc, ops) = ops
       | ordltSimul (G, O :: L, O' :: L', sc, ops) =
         let
-          val ops'' = CSManager.trail (fn () => ordlt (G, O, O',
+          let ops'' = CSManager.trail (fn () => ordlt (G, O, O',
                         fn ops' => ordleSimul (G, L, L', sc, ops'), ops))
         in
           ordeq (G, O, O', fn ops' => ordltSimul (G, L, L', sc, ops'), ops'')
@@ -413,7 +413,7 @@ struct
     *)
     and ordle (G, O, O', sc, ops) =
         let
-          val ops' = CSManager.trail (fn () => ordeq (G, O, O', sc, ops))
+          let ops' = CSManager.trail (fn () => ordeq (G, O, O', sc, ops))
         in
           ordlt (G, O, O', sc, ops')
         end
@@ -431,15 +431,15 @@ struct
           (M.Prefix (I.Null, I.Null, I.Null), I.id)
       | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
         let
-          val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
+          let (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s')
         end
       | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
         let
-          val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
-          val X  = I.newEVar (G', I.EClo (V, s'))
+          let (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
+          let X  = I.newEVar (G', I.EClo (V, s'))
         in
           (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'))
         end
@@ -488,9 +488,9 @@ struct
     *)
     fun lemma (S, t, ops) =
         let
-          val M.State (name, GM, V) = Lemma.apply (S, t)
-          val (M.Prefix (G', M', B'), s') = createEVars GM
-          val (G'', ((I.Root (I.Const a1, S1), s1),
+          let M.State (name, GM, V) = Lemma.apply (S, t)
+          let (M.Prefix (G', M', B'), s') = createEVars GM
+          let (G'', ((I.Root (I.Const a1, S1), s1),
                      (I.Root (I.Const a2, S2), s2))) = select (G', (V, s'))
         in
           (G'', vector (a1, (S1, s1)), vector (a2, (S2, s2)),
@@ -622,7 +622,7 @@ struct
           fun fillOps' nil = nil
             | fillOps' (O :: _) = (Filling.apply O)
 
-          val (fillop, _) = Filling.expand S'
+          let (fillop, _) = Filling.expand S'
         in
           (fillOps' fillop) @ (fillOps ops)
         end
@@ -645,9 +645,9 @@ struct
         (f P) handle Order.Error s => raise Error s
 
   in
-    val expandLazy = handleExceptions expandLazy
-    val expandEager = handleExceptions expandEager
-    val apply = apply
-    val menu = menu
+    let expandLazy = handleExceptions expandLazy
+    let expandEager = handleExceptions expandEager
+    let apply = apply
+    let menu = menu
   end (* local *)
 end; (* functor Recursion *)

@@ -1,36 +1,36 @@
 (* Indexing for table *)
 (* Author: Brigitte Pientka *)
 
-functor TableIndex (structure Global : GLOBAL
-                    structure Queue : QUEUE
-                    (*! structure IntSyn' : INTSYN !*)
-                    (*! structure CompSyn': COMPSYN !*)
+let recctor TableIndex (module Global : GLOBAL
+                    module Queue : QUEUE
+                    (*! module IntSyn' : INTSYN !*)
+                    (*! module CompSyn': COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                    structure Subordinate : SUBORDINATE
+                    module Subordinate : SUBORDINATE
                     (*! sharing Subordinate.IntSyn = IntSyn'                   !*)
-                    structure Conv: CONV
+                    module Conv: CONV
                     (*! sharing Conv.IntSyn = IntSyn' !*)
-                    structure Unify : UNIFY
+                    module Unify : UNIFY
                     (*! sharing Unify.IntSyn = IntSyn' !*)
-                    structure AbstractTabled : ABSTRACTTABLED
+                    module AbstractTabled : ABSTRACTTABLED
                     (*! sharing AbstractTabled.IntSyn = IntSyn' !*)
-                    structure Whnf : WHNF
+                    module Whnf : WHNF
                     (*! sharing Whnf.IntSyn = IntSyn' !*)
-                    structure Print : PRINT
+                    module Print : PRINT
                     (*! sharing Print.IntSyn = IntSyn' !*)
-                    structure CPrint : CPRINT
+                    module CPrint : CPRINT
                     (*! sharing CPrint.IntSyn = IntSyn' !*)
                     (*! sharing CPrint.CompSyn = CompSyn' !*)
-                    structure Names : NAMES
+                    module Names : NAMES
                     (*! sharing Names.IntSyn = IntSyn' !*)
-                    structure TypeCheck : TYPECHECK
+                    module TypeCheck : TYPECHECK
                     (*! sharing TypeCheck.IntSyn = IntSyn' !*)
                  )
   : TABLEINDEX =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure CompSyn = CompSyn' !*)
-  structure Conv = Conv
+  (*! module IntSyn = IntSyn' !*)
+  (*! module CompSyn = CompSyn' !*)
+  module Conv = Conv
 
 
   (* TABLE
@@ -61,43 +61,43 @@ struct
 
   type index = entry list
 
-  datatype answState = New | Repeated
+  type answState = New | Repeated
 
-  datatype Strategy = Variant | Subsumption
+  type Strategy = Variant | Subsumption
 
-  val added = ref false;
+  let added = ref false;
 
   (* ---------------------------------------------------------------------- *)
   (* global search parameters *)
 
-  val strategy  = ref Variant (* Subsumption *) (* Variant *)
+  let strategy  = ref Variant (* Subsumption *) (* Variant *)
 
   (* term abstraction after term depth is greater than 5 *)
-  val termDepth = ref NONE : int option ref;
-  val ctxDepth = ref NONE : int option ref;
-  val ctxLength = ref NONE : int option ref;
+  let termDepth = ref NONE : int option ref;
+  let ctxDepth = ref NONE : int option ref;
+  let ctxLength = ref NONE : int option ref;
 
-(*   val termDepth = ref (!globalTermDepth); *)
-(*   val ctxDepth = ref (!globalCtxDepth);   *)
-(*   val ctxLength = ref (!globalCtxLength); *)
+(*   let termDepth = ref (!globalTermDepth); *)
+(*   let ctxDepth = ref (!globalCtxDepth);   *)
+(*   let ctxLength = ref (!globalCtxLength); *)
 
   (* apply strengthening during abstraction *)
-  val strengthen = AbstractTabled.strengthen ;
+  let strengthen = AbstractTabled.strengthen ;
 
   (* original query *)
-  val query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.Exp * IntSyn.Sub * (CompSyn.pskeleton -> unit))
+  let query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.Exp * IntSyn.Sub * (CompSyn.pskeleton -> unit))
                 option ref = ref NONE
 
   (* ---------------------------------------------------------------------- *)
 
   local
-    structure I = IntSyn
-    structure C = CompSyn
-    structure A = AbstractTabled
+    module I = IntSyn
+    module C = CompSyn
+    module A = AbstractTabled
 
     (* Global Table *)
 
-    val table : index ref = ref []
+    let table : index ref = ref []
 
     (* concat(Gdp, G) = G''
      *
@@ -220,8 +220,8 @@ struct
 
     and countDecl (ctrType, ctrLength, I.Pi((D, _), V)) =
          let
-           val ctrType' = countDec(0, D)
-(*         val _ = print ("\n ctrType' = " ^ Int.toString ctrType')  *)
+           let ctrType' = countDec(0, D)
+(*         let _ = print ("\n ctrType' = " ^ Int.toString ctrType')  *)
          in
            if ctrType' > ctrType then
              countDecl (ctrType', ctrLength + 1, V)
@@ -230,10 +230,10 @@ struct
          end
       | countDecl(ctrType, ctrLength, U) =
          let
-           val ctrTerm = count (0, U)
-(*         val _ = print ("\n 1 ctrTerm = " ^ Int.toString ctrTerm)
-           val _ = print ("\n 1 ctxLength = " ^ Int.toString ctrLength)
-           val _ = print ("\n 1 ctxDepth = " ^ Int.toString ctrType)
+           let ctrTerm = count (0, U)
+(*         let _ = print ("\n 1 ctrTerm = " ^ Int.toString ctrTerm)
+           let _ = print ("\n 1 ctxLength = " ^ Int.toString ctrLength)
+           let _ = print ("\n 1 ctxDepth = " ^ Int.toString ctrType)
 *)
          in
            exceedsCtxDepth(ctrType) orelse
@@ -247,10 +247,10 @@ struct
     and count (ctr, (U as I.Uni (L))) = ctr
       | count (ctr, I.Pi((D, _), V)) =
           let
-            val ctrTerm = count (ctr, V)
-            val ctrType = countDec (ctr, D)
-(*         val _ = print ("\n ctrTerm = " ^ Int.toString ctrTerm)
-           val _ = print ("\n ctrType = " ^ Int.toString ctrType)
+            let ctrTerm = count (ctr, V)
+            let ctrType = countDec (ctr, D)
+(*         let _ = print ("\n ctrTerm = " ^ Int.toString ctrTerm)
+           let _ = print ("\n ctrType = " ^ Int.toString ctrType)
 *)
 
           in
@@ -258,9 +258,9 @@ struct
           end
       | count (ctr, I.Root (F, S)) =
          let
-           val ctrDepth = countSpine (1, S)
-(*         val _ = print ("\n spineDepth = " ^ Int.toString ctrDepth)
-           val _ = print ("\n RootF = " ^ Int.toString(ctrDepth + ctr))
+           let ctrDepth = countSpine (1, S)
+(*         let _ = print ("\n spineDepth = " ^ Int.toString ctrDepth)
+           let _ = print ("\n RootF = " ^ Int.toString(ctrDepth + ctr))
 *)
          in
            (ctrDepth + 1 + ctr)
@@ -268,10 +268,10 @@ struct
          end
       | count (ctr, I.Redex (U, S)) =
          let
-           val ctrDepth = count (0, U)
-           val ctrDepth' =  countSpine (ctrDepth, S)
-(*         val _ = print ("\n SpindeDepth = " ^ Int.toString ctrDepth)
-           val _ = print ("\n Redex = " ^ Int.toString(max(ctrDepth',ctrDepth) + ctr))*)
+           let ctrDepth = count (0, U)
+           let ctrDepth' =  countSpine (ctrDepth, S)
+(*         let _ = print ("\n SpindeDepth = " ^ Int.toString ctrDepth)
+           let _ = print ("\n Redex = " ^ Int.toString(max(ctrDepth',ctrDepth) + ctr))*)
 
          in
            (max(ctrDepth',ctrDepth) + ctr)
@@ -294,7 +294,7 @@ struct
          countSpine (ctr, S)
       | countSpine (ctrDepth, I.App (U, S)) =
          let
-           val ctrDepth' = count (0, U)
+           let ctrDepth' = count (0, U)
          in
            countSpine (max(ctrDepth', ctrDepth), S)
       end
@@ -311,7 +311,7 @@ struct
    fun reinstSub (G, I.Null, s) = s
       | reinstSub (G, I.Decl(D, I.Dec(_,A)), s) =
       let
-        val X = I.newEVar (I.Null, A)
+        let X = I.newEVar (I.Null, A)
       in
         I.Dot(I.Exp(X), reinstSub (G, D, s))
 
@@ -336,9 +336,9 @@ struct
      *)
     fun subsumes ((G, D, U), (G', D', U')) =
       let
-        val Upi = A.raiseType (G, U)
-        val Upi' = A.raiseType (G', U')
-        val s' = reinstSub (G', D', I.id)
+        let Upi = A.raiseType (G, U)
+        let Upi' = A.raiseType (G', U')
+        let s' = reinstSub (G', D', I.id)
       in
         CSManager.trail (fn () =>
                          Unify.unifiable (D, (Upi', s'), (Upi, I.id)))
@@ -388,7 +388,7 @@ struct
 
     fun callCheckVariant (G, D, U) =
       let
-        val Upi = A.raiseType(concat(G, D), U)
+        let Upi = A.raiseType(concat(G, D), U)
         fun lookup ((G, D, U), []) =
           (table := ((ref 1, G, D, U), {solutions = [],lookup = 0})::(!table);
            (if (!Global.chatter) >= 5 then
@@ -502,9 +502,9 @@ struct
      *)
     fun answCheckVariant (G, D, U, s, O) =
       let
-        val Upi = A.raiseType(concat(G, D), U)
+        let Upi = A.raiseType(concat(G, D), U)
 
-        val _ = if (!Global.chatter) >= 5 then
+        let _ = if (!Global.chatter) >= 5 then
                   (print "\n AnswCheckInsert: ";
                    print (Print.expToString(I.Null,
                                             I.EClo(A.raiseType(G, U),s)) ^ "\n");
@@ -524,7 +524,7 @@ struct
                       (A.raiseType(concat(G', D'), U'), I.id))
             then
               let
-                val (Dk, sk) = A.abstractAnswSub s
+                let (Dk, sk) = A.abstractAnswSub s
               in
                 (* answer check *)
                 if member ((Dk, sk), S) then
@@ -569,13 +569,13 @@ struct
     fun memberSubsumes ((G, D, U, s), (G', U', [])) = false
       | memberSubsumes ((G, D, U, s), (G', U', (((D1, s1), _)::A))) =
         let
-          val Upi = A.raiseType(G, U)
-          val Upi' = A.raiseType(G',U')
-          val s1' = reinstSub (G', D1, I.id)
-          val Vpis = (I.EClo(Upi', s1), s1')
+          let Upi = A.raiseType(G, U)
+          let Upi' = A.raiseType(G',U')
+          let s1' = reinstSub (G', D1, I.id)
+          let Vpis = (I.EClo(Upi', s1), s1')
 
           (* assume G' and G are the same for now *)
-          val b = CSManager.trail (fn () =>
+          let b = CSManager.trail (fn () =>
                                    Unify.unifiable (D, (Upi, s), (Vpis)))
         in
           if b then
@@ -594,8 +594,8 @@ struct
 
    fun answCheckSubsumes (G, D, U, s, O) =
       let
-        val Upi = A.raiseType(G, U)
-        val _ = if (!Global.chatter) >= 4 then
+        let Upi = A.raiseType(G, U)
+        let _ = if (!Global.chatter) >= 4 then
                     (print ("\n AnswCheckInsert (subsumes): " );
                      print(Print.expToString(I.Null, I.EClo(Upi, s))
                        ^ "\n"))
@@ -609,14 +609,14 @@ struct
           | lookup ((G, D, U, s), (((k, G', D', U'), {solutions = A, lookup = i})::T), T') =
           if (subsumes ((G, D, U), (G', D', U'))) then
             let
-              val (Dk, sk) = A.abstractAnswSub s
+              let (Dk, sk) = A.abstractAnswSub s
              in
                if memberSubsumes ((G, Dk, U, sk), (G', U', A)) then
                  Repeated
                else
                  let
-                   val s' = reinstSub (G', D', I.id)
-                   val _ = if (!Global.chatter) >= 4 then
+                   let s' = reinstSub (G', D', I.id)
+                   let _ = if (!Global.chatter) >= 4 then
                             (print "\n new answer to be added to Index \n";
                              print (Print.expToString(I.Null,
                                                     A.raiseType(concat(G', D'), U')) ^"\n");
@@ -626,7 +626,7 @@ struct
                            else
                              ()
                    (*  higher-order matching *)
-                   val _ = if (Unify.unifiable (Dk, (A.raiseType(G, U), sk),
+                   let _ = if (Unify.unifiable (Dk, (A.raiseType(G, U), sk),
                                                (A.raiseType(G', U'), s')))
                              then (if (!Global.chatter) >= 4 then
                                      (print "\n1 unification successful !\n";
@@ -636,8 +636,8 @@ struct
                                    else
                                      ())
                            else print "\n1 unification failed! -- should never happen ?"
-                   val (Dk', sk') = A.abstractAnsw (Dk, s')
-                   val rs = reinstSub (G', Dk', I.id) (* reinstantiate us' *)
+                   let (Dk', sk') = A.abstractAnsw (Dk, s')
+                   let rs = reinstSub (G', Dk', I.id) (* reinstantiate us' *)
                 in
                   (case !query of
                     NONE => () (* nothing to do *)
@@ -657,7 +657,7 @@ struct
                                                   (I.EClo(A.raiseType(G', U'), sk'), rs))
                                 then
                                   let
-                                    val w = if (!strengthen)
+                                    let w = if (!strengthen)
                                               then
                                                 Subordinate.weaken (I.Null, IntSyn.targetFam(I.EClo(U1, s1)))
                                             else
@@ -734,7 +734,7 @@ struct
             fun update [] T Flag = (Flag, T)
               | update (((k, G, D, U), {solutions = S, lookup = i})::T) T' Flag =
               let
-                val l = length(S)
+                let l = length(S)
               in
                 if (l = i) then
                   (* no new solutions were added in the previous stage *)
@@ -743,8 +743,8 @@ struct
                   (* new solutions were added *)
                   update T (((k, G, D, U), {solutions = S, lookup = List.length(S)})::T') true
               end
-            val (Flag, T) = update (!table) [] false
-            val r = Flag orelse (!added)
+            let (Flag, T) = update (!table) [] false
+            let r = Flag orelse (!added)
           in
             added := false;
             table := rev(T);
@@ -755,24 +755,24 @@ struct
 
   in
 
-(*  val termDepth = termDepth
-    val ctxDepth = ctxDepth
-    val ctxLength = ctxLength
+(*  let termDepth = termDepth
+    let ctxDepth = ctxDepth
+    let ctxLength = ctxLength
 *)
-    val table = table
-    val solutions = solutions
-    val lookup = lookup
-    val noAnswers = noAnswers
+    let table = table
+    let solutions = solutions
+    let lookup = lookup
+    let noAnswers = noAnswers
 
-    val reset = reset
+    let reset = reset
 
-    val printTable = printTable
-    val printTableEntries = printTableEntries
+    let printTable = printTable
+    let printTableEntries = printTableEntries
 
-    val callCheck = callCheck
-    val answerCheck = answCheck
+    let callCheck = callCheck
+    let answerCheck = answCheck
 
-    val updateTable = updateTable
+    let updateTable = updateTable
 
 
   end (* local *)

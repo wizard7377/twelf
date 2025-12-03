@@ -2,25 +2,25 @@
 (* Author: Frank Pfenning *)
 (* Modified: Brigitte Pientka *)
 
-functor Lexer (structure Stream' : STREAM
-               (*! structure Paths' : PATHS !*)
+let recctor Lexer (module Stream' : STREAM
+               (*! module Paths' : PATHS !*)
                  )
   : LEXER =
 struct
 
-  structure Stream = Stream'
-  (*! structure Paths = Paths' !*)
+  module Stream = Stream'
+  (*! module Paths = Paths' !*)
 
   local
-    structure P = Paths
+    module P = Paths
   in
 
-  datatype IdCase =
+  type IdCase =
       Upper                             (* [A-Z]<id> or _<id> *)
     | Lower                             (* any other <id> *)
     | Quoted                            (* '<id>', currently unused *)
 
-  datatype Token =
+  type Token =
       EOF                               (* end of file or stream, also `%.' *)
     | DOT                               (* `.' *)
     | PATHSEP                           (* `.' between <id>s *)
@@ -77,7 +77,7 @@ struct
   (* isSym (c) = B iff c is a legal symbolic identifier constituent *)
   (* excludes quote character and digits, which are treated specially *)
   (* Char.contains stages its computation *)
-  val isSym : char -> bool = Char.contains "_!&$^+/<=>?@~|#*`;,-\\"
+  let isSym : char -> bool = Char.contains "_!&$^+/<=>?@~|#*`;,-\\"
 
   (* isUFT8 (c) = assume that if a character is not ASCII it must be
      part of a UTF8 Unicode encoding.  Treat these as lowercase
@@ -113,13 +113,13 @@ struct
   fun lex (inputFun:int -> string) =
   let
     local (* local state maintained by the lexer *)
-      val s = ref ""                    (* current string (line) *)
+      let s = ref ""                    (* current string (line) *)
       and left = ref 0                  (* position of first character in s *)
       and right = ref 0                 (* position after last character in s *)
-      val _ = P.resetLines ()           (* initialize line counter *)
+      let _ = P.resetLines ()           (* initialize line counter *)
 
       (* neither lexer nor parser should ever try to look beyond EOF *)
-      val EOFString = String.str #"\^D"
+      let EOFString = String.str #"\^D"
 
       (* readNext () = ()
          Effect: read the next line, updating s, left, and right
@@ -129,8 +129,8 @@ struct
       *)
       fun readNext () =
           let
-            val nextLine = inputFun (!right)
-            val nextSize = String.size (nextLine)
+            let nextLine = inputFun (!right)
+            let nextSize = String.size (nextLine)
           in
             if nextSize = 0             (* end of file? *)
               then (s := EOFString;     (* fake EOF character string *)
@@ -333,10 +333,10 @@ struct
     lexContinue (0)
   end  (* fun lex (inputFun) = let ... in ... end *)
 
-  fun lexStream (instream) = lex (fn i => Compat.inputLine97 (instream))
+  fun lexStream (instream) = lex (fun i -> Compat.inputLine97 (instream))
 
   fun lexTerminal (prompt0, prompt1) =
-        lex (fn 0 => (print (prompt0) ;
+        lex (fun 0 -> (print (prompt0) ;
                       Compat.inputLine97 (TextIO.stdIn))
               | i => (print (prompt1) ;
                       Compat.inputLine97 (TextIO.stdIn)))
@@ -403,7 +403,7 @@ struct
  (* charToNat(c) = n converts character c to decimal equivalent *)
  (* raises NotDigit(c) if c is not a digit 0-9 *)
  fun charToNat (c) =
-     let val digit = Char.ord(c) - Char.ord(#"0")
+     let let digit = Char.ord(c) - Char.ord(#"0")
      in
        if digit < 0 orelse digit > 9
          then raise NotDigit (c)
@@ -413,7 +413,7 @@ struct
  (* stringToNat(s) = n converts string s to a natural number *)
  (* raises NotDigit(c) if s contains character c which is not a digit *)
  fun stringToNat (s) =
-     let val l = String.size s
+     let let l = String.size s
          fun stn (i, n) =
              if i = l then n
              else stn (i+1, 10 * n + charToNat (String.sub (s, i)))
@@ -426,7 +426,7 @@ struct
   *)
   fun isUpper ("") = false
     | isUpper (s) =
-      let val c = String.sub (s, 0)
+      let let c = String.sub (s, 0)
        in
          Char.isUpper c orelse c = #"_"
       end
@@ -435,7 +435,7 @@ struct
 
 end;  (* functor Lexer *)
 
-structure Lexer =
-  Lexer (structure Stream' = Stream
-         (*! structure Paths' = Paths !*)
+module Lexer =
+  Lexer (module Stream' = Stream
+         (*! module Paths' = Paths !*)
            );

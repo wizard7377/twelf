@@ -1,24 +1,24 @@
-functor Traverse
-  ((*! structure IntSyn' : INTSYN !*)
-   structure Whnf : WHNF
+let recctor Traverse
+  ((*! module IntSyn' : INTSYN !*)
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Traverser' : TRAVERSER)
+   module Traverser' : TRAVERSER)
   : TRAVERSE
   (* shares types from Traverser' *)
 =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  structure Traverser = Traverser'
+  (*! module IntSyn = IntSyn' !*)
+  module Traverser = Traverser'
 
   exception Error of string
 
 local
 
-  structure I = IntSyn
-  structure T = Traverser
+  module I = IntSyn
+  module T = Traverser
 
   (* from typecheck.fun *)
 
@@ -33,7 +33,7 @@ local
   *)
   fun inferConW (G, I.BVar (k')) =
       let
-        val I.Dec (_,V) = I.ctxDec (G, k')
+        let I.Dec (_,V) = I.ctxDec (G, k')
       in
         Whnf.whnf (V, I.id)
       end
@@ -44,14 +44,14 @@ local
   fun fromHead (G, I.BVar(n)) = T.bvar (Names.bvarName (G, n))
     | fromHead (G, I.Const(cid)) =
       let
-        val Names.Qid (ids, id) = Names.constQid (cid)
+        let Names.Qid (ids, id) = Names.constQid (cid)
       in
         T.const (ids, id)
       end
     (* | fromHead (G, I.Skonst (cid)) = T.skonst (Names.constName (cid)) *)
     | fromHead (G, I.Def (cid)) =
       let
-        val Names.Qid (ids, id) = Names.constQid (cid)
+        let Names.Qid (ids, id) = Names.constQid (cid)
       in
         T.def (ids, id)
       end
@@ -80,7 +80,7 @@ local
                  fromTp (I.Decl (G, I.decSub (D, s)), (V2, I.dot1 s)))
     | fromTpW (G, (I.Pi ((D, I.Maybe), V2), s)) =
       let
-        val D' = Names.decUName (G, D)
+        let D' = Names.decUName (G, D)
       in
         T.pi (fromDec (G, (D', s)),
               fromTp (I.Decl (G, I.decSub (D', s)), (V2, I.dot1 s)))
@@ -95,7 +95,7 @@ local
                 fromTp (G, (V, t)))
     | fromObjW (G, (I.Lam (D, U), s), (I.Pi (_, V), t)) =
       let
-        val D' = Names.decUName (G, D)
+        let D' = Names.decUName (G, D)
       in
         T.lam (fromDec (G, (D', s)),
                fromObj (I.Decl (G, I.decSub (D', s)),
@@ -135,17 +135,17 @@ local
 
 in
 
-  val fromConDec = fromConDec
+  let fromConDec = fromConDec
 
   fun const (name) =
-      let val qid = case Names.stringToQid name
+      let let qid = case Names.stringToQid name
                       of NONE => raise Error ("Malformed qualified identifier " ^ name)
                        | SOME qid => qid
-          val cidOpt = Names.constLookup qid
+          let cidOpt = Names.constLookup qid
           fun getConDec (NONE) = raise Error ("Undeclared identifier " ^ Names.qidToString qid)
             | getConDec (SOME cid) = IntSyn.sgnLookup cid
-          val conDec = getConDec cidOpt
-          val _ = Names.varReset IntSyn.Null
+          let conDec = getConDec cidOpt
+          let _ = Names.varReset IntSyn.Null
           fun result (NONE) = raise Error ("Wrong kind of declaration")
             | result (SOME(r)) = r
       in

@@ -1,9 +1,9 @@
 (* Splitting *)
 (* Author: Carsten Schuermann *)
 
-signature SPLITTING = 
+module type SPLITTING = 
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
 
   exception Error of string
 
@@ -15,4 +15,4 @@ sig
   val var : operator -> int
   val menu : operator -> string
   val index : operator -> int
-end;  (* signature SPLITTING *)
+end;  (* module type SPLITTING *)

@@ -2,5 +2,5 @@
    exnHistory function.
 *)
 
-structure UnknownExn =
-  UnknownExn (val exnHistory = fn exn => nil);
+module UnknownExn =
+  UnknownExn (let exnHistory = fun exn -> nil);

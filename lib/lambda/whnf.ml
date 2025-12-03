@@ -2,11 +2,11 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor Whnf ((*! structure IntSyn' : INTSYN !*)
+let recctor Whnf ((*! module IntSyn' : INTSYN !*)
                )
   : WHNF =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   (*
      Weak Head-Normal Form (whnf)
@@ -102,7 +102,7 @@ struct
     fun dotEta (Ft as Idx _, s) = Dot (Ft, s)
       | dotEta (Ft as Exp (U), s) =
         let
-          val Ft' = Idx (etaContract (U, id, 0))
+          let Ft' = Idx (etaContract (U, id, 0))
                    handle Eta => Ft
         in
           Dot (Ft', s)
@@ -163,22 +163,22 @@ struct
     (* lowerEVar' (G, V[s]) = (X', U), see lowerEVar *)
     and lowerEVar' (G, (Pi ((D',_), V'), s')) =
         let
-          val D'' = decSub (D', s')
-          val (X', U) = lowerEVar' (Decl (G, D''), whnfExpandDef (V', dot1 s'))
+          let D'' = decSub (D', s')
+          let (X', U) = lowerEVar' (Decl (G, D''), whnfExpandDef (V', dot1 s'))
         in
           (X', Lam (D'', U))
         end
       | lowerEVar' (G, Vs') =
         let
-          val X' = newEVar (G, EClo Vs')
+          let X' = newEVar (G, EClo Vs')
         in
           (X', X')
         end
     (* lowerEVar1 (X, V[s]), V[s] in whnf, see lowerEVar *)
     and lowerEVar1 (EVar (r, G, _, _), Vs as (Pi _, _)) =
         let
-          val (X', U) = lowerEVar' (G, Vs)
-          val _ = r := SOME (U)
+          let (X', U) = lowerEVar' (G, Vs)
+          let _ = r := SOME (U)
         in
           X'
         end
@@ -288,7 +288,7 @@ struct
       | whnf (EClo (U, s'), s) = whnf (U, comp (s', s))
       | whnf (Us as (FgnExp _, Shift (0))) = Us
       | whnf (Us as (FgnExp csfe , s)) =
-          (FgnExpStd.Map.apply csfe (fn U => EClo (U, s)), id)
+          (FgnExpStd.Map.apply csfe (fun U -> EClo (U, s)), id)
 
     (* expandDef (Root (Def (d), S), s) = (U' ,s')
 
@@ -312,7 +312,7 @@ struct
 
     fun newLoweredEVarW (G, (Pi ((D, _), V), s)) =
         let
-          val D' = decSub (D, s)
+          let D' = decSub (D, s)
         in
           Lam (D', newLoweredEVar (Decl (G, D'), (V, dot1 s)))
         end
@@ -322,7 +322,7 @@ struct
 
     fun newSpineVarW (G, (Pi ((Dec (_, Va), _), Vr), s)) =
         let
-          val X = newLoweredEVar (G, (Va, s))
+          let X = newLoweredEVar (G, (Va, s))
         in
           App (X, newSpineVar (G, (Vr, dotEta (Exp (X), s))))
         end
@@ -430,7 +430,7 @@ struct
           Lam (normalizeDec (D, s), normalizeExp (U, dot1 s))
       | normalizeExpW (Us as (EVar _, s)) = EClo Us
       | normalizeExpW (FgnExp csfe , s) =
-          FgnExpStd.Map.apply csfe (fn U => normalizeExp (U, s))
+          FgnExpStd.Map.apply csfe (fun U -> normalizeExp (U, s))
       | normalizeExpW (Us as (AVar(ref (SOME(U))) ,s)) =
           normalizeExpW (U,s)
       | normalizeExpW (Us as (AVar _  ,s)) = (print "Normalize  AVAR\n"; raise Error "")
@@ -503,7 +503,7 @@ struct
     fun strengthen (Shift n (* = 0 *), Null) = Null
       | strengthen (Dot (Idx k (* k = 1 *), t), Decl (G, D)) =
         let
-          val t' = comp (t, invShift)
+          let t' = comp (t, invShift)
         in
           (* G |- D dec *)
           (* G' |- t' : G *)
@@ -582,7 +582,7 @@ struct
         (* false *)
       (* below does not work, because the patSub is lost *)
       (*
-          let val (U', s') = whnf (U, id)
+          let let (U', s') = whnf (U, id)
           in
             isPatSub (Dot (Idx (etaContract (U', s', 0)), s))
             handle Eta => false
@@ -602,21 +602,21 @@ struct
     fun mkPatSub (s as Shift(k)) = s
       | mkPatSub (Dot (Idx (n), s)) =
         let
-          val s' = mkPatSub s
+          let s' = mkPatSub s
           fun checkBVar (Shift(k)) = (n <= k)
             | checkBVar (Dot (Idx (n'), s')) =
               n <> n' andalso checkBVar (s')
             | checkBVar (Dot (Undef, s')) =
                     checkBVar (s')
-          val _ = checkBVar s'
+          let _ = checkBVar s'
         in
           Dot (Idx (n), s')
         end
       | mkPatSub (Dot (Undef, s)) = Dot (Undef, mkPatSub s)
       | mkPatSub (Dot (Exp (U), s)) =
         let
-          val (U', t') = whnf (U, id)
-          val k = (etaContract (U', t', 0)) (* may raise Eta *)
+          let (U', t') = whnf (U, id)
+          let k = (etaContract (U', t', 0)) (* may raise Eta *)
         in
           Dot (Idx (k), mkPatSub s)
         end
@@ -625,33 +625,33 @@ struct
     fun makePatSub (s) = SOME (mkPatSub (s)) handle Eta => NONE
 
   in
-    val isPatSub = isPatSub
-    val makePatSub = makePatSub
-    val dotEta = dotEta
+    let isPatSub = isPatSub
+    let makePatSub = makePatSub
+    let dotEta = dotEta
     exception Eta = Eta
-    val etaContract = (fn U => etaContract (U, id, 0))
+    let etaContract = (fun U -> etaContract (U, id, 0))
 
-    val whnf = whnf
+    let whnf = whnf
 
-    val expandDef = expandDef
-    val whnfExpandDef = whnfExpandDef
-    val etaExpandRoot = etaExpandRoot
-    val whnfEta = whnfEta
-    val lowerEVar = lowerEVar
+    let expandDef = expandDef
+    let whnfExpandDef = whnfExpandDef
+    let etaExpandRoot = etaExpandRoot
+    let whnfEta = whnfEta
+    let lowerEVar = lowerEVar
 
-    val newLoweredEVar = newLoweredEVar
-    val newSpineVar = newSpineVar
-    val spineToSub = spineToSub
+    let newLoweredEVar = newLoweredEVar
+    let newSpineVar = newSpineVar
+    let spineToSub = spineToSub
 
-    val normalize = normalizeExp
-    val normalizeDec = normalizeDec
-    val normalizeCtx = normalizeCtx
+    let normalize = normalizeExp
+    let normalizeDec = normalizeDec
+    let normalizeCtx = normalizeCtx
 
-    val invert = invert
-    val strengthen = strengthen
-    val isId = isId
+    let invert = invert
+    let strengthen = strengthen
+    let isId = isId
 
-    val cloInv = cloInv
-    val compInv = compInv
+    let cloInv = cloInv
+    let compInv = compInv
   end
 end;  (* functor Whnf *)

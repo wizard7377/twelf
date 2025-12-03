@@ -2,13 +2,13 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor Unify ((*! structure IntSyn' : INTSYN !*)
-               structure Whnf    : WHNF
+let recctor Unify ((*! module IntSyn' : INTSYN !*)
+               module Whnf    : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
-               structure Trail   : TRAIL)
+               module Trail   : TRAIL)
   : UNIFY =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Unify of string
   exception NotInvertible
@@ -16,16 +16,16 @@ struct
   local
     open IntSyn
 
-    datatype Action =
+    type Action =
       Instantiate of Exp option ref
     | InstantiateBlock of Block option ref
     | Add of cnstr list ref
     | Solve of cnstr * Cnstr
 
-    datatype CAction =
+    type CAction =
       BindCnstr of Cnstr ref * Cnstr
 
-    datatype FAction =
+    type FAction =
       BindExp of Exp option ref * Exp option
     | BindBlock of Block option ref * Block option
     | BindAdd of cnstr list ref * CAction list
@@ -33,7 +33,7 @@ struct
 
     type unifTrail = FAction Trail.trail
 
-    val globalTrail = Trail.trail () : Action Trail.trail
+    let globalTrail = Trail.trail () : Action Trail.trail
 
     fun copyCnstr [] = []
       | copyCnstr (refC :: clist) =
@@ -118,7 +118,7 @@ struct
       | delayExpW ((EVar (G, r, V, cnstrs), s), cnstr) =
           addConstraint(cnstrs, cnstr)
       | delayExpW ((FgnExp csfe, s), cnstr) = (* s = id *)
-          FgnExpStd.App.apply csfe (fn U => delayExp ((U, s), cnstr))
+          FgnExpStd.App.apply csfe (fun U -> delayExp ((U, s), cnstr))
       (* no other cases by invariant *)
 
     (* delayExp ((U, s), cnstr) = ()
@@ -157,7 +157,7 @@ struct
           delayExp ((V, s), cnstr)
 
     local
-      val awakenCnstrs = ref nil : cnstr list ref
+      let awakenCnstrs = ref nil : cnstr list ref
     in
       fun resetAwakenCnstrs () = (awakenCnstrs := nil)
 
@@ -251,7 +251,7 @@ struct
           if (rOccur = r) then raise NotInvertible
           else if Whnf.isPatSub (s) then
                let
-                 val w = weakenSub (G, s, ss)
+                 let w = weakenSub (G, s, ss)
                in
                  if Whnf.isId w
                    then EClo (X, comp (s, ss))
@@ -261,7 +261,7 @@ struct
                  (* invertExp may raise NotInvertible *)
                  EClo (X, invertSub (G, s, ss, rOccur))
       | invertExpW (G, (FgnExp csfe, s), ss, rOccur) =
-          FgnExpStd.Map.apply csfe (fn U => invertExp (G, (U, s), ss, rOccur))
+          FgnExpStd.Map.apply csfe (fun U -> invertExp (G, (U, s), ss, rOccur))
 
       (* other cases impossible since (U,s1) whnf *)
     and invertDec (G, (Dec (name, V), s), ss, rOccur) =
@@ -323,8 +323,8 @@ struct
     and invertCtx (Shift n, Null, rOccur) = Null
       | invertCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
         let
-          val t' = comp (t, invShift)
-          val D' = invertDec (G, (D, id), t', rOccur)
+          let t' = comp (t, invShift)
+          let D' = invertDec (G, (D, id), t', rOccur)
         in
           Decl (invertCtx (t', G, rOccur), D')
         end
@@ -362,22 +362,22 @@ struct
           if (rOccur = r) then raise Unify "Variable occurrence"
           else if Whnf.isPatSub (s) then
                let
-                 val w = weakenSub (G, s, ss)
+                 let w = weakenSub (G, s, ss)
                in
                  if Whnf.isId w
                    then EClo (X, comp (s, ss))
                  else
                    let
-                     val wi = Whnf.invert w
-                     (* val V' = EClo (V, wi) *)
-                     val V' = pruneExp (GX, (V, id), wi, rOccur)
-                     (* val GY = Whnf.strengthen (wi, GX) *)
-                     val GY = pruneCtx (wi, GX, rOccur)
+                     let wi = Whnf.invert w
+                     (* let V' = EClo (V, wi) *)
+                     let V' = pruneExp (GX, (V, id), wi, rOccur)
+                     (* let GY = Whnf.strengthen (wi, GX) *)
+                     let GY = pruneCtx (wi, GX, rOccur)
                      (* shortcut on GY possible by invariant on GX and V[s]? -fp *)
                      (* could optimize by checking for identity subst *)
-                     val Y = newEVar (GY, V')
-                     val Yw = EClo (Y, w)
-                     val _ = instantiateEVar (r, Yw, !cnstrs)
+                     let Y = newEVar (GY, V')
+                     let Yw = EClo (Y, w)
+                     let _ = instantiateEVar (r, Yw, !cnstrs)
                    in
                      EClo (Yw, comp (s, ss))
                    end
@@ -387,13 +387,13 @@ struct
                    EClo (X, invertSub (G, s, ss, rOccur))
                    handle NotInvertible =>
                      let
-                         (* val GY = Whnf.strengthen (ss, G) *)
+                         (* let GY = Whnf.strengthen (ss, G) *)
                          (* shortcuts possible by invariants on G? *)
-                         val GY = pruneCtx (ss, G, rOccur) (* prune or invert??? *)
-                         (* val V' = EClo (V, comp (s, ss)) *)
-                         val V' = pruneExp (G, (V, s), ss, rOccur) (* prune or invert??? *)
-                         val Y = newEVar (GY, V')
-                         val _ = addConstraint (cnstrs, ref (Eqn (G, EClo (X, s),
+                         let GY = pruneCtx (ss, G, rOccur) (* prune or invert??? *)
+                         (* let V' = EClo (V, comp (s, ss)) *)
+                         let V' = pruneExp (G, (V, s), ss, rOccur) (* prune or invert??? *)
+                         let Y = newEVar (GY, V')
+                         let _ = addConstraint (cnstrs, ref (Eqn (G, EClo (X, s),
                                                                      EClo (Y, Whnf.invert ss))))
                      in
                        Y
@@ -401,7 +401,7 @@ struct
                  )
 
       | pruneExpW (G, (FgnExp csfe, s), ss, rOccur) =
-          FgnExpStd.Map.apply csfe (fn U => pruneExp (G, (U, s), ss, rOccur))
+          FgnExpStd.Map.apply csfe (fun U -> pruneExp (G, (U, s), ss, rOccur))
       | pruneExpW (G, ((X as AVar _), s), ss, rOccur) =
         (* this case should never happen! *)
           raise Unify "Left-over AVar"
@@ -467,8 +467,8 @@ struct
     and pruneCtx (Shift n, Null, rOccur) = Null
       | pruneCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
         let
-          val t' = comp (t, invShift)
-          val D' = pruneDec (G, (D, id), t', rOccur)
+          let t' = comp (t, invShift)
+          let D' = pruneDec (G, (D, id), t', rOccur)
         in
           Decl (pruneCtx (t', G, rOccur), D')
         end
@@ -501,7 +501,7 @@ struct
                   let
                     fun execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
-                            val W' = pruneExp (G, (W, id), ss, r)
+                            let W' = pruneExp (G, (W, id), ss, r)
                           in
                             instantiateEVar (r, W', !cnstrs)
                           end
@@ -518,7 +518,7 @@ struct
                   let
                     fun execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
-                            val W' = pruneExp (G, (W, id), ss, r)
+                            let W' = pruneExp (G, (W, id), ss, r)
                           in
                             instantiateEVar (r, W', !cnstrs)
                           end
@@ -623,7 +623,7 @@ struct
             if Whnf.isPatSub(s1) then
               if Whnf.isPatSub(s2) then
                 let
-                  val s' = intersection (s1,s2) (* compute ss' directly? *)
+                  let s' = intersection (s1,s2) (* compute ss' directly? *)
                 in
                   (* without the next optimization, bugs/hangs/sources.cfg
                      would gets into an apparent infinite loop
@@ -631,9 +631,9 @@ struct
                   *)
                   if Whnf.isId s' (* added for definitions Mon Sep  1 19:53:13 2003 -fp *)
                     then () (* X[s] = X[s] *)
-                  else let val ss' = Whnf.invert s'
-                           val V1' = EClo (V1, ss')  (* invertExp ((V1, id), s', ref NONE) *)
-                           val G1' = Whnf.strengthen (ss', G1)
+                  else let let ss' = Whnf.invert s'
+                           let V1' = EClo (V1, ss')  (* invertExp ((V1, id), s', ref NONE) *)
+                           let G1' = Whnf.strengthen (ss', G1)
                        in
                          instantiateEVar (r1, EClo (newEVar (G1', V1'), s'), !cnstrs1)
                        end
@@ -643,8 +643,8 @@ struct
           else
             if Whnf.isPatSub(s1) then
               let
-                val ss1 = Whnf.invert s1
-                val U2' = pruneExp (G, Us2, ss1, r1)
+                let ss1 = Whnf.invert s1
+                let U2' = pruneExp (G, Us2, ss1, r1)
               in
                 (* instantiateEVar (r1, EClo (U2, comp(s2, ss1)), !cnstrs1) *)
                 (* invertExpW (Us2, s1, ref NONE) *)
@@ -652,8 +652,8 @@ struct
               end
             else if Whnf.isPatSub(s2) then
               let
-                val ss2 = Whnf.invert s2
-                val U1' = pruneExp (G, Us1, ss2, r2)
+                let ss2 = Whnf.invert s2
+                let U1' = pruneExp (G, Us1, ss2, r2)
               in
                 (* instantiateEVar (r2, EClo (U1, comp(s1, ss2)), !cnstr2) *)
                 (* invertExpW (Us1, s2, ref NONE) *)
@@ -661,15 +661,15 @@ struct
               end
             else
               let
-                val cnstr = ref (Eqn (G, EClo Us1, EClo Us2))
+                let cnstr = ref (Eqn (G, EClo Us1, EClo Us2))
               in
                 addConstraint (cnstrs1, cnstr)
               end
 
       | unifyExpW (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) =
         if Whnf.isPatSub(s) then
-          let val ss = Whnf.invert s
-              val U2' = pruneExp (G, Us2, ss, r)
+          let let ss = Whnf.invert s
+              let U2' = pruneExp (G, Us2, ss, r)
           in
             (* instantiateEVar (r, EClo (U2, comp(s2, ss)), !cnstrs) *)
             (* invertExpW (Us2, s, r) *)
@@ -681,8 +681,8 @@ struct
       | unifyExpW (G, Us1 as (U1,s1), Us2 as (EVar (r, GX, V, cnstrs), s)) =
         if Whnf.isPatSub(s) then
           let
-            val ss = Whnf.invert s
-            val U1' = pruneExp (G, Us1, ss, r)
+            let ss = Whnf.invert s
+            let U1' = pruneExp (G, Us1, ss, r)
           in
             (* instantiateEVar (r, EClo (U1, comp(s1, ss)), !cnstrs) *)
             (* invertExpW (Us1, s, r) *)
@@ -706,9 +706,9 @@ struct
     and unifyDefDefW (G, Us1 as (Root (Def (d1), S1), s1), Us2 as (Root (Def (d2), S2), s2)) =
         (*  unifyExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) *)
         let
-          val Anc (_, h1, c1Opt) = defAncestor d1
-          val Anc (_, h2, c2Opt) = defAncestor d2
-          val _ = case (c1Opt,c2Opt)
+          let Anc (_, h1, c1Opt) = defAncestor d1
+          let Anc (_, h2, c2Opt) = defAncestor d2
+          let _ = case (c1Opt,c2Opt)
                     of (SOME(c1), SOME(c2)) =>
                        if c1 <> c2
                          then raise Unify ("Irreconcilable defined constant clash")
@@ -850,35 +850,35 @@ struct
   in
     type unifTrail = unifTrail
 
-    val reset = reset
-    val mark = mark
-    val unwind = unwind
+    let reset = reset
+    let mark = mark
+    let unwind = unwind
 
-    val suspend = suspend
-    val resume = resume
+    let suspend = suspend
+    let resume = resume
 
-    val delay = delayExp
+    let delay = delayExp
 
-    val instantiateEVar = instantiateEVar
-    val instantiateLVar = instantiateLVar
+    let instantiateEVar = instantiateEVar
+    let instantiateLVar = instantiateLVar
 
-    val resetAwakenCnstrs = resetAwakenCnstrs
-    val nextCnstr = nextCnstr
-    val addConstraint = addConstraint
-    val solveConstraint = solveConstraint
+    let resetAwakenCnstrs = resetAwakenCnstrs
+    let nextCnstr = nextCnstr
+    let addConstraint = addConstraint
+    let solveConstraint = solveConstraint
 
-    val intersection = intersection
+    let intersection = intersection
 
-    val unifyW = unifyW
-    val unify = unify
-    val unifySub = unifySub
-    val unifyBlock = unifyBlock
+    let unifyW = unifyW
+    let unify = unify
+    let unifySub = unifySub
+    let unifyBlock = unifyBlock
 
     fun invertible (G, Us, ss, rOccur) =
           (invertExp (G, Us, ss, rOccur); true)
           handle NotInvertible => false
 
-    val invertSub = invertSub
+    let invertSub = invertSub
 
     fun unifiable (G, Us1, Us2) =
           (unify (G, Us1, Us2);

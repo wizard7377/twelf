@@ -1,37 +1,37 @@
-signature SGN =
+module type SGN =
 sig
     type sigent
-    datatype def = DEF_NONE
+    type def = DEF_NONE
 		 | DEF_TERM of Syntax.term
 		 | DEF_TYPE of Syntax.tp
 
-    val condec : string * Syntax.tp * Syntax.tp -> sigent
-    val tycondec : string * Syntax.knd * Syntax.knd -> sigent
-    val defn : string * Syntax.tp * Syntax.tp * Syntax.term * Syntax.term -> sigent
-    val tydefn : string * Syntax.knd * Syntax.knd * Syntax.tp * Syntax.tp -> sigent
-    val abbrev : string * Syntax.tp * Syntax.tp * Syntax.term * Syntax.term -> sigent
-    val tyabbrev : string * Syntax.knd * Syntax.knd * Syntax.tp * Syntax.tp -> sigent
-    val typeOfSigent : sigent -> Syntax.tp
-    val classifier : int -> Syntax.class
-    val o_classifier : int -> Syntax.class
-    val def : int -> def
-    val o_def : int -> def
-    val update : int * sigent -> unit
-    val sub : int -> sigent option
-    val clear : unit -> unit
-    val get_modes : int -> Syntax.mode list option
-    val set_modes : int * Syntax.mode list -> unit
-    val get_p : int -> bool option
-    val set_p : int * bool -> unit
-    val abbreviation : int -> bool
+    let condec : string * Syntax.tp * Syntax.tp -> sigent
+    let tycondec : string * Syntax.knd * Syntax.knd -> sigent
+    let defn : string * Syntax.tp * Syntax.tp * Syntax.term * Syntax.term -> sigent
+    let tydefn : string * Syntax.knd * Syntax.knd * Syntax.tp * Syntax.tp -> sigent
+    let abbrev : string * Syntax.tp * Syntax.tp * Syntax.term * Syntax.term -> sigent
+    let tyabbrev : string * Syntax.knd * Syntax.knd * Syntax.tp * Syntax.tp -> sigent
+    let typeOfSigent : sigent -> Syntax.tp
+    let classifier : int -> Syntax.class
+    let o_classifier : int -> Syntax.class
+    let def : int -> def
+    let o_def : int -> def
+    let update : int * sigent -> unit
+    let sub : int -> sigent option
+    let clear : unit -> unit
+    let get_modes : int -> Syntax.mode list option
+    let set_modes : int * Syntax.mode list -> unit
+    let get_p : int -> bool option
+    let set_p : int * bool -> unit
+    let abbreviation : int -> bool
 end
 
-structure Sgn =
+module Sgn =
 struct
     open Syntax
     exception NoSuch of int
 
-    datatype def = DEF_NONE
+    type def = DEF_NONE
 		 | DEF_TERM of term
 		 | DEF_TYPE of tp
 
@@ -43,23 +43,23 @@ struct
 		   o_def : def,
 		   abbreviation : bool}
 
-    val sgn_size = 14000 (* XXX *)
-    val sigma : sigent option Array.array = Array.array(sgn_size, NONE)
-    val all_modes : mode list option Array.array = Array.array(sgn_size, NONE)
-    val all_ps : bool option Array.array = Array.array(sgn_size, NONE)
+    let sgn_size = 14000 (* XXX *)
+    let sigma : sigent option Array.array = Array.array(sgn_size, NONE)
+    let all_modes : mode list option Array.array = Array.array(sgn_size, NONE)
+    let all_ps : bool option Array.array = Array.array(sgn_size, NONE)
 
     fun  split (h::tl) 0 = ([], h, tl)
        | split (h::tl) n = let 
-	     val (pre, thing, post) = split tl (n-1)
+	     let (pre, thing, post) = split tl (n-1)
 	 in
 	     (h::pre, thing, post)
 	 end
        | split [] n = split [NONE] n 
 
     fun clear () = let in
-		       Array.modify (fn _ => NONE) sigma;
-		       Array.modify (fn _ => NONE) all_modes;
-		       Array.modify (fn _ => NONE) all_ps
+		       Array.modify (fun _ -> NONE) sigma;
+		       Array.modify (fun _ -> NONE) all_modes;
+		       Array.modify (fun _ -> NONE) all_ps
 		   end
 		       
     fun condec (s, a, oa) = {name = s, classifier = tclass a, o_classifier = tclass oa,
@@ -79,12 +79,12 @@ struct
     fun setter table (n, x) = Array.update (table, n, SOME x)
     fun getter table id = Array.sub (table, id)
 
-    val set_modes = setter all_modes
-    val get_modes = getter all_modes
-    val set_p = setter all_ps
-    val get_p = getter all_ps
-    val update = setter sigma
-    val sub = getter sigma
+    let set_modes = setter all_modes
+    let get_modes = getter all_modes
+    let set_p = setter all_ps
+    let get_p = getter all_ps
+    let update = setter sigma
+    let sub = getter sigma
 
     fun classifier id = (#classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)
     fun o_classifier id = (#o_classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)

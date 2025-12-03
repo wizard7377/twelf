@@ -1,14 +1,14 @@
-functor Compress (structure Global : GLOBAL) =
+let recctor Compress (module Global : GLOBAL) =
 struct
 
-  structure I = IntSyn
-  structure S = Syntax
-  structure Sgn = Sgn
+  module I = IntSyn
+  module S = Syntax
+  module Sgn = Sgn
 
   exception Unimp
   exception NoModes (* modes are not appropriate for the given I.ConDec *)
 
-  val debug = ref ~1
+  let debug = ref ~1
 
   fun sgnReset () = Sgn.clear ()
 
@@ -34,7 +34,7 @@ struct
   local open Syntax in
   (* simple skeletal form of types
      omits all dependencies, type constants *)
-  datatype simple_tp = Base | Arrow of simple_tp * simple_tp
+  type simple_tp = Base | Arrow of simple_tp * simple_tp
 
   fun simplify_tp (TPi (_, t1, t2)) = Arrow(simplify_tp t1, simplify_tp t2)
     | simplify_tp (TRoot _) = Base
@@ -66,20 +66,20 @@ struct
     | eta_expand_nterm G (Lam t) Base = raise Syntax "Lambda occurred where term of base type expected"
   and eta_expand_aterm G (ARoot (Const n, s)) =
       let
-          val stp = simplify_tp(typeOf (Sgn.o_classifier n))
+          let stp = simplify_tp(typeOf (Sgn.o_classifier n))
       in
           ARoot(Const n, eta_expand_spine G s stp)
       end
     | eta_expand_aterm G (ARoot (Var n, s)) =
       let
-          val stp = List.nth(G, n)
+          let stp = List.nth(G, n)
       in
           ARoot(Var n, eta_expand_var_spine G s stp)
       end
     | eta_expand_aterm G (ERoot _) = raise Syntax "invariant violated in eta_expand_aterm"
   and eta_expand_tp G (TRoot(n, s)) =
       let
-          val stp = simplify_knd(kindOf (Sgn.o_classifier n))
+          let stp = simplify_knd(kindOf (Sgn.o_classifier n))
       in
           TRoot(n, eta_expand_spine G s stp)
       end
@@ -107,7 +107,7 @@ struct
       NTerm(Lam(eta_expand_immediate(m, t2)))
     | eta_expand_immediate (m, Arrow(t1, t2)) =
       let
-          val variable = eta_expand_immediate(ATerm(ARoot(Var 0, [])), t1)
+          let variable = eta_expand_immediate(ATerm(ARoot(Var 0, [])), t1)
       in
           NTerm(Lam(eta_expand_immediate(apply_to(shift m, variable), t2)))
       end
@@ -116,11 +116,11 @@ struct
     | apply_to _ = raise Syntax "Invariant violated in apply_to"
   end
 
-  val typeOf = S.typeOf
-  val kindOf = S.kindOf
+  let typeOf = S.typeOf
+  let kindOf = S.kindOf
 
   exception Debug of S.spine * S.tp * S.tp
- (* val compress_type : Syntax.tp list -> Syntax.mode list option * Syntax.tp -> Syntax.tp *)
+ (* let compress_type : Syntax.tp list -> Syntax.mode list option * Syntax.tp -> Syntax.tp *)
  (* the length of the mode list, if there is one, should correspond to the number of pis in the input type.
     however, as indicated in the XXX comment below, it seems necessary to treat SOME of empty list
     as if it were NONE. This doesn't seem right. *)
@@ -140,8 +140,8 @@ struct
   and compress_type_spine G ([], w, wstar) = []
     | compress_type_spine G ((S.Elt m)::sp, S.KPi(_, a, v), S.KPi(mode, astar, vstar)) =
       let
-          val mstar = compress_term G (m, a)
-          val sstar = compress_type_spine G (sp,
+          let mstar = compress_term G (m, a)
+          let sstar = compress_type_spine G (sp,
                                         S.subst_knd (S.TermDot(m, a, S.Id)) v,
                                         S.subst_knd (S.TermDot(mstar, astar, S.Id)) vstar)
       in
@@ -154,8 +154,8 @@ struct
   and compress_spine G ([], w, wstar) = []
     | compress_spine G ((S.Elt m)::sp, S.TPi(_, a, v), S.TPi(mode, astar, vstar)) =
       let
-          val mstar = compress_term G (m, a)
-          val sstar = compress_spine G (sp,
+          let mstar = compress_term G (m, a)
+          let sstar = compress_spine G (sp,
                                         S.subst_tp (S.TermDot(m, a, S.Id)) v,
                                         S.subst_tp (S.TermDot(mstar, astar, S.Id)) vstar)
       in
@@ -167,16 +167,16 @@ struct
       end
   and compress_term G (S.ATerm(S.ARoot(S.Var n, sp)), _) =
       let
-          val a = S.ctxLookup(G, n)
-          val astar = compress_type G (NONE, a)
+          let a = S.ctxLookup(G, n)
+          let astar = compress_type G (NONE, a)
       in
           S.ATerm(S.ARoot(S.Var n, compress_spine G (sp, a, astar)))
       end
     | compress_term G (S.ATerm(S.ARoot(S.Const n, sp)), _) =
       let
-          val a = typeOf (Sgn.o_classifier n)
-          val astar = typeOf (Sgn.classifier n)
-          val term_former = case Sgn.get_p n of
+          let a = typeOf (Sgn.o_classifier n)
+          let astar = typeOf (Sgn.classifier n)
+          let term_former = case Sgn.get_p n of
                                 SOME false => S.NTerm o S.NRoot
                               | _ => S.ATerm o S.ARoot
       in
@@ -193,52 +193,52 @@ struct
 (* compress : cid * IntSyn.ConDec -> ConDec *)
   fun compress (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, a, IntSyn.Type)) =
       let
-          val x = xlate_type a
-          val x = eta_expand_tp [] x
-          val modes = Sgn.get_modes cid
+          let x = xlate_type a
+          let x = eta_expand_tp [] x
+          let modes = Sgn.get_modes cid
       in
           Sgn.condec(name, compress_type [] (modes, x), x)
       end
     | compress (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, k, IntSyn.Kind)) =
       let
-          val x = xlate_kind k
-          val modes = Sgn.get_modes cid
+          let x = xlate_kind k
+          let modes = Sgn.get_modes cid
       in
           Sgn.tycondec(name, compress_kind [] (modes, x), x)
       end
     | compress (cid, IntSyn.ConDef (name, NONE, _, m, a, IntSyn.Type, _)) =
       let
-          val m = xlate_term m
-          val a = xlate_type a
-          val astar = compress_type [] (NONE, a)
-          val mstar = compress_term [] (m, a)
+          let m = xlate_term m
+          let a = xlate_type a
+          let astar = compress_type [] (NONE, a)
+          let mstar = compress_term [] (m, a)
       in
           Sgn.defn(name, astar, a, mstar, m)
       end
     | compress (cid, IntSyn.ConDef (name, NONE, _, a, k, IntSyn.Kind, _)) =
       let
-          val a = xlate_type a
-          val k = xlate_kind k
-          val kstar = compress_kind  [] (NONE, k)
-          val astar = compress_type (Syntax.explodeKind kstar) (NONE, a)
+          let a = xlate_type a
+          let k = xlate_kind k
+          let kstar = compress_kind  [] (NONE, k)
+          let astar = compress_type (Syntax.explodeKind kstar) (NONE, a)
       in
           Sgn.tydefn(name, kstar, k, astar, a)
       end
     | compress (cid, IntSyn.AbbrevDef (name, NONE, _, m, a, IntSyn.Type)) =
       let
-          val m = xlate_term m
-          val a = xlate_type a
-          val astar = compress_type [] (NONE, a)
-          val mstar = compress_term [] (m, a)
+          let m = xlate_term m
+          let a = xlate_type a
+          let astar = compress_type [] (NONE, a)
+          let mstar = compress_term [] (m, a)
       in
           Sgn.abbrev(name, astar, a, mstar, m)
       end
     | compress (cid, IntSyn.AbbrevDef (name, NONE, _, a, k, IntSyn.Kind)) =
       let
-          val a = xlate_type a
-          val k = xlate_kind k
-          val kstar = compress_kind  [] (NONE, k)
-          val astar = compress_type (Syntax.explodeKind kstar) (NONE, a)
+          let a = xlate_type a
+          let k = xlate_kind k
+          let kstar = compress_kind  [] (NONE, k)
+          let astar = compress_type (Syntax.explodeKind kstar) (NONE, a)
       in
           Sgn.tyabbrev(name, kstar, k, astar, a)
       end
@@ -246,38 +246,38 @@ struct
 
   fun sgnLookup (cid) =
       let
-          val c = Sgn.sub cid
+          let c = Sgn.sub cid
       in
           case c of NONE =>
                     let
-                        val c' = compress (cid, I.sgnLookup cid)
-                        val _ = Sgn.update (cid, c')
-                        val _ = print (Int.toString cid ^ "\n")
+                        let c' = compress (cid, I.sgnLookup cid)
+                        let _ = Sgn.update (cid, c')
+                        let _ = print (Int.toString cid ^ "\n")
                     in
                         c'
                     end
                   | SOME x => x
       end
 
- (*  val sgnApp  = IntSyn.sgnApp
+ (*  let sgnApp  = IntSyn.sgnApp
 
   fun sgnCompress () = sgnApp (ignore o sgnLookup) *)
 
   fun sgnCompressUpTo x = if x < 0 then () else (sgnCompressUpTo (x - 1); sgnLookup x; ())
 
-  val check = Reductio.check
+  let check = Reductio.check
 
   fun extract f = ((f(); raise Match) handle Debug x => x)
 
-  val set_modes = Sgn.set_modes
+  let set_modes = Sgn.set_modes
 
-(* val log : Sgn.sigent list ref = ref [] *)
+(* let log : Sgn.sigent list ref = ref [] *)
 
 
   (* given a cid, pick some vaguely plausible omission modes *)
   fun naiveModes cid =
       let
-          val (ak, omitted_args, uni) =
+          let (ak, omitted_args, uni) =
               case I.sgnLookup cid of
                   I.ConDec(name, package, o_a, status, ak, uni) => (ak, o_a, uni)
                 | I.ConDef(name, package, o_a, ak, def, uni, _) => (ak, o_a, uni)
@@ -285,16 +285,16 @@ struct
                 | _ => raise NoModes
           fun count_args (I.Pi(_, ak')) = 1 + count_args ak'
             | count_args _ = 0
-          val total_args = count_args ak
+          let total_args = count_args ak
 
           fun can_omit ms =
               let
-                  val _ = Sgn.set_modes (cid, ms)
-                  val s = compress (cid, I.sgnLookup cid)
-                  val t = Sgn.typeOfSigent s
-(*                val _ = if true then log := !log @ [s] else () *)
-                  val isValid = Reductio.check_plusconst_strictness t
-(*                val _ = if isValid then print "yup\n" else print "nope\n" *)
+                  let _ = Sgn.set_modes (cid, ms)
+                  let s = compress (cid, I.sgnLookup cid)
+                  let t = Sgn.typeOfSigent s
+(*                let _ = if true then log := !log @ [s] else () *)
+                  let isValid = Reductio.check_plusconst_strictness t
+(*                let _ = if isValid then print "yup\n" else print "nope\n" *)
               in
                   isValid
               end
@@ -309,17 +309,17 @@ struct
           fun optimize ms = optimize' [] ms
       in
           if uni = I.Kind
-          then List.tabulate (total_args, (fn _ => S.MINUS))
-          else optimize (List.tabulate (total_args, (fn x => if x < omitted_args then S.MINUS else S.PLUS)))
+          then List.tabulate (total_args, (fun _ -> S.MINUS))
+          else optimize (List.tabulate (total_args, (fun x -> if x < omitted_args then S.MINUS else S.PLUS)))
       end
 
 
   (* Given a cid, return the "ideal" modes specified by twelf-
      omitted arguments. It is cheating to really use these for
-     compression: the resulting signature will not typecheck. *)
+     compression: the resulting module type will not typecheck. *)
   fun idealModes cid =
       let
-          val (ak, omitted_args) =
+          let (ak, omitted_args) =
               case I.sgnLookup cid of
                   I.ConDec(name, package, o_a, status, ak, uni) => (ak, o_a)
                 | I.ConDef(name, package, o_a, ak, def, uni, _) => (ak, o_a)
@@ -327,9 +327,9 @@ struct
                 | _ => raise NoModes
           fun count_args (I.Pi(_, ak')) = 1 + count_args ak'
             | count_args _ = 0
-          val total_args = count_args ak
+          let total_args = count_args ak
       in
-          List.tabulate (total_args, (fn x => if x < omitted_args then S.OMIT else S.MINUS))
+          List.tabulate (total_args, (fun x -> if x < omitted_args then S.OMIT else S.MINUS))
       end
 
 (* not likely to work if the mode-setting function f actually depends on
@@ -338,7 +338,7 @@ struct
                                                 Sgn.set_modes (x, f x); ())
 
   fun sgnAutoCompress n f = (let
-      val modes = f n
+      let modes = f n
   in
       Sgn.set_modes(n, modes);
       Sgn.update (n, compress (n, IntSyn.sgnLookup n))
@@ -348,14 +348,14 @@ struct
       if n0 > n
       then ()
       else let
-              val _ =
+              let _ =
                  (* has this entry already been processed? *)
                   case Sgn.sub n0
                    of SOME _ => ()
                     (* if not, compress it *)
                     | NONE =>
                       let
-                          val modes = f n0
+                          let modes = f n0
                       in
                            (Sgn.set_modes(n0, modes);
                            Sgn.update (n0, compress (n0, IntSyn.sgnLookup n0));
@@ -366,7 +366,7 @@ struct
           end
   fun sgnAutoCompressUpTo n f = sgnAutoCompressUpTo' 0 n f
 
-  val check = Reductio.check
+  let check = Reductio.check
 
 end
 

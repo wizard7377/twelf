@@ -1,10 +1,10 @@
 (* Printing of functional proof terms *)
 (* Author: Carsten Schuermann *)
 
-signature FUNPRINT =
+module type FUNPRINT =
 sig
-  (*! structure FunSyn : FUNSYN !*)
-  structure Formatter : FORMATTER
+  (*! module FunSyn : FUNSYN !*)
+  module Formatter : FORMATTER
 
   val formatForBare : IntSyn.dctx * FunSyn.For -> Formatter.format
   val formatFor : FunSyn.lfctx * FunSyn.For -> string list -> Formatter.format
@@ -14,5 +14,5 @@ sig
   val forToString : FunSyn.lfctx * FunSyn.For -> string list -> string
   val proToString : FunSyn.lfctx * FunSyn.Pro -> string list -> string
   val lemmaDecToString : FunSyn.LemmaDec -> string
-end;  (* signature PRINT *)
+end;  (* module type PRINT *)
 

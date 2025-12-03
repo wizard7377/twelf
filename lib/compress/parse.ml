@@ -1,4 +1,4 @@
-structure Parse = 
+module Parse = 
 struct
 
   open Parsing
@@ -8,13 +8,13 @@ struct
   infix  2 -- ##
   infix  2 wth suchthat return guard when
   infixr 1 ||
-  val ` = literal
+  let ` = literal
 
-  datatype mode = mMINUS
+  type mode = mMINUS
 		| mPLUS
 		| mOMIT
 
-  datatype term = Id of string
+  type term = Id of string
 		| App of term * term
 		| Lam of (string * term option) * term
 		| Type
@@ -44,12 +44,12 @@ struct
   and vardecToString (v, SOME t) = v ^ ":" ^ (termToString t)
     | vardecToString (v, NONE) = v
 
-  val id = maybe (fn (ID s) => SOME s | _ => NONE)
+  let id = maybe (fn (ID s) => SOME s | _ => NONE)
 
   fun swap(x,y) = (y,x)
 
   fun vardec() = id << `COLON && ($term wth SOME) ||
-		 id wth (fn s => (s, NONE)) 
+		 id wth (fun s -> (s, NONE)) 
   and term() = parsefixityadj (
 	       alt[id wth (Atm o Id),
 		   `LPAREN >> $term << `RPAREN wth Atm,
@@ -66,7 +66,7 @@ struct
 		   `STAR return (Atm Omit)
 		  ]) Left App
 		   
-  val condec = (opt (`MINUS) wth (not o Option.isSome)) && id << `COLON && $term << `DOT
+  let condec = (opt (`MINUS) wth (not o Option.isSome)) && id << `COLON && $term << `DOT
 
 
   fun parseof x =  Stream.toList (Parsing.transform ($term)

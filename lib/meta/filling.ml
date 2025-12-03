@@ -1,26 +1,26 @@
 (* Filling  Version 1.3*)
 (* Author: Carsten Schuermann *)
 
-functor MTPFilling (structure MTPGlobal : MTPGLOBAL
-                    (*! structure IntSyn : INTSYN !*)
-                    (*! structure FunSyn' : FUNSYN !*)
+let recctor MTPFilling (module MTPGlobal : MTPGLOBAL
+                    (*! module IntSyn : INTSYN !*)
+                    (*! module FunSyn' : FUNSYN !*)
                     (*! sharing FunSyn'.IntSyn = IntSyn !*)
-                    structure StateSyn' : STATESYN
+                    module StateSyn' : STATESYN
                     (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                    structure Abstract : ABSTRACT
+                    module Abstract : ABSTRACT
                     (*! sharing Abstract.IntSyn = IntSyn !*)
-                    structure TypeCheck : TYPECHECK
+                    module TypeCheck : TYPECHECK
                     (*! sharing TypeCheck.IntSyn = IntSyn !*)
-                    structure MTPData : MTPDATA
-                    structure Search   : MTPSEARCH
+                    module MTPData : MTPDATA
+                    module Search   : MTPSEARCH
                       sharing Search.StateSyn = StateSyn'
-                    structure Whnf : WHNF
+                    module Whnf : WHNF
                     (*! sharing Whnf.IntSyn = IntSyn !*)
                       )
   : MTPFILLING =
 struct
-  (*! structure FunSyn = FunSyn' !*)
-  structure StateSyn = StateSyn'
+  (*! module FunSyn = FunSyn' !*)
+  module StateSyn = StateSyn'
 
   exception Error of string
   exception TimeOut
@@ -28,9 +28,9 @@ struct
   type operator = (unit -> int * FunSyn.Pro)
 
   local
-    structure S = StateSyn
-    structure F = FunSyn
-    structure I = IntSyn
+    module S = StateSyn
+    module F = FunSyn
+    module I = IntSyn
 
     exception Success of int
 
@@ -48,9 +48,9 @@ struct
     fun createEVars (G, (F.True, s)) = (nil, F.Unit)
       | createEVars (G, (F.Ex (I.Dec (_, V), F), s)) =
         let
-          val X = I.newEVar (G, I.EClo (V, s))
-          val X' = Whnf.lowerEVar X
-          val (Xs, P) = createEVars (G, (F, I.Dot (I.Exp X, s)))
+          let X = I.newEVar (G, I.EClo (V, s))
+          let X' = Whnf.lowerEVar X
+          let (Xs, P) = createEVars (G, (F, I.Dot (I.Exp X, s)))
         in
           (X' :: Xs, F.Inx (X, P))
         end
@@ -70,10 +70,10 @@ struct
     *)
     fun expand (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) =
         let
-          val _ = if (!Global.doubleCheck) then TypeCheck.typeCheckCtx (G) else ()
-          val (Xs, P) = createEVars (G, (F, I.id))
+          let _ = if (!Global.doubleCheck) then TypeCheck.typeCheckCtx (G) else ()
+          let (Xs, P) = createEVars (G, (F, I.id))
         in
-          fn () => ((Search.searchEx (!MTPGlobal.maxFill, Xs, fn max => (if (!Global.doubleCheck) then
+          fn () => ((Search.searchEx (!MTPGlobal.maxFill, Xs, fun max -> (if (!Global.doubleCheck) then
                                                        map (fn (X as I.EVar (_, G', V, _)) =>
                                                             TypeCheck.typeCheck (G', (X, V))) Xs
                                                      else []; raise Success max));
@@ -100,8 +100,8 @@ struct
     fun menu _ =  "Filling   (tries to close this subgoal)"
 
   in
-    val expand = expand
-    val apply = apply
-    val menu = menu
+    let expand = expand
+    let apply = apply
+    let menu = menu
   end (* local *)
 end; (* functor Filling *)

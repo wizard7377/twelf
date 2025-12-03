@@ -1,10 +1,10 @@
 (* Total Declarations *)
 (* Author: Frank Pfenning *)
 
-signature TOTAL =
+module type TOTAL =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   exception Error of string
 
@@ -14,4 +14,4 @@ sig
 
   val checkFam : IntSyn.cid -> unit	(* may raise Error(msg) *)
 
-end;  (* signature TOTAL *)
+end;  (* module type TOTAL *)

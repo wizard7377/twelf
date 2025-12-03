@@ -1,11 +1,11 @@
-(* External Syntax for signature entries *)
+(* External Syntax for module type entries *)
 (* Author: Frank Pfenning *)
 
-signature EXTCONDEC =
+module type EXTCONDEC =
 sig
 
-  structure ExtSyn : EXTSYN
-  (*! structure Paths : PATHS !*)
+  module ExtSyn : EXTSYN
+  (*! module Paths : PATHS !*)
 
   type condec				(* constant declaration *)
   val condec : string * ExtSyn.term -> condec	(* id : tm *)
@@ -14,12 +14,12 @@ sig
   val condef : string option * ExtSyn.term * ExtSyn.term option -> condec
 					(* id : tm = tm | _ : tm = tm *)
 
-end (* signature EXTCONDEC *)
+end (* module type EXTCONDEC *)
 
-signature RECON_CONDEC =
+module type RECON_CONDEC =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
   include EXTCONDEC
 
   exception Error of string
@@ -31,4 +31,4 @@ sig
   val internalInst : IntSyn.ConDec * IntSyn.ConDec * Paths.region -> IntSyn.ConDec
 
   val externalInst : IntSyn.ConDec * ExtSyn.term * Paths.region -> IntSyn.ConDec
-end (* signature RECON_CONDEC *)
+end (* module type RECON_CONDEC *)

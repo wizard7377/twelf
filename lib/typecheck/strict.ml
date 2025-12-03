@@ -1,20 +1,20 @@
 (* Checking Definitions for Strict *)
 (* Author: Carsten Schuermann *)
 
-functor Strict ((*! structure IntSyn' : INTSYN !*)
-                structure Whnf : WHNF
+let recctor Strict ((*! module IntSyn' : INTSYN !*)
+                module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                (*! structure Paths' : PATHS !*)
+                (*! module Paths' : PATHS !*)
                   )
   : STRICT =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Paths = Paths' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Paths = Paths' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
+    module I = IntSyn
 
     (* Definition of normal form (nf) --- see lambda/whnf.fun *)
 
@@ -146,7 +146,7 @@ struct
        end
 
   in
-    val check = strictTop
-    val checkType = occursInType
+    let check = strictTop
+    let checkType = occursInType
   end
 end;  (* functor Strict *)

@@ -1,24 +1,24 @@
 (* Meta printer for proof states *)
 (* Author: Carsten Schuermann *)
 
-functor MetaPrint (structure Global : GLOBAL
-                   structure MetaSyn' : METASYN
-                   structure Formatter : FORMATTER
-                   structure Print : PRINT
+let recctor MetaPrint (module Global : GLOBAL
+                   module MetaSyn' : METASYN
+                   module Formatter : FORMATTER
+                   module Print : PRINT
                    (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
                      sharing Print.Formatter = Formatter
-                   structure ClausePrint : CLAUSEPRINT
+                   module ClausePrint : CLAUSEPRINT
                    (*! sharing ClausePrint.IntSyn = MetaSyn'.IntSyn !*)
                      sharing ClausePrint.Formatter = Formatter)
 
   : METAPRINT =
 struct
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   local
-    structure M = MetaSyn
-    structure I = IntSyn
-    structure F = Formatter
+    module M = MetaSyn
+    module I = IntSyn
+    module F = Formatter
 
     fun modeToString M.Top = "+"
       | modeToString M.Bot = "-"
@@ -64,10 +64,10 @@ struct
         ^ sgnToString S
   in
 
-    val modeToString = modeToString
-    val sgnToString = sgnToString
-    val stateToString = stateToString
-    val conDecToString = ClausePrint.conDecToString
+    let modeToString = modeToString
+    let sgnToString = sgnToString
+    let stateToString = stateToString
+    let conDecToString = ClausePrint.conDecToString
 
   end (* local *)
 end; (* functor MetaPrint *)

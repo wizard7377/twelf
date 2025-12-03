@@ -1,23 +1,23 @@
 (* Type Checking *)
 (* Author: Carsten Schuermann *)
 
-functor TypeCheck ((*! structure IntSyn' : INTSYN !*)
-                   structure Conv : CONV
+let recctor TypeCheck ((*! module IntSyn' : INTSYN !*)
+                   module Conv : CONV
                    (*! sharing Conv.IntSyn = IntSyn' !*)
-                   structure Whnf : WHNF
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn'  !*)
-                   structure Names : NAMES
+                   module Names : NAMES
                    (*! sharing Names.IntSyn = IntSyn' !*)
-                   structure Print : PRINT
+                   module Print : PRINT
                    (*! sharing Print.IntSyn = IntSyn' !*)
                        )
   : TYPECHECK =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
   exception Error of string
 
   local
-    structure I = IntSyn
+    module I = IntSyn
 
     (* for debugging purposes *)
     fun subToString (G, I.Dot (I.Idx (n), s)) =
@@ -50,7 +50,7 @@ struct
     *)
     fun checkExp (G, Us, Vs) =
         let
-          val Us' = inferExp (G, Us)
+          let Us' = inferExp (G, Us)
         in
           if Conv.conv (Us', Vs) then ()
           else raise Error ("Type mismatch")
@@ -131,13 +131,13 @@ struct
     *)
     and inferCon (G, I.BVar (k')) =
         let
-          val I.Dec (_, V) = I.ctxDec (G, k')
+          let I.Dec (_, V) = I.ctxDec (G, k')
         in
           V
         end
       | inferCon (G, I.Proj (B,  i)) =
         let
-          val I.Dec (_, V) = I.blockDec (G, B, i)
+          let I.Dec (_, V) = I.blockDec (G, B, i)
         in
           V
         end
@@ -169,8 +169,8 @@ struct
       | checkSub (G', I.Dot (I.Idx k, s'), I.Decl (G, (I.Dec (_, V2)))) =
         (* changed order of subgoals here Sun Dec  2 12:14:27 2001 -fp *)
         let
-          val _ = checkSub (G', s', G)
-          val I.Dec (_, V1) = I.ctxDec (G', k)
+          let _ = checkSub (G', s', G)
+          let I.Dec (_, V1) = I.ctxDec (G', k)
         in
           if Conv.conv ((V1, I.id), (V2, s')) then ()
           else raise Error ("Substitution not well-typed \n  found: " ^
@@ -180,8 +180,8 @@ struct
       | checkSub (G', I.Dot (I.Exp (U), s'), I.Decl (G, (I.Dec (_, V2)))) =
         (* changed order of subgoals here Sun Dec  2 12:15:53 2001 -fp *)
         let
-          val _ = checkSub (G', s', G)
-          val _ = typeCheck (G', (U, I.EClo (V2, s')))
+          let _ = checkSub (G', s', G)
+          let _ = typeCheck (G', (U, I.EClo (V2, s')))
         in
           ()
         end
@@ -189,8 +189,8 @@ struct
         (* Front of the substitution cannot be a I.Bidx or LVar *)
         (* changed order of subgoals here Sun Dec  2 12:15:53 2001 -fp *)
         let
-          val _ = checkSub (G', t, G)
-          val I.BDec (_, (l', s')) = I.ctxDec (G', w)
+          let _ = checkSub (G', t, G)
+          let I.BDec (_, (l', s')) = I.ctxDec (G', w)
           (* G' |- s' : GSOME *)
           (* G  |- s  : GSOME *)
           (* G' |- t  : G       (verified below) *)
@@ -204,9 +204,9 @@ struct
         end
       | checkSub (G', I.Dot (I.Block (I.Inst I), t), I.Decl (G, (I.BDec (_, (l, s))))) =
         let
-          val _ = checkSub (G', t, G)
-          val (G, L) = I.constBlock l
-          val _ = checkBlock (G', I, (I.comp (s, t), L))
+          let _ = checkSub (G', t, G)
+          let (G, L) = I.constBlock l
+          let _ = checkBlock (G', I, (I.comp (s, t), L))
         in
           ()
         end
@@ -235,7 +235,7 @@ struct
           let
             (* G1 |- t : GSOME *)
             (* G  |- s : G1 *)
-            val (Gsome, piDecs) = I.constBlock c
+            let (Gsome, piDecs) = I.constBlock c
           in
             checkSub (G, I.comp (t, s), Gsome)
           end
@@ -260,14 +260,14 @@ struct
 
 
   in
-      val check = check
-      val checkDec = checkDec
-      val checkConv = checkConv
+      let check = check
+      let checkDec = checkDec
+      let checkConv = checkConv
 
-      val infer = infer
-      val infer' = infer'
-      val typeCheck = typeCheck
-      val typeCheckCtx = checkCtx
-      val typeCheckSub = checkSub
+      let infer = infer
+      let infer' = infer'
+      let typeCheck = typeCheck
+      let typeCheckCtx = checkCtx
+      let typeCheckSub = checkSub
   end  (* local ... *)
 end; (* functor TypeCheck *)

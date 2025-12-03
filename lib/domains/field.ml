@@ -1,11 +1,11 @@
 (* Field *)
 (* Author: Roberto Virga *)
 
-signature FIELD =
+module type FIELD =
 sig
 
   (* Name of the set *)
-  val name : string
+  let name : string
 
   (* Main type *)
   eqtype number
@@ -14,20 +14,20 @@ sig
   exception Div
 
   (* Constants *)
-  val zero : number
-  val one  : number
+  let zero : number
+  let one  : number
 
   (* Operators *)
-  val ~ : number -> number
-  val + : number * number -> number
-  val - : number * number -> number
-  val * : number * number -> number
-  val inverse : number -> number  (* raises Div *)
+  let ~ : number -> number
+  let + : number * number -> number
+  let - : number * number -> number
+  let * : number * number -> number
+  let inverse : number -> number  (* raises Div *)
 
   (* Conversions *)
-  val fromInt    : int -> number
-  val fromString : string -> number option
-  val toString   : number -> string
+  let fromInt    : int -> number
+  let fromString : string -> number option
+  let toString   : number -> string
 
-end;  (* signature FIELD *)
+end;  (* module type FIELD *)
 

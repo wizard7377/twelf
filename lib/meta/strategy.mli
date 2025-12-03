@@ -1,10 +1,10 @@
 (* MTPStrategy : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-signature MTPSTRATEGY = 
+module type MTPSTRATEGY = 
 sig
-  structure StateSyn : STATESYN
+  module StateSyn : STATESYN
 
   val run : StateSyn.State list -> StateSyn.State list * StateSyn.State list 
               (* open cases -> remaining cases * solved cases *)
-end;  (* signature MTPSTRATEGY *)
+end;  (* module type MTPSTRATEGY *)

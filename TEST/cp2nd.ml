@@ -1,30 +1,30 @@
 local 
   open FunSyn;
   open FunTypeCheck;
-  structure I = IntSyn 
+  module I = IntSyn 
 
-  val _ = Twelf.loadFile "cp.elf"
+  let _ = Twelf.loadFile "cp.elf"
 
-  val exp = I.Root (I.Const (valOf (Names.nameLookup ("exp"))), I.Nil)
-  val exp' =  I.Root (I.Const (valOf (Names.nameLookup ("exp'"))), I.Nil)
-  val cp =  I.Const (valOf (Names.nameLookup ("cp")))
-  val lam =  I.Const (valOf (Names.nameLookup ("lam")))
-  val lam' =  I.Const (valOf (Names.nameLookup ("lam'")))
-  val cp_lam =  I.Const (valOf (Names.nameLookup ("cp_lam")))
-  val app =  I.Const (valOf (Names.nameLookup ("app")))
-  val app' =  I.Const (valOf (Names.nameLookup ("app'")))
-  val cp_app =  I.Const (valOf (Names.nameLookup ("cp_app")))
+  let exp = I.Root (I.Const (valOf (Names.nameLookup ("exp"))), I.Nil)
+  let exp' =  I.Root (I.Const (valOf (Names.nameLookup ("exp'"))), I.Nil)
+  let cp =  I.Const (valOf (Names.nameLookup ("cp")))
+  let lam =  I.Const (valOf (Names.nameLookup ("lam")))
+  let lam' =  I.Const (valOf (Names.nameLookup ("lam'")))
+  let cp_lam =  I.Const (valOf (Names.nameLookup ("cp_lam")))
+  let app =  I.Const (valOf (Names.nameLookup ("app")))
+  let app' =  I.Const (valOf (Names.nameLookup ("app'")))
+  let cp_app =  I.Const (valOf (Names.nameLookup ("cp_app")))
      
-  val one = I.Root (I.BVar 1, I.Nil)
-  val two = I.Root (I.BVar 2, I.Nil)
-  val three = I.Root (I.BVar 3, I.Nil)
-  val four = I.Root (I.BVar 4, I.Nil)
-  val five = I.Root (I.BVar 5, I.Nil)
-  val six = I.Root (I.BVar 6, I.Nil)
+  let one = I.Root (I.BVar 1, I.Nil)
+  let two = I.Root (I.BVar 2, I.Nil)
+  let three = I.Root (I.BVar 3, I.Nil)
+  let four = I.Root (I.BVar 4, I.Nil)
+  let five = I.Root (I.BVar 5, I.Nil)
+  let six = I.Root (I.BVar 6, I.Nil)
 
   (* the copy function theorem, internal format *)
     
-  val cpt_theorem = 
+  let cpt_theorem = 
     All (Prim (I.Dec (SOME "E", exp)),
     Ex (I.Dec (SOME "E'", exp'),
     Ex (I.Dec (SOME "D", I.Root (cp, I.App (two, I.App (one, I.Nil)))),
@@ -48,7 +48,7 @@ local
     TextIO.print (Print.expToString (makectx Psi, U) ^ "\n")
 	
 
-  val cpt_proof = 
+  let cpt_proof = 
   Rec (MDec (SOME "IH", cpt_theorem),
     Lam (Prim (I.Dec (SOME "E", exp)), 
       Case (Opts 
@@ -102,11 +102,11 @@ local
 
 
 in 
-  val print = print
-  val printCtx = printCtx
-  val cpt_proof = cpt_proof
-  val cpt_theorem = cpt_theorem
-  val _ = check (cpt_proof, cpt_theorem) 
+  let print = print
+  let printCtx = printCtx
+  let cpt_proof = cpt_proof
+  let cpt_theorem = cpt_theorem
+  let _ = check (cpt_proof, cpt_theorem) 
     handle Error s => TextIO.print (s ^ "\n")
 	 | TypeCheck.Error s => TextIO.print (s ^ "\n")
 end

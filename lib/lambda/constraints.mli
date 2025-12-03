@@ -2,14 +2,14 @@
 (* Author: Jeff Polakow, Frank Pfenning *)
 (* Modified: Roberto Virga *)
 
-signature CONSTRAINTS =
+module type CONSTRAINTS =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
    exception Error of IntSyn.cnstr list
 
    val simplify : IntSyn.cnstr list -> IntSyn.cnstr list
    val warnConstraints : string list -> unit
 
-end;  (* signature CONSTRAINTS *)
+end;  (* module type CONSTRAINTS *)

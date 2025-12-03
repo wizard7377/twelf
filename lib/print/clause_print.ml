@@ -5,28 +5,28 @@
    printed with backward arrows `<-'
 *)
 
-functor ClausePrint
-  ((*! structure IntSyn' : INTSYN !*)
-   structure Whnf : WHNF
+let recctor ClausePrint
+  ((*! module IntSyn' : INTSYN !*)
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Formatter' : FORMATTER
-   structure Print : PRINT
+   module Formatter' : FORMATTER
+   module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn' !*)
      sharing Print.Formatter = Formatter'
-   structure Symbol : SYMBOL)
+   module Symbol : SYMBOL)
      : CLAUSEPRINT =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-structure Formatter = Formatter'
+  (*! module IntSyn = IntSyn' !*)
+module Formatter = Formatter'
 
 local
   (* some shorthands *)
-  structure I = IntSyn
-  structure F = Formatter
-  val Str = F.String
+  module I = IntSyn
+  module F = Formatter
+  let Str = F.String
   fun Str0 (s, n) = F.String0 n s
   fun sym (s) = Str0 (Symbol.sym s)
 
@@ -35,14 +35,14 @@ local
   (* assumes NF *)
   fun fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
       let
-        val D' = Names.decEName (G, D)
+        let D' = Names.decEName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
       end
     | fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
-        val D' = Names.decEName (G, D)
+        let D' = Names.decEName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
@@ -67,14 +67,14 @@ local
         Print.formatExp (G, V)
   and fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
       let
-        val D' = Names.decLUName (G, D)
+        let D' = Names.decLUName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtGQuants (I.Decl (G, D'), V2)
       end
     | fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
-        val D' = Names.decLUName (G, D)
+        let D' = Names.decLUName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtGQuants (I.Decl (G, D'), V2)
@@ -96,8 +96,8 @@ local
 
   fun fmtConDec (I.ConDec (id, parent, i, _, V, I.Type)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val Vfmt = fmtClauseI (i, I.Null, V)
+        let _ = Names.varReset IntSyn.Null
+        let Vfmt = fmtClauseI (i, I.Null, V)
       in
         F.HVbox [Str0 (Symbol.const (id)), F.Space, sym ":", F.Break,
                  Vfmt, sym "."]

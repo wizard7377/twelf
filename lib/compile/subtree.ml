@@ -1,32 +1,32 @@
 (* Substitution Tree indexing *)
 (* Author: Brigitte Pientka *)
-functor SubTree ((*! structure IntSyn' : INTSYN !*)
-                 (*!structure CompSyn' : COMPSYN !*)
+let recctor SubTree ((*! module IntSyn' : INTSYN !*)
+                 (*!module CompSyn' : COMPSYN !*)
                  (*!  sharing CompSyn'.IntSyn = IntSyn' !*)
-                 structure Whnf : WHNF
+                 module Whnf : WHNF
                  (*!  sharing Whnf.IntSyn = IntSyn' !*)
-                 structure Unify : UNIFY
+                 module Unify : UNIFY
                  (*!  sharing Unify.IntSyn = IntSyn'!*)
-                 structure Print : PRINT
+                 module Print : PRINT
                  (*!  sharing Print.IntSyn = IntSyn' !*)
                     (* CPrint currently unused *)
-                 structure CPrint : CPRINT
+                 module CPrint : CPRINT
                  (*!  sharing CPrint.IntSyn = IntSyn' !*)
                  (*!  sharing CPrint.CompSyn = CompSyn' !*)
                      (* unused *)
-                structure Formatter : FORMATTER
+                module Formatter : FORMATTER
                 (*!  sharing Print.Formatter = Formatter !*)
                      (* unused *)
-                structure Names: NAMES
+                module Names: NAMES
                 (*!  sharing Names.IntSyn = IntSyn' !*)
-                structure CSManager : CS_MANAGER
+                module CSManager : CS_MANAGER
                  (*!  sharing CSManager.IntSyn = IntSyn'!*)
-                 (*! structure RBSet : RBSET !*))
+                 (*! module RBSet : RBSET !*))
   : SUBTREE =
 struct
-(*!  structure IntSyn = IntSyn' !*)
-(*!  structure CompSyn = CompSyn' !*)
-(*!  structure RBSet = RBSet !*)
+(*!  module IntSyn = IntSyn' !*)
+(*!  module CompSyn = CompSyn' !*)
+(*!  module RBSet = RBSet !*)
 
   type nvar = int      (* index for normal variables *)
   type bvar = int      (* index for bound variables *)
@@ -75,33 +75,33 @@ struct
    indexing and existential variables and nvars will be instantiated
    during assignment
  *)
-  datatype typeLabel = TypeLabel | Body
+  type typeLabel = TypeLabel | Body
 
   type normalSubsts =  (typeLabel * IntSyn.Exp) RBSet.ordSet  (* key = int = bvar *)
 
-  datatype AssSub = Assign of (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp)
+  type AssSub = Assign of (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp)
   type assSubsts = AssSub RBSet.ordSet          (* key = int = bvar *)
 
   type querySubsts = (IntSyn.Dec IntSyn.Ctx * (typeLabel * IntSyn.Exp)) RBSet.ordSet
 
-  datatype Cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
+  type Cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
   type cnstrSubsts = IntSyn.Exp RBSet.ordSet    (* key = int = bvar *)
 
-  datatype CGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
+  type CGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
 
-  datatype genType  = Top | Regular
+  type genType  = Top | Regular
 
-  datatype Tree =
+  type Tree =
     Leaf of normalSubsts  * IntSyn.Dec IntSyn.Ctx * CGoal
   | Node of normalSubsts  * Tree RBSet.ordSet
 
    type candidate = (assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.Dec IntSyn.Ctx * CGoal)
 
    (* Initialization of substitutions *)
-   val nid         : unit -> normalSubsts = RBSet.new
-   val assignSubId : unit -> assSubsts = RBSet.new
-   val cnstrSubId  : unit -> cnstrSubsts = RBSet.new
-   val querySubId  : unit -> querySubsts = RBSet.new
+   let nid         : unit -> normalSubsts = RBSet.new
+   let assignSubId : unit -> assSubsts = RBSet.new
+   let cnstrSubId  : unit -> cnstrSubsts = RBSet.new
+   let querySubId  : unit -> querySubsts = RBSet.new
 
    (* Identity substitution *)
    fun isId s = RBSet.isEmpty s
@@ -121,13 +121,13 @@ struct
    for target family ai
 
    *)
-  val indexArray = Array.tabulate (Global.maxCid, (fn i => (ref 0, makeTree ())));
+  let indexArray = Array.tabulate (Global.maxCid, (fun i -> (ref 0, makeTree ())));
 
   local
 
-    structure I = IntSyn
-    structure C = CompSyn
-    structure S = RBSet
+    module I = IntSyn
+    module C = CompSyn
+    module S = RBSet
 
     exception Error of string
 
@@ -215,7 +215,7 @@ struct
   (* ---------------------------------------------------------------*)
 
   (* nctr = |D| =  #normal variables *)
-   val nctr = ref 1
+   let nctr = ref 1
 
    fun newNVar () =
      (nctr := !nctr + 1;
@@ -307,9 +307,9 @@ struct
    *)
   fun compatibleSub (nsub_t, nsub_e) =
     let
-      val (sg, rho_t, rho_e) = (nid(), nid (), nid ())
+      let (sg, rho_t, rho_e) = (nid(), nid (), nid ())
      (* by invariant rho_t = empty, since nsub_t <= nsub_e *)
-      val _ =  S.forall nsub_e
+      let _ =  S.forall nsub_e
         (fn (nv, (l',E)) =>
          (case (S.lookup nsub_t nv)
             of SOME (l,T) =>     (* by invariant d = d'
@@ -331,7 +331,7 @@ struct
   (* mkNode (N, sg, r1, (G, RC), r2) = N'    *)
   fun mkNode (Node(_, Children), sg, rho1, GR as (G, RC), rho2) =
       let
-        val c = S.new()
+        let c = S.new()
       in
         S.insertList c [(1, Node(rho1, Children)),
                                 (2, Leaf(rho2, G, RC))];
@@ -339,7 +339,7 @@ struct
       end
     | mkNode (Leaf(_, G1, RC1), sg, rho1, GR as (G2, RC2), rho2) =
       let
-        val c = S.new()
+        let c = S.new()
       in
         S.insertList c [(1, Leaf(rho1, G1, RC1)),
                         (2, Leaf(rho2, G2, RC2))];
@@ -400,7 +400,7 @@ struct
    *)
   fun normalizeNExp (I.NVar n, csub) =
       let
-        val A = I.newAVar ()
+        let A = I.newAVar ()
       in
         S.insert csub (n, A);
         A
@@ -439,7 +439,7 @@ struct
 
   fun assign (nvaronly, Glocal_u1, Us1, U2, nsub_goal, asub, csub, cnstr) =
     let
-      val depth = I.ctxLength Glocal_u1
+      let depth = I.ctxLength Glocal_u1
       fun assignHead (nvaronly, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
           (case (H1, H2)
              of (I.Const(c1), I.Const(c2)) =>
@@ -516,14 +516,14 @@ struct
                   (case Us1
                      of (I.EVar(r, _, V, Cnstr), s) =>
                        let
-                         val U2' = normalizeNExp (U2, csub)
+                         let U2' = normalizeNExp (U2, csub)
                        in
                          (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
                        end
                    | (I.EClo(U,s'), s) => assignExp(Body, depth, Glocal_u1, (U, I.comp(s', s)), U2, cnstr)
                    | (I.FgnExp (_, ops), _) =>
                        let
-                         val U2' = normalizeNExp (U2, csub)
+                         let U2' = normalizeNExp (U2, csub)
                        in
                          (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
                        end))
@@ -531,7 +531,7 @@ struct
         | assignExpW (nvaronly, depth, Glocal_u1, (I.Lam (D1 as I.Dec(_, A1), U1), s1), I.Lam (D2 as I.Dec(_, A2), U2), cnstr) =
           (* D1[s1] = D2[s2]  by invariant *)
           let
-            val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
+            let cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
             (* nsub_goal may be destructively updated,
                asub does not change (i.e. existential variables are not instantiated,
                by invariant they must have been already instantiated
@@ -542,7 +542,7 @@ struct
         | assignExpW (nvaronly, depth, Glocal_u1, (I.Pi ((D1 as I.Dec(_, A1), _), U1), s1), I.Pi ((D2 as I.Dec(_, A2), _), U2), cnstr) =
           (* D1[s1] = D2[s2]  by invariant *)
           let
-            val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
+            let cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
             (* nsub_goal may be destructively updated,
                asub does not change (i.e. existential variables are not instantiated,
                by invariant they must have been already instantiated
@@ -557,7 +557,7 @@ struct
         | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EVar(r, _, V, Cnstr), s), U2, cnstr) =
           (* generate cnstr substitution for all nvars occurring in U2 *)
           let
-            val U2' = normalizeNExp (U2, csub)
+            let U2' = normalizeNExp (U2, csub)
           in
             (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
           end
@@ -568,7 +568,7 @@ struct
         | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.FgnExp (_, ops), _), U2, cnstr) =
           (* by invariant Us2 cannot contain any FgnExp *)
           let
-            val U2' = normalizeNExp (U2, csub)
+            let U2' = normalizeNExp (U2, csub)
           in
             (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
           end
@@ -588,7 +588,7 @@ struct
         assignSpine (nvaronly, depth, Glocal_u1, (S1, I.comp (s1', s1)), S, cnstr)
         | assignSpine (nvaronly, depth, Glocal_u1, (I.App (U1, S1), s1), I.App (U2, S2), cnstr) =
         let
-          val cnstr' = assignExp (nvaronly, depth, Glocal_u1, (U1, s1), U2, cnstr)
+          let cnstr' = assignExp (nvaronly, depth, Glocal_u1, (U1, s1), U2, cnstr)
         (* nsub_goal, asub may be destructively updated *)
         in
           assignSpine (nvaronly, depth, Glocal_u1, (S1, s1), S2, cnstr')
@@ -617,14 +617,14 @@ struct
    *)
   fun assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
     let
-      val nsub_query' = querySubId ()
-      val cref = ref cnstr
+      let nsub_query' = querySubId ()
+      let cref = ref cnstr
       fun assign' (nsub_query, nsub) =
         let
-          val (nsub_query_left, nsub_left1) = S.differenceModulo nsub_query nsub
+          let (nsub_query_left, nsub_left1) = S.differenceModulo nsub_query nsub
                                 (fn (Glocal_u, (l, U)) => fn  (l', T) =>
                                  cref := assign (l (* = l' *), Glocal_u, (U, I.id), T, nsub_query', assignSub, cnstrSub, !cref))
-          val nsub_left' = S.update nsub_left1 (fn (l,U) => (l, normalizeNExp (U, cnstrSub)))
+          let nsub_left' = S.update nsub_left1 (fn (l,U) => (l, normalizeNExp (U, cnstrSub)))
         in
           (SOME(S.union nsub_query_left nsub_query', (S.union nsub_left nsub_left', cnstrSub), !cref))
         end
@@ -636,17 +636,17 @@ struct
 
   fun assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr) =
     let
-      val nsub_query' = querySubId ()
-      val cref = ref cnstr
+      let nsub_query' = querySubId ()
+      let cref = ref cnstr
       fun assign' (nsub_query, nsub) =
         let
-          val (nsub_query_left, nsub_left) = S.differenceModulo nsub_query nsub
+          let (nsub_query_left, nsub_left) = S.differenceModulo nsub_query nsub
                                 (fn (Glocal_u, (l, U)) => fn  (l', T) =>
                                  cref := assign (l' (* = l *), Glocal_u, (U, I.id), T, nsub_query', assignSub, cnstrSub, !cref))
           (* normalize nsub_left (or require that it is normalized
              collect all left-over nsubs and later combine it with cnstrsub
            *)
-          val _ = S.forall nsub_left (fn (nv, (nvaronly, U)) => case (S.lookup cnstrSub nv)
+          let _ = S.forall nsub_left (fn (nv, (nvaronly, U)) => case (S.lookup cnstrSub nv)
                                                          of NONE =>  raise Error "Left-over nsubstitution"
                                                        | SOME(I.AVar A) => A := SOME(normalizeNExp (U, cnstrSub)))
         in (* cnstr[rsub] *)
@@ -680,8 +680,8 @@ struct
   fun ctxToExplicitSub (i, Gquery, I.Null, asub) = I.id
     | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.Dec(_, A)), asub) =
       let
-        val s = ctxToExplicitSub (i+1, Gquery, Gclause, asub)
-        val (U' as I.EVar(X',_,_, _)) = I.newEVar (Gquery, I.EClo(A, s))
+        let s = ctxToExplicitSub (i+1, Gquery, Gclause, asub)
+        let (U' as I.EVar(X',_,_, _)) = I.newEVar (Gquery, I.EClo(A, s))
       in
         case S.lookup asub i
           of NONE => ()
@@ -692,7 +692,7 @@ struct
 
     | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.ADec(_, d)), asub) =
       let
-        val (U' as (I.AVar X')) = I.newAVar ()
+        let (U' as (I.AVar X')) = I.newAVar ()
       in
         (case S.lookup asub i
            of NONE => ()
@@ -705,8 +705,8 @@ struct
   fun solveAuxG (C.Trivial, s, Gquery) =  true (* succeed *)
     | solveAuxG (C.UnifyEq(Glocal,e1, N, eqns), s, Gquery) =
       let
-        val G = compose' (Glocal, Gquery)
-        val s' = shift (Glocal, s)
+        let G = compose' (Glocal, Gquery)
+        let s' = shift (Glocal, s)
       in
         if unifiable (G, (N, s'), (e1, s'))
           then   solveAuxG (eqns, s, Gquery)
@@ -723,8 +723,8 @@ struct
 
   fun solveResiduals (Gquery, Gclause, CGoals(AuxG, cid, ConjGoals, i), asub, cnstr', sc) =
     let
-      val s = ctxToExplicitSub (1, Gquery, Gclause, asub)
-      val success =  solveAuxG (AuxG, s, Gquery) andalso solveCnstr (Gquery, Gclause, cnstr', s)
+      let s = ctxToExplicitSub (1, Gquery, Gclause, asub)
+      let success =  solveAuxG (AuxG, s, Gquery) andalso solveCnstr (Gquery, Gclause, cnstr', s)
     in
       if success
         then
@@ -768,7 +768,7 @@ struct
   fun retrieval (n, STree as Node(s, Children), G, r, sc) =
     (* s = id *)
     let
-      val (nsub_query, assignSub) = (querySubId (), assignSubId ())
+      let (nsub_query, assignSub) = (querySubId (), assignSubId ())
     in
       S.insert nsub_query (1, (I.Null, (Body, r)));
       S.forall Children (fn (_, C) => retrieveChild (n, C, nsub_query, assignSub, nil, G, sc))
@@ -778,7 +778,7 @@ struct
  (* Retrieval via set of candidates *)
  fun retrieveAll (num, Child, nsub_query, assignSub, cnstr, candSet) =
     let
-      val i = ref 0
+      let i = ref 0
       fun retrieve (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
          (case assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr)
           (* destructively updates assignSub, might initiate backtracking  *)
@@ -808,8 +808,8 @@ struct
  fun retrieveCandidates (n, STree as Node(s, Children), Gquery, r, sc) =
     (* s = id *)
     let
-      val (nsub_query, assignSub) = (querySubId (), assignSubId ())
-      val candSet = S.new()
+      let (nsub_query, assignSub) = (querySubId (), assignSubId ())
+      let candSet = S.new()
       fun solveCandidate (i, candSet) =
         case (S.lookup candSet i)
           of NONE => ((* print "No candidate left anymore\n" ;*) () )
@@ -820,7 +820,7 @@ struct
                                                          of NONE =>  raise Error "Left-over nsubstitution"
                                                        | SOME(I.AVar A) => A := SOME(U));
               solveResiduals (Gquery, Gclause, Residuals, assignSub, cnstr, sc)));
-                solveCandidate (i+1, candSet (* sc = (fn S => (O::S)) *) ))
+                solveCandidate (i+1, candSet (* sc = (fun S -> (O::S)) *) ))
     in
       S.insert nsub_query (1, (I.Null, (Body, r)));
       S.forall Children (fn (_, C) => retrieveAll (n, C, nsub_query, assignSub, nil, candSet));
@@ -830,7 +830,7 @@ struct
 
  fun matchSig (a, G, ps as (I.Root(Ha,S),s), sc) =
      let
-       val (n, Tree) = Array.sub (indexArray, a)
+       let (n, Tree) = Array.sub (indexArray, a)
      in
        (* retrieval (n, !Tree, G, I.EClo(ps), sc)   *)
        retrieveCandidates (n, !Tree, G, I.EClo(ps), sc)
@@ -839,7 +839,7 @@ struct
 
  fun matchSigIt (a, G, ps as (I.Root(Ha,S),s), sc) =
      let
-       val (n, Tree) = Array.sub (indexArray, a)
+       let (n, Tree) = Array.sub (indexArray, a)
      in
        retrieval (n, !Tree, G, I.EClo(ps), sc)
      end
@@ -852,8 +852,8 @@ struct
 
  fun sProgInstall (a, C.Head(E, G, Eqs, cid), R) =
    let
-     val (n, Tree) = Array.sub (indexArray, a)
-     val nsub_goal = S.new()
+     let (n, Tree) = Array.sub (indexArray, a)
+     let nsub_goal = S.new()
    in
       S.insert nsub_goal (1, (Body, E));
       Tree := insert (!Tree, nsub_goal, (G, CGoals(Eqs, cid, R, !n+1)));
@@ -862,9 +862,9 @@ struct
    end
 
   in
-    val sProgReset = sProgReset
-    val sProgInstall = sProgInstall
-    val matchSig = matchSigIt
+    let sProgReset = sProgReset
+    let sProgInstall = sProgInstall
+    let matchSig = matchSigIt
   end (* local *)
 end; (* functor SubTree *)
 

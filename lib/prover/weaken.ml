@@ -1,15 +1,15 @@
 (* Weakening substitutions *)
 (* Author: Carsten Schuermann *)
 
-functor Weaken ((*! structure IntSyn' : INTSYN !*)
-                structure Whnf : WHNF
+let recctor Weaken ((*! module IntSyn' : INTSYN !*)
+                module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                   ) : WEAKEN =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   local
-    structure I = IntSyn
+    module I = IntSyn
 
     (* strengthenExp (U, s) = U'
 
@@ -39,7 +39,7 @@ struct
     fun strengthenCtx (I.Null, s) = (I.Null, s)
       | strengthenCtx (I.Decl (G, D), s) =
         let
-          val (G', s') = strengthenCtx (G, s)
+          let (G', s') = strengthenCtx (G, s)
         in
           (I.Decl (G', strengthenDec (D, s')), I.dot1 s')
         end
@@ -50,10 +50,10 @@ struct
       | strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
 
   in
-    val strengthenExp = strengthenExp
-    val strengthenSpine = strengthenSpine
-    val strengthenDec = strengthenDec
-    val strengthenCtx = strengthenCtx
-    val strengthenSub = strengthenSub
+    let strengthenExp = strengthenExp
+    let strengthenSpine = strengthenSpine
+    let strengthenDec = strengthenDec
+    let strengthenCtx = strengthenCtx
+    let strengthenSub = strengthenSub
   end
 end (* functor Weaken *)

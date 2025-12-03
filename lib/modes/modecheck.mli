@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-signature MODECHECK =
+module type MODECHECK =
 sig
   exception Error of string
 
@@ -15,4 +15,4 @@ sig
   (* for output coverage of prior declarations *)
   val checkFreeOut : IntSyn.cid * ModeSyn.ModeSpine -> unit (* raises Error(msg) *)
 
-end;  (* signature MODECHECK *)
+end;  (* module type MODECHECK *)

@@ -1,19 +1,19 @@
 
-signature SIGNAT =
+module type SIGNAT =
 sig
   type key
   type 'a sgn
   exception Signat of string
-  val empty : unit -> 'a sgn
-  val insert : 'a sgn -> key * 'a -> 'a sgn (* raises Signat if key is not fresh*)
-  val lookup : 'a sgn -> key -> 'a (* raises Signat if not present *)
-  val size : 'a sgn -> int
+  let empty : unit -> 'a sgn
+  let insert : 'a sgn -> key * 'a -> 'a sgn (* raises Signat if key is not fresh*)
+  let lookup : 'a sgn -> key -> 'a (* raises Signat if not present *)
+  let size : 'a sgn -> int
 end
 
-structure ListSignat : SIGNAT where type key = int =
+module ListSignat : SIGNAT where type key = int =
 struct 
 
-  structure L = Lib
+  module L = Lib
   type key = int
   type 'a sgn = (key * 'a) list
 
@@ -35,11 +35,11 @@ struct
 
 end
 
-structure GrowarraySignat : SIGNAT where type key = int =
+module GrowarraySignat : SIGNAT where type key = int =
 struct
   
-  structure L = Lib
-  structure G = GrowArray
+  module L = Lib
+  module G = GrowArray
 
   type key = int
   type 'a sgn = {arr : 'a G.growarray,
@@ -47,7 +47,7 @@ struct
 
   exception Signat of string
                       
-  val size = ref 0
+  let size = ref 0
 
   fun empty() = {arr = G.empty(),
                  size = ref 0}
@@ -66,4 +66,4 @@ struct
 
 end
 
-structure Signat = GrowarraySignat
+module Signat = GrowarraySignat

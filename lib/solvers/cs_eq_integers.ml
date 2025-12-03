@@ -1,26 +1,26 @@
 (* Diophantine Equation Solver *)
 (* Author: Roberto Virga *)
 
-functor CSEqIntegers (structure Integers : INTEGERS
-                      (*! structure IntSyn : INTSYN !*)
-                      structure Whnf : WHNF
+let recctor CSEqIntegers (module Integers : INTEGERS
+                      (*! module IntSyn : INTSYN !*)
+                      module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = IntSyn !*)
-                      structure Unify : UNIFY
+                      module Unify : UNIFY
                       (*! sharing Unify.IntSyn = IntSyn !*)
-                      (*! structure CSManager : CS_MANAGER !*)
+                      (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn !*)
                         )
  : CS_EQ_INTEGERS =
 struct
-  (*! structure CSManager = CSManager !*)
+  (*! module CSManager = CSManager !*)
 
-  structure Integers = Integers
-  (*! structure IntSyn = IntSyn !*)
+  module Integers = Integers
+  (*! module IntSyn = IntSyn !*)
 
   type 'a mset = 'a list                 (* MultiSet                   *)
 
-  datatype Sum =                         (* Sum :                      *)
-    Sum of Integers.int * Mon mset       (* Sum ::= m + M1 + ...       *)
+  type sum =                         (* sum :                      *)
+    sum of Integers.int * Mon mset       (* sum ::= m + M1 + ...       *)
 
   and Mon =                              (* Monomials:                 *)
     Mon of Integers.int * (IntSyn.Exp * IntSyn.Sub) mset
@@ -40,27 +40,27 @@ struct
     open IntSyn
     open Integers
 
-    structure FX = CSManager.Fixity
-    structure MS = ModeSyn (* CSManager.ModeSyn *)
+    module FX = CSManager.Fixity
+    module MS = ModeSyn (* CSManager.ModeSyn *)
 
-    exception MyIntsynRep of Sum
+    exception MyIntsynRep of sum
 
     fun extractSum (MyIntsynRep sum) = sum
       | extractSum fe = raise (UnexpectedFgnExp fe)
 
-    val zero = fromInt 0
-    val one  = fromInt 1
+    let zero = fromInt 0
+    let one  = fromInt 1
 
-    val myID = ref ~1 : csid ref
+    let myID = ref ~1 : csid ref
 
-    val numberID = ref ~1 : cid ref
+    let numberID = ref ~1 : cid ref
 
     fun number () = Root (Const (!numberID), Nil)
 
-    val unaryMinusID  = ref ~1 : cid ref
-    val plusID        = ref ~1 : cid ref
-    val minusID       = ref ~1 : cid ref
-    val timesID       = ref ~1 : cid ref
+    let unaryMinusID  = ref ~1 : cid ref
+    let plusID        = ref ~1 : cid ref
+    let minusID       = ref ~1 : cid ref
+    let timesID       = ref ~1 : cid ref
 
     fun unaryMinusExp (U) = Root (Const (!unaryMinusID), App (U, Nil))
     fun plusExp (U, V)    = Root (Const (!plusID), App (U, App (V, Nil)))
@@ -123,12 +123,12 @@ struct
        If sum is normal
        G |- U : V and U is the Twelf syntax conversion of sum
     *)
-    fun toExp (Sum (m, nil)) = numberExp m
-      | toExp (Sum (m, [mon])) =
+    fun toExp (sum (m, nil)) = numberExp m
+      | toExp (sum (m, [mon])) =
           if (m = zero) then toExpMon mon
-          else plusExp (toExp (Sum (m, nil)), toExpMon mon)
-      | toExp (Sum (m, monLL as (mon :: monL))) =
-          plusExp (toExp (Sum (m, monL)), toExpMon mon)
+          else plusExp (toExp (sum (m, nil)), toExpMon mon)
+      | toExp (sum (m, monLL as (mon :: monL))) =
+          plusExp (toExp (sum (m, monL)), toExpMon mon)
 
     (* toExpMon mon = U
 
@@ -224,12 +224,12 @@ struct
        then sum3 normal
        and  sum3 = sum1 + sum2
     *)
-    fun plusSum (Sum (m1, nil), Sum (m2, monL2)) =
-          Sum (m1 + m2, monL2)
-      | plusSum (Sum (m1, monL1), Sum (m2, nil)) =
-          Sum (m1 + m2, monL1)
-      | plusSum (Sum (m1, mon1 :: monL1), Sum (m2, monL2)) =
-          plusSumMon (plusSum (Sum (m1, monL1), Sum (m2, monL2)), mon1)
+    fun plusSum (sum (m1, nil), sum (m2, monL2)) =
+          sum (m1 + m2, monL2)
+      | plusSum (sum (m1, monL1), sum (m2, nil)) =
+          sum (m1 + m2, monL1)
+      | plusSum (sum (m1, mon1 :: monL1), sum (m2, monL2)) =
+          plusSumMon (plusSum (sum (m1, monL1), sum (m2, monL2)), mon1)
 
     (* plusSumMon (sum1, mon2) = sum3
 
@@ -239,18 +239,18 @@ struct
        then sum3 normal
        and  sum3 = sum1 + mon2
     *)
-    and plusSumMon (Sum (m, nil), mon) = Sum (m, [mon])
-      | plusSumMon (Sum (m, monL), mon as Mon (n, UsL)) =
+    and plusSumMon (sum (m, nil), mon) = sum (m, [mon])
+      | plusSumMon (sum (m, monL), mon as Mon (n, UsL)) =
           (case (findMSet compatibleMon (mon, monL))
              of SOME (Mon (n', _), monL') =>
                   let
-                    val n'' = n + n'
+                    let n'' = n + n'
                   in
-                    if (n'' = zero) then Sum (m, monL')
-                    else Sum (m, (Mon (n'', UsL)) :: monL')
+                    if (n'' = zero) then sum (m, monL')
+                    else sum (m, (Mon (n'', UsL)) :: monL')
                   end
               | NONE =>
-                  Sum (m, mon :: monL))
+                  sum (m, mon :: monL))
 
     (* timesSum (sum1, sum2) = sum3
 
@@ -260,12 +260,12 @@ struct
        then sum3 normal
        and  sum3 = sum1 * sum2
     *)
-    fun timesSum (Sum (m1, nil), Sum (m2, nil)) =
-          Sum (m1 * m2, nil)
-      | timesSum (Sum (m1, mon1 :: monL1), sum2) =
-          plusSum (timesSumMon (sum2, mon1), timesSum (Sum (m1, monL1), sum2))
-      | timesSum (sum1, Sum (m2, mon2 :: monL2)) =
-          plusSum (timesSumMon (sum1, mon2), timesSum (sum1, Sum (m2, monL2)))
+    fun timesSum (sum (m1, nil), sum (m2, nil)) =
+          sum (m1 * m2, nil)
+      | timesSum (sum (m1, mon1 :: monL1), sum2) =
+          plusSum (timesSumMon (sum2, mon1), timesSum (sum (m1, monL1), sum2))
+      | timesSum (sum1, sum (m2, mon2 :: monL2)) =
+          plusSum (timesSumMon (sum1, mon2), timesSum (sum1, sum (m2, monL2)))
 
     (* timesSumMon (sum1, mon2) = sum3
 
@@ -275,20 +275,20 @@ struct
        then sum3 normal
        and  sum3 = sum1 * mon2
     *)
-    and timesSumMon (Sum (m, nil), Mon (n, UsL)) =
+    and timesSumMon (sum (m, nil), Mon (n, UsL)) =
           let
-            val n' = m * n
+            let n' = m * n
           in
-            if (n' = zero) then Sum (n', nil)
-            else Sum (zero, [Mon (n', UsL)])
+            if (n' = zero) then sum (n', nil)
+            else sum (zero, [Mon (n', UsL)])
           end
-      | timesSumMon (Sum (m, (Mon (n', UsL')) :: monL), mon as Mon (n, UsL)) =
+      | timesSumMon (sum (m, (Mon (n', UsL')) :: monL), mon as Mon (n, UsL)) =
           let
-            val n'' = n * n'
-            val UsL'' = UsL @ UsL'
-            val Sum (m', monL') = timesSumMon (Sum (m, monL), mon)
+            let n'' = n * n'
+            let UsL'' = UsL @ UsL'
+            let sum (m', monL') = timesSumMon (sum (m, monL), mon)
           in
-            Sum (m', (Mon (n'', UsL'')) :: monL')
+            sum (m', (Mon (n'', UsL'')) :: monL')
           end
 
     (* unaryMinusSum sum = sum'
@@ -299,7 +299,7 @@ struct
        and  sum' = ~1 * sum
     *)
     fun unaryMinusSum (sum) =
-          timesSum (Sum (~one, nil), sum)
+          timesSum (sum (~one, nil), sum)
 
     (* minusSum (sum1, sum2) = sum3
 
@@ -322,14 +322,14 @@ struct
     fun fromExpW (Us as (FgnExp (cs, fe), _)) =
           if (cs = !myID)
           then normalizeSum (extractSum fe)
-          else Sum (zero, [Mon (one, [Us])])
+          else sum (zero, [Mon (one, [Us])])
       | fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
           if (cs = !myID)
           then (case (fromString (conDecName (conDec)))
-                  of SOME(m) => Sum (m, nil))
-          else Sum (zero, [Mon (one, [Us])])
+                  of SOME(m) => sum (m, nil))
+          else sum (zero, [Mon (one, [Us])])
       | fromExpW Us =
-          Sum (zero, [Mon (one, [Us])])
+          sum (zero, [Mon (one, [Us])])
 
     (* fromExp (U, s) = sum
 
@@ -342,44 +342,44 @@ struct
           fromExpW (Whnf.whnf Us)
 
     (* normalizeSum sum = sum', where sum' normal and sum' = sum *)
-    and normalizeSum (sum as (Sum (m, nil))) = sum
-      | normalizeSum (Sum (m, [mon])) =
-          plusSum (Sum (m, nil), normalizeMon mon)
-      | normalizeSum (Sum (m, mon :: monL)) =
-          plusSum (normalizeMon mon, normalizeSum (Sum (m, monL)))
+    and normalizeSum (sum as (sum (m, nil))) = sum
+      | normalizeSum (sum (m, [mon])) =
+          plusSum (sum (m, nil), normalizeMon mon)
+      | normalizeSum (sum (m, mon :: monL)) =
+          plusSum (normalizeMon mon, normalizeSum (sum (m, monL)))
 
     (* normalizeMon mon = mon', where mon' normal and mon' = mon *)
-    and normalizeMon (mon as (Mon (n, nil))) = Sum (n, nil)
+    and normalizeMon (mon as (Mon (n, nil))) = sum (n, nil)
       | normalizeMon (Mon (n, [Us])) =
-          timesSum (Sum (n, nil), fromExp Us)
+          timesSum (sum (n, nil), fromExp Us)
       | normalizeMon (mon as (Mon (n, Us :: UsL))) =
           timesSum (fromExp Us, normalizeMon (Mon (n, UsL)))
 
     (* mapSum (f, m + M1 + ...) = m + mapMon(f,M1) + ... *)
-    and mapSum (f, Sum (m, monL)) =
-          Sum (m, List.map (fn mon => mapMon (f, mon)) monL)
+    and mapSum (f, sum (m, monL)) =
+          sum (m, List.map (fun mon -> mapMon (f, mon)) monL)
 
     (* mapMon (f, n * (U1,s1) + ...) = n * f(U1,s1) * ... *)
     and mapMon (f, Mon (n, UsL)) =
-          Mon (n, List.map (fn Us => Whnf.whnf (f (EClo Us), id)) UsL)
+          Mon (n, List.map (fun Us -> Whnf.whnf (f (EClo Us), id)) UsL)
 
-    fun appSum (f, Sum (m, monL)) =
-        List.app (fn mon => appMon (f, mon)) monL
+    fun appSum (f, sum (m, monL)) =
+        List.app (fun mon -> appMon (f, mon)) monL
 
     and appMon (f, Mon (n, UsL)) =
-        List.app (fn Us => f (EClo Us)) UsL
+        List.app (fun Us -> f (EClo Us)) UsL
 
     (* solvableSum (m + M1 + ....) =
          true iff the generalized gcd of the coefficients of the Mi
                   divides m
     *)
-    fun solvableSum (Sum(m, monL)) =
+    fun solvableSum (sum(m, monL)) =
           let
             fun gcd_list (n1 :: nil) = n1
               | gcd_list (n1 :: n2 :: nil) = gcd(n1, n2)
               | gcd_list (n1 :: n2 :: l) = gcd (gcd (n1, n2), gcd_list l)
-            val coeffL = List.map (fn Mon(n, _) => n) monL
-            val g = gcd_list coeffL
+            let coeffL = List.map (fn Mon(n, _) => n) monL
+            let g = gcd_list coeffL
           in
             rem (m, gcd_list coeffL) = zero
           end
@@ -388,11 +388,11 @@ struct
          SOME(x) if f(M) = SOME(x) for some monomial M in sum
          NONE    if f(M) = NONE for all monomials M in sum
     *)
-    fun findMon f (G, Sum(m, monL)) =
+    fun findMon f (G, sum(m, monL)) =
           let
             fun findMon' (nil, monL2) = NONE
               | findMon' (mon :: monL1, monL2) =
-                  (case (f (G, mon, Sum(m, monL1 @ monL2)))
+                  (case (f (G, mon, sum(m, monL1 @ monL2)))
                      of (result as SOME _) => result
                       | NONE => findMon' (monL1, mon :: monL2))
           in
@@ -403,7 +403,7 @@ struct
          SOME(sum') if sum is divisible by the scalar k, and sum' = sum/k
          NONE       if sum is not divisible by k
     *)
-    fun divideSum (Sum(m, monL), k) =
+    fun divideSum (sum(m, monL), k) =
           let
             exception Err
             fun divide n =
@@ -411,7 +411,7 @@ struct
                   else raise Err
             fun divideMon (Mon(n, UsL)) = Mon (divide n, UsL)
           in
-            (SOME(Sum(divide m, List.map divideMon monL)))
+            (SOME(sum(divide m, List.map divideMon monL)))
               handle Err => NONE
           end
 
@@ -421,8 +421,8 @@ struct
     *)
     fun delaySum (G, sum) =
           let
-            val U = toFgn sum
-            val cnstr = ref (Eqn (G, U, numberExp (zero)))
+            let U = toFgn sum
+            let cnstr = ref (Eqn (G, U, numberExp (zero)))
           in
             Delay (U, cnstr)
           end
@@ -435,7 +435,7 @@ struct
        then result is the outcome (of type FgnUnify) of solving the
        equation sum1 = sum2 by the (generalized) division theorem.
     *)
-    and solveSum (G, sum as Sum(m, [Mon(n, [(X as EVar (r, _, _, _), s)])])) =
+    and solveSum (G, sum as sum(m, [Mon(n, [(X as EVar (r, _, _, _), s)])])) =
           if Whnf.isPatSub s
           then [Assign (G, X, numberExp (~(quot(m, n))), Whnf.invert s)]
           else [delaySum (G, sum)]
@@ -445,8 +445,8 @@ struct
                   if Whnf.isPatSub s
                   then
                     let
-                      val ss = Whnf.invert s
-                      val RHS = toFgn sum
+                      let ss = Whnf.invert s
+                      let RHS = toFgn sum
                     in
                       if Unify.invertible (G, (RHS, id), ss, r)
                       then SOME (mon, ss, sum)
@@ -460,21 +460,21 @@ struct
                    (case findMon invertMon (G, sum1)
                       of SOME (Mon(n2, [(X2, s2)]), ss2, sum2) =>
                            let
-                             val s = Unify.intersection (s1, s2)
-                             val ss = Whnf.invert s
-                             val G' = Whnf.strengthen (ss, G)
-                             val g = gcd (n1, n2)
-                             val (x1, x2) = solve_gcd (n1, n2)
-                             val K = newEVar (G', number())
-                             val Z = newEVar (G', number())
+                             let s = Unify.intersection (s1, s2)
+                             let ss = Whnf.invert s
+                             let G' = Whnf.strengthen (ss, G)
+                             let g = gcd (n1, n2)
+                             let (x1, x2) = solve_gcd (n1, n2)
+                             let K = newEVar (G', number())
+                             let Z = newEVar (G', number())
                            in
-                             Assign (G, X1, toFgn(plusSum (Sum (zero, [Mon(quot(n2, g), [(K, ss)])]),
-                                                           timesSum (Sum (x1, nil),
-                                                                     Sum (zero, [Mon (one, [(Z, ss)])])))), ss1) ::
-                             Assign (G, X2, toFgn(plusSum (Sum (zero, [Mon(~(quot(n1, g)), [(K, ss)])]),
-                                                           timesSum (Sum (x2, nil),
-                                                                     Sum (zero, [Mon (one, [(Z, ss)])])))), ss2) ::
-                             solveSum (G, plusSum (Sum(zero, [Mon(g, [(Z, ss)])]), sum2))
+                             Assign (G, X1, toFgn(plusSum (sum (zero, [Mon(quot(n2, g), [(K, ss)])]),
+                                                           timesSum (sum (x1, nil),
+                                                                     sum (zero, [Mon (one, [(Z, ss)])])))), ss1) ::
+                             Assign (G, X2, toFgn(plusSum (sum (zero, [Mon(~(quot(n1, g)), [(K, ss)])]),
+                                                           timesSum (sum (x2, nil),
+                                                                     sum (zero, [Mon (one, [(Z, ss)])])))), ss2) ::
+                             solveSum (G, plusSum (sum(zero, [Mon(g, [(Z, ss)])]), sum2))
                            end
                        | NONE =>
                            (case divideSum (sum1, n1)
@@ -497,8 +497,8 @@ struct
                   if Whnf.isPatSub s
                   then
                     let
-                      val ss = Whnf.invert s
-                      val RHS = toFgn (timesSum (Sum (~n, nil), sum))
+                      let ss = Whnf.invert s
+                      let RHS = toFgn (timesSum (sum (~n, nil), sum))
                     in
                       if Unify.invertible (G, (RHS, id), ss, r)
                       then SOME (G, LHS, RHS, ss)
@@ -507,7 +507,7 @@ struct
                   else NONE
           in
             case minusSum (sum2, sum1)
-              of Sum (m, nil) => if (m = zero) then Succeed nil else Fail
+              of sum (m, nil) => if (m = zero) then Succeed nil else Fail
                | sum => if (solvableSum sum) then Succeed (solveSum (G, sum))
                         else Fail
           end
@@ -518,8 +518,8 @@ struct
        If sum normal
        then U is a foreign expression representing sum.
     *)
-    and toFgn (sum as Sum (m, nil)) = toExp (sum)
-      | toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep (sum))
+    and toFgn (sum as sum (m, nil)) = toExp (sum)
+      | toFgn (sum as sum (m, monL)) = FgnExp (!myID, MyIntsynRep (sum))
 
     (* toInternal (fe) = U
        Invariant:
@@ -560,7 +560,7 @@ struct
     fun equalTo (MyIntsynRep sum) U2 =
         (case minusSum (normalizeSum (sum),
                        (fromExp (U2, id)))
-         of Sum(m, nil) => (m = zero)
+         of sum(m, nil) => (m = zero)
           | _ => false)
       | equalTo fe _ = raise (UnexpectedFgnExp fe)
 
@@ -569,12 +569,12 @@ struct
       | unifyWith fe _ = raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
-        val csid = !myID
-        val _ = FgnExpStd.ToInternal.install (csid, toInternal)
-        val _ = FgnExpStd.Map.install (csid, map)
-        val _ = FgnExpStd.App.install (csid, app)
-        val _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
-        val _ = FgnExpStd.EqualTo.install (csid, equalTo)
+        let csid = !myID
+        let _ = FgnExpStd.ToInternal.install (csid, toInternal)
+        let _ = FgnExpStd.Map.install (csid, map)
+        let _ = FgnExpStd.App.install (csid, app)
+        let _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
+        let _ = FgnExpStd.EqualTo.install (csid, equalTo)
     in
         ()
     end
@@ -591,13 +591,13 @@ struct
                   (makeParams arity, arity)
               | expand ((App (U, S), s), arity) =
                   let
-                    val (S', arity') = expand ((S, s), (Int.-(arity,1)))
+                    let (S', arity') = expand ((S, s), (Int.-(arity,1)))
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
               | expand ((SClo (S, s'), s), arity) =
                   expand ((S, comp (s', s)), arity)
-            val (S', arity') = expand ((S, id), arity)
+            let (S', arity') = expand ((S, id), arity)
           in
             makeLam (toFgn (opExp S')) arity'
           end
@@ -616,7 +616,7 @@ struct
 
     (* init (cs, installFunction) = ()
        Initialize the constraint solver.
-       installFunction is used to add its signature symbols.
+       installFunction is used to add its module type symbols.
     *)
     fun init (cs, installF) =
           (
@@ -663,7 +663,7 @@ struct
             ()
           )
   in
-    val solver =
+    let solver =
           {
             name = ("equality/integers"),
             keywords = "arithmetic,equality",
@@ -678,19 +678,19 @@ struct
             unwind = (fn () => ())
           }
 
-    val fromExp = fromExp
-    val toExp = toExp
-    val normalize = normalizeSum
+    let fromExp = fromExp
+    let toExp = toExp
+    let normalize = normalizeSum
 
-    val compatibleMon = compatibleMon
+    let compatibleMon = compatibleMon
 
-    val number = number
+    let number = number
 
     fun unaryMinus U = toFgn (unaryMinusSum (fromExp (U, id)))
     fun plus (U, V) = toFgn (plusSum (fromExp (U ,id), fromExp (V, id)))
     fun minus (U, V) = toFgn (minusSum (fromExp (U, id), fromExp (V, id)))
     fun times (U, V) = toFgn (timesSum (fromExp (U, id), fromExp (V, id)))
 
-    val constant = numberExp
+    let constant = numberExp
   end
 end  (* functor CSEqIntegers *)

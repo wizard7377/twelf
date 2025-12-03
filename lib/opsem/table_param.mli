@@ -1,16 +1,16 @@
 (* Global Table parameters *)
 (* Author: Brigitte Pientka *)
 
-signature TABLEPARAM =
+module type TABLEPARAM =
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
-  (*! structure RBSet : RBSET !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN !*)
+  (*! module RBSet : RBSET !*)
 
   exception Error of string
 
   (* Residual equation *)
-  datatype ResEqn =
+  type ResEqn =
     Trivial				  (* trivially done *)
   | Unify of IntSyn.dctx * IntSyn.Exp     (* call unify *)
     * IntSyn.Exp * ResEqn
@@ -18,7 +18,7 @@ sig
   type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list,
 		 lookup: int} ref
     
-  datatype Status = Complete | Incomplete
+  type Status = Complete | Incomplete
 
   val globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * 
 		      IntSyn.Exp * ResEqn * answer * Status ) list ref
@@ -42,16 +42,16 @@ sig
 
  val aid : unit -> asub
 
- datatype callCheckResult = 
+ type callCheckResult = 
     NewEntry of answer 
   | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * Status
   | DivergingEntry of IntSyn.Sub * answer
 
-  datatype answState = new | repeated
+  type answState = new | repeated
 
 (* ---------------------------------------------------------------------- *)
 
-  datatype Strategy = Variant | Subsumption
+  type Strategy = Variant | Subsumption
 
 
   val strategy  : Strategy ref 
@@ -64,4 +64,4 @@ sig
 
   val strengthen : bool ref
 
-end;  (* signature TABLEPARAM *)
+end;  (* module type TABLEPARAM *)

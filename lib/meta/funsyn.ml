@@ -1,14 +1,14 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-functor FunSyn ((*! structure IntSyn' : INTSYN !*)
-                structure Whnf : WHNF
+let recctor FunSyn ((*! module IntSyn' : INTSYN !*)
+                module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                structure Conv : CONV
+                module Conv : CONV
                 (*! sharing Conv.IntSyn = IntSyn' !*)
                   ) : FUNSYN =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
@@ -19,27 +19,27 @@ struct
 
   type dlist = IntSyn.Dec list
 
-  datatype LabelDec =                   (* ContextBody                *)
+  type LabelDec =                   (* ContextBody                *)
     LabelDec of name * dlist * dlist
                                         (* BB ::= l: SOME Theta. Phi  *)
 
-  datatype CtxBlock =                   (* ContextBlocks              *)
+  type CtxBlock =                   (* ContextBlocks              *)
     CtxBlock of
       label option * IntSyn.dctx        (* B ::= l : Phi              *)
 
-  datatype LFDec =                      (* Contexts                   *)
+  type LFDec =                      (* Contexts                   *)
     Prim of IntSyn.Dec                  (* LD ::= x :: A              *)
   | Block of CtxBlock                   (*      | B                   *)
 
   type lfctx = LFDec IntSyn.Ctx         (* Psi ::= . | Psi, LD        *)
 
-  datatype For =                        (* Formulas                   *)
+  type For =                        (* Formulas                   *)
     All of LFDec * For                  (* F ::= All LD. F            *)
   | Ex  of IntSyn.Dec * For             (*     | Ex  D. F             *)
   | True                                (*     | T                    *)
   | And of For * For                    (*     | F1 ^ F2              *)
 
-  datatype Pro =                        (* Programs                   *)
+  type Pro =                        (* Programs                   *)
     Lam of LFDec * Pro                  (* P ::= lam LD. P            *)
   | Inx of IntSyn.Exp * Pro             (*     | <M, P>               *)
   | Unit                                (*     | <>                   *)
@@ -65,32 +65,32 @@ struct
   | Left of int * Decs                  (*      | xx = pi1 yy, Ds     *)
   | Right of int * Decs                 (*      | xx = pi2 yy, Ds     *)
 
-  datatype LemmaDec =                   (* Lemmas                     *)
+  type LemmaDec =                   (* Lemmas                     *)
     LemmaDec of name list * Pro * For   (* L ::= c:F = P              *)
 
   type mctx = MDec IntSyn.Ctx           (* Delta ::= . | Delta, xx : F*)
 
   local
-    structure I = IntSyn
-    val maxLabel = Global.maxCid
-    val maxLemma = Global.maxCid
+    module I = IntSyn
+    let maxLabel = Global.maxCid
+    let maxLemma = Global.maxCid
 
-    val labelArray = Array.array (maxLabel+1,
+    let labelArray = Array.array (maxLabel+1,
                                   LabelDec("", nil, nil))
                    : LabelDec Array.array
-    val nextLabel = ref 0
+    let nextLabel = ref 0
 
-    val lemmaArray = Array.array (maxLemma+1, LemmaDec (nil, Unit, True))
+    let lemmaArray = Array.array (maxLemma+1, LemmaDec (nil, Unit, True))
                    : LemmaDec Array.array
-    val nextLemma = ref 0
+    let nextLemma = ref 0
 
     fun labelLookup label = Array.sub (labelArray, label)
     fun labelAdd (labelDec) =
         let
-          val label = !nextLabel
+          let label = !nextLabel
         in
           if label > maxLabel
-            then raise Error ("Global signature size " ^ Int.toString (maxLabel+1) ^ " exceeded")
+            then raise Error ("Global module type size " ^ Int.toString (maxLabel+1) ^ " exceeded")
           else (Array.update (labelArray, label, labelDec) ;
                 nextLabel := label + 1;
                 label)
@@ -102,10 +102,10 @@ struct
     fun lemmaLookup lemma = Array.sub (lemmaArray, lemma)
     fun lemmaAdd (lemmaDec) =
         let
-          val lemma = !nextLemma
+          let lemma = !nextLemma
         in
           if lemma > maxLemma
-            then raise Error ("Global signature size " ^ Int.toString (maxLemma+1) ^ " exceeded")
+            then raise Error ("Global module type size " ^ Int.toString (maxLemma+1) ^ " exceeded")
           else (Array.update (lemmaArray, lemma, lemmaDec) ;
                 nextLemma := lemma + 1;
                 lemma)
@@ -171,7 +171,7 @@ struct
           | lfctxLFDec' (I.Decl (Psi', Prim _), k') = lfctxLFDec' (Psi', k'-1)
           | lfctxLFDec' (I.Decl (Psi', LD as Block (CtxBlock (_, G))), k') =
             let
-              val l = I.ctxLength G
+              let l = I.ctxLength G
             in
               if k' <= l then
                 (LD, I.Shift (k - k' + 1))
@@ -235,7 +235,7 @@ struct
     fun ctxSub (I.Null, s) = (I.Null, s)
       | ctxSub (I.Decl (G, D), s) =
         let
-          val (G', s') = ctxSub (G, s)
+          let (G', s') = ctxSub (G, s)
         in
           (I.Decl (G', I.decSub (D, s')), I.dot1 s)
         end
@@ -244,7 +244,7 @@ struct
           All (Prim (I.decSub (D, s)), forSub (F, I.dot1 s))
       | forSub (All (Block (CtxBlock (name, G)), F), s) =
           let
-            val (G', s') = ctxSub (G, s)
+            let (G', s') = ctxSub (G, s)
           in
             All (Block (CtxBlock (name, G')), forSub (F, s'))
           end
@@ -268,28 +268,28 @@ struct
 
 
   in
-    val labelLookup = labelLookup
-    val labelAdd = labelAdd
-    val labelSize = labelSize
-    val labelReset = labelReset
-    val lemmaLookup = lemmaLookup
-    val lemmaAdd = lemmaAdd
-    val lemmaSize = lemmaSize
-    val mdecSub = mdecSub
-    val makectx = makectx
-    val lfctxLength = lfctxLength
-    val lfctxLFDec = lfctxLFDec
-    val dot1n = dot1n
-    val convFor = convFor
-    val forSub = forSub
-    val normalizeFor = normalizeFor
+    let labelLookup = labelLookup
+    let labelAdd = labelAdd
+    let labelSize = labelSize
+    let labelReset = labelReset
+    let lemmaLookup = lemmaLookup
+    let lemmaAdd = lemmaAdd
+    let lemmaSize = lemmaSize
+    let mdecSub = mdecSub
+    let makectx = makectx
+    let lfctxLength = lfctxLength
+    let lfctxLFDec = lfctxLFDec
+    let dot1n = dot1n
+    let convFor = convFor
+    let forSub = forSub
+    let normalizeFor = normalizeFor
 
-    val ctxToList = ctxToList
-    val listToCtx = listToCtx
+    let ctxToList = ctxToList
+    let listToCtx = listToCtx
   end
 end;  (* functor FunSyn *)
 
-structure FunSyn =
-  FunSyn ((*! structure IntSyn' = IntSyn !*)
-          structure Whnf = Whnf
-          structure Conv = Conv);
+module FunSyn =
+  FunSyn ((*! module IntSyn' = IntSyn !*)
+          module Whnf = Whnf
+          module Conv = Conv);

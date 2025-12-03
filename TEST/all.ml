@@ -7,23 +7,23 @@
 (* Twelf.chatter := 5; *)
 Twelf.doubleCheck := true;
 
-fun test (file) =
+let rec test (file) =
     case Twelf.make file
       of Twelf.OK => Twelf.OK
        | Twelf.ABORT => raise Domain;
 
-fun testUnsafe (file) = 
+let rec testUnsafe (file) = 
     let
-       val _ = Twelf.unsafe := true
-       val stat = Twelf.make file 
+       let _ = Twelf.unsafe := true
+       let stat = Twelf.make file 
 		      handle e => (Twelf.unsafe := false; raise e)
-       val _ = Twelf.unsafe := false
+       let _ = Twelf.unsafe := false
     in 
        case stat 
          of Twelf.OK => Twelf.OK
           | Twelf.ABORT => raise Domain
     end;
 
-fun conclude () = ();
+let rec conclude () = ();
 
 use "TEST/regression.sml";

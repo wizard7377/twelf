@@ -2,36 +2,36 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor ReconThm (structure Global : GLOBAL
-                  (* structure IntSyn : INTSYN *)
-                  structure Abstract : ABSTRACT
+let recctor ReconThm (module Global : GLOBAL
+                  (* module IntSyn : INTSYN *)
+                  module Abstract : ABSTRACT
                   (*! sharing Abstract.IntSyn = IntSyn !*)
-                  structure Constraints : CONSTRAINTS
-                  structure Names : NAMES
+                  module Constraints : CONSTRAINTS
+                  module Names : NAMES
                   (*! sharing Names.IntSyn = IntSyn !*)
-                  (*! structure Paths' : PATHS !*)
-                  structure ThmSyn': THMSYN
+                  (*! module Paths' : PATHS !*)
+                  module ThmSyn': THMSYN
                     sharing ThmSyn'.Names = Names
-                  structure ReconTerm': RECON_TERM
+                  module ReconTerm': RECON_TERM
                   (*! sharing ReconTerm'.IntSyn = IntSyn !*)
                   (*! sharing ReconTerm'.Paths = Paths'  !*)
-                  structure Print : PRINT
+                  module Print : PRINT
                   (*! sharing Print.IntSyn = IntSyn !*)
                     )
   : RECON_THM =
 struct
-  structure ThmSyn = ThmSyn'
-  (*! structure Paths = Paths' !*)
-  structure ExtSyn = ReconTerm'
+  module ThmSyn = ThmSyn'
+  (*! module Paths = Paths' !*)
+  module ExtSyn = ReconTerm'
 
   exception Error of string
 
   local
-    structure M = ModeSyn
-    structure I = IntSyn
-    structure L = ThmSyn
-    structure P = Paths
-    structure T = ReconTerm'
+    module M = ModeSyn
+    module I = IntSyn
+    module L = ThmSyn
+    module P = Paths
+    module T = ReconTerm'
 
     fun error (r, msg) = raise Error (P.wrap (r, msg))
 
@@ -44,11 +44,11 @@ struct
           fun lex' nil = (nil, r0)
             | lex' ((O, r) :: L) =
               let
-                val (Os, r') = lex' L
+                let (Os, r') = lex' L
               in
                 (O :: Os, Paths.join (r, r'))
               end
-          val (Os, r1) = lex' L
+          let (Os, r1) = lex' L
         in
           (ThmSyn.Lex Os, r1)
         end
@@ -58,11 +58,11 @@ struct
           fun simul' nil = (nil, r0)
             | simul' ((O, r) :: L) =
               let
-                val (Os, r') = simul' L
+                let (Os, r') = simul' L
               in
                 (O :: Os, Paths.join (r, r'))
               end
-          val (Os, r1) = simul' L
+          let (Os, r1) = simul' L
         in
           (ThmSyn.Simul Os, r1)
         end
@@ -102,8 +102,8 @@ struct
           fun callpats' nil = (nil, nil)
             | callpats' ((name, P, r) :: L) =
               let
-                val (cps, rs) = (callpats' L)
-                val qid = Names.Qid (nil, name)
+                let (cps, rs) = (callpats' L)
+                let qid = Names.Qid (nil, name)
               in
                 (* check whether they are families here? *)
                 case Names.constLookup qid
@@ -114,7 +114,7 @@ struct
                        (checkCallPat (I.sgnLookup cid, P, r);
                         ((cid, P) :: cps, (r :: rs)))
               end
-          val (cps, rs) = callpats' L
+          let (cps, rs) = callpats' L
         in
           (ThmSyn.Callpats (cps), rs)
         end
@@ -134,7 +134,7 @@ struct
     type rdecl = ThmSyn.RDecl * (Paths.region * Paths.region list)
     fun rdecl ((P, r0), (O1,r1), (O2, r2), (C, rs)) =
         let
-            val r = Paths.join (r1, r2)
+            let r = Paths.join (r1, r2)
         in
             (ThmSyn.RDecl (ThmSyn.RedOrder(P ,O1, O2), C), (Paths.join (r0, r), rs))
         end
@@ -145,7 +145,7 @@ struct
     type tableddecl = (ThmSyn.TabledDecl * Paths.region)
     fun tableddecl (name, r) =
         let
-          val qid = Names.Qid (nil, name)
+          let qid = Names.Qid (nil, name)
         in
           (* check whether they are families here? *)
          case Names.constLookup qid
@@ -162,7 +162,7 @@ struct
     type keepTabledecl = (ThmSyn.KeepTableDecl * Paths.region)
     fun keepTabledecl (name, r) =
         let
-          val qid = Names.Qid (nil, name)
+          let qid = Names.Qid (nil, name)
         in
           (* check whether they are families here? *)
          case Names.constLookup qid
@@ -190,8 +190,8 @@ struct
     fun assertToAssert P = P
 
     type decs = ExtSyn.dec I.Ctx
-    val null = I.Null
-    val decl = I.Decl
+    let null = I.Null
+    let decl = I.Decl
 
     type labeldec = decs * decs
     type thm = labeldec list * ExtSyn.dec I.Ctx * ModeSyn.Mode I.Ctx * int
@@ -209,10 +209,10 @@ struct
 
     fun ctxBlockToString (G0, (G1, G2)) =
         let
-          val _ = Names.varReset I.Null
-          val G0' = Names.ctxName G0
-          val G1' = Names.ctxLUName G1
-          val G2' = Names.ctxLUName G2
+          let _ = Names.varReset I.Null
+          let G0' = Names.ctxName G0
+          let G1' = Names.ctxLUName G1
+          let G2' = Names.ctxLUName G2
         in
           Print.ctxToString (I.Null, G0') ^ "\n"
           ^ (case G1' of I.Null => "" | _ => "some " ^ Print.ctxToString (G0', G1') ^ "\n")
@@ -222,10 +222,10 @@ struct
     fun checkFreevars (I.Null, (G1, G2), r) = ()
       | checkFreevars (G0, (G1, G2), r) =
         let
-          val _ = Names.varReset I.Null
-          val G0' = Names.ctxName G0
-          val G1' = Names.ctxLUName G1
-          val G2' = Names.ctxLUName G2
+          let _ = Names.varReset I.Null
+          let G0' = Names.ctxName G0
+          let G1' = Names.ctxLUName G1
+          let G2' = Names.ctxLUName G2
         in
           error (r, "Free variables in context block after term reconstruction:\n"
                  ^ ctxBlockToString (G0', (G1', G2')))
@@ -234,18 +234,18 @@ struct
     fun abstractCtxPair (g1, g2) =
         let
           (* each block reconstructed independent of others *)
-          val r = (case (T.ctxRegion g1, T.ctxRegion g2)
+          let r = (case (T.ctxRegion g1, T.ctxRegion g2)
                      of (SOME r1, SOME r2) => Paths.join (r1, r2)
                       | (_, SOME r2) => r2)
-          val T.JWithCtx (G1, T.JWithCtx (G2, _)) =
+          let T.JWithCtx (G1, T.JWithCtx (G2, _)) =
                 T.recon (T.jwithctx (g1, T.jwithctx (g2, T.jnothing)))
-          val (G0, [G1', G2']) =        (* closed nf *)
+          let (G0, [G1', G2']) =        (* closed nf *)
               Abstract.abstractCtxs [G1, G2]
               handle Constraints.Error (C)
               => error (r, "Constraints remain in context block after term reconstruction:\n"
                         ^ ctxBlockToString (I.Null, (G1, G2)) ^ "\n"
                         ^ Print.cnstrsToString C)
-          val _ = checkFreevars (G0, (G1', G2'), r)
+          let _ = checkFreevars (G0, (G1', G2'), r)
         in
           (G1', G2')
         end
@@ -254,25 +254,25 @@ struct
 
     fun exists (g', t) (GBs, g, M, k) =
           t (GBs, ctxAppend (g, g'),
-             ctxAppend (M, ctxMap (fn _ => M.Minus) g'), k)
+             ctxAppend (M, ctxMap (fun _ -> M.Minus) g'), k)
 
     fun forall (g', t) (GBs, g, M, k) =
           t (GBs, ctxAppend (g, g'),
-             ctxAppend (M, ctxMap (fn _ => M.Plus) g'), k)
+             ctxAppend (M, ctxMap (fun _ -> M.Plus) g'), k)
 
     fun forallStar (g', t) (GBs, g, M, _) =
           t (GBs, ctxAppend (g, g'),
-             ctxAppend (M, ctxMap (fn _ => M.Plus) g'), I.ctxLength g')
+             ctxAppend (M, ctxMap (fun _ -> M.Plus) g'), I.ctxLength g')
 
     fun forallG (gbs, t:thm->thm) (_:thm):thm =
           t (gbs, I.Null, I.Null, 0)
 
     fun theoremToTheorem t =
         let
-          val (gbs, g, M, k) = t (nil, I.Null, I.Null, 0)
-          val _ = Names.varReset IntSyn.Null
-          val GBs = List.map abstractCtxPair gbs
-          val T.JWithCtx (G, _) = T.recon (T.jwithctx (g, T.jnothing))
+          let (gbs, g, M, k) = t (nil, I.Null, I.Null, 0)
+          let _ = Names.varReset IntSyn.Null
+          let GBs = List.map abstractCtxPair gbs
+          let T.JWithCtx (G, _) = T.recon (T.jwithctx (g, T.jnothing))
         in
           L.ThDecl (GBs, G, M, k)
         end
@@ -284,7 +284,7 @@ struct
 
     fun abstractWDecl W =
         let
-          val W' = List.map Names.Qid W
+          let W' = List.map Names.Qid W
         in
           W'
         end
@@ -296,67 +296,67 @@ struct
   in
     (* avoid this re-copying? -fp *)
     type order = order
-    val varg = varg
-    val lex = lex
-    val simul = simul
+    let varg = varg
+    let lex = lex
+    let simul = simul
 
     type callpats = callpats
-    val callpats = callpats
+    let callpats = callpats
 
     type tdecl = tdecl
-    val tdecl = tdecl
+    let tdecl = tdecl
 
     (* -bp *)
     type predicate = predicate
-    val predicate = predicate
+    let predicate = predicate
 
     (* -bp *)
     type rdecl = rdecl
-    val rdecl = rdecl
+    let rdecl = rdecl
 
     type tableddecl = tableddecl
-    val tableddecl = tableddecl
+    let tableddecl = tableddecl
 
     type keepTabledecl = keepTabledecl
-    val keepTabledecl = keepTabledecl
+    let keepTabledecl = keepTabledecl
 
     type prove = prove
-    val prove = prove
+    let prove = prove
 
     type establish = establish
-    val establish = establish
+    let establish = establish
 
     type assert = assert
-    val assert = assert
+    let assert = assert
 
-    val tdeclTotDecl = tdeclTotDecl
-    val rdeclTorDecl = rdeclTorDecl
+    let tdeclTotDecl = tdeclTotDecl
+    let rdeclTorDecl = rdeclTorDecl
 
-    val tableddeclTotabledDecl = tableddeclTotabledDecl
-    val keepTabledeclToktDecl = keepTabledeclToktDecl
+    let tableddeclTotabledDecl = tableddeclTotabledDecl
+    let keepTabledeclToktDecl = keepTabledeclToktDecl
 
-    val proveToProve = proveToProve
-    val establishToEstablish = establishToEstablish
-    val assertToAssert = assertToAssert
+    let proveToProve = proveToProve
+    let establishToEstablish = establishToEstablish
+    let assertToAssert = assertToAssert
 
     type decs = decs
-    val null = null
-    val decl = decl
+    let null = null
+    let decl = decl
 
     type theorem = theorem
-    val top = top
-    val forallStar = forallStar
-    val forall = forall
-    val exists = exists
-    val forallG = forallG
-    val theoremToTheorem = theoremToTheorem
+    let top = top
+    let forallStar = forallStar
+    let forall = forall
+    let exists = exists
+    let forallG = forallG
+    let theoremToTheorem = theoremToTheorem
 
     type theoremdec = theoremdec
-    val dec = dec
-    val theoremDecToTheoremDec = theoremDecToTheoremDec
+    let dec = dec
+    let theoremDecToTheoremDec = theoremDecToTheoremDec
 
     type wdecl = wdecl
-    val wdeclTowDecl = wdeclTowDecl
-    val wdecl = wdecl
+    let wdeclTowDecl = wdeclTowDecl
+    let wdecl = wdecl
   end (* local *)
 end (* functor ReconThm *)

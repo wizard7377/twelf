@@ -1,8 +1,8 @@
 
 (** 
- A tabular data structure.
+ A tabular data module.
  *) 
-signature TABLE =
+module type TABLE =
 sig
 
   type key

@@ -1,7 +1,7 @@
 (* Sparse 2-Dimensional Arrays *)
 (* Author: Roberto Virga *)
 
-functor SparseArray2 (structure IntTable : TABLE where type key = int)
+let recctor SparseArray2 (module IntTable : TABLE where type key = int)
   :> SPARSE_ARRAY2 =
 struct
 
@@ -9,20 +9,20 @@ struct
 
   type 'a region = {base : 'a array, row : int, col : int, nrows : int, ncols : int}
 
-  datatype traversal = RowMajor | ColMajor
+  type traversal = RowMajor | ColMajor
 
-  val size = 29;
+  let size = 29;
 
   fun fromInt (code) =
         let
           fun fromInt' r =
                 let
-                  val code' = (r + 1)*(r + 2) div 2
+                  let code' = (r + 1)*(r + 2) div 2
                 in
                   if(code < code')
                   then
                     let
-                      val diff = code'-code-1
+                      let diff = code'-code-1
                     in
                       (diff, r-diff)
                     end
@@ -35,7 +35,7 @@ struct
 
   fun toInt (m, n) =
         let
-          val sum = m + n
+          let sum = m + n
         in
           sum*(sum + 1) div 2 + n
         end
@@ -66,20 +66,20 @@ struct
 
   fun row (array, i, (j, len)) =
         if (i >= 0) andalso (j >= 0) andalso (len >= 0)
-        then Vector.tabulate (len, (fn off => unsafeSub (array, i, j+off)))
+        then Vector.tabulate (len, (fun off -> unsafeSub (array, i, j+off)))
         else raise General.Subscript
 
   fun column (array, j, (i, len)) =
         if (j >= 0) andalso (i >= 0) andalso (len >= 0)
-        then Vector.tabulate (len, (fn off => unsafeSub (array, i+off, j)))
+        then Vector.tabulate (len, (fun off -> unsafeSub (array, i+off, j)))
         else raise General.Subscript
 
   fun app traversal f (region as {base, row, col, nrows, ncols}) =
         if checkRegion region
         then
           let
-            val rmax = row+nrows
-            val cmax = col+ncols
+            let rmax = row+nrows
+            let cmax = col+ncols
             fun appR (row', col') =
                    if (row' < rmax)
                    then
@@ -115,8 +115,8 @@ struct
         if checkRegion region
         then
           let
-            val rmax = row+nrows
-            val cmax = col+ncols
+            let rmax = row+nrows
+            let cmax = col+ncols
             fun foldR (row', col') =
                    if (row' < rmax)
                    then
@@ -150,8 +150,8 @@ struct
         if checkRegion region
         then
           let
-            val rmax = row+nrows
-            val cmax = col+ncols
+            let rmax = row+nrows
+            let cmax = col+ncols
             fun modifyR (row', col') =
                    if (row' < rmax)
                    then
@@ -187,4 +187,4 @@ struct
           end
         else raise General.Subscript
 
-end;  (* structure SparseArray2 *)
+end;  (* module SparseArray2 *)

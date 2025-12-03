@@ -1,12 +1,12 @@
 (* Rational numbers *)
 (* Author: Roberto Virga *)
 
-signature RATIONALS =
+module type RATIONALS =
 sig
 
   include ORDERED_FIELD
 
-  structure Integers : INTEGERS
+  module Integers : INTEGERS
 
   (* Conversions between rationals and integers *)
   val fromInteger : Integers.int -> number
@@ -18,5 +18,5 @@ sig
   val numerator : number -> Integers.int
   val denominator : number -> Integers.int
 
-end;  (* signature RATIONALS *)
+end;  (* module type RATIONALS *)
 

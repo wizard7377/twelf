@@ -1,15 +1,15 @@
 (* Approximate language for term reconstruction *)
 (* Author: Kevin Watkins *)
 
-functor Approx ((*! structure IntSyn' : INTSYN !*)
-                structure Whnf : WHNF
+let recctor Approx ((*! module IntSyn' : INTSYN !*)
+                module Whnf : WHNF
 		(*! sharing Whnf.IntSyn = IntSyn' !*)
 		  )
   : APPROX =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  structure I = IntSyn
+  (*! module IntSyn = IntSyn' !*)
+  module I = IntSyn
 
   fun headConDec (I.Const c) = I.sgnLookup c
     | headConDec (I.Skonst c) = I.sgnLookup c
@@ -60,12 +60,12 @@ struct
                                         
   (* The approximate language *)
 
-    datatype Uni =
+    type Uni =
         Level of int (* 1 = type, 2 = kind, 3 = hyperkind, etc. *)
       | Next of Uni
       | LVar of Uni option ref
     
-    datatype Exp =
+    type Exp =
         Uni of Uni
       | Arrow of Exp * Exp
       | Const of I.Head (* Const/Def/NSDef *)
@@ -81,9 +81,9 @@ struct
      ReconTerm.filterLevel ensure that Hyperkind will never appear
      elsewhere. *)
 
-    val Type = Level 1
-    val Kind = Level 2
-    val Hyperkind = Level 3
+    let Type = Level 1
+    let Kind = Level 2
+    let Hyperkind = Level 3
 
     fun newLVar () = LVar (ref NONE)
     fun newCVar () = CVar (ref NONE)
@@ -105,7 +105,7 @@ struct
     local
       (* just a little list since these are only for printing errors *)
       type varEntry = (Exp * Exp * Uni) * string
-      val varList : varEntry list ref = ref nil
+      let varList : varEntry list ref = ref nil
     in
       fun varReset () = (varList := nil)
       fun varLookupRef r = List.find (fn ((CVar r', _, _), _) => r = r') (!varList)
@@ -122,14 +122,14 @@ struct
              of SOME (_, name) => name
               | NONE =>
                 let
-                  val _ = if allowed then () else raise Ambiguous
-                  val pref = case whnfUni L
+                  let _ = if allowed then () else raise Ambiguous
+                  let pref = case whnfUni L
                                of Level 2 => "A"
                                 | Level 3 => "K"
                                   (* others impossible by invariant *)
                   fun try i =
                       let
-                        val name = "%" ^ pref ^ Int.toString i ^ "%"
+                        let name = "%" ^ pref ^ Int.toString i ^ "%"
                       in
                         case varLookupName name
                           of NONE => (varInsert ((U, V, L), name); name)
@@ -159,21 +159,21 @@ struct
      or G |- U ":" V = "hyperkind" *)
   fun expToApx (I.Uni L) =
       let
-        val L' = uniToApx L
+        let L' = uniToApx L
       in
         (Uni L', Uni (whnfUni (Next L')))
       end
     | expToApx (I.Pi ((I.Dec (_, V1), _), V2)) =
       let
-        val (V1', _ (* Type *)) = expToApx (V1)
-        val (V2', L') = expToApx (V2)
+        let (V1', _ (* Type *)) = expToApx (V1)
+        let (V2', L') = expToApx (V2)
       in
         (Arrow (V1', V2'), L')
       end
     | expToApx (I.Root (I.FVar (name, _, _), _)) =
       (* must have been created to represent a CVar *)
       let
-        val (U, V, L) = findByReplacementName (name)
+        let (U, V, L) = findByReplacementName (name)
       in
         (U, V)
       end
@@ -189,8 +189,8 @@ struct
      or G |- V ":" L = "hyperkind" *)
   fun classToApx (V) =
       let
-        val (V', L') = expToApx (V)
-        val Uni L'' = whnf L'
+        let (V', L') = expToApx (V)
+        let Uni L'' = whnf L'
       in
         (V', L'')
       end
@@ -199,13 +199,13 @@ struct
      if G |- U : V *)
   fun exactToApx (U, V) =
       let
-        val (V', L') = classToApx (V)
+        let (V', L') = classToApx (V)
       in
         case whnfUni L'
           of Level 1 (* Type *) => (Undefined, V', L')
            | _ (* Kind/Hyperkind *) =>
              let
-               val (U', _ (* V' *)) = expToApx (U)
+               let (U', _ (* V' *)) = expToApx (U)
              in
                (U', V', L')
              end
@@ -217,13 +217,13 @@ struct
       (case I.sgnLookup d
          of I.ConDef (_, _, _, U, _, _, _) =>
             let
-              val (V', _ (* Uni Type *)) = expToApx U
+              let (V', _ (* Uni Type *)) = expToApx U
             in
               V'
             end
           | I.AbbrevDef (_, _, _, U, _, _) =>
             let
-              val (V', _ (* Uni Type *)) = expToApx U
+              let (V', _ (* Uni Type *)) = expToApx U
             in
               V'
             end)
@@ -249,17 +249,17 @@ struct
          more accurately which pis can be dependent *)
       (* also, does the name of the bound variable here matter? *)
       let
-        val V1' = apxToClass (G, V1, Type, allowed)
-        val D = I.Dec (NONE, V1')
-        val V2' = apxToClass (I.Decl (G, D), V2, L, allowed)
+        let V1' = apxToClass (G, V1, Type, allowed)
+        let D = I.Dec (NONE, V1')
+        let V2' = apxToClass (I.Decl (G, D), V2, L, allowed)
       in
         I.Pi ((D, I.Maybe), V2')
       end
     | apxToClassW (G, V as CVar r, L (* Type or Kind *), allowed) =
       (* convert undetermined CVars to FVars *)
       let
-        val name = getReplacementName (V, Uni L, Next L, allowed)
-        val s = I.Shift (I.ctxLength (G))
+        let name = getReplacementName (V, Uni L, Next L, allowed)
+        let s = I.Shift (I.ctxLength (G))
       in
         I.Root (I.FVar (name, I.Uni (apxToUni L), s), I.Nil)
       end
@@ -274,7 +274,7 @@ struct
      then U- = u and G |- U : V[s] and U is the most general such *)
   fun apxToExactW (G, U, (I.Pi ((D, _), V), s), allowed) =
       let
-        val D' = I.decSub (D, s)
+        let D' = I.decSub (D, s)
       in
         I.Lam (D', apxToExact (I.Decl (G, D'), U, (V, I.dot1 s), allowed))
       end
@@ -282,20 +282,20 @@ struct
         apxToClass (G, U, uniToApx L, allowed)
     | apxToExactW (G, U, Vs as (I.Root (I.FVar (name, _, _), _), s), allowed) =
       let
-        val (V, L, _ (* Next L *)) = findByReplacementName (name)
-        val Uni L = whnf L
+        let (V, L, _ (* Next L *)) = findByReplacementName (name)
+        let Uni L = whnf L
       in
         case whnfUni L
           of Level 1 => I.newEVar (G, I.EClo Vs)
            | Level 2 =>
              (* U must be a CVar *)
              let
-               val name' = getReplacementName (whnf U, V, Level 2, allowed)
+               let name' = getReplacementName (whnf U, V, Level 2, allowed)
                (* NOTE: V' differs from Vs by a Shift *)
                (* probably could avoid the following call by removing the
                   substitutions in Vs instead *)
-               val V' = apxToClass (I.Null, V, Level 2, allowed)
-               val s' = I.Shift (I.ctxLength (G))
+               let V' = apxToClass (I.Null, V, Level 2, allowed)
+               let s' = I.Shift (I.ctxLength (G))
              in
                I.Root (I.FVar (name', V', s'), I.Nil)
              end
@@ -408,4 +408,4 @@ struct
       | makeGroundUni (LVar (r as ref NONE)) = (r := SOME (Level 1);
                                                 true)
 
-end (* structure Apx *)
+end (* module Apx *)

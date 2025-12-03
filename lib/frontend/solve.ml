@@ -2,55 +2,55 @@
 (* Author: Frank Pfenning *)
 (* Modified: Carsten Schuermann, Jeff Polakow, Roberto Virga *)
 
-functor Solve
-  (structure Global : GLOBAL
-   (*! structure IntSyn' : INTSYN !*)
-   structure Names : NAMES
+let recctor Solve
+  (module Global : GLOBAL
+   (*! module IntSyn' : INTSYN !*)
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Parser : PARSER
+   module Parser : PARSER
      sharing Parser.Names = Names
-   structure ReconQuery : RECON_QUERY
+   module ReconQuery : RECON_QUERY
    (*! sharing ReconQuery.IntSyn = IntSyn' !*)
      sharing type ReconQuery.query = Parser.ExtQuery.query
      sharing type ReconQuery.solve = Parser.ExtQuery.solve
      sharing type ReconQuery.define = Parser.ExtQuery.define
    (* sharing type ReconQuery.Paths.occConDec = Origins.Paths.occConDec *)
-   structure Timers : TIMERS
-   (*! structure CompSyn : COMPSYN !*)
+   module Timers : TIMERS
+   (*! module CompSyn : COMPSYN !*)
    (*! sharing CompSyn.IntSyn = IntSyn' !*)
-   structure Compile : COMPILE
+   module Compile : COMPILE
    (*! sharing Compile.IntSyn = IntSyn' !*)
    (*! sharing Compile.CompSyn = CompSyn !*)
-   structure CPrint : CPRINT
+   module CPrint : CPRINT
    (*! sharing CPrint.IntSyn = IntSyn' !*)
    (*! sharing CPrint.CompSyn = CompSyn !*)
-   (*! structure CSManager : CS_MANAGER !*)
+   (*! module CSManager : CS_MANAGER !*)
    (*! sharing CSManager.IntSyn = IntSyn' !*)
-   structure AbsMachine : ABSMACHINE
+   module AbsMachine : ABSMACHINE
    (*! sharing AbsMachine.IntSyn = IntSyn' !*)
    (*! sharing AbsMachine.CompSyn = CompSyn !*)
-   structure AbsMachineSbt : ABSMACHINESBT
+   module AbsMachineSbt : ABSMACHINESBT
     (*! sharing AbsMachineSbt.IntSyn = IntSyn' !*)
     (*! sharing AbsMachineSbt.CompSyn = CompSyn!*)
-   structure PtRecon : PTRECON
+   module PtRecon : PTRECON
    (*! sharing PtRecon.IntSyn = IntSyn' !*)
    (*! sharing PtRecon.CompSyn = CompSyn !*)
-   (*! structure TableParam : TABLEPARAM !*)
-   structure Tabled : TABLED
+   (*! module TableParam : TABLEPARAM !*)
+   module Tabled : TABLED
    (*! sharing Tabled.IntSyn = IntSyn' !*)
    (*! sharing Tabled.CompSyn = CompSyn !*)
-   (*! structure MemoTable : MEMOTABLE !*)
+   (*! module MemoTable : MEMOTABLE !*)
     (*! sharing MemoTable.IntSyn = IntSyn' !*)
-   structure Print : PRINT
+   module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn' !*)
-   structure Msg : MSG)
+   module Msg : MSG)
  : SOLVE =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  structure ExtQuery = ReconQuery
-  (*! structure Paths = ReconQuery.Paths !*)
-  structure S = Parser.Stream
+  (*! module IntSyn = IntSyn' !*)
+  module ExtQuery = ReconQuery
+  (*! module Paths = ReconQuery.Paths !*)
+  module S = Parser.Stream
 
   (* evarInstToString Xs = msg
      formats instantiated EVars as a substitution.
@@ -158,24 +158,24 @@ struct
   *)
   fun solve' (defines, solve, Paths.Loc (fileName, r)) =
       let
-        val (A, finish) = (* self timing *)
+        let (A, finish) = (* self timing *)
               ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r))
 
         (* echo declaration, according to chatter level *)
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then Msg.message ("%solve ")
                 else ()
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then Msg.message ("\n"
                               ^ (Timers.time Timers.printing expToString)
                               (IntSyn.Null, A)
                               ^ ".\n")
                 else ()
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
+        let g = (Timers.time Timers.compiling Compile.compileGoal)
                     (IntSyn.Null, A)
         fun search () = AbsMachine.solve
                           ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-                           fn M => raise Solution M)
+                           fun M -> raise Solution M)
       in
         CSManager.reset ();
         ((* Call to solve raises Solution _ if there is a solution,
@@ -192,7 +192,7 @@ struct
           raise AbortQuery ("\n----------- TIME OUT ---------------\n")
       end
 
-(* Using substitution tree indexing for clauses in signature
+(* Using substitution tree indexing for clauses in module type
    The logic programming interpreter then creates a proof skeleton
   and reconstructs the actual proof term which can be checked
   -- this version can be used to produce oracles, however no user
@@ -200,19 +200,19 @@ struct
 *)
   fun solveSbt (defines, solve, Paths.Loc (fileName, r)) =
       let
-        val (A, finish) = (* self timing *)
+        let (A, finish) = (* self timing *)
               ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r))
 
         (* echo declaration, according to chatter level *)
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then Msg.message ("%solve ")
                 else ()
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A)
                               ^ ".\n")
                 else ()
 
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
+        let g = (Timers.time Timers.compiling Compile.compileGoal)
                     (IntSyn.Null, A)
       in
         CSManager.reset ();
@@ -222,7 +222,7 @@ struct
          (TimeLimit.timeLimit (!Global.timeLimit))
          (Timers.time Timers.solving AbsMachineSbt.solve)
          ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-          fn Skel => raise SolutionSkel Skel);
+          fun Skel -> raise SolutionSkel Skel);
          raise AbortQuery ("No solution to %solve found"))
         handle SolutionSkel Skel =>
           (if !Global.chatter >= 2
@@ -251,16 +251,16 @@ struct
   fun query' ((expected, try, quy), Paths.Loc (fileName, r)) =
     let
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-      val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+      let (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
       (* times itself *)
-      val _ = if !Global.chatter >= 3
+      let _ = if !Global.chatter >= 3
                 then Msg.message ("%query " ^ boundToString expected
                             ^ " " ^ boundToString try ^ "\n")
               else ()
-      val _ = if !Global.chatter >= 4
+      let _ = if !Global.chatter >= 4
                 then Msg.message (" ")
               else ()
-      val _ = if !Global.chatter >= 3
+      let _ = if !Global.chatter >= 3
                 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString)
                             (IntSyn.Null, A) ^ ".\n")
               else ()
@@ -271,13 +271,13 @@ struct
          For the moment, we print only the answer substitution for the
          original variables encountered during parsing.
        *)
-      (* val Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs
+      (* let Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs
        *)
-      val g = (Timers.time Timers.compiling Compile.compileGoal)
+      let g = (Timers.time Timers.compiling Compile.compileGoal)
         (IntSyn.Null, A)
 
       (* solutions = ref <n> counts the number of solutions found *)
-      val solutions = ref 0
+      let solutions = ref 0
 
       (* Initial success continuation prints substitution (according to chatter level)
          and raises exception Done if bound has been reached, otherwise it returns
@@ -342,16 +342,16 @@ struct
   fun querySbt ((expected, try, quy), Paths.Loc (fileName, r)) =
     let
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-      val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+      let (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
       (* times itself *)
-      val _ = if !Global.chatter >= 3
+      let _ = if !Global.chatter >= 3
                 then Msg.message ("%query " ^ boundToString expected
                             ^ " " ^ boundToString try ^ "\n")
               else ()
-      val _ = if !Global.chatter >= 4
+      let _ = if !Global.chatter >= 4
                 then Msg.message (" ")
               else ()
-      val _ = if !Global.chatter >= 3
+      let _ = if !Global.chatter >= 3
                 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString)
                             (IntSyn.Null, A) ^ ".\n")
               else ()
@@ -363,13 +363,13 @@ struct
                original variables encountered during parsing.
              *)
              (*
-                val Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs
+                let Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs
              *)
-      val g = (Timers.time Timers.compiling Compile.compileGoal)
+      let g = (Timers.time Timers.compiling Compile.compileGoal)
               (IntSyn.Null, A)
 
       (* solutions = ref <n> counts the number of solutions found *)
-      val solutions = ref 0
+      let solutions = ref 0
 
       (* Initial success continuation prints substitution (according to chatter level)
          and raises exception Done if bound has been reached, otherwise it returns
@@ -456,17 +456,17 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
   solutions or if we have reached the maximal number of stages *)
   fun querytabled ((numSol, try, quy), Paths.Loc (fileName, r)) =
     let
-      val _ = if !Global.chatter >= 3
+      let _ = if !Global.chatter >= 3
                 then Msg.message ("%querytabled " ^ boundToString numSol ^ " " ^
                             boundToString try)
               else ()
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-      val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+      let (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
       (* times itself *)
-      val _ = if !Global.chatter >= 4
+      let _ = if !Global.chatter >= 4
                 then Msg.message (" ")
               else ()
-      val _ = if !Global.chatter >= 3
+      let _ = if !Global.chatter >= 3
                 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString)
                             (IntSyn.Null, A) ^ ".\n")
               else ()
@@ -477,17 +477,17 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
         For the moment, we print only the answer substitution for the
         original variables encountered during parsing.
      *)
-     (* val Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs *)
-      val g = (Timers.time Timers.compiling Compile.compileGoal)
+     (* let Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs *)
+      let g = (Timers.time Timers.compiling Compile.compileGoal)
         (IntSyn.Null, A)
 
       (* solutions = ref <n> counts the number of solutions found *)
-      val solutions = ref 0
-      val status = ref false
-      val solExists = ref false
+      let solutions = ref 0
+      let status = ref false
+      let solExists = ref false
 
       (* stage = ref <n> counts the number of stages found *)
-      val stages = ref 1
+      let stages = ref 1
 
       (* Initial success continuation prints substitution (according to chatter level)
          and raises exception Done if bound has been reached, otherwise it returns
@@ -569,8 +569,8 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                          *)
                         status := true;
                       raise Done)
-      val _ = Tabled.reset ()
-      val _ = Tabled.fillTable ()
+      let _ = Tabled.reset ()
+      let _ = Tabled.fillTable ()
       fun tabledSearch () =
         (Tabled.solve((g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
                       scInit) ;
@@ -639,9 +639,9 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
   and qLoops' (S.Empty) = true          (* normal exit *)
     | qLoops' (S.Cons (query, s')) =
       let
-        val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))
+        let (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))
                                         (* times itself *)
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
+        let g = (Timers.time Timers.compiling Compile.compileGoal)
                     (IntSyn.Null, A)
         fun scInit M =
             ((if !Global.chatter >= 1
@@ -664,7 +664,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                                 ^ str ^ "\n")
              else ();
              if moreSolutions () then () else raise Done)
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then Msg.message "Solving...\n"
                 else ()
       in
@@ -684,12 +684,12 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
   and qLoopsT' (S.Empty) = true         (* normal exit *)
     | qLoopsT' (S.Cons (query, s')) =
       let
-        val solExists = ref false
-        val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))
+        let solExists = ref false
+        let (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))
                                         (* times itself *)
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
+        let g = (Timers.time Timers.compiling Compile.compileGoal)
                     (IntSyn.Null, A)
-        val _ = Tabled.reset ()
+        let _ = Tabled.reset ()
         fun scInit O =
             ((if !Global.chatter >= 1
               then Msg.message ((Timers.time Timers.printing evarInstToString) Xs ^ "\n")
@@ -719,7 +719,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                          * we check for *all* solutions
                          *)
                          raise Completed)
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then Msg.message "Solving...\n"
                 else ()
       in

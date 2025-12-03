@@ -7,7 +7,7 @@
  * MLton is released under the GNU General Public License (GPL).
  * Please see the file MLton-LICENSE for license information.
  *)
-signature LAYOUT =
+module type LAYOUT =
    sig
 
       type layout

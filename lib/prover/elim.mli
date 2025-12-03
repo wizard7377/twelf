@@ -1,9 +1,9 @@
 (* ELIM: Version 1.4 *)
 (* Author: Carsten Schuermann *)
 
-signature ELIM = 
+module type ELIM = 
 sig
-  structure State : STATE
+  module State : STATE
 
   exception Error of string
 
@@ -12,6 +12,6 @@ sig
   val expand : State.Focus -> operator list 
   val apply : operator -> unit
   val menu : operator -> string
-end; (* signature ELIM *)
+end; (* module type ELIM *)
 
 

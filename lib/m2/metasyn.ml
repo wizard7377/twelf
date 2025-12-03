@@ -1,38 +1,38 @@
 (* Meta syntax *)
 (* Author: Carsten Schuermann *)
 
-functor MetaSyn ((*! structure IntSyn' : INTSYN !*)
-                 structure Whnf : WHNF
+let recctor MetaSyn ((*! module IntSyn' : INTSYN !*)
+                 module Whnf : WHNF
                  (*! sharing Whnf.IntSyn = IntSyn' !*)
                    )
   : METASYN =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
    type Var = int
 
-  datatype Mode =                       (* Mode                       *)
+  type Mode =                       (* Mode                       *)
     Bot                                 (* M ::= Bot                  *)
   | Top                                 (*     | Top                  *)
 
-  datatype Prefix =                     (* Prefix P := *)
+  type Prefix =                     (* Prefix P := *)
     Prefix of IntSyn.dctx               (* G   declarations           *)
             * Mode IntSyn.Ctx           (* Mtx modes                  *)
             * int IntSyn.Ctx            (* Btx splitting depths       *)
 
-  datatype State =                      (* State S :=                 *)
+  type State =                      (* State S :=                 *)
     State of string                     (*             [name]         *)
              * Prefix                   (*             G; Mtx; Btx    *)
              * IntSyn.Exp               (*             |- V           *)
 
-  datatype Sgn =                        (* Interface signature        *)
+  type Sgn =                        (* Interface module type        *)
     SgnEmpty                            (* IS ::= .                   *)
   | ConDec of IntSyn.ConDec * Sgn       (*      | c:V, IS             *)
 
   local
-    structure I = IntSyn
+    module I = IntSyn
 
     (* createEVarSpineW (G, (V, s)) = ((V', s') , S')
 
@@ -49,8 +49,8 @@ struct
       | createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
       | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let
-          val X = I.newEVar (G, I.EClo (V1, s))
-          val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
+          let X = I.newEVar (G, I.EClo (V1, s))
+          let (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
         in
           (I.App (X, S), Vs)
         end
@@ -64,11 +64,11 @@ struct
     *)
     fun createAtomConst (G, H) =
       let
-        val cid = (case H
+        let cid = (case H
                      of (I.Const cid) => cid
                       | (I.Skonst cid) => cid)
-        val V = I.constType cid
-        val (S, Vs) = createEVarSpine (G, (V, I.id))
+        let V = I.constType cid
+        let (S, Vs) = createEVarSpine (G, (V, I.id))
       in
         (I.Root (H, S), Vs)
       end
@@ -82,15 +82,15 @@ struct
     *)
     fun createAtomBVar (G, k) =
       let
-        val I.Dec (_, V) = I.ctxDec (G, k)
-        val (S, Vs) = createEVarSpine (G, (V, I.id))
+        let I.Dec (_, V) = I.ctxDec (G, k)
+        let (S, Vs) = createEVarSpine (G, (V, I.id))
       in
         (I.Root (I.BVar (k), S), Vs)
       end
 
   in
-    val createAtomConst = createAtomConst
-    val createAtomBVar = createAtomBVar
+    let createAtomConst = createAtomConst
+    let createAtomBVar = createAtomBVar
   end
 
 end (* functor MetaSyn *)

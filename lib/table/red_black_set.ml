@@ -17,19 +17,19 @@
  * condition implies that any node with only one child will be black and
  * its child will be a red leaf.
  *)
-structure RBSet : RBSET = 
+module RBSet : RBSET = 
 
 struct
 
   type key = int
   type 'a entry = key * 'a
 
- datatype 'a dict =
+ type 'a dict =
     Empty				(* considered black *)
   | Red of 'a entry * 'a dict * 'a dict
   | Black of 'a entry * 'a dict * 'a dict
 
-  datatype 'a set = Set of (int * 'a dict)
+  type 'a set = Set of (int * 'a dict)
 
   exception Error of string
 
@@ -38,11 +38,11 @@ struct
   fun isEmpty (Set(_, Empty)) = true
     | isEmpty (Set(_,T)) = false
 
-  val empty = Set(0, Empty)
+  let empty = Set(0, Empty)
   
   fun singleton x = Set(1, Red(x, Empty, Empty))
 
-  val compare = Int.compare
+  let compare = Int.compare
   (* Representation Invariants *)
   (*
      1. The tree is ordered: for every node Red((key1,datum1), left, right) or
@@ -74,7 +74,7 @@ struct
 
   fun last (Set(n, dict)) = (n, valOf (lookup (Set(n, dict)) n))
 
-  (* val restore_right : 'a dict -> 'a dict *)
+  (* let restore_right : 'a dict -> 'a dict *)
   (*
      restore_right (Black(e,l,r)) >=> dict
      where (1) Black(e,l,r) is ordered,
@@ -112,8 +112,8 @@ struct
 
   fun insert (Set(n, dict), entry as (key, datum)) = 
     let      
-      val nItems = ref n
-      (* val ins : 'a dict -> 'a dict  inserts entry *)
+      let nItems = ref n
+      (* let ins : 'a dict -> 'a dict  inserts entry *)
       (* ins (Red _) may violate color invariant at root *)
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
@@ -132,7 +132,7 @@ struct
 		Black(entry1, left, right))
 	      | LESS => restore_left (Black(entry1, ins left, right))
 	      | GREATER => restore_right (Black(entry1, left, ins right)))
-      val dict' =  case ins dict
+      let dict' =  case ins dict
 	            of Red (t as (_, Red _, _)) => Black t (* re-color *)
 		  | Red (t as (_, _, Red _)) => Black t (* re-color *)
 		  | dict => dict
@@ -147,7 +147,7 @@ struct
 
   fun insertLast (Set(n, dict), datum) = 
     let
-      val Set(n', dic') =  insert (Set(n, dict), (n+1, datum))
+      let Set(n', dic') =  insert (Set(n, dict), (n+1, datum))
     in 
       Set(n', dic')
     end 
@@ -156,7 +156,7 @@ struct
 
 
   fun insertShadow (Set(n, dict), entry as (key, datum)) =  
-    let val oldEntry = ref NONE (* : 'a entry option ref *)
+    let let oldEntry = ref NONE (* : 'a entry option ref *)
       fun ins (Empty) = Red(entry, Empty, Empty)
 	| ins (Red(entry1 as (key1, datum1), left, right)) =
 	(case compare(key,key1)
@@ -170,7 +170,7 @@ struct
 			   Black(entry, left, right))
 	    | LESS => restore_left (Black(entry1, ins left, right))
 	    | GREATER => restore_right (Black(entry1, left, ins right)))
-      val (dict', oldEntry') = (oldEntry := NONE;
+      let (dict', oldEntry') = (oldEntry := NONE;
 				((case ins dict
 				    of Red (t as (_, Red _, _)) => Black t (* re-color *)
 				  | Red (t as (_, _, Red _)) => Black t (* re-color *)
@@ -182,9 +182,9 @@ struct
 
   (* Remove an item.  Raises LibBase.NotFound if not found. *)
     local
-      datatype color = RedColor | BlackColor
+      type color = RedColor | BlackColor
 
-      datatype 'a zipper
+      type 'a zipper
         = Top
         | LeftRed of ('a entry * 'a dict * 'a zipper)
         | LeftBlack of ('a entry * 'a dict * 'a zipper)
@@ -251,7 +251,7 @@ struct
 	  fun joinBlack (a, Empty, z) = #2(bbZip(z, a))       
 	    | joinBlack (Empty, b, z) = #2(bbZip(z, b))       
 	    | joinBlack (a, b, z) = let
-                val (x, (needB, b')) = delMin(b, Top)
+                let (x, (needB, b')) = delMin(b, Top)
                 in
                   if needB
                     then #2(bbZip(z, Black(x, a, b')))
@@ -260,7 +260,7 @@ struct
 
 	  fun joinRed (Empty, Empty, z) = zip(z, Empty)
             | joinRed (a, b, z) = let
-                val (x, (needB, b')) = delMin(b, Top)
+                let (x, (needB, b')) = delMin(b, Top)
                 in
                   if needB
                     then #2(bbZip(z, Red(x, a, b')))
@@ -301,9 +301,9 @@ struct
 	    | upd (Black tree) = Black(upd' tree)
 	  and upd' (entry1 as (k, datum), left, right) =
 	      let
-		 val left' = upd left
-		 val datum' = f datum
-		 val right' =  upd right
+		 let left' = upd left
+		 let datum' = f datum
+		 let right' =  upd right
 	       in 
 		 ((k, datum'), left', right')
 	       end 
@@ -363,7 +363,7 @@ struct
       | left (t as Black(_, a, _), rest) = left(a, t::rest)
     fun start m = left(m, [])
 
-    datatype 'a digit
+    type 'a digit
       = ZERO
       | ONE of ('a entry * 'a dict * 'a digit)
       | TWO of ('a entry * 'a dict * 'a entry * 'a dict * 'a digit)
@@ -406,8 +406,8 @@ struct
 		| (t1, (Empty, _)) => ins(t1, n, result)
 		| ((tree1, r1), (tree2, r2))  => 
 		 let 
-		   val e1 as (x, d1) = getEntry tree1
-		   val e2 as (y, d2) = getEntry tree2
+		   let e1 as (x, d1) = getEntry tree1
+		   let e2 as (y, d2) = getEntry tree2
 		 in 
 		   case compare(x, y)
 		     of LESS => union' (r1, t2, n+1, addItem(e1, result))
@@ -420,7 +420,7 @@ struct
 	| _ => (case s2 of 
 		  Empty => Set(n1, s1)
 		| _ => let
-			 val (n, result) = union' (start s1, start s2, 0, ZERO) 
+			 let (n, result) = union' (start s1, start s2, 0, ZERO) 
 		       in 
 			 Set(n, linkAll result)
 		       end)
@@ -435,15 +435,15 @@ struct
 	       | ((tree, r), (Empty, r')) => (n, result)
 	       | ((tree1, r1), (tree2, r2)) => 
 	       let
-		 val e1 as (x, d1) = getEntry tree1
-		 val e2 as (y, d2) = getEntry tree2
+		 let e1 as (x, d1) = getEntry tree1
+		 let e2 as (y, d2) = getEntry tree2
 	       in 
 		 case compare(x, y)
 		   of LESS => intersect (r1, t2, n, result)
 		 | EQUAL => intersect (r1, r2, n+1, addItem(e1, result))
 		 | GREATER => intersect (t1, r2, n, result)
 	       end)
-	val (n, result) = intersect (start s1, start s2, 0, ZERO)
+	let (n, result) = intersect (start s1, start s2, 0, ZERO)
       in
 	Set(n, linkAll result)
       end
@@ -465,15 +465,15 @@ struct
 	      | (t1, (Empty, _)) => ins(t1, n, result)
 	      | ((tree1, r1), (tree2, r2)) => 
 	       let
-		 val e1 as (x, d1) = getEntry tree1
-		 val e2 as (y, d2) = getEntry tree2
+		 let e1 as (x, d1) = getEntry tree1
+		 let e2 as (y, d2) = getEntry tree2
 	       in 
 		 case compare(x, y)
 		   of LESS => diff (r1, t2, n+1, addItem(e1, result))
 		    | EQUAL => diff (r1, r2, n, result)
 		    | GREATER => diff (t1, r2, n, result)
 	       end)
-	val (n, result) = diff (start s1, start s2, 0, ZERO)
+	let (n, result) = diff (start s1, start s2, 0, ZERO)
       in
 	Set(n, linkAll result)
       end
@@ -495,15 +495,15 @@ struct
 	      | (t1, (Empty, _)) => (ins(t1, n1, result1), (n2, result2))
 	      | ((tree1, r1), (tree2, r2)) => 
 	       let
-		 val e1 as (x, d1) = getEntry tree1
-		 val e2 as (y, d2) = getEntry tree2
+		 let e1 as (x, d1) = getEntry tree1
+		 let e2 as (y, d2) = getEntry tree2
 	       in 
 		 case compare(x, y)
 		   of LESS => diff (r1, t2, (n1+1, addItem(e1, result1)), (n2, result2))
 		    | EQUAL => diff (r1, r2, (n1, result1), (n2, result2))
 		    | GREATER => diff (t1, r2, (n1, result1), (n2+1, addItem(e2, result2)))
 	       end)
-	val ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO))
+	let ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO))
       in
 	(Set(n1, linkAll result1), Set(n2, linkAll result2))
       end
@@ -529,15 +529,15 @@ struct
 	      | (t1, (Empty, _)) => (ins(t1, n1, result1), (n2, result2))
 	      | ((tree1, r1), (tree2, r2)) => 
 	       let
-		 val e1 as (x, d1) = getEntry tree1
-		 val e2 as (y, d2) = getEntry tree2
+		 let e1 as (x, d1) = getEntry tree1
+		 let e2 as (y, d2) = getEntry tree2
 	       in 
 		 case compare(x, y)
 		   of LESS => diff (r1, t2, (n1+1, addItem(e1, result1)), (n2, result2))
 		    | EQUAL => ((F d1 d2) ; diff (r1, r2, (n1, result1), (n2, result2)))
 		    | GREATER => diff (t1, r2, (n1, result1), (n2+1, addItem(e2, result2)))
 	       end)
-	val ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO))
+	let ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO))
       in
 	(Set(n1, linkAll result1), Set(n2, linkAll result2))
       end
@@ -556,8 +556,8 @@ struct
 	      | (t1, (Empty, _)) => (nr, ins(t1, n1, result1), nr2)
 	      | ((tree1, r1), (tree2, r2)) => 
 	       let
-		 val e1 as (x, d1) = getEntry tree1
-		 val e2 as (y, d2) = getEntry tree2
+		 let e1 as (x, d1) = getEntry tree1
+		 let e2 as (y, d2) = getEntry tree2
 	       in 
 		 case compare(x, y)
 		   of LESS => split (r1, t2, nr, (n1+1, addItem(e1, result1)), nr2)
@@ -567,63 +567,63 @@ struct
 		                   | SOME(d) => split (r1, r2, (n+1, addItem((x, d), result)), nr1, nr2))
 		    | GREATER => split (t1, r2, nr, nr1, (n2+1, addItem(e2, result2)))
 	       end)
-	val ((n, r), (n1, r1), (n2, r2)) = split (start s1, start s2, (0, ZERO), (0, ZERO), (0, ZERO))
+	let ((n, r), (n1, r1), (n2, r2)) = split (start s1, start s2, (0, ZERO), (0, ZERO), (0, ZERO))
       in
 	(Set(n, linkAll r), Set(n1, linkAll r1), Set(n2, linkAll r2))
       end
 
   in
     fun new () = ref (empty) (* ignore size hint *)
-    fun copy S = let val S' = new() in S' := (!S); S' end
-    val insert = (fn set => fn entry => (set := insert (!set, entry)))
-    val insertLast = (fn set => fn datum => (set := insertLast (!set, datum)))
-    val insertList = (fn set => fn list => (set := insertList (!set, list)))
-    val insertShadow = (fn set => fn entry => (set := insertShadow (!set, entry)))
+    fun copy S = let let S' = new() in S' := (!S); S' end
+    let insert = (fun set -> fun entry -> (set := insert (!set, entry)))
+    let insertLast = (fun set -> fun datum -> (set := insertLast (!set, datum)))
+    let insertList = (fun set -> fun list -> (set := insertList (!set, list)))
+    let insertShadow = (fun set -> fun entry -> (set := insertShadow (!set, entry)))
 
-    val isEmpty = (fn ordSet => isEmpty (!ordSet))
-    val last = (fn ordSet => last (!ordSet))
+    let isEmpty = (fun ordSet -> isEmpty (!ordSet))
+    let last = (fun ordSet -> last (!ordSet))
 
     
-    val lookup = (fn ordSet => fn key => lookup (!ordSet) key)
+    let lookup = (fun ordSet -> fun key -> lookup (!ordSet) key)
 
-    val clear = (fn ordSet => (ordSet := empty))
+    let clear = (fun ordSet -> (ordSet := empty))
 
-    val app = (fn ordSet => fn f => app f (!ordSet))
-    val update = (fn ordSet => fn f => ((ordSet := (update f (!ordSet)); ordSet)))
-    val forall = (fn ordSet => fn f => forall (!ordSet) f)
-    val exists = (fn ordSet => fn f => exists (!ordSet) f)
-    val existsOpt = (fn ordSet => fn f => existsOpt (!ordSet) f)
+    let app = (fun ordSet -> fun f -> app f (!ordSet))
+    let update = (fun ordSet -> fun f -> ((ordSet := (update f (!ordSet)); ordSet)))
+    let forall = (fun ordSet -> fun f -> forall (!ordSet) f)
+    let exists = (fun ordSet -> fun f -> exists (!ordSet) f)
+    let existsOpt = (fun ordSet -> fun f -> existsOpt (!ordSet) f)
 
     fun size S = setsize (!S) 
 
-    val difference = (fn set1 => fn set2 => (let val set = new() in set := difference (!set1, !set2); set end))
+    let difference = (fun set1 -> fun set2 -> (let let set = new() in set := difference (!set1, !set2); set end))
 
-    val difference2 = (fn set1 => fn set2 => (let val r1 = new()
-					      val r2 = new() 
-					      val (rset1, rset2) = difference2 (!set1, !set2)
+    let difference2 = (fun set1 -> fun set2 -> (let let r1 = new()
+					      let r2 = new() 
+					      let (rset1, rset2) = difference2 (!set1, !set2)
 					      in r1 := rset1; r2:= rset2 ;
 					      (r1, r2) end))
 
 
-    val differenceModulo = (fn set1 => fn set2 => fn F => 
-			    (let val r1 = new()
-				 val r2 = new() 
-				 val (rset1, rset2) = diffMod F (!set1, !set2)
+    let differenceModulo = (fun set1 -> fun set2 -> fun F -> 
+			    (let let r1 = new()
+				 let r2 = new() 
+				 let (rset1, rset2) = diffMod F (!set1, !set2)
 			     in r1 := rset1; r2:= rset2 ;
 			       (r1, r2) end))
 
 
-    val splitSets = (fn set1 => fn set2 => fn F => 
-		    (let val r1 = new()
-			 val r2 = new() 
-			 val r = new() 
-			 val (rset, rset1, rset2) = splitSets F (!set1, !set2)
+    let splitSets = (fun set1 -> fun set2 -> fun F -> 
+		    (let let r1 = new()
+			 let r2 = new() 
+			 let r = new() 
+			 let (rset, rset1, rset2) = splitSets F (!set1, !set2)
 		     in r:= rset; r1 := rset1; r2:= rset2 ;
 		       (r, r1, r2) 
 		     end))
 
-    val intersection = (fn set1 => fn set2 => (let val set = new() in set := intersection (!set1, !set2); set end))
-    val union = (fn set1 => fn set2 => (let val set = new() in set := union (!set1, !set2); set end))
+    let intersection = (fun set1 -> fun set2 -> (let let set = new() in set := intersection (!set1, !set2); set end))
+    let union = (fun set1 -> fun set2 -> (let let set = new() in set := union (!set1, !set2); set end))
 
   end
 end;  (* functor RedBlackSet *)

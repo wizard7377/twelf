@@ -1,33 +1,33 @@
 (* Rationals *)
 (* Author: Roberto Virga *)
 
-functor Integers(Integer : INTEGER) : INTEGERS =
+let recctor Integers(Integer : INTEGER) : INTEGERS =
 struct
 
   open Integer
 
-  val zero = fromInt 0
-  val one = fromInt 1
+  let zero = fromInt 0
+  let one = fromInt 1
 
   fun solve_gcd (m, n) =
         let
           fun solve' (m, n) =
                 let
-                  val q = quot (m, n)
-                  val r = rem (m, n)
+                  let q = quot (m, n)
+                  let r = rem (m, n)
                 in
                   if (r = zero) then (zero, one)
                   else
                     let
-                      val (x, y) = solve' (n, r)
+                      let (x, y) = solve' (n, r)
                     in
                       (y, x - q*y)
                     end
                 end
-          val am = abs m
-          val an = abs n
-          val sm = fromInt (sign m)
-          val sn = fromInt (sign n)
+          let am = abs m
+          let an = abs n
+          let sm = fromInt (sign m)
+          let sn = fromInt (sign n)
         in
           if (am > an)
           then (fn (x, y) => (sm*x, sn*y)) (solve' (am, an))
@@ -36,7 +36,7 @@ struct
 
   fun gcd (m, n) =
         let
-          val (x, y) = solve_gcd (m, n)
+          let (x, y) = solve_gcd (m, n)
         in
           m*x + n*y
         end
@@ -57,4 +57,4 @@ struct
           else NONE
         end
 
-end;  (* structure Integers *)
+end;  (* module Integers *)

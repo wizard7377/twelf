@@ -1,45 +1,45 @@
 (* Splitting : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor MTPSplitting (structure MTPGlobal : MTPGLOBAL
-                      structure Global : GLOBAL
-                      (*! structure IntSyn : INTSYN !*)
-                      (*! structure FunSyn : FUNSYN !*)
+let recctor MTPSplitting (module MTPGlobal : MTPGLOBAL
+                      module Global : GLOBAL
+                      (*! module IntSyn : INTSYN !*)
+                      (*! module FunSyn : FUNSYN !*)
                       (*! sharing FunSyn.IntSyn = IntSyn !*)
-                      structure StateSyn' : STATESYN
+                      module StateSyn' : STATESYN
                       (*! sharing StateSyn'.FunSyn = FunSyn !*)
                         (*! sharing StateSyn'.IntSyn = IntSyn !*)
-                      structure Heuristic : HEURISTIC
-                      structure MTPAbstract : MTPABSTRACT
+                      module Heuristic : HEURISTIC
+                      module MTPAbstract : MTPABSTRACT
                       (*! sharing MTPAbstract.IntSyn = IntSyn !*)
                         sharing MTPAbstract.StateSyn = StateSyn'
-                      structure MTPrint : MTPRINT
+                      module MTPrint : MTPRINT
                         sharing MTPrint.StateSyn = StateSyn'
-                      structure Names : NAMES            (* too be removed  -cs *)
+                      module Names : NAMES            (* too be removed  -cs *)
                       (*! sharing Names.IntSyn = IntSyn !*)    (* too be removed  -cs *)
-                      structure Conv :CONV
+                      module Conv :CONV
                       (*! sharing Conv.IntSyn = IntSyn !*)
-                      structure Whnf : WHNF
+                      module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = IntSyn !*)
-                      structure TypeCheck : TYPECHECK
+                      module TypeCheck : TYPECHECK
                       (*! sharing TypeCheck.IntSyn = IntSyn !*)
-                      structure Subordinate : SUBORDINATE
+                      module Subordinate : SUBORDINATE
                       (*! sharing Subordinate.IntSyn = IntSyn !*)
-                      structure FunTypeCheck :FUNTYPECHECK
+                      module FunTypeCheck :FUNTYPECHECK
                       (*! sharing FunTypeCheck.FunSyn = FunSyn !*)
                         sharing FunTypeCheck.StateSyn = StateSyn'
-                      structure Index : INDEX
+                      module Index : INDEX
                       (*! sharing Index.IntSyn = IntSyn !*)
-                      structure Print : PRINT
+                      module Print : PRINT
                       (*! sharing Print.IntSyn = IntSyn !*)
-                      structure Unify : UNIFY
+                      module Unify : UNIFY
                       (*! sharing Unify.IntSyn = IntSyn !*)
-                      (*! structure CSManager : CS_MANAGER !*)
+                      (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn  !*)
                         )
   : MTPSPLITTING =
 struct
-  structure StateSyn = StateSyn'
+  module StateSyn = StateSyn'
 
   exception Error of string
 
@@ -57,20 +57,20 @@ struct
      applied which do not generate inactive cases (this
      can be checked for a given operator by applicable)
   *)
-  datatype 'a flag =
+  type 'a flag =
     Active of 'a | InActive
 
-  datatype Operator =
+  type Operator =
     Operator of (StateSyn.State * int) * StateSyn.State flag list
                    * Heuristic.index
 
   type operator = Operator
 
   local
-    structure I = IntSyn
-    structure F = FunSyn
-    structure S = StateSyn
-    structure H = Heuristic
+    module I = IntSyn
+    module F = FunSyn
+    module S = StateSyn
+    module H = Heuristic
 
 
     fun makeOperator ((S, k), L, S.Splits n, g, I, m, true) =    (* recursive case *)
@@ -91,8 +91,8 @@ struct
           I.Decl (aux (G, B), F.Prim D)
       | aux (G as I.Decl (_, D), B as I.Decl (_, S.Parameter (SOME l))) =
         let
-          val F.LabelDec  (name, _, G2) = F.labelLookup l
-          val (Psi', G') = aux' (G, B, List.length G2)
+          let F.LabelDec  (name, _, G2) = F.labelLookup l
+          let (Psi', G') = aux' (G, B, List.length G2)
         in
           I.Decl (Psi', F.Block (F.CtxBlock (SOME l, G')))
         end
@@ -100,7 +100,7 @@ struct
     and aux' (G, B, 0) = (aux (G, B), I.Null)
       | aux' (I.Decl (G, D), I.Decl (B, S.Parameter (SOME _)), n) =
         let
-          val (Psi', G') = aux' (G, B, n-1)
+          let (Psi', G') = aux' (G, B, n-1)
         in
           (Psi', I.Decl (G', D))
         end
@@ -120,8 +120,8 @@ struct
           | conv ((I.Decl (G, I.Dec (_, V)), s),
                   (I.Decl (G', I.Dec (_, V')), s')) =
             let
-              val (s1, s1') = conv ((G, s), (G', s'))
-              val ps as (s2, s2') = (I.dot1 s1, I.dot1 s1')
+              let (s1, s1') = conv ((G, s), (G', s'))
+              let ps as (s2, s2') = (I.dot1 s1, I.dot1 s1')
             in
               if Conv.conv ((V, s1), (V', s1')) then ps
               else raise Conv
@@ -148,8 +148,8 @@ struct
       | createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
       | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let
-          val X = I.newEVar (G, I.EClo (V1, s))
-          val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
+          let X = I.newEVar (G, I.EClo (V1, s))
+          let (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
         in
           (I.App (X, S), Vs)
         end
@@ -163,11 +163,11 @@ struct
     *)
     fun createAtomConst (G, H) =
       let
-        val cid = (case H
+        let cid = (case H
                      of (I.Const cid) => cid
                       | (I.Skonst cid) => cid)
-        val V = I.constType cid
-        val (S, Vs) = createEVarSpine (G, (V, I.id))
+        let V = I.constType cid
+        let (S, Vs) = createEVarSpine (G, (V, I.id))
       in
         (I.Root (H, S), Vs)
       end
@@ -181,8 +181,8 @@ struct
     *)
     fun createAtomBVar (G, k) =
       let
-        val I.Dec (_, V) = I.ctxDec (G, k)
-        val (S, Vs) = createEVarSpine (G, (V, I.id))
+        let I.Dec (_, V) = I.ctxDec (G, k)
+        let (S, Vs) = createEVarSpine (G, (V, I.id))
       in
         (I.Root (I.BVar (k), S), Vs)
       end
@@ -209,8 +209,8 @@ struct
           if n < 0 then 0
           else
             let
-              val F.LabelDec (name, G1, G2) = F.labelLookup n
-              val m' = foldr (fn (I.Dec (_, V), m) =>
+              let F.LabelDec (name, G1, G2) = F.labelLookup n
+              let m' = foldr (fn (I.Dec (_, V), m) =>
                               if I.targetFam V = a then m + 1 else m) 0 G2
             in
               maxNumberParams' (n-1) + m'
@@ -222,7 +222,7 @@ struct
 
     fun maxNumberLocalParams (I.Pi ((I.Dec (_, V1), _), V2), a) =
         let
-          val m = maxNumberLocalParams (V2, a)
+          let m = maxNumberLocalParams (V2, a)
         in
           if I.targetFam V1 = a then m+1
           else m
@@ -272,7 +272,7 @@ struct
     fun constCases (G, Vs, nil, abstract, ops) = ops
       | constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
         let
-          val (U, Vs') = createAtomConst (G, I.Const c)
+          let (U, Vs') = createAtomConst (G, I.Const c)
         in
           constCases (G, Vs, Sgn, abstract,
                       CSManager.trail (fn () =>
@@ -296,7 +296,7 @@ struct
     fun paramCases (G, Vs, 0, abstract, ops) = ops
       | paramCases (G, Vs, k, abstract, ops) =
         let
-          val (U, Vs') = createAtomBVar (G, k)
+          let (U, Vs') = createAtomBVar (G, k)
         in
           paramCases (G, Vs, k-1, abstract,
                       CSManager.trail (fn () =>
@@ -314,16 +314,16 @@ struct
 
     fun metaCases (d, ops0) (c, G, k, Vs, abstract) =
       let
-        val g = I.ctxLength G
+        let g = I.ctxLength G
 
         fun select (0, ops)  = ops
           | select (d', ops) =
             let
-              val n = g-d'+1
-              val I.Dec (_, V) = I.ctxDec (G, n)
-              val ops' = if I.targetFam V = c then
+              let n = g-d'+1
+              let I.Dec (_, V) = I.ctxDec (G, n)
+              let ops' = if I.targetFam V = c then
                         let
-                          val (U, Vs') = createAtomBVar (G, n)
+                          let (U, Vs') = createAtomBVar (G, n)
                         in
                           CSManager.trail (fn () =>
                                        (if Unify.unifiable (G, Vs, Vs')
@@ -354,10 +354,10 @@ struct
           cases (c, G, I.ctxLength G , (V, s'), abstract)
       | lowerSplitDest (G, k, (I.Pi ((D, P), V), s'), abstract, cases) =
           let
-            val D' = I.decSub (D, s')
+            let D' = I.decSub (D, s')
           in
             lowerSplitDest (I.Decl (G, D'), k+1, (V, I.dot1 s'),
-                            fn U => abstract (I.Lam (D', U)), cases)
+                            fun U -> abstract (I.Lam (D', U)), cases)
           end
 
 
@@ -396,7 +396,7 @@ struct
           fun split' (n, cases) =
             if n < 0 then
               let
-                val ((G', B'), s', (G0, B0), _) = sc (I.Null, I.Null)
+                let ((G', B'), s', (G0, B0), _) = sc (I.Null, I.Null)
                                         (* |- G' = parameter blocks of G  ctx*)
                                         (* G' |- B' tags *)
                                         (* G' |- s' : G *)
@@ -404,15 +404,15 @@ struct
                   let
                                         (* G' |- U' : V[s'] *)
                                         (* G' |- U'.s' : G, V[s'] *)
-                    val ((G'', B''), s'') = MTPAbstract.abstractSub' ((G', B'), I.Dot (I.Exp U', s'), I.Decl (B0, T))
+                    let ((G'', B''), s'') = MTPAbstract.abstractSub' ((G', B'), I.Dot (I.Exp U', s'), I.Decl (B0, T))
 
-                    val _ = if !Global.doubleCheck then
+                    let _ = if !Global.doubleCheck then
                               let
-                                val Psi'' = aux (G'',B'')
-                                val _ = TypeCheck.typeCheckCtx (F.makectx Psi'')
+                                let Psi'' = aux (G'',B'')
+                                let _ = TypeCheck.typeCheckCtx (F.makectx Psi'')
 
-                                val Psi = aux (I.Decl (G0, D), I.Decl (B0, T))
-                                val _ = TypeCheck.typeCheckCtx (F.makectx Psi)
+                                let Psi = aux (I.Decl (G0, D), I.Decl (B0, T))
+                                let _ = TypeCheck.typeCheckCtx (F.makectx Psi)
                               in
                                 FunTypeCheck.checkSub (Psi'', s'', Psi)
                               end
@@ -427,16 +427,16 @@ struct
               end
             else
               let
-                val F.LabelDec (name, G1, G2) = F.labelLookup n
-                val t = someEVars (I.Null, G1, I.id)
+                let F.LabelDec (name, G1, G2) = F.labelLookup n
+                let t = someEVars (I.Null, G1, I.id)
                                         (* . |- t : G1 *)
-                val B1 = createLemmaTags (F.listToCtx G1)
-                val G2t = ctxSub (G2, t)
+                let B1 = createLemmaTags (F.listToCtx G1)
+                let G2t = ctxSub (G2, t)
                                         (* . |- G2 [t] ctx *)
-                val length = List.length G2
-                val B2 = createTags (length , n)
+                let length = List.length G2
+                let B2 = createTags (length , n)
                                         (* G2 [t] |- B2 tags *)
-                val ((G', B'), s', (G0, B0), p) = sc (Names.ctxName (F.listToCtx G2t), B2)
+                let ((G', B'), s', (G0, B0), p) = sc (Names.ctxName (F.listToCtx G2t), B2)
                                         (* . |- G' ctx *)
                                         (* G' |- B' tags *)
                                         (* G' |- s : G = G0 *)
@@ -454,17 +454,17 @@ struct
                     let
                                         (* G' |- U.s' : G, V *)
                                         (* . |- t : G1 *)
-                      val ((G'', B''), s'') = MTPAbstract.abstractSub (t, B1, (G', B'), I.Dot (I.Exp U', s'), I.Decl (B0, T))
+                      let ((G'', B''), s'') = MTPAbstract.abstractSub (t, B1, (G', B'), I.Dot (I.Exp U', s'), I.Decl (B0, T))
                                         (* . |- G'' ctx *)
                                         (* G'' |- B'' tags *)
                                         (* G'' = G1'', G2', G2'' *)
                                         (* where G1'' |- G2' ctx, G2' is the abstracted parameter block *)
-                      val _ = if !Global.doubleCheck then
+                      let _ = if !Global.doubleCheck then
                                 let
-                                  val Psi'' = aux (G'',B'')
-                                  val _ = TypeCheck.typeCheckCtx (F.makectx Psi'')
-                                  val Psi = aux (I.Decl (G0, D), I.Decl (B0, T))
-                                  val _ = TypeCheck.typeCheckCtx (F.makectx Psi)
+                                  let Psi'' = aux (G'',B'')
+                                  let _ = TypeCheck.typeCheckCtx (F.makectx Psi'')
+                                  let Psi = aux (I.Decl (G0, D), I.Decl (B0, T))
+                                  let _ = TypeCheck.typeCheckCtx (F.makectx Psi)
                                 in
                                   FunTypeCheck.checkSub (Psi'', s'', Psi)
                                 end
@@ -473,7 +473,7 @@ struct
                       abstract ((G'', B''), s'')
                     end
 
-                val cases' = lowerSplitDest (G', 0, (V, s'), abstract',
+                let cases' = lowerSplitDest (G', 0, (V, s'), abstract',
                                            metaCases (length, cases))
               in
                 split' (n - 1, cases')
@@ -557,7 +557,7 @@ struct
 
     fun occursInOrder (n, S.Arg (Us, Vt), k, sc) =
         let
-          val U' = Whnf.normalize Us
+          let U' = Whnf.normalize Us
         in
           if occursInExp (k, U') then SOME (n) else sc (n+1)
         end
@@ -570,7 +570,7 @@ struct
           occursInOrder (n, O, k, fn n' => occursInOrders (n', Os, k, sc))
 
 
-    fun inductionInit O k = occursInOrder (0, O, k, fn n => NONE)
+    fun inductionInit O k = occursInOrder (0, O, k, fun n -> NONE)
     fun inductionCont induction k = induction (k+1)
 
     (* expand' ((G, B), isIndex, abstract, makeAddress) = (sc', ops')
@@ -604,23 +604,23 @@ struct
       | expand' (GB as (I.Decl (G, D), I.Decl (B, T as (S.Lemma (K as S.Splits _)))),
                  isIndex, abstract, makeAddress, induction) =
         let
-          val (sc, ops) =
+          let (sc, ops) =
             expand' ((G, B), isIndexSucc (D, isIndex),
                      abstractCont ((D, T), abstract),
                      makeAddressCont makeAddress,
                      inductionCont induction)
-          val I.Dec (xOpt, V) = D
+          let I.Dec (xOpt, V) = D
           fun sc' (Gp, Bp) =
             let
-              val ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
-              val X = I.newEVar (G', I.EClo (V, s'))     (* G' |- X : V[s'] *)
+              let ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
+              let X = I.newEVar (G', I.EClo (V, s'))     (* G' |- X : V[s'] *)
             in
               ((G', B'), I.Dot (I.Exp (X), s'), (I.Decl (G0, D), I.Decl (B0, T)), p')        (* G' |- X.s' : G, D *)
             end
-          val ops' = if not (isIndex 1) andalso (S.splitDepth K) > 0
+          let ops' = if not (isIndex 1) andalso (S.splitDepth K) > 0
                        then
                          let
-                           val a = I.targetFam V
+                           let a = I.targetFam V
                          in
                            makeOperator (makeAddress 1, split ((D, T), sc, abstract), K, I.ctxLength G,
                                          induction 1,  maxNumberCases (V, a), Subordinate.below (a, a))
@@ -633,16 +633,16 @@ struct
       | expand' ((I.Decl (G, D), I.Decl (B, T as (S.Lemma (S.RL)))), isIndex,
                  abstract, makeAddress, induction) =
         let
-          val (sc, ops) =
+          let (sc, ops) =
             expand' ((G, B), isIndexSucc (D, isIndex),
                      abstractCont ((D, T), abstract),
                      makeAddressCont makeAddress,
                      inductionCont induction)
-          val I.Dec (xOpt, V) = D
+          let I.Dec (xOpt, V) = D
           fun sc' (Gp, Bp) =
             let
-              val ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
-              val X = I.newEVar (G', I.EClo (V, s'))
+              let ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
+              let X = I.newEVar (G', I.EClo (V, s'))
             in
               ((G', B'), I.Dot (I.Exp (X), s'), (I.Decl (G0, D), I.Decl (B0, T)), p')
             end
@@ -652,16 +652,16 @@ struct
       | expand' ((I.Decl (G, D), I.Decl (B, T as (S.Lemma (S.RLdone)))), isIndex,
                  abstract, makeAddress, induction) =
         let
-          val (sc, ops) =
+          let (sc, ops) =
             expand' ((G, B), isIndexSucc (D, isIndex),
                      abstractCont ((D, T), abstract),
                      makeAddressCont makeAddress,
                      inductionCont induction)
-          val I.Dec (xOpt, V) = D
+          let I.Dec (xOpt, V) = D
           fun sc' (Gp, Bp) =
             let
-              val ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
-              val X = I.newEVar (G', I.EClo (V, s'))
+              let ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
+              let X = I.newEVar (G', I.EClo (V, s'))
             in
               ((G', B'), I.Dot (I.Exp (X), s'), (I.Decl (G0, D), I.Decl (B0, T)), p')
             end
@@ -671,15 +671,15 @@ struct
       | expand' ((I.Decl (G, D), I.Decl (B, T as S.Parameter (SOME _))), isIndex,
                  abstract, makeAddress, induction) =
         let
-          val (sc, ops) =
+          let (sc, ops) =
             expand' ((G, B), isIndexSucc (D, isIndex),
                      abstractErrorLeft,
                      makeAddressCont makeAddress,
                      inductionCont induction)
-          val I.Dec (xOpt, V) = D
+          let I.Dec (xOpt, V) = D
           fun sc' (Gp, Bp) =
             let
-              val ((G', B'), s', (G0, B0), _) = sc (Gp, Bp)
+              let ((G', B'), s', (G0, B0), _) = sc (Gp, Bp)
             in
               ((I.Decl (G', Names.decName (G', I.decSub (D, s'))), I.Decl (B', T)),
                I.dot1 s', (I.Decl (G0, D), I.Decl (B0, T)), true)
@@ -699,8 +699,8 @@ struct
     *)
     fun expand (S0 as S.State (n, (G0, B0), _, _, O, _, _)) =
       let
-        val _ = if !Global.doubleCheck then FunTypeCheck.isState S0 else ()
-        val (_, ops) =
+        let _ = if !Global.doubleCheck then FunTypeCheck.isState S0 else ()
+        let (_, ops) =
           expand' ((G0, B0), isIndexInit, abstractInit S0, makeAddressInit S0,  inductionInit O)
       in
         ops
@@ -789,11 +789,11 @@ struct
         end
 
   in
-    val expand = expand
-    val menu = menu
-    val applicable = applicable
-    val apply = apply
-    val index = index
-    val compare = compare
+    let expand = expand
+    let menu = menu
+    let applicable = applicable
+    let apply = apply
+    let index = index
+    let compare = compare
   end (* local *)
 end;  (* functor Splitting *)

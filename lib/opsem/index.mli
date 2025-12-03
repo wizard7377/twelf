@@ -1,16 +1,16 @@
 (* Indexing *)
 (* Author: Brigitte Pientka *)
 
-signature TABLEINDEX =
+module type TABLEINDEX =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN !*)
     
   type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list,
 		 lookup: int}
 
-  datatype Strategy = Variant | Subsumption
+  type Strategy = Variant | Subsumption
 
   val strategy  : Strategy ref 
 
@@ -21,7 +21,7 @@ sig
 
   val query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.Exp * IntSyn.Sub * (CompSyn.pskeleton -> unit)) option ref
 
-  datatype answState = New | Repeated
+  type answState = New | Repeated
 
   (* table: G, Gdprog |- goal , 
             (answ list (ith stage) , answ list (1 to i-1 th stage))
@@ -82,5 +82,5 @@ sig
   val solutions : answer -> ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list
   val lookup : answer -> int
 
-end;  (* signature TABLEINDEX *)
+end;  (* module type TABLEINDEX *)
 

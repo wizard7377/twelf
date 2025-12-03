@@ -1,12 +1,12 @@
 (* Global parameters *)
 (* Author: Carsten Schuermann *)
 
-signature METAGLOBAL =
+module type METAGLOBAL =
 sig
-  datatype Strategy = RFS | FRS
+  type Strategy = RFS | FRS
 
   val strategy : Strategy ref
   val maxFill : int ref
   val maxSplit : int ref
   val maxRecurse : int ref
-end;  (* signature METAGLOBAL *)
+end;  (* module type METAGLOBAL *)

@@ -1,11 +1,11 @@
 
-structure Debug :> DEBUG = 
+module Debug :> DEBUG = 
 struct 
 
   exception Assert of exn
 
-  val assert' = ref true
-  val print' = ref true
+  let assert' = ref true
+  let print' = ref true
 
   fun enable() = (assert' := true;print' := true)
   fun disable() = (assert' := true;print' := true)

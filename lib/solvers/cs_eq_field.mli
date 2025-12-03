@@ -1,27 +1,27 @@
 (* Gaussian-Elimination Equation Solver *)
 (* Author: Roberto Virga *)
 
-signature CS_EQ_FIELD =
+module type CS_EQ_FIELD =
 sig
   include CS
 
-  structure Field : FIELD
-  (*! structure IntSyn : INTSYN !*)
+  module Field : FIELD
+  (*! module IntSyn : INTSYN !*)
 
   (* Foreign expressions *)
 
   type 'a mset = 'a list                 (* MultiSet                   *)
 
-  datatype Sum =                         (* Sum :                      *)
-    Sum of Field.number * Mon mset       (* Sum ::= m + M1 + ...       *)
+  type sum =                         (* sum :                      *)
+    sum of Field.number * Mon mset       (* sum ::= m + M1 + ...       *)
 
   and Mon =                              (* Monomials:                 *)
     Mon of Field.number * (IntSyn.Exp * IntSyn.Sub) mset
                                          (* Mon ::= n * U1[s1] * ...   *)
 
-  val fromExp   : IntSyn.eclo -> Sum
-  val toExp     : Sum -> IntSyn.Exp
-  val normalize : Sum -> Sum
+  val fromExp   : IntSyn.eclo -> sum
+  val toExp     : sum -> IntSyn.Exp
+  val normalize : sum -> sum
 
   val compatibleMon : Mon * Mon -> bool
 
@@ -35,4 +35,4 @@ sig
   val times      : IntSyn.Exp * IntSyn.Exp -> IntSyn.Exp
 
   val constant   : Field.number -> IntSyn.Exp
-end  (* signature CS_EQ_FIELD *)
+end  (* module type CS_EQ_FIELD *)

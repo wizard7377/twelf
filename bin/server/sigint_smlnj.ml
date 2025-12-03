@@ -1,11 +1,11 @@
-structure SigINT :> SIGINT =
+module SigINT :> SIGINT =
 struct
 
   fun interruptLoop (loop:unit -> unit) =
       (SMLofNJ.Cont.callcc
-       (fn k => (Signals.setHandler (Signals.sigINT,
-				     Signals.HANDLER (fn _ => (print "\ninterrupt\n"; k)));
+       (fun k -> (Signals.setHandler (Signals.sigINT,
+				     Signals.HANDLER (fun _ -> (print "\ninterrupt\n"; k)));
 		 ()));
        loop ())
 
-end;  (* structure SigINT *)
+end;  (* module SigINT *)

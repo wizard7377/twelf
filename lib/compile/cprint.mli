@@ -1,11 +1,11 @@
 (* Printer for Compiled Syntax *)
 (* Author: Iliano Cervesato *)
 
-signature CPRINT =
+module type CPRINT =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN !*)
 
   val goalToString: string -> IntSyn.dctx * CompSyn.Goal -> string
   val clauseToString: string -> IntSyn.dctx * CompSyn.ResGoal -> string
@@ -13,4 +13,4 @@ sig
   val dProgToString: CompSyn.DProg -> string
   val subgoalsToString : string -> IntSyn.dctx * CompSyn.Conjunction -> string
 
-end; (* signature CPRINT *)
+end; (* module type CPRINT *)

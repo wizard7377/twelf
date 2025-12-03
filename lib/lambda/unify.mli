@@ -1,10 +1,10 @@
 (* Unification *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-signature UNIFY =
+module type UNIFY =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   type unifTrail
 
@@ -52,4 +52,4 @@ sig
      success and SOME(msg) for failure *)
   val unifiable' : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> string option
 
-end;  (* signature UNIFY *)
+end;  (* module type UNIFY *)

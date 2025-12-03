@@ -2,28 +2,28 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-functor PrintTwega
-  ((*! structure IntSyn' : INTSYN !*)
-   structure Whnf : WHNF
+let recctor PrintTwega
+  ((*! module IntSyn' : INTSYN !*)
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   structure Constraints : CONSTRAINTS
+   module Constraints : CONSTRAINTS
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Formatter' : FORMATTER)
+   module Formatter' : FORMATTER)
   : PRINT_TWEGA =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-structure Formatter = Formatter'
+  (*! module IntSyn = IntSyn' !*)
+module Formatter = Formatter'
 
 local
   (* Shorthands *)
-  structure I = IntSyn
-  structure F = Formatter
-  val Str = F.String
+  module I = IntSyn
+  module F = Formatter
+  let Str = F.String
   fun Str0 (s, n) = F.String0 n s
   fun Name (x) = F.String ("\"" ^ x ^ "\"")
   fun Integer (n) = F.String (Int.toString n)
@@ -57,14 +57,14 @@ local
     | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
-                         val D' = Names.decLUName (G, D) (* could sometimes be EName *)
-                         val G' = I.Decl (G, D')
+                         let D' = Names.decLUName (G, D) (* could sometimes be EName *)
+                         let G' = I.Decl (G, D')
                        in
                          sexp [Str "tw~pi", F.Break, fmtDec (G, (D', s)),
                                F.Break, Str "tw*maybe", F.Break, fmtExp (G', (V2, I.dot1 s))]
                        end
           | I.No => let
-                       val G' = I.Decl (G, D)
+                       let G' = I.Decl (G, D)
                     in
                       sexp [Str "tw~pi", F.Break, fmtDec (G, (D, s)),
                             F.Break, Str "tw*no", F.Break, fmtExp (G', (V2, I.dot1 s))]
@@ -74,8 +74,8 @@ local
                F.Break, fmtSpine (G, (S, s))]
     | fmtExpW (G, (I.Lam(D, U), s)) =
       let
-        val D' = Names.decLUName (G, D)
-        val G' = I.Decl (G, D')
+        let D' = Names.decLUName (G, D)
+        let G' = I.Decl (G, D')
       in
         sexp [Str "tw~lam", F.Break, fmtDec (G, (D', s)),
               F.Break, fmtExp (G', (U, I.dot1 s))]
@@ -107,7 +107,7 @@ local
   *)
   fun fmtConDec (I.ConDec (name, parent, imp, _, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        let _ = Names.varReset IntSyn.Null
       in
         sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
               Integer (imp), F.Break, fmtExp (I.Null, (V, I.id)),
@@ -117,7 +117,7 @@ local
       Str ("%% Skipping Skolem constant " ^ name ^ " %%")
     | fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        let _ = Names.varReset IntSyn.Null
       in
         sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
               Integer (imp), F.Break, fmtExp (I.Null, (U, I.id)),
@@ -126,7 +126,7 @@ local
       end
     | fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        let _ = Names.varReset IntSyn.Null
       in
         sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
               Integer (imp), F.Break, fmtExp (I.Null, (U, I.id)),
@@ -170,11 +170,11 @@ in
 
   fun printSgnToFile filename =
       let
-        val file = TextIO.openOut filename
+        let file = TextIO.openOut filename
 
-        val _ =       IntSyn.sgnApp (fn (cid) => (TextIO.output (file, F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
+        let _ =       IntSyn.sgnApp (fn (cid) => (TextIO.output (file, F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
                                   TextIO.output (file, "\n")))
-        val _ = TextIO.closeOut file
+        let _ = TextIO.closeOut file
 
       in
         ()

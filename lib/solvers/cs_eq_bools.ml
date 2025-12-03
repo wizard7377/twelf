@@ -1,24 +1,24 @@
 (* Booleans Equation Solver *)
 (* Author: Roberto Virga *)
 
-functor CSEqBools ((*! structure IntSyn : INTSYN !*)
-                   structure Whnf : WHNF
+let recctor CSEqBools ((*! module IntSyn : INTSYN !*)
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                   structure Unify : UNIFY
+                   module Unify : UNIFY
                    (*! sharing Unify.IntSyn = IntSyn !*)
-                   (*! structure CSManager : CS_MANAGER !*)
+                   (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn !*)
                      )
  : CS =
 struct
-  (*! structure CSManager = CSManager !*)
+  (*! module CSManager = CSManager !*)
 
-  (*! structure IntSyn = IntSyn !*)
+  (*! module IntSyn = IntSyn !*)
 
   type 'a set = 'a list                  (* Set                        *)
 
-  datatype Sum =                         (* Sum :                      *)
-    Sum of bool * Mon set                (* Sum ::= m + M1 + ...       *)
+  type sum =                         (* sum :                      *)
+    sum of bool * Mon set                (* sum ::= m + M1 + ...       *)
 
   and Mon =                              (* Monomials:                 *)
     Mon of (IntSyn.Exp * IntSyn.Sub) set
@@ -35,22 +35,22 @@ struct
   local
     open IntSyn
 
-    structure FX = CSManager.Fixity
-    structure MS = ModeSyn (* CSManager.ModeSyn *)
+    module FX = CSManager.Fixity
+    module MS = ModeSyn (* CSManager.ModeSyn *)
 
-    exception MyIntsynRep of Sum
+    exception MyIntsynRep of sum
 
     fun extractSum (MyIntsynRep sum) = sum
       | extractSum fe = raise (UnexpectedFgnExp fe)
 
-    val myID = ref ~1 : csid ref
+    let myID = ref ~1 : csid ref
 
-    val boolID = ref ~1 : cid ref
+    let boolID = ref ~1 : cid ref
 
     fun bool () = Root (Const (!boolID), Nil)
 
-    val trueID  = ref ~1 : cid ref
-    val falseID = ref ~1 : cid ref
+    let trueID  = ref ~1 : cid ref
+    let falseID = ref ~1 : cid ref
 
     fun trueExp ()  = Root (Const (!trueID), Nil)
     fun falseExp () = Root (Const (!falseID), Nil)
@@ -59,12 +59,12 @@ struct
       | solveBool (G, S, 1) = SOME(falseExp ())
       | solveBool (G, S, k) = NONE
 
-    val notID     = ref ~1 : cid ref
-    val xorID     = ref ~1 : cid ref
-    val andID     = ref ~1 : cid ref
-    val orID      = ref ~1 : cid ref
-    val impliesID = ref ~1 : cid ref
-    val iffID     = ref ~1 : cid ref
+    let notID     = ref ~1 : cid ref
+    let xorID     = ref ~1 : cid ref
+    let andID     = ref ~1 : cid ref
+    let orID      = ref ~1 : cid ref
+    let impliesID = ref ~1 : cid ref
+    let iffID     = ref ~1 : cid ref
 
     fun notExp (U)        = Root (Const (!notID), App (U, Nil))
     fun xorExp (U, V)     = Root (Const (!xorID), App (U, App (V, Nil)))
@@ -75,13 +75,13 @@ struct
 
     (* member eq (x, L) = true iff there there is a y in L s.t. eq(y, x) *)
     fun member eq (x, L) =
-          List.exists (fn y => eq(x, y)) L
+          List.exists (fun y -> eq(x, y)) L
 
     (* differenceSet eq L1 L2 = (L1 \ L2) U (L2 \ L1) *)
     fun differenceSet eq (L1, L2) =
           let
-            val L1' = List.filter (fn x => not (member eq (x, L2))) L1
-            val L2' = List.filter (fn x => not (member eq (x, L1))) L2
+            let L1' = List.filter (fun x -> not (member eq (x, L2))) L1
+            let L2' = List.filter (fun x -> not (member eq (x, L1))) L2
           in
             L1' @ L2'
           end
@@ -95,7 +95,7 @@ struct
     (* unionSet eq (L1, L2) = L1 U L2 *)
     fun unionSet eq (L1, L2) =
           let
-            val L2' = List.filter (fn x => not (member eq (x, L1))) L2
+            let L2' = List.filter (fun x -> not (member eq (x, L1))) L2
           in
             L1 @ L2'
           end
@@ -106,17 +106,17 @@ struct
        If sum is normal
        G |- U : V and U is the Twelf syntax conversion of sum
     *)
-    fun toExp (Sum (m, nil)) =
+    fun toExp (sum (m, nil)) =
           let
-            val cid = if m then !trueID else !falseID
+            let cid = if m then !trueID else !falseID
           in
             Root(Const (cid), Nil)
           end
-      | toExp (Sum (m, [mon])) =
+      | toExp (sum (m, [mon])) =
           if (m = false) then toExpMon mon
-          else xorExp (toExp (Sum (m, nil)), toExpMon mon)
-      | toExp (Sum (m, monLL as (mon :: monL))) =
-          xorExp (toExp (Sum (m, monL)), toExpMon mon)
+          else xorExp (toExp (sum (m, nil)), toExpMon mon)
+      | toExp (sum (m, monLL as (mon :: monL))) =
+          xorExp (toExp (sum (m, monL)), toExpMon mon)
 
     (* toExpMon mon = U
 
@@ -210,8 +210,8 @@ struct
        then sum3 normal
        and  sum3 = sum1 xor sum2
     *)
-    fun xorSum (Sum (m1, monL1), Sum (m2, monL2)) =
-          Sum (not (m1 = m2), differenceSet compatibleMon (monL1, monL2))
+    fun xorSum (sum (m1, monL1), sum (m2, monL2)) =
+          sum (not (m1 = m2), differenceSet compatibleMon (monL1, monL2))
 
     (* andSum (sum1, sum2) = sum3
 
@@ -221,12 +221,12 @@ struct
        then sum3 normal
        and  sum3 = sum1 and sum2
     *)
-    fun andSum (sum1 as Sum (false, nil), sum2) = sum1
-      | andSum (sum1, sum2 as Sum (false, nil)) = sum2
-      | andSum (sum1 as Sum (true, nil), sum2) = sum2
-      | andSum (sum1, sum2 as Sum (true, nil)) = sum1
-      | andSum (Sum (m1, mon1 :: monL1), sum2) =
-          xorSum (andSumMon (sum2, mon1), andSum (Sum (m1, monL1), sum2))
+    fun andSum (sum1 as sum (false, nil), sum2) = sum1
+      | andSum (sum1, sum2 as sum (false, nil)) = sum2
+      | andSum (sum1 as sum (true, nil), sum2) = sum2
+      | andSum (sum1, sum2 as sum (true, nil)) = sum1
+      | andSum (sum (m1, mon1 :: monL1), sum2) =
+          xorSum (andSumMon (sum2, mon1), andSum (sum (m1, monL1), sum2))
 
     (* andSumMon (sum1, mon2) = sum3
 
@@ -236,14 +236,14 @@ struct
        then sum3 normal
        and  sum3 = sum1 and mon2
     *)
-    and andSumMon (Sum (true, nil), mon) = Sum (false, [mon])
-      | andSumMon (sum1 as Sum (false, nil), mon) = sum1
-      | andSumMon (Sum (m1, (Mon UsL1) :: monL1), mon2 as Mon UsL2) =
+    and andSumMon (sum (true, nil), mon) = sum (false, [mon])
+      | andSumMon (sum1 as sum (false, nil), mon) = sum1
+      | andSumMon (sum (m1, (Mon UsL1) :: monL1), mon2 as Mon UsL2) =
           let
-            val UsL = unionSet sameExp (UsL1, UsL2)
+            let UsL = unionSet sameExp (UsL1, UsL2)
           in
-            xorSum (Sum (false, [Mon UsL]),
-                    andSumMon (Sum (m1, monL1), mon2))
+            xorSum (sum (false, [Mon UsL]),
+                    andSumMon (sum (m1, monL1), mon2))
           end
 
     (* notSum sum = sum'
@@ -253,8 +253,8 @@ struct
        then sum' normal
        and  sum' = not sum
     *)
-    fun notSum (Sum (m, monL)) =
-          Sum (not m, monL)
+    fun notSum (sum (m, monL)) =
+          sum (not m, monL)
 
     (* orSum (sum1, sum2) = sum3
 
@@ -299,18 +299,18 @@ struct
     fun fromExpW (Us as (FgnExp (cs, fe), _)) =
           if (cs = !myID)
           then normalizeSum (extractSum fe)
-          else Sum (false, [Mon [Us]])
+          else sum (false, [Mon [Us]])
       | fromExpW Us =
-          Sum (false, [Mon [Us]])
+          sum (false, [Mon [Us]])
     and fromExp Us =
           fromExpW (Whnf.whnf Us)
 
     (* normalizeSum sum = sum', where sum' normal and sum' = sum *)
-    and normalizeSum (sum as (Sum (m, nil))) = sum
-      | normalizeSum (Sum (m, [mon])) =
-          xorSum (Sum (m, nil), normalizeMon mon)
-      | normalizeSum (Sum (m, mon :: monL)) =
-          xorSum (normalizeMon mon, normalizeSum (Sum (m, monL)))
+    and normalizeSum (sum as (sum (m, nil))) = sum
+      | normalizeSum (sum (m, [mon])) =
+          xorSum (sum (m, nil), normalizeMon mon)
+      | normalizeSum (sum (m, mon :: monL)) =
+          xorSum (normalizeMon mon, normalizeSum (sum (m, monL)))
 
     (* normalizeMon mon = mon', where mon' normal and mon' = mon *)
     and normalizeMon (Mon [Us]) = fromExp Us
@@ -318,30 +318,30 @@ struct
           andSum (fromExp Us, normalizeMon (Mon UsL))
 
     (* mapSum (f, m + M1 + ...) = m + mapMon(f,M1) + ... *)
-    and mapSum (f, Sum (m, monL)) =
-          Sum (m, List.map (fn mon => mapMon (f, mon)) monL)
+    and mapSum (f, sum (m, monL)) =
+          sum (m, List.map (fun mon -> mapMon (f, mon)) monL)
 
     (* mapMon (f, n * (U1,s1) + ...) = n * f(U1,s1) * ... *)
     and mapMon (f, Mon UsL) =
-          Mon (List.map (fn Us => Whnf.whnf (f (EClo Us), id)) UsL)
+          Mon (List.map (fun Us -> Whnf.whnf (f (EClo Us), id)) UsL)
 
     (* appSum (f, m + M1 + ...) = ()     and appMon (f, Mi) for each i *)
-    fun appSum (f, Sum (m, monL)) =
-        List.app (fn mon => appMon (f, mon)) monL
+    fun appSum (f, sum (m, monL)) =
+        List.app (fun mon -> appMon (f, mon)) monL
 
     (* appMon (f, n * (U1, s1) + ... ) = () and f (Ui[si]) for each i *)
     and appMon (f, Mon UsL) =
-        List.app (fn Us => f (EClo Us)) UsL
+        List.app (fun Us -> f (EClo Us)) UsL
 
     (* findMon f (G, sum) =
          SOME(x) if f(M) = SOME(x) for some monomial M in sum
          NONE    if f(M) = NONE for all monomials M in sum
     *)
-    fun findMon f (G, Sum(m, monL)) =
+    fun findMon f (G, sum(m, monL)) =
           let
             fun findMon' (nil, monL2) = NONE
               | findMon' (mon :: monL1, monL2) =
-                  (case (f (G, mon, Sum(m, monL1 @ monL2)))
+                  (case (f (G, mon, sum(m, monL1 @ monL2)))
                      of (result as SOME _) => result
                       | NONE => findMon' (monL1, mon :: monL2))
           in
@@ -362,8 +362,8 @@ struct
                   if Whnf.isPatSub s
                   then
                     let
-                      val ss = Whnf.invert s
-                      val RHS = toFgn sum
+                      let ss = Whnf.invert s
+                      let RHS = toFgn sum
                     in
                       if Unify.invertible (G, (RHS, id), ss, r)
                       then SOME (G, LHS, RHS, ss)
@@ -373,8 +373,8 @@ struct
               | invertMon _ = NONE
           in
             case xorSum (sum2, sum1)
-              of Sum (false, nil) => Succeed nil
-               | Sum (true, nil) => Fail
+              of sum (false, nil) => Succeed nil
+               | sum (true, nil) => Fail
                | sum =>
                   (
                     case findMon invertMon (G, sum)
@@ -382,8 +382,8 @@ struct
                            Succeed [Assign assignment]
                        | NONE =>
                            let
-                             val U = toFgn sum
-                             val cnstr = ref (Eqn (G, U, falseExp ()))
+                             let U = toFgn sum
+                             let cnstr = ref (Eqn (G, U, falseExp ()))
                            in
                              Succeed [Delay (U, cnstr)]
                            end
@@ -396,8 +396,8 @@ struct
        If sum normal
        then U is a foreign expression representing sum.
     *)
-    and toFgn (sum as Sum (m, nil)) = toExp (sum)
-      | toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep sum)
+    and toFgn (sum as sum (m, nil)) = toExp (sum)
+      | toFgn (sum as sum (m, monL)) = FgnExp (!myID, MyIntsynRep sum)
 
     (* toInternal (fe) = U
 
@@ -438,7 +438,7 @@ struct
 
     fun equalTo (MyIntsynRep sum) U2 =
         (case xorSum (normalizeSum (sum), fromExp (U2, id)) (* AK: redundant normalizeSum ? *)
-          of Sum(m, nil) => (m = false)
+          of sum(m, nil) => (m = false)
            | _ => false)
       | equalTo fe _ = raise (UnexpectedFgnExp fe)
 
@@ -446,12 +446,12 @@ struct
       | unifyWith fe _ = raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
-        val csid = !myID
-        val _ = FgnExpStd.ToInternal.install (csid, toInternal)
-        val _ = FgnExpStd.Map.install (csid, map)
-        val _ = FgnExpStd.App.install (csid, app)
-        val _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
-        val _ = FgnExpStd.EqualTo.install (csid, equalTo)
+        let csid = !myID
+        let _ = FgnExpStd.ToInternal.install (csid, toInternal)
+        let _ = FgnExpStd.Map.install (csid, map)
+        let _ = FgnExpStd.App.install (csid, app)
+        let _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
+        let _ = FgnExpStd.EqualTo.install (csid, equalTo)
     in
         ()
     end
@@ -468,13 +468,13 @@ struct
                   (makeParams arity, arity)
               | expand ((App (U, S), s), arity) =
                   let
-                    val (S', arity') = expand ((S, s), (Int.-(arity,1)))
+                    let (S', arity') = expand ((S, s), (Int.-(arity,1)))
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
               | expand ((SClo (S, s'), s), arity) =
                   expand ((S, comp (s', s)), arity)
-            val (S', arity') = expand ((S, id), arity)
+            let (S', arity') = expand ((S, id), arity)
           in
             makeLam (toFgn (opExp S')) arity'
           end
@@ -493,7 +493,7 @@ struct
 
     (* init (cs, installFunction) = ()
        Initialize the constraint solver.
-       installFunction is used to add its signature symbols.
+       installFunction is used to add its module type symbols.
     *)
     fun init (cs, installF) =
           (
@@ -507,14 +507,14 @@ struct
 
             trueID :=
               installF (ConDec ("true", NONE, 0,
-                                Foreign (!myID, (fn _ => toFgn (Sum(true, nil)))),
+                                Foreign (!myID, (fun _ -> toFgn (sum(true, nil)))),
                                 bool (),
                                 Type),
                         NONE, nil);
 
             falseID :=
               installF (ConDec ("false", NONE, 0,
-                                Foreign (!myID, (fn _ => toFgn (Sum(false, nil)))),
+                                Foreign (!myID, (fun _ -> toFgn (sum(false, nil)))),
                                 bool (),
                                 Type),
                         NONE, nil);
@@ -572,7 +572,7 @@ struct
             ()
           )
   in
-    val solver =
+    let solver =
           {
             name = "equality/booleans",
             keywords = "booleans,equality",

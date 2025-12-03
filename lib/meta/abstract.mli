@@ -1,15 +1,15 @@
 (* Meta Theorem Prover abstraction : Version 1.3 *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-signature MTPABSTRACT =
+module type MTPABSTRACT =
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module IntSyn : INTSYN !*)
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string
 
-  datatype ApproxFor =			(* Approximat formula *)
+  type ApproxFor =			(* Approximat formula *)
     Head of IntSyn.dctx * (FunSyn.For * IntSyn.Sub) * int	(* AF ::= F [s] *)
   | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.Dec list) * ApproxFor
 					(*  | (t, G2), AF *)
@@ -25,4 +25,4 @@ sig
 
 
   val abstractApproxFor : ApproxFor -> FunSyn.For
-end;  (* signature MTPABSTRACT *)
+end;  (* module type MTPABSTRACT *)

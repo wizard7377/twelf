@@ -1,8 +1,8 @@
 Twelf.reset ();
 Twelf.loadFile "TEST/cp.elf";
-val SOME cpt = Names.nameLookup "cpt";
-val _ = Skolem.install [cpt];
-val SOME cpt1 = Names.nameLookup "cpt#1";
-val SOME cpt2 = Names.nameLookup "cpt#2";
-val _ = TextIO.print (Print.expToString (IntSyn.Null, IntSyn.constType cpt1) ^ "\n");
-val _ = TextIO.print (Print.expToString (IntSyn.Null, IntSyn.constType cpt2) ^ "\n");
+let SOME cpt = Names.nameLookup "cpt";
+let _ = Skolem.install [cpt];
+let SOME cpt1 = Names.nameLookup "cpt#1";
+let SOME cpt2 = Names.nameLookup "cpt#2";
+let _ = TextIO.print (Print.expToString (IntSyn.Null, IntSyn.constType cpt1) ^ "\n");
+let _ = TextIO.print (Print.expToString (IntSyn.Null, IntSyn.constType cpt2) ^ "\n");

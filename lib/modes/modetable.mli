@@ -1,7 +1,7 @@
 (* Mode Table *)
 (* Author: Frank Pfenning *)
 
-signature MODETABLE =
+module type MODETABLE =
 sig
 
   exception Error of string
@@ -17,4 +17,4 @@ sig
   val installMmode : (IntSyn.cid * ModeSyn.ModeSpine) -> unit 
   val mmodeLookup : IntSyn.cid -> ModeSyn.ModeSpine list
 
-end;  (* signature MODETABLE *)
+end;  (* module type MODETABLE *)

@@ -1,31 +1,31 @@
 (* String Equation Solver *)
 (* Author: Roberto Virga *)
 
-functor CSEqStrings ((*! structure IntSyn : INTSYN !*)
-                     structure Whnf : WHNF
+let recctor CSEqStrings ((*! module IntSyn : INTSYN !*)
+                     module Whnf : WHNF
                      (*! sharing Whnf.IntSyn = IntSyn !*)
-                     structure Unify : UNIFY
+                     module Unify : UNIFY
                      (*! sharing Unify.IntSyn = IntSyn !*)
-                     (*! structure CSManager : CS_MANAGER !*)
+                     (*! module CSManager : CS_MANAGER !*)
                      (*! sharing CSManager.IntSyn = IntSyn !*)
                        )
  : CS =
 struct
-  (*! structure CSManager = CSManager !*)
+  (*! module CSManager = CSManager !*)
 
   local
     open IntSyn
 
-    structure FX = CSManager.Fixity
-    structure MS = ModeSyn (* CSManager.ModeSyn *)
+    module FX = CSManager.Fixity
+    module MS = ModeSyn (* CSManager.ModeSyn *)
 
-    val myID = ref ~1 : IntSyn.csid ref
+    let myID = ref ~1 : IntSyn.csid ref
 
-    val stringID = ref ~1 : IntSyn.cid ref
+    let stringID = ref ~1 : IntSyn.cid ref
 
     fun string () = Root (Const (!stringID), Nil)
 
-    val concatID = ref ~1 : IntSyn.cid ref
+    let concatID = ref ~1 : IntSyn.cid ref
 
     fun concatExp (U, V) = Root (Const (!concatID), App (U, App (V, Nil)))
 
@@ -42,7 +42,7 @@ struct
     *)
     fun fromString string =
           let
-            val len = String.size string
+            let len = String.size string
           in
             if (String.sub (string, 0) = #"\"")
               andalso (String.sub (string, len-1) = #"\"")
@@ -71,7 +71,7 @@ struct
     *)
     fun solveString (G, S, k) = SOME(stringExp (Int.toString k))
 
-    datatype Concat =
+    type Concat =
       Concat of Atom list                  (* Concatenation:             *)
                                            (* Concat::= A1 ++ A2 ++ ...  *)
 
@@ -179,18 +179,18 @@ struct
 
     (* Split:                                         *)
     (* Split ::= str1 ++ str2                         *)
-    datatype Split = Split of string * string
+    type Split = Split of string * string
 
     (* Decomposition:                                 *)
     (* Decomp ::= toParse | [parsed1, ..., parsedn]   *)
-    datatype Decomp = Decomp of string * string list
+    type Decomp = Decomp of string * string list
 
     (* index (str1, str2) = [idx1, ..., idxn]
        where the idxk are all the positions in str2 where str1 appear.
     *)
     fun index (str1, str2) =
           let
-            val max = (String.size str2) - (String.size str1)
+            let max = (String.size str2) - (String.size str1)
             fun index' i =
                   if (i <= max)
                   then
@@ -208,7 +208,7 @@ struct
     *)
     fun split (str1, str2) =
           let
-            val len = String.size str1
+            let len = String.size str1
             fun split' i =
                   Split (String.extract (str2, 0, SOME(i)),
                          String.extract (str2, i+len, NONE))
@@ -297,7 +297,7 @@ struct
                      | {delay U1 on cnstr1, ..., delay Un on cnstrn}
                      | Failure
     *)
-    datatype StringUnify =
+    type StringUnify =
       MultAssign of (Dec Ctx * Exp * Exp * Sub) list
     | MultDelay of Exp list * Cnstr ref
     | Failure
@@ -306,9 +306,9 @@ struct
        where result is obtained translating stringUnify.
     *)
     fun toFgnUnify (MultAssign L) =
-          IntSyn.Succeed (List.map (fn GXUss => Assign GXUss) L)
+          IntSyn.Succeed (List.map (fun GXUss -> Assign GXUss) L)
       | toFgnUnify (MultDelay (UL, cnstr)) =
-          IntSyn.Succeed (List.map (fn U => Delay (U, cnstr)) UL)
+          IntSyn.Succeed (List.map (fun U -> Delay (U, cnstr)) UL)
       | toFgnUnify (Failure) = Fail
 
     (* unifyRigid (G, concat1, concat2) = stringUnify
@@ -331,7 +331,7 @@ struct
               | unifyRigid' ((Exp (U1 as (EVar (r, _, _, _)), s)) :: AL1,
                              (Exp (U2 as (Root (FVar _, _)), _)) :: AL2) =
                   let
-                    val ss = Whnf.invert s
+                    let ss = Whnf.invert s
                   in
                     if Unify.invertible (G, (U2, id), ss, r)
                     then (case (unifyRigid' (AL1, AL2))
@@ -343,7 +343,7 @@ struct
               | unifyRigid' ((Exp (U1 as (Root (FVar _, _)), _)) :: AL1,
                              (Exp (U2 as (EVar (r, _, _, _)), s)) :: AL2) =
                   let
-                    val ss = Whnf.invert s
+                    let ss = Whnf.invert s
                   in
                     if Unify.invertible (G, (U1, id), ss, r)
                     then (case (unifyRigid' (AL1, AL2))
@@ -383,7 +383,7 @@ struct
           if (String.isPrefix prefix str)
           then
             let
-              val suffix = String.extract (str, String.size prefix, NONE)
+              let suffix = String.extract (str, String.size prefix, NONE)
             in
               unifyString (G, Concat AL, suffix, cnstr)
             end
@@ -414,8 +414,8 @@ struct
                                (case (assign r L)
                                   of NONE =>
                                        let
-                                         val ss = Whnf.invert s
-                                         val W = stringExp(parsed)
+                                         let ss = Whnf.invert s
+                                         let W = stringExp(parsed)
                                        in
                                          (MultAssign ((G, U, W, ss) :: L), parsedL)
                                        end
@@ -437,7 +437,7 @@ struct
                                                  SOME (Decomp (prefix, parsedL))
                                             | (Split (prefix, suffix)) => NONE)
                                           (split (str, parse))
-                    val candidates' =
+                    let candidates' =
                           List.foldr op@ nil (List.map successors candidates)
                   in
                     unifyString' (nil, candidates')
@@ -448,7 +448,7 @@ struct
                           List.map (fn (Split (prefix, suffix)) =>
                                           Decomp (suffix, prefix :: parsedL))
                                    (split (str, parse))
-                    val candidates' =
+                    let candidates' =
                           List.foldr op@ nil (List.map successors candidates)
                   in
                     unifyString' (AL, candidates')
@@ -475,9 +475,9 @@ struct
     *)
     fun unifyConcat (G, concat1 as (Concat AL1), concat2 as (Concat AL2)) =
           let
-            val U1 = toFgn concat1
-            val U2 = toFgn concat2
-            val cnstr = ref (Eqn (G, U1, U2))
+            let U1 = toFgn concat1
+            let U2 = toFgn concat2
+            let cnstr = ref (Eqn (G, U1, U2))
           in
             case (AL1, AL2)
               of (nil, nil) => MultAssign nil
@@ -490,7 +490,7 @@ struct
                    if (Whnf.isPatSub s)
                    then
                      let
-                       val ss = Whnf.invert s
+                       let ss = Whnf.invert s
                      in
                        if Unify.invertible (G, (U2, id), ss, r)
                        then (MultAssign [(G, U, U2, ss)])
@@ -502,7 +502,7 @@ struct
                    if (Whnf.isPatSub s)
                    then
                      let
-                       val ss = Whnf.invert s
+                       let ss = Whnf.invert s
                      in
                        if Unify.invertible (G, (U1, id), ss, r)
                        then (MultAssign [(G, U, U1, ss)])
@@ -580,12 +580,12 @@ struct
       | unifyWith fe _ = raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
-        val csid = !myID
-        val _ = FgnExpStd.ToInternal.install (csid, toInternal)
-        val _ = FgnExpStd.Map.install (csid, map)
-        val _ = FgnExpStd.App.install (csid, app)
-        val _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
-        val _ = FgnExpStd.EqualTo.install (csid, equalTo)
+        let csid = !myID
+        let _ = FgnExpStd.ToInternal.install (csid, toInternal)
+        let _ = FgnExpStd.Map.install (csid, map)
+        let _ = FgnExpStd.App.install (csid, app)
+        let _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
+        let _ = FgnExpStd.EqualTo.install (csid, equalTo)
     in
         ()
     end
@@ -602,13 +602,13 @@ struct
                   (makeParams arity, arity)
               | expand ((App (U, S), s), arity) =
                   let
-                    val (S', arity') = expand ((S, s), arity-1)
+                    let (S', arity') = expand ((S, s), arity-1)
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
               | expand ((SClo (S, s'), s), arity) =
                   expand ((S, comp (s, s')), arity)
-            val (S', arity') = expand ((S, id), arity)
+            let (S', arity') = expand ((S, id), arity)
           in
             makeLam (toFgn (opExp S')) arity'
           end
@@ -622,7 +622,7 @@ struct
 
     (* init (cs, installFunction) = ()
        Initialize the constraint solver.
-       installFunction is used to add its signature symbols.
+       installFunction is used to add its module type symbols.
     *)
     fun init (cs, installF) =
           (
@@ -643,7 +643,7 @@ struct
             ()
           )
   in
-    val solver =
+    let solver =
           {
             name = "equality/strings",
             keywords = "strings,equality",

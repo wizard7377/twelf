@@ -1,10 +1,10 @@
 (* External Syntax for meta theorems *)
 (* Author: Carsten Schuermann *)
 
-signature THMEXTSYN =
+module type THMEXTSYN =
 sig
-  structure ExtSyn : EXTSYN
-  (*! structure Paths : PATHS  !*)
+  module ExtSyn : EXTSYN
+  (*! module Paths : PATHS  !*)
 
   type order
   val varg : (Paths.region * string list) -> order
@@ -60,12 +60,12 @@ sig
   val wdecl : (string list * string) list * callpats -> wdecl
 (*  val wdecl : (decs * decs) list * callpats -> wdecl *)
 
-end;  (* signature THMEXTSYN *)
+end;  (* module type THMEXTSYN *)
 
 
-signature RECON_THM =
+module type RECON_THM =
 sig
-  structure ThmSyn : THMSYN
+  module ThmSyn : THMSYN
   include THMEXTSYN
 
   exception Error of string
@@ -82,4 +82,4 @@ sig
   val establishToEstablish : establish -> (ThmSyn.PDecl * (Paths.region * Paths.region list))
   val assertToAssert : assert -> (ThmSyn.Callpats * Paths.region list)
   val wdeclTowDecl : wdecl -> (ThmSyn.WDecl * Paths.region list)
-end;  (* signature RECON_THM *)
+end;  (* module type RECON_THM *)

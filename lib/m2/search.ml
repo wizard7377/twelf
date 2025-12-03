@@ -1,48 +1,48 @@
 (* Search (based on abstract machine ) *)
 (* Author: Carsten Schuermann *)
 
-functor OLDSearch ((*! structure IntSyn' : INTSYN !*)
-                structure MetaGlobal : METAGLOBAL
-                structure MetaSyn' : METASYN
+let recctor OLDSearch ((*! module IntSyn' : INTSYN !*)
+                module MetaGlobal : METAGLOBAL
+                module MetaSyn' : METASYN
                 (*! sharing MetaSyn'.IntSyn = IntSyn' !*)
-                (*! structure CompSyn' : COMPSYN !*)
+                (*! module CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                structure Whnf : WHNF
+                module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                structure Unify : UNIFY
+                module Unify : UNIFY
                 (*! sharing Unify.IntSyn = IntSyn' !*)
                 (*
-                structure Assign : ASSIGN
+                module Assign : ASSIGN
                 sharing Assign.IntSyn = IntSyn'
                 *)
-                structure Index : INDEX
+                module Index : INDEX
                 (*! sharing Index.IntSyn = IntSyn' !*)
-                structure Compile : COMPILE
+                module Compile : COMPILE
                 (*! sharing Compile.IntSyn = IntSyn' !*)
                 (*! sharing Compile.CompSyn = CompSyn' !*)
-                structure CPrint : CPRINT
+                module CPrint : CPRINT
                 (*! sharing CPrint.IntSyn = IntSyn' !*)
                 (*! sharing CPrint.CompSyn = CompSyn' !*)
-                structure Print : PRINT
+                module Print : PRINT
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                structure Names : NAMES
+                module Names : NAMES
                 (*! sharing Names.IntSyn = IntSyn' !*)
-                (*! structure CSManager : CS_MANAGER !*)
+                (*! module CSManager : CS_MANAGER !*)
                 (*! sharing CSManager.IntSyn = IntSyn' !*)
 )
   : OLDSEARCH =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  structure MetaSyn = MetaSyn'
-  (*! structure CompSyn = CompSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
+  module MetaSyn = MetaSyn'
+  (*! module CompSyn = CompSyn' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure M = MetaSyn
-    structure C = CompSyn
+    module I = IntSyn
+    module M = MetaSyn
+    module C = CompSyn
 
 
   fun cidFromHead (I.Const a) = a
@@ -68,7 +68,7 @@ struct
   fun solve ((C.Atom p, s), dp, sc, acck) = matchAtom ((p,s), dp, sc, acck)
     | solve ((C.Impl (r, A, H, g), s), C.DProg(G, dPool), sc, acck) =
        let
-         val D' = I.Dec (NONE, I.EClo (A, s))
+         let D' = I.Dec (NONE, I.EClo (A, s))
        in
          solve ((g, I.dot1 s),
                 C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, H))),
@@ -76,7 +76,7 @@ struct
        end
     | solve ((C.All (D, g), s), C.DProg (G, dPool), sc, acck) =
        let
-         val D' = I.decSub (D, s)
+         let D' = I.decSub (D, s)
        in
          solve ((g, I.dot1 s),
                 C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Parameter)),
@@ -111,7 +111,7 @@ struct
     *)
     | rSolve (ps', (C.And (r, A, g), s), dp as C.DProg (G, dPool), sc, acck) =
       let
-        val X = I.newEVar (G, I.EClo(A, s))
+        let X = I.newEVar (G, I.EClo(A, s))
       in
         rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp,
                 (fn (S, acck') => solve ((g, s), dp,
@@ -124,14 +124,14 @@ struct
       end
     | rSolve (ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acck) =
         let
-          val X = I.newEVar (G, I.EClo (A, s))
+          let X = I.newEVar (G, I.EClo (A, s))
         in
           rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp,
                   (fn (S, acck') => sc (I.App (X, S), acck')), acck)
         end
 (*    | rSolve (ps', (C.Axists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acck) =
         let
-          val X = I.newEVar (G, I.EClo (A, s))
+          let X = I.newEVar (G, I.EClo (A, s))
         in
           rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp,
                   (fn (S, acck') => sc (S, acck')), acck)
@@ -164,8 +164,8 @@ struct
               fun matchSig' (nil, acc'') = acc''
                 | matchSig' (Hc ::sgn', acc'') =
                   let
-                    val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
-                    val acc''' = CSManager.trail
+                    let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+                    let acc''' = CSManager.trail
                                  (fn () =>
                                     rSolve (ps', (r, I.id), dp,
                                             (fn (S, acck') => sc (I.Root (Hc, S),
@@ -181,7 +181,7 @@ struct
           | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') =
             if eqHead (Ha, Ha') then
               let
-                val acc'' = CSManager.trail (fn () =>
+                let acc'' = CSManager.trail (fn () =>
                             rSolve (ps', (r, I.comp (s, I.Shift n)), dp,
                                     (fn (S, acck') => sc (I.Root (I.BVar n, S),
                                                           acck')), (acc', k-1)))
@@ -304,7 +304,7 @@ struct
     fun searchEx (G, GE, Vs, sc) =
       (if !Global.chatter > 5 then print "[Search: " else ();
          deepen searchEx' (selectEVar (GE, Vs, nil),
-                           fn Params => (if !Global.chatter > 5 then
+                           fun Params -> (if !Global.chatter > 5 then
                                             print "OK]\n" else ();
                                           sc Params));
          if !Global.chatter > 5 then print "FAIL]\n" else ();
@@ -343,8 +343,8 @@ struct
 
 
   in
-    val searchEx = searchEx
-    val searchAll = searchAll
+    let searchEx = searchEx
+    let searchAll = searchAll
   end (* local ... *)
 
 end; (* functor Search *)

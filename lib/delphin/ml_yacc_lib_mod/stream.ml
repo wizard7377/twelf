@@ -21,18 +21,18 @@
  * 
  *)
 
-(* Stream: a structure implementing a lazy stream.  The signature STREAM
+(* Stream: a module implementing a lazy stream.  The module type STREAM
    is found in base.sig *)
 
-structure Streamm :> STREAMM =
+module Streamm :> STREAMM =
 struct
-   datatype 'a str = EVAL of 'a * 'a str ref | UNEVAL of (unit->'a)
+   type 'a str = EVAL of 'a * 'a str ref | UNEVAL of (unit->'a)
 
    type 'a stream = 'a str ref
 
    fun get(ref(EVAL t)) = t
      | get(s as ref(UNEVAL f)) = 
-	    let val t = (f(), ref(UNEVAL f)) in s := EVAL t; t end
+	    let let t = (f(), ref(UNEVAL f)) in s := EVAL t; t end
 
    fun streamify f = ref(UNEVAL f)
    fun cons(a,s) = ref(EVAL(a,s))

@@ -1,11 +1,11 @@
 (* Tabled Abstract Machine      *)
 (* Author: Brigitte Pientka     *)
 
-signature TABLED =
+module type TABLED =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN !*)
 
   val solve     : (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
                   * (CompSyn.pskeleton -> unit) -> unit
@@ -24,5 +24,5 @@ sig
 
   val suspGoalNo : unit -> int
 
-end;  (* signature TABLED *)
+end;  (* module type TABLED *)
 

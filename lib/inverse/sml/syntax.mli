@@ -1,18 +1,18 @@
 
-signature SYNTAX =
+module type SYNTAX =
 sig
 
   type const = int 
 
-  datatype uni = Type 
+  type uni = Type 
                | Kind
                    
-  datatype head = Const of const
+  type head = Const of const
                 | BVar of int
 
-  datatype depend = No | Maybe
+  type depend = No | Maybe
 
-  datatype exp = Uni of uni
+  type exp = Uni of uni
                | Pi of pi
                | Lam of lam 
                | Root of head * spine
@@ -54,12 +54,12 @@ sig
                  def : exp,
                  uni : uni}
 
-  datatype dec = Decl of decl
+  type dec = Decl of decl
                | Def of def
                | Abbrev of abbrev
 
 
-  structure Signat :
+  module Signat :
   sig
 
     type signat
@@ -72,7 +72,7 @@ sig
     val size : unit -> int
     (** iterate a function over the signat *)
     val app : (const * dec -> unit) -> unit
-    (** clear the signature*)
+    (** clear the module type*)
     val reset : unit -> unit
 
   end

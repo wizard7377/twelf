@@ -1,13 +1,13 @@
 (* The Parser *)
 (* Author: Richard Fontana *)
 
-signature PARSE =
+module type PARSE =
 sig
   
-  structure DextSyn  : DEXTSYN
+  module DextSyn  : DEXTSYN
     
   val fparse : string -> unit
   val gparse : string -> DextSyn.Ast
   val sparse : unit -> DextSyn.Ast
 
-end  (* signature PARSE *)
+end  (* module type PARSE *)

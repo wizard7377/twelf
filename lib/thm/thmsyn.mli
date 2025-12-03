@@ -2,63 +2,63 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-signature THMSYN =
+module type THMSYN =
 sig
-  structure Names : NAMES
+  module Names : NAMES
 
   exception Error of string
 
   (*! type Param = string option !*)
 
-  datatype Order =
+  type Order =
     Varg of string list
   | Lex of Order list
   | Simul of Order list
 
   (* -bp *)
-  datatype Predicate = Less | Leq | Eq
+  type Predicate = Less | Leq | Eq
 
-  datatype RedOrder = 
+  type RedOrder = 
       RedOrder of Predicate * Order * Order
   
-  datatype Callpats =
+  type Callpats =
     Callpats of (IntSyn.cid * (string option) list) list 
 
   (* Termination declaration *)
-  datatype TDecl = 
+  type TDecl = 
     TDecl of Order * Callpats
 
   (* -bp *)
   (* Reduction declaration *)
-  datatype RDecl = 
+  type RDecl = 
     RDecl of (RedOrder * Callpats)
 
    (* Tabled declaration *)
-   datatype TabledDecl = 
+   type TabledDecl = 
     TabledDecl of IntSyn.cid
 
    (* KeepTable declaration *)
-   datatype KeepTableDecl = 
+   type KeepTableDecl = 
     KeepTableDecl of IntSyn.cid
 
   (* Theorem declaration  *)
-  datatype ThDecl =
+  type ThDecl =
     ThDecl of (IntSyn.Dec IntSyn.Ctx * IntSyn.Dec IntSyn.Ctx) list
               * IntSyn.Dec IntSyn.Ctx * ModeSyn.Mode IntSyn.Ctx * int
 
   (* Proof declaration *)
-  datatype PDecl = 
+  type PDecl = 
     PDecl of int * TDecl
 
   (* World declaration *)
-(*  datatype WDecl = 
+(*  type WDecl = 
     WDecl of (IntSyn.Dec IntSyn.Ctx * 
 	      IntSyn.Dec IntSyn.Ctx) list * Callpats
 *)
-  datatype WDecl = 
+  type WDecl = 
     WDecl of Names.Qid list * Callpats
 
   val theoremDecToConDec : ((string * ThDecl) * Paths.region) -> 
                            (IntSyn.Dec IntSyn.Ctx * IntSyn.Dec IntSyn.Ctx) list * IntSyn.ConDec
   val theoremDecToModeSpine : ((string * ThDecl) * Paths.region) -> ModeSyn.ModeSpine
-end;  (* signature THMSYN *)
+end;  (* module type THMSYN *)

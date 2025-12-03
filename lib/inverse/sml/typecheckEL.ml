@@ -1,13 +1,13 @@
 
 
-structure TypecheckEL =
+module TypecheckEL =
 struct 
 
-  structure L = Lib
-  structure S = Syntax
-  structure Sig = S.Signat
-  structure C = Context
-  structure D = Debug
+  module L = Lib
+  module S = Syntax
+  module Sig = S.Signat
+  module C = Context
+  module D = Debug
 
   open S
 
@@ -19,7 +19,7 @@ struct
         (* pull some common code out of the following case *)
         fun foc exp =
            let
-             val U = focus sgn ctx S exp
+             let U = focus sgn ctx S exp
            in
              if equiv_exp sgn U V then ()
              else raise Check "check_exp: exps not equivalent"
@@ -35,7 +35,7 @@ struct
       (case C.lookup ctx (i-1) (* DeBruijn indices start at 1 *) of
          SOME (_,A) =>
          let
-           val U = focus sgn ctx S (apply_exp (Shift i) A) 
+           let U = focus sgn ctx S (apply_exp (Shift i) A) 
          in
            if equiv_exp sgn U V then ()
            else raise Fail_exp2("check_exp: Root,BVar",U,V)
@@ -70,7 +70,7 @@ struct
            body=apply_exp (push_sub sub) U}
     | apply_exp sub (exp as Root(H,S)) =
       let
-        val S' = apply_spine sub S
+        let S' = apply_spine sub S
       in
         case H of
           Const _ => Root(H,S')
@@ -151,17 +151,17 @@ struct
 
   fun check_dec (c,Decl {id,name,exp,uni}) = 
       let
-        val uni' = Uni uni
-        val exp' = eta_expand(exp,uni')
+        let uni' = Uni uni
+        let exp' = eta_expand(exp,uni')
       in
         check exp' uni';
         Sig.insert (id,Decl {id=id,name=name,exp=exp',uni=uni})
       end
     | check_dec (c,Def {id,name,exp,def,height,root,uni}) =
       let
-        val uni' = Uni uni
-        val exp' = eta_expand(exp,uni')
-        val def' = eta_expand(def,exp')
+        let uni' = Uni uni
+        let exp' = eta_expand(exp,uni')
+        let def' = eta_expand(def,exp')
       in
         check exp' uni';
         check def' exp';
@@ -170,11 +170,11 @@ struct
       end
     | check_dec (c,Abbrev {id,name,exp,def,uni}) =
       let
-        val uni' = Uni uni
-(*         val exp' = eta_expand(exp,uni') *)
-(*         val def' = eta_expand(def,exp') *)
-        val exp' = exp
-        val def' = def
+        let uni' = Uni uni
+(*         let exp' = eta_expand(exp,uni') *)
+(*         let def' = eta_expand(def,exp') *)
+        let exp' = exp
+        let def' = def
       in
         check exp' uni';
         check def' exp';

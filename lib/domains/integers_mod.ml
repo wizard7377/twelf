@@ -1,17 +1,17 @@
 (* Integers Modulo a Prime Number *)
 (* Author: Roberto Virga *)
 
-functor IntegersMod (val p : int) :> FIELD =
+let recctor IntegersMod (let p : int) :> FIELD =
 struct
 
-  val name = "integer" ^ (Int.toString p)
+  let name = "integer" ^ (Int.toString p)
 
   type number = int
 
   fun normalize (n) = n mod p
 
-  val zero = 0
-  val one  = 1
+  let zero = 0
+  let one  = 1
 
   exception Div
 
@@ -38,7 +38,7 @@ struct
 
   fun fromString (str) =
         let
-          val check = (List.all Char.isDigit)
+          let check = (List.all Char.isDigit)
         in
           if check (String.explode str) then
             (case (Int.fromString (str))
@@ -49,6 +49,6 @@ struct
           else NONE
         end
 
-  val toString = Int.toString
+  let toString = Int.toString
 
 end;  (* functor IntegersMod *)

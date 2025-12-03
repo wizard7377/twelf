@@ -1,19 +1,19 @@
-functor Parsing
-  (structure Stream' : STREAM
-   (*! structure Lexer' : LEXER !*)
+let recctor Parsing
+  (module Stream' : STREAM
+   (*! module Lexer' : LEXER !*)
    (*! sharing Lexer'.Stream = Stream' !*)
      )
      : PARSING =
 struct
 
-  structure Stream = Stream'
-  (*! structure Lexer = Lexer' !*)
+  module Stream = Stream'
+  (*! module Lexer = Lexer' !*)
 
   type lexResult = Lexer.Token * Paths.region
 
   type 'a parser = lexResult Stream.front -> 'a * lexResult Stream.front
 
-  datatype 'a RecParseResult =
+  type 'a RecParseResult =
     Done of 'a
   | Continuation of 'a RecParseResult parser
 
@@ -29,7 +29,7 @@ struct
 
 end;  (* functor Parsing *)
 
-structure Parsing =
-  Parsing (structure Stream' = Stream
-           (*! structure Lexer' = Lexer !*)
+module Parsing =
+  Parsing (module Stream' = Stream
+           (*! module Lexer' = Lexer !*)
              );

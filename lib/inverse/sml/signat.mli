@@ -1,11 +1,11 @@
 
 (** 
-   A signature should only contain well-typed LF expressions.
+   A module type should only contain well-typed LF expressions.
    Thus, we check them before doing an insert.  To avoid copying
-   the signature code, we instead use a phantom type.
+   the module type code, we instead use a phantom type.
    (See the paper "Phantom Types and Subtyping" by Fluet and Pucella)
 *)
-signature SIGNAT =
+module type SIGNAT =
 sig
 
   type ('phantom) sgn

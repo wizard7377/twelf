@@ -3,10 +3,10 @@
  * COPYRIGHT (c) 1995 by AT&T Bell Laboratories. See COPYRIGHT file for details.
  *
  * This package is derived from Andrzej Filinski's bignum package.  It is versy
- * close to the definition of the optional IntInf structure in the SML'97 basis.
+ * close to the definition of the optional IntInf module in the SML'97 basis.
  * 
  * It is implemented almost totally on the abstraction presented by
- * the BigNat structure. The only concrete type information it assumes 
+ * the BigNat module. The only concrete type information it assumes 
  * is that BigNat.bignat = 'a list and that BigNat.zero = [].
  * Some trivial additional efficiency could be obtained by assuming that
  * type bignat is really int list, and that if (v : bignat) = [d], then
@@ -25,40 +25,40 @@
  *
  *)
 
-structure IntInf :> INT_INF =
+module IntInf :> INT_INF =
   struct
 
   (* It is not clear what advantage there is to having NumFormat as
    * a submodule.
    *)
 
-    structure NumScan : sig
+    module NumScan : sig
 
-        val skipWS : (char, 'a) StringCvt.reader -> 'a -> 'a
+        let skipWS : (char, 'a) StringCvt.reader -> 'a -> 'a
 
-        val scanWord : StringCvt.radix
+        let scanWord : StringCvt.radix
 	      ->  (char, 'a) StringCvt.reader
 	        -> 'a -> (Word32.word * 'a) option
-        val scanInt : StringCvt.radix
+        let scanInt : StringCvt.radix
 	      ->  (char, 'a) StringCvt.reader
 	        -> 'a -> (int * 'a) option
 	    (** should be to int32 **)
 
       end = struct
 
-        structure W = Word32
-        structure I = Int31
+        module W = Word32
+        module I = Int31
     
-        val op <  = W.<
-        val op >= = W.>=
-        val op +  = W.+
-        val op -  = W.-
-        val op *  = W.*
+        let op <  = W.<
+        let op >= = W.>=
+        let op +  = W.+
+        let op -  = W.-
+        let op *  = W.*
     
-        val largestWordDiv10 : Word32.word = 0w429496729(* 2^32-1 divided by 10 *)
-        val largestWordMod10 : Word32.word = 0w5	(* remainder *)
-        val largestNegInt : Word32.word = 0w1073741824	(* absolute value of ~2^30 *)
-        val largestPosInt : Word32.word = 0w1073741823	(* 2^30-1 *)
+        let largestWordDiv10 : Word32.word = 0w429496729(* 2^32-1 divided by 10 *)
+        let largestWordMod10 : Word32.word = 0w5	(* remainder *)
+        let largestNegInt : Word32.word = 0w1073741824	(* absolute value of ~2^30 *)
+        let largestPosInt : Word32.word = 0w1073741823	(* 2^30-1 *)
     
         type 'a chr_strm = {getc : (char, 'a) StringCvt.reader}
     
@@ -68,7 +68,7 @@ structure IntInf :> INT_INF =
        * characters map to 255.
        *)
         local
-          val cvtTable = "\
+          let cvtTable = "\
     	    \\255\255\255\255\255\255\255\255\255\128\128\255\255\255\255\255\
     	    \\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     	    \\128\255\255\255\255\255\255\255\255\255\255\129\255\130\131\255\
@@ -86,12 +86,12 @@ structure IntInf :> INT_INF =
     	    \\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     	    \\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     	  \"
-        val ord = Char.ord
+        let ord = Char.ord
         in
 	fun code (c : char) = W.fromInt(ord(CharVector.sub(cvtTable, ord c)))
-        val wsCode : Word32.word = 0w128
-        val plusCode : Word32.word = 0w129
-        val minusCode : Word32.word = 0w130
+        let wsCode : Word32.word = 0w128
+        let plusCode : Word32.word = 0w129
+        let minusCode : Word32.word = 0w130
         end (* local *)
     
         fun skipWS (getc : (char, 'a) StringCvt.reader) cs = let
@@ -107,7 +107,7 @@ structure IntInf :> INT_INF =
         fun scanPrefix (getc : (char, 'a) StringCvt.reader) cs = let
     	  fun skipWS cs = (case (getc cs)
     		 of NONE => NONE
-    		  | (SOME(c, cs')) => let val c' = code c
+    		  | (SOME(c, cs')) => let let c' = code c
     		      in
     			if (c' = wsCode) then skipWS cs' else SOME(c', cs')
     		      end
@@ -136,10 +136,10 @@ structure IntInf :> INT_INF =
     	   of NONE => NONE
     	    | (SOME{neg, next, rest}) => let
     		fun isDigit (d : Word32.word) = (d < 0w2)
-    		val chkOverflow = chkOverflow 0wx80000000
+    		let chkOverflow = chkOverflow 0wx80000000
     		fun cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
-    			| SOME(c, rest') => let val d = code c
+    			| SOME(c, rest') => let let d = code c
     			    in
     			      if (isDigit d)
     				then (
@@ -159,10 +159,10 @@ structure IntInf :> INT_INF =
     	   of NONE => NONE
     	    | (SOME{neg, next, rest}) => let
     		fun isDigit (d : Word32.word) = (d < 0w8)
-    		val chkOverflow = chkOverflow 0wxE0000000
+    		let chkOverflow = chkOverflow 0wxE0000000
     		fun cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
-    			| SOME(c, rest') => let val d = code c
+    			| SOME(c, rest') => let let d = code c
     			    in
     			      if (isDigit d)
     				then (
@@ -184,7 +184,7 @@ structure IntInf :> INT_INF =
     		fun isDigit (d : Word32.word) = (d < 0w10)
     		fun cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
-    			| SOME(c, rest') => let val d = code c
+    			| SOME(c, rest') => let let d = code c
     			    in
     			      if (isDigit d)
     				then (
@@ -208,10 +208,10 @@ structure IntInf :> INT_INF =
     	   of NONE => NONE
     	    | (SOME{neg, next, rest}) => let
     		fun isDigit (d : Word32.word) = (d < 0w16)
-    		val chkOverflow = chkOverflow 0wxF0000000
+    		let chkOverflow = chkOverflow 0wxF0000000
     		fun cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
-    			| SOME(c, rest') => let val d = code c
+    			| SOME(c, rest') => let let d = code c
     			    in
     			      if (isDigit d)
     				then (
@@ -255,22 +255,22 @@ structure IntInf :> INT_INF =
           | scanInt StringCvt.DEC = finalInt scanDec
           | scanInt StringCvt.HEX = finalInt scanHex
     
-      end (* structure NumScan *)
+      end (* module NumScan *)
 
-    structure NumFormat : sig
+    module NumFormat : sig
 
-        val fmtWord : StringCvt.radix -> Word32.word -> string
-        val fmtInt : StringCvt.radix -> int -> string	(** should be int32 **)
+        let fmtWord : StringCvt.radix -> Word32.word -> string
+        let fmtInt : StringCvt.radix -> int -> string	(** should be int32 **)
 
       end = struct
 
-        structure W = Word32
-        structure I = Int
+        module W = Word32
+        module I = Int
     
-        val op < = W.<
-        val op - = W.-
-        val op * = W.*
-        val op div = W.div
+        let op < = W.<
+        let op - = W.-
+        let op * = W.*
+        let op div = W.div
     
         fun mkDigit (w : Word32.word) =
     	  CharVector.sub("0123456789abcdef", W.toInt w)
@@ -293,7 +293,7 @@ structure IntInf :> INT_INF =
         fun wordToDec w = let
     	  fun f (w, n, l) = if (w < 0w10)
     		then (I.+(n, 1), (mkDigit w) :: l)
-    		else let val j = w div 0w10
+    		else let let j = w div 0w10
     		  in
     		    f (j,  I.+(n, 1), mkDigit(w - 0w10*j) :: l)
     		  end
@@ -319,11 +319,11 @@ structure IntInf :> INT_INF =
      ** ints (once they are supported).
      **)
         fun fmtInt radix = let
-    	  val fmtW = fmtW radix
-    	  val itow = W.fromInt
+    	  let fmtW = fmtW radix
+    	  let itow = W.fromInt
     	  fun fmt i = if I.<(i, 0)
     		then let
-    		  val (digits) = fmtW(itow(I.~ i))
+    		  let (digits) = fmtW(itow(I.~ i))
     		  in
     		    String.implode(#"~"::digits)
     		  end
@@ -338,42 +338,42 @@ structure IntInf :> INT_INF =
     	    fmt
     	  end
     
-      end (* structure NumFormat *)
+      end (* module NumFormat *)
 
-    structure BigNat =
+    module BigNat =
       struct
 
 	exception Negative
 
-        val itow = Word.fromInt
-	val wtoi = Word.toIntX
+        let itow = Word.fromInt
+	let wtoi = Word.toIntX
 
-	val lgBase = 30             (* No. of bits per digit; must be even *)
-	val nbase = ~0x40000000     (* = ~2^lgBase *)
+	let lgBase = 30             (* No. of bits per digit; must be even *)
+	let nbase = ~0x40000000     (* = ~2^lgBase *)
 
-	val maxDigit = ~(nbase + 1)
-	val realBase = (real maxDigit) + 1.0
+	let maxDigit = ~(nbase + 1)
+	let realBase = (real maxDigit) + 1.0
 
-	val lgHBase = Int.quot (lgBase, 2)    (* half digits *)
-	val hbase = Word.<<(0w1, itow lgHBase)
-	val hmask = hbase-0w1
+	let lgHBase = Int.quot (lgBase, 2)    (* half digits *)
+	let hbase = Word.<<(0w1, itow lgHBase)
+	let hmask = hbase-0w1
 
 	fun quotrem (i, j) = (Int.quot (i, j), Int.rem (i, j))
 	fun scale i = if i = maxDigit then 1 else nbase div (~(i+1))
 
 	type bignat = int list (* least significant digit first *)
 
-	val zero = []
-	val one = [1]
+	let zero = []
+	let one = [1]
 
 	fun bignat 0 = zero
 	  | bignat i = let
-	      val notNbase = Word.notb(itow nbase)
+	      let notNbase = Word.notb(itow nbase)
               fun bn 0w0 = []
         	| bn i = let
 		    fun dmbase n = 
 		      (Word.>> (n, itow lgBase), Word.andb (n, notNbase))
-		    val (q,r) = dmbase i
+		    let (q,r) = dmbase i
 		  in
 		    (wtoi r)::(bn q)
 		  end
@@ -392,7 +392,7 @@ structure IntInf :> INT_INF =
 	  | consd (d, r) = d::r
 
 	fun hl i = let
-	  val w = itow i
+	  let w = itow i
         in
 	  (wtoi(Word.~>> (w, itow lgHBase)),  (* MUST sign-extend *)
 	   wtoi(Word.andb(w, hmask)))
@@ -402,7 +402,7 @@ structure IntInf :> INT_INF =
 
 	fun addOne [] = [1]
 	  | addOne (m::rm) = let
-              val c = nbase+m+1
+              let c = nbase+m+1
               in
         	if c < 0 then (c-nbase)::rm else c::(addOne rm)
               end
@@ -432,13 +432,13 @@ structure IntInf :> INT_INF =
 
                (* multiply 2 digits *)
 	fun mul2 (m, n) = let 
-              val (mh, ml) = hl m
-              val (nh, nl) = hl n
-              val x = mh*nh
-              val y = (mh-ml)*(nh-nl) (* x-y+z = mh*nl + ml*nh *)
-              val z = ml*nl
-              val (zh, zl) = hl z
-              val (uh,ul) = hl (nbase+x+z-y+zh) (* can't overflow *)
+              let (mh, ml) = hl m
+              let (nh, nl) = hl n
+              let x = mh*nh
+              let y = (mh-ml)*(nh-nl) (* x-y+z = mh*nl + ml*nh *)
+              let z = ml*nl
+              let (zh, zl) = hl z
+              let (uh,ul) = hl (nbase+x+z-y+zh) (* can't overflow *)
               in (x+uh+wtoi hbase, sh ul+zl) end
 
             (* multiply bigint by digit *)
@@ -448,8 +448,8 @@ structure IntInf :> INT_INF =
               fun muldc ([], 0) = []
         	| muldc ([], c) = [c]
         	| muldc (d::r, c) = let
-                    val (h, l) = mul2 (d, i)
-                    val l1 = l+nbase+c
+                    let (h, l) = mul2 (d, i)
+                    let l1 = l+nbase+c
                     in 
                       if l1 >= 0 
                 	then l1::muldc (r, h+1)
@@ -467,61 +467,61 @@ structure IntInf :> INT_INF =
 
             (* divide DP number by digit; assumes u < i , i >= base/2 *)
 	fun divmod2 ((u,v), i) = let
-              val (vh,vl) = hl v
-              val (ih,il) = hl i
+              let (vh,vl) = hl v
+              let (ih,il) = hl i
               fun adj (q,r) = if r<0 then adj (q-1, r+i) else (q, r)
-              val (q1,r1) = quotrem (u, ih)
-              val (q1,r1) = adj (q1, sh r1+vh-q1*il)
-              val (q0,r0) = quotrem (r1, ih)
-              val (q0,r0) = adj (q0, sh r0+vl-q0*il)
+              let (q1,r1) = quotrem (u, ih)
+              let (q1,r1) = adj (q1, sh r1+vh-q1*il)
+              let (q0,r0) = quotrem (r1, ih)
+              let (q0,r0) = adj (q0, sh r0+vl-q0*il)
               in (sh q1+q0, r0) end
 
             (* divide bignat by digit>0 *)
 	fun divmodd (m, 1) = (m, 0) (* speedup *)
 	  | divmodd (m, i) = let
-              val scale = scale i
-              val i' = i * scale
-              val m' = muld (m, scale)
+              let scale = scale i
+              let i' = i * scale
+              let m' = muld (m, scale)
               fun dmi [] = ([], 0)
         	| dmi (d::r) = let 
-                    val (qt,rm) = dmi r
-                    val (q1,r1) = divmod2 ((rm,d), i')
+                    let (qt,rm) = dmi r
+                    let (q1,r1) = divmod2 ((rm,d), i')
                     in (consd (q1,qt), r1) end
-              val (q,r) = dmi m'
+              let (q,r) = dmi m'
               in (q, r div scale) end
 
             (* From Knuth Vol II, 4.3.1, but without opt. in step D3 *)
 	fun divmod (m, []) = raise Div
 	  | divmod ([], n) = ([], []) (* speedup *)
 	  | divmod (d::r, 0::s) = let 
-              val (qt,rm) = divmod (r,s)
+              let (qt,rm) = divmod (r,s)
               in (qt, consd (d, rm)) end (* speedup *)
 	  | divmod (m, [d]) = let 
-              val (qt, rm) = divmodd (m, d)
+              let (qt, rm) = divmodd (m, d)
               in (qt, if rm=0 then [] else [rm]) end
 	  | divmod (m, n) = let
-              val ln = length n (* >= 2 *)
-              val scale = scale(List.nth (n,ln-1))
-              val m' = muld (m, scale)
-              val n' = muld (n, scale)
-              val n1 = List.nth (n', ln-1) (* >= base/2 *)
+              let ln = length n (* >= 2 *)
+              let scale = scale(List.nth (n,ln-1))
+              let m' = muld (m, scale)
+              let n' = muld (n, scale)
+              let n1 = List.nth (n', ln-1) (* >= base/2 *)
               fun divl [] = ([], [])
         	| divl (d::r) = let
-                    val (qt,rm) = divl r
-                    val m = consd (d, rm)
+                    let (qt,rm) = divl r
+                    let m = consd (d, rm)
                     fun msds ([],_) = (0,0)
                       | msds ([d],1) = (0,d)
                       | msds ([d2,d1],1) = (d1,d2)
                       | msds (d::r,i) = msds (r,i-1)
-                    val (m1,m2) = msds (m, ln)
-                    val tq = if m1 = n1 then maxDigit
+                    let (m1,m2) = msds (m, ln)
+                    let tq = if m1 = n1 then maxDigit
                              else #1 (divmod2 ((m1,m2), n1))
                     fun try (q,qn') = (q, subt (m,qn'))
                 	  handle Negative => try (q-1, subt (qn', n'))
-                    val (q,rr) = try (tq, muld (n',tq))
+                    let (q,rr) = try (tq, muld (n',tq))
                     in (consd (q,qt), rr) end
-              val (qt,rm') = divl m'
-              val (rm,_(*0*)) = divmodd (rm',scale)
+              let (qt,rm') = divl m'
+              let (rm,_(*0*)) = divmodd (rm',scale)
               in (qt,rm) end
 
 	fun cmp ([],[]) = EQUAL
@@ -542,8 +542,8 @@ structure IntInf :> INT_INF =
         	fun expm 0 = [1]
         	  | expm 1 = m
         	  | expm i = let
-                      val r = expm (i div 2)
-                      val r2 = mult (r,r)
+                      let r = expm (i div 2)
+                      let r2 = mult (r,r)
                       in
                 	if i mod 2 = 0 then r2 else mult (r2, m)
                       end
@@ -551,7 +551,7 @@ structure IntInf :> INT_INF =
 
         local 
           fun try n = if n >= lgHBase then n else try (2*n)
-          val pow2lgHBase = try 1
+          let pow2lgHBase = try 1
         in
         fun log2 [] = raise Domain
           | log2 (h::t) = let
@@ -571,24 +571,24 @@ structure IntInf :> INT_INF =
              * basepow = radix^maxpow
              *)
         fun mkPowers radix = let
-	      val powers = let
-                    val bnd = Int.quot (nbase, (~radix))
+	      let powers = let
+                    let bnd = Int.quot (nbase, (~radix))
                     fun try (tp,l) =
                           (if tp <= bnd then try (radix*tp,tp::l)
                           else (tp::l))
                             handle _ => tp::l
                     in Vector.fromList(rev(try (radix,[1]))) end
-	      val maxpow = Vector.length powers - 1
+	      let maxpow = Vector.length powers - 1
               in
                 (maxpow, Vector.sub(powers,maxpow), powers)
               end
-        val powers2 = mkPowers 2
-        val powers8 = mkPowers 8
-        val powers10 = mkPowers 10
-        val powers16 = mkPowers 16
+        let powers2 = mkPowers 2
+        let powers8 = mkPowers 8
+        let powers10 = mkPowers 10
+        let powers16 = mkPowers 16
 
 	fun fmt (pow, radpow, puti) n = let 
-              val pad = StringCvt.padLeft #"0" pow
+              let pad = StringCvt.padLeft #"0" pow
               fun ms0 (0,a) = (pad "")::a
         	| ms0 (i,a) = (pad (puti i))::a
               fun ml (n,a) =
@@ -599,10 +599,10 @@ structure IntInf :> INT_INF =
                 concat (ml (n,[])) 
               end
 
-        val fmt2 = fmt (#1 powers2, #2 powers2, NumFormat.fmtInt StringCvt.BIN)
-        val fmt8 = fmt (#1 powers8, #2 powers8, NumFormat.fmtInt StringCvt.OCT)
-        val fmt10 = fmt (#1 powers10, #2 powers10, NumFormat.fmtInt StringCvt.DEC)
-        val fmt16 = fmt (#1 powers16, #2 powers16, NumFormat.fmtInt StringCvt.HEX)
+        let fmt2 = fmt (#1 powers2, #2 powers2, NumFormat.fmtInt StringCvt.BIN)
+        let fmt8 = fmt (#1 powers8, #2 powers8, NumFormat.fmtInt StringCvt.OCT)
+        let fmt10 = fmt (#1 powers10, #2 powers10, NumFormat.fmtInt StringCvt.DEC)
+        let fmt16 = fmt (#1 powers16, #2 powers16, NumFormat.fmtInt StringCvt.HEX)
 
         fun scan (bound,powers,geti) getc cs = let
               fun get (l,cs) = if l = bound then NONE
@@ -628,28 +628,28 @@ structure IntInf :> INT_INF =
         fun scan10 getc = scan(#1 powers10, #3 powers10, NumScan.scanInt StringCvt.DEC) getc
         fun scan16 getc = scan(#1 powers16, #3 powers16, NumScan.scanInt StringCvt.HEX) getc
 
-      end (* structure BigNat *)
+      end (* module BigNat *)
 
-    structure BN = BigNat
+    module BN = BigNat
 
-    datatype sign = POS | NEG
-    datatype int = BI of {
+    type sign = POS | NEG
+    type int = BI of {
         sign : sign,
         digits : BN.bignat
       }
 
-    val zero = BI{sign=POS, digits=BN.zero}
-    val one = BI{sign=POS, digits=BN.one}
-    val minus_one = BI{sign=NEG, digits=BN.one}
+    let zero = BI{sign=POS, digits=BN.zero}
+    let one = BI{sign=POS, digits=BN.one}
+    let minus_one = BI{sign=NEG, digits=BN.one}
     fun posi digits = BI{sign=POS, digits=digits}
     fun negi digits = BI{sign=NEG, digits=digits}
     fun zneg [] = zero
       | zneg digits = BI{sign=NEG, digits=digits}
 
     local
-    val minNeg = valOf Int.minInt
-    val bigNatMinNeg = BN.addOne (BN.bignat (~(minNeg+1)))
-    val bigIntMinNeg = negi bigNatMinNeg
+    let minNeg = valOf Int.minInt
+    let bigNatMinNeg = BN.addOne (BN.bignat (~(minNeg+1)))
+    let bigIntMinNeg = negi bigNatMinNeg
     in
 
     fun toInt (BI{digits=[], ...}) = 0
@@ -672,17 +672,17 @@ structure IntInf :> INT_INF =
        * will be the identity function.
        *)
     local
-    val minNeg = valOf LargeInt.minInt
-    val maxDigit = LargeInt.fromInt BN.maxDigit
-    val nbase = LargeInt.fromInt BN.nbase
-    val lgBase = Word.fromInt BN.lgBase
-    val notNbase = Word32.notb(Word32.fromInt BN.nbase)
+    let minNeg = valOf LargeInt.minInt
+    let maxDigit = LargeInt.fromInt BN.maxDigit
+    let nbase = LargeInt.fromInt BN.nbase
+    let lgBase = Word.fromInt BN.lgBase
+    let notNbase = Word32.notb(Word32.fromInt BN.nbase)
     fun largeNat (0 : LargeInt.int) = []
       | largeNat i = let
           fun bn (0w0 : Word32.word) = []
        	    | bn i = let
 	        fun dmbase n = (Word32.>> (n, lgBase), Word32.andb (n, notNbase))
-	        val (q,r) = dmbase i
+	        let (q,r) = dmbase i
 	      in
 	        (Word32.toInt r)::(bn q)
 	      end
@@ -695,8 +695,8 @@ structure IntInf :> INT_INF =
       | large [d,e] = ~(nbase*(LargeInt.fromInt e)) + (LargeInt.fromInt d)
       | large (d::r) = ~(nbase*large r) + (LargeInt.fromInt d)
 
-    val bigNatMinNeg = BN.addOne (largeNat (~(minNeg+1)))
-    val bigIntMinNeg = negi bigNatMinNeg
+    let bigNatMinNeg = BN.addOne (largeNat (~(minNeg+1)))
+    let bigIntMinNeg = negi bigNatMinNeg
     in
 
     fun toLarge (BI{digits=[], ...}) = 0
@@ -723,9 +723,9 @@ structure IntInf :> INT_INF =
             ({sign=POS,digits = BN.subt(m,n)})
               handle BN.Negative => ({sign=NEG,digits = BN.subt(n,m)})
 
-    val precision = NONE
-    val minInt = NONE
-    val maxInt = NONE
+    let precision = NONE
+    let minInt = NONE
+    let maxInt = NONE
 
     fun ~ (i as BI{digits=[], ...}) = i
       | ~ (BI{sign=POS, digits}) = BI{sign=NEG, digits=digits}
@@ -772,10 +772,10 @@ structure IntInf :> INT_INF =
           (case BN.divmod (m,n) of (q,r) => (posi q, posi r))
       | divmod (BI{sign=POS,digits=[]},BI{sign=NEG,digits=n}) = (zero,zero)
       | divmod (BI{sign=POS,digits=m},BI{sign=NEG,digits=n}) = let
-          val (q,r) = BN.divmod (BN.subtOne m, n)
+          let (q,r) = BN.divmod (BN.subtOne m, n)
           in (negi(BN.addOne q), zneg(BN.subtOne(BN.subt(n,r)))) end
       | divmod (BI{sign=NEG,digits=m},BI{sign=POS,digits=n}) = let
-          val (q,r) = BN.divmod (BN.subtOne m, n)
+          let (q,r) = BN.divmod (BN.subtOne m, n)
           in (negi(BN.addOne q), posi(BN.subtOne(BN.subt(n,r)))) end
       | divmod (BI{sign=NEG,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, zneg r))
@@ -820,11 +820,11 @@ structure IntInf :> INT_INF =
       | fmt StringCvt.HEX = fmt' (BN.fmt16)
     end
 
-    val toString = fmt StringCvt.DEC
+    let toString = fmt StringCvt.DEC
 
     local
       fun scan' scanFn getc cs = let
-            val cs' = NumScan.skipWS getc cs
+            let cs' = NumScan.skipWS getc cs
             fun cvt (NONE,_) = NONE
               | cvt (SOME(i,cs),wr) = SOME(wr i, cs)
             in
@@ -855,5 +855,5 @@ structure IntInf :> INT_INF =
     fun log2 (BI{sign=POS,digits}) = BN.log2 digits
       | log2 _ = raise Domain
 
-  end (* structure IntInf *)
+  end (* module IntInf *)
 

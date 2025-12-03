@@ -1,7 +1,7 @@
 (* Naming *)
 (* Author: Carsten Schuermann *)
 
-signature TOMEGANAMES = 
+module type TOMEGANAMES = 
   sig
     val decName : Tomega.Dec IntSyn.Ctx * Tomega.Dec -> Tomega.Dec
   end

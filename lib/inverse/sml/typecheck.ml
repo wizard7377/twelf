@@ -1,12 +1,12 @@
 
 (** eager composition of substitutions, and eager application. *)
 
-structure Typecheck = 
+module Typecheck = 
 struct 
 
-  structure EE = TypecheckEE
-(*   structure EL = TypecheckEL *)
-(*   structure LE = TypecheckLE *)
-(*   structure LL = TypecheckLL *)
+  module EE = TypecheckEE
+(*   module EL = TypecheckEL *)
+(*   module LE = TypecheckLE *)
+(*   module LL = TypecheckLL *)
 
 end

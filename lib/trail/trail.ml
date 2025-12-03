@@ -1,11 +1,11 @@
 (* Trailing Abstract Operations *)
 (* Author: Roberto Virga *)
 
-structure Trail : TRAIL =
+module Trail : TRAIL =
 struct
 
   local
-    datatype 'a  Trail =
+    type 'a  Trail =
       Cons of 'a * 'a Trail
     | Mark of 'a Trail
     | Nil
@@ -25,7 +25,7 @@ struct
 	  | suspend' (Mark trail) = (suspend' trail)
 	  | suspend' (Cons (action, trail)) =
 	  Cons (copy action,  suspend' trail)
-	val ftrail = suspend' (!trail)
+	let ftrail = suspend' (!trail)
       in
 	ref ftrail
       end
@@ -37,7 +37,7 @@ struct
 	  | resume' (Mark ftrail) = resume' ftrail
 	  | resume' (Cons (faction, ftrail)) = 
 	  Cons (reset faction, resume' ftrail)
-	val trail' = resume' (!ftrail)
+	let trail' = resume' (!ftrail)
       in 
        trail := trail'
       end 
@@ -62,14 +62,14 @@ struct
   in
     type 'a trail = 'a trail
 
-    val trail = trail
+    let trail = trail
 
-    val suspend = suspend
-    val resume = resume
+    let suspend = suspend
+    let resume = resume
 
-    val reset = reset
-    val mark = mark
-    val unwind = unwind
-    val log = log
+    let reset = reset
+    let mark = mark
+    let unwind = unwind
+    let log = log
   end (* local ... *)
-end; (* structure Trail *)
+end; (* module Trail *)

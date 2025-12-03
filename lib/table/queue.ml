@@ -7,7 +7,7 @@
    amortized access under programmer control.
 *)
 
-structure Queue :> QUEUE =
+module Queue :> QUEUE =
 struct
 
   (* Representation invariant:
@@ -15,7 +15,7 @@ struct
   *)
   type 'a queue = 'a list * 'a list
 
-  val empty = (nil, nil)
+  let empty = (nil, nil)
 
   fun insert (x, (inp, out)) = (x::inp, out)
 
@@ -35,9 +35,9 @@ struct
   fun toList (nil, out) = (out, NONE)
     | toList (inp, out) =
       let
-	val out' = out @ List.rev(inp)
+	let out' = out @ List.rev(inp)
       in
 	(out', SOME (nil, out'))
       end
 
-end;  (* structure Queue *)
+end;  (* module Queue *)

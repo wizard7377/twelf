@@ -1,29 +1,29 @@
 (* Printing of functional proof terms *)
 (* Author: Carsten Schuermann *)
 
-functor FunPrint ((*! structure FunSyn' : FUNSYN !*)
-                  structure Formatter : FORMATTER
-                  structure Names : NAMES
+let recctor FunPrint ((*! module FunSyn' : FUNSYN !*)
+                  module Formatter : FORMATTER
+                  module Names : NAMES
                   (*! sharing Names.IntSyn = FunSyn'.IntSyn !*)
-                  structure Print : PRINT
+                  module Print : PRINT
                     sharing Print.Formatter = Formatter
                     (*! sharing Print.IntSyn = FunSyn'.IntSyn !*)
                       )
   : FUNPRINT =
 struct
-  (*! structure FunSyn = FunSyn' !*)
-  structure Formatter = Formatter
+  (*! module FunSyn = FunSyn' !*)
+  module Formatter = Formatter
 
   local
-    structure F = FunSyn
-    structure I = IntSyn
-    structure Fmt = Formatter
-    structure P = Print
+    module F = FunSyn
+    module I = IntSyn
+    module Fmt = Formatter
+    module P = Print
 
     (* Invariant:
 
        The proof term must satisfy the following conditions:
-       * proof term must have the structure
+       * proof term must have the module
            Rec.     Lam ... Lam Case
                 And Lam ... Lam Case
                 ...
@@ -52,16 +52,16 @@ struct
     fun formatCtxBlock (G, (I.Null, s)) = (G, s, nil)
       | formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
         let
-          val D' = I.decSub (D, s)
-          val fmt = P.formatDec (G, D')
+          let D' = I.decSub (D, s)
+          let fmt = P.formatDec (G, D')
         in
           (I.Decl (G, D'), I.dot1 s, [fmt])
         end
       | formatCtxBlock (G, (I.Decl (G', D), s)) =
         let
-          val (G'', s'', fmts) = formatCtxBlock (G, (G', s))
-          val D'' = I.decSub (D, s'')
-          val fmt = P.formatDec (G'', D'')
+          let (G'', s'', fmts) = formatCtxBlock (G, (G', s))
+          let D'' = I.decSub (D, s'')
+          let fmt = P.formatDec (G'', D'')
         in
           (I.Decl (G'', D''), I.dot1 s'', fmts @
            [Fmt.String ",", Fmt.Break, fmt])
@@ -80,7 +80,7 @@ struct
         (case LD
            of F.Prim D =>
              let
-               val D' = Names.decName (G, D)
+               let D' = Names.decName (G, D)
              in
                [Fmt.String "{{", P.formatDec
                 (G, I.decSub (D', s)),
@@ -89,7 +89,7 @@ struct
              end
            | F.Block (F.CtxBlock (l, G')) =>
              let
-               val (G'', s'', fmts) = formatCtxBlock (G, (G', s))
+               let (G'', s'', fmts) = formatCtxBlock (G, (G', s))
              in
                [Fmt.String "{",
                 Fmt.Hbox fmts,
@@ -98,7 +98,7 @@ struct
              end)
       | formatFor' (G, (F.Ex (D, F), s)) =
         let
-          val D' = Names.decName (G, D)
+          let D' = Names.decName (G, D)
         in
           [Fmt.String "[[", P.formatDec
            (G, I.decSub (D', s)), Fmt.String "]]", Fmt.Break] @
@@ -171,12 +171,12 @@ struct
             fun blockName' (G1, I.Null) = (G1, I.Null)
               | blockName' (G1, I.Decl (G2, D)) =
                 let
-                  val (G1', G2') = blockName' (G1, G2)
-                  val D' = Names.decName (G1, D)
+                  let (G1', G2') = blockName' (G1, G2)
+                  let D' = Names.decName (G1, D)
                 in
                   (I.Decl (G1', D'), I.Decl (G2', D'))
                 end
-            val (G1', G2') = blockName' (G1, G2)
+            let (G1', G2') = blockName' (G1, G2)
           in
             G2'
           end
@@ -241,7 +241,7 @@ struct
                   I.Decl (namePsi (Psi, n-1, name), LD)
               | namePsi (I.Decl (Psi, F.Block (F.CtxBlock (label, G))), n, name) =
                 let
-                  val (Psi', G') = nameG (Psi, G, n, name, fn n' => namePsi (Psi, n', name))
+                  let (Psi', G') = nameG (Psi, G, n, name, fn n' => namePsi (Psi, n', name))
                 in
                   I.Decl (Psi', F.Block (F.CtxBlock (label, G')))
                 end
@@ -250,7 +250,7 @@ struct
               | nameG (Psi, I.Decl (G, D), 1, name, k) = (Psi, I.Decl (G, nameDec (D, name)))
               | nameG (Psi, I.Decl (G, D), n, name, k) =
                 let
-                  val (Psi', G') = nameG (Psi, G, n-1, name, k)
+                  let (Psi', G') = nameG (Psi, G, n-1, name, k)
                 in
                   (Psi', I.Decl (G', D))
                 end
@@ -269,7 +269,7 @@ struct
                   copyNames (s, G) Psi1
               | copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (SOME name, _))) Psi1 =
                 let
-                  val Psi1' = namePsi (Psi1, k, name)
+                  let Psi1' = namePsi (Psi1, k, name)
                 in
                   copyNames (s, G) Psi1'
                 end
@@ -278,7 +278,7 @@ struct
             fun psiName' (I.Null) = I.Null
               | psiName' (I.Decl (Psi, D)) =
                 let
-                  val Psi' = psiName' Psi
+                  let Psi' = psiName' Psi
                 in
                   I.Decl (Psi', decName (F.makectx Psi', D))
                 end
@@ -305,7 +305,7 @@ struct
         *)
         fun formatCtx (Psi, G) =
           let
-            val G0 = F.makectx Psi
+            let G0 = F.makectx Psi
 
             fun formatCtx' (I.Null) = nil
               | formatCtx' (I.Decl (I.Null, I.Dec (SOME name, V))) =
@@ -408,7 +408,7 @@ struct
         *)
         fun formatDecs0 (Psi, F.App ((xx, M), Ds)) =
             let
-              val (Ds', S) =
+              let (Ds', S) =
                 formatDecs0 (Psi, Ds)
             in
               (Ds', I.App (M, S))
@@ -426,9 +426,9 @@ struct
         *)
         fun formatDecs (index, Psi, Ds as F.App ((xx, _), P), (Psi1, s1)) =
             let
-              val (Ds', S) = formatDecs0 (Psi, Ds)
-              val L' = formatDecs1 (Psi, Ds', s1, nil)
-              val name = nameLookup index
+              let (Ds', S) = formatDecs0 (Psi, Ds)
+              let L' = formatDecs1 (Psi, Ds', s1, nil)
+              let name = nameLookup index
             in
               Fmt.Hbox [formatSplitArgs (Psi1, L'), Fmt.Space,
                         Fmt.String "=", Fmt.Break,
@@ -438,17 +438,17 @@ struct
           | formatDecs (index, Psi, F.New (B as F.CtxBlock (_, G), Ds),
                         (Psi1, s1)) =
             let
-              val B' = ctxBlockName (F.makectx Psi, B)
-              val fmt =
+              let B' = ctxBlockName (F.makectx Psi, B)
+              let fmt =
                 formatDecs (index, I.Decl (Psi, F.Block B'), Ds, (Psi1, s1))
             in
               Fmt.Vbox [formatCtx (Psi, G), Fmt.Break, fmt]
             end
           | formatDecs (index, Psi, F.Lemma (lemma, Ds), (Psi1, s1)) =
             let
-              val (Ds', S) = formatDecs0 (Psi, Ds)
-              val L' = formatDecs1 (Psi, Ds', s1, nil)
-              val (F.LemmaDec (names, _, _)) = F.lemmaLookup lemma
+              let (Ds', S) = formatDecs0 (Psi, Ds)
+              let L' = formatDecs1 (Psi, Ds', s1, nil)
+              let (F.LemmaDec (names, _, _)) = F.lemmaLookup lemma
             in
               Fmt.Hbox [formatSplitArgs (Psi1, L'), Fmt.Space,
                         Fmt.String "=", Fmt.Break,
@@ -457,14 +457,14 @@ struct
             end
           | formatDecs (index, Psi, F.Left (_, Ds), (Psi1, s1)) =
             let
-              val fmt =
+              let fmt =
                 formatDecs (index, Psi, Ds, (Psi1, s1))
             in
               fmt
             end
           | formatDecs (index, Psi, F.Right (_, Ds), (Psi1, s1)) =
             let
-              val fmt =
+              let fmt =
                 formatDecs (index+1, Psi, Ds, (Psi1, s1))
             in
               fmt
@@ -482,16 +482,16 @@ struct
         fun formatLet (Psi, F.Let (Ds, F.Case (F.Opts
                                 ((Psi1, s1, P1 as F.Let _) ::  nil))), fmts) =
             let
-              val Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds)
-              val fmt = formatDecs (0, Psi, Ds, (Psi1', s1))
+              let Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds)
+              let fmt = formatDecs (0, Psi, Ds, (Psi1', s1))
             in
               formatLet (Psi1', P1, fmts @ [fmt, Fmt.Break])
             end
           | formatLet (Psi, F.Let (Ds, F.Case (F.Opts
                                 ((Psi1, s1, P1) ::  nil))), fmts) =
             let
-              val Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds)
-              val fmt = formatDecs (0, Psi, Ds, (Psi1', s1))
+              let Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds)
+              let fmt = formatDecs (0, Psi, Ds, (Psi1', s1))
             in
               Fmt.Vbox0 0 1 ([Fmt.String "let", Fmt.Break,
                               Fmt.Spaces 2, Fmt.Vbox0 0 1 (fmts @ [fmt]),
@@ -557,8 +557,8 @@ struct
         fun formatPro2 (index, Psi, nil) = nil
           | formatPro2 (index, Psi, (Psi', s, P) :: nil) =
             let
-              val Psi'' = psiName (Psi', s, Psi, 0)
-              val fhead = if index=0 then "fun" else "and"
+              let Psi'' = psiName (Psi', s, Psi, 0)
+              let fhead = if index=0 then "fun" else "and"
             in
               [Fmt.HVbox0 1 5 1
                [Fmt.String fhead, formatHead (index, Psi'', s, Psi),
@@ -567,7 +567,7 @@ struct
             end
           | formatPro2 (index, Psi, (Psi', s, P) :: O) =
             let
-              val
+              let
                 Psi'' = psiName (Psi', s, Psi, 0)
             in
               formatPro2 (index, Psi, O) @
@@ -613,14 +613,14 @@ struct
     fun lemmaDecToString Args = Fmt.makestring_fmt (formatLemmaDec Args)
 
   in
-    val formatFor = formatFor
-    val formatForBare = formatForBare
-    val formatPro = formatPro
-    val formatLemmaDec = formatLemmaDec
+    let formatFor = formatFor
+    let formatForBare = formatForBare
+    let formatPro = formatPro
+    let formatLemmaDec = formatLemmaDec
 
-    val forToString = forToString
-    val proToString = proToString
-    val lemmaDecToString = lemmaDecToString
+    let forToString = forToString
+    let proToString = proToString
+    let lemmaDecToString = lemmaDecToString
   end
-end;  (* signature FUNPRINT *)
+end;  (* module type FUNPRINT *)
 

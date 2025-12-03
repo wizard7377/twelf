@@ -2,10 +2,10 @@
 (* Author: Carsten Schuermann *)
 
 
-signature WORLDIFY = 
+module type WORLDIFY = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
 
   exception Error of string 
 
@@ -13,4 +13,4 @@ sig
   val worldifyGoal : IntSyn.Dec IntSyn.Ctx * IntSyn.Exp -> IntSyn.Exp
 (*  val check : Tomega.Worlds -> IntSyn.cid list -> unit
   val closure : Tomega.Worlds -> Tomega.Worlds *)
-end; (* signature WORLDIFY *)
+end; (* module type WORLDIFY *)

@@ -1,18 +1,18 @@
 (* Initialization *)
 (* Author: Carsten Schuermann *)
 
-functor Init (structure MetaSyn' : METASYN
-              structure MetaAbstract : METAABSTRACT
+let recctor Init (module MetaSyn' : METASYN
+              module MetaAbstract : METAABSTRACT
               sharing MetaAbstract.MetaSyn = MetaSyn')
   : INIT =
 struct
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   exception Error of string
 
   local
-    structure M = MetaSyn
-    structure I = IntSyn
+    module M = MetaSyn
+    module I = IntSyn
 
     (* init c = S'
 
@@ -22,7 +22,7 @@ struct
     *)
     fun init' cid =
       let
-        val (V, _) = M.createAtomConst (I.Null, I.Const cid)
+        let (V, _) = M.createAtomConst (I.Null, I.Const cid)
       in
         MetaAbstract.abstract (M.State ("/" ^ I.conDecName (I.sgnLookup cid) ^ "/",
                                         M.Prefix (I.Null, I.Null, I.Null), V))
@@ -38,6 +38,6 @@ struct
     fun init cidList = map init' cidList
 
   in
-    val init = init
+    let init = init
   end (* local *)
 end; (* functor Init *)

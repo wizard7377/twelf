@@ -2,23 +2,23 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor ThmSyn ((*! structure IntSyn : INTSYN !*)
-                (*! structure ModeSyn' : MODESYN !*)
+let recctor ThmSyn ((*! module IntSyn : INTSYN !*)
+                (*! module ModeSyn' : MODESYN !*)
                 (*! sharing ModeSyn'.IntSyn = IntSyn !*)
-                structure Abstract : ABSTRACT
+                module Abstract : ABSTRACT
                 (*! sharing Abstract.IntSyn = IntSyn !*)
-                structure Whnf : WHNF
+                module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn !*)
-                (*! structure Paths' : PATHS !*)
-                structure Names' : NAMES
+                (*! module Paths' : PATHS !*)
+                module Names' : NAMES
                 (*! sharing Names'.IntSyn = IntSyn !*)
                   )
   : THMSYN =
 struct
-  (*! structure IntSyn = IntSyn !*)
-  (*! structure ModeSyn = ModeSyn' *)
-  (*! structure Paths = Paths' !*)
-  structure Names = Names'
+  (*! module IntSyn = IntSyn !*)
+  (*! module ModeSyn = ModeSyn' *)
+  (*! module Paths = Paths' !*)
+  module Names = Names'
 
   exception Error of string
   fun error (r, msg) = raise Error (Paths.wrap (r, msg))
@@ -26,57 +26,57 @@ struct
 
   type Param = string option
 
-  datatype Order =
+  type Order =
     Varg of string list
   | Lex of Order list
   | Simul of Order list
 
   (* -bp *)
-  datatype Predicate = Less | Leq | Eq
+  type Predicate = Less | Leq | Eq
 
-  datatype RedOrder =
+  type RedOrder =
       RedOrder of Predicate * Order * Order
 
-  datatype Callpats =
+  type Callpats =
     Callpats of (IntSyn.cid * Param list) list
 
   (* Termination declaration *)
-  datatype TDecl =
+  type TDecl =
     TDecl of (Order * Callpats)
 
   (* -bp *)
   (* Reduction declaration *)
-  datatype RDecl =
+  type RDecl =
     RDecl of (RedOrder * Callpats)
 
   (* Tabled declaration *)
-  datatype TabledDecl =
+  type TabledDecl =
     TabledDecl of IntSyn.cid
 
   (* KeepTable declaration *)
-  datatype KeepTableDecl =
+  type KeepTableDecl =
     KeepTableDecl of IntSyn.cid
 
   (* Theorem declaration *)
-  datatype ThDecl =
+  type ThDecl =
     ThDecl of (IntSyn.Dec IntSyn.Ctx * IntSyn.Dec IntSyn.Ctx) list
               * IntSyn.Dec IntSyn.Ctx * ModeSyn.Mode IntSyn.Ctx * int
 
   (* Proof declaration *)
-  datatype PDecl =
+  type PDecl =
     PDecl of int * TDecl
 
   (* World declaration *)
-(*  datatype WDecl =
+(*  type WDecl =
     WDecl of (IntSyn.Dec IntSyn.Ctx *
               IntSyn.Dec IntSyn.Ctx) list * Callpats *)
-  datatype WDecl =
+  type WDecl =
     WDecl of Names.Qid list * Callpats
 
   local
 
-    structure I = IntSyn
-    structure M = ModeSyn
+    module I = IntSyn
+    module M = ModeSyn
 
     (* theoremDecToConDec (name, T) = D'
 
@@ -127,8 +127,8 @@ struct
       end
 
   in
-    val theoremDecToConDec = theoremDecToConDec
-    val theoremDecToModeSpine = theoremDecToModeSpine
+    let theoremDecToConDec = theoremDecToConDec
+    let theoremDecToModeSpine = theoremDecToModeSpine
   end (* local *)
 
 end; (* functor ThmSyn *)

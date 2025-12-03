@@ -1,7 +1,7 @@
 (* Flit DAG generator *)
 (* Author: Roberto Virga *)
 
-signature FLIT =
+module type FLIT =
 sig
 
   (* init (sym_table_file) *)
@@ -28,6 +28,6 @@ sig
   (* dumpSynTable (start_sym, end_sym, sym_table_file) *)
   val dumpSymTable : (string * string * string) -> unit
 
-end; (* signature FLIT *)
+end; (* module type FLIT *)
 
   

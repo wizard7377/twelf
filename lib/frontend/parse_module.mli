@@ -1,11 +1,11 @@
 (* Parsing modules *)
 (* Author: Kevin Watkins *)
 
-signature PARSE_MODULE =
+module type PARSE_MODULE =
 sig
 
-  (*! structure Parsing : PARSING !*)
-  structure ModExtSyn : MODEXTSYN
+  (*! module Parsing : PARSING !*)
+  module ModExtSyn : MODEXTSYN
 
   (* val parseSigExp' : ModExtSyn.sigexp Parsing.recparser *)
   val parseSigDef' : ModExtSyn.sigdef Parsing.recparser

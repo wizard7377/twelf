@@ -1,19 +1,19 @@
 (* Style Checking *)
 (* Author: Carsten Schuermann *)
 
-functor StyleCheck (structure Whnf : WHNF
-                    structure Index : INDEX
-                    structure Origins : ORIGINS)
+let recctor StyleCheck (module Whnf : WHNF
+                    module Index : INDEX
+                    module Origins : ORIGINS)
   : STYLECHECK =
 struct
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure P = Paths
+    module I = IntSyn
+    module P = Paths
 
-    datatype polarity = Plus | Minus    (* indicates positivity *)
-    datatype info = Correct | Incorrect of string list * string
+    type polarity = Plus | Minus    (* indicates positivity *)
+    type info = Correct | Incorrect of string list * string
                                         (* distinguishes style correct
                                            from - incorrect declarations *)
 
@@ -44,8 +44,8 @@ struct
     fun denumber [] = []
       | denumber (c :: l) =
         let
-          val x = ord c
-          val l' = denumber l
+          let x = ord c
+          let l' = denumber l
         in
           if (x >= 65 andalso x <= 90)
             orelse (x >= 97 andalso x <= 122) then c :: l' else l'
@@ -152,7 +152,7 @@ struct
     *)
     and checkDecImp ((G, P), D as I.Dec (_, V), pol) k =
         let
-          val I = checkVar (D, pol)
+          let I = checkVar (D, pol)
         in
           k ((I.Decl (G, D), I.Decl (P, I)), [])
         end
@@ -171,11 +171,11 @@ struct
     *)
     and checkDec c ((G, P), D as I.Dec (_, V), pol, occ) err k =
         let
-          val I = checkVar (D, pol)
-          val E1 = (case I
+          let I = checkVar (D, pol)
+          let E1 = (case I
                      of Correct => []
                       | Incorrect (prefNames, n) => error c (prefNames, n, occ) err)
-          val E2 = checkType c ((G, P), V, toggle pol, P.label occ) err
+          let E2 = checkType c ((G, P), V, toggle pol, P.label occ) err
         in
           k ((I.Decl (G, D), I.Decl (P, I)), E1 @ E2)
         end
@@ -309,7 +309,7 @@ struct
        Invariant:
        Let   c be a cid
        and   n the max. number of cids
-       then  L is a list of  strings (error messages) computed from the signature c<=n
+       then  L is a list of  strings (error messages) computed from the module type c<=n
     *)
     fun checkAll (c, n) =
         (if c <= n then checkConDec c (I.sgnLookup c) @ checkAll (c+1, n) else [])
@@ -317,16 +317,16 @@ struct
     (* checkAll () = L
 
        Invariant:
-       L is a list of  strings (error messages) computed from the entire Twelf signature
+       L is a list of  strings (error messages) computed from the entire Twelf module type
     *)
     fun check () =
       let
-        val (n, _) = I.sgnSize ()
+        let (n, _) = I.sgnSize ()
       in (map print (checkAll (0, n)); ())
       end
 
   in
-    val checkConDec = (fn c => (map print (checkConDec c (I.sgnLookup c)); ()))
-    val check = check
+    let checkConDec = (fun c -> (map print (checkConDec c (I.sgnLookup c)); ()))
+    let check = check
   end
 end

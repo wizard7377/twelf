@@ -1,69 +1,69 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-functor MTPi (structure MTPGlobal : MTPGLOBAL
-              (*! structure IntSyn : INTSYN !*)
-              (*! structure FunSyn' : FUNSYN !*)
+let recctor MTPi (module MTPGlobal : MTPGLOBAL
+              (*! module IntSyn : INTSYN !*)
+              (*! module FunSyn' : FUNSYN !*)
               (*! sharing FunSyn'.IntSyn = IntSyn !*)
-              structure StateSyn' : STATESYN
+              module StateSyn' : STATESYN
               (*! sharing StateSyn'.IntSyn = IntSyn !*)
               (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-              structure RelFun : RELFUN
+              module RelFun : RELFUN
               (*! sharing RelFun.FunSyn = FunSyn' !*)
-              structure Formatter : FORMATTER
-              structure Print : PRINT
+              module Formatter : FORMATTER
+              module Print : PRINT
               (*! sharing Print.IntSyn = IntSyn !*)
                 sharing Print.Formatter = Formatter
-              structure FunTypeCheck : FUNTYPECHECK
+              module FunTypeCheck : FUNTYPECHECK
               (*! sharing FunTypeCheck.FunSyn = FunSyn' !*)
                 sharing FunTypeCheck.StateSyn = StateSyn'
-              structure MTPData : MTPDATA
-              structure MTPInit : MTPINIT
+              module MTPData : MTPDATA
+              module MTPInit : MTPINIT
               (*! sharing MTPInit.FunSyn = FunSyn' !*)
                 sharing MTPInit.StateSyn = StateSyn'
-              structure MTPFilling : MTPFILLING
+              module MTPFilling : MTPFILLING
               (*! sharing MTPFilling.FunSyn = FunSyn' !*)
                 sharing MTPFilling.StateSyn = StateSyn'
-              structure Inference : INFERENCE
+              module Inference : INFERENCE
               (*! sharing Inference.FunSyn = FunSyn' !*)
                 sharing Inference.StateSyn = StateSyn'
-              structure MTPSplitting : MTPSPLITTING
+              module MTPSplitting : MTPSPLITTING
                 sharing MTPSplitting.StateSyn = StateSyn'
-              structure MTPRecursion : MTPRECURSION
+              module MTPRecursion : MTPRECURSION
                 sharing MTPRecursion.StateSyn = StateSyn'
-              structure MTPStrategy : MTPSTRATEGY
+              module MTPStrategy : MTPSTRATEGY
                 sharing MTPStrategy.StateSyn = StateSyn'
-              structure MTPrint : MTPRINT
+              module MTPrint : MTPRINT
                 sharing MTPrint.StateSyn = StateSyn'
-              structure Order : ORDER
+              module Order : ORDER
               (*! sharing Order.IntSyn = IntSyn !*)
-              structure Names : NAMES
+              module Names : NAMES
               (*! sharing Names.IntSyn = IntSyn !*)
-              structure Timers : TIMERS
-              structure Ring : RING)
+              module Timers : TIMERS
+              module Ring : RING)
   : MTPI =
 struct
   exception Error of string
 
-  (*! structure FunSyn = FunSyn' !*)
-  structure StateSyn = StateSyn'
+  (*! module FunSyn = FunSyn' !*)
+  module StateSyn = StateSyn'
 
   local
-    structure I = IntSyn
-    structure F = FunSyn
-    structure S = StateSyn
-    structure Fmt = Formatter
+    module I = IntSyn
+    module F = FunSyn
+    module S = StateSyn
+    module Fmt = Formatter
 
-    datatype MenuItem =
+    type MenuItem =
       Filling of MTPFilling.operator
     | Recursion of MTPRecursion.operator
     | Splitting of MTPSplitting.operator
     | Inference of Inference.operator
 
-    val Open : StateSyn.State Ring.ring ref = ref (Ring.init [])
-    val Solved : StateSyn.State Ring.ring ref = ref (Ring.init [])
-    val History : (StateSyn.State Ring.ring * StateSyn.State Ring.ring) list ref = ref nil
-    val Menu : MenuItem list option ref = ref NONE
+    let Open : StateSyn.State Ring.ring ref = ref (Ring.init [])
+    let Solved : StateSyn.State Ring.ring ref = ref (Ring.init [])
+    let History : (StateSyn.State Ring.ring * StateSyn.State Ring.ring) list ref = ref nil
+    let Menu : MenuItem list option ref = ref NONE
 
     fun initOpen () = Open := Ring.init [];
     fun initSolved () = Solved := Ring.init [];
@@ -123,7 +123,7 @@ struct
               | _ => Fmt.HVbox0 1 1 1
                 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"]))
           end
-        val S.State (n, (G, B), (IH, OH), d, O, H, F) = current ()
+        let S.State (n, (G, B), (IH, OH), d, O, H, F) = current ()
       in
         TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n")
       end
@@ -141,11 +141,11 @@ struct
         if empty () then Menu := NONE
         else
           let
-            val S = current ()
-            val SplitO = MTPSplitting.expand S
-            val InfO = Inference.expand S
-            val RecO = MTPRecursion.expand S
-            val FillO = MTPFilling.expand S
+            let S = current ()
+            let SplitO = MTPSplitting.expand S
+            let InfO = Inference.expand S
+            let RecO = MTPRecursion.expand S
+            let FillO = MTPFilling.expand S
           in
             Menu := SOME (FillingToMenu (FillO,
                                          RecursionToMenu (RecO,
@@ -164,40 +164,40 @@ struct
             | menuToString' (k, nil, (kopt' as SOME _, _)) = (kopt', "")
             | menuToString' (k, Splitting O :: M, kOopt' as (NONE, NONE)) =
               let
-                val kOopt'' = if MTPSplitting.applicable O then (SOME k, SOME O)
+                let kOopt'' = if MTPSplitting.applicable O then (SOME k, SOME O)
                               else kOopt'
-                val (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'')
+                let (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'')
               in
                 (kopt, if k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
               end
             | menuToString' (k, Splitting O :: M, kOopt' as (SOME k', SOME O')) =
               let
-                val kOopt'' = if MTPSplitting.applicable O then
+                let kOopt'' = if MTPSplitting.applicable O then
                                 case MTPSplitting.compare (O, O')
                                   of LESS => (SOME k, SOME O)
                                    | _ => kOopt'
                                 else  kOopt'
-                val (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'')
+                let (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'')
               in
                 (kopt, if  k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
               end
             | menuToString' (k, Filling O :: M, kOopt) =
               let
-                val (kopt, s) = menuToString' (k+1, M, kOopt)
+                let (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPFilling.menu O))
               end
             | menuToString' (k, Recursion O :: M,kOopt) =
               let
-                val (kopt, s) = menuToString' (k+1, M, kOopt)
+                let (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPRecursion.menu O))
               end
             | menuToString' (k, Inference O :: M,kOopt) =
               let
-                val (kopt, s) = menuToString' (k+1, M, kOopt)
+                let (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (Inference.menu O))
               end
@@ -206,7 +206,7 @@ struct
             NONE => raise Error "Menu is empty"
           | SOME M =>
               let
-                val (kopt, s) = menuToString' (1, M, (NONE, NONE))
+                let (kopt, s) = menuToString' (1, M, (NONE, NONE))
               in
                 s
               end
@@ -219,8 +219,8 @@ struct
                                  ^ (Int.toString (!MTPData.maxFill)) ^ "\n"))
         else
           let
-            val S = current ()
-            val _ = if !Global.doubleCheck then FunTypeCheck.isState S else ()
+            let S = current ()
+            let _ = if !Global.doubleCheck then FunTypeCheck.isState S else ()
           in
             (print "\n";
              print (MTPrint.stateToString S);
@@ -239,15 +239,15 @@ struct
 
     fun transformOrder' (G, Order.Arg k) =
         let
-          val k' = (I.ctxLength G) -k+1
-          val I.Dec (_, V) = I.ctxDec (G, k')
+          let k' = (I.ctxLength G) -k+1
+          let I.Dec (_, V) = I.ctxDec (G, k')
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
       | transformOrder' (G, Order.Lex Os) =
-          S.Lex (map (fn O => transformOrder' (G, O)) Os)
+          S.Lex (map (fun O -> transformOrder' (G, O)) Os)
       | transformOrder' (G, Order.Simul Os) =
-          S.Simul (map (fn O => transformOrder' (G, O)) Os)
+          S.Simul (map (fun O -> transformOrder' (G, O)) Os)
 
     fun transformOrder (G, F.All (F.Prim D, F), Os) =
           S.All (D, transformOrder (I.Decl (G, D), F, Os))
@@ -260,15 +260,15 @@ struct
 
     fun init (k, names) =
         let
-          val cL = map (fn x => valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
-          val _ = MTPGlobal.maxFill := k
-          val _ = reset ();
-          val F = RelFun.convertFor cL
-          val O = transformOrder (I.Null, F, map select cL)
-          val Slist = MTPInit.init (F, O)
-          val _ = if List.length Slist =0 then raise Domain else ()
+          let cL = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
+          let _ = MTPGlobal.maxFill := k
+          let _ = reset ();
+          let F = RelFun.convertFor cL
+          let O = transformOrder (I.Null, F, map select cL)
+          let Slist = MTPInit.init (F, O)
+          let _ = if List.length Slist =0 then raise Domain else ()
         in
-          ((map (fn S => insert (MTPrint.nameState S)) Slist;
+          ((map (fun S -> insert (MTPrint.nameState S)) Slist;
             menu ();
             printMenu ())
            handle MTPSplitting.Error s => abort ("MTPSplitting. Error: " ^ s)
@@ -283,39 +283,39 @@ struct
           fun select' (k, nil) = abort ("No such menu item")
             | select' (1, Splitting O :: _) =
                 let
-                  val S' = (Timers.time Timers.splitting MTPSplitting.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = map (fn S => insert (MTPrint.nameState S)) S'
+                  let S' = (Timers.time Timers.splitting MTPSplitting.apply) O
+                  let _ = pushHistory ()
+                  let _ = delete ()
+                  let _ = map (fun S -> insert (MTPrint.nameState S)) S'
                 in
                   (menu (); printMenu ())
                 end
             | select' (1, Recursion O :: _) =
                 let
-                  val S' = (Timers.time Timers.recursion MTPRecursion.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = insert (MTPrint.nameState S')
+                  let S' = (Timers.time Timers.recursion MTPRecursion.apply) O
+                  let _ = pushHistory ()
+                  let _ = delete ()
+                  let _ = insert (MTPrint.nameState S')
                 in
                   (menu (); printMenu ())
                 end
             | select' (1, Inference O :: _) =
                 let
-                  val S' = (Timers.time Timers.recursion Inference.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = insert (MTPrint.nameState S')
+                  let S' = (Timers.time Timers.recursion Inference.apply) O
+                  let _ = pushHistory ()
+                  let _ = delete ()
+                  let _ = insert (MTPrint.nameState S')
                 in
                   (menu (); printMenu ())
                 end
             | select' (1, Filling O :: _) =
                 let
-                  val P = (Timers.time Timers.filling MTPFilling.apply) O
+                  let P = (Timers.time Timers.filling MTPFilling.apply) O
                     handle MTPFilling.Error _ =>  abort ("Filling unsuccessful: no object found")
-                  val _ = printFillResult P
-                  val _ = delete ()
-                  val _ = print "\n[Subgoal finished]\n"
-                  val _ = print "\n"
+                  let _ = printFillResult P
+                  let _ = delete ()
+                  let _ = print "\n[Subgoal finished]\n"
+                  let _ = print "\n"
                 in
                   (menu (); printMenu ())
                 end
@@ -337,17 +337,17 @@ struct
         if empty () then raise Error "Nothing to prove"
         else
           let
-            val S = current ()
-            val (Open', Solved') = MTPStrategy.run [S]
+            let S = current ()
+            let (Open', Solved') = MTPStrategy.run [S]
               handle MTPSplitting.Error s => abort ("MTPSplitting. Error: " ^ s)
                    | MTPFilling.Error s => abort ("Filling Error: " ^ s)
                    | MTPRecursion.Error s => abort ("Recursion Error: " ^ s)
                    | Inference.Error s => abort ("Inference Errror: " ^ s)
                    | Error s => abort ("Mpi Error: " ^ s)
-            val _ = pushHistory ()
-            val _ = delete ()
-            val _ = map insertOpen Open'
-            val _ = map insertSolved Solved'
+            let _ = pushHistory ()
+            let _ = delete ()
+            let _ = map insertOpen Open'
+            let _ = map insertSolved Solved'
           in
             (menu (); printMenu ())
           end
@@ -357,7 +357,7 @@ struct
         if empty () then raise Error "Nothing to check"
         else
           let
-            val S = current ()
+            let S = current ()
           in
             FunTypeCheck.isState S
           end
@@ -365,16 +365,16 @@ struct
 
     fun auto () =
         let
-          val (Open', Solved') = MTPStrategy.run (collectOpen ())
+          let (Open', Solved') = MTPStrategy.run (collectOpen ())
             handle MTPSplitting.Error s => abort ("MTPSplitting. Error: " ^ s)
                  | MTPFilling.Error s => abort ("Filling Error: " ^ s)
                  | MTPRecursion.Error s => abort ("Recursion Error: " ^ s)
                  | Inference.Error s => abort ("Inference Errror: " ^ s)
                  | Error s => abort ("Mpi Error: " ^ s)
-          val _ = pushHistory ()
-          val _ = initOpen ()
-          val _ = map insertOpen Open'
-          val _ = map insertSolved Solved'
+          let _ = pushHistory ()
+          let _ = initOpen ()
+          let _ = map insertOpen Open'
+          let _ = map insertSolved Solved'
         in
           (menu (); printMenu ())
         end
@@ -385,14 +385,14 @@ struct
     fun undo () = (popHistory (); menu (); printMenu ())
 
   in
-    val init = init
-    val select = select
-    val print = printMenu
-    val next = next
-    val reset = reset
-    val solve = solve
-    val auto = auto
-    val check = check
-    val undo = undo
+    let init = init
+    let select = select
+    let print = printMenu
+    let next = next
+    let reset = reset
+    let solve = solve
+    let auto = auto
+    let check = check
+    let undo = undo
  end (* local *)
 end; (* functor MPI *)

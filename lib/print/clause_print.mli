@@ -1,11 +1,11 @@
 (* Clause Printing *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-signature CLAUSEPRINT =
+module type CLAUSEPRINT =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  structure Formatter : FORMATTER
+  (*! module IntSyn : INTSYN !*)
+  module Formatter : FORMATTER
 
   val formatClause : IntSyn.dctx * IntSyn.Exp -> Formatter.format
   val formatConDec : IntSyn.ConDec -> Formatter.format
@@ -15,4 +15,4 @@ sig
 
   val printSgn : unit -> unit
 
-end;  (* signature CLAUSEPRINT *)
+end;  (* module type CLAUSEPRINT *)

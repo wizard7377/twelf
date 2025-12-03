@@ -1,28 +1,28 @@
 (* MTP Strategy: Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor MTPStrategy (structure MTPGlobal : MTPGLOBAL
-                     structure StateSyn' : STATESYN
-                     structure MTPFilling : MTPFILLING
+let recctor MTPStrategy (module MTPGlobal : MTPGLOBAL
+                     module StateSyn' : STATESYN
+                     module MTPFilling : MTPFILLING
                        sharing MTPFilling.StateSyn = StateSyn'
-                     structure MTPData : MTPDATA
-                     structure MTPSplitting : MTPSPLITTING
+                     module MTPData : MTPDATA
+                     module MTPSplitting : MTPSPLITTING
                        sharing MTPSplitting.StateSyn = StateSyn'
-                     structure MTPRecursion : MTPRECURSION
+                     module MTPRecursion : MTPRECURSION
                        sharing MTPRecursion.StateSyn = StateSyn'
-                     structure Inference : INFERENCE
+                     module Inference : INFERENCE
                        sharing Inference.StateSyn = StateSyn'
-                     structure MTPrint : MTPRINT
+                     module MTPrint : MTPRINT
                        sharing MTPrint.StateSyn = StateSyn'
-                     structure Timers : TIMERS)
+                     module Timers : TIMERS)
   : MTPSTRATEGY =
 struct
 
-  structure StateSyn = StateSyn'
+  module StateSyn = StateSyn'
 
   local
 
-    structure S = StateSyn
+    module S = StateSyn
 
     fun printInit () =
         if !Global.chatter > 3 then print "Strategy\n"
@@ -104,13 +104,13 @@ struct
           NONE => fill (givenStates, (S :: openStates, solvedStates))
         | SOME splitOp =>
             let
-              val _ = printSplitting splitOp
-              val SL = (Timers.time Timers.splitting MTPSplitting.apply) splitOp
-              val _ = printCloseBracket ()
-              val _ = printRecursion ()
-              val SL' = map (fn S => (Timers.time Timers.recursion MTPRecursion.apply) (MTPRecursion.expand S)) SL
-              val _ = printInference ()
-              val SL'' = map (fn S => (Timers.time Timers.inference Inference.apply) (Inference.expand S)) SL'
+              let _ = printSplitting splitOp
+              let SL = (Timers.time Timers.splitting MTPSplitting.apply) splitOp
+              let _ = printCloseBracket ()
+              let _ = printRecursion ()
+              let SL' = map (fun S -> (Timers.time Timers.recursion MTPRecursion.apply) (MTPRecursion.expand S)) SL
+              let _ = printInference ()
+              let SL'' = map (fun S -> (Timers.time Timers.inference Inference.apply) (Inference.expand S)) SL'
             in
               fill (SL'' @ givenStates, os)
             end
@@ -120,10 +120,10 @@ struct
         (case (Timers.time Timers.recursion MTPFilling.expand) S
           of fillingOp =>
              (let
-               val _ = printFilling ()
-               val (max, P) = TimeLimit.timeLimit (!Global.timeLimit)
+               let _ = printFilling ()
+               let (max, P) = TimeLimit.timeLimit (!Global.timeLimit)
                                      (Timers.time Timers.filling MTPFilling.apply) fillingOp
-               val _ = printCloseBracket ()
+               let _ = printCloseBracket ()
               in
                 fill (givenStates, os)
               end)  handle MTPFilling.Error _ => split (S :: givenStates, os))
@@ -148,12 +148,12 @@ struct
      *)
     fun run givenStates =
         (let
-          val _ = printInit ()
-          val (openStates, solvedStates) = fill (givenStates, (nil, nil))
+          let _ = printInit ()
+          let (openStates, solvedStates) = fill (givenStates, (nil, nil))
 
-          val openStates' = map MTPrint.nameState openStates
-          val solvedStates' = map MTPrint.nameState solvedStates
-          val _ = case openStates
+          let openStates' = map MTPrint.nameState openStates
+          let solvedStates' = map MTPrint.nameState solvedStates
+          let _ = case openStates
                     of nil => printQed ()
                      | _ => ()
         in
@@ -162,7 +162,7 @@ struct
 
 
   in
-    val run = run
+    let run = run
   end (* local *)
 end;  (* functor StrategyFRS *)
 

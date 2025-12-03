@@ -2,42 +2,42 @@
 (* Author: Carsten Schuermann *)
 (* Date: Thu Mar 16 13:39:26 2006 *)
 
-functor Elim
-  (structure Data : DATA
-   (*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor Elim
+  (module Data : DATA
+   (*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure State' : STATE
+   module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
    (*! sharing Abstract.Tomega = Tomega' !*)
-   structure TypeCheck : TYPECHECK
+   module TypeCheck : TYPECHECK
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   structure Whnf : WHNF
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Unify : UNIFY
+   module Unify : UNIFY
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
        )
      : ELIM =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure State = State'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module State = State'
 
   exception Error of string
 
-  datatype Operator =
+  type Operator =
     Local of Tomega.Prg * int
 
   type operator = Operator
 
   local
-    structure S = State
-    structure T = Tomega
-    structure I = IntSyn
+    module S = State
+    module T = Tomega
+    module I = IntSyn
 
     exception Success of int
 
@@ -83,35 +83,35 @@ struct
     *)
    fun apply (Local (R as T.EVar (Psi, r, G, NONE, NONE, _), n)) =
        let
-         val T.PDec (_, F0, _, _) = T.ctxDec (Psi, n)
+         let T.PDec (_, F0, _, _) = T.ctxDec (Psi, n)
        in
          (case F0
             of T.All ((T.UDec (I.Dec (_, V)), _), F) =>
              let
-               val X = I.newEVar (T.coerceCtx (strip Psi), V)
-               val I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE)
-               val D = T.PDec (x, T.forSub (F, T.Dot (T.Exp X, T.id)), NONE, NONE)
+               let X = I.newEVar (T.coerceCtx (strip Psi), V)
+               let I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE)
+               let D = T.PDec (x, T.forSub (F, T.Dot (T.Exp X, T.id)), NONE, NONE)
                (* the NONE, NONE may breach an invariant *)
                (* revisit when we add subterm orderings *)
-               val Psi' = I.Decl (Psi, D)
-               val Y = T.newEVar (strip Psi', T.forSub (G, T.shift))
+               let Psi' = I.Decl (Psi, D)
+               let Y = T.newEVar (strip Psi', T.forSub (G, T.shift))
              in
                (r := SOME (T.Let (D, T.Redex (T.Var n, T.AppExp (X, T.Nil)), Y)))
              end
          | T.Ex ((D1, _), F) =>
              let
-               val D1' = Names.decName (T.coerceCtx Psi, D1)
-               val Psi' = I.Decl (Psi, T.UDec D1')
-               val I.NDec x = Names.decName (T.coerceCtx (Psi'), I.NDec NONE)
-               val D2 = T.PDec (x, F, NONE, NONE)
-               val Psi'' = I.Decl (Psi', D2)
-               val Y = T.newEVar (strip Psi'', T.forSub (G, T.Shift 2))
+               let D1' = Names.decName (T.coerceCtx Psi, D1)
+               let Psi' = I.Decl (Psi, T.UDec D1')
+               let I.NDec x = Names.decName (T.coerceCtx (Psi'), I.NDec NONE)
+               let D2 = T.PDec (x, F, NONE, NONE)
+               let Psi'' = I.Decl (Psi', D2)
+               let Y = T.newEVar (strip Psi'', T.forSub (G, T.Shift 2))
              in
                (r := SOME (T.LetPairExp (D1', D2, T.Var n, Y)))
              end
          | T.True =>
              let
-               val Y = T.newEVar (strip Psi, G)
+               let Y = T.newEVar (strip Psi, G)
              in
                (r := SOME (T.LetUnit (T.Var n, Y)))
              end)
@@ -133,8 +133,8 @@ struct
            (* Invariant: Context is named  --cs Fri Mar  3 14:31:08 2006 *)
 
   in
-    val expand = expand
-    val apply = apply
-    val menu = menu
+    let expand = expand
+    let apply = apply
+    let menu = menu
   end (* local *)
 end; (* functor elim *)

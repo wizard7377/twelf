@@ -5,46 +5,46 @@
    tech report CMU-CS-01-115
  *)
 
-functor Reduces   (structure Global : GLOBAL
-                   (*! structure IntSyn' : INTSYN !*)
-                   structure Whnf : WHNF
+let recctor Reduces   (module Global : GLOBAL
+                   (*! module IntSyn' : INTSYN !*)
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   structure Names : NAMES
+                   module Names : NAMES
                    (*! sharing Names.IntSyn = IntSyn' !*)
-                   structure Index : INDEX
+                   module Index : INDEX
                    (*! sharing Index.IntSyn = IntSyn' !*)
-                   structure Subordinate : SUBORDINATE
+                   module Subordinate : SUBORDINATE
                    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                   structure Formatter : FORMATTER
-                   structure Print : PRINT
+                   module Formatter : FORMATTER
+                   module Print : PRINT
                    (*! sharing Print.IntSyn = IntSyn' !*)
                      sharing Print.Formatter = Formatter
-                   structure Order : ORDER
+                   module Order : ORDER
                    (*! sharing Order.IntSyn = IntSyn' !*)
-                   (*! structure Paths  : PATHS !*)
-                   structure Checking : CHECKING
+                   (*! module Paths  : PATHS !*)
+                   module Checking : CHECKING
                       sharing Checking.Order = Order
                       (*! sharing Checking.IntSyn = IntSyn' !*)
                       (*! sharing Checking.Paths = Paths !*)
-                   structure Origins : ORIGINS
+                   module Origins : ORIGINS
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn' !*)
-                   (*! structure CSManager : CS_MANAGER !*)
+                   (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
                        )
   :  REDUCES =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure P = Paths
-    structure N = Names
-    structure F = Formatter
-    structure R = Order
-    structure C = Checking
+    module I = IntSyn
+    module P = Paths
+    module N = Names
+    module F = Formatter
+    module R = Order
+    module C = Checking
 
     exception Error' of P.occ * string
 
@@ -114,8 +114,8 @@ struct
     *)
     fun select (c, (S, s)) =
         let
-          val SO = R.selLookup c
-          val Vid = (I.constType c, I.id)
+          let SO = R.selLookup c
+          let Vid = (I.constType c, I.id)
           fun select'' (n, (Ss', Vs'')) =
                 select''W (n, (Ss', Whnf.whnf Vs''))
           and select''W (1, ((I.App (U', S'), s'),
@@ -153,7 +153,7 @@ struct
     *)
     fun selectROrder (c, (S, s)) =
         let
-          val Vid = (I.constType c, I.id)
+          let Vid = (I.constType c, I.id)
           fun select'' (n, (Ss', Vs'')) =
                 select''W (n, (Ss', Whnf.whnf Vs''))
           and select''W (1, ((I.App (U', S'), s'),
@@ -198,8 +198,8 @@ struct
     fun getROrder (G, Q, Vs, occ) = getROrderW (G, Q, Whnf.whnf Vs, occ)
     and getROrderW (G, Q, Vs as (I.Root (I.Const a, S), s), occ) =
          let
-           val O = selectROrder (a, (S, s))
-           val _ = case O
+           let O = selectROrder (a, (S, s))
+           let _ = case O
                     of NONE => ()
                      | SOME(O) => if (!Global.chatter) > 5
                                        then print ("Reduction predicate for " ^
@@ -212,7 +212,7 @@ struct
          end
       | getROrderW (G, Q, (I.Pi ((D, I.Maybe), V), s), occ) =
           let
-            val O = getROrder (I.Decl (G, N.decLUName (G, I.decSub (D, s))),
+            let O = getROrder (I.Decl (G, N.decLUName (G, I.decSub (D, s))),
                                 I.Decl (Q, C.All), (V, I.dot1 s), P.body occ)
           in
             case O
@@ -221,7 +221,7 @@ struct
           end
       | getROrderW (G, Q, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
           let
-            val O = getROrder (G, Q, (V2, I.comp(I.invShift, s)), P.body occ)
+            let O = getROrder (G, Q, (V2, I.comp(I.invShift, s)), P.body occ)
           in
             case O
               of NONE => NONE
@@ -256,7 +256,7 @@ struct
       | checkGoalW (G0, Q0, Rl, (I.Pi ((D, I.Maybe), V), s), (V', s'), occ) =
         checkGoal (I.Decl (G0, N.decLUName (G0, I.decSub (D, s))),
                      I.Decl (Q0, C.All),
-                     C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
+                     C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
                      (V, I.dot1 s), (V', I.comp(s', I.shift)), P.body occ)
       | checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Const a, S), s),
                     Vs' as (I.Root (I.Const a', S'), s'), occ) =
@@ -266,9 +266,9 @@ struct
                 if (f a) then a's else lookup (a's', f)
             | lookup (a's as R.LT (a, a's'), f) =
                 if (f a) then a's else lookup (a's', f)
-          val P = selectOcc (a, (S, s), occ)    (* only if a terminates? *)
-          val P' = select (a', (S', s')) (* always succeeds? -fp *)
-          val a's = Order.mutLookup a   (* always succeeds? -fp *)
+          let P = selectOcc (a, (S, s), occ)    (* only if a terminates? *)
+          let P' = select (a', (S', s')) (* always succeeds? -fp *)
+          let a's = Order.mutLookup a   (* always succeeds? -fp *)
         in
           (case lookup (a's, fn x' => x' = a')
              of R.Empty => ()
@@ -320,9 +320,9 @@ struct
 
     and checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D as I.Dec(_,V')), I.Decl(Q, C.And(occ)))) =
           let
-            val _ = checkGoal (G0, Q0, Rl, (V', I.Shift (n+1)), Vs, occ)
-            val RO = getROrder (G0, Q0, (V', I.Shift (n+1)), occ)
-            val Rl' = case RO
+            let _ = checkGoal (G0, Q0, Rl, (V', I.Shift (n+1)), Vs, occ)
+            let RO = getROrder (G0, Q0, (V', I.Shift (n+1)), occ)
+            let Rl' = case RO
                         of NONE => Rl
                           | SOME(O) => O :: Rl
           in
@@ -361,8 +361,8 @@ struct
 
       | checkClauseW (GQR as (G0, Q0, Rl), G, Q, Vs as (I.Root (I.Const a, S), s), occ) =
           let
-            val n = I.ctxLength G
-            val Rl' = C.shiftRCtx Rl (fn s => I.comp(s, I.Shift n))
+            let n = I.ctxLength G
+            let Rl' = C.shiftRCtx Rl (fun s -> I.comp(s, I.Shift n))
           in
             checkSubgoals (concat(G0, G), concat(Q0, Q), Rl', Vs, 0, (G, Q))
           end
@@ -400,7 +400,7 @@ struct
        | checkRGoalW (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) =
            checkRGoal (I.Decl (G, N.decLUName (G, I.decSub (D, s))),
                       I.Decl (Q, C.All),
-                      C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
+                      C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
                       (V, I.dot1 s), P.body occ)
 
        | checkRGoalW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
@@ -434,11 +434,11 @@ struct
     and checkRImpW (G, Q, Rl, (I.Pi ((D', I.Maybe), V'), s'), (V, s), occ) =
           checkRImp (I.Decl (G, N.decEName (G, I.decSub (D', s'))),
                      I.Decl (Q, C.Exist),
-                     C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
+                     C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
                      (V', I.dot1 s'), (V, I.comp (s, I.shift)), occ)
       | checkRImpW (G, Q, Rl, (I.Pi ((D' as I.Dec (_, V1), I.No), V2), s'), (V, s), occ) =
           let
-            val Rl' = case getROrder (G, Q, (V1, s'), occ)
+            let Rl' = case getROrder (G, Q, (V1, s'), occ)
                          of NONE => Rl
                        | SOME(O) => O :: Rl
           in
@@ -469,15 +469,15 @@ struct
     and checkRClauseW (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) =
           checkRClause (I.Decl (G, N.decEName (G, I.decSub (D, s))),
                         I.Decl (Q, C.Exist),
-                        C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
+                        C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
                         (V, I.dot1 s), P.body occ)
 
       | checkRClauseW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
          let
-           val G' = I.Decl (G, I.decSub (D, s))  (* N.decEName (G, I.decSub (D, s)) *)
-           val Q' = I.Decl (Q, C.Exist) (* will not be used *)
-           val Rl' = C.shiftRCtx Rl (fn s => I.comp(s, I.shift))
-           val Rl'' = case getROrder (G', Q', (V1, I.comp (s, I.shift)), occ)
+           let G' = I.Decl (G, I.decSub (D, s))  (* N.decEName (G, I.decSub (D, s)) *)
+           let Q' = I.Decl (Q, C.Exist) (* will not be used *)
+           let Rl' = C.shiftRCtx Rl (fun s -> I.comp(s, I.shift))
+           let Rl'' = case getROrder (G', Q', (V1, I.comp (s, I.shift)), occ)
                         of NONE => Rl'
                          | SOME(O) => O :: Rl'
          in
@@ -487,11 +487,11 @@ struct
 
       | checkRClauseW (G, Q, Rl, Vs as (I.Root (I.Const a, S), s), occ) =
         let
-          val RO = case selectROrder (a, (S, s))
+          let RO = case selectROrder (a, (S, s))
                      of NONE => raise Error' (occ, "No reduction order assigned for " ^
                                               N.qidToString (N.constQid a) ^ ".")
                       | SOME(O) => O
-          val _ = if !Global.chatter > 4
+          let _ = if !Global.chatter > 4
                     then print ("Verifying reduction property:\n" ^
                                 rlistToString (G, Rl) ^ " ---> " ^
                                 orderToString (G, RO) ^ " \n")
@@ -510,7 +510,7 @@ struct
     (* checkFamReduction a = ()
 
        Invariant:
-       a is name of type family in the signature
+       a is name of type family in the module type
        raises invariant, if clauses for a does not fulfill
        specified reducation property
 
@@ -546,7 +546,7 @@ struct
                     handle Error' (occ, msg) => error (d, occ, msg)
                          | R.Error (msg) => raise Error (msg));
                    checkFam' bs)
-          val _ = if (!Global.chatter) > 3
+          let _ = if (!Global.chatter) > 3
                     then print ("Reduction checking family " ^ N.qidToString (N.constQid a)
                                 ^ ":\n")
                   else ()
@@ -557,7 +557,7 @@ struct
     (* checkFam a = ()
 
        Invariant:
-       a is name of type family in the signature
+       a is name of type family in the module type
        raises invariant, if clauses for a do not terminate
        according to specified termination order
 
@@ -595,7 +595,7 @@ struct
                  handle Error' (occ, msg) => error (d, occ, msg)
                       | Order.Error (msg) => raise Error (msg));
                  checkFam' bs)
-          val _ = if (!Global.chatter) > 3
+          let _ = if (!Global.chatter) > 3
                     then print ("Termination checking family " ^ N.qidToString (N.constQid a)
                                 ^ "\n")
                   else ()
@@ -606,8 +606,8 @@ struct
     fun reset () = (R.reset(); R.resetROrder())
 
   in
-    val reset = reset
-    val checkFamReduction = checkFamReduction
-    val checkFam = checkFam
+    let reset = reset
+    let checkFamReduction = checkFamReduction
+    let checkFam = checkFam
   end (* local *)
 end; (* functor Reduces  *)

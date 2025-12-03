@@ -2,9 +2,9 @@
 (* Author: Larry Greenfield *)
 (* Modified: Brigitte Pientka *)
 
-signature ASSIGN =
+module type ASSIGN =
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   (* assignable (Us,ps) assigns the term U[s] to the 
      linear higher-order pattern p[s]; if successfull it
@@ -22,4 +22,4 @@ sig
   val instance : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> bool 
     
   val firstConstArg : IntSyn.Exp * IntSyn.Sub -> IntSyn.cid option
-end; (* signature ASSIGN *)
+end; (* module type ASSIGN *)

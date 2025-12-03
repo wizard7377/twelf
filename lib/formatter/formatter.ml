@@ -5,19 +5,19 @@
   with the formatting and printing routines.}
 %************************************************************************
 *)
-functor Formatter(): FORMATTER =
+let recctor Formatter(): FORMATTER =
    struct
 (*
 \subsection{Setting default values}
 *)
-      val Indent  = ref 3
+      let Indent  = ref 3
       and Skip    = ref 1
       and Blanks  = ref 1
       and Pagewidth = ref 80
 
-      val Bailout = ref true
-      val BailoutIndent = ref 0
-      val BailoutSpot = ref 40
+      let Bailout = ref true
+      let BailoutIndent = ref 0
+      let BailoutSpot = ref 40
 (*
 %************************************************************************
 \subsection{Auxiliary functions}
@@ -36,9 +36,9 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
           |  Newlines' n s = Newlines' (n-1) (s^"\n")
          fun Newlines n = if n>0 then Newlines' n "" else ""
       in
-        val Sp = Spaces (* return a number of spaces *)
+        let Sp = Spaces (* return a number of spaces *)
         fun Spmod n = Spaces (n mod (!Pagewidth))
-        val Nl = Newlines (* return a number of newlines *)
+        let Nl = Newlines (* return a number of newlines *)
         fun Np() = "\n\012\n" (* CTRL_L == "\012" *)
       end
 
@@ -47,18 +47,18 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
 (*
 \subsubsection{Arithmetic functions}
 *)
-fun Max(x,y) = if (x:int)>y then x else y
-fun sumpair ((a,b),(c,d)) = ((a:int)+c,(b:int)+d)
+let rec Max(x,y) = if (x:int)>y then x else y
+let rec sumpair ((a,b),(c,d)) = ((a:int)+c,(b:int)+d)
 
 (*
 \subsubsection{Pair functions}
 *)
-fun fst(a,b) = a and snd(a,b) = b
+let rec fst(a,b) = a and snd(a,b) = b
 
 (*
 %*************************************************************************
-\subsection{The datatype {\ml format}}
-The datatype {\ml format} specifies the data structure into which abstract
+\subsection{The type {\ml format}}
+The type {\ml format} specifies the data module into which abstract
 syntax trees are unparsed and which ---ultimately--- is to be output by the
 printing routines.
 In order to simplify the formatting, we precompute the
@@ -66,10 +66,10 @@ minimum and maximum width of the printed format for each node in the format
 tree. These numbers are independent of the actual page width (but they take
 the actual and default indentation width into account).
 *)
-datatype mode= Hori | Vert       (* are we in horizontal or vertical mode? *)
+type mode= Hori | Vert       (* are we in horizontal or vertical mode? *)
 type width = int * int           (* the minimum/maximum width of boxes *)
 type widthmode = mode * mode     (* remember mode in which minimum/maximum was gotten *)
-datatype format =
+type format =
          Str of int * string                    (* length, string *)
      |   Brk of int * int                       (* blanks, indent *)
      |   Dbk                                    (* Default Break *)
@@ -87,7 +87,7 @@ The argument {\ml m} is the current mode in effect, {\ml b} is the
 horizontal blanks and {\ml i} is the indent currently in effect.
 These are used to determine the width of breaks and default breaks.
 *)
-fun Width0(m,   b,i, Str(n,_)) = (n,n)
+let rec Width0(m,   b,i, Str(n,_)) = (n,n)
  |  Width0(Hori,b,i, Brk(m,_)) = (m,m)
  |  Width0(Vert,b,i, Brk(_,n)) = (n,n)
  |  Width0(Hori,b,i, Dbk)      = (b,b)
@@ -98,9 +98,9 @@ fun Width0(m,   b,i, Str(n,_)) = (n,n)
  |  Width0(m,b,i, Hvx(((min,max),_),_,_,_,_)) = (min,max)
  |  Width0(m,b,i, Hov(((min,max),_),_,_,_,_)) = (min,max)
 
-fun Width fmt = Width0(Hori,!Blanks,!Indent,fmt)
+let rec Width fmt = Width0(Hori,!Blanks,!Indent,fmt)
 
-val Unused = ~9999  (* a bad value to mark unused arguments of Width0 *)
+let Unused = ~9999  (* a bad value to mark unused arguments of Width0 *)
 (*
 {\bf Caution:}
 The function {\ml Width} assumes horizontal mode.
@@ -130,9 +130,9 @@ the output device.
 %     | preprocess(res,nil) = rev res
 %
 %*************************************************************************
-\subsection{Constructing a {\ml format}-structure}
+\subsection{Constructing a {\ml format}-module}
 
-The format structure outlined above is very minimal. In practice we
+The format module outlined above is very minimal. In practice we
 want to simplify the handling of the default cases,
 and we also want to have an automatic calculation of the minimum and
 maximum widths for the formats.
@@ -192,7 +192,7 @@ However, we also need to take into account the ``default width'' of
 horizontal tabs at the time, which we need to provide as an argument
 to the {\ml Width0} function.
 *)
-fun hlistWidth(l,blanks) =
+let rec hlistWidth(l,blanks) =
               List.foldr (fn (fmt,(x,y)) =>
                         sumpair(Width0(Hori,blanks,Unused,fmt),(x,y)))
                     (0,0) l
@@ -213,10 +213,10 @@ entry, and we will always use the horizontal mode for the {\it max}
 entry (if we have enough space left in the page we will always prefer to
 use horizontal mode over vertical mode).
 *)
-fun hovlistWidth(l,blanks,indent) =
-              let val (vmin,vmax) = vlistWidth(l,indent)
+let rec hovlistWidth(l,blanks,indent) =
+              let let (vmin,vmax) = vlistWidth(l,indent)
                   and (hmin,hmax) = hlistWidth(l,blanks)
-                  val (min,mmode) = if vmin<hmin then (vmin,Vert)
+                  let (min,mmode) = if vmin<hmin then (vmin,Vert)
                                                  else (hmin,Hori)
                 in
                  ( (min,hmax), (mmode,Hori) )
@@ -236,12 +236,12 @@ horizontal-or-vertical boxes.
 By the way: a horizontal-vertical box that contains just one break should
 always behave exactly like the corresponding horizontal-or-vertical box.
 *)
-val hvlistWidth = hovlistWidth
+let hvlistWidth = hovlistWidth
 
 (*
-\subsubsection{Constructing the actual {\ml format}-structure}
+\subsubsection{Constructing the actual {\ml format}-module}
 
-The {\ml format} structure that we defined above is very basic.
+The {\ml format} module that we defined above is very basic.
 Most of the time we will want to use default boxes.
    We define several functions to perform this syntactic sugaring
    for us.
@@ -259,15 +259,15 @@ Two notes:
 break.  This ensures that the first item is indented as much as all the others.
 *)
 
-val Break    = Dbk
-fun Break0 b i = Brk(b,i)
-fun String s = Str(size s,s)
-fun String0 i s = Str(i, s)
-val Space    = Str(1, Sp 1)
-fun Spaces n = Str(n, Sp(n))
-fun Newline()  = Str(0, Nl 1)
-fun Newlines n = Str(0, Nl(n))
-fun Vbox l = Vbx( vlistWidth(l,(!Indent)), (!Indent), (!Skip), l)
+let Break    = Dbk
+let rec Break0 b i = Brk(b,i)
+let rec String s = Str(size s,s)
+let rec String0 i s = Str(i, s)
+let Space    = Str(1, Sp 1)
+let rec Spaces n = Str(n, Sp(n))
+let rec Newline()  = Str(0, Nl 1)
+let rec Newlines n = Str(0, Nl(n))
+let rec Vbox l = Vbx( vlistWidth(l,(!Indent)), (!Indent), (!Skip), l)
 and Vbox0  i s l = Vbx( vlistWidth(l,i), i, s, l)
 and Hbox   l = Hbx( hlistWidth(l,(!Blanks)), (!Blanks), l)
 and Hbox0  b l = Hbx( hlistWidth(l,b), b, l)
@@ -280,11 +280,11 @@ and HOVbox l =  Hov( hovlistWidth(l,(!Blanks),(!Indent)),
 and HOVbox0 b i s l =
                 Hov( hovlistWidth(l,b,i), b, i, s, l)
 
-fun Newpage() = Str(0, Np())
+let rec Newpage() = Str(0, Np())
 
 (*
 %***********************************************************************
-\subsection{Printing a {\ml format}-structure}
+\subsection{Printing a {\ml format}-module}
 
 All ``printing'' functions other than the top-level one return the
 following:
@@ -323,7 +323,7 @@ determine the maximum width do not contain breaks, all but the last
 *)
   fun summaxwidth l =
       (List.foldr (fn (fmt,ysum) =>
-              let val (_,y) = Width0(Hori,Unused,Unused,fmt)
+              let let (_,y) = Width0(Hori,Unused,Unused,fmt)
               in y + ysum end)
              0
              l)
@@ -360,7 +360,7 @@ For our grouping function we distinguish the following cases:
 \end{itemize}
 *)
 
-fun gh(nil,nil,_) = nil
+let rec gh(nil,nil,_) = nil
   | gh(cg,nil,res) = rev ((summaxwidth cg,cg,Ebk)::res)
   | gh(cg,(Dbk::t),res) = gh(nil,t,(summaxwidth cg,cg,Dbk)::res)
   | gh(cg,((b as (Brk(_,_)))::t),res) =
@@ -443,24 +443,24 @@ We thus get:
          \end{itemize}
 \end{itemize}
 *)
-fun pphv(mw,li,bl,is,ss,mp,ch,lb,nil,res)= (Max(mp,ch),res)
+let rec pphv(mw,li,bl,is,ss,mp,ch,lb,nil,res)= (Max(mp,ch),res)
  |  pphv(mw,li,bl,is,ss,mp,ch,lb,((gpwdth,flist,brk)::t),res) =
-    let val (ch1,s1,mp) =
+    let let (ch1,s1,mp) =
         (* horizontal width, string to print, max print width *)
             if (lb=Ebk)
             orelse ( li+ch+(fst(Width0(Hori,bl,Unused,lb)))+gpwdth
                      <= mw )
             then (* OK - group fits within page or has to fit:
                     horizontal break *)
-            let val (n,s)=print'p(mw,li,bl,is,ss,Hori,lb,res)
+            let let (n,s)=print'p(mw,li,bl,is,ss,Hori,lb,res)
             in (ch+n,s,mp) end
             else (* group will not fit: vertical break.
                     Was last line of maximum width? *)
-            let val (n,s)=print'p(mw,li,bl,is,ss,Vert,lb,res) in
+            let let (n,s)=print'p(mw,li,bl,is,ss,Vert,lb,res) in
                 (n,s,Max(mp,ch))
             end
  (* Now print the elements of the group using default for horizontal tabs *)
-       val (n2,s2) = pph(mw,(li+ch1),bl,is,ss,flist,0,s1)
+       let (n2,s2) = pph(mw,(li+ch1),bl,is,ss,flist,0,s1)
        (* Now print rest of horizontal-vertical box *)
     in pphv(mw,li,bl,is,ss,mp,(ch1+n2),brk,t,s2) end
 (*
@@ -525,13 +525,13 @@ And this is how the algorithm works:
 and ppv(mw,li,ci,bl,is,ss,max,gw,nil,res) =
                           (Max(max,gw),res)
   | ppv(mw,li,ci,bl,is,ss,max,gw, Dbk::t,res) =
-        let val (n,s)   = print'p(mw,li,bl,is,ss,Vert,Dbk,res)
+        let let (n,s)   = print'p(mw,li,bl,is,ss,Vert,Dbk,res)
         in ppv(mw,li,(li+n),bl,is,ss,Max(max,gw), n,t, s) end
   |  ppv(mw,li,ci,bl,is,ss,max,gw,(b as (Brk(_,_)))::t,res) =
-        let val (n,s)   = print'p(mw,li,bl,is,ss,Vert,b,res)
+        let let (n,s)   = print'p(mw,li,bl,is,ss,Vert,b,res)
         in ppv(mw,li,(li+n),bl,is,ss,Max(max,gw), n,t,s) end
   |  ppv(mw,li,ci,bl,is,ss,max,gw,h::t,res) =
-          let val (n,s)   = print'p(mw,ci,bl,is,ss,Vert,h,res)
+          let let (n,s)   = print'p(mw,ci,bl,is,ss,Vert,h,res)
           in ppv(mw,li,(ci+n),bl,is,ss,max,(gw+n),t,s) end
 
 (*
@@ -564,7 +564,7 @@ The algorithm:
 *)
 and pph(mw,id,bl,is,ss,nil,nres,sres) = (nres,sres)
   | pph(mw,id,bl,is,ss, h::t,nres,sres) =
-          let val (n,s)   = print'p(mw,id,bl,is,ss,Hori,h,sres)
+          let let (n,s)   = print'p(mw,id,bl,is,ss,Hori,h,sres)
           in pph(mw,(id+n),bl,is,ss,t,n+nres,s) end
 (*
 \subsubsection{Putting it all together: printing a {\ml format}}
@@ -617,7 +617,7 @@ Correspondingly, in Bailout-mode all actual indentation is printed modulo
 {\tt Pagewidth}.
 
 However, there is a problem with this schema: if we happen to be getting into a
-deeply nested structure with a high display width, increasing the margin by
+deeply nested module with a high display width, increasing the margin by
 {\tt Pagewidth} still will not give us the needed space, and we would thus
 immediately bail out again, outputting text ``flush left'' indented by
 {\tt BailoutIndent}. To lend some relief to this problem, the bailout code
@@ -654,11 +654,11 @@ and print'p(mw,id,bl,is,ss,mo,  Str(n,s),res) = (n,s::res)
  |  print'p(mw,id,bl,is,ss,mo,   Vbx((min,max),indent,skip,l), res) =
            if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
-           then let val id = mw+(!BailoutIndent)
+           then let let id = mw+(!BailoutIndent)
                 in ppv(mw+(!Pagewidth),id,id,bl,indent,skip,0,0,l,(Nl(ss))::res) end
            else ppv(mw,id,id,bl,indent,skip,0,0,l,res)
  |  print'p(mw,id,bl,is,ss,mo,   Hvx(((min,max),(nmode,xmode)),blanks,indent,skip,l), res) =
-            let val gl=gh(nil,l,nil) in
+            let let gl=gh(nil,l,nil) in
             if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
             then pphv(mw+(!Pagewidth),mw+(!BailoutIndent),
@@ -675,7 +675,7 @@ and print'p(mw,id,bl,is,ss,mo,  Str(n,s),res) = (n,s::res)
                   then if nmode=Hori
                        then pph(mw+(!Pagewidth),mw + (!BailoutIndent),
                                   blanks,is,ss,l,0,(Nl(ss))::res)
-                       else let val id = mw + (!BailoutIndent)
+                       else let let id = mw + (!BailoutIndent)
                             in ppv(mw+(!Pagewidth),id,id,
                                   blanks,indent,skip,0,0,l,(Nl(ss))::res) end
                   else if nmode=Hori
@@ -710,7 +710,7 @@ packaged-up {\tt outstream}s.
 The functions {\tt file\_open\_fmt} and {\tt with\_open\_fmt} endeavor to
 make the use of {\tt fmtstreams} on files more convenient.
 *)
-      datatype fmtstream = Formatstream of TextIO.outstream
+      type fmtstream = Formatstream of TextIO.outstream
 
       fun open_fmt outs = Formatstream(outs)
 
@@ -723,9 +723,9 @@ make the use of {\tt fmtstreams} on files more convenient.
 
       (*
       fun debug_output_fmt(Formatstream fs, fm) =
-                  let val mw = (!Pagewidth)
-                            val (min,max) = Width0(Hori,!Blanks,!Indent,fm)
-                            val (w,s) = print'p(!Pagewidth,0,!Blanks,!Indent,!Skip,Hori,fm, nil)
+                  let let mw = (!Pagewidth)
+                            let (min,max) = Width0(Hori,!Blanks,!Indent,fm)
+                            let (w,s) = print'p(!Pagewidth,0,!Blanks,!Indent,!Skip,Hori,fm, nil)
                           in
                              output(fs,
                                     "\nMarginwidth: "^(makestring mw)^
@@ -740,13 +740,13 @@ make the use of {\tt fmtstreams} on files more convenient.
        *)
 
       fun file_open_fmt filename =
-         let val fmt_stream = open_fmt(TextIO.openOut filename)
-             val close_func = fn () => ( TextIO.closeOut(close_fmt(fmt_stream)) )
+         let let fmt_stream = open_fmt(TextIO.openOut filename)
+             let close_func = fn () => ( TextIO.closeOut(close_fmt(fmt_stream)) )
           in (close_func, fmt_stream) end
 
       fun with_open_fmt filename func =
-         let val (close_func, fmt_stream) = file_open_fmt filename
-             val result = func fmt_stream
+         let let (close_func, fmt_stream) = file_open_fmt filename
+             let result = func fmt_stream
                           handle exn => ( close_func () ; raise exn )
           in ( close_func () ; result ) end
 

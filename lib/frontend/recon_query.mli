@@ -1,11 +1,11 @@
 (* External Syntax for queries *)
 (* Author: Frank Pfenning *)
 
-signature EXTQUERY =
+module type EXTQUERY =
 sig
 
-  structure ExtSyn : EXTSYN
-  (*! structure Paths : PATHS !*)
+  module ExtSyn : EXTSYN
+  (*! module Paths : PATHS !*)
 
   type query				(* query *)
   val query : string option * ExtSyn.term -> query (* ucid : tm | tm *)
@@ -16,12 +16,12 @@ sig
   type solve
   val solve : string option * ExtSyn.term * Paths.region -> solve (* id : tm | _ : tm *)
 
-end (* signature EXTQUERY *)
+end (* module type EXTQUERY *)
 
-signature RECON_QUERY =
+module type RECON_QUERY =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
   include EXTQUERY
 
   exception Error of string
@@ -35,4 +35,4 @@ sig
   val solveToSolve : define list * solve * Paths.location
                      -> IntSyn.Exp * (IntSyn.Exp -> (IntSyn.ConDec * Paths.occConDec option) list)
   
-end (* signature RECON_QUERY *)
+end (* module type RECON_QUERY *)

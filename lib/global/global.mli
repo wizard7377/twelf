@@ -1,7 +1,7 @@
 (* Global parameters *)
 (* Author: Frank Pfenning *)
 
-signature GLOBAL =
+module type GLOBAL =
 sig
   val chatter : int ref
   val style : int ref
@@ -14,4 +14,4 @@ sig
   val chPrint : int -> (unit -> string) -> unit
   val chMessage : int -> (unit -> string) -> (string -> unit) -> unit
   val timeLimit : (Time.time option) ref   (* in seconds *)
-end;  (* signature GLOBAL *)
+end;  (* module type GLOBAL *)

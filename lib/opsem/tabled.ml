@@ -2,57 +2,57 @@
 (* Author: Brigitte Pientka *)
 (* Based on abstract machine in absmachine.fun *)
 
-functor Tabled ((*! structure IntSyn' : INTSYN !*)
-                (*! structure CompSyn' : COMPSYN !*)
+let recctor Tabled ((*! module IntSyn' : INTSYN !*)
+                (*! module CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                structure Unify : UNIFY
+                module Unify : UNIFY
                 (*! sharing Unify.IntSyn = IntSyn' !*)
-                structure TabledSyn : TABLEDSYN
+                module TabledSyn : TABLEDSYN
                 (*!  sharing TabledSyn.IntSyn = IntSyn' !*)
-                structure Assign : ASSIGN
+                module Assign : ASSIGN
                 (*!  sharing Assign.IntSyn = IntSyn' !*)
-                structure Index : INDEX
+                module Index : INDEX
                 (*!  sharing Index.IntSyn = IntSyn' !*)
-                structure Queue : QUEUE
-                (*! structure TableParam : TABLEPARAM !*)
+                module Queue : QUEUE
+                (*! module TableParam : TABLEPARAM !*)
                 (*!  sharing TableParam.IntSyn = IntSyn' !*)
                 (*!  sharing TableParam.CompSyn = CompSyn' !*)
 
-                structure AbstractTabled : ABSTRACTTABLED
+                module AbstractTabled : ABSTRACTTABLED
                 (*!  sharing AbstractTabled.IntSyn = IntSyn' !*)
                 (*! sharing AbstractTabled.TableParam = TableParam !*)
-                structure MemoTable : MEMOTABLE
+                module MemoTable : MEMOTABLE
                 (*!  sharing MemoTable.IntSyn = IntSyn' !*)
                 (*!  sharing MemoTable.CompSyn = CompSyn'  !*)
                 (*! sharing MemoTable.TableParam = TableParam  !*)
                 (* CPrint currently unused *)
-                structure CPrint : CPRINT
+                module CPrint : CPRINT
                 (*!  sharing CPrint.IntSyn = IntSyn' !*)
                 (*!  sharing CPrint.CompSyn = CompSyn' !*)
                 (* CPrint currently unused *)
-                structure Print : PRINT
+                module Print : PRINT
                 (*!  sharing Print.IntSyn = IntSyn' !*)
 
-(*              structure Names : NAMES *)
+(*              module Names : NAMES *)
                 (*!  sharing Names.IntSyn = IntSyn' !*)
-                (*! structure CSManager : CS_MANAGER !*)
+                (*! module CSManager : CS_MANAGER !*)
                 (*!  sharing CSManager.IntSyn = IntSyn'!*))
   : TABLED =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure CompSyn = CompSyn' !*)
-  structure Unify = Unify
-  structure TabledSyn = TabledSyn
-  (*! structure TableParam = TableParam !*)
-(*  structure Match = Match*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module CompSyn = CompSyn' !*)
+  module Unify = Unify
+  module TabledSyn = TabledSyn
+  (*! module TableParam = TableParam !*)
+(*  module Match = Match*)
 
   local
-    structure I = IntSyn
-    structure C = CompSyn
-    structure A = AbstractTabled
-    structure T = TableParam
-    structure MT = MemoTable
+    module I = IntSyn
+    module C = CompSyn
+    module A = AbstractTabled
+    module T = TableParam
+    module MT = MemoTable
   in
 
     (* ---------------------------------------------------------------------- *)
@@ -67,9 +67,9 @@ struct
                    current program state
 
     *)
-    datatype SuspType = Loop | Divergence of ((IntSyn.Exp * IntSyn.Sub) * CompSyn.DProg)
+    type SuspType = Loop | Divergence of ((IntSyn.Exp * IntSyn.Sub) * CompSyn.DProg)
 
-    val SuspGoals : ((SuspType * (IntSyn.dctx * IntSyn.Exp * IntSyn.Sub) *  (CompSyn.pskeleton -> unit) *
+    let SuspGoals : ((SuspType * (IntSyn.dctx * IntSyn.Exp * IntSyn.Sub) *  (CompSyn.pskeleton -> unit) *
                       Unify.unifTrail * ((IntSyn.Sub * IntSyn.Sub) * T.answer) * int ref)  list) ref  = ref []
 
     exception Error of string
@@ -124,7 +124,7 @@ struct
     fun ctxToEVarSub (I.Null, s) = s
       | ctxToEVarSub (I.Decl(G,I.Dec(_,A)), s) =
       let
-        val X = I.newEVar (I.Null, A)
+        let X = I.newEVar (I.Null, A)
       in
         I.Dot(I.Exp(X), ctxToEVarSub (G, s))
       end
@@ -132,14 +132,14 @@ struct
     fun ctxToAVarSub (I.Null, s) = s
       | ctxToAVarSub (I.Decl(G,I.Dec(_,A)), s) =
       let
-        val X = I.newEVar (I.Null, A)
+        let X = I.newEVar (I.Null, A)
       in
         I.Dot(I.Exp(X), ctxToAVarSub (G, s))
       end
 
       | ctxToAVarSub (I.Decl(G,I.ADec(_,d)), s) =
       let
-        val X = I.newAVar ()
+        let X = I.newAVar ()
       in
         I.Dot(I.Exp(I.EClo(X, I.Shift(~d))), ctxToAVarSub (G, s))
       end
@@ -160,8 +160,8 @@ struct
       (* D, G, G' |- e1 and D, G, G' |- N and D, G |- eqns *)
       (* . |- s : D *)
       let
-        val G'' = append (G', G)
-        val s' = shift (G'', s)  (* G, G' |- s' : D, G, G' *)
+        let G'' = append (G', G)
+        let s' = shift (G'', s)  (* G, G' |- s' : D, G, G' *)
       in
         Assign.unifiable (G'', (N, s'), (e1, s'))
         andalso solveEqn ((eqns, s), G)
@@ -179,15 +179,15 @@ struct
   fun getHypGoal (DProg, (C.Atom p, s)) = (DProg, (p,s))
     | getHypGoal (C.DProg(G, dPool), (C.Impl(r, A, Ha, g), s)) =
     let
-      val D' = IntSyn.Dec(NONE, I.EClo(A,s))
+      let D' = IntSyn.Dec(NONE, I.EClo(A,s))
     in
       if (!TableParam.strengthen)
         then
           (case MT.memberCtx ((G,I.EClo(A,s)), G) of
              SOME(_) =>
                (let
-                  val C.Atom(p) = g   (* is g always atomic? *)
-                  val X = I.newEVar(G, I.EClo(A, s))
+                  let C.Atom(p) = g   (* is g always atomic? *)
+                  let X = I.newEVar(G, I.EClo(A, s))
                 in
                   getHypGoal (C.DProg(G,dPool), (g, I.Dot(I.Exp(X),s)))
                 end)
@@ -197,19 +197,19 @@ struct
        end
      | getHypGoal (C.DProg(G, dPool), (C.All(D, g), s)) =
        let
-         val D' = I.decSub (D, s)
+         let D' = I.decSub (D, s)
        in
          getHypGoal (C.DProg(I.Decl(G, D'), I.Decl(dPool, C.Parameter)), (g, I.dot1 s))
        end
 
   fun updateGlobalTable (goal, flag) =
     let
-      val (dProg as C.DProg(G, dPool), (p,s)) = getHypGoal (C.DProg(I.Null,I.Null), (goal, I.id))
-      val (G', DAVars, DEVars, U', eqn', s') =  A.abstractEVarCtx (dProg, p, s)
-      val _ = if solveEqn ((eqn', s'), G')
+      let (dProg as C.DProg(G, dPool), (p,s)) = getHypGoal (C.DProg(I.Null,I.Null), (goal, I.id))
+      let (G', DAVars, DEVars, U', eqn', s') =  A.abstractEVarCtx (dProg, p, s)
+      let _ = if solveEqn ((eqn', s'), G')
                      then ()
                    else print "\nresidual equation not solvable!\n"
-      val status = if flag then TableParam.Complete else TableParam.Incomplete
+      let status = if flag then TableParam.Complete else TableParam.Incomplete
     in
       if TabledSyn.keepTable (IntSyn.targetFam U')
         then
@@ -268,13 +268,13 @@ struct
    fun retrieve' ((G, U, s), asub, [], sc)  = ()
      | retrieve' ((G, U, s), (esub, asub), (((D', s1), O1)::A), sc) =
      let
-       val s1' = ctxToEVarSub (D', I.Shift(I.ctxLength(D')) (* I.id *))
-       val scomp =  I.comp(s1, s1')
-       val ss = shift (G, s)
-       val ss1 = shift (G, scomp)
-       val a = I.comp(asub, s)
-       val ass = shift (G, a)
-       val easub = I.comp(asub,esub)
+       let s1' = ctxToEVarSub (D', I.Shift(I.ctxLength(D')) (* I.id *))
+       let scomp =  I.comp(s1, s1')
+       let ss = shift (G, s)
+       let ss1 = shift (G, scomp)
+       let a = I.comp(asub, s)
+       let ass = shift (G, a)
+       let easub = I.comp(asub,esub)
      in
        CSManager.trail (fn () => if (unifySub'(G, shift(G, esub), ss) andalso
                                      unifySub' (G, shift(G, I.comp(asub, esub)), ss1))
@@ -304,10 +304,10 @@ struct
    fun retrieveV ((G, U, s),  [], sc)  = ()
      | retrieveV ((G, U, s),  (((DEVars, s1), O1)::A), sc) =
      let
-       val s1' = ctxToEVarSub (DEVars, I.Shift(I.ctxLength(DEVars)) (* I.id *))
-       val scomp =  I.comp(s1, s1')
-       val ss = shift (G, s)
-       val ss1 = shift (G, scomp)
+       let s1' = ctxToEVarSub (DEVars, I.Shift(I.ctxLength(DEVars)) (* I.id *))
+       let scomp =  I.comp(s1, s1')
+       let ss = shift (G, s)
+       let ss1 = shift (G, scomp)
      (* for subsumption we must combine it with asumb!!! *)
      in
        CSManager.trail (fn () => if unifySub' (G, ss, ss1)
@@ -341,10 +341,10 @@ struct
    *)
     fun retrieve (k, (G, U, s), (asub, answRef), sc) =
         let
-          val lkp  = T.lookup(answRef)
-          val asw' = List.take(rev(T.solutions(answRef)),
+          let lkp  = T.lookup(answRef)
+          let asw' = List.take(rev(T.solutions(answRef)),
                                T.lookup(answRef))
-          val answ' = List.drop(asw', !k)
+          let answ' = List.drop(asw', !k)
         in
         k := lkp;
         retrieveSW ((G, U, s), asub, answ', sc)
@@ -366,14 +366,14 @@ struct
      if TabledSyn.tabledLookup (I.targetFam p)
        then
          let
-           val (G', DAVars, DEVars, U', eqn', s') =  A.abstractEVarCtx (dp, p, s)
+           let (G', DAVars, DEVars, U', eqn', s') =  A.abstractEVarCtx (dp, p, s)
            (* Invariant about abstraction:
               Pi DAVars. Pi DEVars. Pi G'. U'    : abstracted linearized goal
               .  |- s' : DAVars, DEVars             k = |G'|
               G' |- s'^k : DAVars, DEVars, G'
                . |- [s'](Pi G'. U')     and  G |- [s'^k]U' = [s]p *)
 
-           val _ = if solveEqn ((eqn', s'), G')
+           let _ = if solveEqn ((eqn', s'), G')
                      then ()
                    else print "\nresidual equation not solvable! -- This should never happen! \n"
          in
@@ -382,7 +382,7 @@ struct
              (* Side effect: D', G' |- U' added to table *)
              of T.NewEntry (answRef) =>
                  matchAtom ((p,s), dp,
-                          (fn pskeleton =>
+                          (fun pskeleton ->
                            case MT.answerCheck (s', answRef, pskeleton) of
                              T.repeated => ()
                            | T.new      => (sc pskeleton)))
@@ -403,7 +403,7 @@ struct
                   * resolve current goal with all possible answers
                   *)
                  let
-                   val le = T.lookup(answRef)
+                   let le = T.lookup(answRef)
                  in
                    SuspGoals := ((Loop, (G', U', s'), sc, Unify.suspend(),
                                   (asub, answRef), ref le)::(!SuspGoals));
@@ -436,29 +436,29 @@ struct
 
      | solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
        let
-         val D' = I.Dec(NONE, I.EClo(A,s))
+         let D' = I.Dec(NONE, I.EClo(A,s))
        in
          if (!TableParam.strengthen)
            then
              (case MT.memberCtx ((G,I.EClo(A,s)), G) of
                 SOME(_) =>
                   (let
-                    val X = I.newEVar(G, I.EClo(A, s))
+                    let X = I.newEVar(G, I.EClo(A, s))
                   in
-                    solve ((g, I.Dot(I.Exp(X),s)), C.DProg (G, dPool), (fn O => sc O))
+                    solve ((g, I.Dot(I.Exp(X),s)), C.DProg (G, dPool), (fun O -> sc O))
                   end)
              | NONE => solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
-                              (fn O => sc O)))
+                              (fun O -> sc O)))
          else
            solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
-                  (fn O => sc O))
+                  (fun O -> sc O))
        end
      | solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
        let
-         val D' = I.decSub (D, s)
+         let D' = I.decSub (D, s)
        in
          solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl(dPool, C.Parameter)),
-                (fn O => sc O))
+                (fun O -> sc O))
        end
 
    (* rsolve ((p,s'), (r,s), dp, sc) = ()
@@ -482,27 +482,27 @@ struct
         | rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
        (case Assign.assignable (G, ps', (Q, s)) of
           SOME(cnstr) =>
-            aSolve((eqns, s), dp, cnstr, (fn S => sc S))
+            aSolve((eqns, s), dp, cnstr, (fun S -> sc S))
         | NONE => ())
 
      | rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
        let
         (* is this EVar redundant? -fp *)
-        val X = I.newEVar(G, I.EClo(A, s))
+        let X = I.newEVar(G, I.EClo(A, s))
       in
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp,
-                (fn S1 => solve ((g, s), dp, (fn S2 => sc (S1@S2)))))
+                (fun S1 -> solve ((g, s), dp, (fun S2 -> sc (S1@S2)))))
       end
      | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
        let
-         val X = I.newEVar(G, I.EClo(A, s))
+         let X = I.newEVar(G, I.EClo(A, s))
        in
-         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, (fn S => sc S))
+         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, (fun S -> sc S))
        end
 
      | rSolve (ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
        let
-         val X' = I.newAVar ()
+         let X' = I.newAVar ()
        in
          rSolve (ps', (r, I.Dot(I.Exp(I.EClo(X', I.Shift(~d))), s)), dp, sc)
          (* we don't increase the proof term here! *)
@@ -525,8 +525,8 @@ struct
            ())
     | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
       let
-        val (G'') = append(G', G)
-        val s' = shift (G', s)
+        let (G'') = append(G', G)
+        let s' = shift (G', s)
       in
         if Assign.unifiable (G'', (N, s'), (e1, s')) then
               aSolve ((eqns, s), dp, cnstr, sc)
@@ -544,7 +544,7 @@ struct
               any effect  sc M  might have
 
      This first tries the local assumptions in dp then
-     the static signature.
+     the static module type.
   *)
   and matchAtom (ps' as (I.Root(Ha,S),s), dp as C.DProg (G,dPool), sc) =
       let
@@ -555,12 +555,12 @@ struct
         fun matchSig nil = ()   (* return indicates failure *)
           | matchSig ((Hc as I.Const c)::sgn') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
               (* trail to undo EVar instantiations *)
               CSManager.trail (fn () =>
                                rSolve (ps', (r, I.id), dp,
-                                          (fn S =>
+                                          (fun S ->
                                              sc ((C.Pc c)::S) )));
               matchSig sgn'
             end
@@ -571,7 +571,7 @@ struct
            with the most recent one.
         *)
         fun matchDProg (I.Null, I.Null, _) =
-            (* dynamic program exhausted, try signature *)
+            (* dynamic program exhausted, try module type *)
             matchSig (Index.lookup (cidFromHead Ha))
 
           | matchDProg (I.Decl(G, _),
@@ -581,7 +581,7 @@ struct
                 (* trail to undo EVar instantiations *)
                 (CSManager.trail (fn () =>
                                     rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,
-                                            (fn S => sc ((C.Dc k)::S))));
+                                            (fun S -> sc ((C.Dc k)::S))));
                    matchDProg (G, dPool', k+1))
 
             else matchDProg (G, dPool', k+1)
@@ -590,7 +590,7 @@ struct
 
           fun matchConstraint (solve, try) =
             let
-              val succeeded =
+              let succeeded =
                 CSManager.trail
                 (fn () =>
                  case (solve (G, I.SClo (S, s), try))
@@ -634,7 +634,7 @@ struct
 
     | retrieval (Divergence ((p,s), dp), (G', U', s'), sc, (asub, answRef), n) =
       matchAtom ((p, s), dp,
-             (fn pskeleton =>
+             (fun pskeleton ->
               case MT.answerCheck (s', answRef, pskeleton)
                 of T.repeated => ()
               | T.new      => sc pskeleton))
@@ -655,7 +655,7 @@ struct
         (CSManager.trail        (fn () => (Unify.resume trail;
                                            retrieval (Susp, s, sc, (asub, answRef), k)));
          resume (Goals))
-      val SG = rev(!SuspGoals)
+      let SG = rev(!SuspGoals)
     in
       if MT.updateTable () then
         (* table changed during previous stage *)
@@ -677,7 +677,7 @@ struct
 
   end (* local ... *)
 
- val solve = solveQuery
+ let solve = solveQuery
 
 end; (* functor Tabled *)
 

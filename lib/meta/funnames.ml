@@ -1,13 +1,13 @@
 (* Names of Constants and Variables *)
 (* Author: Carsten Schuermann *)
 
-functor FunNames (structure Global : GLOBAL
-                  (*! structure FunSyn' : FUNSYN !*)
-                  structure HashTable : TABLE where type key = string)
+let recctor FunNames (module Global : GLOBAL
+                  (*! module FunSyn' : FUNSYN !*)
+                  module HashTable : TABLE where type key = string)
   : FUNNAMES =
 struct
 
-  (*! structure FunSyn = FunSyn' !*)
+  (*! module FunSyn = FunSyn' !*)
 
   exception Error of string
 
@@ -21,7 +21,7 @@ struct
      (2) there is a hashtable sgnHashTable mapping identifiers (strings) to constants.
 
      The mapping from constants to their print names must be maintained
-     separately from the global signature, since constants which have
+     separately from the global module type, since constants which have
      been shadowed must be marked as such when printing.  Otherwise,
      type checking can generate very strange error messages such as
      "Constant clash: c <> c".
@@ -38,18 +38,18 @@ struct
   *)
 
   (* nameInfo carries the print name and fixity for a constant *)
-  datatype nameInfo = NameInfo of string
+  type nameInfo = NameInfo of string
 
   local
-    val maxCid = Global.maxCid
+    let maxCid = Global.maxCid
     (* nameArray maps constants to print names and fixity *)
-    val nameArray = Array.array (maxCid+1, NameInfo "")
+    let nameArray = Array.array (maxCid+1, NameInfo "")
       : nameInfo Array.array
 
     (* sgnHashTable maps identifiers (strings) to constants (cids) *)
-    val sgnHashTable : IntSyn.cid HashTable.Table = HashTable.new (4096)
-    val hashInsert = HashTable.insertShadow sgnHashTable (* returns optional shadowed entry *)
-    val hashLookup = HashTable.lookup sgnHashTable (* returns optional cid *)
+    let sgnHashTable : IntSyn.cid HashTable.Table = HashTable.new (4096)
+    let hashInsert = HashTable.insertShadow sgnHashTable (* returns optional shadowed entry *)
+    let hashLookup = HashTable.lookup sgnHashTable (* returns optional cid *)
     fun hashClear () = HashTable.clear sgnHashTable
 
   in
@@ -78,7 +78,7 @@ struct
     *)
     fun installName (name, lemma) =
         let
-          val shadowed = hashInsert (name, lemma)       (* returns optional shadowed entry *)
+          let shadowed = hashInsert (name, lemma)       (* returns optional shadowed entry *)
         in
           (Array.update (nameArray, lemma, NameInfo (name));
            shadow shadowed)

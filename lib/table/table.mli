@@ -5,7 +5,7 @@
 (* This provides a common interface to hash tables *)
 (* red/black trees and similar data structures *)
 
-signature TABLE =
+module type TABLE =
 sig
   type key (* parameter *)
   type 'a entry = key * 'a
@@ -23,4 +23,4 @@ sig
   (* Apply function to all entries in unpredictable order *)
   val app : ('a entry -> unit) -> 'a Table -> unit
 
-end;  (* signature TABLE *)
+end;  (* module type TABLE *)

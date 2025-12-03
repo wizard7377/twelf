@@ -1,7 +1,7 @@
 (* Delphin Frontend *)
 (* Author: Carsten Schuermann *)
 
-signature  DELPHIN =
+module type  DELPHIN =
 sig
   val version : string
   val loadFile : string * string -> unit

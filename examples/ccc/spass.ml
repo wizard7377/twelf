@@ -22,10 +22,10 @@ the proofs can be found in pf.dvi (written by Andrzej Filinski) and
 the other .elf files.
 *)
 
-structure Spass : TRAVERSER =
+module Spass : TRAVERSER =
 struct
 
-  datatype tp =
+  type tp =
     QFProp of string			(* Quantifier-free proposition *)
   | Prop of string * string		(* Proposition ("xs", "A") *)
   | Mor of string			(* Morphism "A,B" *)
@@ -82,7 +82,7 @@ struct
   fun const (c) = c
   fun def (d) = d
 
-  val nils = NONE
+  let nils = NONE
   fun app (M, NONE) = SOME(M)
     | app (M, SOME(S)) = SOME(M ^ "," ^ S)
 
@@ -99,18 +99,18 @@ struct
       ^ "formula" ^ par ("and" ^ par(A)) ^ ".\n"
     | objdec (c, _) = "%% " ^ c ^ " : skipped.\n"
 
-end;  (* structure Spass *)
+end;  (* module Spass *)
 
-structure Spass =
-  Traverse (structure IntSyn' = IntSyn
-	    structure Whnf = Whnf
-	    structure Names = Names
-	    structure Traverser' = Spass);
+module Spass =
+  Traverse (module IntSyn' = IntSyn
+	    module Whnf = Whnf
+	    module Names = Names
+	    module Traverser' = Spass);
 
 
 Twelf.Config.load (Twelf.Config.read "examples/ccc/spass.cfg");
 
-fun ccc (c) = (print (Spass.const (c)); print "\n");
+let rec ccc (c) = (print (Spass.const (c)); print "\n");
 
 (
 (* Equality *)

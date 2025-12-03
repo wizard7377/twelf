@@ -1,24 +1,24 @@
 (* Parsing Queries *)
 (* Author: Frank Pfenning *)
 
-functor ParseQuery
+let recctor ParseQuery
 
-  ((*! structure Parsing' : PARSING !*)
-   structure ExtQuery' : EXTQUERY
+  ((*! module Parsing' : PARSING !*)
+   module ExtQuery' : EXTQUERY
    (*! sharing ExtQuery'.Paths = Parsing'.Lexer.Paths !*)
-   structure ParseTerm : PARSE_TERM
+   module ParseTerm : PARSE_TERM
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ExtQuery'.ExtSyn)
   : PARSE_QUERY =
 struct
 
-  (*! structure Parsing = Parsing' !*)
-  structure ExtQuery = ExtQuery'
+  (*! module Parsing = Parsing' !*)
+  module ExtQuery = ExtQuery'
 
   local
-    structure L = Lexer
-    structure LS = Lexer.Stream
-    structure P = Paths
+    module L = Lexer
+    module LS = Lexer.Stream
+    module P = Paths
 
     fun returnQuery (optName, (tm, f)) = (ExtQuery.query (optName, tm), f)
 
@@ -48,7 +48,7 @@ struct
     (* "U" *)
     fun parseDefine4 (optName, optT, s) =
         let
-          val (tm', f') = ParseTerm.parseTerm' (LS.expose s)
+          let (tm', f') = ParseTerm.parseTerm' (LS.expose s)
         in
           (ExtQuery.define (optName, tm', optT), f')
         end
@@ -80,7 +80,7 @@ struct
 
     fun parseSolve3 (defns, nameOpt, LS.Cons ((L.COLON, r), s'), r0) =
         let
-          val (tm, f' as LS.Cons ((_, r), _)) = ParseTerm.parseTerm' (LS.expose s')
+          let (tm, f' as LS.Cons ((_, r), _)) = ParseTerm.parseTerm' (LS.expose s')
         in
           ((List.rev defns, ExtQuery.solve (nameOpt, tm, P.join (r0, r))), f')
         end
@@ -98,7 +98,7 @@ struct
           parseSolve2 (defns, LS.expose s', r0)
       | parseSolve1 (defns, LS.Cons ((L.DEFINE, r0), s')) =
         let
-          val (defn, f') = parseDefine1 (LS.expose s')
+          let (defn, f') = parseDefine1 (LS.expose s')
         in
           parseSolve1 (defn::defns, f')
         end
@@ -108,8 +108,8 @@ struct
     and parseSolve' (f) = parseSolve1 (nil, f)
 
   in
-    val parseQuery' = parseQuery'
-    val parseSolve' = parseSolve'
+    let parseQuery' = parseQuery'
+    let parseSolve' = parseSolve'
   end  (* local ... in *)
 
 end;  (* functor ParseQuery *)

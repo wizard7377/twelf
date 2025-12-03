@@ -1,11 +1,11 @@
 (* Qed *)
 (* Author: Carsten Schuermann *)
 
-signature QED =
+module type QED =
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
 
   exception Error of string
 
   val subgoal : MetaSyn.State -> bool
-end;  (* signature QED *)
+end;  (* module type QED *)

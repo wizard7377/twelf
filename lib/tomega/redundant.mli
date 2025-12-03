@@ -1,4 +1,4 @@
-signature REDUNDANT  =
+module type REDUNDANT  =
   sig
     exception Error of string
 

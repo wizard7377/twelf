@@ -1,60 +1,60 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-functor Interactive
-  (structure Global : GLOBAL
-   (*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor Interactive
+  (module Global : GLOBAL
+   (*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure State' : STATE
+   module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   structure Formatter : FORMATTER
-   structure Trail : TRAIL
-   structure Ring : RING
-   structure Names : NAMES
+   module Formatter : FORMATTER
+   module Trail : TRAIL
+   module Ring : RING
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Weaken : WEAKEN
+   module Weaken : WEAKEN
    (*! sharing Weaken.IntSyn = IntSyn' !*)
-   (* structure ModeSyn : MODESYN *)
+   (* module ModeSyn : MODESYN *)
    (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   structure WorldSyn : WORLDSYN
+   module WorldSyn : WORLDSYN
    (*! sharing WorldSyn.IntSyn = IntSyn' !*)
    (*! sharing WorldSyn.Tomega = Tomega' !*)
-   structure Introduce : INTRODUCE
+   module Introduce : INTRODUCE
    (*! sharing Introduce.IntSyn = IntSyn' !*)
    (*! sharing Introduce.Tomega = Tomega' !*)
      sharing Introduce.State = State'
-   structure Elim : ELIM
+   module Elim : ELIM
    (*! sharing Elim.IntSyn = IntSyn' !*)
    (*! sharing Elim.Tomega = Tomega' !*)
      sharing Elim.State = State'
-   structure Split : SPLIT
+   module Split : SPLIT
    (*! sharing Split.IntSyn = IntSyn' !*)
    (*! sharing Split.Tomega = Tomega' !*)
      sharing Split.State = State'
-   structure FixedPoint : FIXEDPOINT
+   module FixedPoint : FIXEDPOINT
    (*! sharing FixedPoint.IntSyn = IntSyn' !*)
    (*! sharing FixedPoint.Tomega = Tomega' !*)
      sharing FixedPoint.State = State'
-   structure Fill : FILL
+   module Fill : FILL
    (*! sharing Fill.IntSyn = IntSyn' !*)
    (*! sharing Fill.Tomega = Tomega' !*)
      sharing Fill.State = State')
   : INTERACTIVE =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure State = State'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module State = State'
 
   exception Error = State'.Error
 
   local
-    structure I = IntSyn
-    structure T = Tomega
-    structure S = State
-    structure M = ModeSyn
-    structure W = WorldSyn
+    module I = IntSyn
+    module T = Tomega
+    module S = State
+    module M = ModeSyn
+    module W = WorldSyn
 
     fun abort s =
         (print ("* " ^ s ^ "\n");
@@ -65,10 +65,10 @@ struct
     *)
     fun convertOneFor cid =
       let
-        val V  = case I.sgnLookup cid
+        let V  = case I.sgnLookup cid
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
                     | _ => raise Error "Type Constant declaration expected"
-        val mS = case ModeTable.modeLookup cid
+        let mS = case ModeTable.modeLookup cid
                    of NONE => raise Error "Mode declaration expected"
                     | SOME mS => mS
 
@@ -87,18 +87,18 @@ struct
         *)
         fun convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) =
             let
-              val (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1)
+              let (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1)
             in
-              (fn F => T.All ((T.UDec (Weaken.strengthenDec (D, w1)), T.Explicit), F' F), F'')
+              (fun F -> T.All ((T.UDec (Weaken.strengthenDec (D, w1)), T.Explicit), F' F), F'')
             end
           | convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
             let
-              val (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
+              let (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
             in
               (F', T.Ex ((I.decSub (D, w2), T.Explicit), F''))
             end
           | convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
-              (fn F => F, T.True)
+              (fun F -> F, T.True)
           | convertFor' _ = raise Error "type family must be +/- moded"
 
         (* shiftPlus (mS) = s'
@@ -118,8 +118,8 @@ struct
             shiftPlus' (mS, 0)
           end
 
-        val n = shiftPlus mS
-        val (F, F') = convertFor' (V, mS, I.id, I.Shift n, n)
+        let n = shiftPlus mS
+        let (F, F') = convertFor' (V, mS, I.id, I.Shift n, n)
       in
         F F'
       end
@@ -138,16 +138,16 @@ struct
 
    (* here ends the preliminary stuff *)
 
-    datatype MenuItem
+    type MenuItem
     = Split     of Split.operator
     | Fill      of Fill.operator
     | Introduce of Introduce.operator
     | Fix       of FixedPoint.operator
     | Elim      of Elim.operator
 
-    val Focus : (S.State list) ref = ref []
+    let Focus : (S.State list) ref = ref []
 
-    val Menu : MenuItem list option ref = ref NONE
+    let Menu : MenuItem list option ref = ref NONE
 
 
     fun SplittingToMenu (O, A) = Split O :: A
@@ -174,37 +174,37 @@ struct
           fun menuToString' (k, nil) = ""
             | menuToString' (k, Split O  :: M) =
               let
-                val s = menuToString' (k+1, M)
+                let s = menuToString' (k+1, M)
               in
                  s ^ "\n  " ^ (format k) ^ (Split.menu O)
               end
             | menuToString' (k, Introduce O :: M) =
               let
-                val s = menuToString' (k+1, M)
+                let s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (Introduce.menu O)
               end
             | menuToString' (k, Fill O :: M) =
               let
-                val s = menuToString' (k+1, M)
+                let s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (Fill.menu O)
               end
             | menuToString' (k, Fix O :: M) =
               let
-                val s = menuToString' (k+1, M)
+                let s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (FixedPoint.menu O)
               end
             | menuToString' (k, Elim O :: M) =
               let
-                val s = menuToString' (k+1, M)
+                let s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (Elim.menu O)
               end
 (*          | menuToString' (k, Inference O :: M,kOopt) =
               let
-                val (kopt, s) = menuToString' (k+1, M, kOopt)
+                let (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (Inference.menu O))
               end
@@ -217,8 +217,8 @@ struct
 
     fun printStats () =
         let
-          val nopen   = 0
-          val nsolved = 0
+          let nopen   = 0
+          let nsolved = 0
         in
           (print "Statistics:\n\n";
            print ("Number of goals : " ^ (Int.toString (nopen + nsolved)) ^"\n");
@@ -259,42 +259,42 @@ struct
            of [] => print "Please initialize first\n"
             | (S.State (W, Psi, P, F) :: _) =>
               let
-                val Xs = S.collectT P
-                val F1 = map (fn (T.EVar (Psi, r, F, TC, TCs, X)) => (Names.varReset I.Null;
+                let Xs = S.collectT P
+                let F1 = map (fn (T.EVar (Psi, r, F, TC, TCs, X)) => (Names.varReset I.Null;
                                                              S.Focus (T.EVar (TomegaPrint.nameCtx Psi, r, F, TC, TCs, X), W))) Xs
-                val Ys = S.collectLF P
-                val F2 = map (fn Y => S.FocusLF Y) Ys
+                let Ys = S.collectLF P
+                let F2 = map (fun Y -> S.FocusLF Y) Ys
 
 
                 fun splitMenu [] = []
                   | splitMenu (operators :: l) = map Split operators @ splitMenu l
 
-                val _ = Global.doubleCheck := true
+                let _ = Global.doubleCheck := true
 
 
                 fun introMenu [] =  []
                   | introMenu ((SOME oper) :: l) = (Introduce oper) :: introMenu l
                   | introMenu (NONE :: l) = introMenu l
 
-                val intro = introMenu (map Introduce.expand F1)
+                let intro = introMenu (map Introduce.expand F1)
 
 
-                val fill = foldr (fn (S, l) => l @ map (fn O => Fill O) (Fill.expand S)) nil F2
+                let fill = foldr (fn (S, l) => l @ map (fun O -> Fill O) (Fill.expand S)) nil F2
 
                 fun elimMenu [] = []
                   | elimMenu (operators :: l) = map Elim operators @ elimMenu l
 
-                val elim = elimMenu (map Elim.expand F1)
+                let elim = elimMenu (map Elim.expand F1)
 
-                val split = splitMenu (map Split.expand F1)
+                let split = splitMenu (map Split.expand F1)
               in
                 Menu := SOME (intro @ split @ fill @ elim)
               end
             | (S.StateLF Y :: _) =>
               let
-                val Ys = Abstract.collectEVars (I.Null, (Y, I.id), nil)
-                val F2 = map (fn Y => S.FocusLF Y) Ys
-                val fill = foldr (fn (S, l) => l @ map (fn O => Fill O) (Fill.expand S)) nil F2
+                let Ys = Abstract.collectEVars (I.Null, (Y, I.id), nil)
+                let F2 = map (fun Y -> S.FocusLF Y) Ys
+                let fill = foldr (fn (S, l) => l @ map (fun O -> Fill O) (Fill.expand S)) nil F2
               in
                 Menu := SOME (fill)
               end)
@@ -322,29 +322,29 @@ struct
 
     fun init names =
         let
-          val _ = TomegaPrint.evarReset()
-          val cL = map (fn x => valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
-          val F = convertFor cL
-          val Ws = map W.lookup cL
+          let _ = TomegaPrint.evarReset()
+          let cL = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
+          let F = convertFor cL
+          let Ws = map W.lookup cL
           fun select c = (Order.selLookup c handle _ => Order.Lex [])
 
-          val TC = Tomega.transformTC (I.Null, F, map select cL)
+          let TC = Tomega.transformTC (I.Null, F, map select cL)
           (* so far omitted:  make sure that all parts of the theorem are
              declared in the same world
           *)
-          val (W :: _) = Ws
-          val _ = Focus :=  [S.init (F, W)]
-          val P = (case (!Focus)
+          let (W :: _) = Ws
+          let _ = Focus :=  [S.init (F, W)]
+          let P = (case (!Focus)
                      of [] => abort "Initialization of proof goal failed\n"
                    | (S.State (W, Psi, P, F) :: _) => P)
-          val Xs = S.collectT P
-          val F = map (fn (T.EVar (Psi, r, F, TC, TCs, X)) => (Names.varReset I.Null;
+          let Xs = S.collectT P
+          let F = map (fn (T.EVar (Psi, r, F, TC, TCs, X)) => (Names.varReset I.Null;
                                                     S.Focus (T.EVar (TomegaPrint.nameCtx Psi, r, F, TC, TCs, X), W))) Xs
-          val [Ofix] = map (fn f => (FixedPoint.expand (f, TC))) F
-          val _ = FixedPoint.apply Ofix
-          val _ = normalize ();
-          val _ = menu ()
-          val _ = printmenu ()
+          let [Ofix] = map (fun f -> (FixedPoint.expand (f, TC))) F
+          let _ = FixedPoint.apply Ofix
+          let _ = normalize ();
+          let _ = menu ()
+          let _ = printmenu ()
         in
           ()
         end
@@ -399,12 +399,12 @@ struct
          | (S :: Rest) => (Focus := Rest ; normalize (); menu (); printmenu ()))
 
   in
-    val init = init
-    val select = select
-    val print = printmenu
-    val stats = printStats
-    val reset = reset
-    val focus = focus
-    val return = return
+    let init = init
+    let select = select
+    let print = printmenu
+    let stats = printStats
+    let reset = reset
+    let focus = focus
+    let return = return
   end
 end (* functor Interactive *)

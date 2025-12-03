@@ -1,11 +1,11 @@
 (* Splitting: Version 1.4 *)
 (* Author: Carsten Schuermann *)
 
-signature FIXEDPOINT = 
+module type FIXEDPOINT = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  structure State : STATE
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
+  module State : STATE
 
   exception Error of string
 
@@ -14,6 +14,6 @@ sig
   val expand : (State.Focus * Tomega.TC) -> operator
   val apply : operator -> unit
   val menu : operator -> string
-end; (* signature Fixed Point *)
+end; (* module type Fixed Point *)
 
 

@@ -1,10 +1,10 @@
 (* Printing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-signature MODEPRINT =
+module type MODEPRINT =
 sig
-  (*! structure ModeSyn : MODESYN !*)
+  (*! module ModeSyn : MODESYN !*)
 
   val modeToString : IntSyn.cid * ModeSyn.ModeSpine -> string
   val modesToString : (IntSyn.cid * ModeSyn.ModeSpine) list -> string
-end;  (* signature MODEPRINT *)
+end;  (* module type MODEPRINT *)

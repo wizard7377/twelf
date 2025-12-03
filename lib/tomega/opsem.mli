@@ -1,10 +1,10 @@
 (* Operational Semantics for Delphin *)
 (* Author: Carsten Schuermann *)
 
-signature OPSEM = 
+module type OPSEM = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
 
   exception NoMatch
 

@@ -1,13 +1,13 @@
-functor SwMachine (structure Trace : TRACE
-                   structure AbsMachine : ABSMACHINE
-                   structure TMachine : ABSMACHINE
+let recctor SwMachine (module Trace : TRACE
+                   module AbsMachine : ABSMACHINE
+                   module TMachine : ABSMACHINE
                    (*! sharing TMachine.IntSyn = AbsMachine.IntSyn !*)
                    (*! sharing TMachine.CompSyn = AbsMachine.CompSyn !*)
                      ) : ABSMACHINE =
 struct
 
-  (*! structure IntSyn = AbsMachine.IntSyn !*)
-  (*! structure CompSyn = AbsMachine.CompSyn !*)
+  (*! module IntSyn = AbsMachine.IntSyn !*)
+  (*! module CompSyn = AbsMachine.CompSyn !*)
 
   fun solve args =
     if Trace.tracing ()

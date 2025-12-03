@@ -1,16 +1,16 @@
-structure SigINT :> SIGINT =
+module SigINT :> SIGINT =
 struct
 
   fun interruptLoop (loop:unit -> unit) =
      let
 	(* open MLton *)
-	val _ =
+	let _ =
 	   MLton.Cont.callcc
-	   (fn k =>
+	   (fun k ->
 	    MLton.Signal.setHandler
 	    (Posix.Signal.int,
 	     MLton.Signal.Handler.handler
-		 (fn _ =>
+		 (fun _ ->
 		     MLton.Thread.prepare
 		     (MLton.Thread.new (fn () => MLton.Cont.throw (k, ())),
 		      ()))))

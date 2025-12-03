@@ -1,15 +1,15 @@
 
-structure Syntax =
+module Syntax =
 struct
         exception Syntax of string
 	exception MissingVar
 
 
-	datatype mode = MINUS
+	type mode = MINUS
 		      | PLUS
 		      | OMIT
 
-	datatype nterm =
+	type nterm =
 	         Lam of term
 	       | NRoot of head * spine (* c^- *)
 	     and aterm =
@@ -44,7 +44,7 @@ struct
 	and evar = (term option ref) * tp
 
         (* special hack for type functions used only in tp_reduce *)
-	datatype tpfn = tpfnType of tp
+	type tpfn = tpfnType of tp
 		      | tpfnLam of tpfn
 
 	fun EVarDotId ev = EVarDot (ev, [], Id)
@@ -52,7 +52,7 @@ struct
 (*	type decl = string * Parse.term *)
 (*	type ctx = decl list *)
 
-	datatype class = kclass of knd
+	type class = kclass of knd
 			| tclass of tp
 
         (* termof elm
@@ -64,7 +64,7 @@ struct
 
 
 
-	datatype subst_result = srVar of int 
+	type subst_result = srVar of int 
 			      | srTerm of term * tp
 			      | srEVar of evar * subst list
 
@@ -82,14 +82,14 @@ struct
 	fun lower acc (a as TRoot _, []) = (a, acc)
 	  | lower acc (TPi(m,a,b), elt::sp) = 
 	    let
-		val newacc = TermDot(termof elt, subst_tp acc a, acc)
+		let newacc = TermDot(termof elt, subst_tp acc a, acc)
 	    in
 		lower newacc (b, sp)
 	    end
 (*
 	  | lower base (TPi(m,a,b), elt::sp) = 
 	    let
-		val (aa,subst) = lower base (b, sp)
+		let (aa,subst) = lower base (b, sp)
 	    in
 		(aa, TermDot(termof elt, a, subst))
 	    end *)
@@ -144,9 +144,9 @@ struct
 	and reduce (srVar n, sp) = ATerm(ARoot(Var n, sp))
 	  | reduce (srTerm(NTerm(Lam n), TPi(_,a,b)), h::sp) = 
 	    let
-		val s = TermDot(termof h,a,Id)
-		val n' = subst_term s n
-		val b' = subst_tp s b
+		let s = TermDot(termof h,a,Id)
+		let n' = subst_term s n
+		let b' = subst_tp s b
 	    in
 		reduce (srTerm(n', b'), sp)
 	    end
@@ -156,7 +156,7 @@ struct
 	  | reduce (srTerm(ATerm(t as ERoot ((ref NONE, _), _)), a), []) = ATerm t
 	  | reduce (srEVar ((x, a), sl), sp) = 
 	    let
-		val (a',subst) = lower (substs_comp sl) (a, sp)
+		let (a',subst) = lower (substs_comp sl) (a, sp)
 	    in
 		ATerm(ERoot((x,a'),subst))
 	    end
@@ -164,9 +164,9 @@ struct
 	and reduce_plus (srVar n, sp) = AElt(ARoot(Var n, sp))
 	  | reduce_plus (srTerm(NTerm(Lam n), TPi(_,a,b)), h::sp) = 
 	    let
-		val s = TermDot(termof h,a,Id)
-		val n' = subst_term s n
-		val b' = subst_tp s b
+		let s = TermDot(termof h,a,Id)
+		let n' = subst_term s n
+		let b' = subst_tp s b
 	    in
 		reduce_plus (srTerm(n', b'), sp)
 	    end
@@ -176,13 +176,13 @@ struct
 	  | reduce_plus (srTerm(ATerm(t as ERoot ((ref NONE, _), _)), a), []) = AElt t
 	  | reduce_plus (srEVar ((x, a), sl), sp) = 
 	    let
-		val (a',subst) = lower (substs_comp sl) (a, sp)
+		let (a',subst) = lower (substs_comp sl) (a, sp)
 	    in
 		AElt(ERoot((x,a'),subst))
 	    end
 	  | reduce_plus (x,y) = (raise Debugs (x,y); raise Syntax "simplified-type mismatch in reduction")
 
-        (* val tp_reduce : tp * knd * spine -> tp
+        (* let tp_reduce : tp * knd * spine -> tp
            tp_reduce (a, k, sp) computes the result
            of reducing (.\ .\ ... .\ a) . sp
            assuming (.\ .\ ... .\ a) : k
@@ -196,9 +196,9 @@ struct
 		  | subst_tpfn s (tpfnType a) = tpfnType(subst_tp s a)
 		fun tp_reduce'(tpfnLam(a), KPi(_,b,k), h::sp) = 
 		    let
-			val s = TermDot(termof h, b, Id)
-			val a' = subst_tpfn s a
-			val k' = subst_knd s k
+			let s = TermDot(termof h, b, Id)
+			let a' = subst_tpfn s a
+			let k' = subst_knd s k
 		    in
 			tp_reduce' (a', k', sp)
 		    end
@@ -206,7 +206,7 @@ struct
 		  | tp_reduce' _ = raise Syntax "simplified-kind mismatch in type reduction" 
 		fun wrap (a, KPi(_,b,k)) = tpfnLam (wrap(a,k))
 		  | wrap (a, Type) = tpfnType a
-		val aw = wrap (a, k)
+		let aw = wrap (a, k)
 	    in 
 		tp_reduce' (aw, k, sp)
 	    end
@@ -225,7 +225,7 @@ struct
 
 	and eroot_elim_plus (ERoot((ref (SOME t), a), subst)) = 
 	    let
-		val newt =  subst_term subst t 
+		let newt =  subst_term subst t 
 	    in
 		case newt of
 		    ATerm t => AElt t
@@ -235,7 +235,7 @@ struct
 
         (* YYY: the following doesn't avoid incurring polyequal. why??? 
 
-	datatype foo =
+	type foo =
 	        Foo of baralias
 	     and bar =
 	        Bar of foo 
@@ -243,7 +243,7 @@ struct
 
         - fn (x : foo, y : foo) => x = y;
         stdIn:376.28 Warning: calling polyEqual
-        val it = fn : foo * foo -> bool
+        let it = fn : foo * foo -> bool
 
         doesn't really matter anymore to this code, (it used to)
         but I'm still curious.
@@ -252,14 +252,14 @@ struct
         (* compute [s]n . (s o s') *)
 	and composeNth (s, n, s') =
 	    let
-		val s'' = subst_compose (s, s')
+		let s'' = subst_compose (s, s')
 	    in
 		case substNth (s,n) of 
 		    srVar n' => VarOptDot(SOME n', s'')
 		  | srTerm (t,a) => TermDot(t, a, s'')
 		  | srEVar (ev,sl) => EVarDot(ev, sl, s'')
 	    end
-	(* val subst_compose : subst * subst -> subst *)
+	(* let subst_compose : subst * subst -> subst *)
 	and subst_compose (Id, s) = s
 	  | subst_compose (s, Id) = s
 	  | subst_compose (s, Shift(_,0)) = s
@@ -296,7 +296,7 @@ struct
 	  | shift_aterm n (ERoot(ev,sl)) = ERoot(ev,subst_compose(Shift (n, 1), sl)) 
 	  | shift_aterm n (ARoot(Var n',sp)) = 
 	    let 
-		val sp' = shift_spine n sp
+		let sp' = shift_spine n sp
 	    in 
 		if n' >= n 
 		then ARoot(Var (n' + 1), sp')
@@ -328,7 +328,7 @@ struct
 	fun typeOf (tclass a) = a
 	fun kindOf (kclass k) = k
 
-	val sum = foldl op+ 0
+	let sum = foldl op+ 0
 	fun size_term (NTerm (Lam t)) = 1 + (size_term t)
 	  | size_term (NTerm (NRoot (_, s))) = 1 + size_spine s
 	  | size_term (ATerm (ARoot (_, s))) = 1 + size_spine s

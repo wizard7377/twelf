@@ -1,10 +1,10 @@
 (* Matching *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-signature MATCH =
+module type MATCH =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   (* matching *)
   exception Match of string
@@ -24,4 +24,4 @@ sig
      success and SOME(msg) for failure *)
   val instance' : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> string option
 
-end;  (* signature MATCH *)
+end;  (* module type MATCH *)

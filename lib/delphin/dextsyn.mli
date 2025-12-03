@@ -1,12 +1,12 @@
 (* Delphin external syntax *)
 
 
-signature DEXTSYN = 
+module type DEXTSYN = 
 sig
 
-(* structure Lexer : LEXER *)
+(* module Lexer : LEXER *)
 
-datatype Ast =  Ast of Decs
+type Ast =  Ast of Decs
 
 and Decs 
   = Empty

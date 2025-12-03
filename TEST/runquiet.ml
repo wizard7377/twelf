@@ -1,8 +1,8 @@
-structure Run = struct
+module Run = struct
 
-  val argv = CommandLine.arguments()
+  let argv = CommandLine.arguments()
 
-  val stat = RegressionTest.process(List.nth(argv,List.length(argv) - 1))
-  val _ = OS.Process.exit stat
+  let stat = RegressionTest.process(List.nth(argv,List.length(argv) - 1))
+  let _ = OS.Process.exit stat
 
 end

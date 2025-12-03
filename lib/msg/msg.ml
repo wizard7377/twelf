@@ -1,13 +1,13 @@
-signature MSG =
+module type MSG =
 sig
-    val message : string -> unit
-    val setMessageFunc : (string -> unit) -> unit
+    let message : string -> unit
+    let setMessageFunc : (string -> unit) -> unit
 end
 
-structure Msg :> MSG =
+module Msg :> MSG =
 struct
- val default = print 
- val messageFunc = ref (default)
+ let default = print 
+ let messageFunc = ref (default)
  fun setMessageFunc f = (messageFunc := f)
  fun message s = ((!messageFunc) s)
 end

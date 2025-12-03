@@ -1,20 +1,20 @@
 
-structure Syntax :> SYNTAX =
+module Syntax :> SYNTAX =
 struct 
 
-  structure L = Lib
+  module L = Lib
 
   type const = int 
 
-  datatype uni = Type 
+  type uni = Type 
                | Kind
                    
-  datatype head = Const of const
+  type head = Const of const
                 | BVar of int
 
-  datatype depend = No | Maybe
+  type depend = No | Maybe
 
-  datatype exp = Uni of uni
+  type exp = Uni of uni
                | Pi of pi
                | Lam of lam 
                | Root of head * spine
@@ -56,7 +56,7 @@ struct
                  def : exp,
                  uni : uni}
 
-  datatype dec = Decl of decl
+  type dec = Decl of decl
                | Def of def
                | Abbrev of abbrev
 
@@ -65,13 +65,13 @@ struct
   (* -------------------------------------------------------------------------- *)
 
 
-  structure Signat =
+  module Signat =
   struct 
-    structure T = Table
+    module T = Table
 
     type signat = dec T.table
 
-    val global_signat : dec T.table = T.table 100000 
+    let global_signat : dec T.table = T.table 100000 
     fun lookup c = T.lookup global_signat c
     fun insert (c,d) = ignore(T.insert global_signat (c,d))
     fun app f = T.appi f global_signat
@@ -79,19 +79,19 @@ struct
     fun reset() = T.clear global_signat
   end
 
-  structure Sig = Signat
+  module Sig = Signat
 
   (* -------------------------------------------------------------------------- *)
   (*  Util                                                                      *)
   (* -------------------------------------------------------------------------- *)
 
-  val expType = Uni Type
-  val expKind = Uni Kind
+  let expType = Uni Type
+  let expKind = Uni Kind
 
   fun bvar n = Root(BVar n,Nil)
-  val one = bvar 1
-  val shift = Shift 1
-  val id_sub = Shift 0
+  let one = bvar 1
+  let shift = Shift 1
+  let id_sub = Shift 0
 
   fun id (Decl decl) = #id decl
     | id (Def def) = #id def
@@ -133,7 +133,7 @@ struct
   (*  Eta                                                                       *)
   (* -------------------------------------------------------------------------- *)
 
-  datatype skel = Base
+  type skel = Base
                 | Arrow of skel * skel
 
   fun card Nil = 0
@@ -153,26 +153,26 @@ struct
   fun skeleton (ctx,Uni Type) = Base
     | skeleton (ctx,Root(Const a,S)) = 
       let
-        val aty = exp(Sig.lookup a)
-        val n = num_pi_quants aty
-        val n' = card S
+        let aty = exp(Sig.lookup a)
+        let n = num_pi_quants aty
+        let n' = card S
       in
         if n = n' then Base 
         else raise Fail "skeleton: not eta expanded"
       end
     | skeleton (ctx,Root(BVar i,S)) = 
       let
-        val aty = L.ith (i-1) ctx
-        val n = skel_length aty
-        val n' = card S
+        let aty = L.ith (i-1) ctx
+        let n = skel_length aty
+        let n' = card S
       in
         if n = n' then Base 
         else raise Fail "skeleton: not eta expanded"
       end
     | skeleton (ctx,Pi {arg,body,...}) = 
       let
-        val tau1 = skeleton(ctx,arg)
-        val tau2 = skeleton(ctx,body)
+        let tau1 = skeleton(ctx,arg)
+        let tau2 = skeleton(ctx,body)
       in
         Arrow(tau1,tau2)
       end
@@ -181,7 +181,7 @@ struct
   exception Fail_exp_skel of string * exp * skel 
 
   local
-    val changed = ref false
+    let changed = ref false
   in
 
 
@@ -215,40 +215,40 @@ struct
     fun long_exp (ctx,exp as Uni Type,Base) = exp
       | long_exp (ctx,Pi {arg,body,depend,var}, Base) =
         let
-          val arg' = long_exp(ctx,arg,Base) 
-          val tau = skeleton(ctx,arg')
-          val body' = long_exp (tau::ctx,body,Base) 
+          let arg' = long_exp(ctx,arg,Base) 
+          let tau = skeleton(ctx,arg')
+          let body' = long_exp (tau::ctx,body,Base) 
         in
           Pi {arg=arg',body=body',depend=depend,var=var}
         end
       | long_exp (ctx,Lam {var,body},Arrow(tau1,tau2)) =
         let
-          val body' = long_exp (tau1::ctx,body,tau2)
+          let body' = long_exp (tau1::ctx,body,tau2)
         in
           Lam {var=var,body=body'}
         end
       | long_exp (ctx,expr as Root(con as Const a,S),Base) =
         let
-          val tau = skeleton (ctx,exp(Sig.lookup a))
+          let tau = skeleton (ctx,exp(Sig.lookup a))
         in
           Root(con,long_spine(ctx,S,tau))
         end
       | long_exp (ctx,exp as Root(var as BVar i,S),Base) =
         let
-          val tau = L.ith (i-1) ctx (* indices start at 1 *)
+          let tau = L.ith (i-1) ctx (* indices start at 1 *)
         in
           Root(var,long_spine(ctx,S,tau))
         end
       | long_exp (ctx,Root(con as Const c,S),tau as Arrow(tau1,tau2)) =
         let
-          val S' = concat (shift_spine' S,one)
+          let S' = concat (shift_spine' S,one)
         in
           changed := true;
           long_exp (ctx,Lam {var=NONE,body=Root(con,S')},tau)
         end
       | long_exp (ctx,Root(BVar i,S),tau as Arrow(tau1,tau2)) =
         let
-          val S' = concat (shift_spine' S,one)
+          let S' = concat (shift_spine' S,one)
         in
           changed := true;
           long_exp (ctx,Lam {var=NONE,body=Root(BVar(i+1),S')},tau) 
@@ -258,8 +258,8 @@ struct
     and long_spine (ctx,Nil,Base) = Nil
       | long_spine (ctx,App(M,S),Arrow(tau1,tau2)) =
         let
-          val M' = long_exp(ctx,M,tau1) 
-          val S' = long_spine(ctx,S,tau2)
+          let M' = long_exp(ctx,M,tau1) 
+          let S' = long_spine(ctx,S,tau2)
         in
           App(M',S')
         end
@@ -268,9 +268,9 @@ struct
     fun eta_expand'(e1,Uni Kind) = e1
       | eta_expand'(e1,e2) = 
         let
-          val () = changed := false
-          val skel = skeleton([],e2)
-          val e2' = long_exp([],e1,skel)
+          let () = changed := false
+          let skel = skeleton([],e2)
+          let e2' = long_exp([],e1,skel)
         in
 (*           if !changed then L.warning "expression is not eta long" else (); *)
           e2'

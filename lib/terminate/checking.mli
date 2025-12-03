@@ -1,21 +1,21 @@
 (* Reasoning about orders *)
 (* Author: Brigitte Pientka *)
 
-signature CHECKING =
+module type CHECKING =
 sig
-  (*! structure IntSyn : INTSYN !*)
-  structure Order : ORDER
-  (*! structure Paths : PATHS !*)
+  (*! module IntSyn : INTSYN !*)
+  module Order : ORDER
+  (*! module Paths : PATHS !*)
     
   (* If Q marks all parameters in a context G we write   G : Q  *)
 
-  datatype Quantifier =        (* Quantifier to mark parameters *)
+  type Quantifier =        (* Quantifier to mark parameters *)
     All                  (* Q ::= All                     *)
   | Exist                (*     | Exist                     *)
   | And of Paths.occ     (*     | And                     *)
 
 
-  datatype 'a Predicate = 
+  type 'a Predicate = 
     Less of 'a * 'a
   | Leq of 'a * 'a 
   | Eq of 'a * 'a 
@@ -38,4 +38,4 @@ sig
    
   val deduce : IntSyn.dctx * qctx * rctx * order Predicate -> bool
  
-end;  (* signature CHECKING *)
+end;  (* module type CHECKING *)

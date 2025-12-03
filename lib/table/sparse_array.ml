@@ -1,13 +1,13 @@
 (* Sparse 1-Dimensional Arrays *)
 (* Author: Roberto Virga *)
 
-functor SparseArray (structure IntTable : TABLE where type key = int)
+let recctor SparseArray (module IntTable : TABLE where type key = int)
   :> SPARSE_ARRAY =
 struct
 
   type 'a array = {default : 'a, table : 'a IntTable.Table}
 
-  val size = 29;
+  let size = 29;
 
   fun unsafeSub ({table, default}, i) =
         case (IntTable.lookup table i)
@@ -32,7 +32,7 @@ struct
 
   fun extract (array, i, len) =
         if (i >= 0) andalso (len >= 0)
-        then Vector.tabulate (len, (fn off => unsafeSub (array, i+off)))
+        then Vector.tabulate (len, (fun off -> unsafeSub (array, i+off)))
         else raise General.Subscript
 
   fun copyVec {src, si, len, dst, di} =
@@ -46,7 +46,7 @@ struct
         if (i >= 0) andalso (len >= 0)
         then
           let
-            val imax = i+len
+            let imax = i+len
             fun app' i' =
                   if (i' < imax)
                   then
@@ -77,7 +77,7 @@ struct
         if (i >= 0) andalso (len >= 0)
         then
           let
-            val imax = i+len
+            let imax = i+len
             fun foldr' i' =
                   if (i' < imax)
                   then f(i', unsafeSub (array, i'), foldr' (i'+1))
@@ -91,7 +91,7 @@ struct
         if (i >= 0) andalso (len >= 0)
         then
           let
-            val imax = i+len
+            let imax = i+len
             fun modify' i' =
                   if (i' < imax)
                   then
@@ -104,4 +104,4 @@ struct
             modify' i
           end
         else raise General.Subscript
-end;  (* structure SparseArray *)
+end;  (* module SparseArray *)

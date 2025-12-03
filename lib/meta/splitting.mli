@@ -1,9 +1,9 @@
 (* Splitting : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-signature MTPSPLITTING = 
+module type MTPSPLITTING = 
 sig
-  structure StateSyn : STATESYN
+  module StateSyn : STATESYN
 
   exception Error of string
 
@@ -15,4 +15,4 @@ sig
   val menu : operator -> string
   val index : operator -> int
   val compare : operator * operator -> order
-end;  (* signature MTPSPLITTING *)
+end;  (* module type MTPSPLITTING *)

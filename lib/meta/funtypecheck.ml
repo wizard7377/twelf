@@ -1,36 +1,36 @@
  (* Type checking for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-functor FunTypeCheck ((*! structure FunSyn' : FUNSYN !*)
-                      structure StateSyn' : STATESYN
+let recctor FunTypeCheck ((*! module FunSyn' : FUNSYN !*)
+                      module StateSyn' : STATESYN
                       (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                      structure Abstract : ABSTRACT
+                      module Abstract : ABSTRACT
                       (*! sharing Abstract.IntSyn = FunSyn'.IntSyn !*)
-                      structure TypeCheck : TYPECHECK
+                      module TypeCheck : TYPECHECK
                       (*! sharing TypeCheck.IntSyn = FunSyn'.IntSyn !*)
-                      structure Conv : CONV
+                      module Conv : CONV
                       (*! sharing Conv.IntSyn = FunSyn'.IntSyn !*)
-                      structure Whnf : WHNF
+                      module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = FunSyn'.IntSyn !*)
-                      structure Print : PRINT
+                      module Print : PRINT
                       (*! sharing Print.IntSyn = FunSyn'.IntSyn !*)
-                      structure Subordinate : SUBORDINATE
+                      module Subordinate : SUBORDINATE
                       (*! sharing Subordinate.IntSyn = FunSyn'.IntSyn !*)
-                      structure Weaken : WEAKEN
+                      module Weaken : WEAKEN
                       (*! sharing Weaken.IntSyn = FunSyn'.IntSyn   !*)
-                      structure FunPrint : FUNPRINT
+                      module FunPrint : FUNPRINT
                       (*! sharing FunPrint.FunSyn = FunSyn' !*)
                           ) : FUNTYPECHECK=
 struct
-  (*! structure FunSyn = FunSyn' !*)
-  structure StateSyn = StateSyn'
+  (*! module FunSyn = FunSyn' !*)
+  module StateSyn = StateSyn'
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure F = FunSyn
-    structure S = StateSyn
+    module I = IntSyn
+    module F = FunSyn
+    module S = StateSyn
 
     (* conv ((G, s), (G', s')) = B
 
@@ -45,8 +45,8 @@ struct
           | conv ((I.Decl (G, I.Dec (_, V)), s),
                   (I.Decl (G', I.Dec (_, V')), s')) =
             let
-              val (s1, s1') = conv ((G, s), (G', s'))
-              val ps as (s2, s2') = (I.dot1 s1, I.dot1 s1')
+              let (s1, s1') = conv ((G, s), (G', s'))
+              let ps as (s2, s2') = (I.dot1 s1, I.dot1 s1')
             in
               if Conv.conv ((V, s1), (V', s1')) then ps
               else raise Conv
@@ -114,13 +114,13 @@ struct
     *)
     fun raiseSub (G, Psi') =
       let
-        val n = I.ctxLength G
-        val m = I.ctxLength Psi'
+        let n = I.ctxLength G
+        let m = I.ctxLength Psi'
 
         fun args (0, a, S) = S
           | args (n', a, S) =
             let
-              val I.Dec (_, V) = I.ctxDec (G, n')
+              let I.Dec (_, V) = I.ctxDec (G, n')
             in
               if Subordinate.belowEq (I.targetFam V, a)
                 then args (n'-1, a, I.App (I.Root (I.BVar n', I.Nil), S))
@@ -129,7 +129,7 @@ struct
 
         fun term m' =
             let
-              val I.Dec (_, V) = I.ctxDec (Psi', m')
+              let I.Dec (_, V) = I.ctxDec (Psi', m')
             in
               I.Exp (I.Root (I.BVar (n+m'), args (n, I.targetFam (V), I.Nil)))
             end
@@ -162,10 +162,10 @@ struct
         fun raiseType' (Psi1, nil) = nil
           | raiseType' (Psi1, F.Prim (D as I.Dec (x, V)) :: Psi1') =
             let
-              val s = raiseSub (G, Psi1)
-              val Vn = Whnf.normalize (V, s)
-              val a = I.targetFam Vn
-              val D' = I.Dec (x, raiseType'' (G, Vn, a))
+              let s = raiseSub (G, Psi1)
+              let Vn = Whnf.normalize (V, s)
+              let a = I.targetFam Vn
+              let D' = I.Dec (x, raiseType'' (G, Vn, a))
             in
               F.Prim (D') :: (raiseType'(I.Decl (Psi1, D),  Psi1'))
             end
@@ -258,7 +258,7 @@ struct
            check(Psi, Delta, P2, (F2', s')))
       | check (Psi, Delta, F.Let (Ds, P), (F', s')) =
         let
-          val (Psi', Delta', s'') = assume (Psi, Delta, Ds)
+          let (Psi', Delta', s'') = assume (Psi, Delta, Ds)
         in
           check (extend (Psi, Psi'), extend (Delta, Delta'), P, (F', I.comp (s', s'')))
         end
@@ -282,9 +282,9 @@ struct
         (case infer (Delta, kk) of
           (F.MDec (name, F.Ex (D, F)), s) =>
             let
-              val LD = F.Prim (I.decSub (D, s))
-              val DD = F.MDec (name, F.forSub (F, I.dot1 s))
-              val (Psi', Delta', s') = assume (I.Decl (Psi, LD),
+              let LD = F.Prim (I.decSub (D, s))
+              let DD = F.MDec (name, F.forSub (F, I.dot1 s))
+              let (Psi', Delta', s') = assume (I.Decl (Psi, LD),
                                                I.Decl (shift Delta, DD), Ds)
             in
               (LD :: Psi', F.mdecSub (DD, s') :: Delta', I.comp (I.shift, s'))
@@ -293,8 +293,8 @@ struct
       | assume (Psi, Delta, F.New (B, Ds)) =
         let
           (* check B valid context block       <-------------- omission *)
-          val _ = TypeCheck.typeCheck (F.makectx (I.Decl (Psi, F.Block B)), (I.Uni I.Type, I.Uni I.Kind))
-          val (Psi', Delta', s') =  assume (I.Decl (Psi, F.Block B),
+          let _ = TypeCheck.typeCheck (F.makectx (I.Decl (Psi, F.Block B)), (I.Uni I.Type, I.Uni I.Kind))
+          let (Psi', Delta', s') =  assume (I.Decl (Psi, F.Block B),
                                             shiftBlock (B, Delta), Ds)
         in
           (raiseType (B, Psi'), raiseM (B, Delta'),  s')
@@ -303,7 +303,7 @@ struct
         (case infer (Delta, kk) of
            (F.MDec (name, F.All (F.Prim (I.Dec (_, V)), F)), s) =>
              let
-               val _ = TypeCheck.typeCheck (F.makectx Psi, (U, I.EClo (V, s)))
+               let _ = TypeCheck.typeCheck (F.makectx Psi, (U, I.EClo (V, s)))
                  handle TypeCheck.Error msg =>
                    raise Error (msg ^  " " ^
                                 Print.expToString (F.makectx Psi, U) ^
@@ -312,8 +312,8 @@ struct
                                                    TypeCheck.infer' (F.makectx Psi, U)) ^
                                 " expected " ^
                                 Print.expToString (F.makectx Psi, I.EClo (V, s)))
-               val DD = F.MDec (name, F.forSub (F, I.Dot (I.Exp (U), s)))
-               val (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
+               let DD = F.MDec (name, F.forSub (F, I.Dot (I.Exp (U), s)))
+               let (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
              in
                (Psi', F.mdecSub (DD, s') :: Delta', s')
              end
@@ -324,9 +324,9 @@ struct
         (case infer (Delta, kk) of
            (F.MDec (name, F.All (F.Block (F.CtxBlock (l, G)), F)), s) =>
              let
-               val _ = validBlock (Psi, k, (l, G))
-               val DD = F.MDec (name, F.forSub (F, psub(k, G, s)))
-               val (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
+               let _ = validBlock (Psi, k, (l, G))
+               let DD = F.MDec (name, F.forSub (F, psub(k, G, s)))
+               let (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
              in
                (Psi', F.mdecSub (DD, s') :: Delta', s')
              end
@@ -335,8 +335,8 @@ struct
         (case infer (Delta, kk) of
            (F.MDec (name, F.And (F1, F2)), s) =>
              let
-               val DD = F.MDec (name, F.forSub (F1, s))
-               val (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
+               let DD = F.MDec (name, F.forSub (F1, s))
+               let (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
              in
                (Psi', F.mdecSub (DD, s') :: Delta', s')
              end
@@ -345,18 +345,18 @@ struct
         (case infer (Delta, kk) of
            (F.MDec (name, F.And (F1, F2)), s) =>
              let
-               val DD = F.MDec (name, F.forSub (F2, s))
-               val (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
+               let DD = F.MDec (name, F.forSub (F2, s))
+               let (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
              in
                (Psi', F.mdecSub (DD, s') :: Delta', s')
              end
          | _ => raise Error "Typecheck Error: Declaration Left")
       | assume (Psi, Delta, F.Lemma (cc, Ds)) =
         let
-          val F.LemmaDec (names, _, F) = F.lemmaLookup cc
-          val name = foldr op^ "" names
-          val DD = F.MDec (SOME name, F)
-          val (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
+          let F.LemmaDec (names, _, F) = F.lemmaLookup cc
+          let name = foldr op^ "" names
+          let DD = F.MDec (SOME name, F)
+          let (Psi', Delta', s') = assume (Psi, I.Decl (Delta, DD), Ds)
         in
           (Psi', F.mdecSub (DD, s') :: Delta', s')
         end
@@ -374,7 +374,7 @@ struct
         else raise Error "Substitution not well-typed"
       | checkSub (I.Decl (Psi, F.Block (F.CtxBlock (_, G))), I.Shift k, I.Null) =
         let
-          val g = I.ctxLength G
+          let g = I.ctxLength G
         in
           if k>=g then checkSub (Psi, I.Shift (k-g), I.Null)
           else raise Error "Substitution not well-typed"
@@ -383,8 +383,8 @@ struct
           checkSub (Psi', I.Dot (I.Idx (k+1), I.Shift (k+1)), Psi)
       | checkSub (Psi', I.Dot (I.Idx k, s'), I.Decl (Psi, F.Prim (I.Dec (_, V2)))) =
         let
-          val G' = F.makectx Psi'
-          val I.Dec (_, V1) = I.ctxDec (G', k)
+          let G' = F.makectx Psi'
+          let I.Dec (_, V1) = I.ctxDec (G', k)
         in
           if Conv.conv ((V1, I.id), (V2, s')) then checkSub (Psi', s', Psi)
           else raise Error ("Substitution not well-typed \n  found: " ^
@@ -393,14 +393,14 @@ struct
         end
       | checkSub (Psi', I.Dot (I.Exp (U), s'), I.Decl (Psi, F.Prim (I.Dec (_, V2)))) =
         let
-          val G' = F.makectx Psi'
-          val _ = TypeCheck.typeCheck (G', (U, I.EClo (V2, s')))
+          let G' = F.makectx Psi'
+          let _ = TypeCheck.typeCheck (G', (U, I.EClo (V2, s')))
         in
           checkSub (Psi', s', Psi)
         end
       | checkSub (Psi', s as I.Dot (I.Idx k, _), I.Decl (Psi, F.Block (F.CtxBlock (l1, G)))) =
         let
-          val (F.Block (F.CtxBlock (l2, G')), w) = F.lfctxLFDec (Psi', k)
+          let (F.Block (F.CtxBlock (l2, G')), w) = F.lfctxLFDec (Psi', k)
           (* check that l1 = l2     <----------------------- omission *)
 
           (* checkSub' ((G', w), s, G, m) = ()
@@ -487,9 +487,9 @@ struct
 
 
   in
-    val isFor = isFor
-    val check = checkRec
-    val checkSub = checkSub
-    val isState = isState
+    let isFor = isFor
+    let check = checkRec
+    let checkSub = checkSub
+    let isState = isState
   end
 end (* Signature FUNTYPECHECK *)

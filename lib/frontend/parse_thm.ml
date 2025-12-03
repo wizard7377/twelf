@@ -2,26 +2,26 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor ParseThm
-  ((*! structure Paths : PATHS *)
-   (*! structure Parsing' : PARSING !*)
+let recctor ParseThm
+  ((*! module Paths : PATHS *)
+   (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
-   structure ThmExtSyn' : THMEXTSYN
+   module ThmExtSyn' : THMEXTSYN
    (*! sharing ThmExtSyn'.Paths = Paths !*)
    (*! sharing ThmExtSyn'.ExtSyn.Paths = Paths !*)
-   structure ParseTerm : PARSE_TERM
+   module ParseTerm : PARSE_TERM
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ThmExtSyn'.ExtSyn)
      : PARSE_THM =
 struct
-  (*! structure Parsing = Parsing' !*)
-  structure ThmExtSyn = ThmExtSyn'
+  (*! module Parsing = Parsing' !*)
+  module ThmExtSyn = ThmExtSyn'
 
   local
-    structure L = Lexer
-    structure LS = Lexer.Stream
-    structure E = ThmExtSyn
-    structure P = Paths
+    module L = Lexer
+    module LS = Lexer.Stream
+    module E = ThmExtSyn
+    module P = Paths
 
     (*--------------------------*)
     (* %terminates declarations *)
@@ -59,7 +59,7 @@ struct
     (* terminated by non-identifier token *)
     fun parseIds (LS.Cons ((L.ID (L.Upper, id), r), s')) =
         let
-          val (ids, f') = parseIds (LS.expose s')
+          let (ids, f') = parseIds (LS.expose s')
         in
           (id :: ids, f')
         end
@@ -71,7 +71,7 @@ struct
     (* terminated by token different from underscore or id *)
     fun parseArgPat (LS.Cons ((L.ID (L.Upper, id), r), s')) =
         let
-          val (idOpts, f') = parseArgPat (LS.expose s')
+          let (idOpts, f') = parseArgPat (LS.expose s')
         in
           (SOME id :: idOpts, f')
         end
@@ -79,7 +79,7 @@ struct
         Parsing.error (r, "Expected upper case identifier, found " ^ id)
       | parseArgPat (LS.Cons ((L.UNDERSCORE, r), s')) =
         let
-          val (idOpts, f') = parseArgPat (LS.expose s')
+          let (idOpts, f') = parseArgPat (LS.expose s')
         in
           (NONE :: idOpts, f')
         end
@@ -88,7 +88,7 @@ struct
     (* parseCallPat "id _id ... _id" = (id, region, [idOpt,...,idOpt]) *)
     fun parseCallPat (LS.Cons ((L.ID (_, id), r), s')) =
         let
-          val (idOpts, f' as LS.Cons ((_ ,r'), _)) = parseArgPat (LS.expose s')
+          let (idOpts, f' as LS.Cons ((_ ,r'), _)) = parseArgPat (LS.expose s')
         in
           ((id, idOpts, P.join (r, r')), f')
         end
@@ -98,8 +98,8 @@ struct
     (* parseCallPats "(id _id ... _id)...(id _id ... _id)." *)
     fun parseCallPats (LS.Cons ((L.LPAREN, r), s')) =
         let
-          val (cpat, f') = parseCallPat (LS.expose s')
-          val (cpats, f'') = parseCallPats (stripRParen f')
+          let (cpat, f') = parseCallPat (LS.expose s')
+          let (cpats, f'') = parseCallPats (stripRParen f')
         in
           (cpat::cpats, f'')
         end
@@ -130,7 +130,7 @@ struct
     and parseOrders (f) = parseOrders' (parseOrderOpt f)
     and parseOrders' (SOME(order), f') =
         let
-          val (orders, f'') = parseOrders f'
+          let (orders, f'') = parseOrders f'
         in
           (order::orders, f'')
         end
@@ -147,8 +147,8 @@ struct
     (* parses Termination Declaration, followed by `.' *)
     fun parseTDecl f =
         let
-          val (order, f') = parseOrder f
-          val (callpats, f'') = parseCallPats f'
+          let (order, f') = parseOrder f
+          let (callpats, f'') = parseCallPats f'
         in
           (E.tdecl (order, E.callpats callpats), f'')
         end
@@ -172,8 +172,8 @@ struct
     (* parsePDecl "id nat order callpats." *)
     fun parsePDecl (LS.Cons ((L.ID (_, id), r), s')) =
         let
-          val depth = idToNat (r, id)
-          val (t', f') = parseTDecl (LS.expose s')
+          let depth = idToNat (r, id)
+          let (t', f') = parseTDecl (LS.expose s')
         in
           (E.prove (depth, t'), f')
         end
@@ -192,8 +192,8 @@ struct
     (* parseEDecl "id nat order callpats." *)
     fun parseEDecl (LS.Cons ((L.ID (_, id), r), s')) =
         let
-          val depth = idToNat (r, id)
-          val (t', f') = parseTDecl (LS.expose s')
+          let depth = idToNat (r, id)
+          let (t', f') = parseTDecl (LS.expose s')
         in
           (E.establish (depth, t'), f')
         end
@@ -211,7 +211,7 @@ struct
     (* parseAssert' "%assert cp" *)
     fun parseAssert' (LS.Cons ((L.ASSERT, r), s')) =
         let
-          val (callpats, f'') = parseCallPats (LS.expose s')
+          let (callpats, f'') = parseCallPats (LS.expose s')
         in
           (E.assert (E.callpats callpats), f'')
         end
@@ -227,9 +227,9 @@ struct
     (* parseDec "{id:term} | {id}" *)
     and parseDec (r, f) =
         let
-          val ((x, yOpt), f') = ParseTerm.parseDec' f
-          val (f'', r2) = stripRBrace f'
-          val dec = (case yOpt
+          let ((x, yOpt), f') = ParseTerm.parseDec' f
+          let (f'', r2) = stripRBrace f'
+          let dec = (case yOpt
                        of NONE => E.ExtSyn.dec0 (x, P.join (r, r2))
                         | SOME y => E.ExtSyn.dec (x, y, P.join (r, r2)))
         in
@@ -239,7 +239,7 @@ struct
     (* parseDecs' "{id:term}...{id:term}", zero or more, ":term" optional *)
     and parseDecs' (Drs, LS.Cons (BS as ((L.LBRACE, r), s'))) =
         let
-          val (Dr, f') = parseDec (r, LS.expose s')
+          let (Dr, f') = parseDec (r, LS.expose s')
         in
           parseDecs' (E.decl (Drs, Dr), f')
         end
@@ -248,7 +248,7 @@ struct
     (* parseDecs "{id:term}...{id:term}", one ore more, ":term" optional *)
     and parseDecs (LS.Cons (BS as ((L.LBRACE, r), s'))) =
         let
-          val (Dr, f') = parseDec (r, LS.expose s')
+          let (Dr, f') = parseDec (r, LS.expose s')
         in
           parseDecs' (E.decl (E.null, Dr), f')
         end
@@ -262,14 +262,14 @@ struct
 
     fun parseSome (gbs, LS.Cons ((L.ID (_, "some"), r), s')) =
         let
-          val (g1, f') = parseDecs (LS.expose s')
-          val (g2, f'') = parsePi f'
+          let (g1, f') = parseDecs (LS.expose s')
+          let (g2, f'') = parsePi f'
         in
           parseSome' ((g1,g2)::gbs, f'')
         end
       | parseSome (gbs, f as LS.Cons ((L.ID (_, "pi"), r), s')) =
         let
-          val (g2, f') = parsePi f
+          let (g2, f') = parsePi f
         in
           parseSome' ((E.null, g2)::gbs, f')
         end
@@ -292,28 +292,28 @@ struct
 
     fun forallG ((gbs', f'), r) =
         let
-          val (t'', f'') = parseForallStar f'
+          let (t'', f'') = parseForallStar f'
         in
           (E.forallG (gbs', t''), f'')
         end
 
     and forallStar ((g', f'), r) =
         let
-          val (t'', f'') = parseForall f'
+          let (t'', f'') = parseForall f'
         in
           (E.forallStar (g', t''),  f'')
         end
 
     and forall ((g', f'), r) =
         let
-          val (t'', f'') = parseExists f'
+          let (t'', f'') = parseExists f'
         in
           (E.forall (g', t''), f'')
         end
 
     and exists ((g', f'), r) =
         let
-          val (t'', f'') = parseTrue f'
+          let (t'', f'') = parseTrue f'
         in
           (E.exists (g', t''), f'')
         end
@@ -380,7 +380,7 @@ struct
     (* parseThDec "id : mform" *)
     fun parseThDec (LS.Cons ((L.ID (_, id), r), s')) =
         let
-          val (t', f') = parseColon (LS.expose s')
+          let (t', f') = parseColon (LS.expose s')
         in
           (E.dec (id, t'), f')
         end
@@ -407,10 +407,10 @@ struct
     (* parses Reducer Declaration, followed by `.' *)
     fun parseRDecl f =
         let
-          val (oOut, f1) = parseOrder f
-          val (p, f2) = parsePredicate f1
-          val (oIn, f3) = parseOrder f2
-          val (callpats, f4) = parseCallPats f3
+          let (oOut, f1) = parseOrder f
+          let (p, f2) = parsePredicate f1
+          let (oIn, f3) = parseOrder f2
+          let (callpats, f4) = parseCallPats f3
         in
             (E.rdecl (p, oOut, oIn, E.callpats callpats), f4)
         end
@@ -444,9 +444,9 @@ struct
 
    fun parseWDecl f =
        let
-(*       val (GBs, f1) = parseGBs f *)
-         val (qids, f1) = ParseTerm.parseQualIds' f
-         val (callpats,f2) = parseCallPats f1
+(*       let (GBs, f1) = parseGBs f *)
+         let (qids, f1) = ParseTerm.parseQualIds' f
+         let (callpats,f2) = parseCallPats f1
        in
          (E.wdecl (qids, E.callpats callpats), f2)
        end
@@ -456,17 +456,17 @@ struct
 
 
   in
-    val parseTotal' = parseTotal'
-    val parseTerminates' = parseTerminates'
-    val parseTheorem' = parseForallStar
-    val parseTheoremDec' = parseTheoremDec'
-    val parseProve' = parseProve'
-    val parseEstablish' = parseEstablish'
-    val parseAssert' = parseAssert'
-    val parseReduces' = parseReduces'           (*  -bp  6/05/99.*)
-    val parseTabled' = parseTabled'             (*  -bp 20/11/01.*)
-    val parseKeepTable' = parseKeepTable'               (*  -bp 20/11/01.*)
-    val parseWorlds' = parseWorlds'
+    let parseTotal' = parseTotal'
+    let parseTerminates' = parseTerminates'
+    let parseTheorem' = parseForallStar
+    let parseTheoremDec' = parseTheoremDec'
+    let parseProve' = parseProve'
+    let parseEstablish' = parseEstablish'
+    let parseAssert' = parseAssert'
+    let parseReduces' = parseReduces'           (*  -bp  6/05/99.*)
+    let parseTabled' = parseTabled'             (*  -bp 20/11/01.*)
+    let parseKeepTable' = parseKeepTable'               (*  -bp 20/11/01.*)
+    let parseWorlds' = parseWorlds'
   end  (* local ... in *)
 
 end;  (* functor Parser *)

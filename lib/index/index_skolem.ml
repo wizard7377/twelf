@@ -2,16 +2,16 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor IndexSkolem (structure Global : GLOBAL
-                     structure Queue : QUEUE
-                     (*! structure IntSyn' : INTSYN !*)
+let recctor IndexSkolem (module Global : GLOBAL
+                     module Queue : QUEUE
+                     (*! module IntSyn' : INTSYN !*)
                        )
   : INDEX =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   local
-    structure I = IntSyn
+    module I = IntSyn
 
     fun cidFromHead (I.Const c) = c
       | cidFromHead (I.Def c) = c
@@ -24,13 +24,13 @@ struct
        where c1,...,cn is a queue consisting of all constants with
        target family a
     *)
-    val indexArray : (IntSyn.Head Queue.queue) Array.array =
+    let indexArray : (IntSyn.Head Queue.queue) Array.array =
         Array.array (Global.maxCid + 1, Queue.empty)
 
     (* reset () = ()
        Empties index array
     *)
-    fun reset () = Array.modify (fn _ => Queue.empty) indexArray
+    fun reset () = Array.modify (fun _ -> Queue.empty) indexArray
 
     (* update (a, c) = ()
        inserts c into the index queue for family a
@@ -72,7 +72,7 @@ struct
 
     fun resetFrom mark =
         let
-          val (limit, _) = I.sgnSize ()
+          let (limit, _) = I.sgnSize ()
           fun iter i = if i < mark then ()
                        else (uninstall i;
                              Array.update (indexArray, i, Queue.empty))
@@ -98,10 +98,10 @@ struct
 
   in
 
-    val reset = reset
-    val resetFrom = resetFrom
-    val install = install
-    val lookup = lookup
+    let reset = reset
+    let resetFrom = resetFrom
+    let install = install
+    let lookup = lookup
 
   end (* local *)
 

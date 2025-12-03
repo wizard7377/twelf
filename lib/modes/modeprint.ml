@@ -1,22 +1,22 @@
 (* Printing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-functor ModePrint ((*! structure ModeSyn' : MODESYN !*)
-                   structure Names : NAMES
+let recctor ModePrint ((*! module ModeSyn' : MODESYN !*)
+                   module Names : NAMES
                    (*! sharing Names.IntSyn = ModeSyn'.IntSyn !*)
-                   structure Formatter : FORMATTER
-                   structure Print : PRINT
+                   module Formatter : FORMATTER
+                   module Print : PRINT
                    (*! sharing Print.IntSyn = ModeSyn'.IntSyn !*)
                      sharing Print.Formatter = Formatter)
   : MODEPRINT =
 struct
-  (* structure ModeSyn = ModeSyn' *)
+  (* module ModeSyn = ModeSyn' *)
 
   local
-    structure I = IntSyn
-    structure M = ModeSyn
-    structure F = Formatter
-    structure P = Print
+    module I = IntSyn
+    module M = ModeSyn
+    module F = Formatter
+    module P = Print
 
     fun modeToString M.Plus = "+"
       | modeToString M.Star = "*"
@@ -39,15 +39,15 @@ struct
 
     fun fmtModeDec (cid, mS) =
         let
-          val V = I.constType cid
+          let V = I.constType cid
           fun fmtModeDec' (G, _, M.Mnil) =
                 [F.String "(",
                  P.formatExp (G, I.Root (I.Const (cid), makeSpine G)),
                  F.String ")"]
             | fmtModeDec' (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) =
                 let
-                  val D' = nameDec (D, marg)
-                  val D'' = Names.decEName (G, D')
+                  let D' = nameDec (D, marg)
+                  let D'' = Names.decEName (G, D')
                 in
                   [F.String (argToString marg), F.String "{", P.formatDec (G, D''),
                    F.String "}", F.Break] @ (fmtModeDec' (I.Decl (G, D''), V', S))
@@ -63,8 +63,8 @@ struct
     fun modeToString cM = F.makestring_fmt (fmtModeDec cM)
     fun modesToString mdecs = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
   in
-    val modeToString = modeToString
-    val modesToString = modesToString
+    let modeToString = modeToString
+    let modesToString = modesToString
   end (* local *)
 
 end; (* functor ModePrint *)

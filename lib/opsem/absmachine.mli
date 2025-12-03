@@ -3,13 +3,13 @@
 (* Modified: Jeff Polakow *)
 (* Modified: Frank Pfenning *)
 
-signature ABSMACHINE =
+module type ABSMACHINE =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN !*)
 
   val solve     : (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
                   * (IntSyn.Exp -> unit) -> unit
 
-end;  (* signature ABSMACHINE *)
+end;  (* module type ABSMACHINE *)

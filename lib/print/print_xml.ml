@@ -3,28 +3,28 @@
 (* Modified: Jeff Polakow *)
 (* Modified: Carsten Schuermann *)
 
-functor PrintXML
-  ((*! structure IntSyn' : INTSYN !*)
-   structure Whnf : WHNF
+let recctor PrintXML
+  ((*! module IntSyn' : INTSYN !*)
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   structure Constraints : CONSTRAINTS
+   module Constraints : CONSTRAINTS
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Formatter' : FORMATTER)
+   module Formatter' : FORMATTER)
   : PRINT_XML =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-structure Formatter = Formatter'
+  (*! module IntSyn = IntSyn' !*)
+module Formatter = Formatter'
 
 local
   (* Shorthands *)
-  structure I = IntSyn
-  structure F = Formatter
-  val Str = F.String
+  module I = IntSyn
+  module F = Formatter
+  let Str = F.String
   fun Str0 (s, n) = F.String0 n s
   fun Name (x) = F.String ("\"" ^ x ^ "\"")
   fun Integer (n) = F.String ("\"" ^ Int.toString n ^ "\"")
@@ -37,7 +37,7 @@ local
   *)
   fun fmtCon (G, I.BVar(n)) =
       let
-        val I.Dec (SOME n, _) = I.ctxDec (G, n)
+        let I.Dec (SOME n, _) = I.ctxDec (G, n)
       in
         sexp [Str ("<Var name = \"" ^ n ^ "\"/>")]
       end
@@ -64,15 +64,15 @@ local
     | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
-                         val D' = Names.decLUName (G, D) (* could sometimes be EName *)
-                         val G' = I.Decl (G, D')
+                         let D' = Names.decLUName (G, D) (* could sometimes be EName *)
+                         let G' = I.Decl (G, D')
                        in
                          sexp [Str "<Pi>", F.Break, fmtDec (G, (D', s)),
                                F.Break, (* Str "tw*maybe", F.Break, *) fmtExp (G', (V2, I.dot1 s)),
                                Str "</Pi>"]
                        end
           | I.No => let
-                       val G' = I.Decl (G, D)
+                       let G' = I.Decl (G, D)
                     in
                       sexp [Str "<Arrow>", F.Break, fmtDec' (G, (D, s)),
                             F.Break, (* Str "tw*no", F.Break,*) fmtExp (G', (V2, I.dot1 s)),
@@ -85,8 +85,8 @@ local
                F.Break, sexp (fmts), Str "</App>"])
     | fmtExpW (G, (I.Lam(D, U), s)) =
       let
-        val D' = Names.decLUName (G, D)
-        val G' = I.Decl (G, D')
+        let D' = Names.decLUName (G, D)
+        let G' = I.Decl (G, D')
       in
         sexp [Str "<Lam>", F.Break, fmtDec (G, (D', s)),
               F.Break, fmtExp (G', (U, I.dot1 s)), Str "</Lam>"]
@@ -127,7 +127,7 @@ local
   *)
   fun fmtConDec (I.ConDec (name, parent, imp, _, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        let _ = Names.varReset IntSyn.Null
       in
         sexp [Str "<Condec name=",  Name (name), F.Break, Str "implicit=",
               Integer (imp), Str ">", F.Break, fmtExp (I.Null, (V, I.id)),
@@ -137,7 +137,7 @@ local
       Str ("<! Skipping Skolem constant " ^ name ^ ">")
     | fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        let _ = Names.varReset IntSyn.Null
       in
         sexp [Str "<Condef name=", Name (name), F.Break, Str "implicit=",
               Integer (imp), Str ">", F.Break, fmtExp (I.Null, (U, I.id)),
@@ -146,7 +146,7 @@ local
       end
     | fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        let _ = Names.varReset IntSyn.Null
       in
         sexp [Str "<Abbrevdef name=", Name (name), Str ">", F.Break,
               Integer (imp), F.Break, fmtExp (I.Null, (U, I.id)),
@@ -192,13 +192,13 @@ in
 
   fun printSgnToFile path filename =
       let
-        val file = TextIO.openOut (path ^ filename)
-        val _ = TextIO.output (file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!-- nsgmls ex.xml -->\n<!DOCTYPE Signature SYSTEM \"lf.dtd\">\n<Signature>")
+        let file = TextIO.openOut (path ^ filename)
+        let _ = TextIO.output (file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!-- nsgmls ex.xml -->\n<!DOCTYPE Signature SYSTEM \"lf.dtd\">\n<Signature>")
 
-        val _ = IntSyn.sgnApp (fn (cid) => (TextIO.output (file, F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
+        let _ = IntSyn.sgnApp (fn (cid) => (TextIO.output (file, F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
                                   TextIO.output (file, "\n")))
-        val _ = TextIO.output (file, "</Signature>")
-        val _ = TextIO.closeOut file
+        let _ = TextIO.output (file, "</Signature>")
+        let _ = TextIO.closeOut file
 
       in
         ()

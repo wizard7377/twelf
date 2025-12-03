@@ -1,5 +1,5 @@
 
-signature TIMERS =
+module type TIMERS =
 sig
 
   (* Programming interface *)

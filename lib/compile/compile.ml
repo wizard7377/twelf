@@ -3,27 +3,27 @@
 (* Modified: Jeff Polakow, Carsten Schuermann, Larry Greenfield,
              Roberto Virga, Brigitte Pientka *)
 
-functor Compile ((*! structure IntSyn' : INTSYN !*)
-                 (*! structure CompSyn' : COMPSYN !*)
+let recctor Compile ((*! module IntSyn' : INTSYN !*)
+                 (*! module CompSyn' : COMPSYN !*)
                  (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                 structure Whnf : WHNF
+                 module Whnf : WHNF
                  (*! sharing Whnf.IntSyn = IntSyn' !*)
-                 structure TypeCheck : TYPECHECK
+                 module TypeCheck : TYPECHECK
                   (* sharing TypeCheck.IntSyn = IntSyn' !*)
-                 structure SubTree : SUBTREE
+                 module SubTree : SUBTREE
                   (*! sharing SubTree.IntSyn = IntSyn' !*)
                   (*! sharing SubTree.CompSyn = CompSyn' !*)
 
                     (* CPrint currently unused *)
-                 structure CPrint : CPRINT
+                 module CPrint : CPRINT
                  (*! sharing CPrint.IntSyn = IntSyn' !*)
                  (*! sharing CPrint.CompSyn = CompSyn' !*)
 
                    (* CPrint currently unused *)
-                 structure Print : PRINT
+                 module Print : PRINT
                  (*! sharing Print.IntSyn = IntSyn' !*)
 
-                 structure Names : NAMES
+                 module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
                    )
   : COMPILE =
@@ -33,18 +33,18 @@ struct
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure T = Tomega
-    structure C = CompSyn
+    module I = IntSyn
+    module T = Tomega
+    module C = CompSyn
   in
 
-    datatype Duplicates = BVAR of int | FGN | DEF of int
+    type Duplicates = BVAR of int | FGN | DEF of int
 
     fun notCS (I.FromCS) = false
       | notCS _ = true
 
-   datatype Opt = datatype CompSyn.Opt
-   val optimize  = CompSyn.optimize
+   type Opt = type CompSyn.Opt
+   let optimize  = CompSyn.optimize
 
     fun cidFromHead (I.Const c) = c
       | cidFromHead (I.Def c) = c
@@ -123,14 +123,14 @@ struct
    fun collectSpine(I.Nil, K, Vars, depth) = (K, Vars)
      | collectSpine(I.App(U, S), K, Vars, depth) =
        let
-         val (K', Vars') = collectExp(U, K, Vars, depth)
+         let (K', Vars') = collectExp(U, K, Vars, depth)
        in
          collectSpine(S, K', Vars', depth)
        end
 
    and collectExp (I.Root(h as I.BVar k, S), K, Vars, depth) =
        let
-         val (K', Vars', replaced) = collectHead (h, S, K, Vars, depth)
+         let (K', Vars', replaced) = collectHead (h, S, K, Vars, depth)
        in
          if replaced
            then (K', Vars')
@@ -182,7 +182,7 @@ struct
         (* calling normalize here because U may not be normal *)
         (* this is overkill and could be very expensive for deeply nested foreign exps *)
         (* Tue Apr  2 12:10:24 2002 -fp -bp *)
-        I.FgnExpStd.Map.apply csfe (fn U => shiftExp(Whnf.normalize (U, I.id), depth, total))
+        I.FgnExpStd.Map.apply csfe (fun U -> shiftExp(Whnf.normalize (U, I.id), depth, total))
   and shiftSpine (I.Nil, _, _) = I.Nil
     | shiftSpine (I.App(U, S), depth, total) =
         I.App(shiftExp(U, depth, total), shiftSpine(S, depth, total))
@@ -242,25 +242,25 @@ struct
   *)
    fun linearExp (Gl, U as I.Root(h as I.Def k, S), left, Vars, depth, total, eqns) =
        let
-         val N = I.Root(I.BVar(left + depth), I.Nil)
-         val U' = shiftExp(U, depth, total)
+         let N = I.Root(I.BVar(left + depth), I.Nil)
+         let U' = shiftExp(U, depth, total)
        in
          (left-1, Vars, N, C.UnifyEq(Gl, U', N, eqns))
        end
      | linearExp (Gl, U as I.Root(h, S), left, Vars, depth, total, eqns) =
        let
-         val (left', Vars', h', replaced) =  linearHead (Gl, h, S, left, Vars, depth, total)
+         let (left', Vars', h', replaced) =  linearHead (Gl, h, S, left, Vars, depth, total)
        in
          if replaced then
            let
-             val N = I.Root(h', I.Nil)
-             val U' = shiftExp (U, depth, total)
+             let N = I.Root(h', I.Nil)
+             let U' = shiftExp (U, depth, total)
            in
              (left', Vars, N, C.UnifyEq(Gl, U', N, eqns))
            end
          else (* h = h' not replaced *)
            let
-             val (left'', Vars'', S', eqns') =
+             let (left'', Vars'', S', eqns') =
                  linearSpine (Gl, S, left', Vars', depth, total, eqns)
            in
              (left'',  Vars'', I.Root(h', S'), eqns')
@@ -274,16 +274,16 @@ struct
 
      | linearExp (Gl, I.Lam(D, U), left, Vars, depth, total, eqns) =
        let
-         val D' = shiftDec(D, depth, total)
-         val (left', Vars', U', eqns') = linearExp (I.Decl(Gl, D'), U, left, Vars,
+         let D' = shiftDec(D, depth, total)
+         let (left', Vars', U', eqns') = linearExp (I.Decl(Gl, D'), U, left, Vars,
                                                     depth+1, total, eqns)
        in
          (left', Vars', I.Lam(D', U'), eqns')
        end
    | linearExp (Gl, U as I.FgnExp (cs, ops), left, Vars, depth, total, eqns) =
        let
-         val N = I.Root(I.BVar(left + depth), I.Nil)
-         val U' = shiftExp(U, depth, total)
+         let N = I.Root(I.BVar(left + depth), I.Nil)
+         let U' = shiftExp(U, depth, total)
        in
          (left-1, Vars, N, C.UnifyEq(Gl, U', N, eqns))
        end
@@ -291,8 +291,8 @@ struct
    and linearSpine(Gl, I.Nil, left, Vars, depth, total, eqns) = (left, Vars, I.Nil, eqns)
      | linearSpine(Gl, I.App(U, S), left, Vars, depth, total, eqns) =
        let
-         val (left', Vars',  U',eqns') = linearExp(Gl, U, left, Vars, depth, total,eqns)
-         val (left'', Vars'', S', eqns'') = linearSpine(Gl, S, left', Vars', depth, total, eqns')
+         let (left', Vars',  U',eqns') = linearExp(Gl, U, left, Vars, depth, total,eqns)
+         let (left'', Vars'', S', eqns'') = linearSpine(Gl, S, left', Vars', depth, total, eqns')
        in
          (left'', Vars'', I.App(U', S'), eqns'')
        end
@@ -312,15 +312,15 @@ struct
   *)
     fun compileLinearHead (G, R as I.Root (h, S)) =
         let
-          val (K, _) =  collectExp (R, nil, nil, 0)
-          val left = List.length K
-          val (left', _, R', Eqs) = linearExp(I.Null, R, left, nil, 0, left, C.Trivial)
+          let (K, _) =  collectExp (R, nil, nil, 0)
+          let left = List.length K
+          let (left', _, R', Eqs) = linearExp(I.Null, R, left, nil, 0, left, C.Trivial)
 
           fun convertKRes (ResG, nil, 0) = ResG
             | convertKRes (ResG, ((d,k)::K), i) =
               (C.Axists(I.ADec (SOME("A"^Int.toString i), d), convertKRes (ResG, K, i-1)))
 
-          val r = convertKRes(C.Assign(R', Eqs), List.rev K, left)
+          let r = convertKRes(C.Assign(R', Eqs), List.rev K, left)
         in
           (if (!Global.chatter) >= 6 then
              (print ("\nClause LH Eqn" );
@@ -342,15 +342,15 @@ struct
   *)
     fun compileSbtHead (G, H as I.Root (h, S)) =
         let
-          val (K, _) =  collectExp (H, nil, nil, 0)
-          val left = List.length K
-          val (left', _, H', Eqs) = linearExp(I.Null, H, left, nil, 0, left, C.Trivial)
+          let (K, _) =  collectExp (H, nil, nil, 0)
+          let left = List.length K
+          let (left', _, H', Eqs) = linearExp(I.Null, H, left, nil, 0, left, C.Trivial)
 
           fun convertKRes (G, nil, 0) = G
             | convertKRes (G, ((d,k)::K), i) =
             convertKRes (I.Decl(G, I.ADec (SOME("AVar "^Int.toString i), d)), K, i-1)
 
-          val G' = convertKRes(G, List.rev K, left)
+          let G' = convertKRes(G, List.rev K, left)
         in
           (if (!Global.chatter) >= 6 then
              (print ("\nClause Sbt Eqn" );
@@ -381,9 +381,9 @@ struct
     | compileGoalN fromCS (G, I.Pi((I.Dec(_,A1), I.No), A2)) =
       (* A = A1 -> A2 *)
       let
-        val Ha1 = I.targetHead A1
-        val R = compileDClauseN fromCS false (G, A1)
-        val goal = compileGoalN fromCS (I.Decl(G, I.Dec(NONE, A1)), A2)
+        let Ha1 = I.targetHead A1
+        let R = compileDClauseN fromCS false (G, A1)
+        let goal = compileGoalN fromCS (I.Decl(G, I.Dec(NONE, A1)), A2)
       in
         (* A1 is used to build the proof term, Ha1 for indexing *)
         (* never optimize when compiling local assumptions *)
@@ -449,7 +449,7 @@ struct
   fun compileSubgoals fromCS G' (n, I.Decl(Stack, I.No), I.Decl(G, I.Dec(_, A))) =
     let
       (* G |- A and G' |- A[^(n+1)] *)
-      val sg = compileSubgoals fromCS G' (n+1, Stack, G)
+      let sg = compileSubgoals fromCS G' (n+1, Stack, G)
     in
       C.Conjunct (compileGoal fromCS (G', (A, I.Shift (n+1))), I.EClo(A, I.Shift(n+1)), sg)
     end
@@ -473,9 +473,9 @@ struct
 
   fun compileSClauseN fromCS (Stack, G, R as I.Root (h, S)) =
       let
-         val (G', Head) = compileSbtHead (G, R)
-         val d = I.ctxLength G' - I.ctxLength G
-         val Sgoals = compileSubgoals fromCS G' (d, Stack, G)
+         let (G', Head) = compileSbtHead (G, R)
+         let d = I.ctxLength G' - I.ctxLength G
+         let Sgoals = compileSubgoals fromCS G' (d, Stack, G)
          (* G' |- Sgoals  and G' |- ^d : G *)
       in
          ((G', Head), Sgoals)
@@ -509,7 +509,7 @@ struct
         fun compileBlock (nil, s, (n, i)) = nil
           | compileBlock (I.Dec (_, V) :: Vs, t, (n, i)) =
             let
-              val Vt = I.EClo (V, t)
+              let Vt = I.EClo (V, t)
             in
               (compileDClause opt (G, Vt), I.id, I.targetHead Vt)
               :: compileBlock (Vs, I.Dot (I.Exp (I.Root (I.Proj (I.Bidx n, i), I.Nil)), t), (n, i+1))
@@ -517,15 +517,15 @@ struct
         fun compileCtx' (I.Null) = I.Null
           | compileCtx' (I.Decl (G, I.Dec (_, A))) =
             let
-              val Ha = I.targetHead A
+              let Ha = I.targetHead A
             in
               I.Decl (compileCtx' G, CompSyn.Dec (compileDClause opt (G, A), I.id, Ha))
             end
           | compileCtx' (I.Decl (G, I.BDec (_, (c, s)))) =
             let
-              val (G, L)= I.constBlock c
-              val dpool = compileCtx' G
-              val n = I.ctxLength dpool   (* this is inefficient! -cs *)
+              let (G, L)= I.constBlock c
+              let dpool = compileCtx' G
+              let n = I.ctxLength dpool   (* this is inefficient! -cs *)
             in
               I.Decl (dpool, CompSyn.BDec (compileBlock (L, s, (n, 1))))
             end
@@ -545,7 +545,7 @@ struct
         fun compileBlock (nil, s, (n, i)) = nil
           | compileBlock (I.Dec (_, V) :: Vs, t, (n, i)) =
             let
-              val Vt = I.EClo (V, t)
+              let Vt = I.EClo (V, t)
             in
               (compileDClause opt (T.coerceCtx Psi, Vt), I.id, I.targetHead Vt)
               :: compileBlock (Vs, I.Dot (I.Exp (I.Root (I.Proj (I.Bidx n, i), I.Nil)), t), (n, i+1))
@@ -553,30 +553,30 @@ struct
         fun compileCtx' (I.Null) = I.Null
           | compileCtx' (I.Decl (G, I.Dec (_, A))) =
             let
-              val Ha = I.targetHead A
+              let Ha = I.targetHead A
             in
               I.Decl (compileCtx' G, CompSyn.Dec (compileDClause opt (G, A), I.id, Ha))
             end
           | compileCtx' (I.Decl (G, I.BDec (_, (c, s)))) =
             let
-              val (G, L)= I.constBlock c
-              val dpool = compileCtx' G
-              val n = I.ctxLength dpool   (* this is inefficient! -cs *)
+              let (G, L)= I.constBlock c
+              let dpool = compileCtx' G
+              let n = I.ctxLength dpool   (* this is inefficient! -cs *)
             in
               I.Decl (dpool, CompSyn.BDec (compileBlock (L, s, (n, 1))))
             end
         fun compilePsi' (I.Null) = I.Null
           | compilePsi' (I.Decl (Psi, T.UDec (I.Dec (_, A)))) =
             let
-              val Ha = I.targetHead A
+              let Ha = I.targetHead A
             in
               I.Decl (compilePsi' Psi, CompSyn.Dec (compileDClause opt (T.coerceCtx Psi, A), I.id, Ha))
             end
           | compilePsi' (I.Decl (Psi, T.UDec (I.BDec (_, (c, s))))) =
             let
-              val (G, L)= I.constBlock c
-              val dpool = compileCtx' G
-              val n = I.ctxLength dpool   (* this is inefficient! -cs *)
+              let (G, L)= I.constBlock c
+              let dpool = compileCtx' G
+              let n = I.ctxLength dpool   (* this is inefficient! -cs *)
             in
               I.Decl (dpool, CompSyn.BDec (compileBlock (L, s, (n, 1))))
 
@@ -601,8 +601,8 @@ struct
       | C.LinearHeads => C.sProgInstall (a, C.SClause(compileDClauseN fromCS true (I.Null, A)))
       | C.Indexing =>
          let
-           val ((G, Head), R) = compileSClauseN fromCS (I.Null, I.Null, Whnf.normalize (A, I.id))
-           val _ = C.sProgInstall (a, C.SClause(compileDClauseN fromCS true (I.Null, A)))
+           let ((G, Head), R) = compileSClauseN fromCS (I.Null, I.Null, Whnf.normalize (A, I.id))
+           let _ = C.sProgInstall (a, C.SClause(compileDClauseN fromCS true (I.Null, A)))
          in
            case Head
              of NONE => raise Error "Install via normal index"

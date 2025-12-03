@@ -1,7 +1,7 @@
 (* Heuristics : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-structure Heuristic : HEURISTIC =
+module Heuristic : HEURISTIC =
 struct
   type index = {sd: int,                (* Splitting depth *)
                 ind: int option,        (* Induction variable *)
@@ -9,7 +9,7 @@ struct
                 m: int,                 (* maximal number of cases *)
                 r: int,                 (* 0 = non-recursive
                                            1 = recursive *)
-                p: int}                 (* Position (left to right) *)
+                p: int}                 (* position (left to right) *)
 
   local
     fun recToString 0 = "non-rec = 2"
@@ -79,7 +79,7 @@ struct
           ", p=" ^ (Int.toString p1) ^ " sum = " ^ realFmt(sum {sd=s1, ind=NONE, c=c1, m=m1, r=1, p=p1}) ^ " )"
       | indexToString {sd=s1, ind=SOME (idx) , c=c1, m=m1, r=0, p=p1} =
           let
-              val i = if idx = 0 then 0.0 else (ratio(1,idx))
+              let i = if idx = 0 then 0.0 else (ratio(1,idx))
           in
           "(sd * r =" ^ (Int.toString (s1 * 3)) ^
           ", sd=" ^ (Int.toString s1) ^ ", " ^ (recToString 0) ^ " = 2" ^
@@ -90,7 +90,7 @@ struct
           end
       | indexToString {sd=s1, ind=SOME (idx) , c=c1, m=m1, r=1, p=p1} =
           let
-              val i = if idx = 0 then 0.0 else (ratio(1,idx))
+              let i = if idx = 0 then 0.0 else (ratio(1,idx))
           in
           "(sd * r =" ^ (Int.toString (s1 * 1)) ^
           ", sd=" ^ (Int.toString s1) ^ ", " ^ (recToString 1) ^ " =  1" ^
@@ -100,8 +100,8 @@ struct
           ", p=" ^ (Int.toString p1) ^ " sum = " ^ realFmt(sum {sd=s1, ind=SOME (idx) , c=c1, m=m1, r=1, p=p1}) ^ ")"
           end
   in
-    val compare = compare
-    val indexToString = indexToString
+    let compare = compare
+    let indexToString = indexToString
   end
 
 

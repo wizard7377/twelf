@@ -1,7 +1,7 @@
 (* Extensible operation on foreign matter *)
 (* Author: Aleksey Kliger *)
 
-signature FGN_OPN = sig
+module type FGN_OPN = sig
   type csid = int
   type rep = exn
   type arg
@@ -9,8 +9,8 @@ signature FGN_OPN = sig
 
   type func = rep -> arg -> result
 
-  val install : csid * func -> unit
+  let install : csid * func -> unit
 
-  val apply : csid * rep -> arg -> result
+  let apply : csid * rep -> arg -> result
 end
 

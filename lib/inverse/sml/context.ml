@@ -1,13 +1,13 @@
 
-structure Context :> CONTEXT =
+module Context :> CONTEXT =
 struct 
 
-  structure L = Lib
+  module L = Lib
 
   type 'a ctx = 'a list
   exception Context of string
                       
-  val empty = []
+  let empty = []
 
   fun lookup(l,n) = 
       SOME (L.ith n l) handle Fail _ => NONE

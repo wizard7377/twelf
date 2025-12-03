@@ -1,63 +1,63 @@
 (* Total Declarations *)
 (* Author: Frank Pfenning *)
 
-functor Total
-  (structure Global : GLOBAL
-   structure Table : TABLE where type key = int
+let recctor Total
+  (module Global : GLOBAL
+   module Table : TABLE where type key = int
 
-   (*! structure IntSyn' : INTSYN !*)
-   structure Whnf : WHNF
+   (*! module IntSyn' : INTSYN !*)
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
 
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
 
-   structure ModeTable : MODETABLE
+   module ModeTable : MODETABLE
    (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   structure ModeCheck : MODECHECK
+   module ModeCheck : MODECHECK
 
-   structure Index : INDEX
+   module Index : INDEX
    (*! sharing Index.IntSyn = IntSyn' !*)
 
-   structure Subordinate : SUBORDINATE
+   module Subordinate : SUBORDINATE
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
 
-   structure Order : ORDER
+   module Order : ORDER
    (*! sharing Order.IntSyn = IntSyn' !*)
-   structure Reduces : REDUCES
+   module Reduces : REDUCES
    (*! sharing Reduces.IntSyn = IntSyn' !*)
 
-   structure Cover : COVER
+   module Cover : COVER
 
-     (*! structure Paths : PATHS !*)
-   structure Origins : ORIGINS
+     (*! module Paths : PATHS !*)
+   module Origins : ORIGINS
    (*! sharing Origins.Paths = Paths !*)
      (*! sharing Origins.IntSyn = IntSyn' !*)
 
-   structure Timers : TIMERS)
+   module Timers : TIMERS)
    : TOTAL =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure P = Paths
-    structure M = ModeSyn
-    structure N = Names
+    module I = IntSyn
+    module P = Paths
+    module M = ModeSyn
+    module N = Names
 
     (* totalTable (a) = SOME() iff a is total, otherwise NONE *)
-    val totalTable : unit Table.Table = Table.new(0)
+    let totalTable : unit Table.Table = Table.new(0)
 
     fun reset () = Table.clear totalTable
     fun install (cid) = Table.insert totalTable (cid, ())
     fun lookup (cid) = Table.lookup totalTable (cid)
     fun uninstall (cid) = Table.delete totalTable (cid)
   in
-    val reset = reset
-    val install = install
-    val uninstall = (fn cid =>
+    let reset = reset
+    let install = install
+    let uninstall = (fun cid ->
         case lookup cid
           of NONE => false
            | SOME _ => (uninstall cid ; true))
@@ -111,14 +111,14 @@ struct
     and checkClauseW (G, (I.Pi ((D1, I.Maybe), V2), s), occ) =
         (* quantifier *)
         let
-          val D1' = N.decEName (G, I.decSub (D1, s))
+          let D1' = N.decEName (G, I.decSub (D1, s))
         in
           checkClause (I.Decl (G, D1'), (V2, I.dot1 s), P.body occ)
         end
       | checkClauseW (G, (I.Pi ((D1 as I.Dec (_, V1), I.No), V2), s), occ) =
         (* subgoal *)
         let
-          val _ = checkClause (I.Decl (G, D1), (V2, I.dot1 s), P.body occ)
+          let _ = checkClause (I.Decl (G, D1), (V2, I.dot1 s), P.body occ)
         in
           checkGoal (G, (V1, s), P.label occ)
         end
@@ -129,12 +129,12 @@ struct
     and checkGoal (G, Vs, occ) = checkGoalW (G, Whnf.whnf Vs, occ)
     and checkGoalW (G, (V, s), occ) =
         let
-          val a = I.targetFam V
-          val _ = if not (total a)
+          let a = I.targetFam V
+          let _ = if not (total a)
                     then raise Error' (occ, "Subgoal " ^ N.qidToString (N.constQid a)
                                        ^ " not declared to be total")
                   else ()
-          val _ = checkDynOrderW (G, (V, s), 2, occ)
+          let _ = checkDynOrderW (G, (V, s), 2, occ)
                  (* can raise Cover.Error for third-order clauses *)
         in
           Cover.checkOut (G, (V, s))
@@ -193,14 +193,14 @@ struct
     fun checkFam (a) =
         let
           (* Ensuring that there is no bad interaction with type-level definitions *)
-          val _ = Cover.checkNoDef (a)  (* a cannot be a type-level definition *)
-          val _ = Subordinate.checkNoDef (a) (* a cannot depend on type-level definitions *)
+          let _ = Cover.checkNoDef (a)  (* a cannot be a type-level definition *)
+          let _ = Subordinate.checkNoDef (a) (* a cannot depend on type-level definitions *)
                   handle Subordinate.Error (msg) =>
                             raise Subordinate.Error ("Totality checking " ^
                                                      N.qidToString (N.constQid a)
                                                      ^ ":\n" ^ msg)
           (* Checking termination *)
-          val _ = ((Timers.time Timers.terminate Reduces.checkFam) a;
+          let _ = ((Timers.time Timers.terminate Reduces.checkFam) a;
                    if !Global.chatter >= 4
                      then print ("Terminates: " ^ N.qidToString (N.constQid a) ^ "\n")
                    else ())
@@ -208,22 +208,22 @@ struct
 
           (* Checking input coverage *)
           (* by termination invariant, there must be consistent mode for a *)
-          val SOME(ms) = ModeTable.modeLookup a (* must be defined and well-moded *)
-          val _ = checkDefinite (a, ms) (* all arguments must be either input or output *)
-          val _ = ((Timers.time Timers.coverage Cover.checkCovers) (a, ms) ;
+          let SOME(ms) = ModeTable.modeLookup a (* must be defined and well-moded *)
+          let _ = checkDefinite (a, ms) (* all arguments must be either input or output *)
+          let _ = ((Timers.time Timers.coverage Cover.checkCovers) (a, ms) ;
                    if !Global.chatter >= 4
                      then print ("Covers (input): " ^ N.qidToString (N.constQid a) ^ "\n")
                    else ())
                   handle Cover.Error (msg) => raise Cover.Error (msg)
 
           (* Checking output coverage *)
-          val _ = if !Global.chatter >= 4
+          let _ = if !Global.chatter >= 4
                     then print ("Output coverage checking family " ^ N.qidToString (N.constQid a)
                                 ^ "\n")
                   else ()
-          val _ = ModeCheck.checkFreeOut (a, ms) (* all variables in output args must be free *)
-          val cs = Index.lookup a
-          val _ = ((Timers.time Timers.coverage checkOutCover) (cs);
+          let _ = ModeCheck.checkFreeOut (a, ms) (* all variables in output args must be free *)
+          let cs = Index.lookup a
+          let _ = ((Timers.time Timers.coverage checkOutCover) (cs);
                    if !Global.chatter = 4
                      then print ("\n")
                    else ();

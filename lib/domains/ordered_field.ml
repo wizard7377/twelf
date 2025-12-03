@@ -1,21 +1,21 @@
 (* Ordered Field *)
 (* Author: Roberto Virga *)
 
-signature ORDERED_FIELD =
+module type ORDERED_FIELD =
 sig
 
   include FIELD
 
   (* Sign operations *)
-  val sign : number -> int
-  val abs  : number -> number
+  let sign : number -> int
+  let abs  : number -> number
 
   (* Comparisons predicates *)
-  val > : number * number -> bool
-  val < : number * number -> bool
-  val >= : number * number -> bool
-  val <= : number * number -> bool
-  val compare : number * number -> order
+  let > : number * number -> bool
+  let < : number * number -> bool
+  let >= : number * number -> bool
+  let <= : number * number -> bool
+  let compare : number * number -> order
 
-end;  (* signature ORDERED_FIELD *)
+end;  (* module type ORDERED_FIELD *)
 

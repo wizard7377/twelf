@@ -1,7 +1,7 @@
 (* Rings (aka cyclic lists) *)
 (* Author: Carsten Schuermann *)
 
-structure Ring :> RING =
+module Ring :> RING =
 struct
 
   exception Empty
@@ -59,4 +59,4 @@ struct
   (* order of map is undefined.  relevant? *)
   fun map f (r, l) = (List.map f r, List.map f l)
 
-end;  (* structure Ring *)
+end;  (* module Ring *)

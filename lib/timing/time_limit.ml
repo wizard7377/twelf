@@ -4,9 +4,9 @@
  * Modified: Brigitte Pientka
  *)
 
-structure TimeLimit : sig
+module TimeLimit : sig
     exception TimeOut
-    val timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
+    let timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
   end = struct
 
     exception TimeOut
@@ -14,14 +14,14 @@ structure TimeLimit : sig
     fun timeLimit NONE f x = f x
       | timeLimit (SOME t) f x = 
       let
-	val _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
-	val setitimer = SMLofNJ.IntervalTimer.setIntTimer
+	let _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
+	let setitimer = SMLofNJ.IntervalTimer.setIntTimer
 
 	fun timerOn () = ignore(setitimer (SOME t))
 
 	fun timerOff () = ignore(setitimer NONE)
 
-	val escapeCont = SMLofNJ.Cont.callcc (fn k => (
+	let escapeCont = SMLofNJ.Cont.callcc (fun k -> (
 		SMLofNJ.Cont.callcc (fn k' => (SMLofNJ.Cont.throw k k'));
 		timerOff();
 		raise TimeOut))

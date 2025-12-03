@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-signature INTSYN =
+module type INTSYN =
 sig
 
   type cid = int			(* Constant identifier        *)
@@ -21,7 +21,7 @@ sig
 
   (* Contexts *)
 
-  datatype 'a Ctx =			(* Contexts                   *)
+  type 'a Ctx =			(* Contexts                   *)
     Null				(* G ::= .                    *)
   | Decl of 'a Ctx * 'a			(*     | G, D                 *)
     
@@ -29,18 +29,18 @@ sig
   val ctxLookup: 'a Ctx * int -> 'a
   val ctxLength: 'a Ctx -> int
 
-  datatype Depend =                     (* Dependency information     *)
+  type Depend =                     (* Dependency information     *)
     No                                  (* P ::= No                   *)
   | Maybe                               (*     | Maybe                *)
   | Meta				(*     | Meta                 *)
 
   (* expressions *)
 
-  datatype Uni =			(* Universes:                 *)
+  type Uni =			(* Universes:                 *)
     Kind				(* L ::= Kind                 *)
   | Type				(*     | Type                 *)
 
-  datatype Exp =			(* Expressions:               *)
+  type Exp =			(* Expressions:               *)
     Uni   of Uni			(* U ::= L                    *)
   | Pi    of (Dec * Depend) * Exp	(*     | Pi (D, P). V         *)
   | Root  of Head * Spine		(*     | H @ S                *)
@@ -128,7 +128,7 @@ sig
   | Delay of Exp * Cnstr ref
     (* delay cnstr, associating it with all the rigid EVars in U  *)
 
-  (* Global signature *)
+  (* Global module type *)
 
   and ConDec =			        (* Constant declaration       *)
     ConDec of string * mid option * int * Status
@@ -151,11 +151,11 @@ sig
     Anc of cid option * int * cid option (* head(expand(d)), height, head(expand[height](d)) *)
                                         (* NONE means expands to {x:A}B *)
 
-  datatype StrDec =                     (* Structure declaration      *)
+  type StrDec =                     (* Structure declaration      *)
       StrDec of string * mid option
 
   (* Form of constant declaration *)
-  datatype ConDecForm =
+  type ConDecForm =
     FromCS				(* from constraint domain *)
   | Ordinary				(* ordinary declaration *)
   | Clause				(* %clause declaration *)
@@ -169,25 +169,25 @@ sig
   exception Error of string		(* raised if out of space     *)
 
   (* standard operations on foreign expressions *)
-  structure FgnExpStd : sig
+  module FgnExpStd : sig
     (* convert to internal syntax *)
-    structure ToInternal : FGN_OPN where type arg = unit
+    module ToInternal : FGN_OPN where type arg = unit
                                    where type result = Exp
 
     (* apply function to subterms *)
-    structure Map : FGN_OPN where type arg = Exp -> Exp
+    module Map : FGN_OPN where type arg = Exp -> Exp
 			    where type result = Exp
 
     (* apply function to subterms, for effect *)
-    structure App : FGN_OPN where type arg = Exp -> unit
+    module App : FGN_OPN where type arg = Exp -> unit
 			    where type result = unit
 
     (* test for equality *)
-    structure EqualTo : FGN_OPN where type arg = Exp
+    module EqualTo : FGN_OPN where type arg = Exp
                                 where type result = bool
 
     (* unify with another term *)
-    structure UnifyWith : FGN_OPN where type arg = Dec Ctx * Exp
+    module UnifyWith : FGN_OPN where type arg = Dec Ctx * Exp
                                   where type result = FgnUnify
 
     (* fold a function over the subterms *)
@@ -195,17 +195,17 @@ sig
   end
 
   (* standard operations on foreign constraints *)
-  structure FgnCnstrStd : sig
+  module FgnCnstrStd : sig
     (* convert to internal syntax *)
-    structure ToInternal : FGN_OPN where type arg = unit
+    module ToInternal : FGN_OPN where type arg = unit
                                    where type result = (Dec Ctx * Exp) list
 
     (* awake *)
-    structure Awake : FGN_OPN where type arg = unit
+    module Awake : FGN_OPN where type arg = unit
                               where type result = bool
 
     (* simplify *)
-    structure Simplify : FGN_OPN where type arg = unit
+    module Simplify : FGN_OPN where type arg = unit
                                  where type result = bool
   end
   
@@ -283,4 +283,4 @@ sig
   (* Used in Flit *)
   val rename : cid * string -> unit
 
-end;  (* signature INTSYN *)
+end;  (* module type INTSYN *)

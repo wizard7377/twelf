@@ -1,7 +1,7 @@
 (* Not Trailing Abstract Operations *)
 (* Author: Roberto Virga *)
 
-structure NoTrail : TRAIL =
+module NoTrail : TRAIL =
 struct
 
   type 'a trail = unit
@@ -18,4 +18,4 @@ struct
   fun unwind ((), undo) = ()
 
   fun log ((), action) = ()
-end; (* structure NoTrail *)
+end; (* module NoTrail *)

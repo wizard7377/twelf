@@ -1,4 +1,4 @@
-signature SYMBOL =
+module type SYMBOL =
 sig
 
   val str : string -> string * int
@@ -12,4 +12,4 @@ sig
 
   val sym : string -> string * int
 
-end;  (* signature SYMBOL *)
+end;  (* module type SYMBOL *)

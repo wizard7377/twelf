@@ -1,12 +1,12 @@
 (* Abstraction *)
 (* Author: Brigitte Pientka *)
 
-signature ABSTRACTTABLED =
+module type ABSTRACTTABLED =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
-  (*! structure TableParam : TABLEPARAM !*)
+  (*! module TableParam : TABLEPARAM !*)
     
   exception Error of string
 
@@ -18,4 +18,4 @@ sig
 
   val raiseType : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp   
 
-end;  (* signature ABSTRACTTABLED *)
+end;  (* module type ABSTRACTTABLED *)

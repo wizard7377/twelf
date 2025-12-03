@@ -1,4 +1,4 @@
-fun load () =
+let rec load () =
    initload []
             ["dsBNF.elf",
              "cpsBNF.elf",

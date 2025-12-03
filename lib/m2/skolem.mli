@@ -1,9 +1,9 @@
 (* Skolem administration *)
 (* Author: Carsten Schuermann *)
 
-signature SKOLEM =
+module type SKOLEM =
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   val install: IntSyn.cid list -> unit
-end;  (* signature SKOLEM *)
+end;  (* module type SKOLEM *)

@@ -5,15 +5,15 @@
 
 (* Proof term reconstruction by proof skeleton *)
 
-signature PTRECON =
+module type PTRECON =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN !*)
 
 
   exception Error of string
   val solve     : CompSyn.pskeleton * (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
                   * (CompSyn.pskeleton * IntSyn.Exp -> unit) -> unit 
 
-end;  (* signature PTRECON *)
+end;  (* module type PTRECON *)

@@ -1,10 +1,10 @@
 (* Filling: Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-signature MTPFILLING = 
+module type MTPFILLING = 
 sig
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string
   exception TimeOut
@@ -14,6 +14,6 @@ sig
   val expand : StateSyn.State -> operator 
   val apply : operator -> (int * FunSyn.Pro)
   val menu : operator -> string
-end; (* signature MTPFILLING *)
+end; (* module type MTPFILLING *)
 
 

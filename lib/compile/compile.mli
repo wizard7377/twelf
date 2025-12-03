@@ -4,16 +4,16 @@
 (* Modified: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-signature COMPILE =
+module type COMPILE =
 sig
 
-  (*! structure IntSyn: INTSYN !*)
-  (*! structure CompSyn: COMPSYN !*)
+  (*! module IntSyn: INTSYN !*)
+  (*! module CompSyn: COMPSYN !*)
 
 
   exception Error of string
 
-  datatype Opt = datatype CompSyn.Opt
+  type Opt = type CompSyn.Opt
 
   val optimize : Opt ref
 
@@ -30,4 +30,4 @@ sig
   val compilePsi: bool -> (Tomega.Dec IntSyn.Ctx) -> CompSyn.DProg
  
 
-end; (* signature COMPILE *)
+end; (* module type COMPILE *)

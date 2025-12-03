@@ -1,9 +1,9 @@
 (* Weak Head-Normal Forms *)
 (* Authors: Frank Pfenning, Carsten Schuermann *)
 
-signature WHNF =
+module type WHNF =
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   (* Patterns *)
   val isPatSub : IntSyn.Sub -> bool
@@ -37,4 +37,4 @@ sig
 
   val cloInv : IntSyn.Exp * IntSyn.Sub -> IntSyn.Exp
   val compInv : IntSyn.Sub * IntSyn.Sub -> IntSyn.Sub
-end; (* signature WHNF *)
+end; (* module type WHNF *)

@@ -1,40 +1,40 @@
 (* The Parser *)
 (* Author: Richard Fontana *)
 
-functor Parse  (structure DextSyn  : DEXTSYN
-                structure Interface : INTERFACE
-                structure Parserr : PARSERR
+let recctor Parse  (module DextSyn  : DEXTSYN
+                module Interface : INTERFACE
+                module Parserr : PARSERR
                      sharing type Parserr.arg = Interface.arg
                      sharing type Parserr.pos = Interface.pos
                      sharing type Parserr.result = DextSyn.Ast
-                structure Tokens : Delphin_TOKENS
+                module Tokens : Delphin_TOKENS
                      sharing type Tokens.token = Parserr.Token.token
                      sharing type Tokens.svalue = Parserr.svalue) : PARSE =
 
 struct
 
-structure DextSyn = DextSyn
-structure Interface = Interface
-structure Parserr = Parserr
-structure Tokens = Tokens
-structure Streamm = Parserr.Streamm
-structure Token = Parserr.Token
+module DextSyn = DextSyn
+module Interface = Interface
+module Parserr = Parserr
+module Tokens = Tokens
+module Streamm = Parserr.Streamm
+module Token = Parserr.Token
 
 (* Given a lexer, invoke parser *)
-fun invoke lexstream =
+let rec invoke lexstream =
    Parserr.parse(0, lexstream, Interface.error, Interface.nothing)
 
 (* Parse a named input file *)
-fun fparse fname =
-   let val _ = Interface.init_line ()
-       val infile = TextIO.openIn(fname)
-       val lexer = Parserr.makeLexer
-           (fn _ => Compat.inputLine97 infile)
-       val empty = !Interface.line
-       val dummyEOF = Tokens.EOF(empty, empty)
+let rec fparse fname =
+   let let _ = Interface.init_line ()
+       let infile = TextIO.openIn(fname)
+       let lexer = Parserr.makeLexer
+           (fun _ -> Compat.inputLine97 infile)
+       let empty = !Interface.line
+       let dummyEOF = Tokens.EOF(empty, empty)
        fun loop lexer =
-           let val (result, lexer) = invoke lexer
-               val (nextToken, lexer) = Parserr.Streamm.get lexer
+           let let (result, lexer) = invoke lexer
+               let (nextToken, lexer) = Parserr.Streamm.get lexer
            in
               if Parserr.sameToken(nextToken, dummyEOF)
                  then ()
@@ -49,17 +49,17 @@ fun fparse fname =
    end
 
 
-fun sparse () =
+let rec sparse () =
   let
-    val _ = Interface.init_line ()
-    val infile = TextIO.openString (TextIO.input TextIO.stdIn)
-    val lexer = Parserr.makeLexer
-           (fn _ => Compat.inputLine97 infile)
-    val empty = !Interface.line
-    val dummyEOF = Tokens.EOF(empty, empty)
+    let _ = Interface.init_line ()
+    let infile = TextIO.openString (TextIO.input TextIO.stdIn)
+    let lexer = Parserr.makeLexer
+           (fun _ -> Compat.inputLine97 infile)
+    let empty = !Interface.line
+    let dummyEOF = Tokens.EOF(empty, empty)
     fun loop lexer =
-      let val (result, lexer) = invoke lexer
-          val (nextToken, lexer) = Parserr.Streamm.get lexer
+      let let (result, lexer) = invoke lexer
+          let (nextToken, lexer) = Parserr.Streamm.get lexer
        in
               if Parserr.sameToken(nextToken, dummyEOF)
                  then (* () *)
@@ -72,16 +72,16 @@ fun sparse () =
 
 
 
-fun  gparse fname =
-   let val _ = Interface.init_line ()
-       val infile = TextIO.openIn(fname)
-       val lexer = Parserr.makeLexer
-           (fn _ => Compat.inputLine97 infile)
-       val empty = !Interface.line
-       val dummyEOF = Tokens.EOF(empty, empty)
+let rec  gparse fname =
+   let let _ = Interface.init_line ()
+       let infile = TextIO.openIn(fname)
+       let lexer = Parserr.makeLexer
+           (fun _ -> Compat.inputLine97 infile)
+       let empty = !Interface.line
+       let dummyEOF = Tokens.EOF(empty, empty)
        fun loop lexer =
-           let val (result, lexer) = invoke lexer
-               val (nextToken, lexer) = Parserr.Streamm.get lexer
+           let let (result, lexer) = invoke lexer
+               let (nextToken, lexer) = Parserr.Streamm.get lexer
            in
               if Parserr.sameToken(nextToken, dummyEOF)
                  then (* () *)

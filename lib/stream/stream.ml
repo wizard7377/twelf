@@ -2,49 +2,49 @@
 (* Author: Frank Pfenning *)
 
 (* BASIC_STREAM defines the visible "core" of streams *)
-signature BASIC_STREAM =
+module type BASIC_STREAM =
 sig
   type 'a stream
-  datatype 'a front = Empty | Cons of 'a * 'a stream
+  type 'a front = Empty | Cons of 'a * 'a stream
 
   (* Lazy stream construction and exposure *)
-  val delay : (unit -> 'a front) -> 'a stream
-  val expose : 'a stream -> 'a front
+  let delay : (unit -> 'a front) -> 'a stream
+  let expose : 'a stream -> 'a front
 
   (* Eager stream construction *)
-  val empty : 'a stream
-  val cons : 'a * 'a stream -> 'a stream
+  let empty : 'a stream
+  let cons : 'a * 'a stream -> 'a stream
 end;
 
-structure BasicStream :> BASIC_STREAM =
+module BasicStream :> BASIC_STREAM =
 struct
-  datatype 'a stream = Stream of unit -> 'a front
+  type 'a stream = Stream of unit -> 'a front
   and 'a front = Empty | Cons of 'a * 'a stream
 
   fun delay (d) = Stream(d)
   fun expose (Stream(d)) = d ()
 
-  val empty = Stream (fn () => Empty)
+  let empty = Stream (fn () => Empty)
   fun cons (x, s) = Stream (fn () => Cons (x, s))
 end;
 
 (* Note that this implementation is NOT semantically *)
 (* equivalent to the plain (non-memoizing) streams, since *)
 (* effects will be executed only once in this implementation *)
-structure BasicMemoStream :> BASIC_STREAM =
+module BasicMemoStream :> BASIC_STREAM =
 struct
 
-  datatype 'a stream = Stream of unit -> 'a front
+  type 'a stream = Stream of unit -> 'a front
   and 'a front = Empty | Cons of 'a * 'a stream
 
   exception Uninitialized
 
   fun expose (Stream (d)) = d ()
   fun delay (d) =
-      let val memo = ref (fn () => raise Uninitialized)
+      let let memo = ref (fn () => raise Uninitialized)
 	  fun memoFun () =
 	      let
-		  val r = d ()
+		  let r = d ()
 	       in
 		  ( memo := (fn () => r) ; r )
 	      end
@@ -53,43 +53,43 @@ struct
 	memo := memoFun ; Stream (fn () => !memo ())
       end
 
-  val empty = Stream (fn () => Empty)
+  let empty = Stream (fn () => Empty)
   fun cons (x, s) = Stream (fn () => Cons (x, s))
 end;
 
 (* STREAM extends BASIC_STREAMS by operations *)
 (* definable without reference to the implementation *)
-signature STREAM =
+module type STREAM =
 sig
   include BASIC_STREAM
 
   exception EmptyStream
-  val null : 'a stream -> bool
-  val hd : 'a stream -> 'a
-  val tl : 'a stream -> 'a stream
+  let null : 'a stream -> bool
+  let hd : 'a stream -> 'a
+  let tl : 'a stream -> 'a stream
 
-  val map : ('a -> 'b) -> 'a stream -> 'b stream
-  val filter : ('a -> bool) -> 'a stream -> 'a stream
-  val exists : ('a -> bool) -> 'a stream -> bool
+  let map : ('a -> 'b) -> 'a stream -> 'b stream
+  let filter : ('a -> bool) -> 'a stream -> 'a stream
+  let exists : ('a -> bool) -> 'a stream -> bool
 
-  val take : 'a stream * int -> 'a list
-  val drop : 'a stream * int -> 'a stream
+  let take : 'a stream * int -> 'a list
+  let drop : 'a stream * int -> 'a stream
 
-  val fromList : 'a list -> 'a stream
-  val toList : 'a stream -> 'a list
+  let fromList : 'a list -> 'a stream
+  let toList : 'a stream -> 'a list
 
-  val tabulate : (int -> 'a) -> 'a stream
+  let tabulate : (int -> 'a) -> 'a stream
 end;
 
-functor Stream
-  (structure BasicStream : BASIC_STREAM) :> STREAM =
+let recctor Stream
+  (module BasicStream : BASIC_STREAM) :> STREAM =
 struct
   open BasicStream
 
   exception EmptyStream
 
   (* functions null, hd, tl, map, filter, exists, take, drop *)
-  (* parallel the functions in the List structure *)
+  (* parallel the functions in the List module *)
   fun null (s) = null' (expose s)
   and null' (Empty) = true
     | null' (Cons _) = false
@@ -139,38 +139,38 @@ struct
   fun drop (s,n) = if n < 0 then raise Subscript else dropPos (s,n)
 
   fun tabulate f = delay (fn () => tabulate' f)
-  and tabulate' f = Cons (f(0), tabulate (fn i => f(i+1)))
+  and tabulate' f = Cons (f(0), tabulate (fun i -> f(i+1)))
 
 end;
 
-(* structure Stream :> STREAM --- non-memoizing *)
-structure Stream :> STREAM =
-  Stream (structure BasicStream = BasicStream);
+(* module Stream :> STREAM --- non-memoizing *)
+module Stream :> STREAM =
+  Stream (module BasicStream = BasicStream);
 
-(* structure MStream :> STREAM --- memoizing *)
-structure MStream :> STREAM =
-  Stream (structure BasicStream = BasicMemoStream);
+(* module MStream :> STREAM --- memoizing *)
+module MStream :> STREAM =
+  Stream (module BasicStream = BasicMemoStream);
 
 (*
-structure S = Stream;  (* abbreviation *)
+module S = Stream;  (* abbreviation *)
 
 (* simple definition *)
-fun ones' () = S.Cons(1, S.delay ones');
-val ones = S.delay ones';
+let rec ones' () = S.Cons(1, S.delay ones');
+let ones = S.delay ones';
 
 (* alternative definitions *)
-val ones = S.tabulate (fn _ => 1);
-val nats = S.tabulate (fn i => i);
-val poss = S.map (fn i => i+1) nats;
-val evens = S.map (fn i => 2*i) nats;
+let ones = S.tabulate (fun _ -> 1);
+let nats = S.tabulate (fun i -> i);
+let poss = S.map (fun i -> i+1) nats;
+let evens = S.map (fun i -> 2*i) nats;
 
 (* notMultiple p q >=> true iff q is not a multiple of p *)
-fun notMultiple p q = (q mod p <> 0);
+let rec notMultiple p q = (q mod p <> 0);
 
-fun sieve s = S.delay (fn () => sieve' (S.expose s))
+let rec sieve s = S.delay (fn () => sieve' (S.expose s))
 and sieve' (S.Empty) = S.Empty
   | sieve' (S.Cons(p, s)) =
       S.Cons (p, sieve (S.filter (notMultiple p) s));
 
-val primes = sieve (S.tabulate (fn i => i+2));
+let primes = sieve (S.tabulate (fun i -> i+2));
 *)

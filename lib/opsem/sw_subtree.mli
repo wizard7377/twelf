@@ -1,12 +1,12 @@
 (* Indexing *)
 (* Author: Brigitte Pientka *)
 
-signature MEMOTABLE =
+module type MEMOTABLE =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
-  (*! structure TableParam : TABLEPARAM !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN !*)
+  (*! module TableParam : TABLEPARAM !*)
 
     
   (* call check/insert *)
@@ -62,5 +62,5 @@ sig
   val tableSize : unit -> int
 
   val memberCtx : (IntSyn.dctx * IntSyn.Exp ) * IntSyn.dctx -> IntSyn.Dec option
-end;  (* signature MemoTable *)
+end;  (* module type MemoTable *)
 

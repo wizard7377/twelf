@@ -1,22 +1,22 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-functor Normalize
-  (structure IntSyn' : INTSYN
-   structure Tomega' : TOMEGA
+let recctor Normalize
+  (module IntSyn' : INTSYN
+   module Tomega' : TOMEGA
      sharing Tomega'.IntSyn = IntSyn'
-   structure Whnf : WHNF
+   module Whnf : WHNF
      sharing Whnf.IntSyn = IntSyn'
 ) : NORMALIZE =
 struct
-  structure IntSyn = IntSyn'
-  structure Tomega = Tomega'
+  module IntSyn = IntSyn'
+  module Tomega = Tomega'
 
   exception Error of string
 
   local
-    structure I = IntSyn'
-    structure T = Tomega'
+    module I = IntSyn'
+    module T = Tomega'
 
     fun normalizeFor (T.All (D, F), t) =
           T.All (T.decSub (D, t),
@@ -88,9 +88,9 @@ struct
       | normalizeSub (T.Dot (F, s)) =
           T.Dot (F, normalizeSub s)
   in
-    val normalizeFor = normalizeFor
-    val normalizePrg = normalizePrg
-    val normalizeSpine = normalizeSpine
-    val normalizeSub = normalizeSub
+    let normalizeFor = normalizeFor
+    let normalizePrg = normalizePrg
+    let normalizeSpine = normalizeSpine
+    let normalizeSub = normalizeSub
   end
 end

@@ -2,10 +2,10 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka, Frank Pfenning *)
 
-signature THM =
+module type THM =
 sig
-  structure ThmSyn : THMSYN
-  (*! structure Paths : PATHS !*)
+  module ThmSyn : THMSYN
+  (*! module Paths : PATHS !*)
 
   exception  Error of string
 
@@ -24,4 +24,4 @@ sig
   val installTabled : ThmSyn.TabledDecl -> unit
   val installKeepTable : ThmSyn.KeepTableDecl -> unit
 
-end;  (* signature THM *)
+end;  (* module type THM *)

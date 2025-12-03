@@ -1,35 +1,35 @@
 (* Syntax for elaborated modules *)
 (* Author: Kevin Watkins *)
 
-functor ModSyn
-  (structure Global : GLOBAL
-   (*! structure IntSyn' : INTSYN !*)
-   structure Names' : NAMES
+let recctor ModSyn
+  (module Global : GLOBAL
+   (*! module IntSyn' : INTSYN !*)
+   module Names' : NAMES
    (*! sharing Names'.IntSyn = IntSyn' !*)
-   (*! structure Paths' : PATHS !*)
-   structure Origins : ORIGINS
+   (*! module Paths' : PATHS !*)
+   module Origins : ORIGINS
    (*! sharing Origins.Paths = Paths' !*)
-   structure Whnf : WHNF
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Strict : STRICT
+   module Strict : STRICT
    (*! sharing Strict.IntSyn = IntSyn' !*)
-   structure IntTree : TABLE where type key = int
-   structure HashTable : TABLE where type key = string)
+   module IntTree : TABLE where type key = int
+   module HashTable : TABLE where type key = string)
   : MODSYN =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  structure Names = Names'
-  (*! structure Paths = Paths' !*)
+  (*! module IntSyn = IntSyn' !*)
+  module Names = Names'
+  (*! module Paths = Paths' !*)
 
-  structure I = IntSyn
+  module I = IntSyn
 
   exception Error of string
 
-  datatype ConstInfo =
+  type ConstInfo =
       ConstInfo of IntSyn.ConDec * Names.Fixity.fixity * (string list * string list) option * (string * Paths.occConDec option)
 
-  datatype StructInfo =
+  type StructInfo =
       StructInfo of IntSyn.StrDec
 
   (* A module consists of:
@@ -37,9 +37,9 @@ struct
           a. a constant declaration entry (IntSyn.ConDec)
           b. the fixity of the constant
           c. the name preference for the constant (if any)
-     2. a map from mids to structure entries containing
-          a. a structure declaration entry (IntSyn.StrDec)
-          b. the namespace of the structure
+     2. a map from mids to module entries containing
+          a. a module declaration entry (IntSyn.StrDec)
+          b. the namespace of the module
      3. the top-level namespace of the module *)
 
   type module =
@@ -74,7 +74,7 @@ struct
 
         and trConst cid =
             let
-              val cid' = f cid
+              let cid' = f cid
             in
               case IntSyn.sgnLookup cid'
                 of IntSyn.ConDec _ => Const cid'
@@ -119,13 +119,13 @@ struct
       (case condec
          of I.ConDec (name, parent, i, _, V, L) =>
             let
-              val U = Whnf.normalize (I.Root (I.Const cid, I.Nil), I.id)
+              let U = Whnf.normalize (I.Root (I.Const cid, I.Nil), I.id)
             in
               I.AbbrevDef (name, parent, i, U, V, L)
             end
           | I.SkoDec (name, parent, i, V, L) =>
             let
-              val U = Whnf.normalize (I.Root (I.Skonst cid, I.Nil), I.id)
+              let U = Whnf.normalize (I.Root (I.Skonst cid, I.Nil), I.id)
             in
               I.AbbrevDef (name, parent, i, U, V, L)
             end
@@ -149,9 +149,9 @@ struct
                      topOpt, nsOpt,
                      installAction, transformConDec) =
       let
-        val structMap : IntSyn.mid IntTree.Table =
+        let structMap : IntSyn.mid IntTree.Table =
               IntTree.new (0)
-        val constMap : IntSyn.cid IntTree.Table =
+        let constMap : IntSyn.cid IntTree.Table =
               IntTree.new (0)
 
         fun mapStruct mid = valOf (IntTree.lookup structMap mid)
@@ -166,50 +166,50 @@ struct
 
         fun doStruct (mid, StructInfo strdec) =
             let
-              val strdec' = mapStrDecParent mapParent strdec
-              val mid' = IntSyn.sgnStructAdd strdec'
+              let strdec' = mapStrDecParent mapParent strdec
+              let mid' = IntSyn.sgnStructAdd strdec'
 
-              val parent = IntSyn.strDecParent strdec'
-              val nsOpt = (case parent
+              let parent = IntSyn.strDecParent strdec'
+              let nsOpt = (case parent
                              of NONE => nsOpt
                               | SOME mid => SOME (Names.getComponents mid))
-              val _ = (case nsOpt
+              let _ = (case nsOpt
                          of SOME ns => Names.insertStruct (ns, mid')
                           | _ => ())
-              val _ = (case parent
+              let _ = (case parent
                          of NONE => Names.installStructName mid'
                           | _ => ())
 
-              val ns = Names.newNamespace ()
-              val _ = Names.installComponents (mid', ns)
+              let ns = Names.newNamespace ()
+              let _ = Names.installComponents (mid', ns)
             in
               IntTree.insert structMap (mid, mid')
             end
 
         fun doConst (cid, ConstInfo (condec, fixity, namePrefOpt, origin)) =
             let
-              val condec1 = mapConDecParent mapParent condec
-              val condec2 = mapConDecConsts mapConst condec1
-              val condec3 = transformConDec (cid, condec2)
-              val cid' = IntSyn.sgnAdd condec3
+              let condec1 = mapConDecParent mapParent condec
+              let condec2 = mapConDecConsts mapConst condec1
+              let condec3 = transformConDec (cid, condec2)
+              let cid' = IntSyn.sgnAdd condec3
 
-              val parent = IntSyn.conDecParent condec3
-              val nsOpt = (case parent
+              let parent = IntSyn.conDecParent condec3
+              let nsOpt = (case parent
                              of NONE => nsOpt
                               | SOME mid => SOME (Names.getComponents mid))
-              val _ = (case nsOpt
+              let _ = (case nsOpt
                          of SOME ns => Names.insertConst (ns, cid')
                           | _ => ())
-              val _ = (case parent
+              let _ = (case parent
                          of NONE => Names.installConstName cid'
                           | _ => ())
 
-              val _ = installAction (cid', origin)
+              let _ = installAction (cid', origin)
 
-              val _ = (case fixity
+              let _ = (case fixity
                          of Names.Fixity.Nonfix => ()
                           | _ => Names.installFixity (cid', fixity))
-              val _ = (case namePrefOpt
+              let _ = (case namePrefOpt
                          of NONE => ()
                           | SOME (n1, n2) =>
                               Names.installNamePref (cid', (n1, n2)))
@@ -221,19 +221,19 @@ struct
         IntTree.app doConst constTable
       end
 
-  val decToDef = strictify o abbrevify
+  let decToDef = strictify o abbrevify
 
   fun installStruct (strdec, module, nsOpt, installAction, isDef) =
       let
-        val transformConDec = if isDef then decToDef
+        let transformConDec = if isDef then decToDef
                               else (fn (_, condec) => condec)
-        val mid = IntSyn.sgnStructAdd strdec
-        val _ = case nsOpt
+        let mid = IntSyn.sgnStructAdd strdec
+        let _ = case nsOpt
                   of SOME namespace => Names.insertStruct (namespace, mid)
                    | _ => ()
-        val _ = Names.installStructName mid
-        val ns = Names.newNamespace ()
-        val _ = Names.installComponents (mid, ns)
+        let _ = Names.installStructName mid
+        let ns = Names.newNamespace ()
+        let _ = Names.installComponents (mid, ns)
       in
         installModule (module, SOME mid, NONE,
                        installAction, transformConDec)
@@ -241,7 +241,7 @@ struct
 
   fun installSig (module, nsOpt, installAction, isDef) =
       let
-        val transformConDec = if isDef then decToDef
+        let transformConDec = if isDef then decToDef
                               else (fn (_, condec) => condec)
       in
         installModule (module, NONE, nsOpt,
@@ -250,22 +250,22 @@ struct
 
   fun abstractModule (namespace, topOpt) =
       let
-        val structTable : StructInfo IntTree.Table =
+        let structTable : StructInfo IntTree.Table =
               IntTree.new (0)
-        val constTable : ConstInfo IntTree.Table =
+        let constTable : ConstInfo IntTree.Table =
               IntTree.new (0)
 
-        val mapParent =
+        let mapParent =
             (case topOpt
-               of NONE => (fn parent => parent)
+               of NONE => (fun parent -> parent)
                 | SOME mid => (fn SOME mid' => if mid = mid' then NONE
                                                else SOME mid'))
 
         fun doStruct (_, mid) =
             let
-              val strdec = IntSyn.sgnStructLookup mid
-              val strdec' = mapStrDecParent mapParent strdec
-              val ns = Names.getComponents mid
+              let strdec = IntSyn.sgnStructLookup mid
+              let strdec' = mapStrDecParent mapParent strdec
+              let ns = Names.getComponents mid
             in
               IntTree.insert structTable (mid, StructInfo strdec');
               doNS ns
@@ -273,11 +273,11 @@ struct
 
         and doConst (_, cid) =
             let
-              val condec = IntSyn.sgnLookup cid
-              val condec' = mapConDecParent mapParent condec
-              val fixity = Names.getFixity cid
-              val namePref = Names.getNamePref cid
-              val origin = Origins.originLookup cid
+              let condec = IntSyn.sgnLookup cid
+              let condec' = mapConDecParent mapParent condec
+              let fixity = Names.getFixity cid
+              let namePref = Names.getNamePref cid
+              let origin = Origins.originLookup cid
             in
               IntTree.insert constTable (cid, ConstInfo (condec', fixity, namePref, origin))
             end
@@ -292,24 +292,24 @@ struct
 
   fun instantiateModule (module as (_, _, namespace), transform) =
       let
-        val transformConDec = transform namespace
-        val mid = IntSyn.sgnStructAdd (IntSyn.StrDec ("wheresubj", NONE))
-        val ns = Names.newNamespace ()
-        val _ = Names.installComponents (mid, ns)
-        val _ = installModule (module, SOME mid, NONE,
-                               fn _ => (), transformConDec)
+        let transformConDec = transform namespace
+        let mid = IntSyn.sgnStructAdd (IntSyn.StrDec ("wheresubj", NONE))
+        let ns = Names.newNamespace ()
+        let _ = Names.installComponents (mid, ns)
+        let _ = installModule (module, SOME mid, NONE,
+                               fun _ -> (), transformConDec)
       in
         abstractModule (ns, SOME mid)
       end
 
   local
-    val defList : string list ref = ref nil
-    val defCount : int ref = ref 0
-    val defs : module HashTable.Table = HashTable.new (4096)
+    let defList : string list ref = ref nil
+    let defCount : int ref = ref 0
+    let defs : module HashTable.Table = HashTable.new (4096)
     fun defsClear () = HashTable.clear defs
-    val defsInsert = HashTable.insertShadow defs
-    val defsLookup = HashTable.lookup defs
-    val defsDelete = HashTable.delete defs
+    let defsInsert = HashTable.insertShadow defs
+    let defsLookup = HashTable.lookup defs
+    let defsDelete = HashTable.delete defs
   in
 
     fun reset () = (defList := nil; defCount := 0;
@@ -320,7 +320,7 @@ struct
           fun ct (l, i) = if i <= mark then l
                           else
                             let
-                              val h::t = l
+                              let h::t = l
                             in
                               defsDelete h;
                               ct (t, i-1)
@@ -336,12 +336,12 @@ struct
         (case defsInsert (id, module)
            of NONE => (defList := id::(!defList);
                        defCount := !defCount + 1)
-            | SOME entry => (raise Error ("Shadowing: A signature named " ^ id
+            | SOME entry => (raise Error ("Shadowing: A module type named " ^ id
                                           ^ "\nhas already been declared");
                              defsInsert entry;
                              ()))
 
-    val lookupSigDef = defsLookup
+    let lookupSigDef = defsLookup
 
   end
 

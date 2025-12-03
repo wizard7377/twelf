@@ -1,26 +1,26 @@
 (* State definition for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-functor State
-  (structure Formatter : FORMATTER) : STATE =
+let recctor State
+  (module Formatter : FORMATTER) : STATE =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure Formatter = Formatter
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module Formatter = Formatter
 
-  datatype State =
+  type State =
     State of Tomega.Worlds
       * Tomega.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For
   | StateLF of IntSyn.Exp    (* StateLF X, X is always lowered *)
 
-  datatype Focus =
+  type Focus =
     Focus of Tomega.Prg * Tomega.Worlds
   | FocusLF of IntSyn.Exp
 
- (* datatype State
+ (* type State
     = State of (Tomega.Dec IntSyn.Ctx * Tomega.For) * Tomega.Worlds
  *)
-(*  datatype SideCondition  (* we need some work here *)
+(*  type SideCondition  (* we need some work here *)
     = None
     | All   of SideCondition
     | And   of SideCondition * SideCondition
@@ -30,8 +30,8 @@ struct
   exception Error of string
 
   local
-    structure T = Tomega
-    structure I = IntSyn
+    module T = Tomega
+    module I = IntSyn
 
 
 
@@ -133,7 +133,7 @@ struct
     *)
     fun init (F, W) =
         let
-          val X = T.newEVar (I.Null, F)
+          let X = T.newEVar (I.Null, F)
         in State (W, I.Null, X, F)
         end
 
@@ -150,11 +150,11 @@ struct
 
 
   in
-    val close = close
-    val init = init
+    let close = close
+    let init = init
 
-    val collectT = findPrg
-    val collectLF = fn P => findExp (I.Null, P) []
-    val collectLFSub = fn s => findExpSub (I.Null, s) []
+    let collectT = findPrg
+    let collectLF = fun P -> findExp (I.Null, P) []
+    let collectLFSub = fun s -> findExpSub (I.Null, s) []
   end
 end

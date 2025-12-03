@@ -1,41 +1,41 @@
 (* Meta Prover *)
 (* Author: Carsten Schuermann *)
 
-functor Prover (structure MetaGlobal : METAGLOBAL
-                structure MetaSyn' : METASYN
-                structure Init : INIT
+let recctor Prover (module MetaGlobal : METAGLOBAL
+                module MetaSyn' : METASYN
+                module Init : INIT
                   sharing Init.MetaSyn = MetaSyn'
-                structure Strategy : STRATEGY
+                module Strategy : STRATEGY
                   sharing Strategy.MetaSyn = MetaSyn'
-                structure Filling : FILLING
+                module Filling : FILLING
                   sharing Filling.MetaSyn = MetaSyn'
-                structure Splitting : SPLITTING
+                module Splitting : SPLITTING
                   sharing Splitting.MetaSyn = MetaSyn'
-                structure Recursion : RECURSION
+                module Recursion : RECURSION
                   sharing Recursion.MetaSyn = MetaSyn'
-                structure Qed : QED
+                module Qed : QED
                   sharing Qed.MetaSyn = MetaSyn'
-                structure MetaPrint : METAPRINT
+                module MetaPrint : METAPRINT
                   sharing MetaPrint.MetaSyn = MetaSyn'
-                structure Names : NAMES
+                module Names : NAMES
                 (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-                structure Timers : TIMERS)
+                module Timers : TIMERS)
   : PROVER =
 struct
-  (*! structure IntSyn = MetaSyn'.IntSyn !*)
+  (*! module IntSyn = MetaSyn'.IntSyn !*)
 
   exception Error of string
 
   local
-    structure MetaSyn = MetaSyn'
-    structure M = MetaSyn
-    structure I = IntSyn
+    module MetaSyn = MetaSyn'
+    module M = MetaSyn
+    module I = IntSyn
 
     (* List of open states *)
-    val openStates : MetaSyn.State list ref = ref nil
+    let openStates : MetaSyn.State list ref = ref nil
 
     (* List of solved states *)
-    val solvedStates : MetaSyn.State list ref = ref nil
+    let solvedStates : MetaSyn.State list ref = ref nil
 
 
 
@@ -100,13 +100,13 @@ struct
     *)
     fun init (k, cL as (c :: _)) =
         let
-          val _ = MetaGlobal.maxFill := k
-          val _ = reset ();
-          val cL' = Order.closure c
+          let _ = MetaGlobal.maxFill := k
+          let _ = reset ();
+          let cL' = Order.closure c
                     handle Order.Error _ => cL  (* if no termination ordering given! *)
         in
           if equiv (cL, cL')
-            then List.app (fn S => insertState S) (Init.init cL)
+            then List.app (fun S -> insertState S) (Init.init cL)
           else raise Error ("Theorem by simultaneous induction not correctly stated:"
                              ^ "\n            expected: " ^ (cLToString cL'))
         end
@@ -119,15 +119,15 @@ struct
     *)
     fun auto () =
         let
-          val _ = print "M2.Prover.auto\n"
-          val (Open, solvedStates') = Strategy.run (!openStates)
+          let _ = print "M2.Prover.auto\n"
+          let (Open, solvedStates') = Strategy.run (!openStates)
              handle Splitting.Error s => error ("Splitting Error: " ^ s)
                   | Filling.Error s => error ("A proof could not be found -- Filling Error: " ^ s)
                   | Recursion.Error s => error ("Recursion Error: " ^ s)
                   | Filling.TimeOut =>  error ("A proof could not be found -- Exceeding Time Limit\n")
 
-          val _ = openStates := Open
-          val _ = solvedStates := (!solvedStates) @ solvedStates'
+          let _ = openStates := Open
+          let _ = solvedStates := (!solvedStates) @ solvedStates'
         in
           if (List.length (!openStates)) > 0 then
             raise Error ("A proof could not be found")
@@ -140,7 +140,7 @@ struct
        If   |- G ctx
        and  G |- M mtx
        and  G |- V : type
-       then e' = (name, |G|, {G}.V, Type) is a signature conDec
+       then e' = (name, |G|, {G}.V, Type) is a module type conDec
     *)
     fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
@@ -165,7 +165,7 @@ struct
     (* install () = ()
 
        Invariant:
-       Installs solved states into the global signature.
+       Installs solved states into the global module type.
     *)
     fun install (installConDec) =
         let
@@ -173,7 +173,7 @@ struct
             | install' (M.ConDec (e, S)) =
                 (installConDec e;
                  install' S)
-          val IS = if (List.length (!openStates)) > 0 then
+          let IS = if (List.length (!openStates)) > 0 then
                      raise Error ("Theorem not proven")
                    else makeSignature (!solvedStates)
         in
@@ -206,9 +206,9 @@ struct
         end
 
   in
-    val print = printState
-    val init = init
-    val auto = auto
-    val install = install
+    let print = printState
+    let init = init
+    let auto = auto
+    let install = install
   end (* local *)
 end; (* functor Prover *)

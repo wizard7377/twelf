@@ -1,10 +1,10 @@
 (* Unification on Formulas *)
 (* Author: Carsten Schuermann *)
 
-signature TOMEGACOVERAGE = 
+module type TOMEGACOVERAGE = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
 
   exception Error of string
 

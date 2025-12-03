@@ -1,4 +1,4 @@
-structure Reductio =
+module Reductio =
 struct
 	exception Unimp
 	exception Error of string
@@ -8,7 +8,7 @@ struct
 
         open Syntax
 
-	datatype kinding_constraint = 
+	type kinding_constraint = 
 		 CON_LF (* Pi- only *)
 	       | CON_PLUS (* Pi-, Pi+, [Pi] matched by strict occ in later args
                              not necessarily in return type *)
@@ -17,7 +17,7 @@ struct
 
         (* left side is open, (with respect to outer pi bindings)
            and right side is closed *)
-	datatype eq_c = EltC of spinelt * spinelt
+	type eq_c = EltC of spinelt * spinelt
 		      | SpineC of spine * spine
 		      | TypeC of tp * tp
 	type tp_c = term * tp
@@ -50,9 +50,9 @@ struct
            entire roots. *)
 	and const_head_eq (n, n', sp, sp', tm, tm') =
  	    let
-		val def = Sgn.def n
-		val def' = Sgn.def n'
-		val eq_and_strict = (n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n)))
+		let def = Sgn.def n
+		let def' = Sgn.def n'
+		let eq_and_strict = (n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n)))
  		fun redux t n sp = reduce(srTerm(t, typeOf(Sgn.classifier n)), sp) 
 	    in
 		    case (eq_and_strict, def, def') of 
@@ -68,9 +68,9 @@ struct
             so we just build it back up from scratch *)
 	and type_const_head_eq (n, n', sp, sp') =
  	    let
-		val def = Sgn.def n
-		val def' = Sgn.def n'
-		val eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
+		let def = Sgn.def n
+		let def' = Sgn.def n'
+		let eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
 		fun redux a n sp = tp_reduce(a, kindOf(Sgn.classifier n), sp)
 	    in
 		    case (eq_and_strict, def, def') of 
@@ -99,7 +99,7 @@ struct
 	(* pp_shift pps m: compute pps o shift^m *)
 	fun pp_shift (vs,shift) m = 
 	    let 
-		val len = length vs
+		let len = length vs
 	    in
 		if m < len
 		then (List.drop(vs, m),shift)
@@ -109,7 +109,7 @@ struct
         (* pp_nth: extract the result of applying a ppsubst to the nth variable *)
 	fun pp_nth (vs,shift) n = 
 	    let 
-		val len = length vs
+		let len = length vs
 	    in
 		if n < len 
 		then List.nth(vs, n) 
@@ -119,7 +119,7 @@ struct
         (* pp_o: compose two ppsubsts *)
 	fun pp_o (pps, (vs, shift)) = 
 	    let
-		val (vs', shift') =  pp_shift pps shift
+		let (vs', shift') =  pp_shift pps shift
 	    in
 		((map (pp_nth pps) vs) @ vs', shift')
 	    end
@@ -138,24 +138,24 @@ struct
 	    let 
                  (* if the term being consed on is not an eta-expansion of
                     a variable, forget about it *)
-		 val v = Strict.eta_contract_var (Elt t) handle Strict.EtaContract => raise Domain
-		 val (vs, shift) = pp_normalize' s
+		 let v = Strict.eta_contract_var (Elt t) handle Strict.EtaContract => raise Domain
+		 let (vs, shift) = pp_normalize' s
 	     in
 		 (v::vs, shift)
 	     end
 	  | pp_normalize' (ZeroDotShift s) = 
 	    let 
-		val (vs, shift) = pp_normalize' s
+		let (vs, shift) = pp_normalize' s
 	    in
-		(0 :: (map (fn x => x + 1) vs), shift + 1)
+		(0 :: (map (fun x -> x + 1) vs), shift + 1)
 	    end
 	  | pp_normalize' (Shift (n, m)) = 
 	    (* using the fact that Shift (n+1) m = ZeroDotShift (Shift n m) *)
-	    (List.tabulate (n, (fn x => x)), n + m)
+	    (List.tabulate (n, (fun x -> x)), n + m)
 	  | pp_normalize' (EVarDot _) = raise Domain (* XXX: Correct??? *)
 	  | pp_normalize' (VarOptDot (no, s)) = 
 	    let 
-		val (vs, shift) = pp_normalize' s
+		let (vs, shift) = pp_normalize' s
 	    in
 		case no of 
 		    SOME n => (n :: vs, shift)
@@ -187,7 +187,7 @@ struct
         (* take in a ppsubst and return a substitution (which may involve VarOptDots) that is its inverse. *)
 	fun pp_invert (vs,shift) =
 	    let
-		val inds = List.tabulate(shift, (fn x => x))
+		let inds = List.tabulate(shift, (fun x -> x))
 		fun search n [] (x : int) = NONE
 		  | search n (h::tl) x = 
 		    if x = h 
@@ -208,11 +208,11 @@ struct
            If RHS is not in the range of sl, then MissingVar is raised by substitution *)
 	fun flex_left ((r as ref NONE,a), s : subst, rhs) = 
 	    let
-		val pps = prepattern s handle Domain => raise NonPattern
-		val _ = if pp_ispat pps then () else raise NonPattern
-		val ppsi = pp_invert pps
-		val rhs' = subst_term ppsi (termof rhs)
-		val _ = r := SOME rhs'
+		let pps = prepattern s handle Domain => raise NonPattern
+		let _ = if pp_ispat pps then () else raise NonPattern
+		let ppsi = pp_invert pps
+		let rhs' = subst_term ppsi (termof rhs)
+		let _ = r := SOME rhs'
 	    in
 		()
 	    end
@@ -260,11 +260,11 @@ struct
 	and match_two e1 e2 = [e1, e2] 
 	and match_const_head (n, n', s, s', elt, elt', err) =
  	    let
-		val def = Sgn.def n
-		val def' = Sgn.def n'
-		val eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
+		let def = Sgn.def n
+		let def' = Sgn.def n'
+		let eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
 		fun redux t n sp = reduce(srTerm(t, typeOf(Sgn.classifier n)), sp)
-		val eq = 	
+		let eq = 	
 		    case (eq_and_strict, def, def') of 
 			(true, _, _) => SpineC(s, s')
 		      | (false, Sgn.DEF_NONE, Sgn.DEF_NONE) => raise Matching err
@@ -277,11 +277,11 @@ struct
 	    end 
 	and match_type_const_head (n, n', s, s', err) =
  	    let
-		val def = Sgn.def n
-		val def' = Sgn.def n'
-		val eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
+		let def = Sgn.def n
+		let def' = Sgn.def n'
+		let eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
 		fun redux a n sp = tp_reduce(a, kindOf(Sgn.classifier n), sp)
-		val eq = 	
+		let eq = 	
 		    case (eq_and_strict, def, def') of 
 			(true, _, _) => SpineC(s, s')
 		      | (false, Sgn.DEF_NONE, Sgn.DEF_NONE) => raise Matching err
@@ -295,7 +295,7 @@ struct
 
 	fun matching (p) =  let
 	    fun matching' (c::p,p') =
-		(let val eqs = match_one c in matching'(eqs @ p, p') end
+		(let let eqs = match_one c in matching'(eqs @ p, p') end
 		 handle NonPattern => matching'(p, c::p'))
 	      | matching' ([], p') = p'
 	in
@@ -306,10 +306,10 @@ struct
 (*	fun ctxcons (a, G) = map (shift_tp 0) (a::G) *)
 	fun ctxcons (a, G) = a::G
 
-	datatype cg_mode = CG_SYNTH
+	type cg_mode = CG_SYNTH
 			 | CG_CHECK of tp
 
-(* 	val constraint_gen : tp list -> spine * tp * cg_mode -> eq_c list * tp_c list
+(* 	let constraint_gen : tp list -> spine * tp * cg_mode -> eq_c list * tp_c list
         fun constraint_gen G (s, z, c) = (p, q, aopt) *)
 	(* invariants: 
 	   s is ground
@@ -329,32 +329,32 @@ struct
 	     ([], [], SOME(TRoot(n, s)))
 	  | constraint_gen' G (Omit::s, TPi(OMIT, a, z), c) =
 	    let 
-		val ev : evar = (ref NONE, a)
-		val z' = subst_tp (EVarDotId ev) z
-		val (p,q,aa) = constraint_gen' G (s, z', c)
+		let ev : evar = (ref NONE, a)
+		let z' = subst_tp (EVarDotId ev) z
+		let (p,q,aa) = constraint_gen' G (s, z', c)
 	    in
 		(p, q, aa)
 	    end
 	  | constraint_gen' G ((Elt m)::s, TPi(MINUS, a, z), c) =
 	    let 
-		val z' = subst_tp (TermDot (m, a, Id)) z
-		val (p,q,aa) = constraint_gen' G (s, z', c)
+		let z' = subst_tp (TermDot (m, a, Id)) z
+		let (p,q,aa) = constraint_gen' G (s, z', c)
 	    in
 		(p, (m,a)::q, aa)
 	    end
 	  | constraint_gen' G ((AElt m)::s, TPi(PLUS, a, z), c) =
 	    let 
-		val a' = synth(G, m)
-		val z' = subst_tp (TermDot (ATerm m, a, Id)) z
-		val (p,q,aa) = constraint_gen' G (s, z', c)
+		let a' = synth(G, m)
+		let z' = subst_tp (TermDot (ATerm m, a, Id)) z
+		let (p,q,aa) = constraint_gen' G (s, z', c)
 	    in
                 (* Same PERF comment here as above *)
 		((TypeC(a,a'))::p, q, aa)
 	    end
 	  | constraint_gen' G ((Ascribe(m,a'))::s, TPi(PLUS, a, z), c) =
 	    let 
-		val z' = subst_tp (TermDot (NTerm m, a, Id)) z
-		val (p,q,aa) = constraint_gen' G (s, z', c)
+		let z' = subst_tp (TermDot (NTerm m, a, Id)) z
+		let (p,q,aa) = constraint_gen' G (s, z', c)
 	    in
                 (* As well as here *)
 		((TypeC(a,a'))::p, q, aa)
@@ -365,31 +365,31 @@ struct
 	and tp_constraint_gen G ([], Type) =  ([], [])
 	  | tp_constraint_gen G (Omit::s, KPi(OMIT, a, z)) =
 	    let 
-		val ev : evar = (ref NONE, a)
-		val z' = subst_knd (EVarDotId ev) z
-		val (p,q) = tp_constraint_gen G (s, z')
+		let ev : evar = (ref NONE, a)
+		let z' = subst_knd (EVarDotId ev) z
+		let (p,q) = tp_constraint_gen G (s, z')
 	    in
 		(p, q)
 	    end
 	  | tp_constraint_gen G ((Elt m)::s, KPi(MINUS, a, z)) =
 	    let 
-		val z' = subst_knd (TermDot (m, a, Id)) z
-		val (p,q) = tp_constraint_gen G (s, z')
+		let z' = subst_knd (TermDot (m, a, Id)) z
+		let (p,q) = tp_constraint_gen G (s, z')
 	    in
 		(p, (m,a)::q)
 	    end
 	  | tp_constraint_gen G ((AElt m)::s, KPi(PLUS, a, z)) =
 	    let 
-		val a' = synth(G, m)
-		val z' = subst_knd (TermDot (ATerm m, a, Id)) z
-		val (p,q) = tp_constraint_gen G (s, z')
+		let a' = synth(G, m)
+		let z' = subst_knd (TermDot (ATerm m, a, Id)) z
+		let (p,q) = tp_constraint_gen G (s, z')
 	    in
 		((TypeC(a,a'))::p, q)
 	    end
 	  | tp_constraint_gen G ((Ascribe(m,a'))::s, KPi(PLUS, a, z)) =
 	    let 
-		val z' = subst_knd (TermDot (NTerm m, a, Id)) z
-		val (p,q) = tp_constraint_gen G (s, z')
+		let z' = subst_knd (TermDot (NTerm m, a, Id)) z
+		let (p,q) = tp_constraint_gen G (s, z')
 	    in
 		((TypeC(a,a'))::p, q)
 	    end
@@ -402,9 +402,9 @@ struct
         (* returns true on success or raises Matching on failure *)
 	and matching_succeeds G (p,q) =
 	    let
- 		val p' = matching p (* evar side-effects affect q, raises Matching if matching fails *)
-		val _ = if check_equality_constraints p' then () else raise Matching "residual equality constraints failed"
-		val _ = if check_typing_constraints G q then () else raise Matching "residual typing constraints failed"
+ 		let p' = matching p (* evar side-effects affect q, raises Matching if matching fails *)
+		let _ = if check_equality_constraints p' then () else raise Matching "residual equality constraints failed"
+		let _ = if check_typing_constraints G q then () else raise Matching "residual typing constraints failed"
 	    in
 		true
 	    end
@@ -418,10 +418,10 @@ struct
 	  | check (G, ATerm(t), a) = (tp_eq(synth(G, t), a) handle Error s =>  false)
 	  | check (G, NTerm(NRoot(Const n, s)), a) = 
 	    let
-		 val b = case Sgn.classifier n of 
+		 let b = case Sgn.classifier n of 
 			     tclass b => b
-			   | _ => raise Error "signature invariant violated!"
-		 val (p, q, _) = constraint_gen G  (s, b, CG_CHECK a) (* creates ref cells for evars *)
+			   | _ => raise Error "module type invariant violated!"
+		 let (p, q, _) = constraint_gen G  (s, b, CG_CHECK a) (* creates ref cells for evars *)
 	     in
 		 matching_succeeds G (p, q)
 	     end
@@ -435,17 +435,17 @@ struct
 
 	and check_type _ (G, TRoot(n, s)) = 
 	    let
-		val k = case Sgn.classifier n of 
+		let k = case Sgn.classifier n of 
 			    kclass k => k
-			  | _ => raise Error "signature invariant violated!"
-		val (p, q) = tp_constraint_gen G  (s, k) (* creates ref cells for evars *)
+			  | _ => raise Error "module type invariant violated!"
+		let (p, q) = tp_constraint_gen G  (s, k) (* creates ref cells for evars *)
 	    in
 		matching_succeeds G (p, q)
 	    end
 
 	  | check_type con (G, TPi(OMIT,a,b)) = 
 	    let 
-		val plusconst = case con of
+		let plusconst = case con of
 		 CON_LF => raise Error "TPi(OMIT) where a pure LF function type expected"
 	       | CON_PLUS => true
 	       | CON_MINUS => false
@@ -464,8 +464,8 @@ struct
 	and check_type' (G, Type, []) = true
 	  | check_type' (G, KPi(_,a,k), m::s) = 
 	    let
-		val _ = if check_spinelt(G, m, a) then () else raise Error "argument type mismatch"
-		val k' = subst_knd (TermDot(termof m,a,Id)) k
+		let _ = if check_spinelt(G, m, a) then () else raise Error "argument type mismatch"
+		let k' = subst_knd (TermDot(termof m,a,Id)) k
 	    in
 		check_type'(G,k',s)
 	    end
@@ -473,12 +473,12 @@ struct
 	and synth (G, ARoot(Var n, s)) = synth'(G, ctxLookup(G, n), s)
 	  | synth (G, ARoot(Const n, s)) = 
 	    let
-		 val b = case Sgn.classifier n of 
+		 let b = case Sgn.classifier n of 
 			     tclass b => b
-			   | _ => raise Error "signature invariant violated!"
-		 val (p, q, aopt) = constraint_gen G  (s, b, CG_SYNTH) (* creates ref cells for evars *)
-(* DEBUG		 val _ = l3 := (p, q, aopt)::(!l3) *)
-		 val _ = matching_succeeds G (p,q) (* raises Matching if not *)
+			   | _ => raise Error "module type invariant violated!"
+		 let (p, q, aopt) = constraint_gen G  (s, b, CG_SYNTH) (* creates ref cells for evars *)
+(* DEBUG		 let _ = l3 := (p, q, aopt)::(!l3) *)
+		 let _ = matching_succeeds G (p,q) (* raises Matching if not *)
 	     in
 		 Option.valOf aopt (* by invariant, aopt must be SOME *)
 	     end
@@ -486,8 +486,8 @@ struct
 	and synth' (G, a as TRoot(_,_), []) = a
 	  | synth' (G, TPi(_,a,b), m::s) = 
 	    let
-		val _ = if check_spinelt(G, m, a) then () else raise Error "argument type mismatch"
-		val b' = subst_tp (TermDot(termof m,a,Id)) b
+		let _ = if check_spinelt(G, m, a) then () else raise Error "argument type mismatch"
+		let b' = subst_tp (TermDot(termof m,a,Id)) b
 	    in
 		synth' (G, b', s)
 	    end
@@ -523,7 +523,7 @@ struct
 	    check_strictness_type plusconst b andalso Strict.check_strict_type plusconst b 
 	  | check_strictness_type plusconst (TPi(_,_,b)) = check_strictness_type plusconst b
 							
-	val check_plusconst_strictness = check_strictness_type true
-	val check_minusconst_strictness = check_strictness_type false
+	let check_plusconst_strictness = check_strictness_type true
+	let check_minusconst_strictness = check_strictness_type false
 end
 

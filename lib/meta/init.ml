@@ -1,36 +1,36 @@
 (* Initialization *)
 (* Author: Carsten Schuermann *)
 
-functor MTPInit (structure MTPGlobal : MTPGLOBAL
-                 structure MTPData : MTPDATA
-                 (*! structure IntSyn : INTSYN !*)
-                 structure Names : NAMES
+let recctor MTPInit (module MTPGlobal : MTPGLOBAL
+                 module MTPData : MTPDATA
+                 (*! module IntSyn : INTSYN !*)
+                 module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn !*)
-                 (*! structure FunSyn' : FUNSYN !*)
+                 (*! module FunSyn' : FUNSYN !*)
                  (*! sharing FunSyn'.IntSyn = IntSyn !*)
-                 structure StateSyn' : STATESYN
+                 module StateSyn' : STATESYN
                  (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                 structure Formatter : FORMATTER
-                 structure Whnf : WHNF
+                 module Formatter : FORMATTER
+                 module Whnf : WHNF
                  (*! sharing Whnf.IntSyn = IntSyn !*)
-                 structure Print : PRINT
+                 module Print : PRINT
                    sharing Print.Formatter = Formatter
                    (*! sharing Print.IntSyn = IntSyn !*)
-                 structure FunPrint : FUNPRINT
+                 module FunPrint : FUNPRINT
                  (*! sharing FunPrint.FunSyn = FunSyn' !*)
                    sharing FunPrint.Formatter = Formatter)
   : MTPINIT =
 struct
-  (*! structure FunSyn = FunSyn' !*)
-  structure StateSyn = StateSyn'
+  (*! module FunSyn = FunSyn' !*)
+  module StateSyn = StateSyn'
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure F = FunSyn
-    structure S = StateSyn
-    structure Fmt = Formatter
+    module I = IntSyn
+    module F = FunSyn
+    module S = StateSyn
+    module Fmt = Formatter
 
     (* init (F, OF) = Ss'
 
@@ -44,7 +44,7 @@ struct
       let
         fun init' ((G, B), S.All (_, O), F.All (F.Prim D, F'), Ss) =
             let
-              val D' = Names.decName (G, D)
+              let D' = Names.decName (G, D)
             in
               init' ((I.Decl (G, D'),
                      I.Decl (B, S.Lemma (S.Splits (!MTPGlobal.maxSplit)))),
@@ -69,6 +69,6 @@ struct
       end
 
   in
-    val init = init
+    let init = init
   end (* local *)
 end; (* functor Init *)

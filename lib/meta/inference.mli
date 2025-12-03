@@ -1,10 +1,10 @@
 (* Inference: Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-signature INFERENCE = 
+module type INFERENCE = 
 sig
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string
 
@@ -13,6 +13,6 @@ sig
   val expand : StateSyn.State -> operator 
   val apply : operator -> StateSyn.State
   val menu : operator -> string
-end; (* signature Inference *)
+end; (* module type Inference *)
 
 

@@ -1,12 +1,12 @@
 (* Parsing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-signature PARSE_MODE =
+module type PARSE_MODE =
 sig
 
-  (*! structure Parsing : PARSING !*)
-  structure ExtModes: EXTMODES
+  (*! module Parsing : PARSING !*)
+  module ExtModes: EXTMODES
 
   val parseMode' : (ExtModes.modedec list) Parsing.parser
 
-end;  (* signature PARSE_MODE *)
+end;  (* module type PARSE_MODE *)

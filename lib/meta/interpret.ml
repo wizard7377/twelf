@@ -1,9 +1,9 @@
 (* Operational semantics *)
 (* Author: Carsten Schuermann *)
 
-signature Interpreter = 
+module type Interpreter = 
 sig
-  (*! structure FunSyn : FUNSYN !*)
+  (*! module FunSyn : FUNSYN !*)
 
-  val run : FunSyn.Pro -> FunSyn.Pro
+  let run : FunSyn.Pro -> FunSyn.Pro
 end (* Signature Interpreter *)       

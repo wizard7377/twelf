@@ -2,22 +2,22 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor ModeDec ((*! structure ModeSyn' : MODESYN !*)
-                 (*! structure Paths' : PATHS !*)
+let recctor ModeDec ((*! module ModeSyn' : MODESYN !*)
+                 (*! module Paths' : PATHS !*)
                    )
   : MODEDEC =
 struct
-  (*! structure ModeSyn = ModeSyn' !*)
-  (*! structure Paths = Paths' !*)
+  (*! module ModeSyn = ModeSyn' !*)
+  (*! module Paths = Paths' !*)
 
   exception Error of string
 
   local
-    structure M = ModeSyn
-    structure I = IntSyn
-    structure P = Paths
+    module M = ModeSyn
+    module I = IntSyn
+    module P = Paths
 
-    datatype Arg = Implicit | Explicit | Local
+    type Arg = Implicit | Explicit | Local
 
     (* Representation invariant:
 
@@ -275,8 +275,8 @@ struct
       | checkPure ((a, M.Mapp (_, mS)), r) = checkPure ((a, mS), r)
 
   in
-    val shortToFull = shortToFull
-    val checkFull = checkFull
-    val checkPure = checkPure
+    let shortToFull = shortToFull
+    let checkFull = checkFull
+    let checkPure = checkPure
   end
 end;  (* functor ModeDec *)

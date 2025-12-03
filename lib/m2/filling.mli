@@ -1,9 +1,9 @@
 (* Filling *)
 (* Author: Carsten Schuermann *)
 
-signature FILLING = 
+module type FILLING = 
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
 
   exception Error of string
   exception TimeOut

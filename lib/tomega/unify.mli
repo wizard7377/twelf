@@ -1,10 +1,10 @@
 (* Unification on Formulas *)
 (* Author: Carsten Schuermann *)
 
-signature TOMEGAUNIFY = 
+module type TOMEGAUNIFY = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
 
   exception Unify of string
 

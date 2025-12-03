@@ -1,21 +1,21 @@
-functor SymbolAscii () :> SYMBOL =
+let recctor SymbolAscii () :> SYMBOL =
 struct
 
   fun idSize s = (s, String.size s)
 
-  val str = idSize
-  val evar = idSize
-  val bvar = idSize
-  val const = idSize
-  val skonst = idSize
-  val label = idSize
-  val def = idSize
+  let str = idSize
+  let evar = idSize
+  let bvar = idSize
+  let const = idSize
+  let skonst = idSize
+  let label = idSize
+  let def = idSize
   fun fvar s = idSize ("`" ^ s)
-  val sym = idSize
+  let sym = idSize
 
 end;  (* functor SymbolAscii *)
 
-functor SymbolTeXfp () :> SYMBOL =
+let recctor SymbolTeXfp () :> SYMBOL =
 struct
 
   (* Illegal constituents: \ _ $ # *)
@@ -89,7 +89,7 @@ struct
 end;  (* functor SymbolTeX *)
 
 
-functor SymbolTeX () :> SYMBOL =
+let recctor SymbolTeX () :> SYMBOL =
 struct
 
   (* Illegal constituents: \ _ $ # *)

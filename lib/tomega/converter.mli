@@ -2,10 +2,10 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-signature CONVERTER = 
+module type CONVERTER = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
 
   exception Error of string
   exception Error' of Tomega.Sub

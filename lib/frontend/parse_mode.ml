@@ -1,26 +1,26 @@
 (* Parsing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-functor ParseMode
-   ((*! structure Paths : PATHS !*)
-   (*! structure Parsing' : PARSING !*)
+let recctor ParseMode
+   ((*! module Paths : PATHS !*)
+   (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
-   structure ExtModes' : EXTMODES
+   module ExtModes' : EXTMODES
    (*! sharing ExtModes'.Paths = Paths !*)
    (*! sharing ExtModes'.ExtSyn.Paths = Paths !*)
-   structure ParseTerm : PARSE_TERM
+   module ParseTerm : PARSE_TERM
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ExtModes'.ExtSyn)
      : PARSE_MODE =
 struct
-  (*! structure Parsing = Parsing' !*)
-  structure ExtModes = ExtModes'
+  (*! module Parsing = Parsing' !*)
+  module ExtModes = ExtModes'
 
   local
-    structure L = Lexer
-    structure LS = Lexer.Stream
-    structure E = ExtModes
-    structure P = Paths
+    module L = Lexer
+    module LS = Lexer.Stream
+    module E = ExtModes
+    module P = Paths
 
     (* extract (s, i) = substring of s starting at index i
        Effect: raises Subscript if i > |s|
@@ -68,8 +68,8 @@ struct
           (E.Short.mnil r, f)
       | parseShortSpine (LS.Cons ((L.ID (_, id), r), s')) =
         let
-          val mId = validateMArg (r, splitModeId (r, id))
-          val (mS', f') = parseShortSpine (LS.expose s')
+          let mId = validateMArg (r, splitModeId (r, id))
+          let (mS', f') = parseShortSpine (LS.expose s')
         in
           (E.Short.mapp (mId, mS'), f')
         end
@@ -83,21 +83,21 @@ struct
            of LS.Cons ((L.LBRACE, r), s'') =>
               (* found quantifier --- id must be mode *)
               let
-                val mId = splitModeId (r0, id)
-                val m = validateMode (r0, mId)
-                val ((x, yOpt), f') = ParseTerm.parseDec' (LS.expose s'')
-                val (f'', r') = stripRBrace f'
-                val dec = (case yOpt
+                let mId = splitModeId (r0, id)
+                let m = validateMode (r0, mId)
+                let ((x, yOpt), f') = ParseTerm.parseDec' (LS.expose s'')
+                let (f'', r') = stripRBrace f'
+                let dec = (case yOpt
                              of NONE => ParseTerm.ExtSyn.dec0 (x, P.join (r, r'))
                               | SOME y => ParseTerm.ExtSyn.dec (x, y, P.join (r, r')))
-                val (t', f''') = parseFull (f'', r1)
+                let (t', f''') = parseFull (f'', r1)
               in
                 (E.Full.mpi (m, dec, t'), f''')
               end
             | LS.Cons TS =>
               (* no quantifier --- parse atomic type *)
               let
-                val (t', f' as LS.Cons ((_, r), s')) =
+                let (t', f' as LS.Cons ((_, r), s')) =
                     ParseTerm.parseTerm' (LS.Cons (t0, LS.cons TS))
               in
                 (E.Full.mroot (t', P.join (r, r1)), f')
@@ -105,8 +105,8 @@ struct
       | parseFull (LS.Cons ((L.LPAREN, r0), s'), r1) =
         (* Left paren --- parse atomic type *)
         let
-          val (t', f') = ParseTerm.parseTerm' (LS.expose s')
-          val (f'', r') = stripRParen f'
+          let (t', f') = ParseTerm.parseTerm' (LS.expose s')
+          let (f'', r') = stripRParen f'
         in
           (E.Full.mroot (t', P.join (r', r1)), f'')
         end
@@ -117,21 +117,21 @@ struct
     (* lexid could be mode or other identifier *)
     fun parseMode2 (lexid, LS.Cons (BS as ((L.LBRACE, r), s')), r1) =
         let
-          val (t', f') = parseFull (LS.Cons (lexid, LS.cons BS), r1)
+          let (t', f') = parseFull (LS.Cons (lexid, LS.cons BS), r1)
         in
           (E.Full.toModedec t', f')
         end
       | parseMode2 ((L.ID (_, name), r), f, _) =
         let
-          val (mS', f') = parseShortSpine f
+          let (mS', f') = parseShortSpine f
         in
           (E.Short.toModedec (E.Short.mroot (nil, name, r, mS')), f')
         end
 
     fun parseModeParen (LS.Cons ((L.ID (_, name), r0), s'), r) =
         let
-          val (mS', f') = parseShortSpine (LS.expose s')
-          val (f'', r') = stripRParen f'
+          let (mS', f') = parseShortSpine (LS.expose s')
+          let (f'', r') = stripRParen f'
         in
           (E.Short.toModedec (E.Short.mroot (nil, name, P.join (r, r'), mS')), f'')
         end
@@ -149,7 +149,7 @@ struct
     and parseModeNext (modedec, f as LS.Cons ((L.DOT, _), s')) = (modedec::nil, f)
       | parseModeNext (modedec, f) =
         let
-          val (mdecs, f') = parseMode1 f
+          let (mdecs, f') = parseMode1 f
         in
           (modedec::mdecs, f')
         end
@@ -161,7 +161,7 @@ struct
       | parseMode' (LS.Cons ((L.UNIQUE, r), s')) = parseMode1 (LS.expose s')
       | parseMode' (LS.Cons ((L.COVERS, r), s')) = parseMode1 (LS.expose s')
   in
-    val parseMode' = parseMode'
+    let parseMode' = parseMode'
   end  (* local *)
 
 end;  (* functor ParseMode *)

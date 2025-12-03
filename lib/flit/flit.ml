@@ -1,33 +1,33 @@
 (* Flit DAG generator *)
 (* Author: Roberto Virga *)
 
-functor Flit(structure Global : GLOBAL
-             structure Word : WORD
-             structure Pack : PACK_WORD
-             structure Whnf : WHNF
-             structure Names : NAMES
-             structure Table : TABLE
+let recctor Flit(module Global : GLOBAL
+             module Word : WORD
+             module Pack : PACK_WORD
+             module Whnf : WHNF
+             module Names : NAMES
+             module Table : TABLE
                where type key = IntSyn.cid
-             structure Index : INDEX
-             structure Print : PRINT)
+             module Index : INDEX
+             module Print : PRINT)
   : FLIT =
 struct
 
   local
-    structure W = Word
-    structure I = IntSyn
-    structure N = Names
-    structure F = Names.Fixity
-    structure Idx = Index
-    structure SHT = StringHashTable
-    structure IHT = Table
+    module W = Word
+    module I = IntSyn
+    module N = Names
+    module F = Names.Fixity
+    module Idx = Index
+    module SHT = StringHashTable
+    module IHT = Table
 
     exception Error of string
 
-    val size_of_expr = 3;
+    let size_of_expr = 3;
 
-    val tcb_table : (string * int) list option ref = ref NONE
-    val tcb_size : int ref = ref 0
+    let tcb_table : (string * int) list option ref = ref NONE
+    let tcb_size : int ref = ref 0
 
     fun print_table () =
           let
@@ -39,20 +39,20 @@ struct
                    print_table' pairs)
           in
             (
-              print "val tcb_table := [\n";
+              print "let tcb_table := [\n";
               print_table' (valOf (!tcb_table));
               print "];\n"
             )
           end
 
     fun print_size () =
-         print ("val tcb_size = " ^ Int.toString (!tcb_size) ^ ";\n")
+         print ("let tcb_size = " ^ Int.toString (!tcb_size) ^ ";\n")
 
     fun init filename =
       let
-        val stream = TextIO.openIn filename
+        let stream = TextIO.openIn filename
 
-        val linecount = ref 0 : int ref;
+        let linecount = ref 0 : int ref;
         fun get_line () = (linecount := !linecount + 1; Compat.inputLine97 stream)
 
         fun error () = raise Error ("Error reading file '" ^ filename
@@ -63,9 +63,9 @@ struct
                 of SOME(tcb_size) => tcb_size
                  | NONE => error ()
 
-        val () = tcb_size := read_size ()
+        let () = tcb_size := read_size ()
 
-        val () = if (!Global.chatter >= 3) then print_size () else ()
+        let () = if (!Global.chatter >= 3) then print_size () else ()
 
         fun read_table "" = nil
           | read_table line =
@@ -74,40 +74,40 @@ struct
                    (id, valOf (Int.fromString addr)) :: read_table (get_line ())
                  | _ => error ()
 
-        val () = tcb_table := SOME (read_table (get_line ()))
+        let () = tcb_table := SOME (read_table (get_line ()))
 
-        val () = if (!Global.chatter >= 3) then print_table () else ()
+        let () = if (!Global.chatter >= 3) then print_table () else ()
 
-        val () = TextIO.closeIn stream
+        let () = TextIO.closeIn stream
       in
         ()
       end
 
-    val closedMask  = LargeWord.fromInt(256);
-    val predicateMask = LargeWord.fromInt(512);
-    val clauseMask = LargeWord.fromInt(1024);
+    let closedMask  = LargeWord.fromInt(256);
+    let predicateMask = LargeWord.fromInt(512);
+    let clauseMask = LargeWord.fromInt(1024);
 
-    val baseAddr : int ref = ref 0
-    val startClause : int option ref = ref NONE;
-    val startSemant : int option ref = ref NONE;
+    let baseAddr : int ref = ref 0
+    let startClause : int option ref = ref NONE;
+    let startSemant : int option ref = ref NONE;
 
-    val tuples : int ref = ref 0
-    val out : BinIO.outstream option ref = ref NONE
+    let tuples : int ref = ref 0
+    let out : BinIO.outstream option ref = ref NONE
 
-    val symTable : W.word Table.Table = Table.new 32
-    val printTable : unit Table.Table = Table.new 32
+    let symTable : W.word Table.Table = Table.new 32
+    let printTable : unit Table.Table = Table.new 32
 
-    val shadowTable : int SHT.Table = SHT.new 32
-    val depTable : unit IHT.Table IHT.Table = IHT.new 32
-    val recordTable : unit IHT.Table = IHT.new 32
-    val imitatesTable : int IHT.Table = IHT.new 32
-    val replaceTable : string IHT.Table = IHT.new 32
+    let shadowTable : int SHT.Table = SHT.new 32
+    let depTable : unit IHT.Table IHT.Table = IHT.new 32
+    let recordTable : unit IHT.Table = IHT.new 32
+    let imitatesTable : int IHT.Table = IHT.new 32
+    let replaceTable : string IHT.Table = IHT.new 32
 
     fun cname cid = I.conDecName (I.sgnLookup cid)
 
     fun clookup name =
           let
-            val size = #1 (I.sgnSize ());
+            let size = #1 (I.sgnSize ());
             fun clookup' cid =
                   if (cid = size)
                   then raise Error ("symbol " ^ name ^ " not found")
@@ -144,10 +144,10 @@ struct
 
     fun tuple (code, flags as (cld, prd, cls), arg1, arg2) =
           let
-            val addr = W.fromInt (!tuples + !tcb_size)
-            val array = Word8Array.array (Pack.bytesPerElem * size_of_expr,
+            let addr = W.fromInt (!tuples + !tcb_size)
+            let array = Word8Array.array (Pack.bytesPerElem * size_of_expr,
                                           Word8.fromInt 0)
-            val opcode = ref (Word8.toLargeWord (Byte.charToByte code))
+            let opcode = ref (Word8.toLargeWord (Byte.charToByte code))
           in
             if(cld)
             then opcode := LargeWord.orb (!opcode, closedMask)
@@ -173,8 +173,8 @@ struct
             addr
           end
 
-    val kd = (fn () => W.fromInt 0)
-    val ty = (fn () => W.fromInt 1)
+    let kd = (fn () => W.fromInt 0)
+    let ty = (fn () => W.fromInt 1)
 
     fun const true ty =
           tuple (#"c", (true, true, true), W.fromInt 0, ty)
@@ -209,7 +209,7 @@ struct
 
     fun scanBinopPf oper string =
           let
-            val args = String.tokens (fn c => c = oper) string
+            let args = String.tokens (fun c -> c = oper) string
           in
             case args
               of [arg1, arg2] =>
@@ -223,12 +223,12 @@ struct
     (* currently unused *)
     fun scanTernopPf oper1 oper2 string =
           let
-            val args = String.tokens (fn c => c = oper1) string
+            let args = String.tokens (fun c -> c = oper1) string
           in
             case args
               of [arg1, args2] =>
           let
-            val args' = String.tokens (fn c => c = oper2) args2
+            let args' = String.tokens (fun c -> c = oper2) args2
           in
             case args'
               of [arg2, arg3] =>
@@ -259,10 +259,10 @@ struct
               if (cid >= cid')
               then
                 let
-                  val a = I.targetHead (I.constType cid)
-                  val clauses = List.mapPartial headCID (Idx.lookup (valOf (headCID a)))
+                  let a = I.targetHead (I.constType cid)
+                  let clauses = List.mapPartial headCID (Idx.lookup (valOf (headCID a)))
                 in
-                  List.exists (fn x => x = cid) clauses
+                  List.exists (fun x -> x = cid) clauses
                 end
               else false
              | _ => false
@@ -272,9 +272,9 @@ struct
             of SOME(idx) => idx
              | NONE =>
                  let
-                   val idx = compileConDec (I.sgnLookup cid, (isPredicate cid, isClause cid))
-                   val () = Table.insert symTable (cid, idx)
-                   val () = if (!Global.chatter >= 3) then print_once cid else ()
+                   let idx = compileConDec (I.sgnLookup cid, (isPredicate cid, isClause cid))
+                   let () = Table.insert symTable (cid, idx)
+                   let () = if (!Global.chatter >= 3) then print_once cid else ()
                  in
                    idx
                  end
@@ -285,23 +285,23 @@ struct
     and compileExpN generate (G, I.Uni V, flags) = compileUni V
       | compileExpN generate (G, I.Pi ((I.Dec (_, U1), _), U2), flags as (cld, _, _)) =
           let
-            val idxU1 = compileExpN generate (G, U1, (cld, false, false))
-            val idxU1var = var generate idxU1
-            val idxU2 = compileExpN generate (I.Decl (G, idxU1var), U2, (false, false, false))
+            let idxU1 = compileExpN generate (G, U1, (cld, false, false))
+            let idxU1var = var generate idxU1
+            let idxU2 = compileExpN generate (I.Decl (G, idxU1var), U2, (false, false, false))
           in
             pi generate (flags, idxU1var, idxU2)
           end
       | compileExpN generate (G, I.Lam (D as I.Dec (_, U1), U2), flags as (cld, _, _)) =
           let
-            val idxU1 = compileExpN generate (G, U1, (cld, false, false))
-            val idxU1var = var generate idxU1
-            val idxU2 = compileExpN generate (I.Decl (G, idxU1var), U2, (false, false, false))
+            let idxU1 = compileExpN generate (G, U1, (cld, false, false))
+            let idxU1var = var generate idxU1
+            let idxU2 = compileExpN generate (I.Decl (G, idxU1var), U2, (false, false, false))
           in
             lam generate (flags, idxU1var, idxU2)
           end
       | compileExpN generate (G, U as I.Root (H, S), flags) =
           let
-            val idx = compileHead generate (G, H)
+            let idx = compileHead generate (G, H)
           in
             compileSpine generate (G, idx, S, flags)
           end
@@ -311,13 +311,13 @@ struct
     and compileSpine generate (G, idx, I.Nil, flags) = idx
       | compileSpine generate (G, idx, I.App (U1, I.Nil), flags as (cld, _, _)) =
           let
-            val idxU1 = compileExpN generate (G, U1, (cld, false, false))
+            let idxU1 = compileExpN generate (G, U1, (cld, false, false))
           in
             app generate (flags, idx, idxU1)
           end
       | compileSpine generate (G, idx, I.App (U1, S), flags as (cld, _, _)) =
           let
-            val idxU1 = compileExpN generate (G, U1, (cld, false, false))
+            let idxU1 = compileExpN generate (G, U1, (cld, false, false))
           in
             compileSpine generate (G, app generate ((cld, false, false), idx, idxU1), S, flags)
           end
@@ -330,8 +330,8 @@ struct
 
     and compileFgnDec true (G, conDec) =
           let
-            val name = I.conDecName conDec
-            val flags = (true, false, false)
+            let name = I.conDecName conDec
+            let flags = (true, false, false)
           in
             (case (scanNumber name)
                of SOME(n) => tuple (#"#", flags, n, W.fromInt 0)
@@ -357,24 +357,24 @@ struct
           raise Error ("attempt to shadow constant " ^ (I.conDecName condec))
       | compileConDec (condec as I.ConDef (_, _, _, U, V, _, _), (pred, cls)) =
           let
-            val exp = compileExpN true (I.Null, V, (true, false, false))
-            val arg = compileExpN true (I.Null, U, (true, pred, cls))
+            let exp = compileExpN true (I.Null, V, (true, false, false))
+            let arg = compileExpN true (I.Null, U, (true, pred, cls))
           in
             annotate true ((true, pred, cls), arg, exp)
           end
       | compileConDec (condec as I.AbbrevDef (_, _, _, U, V, _), (pred, cls)) =
           let
-            val exp = compileExpN true (I.Null, V, (true, false, false))
-            val arg = compileExpN true (I.Null, U, (true, pred, cls))
+            let exp = compileExpN true (I.Null, V, (true, false, false))
+            let arg = compileExpN true (I.Null, U, (true, pred, cls))
           in
             annotate true ((true, pred, cls), arg, exp)
           end
 
     fun initTuples () =
           let
-            val _ = tuples := 0
-            val _ = Table.clear symTable
-            val _ = Table.clear printTable
+            let _ = tuples := 0
+            let _ = Table.clear symTable
+            let _ = Table.clear printTable
           in
             case (!tcb_table)
               of SOME(l) =>
@@ -387,11 +387,11 @@ struct
           let
             fun dump' cid =
                   let
-                    val _ = out := SOME (BinIO.openOut file);
-                    val stream = valOf (!out)
-                    val _ = initTuples ()
-                    val idx = W.toInt (lookup cid)
-                    val _ = BinIO.closeOut stream
+                    let _ = out := SOME (BinIO.openOut file);
+                    let stream = valOf (!out)
+                    let _ = initTuples ()
+                    let idx = W.toInt (lookup cid)
+                    let _ = BinIO.closeOut stream
                   in
                     idx
                   end
@@ -423,7 +423,7 @@ struct
 
     fun dumpFlagged file =
           let
-            val max = #1 (I.sgnSize ())
+            let max = #1 (I.sgnSize ())
             fun compileSeq cid =
                   if (cid < max)
                   then
@@ -453,8 +453,8 @@ struct
 
      fun dumpSymTable (name1, name2, file) =
            let
-             val stream = TextIO.openOut file
-             val F.Strength nonfixLevel = F.minPrec
+             let stream = TextIO.openOut file
+             let F.Strength nonfixLevel = F.minPrec
              fun dumpFixity cid =
                    (case (N.getFixity cid)
                       of F.Infix (F.Strength level, F.Left) => (level, 1)
@@ -504,7 +504,7 @@ struct
                | ms [s] = [s]
                | ms [a,b] = merge [a] [b]
                | ms ll =
-                 let val (a,b) = split ll
+                 let let (a,b) = split ll
                  in merge (ms a) (ms b)
                  end
          in ms l
@@ -512,8 +512,8 @@ struct
 
      fun sortedKeys t =
          let
-             val r = ref []
-             val _ =  IHT.app (fn x => r := x :: !r) t
+             let r = ref []
+             let _ =  IHT.app (fun x -> r := x :: !r) t
          in
              sort Int.compare (map #1 (!r))
          end
@@ -524,13 +524,13 @@ struct
     fun valOfE e NONE = raise e
       | valOfE e (SOME x) = x
 
-    val counter = ref 0
+    let counter = ref 0
 
     (* returns a tuple of the name of the cid and SOME of the shadowing cid if any *)
     fun isShadowedBy cid =
         let
-            val name = I.conDecName(I.sgnLookup cid)
-            val currentcid = valOfE (noPriorEntry name) (SHT.lookup shadowTable name)
+            let name = I.conDecName(I.sgnLookup cid)
+            let currentcid = valOfE (noPriorEntry name) (SHT.lookup shadowTable name)
         in
             (name, if currentcid <> cid then SOME currentcid else NONE)
         end
@@ -538,17 +538,17 @@ struct
     (* returns true if it changed any names *)
     fun isShadowing () =
         let
-            (* val _ = print "clearing table...\n" *)
-            val _ = SHT.clear shadowTable
-            val changes = ref false
+            (* let _ = print "clearing table...\n" *)
+            let _ = SHT.clear shadowTable
+            let changes = ref false
             fun processDep rcid cid =
                 let
                     fun handleProblem (currentcid, name) =
                         (case Table.lookup replaceTable cid of SOME _ => ()
                       | _ =>
                              let
-                                 val replacement = (* Option.mapPartial
-                                                    (fn x => (case isShadowedBy x of
+                                 let replacement = (* Option.mapPartial
+                                                    (fun x -> (case isShadowedBy x of
                                                     (_, SOME _) => NONE
                                                       | (x, NONE) => SOME x)) *) (* XXX worrying - jcreed 7/05 *)
                                      Option.map (I.conDecName o I.sgnLookup) (Table.lookup imitatesTable cid)
@@ -560,7 +560,7 @@ struct
                                    | SOME x => ((* print ("DX planning to subtly rename " ^ Int.toString cid ^ " to " ^ x ^ "\n");  *)
                                                 Table.insert replaceTable (cid, x))
                              end)
-                    val (name, sb) = isShadowedBy cid
+                    let (name, sb) = isShadowedBy cid
                 in
                     case sb of
                         SOME currentcid =>
@@ -569,7 +569,7 @@ struct
                             then handleProblem(currentcid, name)
                             (* nonproblematic shadowing - change its name *)
                             else let
-                                     val newname = "shadowed_" ^ Int.toString(!counter)
+                                     let newname = "shadowed_" ^ Int.toString(!counter)
                                  in
                                      (* print ("DX renaming " ^ Int.toString cid ^ " to " ^ newname ^ "\n"); *)
                                      I.rename(cid, newname);
@@ -583,8 +583,8 @@ struct
             fun processCid cid =
                 let
 
-                    val name = I.conDecName(I.sgnLookup cid)
-                    (* val _ = print ("DX processing cid " ^ Int.toString cid ^ " which has name [" ^ name ^ "].\n") *)
+                    let name = I.conDecName(I.sgnLookup cid)
+                    (* let _ = print ("DX processing cid " ^ Int.toString cid ^ " which has name [" ^ name ^ "].\n") *)
                 in
                     List.app (processDep cid) (sortedKeys(valOf(IHT.lookup depTable cid)))
                     handle Option => ();
@@ -609,9 +609,9 @@ struct
 
   fun recordDependency (x, y) =
       let
-(*        val msg = "DX dep " ^ Int.toString x ^ " on " ^ Int.toString y ^ "\n" *)
-          val table = (case IHT.lookup depTable x of SOME y => y
-        | NONE => let val t = IHT.new 32 in IHT.insert depTable (x,t); t end)
+(*        let msg = "DX dep " ^ Int.toString x ^ " on " ^ Int.toString y ^ "\n" *)
+          let table = (case IHT.lookup depTable x of SOME y => y
+        | NONE => let let t = IHT.new 32 in IHT.insert depTable (x,t); t end)
       in
           IHT.insert table (y,())
       end
@@ -645,7 +645,7 @@ struct
   and travSpine cid Nil = ()
     | travSpine cid (App (M, S)) = (travExp cid M; travSpine cid S)
     | travSpine cid _ = ()
-  and travHead cid h = Option.map (fn n => (recordDependency (cid, n); traverse n)) (headCID h)
+  and travHead cid h = Option.map (fun n -> (recordDependency (cid, n); traverse n)) (headCID h)
   and traverseDescendants' cid (ConDec (_,_,_,_,V,_)) = travExp cid V
     | traverseDescendants' cid (ConDef (_,_,_,M,V,_,_)) = (travExp cid M; travExp cid V)
     | traverseDescendants' cid (AbbrevDef (_,_,_,M,V,_)) = (travExp cid M; travExp cid V)
@@ -653,8 +653,8 @@ struct
   and traverseDescendants cid = traverseDescendants' cid (I.sgnLookup cid)
   and traverse cid  =
       let
-          val name = conDecName(sgnLookup cid)
-          (* val message = "DX Traversing cid = " ^ Int.toString cid ^ " name = " ^ name ^ "\n" *)
+          let name = conDecName(sgnLookup cid)
+          (* let message = "DX Traversing cid = " ^ Int.toString cid ^ " name = " ^ name ^ "\n" *)
       in
           record_once traverseDescendants cid
       end
@@ -683,19 +683,19 @@ struct
 
   fun dumpAll (max, first, outputSemant, outputChecker) =
       let
-          val streamSemant = TextIO.openOut outputSemant
-          val streamChecker = TextIO.openOut outputChecker
-          val streamTcb = TextIO.openOut "dumptcb" (* DX *)
+          let streamSemant = TextIO.openOut outputSemant
+          let streamChecker = TextIO.openOut outputChecker
+          let streamTcb = TextIO.openOut "dumptcb" (* DX *)
           fun waitUntilFalse f = if f() then waitUntilFalse f else ()
           fun outputCid cid = (* if cid < (valOf(!startSemant)) then () else *) (* DX *)
               let
-                  val s = Print.conDecToString(I.sgnLookup cid) ^ "\n"
-                  val s' = if cid >= valOf(!startClause) andalso is_def cid
+                  let s = Print.conDecToString(I.sgnLookup cid) ^ "\n"
+                  let s' = if cid >= valOf(!startClause) andalso is_def cid
                            then if isClause cid
                                 then "%clause " ^ s
                                 else s
                            else s
-                  val stream = if cid < valOf(!startSemant) then streamTcb else (* DX *)
+                  let stream = if cid < valOf(!startSemant) then streamTcb else (* DX *)
                       if cid >= valOf(!startClause) then streamChecker else streamSemant
               in
                   TextIO.output (stream, s' ^ (fixityDec cid))
@@ -704,7 +704,7 @@ struct
       in
           appRange checkTrivial 0 max;
           appRange traverse first max;
-          appRange (fn cid => Table.insert recordTable (cid,())) 0 (valOf(!startSemant));
+          appRange (fun cid -> Table.insert recordTable (cid,())) 0 (valOf(!startSemant));
           waitUntilFalse isShadowing;
           Table.app IntSyn.rename replaceTable;
           List.app outputCid (sortedKeys recordTable);
@@ -715,21 +715,21 @@ struct
 
   fun dumpText (outputSemant, outputChecker) =
       let
-          val max = #1 (I.sgnSize ())
+          let max = #1 (I.sgnSize ())
 
-          (* val _ = print ("DX startSemant = " ^ Int.toString(valOf(!startSemant)) ^ "\n") *)
-          (* val _ = print ("DX startClause = " ^ Int.toString(valOf(!startClause)) ^ "\n") *)
+          (* let _ = print ("DX startSemant = " ^ Int.toString(valOf(!startSemant)) ^ "\n") *)
+          (* let _ = print ("DX startClause = " ^ Int.toString(valOf(!startClause)) ^ "\n") *)
 
           fun correctFixities cid =
               if (cid < max)
                   then
                       (let
-                           val fixity = N.getFixity cid
-                           val imp = I.constImp cid
-                           val name = I.conDecName (I.sgnLookup cid)
-                           (* val _ = case fixity of F.Infix _ => print ("DX Infix " ^ Int.toString cid ^ " " ^ name ^ " " ^ Int.toString imp ^ " \n") | _ => () *)
-                           val inSemant = cid >= valOf(!startSemant) andalso cid < valOf(!startClause)
-                           val makeNonfix =
+                           let fixity = N.getFixity cid
+                           let imp = I.constImp cid
+                           let name = I.conDecName (I.sgnLookup cid)
+                           (* let _ = case fixity of F.Infix _ => print ("DX Infix " ^ Int.toString cid ^ " " ^ name ^ " " ^ Int.toString imp ^ " \n") | _ => () *)
+                           let inSemant = cid >= valOf(!startSemant) andalso cid < valOf(!startClause)
+                           let makeNonfix =
                                case (fixity, imp, inSemant) of
                                    (F.Infix _, _, true) => ((*print ("DX setting nonfix " ^ Int.toString cid ^ "\n"); *) true)
                                  | (F.Infix _, 0, false) => false
@@ -740,7 +740,7 @@ struct
                        end;   correctFixities (cid + 1))
               else ()
 
-          val _ = correctFixities 0
+          let _ = correctFixities 0
 
           fun error msg = print ("Error: " ^ msg ^ "\n")
       in
@@ -751,17 +751,17 @@ struct
       end
 
     in
-    val init = init
-    val initForText = initForText
+    let init = init
+    let initForText = initForText
 
-    val dump = dump
-    val dumpText = dumpText
+    let dump = dump
+    let dumpText = dumpText
 
-    val setFlag = setFlag
-    val setEndTcb = setEndTcb
+    let setFlag = setFlag
+    let setEndTcb = setEndTcb
 
-    val dumpFlagged = dumpFlagged
-    val dumpSymTable = dumpSymTable
+    let dumpFlagged = dumpFlagged
+    let dumpSymTable = dumpSymTable
     end
 
 end; (* functor Flit *)

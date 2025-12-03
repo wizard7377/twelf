@@ -1,7 +1,7 @@
 (* Generic Traversal Intended for Language-Specific Printing *)
 (* Author: Frank Pfenning *)
 
-signature TRAVERSER =
+module type TRAVERSER =
 sig
 
   (* type kind *)
@@ -38,13 +38,13 @@ sig
   (* val famdef : string * tp * kind -> condec *)
   (* val skodec : string * tp -> condec *)
 
-end;  (* signature TRAVERSER *)
+end;  (* module type TRAVERSER *)
 
-signature TRAVERSE =
+module type TRAVERSE =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  structure Traverser : TRAVERSER
+  (*! module IntSyn : INTSYN !*)
+  module Traverser : TRAVERSER
 
   exception Error of string
 
@@ -52,4 +52,4 @@ sig
 
   val const : string -> Traverser.condec
 
-end;  (* signature TRAVERSE *)
+end;  (* module type TRAVERSE *)

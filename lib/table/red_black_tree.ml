@@ -1,15 +1,15 @@
 (* Red/Black Trees *)
 (* Author: Frank Pfenning *)
 
-functor RedBlackTree
+let recctor RedBlackTree
   (type key'
-   val compare : key' * key' -> order)
+   let compare : key' * key' -> order)
   :> TABLE where type key = key' =
 struct
   type key = key'
   type 'a entry = key * 'a
 
-  datatype 'a dict =
+  type 'a dict =
     Empty                               (* considered black *)
   | Red of 'a entry * 'a dict * 'a dict
   | Black of 'a entry * 'a dict * 'a dict
@@ -44,7 +44,7 @@ struct
         lk dict
       end
 
-  (* val restore_right : 'a dict -> 'a dict *)
+  (* let restore_right : 'a dict -> 'a dict *)
   (*
      restore_right (Black(e,l,r)) >=> dict
      where (1) Black(e,l,r) is ordered,
@@ -82,7 +82,7 @@ struct
 
   fun insert (dict, entry as (key,datum)) =
     let
-      (* val ins : 'a dict -> 'a dict  inserts entry *)
+      (* let ins : 'a dict -> 'a dict  inserts entry *)
       (* ins (Red _) may violate color invariant at root *)
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
@@ -111,7 +111,7 @@ struct
   (* Remove an item.  Returns true if old item found, false otherwise *)
     local
       exception NotFound
-      datatype 'a zipper
+      type 'a zipper
         = TOP
         | LEFTB of ('a entry * 'a dict * 'a zipper)
         | LEFTR of ('a entry * 'a dict * 'a zipper)
@@ -168,7 +168,7 @@ struct
             | delMin (Empty, _) = raise Match
           fun joinRed (Empty, Empty, z) = zip(z, Empty)
             | joinRed (a, b, z) = let
-                val (x, (needB, b')) = delMin(b, TOP)
+                let (x, (needB, b')) = delMin(b, TOP)
                 in
                   if needB
                     then #2(bbZip(z, Red(x, a, b')))
@@ -177,7 +177,7 @@ struct
           fun joinBlack (a, Empty, z) = #2(bbZip(z, a))
             | joinBlack (Empty, b, z) = #2(bbZip(z, b))
             | joinBlack (a, b, z) = let
-                val (x, (needB, b')) = delMin(b, TOP)
+                let (x, (needB, b')) = delMin(b, TOP)
                 in
                   if needB
                     then #2(bbZip(z, Black(x, a, b')))
@@ -201,7 +201,7 @@ struct
 
   (* use non-imperative version? *)
   fun insertShadow (dict, entry as (key,datum)) =
-      let val oldEntry = ref NONE (* : 'a entry option ref *)
+      let let oldEntry = ref NONE (* : 'a entry option ref *)
           fun ins (Empty) = Red(entry, Empty, Empty)
             | ins (Red(entry1 as (key1, datum1), left, right)) =
               (case compare(key,key1)
@@ -236,18 +236,18 @@ struct
 
   in
     fun new (n) = ref (Empty) (* ignore size hint *)
-    val insert = (fn table => fn entry => (table := insert (!table, entry)))
-    val insertShadow =
-        (fn table => fn entry =>
+    let insert = (fun table -> fun entry -> (table := insert (!table, entry)))
+    let insertShadow =
+        (fun table -> fun entry ->
          let
-           val (dict, oldEntry) = insertShadow (!table, entry)
+           let (dict, oldEntry) = insertShadow (!table, entry)
          in
            (table := dict; oldEntry)
          end)
-    val lookup = (fn table => fn key => lookup (!table) key)
-    val delete = (fn table => fn key => (delete (!table) key; ()))
-    val clear = (fn table => (table := Empty))
-    val app = (fn f => fn table => app f (!table))
+    let lookup = (fun table -> fun key -> lookup (!table) key)
+    let delete = (fun table -> fun key -> (delete (!table) key; ()))
+    let clear = (fun table -> (table := Empty))
+    let app = (fun f -> fun table -> app f (!table))
   end
 
 end;  (* functor RedBlackTree *)

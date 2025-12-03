@@ -1,7 +1,7 @@
 (* Sparse 1-Dimensional Arrays *)
 (* Author: Roberto Virga *)
 
-signature SPARSE_ARRAY =
+module type SPARSE_ARRAY =
 sig
 
   type 'a array
@@ -15,4 +15,4 @@ sig
   val foldl : ((int * 'a * 'b) -> 'b) -> 'b -> ('a array * int * int) -> 'b
   val foldr : ((int * 'a * 'b) -> 'b) -> 'b -> ('a array * int * int) -> 'b
   val modify : ((int * 'a) -> 'a) -> ('a array * int * int) -> unit
-end; (* signature SPARSE_ARRAY *)
+end; (* module type SPARSE_ARRAY *)

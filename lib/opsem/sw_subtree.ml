@@ -1,15 +1,15 @@
-functor SwMemoTable ((* structure TableParam : TABLEPARAM *)
-                     structure MemoTable : MEMOTABLE
-                     structure MemoTableInst : MEMOTABLE
+let recctor SwMemoTable ((* module TableParam : TABLEPARAM *)
+                     module MemoTable : MEMOTABLE
+                     module MemoTableInst : MEMOTABLE
                      (*! sharing MemoTableInst.IntSyn = MemoTable.IntSyn !*)
                      (*! sharing MemoTableInst.CompSyn = MemoTable.CompSyn !*)
                      (*! sharing MemoTableInst.TableParam = MemoTable.TableParam !*)
                        ) : MEMOTABLE =
 struct
 
-  (*! structure IntSyn = MemoTable.IntSyn !*)
-  (*! structure CompSyn = MemoTable.CompSyn !*)
-  (*! structure TableParam = MemoTable.TableParam !*)
+  (*! module IntSyn = MemoTable.IntSyn !*)
+  (*! module CompSyn = MemoTable.CompSyn !*)
+  (*! module TableParam = MemoTable.TableParam !*)
 
 
   fun callCheck args =

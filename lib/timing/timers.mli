@@ -1,10 +1,10 @@
 (* Timers collecting statistics about Twelf *)
 (* Author: Frank Pfenning *)
 
-signature TIMERS =
+module type TIMERS =
 sig
 
-  structure Timing : TIMING
+  module Timing : TIMING
 
   (* Programming interface *)
   val parsing     : Timing.center		(* lexing and parsing *)
@@ -43,4 +43,4 @@ sig
   val check : unit -> unit		(* check timer values *)
   val show : unit -> unit		(* check, then reset *)
 
-end;  (* signature TIMERS *)
+end;  (* module type TIMERS *)

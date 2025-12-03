@@ -1,40 +1,40 @@
 (* Meta Printer Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor StatePrint
-  (structure Global : GLOBAL
-   (*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor StatePrint
+  (module Global : GLOBAL
+   (*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure State'  : STATE
+   module State'  : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Formatter' : FORMATTER
-   structure Print : PRINT
+   module Formatter' : FORMATTER
+   module Print : PRINT
      sharing Print.Formatter = Formatter'
      (*! sharing Print.IntSyn = IntSyn' !*)
-   structure TomegaPrint : TOMEGAPRINT
+   module TomegaPrint : TOMEGAPRINT
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
      sharing TomegaPrint.Formatter = Formatter')
      : STATEPRINT =
 struct
-  structure Formatter = Formatter'
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure State = State'
+  module Formatter = Formatter'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module State = State'
 
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure T = Tomega
-    structure S = State'
-    structure N = Names
-    structure Fmt = Formatter
+    module I = IntSyn
+    module T = Tomega
+    module S = State'
+    module N = Names
+    module Fmt = Formatter
 
 
 (*
@@ -112,7 +112,7 @@ struct
            TomegaPrint.formatFor (I.Null, F)]
       | formatCtx (I.Decl (Psi, T.UDec D)) =
         let
-          val G = T.coerceCtx Psi
+          let G = T.coerceCtx Psi
         in
           if !Global.chatter >= 4 then
             formatCtx Psi @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
@@ -153,8 +153,8 @@ struct
 
 
   in
-    val nameState = nameState
-    val formatState = formatState
-    val stateToString = stateToString
+    let nameState = nameState
+    let formatState = formatState
+    let stateToString = stateToString
   end (* local *)
 end (* functor MTPrint *)

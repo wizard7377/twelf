@@ -2,16 +2,16 @@
 (* Author: Iliano Cervesato *)
 (* Modified: Jeff Polakow *)
 
-signature COMPSYN =
+module type COMPSYN =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
-  datatype Opt = No | LinearHeads | Indexing 
+  type Opt = No | LinearHeads | Indexing 
 
   val optimize : Opt ref
 
-  datatype Goal =                       (* Goals                      *)
+  type Goal =                       (* Goals                      *)
     Atom of IntSyn.Exp                  (* g ::= p                    *)
   | Impl of ResGoal * IntSyn.Exp        (*     | (r,A,a) => g         *)
             * IntSyn.Head * Goal		
@@ -38,13 +38,13 @@ sig
 
   (* Static programs -- compiled version for substitution trees *)
 
-  datatype Conjunction = True | Conjunct of Goal * IntSyn.Exp * Conjunction
+  type Conjunction = True | Conjunct of Goal * IntSyn.Exp * Conjunction
 
-  datatype CompHead = 
+  type CompHead = 
      Head of (IntSyn.Exp * IntSyn.Dec IntSyn.Ctx * AuxGoal * IntSyn.cid)
 
  (* pskeleton instead of proof term *)
-  datatype Flatterm = 
+  type Flatterm = 
     Pc of int | Dc of int | Csolver of IntSyn.Exp
 
   type pskeleton = Flatterm list  
@@ -54,17 +54,17 @@ sig
 
   (* Compiled Declarations *)
   (* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
-  datatype ComDec
+  type ComDec
   = Parameter
   | Dec of ResGoal * IntSyn.Sub * IntSyn.Head
   | BDec of (ResGoal * IntSyn.Sub * IntSyn.Head) list
   | PDec
 
   (* Dynamic programs: context with synchronous clause pool *)
-  datatype DProg = DProg of (IntSyn.dctx * ComDec IntSyn.Ctx)
+  type DProg = DProg of (IntSyn.dctx * ComDec IntSyn.Ctx)
 
-  (* Programs --- compiled version of the signature (no direct head access) *)
-  datatype ConDec =			      (* Compiled constant declaration *)
+  (* Programs --- compiled version of the module type (no direct head access) *)
+  type ConDec =			      (* Compiled constant declaration *)
        SClause of ResGoal                     (* c : A  -- static clause (residual goal) *)
     | Void 		                      (* Other declarations are ignored  *)
 
@@ -86,4 +86,4 @@ sig
   
   val pskeletonToString: pskeleton -> string
 
-end;  (* signature COMPSYN *)
+end;  (* module type COMPSYN *)

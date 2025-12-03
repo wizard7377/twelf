@@ -3,19 +3,19 @@
 (* Author: Frank Pfenning *)
 (* Copied from src/table/red-black-tree.fun *)
 
-signature INTSET =
+module type INTSET =
 sig
   type intset
-  val empty : intset
-  val insert : int * intset -> intset
-  val member : int * intset -> bool
-  val foldl : (int * 'b -> 'b) -> 'b -> intset -> 'b
+  let empty : intset
+  let insert : int * intset -> intset
+  let member : int * intset -> bool
+  let foldl : (int * 'b -> 'b) -> 'b -> intset -> 'b
 end;
 
-structure IntSet :> INTSET =
+module IntSet :> INTSET =
 struct
 
-  datatype rbt =
+  type rbt =
     Empty				(* considered black *)
   | Red of int * rbt * rbt
   | Black of int * rbt * rbt
@@ -48,7 +48,7 @@ struct
 	lk dict
       end
 
-  (* val restore_right : 'a dict -> 'a dict *)
+  (* let restore_right : 'a dict -> 'a dict *)
   (*
      restore_right (Black(e,l,r)) >=> dict
      where (1) Black(e,l,r) is ordered,
@@ -86,7 +86,7 @@ struct
 
   fun insert (dict, x) =
     let
-      (* val ins : 'a dict -> 'a dict  inserts entry *)
+      (* let ins : 'a dict -> 'a dict  inserts entry *)
       (* ins (Red _) may violate color invariant at root *)
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
@@ -109,9 +109,9 @@ struct
     end
   in
     type intset = rbt
-    val empty = Empty
-    val insert = fn (x,t) => insert (t, x)
-    val member = fn (x,t) => lookup t x
+    let empty = Empty
+    let insert = fn (x,t) => insert (t, x)
+    let member = fn (x,t) => lookup t x
     fun foldl f a t =
         let fun fo (Empty, r) = r
               | fo (Red (x, left, right), r) =
@@ -123,4 +123,4 @@ struct
 	end
   end
 
-end;  (* structure IntSet *)
+end;  (* module IntSet *)

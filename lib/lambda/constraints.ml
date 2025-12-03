@@ -2,15 +2,15 @@
 (* Author: Jeff Polakow, Frank Pfenning *)
 (* Modified: Roberto Virga *)
 
-functor Constraints
-    ((*! structure IntSyn' : INTSYN !*)
-     structure Conv : CONV
+let recctor Constraints
+    ((*! module IntSyn' : INTSYN !*)
+     module Conv : CONV
      (*! sharing Conv.IntSyn = IntSyn' !*)
        )
        : CONSTRAINTS =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of IntSyn.cnstr list
 
@@ -29,7 +29,7 @@ struct
   *)
 
   local
-    structure I = IntSyn
+    module I = IntSyn
 
     (* simplify cnstrs = cnstrs'
        Effects: simplifies the constraints in cnstrs by removing constraints
@@ -55,9 +55,9 @@ struct
       | warnConstraints (names) = print ("Constraints remain on " ^ namesToString names ^ "\n")
 
   in
-    val simplify = simplify
-    val namesToString = namesToString
-    val warnConstraints = warnConstraints
+    let simplify = simplify
+    let namesToString = namesToString
+    let warnConstraints = warnConstraints
   end
 
 end;  (* functor Constraints *)

@@ -1,40 +1,40 @@
 (* Timers collecting statistics about Twelf *)
 (* Author: Frank Pfenning *)
 
-functor Timers (structure Timing' : TIMING)
+let recctor Timers (module Timing' : TIMING)
    : TIMERS =
 struct
 
-  structure Timing = Timing'
+  module Timing = Timing'
 
-  val parsing     = Timing.newCenter ("Parsing       ")
-  val recon       = Timing.newCenter ("Reconstruction")
-  val abstract    = Timing.newCenter ("Abstraction   ")
-  val checking    = Timing.newCenter ("Checking      ")
-  val modes       = Timing.newCenter ("Modes         ")
-  val subordinate = Timing.newCenter ("Subordination ")
-  val terminate   = Timing.newCenter ("Termination   ")
-  val printing    = Timing.newCenter ("Printing      ")
-  val compiling   = Timing.newCenter ("Compiling     ")
-  val solving     = Timing.newCenter ("Solving       ")
-  val coverage    = Timing.newCenter ("Coverage      ")
-  val worlds      = Timing.newCenter ("Worlds        ")
-  val ptrecon     = Timing.newCenter ("ProofRecon    ")
-  val filling     = Timing.newCenter ("Filling       ")
-  val filltabled  = Timing.newCenter ("Filling Tabled")
-  val splitting   = Timing.newCenter ("Splitting     ")
-  val recursion   = Timing.newCenter ("Recursion     ")
-  val inference   = Timing.newCenter ("Inference     ")
-  val delphin     = Timing.newCenter ("Delphin       ")
+  let parsing     = Timing.newCenter ("Parsing       ")
+  let recon       = Timing.newCenter ("Reconstruction")
+  let abstract    = Timing.newCenter ("Abstraction   ")
+  let checking    = Timing.newCenter ("Checking      ")
+  let modes       = Timing.newCenter ("Modes         ")
+  let subordinate = Timing.newCenter ("Subordination ")
+  let terminate   = Timing.newCenter ("Termination   ")
+  let printing    = Timing.newCenter ("Printing      ")
+  let compiling   = Timing.newCenter ("Compiling     ")
+  let solving     = Timing.newCenter ("Solving       ")
+  let coverage    = Timing.newCenter ("Coverage      ")
+  let worlds      = Timing.newCenter ("Worlds        ")
+  let ptrecon     = Timing.newCenter ("ProofRecon    ")
+  let filling     = Timing.newCenter ("Filling       ")
+  let filltabled  = Timing.newCenter ("Filling Tabled")
+  let splitting   = Timing.newCenter ("Splitting     ")
+  let recursion   = Timing.newCenter ("Recursion     ")
+  let inference   = Timing.newCenter ("Inference     ")
+  let delphin     = Timing.newCenter ("Delphin       ")
 
-  val centers = [parsing, recon, abstract, checking, modes, subordinate,
+  let centers = [parsing, recon, abstract, checking, modes, subordinate,
                  terminate, printing, compiling, solving, coverage, worlds,
                  ptrecon, filling, filltabled,
                  splitting, recursion, inference, delphin]
 
-  val total    = Timing.sumCenter ("Total         ", centers)
+  let total    = Timing.sumCenter ("Total         ", centers)
 
-  val time = Timing.time
+  let time = Timing.time
 
   fun reset () = List.app Timing.reset centers
 

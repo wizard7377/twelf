@@ -1,21 +1,21 @@
 (* Printer for Compiled Syntax *)
 (* Author: Iliano Cervesato *)
 
-functor CPrint ((*! structure IntSyn' : INTSYN !*)
-                (*! structure CompSyn' : COMPSYN !*)
+let recctor CPrint ((*! module IntSyn' : INTSYN !*)
+                (*! module CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                structure Print: PRINT
+                module Print: PRINT
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                structure Formatter : FORMATTER
+                module Formatter : FORMATTER
                   sharing Print.Formatter = Formatter
-                structure Names: NAMES
+                module Names: NAMES
                 (*! sharing Names.IntSyn = IntSyn' !*)
                   )
   : CPRINT =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure CompSyn = CompSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module CompSyn = CompSyn' !*)
 
   local
     open CompSyn
@@ -33,7 +33,7 @@ struct
          goalToString t (IntSyn.Decl(G, IntSyn.Dec(NONE, A)), g) ^ "\n"
       | goalToString t (G, All(D,g)) =
          let
-           val D' = Names.decLUName (G, D)
+           let D' = Names.decLUName (G, D)
          in
            t ^ "ALL     " ^
            Formatter.makestring_fmt (Print.formatDec (G, D')) ^ "\n" ^
@@ -58,7 +58,7 @@ struct
          goalToString t (G, g)
       | clauseToString t (G, In(r, A, g)) =
          let
-           val D = Names.decEName (G, IntSyn.Dec (NONE, A))
+           let D = Names.decEName (G, IntSyn.Dec (NONE, A))
          in
            clauseToString t (IntSyn.Decl(G, D), r) ^
            t ^ "META    " ^ Print.decToString (G, D) ^ "\n" ^
@@ -66,7 +66,7 @@ struct
          end
       | clauseToString t (G, Exists(D, r)) =
          let
-           val D' = Names.decEName (G, D)
+           let D' = Names.decEName (G, D)
          in
            t ^ "EXISTS  " ^
            (Print.decToString (G, D') handle _ => "<exc>") ^ "\n" ^
@@ -75,7 +75,7 @@ struct
 
       | clauseToString t (G, Axists(D as IntSyn.ADec(SOME(n), d), r)) =
          let
-           val D' = Names.decEName (G, D)
+           let D' = Names.decEName (G, D)
          in
            t ^ "EXISTS'  " ^
            (Print.decToString (G, D') handle _ => "<exc>") ^ "\n" ^
@@ -89,9 +89,9 @@ struct
     (* conDecToString (c, clause) printed representation of static clause *)
     fun conDecToString (c, SClause(r)) =
         let
-          val _ = Names.varReset IntSyn.Null
-          val name = IntSyn.conDecName (IntSyn.sgnLookup c)
-          val l = String.size name
+          let _ = Names.varReset IntSyn.Null
+          let name = IntSyn.conDecName (IntSyn.sgnLookup c)
+          let l = String.size name
         in
           name ^ (if l > 6 then ":\n" else ":") ^
           (clauseToString "\t" (IntSyn.Null, r) ^ "\n")
@@ -101,7 +101,7 @@ struct
 
     (* sProgToString () = printed representation of static program *)
     fun sProgToString () =
-        let val (size, _) = IntSyn.sgnSize ()
+        let let (size, _) = IntSyn.sgnSize ()
             fun ts (cid) = if cid < size
                              then conDecToString (cid, CompSyn.sProgLookup cid)
                                   ^ ts (cid+1)

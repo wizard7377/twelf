@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-signature MODEDEC =
+module type MODEDEC =
 sig
   exception  Error of string
 
@@ -10,4 +10,4 @@ sig
   val checkFull : IntSyn.cid * ModeSyn.ModeSpine * Paths.region -> unit
   val checkPure : (IntSyn.cid * ModeSyn.ModeSpine) * Paths.region -> unit
  
-end;  (* signature MODEDEC *)
+end;  (* module type MODEDEC *)

@@ -1,9 +1,9 @@
 (* Translator from Delphin external syntax to Delphin internal syntax *)
 (* Author: Richard Fontana, Carsten Schuermann *)
  
-signature TRANS = 
+module type TRANS = 
 sig
-  structure DextSyn : DEXTSYN
+  module DextSyn : DEXTSYN
 
   exception Error of string
 

@@ -1,24 +1,24 @@
 (* Introduce *)
 (* Author: Carsten Schuermann *)
 
-functor Introduce
-  ((*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor Introduce
+  ((*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure State' : STATE
-   structure TomegaNames : TOMEGANAMES
+   module State' : STATE
+   module TomegaNames : TOMEGANAMES
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
        ) : INTRODUCE  =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure State = State'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module State = State'
 
   local
-  structure S = State'
-  structure T = Tomega
-  structure I = IntSyn
+  module S = State'
+  module T = Tomega
+  module I = IntSyn
 
     exception Error = S.Error
     type operator = T.Prg * T.Prg
@@ -46,14 +46,14 @@ struct
     *)
     fun expand (S.Focus (R as T.EVar (Psi, r, T.All ((D, _), F), NONE, NONE, _), W)) =
         let
-          val D' = TomegaNames.decName (Psi, D)
+          let D' = TomegaNames.decName (Psi, D)
         in
           SOME (R, T.Lam (D', T.newEVar (I.Decl (strip Psi, D'), F)))
         end
       | expand (S.Focus (R as T.EVar (Psi, r, T.Ex ((D as I.Dec (_, V), _), F), NONE, NONE, _), W)) =
            let
-             val X = I.newEVar (T.coerceCtx (Psi), V)
-             val Y = T.newEVar (Psi, T.forSub (F, T.Dot (T.Exp X, T.id)))
+             let X = I.newEVar (T.coerceCtx (Psi), V)
+             let Y = T.newEVar (Psi, T.forSub (F, T.Dot (T.Exp X, T.id)))
            in
              SOME (R, T.PairExp (X, Y))
            end
@@ -83,8 +83,8 @@ struct
     exception Error = Error
     type operator = operator
 
-    val expand = expand
-    val apply = apply
-    val menu =menu
+    let expand = expand
+    let apply = apply
+    let menu =menu
   end
 end

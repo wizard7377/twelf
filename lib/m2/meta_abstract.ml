@@ -1,39 +1,39 @@
 (* Meta Abstraction *)
 (* Author: Carsten Schuermann *)
 
-functor MetaAbstract (structure Global : GLOBAL
-                      structure MetaSyn' : METASYN
-                      structure MetaGlobal : METAGLOBAL
-                      structure Abstract : ABSTRACT
+let recctor MetaAbstract (module Global : GLOBAL
+                      module MetaSyn' : METASYN
+                      module MetaGlobal : METAGLOBAL
+                      module Abstract : ABSTRACT
                       (*! sharing Abstract.IntSyn = MetaSyn'.IntSyn !*)
-                      structure ModeTable : MODETABLE
+                      module ModeTable : MODETABLE
                       (*! sharing ModeSyn.IntSyn = MetaSyn'.IntSyn !*)
-                      structure Whnf : WHNF
+                      module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                      structure Print : PRINT
+                      module Print : PRINT
                       (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                      structure Constraints : CONSTRAINTS
+                      module Constraints : CONSTRAINTS
                       (*! sharing Constraints.IntSyn = MetaSyn'.IntSyn !*)
-                      structure Unify : UNIFY
+                      module Unify : UNIFY
                       (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
-                      structure Names : NAMES
+                      module Names : NAMES
                       (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-                      structure TypeCheck : TYPECHECK
+                      module TypeCheck : TYPECHECK
                       (*! sharing TypeCheck.IntSyn = MetaSyn'.IntSyn !*)
-                      structure Subordinate : SUBORDINATE
+                      module Subordinate : SUBORDINATE
                       (*! sharing Subordinate.IntSyn = MetaSyn'.IntSyn  !*)
                         )
   : METAABSTRACT =
 struct
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure S = Stream
-    structure M = MetaSyn
-    structure C = Constraints
+    module I = IntSyn
+    module S = Stream
+    module M = MetaSyn
+    module C = Constraints
 
     (* Invariants? *)
 
@@ -50,7 +50,7 @@ struct
        and G0- collects all -variables when traversing P0 in order.
     *)
 
-    datatype Var =                      (* Variable found during collect  *)
+    type Var =                      (* Variable found during collect  *)
       EV of I.Exp option ref            (* Var ::= EVar <r_, V, St>       *)
       * I.Exp * MetaSyn.Mode
     | BV                                (*       | BV                     *)
@@ -138,7 +138,7 @@ struct
     fun weaken (0, G, a) = I.id
       | weaken (depth, I.Decl (G', D as I.Dec (name, V)), a) =
         let
-          val w' = weaken (depth-1, G', a)
+          let w' = weaken (depth-1, G', a)
         in
           if Subordinate.belowEq (I.targetFam V, a) then I.dot1 w'
           else I.comp (w', I.shift)
@@ -193,12 +193,12 @@ struct
       | collectExpW (lG0, G, Us as (I.Root (I.BVar (k), S), s), mode,
                      Adepth as (A, depth)) = (* s = id *)
         let
-          val l = I.ctxLength G
+          let l = I.ctxLength G
         in
           if (k = l + depth - lG0) andalso depth > 0
             then
               let
-                val I.Dec (_, V) = I.ctxDec (G, k)
+                let I.Dec (_, V) = I.ctxDec (G, k)
               (* invariant: all variables (EV or BV) in V already seen! *)
               in
                 collectSpine (lG0, G, (S, s), mode, (I.Decl (A, BV), depth-1))
@@ -213,16 +213,16 @@ struct
         (case atxLookup (A, r)
            of NONE =>
               let
-                val _ = checkEmpty (!cnstrs)
+                let _ = checkEmpty (!cnstrs)
 
-                val lGp' = I.ctxLength GX - lG0 + depth   (* lGp' >= 0 *)
-                val w = weaken (lGp', GX, I.targetFam V)
-                val iw = Whnf.invert w
-                val GX' = Whnf.strengthen (iw, GX)
-                val lGp'' = I.ctxLength GX' - lG0 + depth   (* lGp'' >= 0 *)
-                val Vraised = raiseType (lGp'', GX', I.EClo (V, iw))
-                val X' as I.EVar (r', _, _, _) = I.newEVar (GX', I.EClo (V, iw))
-                val _ = Unify.instantiateEVar (r, I.EClo (X', w), nil)
+                let lGp' = I.ctxLength GX - lG0 + depth   (* lGp' >= 0 *)
+                let w = weaken (lGp', GX, I.targetFam V)
+                let iw = Whnf.invert w
+                let GX' = Whnf.strengthen (iw, GX)
+                let lGp'' = I.ctxLength GX' - lG0 + depth   (* lGp'' >= 0 *)
+                let Vraised = raiseType (lGp'', GX', I.EClo (V, iw))
+                let X' as I.EVar (r', _, _, _) = I.newEVar (GX', I.EClo (V, iw))
+                let _ = Unify.instantiateEVar (r, I.EClo (X', w), nil)
               (* invariant: all variables (EV) in Vraised already seen *)
               in
                 collectSub (lG0, G, lGp'', s, mode,
@@ -230,7 +230,7 @@ struct
               end
             | SOME (EV (_, V, _)) =>
               let
-                val lGp' = countPi V
+                let lGp' = countPi V
               in
                 collectSub (lG0, G, lGp', s, mode, Adepth)
               end)
@@ -359,7 +359,7 @@ struct
                                  if modeEq (m, modeIn) then
                                    collectExp (lG0, G, (U, s), modeRec, Adepth)
                                  else Adepth)
-            val mS = valOf (ModeTable.modeLookup (cid))
+            let mS = valOf (ModeTable.modeLookup (cid))
           in
             collectModeW' (((S, s), mS), Adepth)
           end
@@ -478,9 +478,9 @@ struct
     *)
     fun collect (M.Prefix (G, M, B), V) =
       let
-        val lG0 = I.ctxLength G
+        let lG0 = I.ctxLength G
 
-        val (A, k) = collectDBot (lG0, G, (V, I.id),
+        let (A, k) = collectDBot (lG0, G, (V, I.id),
                                   (collectDTop (lG0, G, (V, I.id), (I.Null, lG0))))
       in
         A
@@ -558,7 +558,7 @@ struct
       | abstractExpW (A, G, depth, (I.Root (C as I.BVar k, S), s)) = (* s = id *)
           if k > depth then
             let
-              val k' = lookupBV (A, k-depth)
+              let k' = lookupBV (A, k-depth)
             in
               I.Root (I.BVar (k'+depth), abstractSpine (A, G, depth, (S, s)))
             end
@@ -568,7 +568,7 @@ struct
           I.Root (C, abstractSpine (A, G, depth, (S, s)))
       | abstractExpW (A, G, depth, (I.EVar (r, _, V, _), s)) =
           let
-            val (k, Vraised) = lookupEV (A, r)
+            let (k, Vraised) = lookupEV (A, r)
             (* IMPROVE: remove the raised variable, replace by V -cs ?-fp *)
           in
             I.Root (I.BVar (k+depth),
@@ -576,7 +576,7 @@ struct
                                  s, I.targetFam V, I.Nil))
           end
       | abstractExpW (A, G, depth, (I.FgnExp csfe, s)) =
-          I.FgnExpStd.Map.apply csfe (fn U => abstractExp (A, G, depth, (U, s)))
+          I.FgnExpStd.Map.apply csfe (fun U -> abstractExp (A, G, depth, (U, s)))
         (* hack - should discuss with cs     -rv *)
 
     (* abstractExp, same as abstractExpW, but (V, s) need not be in whnf *)
@@ -619,11 +619,11 @@ struct
       | abstractSubW (A, G, depth, XVt as (I.Pi (_, XV'), t),
                       I.Dot (I.Idx (k), s), b, S) =
         let
-          val I.Dec(x, V) = I.ctxDec (G, k)
+          let I.Dec(x, V) = I.ctxDec (G, k)
         in
           if k > depth then
             let
-              val k' = lookupBV (A, k-depth)
+              let k' = lookupBV (A, k-depth)
             in
               abstractSub (A, G, depth, (XV', I.dot1 t), s, b,
                            I.App (I.Root (I.BVar (k'+depth), I.Nil), S))
@@ -664,11 +664,11 @@ struct
     fun abstractCtx (I.Null, GM as M.Prefix (I.Null, I.Null, I.Null)) = (GM, I.Null)
       | abstractCtx (I.Decl (A, BV), M.Prefix (I.Decl (G, D), I.Decl (M, marg), I.Decl (B, b))) =
           let
-            val (M.Prefix (G', M', B'), lG') = abstractCtx (A, M.Prefix (G, M, B))
-            val D' = abstractDec (A, G, 0, (D, I.id))
+            let (M.Prefix (G', M', B'), lG') = abstractCtx (A, M.Prefix (G, M, B))
+            let D' = abstractDec (A, G, 0, (D, I.id))
 
-            val I.Dec (_, V) = D'
-            val _ = if (!Global.doubleCheck) then typecheck (M.Prefix (G', M', B'), V) else ()
+            let I.Dec (_, V) = D'
+            let _ = if (!Global.doubleCheck) then typecheck (M.Prefix (G', M', B'), V) else ()
 
           in (M.Prefix (I.Decl (G', Names.decName (G', D')),
                         I.Decl (M', marg),
@@ -677,9 +677,9 @@ struct
           end
       | abstractCtx (I.Decl (A, EV (r, V, m)), GM) =
           let
-            val (M.Prefix (G', M', B'), lG') = abstractCtx (A, GM)
-            val V'' = abstractExp (A, lG', 0, (V, I.id))
-            val _ = if (!Global.doubleCheck) then typecheck (M.Prefix (G', M', B'), V'')
+            let (M.Prefix (G', M', B'), lG') = abstractCtx (A, GM)
+            let V'' = abstractExp (A, lG', 0, (V, I.id))
+            let _ = if (!Global.doubleCheck) then typecheck (M.Prefix (G', M', B'), V'')
                     else ()
 
           in (M.Prefix (I.Decl (G', Names.decName (G', I.Dec (NONE, V''))),
@@ -697,17 +697,17 @@ struct
     *)
     fun abstract (S as M.State (name, GM as M.Prefix (G, M, B), V)) =
         let
-          val _ = Names.varReset I.Null
-          val A = collect (GM, V)
-          val (GM', _) = abstractCtx (A, GM)
-          val V' = abstractExp (A, G, 0, (V, I.id))
-          val S = M.State (name, GM', V')
-          val _ = if (!Global.doubleCheck) then typecheck (GM', V') else ()
+          let _ = Names.varReset I.Null
+          let A = collect (GM, V)
+          let (GM', _) = abstractCtx (A, GM)
+          let V' = abstractExp (A, G, 0, (V, I.id))
+          let S = M.State (name, GM', V')
+          let _ = if (!Global.doubleCheck) then typecheck (GM', V') else ()
         in
           S
         end
 
   in
-    val abstract = abstract
+    let abstract = abstract
   end (* local *)
 end; (* functor MetaAbstract *)

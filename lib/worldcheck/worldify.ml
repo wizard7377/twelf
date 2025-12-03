@@ -2,50 +2,50 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor Worldify
-  (structure Global : GLOBAL
-   (*! structure IntSyn : INTSYN !*)
-   (*! structure Tomega : TOMEGA !*)
+let recctor Worldify
+  (module Global : GLOBAL
+   (*! module IntSyn : INTSYN !*)
+   (*! module Tomega : TOMEGA !*)
    (*! sharing Tomega.IntSyn = IntSyn !*)
-   structure WorldSyn : WORLDSYN
+   module WorldSyn : WORLDSYN
    (*! sharing WorldSyn.IntSyn = IntSyn !*)
    (*! sharing WorldSyn.Tomega = Tomega !*)
-   structure Whnf : WHNF
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn !*)
-   structure Index : INDEX
+   module Index : INDEX
    (*! sharing Index.IntSyn = IntSyn !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn !*)
-   structure Unify : UNIFY
+   module Unify : UNIFY
    (*! sharing Unify.IntSyn = IntSyn !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn !*)
-   structure Constraints : CONSTRAINTS
+   module Constraints : CONSTRAINTS
    (*! sharing Constraints.IntSyn = IntSyn !*)
-   structure CSManager : CS_MANAGER
+   module CSManager : CS_MANAGER
    (*! sharing CSManager.IntSyn = IntSyn !*)
-   structure Subordinate : SUBORDINATE
+   module Subordinate : SUBORDINATE
    (*! sharing Subordinate.IntSyn = IntSyn !*)
-   structure Print : PRINT
+   module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn !*)
 
-   structure Table : TABLE where type key = int
-   structure MemoTable : TABLE where type key = int * int
-   structure IntSet : INTSET
+   module Table : TABLE where type key = int
+   module MemoTable : TABLE where type key = int * int
+   module IntSet : INTSET
 
-   (*! structure Paths : PATHS !*)
-   structure Origins : ORIGINS
+   (*! module Paths : PATHS !*)
+   module Origins : ORIGINS
    (*! sharing Origins.Paths = Paths !*)
    (*! sharing Origins.IntSyn = IntSyn !*)
        )
    : WORLDIFY =
 struct
-  (*! structure IntSyn = IntSyn !*)
-  (*! structure Tomega = Tomega !*)
-  structure I = IntSyn
-  structure T = Tomega
-  structure P = Paths
-  structure F = Print.Formatter
+  (*! module IntSyn = IntSyn !*)
+  (*! module Tomega = Tomega !*)
+  module I = IntSyn
+  module T = Tomega
+  module P = Paths
+  module F = Print.Formatter
 
   exception Error of string
 
@@ -73,14 +73,14 @@ struct
 
 
   local
-    structure W = WorldSyn
+    module W = WorldSyn
 
     (* Regular world expressions R
        Invariants:
        If R = (D1,...,Dn)[s] then G |- s : G' and G' |- D1,...,Dn ctx
        If R = r* then r = 1 or r does not accept the empty world
     *)
-    datatype Reg                        (* Regular world expressions  *)
+    type Reg                        (* Regular world expressions  *)
       = Block of I.cid * (I.dctx * dlist)               (* R ::= LD                   *)
       | Seq of int * dlist * I.Sub      (*     | (Di,...,Dn)[s]       *)
       | Star of Reg                     (*     | R*                   *)
@@ -99,9 +99,9 @@ struct
     fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
       | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
         let
-          val s = createEVarSub (G, G')
-          val V' = I.EClo (V, s)
-          val X = I.newEVar (G, V')
+          let s = createEVarSub (G, G')
+          let V' = I.EClo (V, s)
+          let X = I.newEVar (G, V')
         in
           I.Dot (I.Exp X, s)
         end
@@ -148,13 +148,13 @@ struct
     fun formatDList (G, nil, t) = nil
       | formatDList (G, D :: nil, t) =
         let
-          val D' = I.decSub (D, t)
+          let D' = I.decSub (D, t)
         in
           formatD (G, D') :: nil (* Names.decUName (G, I.decSub(D, t)) *)
         end
       | formatDList (G, D :: L, t) =
         let
-          val D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
+          let D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
         in
           formatD (G, D') :: F.Break
           :: formatDList (I.Decl (G, D'), L, I.dot1 t)
@@ -190,15 +190,15 @@ struct
     (* Tracing *)
     (***********)
 
-    structure Trace :
+    module Trace :
     sig
-      val clause : I.cid -> unit
-      val constraintsRemain : unit -> unit
-      val matchBlock : (I.dctx * dlist) * Reg -> unit
-      val unmatched : I.dctx * dlist -> unit
-      val missing : I.dctx * Reg -> unit
-      val mismatch : I.dctx * I.eclo * I.eclo -> unit
-      val success : unit -> unit
+      let clause : I.cid -> unit
+      let constraintsRemain : unit -> unit
+      let matchBlock : (I.dctx * dlist) * Reg -> unit
+      let unmatched : I.dctx * dlist -> unit
+      let missing : I.dctx * Reg -> unit
+      let mismatch : I.dctx * I.eclo * I.eclo -> unit
+      let success : unit -> unit
     end =
     struct
       fun clause (c) =
@@ -264,7 +264,7 @@ struct
      *)
      fun equivBlock ((G, L), L') =
          let
-           val t = createEVarSub (I.Null, G)
+           let t = createEVarSub (I.Null, G)
          in
            equivList (I.Null, (t, L), L')
          end
@@ -309,8 +309,8 @@ struct
      *)
      fun subsumedBlock a W1 (G, L) =
          let
-           val t = createEVarSub (I.Null, G) (* G |- t : someDecs *)
-           val L' = strengthen a (t, L)
+           let t = createEVarSub (I.Null, G) (* G |- t : someDecs *)
+           let L' = strengthen a (t, L)
          in
            if equivBlocks W1 L' then () else raise Error "Static world subsumption failed"
          end
@@ -381,8 +381,8 @@ struct
      *)
      fun eqBlock (b1, b2) =
          let
-           val (G1, L1) = I.constBlock b1
-           val (G2, L2) = I.constBlock b2
+           let (G1, L1) = I.constBlock b1
+           let (G2, L2) = I.constBlock b2
          in
            eqCtx (G1, G2) andalso eqList (L1, L2)
          end
@@ -420,7 +420,7 @@ struct
      *)
      fun checkGoal W (G, I.Root (I.Const a, S), occ) =
          let
-           val W' = W.getWorlds a
+           let W' = W.getWorlds a
          in
            ( subsumedWorld a W' W
            ; subsumedCtx (G, W)
@@ -489,9 +489,9 @@ struct
     fun accR (GVs, One, k) = k GVs
       | accR (GVs as (G, (V, s)), Block (c, (someDecs, piDecs)), k) =
         let
-          val t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
-          val _ = Trace.matchBlock ((G, subGoalToDList (Whnf.normalize (V, s))), Seq (1, piDecs, t))
-          val k' = (fn (G', Vs') =>
+          let t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
+          let _ = Trace.matchBlock ((G, subGoalToDList (Whnf.normalize (V, s))), Seq (1, piDecs, t))
+          let k' = (fn (G', Vs') =>
                     if noConstraints (G, t)
                       then k (G', Vs')
                     else (Trace.constraintsRemain (); ()))
@@ -531,9 +531,9 @@ struct
     *)
     fun worldifyGoal (G, V, W as T.Worlds cids, occ) =
         let
-          val b = I.targetFam V
-          val Wb = W.getWorlds b
-          val Rb = worldsToReg Wb
+          let b = I.targetFam V
+          let Wb = W.getWorlds b
+          let Rb = worldsToReg Wb
         in
           (accR ((G, (V, I.id)), Rb, init);
            raise Error' (occ, "World violation"))
@@ -551,17 +551,17 @@ struct
      fun worldifyClause (G, V as I.Root (a, S), W, occ) = V
        | worldifyClause (G, I.Pi ((D as I.Dec (x, V1), I.Maybe), V2), W, occ) =
          let
-           val _ = print "{"
-           val W2 = worldifyClause (decEName (G, D), V2, W, P.body occ)
-           val _ = print "}"
-(*         val W1 = worldifyGoal (G, V1, W, P.label occ) *)
+           let _ = print "{"
+           let W2 = worldifyClause (decEName (G, D), V2, W, P.body occ)
+           let _ = print "}"
+(*         let W1 = worldifyGoal (G, V1, W, P.label occ) *)
          in
            I.Pi ((I.Dec (x, V1 (* W1*)), I.Maybe), W2)
          end
        | worldifyClause (G, I.Pi ((D as I.Dec (x, V1), I.No), V2), W, occ) =
          let
-           val W1 = worldifyGoal (G, V1, W, P.label occ)
-           val W2 = worldifyClause (decEName (G, D), V2, W, P.body occ);
+           let W1 = worldifyGoal (G, V1, W, P.label occ)
+           let W2 = worldifyClause (decEName (G, D), V2, W, P.body occ);
          in
            I.Pi ((I.Dec (x, W1), I.No), W2)
          end
@@ -583,8 +583,8 @@ struct
      fun worldifyBlock (G, nil) = ()
        | worldifyBlock (G, (D as (I.Dec (_, V))):: L) =
          let
-           val a = I.targetFam V
-           val W' = W.getWorlds a
+           let a = I.targetFam V
+           let W' = W.getWorlds a
          in
            ( checkClause W' (G, worldifyClause (I.Null, V, W', P.top), P.top)
            ; worldifyBlock (decUName(G, D), L)
@@ -594,9 +594,9 @@ struct
      fun worldifyBlocks nil = ()
        | worldifyBlocks (b :: Bs) =
          let
-           val _ = worldifyBlocks Bs
-           val (Gsome, Lblock) = I.constBlock b
-           val _ = print "|"
+           let _ = worldifyBlocks Bs
+           let (Gsome, Lblock) = I.constBlock b
+           let _ = print "|"
          in
            worldifyBlock (Gsome, Lblock)
            handle Error' (occ, s) => raise Error (wrapMsgBlock (b, occ, "World not hereditarily closed"))
@@ -606,28 +606,28 @@ struct
 
      fun worldify a =
          let
-           val W = W.getWorlds a
-           val _ = print "[?"
-           val W' = worldifyWorld W
-           val _ = print ";"
-           val _ = if !Global.chatter > 3
+           let W = W.getWorlds a
+           let _ = print "[?"
+           let W' = worldifyWorld W
+           let _ = print ";"
+           let _ = if !Global.chatter > 3
                      then print ("World checking family " ^ Names.qidToString (Names.constQid a) ^ ":\n")
                    else ()
-           val condecs = map (fn (I.Const c) => worldifyConDec W (c, I.sgnLookup c) handle Error' (occ, s) => raise Error (wrapMsg (c, occ, s)))
+           let condecs = map (fn (I.Const c) => worldifyConDec W (c, I.sgnLookup c) handle Error' (occ, s) => raise Error (wrapMsg (c, occ, s)))
                              (Index.lookup a)
-           val _ = map (fn condec => ( print "#"
+           let _ = map (fun condec -> ( print "#"
                                      ; checkConDec W condec)) condecs
-           val _ = print "]"
+           let _ = print "]"
 
-           val _ = if !Global.chatter = 4 then print "\n" else ()
+           let _ = if !Global.chatter = 4 then print "\n" else ()
          in
            condecs
          end
 
 
   in
-    val worldify = worldify
-    val worldifyGoal = fn (G,V) => worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top)
+    let worldify = worldify
+    let worldifyGoal = fn (G,V) => worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top)
   end
 
 end;  (* functor Worldify *)

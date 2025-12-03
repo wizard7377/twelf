@@ -1,28 +1,28 @@
 (* Splitting *)
 (* Author: Carsten Schuermann *)
 
-functor Splitting (structure Global : GLOBAL
-                   structure MetaSyn' : METASYN
-                   structure MetaAbstract : METAABSTRACT
-                   structure MetaPrint : METAPRINT
+let recctor Splitting (module Global : GLOBAL
+                   module MetaSyn' : METASYN
+                   module MetaAbstract : METAABSTRACT
+                   module MetaPrint : METAPRINT
                    sharing MetaPrint.MetaSyn = MetaSyn'
                    sharing MetaAbstract.MetaSyn = MetaSyn'
-                   structure ModeTable : MODETABLE
+                   module ModeTable : MODETABLE
                    (*! sharing ModeSyn.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Whnf : WHNF
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Index : INDEX
+                   module Index : INDEX
                    (*! sharing Index.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Print : PRINT
+                   module Print : PRINT
                    (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                   structure Unify : UNIFY
+                   module Unify : UNIFY
                    (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
-                   (*! structure CSManager : CS_MANAGER !*)
+                   (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = MetaSyn'.IntSyn !*)
                      )
   : SPLITTING =
 struct
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   exception Error of string
 
@@ -39,15 +39,15 @@ struct
      Consequence: Only those splitting operators can be
      applied which do not generate inactive cases.
   *)
-  datatype 'a flag =
+  type 'a flag =
     Active of 'a | InActive
 
   type operator = (MetaSyn.State * int) *
                    MetaSyn.State flag list
 
   local
-    structure M = MetaSyn
-    structure I = IntSyn
+    module M = MetaSyn
+    module I = IntSyn
 
 
     (* constCases (G, (V, s), I, abstract, C) = C'
@@ -63,7 +63,7 @@ struct
     fun constCases (G, Vs, nil, abstract, ops) = ops
       | constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
         let
-          val (U, Vs') = M.createAtomConst (G, I.Const c)
+          let (U, Vs') = M.createAtomConst (G, I.Const c)
         in
           constCases (G, Vs, Sgn, abstract,
                       CSManager.trail (fn () =>
@@ -87,7 +87,7 @@ struct
     fun paramCases (G, Vs, 0, abstract, ops) = ops
       | paramCases (G, Vs, k, abstract, ops) =
         let
-          val (U, Vs') = M.createAtomBVar (G, k)
+          let (U, Vs') = M.createAtomBVar (G, k)
         in
           paramCases (G, Vs, k-1, abstract,
                       CSManager.trail (fn () =>
@@ -111,7 +111,7 @@ struct
                       paramCases (G, (V, s'), I.ctxLength G, abstract, nil))
       | lowerSplitDest (G, (I.Pi ((D, P), V), s'), abstract) =
           let
-            val D' = I.decSub (D, s')
+            let D' = I.decSub (D, s')
           in
             lowerSplitDest (I.Decl (G, D'), (V, I.dot1 s'),
                             fn (name, U) => abstract (name, I.Lam (D', U)))
@@ -276,7 +276,7 @@ struct
                then skipSpine (k, S, inheritBelow (I.ctxLookup (B, n-k)-1, k', V', (B', d, d')))
              else (* must correspond *)
                let
-                 val I.Root (C', S') = V' (* C' = BVar (n) *)
+                 let I.Root (C', S') = V' (* C' = BVar (n) *)
                in
                  inheritSpine (B, k, S, k', S', (B', d, d'))
                end
@@ -311,7 +311,7 @@ struct
                      k', V' as I.Root (I.Const(cid'), S'), Bdd') =
         (* cid = cid' *)
         let
-          val mS = valOf (ModeTable.modeLookup (cid))
+          let mS = valOf (ModeTable.modeLookup (cid))
         in
           inheritSpineMode (M.Top, mS, B, k, S, k', S', Bdd')
         end
@@ -324,7 +324,7 @@ struct
                      k', I.Root (I.Const (cid'), S'), Bdd') =
           (* cid = cid' *)
           let
-            val mS = valOf (ModeTable.modeLookup (cid))
+            let mS = valOf (ModeTable.modeLookup (cid))
           in
             inheritSpineMode (M.Bot, mS, B, k, S, k', S', Bdd')
           end
@@ -332,7 +332,7 @@ struct
     and inheritG (B, k, I.Root (I.Const (cid), S),
                   k', V' as I.Root (I.Const (cid'), S'), Bdd') =
         let
-          val mS = valOf (ModeTable.modeLookup (cid))
+          let mS = valOf (ModeTable.modeLookup (cid))
         in
           (* mode dependency in Goal: first M.Top, then M.Bot *)
           inheritSpineMode (M.Bot, mS, B, k, S, k', S',
@@ -351,13 +351,13 @@ struct
                            S' as M.State (name', M.Prefix (G', M', B'), V')) =
         (* S' *)
         let
-          val d = I.ctxLength G         (* current first occurrence depth in V *)
-          val d' = I.ctxLength G'       (* current first occurrence depth in V' *)
+          let d = I.ctxLength G         (* current first occurrence depth in V *)
+          let d' = I.ctxLength G'       (* current first occurrence depth in V' *)
           (* mode dependency in Clause: first M.Top then M.Bot *)
           (* check proper traversal *)
-          val V = Whnf.normalize (V, I.id)
-          val V' = Whnf.normalize (V', I.id)
-          val (B'', 0, 0) = inheritDBot (B, 0, V, 0, V',
+          let V = Whnf.normalize (V, I.id)
+          let V' = Whnf.normalize (V', I.id)
+          let (B'', 0, 0) = inheritDBot (B, 0, V, 0, V',
                                             inheritDTop (B, 0, V, 0, V', (I.Null, d, d')))
         in
           M.State (name', M.Prefix (G', M', B''), V')
@@ -424,13 +424,13 @@ struct
       | expand' (M.Prefix (I.Decl (G, D), I.Decl (M, mode as M.Top), I.Decl (B, b)),
                  isIndex, abstract, makeAddress) =
           let
-            val (M.Prefix (G', M', B'), s', ops) =
+            let (M.Prefix (G', M', B'), s', ops) =
                 expand' (M.Prefix (G, M, B), isIndexSucc (D, isIndex),
                          abstractCont ((D, mode, b), abstract),
                          makeAddressCont makeAddress)
-            val I.Dec (xOpt, V) = D
-            val X = I.newEVar (G', I.EClo (V, s'))
-            val ops' = if b > 0 (* check if splitting bound > 0 *)
+            let I.Dec (xOpt, V) = D
+            let X = I.newEVar (G', I.EClo (V, s'))
+            let ops' = if b > 0 (* check if splitting bound > 0 *)
                 andalso not (isIndex 1) andalso checkDec (M, D)
                            then
                                (makeAddress 1, split (M.Prefix (G', M', B'), (D, s'), abstract))
@@ -442,7 +442,7 @@ struct
       | expand' (M.Prefix (I.Decl (G, D), I.Decl (M, mode as M.Bot), I.Decl (B, b)),
                  isIndex, abstract, makeAddress) =
           let
-            val (M.Prefix (G', M', B'), s', ops) =
+            let (M.Prefix (G', M', B'), s', ops) =
                 expand' (M.Prefix (G, M, B), isIndexSucc (D, isIndex), (* -###- *)
                          abstractCont ((D, mode, b), abstract),
                          makeAddressCont makeAddress)
@@ -462,7 +462,7 @@ struct
     *)
     fun expand (S as M.State (name, M.Prefix (G, M, B), V)) =
       let
-        val (_, _, ops) =
+        let (_, _, ops) =
           expand' (M.Prefix (G, M, B), isIndexInit, abstractInit S, makeAddressInit S)
       in
         ops
@@ -520,11 +520,11 @@ struct
     fun var ((_, i), _) = i
 
   in
-    val expand = expand
-    val apply = apply
+    let expand = expand
+    let apply = apply
 
-    val var = var
-    val index = index
-    val menu = menu
+    let var = var
+    let index = index
+    let menu = menu
   end (* local *)
 end;  (* functor Splitting *)

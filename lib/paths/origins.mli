@@ -1,11 +1,11 @@
 (* Origins of Declarations *)
 (* Author: Frank Pfenning *)
 
-signature ORIGINS =
+module type ORIGINS =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Paths : PATHS !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module Paths : PATHS !*)
 
   val reset : unit -> unit
   val installLinesInfo : string * Paths.linesInfo -> unit
@@ -14,4 +14,4 @@ sig
   val installOrigin : IntSyn.cid * (string * Paths.occConDec option) -> unit
   val originLookup : IntSyn.cid -> (string * Paths.occConDec option)
 
-end;  (* signature ORIGINS *)
+end;  (* module type ORIGINS *)

@@ -1,7 +1,7 @@
 (* Redundancy remover (factoring) *)
 (* Author: Adam Poswolsky (ABP) *)
 
-functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
+let recctor Redundant (module Opsem : OPSEM) : REDUNDANT  =
   struct
     exception Error of string
 
@@ -9,8 +9,8 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
      convert:  Tomega.Prg -> Tomega.Prg
      Attempts to eliminate *redundant* cases.
      *)
-    structure T = Tomega
-    structure I = IntSyn
+    module T = Tomega
+    module I = IntSyn
 
     fun optionRefEqual (r1, r2, func) =
       if (r1 = r2) then
@@ -70,17 +70,17 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
     and caseEqual (((Psi1, t1, P1)::O1), (((Psi2, t2, P2)::O2), tAfter)) =
             (* Recall that we (Psi2, t2, P2)[tAfter] = (Psi2, (tAfterInv \circ t2), P2) *)
             let
-              val t2' = T.comp(T.invertSub(tAfter),t2)
+              let t2' = T.comp(T.invertSub(tAfter),t2)
               (* Note:  (Psi1 |- t1: Psi0) *)
-              val t = Opsem.createVarSub(Psi1, Psi2) (* Psi1 |- t: Psi2 *)
-              val t' = T.comp(t2', t) (* Psi1 |- t' : Psi_0 *)
-              val doMatch = (Opsem.matchSub (Psi1, t1, t') ; true)
+              let t = Opsem.createVarSub(Psi1, Psi2) (* Psi1 |- t: Psi2 *)
+              let t' = T.comp(t2', t) (* Psi1 |- t' : Psi_0 *)
+              let doMatch = (Opsem.matchSub (Psi1, t1, t') ; true)
                 handle NoMatch => false
             in
               if (doMatch) then
                 let
-                  val newT = T.normalizeSub t
-                  val stillMatch = IsSubRenamingOnly(newT)
+                  let newT = T.normalizeSub t
+                  let stillMatch = IsSubRenamingOnly(newT)
                 in
                   (stillMatch andalso prgEqual(P1, (P2, cleanSub(newT))))
                 end
@@ -151,7 +151,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
      *)
     and convertCases (A::C) =
       let
-        val ((Psi,t,P),C') = removeRedundancy(A,C)
+        let ((Psi,t,P),C') = removeRedundancy(A,C)
       in
         ((Psi,t,convert(P))::convertCases(C'))
       end
@@ -163,8 +163,8 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
     and removeRedundancy (C, []) = (C, [])
       | removeRedundancy ( C, C'::rest) =
             let
-              val (C''::Cs) = mergeIfNecessary(C, C')
-              val (C''', rest') = removeRedundancy(C'', rest)
+              let (C''::Cs) = mergeIfNecessary(C, C')
+              let (C''', rest') = removeRedundancy(C'', rest)
              in
               (C''', Cs @ rest')
             end
@@ -267,7 +267,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
       | mergePrgs ((T.PairExp (U1, P1)), (T.PairExp (U2, P2), t2)) =
                         let
-                          val t2' = T.coerceSub t2
+                          let t2' = T.coerceSub t2
                         in
                              if (Conv.conv((U1, I.id),(U2,t2'))) then
                                 T.PairExp (U1, mergePrgs((P1), (P2, t2)))
@@ -277,7 +277,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
       | mergePrgs ((T.PairBlock (B1, P1)), (T.PairBlock (B2, P2), t2)) =
                         let
-                          val B2' = I.blockSub (B2, T.coerceSub t2)
+                          let B2' = I.blockSub (B2, T.coerceSub t2)
                         in
                           if (blockEqual (B1, B2')) then
                                 T.PairBlock (B1, mergePrgs((P1),(P2, t2)))
@@ -323,7 +323,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 *)
       | mergePrgs ((T.Redex (P1, S1)), (T.Redex (P2, S2), t2)) =
         let
-          val newS = mergeSpines(S1, (S2, t2))
+          let newS = mergeSpines(S1, (S2, t2))
         in
           if (prgEqual (P1, (P2, t2))) then
             T.Redex(P1, newS)
@@ -429,8 +429,8 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
       let
 
         (*
-        val _ = printCtx(Psi1)
-        val _ = printCtx(Psi2)
+        let _ = printCtx(Psi1)
+        let _ = printCtx(Psi2)
           *)
 
         (* Psi1 |- P1 : F[t1] *)
@@ -444,10 +444,10 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
         (* Psi2' |- tAfterInv : Psi1' *)
 
-        val tAfterInv = T.invertSub(tAfter)
+        let tAfterInv = T.invertSub(tAfter)
 
 
-        val t3 = T.comp(tAfterInv, t2)
+        let t3 = T.comp(tAfterInv, t2)
 
         (* So now we have
          P1 makes sense in Psi1, t1 goes from Psi1' to Psi1.
@@ -456,18 +456,18 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
          Psi2 |- t3 : Psi1'
          *)
 
-        val t = Opsem.createVarSub (Psi1, Psi2) (* Psi1 |- t : Psi2 *)
-        val t' = T.comp (t3, t) (* Psi1 |- t' : Psi1' *)
+        let t = Opsem.createVarSub (Psi1, Psi2) (* Psi1 |- t : Psi2 *)
+        let t' = T.comp (t3, t) (* Psi1 |- t' : Psi1' *)
 
         (* If we can get this to match, then Psi1 |- P2[t] *)
-        val doMatch = (Opsem.matchSub (Psi1, t1, t') ; true)
+        let doMatch = (Opsem.matchSub (Psi1, t1, t') ; true)
           handle NoMatch => false
 
       in
         if (doMatch) then
           let
-            val newT = T.normalizeSub t
-            val stillMatch = IsSubRenamingOnly(newT)
+            let newT = T.normalizeSub t
+            let stillMatch = IsSubRenamingOnly(newT)
           in
             if (stillMatch) then
           (* Since the case matches, lets continue the merge on P1 and P2
@@ -523,13 +523,13 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
       *)
 
-        val t = Opsem.createVarSub (Psi1, Psi2) (* Psi1 |- t : Psi2 *)
+        let t = Opsem.createVarSub (Psi1, Psi2) (* Psi1 |- t : Psi2 *)
 
-        val t' = T.comp (s2, t)
+        let t' = T.comp (s2, t)
      (* Now since s1 and t' go between the same contexts, we see
       * if we can unify them
       *)
-        val doMatch = (Opsem.matchSub (Psi1, s1, t') ; true)
+        let doMatch = (Opsem.matchSub (Psi1, s1, t') ; true)
           handle NoMatch => false
 
       in
@@ -537,7 +537,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
           [C,C']
         else
           let
-            val newT = T.normalizeSub t
+            let newT = T.normalizeSub t
           in
             if (IsSubRenamingOnly(newT)) then
               [(Psi1, s1, mergePrgs((P1), (P2, cleanSub(newT))))]

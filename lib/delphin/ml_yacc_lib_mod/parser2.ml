@@ -108,45 +108,45 @@
 	tokens left unparsed, a queue, and an action option.
 *)
 
-signature FIFO = 
+module type FIFO = 
   sig type 'a queue
-      val empty : 'a queue
+      let empty : 'a queue
       exception Empty
-      val get : 'a queue -> 'a * 'a queue
-      val put : 'a * 'a queue -> 'a queue
+      let get : 'a queue -> 'a * 'a queue
+      let put : 'a * 'a queue -> 'a queue
   end
 
 (* drt (12/15/89) -- the functor should be used in development work, but
    it wastes space in the release version.
 
-functor ParserGen(structure LrTable : LR_TABLE
-		  structure Streamm : STREAMM) : LR_PARSER =
+let recctor ParserGen(module LrTable : LR_TABLE
+		  module Streamm : STREAMM) : LR_PARSER =
 *)
 
-structure LrParser :> LR_PARSER =
+module LrParser :> LR_PARSER =
    struct
-      structure LrTable = LrTable
-      structure Streamm = Streamm
+      module LrTable = LrTable
+      module Streamm = Streamm
 
-      structure Token : TOKEN =
+      module Token : TOKEN =
 	struct
-	    structure LrTable = LrTable
-	    datatype ('a,'b) token = TOKEN of LrTable.term * ('a * 'b * 'b)
-	    val sameToken = fn (TOKEN(t,_),TOKEN(t',_)) => t=t'
+	    module LrTable = LrTable
+	    type ('a,'b) token = TOKEN of LrTable.term * ('a * 'b * 'b)
+	    let sameToken = fn (TOKEN(t,_),TOKEN(t',_)) => t=t'
         end
 
       open LrTable
       open Token
 
-      val DEBUG1 = false
-      val DEBUG2 = false
+      let DEBUG1 = false
+      let DEBUG2 = false
       exception ParseError
       exception ParseImpossible of int
 
-      structure Fifo :> FIFO =
+      module Fifo :> FIFO =
         struct
 	  type 'a queue = ('a list * 'a list)
-	  val empty = (nil,nil)
+	  let empty = (nil,nil)
 	  exception Empty
 	  fun get(a::x, y) = (a, (x,y))
 	    | get(nil, nil) = raise Empty
@@ -179,9 +179,9 @@ structure LrParser :> LR_PARSER =
 	  noShift : term -> bool}
 
       local 
-	 val print = fn s => TextIO.output(TextIO.stdOut,s)
-	 val println = fn s => (print s; print "\n")
-	 val showState = fn (STATE s) => "STATE " ^ (Int.toString s)
+	 let print = fun s -> TextIO.output(TextIO.stdOut,s)
+	 let println = fun s -> (print s; print "\n")
+	 let showState = fn (STATE s) => "STATE " ^ (Int.toString s)
       in
         fun printStack(stack: ('a,'b) stack, n: int) =
          case stack
@@ -217,25 +217,25 @@ structure LrParser :> LR_PARSER =
 	queue).  It returns the lexv, and a new stack and queue adjusted so
 	that the lexv can be parsed *)
 	
-    val ssParse =
+    let ssParse =
       fn (table,showTerminal,saction,fixError,arg) =>
-	let val prAction = prAction showTerminal
-	    val action = LrTable.action table
-	    val goto = LrTable.goto table
+	let let prAction = prAction showTerminal
+	    let action = LrTable.action table
+	    let goto = LrTable.goto table
 	    fun parseStep(args as
 			 (lexPair as (TOKEN (terminal, value as (_,leftPos,_)),
 				      lexer
 				      ),
 			  stack as (state,_) :: _,
 			  queue)) =
-	      let val nextAction = action (state,terminal)
-	          val _ = if DEBUG1 then prAction(stack,lexPair,nextAction)
+	      let let nextAction = action (state,terminal)
+	          let _ = if DEBUG1 then prAction(stack,lexPair,nextAction)
 			  else ()
 	      in case nextAction
 		 of SHIFT s =>
-		  let val newStack = (s,value) :: stack
-		      val newLexPair = Streamm.get lexer
-		      val (_,newQueue) =Fifo.get(Fifo.put((newStack,newLexPair),
+		  let let newStack = (s,value) :: stack
+		      let newLexPair = Streamm.get lexer
+		      let (_,newQueue) =Fifo.get(Fifo.put((newStack,newLexPair),
 							    queue))
 		  in parseStep(newLexPair,(s,value)::stack,newQueue)
 		  end
@@ -249,7 +249,7 @@ structure LrParser :> LR_PARSER =
 		 | ACCEPT => 
 			(case stack
 			 of (_,(topvalue,_,_)) :: _ =>
-				let val (token,restLexer) = lexPair
+				let let (token,restLexer) = lexPair
 				in (topvalue,Streamm.cons(token,restLexer))
 				end
 			  | _ => raise (ParseImpossible 202))
@@ -266,24 +266,24 @@ structure LrParser :> LR_PARSER =
 	with the nth token shifted on top, a queue, a distance, and action
 	option. *)
 
-    val distanceParse =
+    let distanceParse =
       fn (table,showTerminal,saction,arg) =>
-	let val prAction = prAction showTerminal
-	    val action = LrTable.action table
-	    val goto = LrTable.goto table
+	let let prAction = prAction showTerminal
+	    let action = LrTable.action table
+	    let goto = LrTable.goto table
 	    fun parseStep(lexPair,stack,queue,0) = (lexPair,stack,queue,0,NONE)
 	      | parseStep(lexPair as (TOKEN (terminal, value as (_,leftPos,_)),
 				      lexer
 				     ),
 			  stack as (state,_) :: _,
 			  queue,distance) =
-	      let val nextAction = action(state,terminal)
-	          val _ = if DEBUG1 then prAction(stack,lexPair,nextAction)
+	      let let nextAction = action(state,terminal)
+	          let _ = if DEBUG1 then prAction(stack,lexPair,nextAction)
 			  else ()
 	      in case nextAction
 		 of SHIFT s =>
-		  let val newStack = (s,value) :: stack
-		      val newLexPair = Streamm.get lexer
+		  let let newStack = (s,value) :: stack
+		      let newLexPair = Streamm.get lexer
 		  in parseStep(newLexPair,(s,value)::stack,
 			       Fifo.put((newStack,newLexPair),queue),distance-1)
 		  end
@@ -303,26 +303,26 @@ structure LrParser :> LR_PARSER =
 (* mkFixError: function to create fixError function which adjusts parser state
    so that parse may continue in the presence of an error *)
 
-fun mkFixError({is_keyword,terms,errtermvalue,
+let rec mkFixError({is_keyword,terms,errtermvalue,
 	      preferred_change,noShift,
 	      showTerminal,error,...} : ('_a,'_b) ecRecord,
 	     distanceParse : ('_a,'_b) distanceParse,
 	     minAdvance,maxAdvance) 
 
             (lexv as (TOKEN (term,value as (_,leftPos,_)),_),stack,queue) =
-    let val _ = if DEBUG2 then
+    let let _ = if DEBUG2 then
 			error("syntax error found at " ^ (showTerminal term),
 			      leftPos,leftPos)
 		else ()
 
         fun tokAt(t,p) = TOKEN(t,(errtermvalue t,p,p))
 
-	val minDelta = 3
+	let minDelta = 3
 
 	(* pull all the state * lexv elements from the queue *)
 
-	val stateList = 
-	   let fun f q = let val (elem,newQueue) = Fifo.get q
+	let stateList = 
+	   let fun f q = let let (elem,newQueue) = Fifo.get q
 			 in elem :: (f newQueue)
 			 end handle Fifo.Empty => nil
 	   in f queue
@@ -331,12 +331,12 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 	(* now number elements of stateList, giving distance from
 	   error token *)
 
-	val (_, numStateList) =
+	let (_, numStateList) =
 	      List.foldr (fn (a,(num,r)) => (num+1,(a,num)::r)) (0, []) stateList
 
 	(* Represent the set of potential changes as a linked list.
 
-	   Values of datatype Change hold information about a potential change.
+	   Values of type Change hold information about a potential change.
 
 	   oper = oper to be applied
 	   pos = the # of the element in stateList that would be altered.
@@ -346,15 +346,15 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 	   orig = original terminal * value pair at the point being changed.
 	 *)
 
-	datatype ('a,'b) change = CHANGE of
+	type ('a,'b) change = CHANGE of
 	   {pos : int, distance : int, leftPos: 'b, rightPos: 'b,
 	    new : ('a,'b) lexv list, orig : ('a,'b) lexv list}
 
 
-         val showTerms = concat o map (fn TOKEN(t,_) => " " ^ showTerminal t)
+         let showTerms = concat o map (fn TOKEN(t,_) => " " ^ showTerminal t)
 
-	 val printChange = fn c =>
-	  let val CHANGE {distance,new,orig,pos,...} = c
+	 let printChange = fun c ->
+	  let let CHANGE {distance,new,orig,pos,...} = c
 	  in (print ("{distance= " ^ (Int.toString distance));
 	      print (",orig ="); print(showTerms orig);
 	      print (",new ="); print(showTerms new);
@@ -362,7 +362,7 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 	      print "}\n")
 	  end
 
-	val printChangeList = app printChange
+	let printChangeList = app printChange
 
 (* parse: given a lexPair, a stack, and the distance from the error
    token, return the distance past the error token that we are able to parse.*)
@@ -383,8 +383,8 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 	               then minDelta else 0
 
         fun tryChange{lex,stack,pos,leftPos,rightPos,orig,new} =
-	     let val lex' = List.foldr (fn (t',p)=>(t',Streamm.cons p)) lex new
-		 val distance = parse(lex',stack,pos+length new-length orig)
+	     let let lex' = List.foldr (fn (t',p)=>(t',Streamm.cons p)) lex new
+		 let distance = parse(lex',stack,pos+length new-length orig)
 	      in if distance >= minAdvance + keywordsDelta new 
 		   then [CHANGE{pos=pos,leftPos=leftPos,rightPos=rightPos,
 				distance=distance,orig=orig,new=new}] 
@@ -412,7 +412,7 @@ fun mkFixError({is_keyword,terms,errtermvalue,
        return a list of the successes  *)
 
         fun tryInsert((stack,lexPair as (TOKEN(_,(_,l,_)),_)),queuePos) =
-	       catList terms (fn t =>
+	       catList terms (fun t ->
 		 tryChange{lex=lexPair,stack=stack,
 			   pos=queuePos,orig=[],new=[tokAt(t,l)],
 			   leftPos=l,rightPos=l})
@@ -424,7 +424,7 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 		      queuePos) =
 	      if noShift term then []
 	      else
-		  catList terms (fn t =>
+		  catList terms (fun t ->
 		      tryChange{lex=Streamm.get lexer,stack=stack,
 				pos=queuePos,
 				leftPos=l,rightPos=r,orig=[orig],
@@ -460,30 +460,30 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 				      new=map (fn t=>(tokAt(t,r))) insert}
 		      | NONE => [])
 
-	val changes = catList numStateList tryPreferred @
+	let changes = catList numStateList tryPreferred @
 	                catList numStateList tryInsert @
 			  catList numStateList trySubst @
 			    catList numStateList (tryDelete 1) @
 			      catList numStateList (tryDelete 2) @
 			        catList numStateList (tryDelete 3)
 
-	val findMaxDist = fn l => 
+	let findMaxDist = fun l -> 
 	  foldr (fn (CHANGE {distance,...},high) => Int.max(distance,high)) 0 l
 
 (* maxDist: max distance past error taken that we could parse *)
 
-	val maxDist = findMaxDist changes
+	let maxDist = findMaxDist changes
 
 (* remove changes which did not parse maxDist tokens past the error token *)
 
-        val changes = catList changes 
+        let changes = catList changes 
 	      (fn(c as CHANGE{distance,...}) => 
 		  if distance=maxDist then [c] else [])
 
       in case changes 
 	  of (l as change :: _) =>
 	      let fun print_msg (CHANGE {new,orig,leftPos,rightPos,...}) =
-		  let val s = 
+		  let let s = 
 		      case (orig,new)
 			  of (_::_,[]) => "deleting " ^ (showTerms orig)
 	                   | ([],_::_) => "inserting " ^ (showTerms new)
@@ -492,7 +492,7 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 		  in error ("syntax error: " ^ s,leftPos,rightPos)
 		  end
 		   
-		  val _ = 
+		  let _ = 
 		      (if length l > 1 andalso DEBUG2 then
 			   (print "multiple fixes possible; could fix it by:\n";
 			    app print_msg l;
@@ -512,7 +512,7 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 		   findNth 1 =  (d,a b c)
 		   *)
 
-		  val findNth = fn n =>
+		  let findNth = fun n ->
 		      let fun f (h::t,0) = (h,rev t)
 			    | f (h::t,n) = f(t,n-1)
 			    | f (nil,_) = let exception FindNth
@@ -521,18 +521,18 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 		      in f (rev stateList,n)
 		      end
 		
-		  val CHANGE {pos,orig,new,...} = change
-		  val (last,queueFront) = findNth pos
-		  val (stack,lexPair) = last
+		  let CHANGE {pos,orig,new,...} = change
+		  let (last,queueFront) = findNth pos
+		  let (stack,lexPair) = last
 
-		  val lp1 = foldl(fn (_,(_,r)) => Streamm.get r) lexPair orig
-		  val lp2 = foldr(fn(t,r)=>(t,Streamm.cons r)) lp1 new
+		  let lp1 = foldl(fn (_,(_,r)) => Streamm.get r) lexPair orig
+		  let lp2 = foldr(fn(t,r)=>(t,Streamm.cons r)) lp1 new
 
-		  val restQueue = 
+		  let restQueue = 
 		      Fifo.put((stack,lp2),
 			       foldl Fifo.put Fifo.empty queueFront)
 
-		  val (lexPair,stack,queue,_,_) =
+		  let (lexPair,stack,queue,_,_) =
 		      distanceParse(lp2,stack,restQueue,pos)
 
 	      in (lexPair,stack,queue)
@@ -541,23 +541,23 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 			leftPos,leftPos); raise ParseError)
     end
 
-   val parse = fn {arg,table,lexer,saction,void,lookahead,
+   let parse = fn {arg,table,lexer,saction,void,lookahead,
 		   ec=ec as {showTerminal,...} : ('_a,'_b) ecRecord} =>
-	let val distance = 15   (* defer distance tokens *)
-	    val minAdvance = 1  (* must parse at least 1 token past error *)
-	    val maxAdvance = Int.max(lookahead,0)(* max distance for parse check *)
-	    val lexPair = Streamm.get lexer
-	    val (TOKEN (_,(_,leftPos,_)),_) = lexPair
-	    val startStack = [(initialState table,(void,leftPos,leftPos))]
-	    val startQueue = Fifo.put((startStack,lexPair),Fifo.empty)
-	    val distanceParse = distanceParse(table,showTerminal,saction,arg)
-	    val fixError = mkFixError(ec,distanceParse,minAdvance,maxAdvance)
-	    val ssParse = ssParse(table,showTerminal,saction,fixError,arg)
+	let let distance = 15   (* defer distance tokens *)
+	    let minAdvance = 1  (* must parse at least 1 token past error *)
+	    let maxAdvance = Int.max(lookahead,0)(* max distance for parse check *)
+	    let lexPair = Streamm.get lexer
+	    let (TOKEN (_,(_,leftPos,_)),_) = lexPair
+	    let startStack = [(initialState table,(void,leftPos,leftPos))]
+	    let startQueue = Fifo.put((startStack,lexPair),Fifo.empty)
+	    let distanceParse = distanceParse(table,showTerminal,saction,arg)
+	    let fixError = mkFixError(ec,distanceParse,minAdvance,maxAdvance)
+	    let ssParse = ssParse(table,showTerminal,saction,fixError,arg)
 	    fun loop (lexPair,stack,queue,_,SOME ACCEPT) =
 		   ssParse(lexPair,stack,queue)
 	      | loop (lexPair,stack,queue,0,_) = ssParse(lexPair,stack,queue)
 	      | loop (lexPair,stack,queue,distance,SOME ERROR) =
-		 let val (lexPair,stack,queue) = fixError(lexPair,stack,queue)
+		 let let (lexPair,stack,queue) = fixError(lexPair,stack,queue)
 		 in loop (distanceParse(lexPair,stack,queue,distance))
 		 end
 	      | loop _ = let exception ParseInternal
@@ -569,6 +569,6 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 
 (* drt (12/15/89) -- needed only when the code above is functorized
 
-structure LrParser = ParserGen(structure LrTable=LrTable
-			     structure Streamm=Streamm);
+module LrParser = ParserGen(module LrTable=LrTable
+			     module Streamm=Streamm);
 *)

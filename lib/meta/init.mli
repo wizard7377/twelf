@@ -1,10 +1,10 @@
 (* Initialization *)
 (* Author: Carsten Schuermann *)
 
-signature MTPINIT = 
+module type MTPINIT = 
 sig
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string
 
@@ -12,4 +12,4 @@ sig
      
   val init : (FunSyn.For * StateSyn.Order) -> StateSyn.State list
  
-end;  (* signature MTPINIT *)
+end;  (* module type MTPINIT *)

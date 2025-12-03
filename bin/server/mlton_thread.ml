@@ -1,10 +1,10 @@
 (* Construct a 20041109-workalike MLton.Thread for previous MLton versions *)
 
-structure MLton =
+module MLton =
 struct
   open MLton
 
-  structure Thread =
+  module Thread =
   struct
     open MLton.Thread
     fun prepare (f, x) = f

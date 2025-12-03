@@ -1,51 +1,51 @@
 (* Meta Theorem Prover abstraction : Version 1.3 *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-functor MTPAbstract ((*! structure IntSyn' : INTSYN !*)
-                     (*! structure FunSyn' : FUNSYN !*)
+let recctor MTPAbstract ((*! module IntSyn' : INTSYN !*)
+                     (*! module FunSyn' : FUNSYN !*)
                      (*! sharing FunSyn'.IntSyn = IntSyn' !*)
-                     structure StateSyn' : STATESYN
+                     module StateSyn' : STATESYN
                      (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                     structure Whnf    : WHNF
+                     module Whnf    : WHNF
                      (*! sharing Whnf.IntSyn = IntSyn' !*)
-                     structure Constraints : CONSTRAINTS
+                     module Constraints : CONSTRAINTS
                      (*! sharing Constraints.IntSyn = IntSyn' !*)
-                     structure Unify : UNIFY
+                     module Unify : UNIFY
                      (*! sharing Unify.IntSyn = IntSyn' !*)
-                     structure Subordinate : SUBORDINATE
+                     module Subordinate : SUBORDINATE
                      (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                     structure TypeCheck : TYPECHECK
+                     module TypeCheck : TYPECHECK
                      (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-                     structure FunTypeCheck : FUNTYPECHECK
+                     module FunTypeCheck : FUNTYPECHECK
                      (*! sharing FunTypeCheck.FunSyn = FunSyn' !*)
                        sharing FunTypeCheck.StateSyn = StateSyn'
-                     structure Abstract : ABSTRACT
+                     module Abstract : ABSTRACT
                      (*! sharing Abstract.IntSyn = IntSyn' !*)
                        )
   : MTPABSTRACT =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure FunSyn = FunSyn' !*)
-  structure StateSyn = StateSyn'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module FunSyn = FunSyn' !*)
+  module StateSyn = StateSyn'
 
   exception Error of string
 
-  datatype ApproxFor =                  (* Approximat formula *)
+  type ApproxFor =                  (* Approximat formula *)
     Head of IntSyn.dctx * (FunSyn.For * IntSyn.Sub) * int       (* AF ::= F [s] *)
   | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.Dec list) * ApproxFor
                                         (*      | (t, G2), AF *)
 
   local
 
-    structure I = IntSyn
-    structure F = FunSyn
-    structure S = StateSyn
-    structure C = Constraints
+    module I = IntSyn
+    module F = FunSyn
+    module S = StateSyn
+    module C = Constraints
 
     (* Intermediate Data Structure *)
 
-    datatype EBVar =
+    type EBVar =
       EV of I.Exp option ref * I.Exp * S.Tag * int
                                         (* y ::= (X , {G2} V)  if {G1, G2 |- X : V
                                           |G1| = d *)
@@ -151,7 +151,7 @@ struct
     fun weaken (I.Null, a) = I.id
       | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
         let
-          val w' = weaken (G', a)
+          let w' = weaken (G', a)
         in
           if Subordinate.belowEq (I.targetFam V, a) then I.dot1 w'
           else I.comp (w', I.shift)
@@ -171,7 +171,7 @@ struct
     fun restore (0, Gp) = (Gp, I.Null)
       | restore (n, I.Decl (G, D)) =
         let
-          val (Gp', GX') = restore (n - 1, G)
+          let (Gp', GX') = restore (n - 1, G)
         in
           (Gp', I.Decl (GX', D))
         end
@@ -202,14 +202,14 @@ struct
           if exists (eqEVar X) K
             then collectSub (T, d, G, s, K)
           else let
-                 val (Gp, GX) = restore (I.ctxLength GdX - d, GdX)   (* optimization possible for d = 0 *)
-                 val _ = checkEmpty (!cnstrs)
-                 val w = weaken (GX, I.targetFam V)
-                 val iw = Whnf.invert w
-                 val GX' = Whnf.strengthen (iw, GX)
-                 val X' as I.EVar (r', _, _, _) = I.newEVar (concat (Gp, GX'), I.EClo (V, iw))
-                 val _ = Unify.instantiateEVar (r, I.EClo (X', w), nil)
-                 val V' = raiseType (GX', I.EClo (V, iw))
+                 let (Gp, GX) = restore (I.ctxLength GdX - d, GdX)   (* optimization possible for d = 0 *)
+                 let _ = checkEmpty (!cnstrs)
+                 let w = weaken (GX, I.targetFam V)
+                 let iw = Whnf.invert w
+                 let GX' = Whnf.strengthen (iw, GX)
+                 let X' as I.EVar (r', _, _, _) = I.newEVar (concat (Gp, GX'), I.EClo (V, iw))
+                 let _ = Unify.instantiateEVar (r, I.EClo (X', w), nil)
+                 let V' = raiseType (GX', I.EClo (V, iw))
                in
                  collectSub (T, d, G, I.comp (w, s), I.Decl (collectExp (T, d, Gp, (V', I.id), K), EV (r', V', T, d)))
                end
@@ -320,7 +320,7 @@ struct
       | abstractExpW (K, depth, (I.Root (H as I.BVar k, S), s)) = (* s = id *)
           if k > depth then
             let
-              val k' = lookupBV (K, k-depth)
+              let k' = lookupBV (K, k-depth)
             in
               I.Root (I.BVar (k'+depth), abstractSpine (K, depth, (S, s)))
             end
@@ -333,12 +333,12 @@ struct
                  abstractExp (K, depth + 1, (U, I.dot1 s)))
       | abstractExpW (K, depth, (X as I.EVar (_, G, _, _), s)) =
           let
-            val (H, d) = abstractEVar (K, depth, X)
+            let (H, d) = abstractEVar (K, depth, X)
           in
             I.Root (H, abstractSub (I.ctxLength G - d,  K, depth, s, I.Nil))
           end
       | abstractExpW (K, depth, (I.FgnExp csfe, s)) =
-          I.FgnExpStd.Map.apply csfe (fn U => abstractExp (K, depth, (U, s)))
+          I.FgnExpStd.Map.apply csfe (fun U -> abstractExp (K, depth, (U, s)))
           (* hack - should consult cs   -rv *)
 
     (* abstractExp (K, depth, (U, s)) = U'
@@ -363,9 +363,9 @@ struct
         else (* n = 0 *) S
       | abstractSub (n, K, depth, I.Dot (I.Idx (k), s), S) =
         let
-          val H = if k > depth then
+          let H = if k > depth then
                     let
-                      val k' = lookupBV (K, k-depth)
+                      let k' = lookupBV (K, k-depth)
                     in
                       I.BVar (k'+depth)
                     end
@@ -445,26 +445,26 @@ struct
     fun abstractCtx (I.Null) = (I.Null, I.Null)
       | abstractCtx (I.Decl (K', EV (_, V', T as S.Lemma (b), _))) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
-          val _ = checkType V''
-          val (G', B') = abstractCtx K'
-          val D' = I.Dec (NONE, V'')
+          let V'' = abstractExp (K', 0, (V', I.id))
+          let _ = checkType V''
+          let (G', B') = abstractCtx K'
+          let D' = I.Dec (NONE, V'')
         in
           (I.Decl (G', D'), I.Decl (B', T))
         end
       | abstractCtx (I.Decl (K', EV (_, V', T as S.None, _))) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
-          val _ = checkType V''
-          val (G', B') = abstractCtx K'
-          val D' = I.Dec (NONE, V'')
+          let V'' = abstractExp (K', 0, (V', I.id))
+          let _ = checkType V''
+          let (G', B') = abstractCtx K'
+          let D' = I.Dec (NONE, V'')
         in
           (I.Decl (G', D'), I.Decl (B', S.None))
         end
       | abstractCtx (I.Decl (K', BV (D, T))) =
         let
-          val D' = abstractDec (K', 0, (D, I.id))
-          val (G', B') = abstractCtx K'
+          let D' = abstractDec (K', 0, (D, I.id))
+          let (G', B') = abstractCtx K'
         in
           (I.Decl (G', D'), I.Decl (B', T))
         end
@@ -504,7 +504,7 @@ struct
     fun collectGlobalSub (G0, I.Shift _, I.Null, collect) =  collect
       | collectGlobalSub (G0, s, B as I.Decl (_, S.Parameter (SOME l)), collect) =
         let
-          val F.LabelDec (name, _, G2) = F.labelLookup l
+          let F.LabelDec (name, _, G2) = F.labelLookup l
         in
           skip (G0, List.length G2, s, B, collect)
         end
@@ -532,8 +532,8 @@ struct
     *)
     fun abstractNew ((G0, B0), s, B) =
         let
-          val cf = collectGlobalSub (G0, s, B, fn (_, K') => K')
-          val K = cf (0, I.Null)
+          let cf = collectGlobalSub (G0, s, B, fn (_, K') => K')
+          let K = cf (0, I.Null)
         in
           (abstractCtx K, abstractGlobalSub (K, s, B))
         end
@@ -567,12 +567,12 @@ struct
           fun skip'' (K, (I.Null, I.Null)) = K
             | skip'' (K, (I.Decl (G0, D), I.Decl(B0, T))) = I.Decl (skip'' (K, (G0, B0)), BV (D, T))
 
-          val collect2 = collectGlobalSub (G0, s, B, fn (_, K') => K')
-          val collect0 = collectGlobalSub (I.Null, t, B1, fn (_, K') => K')
-          val K0 = collect0 (0, I.Null)
-          val K1 = skip'' (K0, (G0, B0))
-          val d = I.ctxLength G0
-          val K = collect2 (d, K1)
+          let collect2 = collectGlobalSub (G0, s, B, fn (_, K') => K')
+          let collect0 = collectGlobalSub (I.Null, t, B1, fn (_, K') => K')
+          let K0 = collect0 (0, I.Null)
+          let K1 = skip'' (K0, (G0, B0))
+          let d = I.ctxLength G0
+          let K = collect2 (d, K1)
         in
           (abstractCtx K, abstractGlobalSub (K, s, B))
         end
@@ -630,7 +630,7 @@ struct
     fun split (G, 0) = (G, I.Null)
       | split (I.Decl (G, D), n) =
         let
-          val (G1, G2) = split (G, n-1)
+          let (G1, G2) = split (G, n-1)
         in
           (G1, I.Decl (G2, D))
         end
@@ -671,13 +671,13 @@ struct
        Gw < G
        G |- S : {Gw} V > V
     *)
-    fun weaken2 (I.Null, a, i) = (I.id, fn S => S)
+    fun weaken2 (I.Null, a, i) = (I.id, fun S -> S)
       | weaken2 (I.Decl (G', D as I.Dec (name, V)), a, i) =
         let
-          val (w', S') = weaken2 (G', a, i+1)
+          let (w', S') = weaken2 (G', a, i+1)
         in
           if Subordinate.belowEq (I.targetFam V, a) then
-            (I.dot1 w', fn S => I.App (I.Root (I.BVar i, I.Nil), S))
+            (I.dot1 w', fun S -> I.App (I.Root (I.BVar i, I.Nil), S))
           else (I.comp (w', I.shift), S')
         end
 
@@ -705,97 +705,97 @@ struct
     fun raiseFor (k, Gorig,  F as F.True, w, sc) = F
       | raiseFor (k, Gorig, F.Ex (I.Dec (name, V), F), w, sc) =
         let
-          val G = F.listToCtx (ctxSub (F.ctxToList Gorig, w))
-          val g = I.ctxLength G
-          val s = sc (w, k)
+          let G = F.listToCtx (ctxSub (F.ctxToList Gorig, w))
+          let g = I.ctxLength G
+          let s = sc (w, k)
                                         (* G0, {G}GF[..], G |- s : G0, G, GF *)
-          val V' = I.EClo (V, s)
+          let V' = I.EClo (V, s)
                                         (* G0, {G}GF[..], G |- V' : type *)
-          val (nw, S) = weaken2 (G, I.targetFam V, 1)
+          let (nw, S) = weaken2 (G, I.targetFam V, 1)
                                         (* G0, {G}GF[..], G |- nw : G0, {G}GF[..], Gw
                                          Gw < G *)
 
-          val iw = Whnf.invert nw
+          let iw = Whnf.invert nw
                                         (* G0, {G}GF[..], Gw |- iw : G0, {G}GF[..], G *)
-          val Gw = Whnf.strengthen (iw, G)
+          let Gw = Whnf.strengthen (iw, G)
                                         (* Generalize the invariant for Whnf.strengthen --cs *)
-          val V'' = Whnf.normalize (V', iw)
+          let V'' = Whnf.normalize (V', iw)
                                         (* G0, {G}GF[..], Gw |- V'' = V'[iw] : type*)
-          val V''' = Whnf.normalize (raiseType (Gw, V''), I.id)
+          let V''' = Whnf.normalize (raiseType (Gw, V''), I.id)
                                         (* G0, {G}GF[..] |- V''' = {Gw} V'' : type*)
-          val S''' = S I.Nil
+          let S''' = S I.Nil
                                         (* G0, {G}GF[..], G[..] |- S''' : {Gw} V''[..] > V''[..] *)
                                         (* G0, {G}GF[..], G |- s : G0, G, GF *)
 
-          val sc' = fn (w', k') =>
+          let sc' = fn (w', k') =>
                       let
                                         (* G0, GA |- w' : G0 *)
-                        val s' = sc (w', k')
+                        let s' = sc (w', k')
                                         (* G0, GA, G[..] |- s' : G0, G, GF *)
                       in
                         I.Dot (I.Exp (I.Root (I.BVar (g+k'-k), S''')), s')
                                         (* G0, GA, G[..] |- (g+k'-k). S', s' : G0, G, GF, V *)
                       end
-          val F' = raiseFor (k+1, Gorig, F, I.comp (w, I.shift), sc')
+          let F' = raiseFor (k+1, Gorig, F, I.comp (w, I.shift), sc')
         in
           F.Ex (I.Dec (name, V'''), F')
         end
 
       | raiseFor (k, Gorig, F.All (F.Prim (I.Dec (name, V)), F), w, sc) =
         let
-(*                val G = F.listToCtx (ctxSub (F.ctxToList Gorig, w))
-                  val g = I.ctxLength G
-                  val s = sc (w, k)
+(*                let G = F.listToCtx (ctxSub (F.ctxToList Gorig, w))
+                  let g = I.ctxLength G
+                  let s = sc (w, k)
                                         (* G0, {G}GF[..], G |- s : G0, G, GF *)
-                  val V' = Whnf.normalize (raiseType (G, Whnf.normalize (V, s)), I.id)
+                  let V' = Whnf.normalize (raiseType (G, Whnf.normalize (V, s)), I.id)
                                         (* G0, {G}GF[..] |- V' = {G}(V[s]) : type *)
-                  val S' = spine g
+                  let S' = spine g
                                         (* G0, {G}GF[..] |- S' > {G}(V[s]) > V[s] *)
-                  val sc' = fn (w', k') =>
+                  let sc' = fn (w', k') =>
                               let
                                         (* G0, GA |- w' : G0 *)
-                                val s' = sc (w', k')
+                                let s' = sc (w', k')
                                         (* G0, GA, G[..] |- s' : G0, G, GF *)
                               in
                                 I.Dot (I.Exp (I.Root (I.BVar (g + k'-k), S')), s')
                                         (* G0, GA, G[..] |- g+k'-k. S', s' : G0, G, GF, V *)
                               end
-                  val F' = raiseFor (k+1, Gorig, F, I.comp (w, I.shift), sc')
+                  let F' = raiseFor (k+1, Gorig, F, I.comp (w, I.shift), sc')
                 in
                   F.All (F.Prim (I.Dec (name, V')), F')
 *)
-          val G = F.listToCtx (ctxSub (F.ctxToList Gorig, w))
-          val g = I.ctxLength G
-          val s = sc (w, k)
+          let G = F.listToCtx (ctxSub (F.ctxToList Gorig, w))
+          let g = I.ctxLength G
+          let s = sc (w, k)
                                         (* G0, {G}GF[..], G |- s : G0, G, GF *)
-          val V' = I.EClo (V, s)
+          let V' = I.EClo (V, s)
                                         (* G0, {G}GF[..], G |- V' : type *)
-          val (nw, S) = weaken2 (G, I.targetFam V, 1)
+          let (nw, S) = weaken2 (G, I.targetFam V, 1)
                                         (* G0, {G}GF[..], G |- nw : G0, {G}GF[..], Gw
                                          Gw < G *)
 
-          val iw = Whnf.invert nw
+          let iw = Whnf.invert nw
                                         (* G0, {G}GF[..], Gw |- iw : G0, {G}GF[..], G *)
-          val Gw = Whnf.strengthen (iw, G)
+          let Gw = Whnf.strengthen (iw, G)
                                         (* Generalize the invariant for Whnf.strengthen --cs *)
-          val V'' = Whnf.normalize (V', iw)
+          let V'' = Whnf.normalize (V', iw)
                                         (* G0, {G}GF[..], Gw |- V'' = V'[iw] : type*)
-          val V''' = Whnf.normalize (raiseType (Gw, V''), I.id)
+          let V''' = Whnf.normalize (raiseType (Gw, V''), I.id)
                                         (* G0, {G}GF[..] |- V''' = {Gw} V'' : type*)
-          val S''' = S I.Nil
+          let S''' = S I.Nil
                                         (* G0, {G}GF[..], G[..] |- S''' : {Gw} V''[..] > V''[..] *)
                                         (* G0, {G}GF[..], G |- s : G0, G, GF *)
 
-          val sc' = fn (w', k') =>
+          let sc' = fn (w', k') =>
                       let
                                         (* G0, GA |- w' : G0 *)
-                        val s' = sc (w', k')
+                        let s' = sc (w', k')
                                         (* G0, GA, G[..] |- s' : G0, G, GF *)
                       in
                         I.Dot (I.Exp (I.Root (I.BVar (g+k'-k), S''')), s')
                                         (* G0, GA, G[..] |- (g+k'-k). S', s' : G0, G, GF, V *)
                       end
-          val F' = raiseFor (k+1, Gorig, F, I.comp (w, I.shift), sc')
+          let F' = raiseFor (k+1, Gorig, F, I.comp (w, I.shift), sc')
         in
           F.All(F.Prim (I.Dec (name, V''')), F')
         end
@@ -816,61 +816,61 @@ struct
 
     fun makeFor (K, w, Head (G, (F, s), d)) =
         let
-          val cf = collectGlobalSub (G, s, createEmptyB d, fn (_, K') => K')
-          val k = I.ctxLength K
-          val K' = cf (I.ctxLength G, K)
-          val k' = I.ctxLength K'
-          val (GK, BK) = abstractCtx K'
-          val _ = if !Global.doubleCheck then TypeCheck.typeCheckCtx (GK) else ()
-(*        val _ = if !Global.doubleCheck then checkTags (GK, BK) else () *)
-          val w' = I.comp (w, I.Shift (k'-k))
-          val FK = abstractFor (K', 0, (F, s))
-          val _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK, FK) else ()
-          val (GK1, GK2) = split (GK, k'-k)
+          let cf = collectGlobalSub (G, s, createEmptyB d, fn (_, K') => K')
+          let k = I.ctxLength K
+          let K' = cf (I.ctxLength G, K)
+          let k' = I.ctxLength K'
+          let (GK, BK) = abstractCtx K'
+          let _ = if !Global.doubleCheck then TypeCheck.typeCheckCtx (GK) else ()
+(*        let _ = if !Global.doubleCheck then checkTags (GK, BK) else () *)
+          let w' = I.comp (w, I.Shift (k'-k))
+          let FK = abstractFor (K', 0, (F, s))
+          let _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK, FK) else ()
+          let (GK1, GK2) = split (GK, k'-k)
         in
           (GK1, allClo (GK2, FK))
         end
       | makeFor (K, w, Block ((G, t, d, G2), AF)) =
         let
-          val k = I.ctxLength K
-          val collect = collectGlobalSub (G, t, createEmptyB d, fn (_, K') => K')
-          val K' = collect (I.ctxLength G, K)   (* BUG *)
-          val k' = I.ctxLength K'
-          val K'' = extend (K', G2)
-          val w' = F.dot1n (F.listToCtx G2, I.comp (w, I.Shift (k'-k)))
-          val (GK, F') = makeFor (K'', w', AF)
-          val _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK, F') else ()
-          val (GK1, GK2) = split (GK, List.length G2)
-          val F'' = raiseFor (0, GK2, F', I.id, fn (w, _) => F.dot1n (GK2, w))
-          val _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK1, F'') else ()
-          val (GK11, GK12) = split (GK1, k' - k)
-          val F''' = allClo (GK12, F'')
-          val _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK11, F''') else ()
+          let k = I.ctxLength K
+          let collect = collectGlobalSub (G, t, createEmptyB d, fn (_, K') => K')
+          let K' = collect (I.ctxLength G, K)   (* BUG *)
+          let k' = I.ctxLength K'
+          let K'' = extend (K', G2)
+          let w' = F.dot1n (F.listToCtx G2, I.comp (w, I.Shift (k'-k)))
+          let (GK, F') = makeFor (K'', w', AF)
+          let _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK, F') else ()
+          let (GK1, GK2) = split (GK, List.length G2)
+          let F'' = raiseFor (0, GK2, F', I.id, fn (w, _) => F.dot1n (GK2, w))
+          let _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK1, F'') else ()
+          let (GK11, GK12) = split (GK1, k' - k)
+          let F''' = allClo (GK12, F'')
+          let _ = if !Global.doubleCheck then FunTypeCheck.isFor (GK11, F''') else ()
         in
           (GK11, F''')
         end
 
     fun abstractApproxFor (AF as Head (G, _, _)) =
         let
-          val (_, F) = makeFor (convert G, I.id, AF)
+          let (_, F) = makeFor (convert G, I.id, AF)
         in
           F
         end
       | abstractApproxFor (AF as Block ((G, _, _, _), _)) =
         let
-          val (_, F) = makeFor (convert G, I.id, AF)
+          let (_, F) = makeFor (convert G, I.id, AF)
         in
           F
         end
 
   in
-    val weaken = weaken
-    val raiseType = raiseType
+    let weaken = weaken
+    let raiseType = raiseType
 
-    val abstractSub = abstractSubAll
-    val abstractSub' = abstractNew
+    let abstractSub = abstractSubAll
+    let abstractSub' = abstractNew
 
-    val abstractApproxFor = abstractApproxFor
+    let abstractApproxFor = abstractApproxFor
   end
 
 end;  (* functor MTPAbstract *)

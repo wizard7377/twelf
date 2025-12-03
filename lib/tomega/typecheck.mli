@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Yu Liao *)
 
-signature TOMEGATYPECHECK = 
+module type TOMEGATYPECHECK = 
 sig
   exception Error of string
 

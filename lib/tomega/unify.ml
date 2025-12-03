@@ -1,40 +1,40 @@
 (* Unification on Formulas *)
 (* Author: Carsten Schuermann *)
 
-functor TomegaUnify
-  ((*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor TomegaUnify
+  ((*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   structure TypeCheck : TYPECHECK
+   module TypeCheck : TYPECHECK
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   structure Conv : CONV
+   module Conv : CONV
    (*! sharing Conv.IntSyn = IntSyn' !*)
-   structure Normalize : NORMALIZE
+   module Normalize : NORMALIZE
    (*! sharing Normalize.IntSyn = IntSyn' !*)
    (*! sharing Normalize.Tomega = Tomega' !*)
-   structure Whnf : WHNF
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Print : PRINT
+   module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn' !*)
-   structure TomegaPrint : TOMEGAPRINT
+   module TomegaPrint : TOMEGAPRINT
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
-   structure Subordinate : SUBORDINATE
+   module Subordinate : SUBORDINATE
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-   structure Weaken : WEAKEN
+   module Weaken : WEAKEN
    (*! sharing Weaken.IntSyn = IntSyn' !*)
        ) : TOMEGAUNIFY =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
 
   exception Unify of string
 
   local
-    structure I = IntSyn
-    structure T = Tomega
+    module I = IntSyn
+    module T = Tomega
 
     (* unifyFor (Psi, F1, F2) = R
 
@@ -86,6 +86,6 @@ struct
 
 
   in
-    val unifyFor = unifyFor
+    let unifyFor = unifyFor
   end
 end

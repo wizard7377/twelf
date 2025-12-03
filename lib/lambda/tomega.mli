@@ -1,26 +1,26 @@
 (* Internal syntax for Delphin *)
 (* Author: Carsten Schuermann *)
 
-signature TOMEGA = 
+module type TOMEGA = 
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   (* make abstract *)
   type label = int      
   type lemma = int 
 
-  datatype Worlds = Worlds of IntSyn.cid list
+  type Worlds = Worlds of IntSyn.cid list
     
-  datatype Quantifier = Implicit | Explicit
+  type Quantifier = Implicit | Explicit
 
 
-  datatype TC	=			(* Terminiation Condition     *)
+  type TC	=			(* Terminiation Condition     *)
     Abs of IntSyn.Dec * TC      	(* T ::= {{D}} O              *)
   | Conj of TC * TC			(*     | O1 ^ O2              *)
   | Base of ((IntSyn.Exp * IntSyn.Sub) * 
 	     (IntSyn.Exp * IntSyn.Sub)) Order.Order
 
-  datatype For  			(* Formulas                   *)
+  type For  			(* Formulas                   *)
   = World of Worlds * For               (* F ::= World l1...ln. F     *)  
   | All of (Dec * Quantifier) * For     (*     | All LD. F            *)
   | Ex  of (IntSyn.Dec * Quantifier)  * For
@@ -81,7 +81,7 @@ sig
     Cases of (Dec IntSyn.Ctx * Sub * Prg) list
 					(* C ::= (Psi' |> s |-> P)    *)
 
-  datatype ConDec =			(* ConDec                     *)
+  type ConDec =			(* ConDec                     *)
     ForDec of string * For		(* CD ::= f :: F              *)
   | ValDec of string * Prg * For	(*      | f == P              *)
 

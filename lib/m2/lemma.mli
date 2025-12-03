@@ -1,11 +1,11 @@
 (* Lemma *)
 (* Author: Carsten Schuermann *)
 
-signature LEMMA = 
+module type LEMMA = 
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
     
   exception Error of string
 
   val apply : MetaSyn.State * IntSyn.cid -> MetaSyn.State 
-end;  (* signature LEMMA *)
+end;  (* module type LEMMA *)

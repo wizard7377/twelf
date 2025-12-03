@@ -6,260 +6,260 @@
 (* necessary. *)
 (* Now in lexer.fun *)
 (*
-structure Lexer =
-  Lexer (structure Stream' = Stream
-	 structure Paths' = Paths);
+module Lexer =
+  Lexer (module Stream' = Stream
+	 module Paths' = Paths);
 *)
 
 (* Now in parsing.fun *)
 (*
-structure Parsing =
-  Parsing (structure Stream' = Stream
-	   structure Lexer' = Lexer);
+module Parsing =
+  Parsing (module Stream' = Stream
+	   module Lexer' = Lexer);
 *)
 
 
-structure ReconTerm =
-  ReconTerm ((*! structure IntSyn' = IntSyn !*)
-	     structure Names = Names
-	     (*! structure Paths' = Paths !*)
-             structure Approx = Approx
- 	     structure Whnf = Whnf
-	     structure Unify = UnifyTrail
-             structure Abstract = Abstract
-	     structure Print = Print
-             (*! structure CSManager = CSManager !*)
-             structure StringTree = StringRedBlackTree
-             structure Msg = Msg);
+module ReconTerm =
+  ReconTerm ((*! module IntSyn' = IntSyn !*)
+	     module Names = Names
+	     (*! module Paths' = Paths !*)
+             module Approx = Approx
+ 	     module Whnf = Whnf
+	     module Unify = UnifyTrail
+             module Abstract = Abstract
+	     module Print = Print
+             (*! module CSManager = CSManager !*)
+             module StringTree = StringRedBlackTree
+             module Msg = Msg);
 
-structure ReconConDec =
-  ReconConDec (structure Global = Global
-               (*! structure IntSyn' = IntSyn !*)
-               structure Names = Names
-               structure Abstract = Abstract
-               (*! structure Paths' = Paths !*)
-               structure ReconTerm' = ReconTerm
-               structure Constraints = Constraints
-               structure Strict = Strict
-               structure TypeCheck = TypeCheck
-               structure Timers = Timers
-               structure Print = Print
-	       structure Msg = Msg);
+module ReconConDec =
+  ReconConDec (module Global = Global
+               (*! module IntSyn' = IntSyn !*)
+               module Names = Names
+               module Abstract = Abstract
+               (*! module Paths' = Paths !*)
+               module ReconTerm' = ReconTerm
+               module Constraints = Constraints
+               module Strict = Strict
+               module TypeCheck = TypeCheck
+               module Timers = Timers
+               module Print = Print
+	       module Msg = Msg);
                                                         
-structure ReconQuery =
-  ReconQuery (structure Global = Global
-              (*! structure IntSyn' = IntSyn !*)
-              structure Names = Names
-              structure Abstract = Abstract
-              (*! structure Paths' = Paths !*)
-              structure ReconTerm' = ReconTerm
-              structure TypeCheck = TypeCheck
-              structure Strict = Strict
-              structure Timers = Timers
-              structure Print = Print);
+module ReconQuery =
+  ReconQuery (module Global = Global
+              (*! module IntSyn' = IntSyn !*)
+              module Names = Names
+              module Abstract = Abstract
+              (*! module Paths' = Paths !*)
+              module ReconTerm' = ReconTerm
+              module TypeCheck = TypeCheck
+              module Strict = Strict
+              module Timers = Timers
+              module Print = Print);
 
-structure ReconMode =
-  ReconMode (structure Global = Global
-	     (*! structure ModeSyn' = ModeSyn !*)
-	     structure Whnf = Whnf
-	     (*! structure Paths' = Paths !*)
-             structure Names = Names
-	     structure ModePrint = ModePrint
-	     structure ModeDec = ModeDec
-	     structure ReconTerm' = ReconTerm);
+module ReconMode =
+  ReconMode (module Global = Global
+	     (*! module ModeSyn' = ModeSyn !*)
+	     module Whnf = Whnf
+	     (*! module Paths' = Paths !*)
+             module Names = Names
+	     module ModePrint = ModePrint
+	     module ModeDec = ModeDec
+	     module ReconTerm' = ReconTerm);
 
-structure ReconThm =
-  ReconThm (structure Global = Global
-	    structure IntSyn = IntSyn
-	    structure Abstract = Abstract
-	    structure Constraints = Constraints
-	    (*! structure ModeSyn = ModeSyn !*)
-	    structure Names = Names
-	    (*! structure Paths' = Paths !*)
-	    structure ThmSyn' = ThmSyn
-	    structure ReconTerm' = ReconTerm
-	    structure Print = Print);
+module ReconThm =
+  ReconThm (module Global = Global
+	    module IntSyn = IntSyn
+	    module Abstract = Abstract
+	    module Constraints = Constraints
+	    (*! module ModeSyn = ModeSyn !*)
+	    module Names = Names
+	    (*! module Paths' = Paths !*)
+	    module ThmSyn' = ThmSyn
+	    module ReconTerm' = ReconTerm
+	    module Print = Print);
 
 
-structure ReconModule =
-  ReconModule (structure Global = Global
-               structure IntSyn = IntSyn
-               structure Names = Names
-               (*! structure Paths' = Paths !*)
-               structure ReconTerm' = ReconTerm
-               structure ModSyn' = ModSyn
-               structure IntTree = IntRedBlackTree);
+module ReconModule =
+  ReconModule (module Global = Global
+               module IntSyn = IntSyn
+               module Names = Names
+               (*! module Paths' = Paths !*)
+               module ReconTerm' = ReconTerm
+               module ModSyn' = ModSyn
+               module IntTree = IntRedBlackTree);
 
-structure ParseTerm =
-  ParseTerm ((*! structure Parsing' = Parsing !*)
-	     structure ExtSyn' = ReconTerm
-	     structure Names = Names);
+module ParseTerm =
+  ParseTerm ((*! module Parsing' = Parsing !*)
+	     module ExtSyn' = ReconTerm
+	     module Names = Names);
 
-structure ParseConDec =
-  ParseConDec ((*! structure Parsing' = Parsing !*)
-	       structure ExtConDec' = ReconConDec
-	       structure ParseTerm = ParseTerm);
+module ParseConDec =
+  ParseConDec ((*! module Parsing' = Parsing !*)
+	       module ExtConDec' = ReconConDec
+	       module ParseTerm = ParseTerm);
 
-structure ParseQuery =
-  ParseQuery ((*! structure Parsing' = Parsing !*)
-	      structure ExtQuery' = ReconQuery
-	      structure ParseTerm = ParseTerm);
+module ParseQuery =
+  ParseQuery ((*! module Parsing' = Parsing !*)
+	      module ExtQuery' = ReconQuery
+	      module ParseTerm = ParseTerm);
 
-structure ParseFixity =
-  ParseFixity ((*! structure Parsing' = Parsing !*)
-	       structure Names' = Names);
+module ParseFixity =
+  ParseFixity ((*! module Parsing' = Parsing !*)
+	       module Names' = Names);
 
-structure ParseMode =
-  ParseMode ((*! structure Parsing' = Parsing !*)
-	     structure ExtModes' = ReconMode
-	     (*! structure Paths = Paths !*)
-	     structure ParseTerm = ParseTerm);
+module ParseMode =
+  ParseMode ((*! module Parsing' = Parsing !*)
+	     module ExtModes' = ReconMode
+	     (*! module Paths = Paths !*)
+	     module ParseTerm = ParseTerm);
 
-structure ParseThm =
-  ParseThm ((*! structure Parsing' = Parsing !*)
-	    structure ThmExtSyn' = ReconThm
-	    structure ParseTerm = ParseTerm
-	    (*! structure Paths = Paths !*)
+module ParseThm =
+  ParseThm ((*! module Parsing' = Parsing !*)
+	    module ThmExtSyn' = ReconThm
+	    module ParseTerm = ParseTerm
+	    (*! module Paths = Paths !*)
 	      );
 
-structure ParseModule =
-  ParseModule ((*! structure Parsing' = Parsing !*)
-               structure ModExtSyn' = ReconModule
-               structure ParseTerm = ParseTerm
-               (*! structure Paths = Paths !*)
+module ParseModule =
+  ParseModule ((*! module Parsing' = Parsing !*)
+               module ModExtSyn' = ReconModule
+               module ParseTerm = ParseTerm
+               (*! module Paths = Paths !*)
 		 );
 
-structure Parser =
-  Parser ((*! structure Parsing' = Parsing !*)
-	  structure Stream' = Stream
-	  structure ExtSyn' = ReconTerm
-	  structure Names' = Names
-          structure ExtConDec' = ReconConDec
-          structure ExtQuery' = ReconQuery
-	  structure ExtModes' = ReconMode
-	  structure ThmExtSyn' = ReconThm
-          structure ModExtSyn' = ReconModule
-	  structure ParseConDec = ParseConDec
-	  structure ParseQuery = ParseQuery
-	  structure ParseFixity = ParseFixity
-	  structure ParseMode = ParseMode
-	  structure ParseThm = ParseThm
-          structure ParseModule = ParseModule
-          structure ParseTerm = ParseTerm);
+module Parser =
+  Parser ((*! module Parsing' = Parsing !*)
+	  module Stream' = Stream
+	  module ExtSyn' = ReconTerm
+	  module Names' = Names
+          module ExtConDec' = ReconConDec
+          module ExtQuery' = ReconQuery
+	  module ExtModes' = ReconMode
+	  module ThmExtSyn' = ReconThm
+          module ModExtSyn' = ReconModule
+	  module ParseConDec = ParseConDec
+	  module ParseQuery = ParseQuery
+	  module ParseFixity = ParseFixity
+	  module ParseMode = ParseMode
+	  module ParseThm = ParseThm
+          module ParseModule = ParseModule
+          module ParseTerm = ParseTerm);
 
-structure Solve =
-  Solve (structure Global = Global
-	 (*! structure IntSyn' = IntSyn !*)
-	 structure Names = Names
-	 structure Parser = Parser
-	 structure ReconQuery = ReconQuery
-	 structure Timers = Timers
-	 (*! structure CompSyn = CompSyn !*)
-	 structure Compile = Compile
-	 structure CPrint = CPrint
-         (*! structure CSManager = CSManager !*)
-	 structure AbsMachine = SwMachine
-	 structure PtRecon = PtRecon
-	 structure AbsMachineSbt = AbsMachineSbt
-	 structure PtRecon = PtRecon
-	 (*! structure TableParam = TableParam !*)
-	 structure Tabled = Tabled
-(*	 structure TableIndex = TableIndex *)
-(*	 structure MemoTable = MemoTable *)
-	 structure Print = Print 
-         structure Msg = Msg);
+module Solve =
+  Solve (module Global = Global
+	 (*! module IntSyn' = IntSyn !*)
+	 module Names = Names
+	 module Parser = Parser
+	 module ReconQuery = ReconQuery
+	 module Timers = Timers
+	 (*! module CompSyn = CompSyn !*)
+	 module Compile = Compile
+	 module CPrint = CPrint
+         (*! module CSManager = CSManager !*)
+	 module AbsMachine = SwMachine
+	 module PtRecon = PtRecon
+	 module AbsMachineSbt = AbsMachineSbt
+	 module PtRecon = PtRecon
+	 (*! module TableParam = TableParam !*)
+	 module Tabled = Tabled
+(*	 module TableIndex = TableIndex *)
+(*	 module MemoTable = MemoTable *)
+	 module Print = Print 
+         module Msg = Msg);
 
 
-structure Fquery =
-  Fquery (structure Global = Global
-	  structure Names = Names
-	  structure ReconQuery = ReconQuery
-	  structure Timers = Timers
-	  structure Print = Print);
+module Fquery =
+  Fquery (module Global = Global
+	  module Names = Names
+	  module ReconQuery = ReconQuery
+	  module Timers = Timers
+	  module Print = Print);
 
-structure Twelf =
-  Twelf (structure Global = Global
-	 structure Timers = Timers
-	 (*! structure IntSyn' = IntSyn !*)
-	 structure Whnf = Whnf
-	 structure Print = Print
+module Twelf =
+  Twelf (module Global = Global
+	 module Timers = Timers
+	 (*! module IntSyn' = IntSyn !*)
+	 module Whnf = Whnf
+	 module Print = Print
 
-	 structure Names = Names
-	 (*! structure Paths = Paths !*)
-	 structure Origins = Origins
-	 structure Lexer = Lexer
-	 (*! structure Parsing = Parsing !*)
-	 structure Parser = Parser
-	 structure TypeCheck = TypeCheck
-	 structure Strict = Strict
-	 structure Constraints = Constraints
-	 structure Abstract = Abstract
-	 structure ReconTerm = ReconTerm
-         structure ReconConDec = ReconConDec
-         structure ReconQuery = ReconQuery
+	 module Names = Names
+	 (*! module Paths = Paths !*)
+	 module Origins = Origins
+	 module Lexer = Lexer
+	 (*! module Parsing = Parsing !*)
+	 module Parser = Parser
+	 module TypeCheck = TypeCheck
+	 module Strict = Strict
+	 module Constraints = Constraints
+	 module Abstract = Abstract
+	 module ReconTerm = ReconTerm
+         module ReconConDec = ReconConDec
+         module ReconQuery = ReconQuery
 
-	 structure ModeTable = ModeTable
-	 structure ModeCheck = ModeCheck
-	 structure ModeDec = ModeDec
-	 structure ReconMode = ReconMode
-	 structure ModePrint = ModePrint
+	 module ModeTable = ModeTable
+	 module ModeCheck = ModeCheck
+	 module ModeDec = ModeDec
+	 module ReconMode = ReconMode
+	 module ModePrint = ModePrint
 
-         structure Unique = Unique
-         structure UniqueTable = UniqueTable
+         module Unique = Unique
+         module UniqueTable = UniqueTable
 
-         structure Cover = Cover
-	 structure Converter = Converter
-	 structure TomegaPrint = TomegaPrint
-	 structure TomegaCoverage = TomegaCoverage
-	 structure TomegaTypeCheck = TomegaTypeCheck
-         structure Total = Total
+         module Cover = Cover
+	 module Converter = Converter
+	 module TomegaPrint = TomegaPrint
+	 module TomegaCoverage = TomegaCoverage
+	 module TomegaTypeCheck = TomegaTypeCheck
+         module Total = Total
 
-	 structure Reduces = Reduces
+	 module Reduces = Reduces
 
-	 structure Index = Index
-	 structure IndexSkolem = IndexSkolem
-	 structure Subordinate = Subordinate
-	 (*! structure CompSyn' = CompSyn !*)
-	 structure Compile = Compile
-	 structure CPrint = CPrint
-	 structure AbsMachine = SwMachine
-	 (*! structure TableParam = TableParam !*)
-	 structure Tabled = Tabled
-	 structure Solve = Solve
-	 structure Fquery = Fquery
+	 module Index = Index
+	 module IndexSkolem = IndexSkolem
+	 module Subordinate = Subordinate
+	 (*! module CompSyn' = CompSyn !*)
+	 module Compile = Compile
+	 module CPrint = CPrint
+	 module AbsMachine = SwMachine
+	 (*! module TableParam = TableParam !*)
+	 module Tabled = Tabled
+	 module Solve = Solve
+	 module Fquery = Fquery
 
-	 structure StyleCheck = StyleCheck
+	 module StyleCheck = StyleCheck
 
-	 structure ThmSyn = ThmSyn
-	 structure Thm = Thm
-	 structure ReconThm = ReconThm
-	 structure ThmPrint = ThmPrint
+	 module ThmSyn = ThmSyn
+	 module Thm = Thm
+	 module ReconThm = ReconThm
+	 module ThmPrint = ThmPrint
                               
-	 structure TabledSyn = TabledSyn
+	 module TabledSyn = TabledSyn
 
-	 structure WorldSyn = WorldSyn
-(*	 structure WorldPrint = WorldPrint *)
-	 structure Worldify = Worldify
+	 module WorldSyn = WorldSyn
+(*	 module WorldPrint = WorldPrint *)
+	 module Worldify = Worldify
 
-         structure ModSyn = ModSyn
-         structure ReconModule = ReconModule
+         module ModSyn = ModSyn
+         module ReconModule = ReconModule
 
-	 structure MetaGlobal = MetaGlobal
-	 (*! structure FunSyn = FunSyn !*)
-	 structure Skolem = Skolem
-	 structure Prover = CombiProver
-	 structure ClausePrint = ClausePrint
+	 module MetaGlobal = MetaGlobal
+	 (*! module FunSyn = FunSyn !*)
+	 module Skolem = Skolem
+	 module Prover = CombiProver
+	 module ClausePrint = ClausePrint
 
-         structure Trace = Trace
+         module Trace = Trace
 
-	 structure PrintTeX = PrintTeX
-	 structure ClausePrintTeX = ClausePrintTeX
+	 module PrintTeX = PrintTeX
+	 module ClausePrintTeX = ClausePrintTeX
 
-         structure CSManager = CSManager
-         structure CSInstaller = CSInstaller (* unused -- creates necessary CM dependency *)
+         module CSManager = CSManager
+         module CSInstaller = CSInstaller (* unused -- creates necessary CM dependency *)
 
-         structure Compat = Compat
-	 structure UnknownExn = UnknownExn
+         module Compat = Compat
+	 module UnknownExn = UnknownExn
 
-	 structure Msg = Msg
+	 module Msg = Msg
 	   );

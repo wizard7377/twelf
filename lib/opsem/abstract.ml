@@ -2,39 +2,39 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-functor AbstractTabled ((*! structure IntSyn' : INTSYN !*)
-                  structure Whnf    : WHNF
+let recctor AbstractTabled ((*! module IntSyn' : INTSYN !*)
+                  module Whnf    : WHNF
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
-                  structure Unify   : UNIFY
+                  module Unify   : UNIFY
                   (*! sharing Unify.IntSyn = IntSyn' !*)
-                  structure Constraints : CONSTRAINTS
+                  module Constraints : CONSTRAINTS
                   (*! sharing Constraints.IntSyn = IntSyn' !*)
-                  structure Subordinate : SUBORDINATE
+                  module Subordinate : SUBORDINATE
                   (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                  structure Print : PRINT
+                  module Print : PRINT
                   (*! sharing Print.IntSyn = IntSyn' !*)
-                  structure Conv    : CONV
+                  module Conv    : CONV
                   (*! sharing Conv.IntSyn = IntSyn' !*)
-                  (*! structure TableParam : TABLEPARAM !*)
+                  (*! module TableParam : TABLEPARAM !*)
                   (*! sharing TableParam.IntSyn = IntSyn' !*)
                       )
   : ABSTRACTTABLED =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure TableParam = TableParam !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module TableParam = TableParam !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure C = CompSyn
+    module I = IntSyn
+    module C = CompSyn
 
-    datatype Duplicates = AV of (I.Exp * int) | FGN of int
+    type Duplicates = AV of (I.Exp * int) | FGN of int
 
-    datatype seenIn = TypeLabel | Body
+    type seenIn = TypeLabel | Body
 
-    datatype ExistVars = EV of I.Exp
+    type ExistVars = EV of I.Exp
 
     fun lengthSub (I.Shift n) = 0
       | lengthSub (I.Dot(E, s)) = 1 + lengthSub s
@@ -71,7 +71,7 @@ struct
     and isId' (I.Shift(n), k) = (n = k)
       | isId' (I.Dot(I.Idx(i), s), k) =
       let
-        val k' = k+1
+        let k' = k+1
       in
         (i = k') andalso isId' (s, k')
       end
@@ -94,8 +94,8 @@ struct
       (* Sun Dec  1 14:04:17 2002 -bp  may raise exception
        if strengthening is applied,i.e. the substitution is not always id! *)
       let
-        val (X1', s) = Whnf.whnf (X1, I.id)
-        val (X2', s) = Whnf.whnf (X2, I.id)
+        let (X1', s) = Whnf.whnf (X1, I.id)
+        let (X2', s) = Whnf.whnf (X2, I.id)
       in
         eqEVarW X1' (EV (X2'))
       end
@@ -208,8 +208,8 @@ struct
     fun ctxToEVarSub (IntSyn.Null, s) = s
       | ctxToEVarSub (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) =
       let
-        val s' = ctxToEVarSub (G, s)
-        val X = IntSyn.newEVar (IntSyn.Null, I.EClo(A,s'))
+        let s' = ctxToEVarSub (G, s)
+        let X = IntSyn.newEVar (IntSyn.Null, I.EClo(A,s'))
       in
         IntSyn.Dot(IntSyn.Exp(X), s')
       end
@@ -241,7 +241,7 @@ struct
     fun collectExpW (Gss, Gl, (I.Uni L, s), K, DupVars, flag, d) = (K, DupVars)
       | collectExpW (Gss, Gl, (I.Pi ((D, _), V), s), K, DupVars, flag, d) =
         let
-          val (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
+          let (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
         in
           (* should we apply I.dot1(ss) ? Tue Oct 15 21:55:16 2002 -bp *)
           collectExp (Gss, I.Decl (Gl, I.decSub (D, s)), (V, I.dot1 s), K', DupVars, flag, d)
@@ -251,7 +251,7 @@ struct
 
       | collectExpW (Gss, Gl, (I.Lam (D, U), s), K, DupVars, flag, d) =
           let
-            val (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
+            let (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
           in
             collectExp (Gss, I.Decl (Gl, I.decSub (D, s)), (U, I.dot1 s), K', DupVars, flag, d+1)
           end
@@ -262,7 +262,7 @@ struct
         I.FgnExpStd.fold csfe
         (fn (U, KD') =>
          let
-           val (K', Dup) = KD'
+           let (K', Dup) = KD'
          in collectExp (Gss, Gl, (U, s), K', Dup, false, d)
          end) (K, I.Decl(DupVars, FGN(d)))
 
@@ -289,7 +289,7 @@ struct
           collectSpine (Gss, Gl, (S, I.comp (s', s)), K, DupVars, flag, d)
       | collectSpine (Gss, Gl, (I.App (U, S), s), K, DupVars, flag, d) =
           let
-            val  (K', DupVars') =  collectExp (Gss, Gl, (U, s), K, DupVars, flag, d)
+            let  (K', DupVars') =  collectExp (Gss, Gl, (U, s), K, DupVars, flag, d)
           in
             collectSpine (Gss, Gl, (S, s), K', DupVars', flag, d)
           end
@@ -304,7 +304,7 @@ struct
                      Body => collectSub(Gss, Gl, s, K, I.Decl(DupVars, AV(X,d)), flag, d)
                    | TypeLabel =>
                        let
-                         val K' = update' (eqEVar X) K
+                         let K' = update' (eqEVar X) K
                        in
                          collectSub(Gss, Gl, s, K', DupVars, flag, d)
                        end *)
@@ -313,9 +313,9 @@ struct
                collectSub(Gss, Gl, s, K, DupVars, flag, d))
         | NONE =>
           let
-(*          val V' = raiseType (GX, V) (* inefficient! *)*)
-            val label = if flag then Body else TypeLabel
-            val (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
+(*          let V' = raiseType (GX, V) (* inefficient! *)*)
+            let label = if flag then Body else TypeLabel
+            let (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
           in
             collectSub(Gss, Gl, I.comp(w, s), I.Decl (K', (label, EV(X'))), DupVars', flag, d)
           end
@@ -332,8 +332,8 @@ struct
                    Body => (print "Collect DupVar\n"; collectSub(Gss, Gl, s, K, I.Decl(DupVars, AV(X, d)), flag, d) )
                  | TypeLabel =>
                     let
-                      val _ = print "TypeLabel\n"
-                      val K' = update' (eqEVar X) K
+                      let _ = print "TypeLabel\n"
+                      let K' = update' (eqEVar X) K
                     in
                       collectSub(Gss, Gl, s, K', DupVars, flag, d)
                     end*)
@@ -342,9 +342,9 @@ struct
 
         | NONE =>
           let
-            (* val V' = raiseType (GX, V) (* inefficient! *)*)
-            val label = if flag then Body else TypeLabel
-            val (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
+            (* let V' = raiseType (GX, V) (* inefficient! *)*)
+            let label = if flag then Body else TypeLabel
+            let (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
           in
             if flag
               then
@@ -355,12 +355,12 @@ struct
 
     and collectEVarStr (Gss as (Gs, ss), Gl, (X as I.EVar (r, GX, V, cnstrs), s), K, DupVars, flag, d) =
       let
-        val w = Subordinate.weaken (GX, I.targetFam V)
-        val iw = Whnf.invert w
-        val GX' = Whnf.strengthen (iw, GX)
-        val X' as I.EVar (r', _, _, _) = I.newEVar (GX', I.EClo (V, iw)) (* ? *)
-        val _ = Unify.instantiateEVar (r, I.EClo (X', w), nil)
-        val V' = raiseType (GX', I.EClo (V, iw))
+        let w = Subordinate.weaken (GX, I.targetFam V)
+        let iw = Whnf.invert w
+        let GX' = Whnf.strengthen (iw, GX)
+        let X' as I.EVar (r', _, _, _) = I.newEVar (GX', I.EClo (V, iw)) (* ? *)
+        let _ = Unify.instantiateEVar (r, I.EClo (X', w), nil)
+        let V' = raiseType (GX', I.EClo (V, iw))
       in
         if isId (I.comp(w, I.comp(ss, s))) (* equalCtx (Gs, I.id, GX', s) *)
           then (* fully applied *)
@@ -382,7 +382,7 @@ struct
                    Body => collectSub(Gss, Gl, s, K, I.Decl(DupVars, AV(X, d)), flag, d)
                  | TypeLabel =>
                      let
-                       val K' = update' (eqEVar X) K
+                       let K' = update' (eqEVar X) K
                      in
                        collectSub(Gss, Gl, s, K', DupVars, flag, d)
                      end *)
@@ -391,10 +391,10 @@ struct
                 collectSub(Gss, Gl, s, K, DupVars, flag, d))
         | NONE =>
           let
-            (* val _ = checkEmpty !cnstrs *)
-            val label = if flag then Body else TypeLabel
-            val V' = raiseType (GX, V) (* inefficient! *)
-            val (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
+            (* let _ = checkEmpty !cnstrs *)
+            let label = if flag then Body else TypeLabel
+            let V' = raiseType (GX, V) (* inefficient! *)
+            let (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
           in
             collectSub(Gss, Gl, s, I.Decl (K', (label, EV(X))), DupVars', flag, d)
           end
@@ -409,7 +409,7 @@ struct
                    Body => collectSub(Gss, Gl, s, K, I.Decl(DupVars, AV(X, d)), flag, d)
                    | TypeLabel =>
                      let
-                       val K' = update' (eqEVar X) K
+                       let K' = update' (eqEVar X) K
                      in
                        collectSub(Gss, Gl, s, K', DupVars, flag, d)
                      end             *)
@@ -417,9 +417,9 @@ struct
                collectSub(Gss, Gl, s, K, DupVars, flag, d))
         | NONE =>
           let
-            val label = if flag then Body else TypeLabel
-            val V' = raiseType (GX, V) (* inefficient! *)
-            val (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
+            let label = if flag then Body else TypeLabel
+            let V' = raiseType (GX, V) (* inefficient! *)
+            let (K', DupVars') = collectExp ((I.Null, I.id), I.Null, (V', I.id), K, DupVars, false, d)
           in
             if flag
               then
@@ -450,8 +450,8 @@ struct
     *)
     and collectDec (Gss, (I.Dec (_, V), s), (K, DupVars), d, flag) =
       let
-(*      val (K',DupVars') =  collectExp (Gss, I.Null, (V, s), K, I.Null, false, d)*)
-        val (K', DupVars') =  collectExp (Gss, I.Null, (V, s), K, DupVars, flag, d)
+(*      let (K',DupVars') =  collectExp (Gss, I.Null, (V, s), K, I.Null, false, d)*)
+        let (K', DupVars') =  collectExp (Gss, I.Null, (V, s), K, DupVars, flag, d)
       in
         (K', DupVars')
       end
@@ -472,30 +472,30 @@ struct
         collectSub (Gss, Gl, s, K, DupVars, flag, d)
       | collectSub (Gss, Gl, I.Dot (I.Exp (X as I.EVar (ref (SOME U), _, _, _)), s), K, DupVars, flag, d) =
         let
-          val U' = Whnf.normalize (U, I.id) (* inefficient? *)
-          val (K', DupVars') = collectExp (Gss, Gl, (U', I.id), K, DupVars, flag, d)
+          let U' = Whnf.normalize (U, I.id) (* inefficient? *)
+          let (K', DupVars') = collectExp (Gss, Gl, (U', I.id), K, DupVars, flag, d)
         in
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
 
       | collectSub (Gss, Gl, I.Dot (I.Exp (U as I.AVar (ref (SOME U'))), s), K, DupVars, flag, d) =
         let
-          val (K', DupVars') = collectExp (Gss, Gl, (U', I.id), K, DupVars, flag, d)
+          let (K', DupVars') = collectExp (Gss, Gl, (U', I.id), K, DupVars, flag, d)
         in
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
 
       | collectSub (Gss, Gl, I.Dot (I.Exp (I.EClo(U', s')), s), K, DupVars, flag, d) =
         let
-          val U = Whnf.normalize (U',s') (* inefficient? *)
-          val (K', DupVars') = collectExp (Gss, Gl, (U, I.id), K, DupVars, flag, d)
+          let U = Whnf.normalize (U',s') (* inefficient? *)
+          let (K', DupVars') = collectExp (Gss, Gl, (U, I.id), K, DupVars, flag, d)
         in
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
 
       | collectSub (Gss, Gl, I.Dot (I.Exp (U), s), K, DupVars, flag, d) =
         let
-          val (K', DupVars') = collectExp (Gss, Gl, (U, I.id), K, DupVars, flag, d)
+          let (K', DupVars') = collectExp (Gss, Gl, (U, I.id), K, DupVars, flag, d)
         in
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
@@ -512,13 +512,13 @@ struct
     fun collectCtx (Gss,C.DProg(I.Null, I.Null), (K, DupVars), d) =  (K, DupVars)
       | collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), (K, DupVars), d) =
         let
-          val (K',DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
+          let (K',DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
         in
           collectDec (Gss, (D, I.id), (K', DupVars'), d - 1, false)
         end
       | collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Dec(r,s,Ha))), (K, DupVars), d) =
         let
-          val (K', DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
+          let (K', DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
         in
           collectDec (Gss, (D, I.id), (K', DupVars'), d - 1, false)
         end
@@ -561,21 +561,21 @@ struct
         (posEA, Vars, U, eqn)
       | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Pi ((D, P), V), s), eqn) =
         let
-          val (posEA', Vars', D, _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
-          val (posEA'', Vars'', V', eqn2) = abstractExp (flag, Gs, posEA', Vars', Gl, total, depth + 1, (V, I.dot1 s), eqn)
+          let (posEA', Vars', D, _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
+          let (posEA'', Vars'', V', eqn2) = abstractExp (flag, Gs, posEA', Vars', Gl, total, depth + 1, (V, I.dot1 s), eqn)
         in
           (posEA'', Vars'', piDepend ((D, P), V'),eqn2)
         end
       | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Root (H, S) ,s), eqn) =
         let
-          val (posEA', Vars', S, eqn') = abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (S, s), eqn)
+          let (posEA', Vars', S, eqn') = abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (S, s), eqn)
         in
           (posEA', Vars', I.Root (H, S), eqn')
         end
       | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Lam (D, U), s), eqn) =
         let
-          val (posEA', Vars', D', _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
-          val (posEA'', Vars'', U', eqn2) = abstractExp (flag, Gs, posEA', Vars', I.Decl(Gl, D'), total, depth + 1, (U, I.dot1 s), eqn)
+          let (posEA', Vars', D', _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
+          let (posEA'', Vars'', U', eqn2) = abstractExp (flag, Gs, posEA', Vars', I.Decl(Gl, D'), total, depth + 1, (U, I.dot1 s), eqn)
         in
           (posEA'', Vars'', I.Lam (D',U' ), eqn2)
         end
@@ -590,7 +590,7 @@ struct
 
 (*      | abstractExpW (posEA, Vars, Gl, total, depth, (X as I.FgnExp (cs, ops), s), eqn) =  *)
 (*      let
-          val (X, _) = #map(ops) (fn U => abstractExp (posEA, Vars, Gl, total, depth, (U, s), eqn))
+          let (X, _) = #map(ops) (fun U -> abstractExp (posEA, Vars, Gl, total, depth, (U, s), eqn))
         in        abstractFgn (posEA, Vars, Gl, total, depth, X, eqn)
         end
 *)
@@ -610,33 +610,33 @@ struct
             case label of
               Body =>
                 let
-                  val BV = I.BVar(apos + depth)
-                  val BV' = I.BVar(i + depth)
-                  val BV1 = I.BVar(apos + depth)
-                  val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos - 1), Vars, Gl, total, depth, s, I.Nil, eqn)
+                  let BV = I.BVar(apos + depth)
+                  let BV' = I.BVar(i + depth)
+                  let BV1 = I.BVar(apos + depth)
+                  let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos - 1), Vars, Gl, total, depth, s, I.Nil, eqn)
                 in
                   (posEA', Vars', I.Root(BV, I.Nil), TableParam.Unify(Gl, I.Root(BV', S), I.Root(BV1, I.Nil), eqn1))
                 end
             | TypeLabel =>
                 let
-                  val Vars' = update (eqEVar X) Vars
-                  val (posEA', Vars'', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars', Gl, total, depth, s, I.Nil, eqn)
+                  let Vars' = update (eqEVar X) Vars
+                  let (posEA', Vars'', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars', Gl, total, depth, s, I.Nil, eqn)
                 in
                   (posEA', Vars'', I.Root(I.BVar(i + depth), S), eqn1)
                 end
 
           else  (* do not enforce linearization -- used for type labels *)
             let
-              val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars, Gl, total, depth, s, I.Nil, eqn)
+              let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars, Gl, total, depth, s, I.Nil, eqn)
             in
               (posEA', Vars', I.Root(I.BVar(i + depth), S), eqn1)
             end
          | NONE => (* we see X for the first time *)
             let
-              val label = if flag then Body else TypeLabel
-              val BV = I.BVar(epos + depth)
-              val pos = (epos - 1, apos)
-              val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, pos, I.Decl(Vars, ((label, epos), EV X)), Gl, total, depth, s, I.Nil, eqn)
+              let label = if flag then Body else TypeLabel
+              let BV = I.BVar(epos + depth)
+              let pos = (epos - 1, apos)
+              let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, pos, I.Decl(Vars, ((label, epos), EV X)), Gl, total, depth, s, I.Nil, eqn)
             in
               (posEA', Vars', I.Root(BV, S), eqn1)
             end
@@ -647,34 +647,34 @@ struct
           if flag then
             (* enforce linearization *)
             let
-              val BV = I.BVar(apos + depth)
-              val BV' = I.BVar(i + depth)
-              val BV1 = I.BVar(apos + depth)
-              val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos - 1), Vars, Gl, total, depth, s, I.Nil, eqn)
+              let BV = I.BVar(apos + depth)
+              let BV' = I.BVar(i + depth)
+              let BV1 = I.BVar(apos + depth)
+              let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos - 1), Vars, Gl, total, depth, s, I.Nil, eqn)
             in
               (posEA', Vars', I.Root(BV, I.Nil), TableParam.Unify(Gl, I.Root(BV', S), I.Root(BV1, I.Nil ), eqn1))
             end
             (* (case label of
                Body =>
                  let
-                  val _ = print "abstractEVarNFap -- flag true; we have seen X before\n"
-                   val BV = I.BVar(apos + depth)
-                   val BV' = I.BVar(i + depth)
-                   val BV1 = I.BVar(apos + depth)
-                   val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos - 1), Vars, Gl, total, depth, s, I.Nil, eqn)
+                  let _ = print "abstractEVarNFap -- flag true; we have seen X before\n"
+                   let BV = I.BVar(apos + depth)
+                   let BV' = I.BVar(i + depth)
+                   let BV1 = I.BVar(apos + depth)
+                   let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos - 1), Vars, Gl, total, depth, s, I.Nil, eqn)
                  in
                    (posEA', Vars', I.Root(BV, I.Nil), TableParam.Unify(Gl, I.Root(BV', S), I.Root(BV1, I.Nil ), eqn1))
                  end
               | TyeLabel =>
                  let
-                   val Vars' = update (eqEVar X) Vars
-                   val (posEA', Vars'', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars', Gl, total, depth, s, I.Nil, eqn)
+                   let Vars' = update (eqEVar X) Vars
+                   let (posEA', Vars'', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars', Gl, total, depth, s, I.Nil, eqn)
                  in
                    (posEA', Vars'', I.Root(I.BVar(i + depth), S), eqn1)
                  end) *)
           else (* do not enforce linearization -- used for type labels *)
             let
-              val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars, Gl, total, depth, s, I.Nil, eqn)
+              let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos, apos), Vars, Gl, total, depth, s, I.Nil, eqn)
             in
               (posEA', Vars', I.Root(I.BVar(i + depth), S), eqn1)
             end
@@ -682,17 +682,17 @@ struct
            if flag then
              (* enforce linearization since X is not fully applied *)
              let
-               val label = if flag then Body else TypeLabel
-               val BV = I.BVar(apos + depth)
-               val BV' = I.BVar(epos + depth)
-               val BV1 = I.BVar(apos + depth)
-               val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos - 1, apos - 1),  I.Decl(Vars, ((label, epos), EV X)), Gl, total, depth, s, I.Nil, eqn)
+               let label = if flag then Body else TypeLabel
+               let BV = I.BVar(apos + depth)
+               let BV' = I.BVar(epos + depth)
+               let BV1 = I.BVar(apos + depth)
+               let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos - 1, apos - 1),  I.Decl(Vars, ((label, epos), EV X)), Gl, total, depth, s, I.Nil, eqn)
              in
                (posEA', Vars', I.Root(BV, I.Nil), TableParam.Unify(Gl, I.Root(BV', S), I.Root(BV1, I.Nil), eqn1))
              end
            else (* do not enforce linearization -- used for type labels *)
              let
-               val (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos - 1, apos),  I.Decl(Vars, ((TypeLabel, epos), EV X)), Gl, total, depth, s, I.Nil, eqn)
+               let (posEA', Vars', S, eqn1) = abstractSub (flag, Gs, (epos - 1, apos),  I.Decl(Vars, ((TypeLabel, epos), EV X)), Gl, total, depth, s, I.Nil, eqn)
              in
                (posEA', Vars', I.Root(I.BVar(epos+depth), S), eqn1)
              end
@@ -723,7 +723,7 @@ struct
           abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, s, I.App (I.Root (I.BVar (k), I.Nil), S), eqn)
       | abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, I.Dot (I.Exp (U), s), S, eqn) =
           let
-            val (posEA', Vars', U', eqn') = abstractExp (flag, Gs, posEA, Vars, Gl, total, depth, (U, I.id), eqn)
+            let (posEA', Vars', U', eqn') = abstractExp (flag, Gs, posEA, Vars, Gl, total, depth, (U, I.id), eqn)
           in
             abstractSub (flag, Gs, posEA', Vars', Gl, total, depth, s, I.App (U', S), eqn')
           end
@@ -747,8 +747,8 @@ struct
           abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (S, I.comp (s', s)), eqn)
       | abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (I.App (U, S), s), eqn) =
           let
-            val (posEA', Vars', U', eqn') = abstractExp (flag, Gs, posEA, Vars, Gl, total, depth, (U ,s), eqn)
-            val (posEA'', Vars'', S', eqn'') = abstractSpine (flag, Gs, posEA', Vars', Gl, total, depth, (S, s), eqn')
+            let (posEA', Vars', U', eqn') = abstractExp (flag, Gs, posEA, Vars, Gl, total, depth, (U ,s), eqn)
+            let (posEA'', Vars'', S', eqn'') = abstractSpine (flag, Gs, posEA', Vars', Gl, total, depth, (S, s), eqn')
           in
             (posEA'', Vars'', I.App (U', S'), eqn'')
           end
@@ -773,14 +773,14 @@ struct
           (epos, Vars, I.Shift(k + total))
       | abstractSub' (flag, Gs, epos, Vars, total, I.Dot (I.Idx (k), s)) =
           let
-            val (epos', Vars', s') = abstractSub' (flag, Gs, epos, Vars, total, s)
+            let (epos', Vars', s') = abstractSub' (flag, Gs, epos, Vars, total, s)
           in
             (epos', Vars', I.Dot(I.Idx(k),s'))
           end
       | abstractSub' (flag, Gs, epos, Vars, total, I.Dot (I.Exp (U), s)) =
           let
-            val ((ep, _), Vars', U', _) = abstractExp (false, Gs, (epos, 0), Vars, I.Null, total, 0, (U, I.id), TableParam.Trivial)
-            val (epos'', Vars'', s') = abstractSub' (flag, Gs, ep, Vars', total, s)
+            let ((ep, _), Vars', U', _) = abstractExp (false, Gs, (epos, 0), Vars, I.Null, total, 0, (U, I.id), TableParam.Trivial)
+            let (epos'', Vars'', s') = abstractSub' (flag, Gs, ep, Vars', total, s)
           in
             (epos'', Vars'', I.Dot(I.Exp(U'), s'))
           end
@@ -799,18 +799,18 @@ struct
     *)
     and abstractDec (Gs, posEA, Vars, Gl, total, depth, (I.Dec (x, V), s), NONE) =
       let
-(*      val (posEA', Vars', V', _) = abstractExp (false, Gs, posEA, Vars, Gl, total, depth, (V, s), TableParam.Trivial)*)
+(*      let (posEA', Vars', V', _) = abstractExp (false, Gs, posEA, Vars, Gl, total, depth, (V, s), TableParam.Trivial)*)
 
-        val (posEA', Vars', V',eqn) = abstractExp (false, Gs, posEA, Vars, Gl, total, depth, (V, s), TableParam.Trivial)
+        let (posEA', Vars', V',eqn) = abstractExp (false, Gs, posEA, Vars, Gl, total, depth, (V, s), TableParam.Trivial)
       in
         (posEA', Vars', I.Dec (x, V'), eqn)
       end
 
       | abstractDec (Gs, posEA, Vars, Gl, total, depth, (I.Dec (x, V), s), SOME(eqn)) =
       let
-(*      val (posEA', Vars', V', _) = abstractExp (false, Gs, posEA, Vars, Gl, total, depth, (V, s), TableParam.Trivial)*)
+(*      let (posEA', Vars', V', _) = abstractExp (false, Gs, posEA, Vars, Gl, total, depth, (V, s), TableParam.Trivial)*)
 
-        val (posEA', Vars', V',eqn') = abstractExp (true, Gs, posEA, Vars, Gl, total, depth, (V, s), eqn)
+        let (posEA', Vars', V',eqn') = abstractExp (true, Gs, posEA, Vars, Gl, total, depth, (V, s), eqn)
       in
         (posEA', Vars', I.Dec (x, V'), eqn')
       end
@@ -832,21 +832,21 @@ struct
         (epos, Vars, G', eqn)
       | abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), G', eqn) =
         let
-          val d = IntSyn.ctxLength (G)
-          val ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
+          let d = IntSyn.ctxLength (G)
+          let ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
         in
           abstractCtx' (Gs, epos', Vars', total, depth - 1, C.DProg(G, dPool), I.Decl (G', D'), eqn)
         end
       | abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, _)), G', eqn) =
       let
-          val d = IntSyn.ctxLength (G)
-          val ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
+          let d = IntSyn.ctxLength (G)
+          let ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
         in
           abstractCtx' (Gs, epos', Vars', total, depth - 1, C.DProg(G, dPool), I.Decl (G', D'), eqn)
         end
 (*        let
-          val d = IntSyn.ctxLength (G)
-          val ((epos', _), Vars', D', eqn') = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), SOME(eqn))
+          let d = IntSyn.ctxLength (G)
+          let ((epos', _), Vars', D', eqn') = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), SOME(eqn))
         in
           abstractCtx' (Gs, epos', Vars', total, depth - 1, C.DProg(G, dPool), I.Decl (G', D'), eqn')
         end
@@ -859,11 +859,11 @@ struct
     fun makeEVarCtx (Gs, Vars, DEVars, I.Null, total) = DEVars
       | makeEVarCtx (Gs, Vars, DEVars, I.Decl (K', (_, EV (E as I.EVar (_, GX, VX, _)))),total) =
         let
-          val V' = raiseType (GX, VX)
-          val ( _,Vars', V'', _) = abstractExp (false, Gs, (0, 0),  Vars, I.Null, 0,
+          let V' = raiseType (GX, VX)
+          let ( _,Vars', V'', _) = abstractExp (false, Gs, (0, 0),  Vars, I.Null, 0,
                                                 (total - 1), (V', I.id),  TableParam.Trivial)
-          val  DEVars' = makeEVarCtx (Gs, Vars', DEVars, K', total - 1)
-          val DEVars'' = I.Decl (DEVars', I.Dec (NONE, V''))
+          let  DEVars' = makeEVarCtx (Gs, Vars', DEVars, K', total - 1)
+          let DEVars'' = I.Decl (DEVars', I.Dec (NONE, V''))
         in
           DEVars''
         end
@@ -885,14 +885,14 @@ struct
     (* lowerEVar' (G, V[s]) = (X', U), see lowerEVar *)
     fun lowerEVar' (X, G, (I.Pi ((D',_), V'), s')) =
         let
-          val D'' = I.decSub (D', s')
-          val (X', U) = lowerEVar' (X, I.Decl (G, D''), Whnf.whnf (V', I.dot1 s'))
+          let D'' = I.decSub (D', s')
+          let (X', U) = lowerEVar' (X, I.Decl (G, D''), Whnf.whnf (V', I.dot1 s'))
         in
           (X', I.Lam (D'', U))
         end
       | lowerEVar' (X, G, Vs') =
         let
-          val X' = X
+          let X' = X
         in
           (X', X')
         end
@@ -900,7 +900,7 @@ struct
     and (* lowerEVar1 (X, I.EVar (r, G, _, _), (V as I.Pi _, s)) = *)
       lowerEVar1 (X, I.EVar (r, G, _, _), (V as I.Pi _, s)) =
         let
-          val (X', U) = lowerEVar' (X, G, (V,s))
+          let (X', U) = lowerEVar' (X, G, (V,s))
         in
           I.EVar(ref (SOME(U)), I.Null, V, ref nil)
         end
@@ -933,9 +933,9 @@ struct
     fun evarsToSub (I.Null, s) = s
       | evarsToSub (I.Decl (K', (_, EV (E as I.EVar (I as (ref NONE), GX, VX, cnstr)))),s) =
       let
-        val V' = raiseType (GX, VX) (* redundant ? *)
-        val X = lowerEVar1 (E, I.EVar(I, I.Null, V', cnstr), Whnf.whnf(V', I.id))
-        val s' = evarsToSub (K', s)
+        let V' = raiseType (GX, VX) (* redundant ? *)
+        let X = lowerEVar1 (E, I.EVar(I, I.Null, V', cnstr), Whnf.whnf(V', I.id))
+        let s' = evarsToSub (K', s)
       in
         I.Dot(I.Exp(X), s')
       end
@@ -950,8 +950,8 @@ struct
     fun avarsToSub (I.Null, s) = s
       | avarsToSub (I.Decl (Vars', (AV (E as I.EVar (I, GX, VX, cnstr), d))), s) =
         let
-          val s' = avarsToSub (Vars', s)
-          val X' as I.AVar(r) = I.newAVar ()
+          let s' = avarsToSub (Vars', s)
+          let X' as I.AVar(r) = I.newAVar ()
         in
           I.Dot(I.Exp(I.EClo(X', I.Shift(~d))), s')
         end
@@ -976,44 +976,44 @@ struct
 
     fun abstractEVarCtx (dp as C.DProg(G,dPool), p, s) =
       let
-        val (Gs, ss, d) =  (if (!TableParam.strengthen) then
+        let (Gs, ss, d) =  (if (!TableParam.strengthen) then
                               let
-                                val w' = Subordinate.weaken (G, I.targetFam p)
-                                val iw = Whnf.invert w'
-                                val G' = Whnf.strengthen (iw, G)
-                                val d' = I.ctxLength (G')
+                                let w' = Subordinate.weaken (G, I.targetFam p)
+                                let iw = Whnf.invert w'
+                                let G' = Whnf.strengthen (iw, G)
+                                let d' = I.ctxLength (G')
                               in
                                 (G', iw, d')
                               end
                             else
                               (G, I.id, I.ctxLength(G)))
-         val (K, DupVars) = collectCtx ((Gs, ss), dp, (I.Null, I.Null), d)
+         let (K, DupVars) = collectCtx ((Gs, ss), dp, (I.Null, I.Null), d)
          (* K ||- G i.e. K contains all EVars in G *)
-         val (K', DupVars') = collectExp((Gs, ss), I.Null, (p, s), K, DupVars, true, d)
+         let (K', DupVars') = collectExp((Gs, ss), I.Null, (p, s), K, DupVars, true, d)
          (* DupVars' , K' ||- p[s]  i.e. K' contains all EVars in (p,s) and G and
                                          DupVars' contains all duplicate EVars p[s] *)
-         val epos = I.ctxLength(K')
-         val apos = I.ctxLength(DupVars')
-         val total = epos + apos
-         val (epos', Vars', G', eqn) = abstractCtx ((Gs,ss), epos, I.Null, total , d, dp)
+         let epos = I.ctxLength(K')
+         let apos = I.ctxLength(DupVars')
+         let total = epos + apos
+         let (epos', Vars', G', eqn) = abstractCtx ((Gs,ss), epos, I.Null, total , d, dp)
          (* {{G}}_Vars' , i.e. abstract over the existential variables in G*)
-         val (posEA'' (* = 0 *), Vars'', U', eqn') = abstractExp (true, (Gs, ss), (epos', total), Vars', I.Null,
+         let (posEA'' (* = 0 *), Vars'', U', eqn') = abstractExp (true, (Gs, ss), (epos', total), Vars', I.Null,
                                                                   total, d, (p,s), eqn)
          (* abstract over existential variables in p[s] and linearize the expression *)
-         val DAVars = makeAVarCtx (Vars'', DupVars')
-         val DEVars = makeEVarCtx ((Gs, ss), Vars'', I.Null, Vars'', 0 (* depth *))
+         let DAVars = makeAVarCtx (Vars'', DupVars')
+         let DEVars = makeEVarCtx ((Gs, ss), Vars'', I.Null, Vars'', 0 (* depth *))
          (* note: depth will become negative during makeEVarCtx *)
 
-         val s' = avarsToSub (DupVars', I.id)
-         val s'' = evarsToSub (Vars'', s')
+         let s' = avarsToSub (DupVars', I.id)
+         let s'' = evarsToSub (Vars'', s')
 
-         val G'' = reverseCtx (G', I.Null)
+         let G'' = reverseCtx (G', I.Null)
        in
          if (!TableParam.strengthen) then
            let
-             val w' = Subordinate.weaken (G'', I.targetFam U')
-             val iw = Whnf.invert w'
-             val Gs' = Whnf.strengthen (iw, G'')
+             let w' = Subordinate.weaken (G'', I.targetFam U')
+             let iw = Whnf.invert w'
+             let Gs' = Whnf.strengthen (iw, G'')
            in
              (Gs', DAVars, DEVars, U', eqn', s'')
            end
@@ -1024,7 +1024,7 @@ struct
 
   in
 
-    val abstractEVarCtx = abstractEVarCtx
+    let abstractEVarCtx = abstractEVarCtx
 
   (* abstractAnswSub s = (D', s')
 
@@ -1036,21 +1036,21 @@ struct
     free variables from s
    *)
 
-    val abstractAnswSub =
-      (fn s =>
+    let abstractAnswSub =
+      (fun s ->
        let
          (* no linearization for answer substitution *)
-         val (K, _ ) = collectSub((I.Null, I.id), I.Null, s, I.Null, I.Null, false, 0)
-         val epos = I.ctxLength K
-         val (_ (*0 *), Vars, s') = abstractSub' (false, (I.Null, I.id), epos, I.Null, epos (* total *), s)
+         let (K, _ ) = collectSub((I.Null, I.id), I.Null, s, I.Null, I.Null, false, 0)
+         let epos = I.ctxLength K
+         let (_ (*0 *), Vars, s') = abstractSub' (false, (I.Null, I.id), epos, I.Null, epos (* total *), s)
 
-         val DEVars = makeEVarCtx ((I.Null, I.id), Vars, I.Null, Vars,  0)
-         val s1' = ctxToEVarSub (DEVars, I.id)
+         let DEVars = makeEVarCtx ((I.Null, I.id), Vars, I.Null, Vars,  0)
+         let s1' = ctxToEVarSub (DEVars, I.id)
        in
          (DEVars, s')
        end)
 
-    val raiseType = (fn (G, U) =>
+    let raiseType = (fn (G, U) =>
                        raiseType (G, U))
 
   end

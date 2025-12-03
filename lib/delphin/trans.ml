@@ -2,29 +2,29 @@
 (* Author:  Carsten Schuermann *)
 
 
-functor Trans (structure DextSyn' : DEXTSYN) (* : TRANS *) =
+let recctor Trans (module DextSyn' : DEXTSYN) (* : TRANS *) =
 
 struct
 
-  structure DextSyn = DextSyn'
-  structure D = DextSyn'
+  module DextSyn = DextSyn'
+  module D = DextSyn'
 
-  structure L = Lexer
-  structure I = IntSyn
-  structure LS = Stream
-  structure T = Tomega
-  structure TA = TomegaAbstract
+  module L = Lexer
+  module I = IntSyn
+  module LS = Stream
+  module T = Tomega
+  module TA = TomegaAbstract
 
   exception Error of string
   local
 
-    datatype Internal =
+    type Internal =
       Empty
     | Const of int * int
     | Type of int
 
-    val maxCid = Global.maxCid
-    val internal = Array.array (maxCid+1, Empty)
+    let maxCid = Global.maxCid
+    let internal = Array.array (maxCid+1, Empty)
         : Internal Array.array
     (* Invariant   for each cid which has been internalize out of a block,
        internal(cid) = Const(n, i), where n is the number of some variables and
@@ -63,10 +63,10 @@ struct
     *)
     fun stringTodec s =
       let
-        val f = LS.expose (L.lexStream (TextIO.openString s))
-        val ((x, yOpt), f') = ParseTerm.parseDec' f
-        val r2 = checkEOF f'
-        val dec = (case yOpt            (* below use region arithmetic --cs !!!  *)
+        let f = LS.expose (L.lexStream (TextIO.openString s))
+        let ((x, yOpt), f') = ParseTerm.parseDec' f
+        let r2 = checkEOF f'
+        let dec = (case yOpt            (* below use region arithmetic --cs !!!  *)
                      of NONE => ReconTerm.dec0 (x, r2)
                       | SOME y => ReconTerm.dec (x, y, r2))
       in
@@ -77,8 +77,8 @@ struct
 
     fun stringToblocks s =
       let
-        val f = LS.expose (L.lexStream (TextIO.openString s))
-        val (dl, f') = ParseTerm.parseCtx' f
+        let f = LS.expose (L.lexStream (TextIO.openString s))
+        let (dl, f') = ParseTerm.parseCtx' f
       in
         dl
       end
@@ -92,9 +92,9 @@ struct
     *)
     fun stringToWorlds s =
         let
-          val f = LS.expose (L.lexStream (TextIO.openString s))
-          val (t, f') = ParseTerm.parseQualIds' f
-          val r2 = checkEOF f'
+          let f = LS.expose (L.lexStream (TextIO.openString s))
+          let (t, f') = ParseTerm.parseQualIds' f
+          let r2 = checkEOF f'
         in
           t
         end
@@ -119,25 +119,25 @@ struct
        and  G1, L1 |- L2 decs       block declarations still to be traversed
        and  G, b:Vb |- s : G1, L1
        and  n is the current projection
-       then internalizeBlock adds new declarations into the signature that
+       then internalizeBlock adds new declarations into the module type that
               correspond to the block declarations.
     *)
     fun internalizeBlock _ (nil, _) = ()
       | internalizeBlock (n, G, Vb, S) (I.Dec (SOME name, V) :: L2, s) =
         let
-          val name' = "o_" ^ name
-          val V1 = I.EClo (V, s)        (* G, B |- V' : type *)
-          val V2 = I.Pi ((I.Dec (NONE, Vb), I.Maybe), V1)
+          let name' = "o_" ^ name
+          let V1 = I.EClo (V, s)        (* G, B |- V' : type *)
+          let V2 = I.Pi ((I.Dec (NONE, Vb), I.Maybe), V1)
                                         (* G |- {B} V' : type *)
-          val V3 = closure (G, V2)
-          val m = I.ctxLength G
-          val condec = I.ConDec (name', NONE, m, I.Normal, V3, I.Type)
-          val _ = TypeCheck.check (V3, I.Uni I.Type)
-          val _ = if !Global.chatter >= 4
+          let V3 = closure (G, V2)
+          let m = I.ctxLength G
+          let condec = I.ConDec (name', NONE, m, I.Normal, V3, I.Type)
+          let _ = TypeCheck.check (V3, I.Uni I.Type)
+          let _ = if !Global.chatter >= 4
                     then print (Print.conDecToString condec ^ "\n") else ()
-          val cid = I.sgnAdd condec
-          val _ = Names.installConstName cid
-          val _ = Array.update (internal, cid, Const (m, n))
+          let cid = I.sgnAdd condec
+          let _ = Names.installConstName cid
+          let _ = Array.update (internal, cid, Const (m, n))
         in
           internalizeBlock (n+1, G, Vb, S) (L2, I.Dot (I.Exp (I.Root (I.Const cid, S)), s))
         end
@@ -167,14 +167,14 @@ struct
       | internalizeCondec (cid, I.AbbrevDef _) = ()
       | internalizeCondec (cid, I.BlockDec (name, _, Gsome, Lpi)) =
         let
-          val V' = closure (Gsome, I.Uni I.Type)
-          val C = I.ConDec (name ^ "'", NONE, 0, I.Normal, V', I.Kind)
-          val a = I.sgnAdd C
-          val _ = Array.update (internal, a, Type cid)
-          val _ = Names.installConstName a
-          val S = makeSpine (0, Gsome, I.Nil)
-          val Vb = I.Root (I.Const a, S)
-          val S' = makeSpine (0, I.Decl (Gsome, I.Dec (NONE, Vb)), I.Nil)
+          let V' = closure (Gsome, I.Uni I.Type)
+          let C = I.ConDec (name ^ "'", NONE, 0, I.Normal, V', I.Kind)
+          let a = I.sgnAdd C
+          let _ = Array.update (internal, a, Type cid)
+          let _ = Names.installConstName a
+          let S = makeSpine (0, Gsome, I.Nil)
+          let Vb = I.Root (I.Const a, S)
+          let S' = makeSpine (0, I.Decl (Gsome, I.Dec (NONE, Vb)), I.Nil)
         in
           internalizeBlock (1, Gsome, Vb, S') (Lpi, I.shift)
         end
@@ -184,15 +184,15 @@ struct
     (* sigToCtx () = ()
 
        Invariant:
-       G is the internal representation of the global signature
+       G is the internal representation of the global module type
        It converts every block declaration to a type family (stored in the global
-       signature) and a list of declarations.
+       module type) and a list of declarations.
     *)
     fun internalizeSig () =
         let
-          val (max, _) = I.sgnSize  ()
+          let (max, _) = I.sgnSize  ()
             (* we might want to save max, here to restore the original
-                 signature after parsing is over  --cs Thu Apr 17 09:46:29 2003 *)
+                 module type after parsing is over  --cs Thu Apr 17 09:46:29 2003 *)
           fun internalizeSig' n =
               if n>=max then ()
               else
@@ -219,8 +219,8 @@ struct
         (case I.constUni c
            of I.Kind => I.Root (H, externalizeSpine S)
             | I.Type => let
-                          val Const (n, i) = Array.sub (internal, c)
-                          val (I.App (I.Root (I.BVar b, I.Nil), S')) = dropSpine (n, S)
+                          let Const (n, i) = Array.sub (internal, c)
+                          let (I.App (I.Root (I.BVar b, I.Nil), S')) = dropSpine (n, S)
                         in
                           I.Root (I.Proj (I.Bidx b, i), externalizeSpine S')
                         end)
@@ -285,7 +285,7 @@ struct
     and externalizeCases nil = nil
       | externalizeCases ((Psi, t, P) :: O) =
         let
-          val n = I.ctxLength Psi
+          let n = I.ctxLength Psi
         in
           (externalizeMCtx Psi, externalizeMSub (n, t), externalizePrg (n, P)) :: externalizeCases O
         end
@@ -310,22 +310,22 @@ struct
 
     fun transTerm (D.Rtarrow (t1, t2)) =
         let
-          val (s1, c1) = transTerm t1
-          val (s2, c2) = transTerm t2
+          let (s1, c1) = transTerm t1
+          let (s2, c2) = transTerm t2
         in
           (s1 ^ " -> " ^ s2, c1 @ c2)
         end
       | transTerm (D.Ltarrow (t1, t2)) =
         let
-          val (s1, c1) = transTerm t1
-          val (s2, c2) = transTerm t2
+          let (s1, c1) = transTerm t1
+          let (s2, c2) = transTerm t2
         in
           (s1 ^ " <- " ^ s2, c1 @ c2)
         end
       | transTerm (D.Type) = ("type", nil)
       | transTerm (D.Id s) =
         let
-          val qid = Names.Qid (nil, s)
+          let qid = Names.Qid (nil, s)
         in
           case Names.constLookup qid
             of NONE => (s, nil)
@@ -335,42 +335,42 @@ struct
         end
       | transTerm (D.Pi (D, t)) =
         let
-          val (s1, c1) = transDec D
-          val (s2, c2) = transTerm t
+          let (s1, c1) = transDec D
+          let (s2, c2) = transTerm t
         in
           ("{" ^ s1 ^ "}" ^ s2, c1 @ c2)
         end
       | transTerm (D.Fn (D, t)) =
         let
-          val (s1, c1) = transDec D
-          val (s2, c2) = transTerm t
+          let (s1, c1) = transDec D
+          let (s2, c2) = transTerm t
         in
           ("[" ^ s1 ^ "]" ^ s2, c1 @ c2)
         end
       | transTerm (D.App (t1, t2)) =
         let
-          val (s1, c1) = transTerm t1
-          val (s2, c2) = transTerm t2
+          let (s1, c1) = transTerm t1
+          let (s2, c2) = transTerm t2
         in
           (s1 ^ " " ^ s2, c1 @ c2)
         end
       | transTerm (D.Omit) = ("_", nil)
       | transTerm (D.Paren (t)) =
         let
-          val (s, c) = transTerm t
+          let (s, c) = transTerm t
         in
           ("(" ^  s ^ ")", c)
         end
       | transTerm (D.Of (t1, t2)) =
         let
-          val (s1, c1) = transTerm t1
-          val (s2, c2) = transTerm t2
+          let (s1, c1) = transTerm t1
+          let (s2, c2) = transTerm t2
         in
           (s1 ^ ":" ^ s2, c1 @ c2)
         end
       | transTerm (D.Dot (t, s2)) =
         let
-          val (s1, c1) = transTerm t
+          let (s1, c1) = transTerm t
         in
           ("o_" ^ s2 ^ " " ^ s1, c1)
         end
@@ -383,7 +383,7 @@ struct
 
     and transDec (D.Dec (s, t)) =
         let
-          val (s', c) = transTerm t
+          let (s', c) = transTerm t
         in
           (s ^ ":" ^ s', c)
         end
@@ -393,8 +393,8 @@ struct
               is not good enough, because worlds are not defined
               by a regualar expression.  Therefore this is a patch *)
         let
-          val qid = Names.Qid (nil, s)
-          val cid = (case Names.constLookup qid
+          let qid = Names.Qid (nil, s)
+          let cid = (case Names.constLookup qid
                                     of NONE => raise Names.Error ("Undeclared label "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
                                          ^ ".")
@@ -408,8 +408,8 @@ struct
 
     fun transFor' (Psi, D) =
         let
-          val G = I.Decl (I.Null, D)
-          val ReconTerm.JWithCtx (I.Decl (I.Null, D'), ReconTerm.JNothing) =
+          let G = I.Decl (I.Null, D)
+          let ReconTerm.JWithCtx (I.Decl (I.Null, D'), ReconTerm.JNothing) =
             ReconTerm.reconWithCtx (Psi, ReconTerm.jwithctx(G, ReconTerm.jnothing))
         in D'
         end
@@ -427,29 +427,29 @@ struct
           T.And (transFor (Psi, EF1), transFor (Psi, EF2))
       | transFor (Psi, D.Forall (D, F)) =
         let
-          val (D'', nil) = transDec D
-          val D' = transFor' (Psi, stringTodec (D''))
+          let (D'', nil) = transDec D
+          let D' = transFor' (Psi, stringTodec (D''))
         in
            T.All ((T.UDec D', T.Explicit), transFor (I.Decl (Psi, D'), F))
         end
       | transFor (Psi, D.Exists (D, F)) =
         let
-          val (D'', nil) = transDec D
-          val D' = transFor' (Psi, stringTodec (D''))
+          let (D'', nil) = transDec D
+          let D' = transFor' (Psi, stringTodec (D''))
         in
            T.Ex ((D', T.Explicit), transFor (I.Decl (Psi, D'), F))
         end
       | transFor (Psi, D.ForallOmitted (D, F)) =
         let
-          val (D'', nil) = transDec D
-          val D' = transFor' (Psi, stringTodec (D''))
+          let (D'', nil) = transDec D
+          let D' = transFor' (Psi, stringTodec (D''))
         in
            T.All ((T.UDec D', T.Implicit), transFor (I.Decl (Psi, D'), F))
         end
       | transFor (Psi, D.ExistsOmitted (D, F)) =
         let
-          val (D'', nil) = transDec D
-          val D' = transFor' (Psi, stringTodec (D''))
+          let (D'', nil) = transDec D
+          let D' = transFor' (Psi, stringTodec (D''))
         in
            T.Ex ((D', T.Implicit), transFor (I.Decl (Psi, D'), F))
         end
@@ -470,9 +470,9 @@ struct
     *)
     fun stringToterm s =
         let
-          val f = LS.expose (L.lexStream (TextIO.openString s))
-          val (t, f') = ParseTerm.parseTerm' f
-          val r2 = checkEOF f'
+          let f = LS.expose (L.lexStream (TextIO.openString s))
+          let (t, f') = ParseTerm.parseTerm' f
+          let r2 = checkEOF f'
         in
           t
         end
@@ -512,7 +512,7 @@ struct
 
     fun checkForWorld (T.World (W as T.Worlds cids, F), t', T.Worlds cids') =
         let
-          val _ =  subsumed (cids', cids)
+          let _ =  subsumed (cids', cids)
         (* check that W is at least as large as W' *)
         in
           (F, t', W)
@@ -544,9 +544,9 @@ struct
 
     fun parseTerm (Psi, (s, V)) =
         let
-          val (term', c) = transTerm s
-          val term = stringToterm (term')
-          val ReconTerm.JOf ((U, occ), (_, _), L) =
+          let (term', c) = transTerm s
+          let term = stringToterm (term')
+          let ReconTerm.JOf ((U, occ), (_, _), L) =
             ReconTerm.reconWithCtx (T.coerceCtx Psi, ReconTerm.jof' (term, V))
         in
           U
@@ -554,11 +554,11 @@ struct
 
     fun parseDec (Psi, s) =
         let
-          val (dec', c) = transDec s
-          val dec = stringTodec (dec')
-          val ReconTerm.JWithCtx (I.Decl(I.Null, D), ReconTerm.JNothing) =
+          let (dec', c) = transDec s
+          let dec = stringTodec (dec')
+          let ReconTerm.JWithCtx (I.Decl(I.Null, D), ReconTerm.JNothing) =
             ReconTerm.reconWithCtx (T.coerceCtx Psi, ReconTerm.jwithctx (I.Decl(I.Null, dec), ReconTerm.jnothing))
-          val I.Dec (SOME n, _) = D
+          let I.Dec (SOME n, _) = D
         in
           D
         end
@@ -583,7 +583,7 @@ struct
       | transDecs (Psi, D.ValDecl (ValD, Ds), sc, W) = (transValDec (Psi, ValD, Ds, sc, W))
       | transDecs (Psi, D.NewDecl (D, Ds), sc, W) =
           let
-            val D' = T.UDec (parseDec (Psi, D))
+            let D' = T.UDec (parseDec (Psi, D))
           in
 (*          T.Let (T.PDec (NONE, T.True), T.Lam (D', transDecs (I.Decl (Psi, D'), Ds, sc, W)), T.Unit) *)
             T.Let (T.PDec (NONE, T.True), T.Lam (D', transDecs (I.Decl (Psi, D'), Ds, sc, W)), T.Var 1)
@@ -610,7 +610,7 @@ struct
     *)
     and transHead (Psi, D.Head s, args) =
         let
-          val (n, F) = lookup (Psi, 1, s)
+          let (n, F) = lookup (Psi, 1, s)
         in
           transHead' ((F, T.id), I.Nil, args)
         end
@@ -619,15 +619,15 @@ struct
     and transHead' ((T.World (_, F), s), S, args) = transHead' ((F, s), S, args)
       | transHead' ((T.All ((T.UDec (I.Dec (_, V)), T.Implicit), F'), s), S, args) =
         let
-          val X = I.newEVar (I.Decl(I.Null, I.NDec), I.EClo (V, T.coerceSub s))
+          let X = I.newEVar (I.Decl(I.Null, I.NDec), I.EClo (V, T.coerceSub s))
         in
           transHead' ((F', T.Dot (T.Exp X, s)), I.App (X, S), args)
         end
       | transHead' ((T.All ((T.UDec (I.Dec (_, V)), T.Explicit), F'), s), S, t :: args) =
         let
-          val (term', c) = transTerm t
-          val term = stringToterm (term')
-          val ReconTerm.JOf ((U, occ), (_, _), L) =
+          let (term', c) = transTerm t
+          let term = stringToterm (term')
+          let ReconTerm.JOf ((U, occ), (_, _), L) =
             ReconTerm.reconWithCtx (I.Null, ReconTerm.jof' (term, I.EClo (V, T.coerceSub s)))
         in
           transHead' ((F', T.Dot (T.Exp U, s)), I.App(U, S), args)
@@ -652,9 +652,9 @@ struct
           transPattern (p, (F', T.Dot (T.Exp (I.EVar (ref NONE, I.Null, I.EClo (V, T.coerceSub s), ref nil)), s)))
       | transPattern (D.PatInx (t, p), (T.Ex ((I.Dec (_, V), T.Explicit), F'), s)) =
         let
-          val (term', c) = transTerm t
-          val term = stringToterm (term')
-          val ReconTerm.JOf ((U, occ), (_, _), L) =
+          let (term', c) = transTerm t
+          let term = stringToterm (term')
+          let ReconTerm.JOf ((U, occ), (_, _), L) =
             ReconTerm.reconWithCtx (I.Null, ReconTerm.jof' (term, I.EClo (V, T.coerceSub s)))
         in
           T.PairExp (U, transPattern (p, (F', T.Dot (T.Exp U, s))))
@@ -682,10 +682,10 @@ struct
     *)
     and transFun1 (Psi, (s', F), D.FunDecl (D.Fun (eH, eP), Ds), sc, W) =
         let
-          val s = head eH
-          val _ = if s = s' then () else raise Error "Function defined is different from function declared."
+          let s = head eH
+          let _ = if s = s' then () else raise Error "Function defined is different from function declared."
         in
-          transFun2 (Psi, (s, F), D.FunDecl (D.Bar (eH, eP), Ds), sc, fn Cs => T.Case (T.Cases Cs), W)
+          transFun2 (Psi, (s, F), D.FunDecl (D.Bar (eH, eP), Ds), sc, fun Cs -> T.Case (T.Cases Cs), W)
         end
       | transFun1 (Psi, (s', F), D.FunDecl (D.FunAnd (eH, eP), Ds), sc, W) =
         raise Error "Mutual recursive functions not yet implemented"
@@ -716,8 +716,8 @@ struct
           transFun3 (Psi, (s, F), eH, eP, Ds, sc,  k, W)
       | transFun2   (Psi, (s, F), Ds, sc, k, W) =
           let
-            val D = T.PDec (SOME s, F)
-            val P' = T.Rec (D, lamClosure (F, k nil))
+            let D = T.PDec (SOME s, F)
+            let P' = T.Rec (D, lamClosure (F, k nil))
           in
             (P', Ds)
           end
@@ -745,29 +745,29 @@ struct
     *)
     and transFun3 (Psi, (s, F), eH, eP, Ds, sc, k, W) =
         let
-          val _ = if (head eH) <> s
+          let _ = if (head eH) <> s
                   then raise Error "Functions don't all have the same name"
                   else ()
-          val _ = Names.varReset (I.Null)
-          val Psi0 = I.Decl (Psi, T.PDec (SOME s, F))
-          val ((F', t'), S) = transHead (Psi0, eH, nil)
-(*                val F' = T.forSub (F, t) *)
-          val (Psi', S') = Abstract.abstractSpine (S, I.id)
-          val Psi'' = append (Psi0, T.embedCtx Psi')
-          val m0 = I.ctxLength Psi0
-          val m' = I.ctxLength Psi'
+          let _ = Names.varReset (I.Null)
+          let Psi0 = I.Decl (Psi, T.PDec (SOME s, F))
+          let ((F', t'), S) = transHead (Psi0, eH, nil)
+(*                let F' = T.forSub (F, t) *)
+          let (Psi', S') = Abstract.abstractSpine (S, I.id)
+          let Psi'' = append (Psi0, T.embedCtx Psi')
+          let m0 = I.ctxLength Psi0
+          let m' = I.ctxLength Psi'
                                         (* |Psi''| = m0 + m' *)
-          val t0 = dotn (I.Shift m0, m')
+          let t0 = dotn (I.Shift m0, m')
                                         (* Psi0, Psi'[^m0] |- t0 : Psi' *)
-(*        val t1 = T.Dot (T.Prg (T.Root (T.Var (m'+1), T.Nil)), T.Shift (m'))   (* BUG !!!! Wed Jun 25 11:23:13 2003 *)
+(*        let t1 = T.Dot (T.Prg (T.Root (T.Var (m'+1), T.Nil)), T.Shift (m'))   (* BUG !!!! Wed Jun 25 11:23:13 2003 *)
                                         (* Psi0, Psi'[^m0] |- t1 : F[^m0]  *)
-*)        val t'' = spineToSub ((S', t0),  T.Shift m')
+*)        let t'' = spineToSub ((S', t0),  T.Shift m')
 
-(*        val _ = print (TomegaPrint.forToString (Names.ctxName (T.coerceCtx Psi''), myF) ^ "\n") *)
+(*        let _ = print (TomegaPrint.forToString (Names.ctxName (T.coerceCtx Psi''), myF) ^ "\n") *)
 
-          val P = transProgI (Psi'', eP, (F', t'), W)
+          let P = transProgI (Psi'', eP, (F', t'), W)
         in
-          transFun2 (Psi, (s, F), Ds, sc, fn Cs => k ((Psi'', t'', P) :: Cs), W)
+          transFun2 (Psi, (s, F), Ds, sc, fun Cs -> k ((Psi'', t'', P) :: Cs), W)
         end
 
     (* transForDec ((Psi, env), eDf, dDs, sc, W) = x
@@ -789,15 +789,15 @@ struct
     and transForDec (Psi, D.Form (s, eF), Ds, sc, W) =
         let
 
-          val G = Names.ctxName (T.coerceCtx Psi)
-          val F = transFor (G, eF)
-          val (F'' as T.World (W, F')) = T.forSub (F, T.id)
-(*        val _ = print s
-          val _ = print " :: "
-          val _ = print (TomegaPrint.forToString (T.embedCtx G, F'') ^ "\n") *)
-          val _ = TomegaTypeCheck.checkFor (Psi, F'')
-          val (P, Ds') = transFun1 (Psi, (s, F'), Ds, sc, W)
-          val D = T.PDec (SOME s, F'')
+          let G = Names.ctxName (T.coerceCtx Psi)
+          let F = transFor (G, eF)
+          let (F'' as T.World (W, F')) = T.forSub (F, T.id)
+(*        let _ = print s
+          let _ = print " :: "
+          let _ = print (TomegaPrint.forToString (T.embedCtx G, F'') ^ "\n") *)
+          let _ = TomegaTypeCheck.checkFor (Psi, F'')
+          let (P, Ds') = transFun1 (Psi, (s, F'), Ds, sc, W)
+          let D = T.PDec (SOME s, F'')
         in
           T.Let (D, T.Box (W, P), transDecs (I.Decl (Psi, D), Ds', (fn P' => sc P'), W))
         end
@@ -821,24 +821,24 @@ struct
     *)
     and transValDec (Psi, D.Val (EPat, eP, eFopt), Ds, sc, W) =
         let
-          val (P, (F', t')) = (case eFopt
+          let (P, (F', t')) = (case eFopt
                                  of NONE => transProgS (Psi, eP, W, nil)
                                   | SOME eF => let
-                                                 val F' = transFor (T.coerceCtx Psi, eF)
-                                                 val P' =  transProgIN (Psi, eP, F', W)
+                                                 let F' = transFor (T.coerceCtx Psi, eF)
+                                                 let P' =  transProgIN (Psi, eP, F', W)
                                                in
                                                  (P', (F', T.id))
                                                end)
 
-          val F'' = T.forSub (F', t')
-          val Pat = transPattern (EPat, (F', t'))
-          val D = T.PDec (NONE, F'')
-          val (Psi', Pat') = Abstract.abstractTomegaPrg (Pat)
-          val m = I.ctxLength Psi'
-(*        val t = T.Dot (T.Prg Pat', T.id)  was --cs Tue Jun 24 13:04:55 2003 *)
-          val t = T.Dot (T.Prg Pat', T.Shift m)
-          val Psi'' = append (Psi, Psi')
-          val P'' = transDecs (Psi'', Ds, sc, W)
+          let F'' = T.forSub (F', t')
+          let Pat = transPattern (EPat, (F', t'))
+          let D = T.PDec (NONE, F'')
+          let (Psi', Pat') = Abstract.abstractTomegaPrg (Pat)
+          let m = I.ctxLength Psi'
+(*        let t = T.Dot (T.Prg Pat', T.id)  was --cs Tue Jun 24 13:04:55 2003 *)
+          let t = T.Dot (T.Prg Pat', T.Shift m)
+          let Psi'' = append (Psi, Psi')
+          let P'' = transDecs (Psi'', Ds, sc, W)
         in
           T.Let (D, P, T.Case (T.Cases [ (Psi'', t, P'') ]))
         end
@@ -860,8 +860,8 @@ struct
     and transProgIN (Psi, D.Unit, T.True, W) = T.Unit
       | transProgIN (Psi, P as D.Inx (s, EP), T.Ex ((I.Dec (_, V), T.Explicit), F'), W) =
         let
-          val U = parseTerm (Psi, (s, V))
-          val P' = transProgI (Psi, EP, (F', T.Dot (T.Exp U, T.id)), W)
+          let U = parseTerm (Psi, (s, V))
+          let P' = transProgI (Psi, EP, (F', T.Dot (T.Exp U, T.id)), W)
         in
           T.PairExp (U, P')
         end
@@ -870,8 +870,8 @@ struct
                      transProgI (Psi', eP, (F, T.Shift (I.ctxLength Psi' - I.ctxLength Psi)),W'), W)
       | transProgIN (Psi, D.Choose (eD, eP), F, W) =
           let
-            val D' = parseDec (Psi, eD)
-            val Psi'' = I.Decl (Psi, T.UDec D')
+            let D' = parseDec (Psi, eD)
+            let Psi'' = I.Decl (Psi, T.UDec D')
           in
             T.Choose (T.Lam (T.UDec D', transProgI (Psi'', eP, (F, T.Shift 1), W)))
             end
@@ -879,15 +879,15 @@ struct
           transProgIN (Psi, eP, F, W)
       | transProgIN (Psi, D.New (eD :: eDs, eP), F, W) =
           let
-            val D' = parseDec (Psi, eD)
-            val Psi'' = I.Decl (Psi, T.UDec D')
+            let D' = parseDec (Psi, eD)
+            let Psi'' = I.Decl (Psi, T.UDec D')
           in
             T.New (T.Lam (T.UDec D', transProgI (Psi'', D.New (eD :: eDs, eP) , (F, T.Shift 1), W)))
           end
       | transProgIN (Psi, P as D.AppTerm (EP, s), F, W) =
         let
-          val (P', (F', _)) = transProgS (Psi, P, W, nil)
-          val ()  = ()   (* check that F == F' *)
+          let (P', (F', _)) = transProgS (Psi, P, W, nil)
+          let ()  = ()   (* check that F == F' *)
         in
           P'
         end
@@ -895,45 +895,45 @@ struct
 
 (*      | transProgIN ((Psi, env), D.Pair (EP1, EP2), T.And (F1, F2), W) =
         let
-          val P1 = transProgIN ((Psi, env), EP1, F1, W)
-          val P2 = transProgIN ((Psi, env), EP2, F2, W)
+          let P1 = transProgIN ((Psi, env), EP1, F1, W)
+          let P2 = transProgIN ((Psi, env), EP2, F2, W)
         in
           T.PairPrg (P1, P2)
         end
       | transProgIN ((Psi, env), P as D.AppProg (EP1, EP2), F, W) =
         let
-          val (P', (F', _)) = transProgS ((Psi, env), P, W)
-          val ()  = ()   (* check that F == F' *)
+          let (P', (F', _)) = transProgS ((Psi, env), P, W)
+          let ()  = ()   (* check that F == F' *)
         in
           P'
         end
       | transProgIN ((Psi, env), P as D.AppTerm (EP, s), F, W) =
         let
-          val (P', (F', _)) = transProgS ((Psi, env), P, W)
-          val ()  = ()   (* check that F == F' *)
+          let (P', (F', _)) = transProgS ((Psi, env), P, W)
+          let ()  = ()   (* check that F == F' *)
         in
           P'
         end
       | transProgIN ((Psi, env), P as D.Inx (s, EP), T.Ex (I.Dec (_, V), F'), W) =
         let
-          val (U, V) = parseTerm ((Psi, env), s)
-          val P' = transProgI ((Psi, env), EP, (F', T.Dot (T.Exp U, T.id)), W)
+          let (U, V) = parseTerm ((Psi, env), s)
+          let P' = transProgI ((Psi, env), EP, (F', T.Dot (T.Exp U, T.id)), W)
         in
           T.PairExp (U, P')
         end
       | transProgIN ((Psi, env), D.Const name, F, W) =
         let
-          val lemma = T.lemmaName name
-          val F' = T.lemmaFor lemma
-          val () = ()    (* check that F == F' *)
+          let lemma = T.lemmaName name
+          let F' = T.lemmaFor lemma
+          let () = ()    (* check that F == F' *)
         in
           T.Root (T.Const lemma, T.Nil)
         end
 
 (*      | transProgIN (Psi, D.Lam (s, EP)) =
         let
-          val dec = stringTodec s
-          val (I.Decl (Psi, (D, _, _)), P, F') = transProgI (I.Decl (ePsi, dec), EP)
+          let dec = stringTodec s
+          let (I.Decl (Psi, (D, _, _)), P, F') = transProgI (I.Decl (ePsi, dec), EP)
         in
           (Psi, T.Lam (T.UDec D, P), T.All (D, F'))
         end
@@ -942,25 +942,25 @@ struct
 
       | transProgIN ((Psi, env), D.New (s, EP), F, W) =
           let
-            val G = Names.ctxName (T.coerceCtx Psi)
-            val _ = print (Print.ctxToString (I.Null, G) ^ "\n")
-            val (U, V) = parseTerm ((Psi, env), s ^ " type")
-            val _ = print (Print.expToString (G, U) ^ "\n")
+            let G = Names.ctxName (T.coerceCtx Psi)
+            let _ = print (Print.ctxToString (I.Null, G) ^ "\n")
+            let (U, V) = parseTerm ((Psi, env), s ^ " type")
+            let _ = print (Print.expToString (G, U) ^ "\n")
 
           fun extract (G, Us) = extractW (G, Whnf.whnf Us)
           and extractW (G, (I.Pi ((D as I.Dec (_, _), _), V'), s)) =
                 extract (I.Decl(G, I.decSub (D, s)), (V', I.dot1 s))
             | extractW (G, _) = G
 
-          val G' = extract (I.Null, (U, I.id))
-          val Dlist = T.ctxToBDecs (T.coerceCtx Psi, G', W)
+          let G' = extract (I.Null, (U, I.id))
+          let Dlist = T.ctxToBDecs (T.coerceCtx Psi, G', W)
 
           fun project ((G, env), []) = (env, 1)   (* is this the right starting point --cs *)
             | project ((G, env), x :: N) =
               let
-                val (env', k) = project ((G, env), N)
-                val U = I.Root (I.Proj (I.Bidx 1, k), I.Nil)
-                val V =  TypeCheck.infer' (G, U)
+                let (env', k) = project ((G, env), N)
+                let U = I.Root (I.Proj (I.Bidx 1, k), I.Nil)
+                let V =  TypeCheck.infer' (G, U)
               in
                 ((U, V, x) :: env', k+1)
               end
@@ -968,23 +968,23 @@ struct
           fun extend ((Psi', env'), []) = (Psi', env')
             | extend ((Psi', env'), (N, D) :: Dlist') =
               let
-                val (Psi'', env'') = extend ((Psi', env'),  Dlist')
-                val Psi''' = I.Decl (Psi'', T.UDec D)
-                val I.BDec (_, (cid, s)) = D
-                val G''' = T.coerceCtx Psi'''
-                val env''' = map (fn (U, V, name) => (I.EClo (U, I.shift), I.EClo (V, I.shift), name)) env''
-                val (env'''', _) = project ((G''', env'''), N)
+                let (Psi'', env'') = extend ((Psi', env'),  Dlist')
+                let Psi''' = I.Decl (Psi'', T.UDec D)
+                let I.BDec (_, (cid, s)) = D
+                let G''' = T.coerceCtx Psi'''
+                let env''' = map (fn (U, V, name) => (I.EClo (U, I.shift), I.EClo (V, I.shift), name)) env''
+                let (env'''', _) = project ((G''', env'''), N)
               in
                 (Psi''',  env'''')
                end
 
-           val (Psi', env') = extend ((Psi, env), Dlist)
-           val _ = printCtx (Names.ctxName (T.coerceCtx Psi'), env')
+           let (Psi', env') = extend ((Psi, env), Dlist)
+           let _ = printCtx (Names.ctxName (T.coerceCtx Psi'), env')
 
           fun universalClosure ([], F) = F
             | universalClosure ((_, D) :: Ds, F)  = T.All (T.UDec D, universalClosure (Ds, F))
 
-          val (P', (F, t)) = transProgS ((Psi, env), EP, W)
+          let (P', (F, t)) = transProgS ((Psi, env), EP, W)
 
           in
             T.Unit
@@ -997,17 +997,17 @@ struct
          transProgS (Psi, EP, W, s :: args)
      | transProgS (Psi, D.Const name, W, args) =
          let
-(*         val lemma = T.lemmaName name
-           val F = T.lemmaFor lemma *)
-           val (n, F) = lookup (Psi, 1, name)
-           val (S, Fs') = transProgS'  (Psi, (F, T.id), W, args)
+(*         let lemma = T.lemmaName name
+           let F = T.lemmaFor lemma *)
+           let (n, F) = lookup (Psi, 1, name)
+           let (S, Fs') = transProgS'  (Psi, (F, T.id), W, args)
          in
            (T.Redex (T.Var n, S), Fs')
          end
      | transProgS (Psi, D.Choose  (eD, eP), W, args) =
          let
-           val D' = parseDec (Psi, eD)
-           val (P, (F, t)) = transProgS (I.Decl (Psi, T.UDec D'), eP, W, args)
+           let D' = parseDec (Psi, eD)
+           let (P, (F, t)) = transProgS (I.Decl (Psi, T.UDec D'), eP, W, args)
          in
            (T.Choose (T.Lam (T.UDec D', P)), (F, t))
          end
@@ -1015,11 +1015,11 @@ struct
          transProgS (Psi, eP, W, args)
      | transProgS (Psi, D.New (eD :: eDs, eP), W, args) =
          let
-           val D' = parseDec (Psi, eD)
-           val (P, (F, t)) = transProgS (I.Decl (Psi, T.UDec D'), D.New (eDs, eP), W, args)
-           val T.UDec D'' = externalizeMDec (I.ctxLength Psi, T.UDec D')
-           val (B, _) = T.deblockify  (I.Decl (I.Null, D''))
-           val F' = TA.raiseFor (B, (F, T.coerceSub t))
+           let D' = parseDec (Psi, eD)
+           let (P, (F, t)) = transProgS (I.Decl (Psi, T.UDec D'), D.New (eDs, eP), W, args)
+           let T.UDec D'' = externalizeMDec (I.ctxLength Psi, T.UDec D')
+           let (B, _) = T.deblockify  (I.Decl (I.Null, D''))
+           let F' = TA.raiseFor (B, (F, T.coerceSub t))
          in
            (T.New (T.Lam (T.UDec D', P)), (F', T.id))   (* bug: forgot to raise F[t] to F' --cs Tue Jul  1 10:49:52 2003 *)
          end
@@ -1027,18 +1027,18 @@ struct
     and transProgS' (Psi, (T.World (_, F), s), W, args) = transProgS' (Psi, (F, s), W, args)
       | transProgS' (Psi, (T.All ((T.UDec (I.Dec (_, V)), T.Implicit), F'), s), W, args) =
         let
-          val G = T.coerceCtx Psi
-          val X = I.newEVar (G, I.EClo (V, T.coerceSub s))
-(*        val X = I.EVar (ref NONE, I.Null, I.EClo (V, T.coerceSub s), ref nil) *)
-          val (S, Fs') = transProgS' (Psi, (F', T.Dot (T.Exp X, s)), W, args)
+          let G = T.coerceCtx Psi
+          let X = I.newEVar (G, I.EClo (V, T.coerceSub s))
+(*        let X = I.EVar (ref NONE, I.Null, I.EClo (V, T.coerceSub s), ref nil) *)
+          let (S, Fs') = transProgS' (Psi, (F', T.Dot (T.Exp X, s)), W, args)
         in
           (T.AppExp (Whnf.normalize (X, I.id), S), Fs')
         end
       | transProgS' (Psi, (T.All ((T.UDec (I.Dec (_, V)), T.Explicit), F'), s), W, t :: args) =
         let
-          val U = parseTerm (Psi, (t, I.EClo (V, T.coerceSub s)))
-          val (S, Fs') = transProgS' (Psi, (F', T.Dot (T.Exp U, s)), W, args)
-(*        val (F'', s'', _) = checkForWorld (F', T.Dot (T.Exp U, s), W) *)
+          let U = parseTerm (Psi, (t, I.EClo (V, T.coerceSub s)))
+          let (S, Fs') = transProgS' (Psi, (F', T.Dot (T.Exp U, s)), W, args)
+(*        let (F'', s'', _) = checkForWorld (F', T.Dot (T.Exp U, s), W) *)
         in
           (T.AppExp (U, S), Fs')
         end
@@ -1048,17 +1048,17 @@ struct
 (*
      | transProgS ((Psi, env), D.Pair (EP1, EP2), W) =
         let
-          val (P1, (F1, t1)) = transProgS ((Psi, env), EP1, W)
-          val (P2, (F2, t2)) = transProgS ((Psi, env), EP2, W)
+          let (P1, (F1, t1)) = transProgS ((Psi, env), EP1, W)
+          let (P2, (F2, t2)) = transProgS ((Psi, env), EP2, W)
         in
           (T.PairPrg (P1, P2), (T.And (F1, F2), T.comp (t1, t2)))
         end
 
      | transProgS ((Psi, env), D.AppProg (EP1, EP2), W) =
         let
-          val (P1, (T.And (F1, F2), t)) = transProgS ((Psi, env), EP1, W)
-          val P2 = transProgIN ((Psi, env), EP2, T.FClo (F1, t), W)
-          val (F'', t'', W) = checkForWorld (F2, t, W)
+          let (P1, (T.And (F1, F2), t)) = transProgS ((Psi, env), EP1, W)
+          let P2 = transProgIN ((Psi, env), EP2, T.FClo (F1, t), W)
+          let (F'', t'', W) = checkForWorld (F2, t, W)
         in
           (T.Redex (P1, T.AppPrg (P2, T.Nil)), (F'', t''))
         end
@@ -1068,35 +1068,35 @@ struct
 
 (*      | transProgS ((Psi, env), D.Lam (s, EP), W) =
         let
-          val dec = stringTodec s
-          val (I.Decl (Psi', (D, _, _)), P, F) = transProgI (I.Decl (Psi, dec), EP)
-          val (F', t', _) = checkForWorld (F, T.id, W)
+          let dec = stringTodec s
+          let (I.Decl (Psi', (D, _, _)), P, F) = transProgI (I.Decl (Psi, dec), EP)
+          let (F', t', _) = checkForWorld (F, T.id, W)
         in
           (T.Lam (T.UDec D, P), (T.All (D, F'), t'))
         end
 *)
       | transProgS ((Psi, env), D.New (s, eP), W)  =
         let
-          val _ = print "["
-          val G = Names.ctxName (T.coerceCtx Psi)
-          val _ = print (Print.ctxToString (I.Null, G) ^ "\n")
-          val (U, V) = parseTerm ((Psi, env), s ^ " type")
-(*        val _ = print (Print.expToString (G, U) ^ "\n") *)
+          let _ = print "["
+          let G = Names.ctxName (T.coerceCtx Psi)
+          let _ = print (Print.ctxToString (I.Null, G) ^ "\n")
+          let (U, V) = parseTerm ((Psi, env), s ^ " type")
+(*        let _ = print (Print.expToString (G, U) ^ "\n") *)
 
           fun extract (G, Us) = extractW (G, Whnf.whnf Us)
           and extractW (G, (I.Pi ((D as I.Dec (_, _), _), V'), s)) =
                 extract (I.Decl(G, I.decSub (D, s)), (V', I.dot1 s))
             | extractW (G, _) = G
 
-          val G' = extract (I.Null, (U, I.id))
-          val Dlist = T.ctxToBDecs (T.coerceCtx Psi, G', W)
+          let G' = extract (I.Null, (U, I.id))
+          let Dlist = T.ctxToBDecs (T.coerceCtx Psi, G', W)
 
           fun project ((G, env), []) = (env, 1)   (* is this the right starting point --cs *)
             | project ((G, env), x :: N) =
               let
-                val (env', k) = project ((G, env), N)
-                val U = I.Root (I.Proj (I.Bidx 1, k), I.Nil)
-                val V =  TypeCheck.infer' (G, U)
+                let (env', k) = project ((G, env), N)
+                let U = I.Root (I.Proj (I.Bidx 1, k), I.Nil)
+                let V =  TypeCheck.infer' (G, U)
               in
                 ((U, V, x) :: env', k+1)
               end
@@ -1104,27 +1104,27 @@ struct
           fun extend ((Psi', env'), []) = (Psi', env')
             | extend ((Psi', env'), (N, D) :: Dlist') =
               let
-                val (Psi'', env'') = extend ((Psi', env'),  Dlist')
-                val Psi''' = I.Decl (Psi'', T.UDec D)
-                val I.BDec (_, (cid, s)) = D
-                val G''' = T.coerceCtx Psi'''
-                val env''' = map (fn (U, V, name) =>
+                let (Psi'', env'') = extend ((Psi', env'),  Dlist')
+                let Psi''' = I.Decl (Psi'', T.UDec D)
+                let I.BDec (_, (cid, s)) = D
+                let G''' = T.coerceCtx Psi'''
+                let env''' = map (fn (U, V, name) =>
                     (I.EClo (U, I.shift), I.EClo (V, I.shift), name)) env''
-                val (env'''', _) = project ((G''', env'''), N)
+                let (env'''', _) = project ((G''', env'''), N)
               in
                 (Psi''',  env'''')
                end
 
-          val (Psi', env') = extend ((Psi, env), Dlist)
-          val _ = printCtx (Names.ctxName (T.coerceCtx Psi'), env')
+          let (Psi', env') = extend ((Psi, env), Dlist)
+          let _ = printCtx (Names.ctxName (T.coerceCtx Psi'), env')
 
           fun universalClosure ([], F) = F
             | universalClosure ((_, D) :: Ds, F)  = T.All (T.UDec D, universalClosure (Ds, F))
 
-          val (P', (F, t)) = transProgS ((Psi, env), eP, W)
-          val F' = T.forSub (F, t)
-          val F'' = universalClosure (Dlist, F')
-          val P'' = lamClosure (F'', P')
+          let (P', (F, t)) = transProgS ((Psi, env), eP, W)
+          let F' = T.forSub (F, t)
+          let F'' = universalClosure (Dlist, F')
+          let P'' = lamClosure (F'', P')
         in
           (P'', (F'', T.id))
         end
@@ -1143,18 +1143,18 @@ struct
 
 
   in
-    val transFor = fn F => let val  F' = transFor (I.Null, F) in F' end
+    let transFor = fun F -> let let  F' = transFor (I.Null, F) in F' end
 
 
-(*    val makePattern = makePattern *)
-(*    val transPro = fn P => let val (P', _) = transProgS ((I.Null, []), P, T.Worlds []) in P' end *)
+(*    let makePattern = makePattern *)
+(*    let transPro = fun P -> let let (P', _) = transProgS ((I.Null, []), P, T.Worlds []) in P' end *)
 
 
-      val transDecs = transProgram
-      val internalizeSig = internalizeSig
-      val externalizePrg = fn P => externalizePrg  (0, P)
+      let transDecs = transProgram
+      let internalizeSig = internalizeSig
+      let externalizePrg = fun P -> externalizePrg  (0, P)
 
-(*    val transDecs = fn Ds => transDecs ((I.Null, []), NONE, Ds, fn (Psi,  W) => T.Unit, T.Worlds [])
+(*    let transDecs = fun Ds -> transDecs ((I.Null, []), NONE, Ds, fn (Psi,  W) => T.Unit, T.Worlds [])
 *)
   end
 end (* functor Trans *)

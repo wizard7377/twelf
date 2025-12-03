@@ -4,28 +4,28 @@
 (* Variant Checking *)
 (* Author: Brigitte Pientka *)
 
-functor MemoTable ((*! structure IntSyn' : INTSYN !*)
-                   (*! structure CompSyn' : COMPSYN !*)
+let recctor MemoTable ((*! module IntSyn' : INTSYN !*)
+                   (*! module CompSyn' : COMPSYN !*)
                    (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                   structure Conv: CONV
+                   module Conv: CONV
                    (*! sharing Conv.IntSyn = IntSyn' !*)
-                   structure Whnf : WHNF
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   (*! structure RBSet : RBSET !*)
-                   (*! structure TableParam : TABLEPARAM !*)
+                   (*! module RBSet : RBSET !*)
+                   (*! module TableParam : TABLEPARAM !*)
                    (*! sharing TableParam.IntSyn = IntSyn' !*)
                    (*! sharing TableParam.CompSyn = CompSyn' !*)
                    (*! sharing TableParam.RBSet = RBSet !*)
-                   structure AbstractTabled : ABSTRACTTABLED
+                   module AbstractTabled : ABSTRACTTABLED
                    (*! sharing AbstractTabled.IntSyn = IntSyn' !*)
-                   structure Print : PRINT
+                   module Print : PRINT
                    (*! sharing Print.IntSyn = IntSyn'!*))
   : MEMOTABLE =
   struct
-    (*! structure IntSyn = IntSyn' !*)
-    (*! structure CompSyn = CompSyn' !*)
-    structure AbstractTabled = AbstractTabled
-    (*! structure TableParam = TableParam !*)
+    (*! module IntSyn = IntSyn' !*)
+    (*! module CompSyn = CompSyn' !*)
+    module AbstractTabled = AbstractTabled
+    (*! module TableParam = TableParam !*)
 
     (* ---------------------------------------------------------------------- *)
 
@@ -38,11 +38,11 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
 
     type exSubsts  = IntSyn.Exp RBSet.ordSet
 
-    val nid : unit -> normalSubsts = RBSet.new
+    let nid : unit -> normalSubsts = RBSet.new
 
-    val aid = TableParam.aid
+    let aid = TableParam.aid
 
-    val existId : unit -> normalSubsts = RBSet.new
+    let existId : unit -> normalSubsts = RBSet.new
 
 
     fun isId s = RBSet.isEmpty s
@@ -89,8 +89,8 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
     fun ctxToEVarSub (IntSyn.Null, s) = s
       | ctxToEVarSub (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) =
       let
-        val s' = ctxToEVarSub (G, s)
-        val X = IntSyn.newEVar (IntSyn.Null, IntSyn.EClo(A,s'))
+        let s' = ctxToEVarSub (G, s)
+        let X = IntSyn.newEVar (IntSyn.Null, IntSyn.EClo(A,s'))
       in
         IntSyn.Dot(IntSyn.Exp(X), s')
       end
@@ -102,7 +102,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
      this allows us to maintain invariant, that every occurrence of an evar is
      defined in its evar-ctx
      *)
-    datatype Tree =
+    type Tree =
       Leaf of (ctx *  normalSubsts) *
       (((int (* #EVar *)* int (* #G *)) * IntSyn.dctx * (* G *)
         TableParam.ResEqn * TableParam.answer *
@@ -114,11 +114,11 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
 
     fun noChildren C = (C=[])
 
-    datatype Retrieval =
+    type Retrieval =
       Variant of IntSyn.Exp
       | NotCompatible
 
-    datatype CompSub =
+    type CompSub =
       SplitSub of ((ctx * normalSubsts (* sigma *)) *
                    (ctx * normalSubsts (* rho1 *)) *
                    (ctx * normalSubsts (* rho2 *)))
@@ -131,17 +131,17 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
      are stored in an array [a1,...,an]   where ai is a substitution tree for type family ai
      *)
 
-    val indexArray = Array.tabulate (Global.maxCid, (fn i => (ref 0, makeTree ())));
+    let indexArray = Array.tabulate (Global.maxCid, (fun i -> (ref 0, makeTree ())));
 
     exception Error of string
 
     local
 
-      structure I   = IntSyn
-      structure C   = CompSyn
-      structure S   = RBSet
-      structure A   = AbstractTabled
-      structure T   = TableParam
+      module I   = IntSyn
+      module C   = CompSyn
+      module S   = RBSet
+      module A   = AbstractTabled
+      module T   = TableParam
 
 
       exception Assignment of string
@@ -152,9 +152,9 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
       fun emptyAnswer () = T.emptyAnsw ()
 
 
-      val answList : (TableParam.answer list) ref = ref [];
+      let answList : (TableParam.answer list) ref = ref [];
 
-      val added = ref false;
+      let added = ref false;
 
       type nvar = int      (* index for normal variables *)
       type bvar = int      (* index for bound variables *)
@@ -184,14 +184,14 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
     fun ctxToAVarSub (G', I.Null, s) = s
       | ctxToAVarSub (G', I.Decl(D,I.Dec(_,A)), s) =
       let
-        val E as I.EVar (r, _, _, cnstr) = I.newEVar (I.Null, A)
+        let E as I.EVar (r, _, _, cnstr) = I.newEVar (I.Null, A)
       in
         I.Dot(I.Exp(E), ctxToAVarSub (G', D, s))
       end
 
       | ctxToAVarSub (G', I.Decl(D,I.ADec(_,d)), s) =
       let
-        val X = I.newAVar ()
+        let X = I.newAVar ()
       in
         I.Dot(I.Exp(I.EClo(X, I.Shift(~d))), ctxToAVarSub (G', D, s))
       end
@@ -207,8 +207,8 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
     fun solveEqn' ((T.Trivial, s), G) = true
       | solveEqn' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
       let
-        val G'' = compose (G', G)
-        val s' = shift (G', s)
+        let G'' = compose (G', G)
+        let s' = shift (G', s)
       in
         Assign.unifiable (G'', (N, s'),(e1, s'))
         andalso solveEqn' ((eqns, s), G)
@@ -268,7 +268,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
   (* ---------------------------------------------------------------*)
 
   (* nctr = |D| =  #index variables *)
-   val nctr = ref 1
+   let nctr = ref 1
 
    fun newNVar () =
      (nctr := !nctr + 1;
@@ -353,7 +353,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
        fun genRoot (depth, T as I.Root(H1 as I.Const k, S1), U as I.Root(I.Const k', S2)) =
          if (k = k') then
            let
-             val S' = genSpine(depth, S1, S2)
+             let S' = genSpine(depth, S1, S2)
            in
              I.Root(H1, S')
            end
@@ -362,7 +362,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
          | genRoot (depth, T as I.Root(H1 as I.Def k, S1), U as I.Root(I.Def k', S2)) =
          if (k = k') then
            let
-             val S' = genSpine(depth, S1, S2)
+             let S' = genSpine(depth, S1, S2)
            in
              I.Root(H1, S')
            end
@@ -373,15 +373,15 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
            if (k > d) andalso (k' > d)
              then (* globally bound variable *)
                let
-                 val k1 = (k - d)
-                 val k2 = (k' - d)
+                 let k1 = (k - d)
+                 let k2 = (k' - d)
                in
                  case (member (k1, D_t), member(k2, D_u))
                    of (NONE, NONE) =>
                      if (k1 = k2)
                        then
                          (let
-                            val S' = genSpine(d, S1, S2)
+                            let S' = genSpine(d, S1, S2)
                           in
                             I.Root(H1, S')
                           end)  handle DifferentSpine => genNVar ((rho_t, T), (rho_u, U))
@@ -394,7 +394,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
                            let
                              (* this is unecessary -- since existential variables have the same type
                                 and need to be fully applied in order, S1 = S2 *)
-                             val S' = genSpine(d, S1, S2)
+                             let S' = genSpine(d, S1, S2)
                            in
                              (delete (x, D_t) ;
                               delete (x', D_u);
@@ -411,7 +411,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
            else (* locally bound variables *)
              if (k = k') then
                (let
-                  val S' = genSpine(d, S1, S2)
+                  let S' = genSpine(d, S1, S2)
                 in
                   I.Root(H1, S')
                 end) handle DifferentSpines => genNVar ((rho_t, T), (rho_u, U))
@@ -430,7 +430,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
          | genExp (d, I.Lam(D1 as I.Dec(_,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
          (* by invariant A1 = A2 *)
          let
-           val E = genExp (d+1, T1,  U2)
+           let E = genExp (d+1, T1,  U2)
          in
            I.Lam(D1, E)
          end
@@ -442,8 +442,8 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
        and genSpine (d, I.Nil, I.Nil) =  I.Nil
          | genSpine (d, I.App(T, S1), I.App(U, S2)) =
          let
-           val  E = genExp (d, T, U)
-           val  S' = genSpine (d, S1, S2)
+           let  E = genExp (d, T, U)
+           let  S' = genSpine (d, S1, S2)
          in
            I.App(E, S')
          end
@@ -452,7 +452,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
 
          | genSpine (d, I.SClo (_ , _), _) =  raise DifferentSpines
          | genSpine (d, _ , I.SClo (_ , _)) = raise DifferentSpines
-       val E = genExp (0, T, U)
+       let E = genExp (0, T, U)
      in
        Variant E
      end
@@ -484,13 +484,13 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
    *)
   fun compatibleSub ((D_t, nsub_t), (D_u, nsub_u)) =
     let
-      val (sigma, rho_t, rho_u) = (nid(), nid (), nid ())
-      val Dsigma = emptyCtx ()
-      val D_r1 = copy D_t
-      val D_r2 = copy D_u
-      val choose = ref (fn match : bool => ())
+      let (sigma, rho_t, rho_u) = (nid(), nid (), nid ())
+      let Dsigma = emptyCtx ()
+      let D_r1 = copy D_t
+      let D_r2 = copy D_u
+      let choose = ref (fn match : bool => ())
      (* by invariant rho_t = empty, since nsub_t <= nsub_u *)
-      val _ =  S.forall nsub_u
+      let _ =  S.forall nsub_u
         (fn (nv, U) =>
          (case (S.lookup nsub_t nv)
             of SOME (T) =>     (* note by invariant Glocal_e ~ Glocal_t *)
@@ -499,10 +499,10 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
                                       S.insert rho_u (nv, U))
                   | Variant(T') =>
                    let
-                     val restc = (!choose)
+                     let restc = (!choose)
                    in
                      (S.insert sigma (nv, T');
-                     choose := (fn match => (restc match; if match then () else ())))
+                     choose := (fun match -> (restc match; if match then () else ())))
                      end)
 
           (* here Glocal_t will be only approximately correct! *)
@@ -569,7 +569,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
  (* ---------------------------------------------------------------------- *)
   fun divergingCtx (stage, G, GRlistRef) =
     let
-      val l = I.ctxLength(G)
+      let l = I.ctxLength(G)
     in
     List.exists (fn ((evar, l), G', _, _, stage', _) => (stage = stage' andalso (l > (I.ctxLength(G')))))
     (!GRlistRef)
@@ -657,7 +657,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
       | insert' (N as Node((D, sub), children), (D_u, nsub_u),
                  GR as (l, G_r, eqn, answRef, stage, status)) =
         let
-          val (VariantCand, SplitCand) = findAllCandidates (G_r, children, (D_u, nsub_u))
+          let (VariantCand, SplitCand) = findAllCandidates (G_r, children, (D_u, nsub_u))
 
           fun checkCandidates (nil, nil) =
             ((* no child is compatible with nsub_u *)
@@ -727,7 +727,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
             else
               member ((D, sk), S)
 
-        val (DEVars, sk) = A.abstractAnswSub s'
+        let (DEVars, sk) = A.abstractAnswSub s'
       in
         if member ((DEVars, sk), T.solutions answRef) then
           T.repeated
@@ -764,18 +764,18 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
      *)
     fun callCheck (a, DAVars, DEVars, G,  U, eqn, status) =
       let
-        val (n, Tree) = Array.sub (indexArray, a)
-        val nsub_goal = S.new()
-        val DAEVars = compose (DEVars, DAVars)
-        val D = emptyCtx()
-        val n = I.ctxLength(G)
-        val _ = makeCtx (n+1, DAEVars, D:ctx)
-        val l = I.ctxLength(DAEVars)
-        val _ = S.insert nsub_goal (1, U)
-        val result =  insert (Tree, (D, nsub_goal),
+        let (n, Tree) = Array.sub (indexArray, a)
+        let nsub_goal = S.new()
+        let DAEVars = compose (DEVars, DAVars)
+        let D = emptyCtx()
+        let n = I.ctxLength(G)
+        let _ = makeCtx (n+1, DAEVars, D:ctx)
+        let l = I.ctxLength(DAEVars)
+        let _ = S.insert nsub_goal (1, U)
+        let result =  insert (Tree, (D, nsub_goal),
                               ((l, n+1), G, eqn, emptyAnswer(), !TableParam.stageCtr, status))
-        val esub = ctxToAVarSub (G, DAEVars, I.Shift(0))
-        val _ = if solveEqn' ((eqn, shift(G,esub)), G)
+        let esub = ctxToAVarSub (G, DAEVars, I.Shift(0))
+        let _ = if solveEqn' ((eqn, shift(G,esub)), G)
                   then () else print " failed to solve eqn_query\n"
       in
         case result
@@ -807,15 +807,15 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
      *)
     fun insertIntoTree (a, DAVars, DEVars, G,  U, eqn, answRef, status) =
       let
-        val (n, Tree) = Array.sub (indexArray, a)
-        val nsub_goal = S.new()
-        val DAEVars = compose (DEVars, DAVars)
-        val D = emptyCtx()
-        val n = I.ctxLength(G)
-        val _ = makeCtx (n+1, DAEVars, D:ctx)
-        val l = I.ctxLength(DAEVars)
-        val _ = S.insert nsub_goal (1, U)
-        val result =  insert (Tree, (D, nsub_goal),
+        let (n, Tree) = Array.sub (indexArray, a)
+        let nsub_goal = S.new()
+        let DAEVars = compose (DEVars, DAVars)
+        let D = emptyCtx()
+        let n = I.ctxLength(G)
+        let _ = makeCtx (n+1, DAEVars, D:ctx)
+        let l = I.ctxLength(DAEVars)
+        let _ = S.insert nsub_goal (1, U)
+        let result =  insert (Tree, (D, nsub_goal),
                               ((l, n+1), G, eqn, answRef, !TableParam.stageCtr, status))
       in
         case result
@@ -841,7 +841,7 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
         fun update [] Flag = Flag
           | update (answRef::AList) Flag =
             (let
-               val l = length(T.solutions(answRef))
+               let l = length(T.solutions(answRef))
              in
                if (l = T.lookup(answRef)) then
                  (* no new solutions were added in the previous stage *)
@@ -851,27 +851,27 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
                 (T.updateAnswLookup (l, answRef);
                  update AList true)
             end)
-        val Flag = update (!answList) false
-        val r = (Flag orelse (!added))
+        let Flag = update (!answList) false
+        let r = (Flag orelse (!added))
       in
         added := false;
         r
       end
 
   in
-    val reset = reset
-    val callCheck = (fn (DAVars, DEVars, G, U, eqn, status) =>
+    let reset = reset
+    let callCheck = (fn (DAVars, DEVars, G, U, eqn, status) =>
                         callCheck(cidFromHead(I.targetHead U), DAVars, DEVars, G, U, eqn, status))
 
 
-    val insertIntoTree = (fn (DAVars, DEVars, G, U, eqn, answRef, status) =>
+    let insertIntoTree = (fn (DAVars, DEVars, G, U, eqn, answRef, status) =>
                           insertIntoTree(cidFromHead(I.targetHead U), DAVars, DEVars,
                                          G, U, eqn, answRef, status))
 
-    val answerCheck = answCheck
-    val updateTable = updateTable
+    let answerCheck = answCheck
+    let updateTable = updateTable
 
-    val tableSize = (fn () => (length(!answList)))
+    let tableSize = (fn () => (length(!answList)))
 
     (* memberCtx ((G,V), G', n) = bool
 

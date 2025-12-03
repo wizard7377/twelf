@@ -1,25 +1,25 @@
-structure StringHashTable =
+module StringHashTable =
   HashTable (type key' = string
-             val hash = StringHash.stringHash
-             val eq = (op =));
+             let hash = StringHash.stringHash
+             let eq = (op =));
 
-structure IntHashTable =
+module IntHashTable =
   HashTable (type key' = int
-             val hash = (fn n => n)
-             val eq = (op =));
+             let hash = (fun n -> n)
+             let eq = (op =));
 
-structure StringRedBlackTree =
+module StringRedBlackTree =
   RedBlackTree (type key' = string
-		val compare = String.compare) 
+		let compare = String.compare) 
 
-structure IntRedBlackTree =
+module IntRedBlackTree =
   RedBlackTree (type key' = int
-		val compare = Int.compare) 
+		let compare = Int.compare) 
 
-structure SparseArray =
-  SparseArray(structure IntTable = IntHashTable)
+module SparseArray =
+  SparseArray(module IntTable = IntHashTable)
 
-structure SparseArray2 =
-  SparseArray2(structure IntTable = IntHashTable)
+module SparseArray2 =
+  SparseArray2(module IntTable = IntHashTable)
 
 

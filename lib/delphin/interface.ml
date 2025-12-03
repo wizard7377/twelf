@@ -3,11 +3,11 @@
 
 (* compare to Paths *)
 
-functor Interface  () : INTERFACE =
+let recctor Interface  () : INTERFACE =
 struct
 
   type pos = int
-  val line = ref 0
+  let line = ref 0
   fun init_line () = (line := 1)
   fun next_line () = (line := !line + 1)
 
@@ -17,7 +17,7 @@ struct
 
   type arg = unit
 
-  val nothing = ()
+  let nothing = ()
 
 end   (* functor INTERFACE  *)
 

@@ -4,7 +4,7 @@
 (* This provides a common interface to ordered sets *)
 (* based on red/black trees *)
 
-signature RBSET =
+module type RBSET =
 
 sig
   type key = int (* parameter *)
@@ -52,4 +52,4 @@ sig
   val splitSets: 'a ordSet -> 'a ordSet -> ('a -> 'a -> 'a option) -> ('a ordSet * 'a ordSet * 'a ordSet)
   val intersection: 'a ordSet -> 'a ordSet -> 'a ordSet
 
-end;  (* signature RBSET *)
+end;  (* module type RBSET *)

@@ -2,11 +2,11 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-signature FIXITY =
+module type FIXITY =
 sig
 
-  datatype associativity = Left | Right | None
-  datatype precedence = Strength of int
+  type associativity = Left | Right | None
+  type precedence = Strength of int
 
   val maxPrec : precedence
   val minPrec : precedence
@@ -18,7 +18,7 @@ sig
   val inc : precedence -> precedence
   val dec : precedence -> precedence
 
-  datatype fixity =
+  type fixity =
       Nonfix
     | Infix of precedence * associativity
     | Prefix of precedence
@@ -30,21 +30,21 @@ sig
   (* returns integer for precedence such that lower values correspond to higher precedence, useful for exports *)
   val precToIntAsc : fixity -> int
   
-end;  (* signature FIXITY *)
+end;  (* module type FIXITY *)
 
-signature NAMES =
+module type NAMES =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   exception Error of string
   exception Unprintable
 
-  structure Fixity : FIXITY
+  module Fixity : FIXITY
 
   (* Constant names and fixities *)
 
-  datatype Qid = Qid of string list * string
+  type Qid = Qid of string list * string
 
   val qidToString : Qid -> string
   val stringToQid : string -> Qid option
@@ -79,9 +79,9 @@ sig
   (* This function maps cids/mids to names.  It uses the information in
      the IntSyn.ConDec or IntSyn.StrDec entries only, and only considers
      the name->cid/mid mapping defined above in order to tell whether a
-     name is shadowed (any constant or structure whose canonical name
+     name is shadowed (any constant or module whose canonical name
      would map to something else, or to nothing at all, in the case of
-     an anonymous structure, is shadowed). *)
+     an anonymous module, is shadowed). *)
   val conDecQid : IntSyn.ConDec -> Qid
   val constQid : IntSyn.cid -> Qid (* will mark if shadowed *)
   val structQid : IntSyn.mid -> Qid (* will mark if shadowed *)
@@ -121,4 +121,4 @@ sig
   val namedEVars : unit -> (IntSyn.Exp * string) list
   (* Uninstantiated named EVars with constraints *)
   val evarCnstr : unit -> (IntSyn.Exp * string) list
-end;  (* signature NAMES *)
+end;  (* module type NAMES *)

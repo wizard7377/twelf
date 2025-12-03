@@ -1,16 +1,16 @@
 (* Weakening substitutions for meta substitutions *)
 (* Author: Carsten Schuermann *)
 
-functor FunWeaken ((*! structure FunSyn' : FUNSYN !*)
-                   structure Weaken : WEAKEN
+let recctor FunWeaken ((*! module FunSyn' : FUNSYN !*)
+                   module Weaken : WEAKEN
                    (*! sharing Weaken.IntSyn = FunSyn'.IntSyn !*)
                      ) : FUNWEAKEN =
 struct
-  (*! structure FunSyn = FunSyn' !*)
+  (*! module FunSyn = FunSyn' !*)
 
   local
-    structure F = FunSyn
-    structure I = IntSyn
+    module F = FunSyn
+    module I = IntSyn
 
     (* strengthenPsi (Psi, s) = (Psi', s')
 
@@ -22,14 +22,14 @@ struct
     fun strengthenPsi (I.Null, s) = (I.Null, s)
       | strengthenPsi (I.Decl (Psi, F.Prim D), s) =
         let
-          val (Psi', s') = strengthenPsi (Psi, s)
+          let (Psi', s') = strengthenPsi (Psi, s)
         in
           (I.Decl (Psi', F.Prim (Weaken.strengthenDec (D, s'))), I.dot1 s')
         end
       | strengthenPsi (I.Decl (Psi, F.Block (F.CtxBlock (l, G))), s) =
         let
-          val (Psi', s') = strengthenPsi (Psi, s)
-          val (G'', s'') = Weaken.strengthenCtx (G, s')
+          let (Psi', s') = strengthenPsi (Psi, s)
+          let (G'', s'') = Weaken.strengthenCtx (G, s')
         in
           (I.Decl (Psi', F.Block (F.CtxBlock (l, G''))), s'')
         end
@@ -44,21 +44,21 @@ struct
     fun strengthenPsi' (nil, s) = (nil, s)
       | strengthenPsi' (F.Prim D :: Psi, s) =
         let
-          val D' = Weaken.strengthenDec (D, s)
-          val s' = I.dot1 s
-          val (Psi'', s'') = strengthenPsi' (Psi, s')
+          let D' = Weaken.strengthenDec (D, s)
+          let s' = I.dot1 s
+          let (Psi'', s'') = strengthenPsi' (Psi, s')
         in
           (F.Prim D' :: Psi'', s'')
         end
       | strengthenPsi' (F.Block (F.CtxBlock (l, G)) :: Psi, s) =
         let
-          val (G', s') = Weaken.strengthenCtx (G, s)
-          val (Psi'', s'') = strengthenPsi' (Psi, s')
+          let (G', s') = Weaken.strengthenCtx (G, s)
+          let (Psi'', s'') = strengthenPsi' (Psi, s')
         in
           (F.Block (F.CtxBlock (l, G')) :: Psi'', s'')
         end
   in
-    val strengthenPsi = strengthenPsi
-    val strengthenPsi' = strengthenPsi'
+    let strengthenPsi = strengthenPsi
+    let strengthenPsi' = strengthenPsi'
   end
 end (* functor FunWeaken *)

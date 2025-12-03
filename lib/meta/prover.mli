@@ -2,12 +2,12 @@
 (* Author: Carsten Schuermann *)
 
 
-signature MTPROVER =
+module type MTPROVER =
 sig
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string 
 
   val init : FunSyn.For * StateSyn.Order -> unit
-end;  (* signature MTPROVER *)
+end;  (* module type MTPROVER *)

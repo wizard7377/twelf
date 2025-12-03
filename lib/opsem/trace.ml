@@ -1,22 +1,22 @@
-functor Trace ((*! structure IntSyn' : INTSYN !*)
-               structure Names : NAMES
+let recctor Trace ((*! module IntSyn' : INTSYN !*)
+               module Names : NAMES
                (*! sharing Names.IntSyn = IntSyn' !*)
-               structure Whnf : WHNF
+               module Whnf : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
-               structure Abstract : ABSTRACT
+               module Abstract : ABSTRACT
                (*! sharing Abstract.IntSyn = IntSyn' !*)
-               structure Print : PRINT
+               module Print : PRINT
                (*! sharing Print.IntSyn = IntSyn' !*)
                  )
   : TRACE =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   local
-    structure I = IntSyn
-    structure P = Print
-    structure N = Names
+    module I = IntSyn
+    module P = Print
+    module N = Names
 
   in
 
@@ -42,8 +42,8 @@ struct
 
     fun evarsToString (Xnames) =
         let
-          val inst = P.evarInstToString (Xnames)
-          val constrOpt = P.evarCnstrsToStringOpt (Xnames)
+          let inst = P.evarInstToString (Xnames)
+          let constrOpt = P.evarCnstrsToStringOpt (Xnames)
         in
           case constrOpt
             of NONE => inst
@@ -62,13 +62,13 @@ struct
     fun printVarstring (line) =
           printVars (List.tl (String.tokens Char.isSpace line))
 
-    datatype 'a Spec =
+    type 'a Spec =
         None
       | Some of 'a list
       | All
 
-    val traceSpec : string Spec ref = ref None
-    val breakSpec : string Spec ref = ref None
+    let traceSpec : string Spec ref = ref None
+    let breakSpec : string Spec ref = ref None
 
     fun trace (None) = traceSpec := None
       | trace (Some (names)) = traceSpec := Some (names)
@@ -78,7 +78,7 @@ struct
       | break (Some (names)) = breakSpec := Some (names)
       | break (All) = breakSpec := All
 
-    val detail = ref 1
+    let detail = ref 1
 
     fun setDetail (NONE) = print ("Trace warning: detail is not a valid integer\n")
       | setDetail (SOME(n)) =
@@ -86,8 +86,8 @@ struct
           then detail := n
         else print ("Trace warning: detail must be positive\n")
 
-    val traceTSpec : I.cid Spec ref = ref None
-    val breakTSpec : I.cid Spec ref = ref None
+    let traceTSpec : I.cid Spec ref = ref None
+    let breakTSpec : I.cid Spec ref = ref None
 
     fun toCids (nil) = nil
       | toCids (name::names) =
@@ -124,14 +124,14 @@ struct
 \v X1 ... Xn - variables --- show instantiation of X1 ... Xn\n\
 \? for help"
 
-    val currentGoal : (I.dctx * I.Exp) ref =
+    let currentGoal : (I.dctx * I.Exp) ref =
           ref (I.Null, I.Uni (I.Type)) (* dummy initialization *)
 
-    val currentEVarInst : (I.Exp * string) list ref =
+    let currentEVarInst : (I.Exp * string) list ref =
           ref nil
 
     fun setEVarInst (Xs) =
-        currentEVarInst := List.map (fn X => (X, N.evarName (I.Null, X))) Xs
+        currentEVarInst := List.map (fun X -> (X, N.evarName (I.Null, X))) Xs
 
     fun setGoal (G, V) =
         (currentGoal := (G, V);
@@ -139,13 +139,13 @@ struct
 
     type goalTag = int option
 
-    val tag : goalTag ref = ref NONE
+    let tag : goalTag ref = ref NONE
     fun tagGoal () =
         case !tag
           of NONE => NONE
            | SOME(n) => (tag := SOME(n+1); !tag)
 
-    val watchForTag : goalTag ref = ref NONE
+    let watchForTag : goalTag ref = ref NONE
 
     fun initTag () =
         (watchForTag := NONE;
@@ -158,8 +158,8 @@ struct
 
     fun breakAction (G) =
         let
-          val _ = print " "
-          val line = Compat.inputLine97 (TextIO.stdIn)
+          let _ = print " "
+          let line = Compat.inputLine97 (TextIO.stdIn)
         in
           case String.sub (line, 0)
             of #"\n" => ()
@@ -191,7 +191,7 @@ struct
          initBreak (!breakSpec);
          initTag ())
 
-    datatype Event =
+    type Event =
       IntroHyp of IntSyn.Head * IntSyn.Dec
     | DischargeHyp of IntSyn.Head * IntSyn.Dec
 
@@ -346,7 +346,7 @@ struct
     fun showSpec (msg, None) = print (msg ^ " = None\n")
       | showSpec (msg, Some(names)) =
         (print (msg ^ " = Some [");
-         List.app (fn name => print (" " ^ name)) names;
+         List.app (fun name -> print (" " ^ name)) names;
          print "]\n")
       | showSpec (msg, All) = print (msg ^ " = All\n")
 

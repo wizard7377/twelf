@@ -3,7 +3,7 @@
 
 (* compare to Paths *)
 
-signature INTERFACE =
+module type INTERFACE =
 sig
 
   type pos
@@ -15,5 +15,5 @@ sig
     
   type arg
   val nothing : arg
-end  (* signature INTERFACE *)
+end  (* module type INTERFACE *)
 

@@ -1,10 +1,10 @@
 (* Type checking for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-signature FUNTYPECHECK = 
+module type FUNTYPECHECK = 
 sig
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string
 

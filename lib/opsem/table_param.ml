@@ -1,23 +1,23 @@
 (* Table parameters *)
 (* Author: Brigitte Pientka *)
 
-functor TableParam (structure Global : GLOBAL
-                    (*! structure IntSyn' : INTSYN !*)
-                    (*! structure CompSyn' : COMPSYN !*)
+let recctor TableParam (module Global : GLOBAL
+                    (*! module IntSyn' : INTSYN !*)
+                    (*! module CompSyn' : COMPSYN !*)
                     (*!  sharing CompSyn'.IntSyn = IntSyn'!*)
-                    (*! structure RBSet : RBSET!*))
+                    (*! module RBSet : RBSET!*))
 : TABLEPARAM =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure CompSyn = CompSyn' !*)
-  (*! structure RBSet = RBSet !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module CompSyn = CompSyn' !*)
+  (*! module RBSet = RBSet !*)
 
    exception Error of string
 
-   datatype Strategy = Variant | Subsumption
+   type Strategy = Variant | Subsumption
 
-   datatype ResEqn =
+   type ResEqn =
      Trivial                              (* trivially done *)
    | Unify of IntSyn.dctx * IntSyn.Exp    (* call unify *)
      * IntSyn.Exp * ResEqn
@@ -26,10 +26,10 @@ struct
                                * CompSyn.pskeleton) list,
                   lookup: int} ref
 
-   datatype Status = Complete | Incomplete
+   type Status = Complete | Incomplete
 
    (* globalTable stores the queries whose solution we want to keep *)
-   val globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx *
+   let globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx *
                        IntSyn.Exp * ResEqn * answer * Status ) list ref
                       = ref []
 
@@ -39,14 +39,14 @@ struct
 
    fun addSolution (S, answRef) =
      let
-       val {solutions = SList, lookup = k} = !answRef
+       let {solutions = SList, lookup = k} = !answRef
      in
        answRef := {solutions = (S::SList), lookup = k}
      end
 
    fun updateAnswLookup (k',answRef) =
      let
-       val {solutions = SList, lookup = k} = !answRef
+       let {solutions = SList, lookup = k} = !answRef
      in
        answRef := {solutions = SList, lookup = k'}
      end
@@ -60,35 +60,35 @@ struct
       | L  => false)
 
    type asub = IntSyn.Exp RBSet.ordSet
-   val aid : unit -> asub = RBSet.new
+   let aid : unit -> asub = RBSet.new
 
 
-   datatype callCheckResult =
+   type callCheckResult =
        NewEntry of answer
      | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * Status
      | DivergingEntry of (IntSyn.Sub * answer)
 
-   datatype answState = new | repeated
+   type answState = new | repeated
 
 (* ---------------------------------------------------------------------- *)
 (* global search parameters *)
 
-  val strategy  = ref Variant (* Subsumption *)
+  let strategy  = ref Variant (* Subsumption *)
 
-  val divHeuristic = ref false;
-(*  val divHeuristic = ref true;*)
+  let divHeuristic = ref false;
+(*  let divHeuristic = ref true;*)
 
-  val stageCtr = ref 0;
+  let stageCtr = ref 0;
 
  (* term abstraction and ctx abstraction *)
  (* currently not used *)
-  val termDepth = ref NONE : int option ref;
-  val ctxDepth = ref NONE : int option ref;
-  val ctxLength = ref NONE : int option ref;
+  let termDepth = ref NONE : int option ref;
+  let ctxDepth = ref NONE : int option ref;
+  let ctxLength = ref NONE : int option ref;
 
   (* apply strengthening during abstraction *)
-  val strengthen = ref false ;
+  let strengthen = ref false ;
 
 
-end;  (* structure TableParam *)
+end;  (* module TableParam *)
 

@@ -1,47 +1,47 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-functor Mpi (structure MetaGlobal : METAGLOBAL
-             structure MetaSyn' : METASYN
-             structure Init : INIT
+let recctor Mpi (module MetaGlobal : METAGLOBAL
+             module MetaSyn' : METASYN
+             module Init : INIT
              sharing Init.MetaSyn = MetaSyn'
-             structure Filling : FILLING
+             module Filling : FILLING
              sharing Filling.MetaSyn = MetaSyn'
-             structure Splitting : SPLITTING
+             module Splitting : SPLITTING
              sharing Splitting.MetaSyn = MetaSyn'
-             structure Recursion : RECURSION
+             module Recursion : RECURSION
              sharing Recursion.MetaSyn = MetaSyn'
-             structure Lemma : LEMMA
+             module Lemma : LEMMA
              sharing Lemma.MetaSyn = MetaSyn'
-             structure Strategy : STRATEGY
+             module Strategy : STRATEGY
              sharing Strategy.MetaSyn = MetaSyn'
-             structure Qed : QED
+             module Qed : QED
              sharing Qed.MetaSyn = MetaSyn'
-             structure MetaPrint : METAPRINT
+             module MetaPrint : METAPRINT
              sharing MetaPrint.MetaSyn = MetaSyn'
-             structure Names : NAMES
+             module Names : NAMES
              (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-             structure Timers : TIMERS
-             structure Ring : RING)
+             module Timers : TIMERS
+             module Ring : RING)
   : MPI =
 struct
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   exception Error of string
 
   local
-    structure M = MetaSyn
-    structure I = IntSyn
+    module M = MetaSyn
+    module I = IntSyn
 
-    datatype MenuItem =
+    type MenuItem =
       Filling of Filling.operator
     | Recursion of Recursion.operator
     | Splitting of Splitting.operator
 
-    val Open : MetaSyn.State Ring.ring ref = ref (Ring.init [])
-    val Solved : MetaSyn.State Ring.ring ref = ref (Ring.init [])
-    val History : (MetaSyn.State Ring.ring * MetaSyn.State Ring.ring) list ref = ref nil
-    val Menu : MenuItem list option ref = ref NONE
+    let Open : MetaSyn.State Ring.ring ref = ref (Ring.init [])
+    let Solved : MetaSyn.State Ring.ring ref = ref (Ring.init [])
+    let History : (MetaSyn.State Ring.ring * MetaSyn.State Ring.ring) list ref = ref nil
+    let Menu : MenuItem list option ref = ref NONE
 
     fun initOpen () = Open := Ring.init [];
     fun initSolved () = Solved := Ring.init [];
@@ -103,10 +103,10 @@ struct
         if empty () then Menu := NONE
         else
           let
-            val S = current ()
-            val SplitO = Splitting.expand S
-            val  RecO = Recursion.expandEager S
-            val (FillO, FillC) = Filling.expand S
+            let S = current ()
+            let SplitO = Splitting.expand S
+            let  RecO = Recursion.expandEager S
+            let (FillO, FillC) = Filling.expand S
           in
             Menu := SOME (FillingToMenu ([FillC],
                           FillingToMenu (FillO,
@@ -159,7 +159,7 @@ struct
         if empty () then (show (); print "[QED]\n")
         else
           let
-            val S = current ()
+            let S = current ()
           in
             (print "\n";
              print (MetaPrint.stateToString S);
@@ -178,13 +178,13 @@ struct
 
     fun init' (k, cL as (c :: _)) =
         let
-          val _ = MetaGlobal.maxFill := k
-          val _ = reset ();
-          val cL' = Order.closure c
+          let _ = MetaGlobal.maxFill := k
+          let _ = reset ();
+          let cL' = Order.closure c
             handle Order.Error _ => cL  (* if no termination ordering given! *)
         in
           if equiv (cL, cL') then
-            map (fn S => insert S) (Init.init cL)
+            map (fun S -> insert S) (Init.init cL)
           else raise Error ("Theorem by simultaneous induction not correctly stated:"
                              ^ "\n            expected: " ^ (cLToString cL'))
         end
@@ -212,25 +212,25 @@ struct
           fun select' (k, nil) = abort ("No such menu item")
             | select' (1, Splitting O :: _) =
                 let
-                  val S' = (Timers.time Timers.splitting Splitting.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = map insert S'
+                  let S' = (Timers.time Timers.splitting Splitting.apply) O
+                  let _ = pushHistory ()
+                  let _ = delete ()
+                  let _ = map insert S'
                 in
                   (menu (); printMenu ())
                 end
             | select' (1, Recursion O :: _) =
                 let
-                  val S' = (Timers.time Timers.recursion Recursion.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = insert S'
+                  let S' = (Timers.time Timers.recursion Recursion.apply) O
+                  let _ = pushHistory ()
+                  let _ = delete ()
+                  let _ = insert S'
                 in
                   (menu (); printMenu ())
                 end
             | select' (1, Filling O :: _) =
                 let
-                  val _ =
+                  let _ =
                     case (Timers.time Timers.filling Filling.apply) O of
                       nil => abort ("Filling unsuccessful: no object found")
                     | (S :: _) => (delete ();
@@ -255,15 +255,15 @@ struct
         if empty () then raise Error "Nothing to prove"
         else
           let
-            val S = current ()
-            val S' = Lemma.apply (S, valOf (Names.constLookup (valOf (Names.stringToQid name))))
+            let S = current ()
+            let S' = Lemma.apply (S, valOf (Names.constLookup (valOf (Names.stringToQid name))))
               handle Splitting.Error s => abort ("Splitting Error: " ^ s)
                    | Filling.Error s => abort ("Filling Error: " ^ s)
                    | Recursion.Error s => abort ("Recursion Error: " ^ s)
                    | Error s => abort ("Mpi Error: " ^ s)
-            val _ = pushHistory ()
-            val _ = delete ()
-            val _ = insert S'
+            let _ = pushHistory ()
+            let _ = delete ()
+            let _ = insert S'
           in
             (menu (); printMenu ())
           end
@@ -272,31 +272,31 @@ struct
         if empty () then raise Error "Nothing to prove"
         else
           let
-            val S = current ()
-            val (Open', Solved') = Strategy.run [S]
+            let S = current ()
+            let (Open', Solved') = Strategy.run [S]
               handle Splitting.Error s => abort ("Splitting Error: " ^ s)
                    | Filling.Error s => abort ("Filling Error: " ^ s)
                    | Recursion.Error s => abort ("Recursion Error: " ^ s)
                    | Error s => abort ("Mpi Error: " ^ s)
-            val _ = pushHistory ()
-            val _ = delete ()
-            val _ = map insertOpen Open'
-            val _ = map insertSolved Solved'
+            let _ = pushHistory ()
+            let _ = delete ()
+            let _ = map insertOpen Open'
+            let _ = map insertSolved Solved'
           in
             (menu (); printMenu ())
           end
 
     fun auto () =
         let
-          val (Open', Solved') = Strategy.run (collectOpen ())
+          let (Open', Solved') = Strategy.run (collectOpen ())
             handle Splitting.Error s => abort ("Splitting Error: " ^ s)
                  | Filling.Error s => abort ("Filling Error: " ^ s)
                  | Recursion.Error s => abort ("Recursion Error: " ^ s)
                  | Error s => abort ("Mpi Error: " ^ s)
-          val _ = pushHistory ()
-          val _ = initOpen ()
-          val _ = map insertOpen Open'
-          val _ = map insertSolved Solved'
+          let _ = pushHistory ()
+          let _ = initOpen ()
+          let _ = map insertOpen Open'
+          let _ = map insertSolved Solved'
         in
           (menu (); printMenu ())
         end
@@ -306,16 +306,16 @@ struct
     fun undo () = (popHistory (); menu (); printMenu ())
 
   in
-    val init = init
-    val select = select
-    val print = printMenu
-    val next = next
-    val lemma = lemma
-    val reset = reset
-    val solve = solve
-    val auto = auto
-    val extract = extract
-    val show = show
-    val undo = undo
+    let init = init
+    let select = select
+    let print = printMenu
+    let next = next
+    let lemma = lemma
+    let reset = reset
+    let solve = solve
+    let auto = auto
+    let extract = extract
+    let show = show
+    let undo = undo
  end (* local *)
 end; (* functor MPI *)

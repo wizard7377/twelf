@@ -1,54 +1,54 @@
 (* Search (based on abstract machine ) : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor UniqueSearch (structure Global : GLOBAL
-                      (*! structure IntSyn' : INTSYN !*)
-                      (*! structure FunSyn' : FUNSYN !*)
+let recctor UniqueSearch (module Global : GLOBAL
+                      (*! module IntSyn' : INTSYN !*)
+                      (*! module FunSyn' : FUNSYN !*)
                       (*! sharing FunSyn'.IntSyn = IntSyn' !*)
-                      structure StateSyn' : STATESYN
+                      module StateSyn' : STATESYN
                       (*! sharing StateSyn'.IntSyn = IntSyn' !*)
                       (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                      structure Abstract : ABSTRACT
+                      module Abstract : ABSTRACT
                       (*! sharing Abstract.IntSyn = IntSyn' !*)
-                      structure MTPGlobal : MTPGLOBAL
-                      (*! structure CompSyn' : COMPSYN !*)
+                      module MTPGlobal : MTPGLOBAL
+                      (*! module CompSyn' : COMPSYN !*)
                       (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                      structure Whnf : WHNF
+                      module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = IntSyn' !*)
-                      structure Unify : UNIFY
+                      module Unify : UNIFY
                       (*! sharing Unify.IntSyn = IntSyn' !*)
-                      structure Assign : ASSIGN
+                      module Assign : ASSIGN
                       (*! sharing Assign.IntSyn = IntSyn'                         !*)
-                      structure Index : INDEX
+                      module Index : INDEX
                       (*! sharing Index.IntSyn = IntSyn' !*)
-                      structure Compile : COMPILE
+                      module Compile : COMPILE
                       (*! sharing Compile.IntSyn = IntSyn' !*)
                       (*! sharing Compile.CompSyn = CompSyn' !*)
-                      structure CPrint : CPRINT
+                      module CPrint : CPRINT
                       (*! sharing CPrint.IntSyn = IntSyn' !*)
                       (*! sharing CPrint.CompSyn = CompSyn' !*)
-                      structure Print : PRINT
+                      module Print : PRINT
                       (*! sharing Print.IntSyn = IntSyn' !*)
-                      structure Names : NAMES
+                      module Names : NAMES
                       (*! sharing Names.IntSyn = IntSyn' !*)
-                      (*! structure CSManager : CS_MANAGER !*)
+                      (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn' !*)
                         )
   : UNIQUESEARCH =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure FunSyn = FunSyn' !*)
-  structure StateSyn = StateSyn'
-  (*! structure CompSyn = CompSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module FunSyn = FunSyn' !*)
+  module StateSyn = StateSyn'
+  (*! module CompSyn = CompSyn' !*)
 
   exception Error of string
 
   type acctype = IntSyn.Exp
 
   local
-    structure I = IntSyn
-    structure C = CompSyn
+    module I = IntSyn
+    module C = CompSyn
 
 
     (* isInstantiated (V) = SOME(cid) or NONE
@@ -128,14 +128,14 @@ struct
     fun selectEVar (nil) = nil
       | selectEVar ((X as I.EVar (r, _, _, ref nil)) :: GE) =
         let
-          val Xs = selectEVar (GE)
+          let Xs = selectEVar (GE)
         in
           if nonIndex (r, Xs) then Xs @ [X]
           else Xs
         end
       | selectEVar ((X as I.EVar (r, _, _, cnstrs)) :: GE) =  (* Constraint case *)
         let
-          val Xs = selectEVar (GE)
+          let Xs = selectEVar (GE)
         in
           if nonIndex (r, Xs) then X :: Xs
           else Xs
@@ -176,7 +176,7 @@ struct
   fun solve (max, depth, (C.Atom p, s), dp, sc, acc) = matchAtom (max, depth, (p,s), dp, sc, acc)
     | solve (max, depth, (C.Impl (r, A, H, g), s), C.DProg (G, dPool), sc, acc) =
        let
-         val D' = I.Dec (NONE, I.EClo (A, s))
+         let D' = I.Dec (NONE, I.EClo (A, s))
        in
          solve (max, depth+1, (g, I.dot1 s),
                 C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, H))),
@@ -184,7 +184,7 @@ struct
        end
     | solve (max, depth, (C.All (D, g), s), C.DProg (G, dPool), sc, acc) =
        let
-         val D' = I.decSub (D, s)
+         let D' = I.decSub (D, s)
        in
          solve (max, depth+1, (g, I.dot1 s),
                 C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Parameter)),
@@ -220,7 +220,7 @@ struct
     | rSolve (max, depth, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc, acc) =
       let
         (* is this EVar redundant? -fp *)
-        val X = I.newEVar (G, I.EClo(A, s))
+        let X = I.newEVar (G, I.EClo(A, s))
       in
         rSolve (max, depth, ps', (r, I.Dot(I.Exp(X), s)), dp,
                 (fn (S, acc') => solve (max, depth, (g, s), dp,
@@ -233,16 +233,16 @@ struct
                                         (* G |- A : type *)
                                         (* G, A |- r resgoal *)
                                         (* G0, Gl  |- s : G *)
-        val G0 = pruneCtx (G, depth)
-        val dPool0 = pruneCtx (dPool, depth)
-        val w = I.Shift (depth)         (* G0, Gl  |- w : G0 *)
-        val iw = Whnf.invert w
+        let G0 = pruneCtx (G, depth)
+        let dPool0 = pruneCtx (dPool, depth)
+        let w = I.Shift (depth)         (* G0, Gl  |- w : G0 *)
+        let iw = Whnf.invert w
                                         (* G0 |- iw : G0, Gl *)
-        val s' = I.comp (s, iw)
+        let s' = I.comp (s, iw)
                                         (* G0 |- w : G *)
-        val X = I.newEVar (G0, I.EClo(A, s'))
+        let X = I.newEVar (G0, I.EClo(A, s'))
                                         (* G0 |- X : A[s'] *)
-        val X' = I.EClo (X, w)
+        let X' = I.EClo (X, w)
                                         (* G0, Gl |- X' : A[s'][w] = A[s] *)
       in
         rSolve (max, depth, ps', (r, I.Dot (I.Exp (X'), s)), dp,
@@ -256,14 +256,14 @@ struct
       end
     | rSolve (max, depth, ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acc) =
         let
-          val X = I.newEVar (G, I.EClo (A, s))
+          let X = I.newEVar (G, I.EClo (A, s))
         in
           rSolve (max, depth, ps', (r, I.Dot (I.Exp (X), s)), dp,
                   (fn (S, acc') => sc (I.App (X, S), acc')), acc)
         end
     | rSolve (max, depth, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc, acc) =
       let
-        val X' = I.newAVar ()
+        let X' = I.newAVar ()
       in
         rSolve (max, depth, ps', (r, I.Dot(I.Exp(I.EClo(X', I.Shift(~d))), s)), dp, sc, acc)
         (* we don't increase the proof term here! *)
@@ -285,8 +285,8 @@ struct
            acc)
     | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc, acc) =
       let
-        val G'' = compose'(G', G)
-        val s' = shift (G', s)
+        let G'' = compose'(G', G)
+        let s' = shift (G', s)
       in
         if Assign.unifiable (G'', (N, s'), (e1, s')) then
               aSolve ((eqns, s), dp, cnstr, sc, acc)
@@ -311,8 +311,8 @@ struct
         fun matchSig' (nil, acc') = acc'
           | matchSig' (Hc ::sgn', acc') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
-              val acc''' = CSManager.trail
+              let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              let acc''' = CSManager.trail
                       (fn () =>
                        rSolve (max-1, depth, ps', (r, I.id), dp,
                                (fn (S, acc'') => sc (I.Root (Hc, S), acc'')), acc'))
@@ -324,7 +324,7 @@ struct
           | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') =
             if eqHead (Ha, Ha') then
               let
-                val acc''' = CSManager.trail (fn () =>
+                let acc''' = CSManager.trail (fn () =>
                             rSolve (max-1,depth, ps', (r, I.comp (s, I.Shift n)), dp,
                                     (fn (S, acc'') => sc (I.Root (I.BVar n, S), acc'')), acc'))
               in
@@ -373,9 +373,9 @@ struct
          searchEx' depth (selectEVar (GE),
                     fn acc' => (if !Global.chatter > 5 then print "OK]\n" else ();
                                             let
-                                              val GE' = foldr (fn (X as I.EVar (_, G, _, _), L) =>
+                                              let GE' = foldr (fn (X as I.EVar (_, G, _, _), L) =>
                                                                Abstract.collectEVars (G, (X, I.id), L)) nil GE
-                                              val gE' = List.length GE'
+                                              let gE' = List.length GE'
                                             in
                                               if gE' > 0 then
                                                 if it > 0 then searchEx (it-1, depth) (GE', sc, acc')
@@ -398,7 +398,7 @@ struct
     fun search (maxFill, GE, sc) = searchEx (1, maxFill) (GE, sc, nil)
 
   in
-    val searchEx = search
+    let searchEx = search
   end (* local ... *)
 
 end; (* functor Search *)

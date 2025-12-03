@@ -1,23 +1,23 @@
 (* Rationals *)
 (* Author: Roberto Virga *)
 
-functor Rationals (Integers : INTEGERS) : RATIONALS =
+let recctor Rationals (Integers : INTEGERS) : RATIONALS =
 struct
 
-  structure Integers = Integers
+  module Integers = Integers
 
-  val name = "rational"
+  let name = "rational"
 
   exception Div = Div
 
   local
-    structure I = Integers
+    module I = Integers
 
-    datatype number =                          (* Rational number:              *)
+    type number =                          (* Rational number:              *)
       Fract of Int.int * I.int * I.int         (* q := Fract (sign, num, denom) *)
 
-    val zero = Fract (0, I.fromInt(0), I.fromInt(1))
-    val one  = Fract (1, I.fromInt(1), I.fromInt(1))
+    let zero = Fract (0, I.fromInt(0), I.fromInt(1))
+    let one  = Fract (1, I.fromInt(1), I.fromInt(1))
 
     exception Div
 
@@ -29,7 +29,7 @@ struct
                   else if (n = I.fromInt(0)) then m
                   else if I.>(m, n) then gcd (I.mod(m, n), n)
                   else gcd (m, I.mod(n, m))
-            val g = gcd (n, d)
+            let g = gcd (n, d)
           in
             Fract (s, I.div(n, g), I.div(d, g))
           end
@@ -38,7 +38,7 @@ struct
 
     fun op+ (Fract (s1, n1, d1), Fract (s2, n2, d2)) =
           let
-            val n = I.+(I.*(I.*(I.fromInt(s1), n1), d2),
+            let n = I.+(I.*(I.*(I.fromInt(s1), n1), d2),
                         I.*(I.*(I.fromInt(s2), n2), d1))
           in
             normalize (Fract (I.sign(n), I.abs(n), I.*(d1, d2)))
@@ -46,7 +46,7 @@ struct
 
     fun op- (Fract (s1, n1, d1), Fract (s2, n2, d2)) =
           let
-            val n = I.-(I.*(I.*(I.fromInt(s1), n1), d2),
+            let n = I.-(I.*(I.*(I.fromInt(s1), n1), d2),
                         I.*(I.*(I.fromInt(s2), n2), d1))
           in
             normalize (Fract (I.sign(n), I.abs(n), I.*(d1, d2)))
@@ -93,12 +93,12 @@ struct
                   false
             fun check_denominator (chars) =
                   (List.all Char.isDigit chars)
-            val fields = (String.fields (fn c => (c = #"/")) str)
+            let fields = (String.fields (fun c -> (c = #"/")) str)
         in
           if (List.length fields = 1)
           then
             let
-              val numerator = List.nth (fields, 0)
+              let numerator = List.nth (fields, 0)
             in
               if (check_numerator (String.explode (numerator)))
               then
@@ -115,8 +115,8 @@ struct
           else if (List.length fields = 2)
           then
             let
-              val numerator = List.nth (fields, 0)
-              val denominator = List.nth (fields, 1)
+              let numerator = List.nth (fields, 0)
+              let denominator = List.nth (fields, 1)
             in
               if (check_numerator (String.explode (numerator)))
                 andalso (check_denominator (String.explode (denominator)))
@@ -135,8 +135,8 @@ struct
 
     fun toString (Fract(s, n, d)) =
           let
-            val nStr = I.toString (I.* (I.fromInt(s), n))
-            val dStr = I.toString d
+            let nStr = I.toString (I.* (I.fromInt(s), n))
+            let dStr = I.toString d
           in
             if (d = I.fromInt(1)) then nStr else (nStr ^ "/" ^ dStr)
           end
@@ -157,33 +157,33 @@ struct
   in
     type number = number
 
-    val zero = zero
-    val one = one
+    let zero = zero
+    let one = one
 
-    val op~ = op~
-    val op+ = op+
-    val op- = op-
-    val op* = op*
-    val inverse = inverse
+    let op~ = op~
+    let op+ = op+
+    let op- = op-
+    let op* = op*
+    let inverse = inverse
 
-    val fromInt = fromInt
-    val fromString = fromString
-    val toString = toString
+    let fromInt = fromInt
+    let fromString = fromString
+    let toString = toString
 
-    val sign = sign
-    val abs = abs
+    let sign = sign
+    let abs = abs
 
-    val op> = op>
-    val op< = op<
-    val op>= = op>=
-    val op<= = op<=
-    val compare = compare
+    let op> = op>
+    let op< = op<
+    let op>= = op>=
+    let op<= = op<=
+    let compare = compare
 
-    val fromInteger = fromInteger
-    val floor = floor
-    val ceiling = ceiling
+    let fromInteger = fromInteger
+    let floor = floor
+    let ceiling = ceiling
 
-    val numerator = numerator
-    val denominator = denominator
+    let numerator = numerator
+    let denominator = denominator
   end
-end;  (* structure Rationals *)
+end;  (* module Rationals *)

@@ -3,125 +3,125 @@
 (* Modified: Carsten Schuermann, Jeff Polakow *)
 (* Modified: Brigitte Pientka, Roberto Virga *)
 
-functor Twelf
-  (structure Global : GLOBAL
-   structure Timers : TIMERS
-   structure Whnf : WHNF
+let recctor Twelf
+  (module Global : GLOBAL
+   module Timers : TIMERS
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Print : PRINT
+   module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn' !*)
 
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   (*! structure Paths : PATHS !*)
-   structure Origins : ORIGINS
+   (*! module Paths : PATHS !*)
+   module Origins : ORIGINS
    (*! sharing Origins.Paths = Paths !*)
-   structure Lexer : LEXER
+   module Lexer : LEXER
    (*! sharing Lexer.Paths = Paths !*)
-     (*! structure Parsing : PARSING !*)
+     (*! module Parsing : PARSING !*)
      (*! sharing Lexer = Lexer !*)
-   structure Parser : PARSER
+   module Parser : PARSER
      sharing Parser.Names = Names
      (*! sharing Parser.ExtSyn.Paths = Paths !*)
-   structure TypeCheck : TYPECHECK
-   structure Strict : STRICT
+   module TypeCheck : TYPECHECK
+   module Strict : STRICT
    (*! sharing Strict.IntSyn = IntSyn' !*)
    (*! sharing Strict.Paths = Paths !*)
-   structure Constraints : CONSTRAINTS
+   module Constraints : CONSTRAINTS
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   structure ReconTerm : RECON_TERM
+   module ReconTerm : RECON_TERM
    (*! sharing ReconTerm.IntSyn = IntSyn' !*)
    (*! sharing ReconTerm.Paths = Paths !*)
      sharing type ReconTerm.term = Parser.ExtSyn.term
      (* sharing type ReconTerm.Paths.occConDec = Origins.Paths.occConDec *)
-   structure ReconConDec : RECON_CONDEC
+   module ReconConDec : RECON_CONDEC
    (*! sharing ReconConDec.IntSyn = IntSyn' !*)
    (*! sharing ReconConDec.Paths = Paths !*)
      sharing type ReconConDec.condec = Parser.ExtConDec.condec
-   structure ReconQuery : RECON_QUERY
-   structure ModeTable : MODETABLE
+   module ReconQuery : RECON_QUERY
+   module ModeTable : MODETABLE
    (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   structure ModeCheck : MODECHECK
+   module ModeCheck : MODECHECK
    (*! sharing ModeCheck.IntSyn = IntSyn' !*)
    (*! sharing ModeCheck.ModeSyn = ModeSyn !*)
    (*! sharing ModeCheck.Paths = Paths !*)
-   structure ReconMode : RECON_MODE
+   module ReconMode : RECON_MODE
    (*! sharing ReconMode.ModeSyn = ModeSyn !*)
      (*! sharing ReconMode.Paths = Paths !*)
      sharing type ReconMode.modedec = Parser.ExtModes.modedec
-   structure ModePrint : MODEPRINT
+   module ModePrint : MODEPRINT
    (*! sharing ModePrint.ModeSyn = ModeSyn !*)
-   structure ModeDec : MODEDEC
+   module ModeDec : MODEDEC
    (*! sharing ModeDec.ModeSyn = ModeSyn !*)
      (*! sharing ModeDec.Paths = Paths !*)
 
-   structure StyleCheck : STYLECHECK
+   module StyleCheck : STYLECHECK
 
-   structure Unique : UNIQUE
+   module Unique : UNIQUE
    (*! sharing Unique.ModeSyn = ModeSyn !*)
-   structure UniqueTable : MODETABLE
+   module UniqueTable : MODETABLE
 
-   structure Cover : COVER
+   module Cover : COVER
    (*! sharing Cover.IntSyn = IntSyn' !*)
    (*! sharing Cover.ModeSyn = ModeSyn !*)
 
-   structure Converter : CONVERTER
+   module Converter : CONVERTER
    (*! sharing Converter.IntSyn = IntSyn' !*)
    (*! sharing Converter.Tomega = Tomega !*)
-   structure TomegaPrint : TOMEGAPRINT
+   module TomegaPrint : TOMEGAPRINT
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega !*)
-   structure TomegaCoverage : TOMEGACOVERAGE
+   module TomegaCoverage : TOMEGACOVERAGE
    (*! sharing TomegaCoverage.IntSyn = IntSyn' !*)
    (*! sharing TomegaCoverage.Tomega = Tomega !*)
-   structure TomegaTypeCheck : TOMEGATYPECHECK
+   module TomegaTypeCheck : TOMEGATYPECHECK
    (*! sharing TomegaTypeCheck.IntSyn = IntSyn' !*)
    (*! sharing TomegaTypeCheck.Tomega = Tomega !*)
 
-   structure Total : TOTAL
+   module Total : TOTAL
    (*! sharing Total.IntSyn = IntSyn' !*)
 
-   structure Reduces : REDUCES
+   module Reduces : REDUCES
    (*! sharing Reduces.IntSyn = IntSyn' !*)
 
-   structure Index : INDEX
+   module Index : INDEX
    (*! sharing Index.IntSyn = IntSyn' !*)
-   structure IndexSkolem : INDEX
+   module IndexSkolem : INDEX
    (*! sharing IndexSkolem.IntSyn = IntSyn' !*)
-   structure Subordinate : SUBORDINATE
+   module Subordinate : SUBORDINATE
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-   (*! structure CompSyn' : COMPSYN !*)
+   (*! module CompSyn' : COMPSYN !*)
    (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-   structure Compile : COMPILE
+   module Compile : COMPILE
    (*! sharing Compile.IntSyn = IntSyn' !*)
    (*! sharing Compile.CompSyn = CompSyn' !*)
-   structure AbsMachine : ABSMACHINE
+   module AbsMachine : ABSMACHINE
    (*! sharing AbsMachine.IntSyn = IntSyn' !*)
    (*! sharing AbsMachine.CompSyn = CompSyn' !*)
-   (*! structure TableParam : TABLEPARAM !*)
-   structure Tabled : TABLED
+   (*! module TableParam : TABLEPARAM !*)
+   module Tabled : TABLED
    (*! sharing Tabled.IntSyn = IntSyn' !*)
    (*! sharing Tabled.CompSyn = CompSyn' !*)
-   structure Solve : SOLVE
+   module Solve : SOLVE
    (*! sharing Solve.IntSyn = IntSyn' !*)
      sharing type Solve.ExtQuery.query = Parser.ExtQuery.query
      sharing type Solve.ExtQuery.define = Parser.ExtQuery.define
      sharing type Solve.ExtQuery.solve = Parser.ExtQuery.solve
-   structure Fquery : FQUERY
+   module Fquery : FQUERY
    (*! sharing Fquery.IntSyn = IntSyn' !*)
      sharing type Fquery.ExtQuery.query = Parser.ExtQuery.query
      sharing type Fquery.ExtQuery.define = Parser.ExtQuery.define
      sharing type Fquery.ExtQuery.solve = Parser.ExtQuery.solve
              (*! sharing Solve.Paths = Paths !*)
-   structure ThmSyn : THMSYN
+   module ThmSyn : THMSYN
    (*! sharing ThmSyn.Paths = Paths !*)
      sharing ThmSyn.Names = Names
-   structure Thm : THM
+   module Thm : THM
      sharing Thm.ThmSyn = ThmSyn
      (*! sharing Thm.Paths = Paths !*)
-   structure ReconThm : RECON_THM
+   module ReconThm : RECON_THM
      sharing ReconThm.ThmSyn = ThmSyn
      (*! sharing ReconThm.Paths = Paths !*)
      (*! sharing ReconThm.ThmSyn.ModeSyn = ModeSyn !*)
@@ -135,63 +135,63 @@ functor Twelf
      sharing type ReconThm.prove = Parser.ThmExtSyn.prove
      sharing type ReconThm.establish = Parser.ThmExtSyn.establish
      sharing type ReconThm.assert = Parser.ThmExtSyn.assert
-   structure ThmPrint : THMPRINT
+   module ThmPrint : THMPRINT
      sharing ThmPrint.ThmSyn = ThmSyn
 
-   structure TabledSyn : TABLEDSYN
+   module TabledSyn : TABLEDSYN
    (*! sharing TabledSyn.IntSyn = IntSyn' !*)
 
-   structure WorldSyn : WORLDSYN
+   module WorldSyn : WORLDSYN
    (*! sharing WorldSyn.IntSyn = IntSyn' !*)
-   structure Worldify : WORLDIFY
-(*   structure WorldPrint : WORLDPRINT *)
+   module Worldify : WORLDIFY
+(*   module WorldPrint : WORLDPRINT *)
    (*! sharing WorldPrint.Tomega = Tomega !*)
 
-   structure ModSyn : MODSYN
+   module ModSyn : MODSYN
    (*! sharing ModSyn.IntSyn = IntSyn' !*)
      sharing ModSyn.Names = Names
      (*! sharing ModSyn.Paths = Paths !*)
-   structure ReconModule : RECON_MODULE
+   module ReconModule : RECON_MODULE
      sharing ReconModule.ModSyn = ModSyn
      sharing type ReconModule.sigdef = Parser.ModExtSyn.sigdef
      sharing type ReconModule.structdec = Parser.ModExtSyn.structdec
      sharing type ReconModule.sigexp = Parser.ModExtSyn.sigexp
      sharing type ReconModule.strexp = Parser.ModExtSyn.strexp
 
-   structure MetaGlobal : METAGLOBAL
-   (*! structure FunSyn : FUNSYN !*)
+   module MetaGlobal : METAGLOBAL
+   (*! module FunSyn : FUNSYN !*)
    (*! sharing FunSyn.IntSyn = IntSyn' !*)
-   structure Skolem : SKOLEM
+   module Skolem : SKOLEM
    (*! sharing Skolem.IntSyn = IntSyn' !*)
-   structure Prover : PROVER
+   module Prover : PROVER
    (*! sharing Prover.IntSyn = IntSyn' !*)
-   structure ClausePrint : CLAUSEPRINT
+   module ClausePrint : CLAUSEPRINT
    (*! sharing ClausePrint.IntSyn = IntSyn' !*)
 
-   structure Trace : TRACE
+   module Trace : TRACE
 
-   structure PrintTeX : PRINT
+   module PrintTeX : PRINT
    (*! sharing PrintTeX.IntSyn = IntSyn' !*)
-   structure ClausePrintTeX : CLAUSEPRINT
+   module ClausePrintTeX : CLAUSEPRINT
    (*! sharing ClausePrintTeX.IntSyn = IntSyn' !*)
 
-   structure CSManager : CS_MANAGER
+   module CSManager : CS_MANAGER
    (*! sharing CSManager.IntSyn = IntSyn' !*)
      sharing CSManager.Fixity = Names.Fixity
    (*! sharing CSManager.ModeSyn = ModeSyn !*)
 
-   structure CSInstaller : CS_INSTALLER
-   structure Compat : COMPAT
-   structure UnknownExn : UNKNOWN_EXN
+   module CSInstaller : CS_INSTALLER
+   module Compat : COMPAT
+   module UnknownExn : UNKNOWN_EXN
 
-   structure Msg : MSG
+   module Msg : MSG
      )
  :> TWELF =
 struct
 
   local
-    (*! structure IntSyn = IntSyn' !*)
-    structure S = Parser.Stream
+    (*! module IntSyn = IntSyn' !*)
+    module S = Parser.Stream
 
     fun msg s = Msg.message s
     fun chmsg n s = Global.chMessage n s msg
@@ -209,20 +209,20 @@ struct
             | _ => msg ("[Closing file " ^ fileName ^ "]\n"))
 
     (* result of a computation *)
-    datatype 'a Result = Value of 'a | Exception of exn
+    type 'a Result = Value of 'a | Exception of exn
 
-    (* val withOpenIn : string -> (TextIO.instream -> 'a) -> 'a *)
-    (* withOpenIn fileName (fn instream => body) = x
+    (* let withOpenIn : string -> (TextIO.instream -> 'a) -> 'a *)
+    (* withOpenIn fileName (fun instream -> body) = x
        opens fileName for input to obtain instream and evaluates body.
        The file is closed during normal and abnormal exit of body.
     *)
     fun withOpenIn (fileName) (scope) =
         let
-          val instream = TextIO.openIn fileName
-          val _ = fileOpenMsg (fileName)
-          val result = Value (scope instream) handle exn => Exception (exn)
-          val _ = fileCloseMsg (fileName)
-          val _ = TextIO.closeIn instream
+          let instream = TextIO.openIn fileName
+          let _ = fileOpenMsg (fileName)
+          let result = Value (scope instream) handle exn => Exception (exn)
+          let _ = fileCloseMsg (fileName)
+          let _ = TextIO.closeIn instream
         in
           case result
             of Value (x) => x
@@ -258,7 +258,7 @@ struct
          msg "\\end{bigcode}\n")
 
     (* status ::= OK | ABORT  is the return status of various operations *)
-    datatype Status = OK | ABORT
+    type Status = OK | ABORT
 
     fun abort chlev (msg) = (chmsg chlev (fn () => msg); ABORT)
     fun abortFileMsg chlev (fileName, msg) = abort chlev (fileName ^ ":" ^ msg ^ "\n")
@@ -281,7 +281,7 @@ struct
     fun constraintsMsg (cnstrL) =
         "Typing ambiguous -- unresolved constraints\n" ^ Print.cnstrsToString cnstrL
 
-    (* val handleExceptions : int -> string -> ('a -> Status) -> 'a -> Status *)
+    (* let handleExceptions : int -> string -> ('a -> Status) -> 'a -> Status *)
     (* handleExceptions chlev filename f x = f x
        where standard exceptions are handled and an appropriate error message is
        issued if chatter level is greater or equal to chlev.
@@ -327,80 +327,80 @@ struct
               | CSManager.Error (msg) => abort chlev ("Constraint Solver Manager error: " ^ msg ^ "\n")
               | exn => (abort 0 (UnknownExn.unknownExn exn); raise exn))
 
-    (* During elaboration of a signature expression, each constant
+    (* During elaboration of a module type expression, each constant
        that that the user declares is added to this table.  At top level,
        however, the reference holds NONE (in particular, shadowing is
        allowed).
     *)
-    val context : Names.namespace option ref = ref NONE
+    let context : Names.namespace option ref = ref NONE
 
     fun installConst fromCS (cid, fileNameocOpt) =
         let
-          val _ = Origins.installOrigin (cid, fileNameocOpt)
-          val _ = Index.install fromCS (IntSyn.Const cid)
-          val _ = IndexSkolem.install fromCS (IntSyn.Const cid)
-          val _ = (Timers.time Timers.compiling Compile.install) fromCS cid
-          val _ = (Timers.time Timers.subordinate Subordinate.install) cid
-          val _ = (Timers.time Timers.subordinate Subordinate.installDef) cid
+          let _ = Origins.installOrigin (cid, fileNameocOpt)
+          let _ = Index.install fromCS (IntSyn.Const cid)
+          let _ = IndexSkolem.install fromCS (IntSyn.Const cid)
+          let _ = (Timers.time Timers.compiling Compile.install) fromCS cid
+          let _ = (Timers.time Timers.subordinate Subordinate.install) cid
+          let _ = (Timers.time Timers.subordinate Subordinate.installDef) cid
         in
           ()
         end
 
     (* installConDec fromCS (conDec, ocOpt)
        installs the constant declaration conDec which originates at ocOpt
-       in various global tables, including the global signature.
+       in various global tables, including the global module type.
        Note: if fromCS = FromCS then the declaration comes from a Constraint
        Solver and some limitations on the types are lifted.
     *)
     fun installConDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
-          val _ = (Timers.time Timers.modes ModeCheck.checkD) (conDec, fileName, ocOpt)
-          val cid = IntSyn.sgnAdd conDec
-          val _ = (case (fromCS, !context)
+          let _ = (Timers.time Timers.modes ModeCheck.checkD) (conDec, fileName, ocOpt)
+          let cid = IntSyn.sgnAdd conDec
+          let _ = (case (fromCS, !context)
                      of (IntSyn.Ordinary, SOME namespace) => Names.insertConst (namespace, cid)
                       | (IntSyn.Clause, SOME namespace) => Names.insertConst (namespace, cid)
                       | _ => ())
                   handle Names.Error msg =>
                     raise Names.Error (Paths.wrap (r, msg))
-          val _ = Names.installConstName cid
-          val _ = installConst fromCS (cid, fileNameocOpt)
+          let _ = Names.installConstName cid
+          let _ = installConst fromCS (cid, fileNameocOpt)
                   handle Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg))
-          val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
-          val _ =  if !Global.style >= 1 then StyleCheck.checkConDec cid else ()
+          let _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
+          let _ =  if !Global.style >= 1 then StyleCheck.checkConDec cid else ()
         in
           cid
         end
 
     fun installBlockDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
-          val cid = IntSyn.sgnAdd conDec
-          val _ = (case (fromCS, !context)
+          let cid = IntSyn.sgnAdd conDec
+          let _ = (case (fromCS, !context)
                      of (IntSyn.Ordinary, SOME namespace) => Names.insertConst (namespace, cid)
                         (* (Clause, _) should be impossible *)
                       | _ => ())
                    handle Names.Error msg =>
                      raise Names.Error (Paths.wrap (r, msg))
-          val _ = Names.installConstName cid
-          (* val _ = Origins.installOrigin (cid, fileNameocOpt) *)
-          val _ = (Timers.time Timers.subordinate Subordinate.installBlock) cid
+          let _ = Names.installConstName cid
+          (* let _ = Origins.installOrigin (cid, fileNameocOpt) *)
+          let _ = (Timers.time Timers.subordinate Subordinate.installBlock) cid
                   handle Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg))
-          val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
+          let _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
         in
           cid
         end
 
     fun installBlockDef fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
-          val cid = IntSyn.sgnAdd conDec
-          val _ = (case (fromCS, !context)
+          let cid = IntSyn.sgnAdd conDec
+          let _ = (case (fromCS, !context)
                      of (IntSyn.Ordinary, SOME namespace) => Names.insertConst (namespace, cid)
                         (* (Clause, _) should be impossible *)
                       | _ => ())
                    handle Names.Error msg =>
                      raise Names.Error (Paths.wrap (r, msg))
-          val _ = Names.installConstName cid
-          (* val _ = Origins.installOrigin (cid, fileNameocOpt) *)
-          val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
+          let _ = Names.installConstName cid
+          (* let _ = Origins.installOrigin (cid, fileNameocOpt) *)
+          let _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
         in
           cid
         end
@@ -415,7 +415,7 @@ struct
                else ())
 
 
-          val _ = ModSyn.installStruct (strdec, module, !context,
+          let _ = ModSyn.installStruct (strdec, module, !context,
                                         installAction, isDef)
                   handle Names.Error msg =>
                            raise Names.Error (Paths.wrap (r, msg))
@@ -431,7 +431,7 @@ struct
                  then msg (Print.conDecToString (IntSyn.sgnLookup cid) ^ "\n")
                else ())
 
-          val _ = ModSyn.installSig (module, !context,
+          let _ = ModSyn.installSig (module, !context,
                                      installAction, isDef)
                   handle Names.Error msg =>
                            raise Names.Error (Paths.wrap (r, msg))
@@ -443,8 +443,8 @@ struct
 
     fun invalidate uninstallFun cids msg =
         let
-          val uninstalledCids = List.filter (fn a => uninstallFun a) cids
-          val _ = case uninstalledCids
+          let uninstalledCids = List.filter (fun a -> uninstallFun a) cids
+          let _ = case uninstalledCids
                     of nil => ()
                      | _ => chmsg 4
                             (fn () => "Invalidated " ^ msg ^ " properties of families"
@@ -462,28 +462,28 @@ struct
     fun install1 (fileName, (Parser.ConDec condec, r)) =
         (* Constant declarations c : V, c : V = U plus variations *)
         (let
-           val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), false)
+           let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), false)
            fun icd (SOME (conDec as IntSyn.BlockDec _)) =
                let
                  (* allocate new cid. *)
-                 val cid = installBlockDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                 let cid = installBlockDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
                in
                  ()
                end
              | icd (SOME (conDec as IntSyn.BlockDef _)) =
                let
                  (* allocate new cid. *)
-                 val cid = installBlockDef IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                 let cid = installBlockDef IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
                in
                  ()
                end
              | icd (SOME (conDec)) =
                let
                  (* names are assigned in ReconConDec *)
-                 (* val conDec' = nameConDec (conDec) *)
+                 (* let conDec' = nameConDec (conDec) *)
                  (* should print here, not in ReconConDec *)
                  (* allocate new cid after checking modes! *)
-                 val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                 let cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
                in
                  ()
                end
@@ -498,14 +498,14 @@ struct
       | install1 (fileName, (Parser.AbbrevDec condec, r)) =
         (* Abbreviations %abbrev c = U and %abbrev c : V = U *)
         (let
-          val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), true)
+          let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), true)
           fun icd (SOME(conDec)) =
               let
                   (* names are assigned in ReconConDec *)
-                  (* val conDec' = nameConDec (conDec) *)
+                  (* let conDec' = nameConDec (conDec) *)
                   (* should print here, not in ReconConDec *)
                   (* allocate new cid after checking modes! *)
-                  val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                  let cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
               in
                 ()
               end
@@ -521,11 +521,11 @@ struct
         (* Clauses %clause c = U or %clause c : V = U or %clause c : V *)
         (* these are like definitions, but entered into the program table *)
         (let
-           (* val _ = print "%clause " *)
-           val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName, r), false)
+           (* let _ = print "%clause " *)
+           let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName, r), false)
            fun icd (SOME (conDec)) =
                let
-                 val cid = installConDec IntSyn.Clause (conDec, (fileName, ocOpt), r)
+                 let cid = installConDec IntSyn.Clause (conDec, (fileName, ocOpt), r)
                in
                  ()
                end
@@ -540,7 +540,7 @@ struct
       (* Solve declarations %solve c : A *)
       | install1 (fileName, (Parser.Solve (defines, solve), r)) =
         (let
-          val conDecL = Solve.solve (defines, solve, Paths.Loc (fileName, r))
+          let conDecL = Solve.solve (defines, solve, Paths.Loc (fileName, r))
                         handle Solve.AbortQuery (msg) =>
                          raise Solve.AbortQuery (Paths.wrap (r, msg))
           fun icd (conDec, ocOpt) =
@@ -548,7 +548,7 @@ struct
              (* should print here, not in ReconQuery *)
              (* allocate new cid after checking modes! *)
              (* allocate cid after strictness has been checked! *)
-             val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+             let cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
 
            in
              ()
@@ -582,14 +582,14 @@ struct
       (* %trustme <decl> *)
       | install1 (fileName, (Parser.TrustMe(dec,r'), r)) =
         let
-          val _ = if not (!Global.unsafe)
+          let _ = if not (!Global.unsafe)
                     then raise Thm.Error("%trustme not safe: Toggle `unsafe' flag")
                   else ()
-          val _ = chmsg 3 (fn () => "[%trustme ...\n")
-          val _ = case handleExceptions 4 fileName (fn args => (install1 args; OK)) (fileName, (dec, r))
+          let _ = chmsg 3 (fn () => "[%trustme ...\n")
+          let _ = case handleExceptions 4 fileName (fun args -> (install1 args; OK)) (fileName, (dec, r))
                    of OK => chmsg 3 (fn () => "trustme subject succeeded\n")
                     | ABORT => chmsg 3 (fn () => "trustme subject failed; continuing\n")
-          val _ = chmsg 3 (fn () => "%]\n")
+          let _ = chmsg 3 (fn () => "%]\n")
         in
           ()
         end
@@ -603,10 +603,10 @@ struct
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in subord declaration")
                  | SOME cid => cid
-          val cidpairs = List.map (fn (qid1, qid2) => (toCid qid1, toCid qid2)) qidpairs
+          let cidpairs = List.map (fn (qid1, qid2) => (toCid qid1, toCid qid2)) qidpairs
                      handle Names.Error (msg) =>
                        raise Names.Error (Paths.wrap (r, msg))
-          val _ = List.app Subordinate.addSubord cidpairs
+          let _ = List.app Subordinate.addSubord cidpairs
                     handle Subordinate.Error (msg) =>
                       raise Subordinate.Error (Paths.wrap (r, msg))
         in
@@ -628,10 +628,10 @@ struct
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in freeze declaration")
                  | SOME cid => cid
-          val cids = List.map toCid qids
+          let cids = List.map toCid qids
                      handle Names.Error (msg) =>
                        raise Names.Error (Paths.wrap (r, msg))
-          val frozen = Subordinate.freeze cids
+          let frozen = Subordinate.freeze cids
                        handle Subordinate.Error (msg) =>
                          raise Subordinate.Error (Paths.wrap (r, msg))
         in
@@ -648,7 +648,7 @@ struct
       (* %thaw <qid> ... *)
       | install1 (fileName, (Parser.ThawDec (qids), r)) =
         let
-          val _ = if not (!Global.unsafe)
+          let _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%thaw not safe: Toggle `unsafe' flag"
                   else ()
           fun toCid qid =
@@ -657,25 +657,25 @@ struct
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in thaw declaration")
                  | SOME cid => cid
-          val cids = List.map toCid qids
+          let cids = List.map toCid qids
                      handle Names.Error (msg) => raise Names.Error (Paths.wrap (r, msg))
-          val thawed = Subordinate.thaw cids
+          let thawed = Subordinate.thaw cids
                         handle Subordinate.Error(msg) =>
                           raise Subordinate.Error (Paths.wrap (r, msg))
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%thaw"
                                 ^ List.foldr (fn (a, s) => " " ^ cidToString a ^ s) ".\n" cids)
                   else ()
-          val _ = if !Global.chatter >= 4
+          let _ = if !Global.chatter >= 4
                     then msg ("Thawed" ^ List.foldr (fn (a,s) => " " ^ cidToString a ^ s) "\n" thawed)
                   else ()
           (* invalidate prior meta-theoretic properteis of signatures *)
           (* exempt only %mode [incremental], %covers [not stored] *)
-          val _ = invalidate WorldSyn.uninstall thawed "world"
-          val _ = invalidate Thm.uninstallTerminates thawed "termination"
-          val _ = invalidate Thm.uninstallReduces thawed "reduction"
-          val _ = invalidate UniqueTable.uninstallMode thawed "uniqueness"
-          val _ = invalidate Total.uninstall thawed "totality"
+          let _ = invalidate WorldSyn.uninstall thawed "world"
+          let _ = invalidate Thm.uninstallTerminates thawed "termination"
+          let _ = invalidate Thm.uninstallReduces thawed "reduction"
+          let _ = invalidate UniqueTable.uninstallMode thawed "uniqueness"
+          let _ = invalidate Total.uninstall thawed "totality"
         in
           ()
         end
@@ -691,7 +691,7 @@ struct
                                        ^ " in deterministic declaration")
                  | SOME cid => cid
           fun insertCid cid = CompSyn.detTableInsert (cid, true)
-          val cids = List.map toCid qids
+          let cids = List.map toCid qids
                        handle Names.Error (msg) =>
                          raise Names.Error (Paths.wrap (r, msg))
         in
@@ -712,7 +712,7 @@ struct
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in compile assertion")
                  | SOME cid => cid
-          val cids = List.map toCid qids
+          let cids = List.map toCid qids
                      handle Names.Error (msg) => raise Names.Error (Paths.wrap (r, msg))
 
           (* MOVED -- ABP 4/4/03 *)
@@ -720,29 +720,29 @@ struct
           fun checkFreeOut nil = ()
             | checkFreeOut (a :: La) =
               let
-                val SOME ms = ModeTable.modeLookup a
-                val _ = ModeCheck.checkFreeOut (a, ms)
+                let SOME ms = ModeTable.modeLookup a
+                let _ = ModeCheck.checkFreeOut (a, ms)
               in
                 checkFreeOut La
               end
 
-          val _ = checkFreeOut cids
+          let _ = checkFreeOut cids
           (* ******************************************* *)
 
-          val (lemma, projs, sels) = Converter.installPrg cids
-          val P = Tomega.lemmaDef lemma
-          val F = Converter.convertFor cids
-          val _ = TomegaTypeCheck.checkPrg (IntSyn.Null, (P, F))
+          let (lemma, projs, sels) = Converter.installPrg cids
+          let P = Tomega.lemmaDef lemma
+          let F = Converter.convertFor cids
+          let _ = TomegaTypeCheck.checkPrg (IntSyn.Null, (P, F))
 
           fun f cid = IntSyn.conDecName (IntSyn.sgnLookup cid)
 
-          val _ = if !Global.chatter >= 2
+          let _ = if !Global.chatter >= 2
                     then msg ("\n" ^
                                 TomegaPrint.funToString ((map f cids, projs), P)
                                 ^ "\n")
                   else ()
 
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ((if !Global.chatter >= 4 then "%" else "")
                                 ^ "%compile"
                                 ^ List.foldr (fn (a, s) => " " ^ Names.qidToString (Names.constQid a) ^ s) ".\n" cids)
@@ -777,9 +777,9 @@ struct
       (* Mode declaration *)
       | install1 (fileName, (Parser.ModeDec mterms, r)) =
         let
-          val mdecs = List.map ReconMode.modeToMode mterms
-          val _ = ReconTerm.checkErrors (r)
-          val _ = List.app (fn (mdec as (a, _), r) =>
+          let mdecs = List.map ReconMode.modeToMode mterms
+          let _ = ReconTerm.checkErrors (r)
+          let _ = List.app (fn (mdec as (a, _), r) =>
                             case ModeTable.modeLookup a
                               of NONE => ()
                                | SOME _ =>
@@ -787,17 +787,17 @@ struct
                                    then raise ModeTable.Error (Paths.wrap (r, "Cannot redeclare mode for frozen constant " ^ Names.qidToString (Names.constQid a)))
                                  else ())
                   mdecs
-          val _ = List.app (fn (mdec as (a, _), r) =>
+          let _ = List.app (fn (mdec as (a, _), r) =>
                             (case (IntSyn.conDecStatus (IntSyn.sgnLookup a))
                                of IntSyn.Normal => ModeTable.installMode mdec
                                 | _ => raise ModeTable.Error "Cannot declare modes for foreign constants")
                             handle ModeTable.Error (msg) => raise ModeTable.Error (Paths.wrap (r, msg)))
                   mdecs
-          val _ = List.app (fn mdec => ModeDec.checkPure mdec) mdecs
-          val _ = List.app (fn (mdec, r) => ModeCheck.checkMode mdec (* exception comes with location *)
+          let _ = List.app (fun mdec -> ModeDec.checkPure mdec) mdecs
+          let _ = List.app (fn (mdec, r) => ModeCheck.checkMode mdec (* exception comes with location *)
                             handle ModeCheck.Error (msg) => raise ModeCheck.Error (msg))
                   mdecs
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%mode " ^ ModePrint.modesToString
                                            (List.map (fn (mdec, r) => mdec) mdecs)
                                          ^ ".\n")
@@ -809,21 +809,21 @@ struct
       (* Unique declaration *)
       | install1 (fileName, (Parser.UniqueDec mterms, r)) =
         let
-          val mdecs = List.map ReconMode.modeToMode mterms
-          val _ = ReconTerm.checkErrors (r)
+          let mdecs = List.map ReconMode.modeToMode mterms
+          let _ = ReconTerm.checkErrors (r)
           (* convert all UniqueTable.Error to Unique.Error *)
-          val _ = List.app (fn (mdec as (a, _), r) =>
+          let _ = List.app (fn (mdec as (a, _), r) =>
                             (case (IntSyn.conDecStatus (IntSyn.sgnLookup a))
                                of IntSyn.Normal => UniqueTable.installMode mdec
                                 | _ => raise UniqueTable.Error "Cannot declare modes for foreign constants")
                             handle UniqueTable.Error (msg) => raise Unique.Error (Paths.wrap (r, msg)))
                   mdecs
           (* Timing added to coverage --- fix !!! -fp Sun Aug 17 12:17:51 2003 *)
-          val _ = List.app (fn (mdec, r) => (Timers.time Timers.coverage Unique.checkUnique) mdec
+          let _ = List.app (fn (mdec, r) => (Timers.time Timers.coverage Unique.checkUnique) mdec
                                 handle Unique.Error (msg) => raise Unique.Error (Paths.wrap (r, msg)))
                   mdecs
           (* %unique does not auto-freeze, since family must already be frozen *)
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%unique " ^ ModePrint.modesToString
                                            (List.map (fn (mdec, r) => mdec) mdecs)
                                          ^ ".\n")
@@ -835,13 +835,13 @@ struct
       (* Coverage declaration *)
       | install1 (fileName, (Parser.CoversDec mterms, r)) =
         let
-          val mdecs = List.map ReconMode.modeToMode mterms
-          val _ = ReconTerm.checkErrors (r)
-          val _ = List.app (fn mdec => ModeDec.checkPure mdec) mdecs   (* MERGE Fri Aug 22 13:43:12 2003 -cs *)
-          val _ = List.app (fn (mdec, r) => (Timers.time Timers.coverage Cover.checkCovers) mdec
+          let mdecs = List.map ReconMode.modeToMode mterms
+          let _ = ReconTerm.checkErrors (r)
+          let _ = List.app (fun mdec -> ModeDec.checkPure mdec) mdecs   (* MERGE Fri Aug 22 13:43:12 2003 -cs *)
+          let _ = List.app (fn (mdec, r) => (Timers.time Timers.coverage Cover.checkCovers) mdec
                             handle Cover.Error (msg) => raise Cover.Error (Paths.wrap (r, msg)))
                   mdecs
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%covers " ^ ModePrint.modesToString
                                              (List.map (fn (mdec, r) => mdec) mdecs)
                                            ^ ".\n")
@@ -857,46 +857,46 @@ struct
         (* Mon Dec  2 17:20:18 2002 -fp *)
         (* coverage checker appears to be safe now *)
           (*
-          val _ = if not (!Global.unsafe)
+          let _ = if not (!Global.unsafe)
                     then raise Total.Error (Paths.wrapLoc (Paths.Loc (fileName, r), "%total not safe: Toggle `unsafe' flag"))
                   else ()
           *)
-          val (T, rrs as (r,rs)) = ReconThm.tdeclTotDecl lterm
-          val La = Thm.installTotal (T, rrs)
+          let (T, rrs as (r,rs)) = ReconThm.tdeclTotDecl lterm
+          let La = Thm.installTotal (T, rrs)
 
 (* ******************************************* *)
 (*  Temporarily disabled -- cs Thu Oct 30 12:46:44 2003
           fun checkFreeOut nil = ()
             | checkFreeOut (a :: La) =
               let
-                val SOME ms = ModeTable.modeLookup a
-                val _ = ModeCheck.checkFreeOut (a, ms)
+                let SOME ms = ModeTable.modeLookup a
+                let _ = ModeCheck.checkFreeOut (a, ms)
               in
                 checkFreeOut La
               end
-          val _ = checkFreeOut La
-          val (lemma, projs, sels) = Converter.installPrg La
+          let _ = checkFreeOut La
+          let (lemma, projs, sels) = Converter.installPrg La
 
 
           (* ABP 2/28/03 -- factoring *)
-          val _ = if (!Global.chatter >= 4) then print ("[Factoring ...") else ()
-          val P = Redundant.convert (Tomega.lemmaDef lemma)
-          val _ = if (!Global.chatter >= 4) then print ("]\n") else ()
+          let _ = if (!Global.chatter >= 4) then print ("[Factoring ...") else ()
+          let P = Redundant.convert (Tomega.lemmaDef lemma)
+          let _ = if (!Global.chatter >= 4) then print ("]\n") else ()
 
-          val F = Converter.convertFor La
+          let F = Converter.convertFor La
 
-          val _ = if !Global.chatter >= 2
+          let _ = if !Global.chatter >= 2
                     then print (TomegaPrint.funToString ((map (fn (cid) => IntSyn.conDecName (IntSyn.sgnLookup cid)) La,
                                                           projs), P) ^ "\n")
                   else ()
 
-          val _ = TomegaTypeCheck.checkPrg (IntSyn.Null, (P, F))
+          let _ = TomegaTypeCheck.checkPrg (IntSyn.Null, (P, F))
 
-          val result1 = (TomegaCoverage.coverageCheckPrg (WorldSyn.lookup (hd La), IntSyn.Null, P); NONE)
+          let result1 = (TomegaCoverage.coverageCheckPrg (WorldSyn.lookup (hd La), IntSyn.Null, P); NONE)
                         handle TomegaCoverage.Error msg => SOME msg
 
 
-(*      val result1 = NONE *)
+(*      let result1 = NONE *)
 
           fun covererror (SOME msg1, msg2) = raise Cover.Error (Paths.wrap (r, "Functional and relational coverage checker report coverage error:\n[Functional] "
                                                                             ^ msg1 ^ "\n[Relational] " ^ msg2))
@@ -904,19 +904,19 @@ struct
 
 7 ******************************************* *)
 
-          val _ = map Total.install La  (* pre-install for recursive checking *)
-          val _ = map Total.checkFam La
+          let _ = map Total.install La  (* pre-install for recursive checking *)
+          let _ = map Total.checkFam La
                   handle Total.Error (msg) => raise Total.Error (msg) (* include region and file *)
                        | Cover.Error (msg) => raise Cover.Error (Paths.wrap (r, msg))
 (*                     | Cover.Error (msg) => covererror (result1, msg)  disabled -cs Thu Jan 29 16:35:13 2004 *)
                        | Reduces.Error (msg) => raise Reduces.Error (msg) (* includes filename *)
                        | Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg))
-(*        val _ = case (result1)
+(*        let _ = case (result1)
                     of NONE => ()
                      | SOME msg => raise Cover.Error (Paths.wrap (r, "Relational coverage succeeds, funcational fails:\n This indicates a bug in the functional checker.\n[Functional] " ^ msg))
 *)
           (* %total does not auto-freeze, since the predicate must already be frozen *)
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%total " ^ ThmPrint.tDeclToString T ^ ".\n")
                   else ()
         in
@@ -926,12 +926,12 @@ struct
       (* Termination declaration *)
       | install1 (fileName, (Parser.TerminatesDec lterm, _)) =
         let
-          val (T, rrs as (r, rs)) = ReconThm.tdeclTotDecl lterm
-          val ThmSyn.TDecl (_, ThmSyn.Callpats(callpats)) = T
+          let (T, rrs as (r, rs)) = ReconThm.tdeclTotDecl lterm
+          let ThmSyn.TDecl (_, ThmSyn.Callpats(callpats)) = T
           (* allow re-declaration since safe? *)
           (* Thu Mar 10 13:45:42 2005 -fp *)
           (*
-          val _ = ListPair.app (fn ((a, _), r) =>
+          let _ = ListPair.app (fn ((a, _), r) =>
                             if Subordinate.frozen [a]
                               andalso ((Order.selLookup a; true) handle Order.Error _ => false)
                             then raise Total.Error (fileName ^ ":"
@@ -940,10 +940,10 @@ struct
                             else ())
                   (callpats, rs)
           *)
-          val La = Thm.installTerminates (T, rrs)
-          val _ = map (Timers.time Timers.terminate Reduces.checkFam) La
-          val _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else ()
-          val _ = if !Global.chatter >= 3
+          let La = Thm.installTerminates (T, rrs)
+          let _ = map (Timers.time Timers.terminate Reduces.checkFam) La
+          let _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else ()
+          let _ = if !Global.chatter >= 3
                     then msg ("%terminates " ^ ThmPrint.tDeclToString T ^ ".\n")
                   else ()
         in
@@ -954,12 +954,12 @@ struct
         (* Reduces declaration *)
       | install1 (fileName, (Parser.ReducesDec lterm, _)) =
         let
-          val (R, rrs as (r, rs)) = ReconThm.rdeclTorDecl lterm
-          val ThmSyn.RDecl (_, ThmSyn.Callpats(callpats)) = R
+          let (R, rrs as (r, rs)) = ReconThm.rdeclTorDecl lterm
+          let ThmSyn.RDecl (_, ThmSyn.Callpats(callpats)) = R
           (* allow re-declaration since safe? *)
           (* Thu Mar 10 14:06:13 2005 -fp *)
           (*
-          val _ = ListPair.app (fn ((a, _), r) =>
+          let _ = ListPair.app (fn ((a, _), r) =>
                             if Subordinate.frozen [a]
                               andalso ((Order.selLookupROrder a; true) handle Order.Error _ => false)
                             then raise Total.Error (fileName ^ ":"
@@ -968,11 +968,11 @@ struct
                             else ())
                   (callpats, rs)
           *)
-          val La = Thm.installReduces (R, rrs)
+          let La = Thm.installReduces (R, rrs)
           (*  -bp6/12/99.   *)
-          val _ = map (Timers.time Timers.terminate Reduces.checkFamReduction) La
-          val _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else ()
-          val _ = if !Global.chatter >= 3
+          let _ = map (Timers.time Timers.terminate Reduces.checkFamReduction) La
+          let _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else ()
+          let _ = if !Global.chatter >= 3
                     then msg ("%reduces " ^ ThmPrint.rDeclToString R ^ ".\n")
                   else ()
         in
@@ -982,10 +982,10 @@ struct
         (* Tabled declaration *)
       | install1 (fileName, (Parser.TabledDec tdecl, _)) =
         let
-          val (T,r) = ReconThm.tableddeclTotabledDecl tdecl
-          val La = Thm.installTabled T
+          let (T,r) = ReconThm.tableddeclTotabledDecl tdecl
+          let La = Thm.installTabled T
           (*  -bp6/12/99.   *)
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%tabled " ^ ThmPrint.tabledDeclToString T ^ ".\n")
                   else ()
         in
@@ -995,9 +995,9 @@ struct
       (* %keepTable declaration *)
       | install1 (fileName, (Parser.KeepTableDec tdecl, _)) =
         let
-          val (T,r) = ReconThm.keepTabledeclToktDecl tdecl
-          val La = Thm.installKeepTable T
-          val _ = if !Global.chatter >= 3
+          let (T,r) = ReconThm.keepTabledeclToktDecl tdecl
+          let La = Thm.installKeepTable T
+          let _ = if !Global.chatter >= 3
                     then msg ("%keeptabled " ^ ThmPrint.keepTableDeclToString T ^ ".\n")
                   else ()
         in
@@ -1008,17 +1008,17 @@ struct
       (* Theorem declaration *)
       | install1 (fileName, (Parser.TheoremDec tdec, r)) =
         let
-          val Tdec = ReconThm.theoremDecToTheoremDec tdec
-          val _ = ReconTerm.checkErrors (r)
-          val (GBs, E as IntSyn.ConDec (name, _, k, _, V, L)) = ThmSyn.theoremDecToConDec (Tdec, r)
-          val _ = FunSyn.labelReset ()
-          val _ = List.foldr (fn ((G1, G2), k) => FunSyn.labelAdd
+          let Tdec = ReconThm.theoremDecToTheoremDec tdec
+          let _ = ReconTerm.checkErrors (r)
+          let (GBs, E as IntSyn.ConDec (name, _, k, _, V, L)) = ThmSyn.theoremDecToConDec (Tdec, r)
+          let _ = FunSyn.labelReset ()
+          let _ = List.foldr (fn ((G1, G2), k) => FunSyn.labelAdd
                             (FunSyn.LabelDec (Int.toString k, FunSyn.ctxToList G1, FunSyn.ctxToList G2))) 0 GBs
 
-          val cid = installConDec IntSyn.Ordinary (E, (fileName, NONE), r)
-          val MS = ThmSyn.theoremDecToModeSpine (Tdec, r)
-          val _ = ModeTable.installMode (cid, MS)
-          val _ = if !Global.chatter >= 3
+          let cid = installConDec IntSyn.Ordinary (E, (fileName, NONE), r)
+          let MS = ThmSyn.theoremDecToModeSpine (Tdec, r)
+          let _ = ModeTable.installMode (cid, MS)
+          let _ = if !Global.chatter >= 3
                     then msg ("%theorem " ^ Print.conDecToString E ^ "\n")
                   else ()
         in
@@ -1028,66 +1028,66 @@ struct
       (* Prove declaration *)
       | install1 (fileName, (Parser.ProveDec lterm, r)) =
         let
-          val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.proveToProve lterm
-          val La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
-          val _ = if !Global.chatter >= 3
+          let (ThmSyn.PDecl (depth, T), rrs) = ReconThm.proveToProve lterm
+          let La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
+          let _ = if !Global.chatter >= 3
                     then msg ("%prove " ^ (Int.toString depth) ^ " " ^
                                        (ThmPrint.tDeclToString T) ^ ".\n")
                   else ()
-          val _ = Prover.init (depth, La)
-          val _ = if !Global.chatter >= 3
-                    then map (fn a => msg ("%mode " ^
+          let _ = Prover.init (depth, La)
+          let _ = if !Global.chatter >= 3
+                    then map (fun a -> msg ("%mode " ^
                                              (ModePrint.modeToString (a, valOf (ModeTable.modeLookup a)))
                                              ^ ".\n")) La   (* mode must be declared!*)
                   else [()]
 
-          val _ = Prover.auto ()
+          let _ = Prover.auto ()
                   handle Prover.Error msg
                          => raise Prover.Error (Paths.wrap (joinregion rrs, msg)) (* times itself *)
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%QED\n")
                   else ()
 
         in
-          (Prover.install (fn E => installConDec IntSyn.Ordinary (E, (fileName, NONE), r));
+          (Prover.install (fun E -> installConDec IntSyn.Ordinary (E, (fileName, NONE), r));
            Skolem.install La)
         end
 
       (* Establish declaration *)
       | install1 (fileName, (Parser.EstablishDec lterm, r)) =
         let
-          val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.establishToEstablish lterm
-          val La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
-          val _ = if !Global.chatter >= 3
+          let (ThmSyn.PDecl (depth, T), rrs) = ReconThm.establishToEstablish lterm
+          let La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
+          let _ = if !Global.chatter >= 3
                     then msg ("%prove " ^ (Int.toString depth) ^ " " ^
                                        (ThmPrint.tDeclToString T) ^ ".\n")
                   else ()
-          val _ = Prover.init (depth, La)
-          val _ = if !Global.chatter >= 3
-                    then map (fn a => msg ("%mode " ^
+          let _ = Prover.init (depth, La)
+          let _ = if !Global.chatter >= 3
+                    then map (fun a -> msg ("%mode " ^
                                              (ModePrint.modeToString (a, valOf (ModeTable.modeLookup a)))
                                              ^ ".\n")) La   (* mode must be declared!*)
                   else [()]
 
-          val _ = Prover.auto () handle Prover.Error msg => raise Prover.Error (Paths.wrap (joinregion rrs, msg)) (* times itself *)
+          let _ = Prover.auto () handle Prover.Error msg => raise Prover.Error (Paths.wrap (joinregion rrs, msg)) (* times itself *)
 
         in
-          Prover.install (fn E => installConDec IntSyn.Ordinary (E, (fileName, NONE), r))
+          Prover.install (fun E -> installConDec IntSyn.Ordinary (E, (fileName, NONE), r))
         end
 
       (* Assert declaration *)
       | install1 (fileName, (Parser.AssertDec aterm, _)) =
         let
-          val _ = if not (!Global.unsafe)
+          let _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%assert not safe: Toggle `unsafe' flag"
                   else ()
-          val (cp as ThmSyn.Callpats (L), rrs) = ReconThm.assertToAssert aterm
-          val La = map (fn (c, P) => c) L  (* La is the list of type constants *)
-          val _ = if !Global.chatter >= 3
+          let (cp as ThmSyn.Callpats (L), rrs) = ReconThm.assertToAssert aterm
+          let La = map (fn (c, P) => c) L  (* La is the list of type constants *)
+          let _ = if !Global.chatter >= 3
                     then msg ("%assert " ^ (ThmPrint.callpatsToString cp) ^ ".\n")
                   else ()
-          val _ = if !Global.chatter >= 3
-                    then map (fn a => msg ("%mode " ^
+          let _ = if !Global.chatter >= 3
+                    then map (fun a -> msg ("%mode " ^
                                              (ModePrint.modeToString (a, valOf (ModeTable.modeLookup a)))
                                              ^ ".\n")) La   (* mode must be declared!*)
                   else [()]
@@ -1097,9 +1097,9 @@ struct
 
       | install1 (fileName, (Parser.WorldDec wdecl, _)) =
         let
-          val (ThmSyn.WDecl (qids, cp as ThmSyn.Callpats cpa), rs) =
+          let (ThmSyn.WDecl (qids, cp as ThmSyn.Callpats cpa), rs) =
                  ReconThm.wdeclTowDecl wdecl
-          val _ = ListPair.app (fn ((a, _), r) =>
+          let _ = ListPair.app (fn ((a, _), r) =>
                     if Subordinate.frozen [a]
                       then raise WorldSyn.Error (Paths.wrapLoc (Paths.Loc (fileName, r), "Cannot declare worlds for frozen family "
                                                                 ^ Names.qidToString (Names.constQid a)))
@@ -1111,21 +1111,21 @@ struct
                   of IntSyn.BlockDec _ => flatten L (cid :: F)
                    | IntSyn.BlockDef (_, _, L') => flatten (L @ L') F)
 
-          val W = Tomega.Worlds (flatten
-              (List.map (fn qid => case Names.constLookup qid
+          let W = Tomega.Worlds (flatten
+              (List.map (fun qid -> case Names.constLookup qid
                                     of NONE => raise Names.Error ("Undeclared label "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
                                          ^ ".")
                                      | SOME cid => cid)
               qids) nil)
-          val _ = List.app (fn (a, _) => WorldSyn.install (a, W)) cpa
+          let _ = List.app (fn (a, _) => WorldSyn.install (a, W)) cpa
                   handle WorldSyn.Error (msg)
                          (* error location inaccurate here *)
                          => raise WorldSyn.Error (Paths.wrapLoc (Paths.Loc (fileName, joinregions rs), msg))
-          val _ = if !Global.autoFreeze
+          let _ = if !Global.autoFreeze
                     then (Subordinate.freeze (List.map (fn (a, _) => a) cpa) ; ())
                   else ()
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%worlds " ^ Print.worldsToString W ^ " "
                                 ^ ThmPrint.callpatsToString cp ^ ".\n")
                   else ()
@@ -1153,15 +1153,15 @@ struct
         (* Signature declaration *)
         let
           (* FIX: should probably time this -kw *)
-          val (idOpt, module, wherecls) =
+          let (idOpt, module, wherecls) =
                 ReconModule.sigdefToSigdef (sigdef, moduleOpt)
-          val module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
-          val name = (case idOpt
+          let module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
+          let name = (case idOpt
                         of SOME id => (ModSyn.installSigDef (id, module');
                                        id)
                          | NONE => "_" (* anonymous *))
                   handle ModSyn.Error msg => raise ModSyn.Error (Paths.wrap (r, msg))
-          val _ = if !Global.chatter >= 3
+          let _ = if !Global.chatter >= 3
                     then msg ("%sig " ^ name ^ " = { ... }.\n")
                   else ()
         in
@@ -1172,13 +1172,13 @@ struct
         (case ReconModule.structdecToStructDec (structdec, moduleOpt)
            of ReconModule.StructDec (idOpt, module, wherecls) =>
               let
-                val module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
-                val name = (case idOpt
+                let module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
+                let name = (case idOpt
                               of SOME id =>
                                    (installStrDec (IntSyn.StrDec (id, NONE), module', r, false);
                                     id)
                                | NONE => "_" (* anonymous *))
-                val _ = if !Global.chatter = 3
+                let _ = if !Global.chatter = 3
                           then msg ("%struct " ^ name ^ " : { ... }.\n")
                         else ()
               in
@@ -1186,14 +1186,14 @@ struct
               end
             | ReconModule.StructDef (idOpt, mid) =>
               let
-                val ns = Names.getComponents mid
-                val module = ModSyn.abstractModule (ns, SOME mid)
-                val name = (case idOpt
+                let ns = Names.getComponents mid
+                let module = ModSyn.abstractModule (ns, SOME mid)
+                let name = (case idOpt
                               of SOME id =>
                                    (installStrDec (IntSyn.StrDec (id, NONE), module, r, true);
                                     id)
                                | NONE => "_" (* anonymous *))
-                val _ = if !Global.chatter = 3
+                let _ = if !Global.chatter = 3
                           then msg ("%struct " ^ name ^ " = " ^ Names.qidToString (Names.structQid mid) ^ ".\n")
                         else ()
               in
@@ -1203,10 +1203,10 @@ struct
       | install1WithSig (fileName, moduleOpt, (Parser.Include sigexp, r)) =
         (* Include declaration *)
         let
-          val (module, wherecls) = ReconModule.sigexpToSigexp (sigexp, moduleOpt)
-          val module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
-          val _ = includeSig (module', r, false)
-          val _ = if !Global.chatter = 3
+          let (module, wherecls) = ReconModule.sigexpToSigexp (sigexp, moduleOpt)
+          let module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
+          let _ = includeSig (module', r, false)
+          let _ = if !Global.chatter = 3
                     then msg ("%include { ... }.\n")
                   else ()
         in
@@ -1216,11 +1216,11 @@ struct
       | install1WithSig (fileName, NONE, (Parser.Open strexp, r)) =
         (* Open declaration *)
         let
-          val mid = ReconModule.strexpToStrexp strexp
-          val ns = Names.getComponents mid
-          val module = ModSyn.abstractModule (ns, SOME mid)
-          val _ = includeSig (module, r, true)
-          val _ = if !Global.chatter = 3
+          let mid = ReconModule.strexpToStrexp strexp
+          let ns = Names.getComponents mid
+          let module = ModSyn.abstractModule (ns, SOME mid)
+          let _ = includeSig (module, r, true)
+          let _ = if !Global.chatter = 3
                     then msg ("%open " ^ Names.qidToString (Names.structQid mid) ^ ".\n")
                   else ()
         in
@@ -1229,13 +1229,13 @@ struct
 
     fun installSubsig (fileName, s) =
         let
-          val namespace = Names.newNamespace ()
+          let namespace = Names.newNamespace ()
 
-          val (mark, markStruct) = IntSyn.sgnSize ()
-          val markSigDef = ModSyn.sigDefSize ()
-          val oldContext = !context
-          val _ = context := SOME namespace
-          val _ = if !Global.chatter >= 4
+          let (mark, markStruct) = IntSyn.sgnSize ()
+          let markSigDef = ModSyn.sigDefSize ()
+          let oldContext = !context
+          let _ = context := SOME namespace
+          let _ = if !Global.chatter >= 4
                     then msg ("\n% begin subsignature\n")
                   else ()
 
@@ -1246,11 +1246,11 @@ struct
             | install' (S.Cons (declr, s')) =
                 (install1 (fileName, declr); install s')
 
-          val result =
+          let result =
               let
-                val s' = install s
-                val module = ModSyn.abstractModule (namespace, NONE)
-                val _ = if !Global.chatter >= 4
+                let s' = install s
+                let module = ModSyn.abstractModule (namespace, NONE)
+                let _ = if !Global.chatter >= 4
                           then msg ("% end subsignature\n\n")
                         else ()
               in
@@ -1258,24 +1258,24 @@ struct
               end
               handle exn => Exception exn
 
-          val _ = context := oldContext
+          let _ = context := oldContext
 
-          val _ = Names.resetFrom (mark, markStruct)
-          val _ = Index.resetFrom mark
-          val _ = IndexSkolem.resetFrom mark
-          val _ = ModSyn.resetFrom markSigDef
-          (* val _ = ModeTable.resetFrom mark *)
-          (* val _ = Total.resetFrom mark *)
-          (* val _ = Subordinate.resetFrom mark (* ouch! *) *)
-          (* val _ = Reduces.resetFrom mark *)
+          let _ = Names.resetFrom (mark, markStruct)
+          let _ = Index.resetFrom mark
+          let _ = IndexSkolem.resetFrom mark
+          let _ = ModSyn.resetFrom markSigDef
+          (* let _ = ModeTable.resetFrom mark *)
+          (* let _ = Total.resetFrom mark *)
+          (* let _ = Subordinate.resetFrom mark (* ouch! *) *)
+          (* let _ = Reduces.resetFrom mark *)
           (* Origins, CompSyn, FunSyn harmless? -kw *)
-          (* val _ = IntSyn.resetFrom (mark, markStruct)
+          (* let _ = IntSyn.resetFrom (mark, markStruct)
              FIX: DON'T eliminate out-of-scope cids for now -kw *)
         in
           case result
             of Value (module, s') =>
                let
-                 val S.Cons (declr, s'') =
+                 let S.Cons (declr, s'') =
                        (Timers.time Timers.parsing S.expose) s'
                in
                  install1WithSig (fileName, SOME module, declr);
@@ -1291,9 +1291,9 @@ struct
     *)
     fun loadFile (fileName) =
         handleExceptions 0 fileName (withOpenIn fileName)
-         (fn instream =>
+         (fun instream ->
           let
-            val _ = ReconTerm.resetErrors fileName
+            let _ = ReconTerm.resetErrors fileName
             fun install s = install' ((Timers.time Timers.parsing S.expose) s)
             and install' (S.Empty) = OK
                 (* Origins.installLinesInfo (fileName, Paths.getLinesInfo ()) *)
@@ -1313,7 +1313,7 @@ struct
     *)
     fun loadString str = handleExceptions 0 "string"
         (fn () =>
-            let val _ = ReconTerm.resetErrors "string"
+            let let _ = ReconTerm.resetErrors "string"
                 fun install s = install' ((Timers.time Timers.parsing S.expose) s)
                 and install' (S.Empty) = OK
                   | install' (S.Cons((Parser.BeginSubsig, _), s')) =
@@ -1338,13 +1338,13 @@ struct
 
     fun installCSMDec (conDec, optFixity, mdecL) =
         let
-          val _ = ModeCheck.checkD (conDec, "%use", NONE)
+          let _ = ModeCheck.checkD (conDec, "%use", NONE)
           (* put a more reasonable region here? -kw *)
-          val cid = installConDec IntSyn.FromCS (conDec, ("", NONE), Paths.Reg (0,0))
-          val _ = if !Global.chatter >= 3
+          let cid = installConDec IntSyn.FromCS (conDec, ("", NONE), Paths.Reg (0,0))
+          let _ = if !Global.chatter >= 3
                   then msg (Print.conDecToString (conDec) ^ "\n")
                   else ()
-          val _ = (case optFixity
+          let _ = (case optFixity
                      of SOME(fixity) =>
                           (Names.installFixity (cid, fixity);
                            if !Global.chatter >= 3
@@ -1353,14 +1353,14 @@ struct
                                          ^ Names.qidToString (Names.constQid cid) ^ ".\n")
                            else ())
                       | NONE => ())
-          val _ = List.app (fn mdec => ModeTable.installMmode (cid, mdec)) mdecL
+          let _ = List.app (fun mdec -> ModeTable.installMmode (cid, mdec)) mdecL
         in
           cid
         end
 
-    val _ = CSManager.setInstallFN (installCSMDec)
+    let _ = CSManager.setInstallFN (installCSMDec)
 
-    (* reset () = () clears all global tables, including the signature *)
+    (* reset () = () clears all global tables, including the module type *)
     fun reset () = (IntSyn.sgnReset (); Names.reset (); Origins.reset ();
                     ModeTable.reset ();
                     UniqueTable.reset (); (* -fp Wed Mar  9 20:24:45 2005 *)
@@ -1384,7 +1384,7 @@ struct
     fun readDecl () =
         handleExceptions 0 "stdIn"
         (fn () =>
-         let val _ = ReconTerm.resetErrors "stdIn"
+         let let _ = ReconTerm.resetErrors "stdIn"
              fun install s = install' ((Timers.time Timers.parsing S.expose) s)
              and install' (S.Empty) = ABORT
                | install' (S.Cons((Parser.BeginSubsig, _), s')) =
@@ -1405,10 +1405,10 @@ struct
             | SOME cid => decl' (cid)))
     and decl' (cid) =
         let
-          val conDec = IntSyn.sgnLookup (cid)
-          (* val fixity = Names.getFixity (cid) *)
+          let conDec = IntSyn.sgnLookup (cid)
+          (* let fixity = Names.getFixity (cid) *)
           (* can't get name preference right now *)
-          (* val mode = ModeTable.modeLookup (cid) *)
+          (* let mode = ModeTable.modeLookup (cid) *)
           (* can't get termination declaration *)
         in
           msg (Print.conDecToString conDec ^ "\n");
@@ -1417,15 +1417,15 @@ struct
 
 
     (* Support tracking file modification times for smart re-appending. *)
-    structure ModFile :
+    module ModFile :
     sig
       type mfile
-      val create : string -> mfile
-      val fileName : mfile -> string
-      val editName : (string -> string) -> mfile -> mfile
-      val modified : mfile -> bool
-      val makeModified : mfile -> unit
-      val makeUnmodified : mfile -> unit
+      let create : string -> mfile
+      let fileName : mfile -> string
+      let editName : (string -> string) -> mfile -> mfile
+      let modified : mfile -> bool
+      let makeModified : mfile -> unit
+      let makeUnmodified : mfile -> unit
     end
     =
     struct
@@ -1452,7 +1452,7 @@ struct
 
     (* config = ["fileName1",...,"fileName<n>"] *)
     (* Files will be read in the order given! *)
-    structure Config =
+    module Config =
     struct
       (* A configuration (pwdir, sources) consists of an absolute directory
          pwdir and a list of source file names (which are interpreted
@@ -1467,7 +1467,7 @@ struct
       type config = string * ModFile.mfile list
 
       (* suffix of configuration files: "cfg" by default *)
-      val suffix = ref "cfg"
+      let suffix = ref "cfg"
 
             (* mkRel transforms a relative path into an absolute one
                by adding the specified prefix. If the path is already
@@ -1488,7 +1488,7 @@ struct
             fun appendUniq (l1, l2) =
                   let
                     fun appendUniq' (x :: l2) =
-                          if List.exists (fn y => x = y) l1
+                          if List.exists (fun y -> x = y) l1
                           then appendUniq' l2
                           else x :: appendUniq' (l2)
                       | appendUniq' nil = List.rev l1
@@ -1500,8 +1500,8 @@ struct
             *)
             fun isConfig item =
                 let
-                  val suffix_size = (String.size (!suffix)) + 1
-                  val suffix_start = (String.size item) - suffix_size
+                  let suffix_size = (String.size (!suffix)) + 1
+                  let suffix_start = (String.size item) - suffix_size
                 in
                   (suffix_start >= 0)
                   andalso
@@ -1512,17 +1512,17 @@ struct
             *)
             fun fromUnixPath path =
                 let
-                  val vol = OS.Path.getVolume config
-                  val isAbs = String.isPrefix "/" path
-                  val arcs = String.tokens (fn c => c = #"/") path
+                  let vol = OS.Path.getVolume config
+                  let isAbs = String.isPrefix "/" path
+                  let arcs = String.tokens (fun c -> c = #"/") path
                 in
                   OS.Path.toString {isAbs = isAbs, vol=vol, arcs=arcs}
                 end
             fun read' (sources, configs) config =
                 withOpenIn config
-                  (fn instream =>
+                  (fun instream ->
                       let
-                        val {dir=configDir, file=_} = OS.Path.splitDirFile config
+                        let {dir=configDir, file=_} = OS.Path.splitDirFile config
                         fun parseItem (sources, configs) item =
                             if isConfig item
                             then
@@ -1538,7 +1538,7 @@ struct
                             then (sources, configs)
                             else
                               let
-                                val line' = Substring.dropl Char.isSpace line
+                                let line' = Substring.dropl Char.isSpace line
                             in
                               parseLine' (sources, configs) line'
                             end
@@ -1548,22 +1548,22 @@ struct
                             then parseStream (sources, configs)
                             else
                               let
-                                val line' = Substring.string
+                                let line' = Substring.string
                                               (Substring.takel (not o Char.isSpace) line)
-                                val item = mkRel (configDir, fromUnixPath line')
+                                let item = mkRel (configDir, fromUnixPath line')
                               in
                                 parseStream (parseItem (sources, configs) item)
                               end
                         and parseStream (sources, configs) =
                             let
-                              val line = Compat.Substring.full (Compat.inputLine97 instream)
+                              let line = Compat.Substring.full (Compat.inputLine97 instream)
                             in
                               parseLine (sources, configs) line
                             end
                       in
                         parseStream (sources, configs)
                       end)
-            val pwdir = OS.FileSys.getDir ()
+            let pwdir = OS.FileSys.getDir ()
           in
             (pwdir, List.map ModFile.create (#1(read' (nil, [config]) config)))
           (*
@@ -1575,12 +1575,12 @@ struct
          XXX: naive and inefficient implementation *)
       fun readWithout (s, c) =
           let
-              val (d,fs) = read s
-              val (d',fs') = c
-              val fns' = map (fn m => mkRel(d', ModFile.fileName m)) fs'
+              let (d,fs) = read s
+              let (d',fs') = c
+              let fns' = map (fun m -> mkRel(d', ModFile.fileName m)) fs'
               fun redundant m =
                   let
-                      val n = mkRel(d, ModFile.fileName m)
+                      let n = mkRel(d, ModFile.fileName m)
                   in
                       List.exists (fn n' => n = n') fns'
                   end
@@ -1590,7 +1590,7 @@ struct
 
       fun loadAbort (mfile, OK) =
           let
-            val status = loadFile (ModFile.fileName mfile)
+            let status = loadFile (ModFile.fileName mfile)
           in
             case status
               of OK => ModFile.makeUnmodified mfile
@@ -1600,7 +1600,7 @@ struct
         | loadAbort (_, ABORT) = ABORT
 
       (* load (config) = Status
-         resets the global signature and then reads the files in config
+         resets the global module type and then reads the files in config
          in order, stopping at the first error.
       *)
       fun load (config as (_, sources)) =
@@ -1620,13 +1620,13 @@ struct
             fun mkAbsolute p =
                 Compat.OS.Path.mkAbsolute {path=p, relativeTo=pwdir}
 
-            val sources' =
+            let sources' =
                 (* allow shorter messages if safe *)
                 if pwdir = OS.FileSys.getDir ()
                   then sources
                 else List.map (ModFile.editName mkAbsolute) sources
 
-            val sources'' = fromFirstModified sources'
+            let sources'' = fromFirstModified sources'
           in
             List.foldl loadAbort OK sources''
           end
@@ -1634,7 +1634,7 @@ struct
       fun define (sources) = (OS.FileSys.getDir (),
                               List.map ModFile.create sources)
 
-    end  (* structure Config *)
+    end  (* module Config *)
 
     (* make (configFile)
        read and then load configuration from configFile
@@ -1644,182 +1644,182 @@ struct
   in
 
     (* re-exporting environment parameters and utilities defined elsewhere *)
-    structure Print :
+    module Print :
       sig
-        val implicit : bool ref         (* false, print implicit args *)
-        val printInfix : bool ref       (* false, print fully explicit form infix when possible *)
-        val depth : int option ref      (* NONE, limit print depth *)
-        val length : int option ref     (* NONE, limit argument length *)
-        val indent : int ref            (* 3, indentation of subterms *)
-        val width : int ref             (* 80, line width *)
-        val noShadow : bool ref         (* if true, don't print shadowed constants as "%const%" *)
-        val sgn : unit -> unit          (* print signature *)
-        val prog : unit -> unit         (* print signature as program *)
-        val subord : unit -> unit       (* print subordination relation *)
-        val def : unit -> unit          (* print information about definitions *)
-        val domains : unit -> unit      (* print available constraint domains *)
-        structure TeX :                 (* print in TeX format *)
+        let implicit : bool ref         (* false, print implicit args *)
+        let printInfix : bool ref       (* false, print fully explicit form infix when possible *)
+        let depth : int option ref      (* NONE, limit print depth *)
+        let length : int option ref     (* NONE, limit argument length *)
+        let indent : int ref            (* 3, indentation of subterms *)
+        let width : int ref             (* 80, line width *)
+        let noShadow : bool ref         (* if true, don't print shadowed constants as "%const%" *)
+        let sgn : unit -> unit          (* print module type *)
+        let prog : unit -> unit         (* print module type as program *)
+        let subord : unit -> unit       (* print subordination relation *)
+        let def : unit -> unit          (* print information about definitions *)
+        let domains : unit -> unit      (* print available constraint domains *)
+        module TeX :                 (* print in TeX format *)
         sig
-          val sgn : unit -> unit        (* print signature *)
-          val prog : unit -> unit       (* print signature as program *)
+          let sgn : unit -> unit        (* print module type *)
+          let prog : unit -> unit       (* print module type as program *)
         end
       end
     =
     struct
-      val implicit = Print.implicit
-      val printInfix = Print.printInfix
-      val depth = Print.printDepth
-      val length = Print.printLength
-      val indent = Print.Formatter.Indent
-      val width = Print.Formatter.Pagewidth
-      val noShadow = Print.noShadow
+      let implicit = Print.implicit
+      let printInfix = Print.printInfix
+      let depth = Print.printDepth
+      let length = Print.printLength
+      let indent = Print.Formatter.Indent
+      let width = Print.Formatter.Pagewidth
+      let noShadow = Print.noShadow
       fun sgn () = Print.printSgn ()
       fun prog () = ClausePrint.printSgn ()
       fun subord () = Subordinate.show ()
       fun def () = Subordinate.showDef ()
       fun domains () = msg (CSInstaller.version)
-      structure TeX =
+      module TeX =
       struct
         fun sgn () = printSgnTeX ()
         fun prog () = printProgTeX ()
       end
     end
 
-    structure Trace :
+    module Trace :
     sig
-      datatype 'a Spec =                        (* trace specification *)
+      type 'a Spec =                        (* trace specification *)
         None                            (* no tracing *)
       | Some of 'a list                 (* list of clauses and families *)
       | All                             (* trace all clauses and families *)
 
-      val trace : string Spec -> unit   (* clauses and families *)
-      val break : string Spec -> unit   (* clauses and families *)
-      val detail : int ref              (* 0 = none, 1 = default, 2 = unify *)
+      let trace : string Spec -> unit   (* clauses and families *)
+      let break : string Spec -> unit   (* clauses and families *)
+      let detail : int ref              (* 0 = none, 1 = default, 2 = unify *)
 
-      val show : unit -> unit           (* show trace, break, and detail *)
-      val reset : unit -> unit          (* reset trace, break, and detail *)
+      let show : unit -> unit           (* show trace, break, and detail *)
+      let reset : unit -> unit          (* reset trace, break, and detail *)
     end
     = Trace
 
-    structure Timers :
+    module Timers :
       sig
-        val show : unit -> unit         (* show and reset timers *)
-        val reset : unit -> unit        (* reset timers *)
-        val check : unit -> unit        (* display, but not no reset *)
+        let show : unit -> unit         (* show and reset timers *)
+        let reset : unit -> unit        (* reset timers *)
+        let check : unit -> unit        (* display, but not no reset *)
       end
     = Timers
 
-    structure OS  :
+    module OS  :
       sig
-        val chDir : string -> unit      (* change working directory *)
-        val getDir : unit -> string     (* get working directory *)
-        val exit : unit -> unit         (* exit Twelf and ML *)
+        let chDir : string -> unit      (* change working directory *)
+        let getDir : unit -> string     (* get working directory *)
+        let exit : unit -> unit         (* exit Twelf and ML *)
       end
     =
     struct
-      val chDir = OS.FileSys.chDir
-      val getDir = OS.FileSys.getDir
+      let chDir = OS.FileSys.chDir
+      let getDir = OS.FileSys.getDir
       fun exit () = OS.Process.exit (OS.Process.success)
     end
 
-    structure Compile :
+    module Compile :
     sig
-      datatype Opt = datatype CompSyn.Opt
-      val optimize : Opt ref
+      type Opt = type CompSyn.Opt
+      let optimize : Opt ref
     end
     =
     struct
-      datatype Opt = datatype CompSyn.Opt
-      val optimize = CompSyn.optimize
+      type Opt = type CompSyn.Opt
+      let optimize = CompSyn.optimize
     end
 
-    structure Recon :
+    module Recon :
     sig
-      datatype TraceMode = datatype ReconTerm.TraceMode
-      val trace : bool ref
-      val traceMode : TraceMode ref
+      type TraceMode = type ReconTerm.TraceMode
+      let trace : bool ref
+      let traceMode : TraceMode ref
     end
     =
     struct
-      datatype TraceMode = datatype ReconTerm.TraceMode
-      val trace = ReconTerm.trace
-      val traceMode = ReconTerm.traceMode
+      type TraceMode = type ReconTerm.TraceMode
+      let trace = ReconTerm.trace
+      let traceMode = ReconTerm.traceMode
     end
 
-    structure Recon :
+    module Recon :
     sig
-      datatype TraceMode = datatype ReconTerm.TraceMode
-      val trace : bool ref
-      val traceMode : TraceMode ref
+      type TraceMode = type ReconTerm.TraceMode
+      let trace : bool ref
+      let traceMode : TraceMode ref
     end
     =
     struct
-      datatype TraceMode = datatype ReconTerm.TraceMode
-      val trace = ReconTerm.trace
-      val traceMode = ReconTerm.traceMode
+      type TraceMode = type ReconTerm.TraceMode
+      let trace = ReconTerm.trace
+      let traceMode = ReconTerm.traceMode
     end
 
-    structure Prover :
+    module Prover :
     sig                                 (* F=Filling, R=Recursion, S=Splitting *)
-      datatype Strategy = datatype MetaGlobal.Strategy  (* FRS or RFS *)
-      val strategy : Strategy ref       (* FRS, strategy used for %prove *)
-      val maxSplit : int ref            (* 2, bound on splitting  *)
-      val maxRecurse : int ref          (* 10, bound on recursion *)
+      type Strategy = type MetaGlobal.Strategy  (* FRS or RFS *)
+      let strategy : Strategy ref       (* FRS, strategy used for %prove *)
+      let maxSplit : int ref            (* 2, bound on splitting  *)
+      let maxRecurse : int ref          (* 10, bound on recursion *)
     end
     =
     struct
-      datatype Strategy = datatype MetaGlobal.Strategy  (* FRS or RFS *)
-      val strategy = MetaGlobal.strategy
-      val maxSplit = MetaGlobal.maxSplit
-      val maxRecurse = MetaGlobal.maxRecurse
+      type Strategy = type MetaGlobal.Strategy  (* FRS or RFS *)
+      let strategy = MetaGlobal.strategy
+      let maxSplit = MetaGlobal.maxSplit
+      let maxRecurse = MetaGlobal.maxRecurse
     end
 
-    val chatter : int ref = Global.chatter
-    val doubleCheck : bool ref = Global.doubleCheck
-    val unsafe : bool ref = Global.unsafe
-    val autoFreeze : bool ref = Global.autoFreeze
-    val timeLimit : (Time.time option) ref = Global.timeLimit
+    let chatter : int ref = Global.chatter
+    let doubleCheck : bool ref = Global.doubleCheck
+    let unsafe : bool ref = Global.unsafe
+    let autoFreeze : bool ref = Global.autoFreeze
+    let timeLimit : (Time.time option) ref = Global.timeLimit
 
-    datatype Status = datatype Status
-    val reset = reset
-    val loadFile = loadFile
-    val loadString = loadString
-    val readDecl = readDecl
-    val decl = decl
+    type Status = type Status
+    let reset = reset
+    let loadFile = loadFile
+    let loadString = loadString
+    let readDecl = readDecl
+    let decl = decl
 
-    val top = top
+    let top = top
 
-    structure Config :
+    module Config :
       sig
         type config                     (* configuration *)
-        val suffix : string ref         (* suffix of configuration files *)
-        val read : string -> config     (* read configuration from config file *)
-        val readWithout : string * config -> config
+        let suffix : string ref         (* suffix of configuration files *)
+        let read : string -> config     (* read configuration from config file *)
+        let readWithout : string * config -> config
                                         (* read config file, minus contents of another *)
-        val load : config -> Status     (* reset and load configuration *)
-        val append : config -> Status   (* load configuration (w/o reset) *)
-        val define : string list -> config  (* explicitly define configuration *)
+        let load : config -> Status     (* reset and load configuration *)
+        let append : config -> Status   (* load configuration (w/o reset) *)
+        let define : string list -> config  (* explicitly define configuration *)
       end
     = Config
-    val make = make
+    let make = make
 
-    val version = Version.version_string
+    let version = Version.version_string
 
-    structure Table :
+    module Table :
       sig
-        datatype Strategy = datatype TableParam.Strategy
-        val strategy : Strategy ref
-        val strengthen : bool ref
-        val resetGlobalTable : unit -> unit
-        val top : unit -> unit
+        type Strategy = type TableParam.Strategy
+        let strategy : Strategy ref
+        let strengthen : bool ref
+        let resetGlobalTable : unit -> unit
+        let top : unit -> unit
       end
     =
   struct
-    datatype Strategy = datatype TableParam.Strategy
-    val strategy = TableParam.strategy
-    val strengthen = TableParam.strengthen
+    type Strategy = type TableParam.Strategy
+    let strategy = TableParam.strategy
+    let strengthen = TableParam.strengthen
 
-    val resetGlobalTable = TableParam.resetGlobalTable
+    let resetGlobalTable = TableParam.resetGlobalTable
 
     (* top () = () starts interactive query loop *)
     fun top () =

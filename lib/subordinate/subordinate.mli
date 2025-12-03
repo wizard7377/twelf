@@ -2,9 +2,9 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-signature SUBORDINATE =
+module type SUBORDINATE =
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   exception Error of string
 
@@ -35,4 +35,4 @@ sig
   val show : unit -> unit
   val showDef : unit -> unit
 
-end;  (* signature SUBORDINATE *)
+end;  (* module type SUBORDINATE *)

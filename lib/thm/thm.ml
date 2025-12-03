@@ -2,33 +2,33 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor Thm (structure Global : GLOBAL
-             structure ThmSyn': THMSYN
-             structure TabledSyn : TABLEDSYN
-             structure ModeTable : MODETABLE
-             structure Order : ORDER
+let recctor Thm (module Global : GLOBAL
+             module ThmSyn': THMSYN
+             module TabledSyn : TABLEDSYN
+             module ModeTable : MODETABLE
+             module Order : ORDER
              (*! sharing Order.IntSyn = ThmSyn'.ModeSyn.IntSyn !*)
-             structure ThmPrint : THMPRINT
+             module ThmPrint : THMPRINT
                sharing ThmPrint.ThmSyn = ThmSyn'
-               (*! structure Paths' : PATHS !*)
+               (*! module Paths' : PATHS !*)
                )
   : THM =
 struct
-  structure ThmSyn = ThmSyn'
-  (*! structure Paths = Paths' !*)
-  structure TabledSyn = TabledSyn
+  module ThmSyn = ThmSyn'
+  (*! module Paths = Paths' !*)
+  module TabledSyn = TabledSyn
 
   (* -bp *)
-  datatype Order = Varg | Lex of Order list | Simul of Order list
+  type Order = Varg | Lex of Order list | Simul of Order list
 
   exception Error of string
 
   local
-    structure L = ThmSyn
-    structure M = ModeSyn  (* L.ModeSyn *)
-    structure I = IntSyn
-    structure P = ThmPrint
-    structure O = Order
+    module L = ThmSyn
+    module M = ModeSyn  (* L.ModeSyn *)
+    module I = IntSyn
+    module P = ThmPrint
+    module O = Order
     fun error (r, msg) = raise Error (Paths.wrap (r, msg))
 
     (* To check validity of a termination declaration  O C
@@ -250,11 +250,11 @@ struct
     fun installOrder (_, nil, _) = ()
       | installOrder (O, (aP as (a, P)) :: thmsLE, thmsLT) =
         let
-          val M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
+          let M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
                                     argOrderMutual (aP :: thmsLT,
                                                      fn ((a, _), L) => O.LT (a, L), O.Empty))
-          val O' = argOrder (O, P, I.constImp a)
-          val S' = O.install (a, O.TDec (O',M'))
+          let O' = argOrder (O, P, I.constImp a)
+          let S' = O.install (a, O.TDec (O',M'))
         in
           installOrder (O, thmsLE, aP :: thmsLT)
         end
@@ -335,18 +335,18 @@ struct
     fun installPredicate ( _, nil, _) = ()
       | installPredicate (L.RedOrder(Pred,O1, O2), (aP as (a, P)) :: thmsLE, thmsLT) =
         let
-          val M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
+          let M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
                                    argOrderMutual (aP :: thmsLT,
                                                    fn ((a, _), L) => O.LT (a, L), O.Empty))
-          val O1' = argROrder (O1, P, I.constImp a)
-          val O2' = argROrder (O2, P, I.constImp a)
-          val pr  = argPredicate (Pred, O1', O2')
+          let O1' = argROrder (O1, P, I.constImp a)
+          let O2' = argROrder (O2, P, I.constImp a)
+          let pr  = argPredicate (Pred, O1', O2')
           (* install termination order *)
           (* bug: %reduces should not entail %terminates *)
           (* fixed: Sun Mar 13 09:41:18 2005 -fp *)
-          (* val S'  = O.install (a, O.TDec (O2', M')) *)
+          (* let S'  = O.install (a, O.TDec (O2', M')) *)
           (* install reduction order   *)
-          val S'' = O.installROrder (a, O.RDec (pr, M'))
+          let S'' = O.installROrder (a, O.RDec (pr, M'))
         in
           installPredicate (L.RedOrder(Pred,O1, O2), thmsLE, aP :: thmsLT)
         end
@@ -452,14 +452,14 @@ struct
     fun installKeepTable (L.KeepTableDecl cid) = TabledSyn.installKeepTable cid
 
   in
-    val installTotal = installTotal
-    val uninstallTotal = uninstallTotal
-    val installTerminates = installTerminates
-    val uninstallTerminates = uninstallTerminates
-    val installReduces = installReduces
-    val uninstallReduces = uninstallReduces
-    val installTabled = installTabled
-    val installKeepTable = installKeepTable
+    let installTotal = installTotal
+    let uninstallTotal = uninstallTotal
+    let installTerminates = installTerminates
+    let uninstallTerminates = uninstallTerminates
+    let installReduces = installReduces
+    let uninstallReduces = uninstallReduces
+    let installTabled = installTabled
+    let installKeepTable = installKeepTable
   end (* local *)
 
 end; (* functor Thm *)

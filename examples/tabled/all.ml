@@ -6,7 +6,7 @@ Twelf.chatter := 3;
 Twelf.OS.chDir "examples/tabled";
 Twelf.doubleCheck := true;
 
-fun test (file) =
+let rec test (file) =
     case Twelf.Config.load (Twelf.Config.read file)
       of Twelf.OK => Twelf.OK
        | Twelf.ABORT => raise Domain;

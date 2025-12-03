@@ -1,17 +1,17 @@
 (* Approximate language for term reconstruction *)
 (* Author: Kevin Watkins *)
 
-signature APPROX =
+module type APPROX =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
-  datatype Uni =
+  type Uni =
       Level of int (* 1 = type, 2 = kind, 3 = hyperkind, etc. *)
     | Next of Uni
     | LVar of Uni option ref
               
-  datatype Exp =
+  type Exp =
       Uni of Uni
     | Arrow of Exp * Exp 
     | Const of IntSyn.Head (* Const/Def/NSDef *)

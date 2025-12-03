@@ -1,25 +1,25 @@
 (* Elaboration for module expressions *)
 (* Author: Kevin Watkins *)
 
-functor ReconModule
-  (structure Global : GLOBAL
-   (*! structure IntSyn : INTSYN !*)
-   structure Names : NAMES
+let recctor ReconModule
+  (module Global : GLOBAL
+   (*! module IntSyn : INTSYN !*)
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn !*)
-   (*! structure Paths' : PATHS !*)
-   structure ReconTerm' : RECON_TERM
+   (*! module Paths' : PATHS !*)
+   module ReconTerm' : RECON_TERM
    (*! sharing ReconTerm'.IntSyn = IntSyn !*)
    (*! sharing ReconTerm'.Paths = Paths' !*)
-   structure ModSyn' : MODSYN
+   module ModSyn' : MODSYN
    (*! sharing ModSyn'.IntSyn = IntSyn !*)
      sharing ModSyn'.Names = Names
-   structure IntTree : TABLE where type key = int)
+   module IntTree : TABLE where type key = int)
   : RECON_MODULE =
 struct
 
-  structure ExtSyn = ReconTerm'
-  (*! structure Paths = Paths' !*)
-  structure ModSyn = ModSyn'
+  module ExtSyn = ReconTerm'
+  (*! module Paths = Paths' !*)
+  module ModSyn = ModSyn'
 
   exception Error of string
 
@@ -29,17 +29,17 @@ struct
 
   fun strexp (ids, id, r) () =
       let
-        val qid = Names.Qid (ids, id)
+        let qid = Names.Qid (ids, id)
       in
         case Names.structLookup qid
-          of NONE => error (r, "Undeclared structure " ^
+          of NONE => error (r, "Undeclared module " ^
                             Names.qidToString (valOf (Names.structUndef qid)))
            | SOME mid => (mid, r)
       end
 
   fun strexpToStrexp (f:strexp) = #1 (f ())
 
-  datatype Inst =
+  type Inst =
       External of ExtSyn.term
     | Internal of IntSyn.cid
 
@@ -49,7 +49,7 @@ struct
 
   fun coninst ((ids, id, r1), tm, r2) (ns, eqns) =
       let
-        val qid = Names.Qid (ids, id)
+        let qid = Names.Qid (ids, id)
       in
         case Names.constLookupIn (ns, qid)
           of NONE => error (r1, "Undeclared identifier "
@@ -59,19 +59,19 @@ struct
 
   fun addStructEqn (rEqns, r1, r2, ids, mid1, mid2) =
       let
-        val ns1 = Names.getComponents mid1
-        val ns2 = Names.getComponents mid2
+        let ns1 = Names.getComponents mid1
+        let ns2 = Names.getComponents mid2
         fun push eqn = rEqns := eqn::(!rEqns)
 
         fun doConst (name, cid1) =
             case Names.constLookupIn (ns2, Names.Qid (nil, name))
-              of NONE => error (r1, "Instantiating structure lacks component " ^
+              of NONE => error (r1, "Instantiating module lacks component " ^
                                 Names.qidToString (Names.Qid (rev ids, name)))
                | SOME cid2 => push (cid1, Internal cid2, r2)
 
         fun doStruct (name, mid1) =
             case Names.structLookupIn (ns2, Names.Qid (nil, name))
-              of NONE => error (r1, "Instantiating structure lacks component " ^
+              of NONE => error (r1, "Instantiating module lacks component " ^
                                 Names.qidToString (Names.Qid (rev ids, name)))
                | SOME mid2 => addStructEqn (rEqns, r1, r2, name::ids, mid1, mid2)
       in
@@ -81,14 +81,14 @@ struct
 
   fun strinst ((ids, id, r1), strexp, r3) (ns, eqns) =
       let
-        val qid = Names.Qid (ids, id)
-        val mid1 = (case Names.structLookupIn (ns, qid)
-                      of NONE => error (r1, "Undeclared structure "
+        let qid = Names.Qid (ids, id)
+        let mid1 = (case Names.structLookupIn (ns, qid)
+                      of NONE => error (r1, "Undeclared module "
                                         ^ Names.qidToString (valOf (Names.structUndefIn (ns, qid))))
                        | SOME mid1 => mid1)
 
-        val (mid2, r2) = strexp ()
-        val rEqns = ref eqns
+        let (mid2, r2) = strexp ()
+        let rEqns = ref eqns
       in
         addStructEqn (rEqns, r2, r3, nil, mid1, mid2);
         !rEqns
@@ -101,12 +101,12 @@ struct
 
   fun sigid (id, r) NONE =
       (case ModSyn.lookupSigDef id
-         of NONE => error (r, "Undefined signature " ^ id)
+         of NONE => error (r, "Undefined module type " ^ id)
           | SOME module => (module, nil))
 
   fun wheresig (sigexp, instList) moduleOpt =
       let
-        val (module, wherecls) = sigexp moduleOpt
+        let (module, wherecls) = sigexp moduleOpt
         fun wherecl ns = foldr (fn (inst, eqns) => inst (ns, eqns)) nil instList
       in
         (module, wherecls @ [wherecl])
@@ -118,14 +118,14 @@ struct
 
   fun sigdef (idOpt, sigexp) moduleOpt =
       let
-        val (module, wherecls) = sigexp moduleOpt
+        let (module, wherecls) = sigexp moduleOpt
       in
         (idOpt, module, wherecls)
       end
 
   fun sigdefToSigdef (sigdef, moduleOpt) = sigdef moduleOpt
 
-  datatype StructDec =
+  type StructDec =
       StructDec of string option * ModSyn.module * whereclause list
     | StructDef of string option * IntSyn.mid
 
@@ -133,14 +133,14 @@ struct
 
   fun structdec (idOpt, sigexp) moduleOpt =
       let
-        val (module, inst) = sigexp moduleOpt
+        let (module, inst) = sigexp moduleOpt
       in
         StructDec (idOpt, module, inst)
       end
 
   fun structdef (idOpt, strexp) NONE =
       let
-        val mid = strexpToStrexp strexp
+        let mid = strexpToStrexp strexp
       in
         StructDef (idOpt, mid)
       end
@@ -151,14 +151,14 @@ struct
 
   fun applyEqns wherecl namespace =
       let
-        val eqns = wherecl namespace
+        let eqns = wherecl namespace
 
-        val table : eqnTable = IntTree.new (0)
+        let table : eqnTable = IntTree.new (0)
         fun add (cid, Inst, r) =
             (case IntTree.lookup table cid
                of NONE => IntTree.insert table (cid, ref [(Inst, r)])
                 | SOME rl => rl := (Inst, r)::(!rl))
-        val _ = List.app add eqns
+        let _ = List.app add eqns
 
         fun doInst ((Internal cid, r), condec) =
               (ModSyn.strictify (ExtSyn.internalInst (condec, ModSyn.abbrevify (cid, IntSyn.sgnLookup cid), r))
@@ -178,10 +178,10 @@ struct
 
   fun moduleWhere (module, wherecl) =
       let
-        val (mark, markStruct) = IntSyn.sgnSize ()
-        val module' = ModSyn.instantiateModule (module, applyEqns wherecl)
-        val _ = Names.resetFrom (mark, markStruct)
-        (* val _ = IntSyn.resetFrom (mark, markStruct) *)
+        let (mark, markStruct) = IntSyn.sgnSize ()
+        let module' = ModSyn.instantiateModule (module, applyEqns wherecl)
+        let _ = Names.resetFrom (mark, markStruct)
+        (* let _ = IntSyn.resetFrom (mark, markStruct) *)
       in
         module'
       end

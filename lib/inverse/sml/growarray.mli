@@ -3,7 +3,7 @@
     accomodate new data. The array can have 'holes'
     where no data are stored, though these are not
     treated efficiently. *)
-signature GROWARRAY =
+module type GROWARRAY =
 sig
 
   type 'a growarray

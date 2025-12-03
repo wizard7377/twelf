@@ -1,7 +1,7 @@
 (* Queues *)
 (* Author: Frank Pfenning *)
 
-signature QUEUE =
+module type QUEUE =
 sig
 
   type 'a queue
@@ -17,4 +17,4 @@ sig
   (* then q == q' and toList q' is constant time *)
   val toList : 'a queue -> 'a list * 'a queue option
 
-end;  (* signature QUEUE *)
+end;  (* module type QUEUE *)

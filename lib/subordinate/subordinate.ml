@@ -3,25 +3,25 @@
 
 (* Reverse subordination order *)
 
-functor Subordinate
-  (structure Global : GLOBAL
-   (*! structure IntSyn' : INTSYN !*)
-   structure Whnf : WHNF
+let recctor Subordinate
+  (module Global : GLOBAL
+   (*! module IntSyn' : INTSYN !*)
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Table : TABLE where type key = int
-   structure MemoTable : TABLE where type key = int * int
-   structure IntSet : INTSET
+   module Table : TABLE where type key = int
+   module MemoTable : TABLE where type key = int * int
+   module IntSet : INTSET
      )
   : SUBORDINATE =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
+    module I = IntSyn
 
     (* Subordination graph
 
@@ -31,20 +31,20 @@ struct
 
        Subordination is transitive, but not necessarily reflexive.
     *)
-    val soGraph : (IntSet.intset) Table.Table = Table.new (32)
-    val insert = Table.insert soGraph
+    let soGraph : (IntSet.intset) Table.Table = Table.new (32)
+    let insert = Table.insert soGraph
     fun adjNodes a = valOf (Table.lookup soGraph a)  (* must be defined! *)
     fun insertNewFam a =
            Table.insert soGraph (a, IntSet.empty)
-    val updateFam = Table.insert soGraph
+    let updateFam = Table.insert soGraph
 
     (* memotable to avoid repeated graph traversal *)
     (* think of hash-table model *)
-    val memoTable : (bool * int) MemoTable.Table = MemoTable.new (2048)
-    val memoInsert = MemoTable.insert memoTable
-    val memoLookup = MemoTable.lookup memoTable
-    val memoClear = fn () => MemoTable.clear memoTable
-    val memoCounter = ref 0
+    let memoTable : (bool * int) MemoTable.Table = MemoTable.new (2048)
+    let memoInsert = MemoTable.insert memoTable
+    let memoLookup = MemoTable.lookup memoTable
+    let memoClear = fn () => MemoTable.clear memoTable
+    let memoCounter = ref 0
 
     (* Apply f to every node reachable from b *)
     (* Includes the node itself (reflexive) *)
@@ -63,7 +63,7 @@ struct
         let fun rch (b, visited) =
                 if IntSet.member (b, visited)
                   then visited
-                else let val adj = adjNodes b
+                else let let adj = adjNodes b
                      in
                        if IntSet.member (a, adj)
                          then raise Reachable
@@ -83,9 +83,9 @@ struct
           memoInsert ((b,a), (true, !memoCounter)) ;
           updateFam (b, IntSet.insert(a,adjNodes(b))) )
 
-    val fTable : bool Table.Table = Table.new (32)
-    val fLookup = Table.lookup fTable
-    val fInsert = Table.insert fTable
+    let fTable : bool Table.Table = Table.new (32)
+    let fLookup = Table.lookup fTable
+    let fInsert = Table.insert fTable
 
     (*
        Freezing type families
@@ -99,7 +99,7 @@ struct
             | NONE => false)
 
     fun fSet (a, frozen) =
-        let val _ = Global.chPrint 5
+        let let _ = Global.chPrint 5
                     (fn () => (if frozen then "Freezing " else "Thawing ")
                               ^ Names.qidToString (Names.constQid a) ^ "\n")
         in
@@ -151,7 +151,7 @@ struct
         *)
         let
           fun check a =
-            if fGet a orelse List.exists (fn x => x = a) otherFrozen
+            if fGet a orelse List.exists (fun x -> x = a) otherFrozen
               then ()
             else frozenSubError (a, b)
         in
@@ -177,11 +177,11 @@ struct
     (*
     fun installFrozen (L) =
         let
-          val L = map expandFamilyAbbrevs L
-          (* val _ = print ("L = " ^ (foldl (fn (c,s) => Names.qidToString (Names.constQid c) ^ s) "\n" L)); *)
+          let L = map expandFamilyAbbrevs L
+          (* let _ = print ("L = " ^ (foldl (fn (c,s) => Names.qidToString (Names.constQid c) ^ s) "\n" L)); *)
         in
-          List.app (fn a => checkMakeFrozen (a, L)) L;
-          List.app (fn a => fSet (a, true)) L
+          List.app (fun a -> checkMakeFrozen (a, L)) L;
+          List.app (fun a -> fSet (a, true)) L
         end
     *)
 
@@ -191,17 +191,17 @@ struct
 
        Intended to be called from programs
     *)
-    val freezeList : IntSet.intset ref = ref IntSet.empty
+    let freezeList : IntSet.intset ref = ref IntSet.empty
     fun freeze (L) =
         let
-          val _ = freezeList := IntSet.empty
-          val L' = map expandFamilyAbbrevs L
-          val _ = List.app (fn a =>
-                            appReachable (fn b =>
+          let _ = freezeList := IntSet.empty
+          let L' = map expandFamilyAbbrevs L
+          let _ = List.app (fun a ->
+                            appReachable (fun b ->
                                           (fSet (b, true);
                                            freezeList := IntSet.insert(b, !freezeList))) a)
                   L'
-          val cids = IntSet.foldl (op::) nil (!freezeList)
+          let cids = IntSet.foldl (op::) nil (!freezeList)
         in
           cids
         end
@@ -209,9 +209,9 @@ struct
     (* frozen L = true if one of the families in L is frozen *)
     fun frozen (L) =
         let
-          val L' = map expandFamilyAbbrevs L
+          let L' = map expandFamilyAbbrevs L
         in
-          List.exists (fn a => fGet a) L'
+          List.exists (fun a -> fGet a) L'
         end
 
     (* a <| b = true iff a is (transitively) subordinate to b
@@ -254,18 +254,18 @@ struct
 
     (* Thawing frozen families *)
     (* Returns list of families that were thawed *)
-    val aboveList : IntSyn.cid list ref = ref nil
+    let aboveList : IntSyn.cid list ref = ref nil
     fun addIfBelowEq a's =
-        fn b => if List.exists (fn a => belowEq (a, b)) a's
+        fun b -> if List.exists (fun a -> belowEq (a, b)) a's
                   then aboveList := b::(!aboveList)
                 else ()
 
     fun thaw a's =
         let
-          val a's' = map expandFamilyAbbrevs a's
-          val _ = aboveList := nil
-          val _ = Table.app (fn (b,_) => addIfBelowEq a's' b) soGraph;
-          val _ = List.app (fn b => fSet(b, false)) (!aboveList)
+          let a's' = map expandFamilyAbbrevs a's
+          let _ = aboveList := nil
+          let _ = Table.app (fn (b,_) => addIfBelowEq a's' b) soGraph;
+          let _ = List.app (fun b -> fSet(b, false)) (!aboveList)
         in
           !aboveList
         end
@@ -291,7 +291,7 @@ struct
 
        Fri Dec 27 08:37:42 2002 -fp (just before 1.4 alpha)
     *)
-    val defGraph : (IntSet.intset) Table.Table = Table.new (32)
+    let defGraph : (IntSet.intset) Table.Table = Table.new (32)
 
     (* occursInDef a = true
        iff there is a b such that a #> b
@@ -373,7 +373,7 @@ struct
         (* this looks like blatant overkill ... *)
         (* Sun Nov 10 11:15:47 2002 -fp *)
         let
-          val V' = Whnf.normalize (Whnf.expandDef (V, I.id))
+          let V' = Whnf.normalize (Whnf.expandDef (V, I.id))
         in
           installTypeN' (V', a)
         end
@@ -397,7 +397,7 @@ struct
     *)
     fun install c =
         let
-          val V = I.constType c
+          let V = I.constType c
         in
           case I.targetFamOpt V
             of NONE => (insertNewFam (c);
@@ -424,10 +424,10 @@ struct
     (* b must be block *)
     fun installBlock b =
         let
-          val I.BlockDec(_, _, G, Ds) = I.sgnLookup b
+          let I.BlockDec(_, _, G, Ds) = I.sgnLookup b
         in
           installSome G;
-          List.app (fn D => installDec D) Ds
+          List.app (fun D -> installDec D) Ds
         end
 
     (* Respecting subordination *)
@@ -455,7 +455,7 @@ struct
         (* this looks like blatant overkill ... *)
         (* Sun Nov 10 11:15:47 2002 -fp *)
         let
-          val V' = Whnf.normalize (Whnf.expandDef (V, I.id))
+          let V' = Whnf.normalize (Whnf.expandDef (V, I.id))
         in
           respectsTypeN' (V', a)
         end
@@ -489,7 +489,7 @@ struct
     fun weaken (I.Null, a) = I.id
       | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
         let
-          val w' = weaken (G', a)
+          let w' = weaken (G', a)
         in
           if belowEq (I.targetFam V, a) then I.dot1 w'
           else I.comp (w', I.shift)
@@ -500,19 +500,19 @@ struct
        Effect: print some statistics about constant definitions
     *)
     local
-      val declared = ref 0
-      val defined = ref 0
-      val abbrev = ref 0
-      val other = ref 0
-      val heightArray = Array.array (32, 0)
-      val maxHeight = ref 0
+      let declared = ref 0
+      let defined = ref 0
+      let abbrev = ref 0
+      let other = ref 0
+      let heightArray = Array.array (32, 0)
+      let maxHeight = ref 0
 
       fun inc (r) = (r := !r+1)
       fun incArray (h) = (Array.update (heightArray, h, Array.sub (heightArray, h)+1))
       (* ignore blocks and skolem constants *)
       fun max (h) = (maxHeight := Int.max (h, !maxHeight))
       fun reset () = (declared := 0; defined := 0; abbrev := 0; other := 0;
-                      Array.modify (fn i => 0) heightArray;
+                      Array.modify (fun i -> 0) heightArray;
                       maxHeight := 0)
     in
       fun analyzeAnc (I.Anc (NONE, _, _)) = ( incArray 0 )
@@ -526,14 +526,14 @@ struct
         | analyze _ = ( inc other )
       fun showDef () =
           let
-            val _ = reset ()
-            val _ = I.sgnApp (fn c => analyze (I.sgnLookup c))
-            val _ = print ("Declared: " ^ Int.toString (!declared) ^ "\n")
-            val _ = print ("Defined : " ^ Int.toString (!defined) ^ "\n")
-            val _ = print ("Abbrevs : " ^ Int.toString (!abbrev) ^ "\n")
-            val _ = print ("Other   : " ^ Int.toString (!other) ^ "\n")
-            val _ = print ("Max definition height: " ^ Int.toString (!maxHeight) ^ "\n")
-            val _ = ArraySlice.appi
+            let _ = reset ()
+            let _ = I.sgnApp (fun c -> analyze (I.sgnLookup c))
+            let _ = print ("Declared: " ^ Int.toString (!declared) ^ "\n")
+            let _ = print ("Defined : " ^ Int.toString (!defined) ^ "\n")
+            let _ = print ("Abbrevs : " ^ Int.toString (!abbrev) ^ "\n")
+            let _ = print ("Other   : " ^ Int.toString (!other) ^ "\n")
+            let _ = print ("Max definition height: " ^ Int.toString (!maxHeight) ^ "\n")
+            let _ = ArraySlice.appi
                       (fn (h, i) => print (" Height " ^ Int.toString h ^ ": "
                                            ^ Int.toString i ^ " definitions\n"))
                       (ArraySlice.slice (heightArray, 0, SOME(!maxHeight+1)))
@@ -542,33 +542,33 @@ struct
           end
     end
   in
-    val reset = reset
+    let reset = reset
 
-    val install = install
-    val installDef = installDef
-    val installBlock = installBlock
+    let install = install
+    let installDef = installDef
+    let installBlock = installBlock
 
-    (* val installFrozen = installFrozen *)
+    (* let installFrozen = installFrozen *)
 
-    val freeze = freeze
-    val frozen = frozen
-    val thaw = thaw
+    let freeze = freeze
+    let frozen = frozen
+    let thaw = thaw
 
-    val addSubord = addSubord
+    let addSubord = addSubord
 
-    val below = below
-    val belowEq = belowEq
-    val equiv = equiv
+    let below = below
+    let belowEq = belowEq
+    let equiv = equiv
 
-    val checkNoDef = checkNoDef
+    let checkNoDef = checkNoDef
 
-    val respects = respects
-    val respectsN = respectsN
+    let respects = respects
+    let respectsN = respectsN
 
-    val weaken = weaken
+    let weaken = weaken
 
-    val show = show
-    val showDef = showDef
+    let show = show
+    let showDef = showDef
 
   end (* local *)
 end; (* functor Subordinate *)

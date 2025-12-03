@@ -2,42 +2,42 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-functor TMachine ((*! structure IntSyn' : INTSYN !*)
-                  (*! structure CompSyn' : COMPSYN !*)
+let recctor TMachine ((*! module IntSyn' : INTSYN !*)
+                  (*! module CompSyn' : COMPSYN !*)
                   (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                  structure Unify : UNIFY
+                  module Unify : UNIFY
                   (*! sharing Unify.IntSyn = IntSyn' !*)
 
-                  structure Assign : ASSIGN
+                  module Assign : ASSIGN
                   (*! sharing Assign.IntSyn = IntSyn' !*)
 
-                  structure Index : INDEX
+                  module Index : INDEX
                   (*! sharing Index.IntSyn = IntSyn' !*)
 
-                  structure CPrint : CPRINT
+                  module CPrint : CPRINT
                   (*! sharing CPrint.IntSyn = IntSyn' !*)
                   (*! sharing CPrint.CompSyn = CompSyn' !*)
 
-                  structure Names : NAMES
+                  module Names : NAMES
                   (*! sharing Names.IntSyn = IntSyn' !*)
-                  (*! structure CSManager : CS_MANAGER !*)
+                  (*! module CSManager : CS_MANAGER !*)
                   (*! sharing CSManager.IntSyn = IntSyn' !*)
 
-                  structure Trace : TRACE
+                  module Trace : TRACE
                   (*! sharing Trace.IntSyn = IntSyn' !*)
                       )
   : ABSMACHINE =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure CompSyn = CompSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module CompSyn = CompSyn' !*)
 
   local
-    structure I = IntSyn
-    structure C = CompSyn
+    module I = IntSyn
+    module C = CompSyn
 
-    structure T = Trace
-    structure N = Names
+    module T = Trace
+    module N = Names
 
   (* We write
        G |- M : g
@@ -95,21 +95,21 @@ struct
   fun solve' ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) = matchAtom ((p,s), dp, sc)
     | solve' ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' as I.Dec(SOME(x),_) = N.decUName (G, I.Dec(NONE, I.EClo(A,s)))
-        val _ = T.signal (G, T.IntroHyp (Ha, D'))
+        let D' as I.Dec(SOME(x),_) = N.decUName (G, I.Dec(NONE, I.EClo(A,s)))
+        let _ = T.signal (G, T.IntroHyp (Ha, D'))
       in
         solve' ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
-                (fn M => (T.signal (G, T.DischargeHyp (Ha, D'));
+                (fun M -> (T.signal (G, T.DischargeHyp (Ha, D'));
                           sc (I.Lam (D', M)))))
       end
     | solve' ((C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' as I.Dec(SOME(x),V) = N.decUName (G, I.decSub (D, s))
-        val Ha = I.targetHead V
-        val _ = T.signal (G, T.IntroParm (Ha, D'))
+        let D' as I.Dec(SOME(x),V) = N.decUName (G, I.decSub (D, s))
+        let Ha = I.targetHead V
+        let _ = T.signal (G, T.IntroParm (Ha, D'))
       in
         solve' ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl(dPool, C.Parameter)),
-                (fn M => (T.signal (G, T.DischargeParm (Ha,  D'));
+                (fun M -> (T.signal (G, T.DischargeParm (Ha,  D'));
                           sc (I.Lam (D', M)))))
       end
 
@@ -149,22 +149,22 @@ struct
     | rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
         (* is this EVar redundant? -fp *)
-        val X = I.newEVar (G, I.EClo(A, s))
+        let X = I.newEVar (G, I.EClo(A, s))
       in
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, HcHa,
-                (fn S =>
+                (fun S ->
                  (T.signal (G, T.Subgoal (HcHa, fn () => subgoalNum S));
-                  solve' ((g, s), dp, (fn M => sc (I.App (M, S)))))))
+                  solve' ((g, s), dp, (fun M -> sc (I.App (M, S)))))))
       end
     | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
-        val X = I.newEVar (G, I.EClo (A,s))
+        let X = I.newEVar (G, I.EClo (A,s))
       in
-        rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, HcHa, (fn S => sc (I.App(X,S))))
+        rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, HcHa, (fun S -> sc (I.App(X,S))))
       end
     | rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
-        val X = I.newAVar ()
+        let X = I.newAVar ()
       in
         rSolve (ps', (r, I.Dot(I.Exp(I.EClo(X, I.Shift(~d))), s)), dp, HcHa, sc)
         (* we don't increase the proof term here! *)
@@ -189,8 +189,8 @@ struct
            false)
     | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), HcHa, cnstr, sc) =
       let
-        val G'' = compose (G, G')
-        val s' = shiftSub (G', s)
+        let G'' = compose (G, G')
+        let s' = shiftSub (G', s)
       in
         if Assign.unifiable (G'', (N, s'), (e1, s'))
            then aSolve ((eqns, s), dp, HcHa, cnstr, sc)
@@ -210,14 +210,14 @@ struct
               any effect  sc M  might have
 
      This first tries the local assumptions in dp then
-     the static signature.
+     the static module type.
   *)
   and matchAtom (ps' as (I.Root(Ha,S),s), dp as C.DProg (G,dPool), sc) =
       let
-        val tag = T.tagGoal ()
-        val _ = T.signal (G, T.SolveGoal (tag, Ha, I.EClo ps'))
+        let tag = T.tagGoal ()
+        let _ = T.signal (G, T.SolveGoal (tag, Ha, I.EClo ps'))
 
-        val deterministic = C.detTableCheck (cidFromHead Ha)
+        let deterministic = C.detTableCheck (cidFromHead Ha)
         exception SucceedOnce of I.Spine
 
         (* matchSig [c1,...,cn] = ()
@@ -232,13 +232,13 @@ struct
              ())        (* return on failure *)
           | matchSig (Hc::sgn') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
               (* trail to undo EVar instantiations *)
               if
                 CSManager.trail (fn () =>
                                  rSolve (ps', (r, I.id), dp, (Hc, Ha),
-                                         (fn S => (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
+                                         (fun S -> (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
                                                    sc (I.Root(Hc, S))))))
                 then (* deep backtracking *)
                   (T.signal (G, T.RetryGoal (tag, (Hc, Ha), I.EClo ps'));
@@ -259,13 +259,13 @@ struct
              ())        (* return on failure *)
           | matchSigDet (Hc::sgn') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
               (* trail to undo EVar instantiations *)
               (if
                 CSManager.trail (fn () =>
                                  rSolve (ps', (r, I.id), dp, (Hc, Ha),
-                                         (fn S => (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
+                                         (fun S -> (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
                                                    raise SucceedOnce S))))
                 then (* deep backtracking *)
                   (T.signal (G, T.RetryGoal (tag, (Hc, Ha), I.EClo ps'));
@@ -283,7 +283,7 @@ struct
            with the most recent one.
         *)
         fun matchDProg (I.Null, _) =
-            (* dynamic program exhausted, try signature *)
+            (* dynamic program exhausted, try module type *)
             if deterministic
               then matchSigDet (Index.lookup (cidFromHead Ha))
             else matchSig (Index.lookup (cidFromHead Ha))
@@ -294,7 +294,7 @@ struct
                  then (* #succeeds = 1 *)
                    ((if (CSManager.trail (* trail to undo EVar instantiations *)
                         (fn () => rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,(I.BVar(k), Ha),
-                                          (fn S => (T.signal (G, T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
+                                          (fun S -> (T.signal (G, T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
                                                     raise SucceedOnce S)))))
                       then (* deep backtracking *)
                         (T.signal (G, T.RetryGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
@@ -310,7 +310,7 @@ struct
                     CSManager.trail (fn () =>
                                      rSolve (ps', (r, I.comp(s, I.Shift(k))),
                                              dp, (I.BVar(k), Ha),
-                                             (fn S => (T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps');
+                                             (fun S -> (T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps');
                                                        sc (I.Root(I.BVar(k), S))))))
                     then (* deep backtracking *)
                       (T.signal (G, T.RetryGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
@@ -323,7 +323,7 @@ struct
               matchDProg (dPool', k+1)
         fun matchConstraint (cnstrSolve, try) =
               let
-                val succeeded =
+                let succeeded =
                   CSManager.trail
                     (fn () =>
                        case (cnstrSolve (G, I.SClo (S, s), try))

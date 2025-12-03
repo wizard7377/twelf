@@ -1,8 +1,8 @@
 
-structure GrowArray :> GROWARRAY =
+module GrowArray :> GROWARRAY =
 struct
 
-  structure A = Array
+  module A = Array
 
   type 'a growarray = (int * ('a option) A.array) ref
 
@@ -29,9 +29,9 @@ struct
               if x >= (n + 1) 
               then x
               else nextpower (x * 2)
-          val ns = nextpower (A.length a)
-          val na = A.tabulate(ns,
-                              (fn i =>
+          let ns = nextpower (A.length a)
+          let na = A.tabulate(ns,
+                              (fun i ->
                                   if i < l
                                   then A.sub(a, i)
                                   else NONE))
@@ -43,8 +43,8 @@ struct
     if n < 0 then raise Subscript
     else
       let 
-        val _ = accomodate r n
-        val (l, a) = !r
+        let _ = accomodate r n
+        let (l, a) = !r
       in
         A.update(a, n, SOME x);
         (* also update 'used' *)
@@ -55,8 +55,8 @@ struct
 
   fun append (r as ref(n, _)) x =
     let
-      val _ = accomodate r (n + 1)
-      val (_, a) = !r
+      let _ = accomodate r (n + 1)
+      let (_, a) = !r
     in
       A.update(a, n, SOME x);
       r := (n + 1, a)
@@ -67,7 +67,7 @@ struct
       handle Subscript => false
 
   fun finalize (ref (n, a)) =
-    A.tabulate (n, (fn x => case A.sub(a, x) of
+    A.tabulate (n, (fun x -> case A.sub(a, x) of
                                    NONE => raise Subscript
                                  | SOME z => z))
 

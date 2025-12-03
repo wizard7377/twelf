@@ -1,11 +1,11 @@
 (* Printing of functional proof terms *)
 (* Author: Carsten Schuermann *)
 
-signature TOMEGAPRINT =
+module type TOMEGAPRINT =
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA  !*)
-  structure Formatter : FORMATTER
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA  !*)
+  module Formatter : FORMATTER
 
   exception Error of string
 
@@ -34,5 +34,5 @@ sig
   val ctxToString : Tomega.Dec IntSyn.Ctx -> string
 
 (*  val lemmaDecToString : FunSyn.LemmaDec -> string *)
-end;  (* signature TOMEGAPRINT *)
+end;  (* module type TOMEGAPRINT *)
 

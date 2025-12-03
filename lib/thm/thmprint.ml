@@ -2,16 +2,16 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor ThmPrint (structure ThmSyn' : THMSYN
-                    structure Formatter : FORMATTER)
+let recctor ThmPrint (module ThmSyn' : THMSYN
+                    module Formatter : FORMATTER)
   : THMPRINT =
 struct
-  structure ThmSyn = ThmSyn'
+  module ThmSyn = ThmSyn'
 
   local
-    structure L = ThmSyn
-    structure I = IntSyn
-    structure F = Formatter
+    module L = ThmSyn
+    module I = IntSyn
+    module F = Formatter
 
     fun fmtIds nil = []
       | fmtIds (n :: nil) = [F.String (n)]
@@ -69,12 +69,12 @@ struct
         F.makestring_fmt (F.HVbox ([F.String (I.conDecName (I.sgnLookup cid))]))
 
   in
-    val tDeclToString = tDeclToString
-    val callpatsToString = callpatsToString
-    val ROrderToString = ROrderToString            (* -bp *)
-    val rDeclToString = rDeclToString              (* -bp *)
-    val tabledDeclToString = tabledDeclToString
-    val keepTableDeclToString = keepTableDeclToString
+    let tDeclToString = tDeclToString
+    let callpatsToString = callpatsToString
+    let ROrderToString = ROrderToString            (* -bp *)
+    let rDeclToString = rDeclToString              (* -bp *)
+    let tabledDeclToString = tabledDeclToString
+    let keepTableDeclToString = keepTableDeclToString
   end (* local *)
 
 end; (* functor ThmPrint *)

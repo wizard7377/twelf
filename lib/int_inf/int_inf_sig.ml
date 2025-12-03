@@ -3,17 +3,17 @@
  * COPYRIGHT (c) 1995 by AT&T Bell Laboratories.  See COPYRIGHT file for details.
  *
  * This package is derived from Andrzej Filinski's bignum package.  It is versy
- * close to the definition of the optional IntInf structure in the SML'97 basis.
+ * close to the definition of the optional IntInf module in the SML'97 basis.
  *)
 
-signature INT_INF =
+module type INT_INF =
   sig
     include INTEGER
 
-    val divmod  : (int * int) -> (int * int)
-    val quotrem : (int * int) -> (int * int)
-    val pow : (int * Int.int) -> int
-    val log2 : int -> Int.int
+    let divmod  : (int * int) -> (int * int)
+    let quotrem : (int * int) -> (int * int)
+    let pow : (int * Int.int) -> int
+    let log2 : int -> Int.int
 
-  end (* signature INT_INF *)
+  end (* module type INT_INF *)
 

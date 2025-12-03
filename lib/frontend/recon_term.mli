@@ -1,15 +1,15 @@
 (* External Syntax and Type Reconstruction *)
 (* Author: Frank Pfenning *)
 
-(* signature EXTSYN
+(* module type EXTSYN
    provides the interface for type reconstruction as seen
    by the parser
 *)
 
-signature EXTSYN =
+module type EXTSYN =
 sig
 
-  (*! structure Paths : PATHS !*)
+  (*! module Paths : PATHS !*)
 
   type term				(* term *)
   type dec				(* variable declaration *)
@@ -36,23 +36,23 @@ sig
   val dec : string option * term * Paths.region -> dec (* id : tm | _ : tm *)
   val dec0 : string option * Paths.region -> dec (* id | _  (type omitted) *)
 
-end;  (* signature EXTSYN *)
+end;  (* module type EXTSYN *)
 
-(* signature RECON_TERM
+(* module type RECON_TERM
    provides the interface to type reconstruction seen by Twelf 
 *)
 
-signature RECON_TERM =
+module type RECON_TERM =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
   include EXTSYN
 
   exception Error of string
   val resetErrors : string -> unit      (* filename -fp *)
   val checkErrors : Paths.region -> unit
 
-  datatype TraceMode = Progressive | Omniscient
+  type TraceMode = Progressive | Omniscient
   val trace : bool ref
   val traceMode : TraceMode ref
 
@@ -67,7 +67,7 @@ sig
   val jof : term * term -> job
   val jof' : term * IntSyn.Exp -> job
 
-  datatype Job =
+  type Job =
       JNothing
     | JAnd of Job * Job
     | JWithCtx of IntSyn.Dec IntSyn.Ctx * Job
@@ -88,4 +88,4 @@ sig
   val internalInst : 'a -> 'b
   val externalInst : 'a -> 'b
 
-end;  (* signature RECON_TERM *)
+end;  (* module type RECON_TERM *)

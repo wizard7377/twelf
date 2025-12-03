@@ -1,12 +1,12 @@
 (* Substitution Trees *)
 (* Author: Brigitte Pientka *)
 
-signature SUBTREE =
+module type SUBTREE =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN     !*)
-  (*! structure RBSet : RBSET  !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module CompSyn : COMPSYN     !*)
+  (*! module RBSet : RBSET  !*)
 
   type nvar = int      (* index for normal variables *)
   type bvar = int      (* index for bound variables *)
@@ -14,19 +14,19 @@ sig
 
   (* normal (linear) substitutions *)
 (*  type normalSubsts = (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp) RBSet.ordSet *)
-  datatype typeLabel = TypeLabel | Body
+  type typeLabel = TypeLabel | Body
   type normalSubsts =  (typeLabel * IntSyn.Exp) RBSet.ordSet 
   type querySubsts = (IntSyn.Dec IntSyn.Ctx * (typeLabel * IntSyn.Exp)) RBSet.ordSet 
 
-  datatype CGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid  * CompSyn.Conjunction * int
+  type CGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid  * CompSyn.Conjunction * int
 
   (* assignable (linear) subsitutions *)
-  datatype AssSub = Assign of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp
+  type AssSub = Assign of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp
   type assSubsts = AssSub RBSet.ordSet  (* key = int = bvar *) 
 
-  datatype Cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
+  type Cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
       
-  datatype Tree = 
+  type Tree = 
     Leaf of normalSubsts *  IntSyn.Dec IntSyn.Ctx * CGoal
   | Node of normalSubsts * Tree RBSet.ordSet
 
@@ -41,5 +41,5 @@ sig
 
 (*  val goalToString : string -> IntSyn.Dec IntSyn.Ctx * CompSyn.Goal * IntSyn.Sub -> string *)
 
-end;  (* signature SUBTREE *)
+end;  (* module type SUBTREE *)
 

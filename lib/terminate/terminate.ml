@@ -1,36 +1,36 @@
 
-structure Checking = 
-  Checking (structure Global = Global
-	  (*! structure IntSyn' = IntSyn !*)
-	  structure Whnf = Whnf
-	  structure Conv = Conv
-	  structure Unify = UnifyTrail
-	  structure Trail = Trail
-	  structure Names = Names
-	  structure Index = Index
-	  structure Subordinate = Subordinate
-	  structure Formatter = Formatter
-	  structure Print = Print
-	  structure Order = Order
-	  structure Paths = Paths
-	  structure Origins = Origins
-	  (*! structure CSManager = CSManager !*)
+module Checking = 
+  Checking (module Global = Global
+	  (*! module IntSyn' = IntSyn !*)
+	  module Whnf = Whnf
+	  module Conv = Conv
+	  module Unify = UnifyTrail
+	  module Trail = Trail
+	  module Names = Names
+	  module Index = Index
+	  module Subordinate = Subordinate
+	  module Formatter = Formatter
+	  module Print = Print
+	  module Order = Order
+	  module Paths = Paths
+	  module Origins = Origins
+	  (*! module CSManager = CSManager !*)
 	      );
 
 
-structure Reduces =
-  Reduces (structure Global = Global
-	  (*! structure IntSyn' = IntSyn !*)
-	  structure Whnf = Whnf
-	  structure Names = Names
-	  structure Index = Index
-	  structure Subordinate = Subordinate
-	  structure Formatter = Formatter
-	  structure Print = Print
-	  structure Order = Order
-	  structure Checking = Checking 
-	  structure Paths = Paths
-	  structure Origins = Origins
-	  (*! structure CSManager = CSManager !*)
+module Reduces =
+  Reduces (module Global = Global
+	  (*! module IntSyn' = IntSyn !*)
+	  module Whnf = Whnf
+	  module Names = Names
+	  module Index = Index
+	  module Subordinate = Subordinate
+	  module Formatter = Formatter
+	  module Print = Print
+	  module Order = Order
+	  module Checking = Checking 
+	  module Paths = Paths
+	  module Origins = Origins
+	  (*! module CSManager = CSManager !*)
 	     );
 

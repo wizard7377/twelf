@@ -2,64 +2,64 @@
 (* Author: Carsten Schuermann *)
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
-functor MTPRecursion (structure MTPGlobal : MTPGLOBAL
-                      structure Global : GLOBAL
-                      (*! structure IntSyn : INTSYN !*)
-                      (*! structure FunSyn : FUNSYN !*)
+let recctor MTPRecursion (module MTPGlobal : MTPGLOBAL
+                      module Global : GLOBAL
+                      (*! module IntSyn : INTSYN !*)
+                      (*! module FunSyn : FUNSYN !*)
                       (*! sharing FunSyn.IntSyn = IntSyn !*)
-                      structure StateSyn' : STATESYN
+                      module StateSyn' : STATESYN
                       (*! sharing StateSyn'.IntSyn = IntSyn !*)
                       (*! sharing StateSyn'.FunSyn = FunSyn !*)
-                      structure Abstract : ABSTRACT
+                      module Abstract : ABSTRACT
                       (*! sharing Abstract.IntSyn = IntSyn !*)
-                      structure MTPAbstract : MTPABSTRACT
+                      module MTPAbstract : MTPABSTRACT
                       (*! sharing MTPAbstract.IntSyn = IntSyn !*)
                       (*! sharing MTPAbstract.FunSyn = FunSyn !*)
                         sharing MTPAbstract.StateSyn = StateSyn'
-                      structure FunTypeCheck : FUNTYPECHECK
+                      module FunTypeCheck : FUNTYPECHECK
                       (*! sharing FunTypeCheck.FunSyn = FunSyn !*)
                         sharing FunTypeCheck.StateSyn = StateSyn'
-                      structure MTPrint : MTPRINT
+                      module MTPrint : MTPRINT
                         sharing MTPrint.StateSyn = StateSyn'
-                      structure Whnf : WHNF
+                      module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = IntSyn !*)
-                      structure Unify : UNIFY
+                      module Unify : UNIFY
                       (*! sharing Unify.IntSyn = IntSyn !*)
-                      structure Conv : CONV
+                      module Conv : CONV
                       (*! sharing Conv.IntSyn = IntSyn !*)
-                      structure Names : NAMES
+                      module Names : NAMES
                       (*! sharing Names.IntSyn = IntSyn !*)
-                      structure Subordinate : SUBORDINATE
+                      module Subordinate : SUBORDINATE
                       (*! sharing Subordinate.IntSyn = IntSyn !*)
-                      structure Print : PRINT
+                      module Print : PRINT
                       (*! sharing Print.IntSyn = IntSyn !*)
-                      structure TypeCheck : TYPECHECK
+                      module TypeCheck : TYPECHECK
                       (*! sharing TypeCheck.IntSyn = IntSyn !*)
-                      structure Formatter : FORMATTER
-                      structure FunPrint :FUNPRINT
+                      module Formatter : FORMATTER
+                      module FunPrint :FUNPRINT
                       (*! sharing FunPrint.FunSyn = FunSyn !*)
                         sharing FunPrint.Formatter = Formatter
-                        (*! structure CSManager : CS_MANAGER !*)
+                        (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn !*)
 
 )  : MTPRECURSION =
 struct
 
-  structure StateSyn = StateSyn'
+  module StateSyn = StateSyn'
 
   exception Error of string
 
   type operator = StateSyn.State
 
   local
-    structure I = IntSyn
-    structure F = FunSyn
-    structure S = StateSyn
-    structure N = Names
-    structure Fmt = Formatter
-    structure A = MTPAbstract
+    module I = IntSyn
+    module F = FunSyn
+    module S = StateSyn
+    module N = Names
+    module Fmt = Formatter
+    module A = MTPAbstract
 
-    datatype Dec =                      (* Newly created *)
+    type Dec =                      (* Newly created *)
       Lemma of int * F.For              (* Residual Lemma *)
 
 
@@ -136,22 +136,22 @@ struct
      and  af : forall . |- AF aux formulas. Ex . |- AF' = {{G''}} AF  auxFor
      *)
     fun createCtx ((G, B), nil, s) =
-          ((G, B), s, fn AF => AF)
+          ((G, B), s, fun AF -> AF)
       | createCtx ((G, B), n :: ll, s) =
         let
-          val F.LabelDec (l, G1, G2) = F.labelLookup n
+          let F.LabelDec (l, G1, G2) = F.labelLookup n
 
-          val t = someEVars (G, G1, I.id)
+          let t = someEVars (G, G1, I.id)
                                           (* G |- s' : G1 *)
-          val G2' = ctxSub (G2, t)
+          let G2' = ctxSub (G2, t)
                                           (* G |- G2' ctx *)
-          val (G', B') = appendCtx ((G, B), S.Parameter (SOME n), G2')
+          let (G', B') = appendCtx ((G, B), S.Parameter (SOME n), G2')
                                           (* . |- G' = G, G2' ctx *)
-          val s' = I.comp (s, I.Shift (List.length  G2'))
+          let s' = I.comp (s, I.Shift (List.length  G2'))
                                           (* G' |- s'' : G0 *)
-          val (GB'', s'', af'') = createCtx ((G', B'), ll, s')
+          let (GB'', s'', af'') = createCtx ((G', B'), ll, s')
         in
-          (GB'', s'', fn AF => A.Block ((G, t, List.length G1, G2'), af'' AF))
+          (GB'', s'', fun AF -> A.Block ((G, t, List.length G1, G2'), af'' AF))
         end
 
 
@@ -166,7 +166,7 @@ struct
     fun createEVars (G, I.Null) = I.Shift (I.ctxLength G)
       | createEVars (G, I.Decl (G0, I.Dec (_, V))) =
         let
-          val s = createEVars (G, G0)
+          let s = createEVars (G, G0)
         in
           I.Dot (I.Exp (I.newEVar (G, I.EClo (V, s))), s)
         end
@@ -208,13 +208,13 @@ struct
         if l < 0 then NONE
         else
           let
-            val F.LabelDec (name, G1, G2) = F.labelLookup l
-            val s = someEVars (G', G1, I.id)
-            val G2' = ctxSub (G2, s)
+            let F.LabelDec (name, G1, G2) = F.labelLookup l
+            let s = someEVars (G', G1, I.id)
+            let G2' = ctxSub (G2, s)
 
-            val t = someEVars (G', G1, I.id)
+            let t = someEVars (G', G1, I.id)
                                           (* G' |- t : G1 *)
-            val G2' = ctxSub (G2, t)
+            let G2' = ctxSub (G2, t)
                                           (* G |- G2' ctx *)
           in
             if not (List.exists (fn l' => l = l') ll) andalso checkCtx (G', G2', (V, s)) then SOME l
@@ -232,7 +232,7 @@ struct
     fun appendRL (nil, Ds) = Ds
       | appendRL ((L as Lemma (n, F)) :: Ds1, Ds2) =
         let
-          val Ds' = appendRL (Ds1, Ds2)
+          let Ds' = appendRL (Ds1, Ds2)
         in
           if List.exists (fn (Lemma (n', F')) => (n = n') andalso F.convFor ((F, I.id), (F', I.id))) Ds'
             then Ds'
@@ -265,17 +265,17 @@ struct
     *)
     fun recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), ll, Ocurrent, H, F)) =
       let
-        val ((G', B'), s', af) = createCtx ((G0, B0), ll, I.id)
+        let ((G', B'), s', af) = createCtx ((G0, B0), ll, I.id)
                                         (* G' |- s' : G0 *)
-        val t' = createEVars (G', Gall)
+        let t' = createEVars (G', Gall)
                                         (* G' |- t' : Gall *)
-        val AF = af (A.Head (G', (Fex, t'), I.ctxLength Gall))
-        val Oex' =  S.orderSub (Oex, t')
-        val Ocurrent' = S.orderSub (Ocurrent, s')
+        let AF = af (A.Head (G', (Fex, t'), I.ctxLength Gall))
+        let Oex' =  S.orderSub (Oex, t')
+        let Ocurrent' = S.orderSub (Ocurrent, s')
 
         fun sc Ds =
           let
-            val Fnew = A.abstractApproxFor AF
+            let Fnew = A.abstractApproxFor AF
           in
             if List.exists (fn (nhist, Fhist) => nih = nhist andalso
                             F.convFor ((Fnew, I.id), (Fhist, I.id))) H then
@@ -289,7 +289,7 @@ struct
              of NONE => Ds
               | SOME l' =>
                   let
-                    val Ds' = recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), l' :: ll, Ocurrent, H, F))
+                    let Ds' = recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), l' :: ll, Ocurrent, H, F))
                   in
                     appendRL (Ds', Ds)
                   end)
@@ -317,8 +317,8 @@ struct
         fun set_parameter' ((I.Null, I.Null), _, Ds) =  Ds
           | set_parameter' ((I.Decl (G, D), I.Decl (B, S.Parameter _)), k, Ds) =
             let
-              val D' as I.Dec (_, V') = I.decSub (D, I.Shift (k))
-              val Ds' =
+              let D' as I.Dec (_, V') = I.decSub (D, I.Shift (k))
+              let Ds' =
                 CSManager.trail (fn () =>
                              if Unify.unifiable (G1, (V, I.id), (V', I.id))
                                andalso Unify.unifiable (G1, (X, I.id), (I.Root (I.BVar k, I.Nil), I.id))
@@ -396,7 +396,7 @@ struct
         (case I.ctxLookup (B, n)
            of S.Parameter _ =>
              let
-               val I.Dec (_, V') = I.ctxDec (G, n)
+               let I.Dec (_, V') = I.ctxDec (G, n)
              in
                ltSpine (GB, k, (Us, Vs), ((S', s'), (V', I.id)), sc, ac, Ds)
              end
@@ -406,12 +406,12 @@ struct
       | ltW (GB as (G, B), k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
                                                    (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, ac, Ds) =
         let
-          val Ds' = Ds (* ctxBlock (GB, I.EClo (V1', s1'), k, sc, ac, Ds) *)
+          let Ds' = Ds (* ctxBlock (GB, I.EClo (V1', s1'), k, sc, ac, Ds) *)
         in
           if Subordinate.equiv (I.targetFam V, I.targetFam V1') (* == I.targetFam V2' *) then
             let  (* enforce that X gets only bound to parameters *)
-              val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-              val sc' = fn Ds'' => set_parameter (GB, X, k, sc, ac, Ds'')
+              let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+              let sc' = fn Ds'' => set_parameter (GB, X, k, sc, ac, Ds'')
             in
               lt (GB, k, ((U, s1), (V, s2)),
                   ((U', I.Dot (I.Exp (X), s1')),
@@ -420,7 +420,7 @@ struct
           else
             if Subordinate.below (I.targetFam V1', I.targetFam V) then
               let
-                val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+                let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
               in
                 lt (GB, k, ((U, s1), (V, s2)),
                     ((U', I.Dot (I.Exp (X), s1')),
@@ -437,7 +437,7 @@ struct
       | ltSpineW (GB, k, (Us, Vs), ((I.App (U', S'), s1'),
                                     (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, ac, Ds) =
         let
-          val Ds' = le (GB, k, (Us, Vs), ((U', s1'), (V1', s2')), sc, ac, Ds)
+          let Ds' = le (GB, k, (Us, Vs), ((U', s1'), (V1', s2')), sc, ac, Ds)
         in
           ltSpine (GB, k, (Us, Vs), ((S', s1'),
                                      (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, ac, Ds')
@@ -485,7 +485,7 @@ struct
 
     and le (GB, k, (Us, Vs), (Us', Vs'), sc, ac, Ds) =
         let
-          val Ds' = eq (GB, (Us, Vs), (Us', Vs'), sc, ac, Ds)
+          let Ds' = eq (GB, (Us, Vs), (Us', Vs'), sc, ac, Ds)
         in
           leW (GB, k, (Us, Vs), Whnf.whnfEta (Us', Vs'), sc, ac, Ds')
         end
@@ -493,12 +493,12 @@ struct
     and leW (GB as (G, B), k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
                                                    (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, ac, Ds) =
         let
-          val Ds' = ac (GB, (V1', s1'), Ds)
+          let Ds' = ac (GB, (V1', s1'), Ds)
         in
           if Subordinate.equiv (I.targetFam V, I.targetFam V1') (* == I.targetFam V2' *) then
             let
-              val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-              val sc' = fn Ds'' => set_parameter (GB, X, k, sc, ac, Ds'')
+              let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+              let sc' = fn Ds'' => set_parameter (GB, X, k, sc, ac, Ds'')
             (* enforces that X can only bound to parameter *)
             in
               le (GB, k, ((U, s1), (V, s2)),
@@ -508,13 +508,13 @@ struct
           else
             if Subordinate.below  (I.targetFam V1', I.targetFam V) then
               let
-                val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-                val sc' = sc
-                val Ds'' =  le (GB, k, ((U, s1), (V, s2)),
+                let X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+                let sc' = sc
+                let Ds'' =  le (GB, k, ((U, s1), (V, s2)),
                                 ((U', I.Dot (I.Exp (X), s1')),
                                  (V', I.Dot (I.Exp (X), s2'))), sc', ac, Ds')
-(*              val sc'' = fn Ds'' => set_parameter (GB, X, k, sc, ac, Ds'')   (* BUG -cs *)
-                val Ds''' =  le (GB, k, ((U, s1), (V, s2)),
+(*              let sc'' = fn Ds'' => set_parameter (GB, X, k, sc, ac, Ds'')   (* BUG -cs *)
+                let Ds''' =  le (GB, k, ((U, s1), (V, s2)),
                                  ((U', I.Dot (I.Exp (X), s1')),
                                   (V', I.Dot (I.Exp (X), s2'))), sc'', ac, Ds'') *)
               in
@@ -555,7 +555,7 @@ struct
     and ordltLex (GB, nil, nil, sc, ac, Ds) = Ds
       | ordltLex (GB, O :: L, O' :: L', sc, ac, Ds) =
         let
-          val Ds' = CSManager.trail (fn () => ordlt (GB, O, O', sc, ac, Ds))
+          let Ds' = CSManager.trail (fn () => ordlt (GB, O, O', sc, ac, Ds))
         in
           ordeq (GB, O, O', fn Ds'' =>  ordltLex (GB, L, L', sc, ac, Ds''), ac, Ds')
         end
@@ -574,7 +574,7 @@ struct
     and ordltSimul (GB, nil, nil, sc, ac, Ds) = Ds
       | ordltSimul (GB, O :: L, O' :: L', sc, ac, Ds) =
         let
-          val Ds'' = CSManager.trail (fn () => ordlt (GB, O, O',
+          let Ds'' = CSManager.trail (fn () => ordlt (GB, O, O',
                                                   fn Ds' => ordleSimul (GB, L, L', sc, ac, Ds'), ac, Ds))
         in
           ordeq (GB, O, O', fn Ds' => ordltSimul (GB, L, L', sc, ac, Ds'), ac, Ds'')
@@ -641,7 +641,7 @@ struct
     *)
     and ordle (GB, O, O', sc, ac, Ds) =
         let
-          val Ds' = CSManager.trail (fn () => ordeq (GB, O, O', sc, ac, Ds))
+          let Ds' = CSManager.trail (fn () => ordeq (GB, O, O', sc, ac, Ds))
         in
           ordlt (GB, O, O', sc, ac, Ds')
         end
@@ -671,41 +671,41 @@ struct
                   fn (s, de') =>
                                         (* s'  :  GB, Ds |- s : GB   *)
                      let
-                       val (s', V', F') = sc (s, de')
+                       let (s', V', F') = sc (s, de')
                                         (* s'  : GB, Ds, G'[...] |- s' : GB, G *)
                                         (* V'  : maps (GB, Ds, G'[...] |- V type) to (GB, Ds |- {G'[...]} V type) *)
                                         (* F'  : maps (GB, Ds, G'[...] |- F for) to (GB, Ds |- {{G'[...]}} F for) *)
                      in
                        (I.dot1 s',
                                         (* _   : GB, Ds, G'[...], D[?] |- _ : GB, G, D *)
-                        fn V => V' (Abstract.piDepend ((Whnf.normalizeDec (D, s'), I.Meta), Whnf.normalize (V, I.id))),
+                        fun V -> V' (Abstract.piDepend ((Whnf.normalizeDec (D, s'), I.Meta), Whnf.normalize (V, I.id))),
                                         (* _   : maps (GB, Ds, G'[....], D[?] |- V : type) to  (GB, Ds, |- {G[....], D[?]} V : type) *)
-                        fn F => F' (F.All (F.Prim (I.decSub (D, s')), F))
+                        fun F -> F' (F.All (F.Prim (I.decSub (D, s')), F))
                                         (* _   : maps (GB, Ds, G'[....], D[?] |- F : for) to  (GB, Ds, |- {{G[....], D[?]}} F : for) *)
                         )
                      end)
       | skolem ((du, de), (G, B), w, F.Ex (I.Dec (name, V), F), sc) =
                                         (* V   : GB, G |- V type *)
           let
-            val (s', V', F') = sc (w, de)
+            let (s', V', F') = sc (w, de)
                                         (* s'  : GB, Ds, G'[...] |- s' : GB, G *)
                                         (* V'  : maps  (GB, Ds, G'[...] |- V : type)   to   (GB, Ds |- {G'[...]} V : type) *)
                                         (* F'  : maps  (GB, Ds, G'[...] |- F : for)    to   (GB, Ds |- {{G'[...]}} F : for) *)
 
-            val V1 = I.EClo (V, s')
+            let V1 = I.EClo (V, s')
                                         (* V1  : GB, Ds, G'[...] |- V1 = V [s'] : type *)
-            val V2 = Whnf.normalize (V' V1, I.id)
+            let V2 = Whnf.normalize (V' V1, I.id)
                                         (* V2  : GB, Ds |- {G'[...]} V2 : type *)
 
-            val F1 = F.Ex (I.Dec (name, V1), F.True)
+            let F1 = F.Ex (I.Dec (name, V1), F.True)
                                         (* F1  : GB, Ds, G'[...] |- F1 : for *)
-            val F2 = F' F1
+            let F2 = F' F1
                                         (* F2  : GB, Ds |- {{G'[...]}} F2 : for *)
-            val _ = if !Global.doubleCheck then FunTypeCheck.isFor (G, F2) else ()
+            let _ = if !Global.doubleCheck then FunTypeCheck.isFor (G, F2) else ()
 
-            val D2 = I.Dec (NONE, V2)
+            let D2 = I.Dec (NONE, V2)
                                         (* D2  : GB, Ds |- D2 : type *)
-            val T2 = (case F2
+            let T2 = (case F2
                         of F.All _ => S.Lemma (S.RL)
                          | _ => S.Lemma (S.Splits (!MTPGlobal.maxSplit)))
                                         (* T2  : GB, Ds |- T2 : tag *)
@@ -714,7 +714,7 @@ struct
                     fn (s, de') =>
                                         (* s   : GB, Ds, D2 |- s : GB *)
                        let
-                         val (s', V', F') = sc (s, de')
+                         let (s', V', F') = sc (s, de')
                                         (* s'  : GB, Ds, D2, G'[...] |- s' : GB, G *)
                                         (* V'  : maps (GB, Ds, D2, G'[...] |- V type) to (GB, Ds, D2 |- {G'[...]} V type) *)
                                         (* F'  : maps (GB, Ds, D2, G'[...] |- F for) to (GB, Ds, D2 |- {{G'[...]}} F for) *)
@@ -738,9 +738,9 @@ struct
     fun updateState (S, (nil, s)) = S
       | updateState (S as S.State (n, (G, B), (IH, OH), d, O, H, F), (Lemma (n', Frl') :: L, s)) =
         let
-          val ((G'', B''), s') = skolem ((0, 0), (G, B), I.id, F.forSub (Frl', s),
+          let ((G'', B''), s') = skolem ((0, 0), (G, B), I.id, F.forSub (Frl', s),
                                          fn (s', _) => (s', fn V' => V', fn F' => F'))
-          val s'' = I.comp (s, s')
+          let s'' = I.comp (s, s')
         in
           updateState (S.State (n, (G'', B''), (IH, OH), d, S.orderSub (O, s'),
                                 (n', F.forSub (Frl', s'')) ::
@@ -762,23 +762,23 @@ struct
           selectFormula (n, (I.Decl (G0, D), F, O), S)
       | selectFormula (n, (G0, F.And (F1, F2), S.And (O1, O2)), S) =
         let
-          val (n', S') = selectFormula (n, (G0, F1, O1), S)
+          let (n', S') = selectFormula (n, (G0, F1, O1), S)
         in
           selectFormula (n, (G0, F2, O2), S')
         end
       | selectFormula (nih, (Gall, Fex, Oex), S as S.State (ncurrent, (G0, B0), (_, _), _, Ocurrent, H, F)) =
         let
 
-          val Ds = recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), nil, Ocurrent, H, F))
+          let Ds = recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), nil, Ocurrent, H, F))
         in
           (nih+1, updateState (S, (Ds, I.id)))
         end
 
     fun expand (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) =
       let
-        val _ = if (!Global.doubleCheck) then FunTypeCheck.isState S else ();
+        let _ = if (!Global.doubleCheck) then FunTypeCheck.isState S else ();
 
-        val (_, S') = selectFormula (1, (I.Null, IH, OH), S)
+        let (_, S') = selectFormula (1, (I.Null, IH, OH), S)
       in
         S'
       end
@@ -795,8 +795,8 @@ struct
         (f P) handle Order.Error s => raise Error s
 
   in
-    val expand = handleExceptions expand
-    val apply = apply
-    val menu = menu
+    let expand = handleExceptions expand
+    let apply = apply
+    let menu = menu
   end (* local *)
 end; (* functor MTPRecursion *)

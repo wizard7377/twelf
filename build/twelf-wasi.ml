@@ -29,27 +29,27 @@
  *   forthcoming wasip2 standard.
  *)
 
-val bref: CharArray.array option ref = ref NONE
+let bref: CharArray.array option ref = ref NONE
 
-val e = _export "allocate": (int -> CharArray.array) -> unit;
-val _ = e (fn size =>
+let e = _export "allocate": (int -> CharArray.array) -> unit;
+let _ = e (fun size ->
 				  let
-					 val b = CharArray.tabulate (size, fn _ => Char.chr 0)
+					 let b = CharArray.tabulate (size, fun _ -> Char.chr 0)
 				  in
 					 bref := SOME b; b
 				  end)
 
-val e = _export "execute": (unit -> int) -> unit;
-val _ = e (fn () =>
+let e = _export "execute": (unit -> int) -> unit;
+let _ = e (fn () =>
 				  let
 					 fun codeOfStatus Twelf.OK = 0
 						| codeOfStatus Twelf.ABORT = 1
-					 val status = case !bref of
+					 let status = case !bref of
 											NONE => (print "No input buffer allocated"; Twelf.ABORT)
 										 | SOME b => Twelf.loadString (CharArray.vector b)
 				  in
 					 codeOfStatus status
 				  end)
 
-val e = _export "unsafe": (bool -> unit) -> unit;
-val _ = e (fn (unsafe) => Twelf.unsafe := unsafe)
+let e = _export "unsafe": (bool -> unit) -> unit;
+let _ = e (fn (unsafe) => Twelf.unsafe := unsafe)

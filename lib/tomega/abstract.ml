@@ -2,11 +2,11 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-functor TomegaAbstract
-  (structure Global : GLOBAL
-   structure Abstract : ABSTRACT
-   structure Whnf : WHNF
-   structure Subordinate : SUBORDINATE)
+let recctor TomegaAbstract
+  (module Global : GLOBAL
+   module Abstract : ABSTRACT
+   module Whnf : WHNF
+   module Subordinate : SUBORDINATE)
      : TOMEGAABSTRACT =
 struct
 
@@ -14,11 +14,11 @@ struct
 
 
   local
-    structure T = Tomega
-    structure I = IntSyn
-    structure M = ModeSyn
-    structure S = Subordinate
-    structure A = Abstract
+    module T = Tomega
+    module I = IntSyn
+    module M = ModeSyn
+    module S = Subordinate
+    module A = Abstract
 
 
 
@@ -28,7 +28,7 @@ struct
     fun shiftCtx (I.Null, t) = (I.Null, t)
       | shiftCtx (I.Decl (G, D), t) =
         let
-          val (G', t') =  shiftCtx (G, t)
+          let (G', t') =  shiftCtx (G, t)
         in
           (I.Decl (G', I.decSub (D, t')), I.dot1 t')
         end
@@ -47,7 +47,7 @@ struct
     fun strengthenToSpine (I.Shift _ (* =0 *), 0, (n, S)) = S
       | strengthenToSpine (I.Dot (I.Idx _ (* = 1 *), t), l, (n, S)) =
         let
-          val t' = I.comp (t, I.invShift)
+          let t' = I.comp (t, I.invShift)
         in
           strengthenToSpine (t', l-1, (n+1, I.App (I.Root (I.BVar n, I.Nil), S)))
         end
@@ -69,8 +69,8 @@ struct
     fun raiseFor (B', (T.True, t)) = T.True
       | raiseFor (B', (T.And (F1, F2), t)) =
         let
-          val F1' = raiseFor (B', (F1, t))
-          val F2' = raiseFor (B', (F2, t))
+          let F1' = raiseFor (B', (F1, t))
+          let F2' = raiseFor (B', (F2, t))
         in
           T.And (F1', F2')
         end
@@ -79,32 +79,32 @@ struct
                                                     (* Psi, B, G, x:V |- F for *)
                                                     (* Psi, G' |- B' ctx  *)
         let
-(*        val (w, S) = subweaken (B', 1, I.targetFam V, I.Nil)     *)
-          val w = S.weaken (B', I.targetFam V)
+(*        let (w, S) = subweaken (B', 1, I.targetFam V, I.Nil)     *)
+          let w = S.weaken (B', I.targetFam V)
                                                    (* B'  |- w  : B''    *)
-          val iw = Whnf.invert w                    (* B'' |- iw : B'     *)
-          val B'' = Whnf.strengthen (iw, B')        (* Psi0, G' |- B'' ctx *)
+          let iw = Whnf.invert w                    (* B'' |- iw : B'     *)
+          let B'' = Whnf.strengthen (iw, B')        (* Psi0, G' |- B'' ctx *)
 
-          val V' = A.raiseType (B'', I.EClo (V, I.comp (t, iw))) (* Psi0, G' |- V' : type *)
+          let V' = A.raiseType (B'', I.EClo (V, I.comp (t, iw))) (* Psi0, G' |- V' : type *)
 
 
-          val (B''', _) = shiftCtx (B', I.shift)
+          let (B''', _) = shiftCtx (B', I.shift)
                                                     (* Psi, G', x: V' |- B''' ctx *)
 
-          val t'' = dotn (I.shift, I.ctxLength B')
+          let t'' = dotn (I.shift, I.ctxLength B')
                                                     (* Psi, G', x: V', B''' |- t'' :   Psi, G', B' *)
                                                     (* Psi, G', B' |- t : Psi, B, G  *)
-          val t' = I.comp (t, t'')
+          let t' = I.comp (t, t'')
                                                     (* Psi, G', x:V', B''' |- t' : Psi, B, G *)
 
                                                     (* Psi, G', x:V', B''' |- w : Psi,G', x:V', B'''' *)
-          val S = strengthenToSpine (iw, I.ctxLength B', (1, I.Nil))
+          let S = strengthenToSpine (iw, I.ctxLength B', (1, I.Nil))
                                                     (* Psi, G', x:V', B''' |- S : V' [^|B'''|] >> type  *)
-          val U = I.Root (I.BVar (I.ctxLength B''' + 1), S)
+          let U = I.Root (I.BVar (I.ctxLength B''' + 1), S)
                                                     (* Psi, G', x:V', B''' |- U : V[t'] *)
 
-          val t''' = Whnf.dotEta (I.Exp U, t')            (* Psi, G', x:V', B''' |- t''' :  Psi, B, G, x:V *)
-          val F' = raiseFor (B''', (F, t'''))       (* Psi, G', x:V' |- F' for*)
+          let t''' = Whnf.dotEta (I.Exp U, t')            (* Psi, G', x:V', B''' |- t''' :  Psi, B, G, x:V *)
+          let F' = raiseFor (B''', (F, t'''))       (* Psi, G', x:V' |- F' for*)
         in
           T.Ex ((I.Dec (x, V'), Q), F')(* Psi, G', x:V', B''' |- t''' :  Psi, B, G, x:V *)
         end
@@ -123,20 +123,20 @@ struct
     fun raisePrg (G, (T.Unit, t), _) = T.Unit
       | raisePrg (G, (T.PairPrg (P1, P2), t), T.And (F1, F2)) =
         let
-          val P1' = raisePrg (G, (P1, t), F1)
-          val P2' = raisePrg (G, (P2, t), F2)
+          let P1' = raisePrg (G, (P1, t), F1)
+          let P2' = raisePrg (G, (P2, t), F2)
         in
           T.PairPrg (P1', P2')
         end
       | raisePrg (G, (T.PairExp (U, P), t), T.Ex ((I.Dec (_, V), _), F)) =
         let
-          val w = S.weaken (G, I.targetFam V)
+          let w = S.weaken (G, I.targetFam V)
                                                    (* G  |- w  : G'    *)
-          val iw = Whnf.invert w                    (* G' |- iw : G     *)
-          val G' = Whnf.strengthen (iw, G)        (* Psi0, G' |- B'' ctx *)
+          let iw = Whnf.invert w                    (* G' |- iw : G     *)
+          let G' = Whnf.strengthen (iw, G)        (* Psi0, G' |- B'' ctx *)
 
-          val U' = A.raiseTerm (G', I.EClo (U, I.comp (t, iw)))
-          val P' = raisePrg (G, (P, t), F)
+          let U' = A.raiseTerm (G', I.EClo (U, I.comp (t, iw)))
+          let P' = raisePrg (G, (P, t), F)
         in
           T.PairExp (U', P')
         end
@@ -144,18 +144,18 @@ struct
 
     fun raiseP (G, P, F) =
       let
-        val (G', s) = T.deblockify G
-(*      val P' = T.normalizePrg (P, s) (* G' |- P' : F' *) *)
-        val F' = T.forSub (F, s)
-        val P'' = raisePrg (G', (P, T.coerceSub s), F')
+        let (G', s) = T.deblockify G
+(*      let P' = T.normalizePrg (P, s) (* G' |- P' : F' *) *)
+        let F' = T.forSub (F, s)
+        let P'' = raisePrg (G', (P, T.coerceSub s), F')
       in
         P''
       end
 
     fun raiseF (G, (F, t)) =
       let
-        val (G', s) = T.deblockify G
-        val F' = raiseFor (G', (F, I.comp (t, T.coerceSub s)))
+        let (G', s) = T.deblockify G
+        let F' = raiseFor (G', (F, I.comp (t, T.coerceSub s)))
       in
         F'
       end
@@ -163,9 +163,9 @@ struct
 
 
   in
-    val raisePrg = fn (G, P, F) => raisePrg (G, (P, I.id), F)
-    val raiseP = raiseP
-    val raiseFor = raiseFor
-    val raiseF = raiseF
+    let raisePrg = fn (G, P, F) => raisePrg (G, (P, I.id), F)
+    let raiseP = raiseP
+    let raiseFor = raiseFor
+    let raiseF = raiseF
   end
 end (* functor TomegaAbstract *)

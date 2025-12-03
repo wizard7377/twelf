@@ -1,13 +1,13 @@
 (* Weakening substitutions *)
 (* Author: Carsten Schuermann *)
 
-signature WEAKEN = 
+module type WEAKEN = 
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   val strengthenExp : (IntSyn.Exp * IntSyn.Sub) -> IntSyn.Exp
   val strengthenSpine: (IntSyn.Spine * IntSyn.Sub) -> IntSyn.Spine
   val strengthenCtx : (IntSyn.dctx * IntSyn.Sub) -> (IntSyn.dctx * IntSyn.Sub)
   val strengthenDec : (IntSyn.Dec * IntSyn.Sub) -> IntSyn.Dec
   val strengthenSub : (IntSyn.Sub * IntSyn.Sub) -> IntSyn.Sub
-end (* signature PRUNE *)
+end (* module type PRUNE *)

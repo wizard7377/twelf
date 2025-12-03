@@ -3,14 +3,14 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-functor Match ((*! structure IntSyn' : INTSYN !*)
-               structure Whnf    : WHNF
+let recctor Match ((*! module IntSyn' : INTSYN !*)
+               module Whnf    : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
-               structure Unify : UNIFY
-               structure Trail   : TRAIL)
+               module Unify : UNIFY
+               module Trail   : TRAIL)
   : MATCH =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Match of string
   exception NotInvertible
@@ -18,7 +18,7 @@ struct
   local
     open IntSyn
 
-    val delayExp = Unify.delay
+    let delayExp = Unify.delay
 
     (* weakenSub (G1, s, ss) = w'
 
@@ -72,23 +72,23 @@ struct
           if (rOccur = r) then raise Match "Variable occurrence"
           else if Whnf.isPatSub (s) then
                let
-                 val w = weakenSub (G, s, ss)
+                 let w = weakenSub (G, s, ss)
                in
                  if Whnf.isId w
                    then EClo (X, comp (s, ss))
                  else
                    raise Match "Invertible Substitution does not necessarily exist\n"
                    (* let
-                     val wi = Whnf.invert w
-                     (* val V' = EClo (V, wi) *)
-                     val V' = pruneExp (GX, (V, id), wi, rOccur)
-                     (* val GY = Whnf.strengthen (wi, GX) *)
-                     val GY = pruneCtx (wi, GX, rOccur)
+                     let wi = Whnf.invert w
+                     (* let V' = EClo (V, wi) *)
+                     let V' = pruneExp (GX, (V, id), wi, rOccur)
+                     (* let GY = Whnf.strengthen (wi, GX) *)
+                     let GY = pruneCtx (wi, GX, rOccur)
                      (* shortcut on GY possible by invariant on GX and V[s]? -fp *)
                      (* could optimize by checking for identity subst *)
-                     val Y = newEVar (GY, V')
-                     val Yw = EClo (Y, w)
-                     val _ = Unify.instantiateEVar (r, Yw, !cnstrs)
+                     let Y = newEVar (GY, V')
+                     let Yw = EClo (Y, w)
+                     let _ = Unify.instantiateEVar (r, Yw, !cnstrs)
                    in
                      EClo (Yw, comp (s, ss))
                    end*)
@@ -98,13 +98,13 @@ struct
                    EClo (X, Unify.invertSub (G, s, ss, rOccur))
                    handle NotInvertible =>
                      let
-                         (* val GY = Whnf.strengthen (ss, G) *)
+                         (* let GY = Whnf.strengthen (ss, G) *)
                          (* shortcuts possible by invariants on G? *)
-                         val GY = pruneCtx (ss, G, rOccur) (* prune or invert??? *)
-                         (* val V' = EClo (V, comp (s, ss)) *)
-                         val V' = pruneExp (G, (V, s), ss, rOccur) (* prune or invert??? *)
-                         val Y = newEVar (GY, V')
-                         val _ = Unify.addConstraint (cnstrs, ref (Eqn (G, EClo (X, s),
+                         let GY = pruneCtx (ss, G, rOccur) (* prune or invert??? *)
+                         (* let V' = EClo (V, comp (s, ss)) *)
+                         let V' = pruneExp (G, (V, s), ss, rOccur) (* prune or invert??? *)
+                         let Y = newEVar (GY, V')
+                         let _ = Unify.addConstraint (cnstrs, ref (Eqn (G, EClo (X, s),
                                                                         EClo (Y, Whnf.invert ss))))
                      in
                        Y
@@ -112,7 +112,7 @@ struct
                  )
 
       | pruneExpW (G, (FgnExp csfe, s), ss, rOccur) =
-          FgnExpStd.Map.apply csfe (fn U => pruneExp (G, (U, s), ss, rOccur))
+          FgnExpStd.Map.apply csfe (fun U -> pruneExp (G, (U, s), ss, rOccur))
       | pruneExpW (G, ((X as AVar _), s), ss, rOccur) =
         (* this case should never happen! *)
           raise Match "Left-over AVar"
@@ -178,8 +178,8 @@ struct
     and pruneCtx (Shift n, Null, rOccur) = Null
       | pruneCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
         let
-          val t' = comp (t, invShift)
-          val D' = pruneDec (G, (D, id), t', rOccur)
+          let t' = comp (t, invShift)
+          let D' = pruneDec (G, (D, id), t', rOccur)
         in
           Decl (pruneCtx (t', G, rOccur), D')
         end
@@ -212,7 +212,7 @@ struct
                   let
                     fun execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
-                            val W' = pruneExp (G, (W, id), ss, r)
+                            let W' = pruneExp (G, (W, id), ss, r)
                           in
                             Unify.instantiateEVar (r, W', !cnstrs)
                           end
@@ -229,7 +229,7 @@ struct
                   let
                     fun execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
-                            val W' = pruneExp (G, (W, id), ss, r)
+                            let W' = pruneExp (G, (W, id), ss, r)
                           in
                             Unify.instantiateEVar (r, W', !cnstrs)
                           end
@@ -334,7 +334,7 @@ struct
             if Whnf.isPatSub(s1) then
               if Whnf.isPatSub(s2) then
                 let
-                  val s' = Unify.intersection (s1,s2)   (* compute ss' directly? *)
+                  let s' = Unify.intersection (s1,s2)   (* compute ss' directly? *)
                 in
                   (* without the next optimization, bugs/hangs/sources.cfg
                      would gets into an apparent infinite loop
@@ -342,9 +342,9 @@ struct
                   *)
                   if Whnf.isId s' (* added for definitions Mon Sep  1 19:53:13 2003 -fp *)
                     then () (* X[s] = X[s] *)
-                  else let val ss' = Whnf.invert s'
-                           val V1' = EClo (V1, ss')  (* invertExp ((V1, id), s', ref NONE) *)
-                           val G1' = Whnf.strengthen (ss', G1)
+                  else let let ss' = Whnf.invert s'
+                           let V1' = EClo (V1, ss')  (* invertExp ((V1, id), s', ref NONE) *)
+                           let G1' = Whnf.strengthen (ss', G1)
                        in
                          Unify.instantiateEVar (r1, EClo (newEVar (G1', V1'), s'), !cnstrs1)
                        end
@@ -354,8 +354,8 @@ struct
           else
             if Whnf.isPatSub(s1) then
               let
-                val ss1 = Whnf.invert s1
-                val U2' = pruneExp (G, Us2, ss1, r1)
+                let ss1 = Whnf.invert s1
+                let U2' = pruneExp (G, Us2, ss1, r1)
               in
                 (* Unify.instantiateEVar (r1, EClo (U2, comp(s2, ss1)), !cnstrs1) *)
                 (* invertExpW (Us2, s1, ref NONE) *)
@@ -363,8 +363,8 @@ struct
               end
             else if Whnf.isPatSub(s2) then
               let
-                val ss2 = Whnf.invert s2
-                val U1' = pruneExp (G, Us1, ss2, r2)
+                let ss2 = Whnf.invert s2
+                let U1' = pruneExp (G, Us1, ss2, r2)
               in
                 (* instantiateEVar (r2, EClo (U1, comp(s1, ss2)), !cnstr2) *)
                 (* invertExpW (Us1, s2, ref NONE) *)
@@ -372,15 +372,15 @@ struct
               end
             else
               let
-                val cnstr = ref (Eqn (G, EClo Us1, EClo Us2))
+                let cnstr = ref (Eqn (G, EClo Us1, EClo Us2))
               in
                 Unify.addConstraint (cnstrs1, cnstr)
               end
 *)
       | matchExpW (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) =
         if Whnf.isPatSub(s) then
-          let val ss = Whnf.invert s
-              val U2' = pruneExp (G, Us2, ss, r)
+          let let ss = Whnf.invert s
+              let U2' = pruneExp (G, Us2, ss, r)
           in
             (* instantiateEVar (r, EClo (U2, comp(s2, ss)), !cnstrs) *)
             (* invertExpW (Us2, s, r) *)
@@ -392,8 +392,8 @@ struct
 (*      | matchExpW (G, Us1 as (U1,s1), Us2 as (EVar (r, GX, V, cnstrs), s)) =
         if Whnf.isPatSub(s) then
           let
-            val ss = Whnf.invert s
-            val U1' = pruneExp (G, Us1, ss, r)
+            let ss = Whnf.invert s
+            let U1' = pruneExp (G, Us1, ss, r)
           in
             (* instantiateEVar (r, EClo (U1, comp(s1, ss)), !cnstrs) *)
             (* invertExpW (Us1, s, r) *)
@@ -417,9 +417,9 @@ struct
     and matchDefDefW (G, Us1 as (Root (Def (d1), S1), s1), Us2 as (Root (Def (d2), S2), s2)) =
         (*  matchExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) *)
         let
-          val Anc (_, h1, c1Opt) = defAncestor d1
-          val Anc (_, h2, c2Opt) = defAncestor d2
-          val _ = case (c1Opt,c2Opt)
+          let Anc (_, h1, c1Opt) = defAncestor d1
+          let Anc (_, h2, c2Opt) = defAncestor d2
+          let _ = case (c1Opt,c2Opt)
                     of (SOME(c1), SOME(c2)) =>
                        if c1 <> c2
                          then raise Match ("Irreconcilable defined constant clash")
@@ -510,8 +510,8 @@ struct
                 else Unify.instantiateLVar (r2, LVar(r1, Shift (k1-k2), (l1, t1)))
               *)
               let
-                val ss = Whnf.invert (Shift(k1))
-                val t2' = pruneSub (G, t2, ss, ref NONE) (* hack! *)
+                let ss = Whnf.invert (Shift(k1))
+                let t2' = pruneSub (G, t2, ss, ref NONE) (* hack! *)
               in
                 Unify.instantiateLVar (r1, LVar(r2, Shift(0), (l2, t2'))) (* 0 = k2-k1 *)
               end )
@@ -568,10 +568,10 @@ struct
           (Unify.resetAwakenCnstrs (); match1 (G, Us1, Us2))
 
   in
-    val matchW = matchW
-    val match = match
-    val matchSub = matchSub
-    val matchBlock = matchBlock
+    let matchW = matchW
+    let match = match
+    let matchSub = matchSub
+    let matchBlock = matchBlock
 
     fun instance (G, Us1, Us2) =
           (match (G, Us1, Us2);

@@ -1,9 +1,9 @@
 (* Meta Prover *)
 (* Author: Carsten Schuermann *)
 
-signature PROVER =
+module type PROVER =
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   exception Error of string 
 
@@ -11,4 +11,4 @@ sig
   val auto   : unit -> unit
   val print  : unit -> unit
   val install: (IntSyn.ConDec -> IntSyn.cid) -> unit
-end;  (* signature PROVER *)
+end;  (* module type PROVER *)

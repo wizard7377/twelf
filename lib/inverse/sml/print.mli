@@ -1,5 +1,5 @@
 
-signature PRINT = 
+module type PRINT = 
 sig
 
   val exp_to_string : sgn -> exp -> string

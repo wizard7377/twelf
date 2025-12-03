@@ -2,48 +2,48 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-functor ModeCheck ((*! structure IntSyn : INTSYN !*)
-                   structure ModeTable : MODETABLE
+let recctor ModeCheck ((*! module IntSyn : INTSYN !*)
+                   module ModeTable : MODETABLE
                    (*! sharing ModeSyn.IntSyn = IntSyn !*)
-                   structure Whnf : WHNF
+                   module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                   structure Index : INDEX
+                   module Index : INDEX
                    (*! sharing Index.IntSyn = IntSyn !*)
-                   (*! structure Paths : PATHS !*)
-                   structure Origins : ORIGINS
+                   (*! module Paths : PATHS !*)
+                   module Origins : ORIGINS
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn !*)
                        )
   : MODECHECK =
 struct
-  (*! structure IntSyn = IntSyn !*)
-  (*! structure ModeSyn = ModeSyn !*)
-  (*! structure Paths = Paths !*)
+  (*! module IntSyn = IntSyn !*)
+  (*! module ModeSyn = ModeSyn !*)
+  (*! module Paths = Paths !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure M = ModeSyn
-    structure P = Paths
+    module I = IntSyn
+    module M = ModeSyn
+    module P = Paths
 
-    datatype Uniqueness =               (* Uniqueness information *)
+    type Uniqueness =               (* Uniqueness information *)
         Unique                          (* u ::= Unique           *)
       | Ambig                           (*     | Ambig            *)
 
-    datatype Info =                     (* Groundedness information   *)
+    type Info =                     (* Groundedness information   *)
         Free                            (* I ::= Free                 *)
       | Unknown                         (*     | Unknown              *)
       | Ground of Uniqueness            (*     | Ground               *)
 
-    datatype Status =                   (* Variable status             *)
+    type Status =                   (* Variable status             *)
         Existential of                  (* S ::= Existential (I, xOpt) *)
           Info * string option
       | Universal                       (*     | Universal             *)
 
 
     (* hack: if true, check freeness of output arguments in subgoals *)
-    val checkFree = ref false
+    let checkFree = ref false
 
     (* Representation invariant:
 
@@ -187,7 +187,7 @@ struct
     fun checkPattern (D, k, args, I.Nil) = ()
       | checkPattern (D, k, args, I.App (U, S)) =
         (let
-           val k' = etaContract (U, 0)
+           let k' = etaContract (U, 0)
          in
            if (k > k')
              andalso isUniversal (I.ctxLookup (D, k'))
@@ -279,7 +279,7 @@ struct
       | freeExpN (D, d, mode, I.Lam (_, U), occ, strictFun) =
           freeExpN (I.Decl (D, Universal), d+1, mode, U, P.body occ, strictFun)
       | freeExpN (D, d, mode, I.FgnExp csfe, occ, strictFun) =
-        I.FgnExpStd.App.apply csfe (fn U => freeExpN (D, d, mode, Whnf.normalize (U, I.id), occ, strictFun))
+        I.FgnExpStd.App.apply csfe (fun U -> freeExpN (D, d, mode, Whnf.normalize (U, I.id), occ, strictFun))
         (* punting on the occ here  - ak *)
 
     (* freeSpineN (D, mode, S, occ, strictFun)  = ()
@@ -308,7 +308,7 @@ struct
 
     and freeVar (D, d, mode, k, occ, strictFun) =
         let
-          val status = I.ctxLookup (D, k)
+          let status = I.ctxLookup (D, k)
         in
           if isFree status orelse isUniversal status orelse strictFun (k-d)
             then ()
@@ -465,7 +465,7 @@ struct
       | freeAtom (D, M.Minus, I.App (U, S), (I.Pi ((I.Dec (_, V1), _), V2), s),
                   M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
           (freeExpN (D, 0, M.Minus, U, P.arg(p, occ),
-                     (fn q => strictExpN (D, q, Whnf.normalize (V1, s))));
+                     (fun q -> strictExpN (D, q, Whnf.normalize (V1, s))));
            freeAtom (D, M.Minus, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS, (p+1, occ)))
       | freeAtom (D, mode, I.App (U, S), (I.Pi (_, V2), s), M.Mapp (_, mS), (p, occ)) =
           freeAtom (D, mode, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS, (p+1, occ))
@@ -475,7 +475,7 @@ struct
     *)
     fun updateAtom (D, mode, S, a, mS, (p, occ)) =
         let
-          val _ = if !checkFree
+          let _ = if !checkFree
                     then freeAtom (D, ambiguate mode, S, (I.constType a, I.id), mS, (p, occ))
                   else ()
         in
@@ -562,7 +562,7 @@ struct
                                  ^ " argument not necessarily ground"))
       | groundVar (D, mode, k, occ) =
         let
-          val status = I.ctxLookup (D, k)
+          let status = I.ctxLookup (D, k)
         in
           if isGround status orelse isUniversal status
             then uniqueness status
@@ -608,7 +608,7 @@ struct
     (* ctxPush (Ds, m) = Ds'
        raises the contexts Ds prepending m
     *)
-    fun ctxPush (m, Ds) = List.map (fn D => I.Decl (D, m)) Ds
+    fun ctxPush (m, Ds) = List.map (fun D -> I.Decl (D, m)) Ds
 
     (* ctxPop Ds = Ds'
        lowers the contexts Ds
@@ -728,10 +728,10 @@ struct
                   (* Wed Aug 20 21:52:31 2003 -fp *)
                   let
                     (* found' is true iff D satisfies mS *)
-                    val found' = ((groundAtom (D, M.Plus, S, mS, (1, occ)); true) (* handler scope??? -fp *)
+                    let found' = ((groundAtom (D, M.Plus, S, mS, (1, occ)); true) (* handler scope??? -fp *)
                                   handle ModeError _ => false)
                     (* compute all other mode contexts *)
-                    val Ds' = checkList (found orelse found') mSs
+                    let Ds' = checkList (found orelse found') mSs
                   in
                     if found'
                     then k (updateAtom (D, M.Minus, S, a, mS, (1, occ))) @ Ds'
@@ -757,10 +757,10 @@ struct
                   (* Wed Aug 20 21:52:31 2003 -fp *)
                   let
                     (* found' is true iff D satisfies mS *)
-                    val found' = ((groundAtom (D, M.Plus, S, mS, (1, occ)); true)
+                    let found' = ((groundAtom (D, M.Plus, S, mS, (1, occ)); true)
                                   handle ModeError _ => false)
                     (* compute all other mode contexts *)
-                    val Ds' = checkList (found orelse found') mSs
+                    let Ds' = checkList (found orelse found') mSs
                   in
                     if found'
                     then k (updateAtom (D, M.Minus, S, d, mS, (1, occ))) @ Ds'
@@ -798,14 +798,14 @@ struct
     *)
     fun checkD (conDec, fileName, occOpt) =
         let
-          val _ = (checkFree := false)
+          let _ = (checkFree := false)
           fun checkable (I.Root (Ha, _)) =
               (case (ModeTable.mmodeLookup (cidFromHead Ha))
                  of nil => false
                   | _ => true)
             | checkable (I.Uni _) = false
             | checkable (I.Pi (_, V)) = checkable V
-          val V = I.conDecType conDec
+          let V = I.conDecType conDec
         in
           if (checkable V)
             then checkDlocal (I.Null, V, P.top)
@@ -835,34 +835,34 @@ struct
 
     fun checkMode (a, ms) =
         let
-          val _ = if !Global.chatter > 3
+          let _ = if !Global.chatter > 3
                     then print ("Mode checking family " ^ Names.qidToString (Names.constQid a) ^ ":\n")
                   else ()
-          val clist = Index.lookup a
-          val _ = (checkFree := false)
-          val _ = checkAll clist
-          val _ = if !Global.chatter > 3 then print "\n" else ()
+          let clist = Index.lookup a
+          let _ = (checkFree := false)
+          let _ = checkAll clist
+          let _ = if !Global.chatter > 3 then print "\n" else ()
         in
           ()
         end
 
     fun checkFreeOut (a, ms) =
         let
-          val _ = if !Global.chatter > 3
+          let _ = if !Global.chatter > 3
                     then print ("Checking output freeness of " ^ Names.qidToString (Names.constQid a) ^ ":\n")
                   else ()
-          val clist = Index.lookup a
-          val _ = (checkFree := true)
-          val _ = checkAll clist
-          val _ = if !Global.chatter > 3 then print "\n" else ()
+          let clist = Index.lookup a
+          let _ = (checkFree := true)
+          let _ = checkAll clist
+          let _ = if !Global.chatter > 3 then print "\n" else ()
         in
           ()
         end
 
   in
-    val checkD = checkD
-    val checkMode = checkMode
-    val checkFreeOut = checkFreeOut
+    let checkD = checkD
+    let checkMode = checkMode
+    let checkFreeOut = checkFreeOut
   end
 end;  (* functor ModeCheck *)
 

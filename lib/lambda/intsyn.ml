@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor IntSyn (structure Global : GLOBAL) :> INTSYN =
+let recctor IntSyn (module Global : GLOBAL) :> INTSYN =
 struct
 
   type cid = int                        (* Constant identifier        *)
@@ -12,7 +12,7 @@ struct
 
 
   (* Contexts *)
-  datatype 'a Ctx =                     (* Contexts                   *)
+  type 'a Ctx =                     (* Contexts                   *)
     Null                                (* G ::= .                    *)
   | Decl of 'a Ctx * 'a                 (*     | G, D                 *)
 
@@ -51,18 +51,18 @@ struct
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
-  datatype Depend =                     (* Dependency information     *)
+  type Depend =                     (* Dependency information     *)
     No                                  (* P ::= No                   *)
   | Maybe                               (*     | Maybe                *)
   | Meta                                (*     | Meta                 *)
 
   (* Expressions *)
 
-  datatype Uni =                        (* Universes:                 *)
+  type Uni =                        (* Universes:                 *)
     Kind                                (* L ::= Kind                 *)
   | Type                                (*     | Type                 *)
 
-  datatype Exp =                        (* Expressions:               *)
+  type Exp =                        (* Expressions:               *)
     Uni   of Uni                        (* U ::= L                    *)
   | Pi    of (Dec * Depend) * Exp       (*     | bPi (D, P). V         *)
   | Root  of Head * Spine               (*     | C @ S                *)
@@ -142,7 +142,7 @@ struct
   | Delay of Exp * Cnstr ref
     (* delay cnstr, associating it with all the rigid EVars in U  *)
 
-  (* Global signature *)
+  (* Global module type *)
 
   and ConDec =                          (* Constant declaration       *)
     ConDec of string * mid option * int * Status
@@ -167,11 +167,11 @@ struct
     Anc of cid option * int * cid option (* head(expand(d)), height, head(expand[height](d)) *)
                                         (* NONE means expands to {x:A}B *)
 
-  datatype StrDec =                     (* Structure declaration      *)
+  type StrDec =                     (* Structure declaration      *)
       StrDec of string * mid option
 
   (* Form of constant declaration *)
-  datatype ConDecForm =
+  type ConDecForm =
     FromCS                              (* from constraint domain *)
   | Ordinary                            (* ordinary declaration *)
   | Clause                              (* %clause declaration *)
@@ -185,27 +185,27 @@ struct
 (*  exception Error of string             (* raised if out of space     *) *)
 
 
-  structure FgnExpStd = struct
+  module FgnExpStd = struct
 
-    structure ToInternal = FgnOpnTable (type arg = unit
+    module ToInternal = FgnOpnTable (type arg = unit
                                         type result = Exp)
 
-    structure Map = FgnOpnTable (type arg = Exp -> Exp
+    module Map = FgnOpnTable (type arg = Exp -> Exp
                                  type result = Exp)
 
-    structure App = FgnOpnTable (type arg = Exp -> unit
+    module App = FgnOpnTable (type arg = Exp -> unit
                                  type result = unit)
 
-    structure EqualTo = FgnOpnTable (type arg = Exp
+    module EqualTo = FgnOpnTable (type arg = Exp
                                      type result = bool)
 
-    structure UnifyWith = FgnOpnTable (type arg = Dec Ctx * Exp
+    module UnifyWith = FgnOpnTable (type arg = Dec Ctx * Exp
                                        type result = FgnUnify)
 
 
 
     fun fold csfe f b = let
-        val r = ref b
+        let r = ref b
         fun g U = r := f (U,!r)
     in
         App.apply csfe g ; !r
@@ -213,15 +213,15 @@ struct
 
   end
 
-  structure FgnCnstrStd = struct
+  module FgnCnstrStd = struct
 
-    structure ToInternal = FgnOpnTable (type arg = unit
+    module ToInternal = FgnOpnTable (type arg = unit
                                         type result = (Dec Ctx * Exp) list)
 
-    structure Awake = FgnOpnTable (type arg = unit
+    module Awake = FgnOpnTable (type arg = unit
                                    type result = bool)
 
-    structure Simplify = FgnOpnTable (type arg = unit
+    module Simplify = FgnOpnTable (type arg = unit
                                       type result = bool)
 
   end
@@ -297,16 +297,16 @@ struct
   fun strDecParent (StrDec (_, parent)) = parent
 
   local
-    val maxCid = Global.maxCid
-    val dummyEntry = ConDec("", NONE, 0, Normal, Uni (Kind), Kind)
-    val sgnArray = Array.array (maxCid+1, dummyEntry)
+    let maxCid = Global.maxCid
+    let dummyEntry = ConDec("", NONE, 0, Normal, Uni (Kind), Kind)
+    let sgnArray = Array.array (maxCid+1, dummyEntry)
       : ConDec Array.array
-    val nextCid  = ref(0)
+    let nextCid  = ref(0)
 
-    val maxMid = Global.maxMid
-    val sgnStructArray = Array.array (maxMid+1, StrDec("", NONE))
+    let maxMid = Global.maxMid
+    let sgnStructArray = Array.array (maxMid+1, StrDec("", NONE))
       : StrDec Array.array
-    val nextMid = ref (0)
+    let nextMid = ref (0)
 
   in
     (* Invariants *)
@@ -328,10 +328,10 @@ struct
 
     fun sgnAdd (conDec) =
         let
-          val cid = !nextCid
+          let cid = !nextCid
         in
           if cid > maxCid
-            then raise Error ("Global signature size " ^ Int.toString (maxCid+1) ^ " exceeded")
+            then raise Error ("Global module type size " ^ Int.toString (maxCid+1) ^ " exceeded")
           else (Array.update (sgnArray, cid, conDec) ;
                 nextCid := cid + 1;
                 cid)
@@ -350,10 +350,10 @@ struct
 
     fun sgnStructAdd (strDec) =
         let
-          val mid = !nextMid
+          let mid = !nextMid
         in
           if mid > maxMid
-            then raise Error ("Global signature size " ^ Int.toString (maxMid+1) ^ " exceeded")
+            then raise Error ("Global module type size " ^ Int.toString (maxMid+1) ^ " exceeded")
           else (Array.update (sgnStructArray, mid, strDec) ;
                 nextMid := mid + 1;
                 mid)
@@ -365,7 +365,7 @@ struct
     (* A hack used in Flit - jcreed 6/05 *)
     fun rename (cid, new) =
         let
-            val newConDec = case sgnLookup cid of
+            let newConDec = case sgnLookup cid of
                 ConDec (n,m,i,s,e,u) => ConDec(new,m,i,s,e,u)
               | ConDef (n,m,i,e,e',u,a) => ConDef(new,m,i,e,e',u,a)
               | AbbrevDef (n,m,i,e,e',u) => AbbrevDef (new,m,i,e,e',u)
@@ -400,20 +400,20 @@ struct
      Invariant:
      G |- id : G        id is patsub
   *)
-  val id = Shift(0)
+  let id = Shift(0)
 
   (* shift = ^1
 
      Invariant:
      G, V |- ^ : G       ^ is patsub
   *)
-  val shift = Shift(1)
+  let shift = Shift(1)
 
   (* invShift = ^-1 = _.^0
      Invariant:
      G |- ^-1 : G, V     ^-1 is patsub
   *)
-  val invShift = Dot(Undef, id)
+  let invShift = Dot(Undef, id)
 
 
   (* comp (s1, s2) = s'
@@ -476,7 +476,7 @@ struct
         July 22, 2010 -fp -cs
        *)
         (* comp(^k, s) = ^k' for some k' by invariant *)
-    | blockSub (L as Inst ULs, s') = Inst (map (fn U => EClo (U, s')) ULs)
+    | blockSub (L as Inst ULs, s') = Inst (map (fun U -> EClo (U, s')) ULs)
     (* this should be right but somebody should verify *)
 
   (* frontSub (Ft, s) = Ft'
@@ -572,9 +572,9 @@ struct
 
   fun blockDec (G, v as (Bidx k), i) =
     let
-      val BDec (_, (l, s)) = ctxDec (G, k)
+      let BDec (_, (l, s)) = ctxDec (G, k)
       (* G |- s : Gsome *)
-      val (Gsome, Lblock) = conDecBlock (sgnLookup l)
+      let (Gsome, Lblock) = conDecBlock (sgnLookup l)
       fun blockDec' (t, D :: L, 1, j) = decSub (D, t)
         | blockDec' (t, _ :: L, n, j) =
             blockDec' (Dot (Exp (Root (Proj (v, j), Nil)), t),
@@ -671,5 +671,5 @@ struct
 
 end;  (* functor IntSyn *)
 
-structure IntSyn :> INTSYN =
-  IntSyn (structure Global = Global);
+module IntSyn :> INTSYN =
+  IntSyn (module Global = Global);

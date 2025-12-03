@@ -1,10 +1,10 @@
 (* External Syntax of Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-signature EXTMODES =
+module type EXTMODES =
 sig
-  structure ExtSyn : EXTSYN 
-  (*! structure Paths : PATHS  !*)
+  module ExtSyn : EXTSYN 
+  (*! module Paths : PATHS  !*)
 
   type mode
 
@@ -15,7 +15,7 @@ sig
 
   type modedec 
 
-  structure Short :
+  module Short :
   sig
     type mterm
     type mspine
@@ -27,7 +27,7 @@ sig
     val toModedec : mterm -> modedec
   end
 
-  structure Full :
+  module Full :
   sig
     type mterm
 
@@ -37,14 +37,14 @@ sig
     val toModedec : mterm -> modedec
   end
 
-end;  (* signature EXTMODES *)
+end;  (* module type EXTMODES *)
 
 
-signature RECON_MODE =
+module type RECON_MODE =
 sig
-  (*! structure ModeSyn : MODESYN !*)
+  (*! module ModeSyn : MODESYN !*)
   include EXTMODES
 
   exception Error of string
   val modeToMode : modedec -> (IntSyn.cid * ModeSyn.ModeSpine) * Paths.region
-end;  (* signature RECON_MODE *)
+end;  (* module type RECON_MODE *)

@@ -1,9 +1,9 @@
 (* Front End Interface *) 
 (* Author: Frank Pfenning *)
 
-signature TWELF =
+module type TWELF =
 sig
-  structure Print :
+  module Print :
   sig
     val implicit : bool ref	       (* false, print implicit args *)
     val printInfix : bool ref	       (* false, print fully explicit form infix when possible *)
@@ -13,22 +13,22 @@ sig
     val width : int ref		       (* 80, line width *)
     val noShadow : bool ref	       (* if true, don't print shadowed constants as "%const%" *)
 
-    val sgn : unit -> unit	       (* print signature *)
-    val prog : unit -> unit	       (* print signature as program *)
+    val sgn : unit -> unit	       (* print module type *)
+    val prog : unit -> unit	       (* print module type as program *)
     val subord : unit -> unit	       (* print subordination relation *)
     val def : unit -> unit	       (* print information about definitions *)
     val domains : unit -> unit         (* print available constraint domains *)
 
-    structure TeX :		       (* print in TeX format *)
+    module TeX :		       (* print in TeX format *)
     sig
-      val sgn : unit -> unit	       (* print signature *)
-      val prog : unit -> unit	       (* print signature as program *)
+      val sgn : unit -> unit	       (* print module type *)
+      val prog : unit -> unit	       (* print module type as program *)
     end
   end
 
-  structure Trace :
+  module Trace :
   sig 
-    datatype 'a Spec =		       (* trace and breakpoint spec *)
+    type 'a Spec =		       (* trace and breakpoint spec *)
       None			       (* no tracing, default *)
     | Some of 'a list		       (* list of clauses and families *)
     | All			       (* trace all clauses and families *)
@@ -41,9 +41,9 @@ sig
     val reset : unit -> unit	       (* reset trace, break, and detail *)
   end
 
-  structure Table :
+  module Table :
   sig
-    datatype Strategy = Variant | Subsumption  (* Variant | Subsumption *)
+    type Strategy = Variant | Subsumption  (* Variant | Subsumption *)
 
     val strategy : Strategy ref	      (* strategy used for %querytabled *)
     val strengthen : bool ref	      (* strengthenng used %querytabled *)
@@ -52,36 +52,36 @@ sig
   val top : unit -> unit    (* top-level for interactive tabled queries *)
   end
 
-  structure Timers :
+  module Timers :
   sig
     val show : unit -> unit	       (* show and reset timers *)
     val reset : unit -> unit	       (* reset timers *)
     val check : unit -> unit	       (* display, but not no reset *)
   end
 
-  structure OS :
+  module OS :
   sig
     val chDir : string -> unit	       (* change working directory *)
     val getDir : unit -> string	       (* get working directory *)
     val exit : unit -> unit	       (* exit Twelf and ML *)
   end
 
-  structure Compile :
+  module Compile :
   sig
-    datatype Opt = No | LinearHeads | Indexing 
+    type Opt = No | LinearHeads | Indexing 
     val optimize : Opt ref
   end
 
-  structure Recon :
+  module Recon :
   sig
-    datatype TraceMode = Progressive | Omniscient
+    type TraceMode = Progressive | Omniscient
     val trace : bool ref
     val traceMode : TraceMode ref
   end
 
-  structure Prover :
+  module Prover :
   sig
-    datatype Strategy = RFS | FRS      (* F=Filling, R=Recursion, S=Splitting *)
+    type Strategy = RFS | FRS      (* F=Filling, R=Recursion, S=Splitting *)
     val strategy : Strategy ref	       (* FRS, strategy used for %prove *)
     val maxSplit : int ref	       (* 2, bound on splitting  *)
     val maxRecurse : int ref	       (* 10, bound on recursion *)
@@ -93,9 +93,9 @@ sig
   val autoFreeze : bool ref		(* false, freezes families in meta-theorems *)
   val timeLimit : (Time.time option) ref     (* NONEe, allows timeLimit in seconds *)
 
-  datatype Status = OK | ABORT	       (* return status *)
+  type Status = OK | ABORT	       (* return status *)
 
-  val reset : unit -> unit	       (* reset global signature *)
+  val reset : unit -> unit	       (* reset global module type *)
   val loadFile : string -> Status      (* load file *)
   val loadString : string -> Status    (* load string *)
   val readDecl : unit -> Status	       (* read declaration interactively *)
@@ -103,7 +103,7 @@ sig
 
   val top : unit -> unit	       (* top-level for interactive queries *)
 
-  structure Config :
+  module Config :
   sig
     type config			       (* configuration *)
     val suffix : string ref            (* suffix of configuration files *)
@@ -119,4 +119,4 @@ sig
 
   val version : string		       (* Twelf version *)
 
-end;  (* signature TWELF *)
+end;  (* module type TWELF *)

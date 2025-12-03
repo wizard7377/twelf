@@ -1,43 +1,43 @@
 (* Parsing Terms and Variable Declarations *)
 (* Author: Frank Pfenning *)
 
-functor ParseTerm
-  ((*! structure Parsing' : PARSING !*)
-   structure ExtSyn' : EXTSYN
+let recctor ParseTerm
+  ((*! module Parsing' : PARSING !*)
+   module ExtSyn' : EXTSYN
    (*! sharing Parsing'.Lexer.Paths = ExtSyn'.Paths !*)
-   structure Names : NAMES)
+   module Names : NAMES)
   : PARSE_TERM =
 struct
 
-  (*! structure Parsing = Parsing' !*)
-  structure ExtSyn = ExtSyn'
+  (*! module Parsing = Parsing' !*)
+  module ExtSyn = ExtSyn'
 
   local
     (* some shorthands *)
-    structure L = Lexer
-    structure LS = Lexer.Stream
-    (*! structure Paths = Lexer.Paths !*)
-    structure FX = Names.Fixity
+    module L = Lexer
+    module LS = Lexer.Stream
+    (*! module Paths = Lexer.Paths !*)
+    module FX = Names.Fixity
 
     (* Operators and atoms for operator precedence parsing *)
-    datatype 'a operator =
+    type 'a operator =
         Atom of 'a
       | Infix of (FX.precedence * FX.associativity) * ('a * 'a -> 'a)
       | Prefix of FX.precedence * ('a -> 'a)
       | Postfix of FX.precedence * ('a -> 'a)
 
     (* Predeclared infix operators *)
-    val juxOp = Infix ((FX.inc FX.maxPrec, FX.Left), ExtSyn.app) (* juxtaposition *)
-    val arrowOp = Infix ((FX.dec FX.minPrec, FX.Right), ExtSyn.arrow)
-    val backArrowOp = Infix ((FX.dec FX.minPrec, FX.Left), ExtSyn.backarrow)
-    val colonOp = Infix ((FX.dec (FX.dec FX.minPrec), FX.Left), ExtSyn.hastype)
+    let juxOp = Infix ((FX.inc FX.maxPrec, FX.Left), ExtSyn.app) (* juxtaposition *)
+    let arrowOp = Infix ((FX.dec FX.minPrec, FX.Right), ExtSyn.arrow)
+    let backArrowOp = Infix ((FX.dec FX.minPrec, FX.Left), ExtSyn.backarrow)
+    let colonOp = Infix ((FX.dec (FX.dec FX.minPrec), FX.Left), ExtSyn.hastype)
 
     fun infixOp (infixity, tm) =
           Infix (infixity, (fn (tm1, tm2) => ExtSyn.app (ExtSyn.app (tm, tm1), tm2)))
     fun prefixOp (prec, tm) =
-          Prefix (prec, (fn tm1 => ExtSyn.app (tm, tm1)))
+          Prefix (prec, (fun tm1 -> ExtSyn.app (tm, tm1)))
     fun postfixOp (prec, tm) =
-          Postfix (prec, (fn tm1 => ExtSyn.app (tm, tm1)))
+          Postfix (prec, (fun tm1 -> ExtSyn.app (tm, tm1)))
 
     fun idToTerm (L.Lower, ids, name, r) = ExtSyn.lcid (ids, name, r)
       | idToTerm (L.Upper, ids, name, r) = ExtSyn.ucid (ids, name, r)
@@ -54,13 +54,13 @@ struct
     (* into a separate module without passing a juxtaposition operator *)
     (* into the shift and resolve functions                            *)
 
-    structure P :>
+    module P :>
       sig
-        val reduce : stack -> stack
-        val reduceAll : Paths.region * stack -> ExtSyn.term
-        val shiftAtom : ExtSyn.term * stack -> stack
-        val shift : Paths.region * opr * stack -> stack
-        val resolve : Paths.region * opr * stack -> stack
+        let reduce : stack -> stack
+        let reduceAll : Paths.region * stack -> ExtSyn.term
+        let shiftAtom : ExtSyn.term * stack -> stack
+        let shift : Paths.region * opr * stack -> stack
+        let resolve : Paths.region * opr * stack -> stack
       end =
     struct
       (* Stack invariants, refinements of operator list *)
@@ -74,25 +74,25 @@ struct
          <pRed>    ::= Postfix _ :: Atom _ :: <pOp?>
                      | Atom _ :: <pOp>
       *)
-      (* val reduce : <pRed> -> <p> *)
+      (* let reduce : <pRed> -> <p> *)
       fun reduce (Atom(tm2)::Infix(_,con)::Atom(tm1)::p') =
              Atom(con(tm1,tm2))::p'
         | reduce (Atom(tm)::Prefix(_,con)::p') = Atom(con(tm))::p'
         | reduce (Postfix(_,con)::Atom(tm)::p') = Atom(con(tm))::p'
         (* no other cases should be possible by stack invariant *)
 
-      (* val reduceRec : <pStable> -> ExtSyn.term *)
+      (* let reduceRec : <pStable> -> ExtSyn.term *)
       fun reduceRec (Atom(e)::nil) = e
         | reduceRec (p) = reduceRec (reduce p)
 
-      (* val reduceAll : <p> -> ExtSyn.term *)
+      (* let reduceAll : <p> -> ExtSyn.term *)
       fun reduceAll (r, Atom(e)::nil) = e
         | reduceAll (r, Infix _::p') = Parsing.error (r, "Incomplete infix expression")
         | reduceAll (r, Prefix _::p') = Parsing.error (r, "Incomplete prefix expression")
         | reduceAll (r, nil) = Parsing.error (r, "Empty expression")
         | reduceAll (r, p) = reduceRec (reduce p)
 
-      (* val shiftAtom : term * <pStable> -> <p> *)
+      (* let shiftAtom : term * <pStable> -> <p> *)
       (* does not raise Error exception *)
       fun shiftAtom (tm, p as (Atom _::p')) =
           (* insert juxOp operator and reduce *)
@@ -100,7 +100,7 @@ struct
             reduce (Atom(tm)::juxOp::p)
         | shiftAtom (tm, p) = Atom(tm)::p
 
-      (* val shift : Paths.region * opr * <pStable> -> <p> *)
+      (* let shift : Paths.region * opr * <pStable> -> <p> *)
       fun shift (r, opr as Atom _, p as (Atom _::p')) =
             (* insert juxOp operator and reduce *)
             (* juxtaposition binds most strongly *)
@@ -133,7 +133,7 @@ struct
             Parsing.error (r, "Leading postfix operator")
         | shift (r, opr, p) = opr::p
 
-      (* val resolve : Paths.region * opr * <pStable> -> <p> *)
+      (* let resolve : Paths.region * opr * <pStable> -> <p> *)
       (* Decides, based on precedence of opr compared to the top of the
          stack whether to shift the new operator or reduce the stack
       *)
@@ -180,7 +180,7 @@ struct
         | resolve (r, opr, p) =
             shift(r, opr, p)
 
-    end  (* structure P *)
+    end  (* module P *)
 
     (* parseQualifier' f = (ids, f')
        pre: f begins with L.ID
@@ -190,7 +190,7 @@ struct
         (case LS.expose s'
            of LS.Cons ((L.PATHSEP, _), s'') =>
               let
-                val ((ids, (t, r)), f') = parseQualId' (LS.expose s'')
+                let ((ids, (t, r)), f') = parseQualId' (LS.expose s'')
               in
                 ((id::ids, (t, r)), f')
               end
@@ -206,9 +206,9 @@ struct
 
     fun parseQualIds1 (ls, f as LS.Cons ((t as L.ID (_, id), r0), s')) =
         let
-          val ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
-          val r = Paths.join (r0, r1)
-          val f'' = stripBar f'
+          let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
+          let r = Paths.join (r0, r1)
+          let f'' = stripBar f'
         in
           parseQualIds1 ((ids, name) :: ls, f'')
         end
@@ -230,7 +230,7 @@ struct
 
     fun parseSubordPair2 (f as LS.Cons ((L.ID _, _), _), qid) =
         let
-          val ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
+          let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           ((qid, (ids, name)), stripRParen f')
         end
@@ -240,7 +240,7 @@ struct
 
     fun parseSubordPair1 (f as LS.Cons ((L.ID _, _), _)) =
         let
-          val ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
+          let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseSubordPair2(f', (ids, name))
         end
@@ -250,7 +250,7 @@ struct
 
     fun parseSubord' (LS.Cons ((L.LPAREN, r), s'), qidpairs) =
         let
-          val (qidpair, f) = parseSubordPair1 (LS.expose s')
+          let (qidpair, f) = parseSubordPair1 (LS.expose s')
         in
           parseSubord' (f, qidpair::qidpairs)
         end
@@ -263,7 +263,7 @@ struct
 
     fun parseFreeze' (f as LS.Cons ((L.ID _, _), _), qids) =
         let
-          val ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
+          let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseFreeze' (f', (ids, name)::qids)
         end
@@ -278,7 +278,7 @@ struct
 
     fun parseDeterministic' (f as LS.Cons ((L.ID _, _), _), qids) =
         let
-          val ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
+          let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseDeterministic' (f', (ids, name)::qids)
         end
@@ -291,7 +291,7 @@ struct
     (* ABP 4/4/03 *)
     fun parseCompile' (f as LS.Cons ((L.ID _, _), _), qids) =
         let
-          val ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
+          let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseCompile' (f', (ids, name)::qids)
         end
@@ -302,15 +302,15 @@ struct
                             ^ L.toString t)
 
 
-    (* val parseExp : (L.token * L.region) LS.stream * <p>
+    (* let parseExp : (L.token * L.region) LS.stream * <p>
                         -> ExtSyn.term * (L.token * L.region) LS.front *)
     fun parseExp (s, p) = parseExp' (LS.expose s, p)
 
     and parseExp' (f as LS.Cons((L.ID _, r0), _), p) =
         let
-          val ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
-          val r = Paths.join (r0, r1)
-          val tm = idToTerm (idCase, ids, name, r)
+          let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
+          let r = Paths.join (r0, r1)
+          let tm = idToTerm (idCase, ids, name, r)
         in
           (* Currently, we cannot override fixity status of identifiers *)
           (* Thus isQuoted always returns false *)
@@ -384,7 +384,7 @@ struct
           Parsing.error (r, "Expected variable name, found token " ^ L.toString t)
 
     and parseDec1 (x, LS.Cons((L.COLON, r), s')) =
-        let val (tm, f'') = parseExp (s', nil)
+        let let (tm, f'') = parseExp (s', nil)
         in ((x, SOME tm), f'') end
       | parseDec1 (x, f as LS.Cons((L.RBRACE, _), _)) =
           ((x, NONE), f)
@@ -401,10 +401,10 @@ struct
 
     and decideRBrace (r0, ((x, yOpt), LS.Cons ((L.RBRACE,r), s)), p) =
           let
-            val dec = (case yOpt
+            let dec = (case yOpt
                          of NONE => ExtSyn.dec0 (x, Paths.join (r0, r))
                           | SOME y => ExtSyn.dec (x, y, Paths.join (r0, r)))
-            val (tm, f') = parseExp (s, nil)
+            let (tm, f') = parseExp (s, nil)
           in
             parseExp' (f', P.shiftAtom (ExtSyn.pi (dec, tm), p))
           end
@@ -413,10 +413,10 @@ struct
 
     and decideRBracket (r0, ((x, yOpt), LS.Cons ((L.RBRACKET,r), s)), p) =
           let
-            val dec = (case yOpt
+            let dec = (case yOpt
                          of NONE => ExtSyn.dec0 (x, Paths.join (r0, r))
                           | SOME y => ExtSyn.dec (x, y, Paths.join (r0, r)))
-            val (tm, f') = parseExp (s, nil)
+            let (tm, f') = parseExp (s, nil)
           in
             parseExp' (f', P.shiftAtom (ExtSyn.lam (dec, tm), p))
           end
@@ -432,9 +432,9 @@ struct
     (* parseDec "{id:term} | {id}" *)
     and parseBracedDec (r, f) =
         let
-          val ((x, yOpt), f') = parseDec' f
-          val (f'', r2) = stripRBrace f'
-          val d = (case yOpt
+          let ((x, yOpt), f') = parseDec' f
+          let (f'', r2) = stripRBrace f'
+          let d = (case yOpt
                        of NONE => ExtSyn.dec0 (x, Paths.join (r, r2))
                         | SOME y => ExtSyn.dec (x, y, Paths.join (r, r2)))
         in
@@ -449,7 +449,7 @@ struct
     *)
     fun parseCtx (b, ds, LS.Cons (BS as ((L.LBRACE, r), s'))) =
         let
-          val (d, f') = parseBracedDec (r, LS.expose s')
+          let (d, f') = parseBracedDec (r, LS.expose s')
         in
           parseCtx (false,  d :: ds, f')
         end
@@ -458,16 +458,16 @@ struct
         else (ds, f)
 
   in
-    val parseQualId' = parseQualId'
-    val parseQualIds' = parseQualIds'
-    val parseSubord' = (fn f => parseSubord' (f, nil))
-    val parseFreeze' = (fn f => parseFreeze' (f, nil))
-    val parseThaw' = (fn f => parseThaw' (f, nil))
-    val parseDeterministic' = (fn f => parseDeterministic' (f, nil))
-    val parseCompile' = (fn f => parseCompile' (f, nil)) (* -ABP 4/4/03 *)
-    val parseTerm' = (fn f => parseExp' (f, nil))
-    val parseDec' = parseDec'
-    val parseCtx' = (fn f => (parseCtx (true, nil, f)))
+    let parseQualId' = parseQualId'
+    let parseQualIds' = parseQualIds'
+    let parseSubord' = (fun f -> parseSubord' (f, nil))
+    let parseFreeze' = (fun f -> parseFreeze' (f, nil))
+    let parseThaw' = (fun f -> parseThaw' (f, nil))
+    let parseDeterministic' = (fun f -> parseDeterministic' (f, nil))
+    let parseCompile' = (fun f -> parseCompile' (f, nil)) (* -ABP 4/4/03 *)
+    let parseTerm' = (fun f -> parseExp' (f, nil))
+    let parseDec' = parseDec'
+    let parseCtx' = (fun f -> (parseCtx (true, nil, f)))
   end  (* local ... in *)
 
 end;  (* functor ParseTerm *)

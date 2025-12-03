@@ -1,10 +1,10 @@
 (* Normalizer for Delphin meta level *)
 (* Author: Carsten Schuermann *)
 
-signature NORMALIZE = 
+module type NORMALIZE = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
 
 (*  val normalizeFor : (Tomega.For * Tomega.Sub) -> Tomega.For *)
 (*  val normalizePrg : (Tomega.Prg * Tomega.Sub) -> Tomega.Prg 

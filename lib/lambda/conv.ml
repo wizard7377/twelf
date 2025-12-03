@@ -1,14 +1,14 @@
 (* Convertibility Modulo Beta and Eta *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-functor Conv
-  ((*! structure IntSyn' : INTSYN !*)
-   structure Whnf   : WHNF
+let recctor Conv
+  ((*! module IntSyn' : INTSYN !*)
+   module Whnf   : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
      )
      : CONV =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   local
     open IntSyn
@@ -168,8 +168,8 @@ struct
     and convDecP (((D1, P1), s1), ((D2, P2), s2)) =  convDec ((D1, s1), (D2, s2))
 
   in
-    val conv = convExp
-    val convDec = convDec
-    val convSub = convSub
+    let conv = convExp
+    let convDec = convDec
+    let convSub = convSub
   end (* local *)
 end;  (* functor Conv *)

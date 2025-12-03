@@ -1,23 +1,23 @@
 (* fquery: Executing logic programs via functional interpretation *)
 (* Author: Carsten Schuermann *)
 
-functor Fquery
-  (structure Global : GLOBAL
-   structure Names : NAMES
-   structure ReconQuery : RECON_QUERY
-   structure Timers : TIMERS
-   structure Print : PRINT)
+let recctor Fquery
+  (module Global : GLOBAL
+   module Names : NAMES
+   module ReconQuery : RECON_QUERY
+   module Timers : TIMERS
+   module Print : PRINT)
  : FQUERY =
 struct
-  structure ExtQuery = ReconQuery
+  module ExtQuery = ReconQuery
 
   exception AbortQuery of string
 
 
-  structure I = IntSyn
-  structure T = Tomega
-  structure W = WorldSyn
-  structure P = Paths
+  module I = IntSyn
+  module T = Tomega
+  module W = WorldSyn
+  module P = Paths
 
   (* evarInstToString Xs = msg
      formats instantiated EVars as a substitution.
@@ -44,28 +44,28 @@ struct
   fun run (quy, Paths.Loc (fileName, r)) =
       let
         (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-        val (V, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+        let (V, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
                                         (* times itself *)
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then print ("%fquery")
                 else ()
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then print (" ")
                 else ()
-        val _ = if !Global.chatter >= 3
+        let _ = if !Global.chatter >= 3
                   then print ((Timers.time Timers.printing expToString)
                               (IntSyn.Null, V) ^ ".\n")
                 else ()
 
-        val (k, V1)  = Abstract.abstractDecImp V
-        val (G, V2) = lower (k, I.Null, V1)
+        let (k, V1)  = Abstract.abstractDecImp V
+        let (G, V2) = lower (k, I.Null, V1)
                                         (* G |- V'' : type *)
-        val a = I.targetFam V2
-        val W = W.lookup a
-        val V3 = Worldify.worldifyGoal (G, V2)
-        val _ = TypeCheck.typeCheck (G, (V3, I.Uni I.Type))
-        val P = Converter.convertGoal (T.embedCtx G, V3)
-        val V = (Timers.time Timers.delphin Opsem.evalPrg) P
+        let a = I.targetFam V2
+        let W = W.lookup a
+        let V3 = Worldify.worldifyGoal (G, V2)
+        let _ = TypeCheck.typeCheck (G, (V3, I.Uni I.Type))
+        let P = Converter.convertGoal (T.embedCtx G, V3)
+        let V = (Timers.time Timers.delphin Opsem.evalPrg) P
       in
         print ("Delphin: " ^ TomegaPrint.prgToString (I.Null, V) ^ "\n")
       end

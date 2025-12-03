@@ -2,23 +2,23 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-functor ModeTable
-  ((*! structure IntSyn' : INTSYN !*)
-   (* structure Names : NAMES *)
+let recctor ModeTable
+  ((*! module IntSyn' : INTSYN !*)
+   (* module Names : NAMES *)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Table : TABLE where type key = int
-   (* structure Index : INDEX *)
+   module Table : TABLE where type key = int
+   (* module Index : INDEX *)
    (*! sharing Index.IntSyn = IntSyn' !*)
    ) : MODETABLE =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure M = ModeSyn
+    module I = IntSyn
+    module M = ModeSyn
 
-    val modeSignature : (M.ModeSpine list) Table.Table = Table.new(0);
+    let modeSignature : (M.ModeSpine list) Table.Table = Table.new(0);
 
     (* reset () = ()
 
@@ -71,19 +71,19 @@ struct
     *)
     fun installMmode (a, mS) =
           let
-            val mSs = mmodeLookup a
+            let mSs = mmodeLookup a
           in
             Table.insert modeSignature (a, mS :: mSs)
           end
 
   in
-    val reset = reset
+    let reset = reset
 
-    val installMode = installMode
-    val modeLookup = modeLookup
-    val uninstallMode = uninstallMode
+    let installMode = installMode
+    let modeLookup = modeLookup
+    let uninstallMode = uninstallMode
 
-    val installMmode = installMmode
-    val mmodeLookup = mmodeLookup
+    let installMmode = installMmode
+    let mmodeLookup = mmodeLookup
   end
 end;  (* functor ModeTable *)

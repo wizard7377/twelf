@@ -1,7 +1,7 @@
 (* String Hash Table *)
 (* Author: Frank Pfenning *)
 
-signature STRING_HASH =
+module type STRING_HASH =
 sig
   val stringHash : string -> int
 end;

@@ -1,46 +1,46 @@
 (* State definition for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-functor Split
-  (structure Global : GLOBAL
-   (*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor Split
+  (module Global : GLOBAL
+   (*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure State' : STATE
+   module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   structure Whnf : WHNF
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Unify : UNIFY
+   module Unify : UNIFY
    (*! sharing Unify.IntSyn = IntSyn' !*)
-   structure Constraints : CONSTRAINTS
+   module Constraints : CONSTRAINTS
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
    (*! sharing Abstract.Tomega = Tomega' !*)
-   structure Index : INDEX
+   module Index : INDEX
    (*! sharing Index.IntSyn = IntSyn' !*)
-   structure Print : PRINT
+   module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn' !*)
-   structure TypeCheck : TYPECHECK
+   module TypeCheck : TYPECHECK
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   structure Subordinate : SUBORDINATE
+   module Subordinate : SUBORDINATE
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
        ) : SPLIT =
 
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure State = State'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module State = State'
 
   exception Error of string
 
   local
-    structure T = Tomega
-    structure I = IntSyn
-    structure S = State'
+    module T = Tomega
+    module I = IntSyn
+    module S = State'
 
-    datatype Operator =
+    type Operator =
       Split of T.Prg option ref * T.Prg * string
 
     (* weaken (G, a) = w'
@@ -53,7 +53,7 @@ struct
     fun weaken (I.Null, a) = I.id
       | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
         let
-          val w' = weaken (G', a)
+          let w' = weaken (G', a)
         in
           if Subordinate.belowEq (I.targetFam V, a) then I.dot1 w'
           else I.comp (w', I.shift)
@@ -73,11 +73,11 @@ struct
     *)
     fun createEVar (G, V) =
         let (* G |- V : L *)
-          val w = weaken (G, I.targetFam V)       (* G  |- w  : G'    *)
-          val iw = Whnf.invert w                  (* G' |- iw : G     *)
-          val G' = Whnf.strengthen (iw, G)
-          val X' = I.newEVar (G', I.EClo (V, iw)) (* G' |- X' : V[iw] *)
-          val X = I.EClo (X', w)                  (* G  |- X  : V     *)
+          let w = weaken (G, I.targetFam V)       (* G  |- w  : G'    *)
+          let iw = Whnf.invert w                  (* G' |- iw : G     *)
+          let G' = Whnf.strengthen (iw, G)
+          let X' = I.newEVar (G', I.EClo (V, iw)) (* G' |- X' : V[iw] *)
+          let X = I.EClo (X', w)                  (* G  |- X  : V     *)
         in
           X
         end
@@ -91,7 +91,7 @@ struct
     and instEVarsW (Vs, 0, XsRev) = (Vs, XsRev)
       | instEVarsW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev) =
         let (* p > 0 *)
-          val X1 = I.newEVar (I.Null, I.EClo (V1, s)) (* all EVars are global *)
+          let X1 = I.newEVar (I.Null, I.EClo (V1, s)) (* all EVars are global *)
         in
           instEVars ((V2, I.Dot (I.Exp (X1), s)), p-1, SOME(X1)::XsRev)
         end
@@ -99,7 +99,7 @@ struct
         (* G0 |- t : Gsome *)
         (* . |- s : G0 *)
         let (* p > 0 *)
-          val L1 = I.newLVar (I.Shift(0), (l, I.comp(t,s))) (* --cs Sun Dec  1 06:33:27 2002 *)
+          let L1 = I.newLVar (I.Shift(0), (l, I.comp(t,s))) (* --cs Sun Dec  1 06:33:27 2002 *)
         in
           instEVars ((V2, I.Dot (I.Block (L1), s)), p-1, NONE::XsRev)
         end
@@ -109,7 +109,7 @@ struct
        can be updated in the success continuation.
     *)
     local
-      val caseList : (T.Dec I.Ctx * T.Sub) list ref = ref nil
+      let caseList : (T.Dec I.Ctx * T.Sub) list ref = ref nil
     in
       fun resetCases () = (caseList := nil)
       fun addCase (Psi, t) = (caseList := (Psi, t) :: !caseList)
@@ -130,8 +130,8 @@ struct
     and createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
       | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let (* G |- V1[s] : L *)
-          val X = createEVar (G, I.EClo (V1, s))
-          val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
+          let X = createEVar (G, I.EClo (V1, s))
+          let (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
         in
           (I.App (X, S), Vs)
         end
@@ -146,8 +146,8 @@ struct
     *)
     fun createAtomConst (G, H as I.Const (cid)) =
         let
-          val V = I.constType cid
-          val (S, Vs) = createEVarSpine (G, (V, I.id))
+          let V = I.constType cid
+          let (S, Vs) = createEVarSpine (G, (V, I.id))
         in
           (I.Root (H, S), Vs)
         end
@@ -161,8 +161,8 @@ struct
     *)
     fun createAtomBVar (G, k) =
         let
-          val I.Dec (_, V) = I.ctxDec (G, k)
-          val (S, Vs) = createEVarSpine (G, (V, I.id))
+          let I.Dec (_, V) = I.ctxDec (G, k)
+          let (S, Vs) = createEVarSpine (G, (V, I.id))
         in
           (I.Root (I.BVar (k), S), Vs)
         end
@@ -178,7 +178,7 @@ struct
     *)
     fun createAtomProj (G, H, (V, s)) =
         let
-          val (S, Vs') = createEVarSpine (G, (V, s))
+          let (S, Vs') = createEVarSpine (G, (V, s))
         in
           (I.Root (H, S), Vs')
         end
@@ -186,8 +186,8 @@ struct
     fun constCases (G, Vs, nil, sc) = ()
       | constCases (G, Vs, I.Const(c)::sgn', sc) =
         let
-          val (U, Vs') = createAtomConst (G, I.Const c)
-          val _ = CSManager.trail (fn () =>
+          let (U, Vs') = createAtomConst (G, I.Const c)
+          let _ = CSManager.trail (fn () =>
                                    if Unify.unifiable (G, Vs, Vs')
                                      then sc U
                                    else ())
@@ -198,8 +198,8 @@ struct
     fun paramCases (G, Vs, 0, sc) = ()
       | paramCases (G, Vs, k, sc) =
         let
-          val (U, Vs') = createAtomBVar (G, k)
-          val _ = CSManager.trail (fn () =>
+          let (U, Vs') = createAtomBVar (G, k)
+          let _ = CSManager.trail (fn () =>
                                    if Unify.unifiable (G, Vs, Vs')
                                      then sc U
                                    else ())
@@ -218,9 +218,9 @@ struct
     fun createEVarSub (I.Null) = I.id
       | createEVarSub (I.Decl(G', D as I.Dec (_, V))) =
         let
-          val s = createEVarSub G'
-          val V' = I.EClo (V, s)
-          val X = I.newEVar (I.Null, V')
+          let s = createEVarSub G'
+          let V' = I.EClo (V, s)
+          let X = I.newEVar (I.Null, V')
         in
           I.Dot (I.Exp X, s)
         end
@@ -238,11 +238,11 @@ struct
     *)
     fun blockCases (G, Vs, cid, (Gsome, piDecs), sc) =
         let
-          val t = createEVarSub Gsome   (* accounts for subordination *)
+          let t = createEVarSub Gsome   (* accounts for subordination *)
           (* . |- t : Gsome *)
-          val sk = I.Shift (I.ctxLength(G))
-          val t' = I.comp (t, sk)
-          val lvar = I.newLVar (sk, (cid, t'))  (* --cs Sun Dec  1 06:33:41 2002 *)
+          let sk = I.Shift (I.ctxLength(G))
+          let t' = I.comp (t, sk)
+          let lvar = I.newLVar (sk, (cid, t'))  (* --cs Sun Dec  1 06:33:41 2002 *)
           (* G |- t' : Gsome *)
         in
           blockCases' (G, Vs, (lvar, 1), (t', piDecs), sc)
@@ -252,11 +252,11 @@ struct
         let
           (* G |- t : G' and G' |- ({_:V'},piDecs) decList *)
           (* so G |- V'[t'] : type *)
-          val (U, Vs') = createAtomProj (G, I.Proj (lvar, i), (V', t))
-          val _ = CSManager.trail (fn () => if Unify.unifiable (G, Vs, Vs')
+          let (U, Vs') = createAtomProj (G, I.Proj (lvar, i), (V', t))
+          let _ = CSManager.trail (fn () => if Unify.unifiable (G, Vs, Vs')
                                               then sc U
                                             else ())
-          val t' = I.Dot (I.Exp (I.Root (I.Proj (lvar, i), I.Nil)), t)
+          let t' = I.Dot (I.Exp (I.Root (I.Proj (lvar, i), I.Nil)), t)
         in
           blockCases' (G, Vs, (lvar, i+1), (t', piDecs), sc)
         end
@@ -269,17 +269,17 @@ struct
     fun lowerSplit (G, Vs, W, sc) = lowerSplitW (G, Whnf.whnf Vs, W, sc)
     and lowerSplitW (G, Vs as (I.Root (I.Const a, _), s), W, sc) =
         let
-          val _ = constCases (G, Vs, Index.lookup a, sc) (* will trail *)
-          val _ = paramCases (G, Vs, I.ctxLength G, sc) (* will trail *)
-          val _ = worldCases (G, Vs, W, sc) (* will trail *)
+          let _ = constCases (G, Vs, Index.lookup a, sc) (* will trail *)
+          let _ = paramCases (G, Vs, I.ctxLength G, sc) (* will trail *)
+          let _ = worldCases (G, Vs, W, sc) (* will trail *)
         in
           ()
         end
  (*     | lowerSplitW (G, (I.Pi ((D, P), V), s), W, sc) =
         let
-          val D' = I.decSub (D, s)
+          let D' = I.decSub (D, s)
         in
-          lowerSplit (I.Decl (G, D'), (V, I.dot1 s), W, fn U => sc (I.Lam (D', U)))
+          lowerSplit (I.Decl (G, D'), (V, I.dot1 s), W, fun U -> sc (I.Lam (D', U)))
         end
       we assume that all EVars are lowere :-)
 *)
@@ -291,7 +291,7 @@ struct
     *)
     fun splitEVar ((X as I.EVar (_, GX, V, _)), W, sc) = (* GX = I.Null *)
           lowerSplit (I.Null, (V, I.id), W,
-                      fn U => if Unify.unifiable (I.Null, (X, I.id), (U, I.id))
+                      fun U -> if Unify.unifiable (I.Null, (X, I.id), (U, I.id))
                                 then sc ()
                               else ())
 
@@ -305,8 +305,8 @@ struct
     fun createSub (I.Null) = (T.id)
       | createSub (I.Decl (Psi, T.UDec (I.Dec (xOpt, V1)))) =
         let
-          val (t') = createSub Psi
-          val X = I.newEVar (I.Null, I.EClo (Whnf.whnf (V1, T.coerceSub t'))) (* all EVars are global and lowered *)
+          let (t') = createSub Psi
+          let X = I.newEVar (I.Null, I.EClo (Whnf.whnf (V1, T.coerceSub t'))) (* all EVars are global and lowered *)
         in
            (T.Dot (T.Exp X, t'))
         end
@@ -314,16 +314,16 @@ struct
         (* Psi0 |- t : Gsome *)
         (* . |- s : Psi0 *)
         let
-          val (t') = createSub Psi
-          val L = I.newLVar (I.Shift(0), (l, I.comp(s, T.coerceSub t')))
+          let (t') = createSub Psi
+          let L = I.newLVar (I.Shift(0), (l, I.comp(s, T.coerceSub t')))
                                         (* --cs Sun Dec  1 06:34:00 2002 *)
         in
           (T.Dot (T.Block L, t'))
         end
       | createSub (I.Decl (Psi, T.PDec (_, F, TC1, TC2))) =
         let (* p > 0 *)
-          val t' = createSub Psi
-          val Y = T.newEVarTC (I.Null, T.FClo (F, t'), TC1, TC2)
+          let t' = createSub Psi
+          let Y = T.newEVarTC (I.Null, T.FClo (F, t'), TC1, TC2)
         in
           (T.Dot (T.Prg Y, t'))
         end
@@ -343,7 +343,7 @@ struct
     fun mkCases (nil, F) = nil
       | mkCases ((Psi, t) :: cs, F) =
         let
-          val X = T.newEVar (Psi, T.FClo (F, t))
+          let X = T.newEVar (Psi, T.FClo (F, t))
         in
           (Psi, t, X) :: mkCases (cs, F)
         end
@@ -380,14 +380,14 @@ struct
         fun splitXs (G, i) (nil, _, _, _) = nil
           | splitXs (G, i) (X :: Xs, F, W, sc) =
             let
-              val _ = if !Global.chatter >= 6
+              let _ = if !Global.chatter >= 6
                         then print ("Split " ^ Print.expToString (I.Null, X) ^ ".\n")
                       else ()
-              val Os = splitXs (G,i+1) (Xs, F, W, sc)    (* returns a list of operators *)
-              val _ = resetCases ()
-(*            val I.Dec (SOME s, _) = I.ctxLookup (G, i) *)
-              val s = Print.expToString (G, X)
-              val Os' = (splitEVar (X, W, sc);
+              let Os = splitXs (G,i+1) (Xs, F, W, sc)    (* returns a list of operators *)
+              let _ = resetCases ()
+(*            let I.Dec (SOME s, _) = I.ctxLookup (G, i) *)
+              let s = Print.expToString (G, X)
+              let Os' = (splitEVar (X, W, sc);
                          Split (r, T.Case (T.Cases (mkCases (getCases (), F))), s) :: Os)
                 handle  Constraints.Error (constrs) =>
                   (if !Global.chatter >= 6
@@ -398,11 +398,11 @@ struct
               Os'
             end
 
-        val t = createSub Psi  (* . |- t :: Psi *)
-        val Xs = State.collectLFSub t
+        let t = createSub Psi  (* . |- t :: Psi *)
+        let Xs = State.collectLFSub t
         fun init () = (addCase (Abstract.abstractTomegaSub t))
-        val G = T.coerceCtx Psi
-        val Os = splitXs (G, 1) (Xs, F, W, init)
+        let G = T.coerceCtx Psi
+        let Os = splitXs (G, 1) (Xs, F, W, init)
       in
         Os
       end
@@ -423,8 +423,8 @@ struct
   in
     type operator = Operator
 
-    val expand = expand
-    val apply = apply
-    val menu = menu
+    let expand = expand
+    let apply = apply
+    let menu = menu
   end
 end (* functor Split *)

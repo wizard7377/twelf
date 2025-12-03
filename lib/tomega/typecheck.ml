@@ -2,28 +2,28 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Yu Liao *)
 
-functor TomegaTypeCheck
-  (structure Abstract : ABSTRACT
-   structure TypeCheck : TYPECHECK
-   structure Conv : CONV
-   structure Whnf : WHNF
-   structure Print : PRINT
-   structure TomegaPrint : TOMEGAPRINT
-   structure Subordinate : SUBORDINATE
-   structure Weaken : WEAKEN
-   structure TomegaAbstract : TOMEGAABSTRACT
+let recctor TomegaTypeCheck
+  (module Abstract : ABSTRACT
+   module TypeCheck : TYPECHECK
+   module Conv : CONV
+   module Whnf : WHNF
+   module Print : PRINT
+   module TomegaPrint : TOMEGAPRINT
+   module Subordinate : SUBORDINATE
+   module Weaken : WEAKEN
+   module TomegaAbstract : TOMEGAABSTRACT
        ) : TOMEGATYPECHECK =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure T = Tomega
-    structure S = Subordinate
-    structure TA = TomegaAbstract
+    module I = IntSyn
+    module T = Tomega
+    module S = Subordinate
+    module TA = TomegaAbstract
 
     fun chatter chlev f =
         if !Global.chatter >= chlev
@@ -63,27 +63,27 @@ struct
     and inferSpineW (Psi, T.Nil, (F, t)) = (F, t)
       | inferSpineW (Psi, T.AppExp (M, S), (T.All ((T.UDec (I.Dec (_, A)), _), F), t)) =
         let
-          val _ = chatter 4 (fn () => "[appExp")
-          val G = T.coerceCtx (Psi)
-          val _ = TypeCheck.typeCheck (G, (M, I.EClo (A, T.coerceSub t)))
-          val _ = chatter 4 (fn () => "]")
+          let _ = chatter 4 (fn () => "[appExp")
+          let G = T.coerceCtx (Psi)
+          let _ = TypeCheck.typeCheck (G, (M, I.EClo (A, T.coerceSub t)))
+          let _ = chatter 4 (fn () => "]")
         in
           inferSpine (Psi, S, (F, T.Dot(T.Exp(M), t)))
         end
       | inferSpineW (Psi, T.AppBlock (I.Bidx k, S),
                      (T.All ((T.UDec (I.BDec (_, (cid, s))), _), F2), t2)) =
         let
-          val T.UDec (I.BDec(_, (cid', s')))= T.ctxDec(Psi, k)
-          val (G', _) = I.conDecBlock (I.sgnLookup cid')
-          val _ = if (cid <> cid') then raise Error("Block label incompatible") else ()
-          val s'' = T.coerceSub (T.comp (T.embedSub s, t2))
-          val _ = Conv.convSub (s', s'')
+          let T.UDec (I.BDec(_, (cid', s')))= T.ctxDec(Psi, k)
+          let (G', _) = I.conDecBlock (I.sgnLookup cid')
+          let _ = if (cid <> cid') then raise Error("Block label incompatible") else ()
+          let s'' = T.coerceSub (T.comp (T.embedSub s, t2))
+          let _ = Conv.convSub (s', s'')
         in
             inferSpine (Psi, S, (F2, T.Dot(T.Block(I.Bidx k), t2)))
         end
       | inferSpineW (Psi, T.AppPrg (P, S), (T.All ((T.PDec (_, F1, _, _), _), F2), t)) =
         let
-            val _ = checkPrg (Psi, (P, (F1, t)))
+            let _ = checkPrg (Psi, (P, (F1, t)))
         in
             inferSpine (Psi, S, (F2, T.dot1 t))
         end
@@ -92,35 +92,35 @@ struct
 
     and inferPrg (Psi, T.Lam (D, P)) =
         let
-          val F = inferPrg (I.Decl (Psi, D), P)
+          let F = inferPrg (I.Decl (Psi, D), P)
         in
           T.All ((D, T.Explicit), F)
         end
       | inferPrg (Psi, T.New P) =
         let
-          val T.All ((T.UDec (D as (I.BDec _)), _), F) = inferPrg (Psi, P)
+          let T.All ((T.UDec (D as (I.BDec _)), _), F) = inferPrg (Psi, P)
         in
           TA.raiseF (I.Decl (I.Null, D), (F, I.id))
         end
       | inferPrg (Psi, T.PairExp (U, P)) =
         let
-          val V = TypeCheck.infer' (T.coerceCtx Psi, U)
-          val F = inferPrg (Psi, P)
+          let V = TypeCheck.infer' (T.coerceCtx Psi, U)
+          let F = inferPrg (Psi, P)
         in
           T.Ex ((I.Dec (NONE, V), T.Explicit), F)
         end
       | inferPrg (Psi, T.PairBlock (I.Bidx k, P)) =
         (* Blocks T.Inst, and T.LVar excluded for now *)
         let
-          val D = I.ctxLookup (T.coerceCtx Psi, k)
-          val F = inferPrg (Psi, P)
+          let D = I.ctxLookup (T.coerceCtx Psi, k)
+          let F = inferPrg (Psi, P)
         in
           T.Ex ((D, T.Explicit), F)
         end
       | inferPrg (Psi, T.PairPrg (P1, P2)) =
         let
-          val F1 = inferPrg (Psi, P1)
-          val F2 = inferPrg (Psi, P2)
+          let F1 = inferPrg (Psi, P1)
+          let F2 = inferPrg (Psi, P2)
         in
           T.And (F1, F2)
         end
@@ -129,21 +129,21 @@ struct
       | inferPrg (Psi, T.Const c) = inferLemma c
       | inferPrg (Psi, T.Redex (P, S)) =
         let
-          val F1 = inferPrg (Psi, P)
-          val F2 = inferSpine (Psi, S, (F1, T.id))
+          let F1 = inferPrg (Psi, P)
+          let F2 = inferSpine (Psi, S, (F1, T.id))
         in
           T.forSub F2
         end
       | inferPrg (Psi, T.Rec (D as T.PDec (_, F, _, _), P)) =
         let
-          val _ = checkPrg (I.Decl (Psi, D), (P, (F, T.id)))
+          let _ = checkPrg (I.Decl (Psi, D), (P, (F, T.id)))
         in
           F
         end
       | inferPrg (Psi, T.Let (D as T.PDec (_, F1, _, _), P1, P2)) =
         let
-          val _ = checkPrg (Psi, (P1, (F1, T.id)))
-          val F2 = inferPrg (I.Decl (Psi, D), P2)
+          let _ = checkPrg (Psi, (P1, (F1, T.id)))
+          let F2 = inferPrg (I.Decl (Psi, D), P2)
         in
           F2
         end
@@ -161,7 +161,7 @@ struct
     and checkPrg (Psi, (P, Ft)) = checkPrgW (Psi, (P, T.whnfFor Ft))
     and checkPrgW (_, (T.Unit, (T.True, _))) =
         let
-          val _ = chatter 4 (fn () => "[true]")
+          let _ = chatter 4 (fn () => "[true]")
         in
           ()
         end
@@ -171,45 +171,45 @@ struct
           (case T.ctxDec (Psi, k) of T.PDec (_, F', _, _) => convFor (Psi, (F', T.id), (F, t)))
       | checkPrgW (Psi, (T.Lam (D as T.PDec (x, F1, _, _), P), (T.All ((T.PDec (x', F1', _, _), _), F2), t))) =
         let
-          val _ = chatter 4 (fn () => "[lam[p]")
-            val _ = convFor (Psi, (F1, T.id), (F1', t))
-          val _ = chatter 4 (fn () => "]")
+          let _ = chatter 4 (fn () => "[lam[p]")
+            let _ = convFor (Psi, (F1, T.id), (F1', t))
+          let _ = chatter 4 (fn () => "]")
         in
             checkPrg (I.Decl (Psi, D), (P, (F2, T.dot1 t)))
         end
       | checkPrgW (Psi, (T.Lam (T.UDec D, P), (T.All ((T.UDec D', _), F), t2))) =
         let
-          val _ = chatter 4 (fn () => "[lam[u]")
-          val _ = Conv.convDec ((D, I.id), (D', T.coerceSub t2))
-          val _ = chatter 4 (fn () => "]")
+          let _ = chatter 4 (fn () => "[lam[u]")
+          let _ = Conv.convDec ((D, I.id), (D', T.coerceSub t2))
+          let _ = chatter 4 (fn () => "]")
         in
             checkPrg (I.Decl (Psi , T.UDec D), (P, (F, T.dot1 t2)))
         end
       | checkPrgW (Psi, (T.PairExp (M, P), (T.Ex((I.Dec(x, A), _), F2), t))) =
         let
-          val _ = chatter 4 (fn () => "[pair [e]")
-          val G = T.coerceCtx Psi
-          val _ = TypeCheck.typeCheck(G, (M, I.EClo (A, T.coerceSub(t))))
-          val _ = chatter 4 (fn () => "]")
+          let _ = chatter 4 (fn () => "[pair [e]")
+          let G = T.coerceCtx Psi
+          let _ = TypeCheck.typeCheck(G, (M, I.EClo (A, T.coerceSub(t))))
+          let _ = chatter 4 (fn () => "]")
         in
             checkPrg(Psi, (P, (F2, T.Dot (T.Exp M, t))))
         end
       | checkPrgW (Psi, (T.PairBlock (I.Bidx k, P), (T.Ex ((I.BDec (_, (cid, s)), _), F2), t))) =
         let
-          val T.UDec (I.BDec(_, (cid', s'))) = T.ctxDec (Psi, k)
-          val (G', _) = I.conDecBlock (I.sgnLookup cid)
-          val _ = if (cid' <> cid) then raise Error ("Block label mismatch") else ()
-          val _ = convSub (Psi, T.embedSub s', T.comp(T.embedSub(s), t), T.revCoerceCtx(G'))
+          let T.UDec (I.BDec(_, (cid', s'))) = T.ctxDec (Psi, k)
+          let (G', _) = I.conDecBlock (I.sgnLookup cid)
+          let _ = if (cid' <> cid) then raise Error ("Block label mismatch") else ()
+          let _ = convSub (Psi, T.embedSub s', T.comp(T.embedSub(s), t), T.revCoerceCtx(G'))
         in
           checkPrg(Psi, (P, (F2, T.Dot(T.Block(I.Bidx k), t))))
         end
       | checkPrgW (Psi, (T.PairPrg (P1, P2), (T.And( F1, F2), t))) =
         let
-          val _ = chatter 4 (fn () => "[and")
-          val _ = checkPrg (Psi, (P1, (F1, t)))
-          val _ = chatter 4 (fn () => "...")
-          val _ = checkPrg (Psi, (P2, (F2, t)))
-          val _ = chatter 4 (fn () => "]")
+          let _ = chatter 4 (fn () => "[and")
+          let _ = checkPrg (Psi, (P1, (F1, t)))
+          let _ = chatter 4 (fn () => "...")
+          let _ = checkPrg (Psi, (P2, (F2, t)))
+          let _ = chatter 4 (fn () => "]")
         in
           ()
         end
@@ -217,9 +217,9 @@ struct
           checkCases (Psi, (Omega, Ft))
       | checkPrgW (Psi, (T.Rec (D as T.PDec (x, F, _, _), P), (F', t))) =
         let
-          val _ = chatter 4 (fn () => "[rec")
-          val _ = convFor(Psi, (F, T.id), (F', t))
-          val _ = chatter 4 (fn () => "]\n")
+          let _ = chatter 4 (fn () => "[rec")
+          let _ = convFor(Psi, (F, T.id), (F', t))
+          let _ = chatter 4 (fn () => "]\n")
         in
             checkPrg (I.Decl(Psi, D), (P, (F', t)))
         end
@@ -234,28 +234,28 @@ struct
                                         (* Psi' |- F2' :: for *)
                                         (* Psi, D |- t o ^ :: Psi' *)
         let
-          val _ = chatter 4 (fn () => "[let")
-          val _ = checkPrg (Psi, (P1, (F1, T.id)))
+          let _ = chatter 4 (fn () => "[let")
+          let _ = checkPrg (Psi, (P1, (F1, T.id)))
                                         (* Psi |- F1 == F1' for *)
-          val _ = chatter 4 (fn () => ".")
-          val _ = checkPrg (I.Decl (Psi, D), (P2, (F2, T.comp (t, T.shift))))
-          val _ = chatter 4 (fn () => "]\n")
+          let _ = chatter 4 (fn () => ".")
+          let _ = checkPrg (I.Decl (Psi, D), (P2, (F2, T.comp (t, T.shift))))
+          let _ = chatter 4 (fn () => "]\n")
         in
           ()
         end
       | checkPrgW (Psi, (T.New (P' as T.Lam (T.UDec (D as I.BDec (_, (cid, s))), P)), (F, t))) =
         let
-          val _ = chatter 5 (fn () => "[new1...")
-          val T.All ((T.UDec D'', _), F') = inferPrg (Psi, P')   (* D'' == D *)
-          val _ = chatter 5 (fn () => "][new2...")
-          val F'' = TA.raiseF (I.Decl (I.Null, D), (F', I.id))
+          let _ = chatter 5 (fn () => "[new1...")
+          let T.All ((T.UDec D'', _), F') = inferPrg (Psi, P')   (* D'' == D *)
+          let _ = chatter 5 (fn () => "][new2...")
+          let F'' = TA.raiseF (I.Decl (I.Null, D), (F', I.id))
         in
           (convFor (Psi, (F'', T.id), (F, t))
           ;chatter 5 (fn () => "]\n"))
         end
       | checkPrgW (Psi, (T.Redex (P1, S2), (F, t))) =
           let
-            val F' = inferPrg (Psi, P1)
+            let F' = inferPrg (Psi, P1)
           in
            checkSpine (Psi, S2, (F', T.id), (F, t))
           end
@@ -283,18 +283,18 @@ struct
       | checkCases (Psi, (T.Cases ((Psi', t', P) :: Omega), (F2, t2))) =
         let
                                         (* Psi' |- t' :: Psi *)
-          val _ = chatter 4 (fn () => "[case... ")
-          val _ = chatter 4 (fn () => "sub... ")
-          val _ = checkSub(Psi', t', Psi)
-          val _ = chatter 4 (fn () => "prg... ")
-          val t2' = T.comp(t2, t')
-          val _ = checkCtx Psi
-          val _ = checkCtx Psi'
-          val _ = chatter 4 (fn () => "]")
-          val _ = checkPrg (Psi', (P, (F2, t2')))
-          val _ = chatter 4 (fn () => "]\n")
+          let _ = chatter 4 (fn () => "[case... ")
+          let _ = chatter 4 (fn () => "sub... ")
+          let _ = checkSub(Psi', t', Psi)
+          let _ = chatter 4 (fn () => "prg... ")
+          let t2' = T.comp(t2, t')
+          let _ = checkCtx Psi
+          let _ = checkCtx Psi'
+          let _ = chatter 4 (fn () => "]")
+          let _ = checkPrg (Psi', (P, (F2, t2')))
+          let _ = chatter 4 (fn () => "]\n")
 
-          val _ = checkCases (Psi, ((T.Cases Omega), (F2, t2)))
+          let _ = checkCases (Psi, ((T.Cases Omega), (F2, t2)))
         in
           ()
         end
@@ -319,14 +319,14 @@ struct
                   (T.All ((D as T.UDec( I.Dec (_, A1)), _), F1), t1),
                   (T.All ((     T.UDec( I.Dec (_, A2)), _), F2), t2)) =
         let
-          val G = T.coerceCtx (Psi)
-          val s1 = T.coerceSub t1
-          val s2 = T.coerceSub t2
-          val _ = Conv.conv((A1, s1), (A2, s2))
-          val _ = TypeCheck.typeCheck(G, (I.EClo (A1, s1), I.Uni I.Type))
-          val _ = TypeCheck.typeCheck(G, (I.EClo (A2, s2), I.Uni I.Type))
-          val D' = T.decSub (D, t1)
-          val _ = convFor (I.Decl(Psi, D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
+          let G = T.coerceCtx (Psi)
+          let s1 = T.coerceSub t1
+          let s2 = T.coerceSub t2
+          let _ = Conv.conv((A1, s1), (A2, s2))
+          let _ = TypeCheck.typeCheck(G, (I.EClo (A1, s1), I.Uni I.Type))
+          let _ = TypeCheck.typeCheck(G, (I.EClo (A2, s2), I.Uni I.Type))
+          let D' = T.decSub (D, t1)
+          let _ = convFor (I.Decl(Psi, D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
         in
           ()
         end
@@ -334,13 +334,13 @@ struct
                   (T.All ((D as T.UDec (I.BDec(_, (l1, s1))), _), F1), t1),
                   (T.All((T.UDec (I.BDec(_, (l2, s2))), _), F2), t2)) =
         let
-          val _ = if l1 <> l2 then raise Error "Contextblock clash" else ()
-          val (G', _) = I.conDecBlock (I.sgnLookup l1)
-          val _ = convSub (Psi,
+          let _ = if l1 <> l2 then raise Error "Contextblock clash" else ()
+          let (G', _) = I.conDecBlock (I.sgnLookup l1)
+          let _ = convSub (Psi,
                            T.comp (T.embedSub s1, t1),
                            T.comp (T.embedSub s2, t2), T.embedCtx G')
-          val D' = T.decSub (D, t1)
-          val _ = convFor (I.Decl (Psi, D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
+          let D' = T.decSub (D, t1)
+          let _ = convFor (I.Decl (Psi, D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
         in
           ()
         end
@@ -348,14 +348,14 @@ struct
                   (T.Ex ((D as I.Dec (_, A1), _), F1), t1),
                   (T.Ex ((     I.Dec (_, A2), _), F2), t2)) =
         let
-          val G = T.coerceCtx (Psi)
-          val s1 = T.coerceSub t1
-          val s2 = T.coerceSub t2
-          val _ = Conv.conv ((A1, s1), (A2, s2))
-          val _ = TypeCheck.typeCheck (G, (I.EClo (A1, s1), I.Uni I.Type))
-          val _ = TypeCheck.typeCheck (G, (I.EClo (A2, s2), I.Uni I.Type))
-          val D' = I.decSub (D, s1)
-          val _ = convFor (I.Decl(Psi, T.UDec D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
+          let G = T.coerceCtx (Psi)
+          let s1 = T.coerceSub t1
+          let s2 = T.coerceSub t2
+          let _ = Conv.conv ((A1, s1), (A2, s2))
+          let _ = TypeCheck.typeCheck (G, (I.EClo (A1, s1), I.Uni I.Type))
+          let _ = TypeCheck.typeCheck (G, (I.EClo (A2, s2), I.Uni I.Type))
+          let D' = I.decSub (D, s1)
+          let _ = convFor (I.Decl(Psi, T.UDec D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
         in
           ()
         end
@@ -363,14 +363,14 @@ struct
                   (T.Ex ((D as I.BDec(name, (l1, s1)), _), F1), t1),
                   (T.Ex ((     I.BDec(_,    (l2, s2)), _), F2), t2)) =
         let
-          val _ = if l1 <> l2 then raise Error "Contextblock clash" else ()
-          val (G', _) = I.conDecBlock (I.sgnLookup l1)
-          val s1 = T.coerceSub t1
-          val _ = convSub (Psi,
+          let _ = if l1 <> l2 then raise Error "Contextblock clash" else ()
+          let (G', _) = I.conDecBlock (I.sgnLookup l1)
+          let s1 = T.coerceSub t1
+          let _ = convSub (Psi,
                            T.comp (T.embedSub s1, t1),
                            T.comp (T.embedSub s2, t2), T.embedCtx G')
-          val D' = I.decSub (D, s1)
-          val _ = convFor (I.Decl(Psi, T.UDec D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
+          let D' = I.decSub (D, s1)
+          let _ = convFor (I.Decl(Psi, T.UDec D'), (F1, T.dot1 t1), (F2, T.dot1 t2))
         in
           ()
         end
@@ -378,8 +378,8 @@ struct
                   (T.And(F1, F1'), t1),
                   (T.And(F2, F2'), t2)) =
         let
-          val _ = convFor (Psi, (F1,  t1), (F2,  t2))
-          val _ = convFor (Psi, (F1', t1), (F2', t2))
+          let _ = convFor (Psi, (F1,  t1), (F2,  t2))
+          let _ = convFor (Psi, (F1', t1), (F2', t2))
         in
           ()
         end
@@ -387,9 +387,9 @@ struct
                   (T.All((D as T.PDec(_, F1, _, _), _), F1'), t1),
                   (T.All((     T.PDec(_, F2, _, _), _), F2'), t2)) =
         let
-          val _ = convFor (Psi, (F1, t1), (F2, t2))
-          val D' = T.decSub (D, t1)
-          val _ = convFor (I.Decl (Psi, D'), (F1', T.dot1 t1), (F2', T.dot1 t2))
+          let _ = convFor (Psi, (F1, t1), (F2, t2))
+          let D' = T.decSub (D, t1)
+          let _ = convFor (I.Decl (Psi, D'), (F1', T.dot1 t1), (F2', T.dot1 t2))
         in
           ()
         end
@@ -397,7 +397,7 @@ struct
                   (T.World (W1, F1), t1),
                   (T.World (W2, F2), t2)) =
         let
-          val _ = convFor (Psi, (F1, t1), (F2, t2))
+          let _ = convFor (Psi, (F1, t1), (F2, t2))
           (* also check that both worlds are equal -- cs Mon Apr 21 01:28:01 2003 *)
         in
           ()
@@ -414,56 +414,56 @@ struct
         else raise Error "Sub not equivalent"
       | convSub(G, T.Dot(T.Exp M1, s1), T.Dot(T.Exp M2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
         let
-            val _ = TypeCheck.checkConv (M1, M2) (* checkConv doesn't need context G?? -- Yu Liao *)
-            val _ = TypeCheck.typeCheck (T.coerceCtx(G), (M1, A))
+            let _ = TypeCheck.checkConv (M1, M2) (* checkConv doesn't need context G?? -- Yu Liao *)
+            let _ = TypeCheck.typeCheck (T.coerceCtx(G), (M1, A))
         in
             convSub(G, s1, s2, G')
         end
       | convSub(G, T.Dot(T.Block (I.Bidx v1), s1), T.Dot(T.Block(I.Bidx v2), s2), I.Decl(G', T.UDec (I.BDec (_, (l,s)))))=
         let
-            val T.UDec (I.BDec(_, (l1, s11)))= T.ctxDec(G, v1)
-            val T.UDec (I.BDec(_, (l2, s22)))= T.ctxDec(G, v2)
-            val _ = if l1 = l2 then () else raise Error "Sub not equivalent"
-            val _ = if l1 = l then () else raise Error "Sub not equivalent"
-            val (G'', _) = I.conDecBlock (I.sgnLookup l)
-            val _ = convSub (G, T.embedSub s11, T.embedSub s22, T.revCoerceCtx(G''))
-            val _ = convSub (G, T.embedSub s11, T.embedSub s, T.revCoerceCtx(G''))
+            let T.UDec (I.BDec(_, (l1, s11)))= T.ctxDec(G, v1)
+            let T.UDec (I.BDec(_, (l2, s22)))= T.ctxDec(G, v2)
+            let _ = if l1 = l2 then () else raise Error "Sub not equivalent"
+            let _ = if l1 = l then () else raise Error "Sub not equivalent"
+            let (G'', _) = I.conDecBlock (I.sgnLookup l)
+            let _ = convSub (G, T.embedSub s11, T.embedSub s22, T.revCoerceCtx(G''))
+            let _ = convSub (G, T.embedSub s11, T.embedSub s, T.revCoerceCtx(G''))
         in
             convSub(G, s1, s2, G')
         end
       | convSub(G, T.Dot(T.Prg P1, s1), T.Dot(T.Prg P2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
         let
-            val _ = isValue P1
-            val _ = isValue P2
-            val _ = convValue (G, P1, P2, F)
+            let _ = isValue P1
+            let _ = isValue P2
+            let _ = convValue (G, P1, P2, F)
         in
             convSub(G, s1, s2, G')
         end
       | convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Exp M2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
         let
-            val _ = TypeCheck.checkConv (I.Root(I.BVar k1, I.Nil), M2)
-            val _ = TypeCheck.typeCheck (T.coerceCtx(G), (M2, A))
+            let _ = TypeCheck.checkConv (I.Root(I.BVar k1, I.Nil), M2)
+            let _ = TypeCheck.typeCheck (T.coerceCtx(G), (M2, A))
         in
             convSub(G, s1, s2, G')
         end
       | convSub(G, T.Dot(T.Exp M1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
         let
-            val _ = TypeCheck.checkConv (M1, I.Root(I.BVar k2, I.Nil))
-            val _ = TypeCheck.typeCheck (T.coerceCtx(G), (M1, A))
+            let _ = TypeCheck.checkConv (M1, I.Root(I.BVar k2, I.Nil))
+            let _ = TypeCheck.typeCheck (T.coerceCtx(G), (M1, A))
         in
             convSub(G, s1, s2, G')
         end
       | convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Prg P2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
         let
-            val _ = isValue P2
-            val _ = convValue (G, T.Var k1, P2, F)
+            let _ = isValue P2
+            let _ = convValue (G, T.Var k1, P2, F)
         in
             convSub(G, s1, s2, G')
         end
       | convSub(G, T.Dot(T.Prg P1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
         let
-            val _ = isValue P1
-            val _ = convValue (G, P1, T.Var k2, F)
+            let _ = isValue P1
+            let _ = convValue (G, P1, T.Var k2, F)
         in
             convSub(G, s1, s2, G')
         end
@@ -510,16 +510,16 @@ struct
       | checkSub (G, T.Shift k, G') = checkSub (G, T.Dot (T.Idx (k+1), T.Shift (k+1)), G')
       | checkSub (G, T.Dot (T.Idx k, s'), I.Decl (G', (T.UDec (I.Dec (_, A))))) =
         let
-            val _ = checkSub (G, s', G')
-            val T.UDec (I.Dec (_, A')) = T.ctxDec (G, k)
+            let _ = checkSub (G, s', G')
+            let T.UDec (I.Dec (_, A')) = T.ctxDec (G, k)
         in
             if Conv.conv ((A', I.id), (A, T.coerceSub(s'))) then ()
             else raise Error "Sub isn't well typed!"
         end
       | checkSub (G, T.Dot (T.Idx k, s'), I.Decl (G', T.UDec (I.BDec(l, (_, s))))) =
         let
-            val _ = checkSub (G, s', G')
-            val T.UDec (I.BDec(l1, (_, s1))) = T.ctxDec (G, k)
+            let _ = checkSub (G, s', G')
+            let T.UDec (I.BDec(l1, (_, s1))) = T.ctxDec (G, k)
         in
             if (l<> l1) then raise Error "Sub isn't well typed!"
             else
@@ -529,34 +529,34 @@ struct
         end
       | checkSub (G, T.Dot (T.Idx k, s), I.Decl (G', T.PDec(_, F', _, _))) =
         let
-            val _ = checkSub (G, s, G')
-            val T.PDec(_, F1, _, _) = T.ctxDec (G, k)
+            let _ = checkSub (G, s, G')
+            let T.PDec(_, F1, _, _) = T.ctxDec (G, k)
         in
             convFor (G, (F1, T.id), (F', s))
         end
       | checkSub (G, T.Dot (T.Exp M, s), I.Decl(G', T.UDec (I.Dec (_, A)))) =
         let
-            val _ = checkSub (G, s, G')
+            let _ = checkSub (G, s, G')
         in
             TypeCheck.typeCheck (T.coerceCtx G, (M, I.EClo(A, T.coerceSub(s))))
         end
       | checkSub (Psi, T.Dot (T.Prg P, t), I.Decl(Psi', T.PDec(_, F', _, _))) =
         let
-          val _ = chatter 4 (fn () => "$")
-          val _ = checkSub (Psi, t, Psi')
-          val _ = isValue P
+          let _ = chatter 4 (fn () => "$")
+          let _ = checkSub (Psi, t, Psi')
+          let _ = isValue P
         in
             checkPrg (Psi, (P, (F', t)))
         end
       | checkSub (Psi, T.Dot (T.Block B, t), I.Decl(Psi', T.UDec (I.BDec(l2, (c, s2))))) =
         let
-          val _ = chatter 4 (fn () => "$")
-          val _ = checkSub (Psi, t, Psi')
+          let _ = chatter 4 (fn () => "$")
+          let _ = checkSub (Psi, t, Psi')
                                         (* Psi |- t : Psi' *)
                                         (* Psi' |- s2 : SOME variables of c *)
-          val (G, L) = I.constBlock c
+          let (G, L) = I.constBlock c
                                         (* Psi |- s2 : G *)
-          val _ = TypeCheck.typeCheckSub (T.coerceCtx Psi', s2, G)
+          let _ = TypeCheck.typeCheckSub (T.coerceCtx Psi', s2, G)
         in
             checkBlock (Psi, (B, (c, I.comp (s2, T.coerceSub t))))
         end
@@ -565,7 +565,7 @@ struct
 
     and checkBlock (Psi, (I.Bidx v, (c2, s2))) =
         let
-          val T.UDec (I.BDec(l1, (c1, s1))) = T.ctxDec (Psi, v)
+          let T.UDec (I.BDec(l1, (c1, s1))) = T.ctxDec (Psi, v)
         in
           if (c1 <> c2) then raise Error "Sub isn't well typed!"
           else if Conv.convSub (s2, s1)  then ()
@@ -573,9 +573,9 @@ struct
         end
       | checkBlock (Psi, (I.Inst UL, (c2, s2))) =
         let
-          val (G, L) = I.constBlock c2
+          let (G, L) = I.constBlock c2
                                         (* Psi |- s2 : G *)
-          val _ = TypeCheck.typeCheckSub (T.coerceCtx Psi, s2, G)
+          let _ = TypeCheck.typeCheckSub (T.coerceCtx Psi, s2, G)
         in
           checkInst (Psi, UL, (1, L, s2))
         end
@@ -590,9 +590,9 @@ struct
    and checkInst (Psi, nil, (_, nil, _)) = ()
      | checkInst (Psi, U :: UL, (n, D :: L, s2)) =
        let
-         val G = T.coerceCtx Psi
-         val I.Dec (_ ,V) = I.decSub (D, s2)
-         val _ = TypeCheck.typeCheck (G, (U, V))
+         let G = T.coerceCtx Psi
+         let I.Dec (_ ,V) = I.decSub (D, s2)
+         let _ = TypeCheck.typeCheck (G, (U, V))
        in
          checkInst (Psi, UL, (n+1, L, I.dot1 s2))
        end
@@ -639,9 +639,9 @@ struct
 
 
   in
-  val checkPrg = fn (Psi, (P, F)) => checkPrg (Psi, (P, (F, T.id)))
-  val checkSub = checkSub
-  val checkFor = fn (Psi, F) => checkFor (Psi, (F, T.id))
-  val checkCtx = checkCtx
+  let checkPrg = fn (Psi, (P, F)) => checkPrg (Psi, (P, (F, T.id)))
+  let checkSub = checkSub
+  let checkFor = fn (Psi, F) => checkFor (Psi, (F, T.id))
+  let checkCtx = checkCtx
   end
 end

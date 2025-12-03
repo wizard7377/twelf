@@ -4,34 +4,34 @@
 (* Modified: Carsten Schuermann *)
 (* Modified: Florian Rabe *)
 
-functor PrintOMDoc
-  ((*! structure IntSyn' : INTSYN !*)
-   structure Whnf : WHNF
+let recctor PrintOMDoc
+  ((*! module IntSyn' : INTSYN !*)
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   structure Constraints : CONSTRAINTS
+   module Constraints : CONSTRAINTS
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn' !*)
-   structure Formatter' : FORMATTER)
+   module Formatter' : FORMATTER)
   : PRINT_OMDOC =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-structure Formatter = Formatter'
+  (*! module IntSyn = IntSyn' !*)
+module Formatter = Formatter'
 
 local
   (* Shorthands *)
-  structure I = IntSyn
+  module I = IntSyn
 
   (* The Formatter isn't really helpful for OMDoc output. So the basic functions are reimplemented here.
      indent : current indentatioin width
      nl_ind()() : newline and indent
      nl_unind()() : newline and unindent
      nl() : newline (with current indentation) *)
-  val indent = ref 0
-  val tabstring = "   "
+  let indent = ref 0
+  let tabstring = "   "
   fun tabs(n) = if (n <= 0) then "" else tabstring ^ tabs(n-1)
   fun ind_reset() = (indent := 0)
   fun ind(n) = indent := !indent + n
@@ -52,7 +52,7 @@ local
 
  (* If namesafe is true during printing, the output is guaranteed to be namesafe (no duplicate names).
     But it doesn't look good. If the user knows that are no overloaded constants, namesafe can be set to false. *)
- val namesafe = ref true
+ let namesafe = ref true
 
   (* XML start characters: ":" | "_" | [A-Z] | [a-z], further characters: "-" | "." | [0-9] *)
   fun replace c = if (Char.isAlphaNum c) orelse (Char.contains ":_-." c) then
@@ -60,9 +60,9 @@ local
   else
         "_"
   fun Name (cid) = let
-        val n = I.conDecName(I.sgnLookup cid)
-        val name = String.translate replace n
-        val start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
+        let n = I.conDecName(I.sgnLookup cid)
+        let name = String.translate replace n
+        let start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
   in
         if (!namesafe) then
                 start ^ name ^ "__c" ^ (Int.toString cid)
@@ -71,8 +71,8 @@ local
   end
   (* x must be the number of the varialbe in left ro right order in the context *)
   fun VarName (x,n) = let
-        val name = String.translate replace n
-        val start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
+        let name = String.translate replace n
+        let start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
   in
         if (!namesafe) then
                 start ^ name ^ "__v" ^ (Int.toString x)
@@ -81,7 +81,7 @@ local
   end
 
   (* Some original Formatter functions replaced with trivial functions. *)
-  (* val Str  = F.String
+  (* let Str  = F.String
   fun Str0 (s, n) = F.String0 n s
   fun Integer (n) = ("\"" ^ Int.toString n ^ "\"") *)
   fun Str (s) = s
@@ -99,7 +99,7 @@ local
   *)
   fun fmtCon (G, I.BVar(x)) =
       let
-        val I.Dec (SOME n, _) = I.ctxDec (G, x)
+        let I.Dec (SOME n, _) = I.ctxDec (G, x)
       in
         sexp [Str ("<om:OMV name=\"" ^ VarName(I.ctxLength G - x + 1,n) ^ "\"/>")]
       end
@@ -126,20 +126,20 @@ local
     | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s), imp) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
-                         val (D' as I.Dec (SOME(name), V1')) = Names.decLUName (G, D) (* could sometimes be EName *)
-                         val G' = I.Decl (G, D')
-                         val _ = ind(1)  (* temporary indentation *)
-                         val fmtBody = fmtExp (G', (V2, I.dot1 s), Int.max(0,imp - 1))
-                         val _ = ind(1)
-                         val fmtType = fmtExp (G, (V1', s), 0)
-                         val _ = unind(2)
-                         val pi = if (imp > 0) then "implicit_Pi" else "Pi"
-                         val id = VarName(I.ctxLength G',name)
+                         let (D' as I.Dec (SOME(name), V1')) = Names.decLUName (G, D) (* could sometimes be EName *)
+                         let G' = I.Decl (G, D')
+                         let _ = ind(1)  (* temporary indentation *)
+                         let fmtBody = fmtExp (G', (V2, I.dot1 s), Int.max(0,imp - 1))
+                         let _ = ind(1)
+                         let fmtType = fmtExp (G, (V1', s), 0)
+                         let _ = unind(2)
+                         let pi = if (imp > 0) then "implicit_Pi" else "Pi"
+                         let id = VarName(I.ctxLength G',name)
                        in
                                 fmtBinder(pi, name, id, fmtType, fmtBody)
                        end
           | I.No => let
-                       val G' = I.Decl (G, D)
+                       let G' = I.Decl (G, D)
                     in
                       sexp [Str "<om:OMA>", nl_ind(), Str "<om:OMS cd=\"twelf\" name=\"arrow\"/>", nl(),
                             fmtExp (G, (V1, s), 0), nl(),
@@ -147,31 +147,31 @@ local
                             Str "</om:OMA>"]
                     end)
     | fmtExpW (G, (I.Root (H, S), s), _) = let
-        val l = spineLength(S)
-        val out = ref ""
-        val _ = if (l = 0) then
+        let l = spineLength(S)
+        let out = ref ""
+        let _ = if (l = 0) then
                 (* no arguments *)
                 out := !out ^ fmtCon (G, H)
         else let
                 (* an application *)
-                val _ = out := !out ^ "<om:OMA>" ^ nl_ind()
+                let _ = out := !out ^ "<om:OMA>" ^ nl_ind()
                 (* If there are more than two explicit arguments to an infix operator,
                    the implict and the first two explicit arguments have to be wrapped in their own om:OMA element.
                    In this case, the output will not be in normal form. *)
-                val (test,cid) =
+                let (test,cid) =
                         case H of
                            I.Const(c) => (true,c)
                          | I.Skonst(c) => (true,c)
                          | I.Def(c) => (true,c)
                          | I.NSDef(c) => (true,c)
                          | _ => (false,0)
-                val imp = IntSyn.conDecImp (IntSyn.sgnLookup cid)
-                val (test,args) = if test then
+                let imp = IntSyn.conDecImp (IntSyn.sgnLookup cid)
+                let (test,args) = if test then
                         case Names.getFixity cid of
                                   Names.Fixity.Infix(_,_) => (true,imp + 2)
                                 | _ => (false,0)
                 else (false,0)
-                val _ = if test andalso (l > args) then
+                let _ = if test andalso (l > args) then
                         out := !out ^ "<om:OMA>" ^ nl_ind()
                 else
                         ()
@@ -184,15 +184,15 @@ local
       end
     | fmtExpW (G, (I.Lam(D, U), s), imp) =
       let
-        val (D' as I.Dec (SOME(name), V)) = Names.decLUName (G, D)
-        val G' = I.Decl (G, D')
-        val _ = ind(1)  (* temporary indentation *)
-        val fmtBody = fmtExp (G', (U, I.dot1 s), Int.max(0,imp - 1))
-        val _ = ind(1)
-        val fmtType = fmtExp (G, (V, s), 0)
-        val _ = unind(2)
-        val lam = if (imp > 0) then "implicit_lambda" else "lambda"
-        val id = VarName(I.ctxLength G',name)
+        let (D' as I.Dec (SOME(name), V)) = Names.decLUName (G, D)
+        let G' = I.Decl (G, D')
+        let _ = ind(1)  (* temporary indentation *)
+        let fmtBody = fmtExp (G', (U, I.dot1 s), Int.max(0,imp - 1))
+        let _ = ind(1)
+        let fmtType = fmtExp (G, (V, s), 0)
+        let _ = unind(2)
+        let lam = if (imp > 0) then "implicit_lambda" else "lambda"
+        let id = VarName(I.ctxLength G',name)
       in
         fmtBinder(lam, name, id, fmtType, fmtBody)
       end
@@ -212,9 +212,9 @@ local
         fmtSpine (G, (S, I.comp(s',s)), args)
     | fmtSpine (G, (I.App(U, S), s), args) = let
         (* print first argument, 0 is dummy value *)
-        val out = ref (nl() ^ fmtExp (G, (U, s), 0))
+        let out = ref (nl() ^ fmtExp (G, (U, s), 0))
         (* close application if args reaches 0 *)
-        val _ = if (args = 1) andalso (spineLength(S) > 0) then
+        let _ = if (args = 1) andalso (spineLength(S) > 0) then
                         out := !out ^ nl_unind() ^ "</om:OMA>"
                 else
                         ()
@@ -247,9 +247,9 @@ local
         "<definition xml:id=\"" ^ name ^ ".def\" for=\"#" ^ name ^ "\">" ^ nl_ind() ^
         fmtExpTop (I.Null, (U, I.id), imp) ^ nl_unind() ^ "</definition>"
   and fmtPresentation(cid) = let
-        val imp = I.conDecImp (I.sgnLookup cid)
-        val fixity = Names.getFixity (cid)
-        val fixString = " fixity=\"" ^ (case fixity of
+        let imp = I.conDecImp (I.sgnLookup cid)
+        let fixity = Names.getFixity (cid)
+        let fixString = " fixity=\"" ^ (case fixity of
                   Names.Fixity.Nonfix => "prefix"       (* case identified by @precedence = Names.Fixity.minPrefInt *)
                 | Names.Fixity.Infix(prec, assoc) => (
                         case assoc of
@@ -260,14 +260,14 @@ local
                 | Names.Fixity.Prefix(prec) => "prefix"
                 | Names.Fixity.Postfix(prec) => "postfix"
         ) ^ "\""
-        val precString = " precedence=\"" ^ (Int.toString (Names.Fixity.precToIntAsc(fixity))) ^ "\""
-        val bracString = " bracket-style=\"lisp\" lbrack=\"(\" rbrack=\")\""
-        val sepString = " separator=\" \""
-        val implicitString = " implicit=\"" ^ (Int.toString imp) ^ "\""
-        val useString1 = "<use format=\"twelf\""
-        val useString2 = ">" ^ (escape (I.conDecName(I.sgnLookup cid))) ^ "</use>"
-        val presString1 = "<presentation for=\"#" ^ (Name cid) ^ "\""
-        val presString2 = "</presentation>"
+        let precString = " precedence=\"" ^ (Int.toString (Names.Fixity.precToIntAsc(fixity))) ^ "\""
+        let bracString = " bracket-style=\"lisp\" lbrack=\"(\" rbrack=\")\""
+        let sepString = " separator=\" \""
+        let implicitString = " implicit=\"" ^ (Int.toString imp) ^ "\""
+        let useString1 = "<use format=\"twelf\""
+        let useString2 = ">" ^ (escape (I.conDecName(I.sgnLookup cid))) ^ "</use>"
+        let presString1 = "<presentation for=\"#" ^ (Name cid) ^ "\""
+        let presString2 = "</presentation>"
   in
         presString1 ^ ">" ^ nl_ind() ^ useString1 ^ useString2 ^ nl_unind() ^ presString2 ^ nl() ^
         presString1 ^ " role=\"applied\"" ^ fixString ^ precString ^ bracString ^ sepString ^ implicitString ^
@@ -275,8 +275,8 @@ local
   end
   (* fixity string attached to omdoc file in private element (no escaping, fixity string cannot contain ]]>) *)
   and fmtFixity(cid) = let
-        val fixity = Names.getFixity (cid)
-        val name = I.conDecName (I.sgnLookup cid)
+        let fixity = Names.getFixity (cid)
+        let name = I.conDecName (I.sgnLookup cid)
       in
         if (fixity = Names.Fixity.Nonfix) then "" else
         nl() ^ "<private for=\"#" ^ (Name cid) ^ "\">" ^ nl_ind() ^
@@ -292,8 +292,8 @@ local
 
   fun fmtConDec (cid, I.ConDec (name, parent, imp, _, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val name = Name cid
+        let _ = Names.varReset IntSyn.Null
+        let name = Name cid
       in
         fmtSymbol(name, V, imp)
       end
@@ -301,15 +301,15 @@ local
       Str ("<!-- Skipping Skolem constant " ^ name ^ "-->")
     | fmtConDec (cid, I.ConDef (name, parent, imp, U, V, L, _)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val name = Name cid
+        let _ = Names.varReset IntSyn.Null
+        let name = Name cid
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
       end
     | fmtConDec (cid, I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val name = Name cid
+        let _ = Names.varReset IntSyn.Null
+        let name = Name cid
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
       end
@@ -337,10 +337,10 @@ in
 
   fun printSgn filename ns =
       let
-        val _ = namesafe := ns
-        val _ = ind_reset()
-        val file = TextIO.openOut (filename)
-        val OMDocPrefix =
+        let _ = namesafe := ns
+        let _ = ind_reset()
+        let file = TextIO.openOut (filename)
+        let OMDocPrefix =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ^
 "<!DOCTYPE omdoc PUBLIC \"-//OMDoc//DTD OMDoc V1.2//EN\" " ^
 (* "\"https://svn.mathweb.org/repos/mathweb.org/branches/omdoc-1.2/dtd/omdoc.dtd\">\n" ^ *)
@@ -349,15 +349,15 @@ in
 "xmlns=\"http://www.mathweb.org/omdoc\" " ^
 "xmlns:om=\"http://www.openmath.org/OpenMath\" " ^
 "version=\"1.2\">\n\n"
-        val _ = TextIO.output (file, OMDocPrefix ^ "<theory xml:id=\"global\">\n\n")
+        let _ = TextIO.output (file, OMDocPrefix ^ "<theory xml:id=\"global\">\n\n")
 
-        val _ = IntSyn.sgnApp (fn (cid) => (
+        let _ = IntSyn.sgnApp (fn (cid) => (
                         (TextIO.output (file, fmtConst cid)) ;
                         TextIO.output (file, "\n\n")
                 )
         )
-        val _ = TextIO.output (file, "</theory>\n\n</omdoc>")
-        val _ = TextIO.closeOut file
+        let _ = TextIO.output (file, "</theory>\n\n</omdoc>")
+        let _ = TextIO.closeOut file
 
       in
         ()

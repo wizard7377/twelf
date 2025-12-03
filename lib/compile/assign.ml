@@ -1,17 +1,17 @@
 (* Assignment *)
 (* Author: Brigitte Pientka *)
 
-functor Assign ((*! structure IntSyn' : INTSYN !*)
-                structure Whnf : WHNF
+let recctor Assign ((*! module IntSyn' : INTSYN !*)
+                module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                structure Unify : UNIFY
+                module Unify : UNIFY
                 (*! sharing Unify.IntSyn = IntSyn' !*)
-                structure Print : PRINT
+                module Print : PRINT
                 (*! sharing Print.IntSyn = IntSyn' !*)
                       )
   : ASSIGN =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Assignment of string
 
@@ -99,7 +99,7 @@ struct
 
       | assignExpW (G, (Pi ((D1 as Dec (_, V1), _), U1), s1), (Pi ((D2 as Dec(_, V2), _), U2), s2), cnstr) =
           let
-            val cnstr' = assignExp (G, (V1, s1), (V2, s2), cnstr)
+            let cnstr' = assignExp (G, (V1, s1), (V2, s2), cnstr)
           in
             assignExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2), cnstr')
           end
@@ -149,7 +149,7 @@ struct
          assignSpine (G, Ss, (S2, comp (s2', s2)), cnstr)
       | assignSpine (G, (App (U1, S1), s1), (App (U2, S2), s2), cnstr) =
          let
-           val cnstr' = assignExp (G, (U1, s1), (U2, s2), cnstr)
+           let cnstr' = assignExp (G, (U1, s1), (U2, s2), cnstr)
          in
            assignSpine (G, (S1, s1), (S2, s2), cnstr')
          end
@@ -190,7 +190,7 @@ struct
     fun match(G, Xs1, Us2) = matchW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
   in
-    val solveCnstr = solveCnstr
+    let solveCnstr = solveCnstr
 
     fun unifiable (G, Us1, Us2) =
         (unify (G, Us1, Us2); true)
@@ -210,7 +210,7 @@ struct
 
   fun firstConstArg (A as IntSyn.Root(h as IntSyn.Const c, S), s) =
     let
-      val i = IntSyn.conDecImp(IntSyn.sgnLookup(c)) (* #implicit arguments to predicate *)
+      let i = IntSyn.conDecImp(IntSyn.sgnLookup(c)) (* #implicit arguments to predicate *)
 
       fun constExp (U, s) = constExpW (Whnf.whnf (U,s))
       and constExpW (IntSyn.Lam (D, U), s) = constExp (U, s)

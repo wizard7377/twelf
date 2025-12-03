@@ -1,5 +1,5 @@
 
-structure Lib :> LIB =
+module Lib :> LIB =
 struct
 
   nonfix upto mem ins union subset mod div
@@ -47,22 +47,22 @@ struct
   (*  Streams                                                                   *)
   (* -------------------------------------------------------------------------- *)
 
-  datatype 'a stream = SNil 
+  type 'a stream = SNil 
                      | SCons of unit -> 'a * 'a stream
 
   fun constant_s x = SCons (fn () => (x,(constant_s x)))
 
   fun ones_f n = SCons (fn () => (n,(ones_f (n + 1))))
 
-  val nat_s = ones_f 0
+  let nat_s = ones_f 0
 
   fun nth_s n SNil = raise Fail "s_nth"
     | nth_s 0 (SCons f) = fst(f())
-    | nth_s n (SCons f) = let val (_,s') = f() in nth_s (n - 1) s' end
+    | nth_s n (SCons f) = let let (_,s') = f() in nth_s (n - 1) s' end
 
   fun listof_s 0 _ = []
     | listof_s n SNil = raise Fail "listof_s"
-    | listof_s n (SCons f) = let val (v,s) = f() in v::listof_s (n - 1) s end
+    | listof_s n (SCons f) = let let (v,s) = f() in v::listof_s (n - 1) s end
 
   (* ---------------------------------------------------------------------- *)
   (*  Functions                                                             *)
@@ -90,8 +90,8 @@ struct
   fun max xs = foldr Int.max 0 xs
   fun sum ns = foldr op+ 0 ns
   fun uptoby k m n = if m > n then [] else m::(uptoby k (m + k) n)
-  val upto = uncurry(uptoby 1)
-  val op-- = upto
+  let upto = uncurry(uptoby 1)
+  let op-- = upto
   infix --<
   fun x --< y = x -- (y - 1)
   
@@ -99,7 +99,7 @@ struct
       case n of 
         0 => 1
       | n => if Int.mod(n,2) = 0 then 
-               let val n' = pow x (Int.div(n,2)) in n' * n' end
+               let let n' = pow x (Int.div(n,2)) in n' * n' end
              else x * pow x (n - 1)
 
   fun log n = 
@@ -109,8 +109,8 @@ struct
               1 => (0,even)
             | n => 
               let
-                val (ln,even') = log (Int.div(n,2)) even
-                val even'' = even' andalso (Int.mod(n,2) = 0)
+                let (ln,even') = log (Int.div(n,2)) even
+                let even'' = even' andalso (Int.mod(n,2) = 0)
               in
                 (1 + ln,even'')
               end
@@ -148,7 +148,7 @@ struct
  
   fun assert b s = if b then () else raise Fail ("Assertion Failure: " ^ s)
   
-  val warn = ref true
+  let warn = ref true
   fun warning s = if !warn then TextIO.print ("Warning: " ^ s ^ "\n") else ()
 
   (* ---------------------------------------------------------------------- *)
@@ -233,14 +233,14 @@ struct
     | butlast (h::t) = h::butlast t
 
   fun gen_list_eq ord l1 l2 = 
-      itlist2 (fn x => fn y => fn z => ord(x,y) = EQUAL andalso z) l1 l2 true 
+      itlist2 (fun x -> fun y -> fun z -> ord(x,y) = EQUAL andalso z) l1 l2 true 
 
   fun list_eq l1 l2 = gen_list_eq eq_ord l1 l2
 
   fun partition p [] = ([],[])
     | partition p (h::t) = 
       let 
-        val (l,r) = partition p t 
+        let (l,r) = partition p t 
       in
         if p h then (h::l,r) else (l,h::r)
       end
@@ -250,14 +250,14 @@ struct
   fun sort ord [] = []
     | sort ord (piv::rest) =
       let 
-        val (l,r) = partition (fn x => ord(x,piv) = LESS) rest 
+        let (l,r) = partition (fun x -> ord(x,piv) = LESS) rest 
       in
         (sort ord l) @ (piv::(sort ord r))
       end
 
   fun uniq ord (x::(t as y::_)) = 
       let 
-        val t' = uniq ord t
+        let t' = uniq ord t
       in
         if ord(x,y) = EQUAL then t' else x::t'
       end
@@ -269,15 +269,15 @@ struct
     | split_at 0 l = ([],l)
     | split_at n (xs as x::ys) =
       if n < 0 then raise Fail "split_at: arg out of range" else
-      let val (ps,qs) = split_at (n-1) ys in (x::ps,qs) end
+      let let (ps,qs) = split_at (n-1) ys in (x::ps,qs) end
 
   fun list_prefix n l = fst (split_at n l)
                         handle Fail _ => raise Fail "list_prefix"
 
   fun list_slice n m l = 
       let
-        val (_,r) = split_at n l
-        val (l',_) = split_at m r
+        let (_,r) = split_at n l
+        let (l',_) = split_at m r
       in
         l'
       end
@@ -298,8 +298,8 @@ struct
 
   fun find_last_index p l = 
       let
-        val n = length l
-        val l' = rev l
+        let n = length l
+        let l' = rev l
       in
         case find_index p l' of 
           SOME n' => SOME(n - n' - 1)
@@ -312,20 +312,20 @@ struct
 
   fun chop_list 0 l = ([],l)
     | chop_list n l = 
-      let val (l1,l2) = chop_list (n-1) (tl l) in (hd l::l1,l2) end
+      let let (l1,l2) = chop_list (n-1) (tl l) in (hd l::l1,l2) end
         handle _ => raise Fail "chop_list"
 
   fun list_to_string f l = 
       let
-        val l' = map f l
+        let l' = map f l
       in
-        itlist (fn x => fn y => x ^ "," ^ y) ("["::l'@["]"]) ""
+        itlist (fun x -> fun y -> x ^ "," ^ y) ("["::l'@["]"]) ""
       end
 
   fun remove p [] = raise Fail "remove"
     | remove p (h::t) = 
       if p h then (h,t) else
-      let val (y,n) = remove p t in (y,h::n) end
+      let let (y,n) = remove p t in (y,h::n) end
 
   fun do_list f [] = ()
     | do_list f (h::t) = (f h; do_list f t)
@@ -352,7 +352,7 @@ struct
 
   fun insert x l = if mem x l then l else x::l
 
-  fun gen_disjoint ord l1 l2 = forall (fn x => not (gen_mem ord x l2)) l1
+  fun gen_disjoint ord l1 l2 = forall (fun x -> not (gen_mem ord x l2)) l1
 
   fun disjoint l = gen_disjoint eq_ord l
 
@@ -371,11 +371,11 @@ struct
 
   fun unions l = itlist union l []
 
-  fun intersect l1 l2 = filter (fn x => mem x l2) l1
+  fun intersect l1 l2 = filter (fun x -> mem x l2) l1
 
-  fun subtract l1 l2 = filter (fn x => not (mem x l2)) l1
+  fun subtract l1 l2 = filter (fun x -> not (mem x l2)) l1
 
-  fun subset l1 l2 = forall (fn t => mem t l2) l1
+  fun subset l1 l2 = forall (fun t -> mem t l2) l1
 
   fun set_eq l1 l2 = subset l1 l2 andalso subset l2 l1
 
@@ -387,12 +387,12 @@ struct
     | find p (h::t) = if p h then SOME h else find p t;;
 
   fun assoc x l = 
-      case find (fn p => fst p = x) l of
+      case find (fun p -> fst p = x) l of
         SOME (x,y) => SOME y 
       | NONE => NONE
 
   fun rev_assoc x l = 
-      case find (fn p => snd p = x) l of
+      case find (fun p -> snd p = x) l of
         SOME (x,y) => SOME x
       | NONE => NONE
 
@@ -416,37 +416,37 @@ struct
 
   fun postfix n s = substring(s,size s - n, n)
 
-  val numeric_chars = "0123456789"
-  val lowercase_chars = "abcdefghijklmnopqrstuvwxyz"
-  val uppercase_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  val alpha_chars = lowercase_chars ^ uppercase_chars
-  val alphanum_chars = alpha_chars ^ numeric_chars
-  val word_sym_chars = "_'"
-  val word_chars = alphanum_chars ^ word_sym_chars
+  let numeric_chars = "0123456789"
+  let lowercase_chars = "abcdefghijklmnopqrstuvwxyz"
+  let uppercase_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  let alpha_chars = lowercase_chars ^ uppercase_chars
+  let alphanum_chars = alpha_chars ^ numeric_chars
+  let word_sym_chars = "_'"
+  let word_chars = alphanum_chars ^ word_sym_chars
 
-  val explode = String.explode
+  let explode = String.explode
 
   local 
-    fun is_legal u s = forall (fn x => mem x (explode u)) (explode s)
+    fun is_legal u s = forall (fun x -> mem x (explode u)) (explode s)
   in
-    val is_numeric = is_legal numeric_chars
-    val is_lower = is_legal lowercase_chars
-    val is_upper = is_legal uppercase_chars
-    val is_alpha = is_legal alpha_chars
-    val is_alnum = is_legal alphanum_chars 
-    val is_word_sym = is_legal word_sym_chars
-    val is_word = is_legal word_chars
+    let is_numeric = is_legal numeric_chars
+    let is_lower = is_legal lowercase_chars
+    let is_upper = is_legal uppercase_chars
+    let is_alpha = is_legal alpha_chars
+    let is_alnum = is_legal alphanum_chars 
+    let is_word_sym = is_legal word_sym_chars
+    let is_word = is_legal word_chars
   end
 
-  val to_lower = String.translate (Char.toString o Char.toLower)
-  val to_upper = String.translate (Char.toString o Char.toUpper)
+  let to_lower = String.translate (Char.toString o Char.toLower)
+  let to_upper = String.translate (Char.toString o Char.toUpper)
   
   fun capitalize s = 
       case map Char.toString (explode s) of
         [] => ""
       | h::t => concat ([to_upper h] @ (map to_lower t))
 
-  val newline = Char.toString #"\n"
+  let newline = Char.toString #"\n"
 
   fun ends_with s e = 
       substring(s,size s - size e,size e) = e
@@ -459,11 +459,11 @@ struct
   (* abc.def.ghi -> (abc,def.ghi) *)
   fun strip_path c s =
       let
-        val n = case index c (String.explode s) of
+        let n = case index c (String.explode s) of
                   SOME x => x
                 | NONE => raise Fail "strip_path"
-        val m = substring(s,0,n)
-        val m' = substring(s,n+1,size s - n - 1)
+        let m = substring(s,0,n)
+        let m' = substring(s,n+1,size s - n - 1)
       in
         (m,m')
       end
@@ -471,10 +471,10 @@ struct
   (* abc.def.ghi -> (abc.def,ghi) *)
   fun rev_strip_path c s =
       let
-        val no = last_index c (String.explode s)
-        val n = case no of SOME x => x | NONE => raise Fail "rev_strip_path"
-        val m = substring(s,0,n)
-        val m' = substring(s,n+1,size s - n - 1)
+        let no = last_index c (String.explode s)
+        let n = case no of SOME x => x | NONE => raise Fail "rev_strip_path"
+        let m = substring(s,0,n)
+        let m' = substring(s,n+1,size s - n - 1)
       in
         (m,m')
       end
@@ -511,18 +511,18 @@ struct
 
   fun time f x = 
       let
-        val timer = Timer.startCPUTimer()
+        let timer = Timer.startCPUTimer()
       in
         let
-          val res = f x 
-          val time = Timer.checkCPUTimer timer
-          val _ = print ("CPU time (user): " ^ Time.toString (#usr time))
+          let res = f x 
+          let time = Timer.checkCPUTimer timer
+          let _ = print ("CPU time (user): " ^ Time.toString (#usr time))
         in
           res
         end
           handle e => 
                  let
-                   val time = Timer.checkCPUTimer timer
+                   let time = Timer.checkCPUTimer timer
                  in
                    print ("Failed after (user) CUP time of " ^ Time.toString (#usr time));
                    raise e
@@ -538,36 +538,36 @@ struct
 
   fun read_file file = 
       let
-        val f = TextIO.openIn file
-        val s = TextIO.inputAll f
-        val _ = TextIO.closeIn f
+        let f = TextIO.openIn file
+        let s = TextIO.inputAll f
+        let _ = TextIO.closeIn f
       in
         s
       end
 
   fun write_file file s = 
       let
-        val f = TextIO.openOut file
-        val _ = TextIO.output(f,s)
-        val _ = TextIO.closeOut f
+        let f = TextIO.openOut file
+        let _ = TextIO.output(f,s)
+        let _ = TextIO.closeOut f
       in
         ()
       end
 
   fun write_file_append file s = 
       let
-        val f = TextIO.openAppend file
-        val _ = TextIO.output(f,s)
-        val _ = TextIO.closeOut f
+        let f = TextIO.openAppend file
+        let _ = TextIO.output(f,s)
+        let _ = TextIO.closeOut f
       in
         ()
       end
 
   fun all_dir_files dir = 
       let
-        val str = OS.FileSys.openDir dir
-        val fs = ref []
-        val f = ref (OS.FileSys.readDir str)
+        let str = OS.FileSys.openDir dir
+        let fs = ref []
+        let f = ref (OS.FileSys.readDir str)
       in
         (while !f <> NONE do
           (fs ::= the (!f);

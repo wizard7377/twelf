@@ -1,10 +1,10 @@
 (*
 % ForML Version 0.6 - 25 January 1993 - er@cs.cmu.edu
 %*********************************************************************
-{\bf File {\tt formatter.sig} with signature {\tt FORMATTER}.}
+{\bf File {\tt formatter.sig} with module type {\tt FORMATTER}.}
 %*********************************************************************
 *)
-signature FORMATTER =
+module type FORMATTER =
    sig
 (*
 \subsection{Default values}
@@ -23,7 +23,7 @@ These may may be changed by the user.
 (*
 \subsection{Formats}
 *)
-      (* The Format datatype *)
+      (* The Format type *)
       type format
 
 

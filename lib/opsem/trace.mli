@@ -1,13 +1,13 @@
-signature TRACE =
+module type TRACE =
 sig
 
   (* Program interface *)
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   type goalTag
   val tagGoal : unit -> goalTag
 
-  datatype Event =
+  type Event =
     IntroHyp of IntSyn.Head * IntSyn.Dec
   | DischargeHyp of IntSyn.Head * IntSyn.Dec
 
@@ -32,7 +32,7 @@ sig
   val tracing : unit -> bool            (* currently tracing or using breakpoints *)
 
   (* User interface *)
-  datatype 'a Spec =
+  type 'a Spec =
     None
   | Some of 'a list
   | All
@@ -44,4 +44,4 @@ sig
   val show : unit -> unit		(* show trace, break, detail *)
   val reset : unit -> unit		(* reset trace, break, detail *)
 
-end;  (* signature TRACE *)
+end;  (* module type TRACE *)

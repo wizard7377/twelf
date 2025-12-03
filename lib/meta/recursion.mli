@@ -1,9 +1,9 @@
 (* Recursion: Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-signature MTPRECURSION = 
+module type MTPRECURSION = 
 sig
-  structure StateSyn : STATESYN
+  module StateSyn : STATESYN
 
   exception Error of string
 
@@ -12,4 +12,4 @@ sig
   val expand : StateSyn.State -> operator 
   val apply : operator -> StateSyn.State
   val menu : operator -> string
-end;  (* signature MTPRECURSION *)
+end;  (* module type MTPRECURSION *)

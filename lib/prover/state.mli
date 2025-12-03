@@ -1,16 +1,16 @@
 (* State definition for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-signature STATE =
+module type STATE =
 sig
   exception Error of string
 
-  datatype State =
+  type State =
     State of Tomega.Worlds 
       * Tomegas.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For	
   | StateLF of IntSyn.Exp
 
-  datatype Focus = 
+  type Focus = 
     Focus of Tomega.Prg * Tomega.Worlds (* Focus (EVar, W) *)
   | FocusLF of IntSyn.Exp	        (* focus EVar *)
  

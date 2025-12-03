@@ -2,22 +2,22 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor Order ((*! structure IntSyn' : INTSYN !*)
-               structure Table : TABLE where type key = int)
+let recctor Order ((*! module IntSyn' : INTSYN !*)
+               module Table : TABLE where type key = int)
   : ORDER =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
 
-  datatype 'a Order =                   (* Orders                     *)
+  type 'a Order =                   (* Orders                     *)
       Arg of 'a                         (* O ::= x                    *)
     | Lex of 'a Order list              (*     | {O1 .. On}           *)
     | Simul of 'a Order list            (*     | [O1 .. On]           *)
 
 
-  datatype Predicate =
+  type Predicate =
       Less of int Order * int Order
     | Leq of int Order * int Order
     | Eq of int Order * int Order
@@ -30,21 +30,21 @@ struct
   (*   ih a(i+1) .. an as long as the arguments are smaller or equal  *)
   (* then the ones of ai.                                             *)
 
-  datatype Mutual =                     (* Mutual dependencies        *)
+  type Mutual =                     (* Mutual dependencies        *)
       Empty                             (* C ::= .                    *)
     | LE of IntSyn.cid * Mutual         (*     |  <= (a) C            *)
     | LT of IntSyn.cid * Mutual         (*     |  > (a) C             *)
 
-  datatype TDec =                       (* Termination declaration    *)
+  type TDec =                       (* Termination declaration    *)
       TDec of int Order * Mutual        (* TDec ::= (O, C)            *)
 
-  datatype RDec =                       (* Reduction declaration      *)
+  type RDec =                       (* Reduction declaration      *)
       RDec of Predicate * Mutual        (* RDec ::= (P, C)            *)
 
   local
-    structure I = IntSyn
-    val OrderTable : TDec Table.Table = Table.new(0)
-    val RedOrderTable : RDec Table.Table = Table.new(0)
+    module I = IntSyn
+    let OrderTable : TDec Table.Table = Table.new(0)
+    let RedOrderTable : RDec Table.Table = Table.new(0)
 
     fun reset () = Table.clear OrderTable
     fun resetROrder () = Table.clear RedOrderTable
@@ -114,15 +114,15 @@ struct
         else closure (mutual a @ a1s, a :: a2s)
 
   in
-    val reset = reset
-    val resetROrder = resetROrder
-    val install = install
-    val uninstall = uninstall
-    val installROrder = installROrder
-    val uninstallROrder = uninstallROrder
-    val selLookup = selLookup
-    val selLookupROrder = selLookupROrder
-    val mutLookup = mutLookup
-    val closure = fn a => closure ([a], nil)
+    let reset = reset
+    let resetROrder = resetROrder
+    let install = install
+    let uninstall = uninstall
+    let installROrder = installROrder
+    let uninstallROrder = uninstallROrder
+    let selLookup = selLookup
+    let selLookupROrder = selLookupROrder
+    let mutLookup = mutLookup
+    let closure = fun a -> closure ([a], nil)
   end (* local *)
 end; (* functor Order *)

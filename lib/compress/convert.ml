@@ -1,13 +1,13 @@
-structure Convert =
+module Convert =
 struct
         open Syntax
 
         exception Convert of string
 	exception NotFound of string
 
-	val sigma : string list ref = ref []
-	val sigmat : class list ref = ref []
-	val sigmap : bool list ref = ref []
+	let sigma : string list ref = ref []
+	let sigmat : class list ref = ref []
+	let sigmap : bool list ref = ref []
 
 	fun clear () = let in
 			   sigma := [];
@@ -42,18 +42,18 @@ struct
 			     SOME (modesofclass (List.nth (!sigmat, n))),
 			     List.nth (!sigmap, n),
 			     []))
-	  | spine_form (G, Parse.App (t, u)) = let val (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u]) end
+	  | spine_form (G, Parse.App (t, u)) = let let (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u]) end
 	  | spine_form (G, Parse.Lam _) = raise Convert "illegal redex" 
 	  | spine_form (G, _) = raise Convert "level mismatch" 
 
 (* similar to spine_form for a type family applied to a list of arguments *)
 	fun type_spine_form (G, Parse.Id s) = 
 	    let 
-		val n = findn (!sigma) s
+		let n = findn (!sigma) s
 	    in
 	        (n, modesofclass (List.nth (!sigmat, n)), [])
 	    end
-	  | type_spine_form (G, Parse.App (t, u)) = let val (n, m, s) = type_spine_form (G, t)
+	  | type_spine_form (G, Parse.App (t, u)) = let let (n, m, s) = type_spine_form (G, t)
 					       in (n, m, s @ [u]) end
 	  | type_spine_form (G, _) = raise Convert "level mismatch" 
 
@@ -84,9 +84,9 @@ struct
 	and convert (G, Parse.Lam ((v,_), t)) = NTerm(Lam(convert(v::G, t)))
 	  | convert (G, t) = 
 	    let
-		val (h, mopt, p, s) = spine_form (G, t)
-		val s' = map (eltconvert G) (case mopt of
-						 NONE => map (fn elt => (elt, MINUS)) s
+		let (h, mopt, p, s) = spine_form (G, t)
+		let s' = map (eltconvert G) (case mopt of
+						 NONE => map (fun elt -> (elt, MINUS)) s
 					       | SOME m =>  (safezip (s, m)))
 	    in
 		if p 
@@ -96,52 +96,52 @@ struct
 (* given a context and an external expression, return a type or raise an exception *)
 	and typeconvert (G, Parse.Pi (m, (v,SOME t),t')) = 
 	    let
-		val ct = typeconvert(G, t)
-		val ct' = typeconvert(v::G, t')
+		let ct = typeconvert(G, t)
+		let ct' = typeconvert(v::G, t')
 	    in
 		TPi(modeconvert m, ct, ct')
 	    end
 	  | typeconvert (G, Parse.Pi (m, (_,NONE),_)) = raise Convert "can't handle implicit pi"
 	  | typeconvert (G, Parse.Arrow (t, t')) = 
 	    let
-		val ct = typeconvert(G, t)
-		val ct' = typeconvert(""::G, t')
+		let ct = typeconvert(G, t)
+		let ct' = typeconvert(""::G, t')
 	    in
 		TPi(MINUS, ct, ct')
 	    end
 	  | typeconvert (G, Parse.PlusArrow (t, t')) = 
 	    let
-		val ct = typeconvert(G, t)
-		val ct' = typeconvert(""::G, t')
+		let ct = typeconvert(G, t)
+		let ct' = typeconvert(""::G, t')
 	    in
 		TPi(PLUS, ct, ct')
 	    end
 	  | typeconvert (G, a) = 
 	    let 
-		val (n, m, s) = type_spine_form (G, a)
-		val s' = map (eltconvert G) (safezip (s,m))
+		let (n, m, s) = type_spine_form (G, a)
+		let s' = map (eltconvert G) (safezip (s,m))
 	    in
 		TRoot(n, s')
 	    end
 (* given a context and an external expression, return a kind or raise an exception *)
 	and kindconvert (G, Parse.Pi (m, (v,SOME t),t')) = 
 	    let
-		val ct = typeconvert(G, t)
-		val ct' = kindconvert(v::G, t')
+		let ct = typeconvert(G, t)
+		let ct' = kindconvert(v::G, t')
 	    in
 		KPi(modeconvert m, ct, ct')
 	    end
 	  | kindconvert (G, Parse.Arrow (t, t')) = 
 	    let
-		val ct = typeconvert(G, t)
-		val ct' = kindconvert(""::G, t')
+		let ct = typeconvert(G, t)
+		let ct' = kindconvert(""::G, t')
 	    in
 		KPi(MINUS, ct, ct')
 	    end
 	  | kindconvert (G, Parse.PlusArrow (t, t')) = 
 	    let
-		val ct = typeconvert(G, t)
-		val ct' = kindconvert(""::G, t')
+		let ct = typeconvert(G, t)
+		let ct' = kindconvert(""::G, t')
 	    in
 		KPi(PLUS, ct, ct')
 	    end

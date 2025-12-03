@@ -1,11 +1,11 @@
 (* Constraint Solver *)
-signature CS =
+module type CS =
 sig
-  (*! structure CSManager : CS_MANAGER !*)
+  (*! module CSManager : CS_MANAGER !*)
 
-  (* all a constraint solver must define is a structure
+  (* all a constraint solver must define is a module
      suitable for the constraint solver manager to install.
   *)
-  val solver : CSManager.solver
+  let solver : CSManager.solver
 
-end  (* signature CS *)
+end  (* module type CS *)

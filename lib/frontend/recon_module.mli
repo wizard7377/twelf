@@ -1,11 +1,11 @@
 (* External syntax for module expressions *)
 (* Author: Kevin Watkins *)
 
-signature MODEXTSYN =
+module type MODEXTSYN =
 sig
 
-  structure ExtSyn : EXTSYN
-  (*! structure Paths : PATHS !*)
+  module ExtSyn : EXTSYN
+  (*! module Paths : PATHS !*)
 
   type strexp
   val strexp : string list * string * Paths.region -> strexp
@@ -30,17 +30,17 @@ sig
 
 end;
 
-signature RECON_MODULE =
+module type RECON_MODULE =
 sig
 
   include MODEXTSYN
-  structure ModSyn : MODSYN
+  module ModSyn : MODSYN
 
   exception Error of string
 
   type whereclause
 
-  datatype StructDec =
+  type StructDec =
       StructDec of string option * ModSyn.module * whereclause list
     | StructDef of string option * IntSyn.mid
 

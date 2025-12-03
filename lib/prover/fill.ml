@@ -2,38 +2,38 @@
 (* Author: Carsten Schuermann *)
 (* Date: Thu Mar 16 13:08:33 2006 *)
 
-functor Fill
-  (structure Data : DATA
-   (*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor Fill
+  (module Data : DATA
+   (*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure State' : STATE
+   module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
    (*! sharing Abstract.Tomega = Tomega' !*)
-   structure TypeCheck : TYPECHECK
+   module TypeCheck : TYPECHECK
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   structure Search  : SEARCH
+   module Search  : SEARCH
    (*! sharing Search.IntSyn = IntSyn' !*)
    (*! sharing Search.Tomega = Tomega' !*)
      sharing Search.State = State'
-   structure Whnf : WHNF
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   structure Unify : UNIFY
+   module Unify : UNIFY
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
        )
      : FILL =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure State = State'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module State = State'
 
   exception Error of string
 
-  datatype Operator =
+  type Operator =
     FillWithConst of IntSyn.Exp * IntSyn.cid
        (* Representation Invariant:  FillWithConst (X, c) :
            X is an evar GX |- X : VX
@@ -50,9 +50,9 @@ struct
   type operator = Operator
 
   local
-    structure S = State
-    structure T = Tomega
-    structure I = IntSyn
+    module S = State
+    module T = Tomega
+    module I = IntSyn
 
     exception Success of int
 
@@ -70,7 +70,7 @@ struct
            handle Unify.Unify _ => Fs)
           | try ((I.Pi ((I.Dec (_, V1), _), V2), s), Fs, O) =
           let
-            val X = I.newEVar (G, I.EClo (V1, s))
+            let X = I.newEVar (G, I.EClo (V1, s))
           in
             try ((V2, I.Dot (I.Exp X, s)), Fs, O)
           end
@@ -109,15 +109,15 @@ struct
             (Unify.unify (G, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
           | doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
             let
-              val X = I.newEVar (G, I.EClo (V1, s))
+              let X = I.newEVar (G, I.EClo (V1, s))
             in
-              doit ((V2, I.Dot (I.Exp X, s)),  (fn S => k (I.App (X, S))))
+              doit ((V2, I.Dot (I.Exp X, s)),  (fun S -> k (I.App (X, S))))
             end
           | doit ((I.EClo (V, t), s), k) = doit ((V, I.comp (t, s)), k)
 
-        val I.Dec (_, W) = I.ctxDec (G, n)
+        let I.Dec (_, W) = I.ctxDec (G, n)
       in
-        doit ((W, I.id),  fn S => Unify.unify (G, (Y, I.id), (I.Root (I.BVar n, S), I.id)))
+        doit ((W, I.id),  fun S -> Unify.unify (G, (Y, I.id), (I.Root (I.BVar n, S), I.id)))
       end
     | apply (FillWithConst(Y as I.EVar (r, G0, V, _), c)) =
       let
@@ -125,13 +125,13 @@ struct
             (Unify.unify (G0, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
           | doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
             let
-              val X = I.newEVar (G0, I.EClo (V1, s))
+              let X = I.newEVar (G0, I.EClo (V1, s))
             in
-              doit ((V2, I.Dot (I.Exp X, s)),  (fn S => k (I.App (X, S))))
+              doit ((V2, I.Dot (I.Exp X, s)),  (fun S -> k (I.App (X, S))))
             end
-        val W = I.constType c
+        let W = I.constType c
       in
-        doit ((W, I.id),  fn S => Unify.unify (G0, (Y, I.id), (I.Root (I.Const c, S), I.id)))
+        doit ((W, I.id),  fun S -> Unify.unify (G0, (Y, I.id), (I.Root (I.Const c, S), I.id)))
       end
 
     (* menu op = s'
@@ -149,8 +149,8 @@ struct
            ("Fill " ^ Names.evarName (G, X) ^ " with constant " ^ IntSyn.conDecName (IntSyn.sgnLookup c))
 
   in
-    val expand = expand
-    val apply = apply
-    val menu = menu
+    let expand = expand
+    let apply = apply
+    let menu = menu
   end (* local *)
 end; (* functor Filling *)

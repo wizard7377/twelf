@@ -2,16 +2,16 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-functor Names (structure Global : GLOBAL
-               (*! structure IntSyn' : INTSYN !*)
-               structure Constraints : CONSTRAINTS
+let recctor Names (module Global : GLOBAL
+               (*! module IntSyn' : INTSYN !*)
+               module Constraints : CONSTRAINTS
                (*! sharing Constraints.IntSyn = IntSyn' !*)
-               structure HashTable : TABLE where type key = string
-               structure StringTree : TABLE where type key = string)
+               module HashTable : TABLE where type key = string
+               module StringTree : TABLE where type key = string)
   : NAMES =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
@@ -27,23 +27,23 @@ struct
   (* Operator Precedence *)
   (***********************)
 
-  structure Fixity :> FIXITY =
+  module Fixity :> FIXITY =
   struct
     (* Associativity ascribed to infix operators
        assoc ::= left    e.g. `<-'
                | right   e.g. `->'
                | none    e.g. `==' from some object language
     *)
-    datatype associativity = Left | Right | None
+    type associativity = Left | Right | None
 
     (* Operator Precedence *)
-    datatype precedence = Strength of int
+    type precedence = Strength of int
 
     (* Maximal and minimal precedence which can be declared explicitly *)
-    val maxPrecInt = 9999
-    val maxPrec = Strength(maxPrecInt)
-    val minPrecInt = 0
-    val minPrec = Strength(minPrecInt)
+    let maxPrecInt = 9999
+    let maxPrec = Strength(maxPrecInt)
+    let minPrecInt = 0
+    let minPrec = Strength(minPrecInt)
 
     fun less (Strength(p), Strength(q)) = (p < q)
     fun leq (Strength(p), Strength(q)) = (p <= q)
@@ -53,7 +53,7 @@ struct
     fun dec (Strength(p)) = Strength(p-1)
 
     (* Fixities ascribed to constants *)
-    datatype fixity =
+    type fixity =
         Nonfix
       | Infix of precedence * associativity
       | Prefix of precedence
@@ -79,7 +79,7 @@ struct
       | toString (Postfix(Strength(p))) = "%postfix " ^ Int.toString p
       | toString (Nonfix) = "%nonfix"   (* not legal input *)
 
-  end  (* structure Fixity *)
+  end  (* module Fixity *)
 
   (* argNumber (fix) = minimum # of explicit arguments required *)
   (* for operator with fixity fix (0 if there are no requirements) *)
@@ -134,7 +134,7 @@ struct
      (2) there is a hashtable sgnHashTable mapping identifiers (strings) to constants.
 
      The mapping from constants to their print names must be maintained
-     separately from the global signature, since constants which have
+     separately from the global module type, since constants which have
      been shadowed must be marked as such when printing.  Otherwise,
      type checking can generate very strange error messages such as
      "Constant clash: c <> c".
@@ -150,19 +150,19 @@ struct
      consistent with each other.
   *)
 
-  datatype Qid = Qid of string list * string
+  type Qid = Qid of string list * string
 
   fun qidToString (Qid (ids, name)) =
         List.foldr (fn (id, s) => id ^ "." ^ s) name ids
 
   fun validateQualName nil = NONE
     | validateQualName (l as id::ids) =
-        if List.exists (fn s => s = "") l
+        if List.exists (fun s -> s = "") l
           then NONE
         else SOME (Qid (rev ids, id))
 
   fun stringToQid name =
-        validateQualName (rev (String.fields (fn c => c = #".") name))
+        validateQualName (rev (String.fields (fun c -> c = #".") name))
 
   fun unqualified (Qid (nil, id)) = SOME id
     | unqualified _ = NONE
@@ -174,26 +174,26 @@ struct
 
   fun insertConst ((structTable, constTable), cid) =
       let
-        val condec = IntSyn.sgnLookup cid
-        val id = IntSyn.conDecName condec
+        let condec = IntSyn.sgnLookup cid
+        let id = IntSyn.conDecName condec
       in
         case StringTree.insertShadow constTable (id, cid)
           of NONE => ()
            | SOME _ =>
                raise Error ("Shadowing: A constant named " ^ id
-                            ^ "\nhas already been declared in this signature")
+                            ^ "\nhas already been declared in this module type")
       end
 
   fun insertStruct ((structTable, constTable), mid) =
       let
-        val strdec = IntSyn.sgnStructLookup mid
-        val id = IntSyn.strDecName strdec
+        let strdec = IntSyn.sgnStructLookup mid
+        let id = IntSyn.strDecName strdec
       in
         case StringTree.insertShadow structTable (id, mid)
           of NONE => ()
            | SOME _ =>
-               raise Error ("Shadowing: A structure named " ^ id
-                            ^ "\nhas already been declared in this signature")
+               raise Error ("Shadowing: A module named " ^ id
+                            ^ "\nhas already been declared in this module type")
       end
 
   fun appConsts f (structTable, constTable) =
@@ -206,38 +206,38 @@ struct
     fun fromTo f (from, to) = if from >= to then ()
                               else (f from; fromTo f (from+1, to))
 
-    val maxCid = Global.maxCid
-    val shadowArray : IntSyn.cid option Array.array =
+    let maxCid = Global.maxCid
+    let shadowArray : IntSyn.cid option Array.array =
           Array.array (maxCid+1, NONE)
-    fun shadowClear () = Array.modify (fn _ => NONE) shadowArray
-    val fixityArray : Fixity.fixity Array.array =
+    fun shadowClear () = Array.modify (fun _ -> NONE) shadowArray
+    let fixityArray : Fixity.fixity Array.array =
           Array.array (maxCid+1, Fixity.Nonfix)
-    fun fixityClear () = Array.modify (fn _ => Fixity.Nonfix) fixityArray
-    val namePrefArray : (string list * string list) option Array.array =
+    fun fixityClear () = Array.modify (fun _ -> Fixity.Nonfix) fixityArray
+    let namePrefArray : (string list * string list) option Array.array =
           Array.array (maxCid+1, NONE)
-    fun namePrefClear () = Array.modify (fn _ => NONE) namePrefArray
+    fun namePrefClear () = Array.modify (fun _ -> NONE) namePrefArray
 
-    val topNamespace : IntSyn.cid HashTable.Table = HashTable.new (4096)
-    val topInsert = HashTable.insertShadow topNamespace
-    val topLookup = HashTable.lookup topNamespace
-    val topDelete = HashTable.delete topNamespace
+    let topNamespace : IntSyn.cid HashTable.Table = HashTable.new (4096)
+    let topInsert = HashTable.insertShadow topNamespace
+    let topLookup = HashTable.lookup topNamespace
+    let topDelete = HashTable.delete topNamespace
     fun topClear () = HashTable.clear topNamespace
 
-    val dummyNamespace = (StringTree.new (0), StringTree.new (0)) : namespace
+    let dummyNamespace = (StringTree.new (0), StringTree.new (0)) : namespace
 
-    val maxMid = Global.maxMid
-    val structShadowArray : IntSyn.mid option Array.array =
+    let maxMid = Global.maxMid
+    let structShadowArray : IntSyn.mid option Array.array =
           Array.array (maxMid+1, NONE)
-    fun structShadowClear () = Array.modify (fn _ => NONE) structShadowArray
-    val componentsArray : namespace Array.array =
+    fun structShadowClear () = Array.modify (fun _ -> NONE) structShadowArray
+    let componentsArray : namespace Array.array =
           Array.array (maxMid+1, dummyNamespace)
-    fun componentsClear () = Array.modify (fn _ => dummyNamespace) componentsArray
+    fun componentsClear () = Array.modify (fun _ -> dummyNamespace) componentsArray
 
-    val topStructNamespace : IntSyn.mid HashTable.Table =
+    let topStructNamespace : IntSyn.mid HashTable.Table =
           HashTable.new (4096)
-    val topStructInsert = HashTable.insertShadow topStructNamespace
-    val topStructLookup = HashTable.lookup topStructNamespace
-    val topStructDelete = HashTable.delete topStructNamespace
+    let topStructInsert = HashTable.insertShadow topStructNamespace
+    let topStructLookup = HashTable.lookup topStructNamespace
+    let topStructDelete = HashTable.delete topStructNamespace
     fun topStructClear () = HashTable.clear topStructNamespace
 
   in
@@ -248,8 +248,8 @@ struct
     *)
     fun installConstName cid =
         let
-          val condec = IntSyn.sgnLookup cid
-          val id = IntSyn.conDecName condec
+          let condec = IntSyn.sgnLookup cid
+          let id = IntSyn.conDecName condec
         in
           case topInsert (id, cid)
             of NONE => ()
@@ -258,8 +258,8 @@ struct
 
     fun uninstallConst cid =
         let
-          val condec = IntSyn.sgnLookup cid
-          val id = IntSyn.conDecName condec
+          let condec = IntSyn.sgnLookup cid
+          let id = IntSyn.conDecName condec
         in
           case Array.sub (shadowArray, cid)
             of NONE => (if topLookup id = SOME cid
@@ -273,8 +273,8 @@ struct
 
     fun installStructName mid =
         let
-          val strdec = IntSyn.sgnStructLookup mid
-          val id = IntSyn.strDecName strdec
+          let strdec = IntSyn.sgnStructLookup mid
+          let id = IntSyn.strDecName strdec
         in
           case topStructInsert (id, mid)
             of NONE => ()
@@ -283,8 +283,8 @@ struct
 
     fun uninstallStruct mid =
         let
-          val strdec = IntSyn.sgnStructLookup mid
-          val id = IntSyn.strDecName strdec
+          let strdec = IntSyn.sgnStructLookup mid
+          let id = IntSyn.strDecName strdec
         in
           case Array.sub (structShadowArray, mid)
             of NONE => if topStructLookup id = SOME mid
@@ -297,7 +297,7 @@ struct
 
     fun resetFrom (mark, markStruct) =
         let
-          val (limit, limitStruct) = IntSyn.sgnSize ()
+          let (limit, limitStruct) = IntSyn.sgnSize ()
           fun ct f (i, j) = if j < i then ()
                             else (f j; ct f (i, j-1))
         in
@@ -429,8 +429,8 @@ struct
 
     fun structPath (mid, ids) =
         let
-          val strdec = IntSyn.sgnStructLookup mid
-          val ids' = IntSyn.strDecName strdec::ids
+          let strdec = IntSyn.sgnStructLookup mid
+          let ids' = IntSyn.strDecName strdec::ids
         in
           case IntSyn.strDecParent strdec
             of NONE => ids'
@@ -443,7 +443,7 @@ struct
 
     fun conDecQid condec =
         let
-          val id = IntSyn.conDecName condec
+          let id = IntSyn.conDecName condec
         in
           case IntSyn.conDecParent condec
             of NONE => Qid (nil, id)
@@ -455,17 +455,17 @@ struct
     *)
     fun constQid cid =
         let
-          val condec = IntSyn.sgnLookup cid
-          val qid = conDecQid condec
+          let condec = IntSyn.sgnLookup cid
+          let qid = conDecQid condec
         in
           maybeShadow (qid, constLookup qid <> SOME cid)
         end
 
     fun structQid mid =
         let
-          val strdec = IntSyn.sgnStructLookup mid
-          val id = IntSyn.strDecName strdec
-          val qid = case IntSyn.strDecParent strdec
+          let strdec = IntSyn.sgnStructLookup mid
+          let id = IntSyn.strDecName strdec
+          let qid = case IntSyn.strDecParent strdec
                       of NONE => Qid (nil, id)
                        | SOME mid => Qid (structPath (mid, nil), id)
         in
@@ -478,7 +478,7 @@ struct
     *)
     fun installFixity (cid, fixity) =
         let
-          val name = qidToString (constQid cid)
+          let name = qidToString (constQid cid)
         in
           checkFixity (name, cid, argNumber fixity);
           Array.update (fixityArray, cid, fixity)
@@ -505,8 +505,8 @@ struct
     (* installNamePref' (cid, (ePref, uPref)) see installNamePref *)
     fun installNamePref' (cid, (ePref, uPref)) =
         let
-          val L = IntSyn.constUni (cid)
-          val _ = case L
+          let L = IntSyn.constUni (cid)
+          let _ = case L
                     of IntSyn.Type =>
                        raise Error ("Object constant " ^ qidToString (constQid cid) ^ " cannot be given name preference\n"
                                     ^ "Name preferences can only be established for type families")
@@ -535,8 +535,8 @@ struct
     (* local names are more easily re-used: they don't increment the
        counter associated with a name
     *)
-    datatype Extent = Local | Global
-    datatype Role = Exist | Univ of Extent
+    type Extent = Local | Global
+    type Role = Exist | Univ of Extent
 
     fun extent (Exist) = Global
       | extent (Univ (ext)) = ext
@@ -607,26 +607,26 @@ struct
      EVars and FVars are local.
   *)
   local
-    datatype varEntry = EVAR of IntSyn.Exp (* X *)
-      (* remove this datatype? -kw *)
+    type varEntry = EVAR of IntSyn.Exp (* X *)
+      (* remove this type? -kw *)
 
     (* varTable mapping identifiers (strings) to EVars and FVars *)
     (* A hashtable is too inefficient, since it is cleared too often; *)
     (* so we use a red/black trees instead *)
-    val varTable : varEntry StringTree.Table = StringTree.new (0) (* initial size hint *)
-    val varInsert = StringTree.insert varTable
-    val varLookup = StringTree.lookup varTable
+    let varTable : varEntry StringTree.Table = StringTree.new (0) (* initial size hint *)
+    let varInsert = StringTree.insert varTable
+    let varLookup = StringTree.lookup varTable
     fun varClear () = StringTree.clear varTable
 
     (* what is this for?  -kw *)
-    val varContext : IntSyn.dctx ref = ref IntSyn.Null
+    let varContext : IntSyn.dctx ref = ref IntSyn.Null
 
     (* evarList mapping EVars to names *)
     (* names are assigned only when EVars are parsed or printed *)
     (* the mapping must be implemented as an association list *)
     (* since EVars are identified by reference *)
     (* an alternative becomes possible if time stamps are introduced *)
-    val evarList : (IntSyn.Exp * string) list ref = ref nil
+    let evarList : (IntSyn.Exp * string) list ref = ref nil
 
     fun evarReset () = (evarList := nil)
     fun evarLookup (X) =
@@ -659,9 +659,9 @@ struct
        The resulting identifer is not guaranteed to be new, and must be
        checked against the names of constants, FVars, EVars, and BVars.
     *)
-    val indexTable : int StringTree.Table = StringTree.new (0)
-    val indexInsert = StringTree.insert indexTable
-    val indexLookup = StringTree.lookup indexTable
+    let indexTable : int StringTree.Table = StringTree.new (0)
+    let indexInsert = StringTree.insert indexTable
+    let indexLookup = StringTree.lookup indexTable
     fun indexClear () = StringTree.clear indexTable
 
     fun nextIndex' (name, NONE) = (indexInsert (name, 1); 1)
@@ -726,7 +726,7 @@ struct
     *)
     fun tryNextName (G, base) =
         let
-          val name = base ^ Int.toString (nextIndex (base))
+          let name = base ^ Int.toString (nextIndex (base))
         in
           if varDefined name orelse conDefined name
              orelse ctxDefined (G,name)
@@ -735,7 +735,7 @@ struct
         end
 
     fun findNameLocal (G, base, i) =
-        let val name = base ^ (if i = 0 then "" else Int.toString (i))
+        let let name = base ^ (if i = 0 then "" else Int.toString (i))
         in
           if varDefined name orelse conDefined name
              orelse ctxDefined (G, name)
@@ -747,7 +747,7 @@ struct
       | findName (G, base, Global) = tryNextName (G, base)
 
 
-    val takeNonDigits = Substring.takel (not o Char.isDigit)
+    let takeNonDigits = Substring.takel (not o Char.isDigit)
 
     (* baseOf (name) = name',
        where name' is the prefix of name not containing a digit
@@ -761,7 +761,7 @@ struct
     fun newEVarName (G, X as IntSyn.EVar(r, _, V, Cnstr)) =
         let
           (* use name preferences below *)
-          val name = tryNextName (G, namePrefOf (Exist, V))
+          let name = tryNextName (G, namePrefOf (Exist, V))
         in
           (evarInsert (X, name);
            name)
@@ -769,7 +769,7 @@ struct
       | newEVarName (G, X as IntSyn.AVar(r)) =
         let
           (* use name preferences below *)
-          val name = tryNextName (G, namePrefOf' (Exist, NONE))
+          let name = tryNextName (G, namePrefOf' (Exist, NONE))
         in
           (evarInsert (X, name);
            name)
@@ -783,7 +783,7 @@ struct
     fun evarName (G, X) =
         (case evarLookup X
            of NONE => let
-                        val name = newEVarName (G, X)
+                        let name = newEVarName (G, X)
                       in
                         (varInsert (name, EVAR(X));
                          name)
@@ -815,7 +815,7 @@ struct
     *)
     fun decName' role (G, IntSyn.Dec (NONE, V)) =
         let
-          val name = findName (G, namePrefOf (role, V), extent (role))
+          let name = findName (G, namePrefOf (role, V), extent (role))
         in
           IntSyn.Dec (SOME(name), V)
         end
@@ -827,7 +827,7 @@ struct
       | decName' role (G, D as IntSyn.BDec (NONE, b as (cid, t))) =
         (* use #l as base name preference for label l *)
         let
-          val name = findName (G, "#" ^ IntSyn.conDecName (IntSyn.sgnLookup cid), Local)
+          let name = findName (G, "#" ^ IntSyn.conDecName (IntSyn.sgnLookup cid), Local)
         in
           IntSyn.BDec (SOME(name), b)
         end
@@ -838,7 +838,7 @@ struct
         else D
       | decName' role (G, IntSyn.ADec (NONE, d)) =
         let
-          val name = findName (G, namePrefOf' (role, NONE), extent (role))
+          let name = findName (G, namePrefOf' (role, NONE), extent (role))
         in
           IntSyn.ADec (SOME(name), d)
         end
@@ -850,8 +850,8 @@ struct
         else D
       | decName' role (G, D as IntSyn.NDec NONE) =
         let
-          val name = findName (G, "@x", Local)
-            val _ = print name
+          let name = findName (G, "@x", Local)
+            let _ = print name
 
         in
           IntSyn.NDec (SOME name)
@@ -862,10 +862,10 @@ struct
           then IntSyn.NDec (SOME (tryNextName (G, baseOf name)))
         else D
 
-    val decName = decName' Exist
-    val decEName = decName' Exist
-    val decUName = decName' (Univ (Global))
-    val decLUName = decName' (Univ (Local))
+    let decName = decName' Exist
+    let decEName = decName' Exist
+    let decUName = decName' (Univ (Global))
+    let decLUName = decName' (Univ (Local))
 
     (* ctxName G = G'
 
@@ -876,7 +876,7 @@ struct
     fun ctxName (IntSyn.Null) = IntSyn.Null
       | ctxName (IntSyn.Decl (G, D)) =
         let
-          val G' = ctxName G
+          let G' = ctxName G
         in
           IntSyn.Decl (G', decName (G', D))
         end
@@ -887,7 +887,7 @@ struct
     fun ctxLUName (IntSyn.Null) = IntSyn.Null
       | ctxLUName (IntSyn.Decl (G, D)) =
         let
-          val G' = ctxLUName G
+          let G' = ctxLUName G
         in
           IntSyn.Decl (G', decLUName (G', D))
         end
@@ -900,7 +900,7 @@ struct
       | pisEName' (G, i, IntSyn.Pi ((D, IntSyn.Maybe), V)) =
         (* i > 0 *)
         let
-          val D' = decEName (G, D)
+          let D' = decEName (G, D)
         in
           IntSyn.Pi ((D', IntSyn.Maybe),
                      pisEName' (IntSyn.Decl (G, D'), i-1, V))
@@ -919,8 +919,8 @@ struct
       | defEName' (G, i, (IntSyn.Lam (D, U), IntSyn.Pi ((_ (* = D *), P), V))) =
         (* i > 0 *)
         let
-          val D' = decEName (G, D)
-          val (U', V') = defEName' (IntSyn.Decl (G, D'), i-1, (U, V))
+          let D' = decEName (G, D)
+          let (U', V') = defEName' (IntSyn.Decl (G, D'), i-1, (U, V))
         in
           (IntSyn.Lam (D', U'), IntSyn.Pi ((D', P), V'))
         end
@@ -932,13 +932,13 @@ struct
           IntSyn.ConDec (name, parent, imp, status, pisEName (imp, V), L)
       | nameConDec' (IntSyn.ConDef (name, parent, imp, U, V, L, Anc)) =
         let
-          val (U', V') = defEName (imp, (U, V))
+          let (U', V') = defEName (imp, (U, V))
         in
           IntSyn.ConDef (name, parent, imp, U', V', L, Anc)
         end
       | nameConDec' (IntSyn.AbbrevDef (name, parent, imp, U, V, L)) =
         let
-          val (U', V') = defEName (imp, (U, V))
+          let (U', V') = defEName (imp, (U, V))
         in
           IntSyn.AbbrevDef (name, parent, imp, U', V', L)
         end
@@ -953,8 +953,8 @@ struct
     fun skonstName (name) =
           tryNextName (IntSyn.Null, name)
 
-    val namedEVars = namedEVars
-    val evarCnstr = evarCnstr
+    let namedEVars = namedEVars
+    let evarCnstr = evarCnstr
 
   end  (* local varTable ... *)
 

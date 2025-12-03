@@ -1,7 +1,7 @@
 (* Heuristics : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-structure Heuristic : HEURISTIC =
+module Heuristic : HEURISTIC =
 struct
   type index = {sd: int,                (* Splitting depth *)
                 ind: int option,        (* Induction variable *)
@@ -9,7 +9,7 @@ struct
                 m: int,                 (* maximal number of cases *)
                 r: int,                 (* 0 = non-recursive
                                            1 = recursive *)
-                p: int}                 (* Position (left to right) *)
+                p: int}                 (* position (left to right) *)
 
   local
     fun compare ({sd=k1, ind=NONE, c=c1, m=m1, r=r1, p=p1},
@@ -70,8 +70,8 @@ struct
 
 
   in
-    val compare = compare
-    val indexToString = indexToString
+    let compare = compare
+    let indexToString = indexToString
   end
 
 

@@ -1,11 +1,11 @@
 (* Basic search engine: Version 1.3*)
 (* Author: Carsten Schuermann *)
 
-signature UNIQUESEARCH = 
+module type UNIQUESEARCH = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module IntSyn : INTSYN !*)
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string
 
@@ -13,4 +13,4 @@ sig
 
   val searchEx : int * IntSyn.Exp list
       * (acctype list -> acctype list) -> acctype list
-end;  (* signature SEARCH *)
+end;  (* module type SEARCH *)

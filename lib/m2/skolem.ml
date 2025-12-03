@@ -1,34 +1,34 @@
 (* Skolem constant administration *)
 (* Author: Carsten Schuermann *)
 
-functor Skolem (structure Global : GLOBAL
-                (*! structure IntSyn' : INTSYN !*)
-                structure Whnf : WHNF
+let recctor Skolem (module Global : GLOBAL
+                (*! module IntSyn' : INTSYN !*)
+                module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                structure Abstract : ABSTRACT
+                module Abstract : ABSTRACT
                 (*! sharing Abstract.IntSyn = IntSyn' !*)
-                structure IndexSkolem : INDEX
+                module IndexSkolem : INDEX
                 (*! sharing IndexSkolem.IntSyn = IntSyn' !*)
-                structure ModeTable : MODETABLE
+                module ModeTable : MODETABLE
                 (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-                structure Print : PRINT
+                module Print : PRINT
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                structure Compile : COMPILE
+                module Compile : COMPILE
                 (*! sharing Compile.IntSyn = IntSyn' !*)
-                structure Timers : TIMERS
-                structure Names : NAMES
+                module Timers : TIMERS
+                module Names : NAMES
                 (*! sharing Names.IntSyn = IntSyn' !*)
                   )
   : SKOLEM =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure M = ModeSyn
-    (*! structure CompSyn = Compile.CompSyn !*)
+    module I = IntSyn
+    module M = ModeSyn
+    (*! module CompSyn = Compile.CompSyn !*)
 
     (* installSkolem (name, k, (V, mS), L) =
 
@@ -66,22 +66,22 @@ struct
             (case mS
                of M.Mapp (M.Marg (M.Plus, _), mS') =>
                     installSkolem' (d+1, (V, mS'), I.dot1 s,
-                                    fn V => k (Abstract.piDepend ((Whnf.normalizeDec (D, s), I.Meta), V)))
-(*                                  fn V => k (I.Pi ((Whnf.normalizeDec (D, s), DP), V))) *)
+                                    fun V -> k (Abstract.piDepend ((Whnf.normalizeDec (D, s), I.Meta), V)))
+(*                                  fun V -> k (I.Pi ((Whnf.normalizeDec (D, s), DP), V))) *)
                 | M.Mapp (M.Marg (M.Minus, _), mS') =>
                   let
-                    val I.Dec (_, V') = D
-                    val V'' = k (Whnf.normalize (V', s))
-                    val name' = Names.skonstName (name ^ "#")
-                    val SD = I.SkoDec (name', NONE, imp, V'', L)
-                    val sk = I.sgnAdd SD
-                    val H = I.Skonst sk
-                    val _ = IndexSkolem.install I.Ordinary H
-                    val _ = Names.installConstName sk
-                    val _ = (Timers.time Timers.compiling Compile.install) I.Ordinary sk
-(*                  val CompSyn.SClause r = CompSyn.sProgLookup sk *)
-                    val S = spine d
-                    val _ = if !Global.chatter >= 3
+                    let I.Dec (_, V') = D
+                    let V'' = k (Whnf.normalize (V', s))
+                    let name' = Names.skonstName (name ^ "#")
+                    let SD = I.SkoDec (name', NONE, imp, V'', L)
+                    let sk = I.sgnAdd SD
+                    let H = I.Skonst sk
+                    let _ = IndexSkolem.install I.Ordinary H
+                    let _ = Names.installConstName sk
+                    let _ = (Timers.time Timers.compiling Compile.install) I.Ordinary sk
+(*                  let CompSyn.SClause r = CompSyn.sProgLookup sk *)
+                    let S = spine d
+                    let _ = if !Global.chatter >= 3
                               then TextIO.print (Print.conDecToString SD ^ "\n")
                             else ()
                   in
@@ -91,7 +91,7 @@ struct
 
 
       in
-        installSkolem' (0, (V, mS), I.id, fn V => V)
+        installSkolem' (0, (V, mS), I.id, fun V -> V)
       end
 
     (* install L = ()
@@ -105,15 +105,15 @@ struct
     fun install nil = ()
       | install (a :: aL) =
         let
-          val I.ConDec (name, _, imp, _, V, L) = I.sgnLookup a
-          val SOME mS = ModeTable.modeLookup a
-          val _ = installSkolem (name, imp, (V, mS), I.Type)
+          let I.ConDec (name, _, imp, _, V, L) = I.sgnLookup a
+          let SOME mS = ModeTable.modeLookup a
+          let _ = installSkolem (name, imp, (V, mS), I.Type)
         in
           install aL
         end
 
 
   in
-    val install = install
+    let install = install
   end (* local *)
 end (* functor Skolem *)

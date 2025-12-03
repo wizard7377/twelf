@@ -1,20 +1,20 @@
 (* State for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-functor StateSyn ((*! structure IntSyn' : INTSYN !*)
-                  (*! structure FunSyn' : FUNSYN !*)
+let recctor StateSyn ((*! module IntSyn' : INTSYN !*)
+                  (*! module FunSyn' : FUNSYN !*)
                   (*! sharing FunSyn'.IntSyn = IntSyn' !*)
-                  structure Whnf : WHNF
+                  module Whnf : WHNF
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
-                  structure Conv : CONV
+                  module Conv : CONV
                   (*! sharing Conv.IntSyn = IntSyn' !*)
                     )
   : STATESYN =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure FunSyn = FunSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module FunSyn = FunSyn' !*)
 
-  datatype Order =                      (* Orders                     *)
+  type Order =                      (* Orders                     *)
     Arg of (IntSyn.Exp * IntSyn.Sub) *
            (IntSyn.Exp * IntSyn.Sub)    (* O ::= U[s] : V[s]          *)
   | Lex of Order list                   (*     | (O1 .. On)           *)
@@ -23,17 +23,17 @@ struct
   | And of Order * Order                (*     | O1 ^ O2              *)
 
 
-  datatype Info =
+  type Info =
     Splits of int
   | RL
   | RLdone
 
-  datatype Tag =
+  type Tag =
     Parameter of FunSyn.label option
   | Lemma of Info
   | None
 
-  datatype State =                      (* S = <n, (G, B), (IH, OH), d, O, H, F> *)
+  type State =                      (* S = <n, (G, B), (IH, OH), d, O, H, F> *)
     State of int                        (* Part of theorem                   *)
            * (IntSyn.dctx       (* Context of Hypothesis in general not named *)
            * Tag IntSyn.Ctx) (* Status information *)
@@ -44,8 +44,8 @@ struct
            * FunSyn.For                 (* Formula *)
 
   local
-    structure F = FunSyn
-    structure I = IntSyn
+    module F = FunSyn
+    module I = IntSyn
 
     (* orderSub (O, s) = O'
 
@@ -56,8 +56,8 @@ struct
     *)
     fun orderSub (Arg ((U, s1), (V, s2)), s) =
           Arg ((U,  I.comp (s1, s)), (V, I.comp (s2, s)))
-      | orderSub (Lex Os, s) = Lex (map (fn O => orderSub (O, s)) Os)
-      | orderSub (Simul Os, s) = Simul (map (fn O => orderSub (O, s)) Os)
+      | orderSub (Lex Os, s) = Lex (map (fun O -> orderSub (O, s)) Os)
+      | orderSub (Simul Os, s) = Simul (map (fun O -> orderSub (O, s)) Os)
       (* by invariant: no case for All and And *)
 
 
@@ -120,11 +120,11 @@ struct
       | normalizeTag (Lemma (K), s) = Lemma (K)
 
   in
-    val orderSub = orderSub
-    val decrease = decrease
-    val splitDepth = splitDepth
-    val normalizeOrder = normalizeOrder
-    val convOrder = convOrder
-    val normalizeTag = normalizeTag
+    let orderSub = orderSub
+    let decrease = decrease
+    let splitDepth = splitDepth
+    let normalizeOrder = normalizeOrder
+    let convOrder = convOrder
+    let normalizeTag = normalizeTag
   end (* local *)
-end; (* signature STATESYN *)
+end; (* module type STATESYN *)

@@ -1,12 +1,12 @@
 (* Solve and query declarations, interactive top level *)
 (* Author: Frank Pfenning *)
 
-signature SOLVE =
+module type SOLVE =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Paths : PATHS !*)
-  structure ExtQuery : EXTQUERY
+  (*! module IntSyn : INTSYN !*)
+  (*! module Paths : PATHS !*)
+  module ExtQuery : EXTQUERY
 
   exception AbortQuery of string
 
@@ -21,4 +21,4 @@ sig
   val qLoop  : unit -> bool		(* true means normal exit *)
   val qLoopT : unit -> bool		(* true means normal exit *)
 
-end;  (* signature SOLVE *)
+end;  (* module type SOLVE *)

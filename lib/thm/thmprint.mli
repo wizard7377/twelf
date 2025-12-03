@@ -1,9 +1,9 @@
 (* Printer for Meta Theorems *)
 (* Author: Carsten Schuermann *)
 
-signature THMPRINT =
+module type THMPRINT =
 sig
-  structure ThmSyn : THMSYN
+  module ThmSyn : THMSYN
 
   val tDeclToString : ThmSyn.TDecl -> string
   val callpatsToString : ThmSyn.Callpats -> string
@@ -12,4 +12,4 @@ sig
   val tabledDeclToString: ThmSyn.TabledDecl -> string           (* -bp *)
   val keepTableDeclToString: ThmSyn.KeepTableDecl -> string        (* -bp *)
 
-end;  (* signature THMPRINT *)
+end;  (* module type THMPRINT *)

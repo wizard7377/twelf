@@ -1,11 +1,11 @@
 (* Meta Abstraction *)
 (* Author: Carsten Schuermann *)
 
-signature METAABSTRACT =
+module type METAABSTRACT =
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
 
   exception Error of string
 
   val abstract : MetaSyn.State -> MetaSyn.State
-end;  (* signature METAABSTRACT *)
+end;  (* module type METAABSTRACT *)

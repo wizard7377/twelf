@@ -2,39 +2,39 @@
 (* Author: Iliano Cervesato *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-functor AbsMachine ((*! structure IntSyn' : INTSYN !*)
-                    (*! structure CompSyn' : COMPSYN !*)
+let recctor AbsMachine ((*! module IntSyn' : INTSYN !*)
+                    (*! module CompSyn' : COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                    structure Unify : UNIFY
+                    module Unify : UNIFY
                     (*! sharing Unify.IntSyn = IntSyn' !*)
 
-                    structure Assign : ASSIGN
+                    module Assign : ASSIGN
                     (*! sharing Assign.IntSyn = IntSyn' !*)
 
-                    structure Index : INDEX
+                    module Index : INDEX
                     (*! sharing Index.IntSyn = IntSyn' !*)
                     (* CPrint currently unused *)
-                    structure CPrint : CPRINT
+                    module CPrint : CPRINT
                     (*! sharing CPrint.IntSyn = IntSyn' !*)
                     (*! sharing CPrint.CompSyn = CompSyn' !*)
 
-                    structure Print : PRINT
+                    module Print : PRINT
                     (*! sharing Print.IntSyn = IntSyn' !*)
 
-                    structure Names : NAMES
+                    module Names : NAMES
                     (*! sharing Names.IntSyn = IntSyn' !*)
-                    (*! structure CSManager : CS_MANAGER !*)
+                    (*! module CSManager : CS_MANAGER !*)
                     (*! sharing CSManager.IntSyn = IntSyn' !*)
                         )
   : ABSMACHINE =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure CompSyn = CompSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module CompSyn = CompSyn' !*)
 
   local
-    structure I = IntSyn
-    structure C = CompSyn
+    module I = IntSyn
+    module C = CompSyn
 
   (* We write
        G |- M : g
@@ -87,18 +87,18 @@ struct
 
     | solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' = I.Dec(NONE, I.EClo(A,s))
+        let D' = I.Dec(NONE, I.EClo(A,s))
       in
         solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
-                (fn M => sc (I.Lam (D', M))))
+                (fun M -> sc (I.Lam (D', M))))
       end
     | solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' = Names.decLUName (G, I.decSub (D, s))
-(*      val D' = I.decSub (D, s) *)
+        let D' = Names.decLUName (G, I.decSub (D, s))
+(*      let D' = I.decSub (D, s) *)
       in
         solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl(dPool, C.Parameter)),
-                (fn M => sc (I.Lam (D', M))))
+                (fun M -> sc (I.Lam (D', M))))
       end
 
   (* rSolve ((p,s'), (r,s), dp, sc) = ()
@@ -128,21 +128,21 @@ struct
       let
         (* is this EVar redundant? -fp *)
         (* same effect as s^-1 *)
-        val X = I.newEVar (G, I.EClo(A, s))
+        let X = I.newEVar (G, I.EClo(A, s))
       in
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp,
-                (fn S => solve ((g, s), dp, (fn M => sc (I.App (M, S))))))
+                (fun S -> solve ((g, s), dp, (fun M -> sc (I.App (M, S))))))
       end
 
     | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
       let
-        val X  = I.newEVar (G, I.EClo (A,s))
+        let X  = I.newEVar (G, I.EClo (A,s))
       in
-        rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, (fn S => sc (I.App(X,S))))
+        rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, (fun S -> sc (I.App(X,S))))
       end
     | rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), sc) =
       let
-        val X' = I.newAVar ()
+        let X' = I.newAVar ()
       in
         rSolve (ps', (r, I.Dot(I.Exp(I.EClo(X', I.Shift(~d))), s)), dp, sc)
         (* we don't increase the proof term here! *)
@@ -162,8 +162,8 @@ struct
       else ()
     | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
       let
-        val G'' = compose (G, G')
-        val s' = shiftSub (G', s)
+        let G'' = compose (G, G')
+        let s' = shiftSub (G', s)
       in
         if Assign.unifiable (G'', (N, s'), (e1, s'))
         then
@@ -182,11 +182,11 @@ struct
               any effect  sc M  might have
 
      This first tries the local assumptions in dp then
-     the static signature.
+     the static module type.
   *)
   and matchAtom (ps' as (I.Root(Ha,S),s), dp as C.DProg (G,dPool), sc) =
       let
-        val deterministic = C.detTableCheck (cidFromHead Ha)
+        let deterministic = C.detTableCheck (cidFromHead Ha)
         exception SucceedOnce of I.Spine
         (* matchSig [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting
@@ -197,12 +197,12 @@ struct
         fun matchSig nil = ()   (* return unit on failure *)
           | matchSig (Hc::sgn') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
               (* trail to undo EVar instantiations *)
               CSManager.trail
               (fn () =>
-               rSolve (ps', (r, I.id), dp, (fn S => sc (I.Root(Hc, S)))));
+               rSolve (ps', (r, I.id), dp, (fun S -> sc (I.Root(Hc, S)))));
               matchSig sgn'
             end
 
@@ -215,11 +215,11 @@ struct
         fun matchSigDet nil = ()        (* return unit on failure *)
           | matchSigDet (Hc::sgn') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
               (* trail to undo EVar instantiations *)
               (CSManager.trail
-               (fn () => (rSolve (ps', (r, I.id), dp, (fn S =>  raise SucceedOnce S))));
+               (fn () => (rSolve (ps', (r, I.id), dp, (fun S ->  raise SucceedOnce S))));
                matchSigDet sgn')
               handle SucceedOnce S =>  sc (I.Root(Hc, S))
             end
@@ -230,7 +230,7 @@ struct
            with the most recent one.
         *)
         fun matchDProg (I.Null, _) =
-            (* dynamic program exhausted, try signature *)
+            (* dynamic program exhausted, try module type *)
           if deterministic
             then matchSigDet (Index.lookup (cidFromHead Ha))
           else matchSig (Index.lookup (cidFromHead Ha))
@@ -241,21 +241,21 @@ struct
                 then (* #succeeds = 1 *)
                   ((CSManager.trail (* trail to undo EVar instantiations *)
                     (fn () => rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,
-                                     (fn S => (raise SucceedOnce S))));
+                                     (fun S -> (raise SucceedOnce S))));
                     matchDProg (dPool', k+1))
                    handle SucceedOnce S => sc (I.Root(I.BVar(k), S)))
 
               else (* #succeeds >= 1 -- allows backtracking *)
                 (CSManager.trail (* trail to undo EVar instantiations *)
                  (fn () => rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,
-                                   (fn S => sc (I.Root(I.BVar(k), S)))));
+                                   (fun S -> sc (I.Root(I.BVar(k), S)))));
                  matchDProg (dPool', k+1))
             else matchDProg (dPool', k+1)
           | matchDProg (I.Decl (dPool', C.Parameter), k) =
               matchDProg (dPool', k+1)
         fun matchConstraint (cnstrSolve, try) =
               let
-                val succeeded =
+                let succeeded =
                   CSManager.trail
                     (fn () =>
                        case (cnstrSolve (G, I.SClo (S, s), try))
@@ -272,7 +272,7 @@ struct
            | _ => matchDProg (dPool, 1)
       end
   in
-   val solve = solve
+   let solve = solve
   end (* local ... *)
 
 end; (* functor AbsMachine *)

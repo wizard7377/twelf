@@ -1,18 +1,18 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann, Adam Poswolsky *)
 
-functor Opsem ( structure Whnf : WHNF
-               structure Abstract : ABSTRACT
-               structure Subordinate : SUBORDINATE
-               structure TomegaTypeCheck : TOMEGATYPECHECK
-               structure TomegaPrint : TOMEGAPRINT
-               structure Unify : UNIFY
+let recctor Opsem ( module Whnf : WHNF
+               module Abstract : ABSTRACT
+               module Subordinate : SUBORDINATE
+               module TomegaTypeCheck : TOMEGATYPECHECK
+               module TomegaPrint : TOMEGAPRINT
+               module Unify : UNIFY
                    ) : OPSEM =
 struct
-  structure T = Tomega
-  structure I = IntSyn
-  structure S = Subordinate
-  structure A = Abstract
+  module T = Tomega
+  module I = IntSyn
+  module S = Subordinate
+  module A = Abstract
 
   exception Error of string
   exception Abort
@@ -70,7 +70,7 @@ struct
 
       | matchVal (Psi, (P',t1), T.PClo(T.EVar (_, r as ref NONE, _, _, _, _), t2)) =
          let
-           val iw = T.invertSub t2
+           let iw = T.invertSub t2
          in
            (* ABP -- just make sure this is right *)
            r := SOME (T.PClo (P', T.comp(t1, iw)))
@@ -102,25 +102,25 @@ struct
 and raisePrg (Psi, G, T.Unit) = T.Unit
       | raisePrg (Psi, G, T.PairPrg (P1, P2)) =
         let
-          val P1' = raisePrg (Psi, G, P1)
-          val P2' = raisePrg (Psi, G, P2)
+          let P1' = raisePrg (Psi, G, P1)
+          let P2' = raisePrg (Psi, G, P2)
         in
           T.PairPrg (P1', P2')
         end
       | raisePrg (Psi, G, T.PairExp (U, P)) =
         let
-          val V = TypeCheck.infer' (append (T.coerceCtx Psi, G), U)
+          let V = TypeCheck.infer' (append (T.coerceCtx Psi, G), U)
    (* this is a real time sink, it would be much better if we did not have to
       compute the type information of U,
       more thought is required
    *)
-          val w = S.weaken (G, I.targetFam V)
+          let w = S.weaken (G, I.targetFam V)
                                                    (* G  |- w  : G'    *)
-          val iw = Whnf.invert w                    (* G' |- iw : G     *)
-          val G' = Whnf.strengthen (iw, G)        (* Psi0, G' |- B'' ctx *)
+          let iw = Whnf.invert w                    (* G' |- iw : G     *)
+          let G' = Whnf.strengthen (iw, G)        (* Psi0, G' |- B'' ctx *)
 
-          val U' = A.raiseTerm (G', I.EClo (U, iw))
-          val P' = raisePrg (Psi, G, P)
+          let U' = A.raiseTerm (G', I.EClo (U, iw))
+          let P' = raisePrg (Psi, G, P)
         in
           T.PairExp (U', P')
         end
@@ -160,7 +160,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
       | evalPrg (Psi, (T.Lam (D as T.UDec (I.BDec _), P), t)) =
           let
-            val D' = T.decSub (D, t)
+            let D' = T.decSub (D, t)
           in
             T.Lam (D', evalPrg (I.Decl (Psi, D'), (P, T.dot1 t)))
           end
@@ -186,21 +186,21 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
       | evalPrg (Psi, (T.Let (D, P1, P2), t)) =
           let
-            val V = evalPrg (Psi, (P1, t))
-            val V' = evalPrg (Psi, (P2, T.Dot (T.Prg V, t)))
+            let V = evalPrg (Psi, (P1, t))
+            let V' = evalPrg (Psi, (P2, T.Dot (T.Prg V, t)))
           in
             V'
           end
 
       | evalPrg (Psi, (T.New (T.Lam (D, P)), t)) =
            let
-             val D' = T.decSub (D, t)
-             val T.UDec (D'') = D'
-             val D''' = T.UDec (Names.decName (T.coerceCtx Psi, D''))  (* unnecessary naming, remove later --cs *)
-             val V = evalPrg (I.Decl (Psi, D'''), (P, T.dot1 t))
-             val B = T.coerceCtx (I.Decl (I.Null, D'''))
-             val (G, t') = T.deblockify B
-             val newP = raisePrg (Psi, G, T.normalizePrg (V, t'))
+             let D' = T.decSub (D, t)
+             let T.UDec (D'') = D'
+             let D''' = T.UDec (Names.decName (T.coerceCtx Psi, D''))  (* unnecessary naming, remove later --cs *)
+             let V = evalPrg (I.Decl (Psi, D'''), (P, T.dot1 t))
+             let B = T.coerceCtx (I.Decl (I.Null, D'''))
+             let (G, t') = T.deblockify B
+             let newP = raisePrg (Psi, G, T.normalizePrg (V, t'))
            in
              newP
            end
@@ -225,7 +225,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
                | substToSpine' (I.Dot(I.Idx(n),s), I.Decl(G,I.Dec(_,V)), T) =
                    (* Eta-expand *)
                    let
-                     val (Us,_) = Whnf.whnfEta ((I.Root (I.BVar(n), I.Nil), I.id), (V, I.id))
+                     let (Us,_) = Whnf.whnfEta ((I.Root (I.BVar(n), I.Nil), I.id), (V, I.id))
                    in
                      substToSpine' (s, G, T.AppExp (I.EClo Us, T))
                    end
@@ -239,8 +239,8 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
                    choose (k+1, Psi')
                | choose (k, I.Decl (Psi', T.UDec (I.BDec (_, (l1, s1))))) =
                    let
-                     val (Gsome, Gpi) = I.constBlock l1
-                     val S = substToSpine' (s1, Gsome, T.AppBlock (I.Bidx k, T.Nil))
+                     let (Gsome, Gpi) = I.constBlock l1
+                     let S = substToSpine' (s1, Gsome, T.AppBlock (I.Bidx k, T.Nil))
                    in
                      evalPrg (Psi, (T.Redex (T.PClo (P, t), S), T.id)) handle Abort => choose (k+1, Psi')
                    end
@@ -269,11 +269,11 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
     and match (Psi, t1, T.Cases ((Psi', t2, P) :: C)) =
         let
-          (* val I.Null = Psi *)
-          val t = createVarSub (Psi, Psi') (* Psi |- t : Psi' *)
+          (* let I.Null = Psi *)
+          let t = createVarSub (Psi, Psi') (* Psi |- t : Psi' *)
                                           (* Psi' |- t2 . shift(k) : Psi'' *)
 
-          val t' = T.comp (t2, t)
+          let t' = T.comp (t2, t)
         in
           (* Note that since we are missing the shift(k), it is possible
            * that t' has extra DOTs in there that weren't removed *)
@@ -299,15 +299,15 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
       | createVarSub (Psi, Psi'' as I.Decl (Psi', T.PDec (name, F, NONE, NONE))) =
         let
-          val t = createVarSub (Psi, Psi')
-          val t' = T.Dot (T.Prg (T.newEVarTC (Psi, T.forSub(F,t), NONE, NONE)), t)
+          let t = createVarSub (Psi, Psi')
+          let t' = T.Dot (T.Prg (T.newEVarTC (Psi, T.forSub(F,t), NONE, NONE)), t)
         in
           t'
         end
 
       | createVarSub (Psi, I.Decl (Psi', T.UDec (I.Dec (name, V)))) =
         let
-          val t = createVarSub (Psi, Psi')
+          let t = createVarSub (Psi, Psi')
         in
 
           T.Dot (T.Exp (I.EVar (ref NONE, T.coerceCtx Psi, I.EClo (V, T.coerceSub t), ref [])), t)
@@ -315,7 +315,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
       | createVarSub (Psi, I.Decl (Psi', T.UDec (I.BDec (name, (cid, s))))) =
         let
-          val t = createVarSub (Psi, Psi')
+          let t = createVarSub (Psi, Psi')
         in
           T.Dot (T.Block (I.LVar (ref NONE, I.id, (cid, I.comp (s,  T.coerceSub t)))), t)
         end
@@ -362,15 +362,15 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
       | matchSub (Psi, T.Dot (T.Idx k, t1), T.Dot (T.Block (I.LVar (r, s1, (c,s2))), t2)) =
         let
-          val s1' = Whnf.invert s1
-          val _ = r := SOME (I.blockSub (I.Bidx k, s1'))
+          let s1' = Whnf.invert s1
+          let _ = r := SOME (I.blockSub (I.Bidx k, s1'))
         in
           matchSub (Psi, t1, t2)
         end
       | matchSub (Psi, T.Dot (T.Block (B), t1), T.Dot (T.Block (I.LVar (r, s1, (c,s2))), t2)) =
         let
-          val s1' = Whnf.invert s1
-          val _ = r := SOME (I.blockSub (B, s1'))
+          let s1' = Whnf.invert s1
+          let _ = r := SOME (I.blockSub (B, s1'))
         in
            matchSub (Psi, t1, t2)
         end
@@ -393,7 +393,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
           evalRedex (Psi, V, (S, T.comp (t1, t2)))
     | evalRedex (Psi, T.Lam (T.UDec (I.Dec (_, A)), P'), (T.AppExp (U, S), t)) =
       let
-        val V = evalPrg (Psi, (P', T.Dot (T.Exp (I.EClo (U, T.coerceSub t)), T.id)))
+        let V = evalPrg (Psi, (P', T.Dot (T.Exp (I.EClo (U, T.coerceSub t)), T.id)))
       in
         evalRedex (Psi, V, (S, t))
       end
@@ -401,8 +401,8 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
           evalRedex (Psi, evalPrg (Psi, (P', T.Dot (T.Block (I.blockSub (B, T.coerceSub t)), T.id))), (S, t))
     | evalRedex (Psi, T.Lam (T.PDec _, P'), (T.AppPrg (P, S), t)) =
           let
-            val V = evalPrg (Psi, (P, t))
-            val V' = evalPrg (Psi, (P', T.Dot (T.Prg V, T.id)))
+            let V = evalPrg (Psi, (P, t))
+            let V' = evalPrg (Psi, (P', T.Dot (T.Prg V, T.id)))
           in
             evalRedex (Psi, V', (S, t))
           end
@@ -428,7 +428,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
           fun printLF (_, _, _) 0 = ()
             | printLF (G, I.Dot (I.Exp U, s'), I.Decl (G', I.Dec (SOME name, V))) k =
               let
-                val _ = printLF (G, s', G') (k-1)
+                let _ = printLF (G, s', G') (k-1)
               in
                 print ("def " ^ name ^ " = "  ^ (Print.expToString (G, U))
                        ^ " : " ^ (Print.expToString (G, I.EClo (V, s'))) ^ "\n")
@@ -436,44 +436,44 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
           fun match (Psi, t1, T.Cases ((Psi', t2, P) :: C)) =
               let
-                val t = createVarSub (Psi, Psi') (* Psi |- t : Psi' *)
+                let t = createVarSub (Psi, Psi') (* Psi |- t : Psi' *)
                                                  (* Psi' |- t2 . shift(k) : Psi'' *)
-                val t' = T.comp (t2, t)
-                val m = I.ctxLength Psi'
-                val _ = matchSub (Psi, t1, t');
-                val t'' = (* T.normalizeSub *) t  (* Psi |- t'' : Psi' *)
-                val _ = printLF (T.coerceCtx Psi, T.coerceSub t'', T.coerceCtx Psi') (m-d)
+                let t' = T.comp (t2, t)
+                let m = I.ctxLength Psi'
+                let _ = matchSub (Psi, t1, t');
+                let t'' = (* T.normalizeSub *) t  (* Psi |- t'' : Psi' *)
+                let _ = printLF (T.coerceCtx Psi, T.coerceSub t'', T.coerceCtx Psi') (m-d)
               in
                 topLevel (Psi, m, (P, t''))
               end
-          val V = evalPrg (Psi, (P1, t))
-          val V' = match (Psi, T.Dot (T.Prg V, t), Cs)
+          let V = evalPrg (Psi, (P1, t))
+          let V' = match (Psi, T.Dot (T.Prg V, t), Cs)
         in
           V'
         end
       | topLevel (Psi, d, (T.Let (D,  T.Lam (D' as T.UDec (I.BDec (SOME name, (cid, s))), P1), P2), t)) =
         (* new declaration *)
         let
-          val _ = print ("new " ^ name ^ "\n")
-          val D'' = T.decSub (D', t)
-          val _ = topLevel (I.Decl (Psi, D''), d+1, (P1, T.dot1 t))
+          let _ = print ("new " ^ name ^ "\n")
+          let D'' = T.decSub (D', t)
+          let _ = topLevel (I.Decl (Psi, D''), d+1, (P1, T.dot1 t))
         in
           ()
         end
       | topLevel (Psi, d, (T.Let (D, P1, P2), t)) =
         (* function definition *)
         let
-          val T.PDec (SOME name, F, _, _) = D
-          val V = evalPrg (Psi, (P1, t))
-          val _ = print ("val " ^ name ^ " = " ^ TomegaPrint.prgToString (Psi, V) ^ " :: " ^ TomegaPrint.forToString (Psi, F) ^ "\n")
-          val V' = topLevel (Psi, d+1, (P2, T.Dot (T.Prg V, t)))
+          let T.PDec (SOME name, F, _, _) = D
+          let V = evalPrg (Psi, (P1, t))
+          let _ = print ("let " ^ name ^ " = " ^ TomegaPrint.prgToString (Psi, V) ^ " :: " ^ TomegaPrint.forToString (Psi, F) ^ "\n")
+          let V' = topLevel (Psi, d+1, (P2, T.Dot (T.Prg V, t)))
         in
           V'
         end
 
   (* in -- removed local *)
-    val evalPrg = fn P => evalPrg (I.Null, (P, T.id))
-    val topLevel = fn P => topLevel (I.Null, 0, (P, T.id))
+    let evalPrg = fun P -> evalPrg (I.Null, (P, T.id))
+    let topLevel = fun P -> topLevel (I.Null, 0, (P, T.id))
 
   (* end -- removed local *)
 

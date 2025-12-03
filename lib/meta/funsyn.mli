@@ -1,36 +1,36 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-signature FUNSYN = 
+module type FUNSYN = 
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   (* make abstract *)
   type label = int      
   type lemma = int 
 
-  datatype LabelDec =			(* ContextBody                *)
+  type LabelDec =			(* ContextBody                *)
     LabelDec of string * IntSyn.Dec list * IntSyn.Dec list
 					(* BB ::= l: SOME Theta. Phi  *)
 
-  datatype CtxBlock =                   (* ContextBlocks              *)
+  type CtxBlock =                   (* ContextBlocks              *)
     CtxBlock of 
      label option * IntSyn.dctx		(* B ::= l : Phi              *) 
 
-  datatype LFDec =			(* Contexts                   *)
+  type LFDec =			(* Contexts                   *)
     Prim of IntSyn.Dec			(* LD ::= x :: A              *)
   | Block of CtxBlock			(*      | B                   *)
 
   (* ??? *)
   type lfctx = LFDec IntSyn.Ctx         (* Psi ::= . | Psi, LD        *) 
 
-  datatype For =			(* Formulas                   *)
+  type For =			(* Formulas                   *)
     All of LFDec * For			(* F ::= All LD. F            *)
   | Ex  of IntSyn.Dec * For		(*     | Ex  D. F             *)
   | True				(*     | T                    *)
   | And of For * For                    (*     | F1 ^ F2              *)
 
-  datatype Pro =			(* Programs                   *)
+  type Pro =			(* Programs                   *)
     Lam of LFDec * Pro			(* P ::= lam LD. P            *)
   | Inx of IntSyn.Exp * Pro             (*     | <M, P>               *)
   | Unit				(*     | <>                   *)
@@ -56,7 +56,7 @@ sig
   | Left of int * Decs                  (*      | xx = pi1 yy, Ds     *)
   | Right of int * Decs                 (*      | xx = pi2 yy, Ds     *)
  
-  datatype LemmaDec =			(* Lemmas                     *)
+  type LemmaDec =			(* Lemmas                     *)
     LemmaDec of string list * Pro * For	(* L ::= c:F = P              *)
 
   (* ??? *)

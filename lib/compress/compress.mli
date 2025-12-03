@@ -1,6 +1,6 @@
 (* `Compressed' terms with omitted redundant arguments *)
 
-signature COMPRESS =
+module type COMPRESS =
 sig
   (*  type ConDec*)
 	 

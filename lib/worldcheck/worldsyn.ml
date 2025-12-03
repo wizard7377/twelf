@@ -2,40 +2,40 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor WorldSyn
-  (structure Global : GLOBAL
-   structure Whnf : WHNF
+let recctor WorldSyn
+  (module Global : GLOBAL
+   module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn !*)
-   structure Index : INDEX
+   module Index : INDEX
    (*! sharing Index.IntSyn = IntSyn !*)
-   structure Names : NAMES
+   module Names : NAMES
    (*! sharing Names.IntSyn = IntSyn !*)
-   structure Unify : UNIFY
+   module Unify : UNIFY
    (*! sharing Unify.IntSyn = IntSyn !*)
-   structure Abstract : ABSTRACT
+   module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn !*)
-   structure Constraints : CONSTRAINTS
+   module Constraints : CONSTRAINTS
    (*! sharing Constraints.IntSyn = IntSyn !*)
-   (*! structure CSManager : CS_MANAGER !*)
+   (*! module CSManager : CS_MANAGER !*)
    (*! sharing CSManager.IntSyn = IntSyn !*)
-   structure Subordinate : SUBORDINATE
+   module Subordinate : SUBORDINATE
    (*! sharing Subordinate.IntSyn = IntSyn !*)
-   structure Print : PRINT
+   module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn !*)
 
-   structure Table : TABLE where type key = int
+   module Table : TABLE where type key = int
 
-   (*! structure Paths : PATHS !*)
-   structure Origins : ORIGINS
+   (*! module Paths : PATHS !*)
+   module Origins : ORIGINS
    (*! sharing Origins.Paths = Paths !*)
      (*! sharing Origins.IntSyn = IntSyn !*)
-   structure Timers : TIMERS)
+   module Timers : TIMERS)
    : WORLDSYN =
 struct
-  structure I = IntSyn
-  structure T = Tomega
-  structure P = Paths
-  structure F = Print.Formatter
+  module I = IntSyn
+  module T = Tomega
+  module P = Paths
+  module F = Print.Formatter
 
   exception Error of string
 
@@ -57,7 +57,7 @@ struct
 
 
 
-    val worldsTable : T.Worlds Table.Table = Table.new (0)
+    let worldsTable : T.Worlds Table.Table = Table.new (0)
     fun reset () = Table.clear worldsTable
     fun insert (cid, W) = Table.insert worldsTable (cid, W)
     fun getWorlds (b) =
@@ -70,7 +70,7 @@ struct
        contains the subordinate families b whose worlds
        subsume that of a modulo subordination
     *)
-    val subsumedTable : unit Table.Table = Table.new (0)
+    let subsumedTable : unit Table.Table = Table.new (0)
     fun subsumedReset () = Table.clear subsumedTable
     fun subsumedInsert (cid) = Table.insert subsumedTable (cid, ())
     fun subsumedLookup (cid) =
@@ -83,7 +83,7 @@ struct
        If R = (D1,...,Dn)[s] then G |- s : G' and G' |- D1,...,Dn ctx
        If R = r* then r = 1 or r does not accept the empty world
     *)
-    datatype Reg                        (* Regular world expressions  *)
+    type Reg                        (* Regular world expressions  *)
       = Block of I.dctx * dlist         (* R ::= LD                   *)
       | Seq of dlist * I.Sub            (*     | (D1,...,Dn)[s]       *)
       | Star of Reg                     (*     | R*                   *)
@@ -144,9 +144,9 @@ struct
     fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
       | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
         let
-          val s = createEVarSub (G, G')
-          val V' = I.EClo (V, s)
-          val X = I.newEVar (G, V')
+          let s = createEVarSub (G, G')
+          let V' = I.EClo (V, s)
+          let X = I.newEVar (G, V')
         in
           I.Dot (I.Exp X, s)
         end
@@ -194,13 +194,13 @@ struct
     fun formatDList (G, nil, t) = nil
       | formatDList (G, D :: nil, t) =
         let
-          val D' = I.decSub (D, t)
+          let D' = I.decSub (D, t)
         in
           formatD (G, D') :: nil (* Names.decUName (G, I.decSub(D, t)) *)
         end
       | formatDList (G, D :: L, t) =
         let
-          val D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
+          let D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
         in
           formatD (G, D') :: F.Break
           :: formatDList (I.Decl (G, D'), L, I.dot1 t)
@@ -236,15 +236,15 @@ struct
     (* Tracing *)
     (***********)
 
-    structure Trace :
+    module Trace :
     sig
-      val clause : I.cid -> unit
-      val constraintsRemain : unit -> unit
-      val matchBlock : (I.dctx * dlist) * Reg -> unit
-      val unmatched : I.dctx * dlist -> unit
-      val missing : I.dctx * Reg -> unit
-      val mismatch : I.dctx * I.eclo * I.eclo -> unit
-      val success : unit -> unit
+      let clause : I.cid -> unit
+      let constraintsRemain : unit -> unit
+      let matchBlock : (I.dctx * dlist) * Reg -> unit
+      let unmatched : I.dctx * dlist -> unit
+      let missing : I.dctx * Reg -> unit
+      let mismatch : I.dctx * I.eclo * I.eclo -> unit
+      let success : unit -> unit
     end =
     struct
       fun clause (c) =
@@ -319,10 +319,10 @@ struct
     fun accR (GL, One, b, k) = k GL
       | accR (GL as (G, L), Block (someDecs, piDecs), b, k) =
         let
-          val t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
-          val _ = Trace.matchBlock (GL, Seq (piDecs, t))
+          let t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
+          let _ = Trace.matchBlock (GL, Seq (piDecs, t))
           (* if block matches, check for remaining constraints *)
-          val k' = (fn GL' => if noConstraints (G, t)
+          let k' = (fn GL' => if noConstraints (G, t)
                                 then k GL'
                               else ( Trace.constraintsRemain () ; () ))
         in
@@ -370,7 +370,7 @@ struct
     fun checkSubsumedWorlds (nil, Rb, b) = ()
       | checkSubsumedWorlds (cid::cids, Rb, b) =
         let
-          val (someDecs, piDecs) = I.constBlock cid
+          let (someDecs, piDecs) = I.constBlock cid
         in
           checkSubsumedBlock (Names.ctxName(someDecs), piDecs, Rb, b);
           checkSubsumedWorlds (cids, Rb, b)
@@ -384,15 +384,15 @@ struct
     *)
     fun checkBlocks (T.Worlds cids) (G, V, occ) =
         let
-          val b = I.targetFam V
-          val Wb = getWorlds b handle Error (msg) => raise Error' (occ, msg)
-          val Rb = worldsToReg Wb
-          val _ = if subsumedLookup b
+          let b = I.targetFam V
+          let Wb = getWorlds b handle Error (msg) => raise Error' (occ, msg)
+          let Rb = worldsToReg Wb
+          let _ = if subsumedLookup b
                     then ()
                   else ( checkSubsumedWorlds (cids, Rb, b) ;
                          subsumedInsert (b) )
                        handle Error (msg) => raise Error' (occ, msg)
-          val L = subGoalToDList V
+          let L = subGoalToDList V
         in
           (accR ((G, L), Rb, b, init b);
            raise Error' (occ, F.makestring_fmt (formatSubsump "World violation" (G, L, Rb, b))))
@@ -438,10 +438,10 @@ struct
     *)
     fun worldcheck W a =
         let
-          val _ = if !Global.chatter > 3
+          let _ = if !Global.chatter > 3
                     then print ("World checking family " ^ Names.qidToString (Names.constQid a) ^ ":\n")
                   else ()
-          val _ = subsumedReset ()      (* initialize table of subsumed families *)
+          let _ = subsumedReset ()      (* initialize table of subsumed families *)
           fun checkAll nil = ()
             | checkAll (I.Const(c) :: clist) =
               (if !Global.chatter = 4
@@ -459,8 +459,8 @@ struct
                checkClause (I.Null, I.constType d, W, P.top)
                  handle Error' (occ, msg) => raise Error (wrapMsg (d, occ, msg));
                checkAll clist)
-          val _ = checkAll (Index.lookup a)
-          val _ = if !Global.chatter = 4 then print "\n" else ()
+          let _ = checkAll (Index.lookup a)
+          let _ = if !Global.chatter = 4 then print "\n" else ()
       in
         ()
       end
@@ -512,7 +512,7 @@ struct
     fun checkSubordWorlds (nil) = ()
       | checkSubordWorlds (cid::cids) =
         let
-          val (someDecs, piDecs) = constBlock cid
+          let (someDecs, piDecs) = constBlock cid
         in
           checkSubordBlock (I.Null, someDecs, piDecs) ;
           checkSubordWorlds cids
@@ -560,8 +560,8 @@ struct
     *)
     fun isSubsumed (T.Worlds cids) b =
         let
-          val Wb = getWorlds b
-          val Rb = worldsToReg Wb
+          let Wb = getWorlds b
+          let Rb = worldsToReg Wb
         in
           if subsumedLookup b
             then ()
@@ -570,14 +570,14 @@ struct
         end
 
   in
-    val reset = reset
-    val install = install
-    val lookup = lookup
-    val uninstall = uninstall
-    val worldcheck = worldcheck
-    val ctxToList = ctxToList
-    val isSubsumed = isSubsumed
-    val getWorlds = getWorlds
+    let reset = reset
+    let install = install
+    let lookup = lookup
+    let uninstall = uninstall
+    let worldcheck = worldcheck
+    let ctxToList = ctxToList
+    let isSubsumed = isSubsumed
+    let getWorlds = getWorlds
   end
 
 end;  (* functor WorldSyn *)

@@ -1,12 +1,12 @@
 (* Global parameters *)
 (* Author: Carsten Schuermann *)
 
-structure MetaGlobal : METAGLOBAL =
+module MetaGlobal : METAGLOBAL =
 struct
-  datatype Strategy = RFS | FRS
+  type Strategy = RFS | FRS
 
-  val strategy = ref FRS
-  val maxFill = ref 6
-  val maxSplit = ref 2
-  val maxRecurse = ref 10
-end; (* structure MetaGlobal *)
+  let strategy = ref FRS
+  let maxFill = ref 6
+  let maxSplit = ref 2
+  let maxRecurse = ref 10
+end; (* module MetaGlobal *)

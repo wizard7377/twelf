@@ -1,11 +1,11 @@
 (* Introduce: Version 1.4 *)
 (* Author: Carsten Schuermann *)
 
-signature INTRODUCE = 
+module type INTRODUCE = 
 sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  structure State : STATE
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
+  module State : STATE
 
   exception Error of string
 
@@ -14,6 +14,6 @@ sig
   val expand :  State.Focus -> operator option
   val apply : operator -> unit
   val menu : operator -> string
-end; (* signature INTRODUCE *)
+end; (* module type INTRODUCE *)
 
 

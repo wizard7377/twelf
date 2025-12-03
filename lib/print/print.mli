@@ -2,10 +2,10 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-signature PRINT =
+module type PRINT =
 sig
-  (*! structure IntSyn : INTSYN !*)
-  structure Formatter : FORMATTER
+  (*! module IntSyn : INTSYN !*)
+  module Formatter : FORMATTER
 
   val implicit : bool ref
   val printInfix : bool ref
@@ -38,4 +38,4 @@ sig
 
   val printSgn : unit -> unit
 
-end;  (* signature PRINT *)
+end;  (* module type PRINT *)

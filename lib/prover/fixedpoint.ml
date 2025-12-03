@@ -1,23 +1,23 @@
 (* Fixed Point *)
 (* Author: Carsten Schuermann *)
 
-functor FixedPoint
-  ((*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor FixedPoint
+  ((*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure State' : STATE
+   module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
        ) : FIXEDPOINT  =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
-  structure State = State'
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
+  module State = State'
 
   local
-  structure S = State'
-  structure T = Tomega
-  structure I = IntSyn
+  module S = State'
+  module T = Tomega
+  module I = IntSyn
 
     exception Error = S.Error
     type operator = (T.Prg option ref * T.Prg)
@@ -32,10 +32,10 @@ struct
     *)
     fun expand (S.Focus (T.EVar (Psi, r, F, _, TCs, _), W), O) =
         let
-(*        val D = T.PDec (SOME "IH" , F, SOME O, SOME O) *)
-          val I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE)
-          val D = T.PDec (x, F, NONE, NONE)
-          val X = T.newEVar (I.Decl (Psi, D), T.forSub (F, T.Shift 1))
+(*        let D = T.PDec (SOME "IH" , F, SOME O, SOME O) *)
+          let I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE)
+          let D = T.PDec (x, F, NONE, NONE)
+          let X = T.newEVar (I.Decl (Psi, D), T.forSub (F, T.Shift 1))
         in
           (r, T.Rec (D, X))
         end
@@ -59,8 +59,8 @@ struct
     exception Error = Error
     type operator = operator
 
-    val expand = expand
-    val apply = apply
-    val menu =menu
+    let expand = expand
+    let apply = apply
+    let menu =menu
   end
 end

@@ -4,38 +4,38 @@
 
 (* Proof term reconstruction from proof skeleton *)
 
-functor PtRecon ((*! structure IntSyn' : INTSYN !*)
-                 (*! structure CompSyn' : COMPSYN !*)
+let recctor PtRecon ((*! module IntSyn' : INTSYN !*)
+                 (*! module CompSyn' : COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                    structure Unify : UNIFY
+                    module Unify : UNIFY
                     (*! sharing Unify.IntSyn = IntSyn' !*)
-                    structure Assign : ASSIGN
+                    module Assign : ASSIGN
                     (*! sharing Assign.IntSyn = IntSyn' !*)
-                    (*! structure TableParam : TABLEPARAM !*)
-                    structure MemoTable : MEMOTABLE
+                    (*! module TableParam : TABLEPARAM !*)
+                    module MemoTable : MEMOTABLE
                     (*! sharing MemoTable.TableParam = TableParam !*)
-                    structure Index : INDEX
+                    module Index : INDEX
                     (*! sharing Index.IntSyn = IntSyn' !*)
                     (* CPrint currently unused *)
-                    structure CPrint : CPRINT
+                    module CPrint : CPRINT
                     (*! sharing CPrint.IntSyn = IntSyn' !*)
                     (*! sharing CPrint.CompSyn = CompSyn' !*)
-                    structure Names : NAMES
+                    module Names : NAMES
                     (*! sharing Names.IntSyn = IntSyn' !*)
-                    (*! structure CSManager : CS_MANAGER !*)
+                    (*! module CSManager : CS_MANAGER !*)
                     (*! sharing CSManager.IntSyn = IntSyn' !*)
                         )
   : PTRECON =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure CompSyn = CompSyn' !*)
-  (*! structure TableParam = TableParam !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module CompSyn = CompSyn' !*)
+  (*! module TableParam = TableParam !*)
 
   local
-    structure I = IntSyn
-    structure C = CompSyn
-    structure MT = MemoTable
+    module I = IntSyn
+    module C = CompSyn
+    module MT = MemoTable
   in
 
     exception Error of string
@@ -86,14 +86,14 @@ struct
     matchAtom (O, (p,s), dp, sc)
     | solve' (O, (C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' = I.Dec(NONE, I.EClo(A,s))
+        let D' = I.Dec(NONE, I.EClo(A,s))
       in
          if (!TableParam.strengthen)
            then
              (case MT.memberCtx ((G,I.EClo(A,s)), G) of
                 SOME(D) =>
                   let
-                     val X = I.newEVar(G, I.EClo(A, s))
+                     let X = I.newEVar(G, I.EClo(A, s))
                    in
                      (* need to reuse label for this assumption .... *)
                      solve' (O, (g, I.Dot(I.Exp(X),s)), C.DProg (G, dPool), (fn (O,M) => sc (O, I.Lam(D',M))))
@@ -108,8 +108,8 @@ struct
       end
     | solve' (O, (C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' = Names.decLUName (G, I.decSub (D, s))
-        (* val D' = I.decSub (D, s) *)
+        let D' = Names.decLUName (G, I.decSub (D, s))
+        (* let D' = I.decSub (D, s) *)
       in
         solve' (O, (g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl(dPool, C.Parameter)),
                (fn (O, M) => sc (O, (I.Lam (D', M)))))
@@ -131,7 +131,7 @@ struct
   and rSolve (O, ps', (C.Eq(Q), s), C.DProg (G, dPool), sc) =
       if Unify.unifiable (G, (Q, s), ps') (* effect: instantiate EVars *)
         then sc (O, I.Nil)                (* call success continuation *)
-      else (let val _ = (print "Unification Failed -- SHOULD NEVER HAPPEN!\n";
+      else (let let _ = (print "Unification Failed -- SHOULD NEVER HAPPEN!\n";
                          print (Print.expToString (G, I.EClo(ps')) ^ " unify ");
                          print (Print.expToString (G, I.EClo(Q, s)) ^ "\n"))
             in
@@ -150,7 +150,7 @@ struct
     | rSolve (O, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
       let
         (* is this EVar redundant? -fp *)
-        val X = I.newEVar (G, I.EClo(A, s))
+        let X = I.newEVar (G, I.EClo(A, s))
       in
         rSolve (O, ps', (r, I.Dot(I.Exp(X), s)), dp,
                 (fn (O, S) => solve' (O, (g, s), dp,
@@ -158,7 +158,7 @@ struct
       end
     | rSolve (O, ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
       let
-        val X = I.newEVar (G, I.EClo (A,s))
+        let X = I.newEVar (G, I.EClo (A,s))
       in
         rSolve (O, ps', (r, I.Dot(I.Exp(X), s)), dp,
                 (fn (O,S) => sc (O, (I.App(X,S)))))
@@ -166,7 +166,7 @@ struct
 
     | rSolve (O, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
       let
-        val X' = I.newAVar ()
+        let X' = I.newAVar ()
       in
         rSolve (O, ps', (r, I.Dot(I.Exp(I.EClo(X', I.Shift(~d))), s)), dp, sc)
         (* we don't increase the proof term here! *)
@@ -185,8 +185,8 @@ struct
        Assign.solveCnstr cnstr
     | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr) =
       let
-        val (G'') = compose'(G', G)
-        val s' = shift (G', s)
+        let (G'') = compose'(G', G)
+        let s' = shift (G', s)
       in
          Assign.unifiable (G'', (N, s'), (e1, s')) andalso
               aSolve ((eqns, s), dp, cnstr)
@@ -204,7 +204,7 @@ struct
               any effect  sc M  might have
 
      This first tries the local assumptions in dp then
-     the static signature.
+     the static module type.
   *)
   and matchAtom ((Ho::O), ps' as (I.Root(Ha,S),s), dp as C.DProg (G,dPool), sc) =
       let
@@ -218,7 +218,7 @@ struct
           | matchSig (((Hc as (I.Const c))::sgn'), k) =
             if c = k then
               let
-                val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+                let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
               in
                 rSolve (O, ps', (r, I.id), dp,
                         (fn (O,S) => sc (O, (I.Root(Hc, S)))))
@@ -228,7 +228,7 @@ struct
           | matchSig (((Hc as (I.Def d))::sgn'), k) =
             if d = k then
               let
-                val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+                let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
               in
                 rSolve (O, ps', (r, I.id), dp,
                         (fn (O,S) => sc (O, (I.Root(Hc, S)))))

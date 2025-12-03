@@ -1,11 +1,11 @@
 (* Paths, Occurrences, and Error Locations *)
 (* Author: Frank Pfenning *)
 
-signature PATHS =
+module type PATHS =
 sig
 
-  datatype region = Reg of int * int	(* r ::= (i,j) is interval [i,j) *)
-  datatype location = Loc of string * region (* loc ::= (filename, region) *)
+  type region = Reg of int * int	(* r ::= (i,j) is interval [i,j) *)
+  type location = Loc of string * region (* loc ::= (filename, region) *)
 
   (* line numbering, used when printing regions *)
   type linesInfo			(* mapping from character positions to lines in a file *)
@@ -24,12 +24,11 @@ sig
   (* In the general case, regions only approximate true source location *)
 
   (* Follow path through a term to obtain subterm *)
-  datatype Path =
-     Label of Path			(* [x:#] U or {x:#} V *)
-   | Body of Path			(* [x:V] # or {x:V} # *)
-   | Head				(* # @ S, term in normal form *)
-   | Arg of int * Path			(* H @ S1; ...; #; ...; Sn; Nil *)
-   | Here				(* #, covers Uni, EVar, Redex(?) *)
+  type path = Label of path			(* [x:#] U or {x:#} V *)
+      | Body of path			(* [x:V] # or {x:V} # *)
+      | Head				(* # @ S, term in normal form *)
+      | Arg of int * path			(* H @ S1; ...; #; ...; Sn; Nil *)
+      | Here				(* #, covers Uni, EVar, Redex(?) *)
 
   (*
      Construct an occurrence when traversing a term.
@@ -46,7 +45,7 @@ sig
   val arg : int * occ -> occ
 
   (*
-     An occurrence tree is a data structure mapping occurrences in a term
+     An occurrence tree is a data module mapping occurrences in a term
      to regions in an input stream.  Occurrence trees are constructed during parsing.
   *)
   type occExp				(* occurrence tree for u expressions *)
@@ -66,7 +65,7 @@ sig
   val toRegion : occExp -> region
   val toRegionSpine : occSpine * region -> region
 
-  val posToPath : occExp -> int -> Path
+  val posToPath : occExp -> int -> path
 
   val occToRegionExp : occExp -> occ -> region
   val occToRegionDec : occConDec -> occ -> region (* into v for c : V *)
@@ -74,4 +73,4 @@ sig
   val occToRegionDef2 : occConDec -> occ -> region (* into v for c : V = U *)
   val occToRegionClause : occConDec -> occ -> region (* into v for c : V ... *)
 
-end;  (* signature PATHS *)
+end  (* module type PATHS *)

@@ -45,7 +45,7 @@
       | exp_to_layout sgn (Root(H,Nil)) = head_to_layout sgn H
       | exp_to_layout sgn (Root(H,S)) = &[head_to_layout sgn H,$" ^ ",maybe_sparen S (spine_to_layout sgn S)]
 
-    datatype subelem = SubShift of int | SubExp of exp
+    type subelem = SubShift of int | SubExp of exp
 
     fun sub_to_list (sub as Shift n) = [SubShift n]
       | sub_to_list (Dot(M,sub)) = SubExp M::sub_to_list sub
@@ -53,10 +53,10 @@
 
     fun sub_to_layout sgn sub = 
         let
-          val sub' = sub_to_list sub 
+          let sub' = sub_to_list sub 
           fun mapfn (SubShift n) = $("^" ^ Int.toString n)
             | mapfn (SubExp exp) = exp_to_layout sgn exp
-          val sub'' = map mapfn sub'
+          let sub'' = map mapfn sub'
         in
           Layout.list sub''
         end        

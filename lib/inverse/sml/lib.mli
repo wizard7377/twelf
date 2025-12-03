@@ -2,7 +2,7 @@
  A library of useful functions for everyday programming.
 *) 
 
-signature LIB = 
+module type LIB = 
 sig
 
   (** Nice for postponing an implementation. *) 

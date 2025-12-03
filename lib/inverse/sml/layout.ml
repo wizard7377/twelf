@@ -4,17 +4,17 @@
  * MLton is released under the GNU General Public License (GPL).
  * Please see the file MLton-LICENSE for license information.
  *)
-structure Layout :> LAYOUT =
+module Layout :> LAYOUT =
 struct
 
-(*    structure Out = Outstream0   *)
+(*    module Out = Outstream0   *)
 
-    val detailed = ref false
+    let detailed = ref false
         
     fun switch {detailed = d,normal = n} x =
         if !detailed then d x else n x
            
-    datatype t = T of {length: int,
+    type t = T of {length: int,
                        tree: tree}
     and tree =
         Empty
@@ -27,7 +27,7 @@ struct
 
     fun length (T {length, ...}) = length
         
-    val empty = T {length = 0, tree = Empty}
+    let empty = T {length = 0, tree = Empty}
         
     fun isEmpty (T {length = 0, ...}) = true
       | isEmpty _ = false
@@ -40,7 +40,7 @@ struct
     fun fold (l, b, f) = foldl f b l
         
     fun seq ts =
-        let val len = fold (ts, 0, fn (t,n) => n + length t)
+        let let len = fold (ts, 0, fn (t,n) => n + length t)
         in case len of
             0 => empty
           | _ => T {length = len, tree = Sequence ts}
@@ -67,24 +67,24 @@ struct
                     case ts of
                         [] => (ts, 0)
                       | t :: ts =>
-                            let val (ts, n) = loop ts
+                            let let (ts, n) = loop ts
                             in case length t of
                                 0 => (ts, n)
                               | n' => (t :: ts, n + n' + 1)
                             end
-                val (ts, len) = loop ts
+                let (ts, len) = loop ts
             in case len of
                 0 => empty
               | _ => T {length = len - 1, tree = Align {force = force, rows = ts}}
             end
     in
-        val align = make true
-        val mayAlign = make false
+        let align = make true
+        let mayAlign = make false
     end
 
     fun indent (t, n) = T {length = length t, tree = Indent (t, n)}
         
-    val tabSize: int = 8
+    let tabSize: int = 8
         
     fun K x _ = x
 
@@ -94,7 +94,7 @@ struct
         
 (*
     fun outputTree (t, out) =
-        let val print = Out.outputc out
+        let let print = Out.outputc out
             fun loop (T {tree, length}) =
                 (print "(length "
                  ; print (Int.toString length)
@@ -111,7 +111,7 @@ struct
                                           ; print ")")))
             and loops (s, ts) = (print "("
                                  ; print s
-                                 ; app (fn t => (print " " ; loop t)) ts
+                                 ; app (fun t -> (print " " ; loop t)) ts
                                  ; print ")")
         in loop t
         end
@@ -142,7 +142,7 @@ struct
                print: string -> unit,
                lineWidth: int} =
         let
-            (*val _ = outputTree (t, out)*)
+            (*let _ = outputTree (t, out)*)
             fun newline () = print "\n"
                 
             fun outputCompact (t, {at, printAt}) =
@@ -157,8 +157,8 @@ struct
                                 case rows of
                                     [] => ()
                                   | t :: ts => (loop t
-                                                ; app (fn t => (print " "; loop t)) ts)
-                    val at = at + length t
+                                                ; app (fun t -> (print " "; loop t)) ts)
+                    let at = at + length t
                 in loop t
                     ; {at = at, printAt = at}
                 end
@@ -181,7 +181,7 @@ struct
                       | String s =>
                             (prePrint ()
                              ; print s
-                             ; let val at = printAt + length
+                             ; let let at = printAt + length
                                in {at = at, printAt = at}
                                end)
                       | Align {force, rows} =>
@@ -200,11 +200,11 @@ struct
             ; ()
         end
 
-    val defaultWidth: int = 80
+    let defaultWidth: int = 80
 
     fun tostringex wid l =
         let
-            val acc = ref nil : string list ref
+            let acc = ref nil : string list ref
 
             fun pr s = acc := s :: !acc
         in
@@ -213,7 +213,7 @@ struct
             String.concat(rev (!acc))
         end
 
-    val tostring = tostringex defaultWidth
+    let tostring = tostringex defaultWidth
 
 (*
     fun outputWidth (t, width, out) =
@@ -222,7 +222,7 @@ struct
                print = Out.outputc out}
 *)
 (*        fun output (t, out) = outputWidth (t, defaultWidth, out) *)
-        val print =
+        let print =
             fn (t, p) => layout_print {tree = t, lineWidth = defaultWidth, print = p}
 
 (*
@@ -236,7 +236,7 @@ struct
     fun separate (ts, s) =
         case ts of
             [] => []
-          | t :: ts => t :: (let val s = str s
+          | t :: ts => t :: (let let s = str s
                                  fun loop [] = []
                                    | loop (t :: ts) = s :: t:: (loop ts)
                              in loop ts
@@ -246,31 +246,31 @@ struct
         case ts of
             [] => []
           | [t] => ts
-          | t :: ts => t :: (map (fn t => seq [str s, t]) ts)
+          | t :: ts => t :: (map (fun t -> seq [str s, t]) ts)
                 
     fun separateRight (ts, s) =
-        rev (let val ts = rev ts
+        rev (let let ts = rev ts
              in case ts of
                  [] => []
                | [t] => ts
-               | t :: ts => t :: (map (fn t => seq [t, str s]) ts)
+               | t :: ts => t :: (map (fun t -> seq [t, str s]) ts)
              end)
         
     fun alignPrefix (ts, prefix) =
         case ts of
             [] => empty
           | t :: ts =>
-                mayAlign [t, indent (mayAlign (map (fn t => seq [str prefix, t]) ts),
+                mayAlign [t, indent (mayAlign (map (fun t -> seq [str prefix, t]) ts),
                                      ~ (String.size prefix))]
                 
     local
         fun sequence (start, finish, sep) ts =
             seq [str start, mayAlign (separateRight (ts, sep)), str finish]
     in
-        val list = sequence ("[", "]", ",")
+        let list = sequence ("[", "]", ",")
         fun listex start finish sep = sequence (start, finish, sep)
-        val schemeList = sequence ("(", ")", " ")
-        val tuple = sequence ("(", ")", ",")
+        let schemeList = sequence ("(", ")", " ")
+        let tuple = sequence ("(", ")", ",")
         fun record fts =
             sequence ("{", "}", ",")
             (map (fn (f, t) => seq [str (f ^ " = "), t]) fts)
@@ -295,6 +295,6 @@ struct
     fun tuple5 (l1, l2, l3, l4, l5) (x1, x2, x3, x4, x5) =
         tuple [l1 x1, l2 x2, l3 x3, l4 x4, l5 x5]
 
-    val indent = fn x => fn y => indent(y, x)
+    let indent = fun x -> fun y -> indent(y, x)
 
 end

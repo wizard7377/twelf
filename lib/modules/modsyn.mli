@@ -1,12 +1,12 @@
 (* Syntax for elaborated modules *)
 (* Author: Kevin Watkins *)
 
-signature MODSYN =
+module type MODSYN =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
-  structure Names : NAMES
-  (*! structure Paths : PATHS !*)
+  (*! module IntSyn : INTSYN !*)
+  module Names : NAMES
+  (*! module Paths : PATHS !*)
 
   exception Error of string
 
@@ -31,7 +31,7 @@ sig
 			  (* Names.namespace -> transform *)
 			  -> module
 
-  (* Extract some entries of the current global signature table in order
+  (* Extract some entries of the current global module type table in order
      to create a self-contained module.
   *)
   val abstractModule : Names.namespace * IntSyn.mid option -> module

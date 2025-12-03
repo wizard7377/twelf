@@ -1,32 +1,32 @@
 (* Termination Order *)
 (* Author: Carsten Schuermann *)
 
-signature ORDER =
+module type ORDER =
 sig
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
   exception Error of string
 
-  datatype 'a Order =	       	        (* Orders                     *)
+  type 'a Order =	       	        (* Orders                     *)
       Arg of 'a				(* O ::= x                    *)
     | Lex of 'a Order list              (*     | {O1 .. On}           *)
     | Simul of 'a Order list            (*     | [O1 .. On]           *)
 
-  datatype Predicate =                  (* Reduction Order            *)
+  type Predicate =                  (* Reduction Order            *)
       Less of int Order * int Order     (* O < O'                     *)
     | Leq of int Order * int Order      (* O <= O'                    *)
     | Eq of int Order * int Order       (* O = O'                     *)
 
-  datatype Mutual =			(* Termination ordering       *)
+  type Mutual =			(* Termination ordering       *)
       Empty				(* O ::= No order specified   *)
     | LE of IntSyn.cid * Mutual		(*     | mutual dependencies  *)
     | LT of IntSyn.cid * Mutual		(*     | lex order for  -     *)
 
-  datatype TDec =			(* Termination declaration *)
+  type TDec =			(* Termination declaration *)
       TDec of int Order * Mutual
 
-  datatype RDec =			(* Reduction declaration      *)
+  type RDec =			(* Reduction declaration      *)
       RDec of Predicate * Mutual
 
   val reset : unit -> unit
@@ -43,4 +43,4 @@ sig
   val mutLookup : IntSyn.cid -> Mutual
   val closure : IntSyn.cid -> IntSyn.cid list
 
-end;  (* signature ORDER *)
+end;  (* module type ORDER *)

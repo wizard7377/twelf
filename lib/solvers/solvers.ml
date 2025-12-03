@@ -1,89 +1,89 @@
 (* now in cs-manager.fun *)
 (*
-structure CSManager = CSManager (structure Global = Global
-                                 (*! structure IntSyn = IntSyn !*)
-                                 structure Unify = UnifyTrail
-                                 structure Fixity = Names.Fixity
-                                 structure ModeSyn = ModeSyn);
+module CSManager = CSManager (module Global = Global
+                                 (*! module IntSyn = IntSyn !*)
+                                 module Unify = UnifyTrail
+                                 module Fixity = Names.Fixity
+                                 module ModeSyn = ModeSyn);
 *)
 
-structure CSEqQ = CSEqField (structure Field = Rationals
-                             (*! structure IntSyn = IntSyn !*)
-                             structure Whnf = Whnf
-                             structure Unify = UnifyTrail
-                             (*! structure CSManager = CSManager !*)
+module CSEqQ = CSEqField (module Field = Rationals
+                             (*! module IntSyn = IntSyn !*)
+                             module Whnf = Whnf
+                             module Unify = UnifyTrail
+                             (*! module CSManager = CSManager !*)
 			       );
 
-structure CSIneqQ = CSIneqField (structure OrderedField = Rationals
-				 (*! structure IntSyn = IntSyn !*)
-                                  structure Trail = Trail
-                                  structure Unify = UnifyTrail
-                                  structure SparseArray = SparseArray
-                                  structure SparseArray2 = SparseArray2
-				  (*! structure CSManager = CSManager !*)
-                                  structure CSEqField = CSEqQ
-				  structure Compat = Compat);
+module CSIneqQ = CSIneqField (module OrderedField = Rationals
+				 (*! module IntSyn = IntSyn !*)
+                                  module Trail = Trail
+                                  module Unify = UnifyTrail
+                                  module SparseArray = SparseArray
+                                  module SparseArray2 = SparseArray2
+				  (*! module CSManager = CSManager !*)
+                                  module CSEqField = CSEqQ
+				  module Compat = Compat);
 
-structure CSEqStrings = CSEqStrings ((*! structure IntSyn = IntSyn !*)
-                                     structure Whnf = Whnf
-                                     structure Unify = UnifyTrail
-                                     (*! structure CSManager = CSManager !*)
+module CSEqStrings = CSEqStrings ((*! module IntSyn = IntSyn !*)
+                                     module Whnf = Whnf
+                                     module Unify = UnifyTrail
+                                     (*! module CSManager = CSManager !*)
 				       );
 
-structure CSEqBools = CSEqBools ((*! structure IntSyn = IntSyn !*)
-                                 structure Whnf = Whnf
-                                 structure Unify = UnifyTrail
-                                 (*! structure CSManager = CSManager !*)
+module CSEqBools = CSEqBools ((*! module IntSyn = IntSyn !*)
+                                 module Whnf = Whnf
+                                 module Unify = UnifyTrail
+                                 (*! module CSManager = CSManager !*)
 				   );
 
-structure CSEqZ = CSEqIntegers (structure Integers = Integers
-                                (*! structure IntSyn = IntSyn !*)
-                                structure Whnf = Whnf
-                                structure Unify = UnifyTrail
-                                (*! structure CSManager = CSManager !*)
+module CSEqZ = CSEqIntegers (module Integers = Integers
+                                (*! module IntSyn = IntSyn !*)
+                                module Whnf = Whnf
+                                module Unify = UnifyTrail
+                                (*! module CSManager = CSManager !*)
 				  );
 
-structure CSIneqZ = CSIneqIntegers (structure Integers = Integers
-                                    structure Rationals = Rationals
-                                    (*! structure IntSyn = IntSyn !*)
-                                    structure Trail = Trail
-                                    structure Unify = UnifyTrail
-                                    structure SparseArray = SparseArray
-                                    structure SparseArray2 = SparseArray2
-                                    (*! structure CSManager = CSManager !*)
-                                    structure CSEqIntegers = CSEqZ
-				    structure Compat = Compat);
+module CSIneqZ = CSIneqIntegers (module Integers = Integers
+                                    module Rationals = Rationals
+                                    (*! module IntSyn = IntSyn !*)
+                                    module Trail = Trail
+                                    module Unify = UnifyTrail
+                                    module SparseArray = SparseArray
+                                    module SparseArray2 = SparseArray2
+                                    (*! module CSManager = CSManager !*)
+                                    module CSEqIntegers = CSEqZ
+				    module Compat = Compat);
 
-structure CSIntWord32 = CSIntWord ((*! structure IntSyn = IntSyn !*)
-                                   structure Whnf = Whnf
-                                   structure Unify = UnifyTrail
-                                   (*! structure CSManager = CSManager !*)
-				   val wordSize = 32);
+module CSIntWord32 = CSIntWord ((*! module IntSyn = IntSyn !*)
+                                   module Whnf = Whnf
+                                   module Unify = UnifyTrail
+                                   (*! module CSManager = CSManager !*)
+				   let wordSize = 32);
 
-signature CS_INSTALLER =
+module type CS_INSTALLER =
 sig
-  val version : string
+  let version : string
 end; 
 
 (* execute for effect *)
-(* wrapped in structure so it can be tracked by CM *)
-structure CSInstaller : CS_INSTALLER =
+(* wrapped in module so it can be tracked by CM *)
+module CSInstaller : CS_INSTALLER =
 struct
-  val solvers = [CSEqQ.solver, CSIneqQ.solver,
+  let solvers = [CSEqQ.solver, CSIneqQ.solver,
 		 CSEqStrings.solver,
 		 CSEqBools.solver,
 		 CSEqZ.solver, CSIneqZ.solver,
 		 CSIntWord32.solver]
-  val _ = List.app (fn s => (CSManager.installSolver s; ())) solvers
-  val version = List.foldr (fn (s, str) => #name s ^ "\n" ^ str) "" solvers
+  let _ = List.app (fun s -> (CSManager.installSolver s; ())) solvers
+  let version = List.foldr (fn (s, str) => #name s ^ "\n" ^ str) "" solvers
   (*
-  val _ = CSManager.installSolver (CSEqQ.solver)
-  val _ = CSManager.installSolver (CSIneqQ.solver)
-  val _ = CSManager.installSolver (CSEqStrings.solver)
-  val _ = CSManager.installSolver (CSEqBools.solver)
-  val _ = CSManager.installSolver (CSEqZ.solver)
-  val _ = CSManager.installSolver (CSIneqZ.solver)
-  val _ = CSManager.installSolver (CSIntWord32.solver)
-  val version = "12/19/2002"
+  let _ = CSManager.installSolver (CSEqQ.solver)
+  let _ = CSManager.installSolver (CSIneqQ.solver)
+  let _ = CSManager.installSolver (CSEqStrings.solver)
+  let _ = CSManager.installSolver (CSEqBools.solver)
+  let _ = CSManager.installSolver (CSEqZ.solver)
+  let _ = CSManager.installSolver (CSIneqZ.solver)
+  let _ = CSManager.installSolver (CSIntWord32.solver)
+  let version = "12/19/2002"
   *)
 end;

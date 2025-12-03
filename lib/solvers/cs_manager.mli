@@ -1,13 +1,13 @@
 (* Constraint Solver Manager *)
 (* Author: Roberto Virga *)
 
-signature CS_MANAGER =
+module type CS_MANAGER =
 sig
-  (* structure IntSyn : INTSYN *)
-  structure Fixity  : FIXITY
-  (*! structure ModeSyn : MODESYN !*)
+  (* module IntSyn : INTSYN *)
+  module Fixity  : FIXITY
+  (*! module ModeSyn : MODESYN !*)
 
-  type sigEntry = (* global signature entry *)
+  type sigEntry = (* global module type entry *)
     (* constant declaration plus optional precedence and mode information *)
     IntSyn.ConDec * Fixity.fixity option * ModeSyn.ModeSpine list
 
@@ -52,4 +52,4 @@ sig
   val reset : unit -> unit
   val trail  : (unit -> 'a) -> 'a
 
-end  (* signature CS_MANAGER *)
+end  (* module type CS_MANAGER *)

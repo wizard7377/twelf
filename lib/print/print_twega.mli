@@ -1,10 +1,10 @@
 (* Printing Signatures *)
 (* Author: Frank Pfenning *)
 
-signature PRINT_TWEGA =
+module type PRINT_TWEGA =
 sig
 
   val printSgn : unit -> unit
   val printSgnToFile : string -> unit
 
-end;  (* signature PRINT_TWEGA *)
+end;  (* module type PRINT_TWEGA *)

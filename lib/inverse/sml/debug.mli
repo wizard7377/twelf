@@ -1,5 +1,5 @@
 
-signature DEBUG =
+module type DEBUG =
 sig
 
   exception Assert of exn

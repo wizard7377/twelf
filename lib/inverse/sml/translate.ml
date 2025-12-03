@@ -1,13 +1,13 @@
 
-structure Translate :> TRANSLATE =
+module Translate :> TRANSLATE =
 struct 
 
-  structure L = Lib
-  structure I = IntSyn
-  structure S = Syntax
-  structure Sig = S.Signat
-  structure C = ClausePrint
-  structure D = Debug
+  module L = Lib
+  module I = IntSyn
+  module S = Syntax
+  module Sig = S.Signat
+  module C = ClausePrint
+  module D = Debug
 
   (* -------------------------------------------------------------------------- *)
   (*  Exceptions                                                                *)
@@ -80,10 +80,10 @@ struct
 
   fun translate_signat'() = 
       let
-        val n = L.fst (IntSyn.sgnSize()) 
-        val ns = L.upto(0,n-1)
-        val cds = map IntSyn.sgnLookup ns
-        val cds' = L.filter (fn (id,dec) => can_translate dec) (L.zip ns cds)
+        let n = L.fst (IntSyn.sgnSize()) 
+        let ns = L.upto(0,n-1)
+        let cds = map IntSyn.sgnLookup ns
+        let cds' = L.filter (fn (id,dec) => can_translate dec) (L.zip ns cds)
       in
         map (fn (dec as (c,e)) => (c,translate_condec dec)) cds'
       end

@@ -1,7 +1,7 @@
 (* Abstraction *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-signature ABSTRACT =
+module type ABSTRACT =
 sig
   exception Error of string
 
@@ -28,4 +28,4 @@ sig
   val raiseTerm    : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp
   val raiseType    : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp
 
-end;  (* signature ABSTRACT *)
+end;  (* module type ABSTRACT *)

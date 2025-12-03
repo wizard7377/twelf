@@ -1,29 +1,29 @@
 (* Coverage checker for programs *)
 (* Author: Carsten Schuermann *)
 
-functor TomegaCoverage
-  ((*! structure IntSyn' : INTSYN !*)
-   (*! structure Tomega' : TOMEGA !*)
+let recctor TomegaCoverage
+  ((*! module IntSyn' : INTSYN !*)
+   (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   structure TomegaPrint : TOMEGAPRINT
+   module TomegaPrint : TOMEGAPRINT
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
-   structure TomegaTypeCheck : TOMEGATYPECHECK
+   module TomegaTypeCheck : TOMEGATYPECHECK
    (*! sharing TomegaTypeCheck.IntSyn = IntSyn' !*)
    (*! sharing TomegaTypeCheck.Tomega = Tomega' !*)
-   structure Cover : COVER
+   module Cover : COVER
    (*! sharing Cover.IntSyn = IntSyn' !*)
    (*! sharing Cover.Tomega = Tomega' !*)
      ) : TOMEGACOVERAGE =
 struct
-  (*! structure IntSyn = IntSyn' !*)
-  (*! structure Tomega = Tomega' !*)
+  (*! module IntSyn = IntSyn' !*)
+  (*! module Tomega = Tomega' !*)
 
   exception Error of string
 
   local
-    structure I = IntSyn
-    structure T = Tomega
+    module I = IntSyn
+    module T = Tomega
 
 
     (* chatter chlev f = ()
@@ -78,19 +78,19 @@ struct
     fun purifyCtx (t as T.Shift k, Psi) =  (t, Psi, T.id)
       | purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, T.All _, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          let (t', Psi', s') = purifyCtx (t, Psi)
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
       | purifyCtx (T.Dot (T.Prg (T.Var _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          let (t', Psi', s') = purifyCtx (t, Psi)
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
       | purifyCtx (T.Dot (T.Prg (T.Const _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          let (t', Psi', s') = purifyCtx (t, Psi)
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
@@ -99,20 +99,20 @@ struct
                                            don't have to be checked.
                                          --cs Fri Jan  3 11:35:09 2003 *)
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          let (t', Psi', s') = purifyCtx (t, Psi)
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
       | purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, F, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
-          val (t'', Psi'', s'') = purifyFor ((P, t'), (Psi', T.forSub (F, s')), s')
+          let (t', Psi', s') = purifyCtx (t, Psi)
+          let (t'', Psi'', s'') = purifyFor ((P, t'), (Psi', T.forSub (F, s')), s')
         in
           (t'', Psi'', T.Dot (T.Undef, s''))
         end
       | purifyCtx (T.Dot (F, t), I.Decl (Psi, T.UDec D)) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          let (t', Psi', s') = purifyCtx (t, Psi)
         in
           (T.Dot (F, t'), I.Decl (Psi', T.UDec (I.decSub (D, T.coerceSub s'))), T.dot1 s')
         end
@@ -120,8 +120,8 @@ struct
 
     fun purify (Psi0, t, Psi) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
-          val _ = TomegaTypeCheck.checkSub (Psi0, t', Psi')
+          let (t', Psi', s') = purifyCtx (t, Psi)
+          let _ = TomegaTypeCheck.checkSub (Psi0, t', Psi')
         in
           (Psi0, t', Psi')
         end
@@ -169,9 +169,9 @@ struct
     and coverageCheckCases (W, Psi, nil, nil) = ()
       | coverageCheckCases (W, Psi, nil, Cs) =
         let
-          val _ = chatter 5 (fn  () => Int.toString (List.length Cs) ^ " cases to be checked\n")
-          val (Cs' as (_, _, Psi') :: _) = map purify Cs
-          val Cs'' = map (fn (Psi0, t, _) => (T.coerceCtx Psi0, T.coerceSub t)) Cs'
+          let _ = chatter 5 (fn  () => Int.toString (List.length Cs) ^ " cases to be checked\n")
+          let (Cs' as (_, _, Psi') :: _) = map purify Cs
+          let Cs'' = map (fn (Psi0, t, _) => (T.coerceCtx Psi0, T.coerceSub t)) Cs'
         in
           Cover.coverageCheckCases (W, Cs'', T.coerceCtx Psi')
         end
@@ -180,6 +180,6 @@ struct
            coverageCheckCases (W, Psi, Omega,
                                (Psi', t, Psi) :: Cs))
   in
-    val coverageCheckPrg = coverageCheckPrg
+    let coverageCheckPrg = coverageCheckPrg
   end
 end

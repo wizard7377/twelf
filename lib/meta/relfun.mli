@@ -2,9 +2,9 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-signature RELFUN = 
+module type RELFUN = 
 sig
-  (*! structure FunSyn : FUNSYN !*)
+  (*! module FunSyn : FUNSYN !*)
 
   exception Error of string
 

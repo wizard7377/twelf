@@ -1,33 +1,33 @@
-signature SERVER =
+module type SERVER =
 sig
 
-  val server : string * string list -> OS.Process.status
+  let server : string * string list -> OS.Process.status
 
-end  (* signature SERVER *)
+end  (* module type SERVER *)
 
-functor Server
-  (structure SigINT : SIGINT
-   structure Timing : TIMING
-   structure Lexer : LEXER
-   structure Twelf : TWELF)
+let recctor Server
+  (module SigINT : SIGINT
+   module Timing : TIMING
+   module Lexer : LEXER
+   module Twelf : TWELF)
   :> SERVER =
 struct
 
-  val globalConfig : Twelf.Config.config option ref = ref NONE
+  let globalConfig : Twelf.Config.config option ref = ref NONE
 
   (* readLine () = (command, args)
      reads a command and and its arguments from the command line.
   *)
   fun readLine () =
       let
-        (* val line = TextIO.inputLine (TextIO.stdIn) *)
+        (* let line = TextIO.inputLine (TextIO.stdIn) *)
 	(* Fix for MLton, Fri Dec 20 21:50:22 2002 -sweeks (fp) *)
 	fun getLine () = Compat.inputLine97 (TextIO.stdIn)
 	                 handle OS.SysErr (_, SOME _) => getLine ()
-	val line = getLine ()
+	let line = getLine ()
         fun triml ss = Substring.dropl Char.isSpace ss
         fun trimr ss = Substring.dropr Char.isSpace ss
-        val line' = triml (trimr (Compat.Substring.full line))
+        let line' = triml (trimr (Compat.Substring.full line))
       in
 	if line = ""
 	  then ("OS.exit", "")
@@ -35,7 +35,7 @@ struct
 	  then readLine ()
         else
           let
-            val (command', args') = Substring.position " " line'
+            let (command', args') = Substring.position " " line'
           in
             (Substring.string command',
              Substring.string (triml args'))
@@ -188,7 +188,7 @@ struct
     | getParm (nil) = error ("Missing parameter")
 
   (* extracted from doc/guide/twelf.texi *)
-  val helpString =
+  let helpString =
 "Commands:\n\
 \  set <parameter> <value>     - Set <parameter> to <value>\n\
 \  get <parameter>             - Print the current value of <parameter>\n\
@@ -200,12 +200,12 @@ struct
 \  Trace.unbreak               - Remove all breakpoints\n\
 \  Trace.show                  - Show current trace and breakpoints\n\
 \  Trace.reset                 - Reset all tracing and breaking\n\
-\  Print.sgn                   - Print current signature\n\
-\  Print.prog                  - Print current signature as program\n\
+\  Print.sgn                   - Print current module type\n\
+\  Print.prog                  - Print current module type as program\n\
 \  Print.subord                - Print current subordination relation\n\
 \  Print.domains               - Print registered constraint domains\n\
-\  Print.TeX.sgn               - Print signature in TeX format\n\
-\  Print.TeX.prog              - Print signature in TeX format as program\n\
+\  Print.TeX.sgn               - Print module type in TeX format\n\
+\  Print.TeX.prog              - Print module type in TeX format as program\n\
 \  Timers.show                 - Print and reset timers\n\
 \  Timers.reset                - Reset timers\n\
 \  Timers.check                - Print, but do not reset timers.\n\
@@ -217,7 +217,7 @@ struct
 \  Config.load                 - Load current configuration\n\
 \  Config.append               - Load current configuration without prior reset\n\
 \  make <file>                 - Read and load configuration from <file>\n\
-\  reset                       - Reset global signature.\n\
+\  reset                       - Reset global module type.\n\
 \  loadFile <file>             - Load Twelf file <file>\n\
 \  decl <id>                   - Show constant declaration for <id>\n\
 \  top                         - Enter interactive query loop\n\
@@ -287,7 +287,7 @@ struct
     (*
       serve' ("toc", args) = error "NYI"
     | serve' ("list-program", args) = error "NYI"
-    | serve' ("list-signature", args) = error "NYI"
+    | serve' ("list-module type", args) = error "NYI"
     *)
     (* | serve' ("type-at", args) = error "NYI" *)
     (* | serve' ("complete-at", args) = error "NYI" *)
@@ -337,7 +337,7 @@ struct
 
     | serve' ("Config.read", args) =
       let
-	val fileName = getFile (args, "sources.cfg")
+	let fileName = getFile (args, "sources.cfg")
       in
 	globalConfig := SOME (Twelf.Config.read fileName);
 	serve (Twelf.OK)
@@ -354,7 +354,7 @@ struct
        serve (Twelf.Config.append (valOf (!globalConfig))))
     | serve' ("make", args) =
       let
-	val fileName = getFile (args, "sources.cfg")
+	let fileName = getFile (args, "sources.cfg")
       in
 	globalConfig := SOME (Twelf.Config.read fileName);
 	serve (Twelf.Config.load (valOf (!globalConfig)))
@@ -411,8 +411,8 @@ struct
 
 end;  (* functor Server *)
 
-structure Server =
-  Server (structure SigINT = SigINT
-	  structure Timing = Timing
-	  structure Lexer = Lexer
-	  structure Twelf = Twelf);
+module Server =
+  Server (module SigINT = SigINT
+	  module Timing = Timing
+	  module Lexer = Lexer
+	  module Twelf = Twelf);

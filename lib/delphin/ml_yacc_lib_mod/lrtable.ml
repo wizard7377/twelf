@@ -18,16 +18,16 @@
  * 
  *)
 
-structure LrTable : LR_TABLE = 
+module LrTable : LR_TABLE = 
     struct
 	open Array List
 	infix 9 sub
-	datatype ('a,'b) pairlist = EMPTY
+	type ('a,'b) pairlist = EMPTY
 				  | PAIR of 'a * 'b * ('a,'b) pairlist
-	datatype term = T of int
-	datatype nonterm = NT of int
-	datatype state = STATE of int
-	datatype action = SHIFT of state
+	type term = T of int
+	type nonterm = NT of int
+	type state = STATE of int
+	type action = SHIFT of state
 			| REDUCE of int (* rulenum from grammar *)
 			| ACCEPT
 			| ERROR
@@ -35,12 +35,12 @@ structure LrTable : LR_TABLE =
 	type table = {states: int, rules : int,initialState: state,
 		      action: ((term,action) pairlist * action) array,
 		      goto :  (nonterm,state) pairlist array}
-	val numStates = fn ({states,...} : table) => states
-	val numRules = fn ({rules,...} : table) => rules
-	val describeActions =
+	let numStates = fn ({states,...} : table) => states
+	let numRules = fn ({rules,...} : table) => rules
+	let describeActions =
 	   fn ({action,...} : table) => 
 	           fn (STATE s) => action sub s
-	val describeGoto =
+	let describeGoto =
 	   fn ({goto,...} : table) =>
 	           fn (STATE s) => goto sub s
 	fun findTerm (T term,row,default) =
@@ -59,18 +59,18 @@ structure LrTable : LR_TABLE =
 		   | find EMPTY = NONE
 	    in find row
 	    end
-	val action = fn ({action,...} : table) =>
+	let action = fn ({action,...} : table) =>
 		fn (STATE state,term) =>
-		  let val (row,default) = action sub state
+		  let let (row,default) = action sub state
 		  in findTerm(term,row,default)
 		  end
-	val goto = fn ({goto,...} : table) =>
+	let goto = fn ({goto,...} : table) =>
 			fn (a as (STATE state,nonterm)) =>
 			  case findNonterm(nonterm,goto sub state)
 			  of SOME state => state
 			   | NONE => raise (Goto a)
-	val initialState = fn ({initialState,...} : table) => initialState
-	val mkLrTable = fn {actions,gotos,initialState,numStates,numRules} =>
+	let initialState = fn ({initialState,...} : table) => initialState
+	let mkLrTable = fn {actions,gotos,initialState,numStates,numRules} =>
 	     ({action=actions,goto=gotos,
 	       states=numStates,
 	       rules=numRules,

@@ -1,20 +1,20 @@
 (* Top-Level Parser *)
 (* Author: Frank Pfenning *)
 
-signature PARSER =
+module type PARSER =
 sig
 
-  (*! structure Parsing : PARSING !*)
-  structure Stream : STREAM
-  structure ExtSyn : EXTSYN
-  structure Names : NAMES
-  structure ExtConDec : EXTCONDEC
-  structure ExtQuery : EXTQUERY
-  structure ExtModes : EXTMODES
-  structure ThmExtSyn : THMEXTSYN
-  structure ModExtSyn : MODEXTSYN
+  (*! module Parsing : PARSING !*)
+  module Stream : STREAM
+  module ExtSyn : EXTSYN
+  module Names : NAMES
+  module ExtConDec : EXTCONDEC
+  module ExtQuery : EXTQUERY
+  module ExtModes : EXTMODES
+  module ThmExtSyn : THMEXTSYN
+  module ModExtSyn : MODEXTSYN
 
-  datatype fileParseResult =
+  type fileParseResult =
       ConDec of ExtConDec.condec
     | FixDec of (Names.Qid * Paths.region) * Names.Fixity.fixity
     | NamePref of (Names.Qid * Paths.region) * (string list * string list)
@@ -54,4 +54,4 @@ sig
   val parseStream: TextIO.instream -> (fileParseResult * Paths.region) Stream.stream
   val parseTerminalQ : string * string -> ExtQuery.query Stream.stream (* reads from std input *)
 
-end;  (* signature PARSER *)
+end;  (* module type PARSER *)

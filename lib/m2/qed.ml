@@ -1,17 +1,17 @@
 (* QED *)
 (* Author: Carsten Schuermann *)
 
-functor Qed (structure Global : GLOBAL
-             structure MetaSyn' : METASYN)
+let recctor Qed (module Global : GLOBAL
+             module MetaSyn' : METASYN)
   : QED =
 struct
-  structure MetaSyn = MetaSyn'
+  module MetaSyn = MetaSyn'
 
   exception Error of string
 
   local
-    structure M = MetaSyn
-    structure I = IntSyn
+    module M = MetaSyn
+    module I = IntSyn
 
     fun subgoal (M.State (name, M.Prefix (G, M, B), V)) =
         let
@@ -23,6 +23,6 @@ struct
         end
 
   in
-    val subgoal = subgoal
+    let subgoal = subgoal
   end (* local *)
 end; (* functor Qed *)

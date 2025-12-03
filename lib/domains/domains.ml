@@ -1,6 +1,6 @@
-structure Integers = Integers(IntInf);
+module Integers = Integers(IntInf);
 
-structure Rationals = Rationals(Integers);
+module Rationals = Rationals(Integers);
 
-structure IntegersMod7 = IntegersMod(val p = 7);
+module IntegersMod7 = IntegersMod(let p = 7);
 

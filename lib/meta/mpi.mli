@@ -1,10 +1,10 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-signature MTPI =
+module type MTPI =
 sig
-  (*! structure FunSyn : FUNSYN !*)
-  structure StateSyn : STATESYN
+  (*! module FunSyn : FUNSYN !*)
+  module StateSyn : STATESYN
 
   exception Error of string 
   
@@ -21,6 +21,6 @@ sig
 (*  val extract: unit -> MetaSyn.Sgn *)
 (*  val show   : unit -> unit *)
   val undo   : unit -> unit 
-end;  (* signature MTPI *)
+end;  (* module type MTPI *)
 
 

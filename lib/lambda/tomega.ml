@@ -2,25 +2,25 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Yu Liao, Adam Poswolsky *)
 
-functor Tomega (structure Whnf : WHNF
-                structure Conv : CONV) : TOMEGA =
+let recctor Tomega (module Whnf : WHNF
+                module Conv : CONV) : TOMEGA =
 struct
   exception Error of string
 
   type label = int
   type lemma = int
 
-  datatype Worlds = Worlds of IntSyn.cid list
+  type Worlds = Worlds of IntSyn.cid list
 
-  datatype Quantifier = Implicit | Explicit
+  type Quantifier = Implicit | Explicit
 
-  datatype TC   =                       (* Terminiation Condition     *)
+  type TC   =                       (* Terminiation Condition     *)
     Abs of IntSyn.Dec * TC              (* T ::= {{D}} O              *)
   | Conj of TC * TC                     (*     | O1 ^ O2              *)
   | Base of ((IntSyn.Exp * IntSyn.Sub) *
              (IntSyn.Exp * IntSyn.Sub)) Order.Order
 
-  datatype For                          (* Formulas                   *)
+  type For                          (* Formulas                   *)
   = World of Worlds * For               (* F ::= World l1...ln. F     *)
   | All of (Dec * Quantifier) * For     (*     | All LD. F            *)
   | Ex  of (IntSyn.Dec * Quantifier) * For
@@ -79,28 +79,28 @@ struct
     Cases of (Dec IntSyn.Ctx * Sub * Prg) list
                                         (* C ::= (Psi' |> s |-> P)    *)
 
-  datatype ConDec =                     (* ConDec                     *)
+  type ConDec =                     (* ConDec                     *)
     ForDec of string * For              (* CD ::= f :: F              *)
   | ValDec of string * Prg * For        (*      | f == P              *)
 
   exception NoMatch
 
   local
-    structure I = IntSyn
-    structure O = Order
+    module I = IntSyn
+    module O = Order
 
-    val maxLemma = Global.maxCid
-    val lemmaArray = Array.array (maxLemma+1, ForDec ("", True))
+    let maxLemma = Global.maxCid
+    let lemmaArray = Array.array (maxLemma+1, ForDec ("", True))
                    : ConDec Array.array
-    val nextLemma = ref 0
+    let nextLemma = ref 0
 
     fun lemmaLookup lemma = Array.sub (lemmaArray, lemma)
     fun lemmaAdd (lemmaDec) =
         let
-          val lemma = !nextLemma
+          let lemma = !nextLemma
         in
           if lemma > maxLemma
-            then raise Error ("Global signature size " ^ Int.toString (maxLemma+1) ^ " exceeded")
+            then raise Error ("Global module type size " ^ Int.toString (maxLemma+1) ^ " exceeded")
           else (Array.update (lemmaArray, lemma, lemmaDec) ;
                 nextLemma := lemma + 1;
                 lemma)
@@ -192,7 +192,7 @@ struct
 
 
 
-    val id = Shift 0
+    let id = Shift 0
 
     (* dotEta (Ft, s) = s'
 
@@ -205,7 +205,7 @@ struct
     fun dotEta (Ft as Idx _, s) = Dot (Ft, s)
       | dotEta (Ft as Exp (U), s) =
         let
-          val Ft' = Idx (Whnf.etaContract U)
+          let Ft' = Idx (Whnf.etaContract U)
                    handle Eta => Ft
         in
           Dot (Ft', s)
@@ -234,8 +234,8 @@ struct
       *)
       fun orderSub (O.Arg ((U, s1), (V, s2)), s) =
             O.Arg ((U,  I.comp (s1, s)), (V, I.comp (s2, s)))
-        | orderSub (O.Lex Os, s) = O.Lex (map (fn O => orderSub (O, s)) Os)
-        | orderSub (O.Simul Os, s) = O.Simul (map (fn O => orderSub (O, s)) Os)
+        | orderSub (O.Lex Os, s) = O.Lex (map (fun O -> orderSub (O, s)) Os)
+        | orderSub (O.Simul Os, s) = O.Simul (map (fun O -> orderSub (O, s)) Os)
 
       fun TCSub (Base O, s) = Base (orderSub (O, s))
         | TCSub (Conj (TC1, TC2), s) = Conj (TCSub (TC1, s), TCSub (TC2, s))
@@ -291,15 +291,15 @@ struct
 
     fun transformTC' (G, O.Arg k) =
         let
-          val k' = (I.ctxLength G) -k+1
-          val I.Dec (_, V) = I.ctxDec (G, k')
+          let k' = (I.ctxLength G) -k+1
+          let I.Dec (_, V) = I.ctxDec (G, k')
         in
           O.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
       | transformTC' (G, O.Lex Os) =
-          O.Lex (map (fn O => transformTC' (G, O)) Os)
+          O.Lex (map (fun O -> transformTC' (G, O)) Os)
       | transformTC' (G, O.Simul Os) =
-          O.Simul (map (fn O => transformTC' (G, O)) Os)
+          O.Simul (map (fun O -> transformTC' (G, O)) Os)
 
     fun transformTC (G, All ((UDec D, _), F), Os) =
           Abs (D, transformTC (I.Decl (G, D), F, Os))
@@ -372,8 +372,8 @@ struct
     fun dot1 (t as Shift (0)) = t
       | dot1 t = Dot (Idx(1), comp(t, Shift 1))
 
-    val id = Shift 0
-    val shift = Shift 1
+    let id = Shift 0
+    let shift = Shift 1
 
     (* weakenSub (Psi) = w
 
@@ -422,7 +422,7 @@ struct
     *)
     and decSub (PDec (x, F, TC1, NONE), t) =
         let
-          val s = coerceSub t
+          let s = coerceSub t
         in
           PDec (x, forSub (F, t), TCSubOpt (TC1, s), NONE)
         end
@@ -525,8 +525,8 @@ struct
     *)
     fun strengthenCtx Psi =
         let
-          val w = weakenSub Psi
-          val s = invertSub w
+          let w = weakenSub Psi
+          let s = invertSub w
         in
           (coerceCtx Psi, w, s)
         end
@@ -615,17 +615,17 @@ struct
     fun deblockify  (I.Null) = (I.Null, id)
       | deblockify  (I.Decl (G, I.BDec (x, (c, s)))) =
         let
-          val (G', t') = deblockify  G
+          let (G', t') = deblockify  G
                                         (* G' |- t' : G *)
-          val (_, L) = I.constBlock c
-          val n = List.length L
-          val G'' = append (G', (L, I.comp (s, coerceSub t')))
+          let (_, L) = I.constBlock c
+          let n = List.length L
+          let G'' = append (G', (L, I.comp (s, coerceSub t')))
                                         (* G'' = G', V1 ... Vn *)
-          val t'' = comp (t', Shift n)
+          let t'' = comp (t', Shift n)
                                         (* G'' |- t'' : G *)
-          val I = I.Inst (mkInst n)
+          let I = I.Inst (mkInst n)
                                         (* I = (n, n-1 ... 1)  *)
-          val t''' = Dot (Block I, t'')
+          let t''' = Dot (Block I, t'')
                                         (* G'' |- t''' : G, x:(c,s) *)
         in
           (G'', t''')
@@ -768,55 +768,55 @@ struct
       | derefDec (UDec D) = UDec D
 
   in
-    val lemmaLookup = lemmaLookup
-    val lemmaAdd = lemmaAdd
-    val lemmaSize = lemmaSize
-    val lemmaDef = lemmaDef
-    val lemmaName = lemmaName
-    val lemmaFor = lemmaFor
+    let lemmaLookup = lemmaLookup
+    let lemmaAdd = lemmaAdd
+    let lemmaSize = lemmaSize
+    let lemmaDef = lemmaDef
+    let lemmaName = lemmaName
+    let lemmaFor = lemmaFor
 
-    val coerceSub = coerceSub
-    val coerceCtx = coerceCtx
-    val strengthenCtx = strengthenCtx
-    val embedCtx = embedCtx
-    val id = id
-    val shift = shift
-    val comp = comp
-    val dot1 = dot1
-    val varSub = varSub
-    val decSub = decSub
-    val weakenSub = weakenSub
-    val invertSub = invertSub
-    val ctxDec = ctxDec
-    val forSub = forSub
-    val whnfFor = whnfFor
-    val normalizePrg = normalizePrg
-    val normalizeSub = normalizeSub
-    val derefPrg = derefPrg
+    let coerceSub = coerceSub
+    let coerceCtx = coerceCtx
+    let strengthenCtx = strengthenCtx
+    let embedCtx = embedCtx
+    let id = id
+    let shift = shift
+    let comp = comp
+    let dot1 = dot1
+    let varSub = varSub
+    let decSub = decSub
+    let weakenSub = weakenSub
+    let invertSub = invertSub
+    let ctxDec = ctxDec
+    let forSub = forSub
+    let whnfFor = whnfFor
+    let normalizePrg = normalizePrg
+    let normalizeSub = normalizeSub
+    let derefPrg = derefPrg
 
-    val id = id
-    val dotEta = dotEta
-    val convFor = convFor
-    val newEVar = newEVar
-    val newEVarTC = newEVarTC
+    let id = id
+    let dotEta = dotEta
+    let convFor = convFor
+    let newEVar = newEVar
+    let newEVarTC = newEVarTC
 
 (* Below are added by Yu Liao *)
-    val embedSub = embedSub
-    val eqWorlds = eqWorlds
-    val ctxDec = ctxDec
-    val revCoerceSub = revCoerceSub
-    val revCoerceCtx = revCoerceCtx
+    let embedSub = embedSub
+    let eqWorlds = eqWorlds
+    let ctxDec = ctxDec
+    let revCoerceSub = revCoerceSub
+    let revCoerceCtx = revCoerceCtx
 
 (* Added referenced by ABP *)
-    val coerceFront = coerceFront
-    val revCoerceFront = revCoerceFront
-    val deblockify = deblockify
+    let coerceFront = coerceFront
+    let revCoerceFront = revCoerceFront
+    let deblockify = deblockify
 
 (* Stuff that has to do with termination conditions *)
-  val TCSub = TCSub
-  val normalizeTC  = normalizeTC
-  val convTC = convTC
-  val transformTC = transformTC
+  let TCSub = TCSub
+  let normalizeTC  = normalizeTC
+  let convTC = convTC
+  let transformTC = transformTC
 
 
   end

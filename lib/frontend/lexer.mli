@@ -1,19 +1,19 @@
 (* Lexer *)
 (* Author: Frank Pfenning *)
 
-signature LEXER =
+module type LEXER =
 sig
 
   (* Stream is not memoizing for efficiency *)
-  structure Stream : STREAM
-  (*! structure Paths : PATHS !*)
+  module Stream : STREAM
+  (*! module Paths : PATHS !*)
 
-  datatype IdCase =
+  type IdCase =
       Upper				(* [A-Z]<id> or _<id> *)
     | Lower				(* any other <id> *)
     | Quoted				(* '<id>', currently unused *)
 
-  datatype Token =
+  type Token =
       EOF				(* end of file or stream, also `%.' *)
     | DOT				(* `.' *)
     | PATHSEP                           (* `.' between <id>s *)
@@ -75,4 +75,4 @@ sig
   exception NotDigit of char
   val stringToNat : string -> int
   val isUpper : string -> bool
-end;  (* signature LEXER *)
+end;  (* module type LEXER *)

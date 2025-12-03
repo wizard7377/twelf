@@ -1,9 +1,9 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-signature MPI =
+module type MPI =
 sig
-  structure MetaSyn : METASYN
+  module MetaSyn : METASYN
 
   exception Error of string 
 
@@ -19,6 +19,6 @@ sig
   val extract: unit -> MetaSyn.Sgn
   val show   : unit -> unit
   val undo   : unit -> unit 
-end;  (* signature MPI *)
+end;  (* module type MPI *)
 
 

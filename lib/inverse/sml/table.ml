@@ -1,9 +1,9 @@
 
-(* structure GrowarrayTable : TABLE where type key = int = *)
+(* module GrowarrayTable : TABLE where type key = int = *)
 (* struct *)
   
-(*   structure L = Lib *)
-(*   structure A = GrowArray *)
+(*   module L = Lib *)
+(*   module A = GrowArray *)
 
 (*   type key = int  *)
 (*   type 'a table = 'a A.growarray *)
@@ -19,16 +19,16 @@
 (*   fun lookup t n = A.sub t n *)
 
 (*   fun iter f : ('a -> unit) -> 'a table -> unit *)
-(*   val foldl : ('a * 'b -> 'b) -> 'b -> 'a table -> b *)
-(*   val foldr : ('a * 'b -> 'b) -> 'b -> 'a table -> b *)
+(*   let foldl : ('a * 'b -> 'b) -> 'b -> 'a table -> b *)
+(*   let foldr : ('a * 'b -> 'b) -> 'b -> 'a table -> b *)
 
 (* end *)
 
-structure ArrayTable :> TABLE where type key = int =
+module ArrayTable :> TABLE where type key = int =
 struct
   
-  structure L = Lib
-  structure A = Array
+  module L = Lib
+  module A = Array
 
   type key = int
   type 'a table = {arr : 'a option array,
@@ -39,7 +39,7 @@ struct
 
   fun clear {arr,used} = 
       (used := 0;
-       A.modify (fn _ => NONE) arr)
+       A.modify (fun _ -> NONE) arr)
 
   fun insert (t as {arr,used}) (n,v) =
       if n < 0 orelse n > A.length arr then raise Subscript
@@ -62,7 +62,7 @@ struct
 
   fun app f {arr,used} = 
       let
-        val used' = !used 
+        let used' = !used 
         fun f'(i,x) = if i >= used' then raise Done else
                       case x of 
                         SOME n => f n
@@ -74,7 +74,7 @@ struct
 
   fun appi f {arr,used} = 
       let
-        val used' = !used 
+        let used' = !used 
         fun f'(i,x) = if i >= used' then raise Done else
                       case x of 
                         SOME n => f(i,n)
@@ -88,4 +88,4 @@ struct
 end
 
 
-structure Table = ArrayTable
+module Table = ArrayTable

@@ -1,27 +1,27 @@
 (* Delphin external syntax *)
 (* Author: Richard Fontana *)
 
-functor DextSyn ( (* structure Stream' : STREAM *)
-                  structure ExtSyn' : EXTSYN
-                  structure Parsing' : PARSING
+let recctor DextSyn ( (* module Stream' : STREAM *)
+                  module ExtSyn' : EXTSYN
+                  module Parsing' : PARSING
 (*                    sharing Parsing'.Lexer.Paths = ExtSyn'.Paths  *)
-(*                  structure Lexer' : LEXER *)
+(*                  module Lexer' : LEXER *)
 (*                    sharing Lexer' = Parsing'.Lexer *)
       ) : DEXTSYN =
 
 struct
-(*  structure Stream = Stream' *)
-  structure ExtSyn = ExtSyn'
-  structure Parsing = Parsing'
-(*  structure Paths = ExtSyn.Paths
-  structure Lexer = Lexer' *)
-  structure L = Lexer
-(*  structure S = Parsing'.Lexer.Stream *)
-  structure S = Stream
+(*  module Stream = Stream' *)
+  module ExtSyn = ExtSyn'
+  module Parsing = Parsing'
+(*  module Paths = ExtSyn.Paths
+  module Lexer = Lexer' *)
+  module L = Lexer
+(*  module S = Parsing'.Lexer.Stream *)
+  module S = Stream
 
 
 
-datatype Ast =  Ast of Decs
+type Ast =  Ast of Decs
 
 and Decs
   = Empty
@@ -127,29 +127,29 @@ and Dec
 
 local
 (*
-fun parseLFDecs (Ast dl) =
-  let val tf = OS.FileSys.tmpName ()
-      val tos = TextIO.openOut tf
+let rec parseLFDecs (Ast dl) =
+  let let tf = OS.FileSys.tmpName ()
+      let tos = TextIO.openOut tf
       fun parseLFDecs' [] = ()
        |  parseLFDecs' ((LFConDec ld) ::ds) =
            (TextIO.output(tos, ld);
            parseLFDecs' ds)
        |  parseLFDecs' (_ ::ds) = parseLFDecs' ds
-      val _ = parseLFDecs' dl
-      val _ = TextIO.closeOut tos
-      val _ = Twelf.loadFile tf
-      val _ = OS.FileSys.remove tf
+      let _ = parseLFDecs' dl
+      let _ = TextIO.closeOut tos
+      let _ = Twelf.loadFile tf
+      let _ = OS.FileSys.remove tf
   in ()
   end
 
 *)
 (*
 
-fun rulesToCase (Ast decs) =
+let rec rulesToCase (Ast decs) =
    let
       fun rulesToCase' [] = []
       |   rulesToCase' (ProgDec (Head (s,pts), prg) :: ds) =
-            let val cds = rulesToCase' ds
+            let let cds = rulesToCase' ds
             in
                case cds of
                   ProgDec (Head (s',_), Case ps) ::ds'' =>
@@ -160,7 +160,7 @@ fun rulesToCase (Ast decs) =
                 | _ => ProgDec (Head (s,[]), Case [(pts,prg)]):: cds
              end
       |   rulesToCase' (d::ds) =
-             let val cds = rulesToCase' ds
+             let let cds = rulesToCase' ds
              in
                 (d::cds)
              end
@@ -180,17 +180,17 @@ fun rulesToCase (Ast decs) =
 
  fun abstractProgs ast =
       let
-          val ast' = rulesToCase ast
-          val (Ast decs) = ast'
-          val decs' = abstractProgs' decs
+          let ast' = rulesToCase ast
+          let (Ast decs) = ast'
+          let decs' = abstractProgs' decs
       in (Ast decs')
       end
 
 *)
 in
-(*     val appendPats = appendPats
-     val parseLFDecs = parseLFDecs
-     val abstractProgs = abstractProgs
+(*     let appendPats = appendPats
+     let parseLFDecs = parseLFDecs
+     let abstractProgs = abstractProgs
 *)
 end
 

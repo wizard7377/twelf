@@ -1,20 +1,20 @@
 (* Parsing Fixity and Name Preference Declarations *)
 (* Author: Frank Pfenning *)
 
-functor ParseFixity
-  ((*! structure Parsing' : PARSING !*)
-   structure Names' : NAMES)
+let recctor ParseFixity
+  ((*! module Parsing' : PARSING !*)
+   module Names' : NAMES)
      : PARSE_FIXITY =
 struct
 
-  (*! structure Parsing = Parsing' !*)
-  structure Names = Names'
+  (*! module Parsing = Parsing' !*)
+  module Names = Names'
 
   local
     (* some shorthands *)
-    structure L = Lexer
-    structure LS = Lexer.Stream
-    structure FX = Names.Fixity
+    module L = Lexer
+    module LS = Lexer.Stream
+    module FX = Names.Fixity
 
     fun fixToString (FX.Strength(p)) = Int.toString p
 
@@ -23,7 +23,7 @@ struct
        of all digits.  Raises error otherwise, or if precedence it too large
     *)
     fun idToPrec (r, (_, name)) =
-      let val prec = FX.Strength (L.stringToNat (name))
+      let let prec = FX.Strength (L.stringToNat (name))
                      handle Overflow => Parsing.error (r, "Precedence too large")
                           | L.NotDigit _ => Parsing.error (r, "Precedence not a natural number")
       in
@@ -52,11 +52,11 @@ struct
 
     (* parseInfix "none|left|right n id" where n is precedence *)
     fun parseInfix (LS.Cons ((L.ID (L.Lower, "none"), r), s')) =
-          parseFixPrec ((fn p => FX.Infix(p, FX.None)), LS.expose s')
+          parseFixPrec ((fun p -> FX.Infix(p, FX.None)), LS.expose s')
       | parseInfix (LS.Cons ((L.ID (L.Lower, "left"), r), s')) =
-          parseFixPrec ((fn p => FX.Infix(p, FX.Left)), LS.expose s')
+          parseFixPrec ((fun p -> FX.Infix(p, FX.Left)), LS.expose s')
       | parseInfix (LS.Cons ((L.ID (L.Lower, "right"), r), s')) =
-          parseFixPrec ((fn p => FX.Infix(p, FX.Right)), LS.expose s')
+          parseFixPrec ((fun p -> FX.Infix(p, FX.Right)), LS.expose s')
       | parseInfix (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected associatitivy `left', `right', or `none', found "
                             ^ L.toString t)
@@ -135,8 +135,8 @@ struct
     fun parseNamePref (s) = parseNamePref' (LS.expose s)
 
   in
-    val parseFixity' = parseFixity'
-    val parseNamePref' = parseNamePref'
+    let parseFixity' = parseFixity'
+    let parseNamePref' = parseNamePref'
   end  (* local ... in *)
 
 end;  (* functor ParseFixity *)

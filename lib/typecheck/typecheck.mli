@@ -1,9 +1,9 @@
 (* Type Checking *)
 (* Author: Carsten Schuermann *)
 
-signature TYPECHECK =
+module type TYPECHECK =
 sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! module IntSyn : INTSYN !*)
 
     exception Error of string
 
@@ -16,4 +16,4 @@ sig
     val typeCheckCtx : IntSyn.dctx -> unit
     (* val typeCheckSpine : IntSyn.dctx * IntSyn.Spine -> unit *)
     val typeCheckSub : IntSyn.dctx * IntSyn.Sub * IntSyn.dctx -> unit
-end;  (* signature TYPECHECK *)
+end;  (* module type TYPECHECK *)

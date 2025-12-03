@@ -1,7 +1,7 @@
 (* Coverage Checking *)
 (* Author: Frank Pfenning *)
 
-signature COVER =
+module type COVER =
 sig
   exception Error of string
 
@@ -13,4 +13,4 @@ sig
 
   val coverageCheckCases : Tomega.Worlds * (IntSyn.dctx * IntSyn.Sub) list  * IntSyn.dctx -> unit
 
-end;  (* signature COVER *)
+end;  (* module type COVER *)

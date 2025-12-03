@@ -1,5 +1,5 @@
 
-signature CONTEXT =
+module type CONTEXT =
 sig
   type 'a ctx 
   exception Context of string

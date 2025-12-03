@@ -1,27 +1,27 @@
 (* Tabled Syntax *)
 (* Author: Brigitte Pientka *)
 
-functor TabledSyn ((*! structure IntSyn' : INTSYN !*)
-                 structure Names : NAMES
+let recctor TabledSyn ((*! module IntSyn' : INTSYN !*)
+                 module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
-                 structure Table : TABLE where type key = int
-                 structure Index : INDEX
+                 module Table : TABLE where type key = int
+                 module Index : INDEX
                  (*! sharing Index.IntSyn = IntSyn' !*)
                      ) : TABLEDSYN =
 struct
-  (*! structure IntSyn = IntSyn' !*)
+  (*! module IntSyn = IntSyn' !*)
 
   exception Error of string
 
-  datatype Tabled = yes | no
+  type Tabled = yes | no
 
-(*  datatype ModeSpine = Mnil | Mapp of Marg * ModeSpine
+(*  type ModeSpine = Mnil | Mapp of Marg * ModeSpine
   and  Marg = Marg of Mode * string option
   *)
   local
-    structure I = IntSyn
+    module I = IntSyn
 
-    val tabledSignature : bool Table.Table = Table.new(0);
+    let tabledSignature : bool Table.Table = Table.new(0);
 
     (* reset () = ()
 
@@ -72,10 +72,10 @@ struct
      | SOME false => false)
 
   in
-    val reset = reset
-    val installTabled = installTabled
-    val installKeepTable =  installKeepTable
-    val tabledLookup = tabledLookup
-    val keepTable = keepTable
+    let reset = reset
+    let installTabled = installTabled
+    let installKeepTable =  installKeepTable
+    let tabledLookup = tabledLookup
+    let keepTable = keepTable
   end
 end;  (* functor TabledSyn *)

@@ -2,53 +2,53 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow, Roberto Virga *)
 
-functor Print ((*! structure IntSyn' : INTSYN !*)
-               structure Whnf : WHNF
+let recctor Print ((*! module IntSyn' : INTSYN !*)
+               module Whnf : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
-               structure Abstract : ABSTRACT
+               module Abstract : ABSTRACT
                (*! sharing Abstract.IntSyn = IntSyn' !*)
-               structure Constraints : CONSTRAINTS
+               module Constraints : CONSTRAINTS
                (*! sharing Constraints.IntSyn = IntSyn' !*)
-               structure Names : NAMES
+               module Names : NAMES
                (*! sharing Names.IntSyn = IntSyn' !*)
-               structure Formatter' : FORMATTER
-               structure Symbol : SYMBOL)
+               module Formatter' : FORMATTER
+               module Symbol : SYMBOL)
   : PRINT =
 struct
 
-  (*! structure IntSyn = IntSyn' !*)
-structure Formatter = Formatter'
- structure Tomega = Tomega
+  (*! module IntSyn = IntSyn' !*)
+module Formatter = Formatter'
+ module Tomega = Tomega
 
 (* Externally visible parameters *)
 
-val implicit = ref (false)              (* whether to print implicit arguments *)
-val printInfix = ref (false)            (* if implicit is ref true, whether to print infix ops when possible *)
-val printDepth = ref (NONE:int option)  (* limit on term depth to print *)
-val printLength = ref (NONE:int option) (* limit on number of arguments to print *)
-val noShadow = ref (false)              (* if true, don't print shadowed constants as "%const%" *)
+let implicit = ref (false)              (* whether to print implicit arguments *)
+let printInfix = ref (false)            (* if implicit is ref true, whether to print infix ops when possible *)
+let printDepth = ref (NONE:int option)  (* limit on term depth to print *)
+let printLength = ref (NONE:int option) (* limit on number of arguments to print *)
+let noShadow = ref (false)              (* if true, don't print shadowed constants as "%const%" *)
 
 local
 
   (* Shorthands *)
-  structure I = IntSyn
-  structure FX = Names.Fixity
-  structure F = Formatter
-  structure T = Tomega
+  module I = IntSyn
+  module FX = Names.Fixity
+  module F = Formatter
+  module T = Tomega
 
   (* Disambiguation of block logic variable names *)
-  val lvars : I.Block option ref list ref
+  let lvars : I.Block option ref list ref
             = ref nil
   fun lookuplvar (l) =
       let
-        val _ = if (List.exists (fn r => r = l) (!lvars)) then () else lvars := !lvars @ [l]   (* speed improvment possible Tue Mar  1 13:27:04 2011 --cs *)
+        let _ = if (List.exists (fun r -> r = l) (!lvars)) then () else lvars := !lvars @ [l]   (* speed improvment possible Tue Mar  1 13:27:04 2011 --cs *)
         fun find (r :: L) n =  if r = l then n else find L (n+1)
       in
         Int.toString (find (!lvars) 0)
       end
 
 
-  val Str = F.String
+  let Str = F.String
   fun Str0 (s, n) = F.String0 n s
   fun sym (s) = Str0 (Symbol.sym s)
 
@@ -93,7 +93,7 @@ local
       end
 
   (* ArgStatus classifies the number of arguments to an operator *)
-  datatype ArgStatus =
+  type ArgStatus =
       TooFew
     | Exact of I.Spine
     | TooMany of I.Spine * I.Spine
@@ -145,7 +145,7 @@ local
      formats is the list of formats which make up the left context
      length is the length of the left context (used for printLength elision)
   *)
-  datatype ctxt = Ctxt of FX.fixity * F.format list * int
+  type ctxt = Ctxt of FX.fixity * F.format list * int
 
   (* Type opargs represent the operator/arguments form of roots.
 
@@ -162,18 +162,18 @@ local
      in order to supply enough arguments to a prefix, postfix, or infix operator
      so it can be printed.
   *)
-  datatype opargs =
+  type opargs =
       OpArgs of FX.fixity * F.format list * I.Spine
     | EtaLong of I.Exp
 
-  val noCtxt = Ctxt (FX.Prefix(FX.dec (FX.dec (FX.dec (FX.dec FX.minPrec)))), [], 0)
+  let noCtxt = Ctxt (FX.Prefix(FX.dec (FX.dec (FX.dec (FX.dec FX.minPrec)))), [], 0)
                                         (* empty left context *)
 
-  val binderPrec = FX.dec (FX.dec (FX.dec FX.minPrec))
+  let binderPrec = FX.dec (FX.dec (FX.dec FX.minPrec))
                                         (* braces and brackets as a prefix operator *)
   (* colon is of FX.minPrec-2, but doesn't occur in printing *)
-  val arrowPrec = FX.dec FX.minPrec     (* arrow as infix operator *)
-  val juxPrec = FX.inc FX.maxPrec       (* juxtaposition as infix operator *)
+  let arrowPrec = FX.dec FX.minPrec     (* arrow as infix operator *)
+  let juxPrec = FX.inc FX.maxPrec       (* juxtaposition as infix operator *)
 
   (* arrow (V1, V2) = oa
      where oa is the operator/argument representation of V1 -> V2
@@ -184,7 +184,7 @@ local
                 I.App (V1, I.App(V2, I.Nil)))
 
   (* Nonfix corresponds to application and therefore has precedence juxPrex (which is maximal) *)
-  val appCtxt = Ctxt (FX.Nonfix, [], 0)
+  let appCtxt = Ctxt (FX.Nonfix, [], 0)
 
   (* fixityCon (c) = fixity of c *)
   fun fixityCon (I.Const(cid)) = Names.getFixity (cid)
@@ -216,7 +216,7 @@ local
 
   fun parmName (cid, i) =
       let
-        val (Gsome, Gblock) = I.constBlock (cid)
+        let (Gsome, Gblock) = I.constBlock (cid)
       in
         case parmDec (Gblock, i)
           of I.Dec (SOME(pname), _) => pname
@@ -225,7 +225,7 @@ local
 
   fun projName (G, I.Proj (I.Bidx(k), i)) =
       let
-        val I.BDec (SOME(bname), (cid, t)) = I.ctxLookup (G, k)
+        let I.BDec (SOME(bname), (cid, t)) = I.ctxLookup (G, k)
         (* names should have been assigned by invar
          iant, NONE imppossible *)
        in
@@ -271,10 +271,10 @@ local
         Str0 (Symbol.const (projName (G, H)))
     | fmtCon (G, H as I.Proj (I.LVar(r as ref NONE, sk, (cid, t)), i)) =
         let
-          val n = lookuplvar (r)
+          let n = lookuplvar (r)
         in
           (* LVar fixed Sun Dec  1 11:36:55 2002 -cs *)
-          fmtConstPath (fn l0 => Symbol.const ("#[" ^ l0 ^ n ^ "]" ^ projName (G, H)),
+          fmtConstPath (fun l0 -> Symbol.const ("#[" ^ l0 ^ n ^ "]" ^ projName (G, H)),
                         constQid (cid))
         end
     | fmtCon (G, I.FgnConst (cs, conDec)) =
@@ -282,7 +282,7 @@ local
           (* will need to be changed if qualified constraint constant
              names are introduced... anyway, why should the user be
              allowed to shadow constraint constants? -kw *)
-          val name = I.conDecName conDec
+          let name = I.conDecName conDec
         in
           case (Names.constLookup (Names.Qid (nil, name)), !noShadow)
             of (SOME _, false) => (* the user has re-defined this name *)
@@ -317,7 +317,7 @@ local
                      of NONE => false
                       | SOME(l') => (l > l')
 
-  val ldots = sym "..."
+  let ldots = sym "..."
 
   (* addots (l) = true  iff  l is equal to the optional printLength bound *)
   fun addots (l) = case !printLength
@@ -383,14 +383,14 @@ local
     | fmtExpW (G, d, ctx, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
-                         val D' = Names.decLUName (G, D) (* could sometimes be EName *)
+                         let D' = Names.decLUName (G, D) (* could sometimes be EName *)
                        in
                          fmtLevel (I.Decl (G, D'), (* I.decSub (D', s) *)
                                    d, ctx, (braces (G, d, ((D',V2), s)),
                                             I.dot1 s))
                        end
           | I.Meta => let
-                         val D' = Names.decLUName (G, D)
+                         let D' = Names.decLUName (G, D)
                        in
                          fmtLevel (I.Decl (G, D'), (* I.decSub (D', s) *)
                                    d, ctx, (braces (G, d, ((D',V2), s)),
@@ -400,7 +400,7 @@ local
                               d, ctx, (arrow(I.EClo(V1,I.shift), V2), I.dot1 s)))
     | fmtExpW (G, d, ctx, (I.Pi((D as I.BDec _, P), V2), s)) =
       let
-        val D' = Names.decLUName (G, D)
+        let D' = Names.decLUName (G, D)
       in
          fmtLevel (I.Decl (G, D'), d, ctx, (braces (G, d, ((D', V2), s)),
                                             I.dot1 s))
@@ -408,8 +408,8 @@ local
     (* -bp *)
     | fmtExpW (G, d, ctx, (I.Pi((D as I.ADec _, P), V2), s)) =
       let
-(*      val D' = Names.decLUName (G, D) *)
-        val braces = OpArgs(FX.Prefix(binderPrec),
+(*      let D' = Names.decLUName (G, D) *)
+        let braces = OpArgs(FX.Prefix(binderPrec),
                             [sym "[" , sym "_", sym "]", F.Break],
                 IntSyn.App(V2, IntSyn.Nil))
       in
@@ -421,7 +421,7 @@ local
     (* I.Redex not possible *)
     | fmtExpW (G, d, ctx, (I.Lam(D, U), s)) =
       let
-        val D' = Names.decLUName (G, D)
+        let D' = Names.decLUName (G, D)
       in
         fmtLevel (I.Decl (G, D'), (* I.decSub (D', s) *)
                   d, ctx, (brackets (G, d, ((D', U), s)), I.dot1 s))
@@ -461,7 +461,7 @@ local
   *)
   and opargsImplicitInfix (G, d, R as (C,S)) =
       let
-          val fixity = fixityCon C
+          let fixity = fixityCon C
       in
           case fixity of
               FX.Infix _ => opargsExplicit(G, d, R) (* Can't have implicit arguments by invariant *)
@@ -476,8 +476,8 @@ local
   *)
   and opargsExplicit (G, d, R as (C,S)) =
       let
-        val opFmt = fmtCon (G, C)
-        val fixity = fixityCon C
+        let opFmt = fmtCon (G, C)
+        let fixity = fixityCon C
         fun oe (Exact(S')) =
             (case fixity
                of FX.Nonfix => OpArgs (FX.Nonfix, [opFmt], S')
@@ -490,7 +490,7 @@ local
             (* S' - all non-implicit arguments *)
             (* S'' - extra arguments *)
             let
-              val opFmt' = fmtOpArgs (G, d, noCtxt, oe (Exact (S')), I.id)
+              let opFmt' = fmtOpArgs (G, d, noCtxt, oe (Exact (S')), I.id)
             in
               (* parens because juxtaposition has highest precedence *)
               (*
@@ -586,7 +586,7 @@ local
   and fmtLevel (G, d, Ctxt (fixity', accum, l),
                 (OpArgs (fixity as FX.Nonfix, fmts, S), s)) =
       let
-        val atm = fmtSpine (G, d, 0, (S,s))
+        let atm = fmtSpine (G, d, 0, (S,s))
         (* atm must not be empty, otherwise bug below *)
       in
         (* F.HVbox doesn't work if last item of HVbox is F.Break *)
@@ -602,8 +602,8 @@ local
 
     | fmtLevel (G, d, Ctxt (fixity', accum, l),
                 (OpArgs (fixity as (FX.Infix(p, FX.Left)), fmts, S), s)) =
-      let val accMore = eqFix (fixity, fixity')
-        val rhs = if accMore andalso elide(l) then []
+      let let accMore = eqFix (fixity, fixity')
+        let rhs = if accMore andalso elide(l) then []
                   else if accMore andalso addots(l) then fmts @ [ldots]
                        else fmts @ [fmtExp (G, d+1, Ctxt (FX.Infix(p,FX.None),nil,0),
                                             snd (S, s))]
@@ -611,7 +611,7 @@ local
         if accMore
           then fmtExp (G, d, Ctxt (fixity, rhs @ accum, l+1), fst (S, s))
         else let
-               val both = fmtExp (G, d, Ctxt (fixity, rhs, 0), fst (S, s))
+               let both = fmtExp (G, d, Ctxt (fixity, rhs, 0), fst (S, s))
              in
                addAccum (parens ((fixity',fixity), both), fixity', accum)
              end
@@ -620,15 +620,15 @@ local
     | fmtLevel (G, d, Ctxt (fixity', accum, l),
                 (OpArgs (fixity as FX.Infix(p, FX.Right), fmts, S), s)) =
       let
-          val accMore = eqFix (fixity, fixity')
-          val lhs = if accMore andalso elide(l) then []
+          let accMore = eqFix (fixity, fixity')
+          let lhs = if accMore andalso elide(l) then []
                     else if accMore andalso addots(l) then [ldots] @ fmts
                          else [fmtExp (G, d+1, Ctxt (FX.Infix(p,FX.None),nil,0), fst(S, s))] @ fmts
       in
         if accMore
           then fmtExp (G, d, Ctxt (fixity, accum @ lhs, l+1), snd (S, s))
         else let
-               val both = fmtExp (G, d, Ctxt (fixity, lhs, 0), snd (S, s))
+               let both = fmtExp (G, d, Ctxt (fixity, lhs, 0), snd (S, s))
              in
                addAccum (parens ((fixity', fixity), both), fixity', accum)
              end
@@ -637,8 +637,8 @@ local
     | fmtLevel (G, d, Ctxt (fixity', accum, l),
                 (OpArgs(fixity as (FX.Infix(_,FX.None)), fmts, S), s)) =
       let
-          val lhs = fmtExp (G, d+1, Ctxt (fixity, nil, 0), fst(S, s))
-          val rhs = fmtExp (G, d+1, Ctxt (fixity, nil, 0), snd(S, s))
+          let lhs = fmtExp (G, d+1, Ctxt (fixity, nil, 0), fst(S, s))
+          let rhs = fmtExp (G, d+1, Ctxt (fixity, nil, 0), snd(S, s))
       in
         addAccum (parens ((fixity',fixity),
                           F.HVbox ([lhs] @ fmts @ [rhs])), fixity', accum)
@@ -647,15 +647,15 @@ local
     | fmtLevel (G, d, Ctxt (fixity', accum, l),
                 (OpArgs (fixity as (FX.Prefix _), fmts, S), s)) =
       let
-          val accMore = eqFix (fixity', fixity)
-          val pfx = if accMore andalso elide(l) then []
+          let accMore = eqFix (fixity', fixity)
+          let pfx = if accMore andalso elide(l) then []
                     else if accMore andalso addots(l) then [ldots, F.Break]
                          else fmts
       in
         if accMore
           then fmtExp (G, d, Ctxt (fixity, accum @ pfx, l+1), fst(S, s))
         else let
-               val whole = fmtExp (G, d, Ctxt (fixity, pfx, 0), fst (S, s))
+               let whole = fmtExp (G, d, Ctxt (fixity, pfx, 0), fst (S, s))
              in
                addAccum (parens ((fixity',fixity), whole), fixity', accum)
              end
@@ -664,15 +664,15 @@ local
     | fmtLevel (G, d, Ctxt (fixity', accum, l),
                 (OpArgs (fixity as (FX.Postfix _), fmts, S), s)) =
       let
-          val accMore = eqFix (fixity', fixity)
-          val pfx = if accMore andalso elide(l) then []
+          let accMore = eqFix (fixity', fixity)
+          let pfx = if accMore andalso elide(l) then []
                     else if accMore andalso addots(l) then [F.Break, ldots]
                          else fmts
       in
         if accMore
           then fmtExp (G, d, Ctxt (fixity, pfx @ accum, l+1), fst(S, s))
         else let
-               val whole = fmtExp (G, d, Ctxt (fixity, pfx, 0), fst (S, s))
+               let whole = fmtExp (G, d, Ctxt (fixity, pfx, 0), fst (S, s))
              in
                addAccum (parens ((fixity', fixity), whole), fixity', accum)
              end
@@ -720,7 +720,7 @@ local
       *)
     | fmtDec (G, d, (I.BDec (x, (cid, t)), s)) =
       let
-        val (Gsome, Gblock) = I.constBlock cid
+        let (Gsome, Gblock) = I.constBlock cid
       in
         F.HVbox ([Str0 (Symbol.const (nameOf (x))), sym ":"]
                  @ fmtDecList' (G, (Gblock, I.comp (t, s))))
@@ -775,35 +775,35 @@ local
   *)
   fun fmtConDec (hide, condec as I.ConDec (_, _, imp, _, V, L)) =
       let
-        val qid = Names.conDecQid condec
-        val _ = Names.varReset IntSyn.Null
-        val (G, V) = if hide then skipI (imp, I.Null, V) else (I.Null, V)
-        val Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
+        let qid = Names.conDecQid condec
+        let _ = Names.varReset IntSyn.Null
+        let (G, V) = if hide then skipI (imp, I.Null, V) else (I.Null, V)
+        let Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
       in
         F.HVbox [fmtConstPath (Symbol.const, qid), F.Space, sym ":", F.Break, Vfmt, sym "."]
       end
     | fmtConDec (hide, condec as I.SkoDec (_, _, imp, V, L)) =
       let
-        val qid = Names.conDecQid condec
-        val _ = Names.varReset IntSyn.Null
-        val (G, V) = if hide then skipI (imp, I.Null, V) else (I.Null, V)
-        val Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
+        let qid = Names.conDecQid condec
+        let _ = Names.varReset IntSyn.Null
+        let (G, V) = if hide then skipI (imp, I.Null, V) else (I.Null, V)
+        let Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
       in
         F.HVbox [sym "%skolem", F.Break, fmtConstPath (Symbol.skonst, qid), F.Space,
                  sym ":", F.Break, Vfmt, sym "."]
       end
     | fmtConDec (hide, condec as I.BlockDec (_, _, Gsome, Lblock)) =
       let
-        val qid = Names.conDecQid condec
-        val _ = Names.varReset IntSyn.Null
+        let qid = Names.conDecQid condec
+        let _ = Names.varReset IntSyn.Null
       in
         F.HVbox ([sym "%block", F.Break, fmtConstPath (Symbol.label, qid), F.Space,
                  sym ":", F.Break] @ (fmtBlock (Gsome, Lblock))  @ [sym "."])
       end
     | fmtConDec (hide, condec as I.BlockDef (_, _, W)) =
       let
-        val qid = Names.conDecQid condec
-        val _ = Names.varReset IntSyn.Null
+        let qid = Names.conDecQid condec
+        let _ = Names.varReset IntSyn.Null
       in
         F.HVbox ([sym "%block", F.Break, fmtConstPath (Symbol.label, qid), F.Space,
                  sym "=", F.Break] @ ( formatWorlds (T.Worlds W) :: [sym "."]))
@@ -811,12 +811,12 @@ local
     | fmtConDec (hide, condec as I.ConDef (_, _, imp, U, V, L, _)) =
       (* reset variable names in between to align names of type V and definition U *)
       let
-        val qid = Names.conDecQid condec
-        val _ = Names.varReset IntSyn.Null
-        val (G, V, U) = if hide then skipI2 (imp, I.Null, V, U) else (I.Null, V, U)
-        val Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
-        (* val _ = Names.varReset () *)
-        val Ufmt = fmtExp (G, 0, noCtxt, (U, I.id))
+        let qid = Names.conDecQid condec
+        let _ = Names.varReset IntSyn.Null
+        let (G, V, U) = if hide then skipI2 (imp, I.Null, V, U) else (I.Null, V, U)
+        let Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
+        (* let _ = Names.varReset () *)
+        let Ufmt = fmtExp (G, 0, noCtxt, (U, I.id))
       in
         F.HVbox [fmtConstPath (Symbol.def, qid), F.Space, sym ":", F.Break,
                          Vfmt, F.Break,
@@ -833,12 +833,12 @@ local
     | fmtConDec (hide, condec as I.AbbrevDef (_, _, imp, U, V, L)) =
       (* reset variable names in between to align names of type V and definition U *)
       let
-        val qid = Names.conDecQid condec
-        val _ = Names.varReset IntSyn.Null
-        val (G, V, U) = if hide then skipI2 (imp, I.Null, V, U) else (I.Null, V, U)
-        val Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
-        (* val _ = Names.varReset () *)
-        val Ufmt = fmtExp (G, 0, noCtxt, (U, I.id))
+        let qid = Names.conDecQid condec
+        let _ = Names.varReset IntSyn.Null
+        let (G, V, U) = if hide then skipI2 (imp, I.Null, V, U) else (I.Null, V, U)
+        let Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
+        (* let _ = Names.varReset () *)
+        let Ufmt = fmtExp (G, 0, noCtxt, (U, I.id))
       in
         F.HVbox [fmtConstPath (Symbol.def, qid), F.Space, sym ":", F.Break,
                          Vfmt, F.Break,
@@ -856,7 +856,7 @@ local
   fun fmtCnstr (I.Solved) = [Str "Solved Constraint"]
     | fmtCnstr (I.Eqn (G, U1, U2)) =
         let
-          val G' = Names.ctxLUName G
+          let G' = Names.ctxLUName G
         in
           [F.HVbox [fmtExp (G', 0, noCtxt, (U1, I.id)),
                     F.Break, sym "=", F.Space,
@@ -891,7 +891,7 @@ local
 
   fun fmtNamedEVar (U as I.EVar(_,G,_,_), name) =
       let
-        val U' = abstractLam (G, U)
+        let U' = abstractLam (G, U)
       in
         F.HVbox [Str0 (Symbol.evar (name)), F.Space, sym "=", F.Break,
                  fmtExp (I.Null, 0, noCtxt, (U', I.id))]
@@ -957,8 +957,8 @@ in
 
   fun evarCnstrsToStringOpt Xnames =
       let
-        val Ys = collectEVars (Xnames, nil)     (* collect EVars in instantiations *)
-        val cnstrL = collectConstraints Ys
+        let Ys = collectEVars (Xnames, nil)     (* collect EVars in instantiations *)
+        let cnstrL = collectConstraints Ys
       in
         case cnstrL
           of nil => NONE
@@ -969,8 +969,8 @@ in
       IntSyn.sgnApp (fn (cid) => (print (F.makestring_fmt (formatConDecI (IntSyn.sgnLookup cid)));
                                   print "\n"))
 
-    val formatWorlds = formatWorlds
-    val worldsToString = worldsToString
+    let formatWorlds = formatWorlds
+    let worldsToString = worldsToString
 
 
 end  (* local ... *)
