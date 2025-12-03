@@ -1,0 +1,10 @@
+module ModSyn =
+  ModSyn (module Global = Global
+          (*! module IntSyn' = IntSyn !*)
+          module Names' = Names
+          (*! module Paths' = Paths !*)
+          module Origins = Origins
+          module Whnf = Whnf
+          module Strict = Strict
+          module IntTree = IntRedBlackTree
+          module HashTable = StringHashTable);

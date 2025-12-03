@@ -1,0 +1,6 @@
+(* Print exception trace in unknownExn.  Both SML/NJ and MLton have
+   SMLofNJ.exnHistory.
+*)
+
+module UnknownExn =
+  UnknownExn (let exnHistory = SMLofNJ.exnHistory);

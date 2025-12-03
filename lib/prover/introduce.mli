@@ -1,0 +1,19 @@
+(* Introduce: Version 1.4 *)
+(* Author: Carsten Schuermann *)
+
+module type INTRODUCE = 
+sig
+  (*! module IntSyn : INTSYN !*)
+  (*! module Tomega : TOMEGA !*)
+  module State : STATE
+
+  exception Error of string
+
+  type operator
+
+  val expand :  State.Focus -> operator option
+  val apply : operator -> unit
+  val menu : operator -> string
+end; (* module type INTRODUCE *)
+
+
