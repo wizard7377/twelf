@@ -13,20 +13,20 @@ sig
     | Lex of 'a Order list              (*     | {O1 .. On}           *)
     | Simul of 'a Order list            (*     | [O1 .. On]           *)
 
-  type Predicate =                  (* Reduction Order            *)
+  type predicate =                  (* Reduction Order            *)
       Less of int Order * int Order     (* O < O'                     *)
     | Leq of int Order * int Order      (* O <= O'                    *)
     | Eq of int Order * int Order       (* O = O'                     *)
 
-  type Mutual =			(* Termination ordering       *)
+  type mutual =			(* Termination ordering       *)
       Empty				(* O ::= No order specified   *)
     | LE of IntSyn.cid * Mutual		(*     | mutual dependencies  *)
     | LT of IntSyn.cid * Mutual		(*     | lex order for  -     *)
 
-  type TDec =			(* Termination declaration *)
+  type tDec =			(* Termination declaration *)
       TDec of int Order * Mutual
 
-  type RDec =			(* Reduction declaration      *)
+  type rDec =			(* Reduction declaration      *)
       RDec of Predicate * Mutual
 
   val reset : unit -> unit

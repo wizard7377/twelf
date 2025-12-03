@@ -9,18 +9,18 @@ sig
   type label = int      
   type lemma = int 
 
-  type Worlds = Worlds of IntSyn.cid list
-    
-  type Quantifier = Implicit | Explicit
+  type worlds = Worlds of IntSyn.cid list
+
+  type quantifier = Implicit | Explicit
 
 
-  type TC	=			(* Terminiation Condition     *)
+  type tC	=			(* Terminiation Condition     *)
     Abs of IntSyn.Dec * TC      	(* T ::= {{D}} O              *)
   | Conj of TC * TC			(*     | O1 ^ O2              *)
   | Base of ((IntSyn.Exp * IntSyn.Sub) * 
 	     (IntSyn.Exp * IntSyn.Sub)) Order.Order
 
-  type For  			(* Formulas                   *)
+  type for  			(* Formulas                   *)
   = World of Worlds * For               (* F ::= World l1...ln. F     *)  
   | All of (Dec * Quantifier) * For     (*     | All LD. F            *)
   | Ex  of (IntSyn.Dec * Quantifier)  * For
@@ -81,7 +81,7 @@ sig
     Cases of (Dec IntSyn.Ctx * Sub * Prg) list
 					(* C ::= (Psi' |> s |-> P)    *)
 
-  type ConDec =			(* ConDec                     *)
+  type conDec =			(* ConDec                     *)
     ForDec of string * For		(* CD ::= f :: F              *)
   | ValDec of string * Prg * For	(*      | f == P              *)
 

@@ -93,7 +93,7 @@ local
       end
 
   (* ArgStatus classifies the number of arguments to an operator *)
-  type ArgStatus =
+  type argStatus =
       TooFew
     | Exact of I.Spine
     | TooMany of I.Spine * I.Spine

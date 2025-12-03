@@ -150,7 +150,7 @@ struct
      consistent with each other.
   *)
 
-  type Qid = Qid of string list * string
+  type qid = Qid of string list * string
 
   fun qidToString (Qid (ids, name)) =
         List.foldr (fn (id, s) => id ^ "." ^ s) name ids

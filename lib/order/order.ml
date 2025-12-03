@@ -17,7 +17,7 @@ struct
     | Simul of 'a Order list            (*     | [O1 .. On]           *)
 
 
-  type Predicate =
+  type predicate =
       Less of int Order * int Order
     | Leq of int Order * int Order
     | Eq of int Order * int Order
@@ -30,15 +30,15 @@ struct
   (*   ih a(i+1) .. an as long as the arguments are smaller or equal  *)
   (* then the ones of ai.                                             *)
 
-  type Mutual =                     (* Mutual dependencies        *)
+  type mutual =                     (* Mutual dependencies        *)
       Empty                             (* C ::= .                    *)
     | LE of IntSyn.cid * Mutual         (*     |  <= (a) C            *)
     | LT of IntSyn.cid * Mutual         (*     |  > (a) C             *)
 
-  type TDec =                       (* Termination declaration    *)
+  type tDec =                       (* Termination declaration    *)
       TDec of int Order * Mutual        (* TDec ::= (O, C)            *)
 
-  type RDec =                       (* Reduction declaration      *)
+  type rDec =                       (* Reduction declaration      *)
       RDec of Predicate * Mutual        (* RDec ::= (P, C)            *)
 
   local

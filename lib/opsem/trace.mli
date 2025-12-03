@@ -7,7 +7,7 @@ sig
   type goalTag
   val tagGoal : unit -> goalTag
 
-  type Event =
+  type event =
     IntroHyp of IntSyn.Head * IntSyn.Dec
   | DischargeHyp of IntSyn.Head * IntSyn.Dec
 

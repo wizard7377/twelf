@@ -29,10 +29,8 @@ struct
 
   exception Error of string
 
-  type Operator =
+  type operator =
     Local of Tomega.Prg * int
-
-  type operator = Operator
 
   local
     module S = State

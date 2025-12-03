@@ -6,7 +6,7 @@ sig
   (*! module IntSyn : INTSYN !*)
   (*! module FunSyn : FUNSYN !*)
 
-  type Order =	       	        (* Orders                     *)
+  type order =	       	        (* Orders                     *)
     Arg of (IntSyn.Exp * IntSyn.Sub) * 
            (IntSyn.Exp * IntSyn.Sub)	(* O ::= U[s] : V[s]          *)
   | Lex of Order list			(*     | (O1 .. On)           *)
@@ -15,17 +15,17 @@ sig
   | And of Order * Order		(*     | O1 ^ O2              *)
 
 
-  type Info =
+  type info =
     Splits of int
   | RL 
   | RLdone
     
-  type Tag = 
+  type tag = 
     Parameter of FunSyn.label option
   | Lemma of Info
   | None
 
-  type State =			(* S = <n, (G, B), (IH, OH), d, O, H, F> *)
+  type state =			(* S = <n, (G, B), (IH, OH), d, O, H, F> *)
     State of int			(* Part of theorem                   *)
 	   * (IntSyn.dctx	(* Context of Hypothesis, in general not named *)
            * Tag IntSyn.Ctx) (* Status information *)

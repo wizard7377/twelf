@@ -24,54 +24,54 @@ struct
   fun error (r, msg) = raise Error (Paths.wrap (r, msg))
 
 
-  type Param = string option
+  type param = string option
 
-  type Order =
+  type order =
     Varg of string list
-  | Lex of Order list
-  | Simul of Order list
+  | Lex of order list
+  | Simul of order list
 
   (* -bp *)
-  type Predicate = Less | Leq | Eq
+  type predicate = Less | Leq | Eq
 
-  type RedOrder =
-      RedOrder of Predicate * Order * Order
+  type redOrder =
+      RedOrder of predicate * order * order
 
-  type Callpats =
+  type callpats =
     Callpats of (IntSyn.cid * Param list) list
 
   (* Termination declaration *)
-  type TDecl =
-    TDecl of (Order * Callpats)
+  type tDecl =
+    TDecl of (order * callpats)
 
   (* -bp *)
   (* Reduction declaration *)
-  type RDecl =
-    RDecl of (RedOrder * Callpats)
+  type rDecl =
+    RDecl of (redOrder * callpats)
 
   (* Tabled declaration *)
-  type TabledDecl =
+  type tabledDecl =
     TabledDecl of IntSyn.cid
 
   (* KeepTable declaration *)
-  type KeepTableDecl =
+  type keepTableDecl =
     KeepTableDecl of IntSyn.cid
 
   (* Theorem declaration *)
-  type ThDecl =
+  type thDecl =
     ThDecl of (IntSyn.Dec IntSyn.Ctx * IntSyn.Dec IntSyn.Ctx) list
               * IntSyn.Dec IntSyn.Ctx * ModeSyn.Mode IntSyn.Ctx * int
 
   (* Proof declaration *)
-  type PDecl =
-    PDecl of int * TDecl
+  type pDecl =
+    PDecl of int * tDecl
 
   (* World declaration *)
 (*  type WDecl =
     WDecl of (IntSyn.Dec IntSyn.Ctx *
               IntSyn.Dec IntSyn.Ctx) list * Callpats *)
-  type WDecl =
-    WDecl of Names.Qid list * Callpats
+  type wDecl =
+    WDecl of Names.Qid list * callpats
 
   local
 

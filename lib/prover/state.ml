@@ -8,12 +8,12 @@ struct
   (*! module Tomega = Tomega' !*)
   module Formatter = Formatter
 
-  type State =
+  type state =
     State of Tomega.Worlds
       * Tomega.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For
   | StateLF of IntSyn.Exp    (* StateLF X, X is always lowered *)
 
-  type Focus =
+  type focus =
     Focus of Tomega.Prg * Tomega.Worlds
   | FocusLF of IntSyn.Exp
 

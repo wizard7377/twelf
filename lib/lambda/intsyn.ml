@@ -40,29 +40,29 @@ struct
         ctxLength' (G, 0)
       end
 
-  type FgnExp = exn                     (* foreign expression representation *)
+  type fgnExp = exn                     (* foreign expression representation *)
   exception UnexpectedFgnExp of FgnExp
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
-  type FgnCnstr = exn                   (* foreign unification constraint
+  type fgnCnstr = exn                   (* foreign unification constraint
                                            representation *)
   exception UnexpectedFgnCnstr of FgnCnstr
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
-  type Depend =                     (* Dependency information     *)
+  type depend =                     (* Dependency information     *)
     No                                  (* P ::= No                   *)
   | Maybe                               (*     | Maybe                *)
   | Meta                                (*     | Meta                 *)
 
   (* Expressions *)
 
-  type Uni =                        (* Universes:                 *)
+  type uni =                        (* Universes:                 *)
     Kind                                (* L ::= Kind                 *)
   | Type                                (*     | Type                 *)
 
-  type Exp =                        (* Expressions:               *)
+  type exp =                        (* Expressions:               *)
     Uni   of Uni                        (* U ::= L                    *)
   | Pi    of (Dec * Depend) * Exp       (*     | bPi (D, P). V         *)
   | Root  of Head * Spine               (*     | C @ S                *)
@@ -167,11 +167,11 @@ struct
     Anc of cid option * int * cid option (* head(expand(d)), height, head(expand[height](d)) *)
                                         (* NONE means expands to {x:A}B *)
 
-  type StrDec =                     (* Structure declaration      *)
+  type strDec =                     (* Structure declaration      *)
       StrDec of string * mid option
 
   (* Form of constant declaration *)
-  type ConDecForm =
+  type conDecForm =
     FromCS                              (* from constraint domain *)
   | Ordinary                            (* ordinary declaration *)
   | Clause                              (* %clause declaration *)

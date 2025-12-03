@@ -634,7 +634,7 @@ struct
 
   (* Final reconstruction job syntax *)
 
-  type Job =
+  type job =
       JNothing
     | JAnd of Job * Job
     | JWithCtx of IntSyn.Dec IntSyn.Ctx * Job
@@ -646,7 +646,7 @@ struct
      The idea is that Elim E represents a term U if
        E (s, S) = U[s] @ S *)
 
-  type Bidi =
+  type bidi =
       Elim of IntSyn.Sub * IntSyn.Spine -> IntSyn.Exp
     | Intro of IntSyn.Exp
 
@@ -776,7 +776,7 @@ struct
 
   (* tracing code *)
 
-  type TraceMode = Progressive | Omniscient
+  type traceMode = Progressive | Omniscient
   let trace = ref false
   let traceMode = ref Omniscient
 

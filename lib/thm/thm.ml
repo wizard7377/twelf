@@ -19,7 +19,7 @@ struct
   module TabledSyn = TabledSyn
 
   (* -bp *)
-  type Order = Varg | Lex of Order list | Simul of Order list
+  type order = Varg | Lex of order list | Simul of order list
 
   exception Error of string
 

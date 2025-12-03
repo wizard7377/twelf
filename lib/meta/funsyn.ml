@@ -19,27 +19,27 @@ struct
 
   type dlist = IntSyn.Dec list
 
-  type LabelDec =                   (* ContextBody                *)
+  type labelDec =                   (* ContextBody                *)
     LabelDec of name * dlist * dlist
                                         (* BB ::= l: SOME Theta. Phi  *)
 
-  type CtxBlock =                   (* ContextBlocks              *)
+  type ctxBlock =                   (* ContextBlocks              *)
     CtxBlock of
       label option * IntSyn.dctx        (* B ::= l : Phi              *)
 
-  type LFDec =                      (* Contexts                   *)
+  type lfDec =                      (* Contexts                   *)
     Prim of IntSyn.Dec                  (* LD ::= x :: A              *)
   | Block of CtxBlock                   (*      | B                   *)
 
   type lfctx = LFDec IntSyn.Ctx         (* Psi ::= . | Psi, LD        *)
 
-  type For =                        (* Formulas                   *)
+  type for =                        (* Formulas                   *)
     All of LFDec * For                  (* F ::= All LD. F            *)
   | Ex  of IntSyn.Dec * For             (*     | Ex  D. F             *)
   | True                                (*     | T                    *)
   | And of For * For                    (*     | F1 ^ F2              *)
 
-  type Pro =                        (* Programs                   *)
+  type pro =                        (* Programs                   *)
     Lam of LFDec * Pro                  (* P ::= lam LD. P            *)
   | Inx of IntSyn.Exp * Pro             (*     | <M, P>               *)
   | Unit                                (*     | <>                   *)
@@ -65,7 +65,7 @@ struct
   | Left of int * Decs                  (*      | xx = pi1 yy, Ds     *)
   | Right of int * Decs                 (*      | xx = pi2 yy, Ds     *)
 
-  type LemmaDec =                   (* Lemmas                     *)
+  type lemmaDec =                   (* Lemmas                     *)
     LemmaDec of name list * Pro * For   (* L ::= c:F = P              *)
 
   type mctx = MDec IntSyn.Ctx           (* Delta ::= . | Delta, xx : F*)

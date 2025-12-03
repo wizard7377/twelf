@@ -21,7 +21,7 @@ struct
 
 
 
-type Ast =  Ast of Decs
+type ast =  Ast of Decs
 
 and Decs
   = Empty

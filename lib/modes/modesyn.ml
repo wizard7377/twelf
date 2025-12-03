@@ -7,12 +7,12 @@ sig
 
   (*! module IntSyn : INTSYN !*)
 
-  type Mode = Plus | Star | Minus | Minus1
-  type ModeSpine = Mnil | Mapp of Marg * ModeSpine
-  and Marg = Marg of Mode * string option
+  type mode = Plus | Star | Minus | Minus1
+  type modeSpine = Mnil | Mapp of Marg * modeSpine
+  and Marg = Marg of mode * string option
 
-  let modeEqual : Mode * Mode -> bool
-  let modeToString : Mode -> string
+  let modeEqual : mode * mode -> bool
+  let modeToString : mode -> string
 end;  (* module type MODESYN *)
 
 
@@ -21,9 +21,9 @@ struct
 
   exception Error of string
 
-  type Mode = Plus | Star | Minus | Minus1
-  type ModeSpine = Mnil | Mapp of Marg * ModeSpine
-  and  Marg = Marg of Mode * string option
+  type mode = Plus | Star | Minus | Minus1
+  type modeSpine = Mnil | Mapp of Marg * modeSpine
+  and  Marg = Marg of mode * string option
    
 
   (* modeEqual (M1, M2) = true iff M1 = M2 *)

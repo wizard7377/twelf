@@ -7,11 +7,11 @@ sig
 
   (*! module IntSyn : INTSYN !*)
 
-  type Opt = No | LinearHeads | Indexing 
+  type opt = No | LinearHeads | Indexing 
 
   val optimize : Opt ref
 
-  type Goal =                       (* Goals                      *)
+  type goal =                       (* Goals                      *)
     Atom of IntSyn.Exp                  (* g ::= p                    *)
   | Impl of ResGoal * IntSyn.Exp        (*     | (r,A,a) => g         *)
             * IntSyn.Head * Goal		
@@ -38,13 +38,13 @@ sig
 
   (* Static programs -- compiled version for substitution trees *)
 
-  type Conjunction = True | Conjunct of Goal * IntSyn.Exp * Conjunction
+  type conjunction = True | Conjunct of goal * IntSyn.Exp * conjunction
 
-  type CompHead = 
+  type compHead = 
      Head of (IntSyn.Exp * IntSyn.Dec IntSyn.Ctx * AuxGoal * IntSyn.cid)
 
  (* pskeleton instead of proof term *)
-  type Flatterm = 
+  type flatterm = 
     Pc of int | Dc of int | Csolver of IntSyn.Exp
 
   type pskeleton = Flatterm list  
@@ -54,17 +54,17 @@ sig
 
   (* Compiled Declarations *)
   (* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
-  type ComDec
+  type comDec
   = Parameter
   | Dec of ResGoal * IntSyn.Sub * IntSyn.Head
   | BDec of (ResGoal * IntSyn.Sub * IntSyn.Head) list
   | PDec
 
   (* Dynamic programs: context with synchronous clause pool *)
-  type DProg = DProg of (IntSyn.dctx * ComDec IntSyn.Ctx)
+  type dProg = DProg of (IntSyn.dctx * comDec IntSyn.Ctx)
 
   (* Programs --- compiled version of the module type (no direct head access) *)
-  type ConDec =			      (* Compiled constant declaration *)
+  type conDec =			      (* Compiled constant declaration *)
        SClause of ResGoal                     (* c : A  -- static clause (residual goal) *)
     | Void 		                      (* Other declarations are ignored  *)
 

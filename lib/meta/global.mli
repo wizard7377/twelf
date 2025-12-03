@@ -3,7 +3,7 @@
 
 module type MTPGLOBAL =
 sig
-  type ProverType = New | Old
+  type proverType = New | Old
 
   val prover : ProverType ref
   val maxFill : int ref

@@ -6,12 +6,12 @@ sig
 
   (*! module IntSyn : INTSYN !*)
 
-  type Uni =
+  type uni =
       Level of int (* 1 = type, 2 = kind, 3 = hyperkind, etc. *)
     | Next of Uni
     | LVar of Uni option ref
               
-  type Exp =
+  type exp =
       Uni of Uni
     | Arrow of Exp * Exp 
     | Const of IntSyn.Head (* Const/Def/NSDef *)

@@ -26,10 +26,10 @@ struct
 
   exception Error of string
 
-  type ConstInfo =
+  type constInfo =
       ConstInfo of IntSyn.ConDec * Names.Fixity.fixity * (string list * string list) option * (string * Paths.occConDec option)
 
-  type StructInfo =
+  type structInfo =
       StructInfo of IntSyn.StrDec
 
   (* A module consists of:

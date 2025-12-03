@@ -16,7 +16,7 @@ struct
   (*! module IntSyn = IntSyn' !*)
 
 
-  type Opt = No | LinearHeads | Indexing
+  type opt = No | LinearHeads | Indexing
 
   let optimize = ref LinearHeads
 
@@ -48,14 +48,14 @@ struct
              * IntSyn.Exp * AuxGoal
 
   (* Static programs -- compiled version for substitution trees *)
-  type Conjunction = True | Conjunct of goal * IntSyn.Exp * Conjunction
+  type conjunction = True | Conjunct of goal * IntSyn.Exp * conjunction
 
-  type CompHead =
+  type compHead =
      Head of (IntSyn.Exp * IntSyn.Dec IntSyn.Ctx * AuxGoal * IntSyn.cid)
 
 
   (* proof skeletons instead of proof term *)
-  type Flatterm =
+  type flatterm =
     Pc of IntSyn.cid | Dc of IntSyn.cid | Csolver of IntSyn.Exp
 
   type pskeleton = Flatterm list
@@ -111,18 +111,18 @@ struct
   *)
 
   (* Static programs --- compiled version of the module type (no indexing) *)
-  type ConDec =                        (* Compiled constant declaration           *)
+  type conDec =                        (* Compiled constant declaration           *)
        SClause of ResGoal                  (* c : A  -- static clause (residual goal) *)
     | Void                                 (* Other declarations are ignored          *)
 
   (* Static programs --- compiled version of the module type (indexed by first argument) *)
-  type ConDecDirect =                  (* Compiled constant declaration     *)
+  type conDecDirect =                  (* Compiled constant declaration     *)
       HeadGoals of CompHead * Conjunction  (* static clause with direct head access   *)
     | Null                                 (* Other declarations are ignored          *)
 
   (* Compiled Declarations *)
   (* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
-  type ComDec =
+  type comDec =
     Parameter
   | Dec of ResGoal * IntSyn.Sub * IntSyn.Head
   | BDec of (ResGoal * IntSyn.Sub *IntSyn.Head) list
@@ -131,7 +131,7 @@ struct
   (* The dynamic clause pool --- compiled version of the context *)
   (* Dynamic programs: context with synchronous clause pool *)
 
-  type DProg = DProg of IntSyn.dctx * ComDec IntSyn.Ctx
+  type dProg = DProg of IntSyn.dctx * comDec IntSyn.Ctx
 
   local
     let maxCid = Global.maxCid

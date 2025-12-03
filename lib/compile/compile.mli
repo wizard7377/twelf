@@ -13,7 +13,7 @@ sig
 
   exception Error of string
 
-  type Opt = type CompSyn.Opt
+  type opt = type CompSyn.Opt
 
   val optimize : Opt ref
 

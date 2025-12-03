@@ -52,7 +52,7 @@ sig
   val resetErrors : string -> unit      (* filename -fp *)
   val checkErrors : Paths.region -> unit
 
-  type TraceMode = Progressive | Omniscient
+  type traceMode = Progressive | Omniscient
   val trace : bool ref
   val traceMode : TraceMode ref
 
@@ -67,7 +67,7 @@ sig
   val jof : term * term -> job
   val jof' : term * IntSyn.Exp -> job
 
-  type Job =
+  type job =
       JNothing
     | JAnd of Job * Job
     | JWithCtx of IntSyn.Dec IntSyn.Ctx * Job
