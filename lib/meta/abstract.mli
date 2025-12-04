@@ -18,11 +18,11 @@ sig
   val weaken : IntSyn.dctx * IntSyn.cid -> IntSyn.Sub
   val raiseType : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp 
       
-  val abstractSub : IntSyn.Sub * StateSyn.Tag IntSyn.Ctx * (IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub * StateSyn.Tag IntSyn.Ctx
-        -> ((IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub)
-  val abstractSub' : (IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub * StateSyn.Tag IntSyn.Ctx
-        -> ((IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub)
+  val abstractSub : IntSyn.Sub * StateSyn.tag IntSyn.Ctx * (IntSyn.dctx * StateSyn.tag IntSyn.Ctx) * IntSyn.Sub * StateSyn.tag IntSyn.Ctx
+        -> ((IntSyn.dctx * StateSyn.tag IntSyn.Ctx) * IntSyn.Sub)
+  val abstractSub' : (IntSyn.dctx * StateSyn.tag IntSyn.Ctx) * IntSyn.Sub * StateSyn.tag IntSyn.Ctx
+        -> ((IntSyn.dctx * StateSyn.tag IntSyn.Ctx) * IntSyn.Sub)
 
 
-  val abstractApproxFor : ApproxFor -> FunSyn.For
+  val abstractApproxFor : ApproxFor -> FunSyn.for
 end;  (* module type MTPABSTRACT *)

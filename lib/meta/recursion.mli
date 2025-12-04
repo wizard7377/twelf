@@ -9,7 +9,7 @@ sig
 
   type operator
     
-  val expand : StateSyn.State -> operator 
-  val apply : operator -> StateSyn.State
+  val expand : StateSyn.state -> operator 
+  val apply : operator -> StateSyn.state
   val menu : operator -> string
 end;  (* module type MTPRECURSION *)

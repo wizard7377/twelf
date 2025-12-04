@@ -35,12 +35,12 @@ sig
            * (int * FunSyn.For) list	(* History of residual lemmas *)
            * FunSyn.For			(* Formula *)
 
-  val orderSub : Order * IntSyn.Sub -> Order  
+  val orderSub : order * IntSyn.Sub -> order  
   val decrease : Tag -> Tag
   val splitDepth : Info -> int
 
-  val normalizeOrder : Order -> Order
-  val convOrder : Order * Order -> bool
+  val normalizeOrder : order -> order
+  val convOrder : order * order -> bool
 
-  val normalizeTag : Tag * IntSyn.Sub -> Tag
+  val normalizeTag : tag * IntSyn.Sub -> tag
 end; (* module type STATESYN *)

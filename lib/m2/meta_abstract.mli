@@ -7,5 +7,5 @@ sig
 
   exception Error of string
 
-  val abstract : MetaSyn.State -> MetaSyn.State
+  val abstract : MetaSyn.state -> MetaSyn.state
 end;  (* module type METAABSTRACT *)

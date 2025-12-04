@@ -8,8 +8,8 @@ sig
 
   exception Error of string
 
-  val convertFor : IntSyn.cid list -> FunSyn.For
-  val convertPro : IntSyn.cid list -> FunSyn.Pro
+  val convertFor : IntSyn.cid list -> FunSyn.for
+  val convertPro : IntSyn.cid list -> FunSyn.pro
 end (* Signature RELFUN *)       
 
 
