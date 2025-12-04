@@ -15,19 +15,19 @@ struct
   type quantifier = Implicit | Explicit
 
   type tC   =                       (* Terminiation Condition     *)
-    Abs of IntSyn.Dec * TC              (* T ::= {{D}} O              *)
-  | Conj of TC * TC                     (*     | O1 ^ O2              *)
+    Abs of IntSyn.Dec * tC              (* T ::= {{D}} O              *)
+  | Conj of tC * tC                     (*     | O1 ^ O2              *)
   | Base of ((IntSyn.Exp * IntSyn.Sub) *
              (IntSyn.Exp * IntSyn.Sub)) Order.Order
 
   type for                          (* Formulas                   *)
-  = World of Worlds * For               (* F ::= World l1...ln. F     *)
-  | All of (Dec * Quantifier) * For     (*     | All LD. F            *)
-  | Ex  of (IntSyn.Dec * Quantifier) * For
+  = World of worlds * for               (* F ::= World l1...ln. F     *)
+  | All of (Dec * quantifier) * for     (*     | All LD. F            *)
+  | Ex  of (IntSyn.Dec * quantifier) * for
                                         (*     | Ex  D. F             *)
   | True                                (*     | T                    *)
-  | And of For * For                    (*     | F1 ^ F2              *)
-  | FClo of For * Sub                   (*     | F [t]                *)
+  | And of for * for                    (*     | F1 ^ F2              *)
+  | FClo of for * Sub                   (*     | F [t]                *)
   | FVar of (Dec IntSyn.Ctx * For option ref)
                                         (*     | F (G)                *)
 

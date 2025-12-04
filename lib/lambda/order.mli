@@ -20,14 +20,14 @@ sig
 
   type mutual =			(* Termination ordering       *)
       Empty				(* O ::= No order specified   *)
-    | LE of IntSyn.cid * Mutual		(*     | mutual dependencies  *)
-    | LT of IntSyn.cid * Mutual		(*     | lex order for  -     *)
+    | LE of IntSyn.cid * mutual		(*     | mutual dependencies  *)
+    | LT of IntSyn.cid * mutual		(*     | lex order for  -     *)
 
   type tDec =			(* Termination declaration *)
-      TDec of int Order * Mutual
+      TDec of int order * mutual
 
   type rDec =			(* Reduction declaration      *)
-      RDec of Predicate * Mutual
+      RDec of predicate * mutual
 
   val reset : unit -> unit
   val resetROrder : unit -> unit

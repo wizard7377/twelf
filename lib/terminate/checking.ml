@@ -35,7 +35,7 @@ struct
   module Order = Order
   (*! module Paths = Paths !*)
 
-    type Quantifier =        (* Quantifier to mark parameters *)
+    type quantifier =        (* Quantifier to mark parameters *)
       All                        (* Q ::= All                     *)
     | Exist                      (*     | Exist                   *)
     | And of Paths.occ           (*     | And                     *)

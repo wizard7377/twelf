@@ -32,14 +32,14 @@ struct
 
   type mutual =                     (* Mutual dependencies        *)
       Empty                             (* C ::= .                    *)
-    | LE of IntSyn.cid * Mutual         (*     |  <= (a) C            *)
-    | LT of IntSyn.cid * Mutual         (*     |  > (a) C             *)
+    | LE of IntSyn.cid * mutual         (*     |  <= (a) C            *)
+    | LT of IntSyn.cid * mutual         (*     |  > (a) C             *)
 
   type tDec =                       (* Termination declaration    *)
-      TDec of int Order * Mutual        (* TDec ::= (O, C)            *)
+      TDec of int order * mutual        (* TDec ::= (O, C)            *)
 
   type rDec =                       (* Reduction declaration      *)
-      RDec of Predicate * Mutual        (* RDec ::= (P, C)            *)
+      RDec of predicate * mutual        (* RDec ::= (P, C)            *)
 
   local
     module I = IntSyn

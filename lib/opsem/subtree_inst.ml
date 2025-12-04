@@ -101,7 +101,7 @@ let recctor MemoTableInst ((*! module IntSyn' : INTSYN !*)
         ctx  (* D *) * IntSyn.dctx (* G *) *
         TableParam.ResEqn * TableParam.answer *
         int * TableParam.Status) list) ref
-    | Node of (ctx *  normalSubsts) * (Tree ref) list
+    | Node of (ctx *  normalSubsts) * (tree ref) list
 
   fun makeTree () = ref (Node ((emptyCtx(), nid ()), []))
 

@@ -34,19 +34,19 @@ struct
   type lfctx = LFDec IntSyn.Ctx         (* Psi ::= . | Psi, LD        *)
 
   type for =                        (* Formulas                   *)
-    All of LFDec * For                  (* F ::= All LD. F            *)
-  | Ex  of IntSyn.Dec * For             (*     | Ex  D. F             *)
+    All of lfDec * for                  (* F ::= All LD. F            *)
+  | Ex  of IntSyn.Dec * for             (*     | Ex  D. F             *)
   | True                                (*     | T                    *)
-  | And of For * For                    (*     | F1 ^ F2              *)
+  | And of for * for                    (*     | F1 ^ F2              *)
 
   type pro =                        (* Programs                   *)
-    Lam of LFDec * Pro                  (* P ::= lam LD. P            *)
-  | Inx of IntSyn.Exp * Pro             (*     | <M, P>               *)
+    Lam of lfDec * pro                  (* P ::= lam LD. P            *)
+  | Inx of IntSyn.Exp * pro             (*     | <M, P>               *)
   | Unit                                (*     | <>                   *)
-  | Rec of MDec * Pro                   (*     | mu xx. P             *)
-  | Let of Decs * Pro                   (*     | let Ds in P          *)
+  | Rec of MDec * pro                   (*     | mu xx. P             *)
+  | Let of Decs * pro                   (*     | let Ds in P          *)
   | Case of Opts                        (*     | case O               *)
-  | Pair of Pro * Pro                   (*     | <P1, P2>             *)
+  | Pair of pro * pro                   (*     | <P1, P2>             *)
 
   and Opts =                            (* Option list                *)
     Opts of (lfctx * IntSyn.Sub * Pro) list

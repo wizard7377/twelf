@@ -14,8 +14,8 @@ sig
   type goal =                       (* Goals                      *)
     Atom of IntSyn.Exp                  (* g ::= p                    *)
   | Impl of ResGoal * IntSyn.Exp        (*     | (r,A,a) => g         *)
-            * IntSyn.Head * Goal		
-  | All  of IntSyn.Dec * Goal           (*     | all x:A. g           *)
+            * IntSyn.Head * goal		
+  | All  of IntSyn.Dec * goal           (*     | all x:A. g           *)
 
   (* dynamic clauses *)
   and ResGoal =                         (* Residual Goals             *)
