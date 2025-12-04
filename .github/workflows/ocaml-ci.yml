@@ -1,0 +1,22 @@
+name: OCaml CI
+on: 
+  workflow_call:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  ocaml-ci:
+    runs-on: ubuntu-latest
+    container:
+      image: ocaml/opam:latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Dune Setup
+        run: opam install dune 
+      - name: Dune Build 
+        run: dune build
+      
