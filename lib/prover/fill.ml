@@ -33,7 +33,7 @@ struct
 
   exception Error of string
 
-  type Operator =
+  type operator =
     FillWithConst of IntSyn.Exp * IntSyn.cid
        (* Representation Invariant:  FillWithConst (X, c) :
            X is an evar GX |- X : VX

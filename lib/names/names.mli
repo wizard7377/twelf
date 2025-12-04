@@ -44,11 +44,11 @@ sig
 
   (* Constant names and fixities *)
 
-  type Qid = Qid of string list * string
+  type qid = Qid of string list * string
 
-  val qidToString : Qid -> string
-  val stringToQid : string -> Qid option
-  val unqualified : Qid -> string option
+  val qidToString : qid -> string
+  val stringToQid : string -> qid option
+  val unqualified : qid -> string option
 
   type namespace
 
@@ -66,15 +66,15 @@ sig
   val installConstName : IntSyn.cid -> unit
   val installStructName : IntSyn.mid -> unit
 
-  val constLookup : Qid -> IntSyn.cid option
-  val structLookup : Qid -> IntSyn.mid option
-  val constUndef : Qid -> Qid option (* shortest undefined prefix of Qid *)
-  val structUndef : Qid -> Qid option
+  val constLookup : qid -> IntSyn.cid option
+  val structLookup : qid -> IntSyn.mid option
+  val constUndef : qid -> qid option (* shortest undefined prefix of Qid *)
+  val structUndef : qid -> qid option
 
-  val constLookupIn : namespace * Qid -> IntSyn.cid option
-  val structLookupIn : namespace * Qid -> IntSyn.mid option
-  val constUndefIn : namespace * Qid -> Qid option
-  val structUndefIn : namespace * Qid -> Qid option
+  val constLookupIn : namespace * qid -> IntSyn.cid option
+  val structLookupIn : namespace * qid -> IntSyn.mid option
+  val constUndefIn : namespace * qid -> qid option
+  val structUndefIn : namespace * qid -> qid option
 
   (* This function maps cids/mids to names.  It uses the information in
      the IntSyn.ConDec or IntSyn.StrDec entries only, and only considers
@@ -82,13 +82,13 @@ sig
      name is shadowed (any constant or module whose canonical name
      would map to something else, or to nothing at all, in the case of
      an anonymous module, is shadowed). *)
-  val conDecQid : IntSyn.ConDec -> Qid
-  val constQid : IntSyn.cid -> Qid (* will mark if shadowed *)
-  val structQid : IntSyn.mid -> Qid (* will mark if shadowed *)
+  val conDecQid : IntSyn.ConDec -> qid
+  val constQid : IntSyn.cid -> qid (* will mark if shadowed *)
+  val structQid : IntSyn.mid -> qid (* will mark if shadowed *)
 
   val installFixity : IntSyn.cid * Fixity.fixity -> unit
   val getFixity : IntSyn.cid -> Fixity.fixity
-  val fixityLookup : Qid -> Fixity.fixity (* Nonfix if undefined *)
+  val fixityLookup : qid -> Fixity.fixity (* Nonfix if undefined *)
 
   (* Name preferences for anonymous variables: a, EPref, UPref *)
   val installNamePref : IntSyn.cid * (string list * string list) -> unit

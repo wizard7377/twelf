@@ -5,16 +5,16 @@ module type METASYN =
 sig
   (*! module IntSyn : INTSYN !*)
 
-  type Mode =			(* Mode                       *)
+  type mode =			(* Mode                       *)
     Bot					(* M ::= Bot                  *)
   | Top					(*     | Top                  *)
 
-  type Prefix =			(* Prefix P := *)
+  type prefix =			(* Prefix P := *)
     Prefix of IntSyn.dctx		(* G   declarations           *)
             * Mode IntSyn.Ctx		(* Mtx modes                  *)
             * int IntSyn.Ctx		(* Btx splitting depths       *)
 
-  type State =			(* State S :=                 *)
+  type state =			(* State S :=                 *)
     State of string			(*             [name]         *)
              * Prefix			(*             G; Mtx; Btx    *)
              * IntSyn.Exp		(*             |- V           *)

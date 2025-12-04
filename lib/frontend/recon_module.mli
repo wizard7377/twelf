@@ -40,7 +40,7 @@ sig
 
   type whereclause
 
-  type StructDec =
+  type structDec =
       StructDec of string option * ModSyn.module * whereclause list
     | StructDef of string option * IntSyn.mid
 

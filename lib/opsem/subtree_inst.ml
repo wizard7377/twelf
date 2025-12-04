@@ -95,23 +95,23 @@ let recctor MemoTableInst ((*! module IntSyn' : INTSYN !*)
      This allows us to maintain invariant, that every occurrence of an evar is
      defined in its evar-ctx
   *)
-  type Tree =
+  type tree =
       Leaf of (ctx *  normalSubsts) *
       (((int (* #EVar *) * int (* #G *)) *
         ctx  (* D *) * IntSyn.dctx (* G *) *
         TableParam.ResEqn * TableParam.answer *
         int * TableParam.Status) list) ref
-    | Node of (ctx *  normalSubsts) * (Tree ref) list
+    | Node of (ctx *  normalSubsts) * (tree ref) list
 
   fun makeTree () = ref (Node ((emptyCtx(), nid ()), []))
 
   fun noChildren C = (C=[])
 
-  type Retrieval =
+  type retrieval =
       Variant of (int * IntSyn.Exp)
     | NotCompatible
 
-  type CompSub =
+  type compSub =
       SplitSub of ((ctx * normalSubsts (* sigma *)) *
                    (ctx * normalSubsts (* rho1 *)) *
                    (ctx * normalSubsts (* rho2 *)))

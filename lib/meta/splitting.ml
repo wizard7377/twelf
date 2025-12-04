@@ -60,11 +60,9 @@ struct
   type 'a flag =
     Active of 'a | InActive
 
-  type Operator =
+  type operator =
     Operator of (StateSyn.State * int) * StateSyn.State flag list
                    * Heuristic.index
-
-  type operator = Operator
 
   local
     module I = IntSyn

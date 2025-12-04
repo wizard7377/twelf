@@ -79,19 +79,19 @@ struct
 
   type normalSubsts =  (typeLabel * IntSyn.Exp) RBSet.ordSet  (* key = int = bvar *)
 
-  type AssSub = Assign of (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp)
+  type assSub = Assign of (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp)
   type assSubsts = AssSub RBSet.ordSet          (* key = int = bvar *)
 
   type querySubsts = (IntSyn.Dec IntSyn.Ctx * (typeLabel * IntSyn.Exp)) RBSet.ordSet
 
-  type Cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
+  type cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
   type cnstrSubsts = IntSyn.Exp RBSet.ordSet    (* key = int = bvar *)
 
-  type CGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
+  type cGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
 
   type genType  = Top | Regular
 
-  type Tree =
+  type tree =
     Leaf of normalSubsts  * IntSyn.Dec IntSyn.Ctx * CGoal
   | Node of normalSubsts  * Tree RBSet.ordSet
 

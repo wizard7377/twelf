@@ -93,7 +93,7 @@ sig
   val autoFreeze : bool ref		(* false, freezes families in meta-theorems *)
   val timeLimit : (Time.time option) ref     (* NONEe, allows timeLimit in seconds *)
 
-  type Status = OK | ABORT	       (* return status *)
+  type status = OK | ABORT	       (* return status *)
 
   val reset : unit -> unit	       (* reset global module type *)
   val loadFile : string -> Status      (* load file *)

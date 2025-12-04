@@ -39,7 +39,7 @@ struct
 
   fun strexpToStrexp (f:strexp) = #1 (f ())
 
-  type Inst =
+  type inst =
       External of ExtSyn.term
     | Internal of IntSyn.cid
 
@@ -125,7 +125,7 @@ struct
 
   fun sigdefToSigdef (sigdef, moduleOpt) = sigdef moduleOpt
 
-  type StructDec =
+  type structDec =
       StructDec of string option * ModSyn.module * whereclause list
     | StructDef of string option * IntSyn.mid
 

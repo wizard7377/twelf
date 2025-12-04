@@ -81,11 +81,11 @@ struct
 
   (* Follow path through a term to obtain subterm *)
 
-  type Path =
-     Label of Path                      (* [x:#] U or {x:#} V *)
-   | Body of Path                       (* [x:V] # or {x:V} # *)
+  type path =
+     Label of path                      (* [x:#] U or {x:#} V *)
+   | Body of path                       (* [x:V] # or {x:V} # *)
    | Head                               (* # @ S, term in normal form *)
-   | Arg of int * Path                  (* C @ S1; ...; #; ...; Sn; Nil *)
+   | Arg of int * path                  (* C @ S1; ...; #; ...; Sn; Nil *)
    | Here                               (* #, covers Uni, EVar, Redex(?) *)
 
   (* Occurrences: paths in reverse order *)

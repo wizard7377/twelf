@@ -15,12 +15,12 @@ struct
     module P = Paths
   in
 
-  type IdCase =
+  type idCase =
       Upper                             (* [A-Z]<id> or _<id> *)
     | Lower                             (* any other <id> *)
     | Quoted                            (* '<id>', currently unused *)
 
-  type Token =
+  type token =
       EOF                               (* end of file or stream, also `%.' *)
     | DOT                               (* `.' *)
     | PATHSEP                           (* `.' between <id>s *)

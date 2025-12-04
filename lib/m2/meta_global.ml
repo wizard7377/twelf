@@ -3,7 +3,7 @@
 
 module MetaGlobal : METAGLOBAL =
 struct
-  type Strategy = RFS | FRS
+  type strategy = RFS | FRS
 
   let strategy = ref FRS
   let maxFill = ref 6

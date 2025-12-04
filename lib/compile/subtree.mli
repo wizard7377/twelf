@@ -18,15 +18,15 @@ sig
   type normalSubsts =  (typeLabel * IntSyn.Exp) RBSet.ordSet 
   type querySubsts = (IntSyn.Dec IntSyn.Ctx * (typeLabel * IntSyn.Exp)) RBSet.ordSet 
 
-  type CGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid  * CompSyn.Conjunction * int
+  type cGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid  * CompSyn.Conjunction * int
 
   (* assignable (linear) subsitutions *)
-  type AssSub = Assign of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp
+  type assSub = Assign of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp
   type assSubsts = AssSub RBSet.ordSet  (* key = int = bvar *) 
 
-  type Cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
+  type cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
       
-  type Tree = 
+  type tree = 
     Leaf of normalSubsts *  IntSyn.Dec IntSyn.Ctx * CGoal
   | Node of normalSubsts * Tree RBSet.ordSet
 

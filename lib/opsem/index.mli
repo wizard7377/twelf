@@ -10,7 +10,7 @@ sig
   type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list,
 		 lookup: int}
 
-  type Strategy = Variant | Subsumption
+  type strategy = Variant | Subsumption
 
   val strategy  : Strategy ref 
 

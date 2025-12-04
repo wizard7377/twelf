@@ -4,7 +4,7 @@
 let recctor MTPGlobal
   (module MetaGlobal : METAGLOBAL): MTPGLOBAL =
 struct
-  type ProverType = New | Old
+  type proverType = New | Old
 
   let prover = ref New
   let maxFill = MetaGlobal.maxFill

@@ -3,7 +3,7 @@
 
 module type METAGLOBAL =
 sig
-  type Strategy = RFS | FRS
+  type strategy = RFS | FRS
 
   val strategy : Strategy ref
   val maxFill : int ref

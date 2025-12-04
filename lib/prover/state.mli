@@ -5,12 +5,12 @@ module type STATE =
 sig
   exception Error of string
 
-  type State =
+  type state =
     State of Tomega.Worlds 
       * Tomegas.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For	
   | StateLF of IntSyn.Exp
 
-  type Focus = 
+  type focus = 
     Focus of Tomega.Prg * Tomega.Worlds (* Focus (EVar, W) *)
   | FocusLF of IntSyn.Exp	        (* focus EVar *)
  

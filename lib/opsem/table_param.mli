@@ -10,18 +10,18 @@ sig
   exception Error of string
 
   (* Residual equation *)
-  type ResEqn =
+  type resEqn =
     Trivial				  (* trivially done *)
   | Unify of IntSyn.dctx * IntSyn.Exp     (* call unify *)
-    * IntSyn.Exp * ResEqn
+    * IntSyn.Exp * resEqn
 
   type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list,
 		 lookup: int} ref
     
-  type Status = Complete | Incomplete
+  type status = Complete | Incomplete
 
   val globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * 
-		      IntSyn.Exp * ResEqn * answer * Status ) list ref
+		      IntSyn.Exp * resEqn * answer * status ) list ref
 
   val resetGlobalTable : unit -> unit
 
@@ -51,7 +51,7 @@ sig
 
 (* ---------------------------------------------------------------------- *)
 
-  type Strategy = Variant | Subsumption
+  type strategy = Variant | Subsumption
 
 
   val strategy  : Strategy ref 

@@ -9,35 +9,35 @@ sig
   type label = int      
   type lemma = int 
 
-  type LabelDec =			(* ContextBody                *)
+  type labelDec =			(* ContextBody                *)
     LabelDec of string * IntSyn.Dec list * IntSyn.Dec list
 					(* BB ::= l: SOME Theta. Phi  *)
 
-  type CtxBlock =                   (* ContextBlocks              *)
+  type ctxBlock =                   (* ContextBlocks              *)
     CtxBlock of 
      label option * IntSyn.dctx		(* B ::= l : Phi              *) 
 
-  type LFDec =			(* Contexts                   *)
+  type lfDec =			(* Contexts                   *)
     Prim of IntSyn.Dec			(* LD ::= x :: A              *)
   | Block of CtxBlock			(*      | B                   *)
 
   (* ??? *)
   type lfctx = LFDec IntSyn.Ctx         (* Psi ::= . | Psi, LD        *) 
 
-  type For =			(* Formulas                   *)
-    All of LFDec * For			(* F ::= All LD. F            *)
-  | Ex  of IntSyn.Dec * For		(*     | Ex  D. F             *)
+  type for =			(* Formulas                   *)
+    All of lfDec * for			(* F ::= All LD. F            *)
+  | Ex  of IntSyn.Dec * for		(*     | Ex  D. F             *)
   | True				(*     | T                    *)
-  | And of For * For                    (*     | F1 ^ F2              *)
+  | And of for * for                    (*     | F1 ^ F2              *)
 
-  type Pro =			(* Programs                   *)
-    Lam of LFDec * Pro			(* P ::= lam LD. P            *)
-  | Inx of IntSyn.Exp * Pro             (*     | <M, P>               *)
+  type pro =			(* Programs                   *)
+    Lam of lfDec * pro			(* P ::= lam LD. P            *)
+  | Inx of IntSyn.Exp * pro             (*     | <M, P>               *)
   | Unit				(*     | <>                   *)
-  | Rec of MDec * Pro			(*     | mu xx. P             *)
-  | Let of Decs * Pro			(*     | let Ds in P          *)
+  | Rec of MDec * pro			(*     | mu xx. P             *)
+  | Let of Decs * pro			(*     | let Ds in P          *)
   | Case of Opts                        (*     | case O               *)
-  | Pair of Pro * Pro                   (*     | <P1, P2>             *)
+  | Pair of pro * pro                   (*     | <P1, P2>             *)
 
   and Opts =				(* Option list                *)
     Opts of (lfctx * IntSyn.Sub * Pro) list
@@ -56,7 +56,7 @@ sig
   | Left of int * Decs                  (*      | xx = pi1 yy, Ds     *)
   | Right of int * Decs                 (*      | xx = pi2 yy, Ds     *)
  
-  type LemmaDec =			(* Lemmas                     *)
+  type lemmaDec =			(* Lemmas                     *)
     LemmaDec of string list * Pro * For	(* L ::= c:F = P              *)
 
   (* ??? *)

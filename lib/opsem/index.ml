@@ -63,7 +63,7 @@ struct
 
   type answState = New | Repeated
 
-  type Strategy = Variant | Subsumption
+  type strategy = Variant | Subsumption
 
   let added = ref false;
 

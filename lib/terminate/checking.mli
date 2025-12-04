@@ -9,7 +9,7 @@ sig
     
   (* If Q marks all parameters in a context G we write   G : Q  *)
 
-  type Quantifier =        (* Quantifier to mark parameters *)
+  type quantifier =        (* Quantifier to mark parameters *)
     All                  (* Q ::= All                     *)
   | Exist                (*     | Exist                     *)
   | And of Paths.occ     (*     | And                     *)
