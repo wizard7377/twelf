@@ -7,5 +7,5 @@ sig
 
   exception Error of string
 
-  val subgoal : MetaSyn.State -> bool
+  val subgoal : MetaSyn.state -> bool
 end;  (* module type QED *)

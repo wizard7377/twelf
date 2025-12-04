@@ -7,7 +7,7 @@ sig
   module DextSyn  : DEXTSYN
     
   val fparse : string -> unit
-  val gparse : string -> DextSyn.Ast
-  val sparse : unit -> DextSyn.Ast
+  val gparse : string -> DextSyn.ast
+  val sparse : unit -> DextSyn.ast
 
 end  (* module type PARSE *)
