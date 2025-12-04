@@ -69,17 +69,17 @@ sig
   include THMEXTSYN
 
   exception Error of string
-  val tdeclTotDecl : tdecl -> (ThmSyn.TDecl * (Paths.region * Paths.region list))
-  val rdeclTorDecl : rdecl -> (ThmSyn.RDecl * (Paths.region * Paths.region list))
+  val tdeclTotDecl : tdecl -> (ThmSyn.tDecl * (Paths.region * Paths.region list))
+  val rdeclTorDecl : rdecl -> (ThmSyn.rDecl * (Paths.region * Paths.region list))
 
-  val tableddeclTotabledDecl : tableddecl -> (ThmSyn.TabledDecl * Paths.region)
-  val keepTabledeclToktDecl : keepTabledecl -> (ThmSyn.KeepTableDecl * Paths.region)
+  val tableddeclTotabledDecl : tableddecl -> (ThmSyn.tabledDecl * Paths.region)
+  val keepTabledeclToktDecl : keepTabledecl -> (ThmSyn.keepTableDecl * Paths.region)
 
 
-  val theoremToTheorem : theorem -> ThmSyn.ThDecl
-  val theoremDecToTheoremDec : theoremdec -> string * ThmSyn.ThDecl
-  val proveToProve : prove -> (ThmSyn.PDecl * (Paths.region * Paths.region list))
-  val establishToEstablish : establish -> (ThmSyn.PDecl * (Paths.region * Paths.region list))
-  val assertToAssert : assert -> (ThmSyn.Callpats * Paths.region list)
-  val wdeclTowDecl : wdecl -> (ThmSyn.WDecl * Paths.region list)
+  val theoremToTheorem : theorem -> ThmSyn.thDecl
+  val theoremDecToTheoremDec : theoremdec -> string * ThmSyn.thDecl
+  val proveToProve : prove -> (ThmSyn.pDecl * (Paths.region * Paths.region list))
+  val establishToEstablish : establish -> (ThmSyn.pDecl * (Paths.region * Paths.region list))
+  val assertToAssert : assert -> (ThmSyn.callpats * Paths.region list)
+  val wdeclTowDecl : wdecl -> (ThmSyn.wDecl * Paths.region list)
 end;  (* module type RECON_THM *)

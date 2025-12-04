@@ -11,7 +11,7 @@ sig
 
   type operator
 
-  val expand : State.Focus -> operator list
+  val expand : State.focus -> operator list
   val apply : operator -> unit
   val menu : operator -> string
 end; (* module type FILL *)

@@ -9,10 +9,10 @@ sig
 
   type operator
     
-  val expandLazy : MetaSyn.State -> operator list 
-  val expandEager : MetaSyn.State -> operator list 
+  val expandLazy : MetaSyn.state -> operator list 
+  val expandEager : MetaSyn.state -> operator list 
 
-  val apply : operator -> MetaSyn.State
+  val apply : operator -> MetaSyn.state
 
   val menu : operator -> string
 end;  (* module type RECURSION *)
