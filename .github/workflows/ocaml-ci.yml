@@ -4,19 +4,31 @@ on:
   push:
     branches:
       - main
+      - ocaml_port
   pull_request:
     branches:
       - main
+      - ocaml_port
   workflow_dispatch:
+
 jobs:
-  ocaml-ci:
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: ocaml/opam:latest
+
     steps:
-      - uses: actions/checkout@v5
-      - name: Dune Setup
-        run: opam install dune 
-      - name: Dune Build 
-        run: dune build
-      
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up OCaml
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 4.14.x
+    
+    - name: Install dependencies
+      run: opam install . --deps-only --with-test --yes
+    
+    - name: Build with Dune
+      run: opam exec -- dune build
+    
+    - name: Run tests
+      run: opam exec -- dune runtest
