@@ -19,5 +19,7 @@ jobs:
         run: opam init
       - name: Dune Setup
         run: opam install dune 
+      - name: Setup Env 
+        run: eval $(opam env)
       - name: Dune Build 
         run: dune build
