@@ -1,25 +1,30 @@
+# .github/workflows/ocaml-ci.yml (example)
 name: OCaml CI
-on: 
-  workflow_call:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+on: [push, pull_request]
+
 jobs:
-  ocaml-ci:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - name: Setup OPAM
-        run: sudo apt-get update && sudo apt-get install -y opam
-      - name: Init OPAM 
-        run: opam init
-      - name: Dune Setup
-        run: opam install dune 
-      - name: Setup Env 
-        run: eval $(opam env)
-      - name: Dune Build 
-        run: dune build
+      - uses: actions/checkout@v4
+
+      # install OCaml & opam
+      - name: Setup OCaml and opam
+        uses: avsm/setup-ocaml@v2
+        with:
+          ocaml-version: '5.1'       # set the version your project needs
+          opam: true
+
+      # ensure opam env is loaded and install dune + project deps
+      - name: Install opam deps (including dune)
+        run: |
+          eval "$(opam env)"
+          opam update
+          opam install -y dune        # installs dune so `dune` command is available
+          # optionally install project dependencies if you have an .opam file:
+          # opam install -y . --deps-only
+
+      - name: Build
+        run: |
+          eval "$(opam env)"
+          dune build
