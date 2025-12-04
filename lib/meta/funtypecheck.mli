@@ -8,10 +8,10 @@ sig
 
   exception Error of string
 
-  val isFor : IntSyn.dctx * FunSyn.For -> unit
-  val check : FunSyn.Pro * FunSyn.For -> unit    
+  val isFor : IntSyn.dctx * FunSyn.for -> unit
+  val check : FunSyn.pro * FunSyn.for -> unit    
   val checkSub : FunSyn.lfctx * IntSyn.Sub * FunSyn.lfctx -> unit
 
-  val isState : StateSyn.State -> unit
+  val isState : StateSyn.state -> unit
 end (* Signature FUNTYPECHECK *)       
 

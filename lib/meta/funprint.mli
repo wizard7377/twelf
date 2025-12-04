@@ -6,13 +6,13 @@ sig
   (*! module FunSyn : FUNSYN !*)
   module Formatter : FORMATTER
 
-  val formatForBare : IntSyn.dctx * FunSyn.For -> Formatter.format
-  val formatFor : FunSyn.lfctx * FunSyn.For -> string list -> Formatter.format
-  val formatPro : FunSyn.lfctx * FunSyn.Pro -> string list -> Formatter.format
-  val formatLemmaDec: FunSyn.LemmaDec -> Formatter.format
+  val formatForBare : IntSyn.dctx * FunSyn.for -> Formatter.format
+  val formatFor : FunSyn.lfctx * FunSyn.for -> string list -> Formatter.format
+  val formatPro : FunSyn.lfctx * FunSyn.pro -> string list -> Formatter.format
+  val formatLemmaDec: FunSyn.lemmaDec -> Formatter.format
 
-  val forToString : FunSyn.lfctx * FunSyn.For -> string list -> string
-  val proToString : FunSyn.lfctx * FunSyn.Pro -> string list -> string
-  val lemmaDecToString : FunSyn.LemmaDec -> string
+  val forToString : FunSyn.lfctx * FunSyn.for -> string list -> string
+  val proToString : FunSyn.lfctx * FunSyn.pro -> string list -> string
+  val lemmaDecToString : FunSyn.lemmaDec -> string
 end;  (* module type PRINT *)
 

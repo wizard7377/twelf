@@ -7,6 +7,6 @@ sig
 
   val strengthenPsi : (FunSyn.lfctx * IntSyn.Sub) 
                   -> (FunSyn.lfctx * IntSyn.Sub)
-  val strengthenPsi': (FunSyn.LFDec list * IntSyn.Sub) 
-                  -> (FunSyn.LFDec list * IntSyn.Sub) 
+  val strengthenPsi': (FunSyn.lfDec list * IntSyn.Sub) 
+                  -> (FunSyn.lfDec list * IntSyn.Sub) 
 end (* module type FUNWEAKEN *)

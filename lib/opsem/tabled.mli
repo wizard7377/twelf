@@ -10,7 +10,7 @@ sig
   val solve     : (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
                   * (CompSyn.pskeleton -> unit) -> unit
 
-  val updateGlobalTable : (CompSyn.Goal * bool) -> unit
+  val updateGlobalTable : (CompSyn.goal * bool) -> unit
 
   val keepTable : IntSyn.cid -> bool
 

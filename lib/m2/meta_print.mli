@@ -5,9 +5,9 @@ module type METAPRINT =
 sig
   module MetaSyn : METASYN
 
-  val stateToString  : MetaSyn.State -> string
+  val stateToString  : MetaSyn.state -> string
   val sgnToString    : MetaSyn.Sgn -> string
-  val modeToString   : MetaSyn.Mode -> string
+  val modeToString   : MetaSyn.mode -> string
   val conDecToString  : IntSyn.ConDec -> string
 
 end; (* module type METAPRINT *)
