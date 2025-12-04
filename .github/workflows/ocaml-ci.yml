@@ -11,12 +11,11 @@ on:
 jobs:
   ocaml-ci:
     runs-on: ubuntu-latest
-    container:
-      image: ocaml/opam:latest
     steps:
       - uses: actions/checkout@v5
+      - name: Setup OPAM
+        run: sudo apt-get update && sudo apt-get install -y opam
       - name: Dune Setup
         run: opam install dune 
       - name: Dune Build 
         run: dune build
-      
