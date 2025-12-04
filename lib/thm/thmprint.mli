@@ -5,11 +5,11 @@ module type THMPRINT =
 sig
   module ThmSyn : THMSYN
 
-  val tDeclToString : ThmSyn.TDecl -> string
-  val callpatsToString : ThmSyn.Callpats -> string
-  val rDeclToString : ThmSyn.RDecl -> string                    (* -bp *)
-  val ROrderToString: ThmSyn.RedOrder -> string                 (* -bp *)
-  val tabledDeclToString: ThmSyn.TabledDecl -> string           (* -bp *)
-  val keepTableDeclToString: ThmSyn.KeepTableDecl -> string        (* -bp *)
+  val tDeclToString : ThmSyn.tDecl -> string
+  val callpatsToString : ThmSyn.callpats -> string
+  val rDeclToString : ThmSyn.rDecl -> string                    (* -bp *)
+  val ROrderToString: ThmSyn.redOrder -> string                 (* -bp *)
+  val tabledDeclToString: ThmSyn.tabledDecl -> string           (* -bp *)
+  val keepTableDeclToString: ThmSyn.keepTableDecl -> string        (* -bp *)
 
 end;  (* module type THMPRINT *)

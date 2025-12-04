@@ -67,7 +67,7 @@ struct
           (ThmSyn.Simul Os, r1)
         end
 
-    type callpats = (ThmSyn.Callpats * Paths.region list)
+    type callpats = (ThmSyn.callpats * Paths.region list)
 
     fun checkArgNumber (0, I.Uni (I.Type), nil, r) = ()
       | checkArgNumber (0, I.Pi (_, V2), arg::args, r) =
@@ -119,19 +119,19 @@ struct
           (ThmSyn.Callpats (cps), rs)
         end
 
-    type tdecl = ThmSyn.TDecl * (Paths.region * Paths.region list)
+    type tdecl = ThmSyn.tDecl * (Paths.region * Paths.region list)
     fun tdecl ((O, r), (C, rs)) = (ThmSyn.TDecl (O, C), (r, rs))
     fun tdeclTotDecl T  = T
 
     (* -bp *)
     (* predicate *)
-    type predicate = ThmSyn.Predicate * Paths.region
+    type predicate = ThmSyn.predicate * Paths.region
     fun predicate ("LESS", r) = (ThmSyn.Less, r)
       | predicate ("LEQ", r) =  (ThmSyn.Leq, r)
       | predicate ("EQUAL", r) = (ThmSyn.Eq, r)
 
     (* reduces declaration *)
-    type rdecl = ThmSyn.RDecl * (Paths.region * Paths.region list)
+    type rdecl = ThmSyn.rDecl * (Paths.region * Paths.region list)
     fun rdecl ((P, r0), (O1,r1), (O2, r2), (C, rs)) =
         let
             let r = Paths.join (r1, r2)
@@ -142,7 +142,7 @@ struct
     fun rdeclTorDecl T  = T
 
      (* tabled declaration *)
-    type tableddecl = (ThmSyn.TabledDecl * Paths.region)
+    type tableddecl = (ThmSyn.tabledDecl * Paths.region)
     fun tableddecl (name, r) =
         let
           let qid = Names.Qid (nil, name)
@@ -159,7 +159,7 @@ struct
     fun tableddeclTotabledDecl T  = T
 
     (* keepTable declaration *)
-    type keepTabledecl = (ThmSyn.KeepTableDecl * Paths.region)
+    type keepTabledecl = (ThmSyn.keepTableDecl * Paths.region)
     fun keepTabledecl (name, r) =
         let
           let qid = Names.Qid (nil, name)
@@ -177,15 +177,15 @@ struct
 
     (* Theorem and prove declarations *)
 
-    type prove = ThmSyn.PDecl * (Paths.region * Paths.region list)
+    type prove = ThmSyn.pDecl * (Paths.region * Paths.region list)
     fun prove (n, (td, rrs)) = (ThmSyn.PDecl (n, td), rrs)
     fun proveToProve P = P
 
-    type establish = ThmSyn.PDecl * (Paths.region * Paths.region list)
+    type establish = ThmSyn.pDecl * (Paths.region * Paths.region list)
     fun establish (n, (td, rrs)) = (ThmSyn.PDecl (n, td), rrs)
     fun establishToEstablish P = P
 
-    type assert = ThmSyn.Callpats * Paths.region list
+    type assert = ThmSyn.callpats * Paths.region list
     fun assert (cp, rs) = (cp, rs)
     fun assertToAssert P = P
 
@@ -289,7 +289,7 @@ struct
           W'
         end
 
-    type wdecl =  ThmSyn.WDecl * Paths.region list
+    type wdecl =  ThmSyn.wDecl * Paths.region list
     fun wdecl (W, (cp, rs)) = (ThmSyn.WDecl (abstractWDecl W, cp), rs)
     fun wdeclTowDecl T = T
 
