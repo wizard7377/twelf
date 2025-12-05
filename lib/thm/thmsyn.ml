@@ -12,8 +12,7 @@ let recctor ThmSyn ((*! module IntSyn : INTSYN !*)
                 (*! module Paths' : PATHS !*)
                 module Names' : NAMES
                 (*! sharing Names'.IntSyn = IntSyn !*)
-                  )
-  : THMSYN =
+                  ): THMSYN =
 struct
   (*! module IntSyn = IntSyn !*)
   (*! module ModeSyn = ModeSyn' *)

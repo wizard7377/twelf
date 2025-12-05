@@ -35,8 +35,7 @@ let recctor Search
    (*! sharing Names.IntSyn = IntSyn' !*)
    module CSManager : CS_MANAGER
    (*! sharing CSManager.IntSyn = IntSyn' !*)
-       )
-     : SEARCH =
+       ): SEARCH =
 struct
 
   (*! module IntSyn = IntSyn' !*)

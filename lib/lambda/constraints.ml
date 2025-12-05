@@ -6,8 +6,7 @@ let recctor Constraints
     ((*! module IntSyn' : INTSYN !*)
      module Conv : CONV
      (*! sharing Conv.IntSyn = IntSyn' !*)
-       )
-       : CONSTRAINTS =
+       ): CONSTRAINTS =
 struct
 
   (*! module IntSyn = IntSyn' !*)

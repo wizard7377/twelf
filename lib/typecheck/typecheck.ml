@@ -10,8 +10,7 @@ let recctor TypeCheck ((*! module IntSyn' : INTSYN !*)
                    (*! sharing Names.IntSyn = IntSyn' !*)
                    module Print : PRINT
                    (*! sharing Print.IntSyn = IntSyn' !*)
-                       )
-  : TYPECHECK =
+                       ): TYPECHECK =
 struct
   (*! module IntSyn = IntSyn' !*)
   exception Error of string

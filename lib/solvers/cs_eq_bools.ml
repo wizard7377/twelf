@@ -8,8 +8,7 @@ let recctor CSEqBools ((*! module IntSyn : INTSYN !*)
                    (*! sharing Unify.IntSyn = IntSyn !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn !*)
-                     )
- : CS =
+                     ): CS =
 struct
   (*! module CSManager = CSManager !*)
 

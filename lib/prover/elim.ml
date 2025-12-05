@@ -20,8 +20,7 @@ let recctor Elim
    module Unify : UNIFY
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
-       )
-     : ELIM =
+       ): ELIM =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

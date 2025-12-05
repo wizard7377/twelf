@@ -8,8 +8,7 @@ let recctor Assign ((*! module IntSyn' : INTSYN !*)
                 (*! sharing Unify.IntSyn = IntSyn' !*)
                 module Print : PRINT
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                      )
-  : ASSIGN =
+                      ): ASSIGN =
 struct
   (*! module IntSyn = IntSyn' !*)
 

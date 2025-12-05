@@ -21,8 +21,7 @@ let recctor MTPAbstract ((*! module IntSyn' : INTSYN !*)
                        sharing FunTypeCheck.StateSyn = StateSyn'
                      module Abstract : ABSTRACT
                      (*! sharing Abstract.IntSyn = IntSyn' !*)
-                       )
-  : MTPABSTRACT =
+                       ): MTPABSTRACT =
 struct
 
   (*! module IntSyn = IntSyn' !*)

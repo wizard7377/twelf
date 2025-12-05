@@ -14,8 +14,7 @@ let recctor TomegaPrint
    module Print : PRINT
      sharing Print.Formatter = Formatter
      (*! sharing Print.IntSyn = IntSyn' !*)
-       )
-  : TOMEGAPRINT =
+       ): TOMEGAPRINT =
 
 struct
   (*! module IntSyn = IntSyn' !*)

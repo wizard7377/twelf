@@ -10,8 +10,7 @@ let recctor CPrint ((*! module IntSyn' : INTSYN !*)
                   sharing Print.Formatter = Formatter
                 module Names: NAMES
                 (*! sharing Names.IntSyn = IntSyn' !*)
-                  )
-  : CPRINT =
+                  ): CPRINT =
 struct
 
   (*! module IntSyn = IntSyn' !*)

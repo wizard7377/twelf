@@ -5,8 +5,7 @@
 let recctor IndexSkolem (module Global : GLOBAL
                      module Queue : QUEUE
                      (*! module IntSyn' : INTSYN !*)
-                       )
-  : INDEX =
+                       ): INDEX =
 struct
   (*! module IntSyn = IntSyn' !*)
 

@@ -20,8 +20,7 @@ let recctor ReconQuery  (module Global : GLOBAL
 		     module Timers : TIMERS
                      module Print : PRINT
 		     (*! sharing Print.IntSyn = IntSyn' !*)
-		       )
-  : RECON_QUERY =
+		       ): RECON_QUERY =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Paths = Paths' !*)

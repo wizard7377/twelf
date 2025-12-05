@@ -185,8 +185,7 @@ let recctor Twelf
    module UnknownExn : UNKNOWN_EXN
 
    module Msg : MSG
-     )
- :> TWELF =
+     ):> TWELF =
 struct
 
   local

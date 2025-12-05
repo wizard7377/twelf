@@ -15,8 +15,7 @@ let recctor ReconMode (module Global : GLOBAL
                    module ReconTerm' : RECON_TERM
                    (*! sharing ReconTerm'.IntSyn = ModeSyn'.IntSyn !*)
                    (*! sharing ReconTerm'.Paths = Paths' !*)
-                       )
-  : RECON_MODE =
+                       ): RECON_MODE =
 struct
   (*! module ModeSyn = ModeSyn' !*)
   module ExtSyn = ReconTerm'
