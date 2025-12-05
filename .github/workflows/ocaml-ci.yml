@@ -2,13 +2,7 @@ name: OCaml CI
 on: 
   workflow_call:
   push:
-    branches:
-      - main
-      - ocaml_port
   pull_request:
-    branches:
-      - main
-      - ocaml_port
   workflow_dispatch:
 
 jobs:
