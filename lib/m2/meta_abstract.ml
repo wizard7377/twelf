@@ -22,8 +22,7 @@ let recctor MetaAbstract (module Global : GLOBAL
                       (*! sharing TypeCheck.IntSyn = MetaSyn'.IntSyn !*)
                       module Subordinate : SUBORDINATE
                       (*! sharing Subordinate.IntSyn = MetaSyn'.IntSyn  !*)
-                        )
-  : METAABSTRACT =
+                        ): METAABSTRACT =
 struct
   module MetaSyn = MetaSyn'
 

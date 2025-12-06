@@ -31,8 +31,7 @@ let recctor Reduces   (module Global : GLOBAL
                      (*! sharing Origins.IntSyn = IntSyn' !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
-                       )
-  :  REDUCES =
+                       ):  REDUCES =
 struct
   (*! module IntSyn = IntSyn' !*)
 

@@ -30,8 +30,7 @@ let recctor MTPSearch (module Global : GLOBAL
                    (*! sharing Names.IntSyn = IntSyn' !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
-                     )
-  : MTPSEARCH =
+                     ): MTPSEARCH =
 struct
 
   (*! module IntSyn = IntSyn' !*)

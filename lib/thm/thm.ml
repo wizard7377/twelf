@@ -11,8 +11,7 @@ let recctor Thm (module Global : GLOBAL
              module ThmPrint : THMPRINT
                sharing ThmPrint.ThmSyn = ThmSyn'
                (*! module Paths' : PATHS !*)
-               )
-  : THM =
+               ): THM =
 struct
   module ThmSyn = ThmSyn'
   (*! module Paths = Paths' !*)

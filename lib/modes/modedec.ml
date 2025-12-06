@@ -4,8 +4,7 @@
 
 let recctor ModeDec ((*! module ModeSyn' : MODESYN !*)
                  (*! module Paths' : PATHS !*)
-                   )
-  : MODEDEC =
+                   ): MODEDEC =
 struct
   (*! module ModeSyn = ModeSyn' !*)
   (*! module Paths = Paths' !*)

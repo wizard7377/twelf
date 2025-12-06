@@ -9,8 +9,7 @@ let recctor CSEqIntegers (module Integers : INTEGERS
                       (*! sharing Unify.IntSyn = IntSyn !*)
                       (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn !*)
-                        )
- : CS_EQ_INTEGERS =
+                        ): CS_EQ_INTEGERS =
 struct
   (*! module CSManager = CSManager !*)
 

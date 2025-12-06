@@ -22,8 +22,7 @@ let recctor Inference (module MTPGlobal : MTPGLOBAL
                    (*! sharing Print.IntSyn = IntSyn !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                     )
-  : INFERENCE =
+                     ): INFERENCE =
 struct
   (*! module FunSyn = FunSyn' !*)
   module StateSyn = StateSyn'

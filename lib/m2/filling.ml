@@ -10,8 +10,7 @@ let recctor Filling (module MetaSyn' : METASYN
                  (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
                  module Print : PRINT
                  (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                   )
-  : FILLING =
+                   ): FILLING =
 struct
   module MetaSyn = MetaSyn'
 

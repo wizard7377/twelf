@@ -19,8 +19,7 @@ let recctor Splitting (module Global : GLOBAL
                    (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = MetaSyn'.IntSyn !*)
-                     )
-  : SPLITTING =
+                     ): SPLITTING =
 struct
   module MetaSyn = MetaSyn'
 

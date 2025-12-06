@@ -2,8 +2,7 @@ let recctor Parsing
   (module Stream' : STREAM
    (*! module Lexer' : LEXER !*)
    (*! sharing Lexer'.Stream = Stream' !*)
-     )
-     : PARSING =
+     ): PARSING =
 struct
 
   module Stream = Stream'

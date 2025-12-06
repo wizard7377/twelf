@@ -4,8 +4,7 @@
 
 let recctor Lexer (module Stream' : STREAM
                (*! module Paths' : PATHS !*)
-                 )
-  : LEXER =
+                 ): LEXER =
 struct
 
   module Stream = Stream'

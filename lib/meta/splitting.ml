@@ -36,8 +36,7 @@ let recctor MTPSplitting (module MTPGlobal : MTPGLOBAL
                       (*! sharing Unify.IntSyn = IntSyn !*)
                       (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn  !*)
-                        )
-  : MTPSPLITTING =
+                        ): MTPSPLITTING =
 struct
   module StateSyn = StateSyn'
 
