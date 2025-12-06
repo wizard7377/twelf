@@ -28,8 +28,7 @@ let recctor Checking  (module Global : GLOBAL
                      (*! sharing Origins.IntSyn = IntSyn' !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
-                       )
-  :  CHECKING =
+                       ):  CHECKING =
 struct
   (*! module IntSyn = IntSyn' !*)
   module Order = Order

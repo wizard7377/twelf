@@ -6,8 +6,7 @@ let recctor Origins
    module Table : TABLE where type key = string
    (*! module IntSyn' : INTSYN !*)
    (*! module Paths' : PATHS !*)
-     )
-  : ORIGINS =
+     ): ORIGINS =
 struct
 
   (*! module IntSyn = IntSyn' !*)

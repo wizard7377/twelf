@@ -37,8 +37,7 @@ let recctor Converter
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
    module Redundant : REDUNDANT
    module TomegaAbstract :TOMEGAABSTRACT
-       )
-     : CONVERTER =
+       ): CONVERTER =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

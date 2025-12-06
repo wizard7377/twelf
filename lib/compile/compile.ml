@@ -25,8 +25,7 @@ let recctor Compile ((*! module IntSyn' : INTSYN !*)
 
                  module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
-                   )
-  : COMPILE =
+                   ): COMPILE =
 struct
 
   (* FIX: need to associate errors with occurrences -kw *)

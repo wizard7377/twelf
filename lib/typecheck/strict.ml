@@ -5,8 +5,7 @@ let recctor Strict ((*! module IntSyn' : INTSYN !*)
                 module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 (*! module Paths' : PATHS !*)
-                  )
-  : STRICT =
+                  ): STRICT =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Paths = Paths' !*)

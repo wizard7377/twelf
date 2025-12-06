@@ -25,8 +25,7 @@ let recctor TMachine ((*! module IntSyn' : INTSYN !*)
 
                   module Trace : TRACE
                   (*! sharing Trace.IntSyn = IntSyn' !*)
-                      )
-  : ABSMACHINE =
+                      ): ABSMACHINE =
 struct
 
   (*! module IntSyn = IntSyn' !*)

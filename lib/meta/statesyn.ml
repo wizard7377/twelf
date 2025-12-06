@@ -8,8 +8,7 @@ let recctor StateSyn ((*! module IntSyn' : INTSYN !*)
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
                   module Conv : CONV
                   (*! sharing Conv.IntSyn = IntSyn' !*)
-                    )
-  : STATESYN =
+                    ): STATESYN =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module FunSyn = FunSyn' !*)

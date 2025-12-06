@@ -24,8 +24,7 @@ let recctor Fill
    module Unify : UNIFY
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
-       )
-     : FILL =
+       ): FILL =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

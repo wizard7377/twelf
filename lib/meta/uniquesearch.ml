@@ -33,8 +33,7 @@ let recctor UniqueSearch (module Global : GLOBAL
                       (*! sharing Names.IntSyn = IntSyn' !*)
                       (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn' !*)
-                        )
-  : UNIQUESEARCH =
+                        ): UNIQUESEARCH =
 struct
 
   (*! module IntSyn = IntSyn' !*)

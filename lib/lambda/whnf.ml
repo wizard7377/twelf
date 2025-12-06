@@ -3,8 +3,7 @@
 (* Modified: Roberto Virga *)
 
 let recctor Whnf ((*! module IntSyn' : INTSYN !*)
-               )
-  : WHNF =
+               ): WHNF =
 struct
   (*! module IntSyn = IntSyn' !*)
 

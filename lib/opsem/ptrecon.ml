@@ -24,8 +24,7 @@ let recctor PtRecon ((*! module IntSyn' : INTSYN !*)
                     (*! sharing Names.IntSyn = IntSyn' !*)
                     (*! module CSManager : CS_MANAGER !*)
                     (*! sharing CSManager.IntSyn = IntSyn' !*)
-                        )
-  : PTRECON =
+                        ): PTRECON =
 struct
 
   (*! module IntSyn = IntSyn' !*)

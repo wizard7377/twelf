@@ -37,8 +37,7 @@ let recctor Worldify
    module Origins : ORIGINS
    (*! sharing Origins.Paths = Paths !*)
    (*! sharing Origins.IntSyn = IntSyn !*)
-       )
-   : WORLDIFY =
+       ): WORLDIFY =
 struct
   (*! module IntSyn = IntSyn !*)
   (*! module Tomega = Tomega !*)

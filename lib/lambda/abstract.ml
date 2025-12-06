@@ -8,8 +8,7 @@ let recctor Abstract ((*! module IntSyn' : INTSYN !*)
                   module Unify   : UNIFY
                   (*! sharing Unify.IntSyn = IntSyn' !*)
                   module Constraints : CONSTRAINTS
-                    )
-  : ABSTRACT =
+                    ): ABSTRACT =
 struct
 
   exception Error of string

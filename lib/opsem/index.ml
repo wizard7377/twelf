@@ -25,8 +25,7 @@ let recctor TableIndex (module Global : GLOBAL
                     (*! sharing Names.IntSyn = IntSyn' !*)
                     module TypeCheck : TYPECHECK
                     (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-                 )
-  : TABLEINDEX =
+                 ): TABLEINDEX =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module CompSyn = CompSyn' !*)

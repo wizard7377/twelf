@@ -16,8 +16,7 @@ let recctor MTPFilling (module MTPGlobal : MTPGLOBAL
                       sharing Search.StateSyn = StateSyn'
                     module Whnf : WHNF
                     (*! sharing Whnf.IntSyn = IntSyn !*)
-                      )
-  : MTPFILLING =
+                      ): MTPFILLING =
 struct
   (*! module FunSyn = FunSyn' !*)
   module StateSyn = StateSyn'

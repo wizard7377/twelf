@@ -23,8 +23,7 @@ let recctor ReconConDec (module Global : GLOBAL
                      module Print : PRINT
                      (*! sharing Print.IntSyn = IntSyn' !*)
                      module Msg : MSG
-                       )
-  : RECON_CONDEC =
+                       ): RECON_CONDEC =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Paths = Paths' !*)

@@ -5,8 +5,7 @@ let recctor Conv
   ((*! module IntSyn' : INTSYN !*)
    module Whnf   : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-     )
-     : CONV =
+     ): CONV =
 struct
   (*! module IntSyn = IntSyn' !*)
 
