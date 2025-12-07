@@ -15,9 +15,8 @@ let recctor MTProver (module MTPGlobal : MTPGLOBAL
                     sharing MTPInit.StateSyn = StateSyn
                   module MTPStrategy : MTPSTRATEGY
                     sharing MTPStrategy.StateSyn = StateSyn
-                  module RelFun : RELFUN
+                  module RelFun : RELFUN): PROVER =
                   (*! sharing RelFun.FunSyn = FunSyn !*)
-                      ): PROVER =
 struct
   (*! module IntSyn = IntSyn' !*)
 
@@ -174,9 +173,8 @@ let recctor CombiProver (module MTPGlobal : MTPGLOBAL
                      (*! module IntSyn' : INTSYN !*)
                      module ProverOld : PROVER
                      (*! sharing ProverOld.IntSyn = IntSyn' !*)
-                     module ProverNew : PROVER
+                     module ProverNew : PROVER): PROVER =
                      (*! sharing ProverNew.IntSyn = IntSyn' !*)
-                       ): PROVER =
 struct
   (*! module IntSyn = IntSyn' !*)
 

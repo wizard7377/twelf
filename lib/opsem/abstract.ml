@@ -13,11 +13,10 @@ let recctor AbstractTabled ((*! module IntSyn' : INTSYN !*)
                   (*! sharing Subordinate.IntSyn = IntSyn' !*)
                   module Print : PRINT
                   (*! sharing Print.IntSyn = IntSyn' !*)
-                  module Conv    : CONV
+                  module Conv    : CONV): ABSTRACTTABLED =
                   (*! sharing Conv.IntSyn = IntSyn' !*)
                   (*! module TableParam : TABLEPARAM !*)
                   (*! sharing TableParam.IntSyn = IntSyn' !*)
-                      ): ABSTRACTTABLED =
 struct
 
   (*! module IntSyn = IntSyn' !*)

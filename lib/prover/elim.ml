@@ -17,10 +17,9 @@ let recctor Elim
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
    module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Unify : UNIFY
+   module Unify : UNIFY): ELIM =
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
-       ): ELIM =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

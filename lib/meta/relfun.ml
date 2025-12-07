@@ -18,9 +18,8 @@ let recctor RelFun (module Global : GLOBAL
                 (*! sharing TypeCheck.IntSyn = FunSyn'.IntSyn !*)
                 module FunWeaken : FUNWEAKEN
                 (*! sharing FunWeaken.FunSyn = FunSyn' !*)
-                module FunNames : FUNNAMES
+                module FunNames : FUNNAMES): RELFUN =
                 (*! sharing FunNames.FunSyn = FunSyn' !*)
-                    ): RELFUN =
 struct
   (*! module FunSyn = FunSyn' !*)
 

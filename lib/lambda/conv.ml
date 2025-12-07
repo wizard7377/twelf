@@ -3,9 +3,8 @@
 
 let recctor Conv
   ((*! module IntSyn' : INTSYN !*)
-   module Whnf   : WHNF
+   module Whnf   : WHNF): CONV =
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-     ): CONV =
 struct
   (*! module IntSyn = IntSyn' !*)
 

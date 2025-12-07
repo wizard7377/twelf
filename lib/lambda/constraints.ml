@@ -4,9 +4,8 @@
 
 let recctor Constraints
     ((*! module IntSyn' : INTSYN !*)
-     module Conv : CONV
+     module Conv : CONV): CONSTRAINTS =
      (*! sharing Conv.IntSyn = IntSyn' !*)
-       ): CONSTRAINTS =
 struct
 
   (*! module IntSyn = IntSyn' !*)

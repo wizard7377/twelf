@@ -23,9 +23,8 @@ let recctor TomegaUnify
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
    module Subordinate : SUBORDINATE
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-   module Weaken : WEAKEN
+   module Weaken : WEAKEN): TOMEGAUNIFY =
    (*! sharing Weaken.IntSyn = IntSyn' !*)
-       ) : TOMEGAUNIFY =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

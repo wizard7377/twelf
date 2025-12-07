@@ -6,8 +6,7 @@ let recctor Opsem ( module Whnf : WHNF
                module Subordinate : SUBORDINATE
                module TomegaTypeCheck : TOMEGATYPECHECK
                module TomegaPrint : TOMEGAPRINT
-               module Unify : UNIFY
-                   ) : OPSEM =
+               module Unify : UNIFY): OPSEM =
 struct
   module T = Tomega
   module I = IntSyn

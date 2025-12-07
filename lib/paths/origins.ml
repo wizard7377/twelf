@@ -3,10 +3,9 @@
 
 let recctor Origins
   (module Global : GLOBAL
-   module Table : TABLE where type key = string
+   module Table : TABLE where type key = string): ORIGINS =
    (*! module IntSyn' : INTSYN !*)
    (*! module Paths' : PATHS !*)
-     ): ORIGINS =
 struct
 
   (*! module IntSyn = IntSyn' !*)

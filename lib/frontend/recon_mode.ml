@@ -12,10 +12,9 @@ let recctor ReconMode (module Global : GLOBAL
                    (*! sharing ModePrint.ModeSyn = ModeSyn' !*)
                    module ModeDec : MODEDEC
 
-                   module ReconTerm' : RECON_TERM
+                   module ReconTerm' : RECON_TERM): RECON_MODE =
                    (*! sharing ReconTerm'.IntSyn = ModeSyn'.IntSyn !*)
                    (*! sharing ReconTerm'.Paths = Paths' !*)
-                       ): RECON_MODE =
 struct
   (*! module ModeSyn = ModeSyn' !*)
   module ExtSyn = ReconTerm'

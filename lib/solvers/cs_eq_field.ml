@@ -5,11 +5,10 @@ let recctor CSEqField (module Field : FIELD
                    (*! module IntSyn : INTSYN !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                   module Unify : UNIFY
+                   module Unify : UNIFY): CS_EQ_FIELD =
                    (*! sharing Unify.IntSyn = IntSyn !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn !*)
-                       ): CS_EQ_FIELD =
 struct
   (*! module CSManager = CSManager !*)
 

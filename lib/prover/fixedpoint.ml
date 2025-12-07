@@ -5,10 +5,9 @@ let recctor FixedPoint
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   module State' : STATE
+   module State' : STATE): FIXEDPOINT =
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-       ) : FIXEDPOINT  =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

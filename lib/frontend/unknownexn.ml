@@ -1,6 +1,6 @@
 (* Print an informative message on receipt of an unhandled exception. *)
 
-functor UnknownExn (let exnHistory : exn -> string list) : UNKNOWN_EXN =
+let functor UnknownExn (exnHistory : exn -> string list) : UNKNOWN_EXN =
 struct
   fun unknownExn exn =
     let

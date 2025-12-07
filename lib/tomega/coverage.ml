@@ -11,10 +11,9 @@ let recctor TomegaCoverage
    module TomegaTypeCheck : TOMEGATYPECHECK
    (*! sharing TomegaTypeCheck.IntSyn = IntSyn' !*)
    (*! sharing TomegaTypeCheck.Tomega = Tomega' !*)
-   module Cover : COVER
+   module Cover : COVER): TOMEGACOVERAGE =
    (*! sharing Cover.IntSyn = IntSyn' !*)
    (*! sharing Cover.Tomega = Tomega' !*)
-     ) : TOMEGACOVERAGE =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

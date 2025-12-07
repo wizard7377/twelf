@@ -3,9 +3,8 @@
 (* Modified: Frank Pfenning *)
 
 let recctor Index (module Global : GLOBAL
-               module Queue : QUEUE
+               module Queue : QUEUE): INDEX =
                (*! module IntSyn' : INTSYN !*)
-                 ): INDEX =
 struct
   (*! module IntSyn = IntSyn' !*)
 

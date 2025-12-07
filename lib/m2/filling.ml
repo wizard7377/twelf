@@ -8,9 +8,8 @@ let recctor Filling (module MetaSyn' : METASYN
                  sharing Search.MetaSyn = MetaSyn'
                  module Whnf : WHNF
                  (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                 module Print : PRINT
+                 module Print : PRINT): FILLING =
                  (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                   ): FILLING =
 struct
   module MetaSyn = MetaSyn'
 

@@ -6,9 +6,8 @@ let recctor Assign ((*! module IntSyn' : INTSYN !*)
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 module Unify : UNIFY
                 (*! sharing Unify.IntSyn = IntSyn' !*)
-                module Print : PRINT
+                module Print : PRINT): ASSIGN =
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                      ): ASSIGN =
 struct
   (*! module IntSyn = IntSyn' !*)
 

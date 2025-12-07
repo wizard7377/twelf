@@ -16,9 +16,7 @@ let recctor CSIneqIntegers (module Integers : INTEGERS
                           sharing CSEqIntegers.Integers = Integers
                           (*! sharing CSEqIntegers.IntSyn = IntSyn !*)
                           (*! sharing CSEqIntegers.CSManager = CSManager !*)
-                        module Compat : COMPAT
-                            )
-  =
+                        module Compat : COMPAT) =
 struct
   (*! module CSManager = CSManager !*)
 

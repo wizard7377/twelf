@@ -5,9 +5,8 @@ let recctor TabledSyn ((*! module IntSyn' : INTSYN !*)
                  module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
                  module Table : TABLE where type key = int
-                 module Index : INDEX
+                 module Index : INDEX): TABLEDSYN =
                  (*! sharing Index.IntSyn = IntSyn' !*)
-                     ) : TABLEDSYN =
 struct
   (*! module IntSyn = IntSyn' !*)
 

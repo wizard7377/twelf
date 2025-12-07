@@ -18,9 +18,8 @@ let recctor FunTypeCheck ((*! module FunSyn' : FUNSYN !*)
                       (*! sharing Subordinate.IntSyn = FunSyn'.IntSyn !*)
                       module Weaken : WEAKEN
                       (*! sharing Weaken.IntSyn = FunSyn'.IntSyn   !*)
-                      module FunPrint : FUNPRINT
+                      module FunPrint : FUNPRINT): FUNTYPECHECK =
                       (*! sharing FunPrint.FunSyn = FunSyn' !*)
-                          ) : FUNTYPECHECK=
 struct
   (*! module FunSyn = FunSyn' !*)
   module StateSyn = StateSyn'

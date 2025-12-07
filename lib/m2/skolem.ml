@@ -16,9 +16,8 @@ let recctor Skolem (module Global : GLOBAL
                 module Compile : COMPILE
                 (*! sharing Compile.IntSyn = IntSyn' !*)
                 module Timers : TIMERS
-                module Names : NAMES
+                module Names : NAMES): SKOLEM =
                 (*! sharing Names.IntSyn = IntSyn' !*)
-                  ): SKOLEM =
 struct
   (*! module IntSyn = IntSyn' !*)
 

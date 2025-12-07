@@ -28,10 +28,9 @@ let recctor Recursion (module Global : GLOBAL
                    sharing MetaPrint.MetaSyn = MetaSyn'
                    module MetaAbstract : METAABSTRACT
                    sharing MetaAbstract.MetaSyn = MetaSyn'
-                   module Formatter : FORMATTER
+                   module Formatter : FORMATTER): RECURSION =
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = MetaSyn'.IntSyn !*)
-)  : RECURSION =
 struct
 
   module MetaSyn = MetaSyn'

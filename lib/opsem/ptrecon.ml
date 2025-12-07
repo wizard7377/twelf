@@ -20,11 +20,10 @@ let recctor PtRecon ((*! module IntSyn' : INTSYN !*)
                     module CPrint : CPRINT
                     (*! sharing CPrint.IntSyn = IntSyn' !*)
                     (*! sharing CPrint.CompSyn = CompSyn' !*)
-                    module Names : NAMES
+                    module Names : NAMES): PTRECON =
                     (*! sharing Names.IntSyn = IntSyn' !*)
                     (*! module CSManager : CS_MANAGER !*)
                     (*! sharing CSManager.IntSyn = IntSyn' !*)
-                        ): PTRECON =
 struct
 
   (*! module IntSyn = IntSyn' !*)

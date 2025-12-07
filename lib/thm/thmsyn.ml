@@ -10,9 +10,8 @@ let recctor ThmSyn ((*! module IntSyn : INTSYN !*)
                 module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn !*)
                 (*! module Paths' : PATHS !*)
-                module Names' : NAMES
+                module Names' : NAMES): THMSYN =
                 (*! sharing Names'.IntSyn = IntSyn !*)
-                  ): THMSYN =
 struct
   (*! module IntSyn = IntSyn !*)
   (*! module ModeSyn = ModeSyn' *)

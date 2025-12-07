@@ -2,9 +2,8 @@
 (* Author: Kevin Watkins *)
 
 let recctor Approx ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF
+                module Whnf : WHNF): APPROX =
 		(*! sharing Whnf.IntSyn = IntSyn' !*)
-		  ): APPROX =
 struct
 
   (*! module IntSyn = IntSyn' !*)

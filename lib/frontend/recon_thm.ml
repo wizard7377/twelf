@@ -15,9 +15,8 @@ let recctor ReconThm (module Global : GLOBAL
                   module ReconTerm': RECON_TERM
                   (*! sharing ReconTerm'.IntSyn = IntSyn !*)
                   (*! sharing ReconTerm'.Paths = Paths'  !*)
-                  module Print : PRINT
+                  module Print : PRINT): RECON_THM =
                   (*! sharing Print.IntSyn = IntSyn !*)
-                    ): RECON_THM =
 struct
   module ThmSyn = ThmSyn'
   (*! module Paths = Paths' !*)

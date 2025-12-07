@@ -2,9 +2,8 @@
 (* Author: Carsten Schuermann *)
 
 let recctor Weaken ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF
+                module Whnf : WHNF): WEAKEN =
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                  ) : WEAKEN =
 struct
   (*! module IntSyn = IntSyn' !*)
 

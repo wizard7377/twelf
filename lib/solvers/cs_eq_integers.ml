@@ -5,11 +5,10 @@ let recctor CSEqIntegers (module Integers : INTEGERS
                       (*! module IntSyn : INTSYN !*)
                       module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = IntSyn !*)
-                      module Unify : UNIFY
+                      module Unify : UNIFY): CS_EQ_INTEGERS =
                       (*! sharing Unify.IntSyn = IntSyn !*)
                       (*! module CSManager : CS_MANAGER !*)
                       (*! sharing CSManager.IntSyn = IntSyn !*)
-                        ): CS_EQ_INTEGERS =
 struct
   (*! module CSManager = CSManager !*)
 

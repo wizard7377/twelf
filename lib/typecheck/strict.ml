@@ -2,10 +2,9 @@
 (* Author: Carsten Schuermann *)
 
 let recctor Strict ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF
+                module Whnf : WHNF): STRICT =
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 (*! module Paths' : PATHS !*)
-                  ): STRICT =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Paths = Paths' !*)
