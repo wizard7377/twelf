@@ -2,8 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-let recctor Whnf ((*! module IntSyn' : INTSYN !*)
-               ): WHNF =
+let recctor Whnf ((*! module IntSyn' : INTSYN !*)): WHNF =
 struct
   (*! module IntSyn = IntSyn' !*)
 

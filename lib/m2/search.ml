@@ -25,11 +25,10 @@ let recctor OLDSearch ((*! module IntSyn' : INTSYN !*)
                 (*! sharing CPrint.CompSyn = CompSyn' !*)
                 module Print : PRINT
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                module Names : NAMES
+                module Names : NAMES): OLDSEARCH =
                 (*! sharing Names.IntSyn = IntSyn' !*)
                 (*! module CSManager : CS_MANAGER !*)
                 (*! sharing CSManager.IntSyn = IntSyn' !*)
-): OLDSEARCH =
 struct
 
   (*! module IntSyn = IntSyn' !*)

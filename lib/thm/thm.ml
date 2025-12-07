@@ -9,9 +9,8 @@ let recctor Thm (module Global : GLOBAL
              module Order : ORDER
              (*! sharing Order.IntSyn = ThmSyn'.ModeSyn.IntSyn !*)
              module ThmPrint : THMPRINT
-               sharing ThmPrint.ThmSyn = ThmSyn'
+               sharing ThmPrint.ThmSyn = ThmSyn'): THM =
                (*! module Paths' : PATHS !*)
-               ): THM =
 struct
   module ThmSyn = ThmSyn'
   (*! module Paths = Paths' !*)

@@ -21,11 +21,10 @@ let recctor AbsMachine ((*! module IntSyn' : INTSYN !*)
                     module Print : PRINT
                     (*! sharing Print.IntSyn = IntSyn' !*)
 
-                    module Names : NAMES
+                    module Names : NAMES): ABSMACHINE =
                     (*! sharing Names.IntSyn = IntSyn' !*)
                     (*! module CSManager : CS_MANAGER !*)
                     (*! sharing CSManager.IntSyn = IntSyn' !*)
-                        ): ABSMACHINE =
 struct
 
   (*! module IntSyn = IntSyn' !*)

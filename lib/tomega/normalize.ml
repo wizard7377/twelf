@@ -6,8 +6,7 @@ let recctor Normalize
    module Tomega' : TOMEGA
      sharing Tomega'.IntSyn = IntSyn'
    module Whnf : WHNF
-     sharing Whnf.IntSyn = IntSyn'
-) : NORMALIZE =
+     sharing Whnf.IntSyn = IntSyn'): NORMALIZE =
 struct
   module IntSyn = IntSyn'
   module Tomega = Tomega'

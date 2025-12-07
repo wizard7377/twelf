@@ -26,12 +26,11 @@ let recctor Reduces   (module Global : GLOBAL
                       sharing Checking.Order = Order
                       (*! sharing Checking.IntSyn = IntSyn' !*)
                       (*! sharing Checking.Paths = Paths !*)
-                   module Origins : ORIGINS
+                   module Origins : ORIGINS): REDUCES =
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn' !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
-                       ):  REDUCES =
 struct
   (*! module IntSyn = IntSyn' !*)
 

@@ -14,8 +14,7 @@ let recctor CSIneqField (module OrderedField : ORDERED_FIELD
                        sharing CSEqField.Field = OrderedField
                        (*! sharing CSEqField.IntSyn = IntSyn !*)
                        (*! sharing CSEqField.CSManager = CSManager !*)
-                     module Compat : COMPAT
-                         ): CS =
+                     module Compat : COMPAT): CS =
 struct
   (*! module CSManager = CSManager !*)
 

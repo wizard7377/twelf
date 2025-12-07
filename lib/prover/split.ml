@@ -24,9 +24,8 @@ let recctor Split
    (*! sharing Print.IntSyn = IntSyn' !*)
    module TypeCheck : TYPECHECK
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   module Subordinate : SUBORDINATE
+   module Subordinate : SUBORDINATE): SPLIT =
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-       ) : SPLIT =
 
 struct
   (*! module IntSyn = IntSyn' !*)

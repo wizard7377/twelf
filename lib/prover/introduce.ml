@@ -6,10 +6,9 @@ let recctor Introduce
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
    module State' : STATE
-   module TomegaNames : TOMEGANAMES
+   module TomegaNames : TOMEGANAMES): INTRODUCE =
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-       ) : INTRODUCE  =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

@@ -6,10 +6,9 @@ let recctor ModeTable
   ((*! module IntSyn' : INTSYN !*)
    (* module Names : NAMES *)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   module Table : TABLE where type key = int
+   module Table : TABLE where type key = int): MODETABLE =
    (* module Index : INDEX *)
    (*! sharing Index.IntSyn = IntSyn' !*)
-   ) : MODETABLE =
 struct
   (*! module IntSyn = IntSyn' !*)
   exception Error of string

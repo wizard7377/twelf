@@ -4,9 +4,8 @@
 let recctor FunSyn ((*! module IntSyn' : INTSYN !*)
                 module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                module Conv : CONV
+                module Conv : CONV): FUNSYN =
                 (*! sharing Conv.IntSyn = IntSyn' !*)
-                  ) : FUNSYN =
 struct
   (*! module IntSyn = IntSyn' !*)
 

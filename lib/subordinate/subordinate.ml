@@ -12,8 +12,7 @@ let recctor Subordinate
    (*! sharing Names.IntSyn = IntSyn' !*)
    module Table : TABLE where type key = int
    module MemoTable : TABLE where type key = int * int
-   module IntSet : INTSET
-     ): SUBORDINATE =
+   module IntSet : INTSET): SUBORDINATE =
 struct
   (*! module IntSyn = IntSyn' !*)
 

@@ -26,11 +26,10 @@ let recctor MTPSearch (module Global : GLOBAL
                    (*! sharing CPrint.CompSyn = CompSyn' !*)
                    module Print : PRINT
                    (*! sharing Print.IntSyn = IntSyn' !*)
-                   module Names : NAMES
+                   module Names : NAMES): MTPSEARCH =
                    (*! sharing Names.IntSyn = IntSyn' !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
-                     ): MTPSEARCH =
 struct
 
   (*! module IntSyn = IntSyn' !*)

@@ -11,8 +11,7 @@ let recctor TomegaTypeCheck
    module TomegaPrint : TOMEGAPRINT
    module Subordinate : SUBORDINATE
    module Weaken : WEAKEN
-   module TomegaAbstract : TOMEGAABSTRACT
-       ) : TOMEGATYPECHECK =
+   module TomegaAbstract : TOMEGAABSTRACT): TOMEGATYPECHECK =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

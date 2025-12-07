@@ -3,8 +3,7 @@
 (* Modified: Frank Pfenning *)
 
 let recctor ModeDec ((*! module ModeSyn' : MODESYN !*)
-                 (*! module Paths' : PATHS !*)
-                   ): MODEDEC =
+                 (*! module Paths' : PATHS !*)): MODEDEC =
 struct
   (*! module ModeSyn = ModeSyn' !*)
   (*! module Paths = Paths' !*)

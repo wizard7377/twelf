@@ -3,11 +3,10 @@
 
 let recctor DextSyn ( (* module Stream' : STREAM *)
                   module ExtSyn' : EXTSYN
-                  module Parsing' : PARSING
+                  module Parsing' : PARSING): DEXTSYN =
 (*                    sharing Parsing'.Lexer.Paths = ExtSyn'.Paths  *)
 (*                  module Lexer' : LEXER *)
 (*                    sharing Lexer' = Parsing'.Lexer *)
-      ) : DEXTSYN =
 
 struct
 (*  module Stream = Stream' *)

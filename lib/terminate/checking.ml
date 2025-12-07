@@ -23,12 +23,11 @@ let recctor Checking  (module Global : GLOBAL
                    module Order : ORDER
                    (*! sharing Order.IntSyn = IntSyn' !*)
                    (*! module Paths  : PATHS !*)
-                   module Origins : ORIGINS
+                   module Origins : ORIGINS): CHECKING =
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn' !*)
                    (*! module CSManager : CS_MANAGER !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
-                       ):  CHECKING =
 struct
   (*! module IntSyn = IntSyn' !*)
   module Order = Order

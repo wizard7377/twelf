@@ -5,9 +5,8 @@ let recctor Normalize
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   module Whnf : WHNF
+   module Whnf : WHNF): NORMALIZE =
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-) : NORMALIZE =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

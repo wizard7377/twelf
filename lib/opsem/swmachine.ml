@@ -1,9 +1,8 @@
 let recctor SwMachine (module Trace : TRACE
                    module AbsMachine : ABSMACHINE
-                   module TMachine : ABSMACHINE
+                   module TMachine : ABSMACHINE): ABSMACHINE =
                    (*! sharing TMachine.IntSyn = AbsMachine.IntSyn !*)
                    (*! sharing TMachine.CompSyn = AbsMachine.CompSyn !*)
-                     ) : ABSMACHINE =
 struct
 
   (*! module IntSyn = AbsMachine.IntSyn !*)

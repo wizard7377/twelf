@@ -6,9 +6,8 @@ let recctor FunPrint ((*! module FunSyn' : FUNSYN !*)
                   module Names : NAMES
                   (*! sharing Names.IntSyn = FunSyn'.IntSyn !*)
                   module Print : PRINT
-                    sharing Print.Formatter = Formatter
+                    sharing Print.Formatter = Formatter): FUNPRINT =
                     (*! sharing Print.IntSyn = FunSyn'.IntSyn !*)
-                      ): FUNPRINT =
 struct
   (*! module FunSyn = FunSyn' !*)
   module Formatter = Formatter

@@ -10,10 +10,9 @@ let recctor ModeCheck ((*! module IntSyn : INTSYN !*)
                    module Index : INDEX
                    (*! sharing Index.IntSyn = IntSyn !*)
                    (*! module Paths : PATHS !*)
-                   module Origins : ORIGINS
+                   module Origins : ORIGINS): MODECHECK =
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn !*)
-                       ): MODECHECK =
 struct
   (*! module IntSyn = IntSyn !*)
   (*! module ModeSyn = ModeSyn !*)

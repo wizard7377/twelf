@@ -20,9 +20,8 @@ let recctor Inference (module MTPGlobal : MTPGLOBAL
                      sharing UniqueSearch.StateSyn = StateSyn'
                    module Print : PRINT
                    (*! sharing Print.IntSyn = IntSyn !*)
-                   module Whnf : WHNF
+                   module Whnf : WHNF): INFERENCE =
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                     ): INFERENCE =
 struct
   (*! module FunSyn = FunSyn' !*)
   module StateSyn = StateSyn'

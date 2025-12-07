@@ -22,8 +22,7 @@ let recctor ReconConDec (module Global : GLOBAL
                      module Timers : TIMERS
                      module Print : PRINT
                      (*! sharing Print.IntSyn = IntSyn' !*)
-                     module Msg : MSG
-                       ): RECON_CONDEC =
+                     module Msg : MSG): RECON_CONDEC =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Paths = Paths' !*)

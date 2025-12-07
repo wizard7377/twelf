@@ -2,9 +2,8 @@
 (* Author: Carsten Schuermann *)
 
 let recctor MetaSyn ((*! module IntSyn' : INTSYN !*)
-                 module Whnf : WHNF
+                 module Whnf : WHNF): METASYN =
                  (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   ): METASYN =
 struct
   (*! module IntSyn = IntSyn' !*)
 

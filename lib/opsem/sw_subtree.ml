@@ -1,10 +1,9 @@
 let recctor SwMemoTable ((* module TableParam : TABLEPARAM *)
                      module MemoTable : MEMOTABLE
-                     module MemoTableInst : MEMOTABLE
+                     module MemoTableInst : MEMOTABLE): MEMOTABLE =
                      (*! sharing MemoTableInst.IntSyn = MemoTable.IntSyn !*)
                      (*! sharing MemoTableInst.CompSyn = MemoTable.CompSyn !*)
                      (*! sharing MemoTableInst.TableParam = MemoTable.TableParam !*)
-                       ) : MEMOTABLE =
 struct
 
   (*! module IntSyn = MemoTable.IntSyn !*)

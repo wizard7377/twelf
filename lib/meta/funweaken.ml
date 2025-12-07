@@ -2,9 +2,8 @@
 (* Author: Carsten Schuermann *)
 
 let recctor FunWeaken ((*! module FunSyn' : FUNSYN !*)
-                   module Weaken : WEAKEN
+                   module Weaken : WEAKEN): FUNWEAKEN =
                    (*! sharing Weaken.IntSyn = FunSyn'.IntSyn !*)
-                     ) : FUNWEAKEN =
 struct
   (*! module FunSyn = FunSyn' !*)
 

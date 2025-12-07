@@ -5,9 +5,8 @@ let recctor Trace ((*! module IntSyn' : INTSYN !*)
                (*! sharing Whnf.IntSyn = IntSyn' !*)
                module Abstract : ABSTRACT
                (*! sharing Abstract.IntSyn = IntSyn' !*)
-               module Print : PRINT
+               module Print : PRINT): TRACE =
                (*! sharing Print.IntSyn = IntSyn' !*)
-                 ): TRACE =
 struct
 
   (*! module IntSyn = IntSyn' !*)

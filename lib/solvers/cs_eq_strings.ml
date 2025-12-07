@@ -4,11 +4,10 @@
 let recctor CSEqStrings ((*! module IntSyn : INTSYN !*)
                      module Whnf : WHNF
                      (*! sharing Whnf.IntSyn = IntSyn !*)
-                     module Unify : UNIFY
+                     module Unify : UNIFY): CS =
                      (*! sharing Unify.IntSyn = IntSyn !*)
                      (*! module CSManager : CS_MANAGER !*)
                      (*! sharing CSManager.IntSyn = IntSyn !*)
-                       ): CS =
 struct
   (*! module CSManager = CSManager !*)
 

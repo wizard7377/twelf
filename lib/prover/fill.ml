@@ -21,10 +21,9 @@ let recctor Fill
      sharing Search.State = State'
    module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Unify : UNIFY
+   module Unify : UNIFY): FILL =
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
-       ): FILL =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)
