@@ -9,7 +9,7 @@ struct
       that is an eta-expansion of the deBruijn index n,
       then returns n. Otherwise raises EtaContract.
     *)
-    fun eta_contract_var (Elt t) = eta_contract_var' 0 t
+    let rec eta_contract_var (Elt t) = eta_contract_var' 0 t
       | eta_contract_var _ = raise EtaContract
     and eta_contract_var' n (ATerm(ARoot(Var n', s))) = 
 	let
@@ -23,7 +23,7 @@ struct
       | eta_contract_var' n (NTerm(Lam t)) = eta_contract_var' (n+1) t
       | eta_contract_var' _ _ = raise EtaContract
 
-    fun pattern_spine' (D, []) = true
+    let rec pattern_spine' (D, []) = true
       | pattern_spine' (D, n::s) = let fun isn x = (x = n)
 				      fun hasn s = List.exists isn s
 				  in
@@ -31,12 +31,12 @@ struct
 				      not (hasn s) andalso
 				      pattern_spine' (D, s) 
 				  end
-    fun pattern_spine (D, s) = 
+    and pattern_spine (D, s) = 
 	((pattern_spine' (D, map eta_contract_var s))
-	 handle EtaContract => false)
+	 handle EtaContract -> false)
 
 
-    fun spine_occ n (D, nil) = false
+    let rec spine_occ n (D, nil) = false
       | spine_occ n (D, (Elt t)::s) = term_occ n (D, t) orelse
 				      spine_occ n (D, s)
       | spine_occ n (D, (AElt t)::s) = aterm_occ n (D, t) orelse
@@ -70,18 +70,18 @@ struct
 					type_occ (n+1) (0 :: (map (fun x -> x+1) D), b)
 
     (* toplevel strictness judgments *)
-    fun check_strict_type' n p (TRoot(n', s)) = if p then false else spine_occ n ([], s)
+    let rec check_strict_type' n p (TRoot(n', s)) = if p then false else spine_occ n ([], s)
       | check_strict_type' n p (TPi(PLUS,a,b)) = type_occ n ([],a) orelse
 					       check_strict_type' (n+1) p b
       | check_strict_type' n p (TPi(_,a,b)) = check_strict_type' (n+1) p b
 
-    fun check_strict_kind' n Type = false
+    let rec check_strict_kind' n Type = false
       | check_strict_kind' n (KPi(PLUS,a,k)) = type_occ n ([],a) orelse
 					       check_strict_kind' (n+1) k
       | check_strict_kind' n (KPi(_,a,k)) = check_strict_kind' (n+1) k
 
 
 (* p is whether we should imagine we are checking a c+ (rather than c-) constant *)
-    fun check_strict_type p b = check_strict_type' 0 p b
-    fun check_strict_kind k = check_strict_kind' 0 k
+    let check_strict_type p b = check_strict_type' 0 p b
+    let check_strict_kind k = check_strict_kind' 0 k
 end

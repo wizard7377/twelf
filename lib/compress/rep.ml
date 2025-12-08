@@ -5,23 +5,23 @@ struct
 module I = IntSyn
 module S = Syntax
 
-let rec defSize x = (case x of 
-   		       Sgn.DEF_TERM y => S.size_term y
-		     | Sgn.DEF_TYPE y => S.size_tp y)
+let rec defSize x = (match x with 
+   		       Sgn.DEF_TERM y -> S.size_term y
+		     | Sgn.DEF_TYPE y -> S.size_tp y)
 
-let rec cidSize cid = (case I.sgnLookup cid of 
-   I.ConDec(_,_,_,_,_,I.Type) => S.size_tp (S.typeOf (Sgn.classifier cid))
- | I.ConDec(_,_,_,_,_,I.Kind) => S.size_knd (S.kindOf (Sgn.classifier cid))
- | I.ConDef(_,_,_,_,_,_,_) => defSize(Sgn.def cid)
- | I.AbbrevDef(_,_,_,_,_,_) => defSize(Sgn.def cid)
- | _ => 0)
+let rec cidSize cid = (match I.sgnLookup cid with 
+   I.ConDec(_,_,_,_,_,I.Type) -> S.size_tp (S.typeOf (Sgn.classifier cid))
+ | I.ConDec(_,_,_,_,_,I.Kind) -> S.size_knd (S.kindOf (Sgn.classifier cid))
+ | I.ConDef(_,_,_,_,_,_,_) -> defSize(Sgn.def cid)
+ | I.AbbrevDef(_,_,_,_,_,_) -> defSize(Sgn.def cid)
+ | _ -> 0)
 
-let rec o_cidSize cid = (case I.sgnLookup cid of 
-   I.ConDec(_,_,_,_,_,I.Type) => S.size_tp (S.typeOf (Sgn.o_classifier cid))
- | I.ConDec(_,_,_,_,_,I.Kind) => S.size_knd (S.kindOf (Sgn.o_classifier cid))
- | I.ConDef(_,_,_,_,_,_,_) => defSize(Sgn.o_def cid)
- | I.AbbrevDef(_,_,_,_,_,_) => defSize(Sgn.o_def cid)
- | _ => 0)
+let rec o_cidSize cid = (match I.sgnLookup cid with 
+   I.ConDec(_,_,_,_,_,I.Type) -> S.size_tp (S.typeOf (Sgn.o_classifier cid))
+ | I.ConDec(_,_,_,_,_,I.Kind) -> S.size_knd (S.kindOf (Sgn.o_classifier cid))
+ | I.ConDef(_,_,_,_,_,_,_) -> defSize(Sgn.o_def cid)
+ | I.AbbrevDef(_,_,_,_,_,_) -> defSize(Sgn.o_def cid)
+ | _ -> 0)
 
 
 open SMLofNJ.Cont
@@ -31,33 +31,33 @@ let k : Reductio.eq_c option ref = ref NONE
 
 
 exception Crap
-let rec sanityCheck cid = ((case I.sgnLookup cid of 
-   I.ConDec(_,_,_,_,_,I.Type) => (Reductio.check_plusconst_type (Sgn.typeOf (Sgn.classifier cid)))
- | I.ConDec(_,_,_,_,_,I.Kind) => (Reductio.check_kind ([], Sgn.kindOf (Sgn.classifier cid)))
- | I.ConDef(_,_,_,_,_,I.Type,_) => let let Sgn.DEF_TERM y = Sgn.def cid
-				     let Syntax.tclass z = Sgn.classifier cid 
+let rec sanityCheck cid = ((match I.sgnLookup cid with 
+   I.ConDec(_,_,_,_,_,I.Type) -> (Reductio.check_plusconst_type (Sgn.typeOf (Sgn.classifier cid)))
+ | I.ConDec(_,_,_,_,_,I.Kind) -> (Reductio.check_kind ([], Sgn.kindOf (Sgn.classifier cid)))
+ | I.ConDef(_,_,_,_,_,I.Type,_) -> let let Sgn.DEF_TERM y = Sgn.def cid
+				     let Syntax.Tclass z = Sgn.classifier cid 
 				 in
 (*				     l := (y,z):: !l; *)
 				     Reductio.check ([], y, z) 
 				 end
- | I.ConDef(_,_,_,_,_,I.Kind,_) => let let Sgn.DEF_TYPE y = Sgn.def cid
-				     let Syntax.kclass z = Sgn.classifier cid 
+ | I.ConDef(_,_,_,_,_,I.Kind,_) -> let let Sgn.DEF_TYPE y = Sgn.def cid
+				     let Syntax.Kclass z = Sgn.classifier cid 
 				 in
 				     Reductio.check_type  Reductio.CON_LF (Syntax.explodeKind z, y) 
 				 end
- | I.AbbrevDef(_,_,_,_,_,I.Type) => let let Sgn.DEF_TERM y = Sgn.def cid
-				     let Syntax.tclass z = Sgn.classifier cid 
+ | I.AbbrevDef(_,_,_,_,_,I.Type) -> let let Sgn.DEF_TERM y = Sgn.def cid
+				     let Syntax.Tclass z = Sgn.classifier cid 
 				 in
 (*				     l := (y,z):: !l; *)
 				     Reductio.check ([], y, z) 
 				 end
- | I.AbbrevDef(_,_,_,_,_,I.Kind) => let let Sgn.DEF_TYPE y = Sgn.def cid
-				     let Syntax.kclass z = Sgn.classifier cid 
+ | I.AbbrevDef(_,_,_,_,_,I.Kind) -> let let Sgn.DEF_TYPE y = Sgn.def cid
+				     let Syntax.Kclass z = Sgn.classifier cid 
 				 in
 				     Reductio.check_type Reductio.CON_LF (Syntax.explodeKind z, y) 
 				 end
- | _ => true (* we're not checking block declarations or anything else like that *))
-handle Syntax.Syntax _ => (print ("--> " ^ Int.toString cid); raise Match))
+ | _ -> true (* we're not checking block declarations or anything else like that *))
+handle Syntax.Syntax _ -> (print ("--> " ^ Int.toString cid); raise Match))
 
 
 
