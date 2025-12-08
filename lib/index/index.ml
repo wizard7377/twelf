@@ -2,8 +2,8 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-let recctor Index (module Global : GLOBAL
-               module Queue : QUEUE): INDEX =
+module Index (Global : GLOBAL)
+   (Queue : QUEUE): INDEX =
                (*! module IntSyn' : INTSYN !*)
 struct
   (*! module IntSyn = IntSyn' !*)
@@ -96,4 +96,4 @@ struct
 
   end (* local *)
 
-end;  (* functor Index *)
+end;; (* functor Index *)

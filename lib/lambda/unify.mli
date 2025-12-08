@@ -52,4 +52,4 @@ sig
      success and SOME(msg) for failure *)
   val unifiable' : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> string option
 
-end;  (* module type UNIFY *)
+end;; (* module type UNIFY *)

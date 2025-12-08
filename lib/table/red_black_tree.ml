@@ -1,7 +1,7 @@
 (* Red/Black Trees *)
 (* Author: Frank Pfenning *)
 
-let recctor RedBlackTree
+module RedBlackTree
   (type key'
    let compare : key' * key' -> order)
   :> TABLE where type key = key' =
@@ -250,4 +250,4 @@ struct
     let app = (fun f -> fun table -> app f (!table))
   end
 
-end;  (* functor RedBlackTree *)
+end;; (* functor RedBlackTree *)

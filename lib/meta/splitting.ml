@@ -1,8 +1,8 @@
 (* Splitting : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-let recctor MTPSplitting (module MTPGlobal : MTPGLOBAL
-                      module Global : GLOBAL
+module MTPSplitting (MTPGlobal : MTPGLOBAL)
+   (module Global : GLOBAL
                       (*! module IntSyn : INTSYN !*)
                       (*! module FunSyn : FUNSYN !*)
                       (*! sharing FunSyn.IntSyn = IntSyn !*)
@@ -793,4 +793,4 @@ struct
     let index = index
     let compare = compare
   end (* local *)
-end;  (* functor Splitting *)
+end;; (* functor Splitting *)

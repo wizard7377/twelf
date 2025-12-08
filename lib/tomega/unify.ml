@@ -1,7 +1,7 @@
 (* Unification on Formulas *)
 (* Author: Carsten Schuermann *)
 
-let recctor TomegaUnify
+module TomegaUnify
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)

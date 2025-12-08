@@ -1,7 +1,7 @@
 (* String Equation Solver *)
 (* Author: Roberto Virga *)
 
-let recctor CSEqStrings ((*! module IntSyn : INTSYN !*)
+module CSEqStrings ((*! module IntSyn : INTSYN !*)
                      module Whnf : WHNF
                      (*! sharing Whnf.IntSyn = IntSyn !*)
                      module Unify : UNIFY): CS =

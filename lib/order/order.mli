@@ -43,4 +43,4 @@ sig
   val mutLookup : IntSyn.cid -> Mutual
   val closure : IntSyn.cid -> IntSyn.cid list
 
-end;  (* module type ORDER *)
+end;; (* module type ORDER *)

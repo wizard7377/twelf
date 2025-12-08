@@ -1,7 +1,7 @@
 (* Constraint Solver Manager *)
 (* Author: Roberto Virga *)
 
-let recctor CSManager (module Global : GLOBAL
+module CSManager (module Global : GLOBAL
                    (*! module IntSyn : INTSYN !*)
                    module Unify : UNIFY
                    (*! sharing Unify.IntSyn = IntSyn !*)

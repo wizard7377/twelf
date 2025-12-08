@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-let recctor ModeTable
+module ModeTable
   ((*! module IntSyn' : INTSYN !*)
    (* module Names : NAMES *)
    (*! sharing Names.IntSyn = IntSyn' !*)
@@ -85,4 +85,4 @@ struct
     let installMmode = installMmode
     let mmodeLookup = mmodeLookup
   end
-end;  (* functor ModeTable *)
+end;; (* functor ModeTable *)

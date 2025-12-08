@@ -2,8 +2,8 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-let recctor ThmPrint (module ThmSyn' : THMSYN
-                    module Formatter : FORMATTER)
+module ThmPrint (module ThmSyn' : THMSYN)
+   (Formatter : FORMATTER)
   : THMPRINT =
 struct
   module ThmSyn = ThmSyn'
@@ -77,4 +77,4 @@ struct
     let keepTableDeclToString = keepTableDeclToString
   end (* local *)
 
-end; (* functor ThmPrint *)
+end;; (* functor ThmPrint *)

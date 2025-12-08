@@ -15,4 +15,4 @@ sig
   val menu : operator -> string
   val index : operator -> int
   val compare : operator * operator -> order
-end;  (* module type MTPSPLITTING *)
+end;; (* module type MTPSPLITTING *)

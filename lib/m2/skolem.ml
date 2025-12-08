@@ -1,7 +1,7 @@
 (* Skolem constant administration *)
 (* Author: Carsten Schuermann *)
 
-let recctor Skolem (module Global : GLOBAL
+module Skolem (module Global : GLOBAL
                 (*! module IntSyn' : INTSYN !*)
                 module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)

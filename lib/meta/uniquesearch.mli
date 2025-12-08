@@ -13,4 +13,4 @@ sig
 
   val searchEx : int * IntSyn.Exp list
       * (acctype list -> acctype list) -> acctype list
-end;  (* module type SEARCH *)
+end;; (* module type SEARCH *)

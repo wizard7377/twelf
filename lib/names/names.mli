@@ -30,7 +30,7 @@ sig
   (* returns integer for precedence such that lower values correspond to higher precedence, useful for exports *)
   val precToIntAsc : fixity -> int
   
-end;  (* module type FIXITY *)
+end;; (* module type FIXITY *)
 
 module type NAMES =
 sig
@@ -121,4 +121,4 @@ sig
   val namedEVars : unit -> (IntSyn.Exp * string) list
   (* Uninstantiated named EVars with constraints *)
   val evarCnstr : unit -> (IntSyn.Exp * string) list
-end;  (* module type NAMES *)
+end;; (* module type NAMES *)

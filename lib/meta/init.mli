@@ -12,4 +12,4 @@ sig
      
   val init : (FunSyn.for * StateSyn.order) -> StateSyn.state list
  
-end;  (* module type MTPINIT *)
+end;; (* module type MTPINIT *)

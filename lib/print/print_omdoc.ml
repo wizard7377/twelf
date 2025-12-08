@@ -4,7 +4,7 @@
 (* Modified: Carsten Schuermann *)
 (* Modified: Florian Rabe *)
 
-let recctor PrintOMDoc
+module PrintOMDoc
   ((*! module IntSyn' : INTSYN !*)
    module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)

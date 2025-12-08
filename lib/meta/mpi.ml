@@ -1,7 +1,7 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-let recctor MTPi (module MTPGlobal : MTPGLOBAL
+module MTPi (module MTPGlobal : MTPGLOBAL
               (*! module IntSyn : INTSYN !*)
               (*! module FunSyn' : FUNSYN !*)
               (*! sharing FunSyn'.IntSyn = IntSyn !*)
@@ -395,4 +395,4 @@ struct
     let check = check
     let undo = undo
  end (* local *)
-end; (* functor MPI *)
+end;; (* functor MPI *)

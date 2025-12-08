@@ -38,4 +38,4 @@ sig
    
   val deduce : IntSyn.dctx * qctx * rctx * order Predicate -> bool
  
-end;  (* module type CHECKING *)
+end;; (* module type CHECKING *)

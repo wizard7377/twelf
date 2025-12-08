@@ -3,7 +3,7 @@
 (* Modified: Jeff Polakow *)
 (* Modified: Carsten Schuermann *)
 
-let recctor PrintXML
+module PrintXML
   ((*! module IntSyn' : INTSYN !*)
    module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)

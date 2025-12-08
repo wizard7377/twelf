@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-let recctor ThmSyn ((*! module IntSyn : INTSYN !*)
+module ThmSyn ((*! module IntSyn : INTSYN !*)
                 (*! module ModeSyn' : MODESYN !*)
                 (*! sharing ModeSyn'.IntSyn = IntSyn !*)
                 module Abstract : ABSTRACT
@@ -129,4 +129,4 @@ struct
     let theoremDecToModeSpine = theoremDecToModeSpine
   end (* local *)
 
-end; (* functor ThmSyn *)
+end;; (* functor ThmSyn *)

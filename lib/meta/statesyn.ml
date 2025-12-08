@@ -1,7 +1,7 @@
 (* State for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-let recctor StateSyn ((*! module IntSyn' : INTSYN !*)
+module StateSyn ((*! module IntSyn' : INTSYN !*)
                   (*! module FunSyn' : FUNSYN !*)
                   (*! sharing FunSyn'.IntSyn = IntSyn' !*)
                   module Whnf : WHNF
@@ -125,4 +125,4 @@ struct
     let convOrder = convOrder
     let normalizeTag = normalizeTag
   end (* local *)
-end; (* module type STATESYN *)
+end;; (* module type STATESYN *)

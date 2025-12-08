@@ -37,7 +37,7 @@ sig
     val toModedec : mterm -> modedec
   end
 
-end;  (* module type EXTMODES *)
+end;; (* module type EXTMODES *)
 
 
 module type RECON_MODE =
@@ -47,4 +47,4 @@ sig
 
   exception Error of string
   val modeToMode : modedec -> (IntSyn.cid * ModeSyn.ModeSpine) * Paths.region
-end;  (* module type RECON_MODE *)
+end;; (* module type RECON_MODE *)

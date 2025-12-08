@@ -61,4 +61,4 @@ sig
   val theoremDecToConDec : ((string * thDecl) * Paths.region) -> 
                            (IntSyn.Dec IntSyn.Ctx * IntSyn.Dec IntSyn.Ctx) list * IntSyn.ConDec
   val theoremDecToModeSpine : ((string * thDecl) * Paths.region) -> ModeSyn.modeSpine
-end;  (* module type THMSYN *)
+end;; (* module type THMSYN *)

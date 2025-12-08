@@ -24,7 +24,7 @@
 
 (* end *)
 
-module ArrayTable :> TABLE where type key = int =
+module ArrayTable : TABLE where type key = int =
 struct
   
   module L = Lib

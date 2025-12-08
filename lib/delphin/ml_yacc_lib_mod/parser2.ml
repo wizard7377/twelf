@@ -119,11 +119,11 @@ module type FIFO =
 (* drt (12/15/89) -- the functor should be used in development work, but
    it wastes space in the release version.
 
-let recctor ParserGen(module LrTable : LR_TABLE
-		  module Streamm : STREAMM) : LR_PARSER =
+module ParserGen(LrTable : LR_TABLE)
+   (Streamm : STREAMM) : LR_PARSER =
 *)
 
-module LrParser :> LR_PARSER =
+module LrParser : LR_PARSER =
    struct
       module LrTable = LrTable
       module Streamm = Streamm
@@ -143,7 +143,7 @@ module LrParser :> LR_PARSER =
       exception ParseError
       exception ParseImpossible of int
 
-      module Fifo :> FIFO =
+      module Fifo : FIFO =
         struct
 	  type 'a queue = ('a list * 'a list)
 	  let empty = (nil,nil)

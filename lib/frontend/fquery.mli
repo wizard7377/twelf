@@ -10,4 +10,4 @@ sig
   val run : ExtQuery.query * Paths.location -> unit
 					(* may raise AbortQuery(msg) *)
 
-end;  (* module type SOLVE *)
+end;; (* module type SOLVE *)

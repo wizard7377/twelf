@@ -30,4 +30,4 @@ sig
   val compilePsi: bool -> (Tomega.Dec IntSyn.Ctx) -> CompSyn.DProg
  
 
-end; (* module type COMPILE *)
+end;; (* module type COMPILE *)

@@ -10,4 +10,4 @@ sig
   exception Error of string 
 
   val init : FunSyn.for * StateSyn.order -> unit
-end;  (* module type MTPROVER *)
+end;; (* module type MTPROVER *)

@@ -1,7 +1,7 @@
 (* Parsing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-let recctor ParseMode
+module ParseMode
    ((*! module Paths : PATHS !*)
    (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
@@ -164,4 +164,4 @@ struct
     let parseMode' = parseMode'
   end  (* local *)
 
-end;  (* functor ParseMode *)
+end;; (* functor ParseMode *)

@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow, Roberto Virga *)
 
-let recctor Print ((*! module IntSyn' : INTSYN !*)
+module Print ((*! module IntSyn' : INTSYN !*)
                module Whnf : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
                module Abstract : ABSTRACT

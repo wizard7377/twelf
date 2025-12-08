@@ -2,7 +2,7 @@
 (* Author: Jeff Polakow, Frank Pfenning *)
 (* Modified: Roberto Virga *)
 
-let recctor Constraints
+module Constraints
     ((*! module IntSyn' : INTSYN !*)
      module Conv : CONV): CONSTRAINTS =
      (*! sharing Conv.IntSyn = IntSyn' !*)
@@ -58,4 +58,4 @@ struct
     let warnConstraints = warnConstraints
   end
 
-end;  (* functor Constraints *)
+end;; (* functor Constraints *)

@@ -18,4 +18,4 @@ sig
       * (IntSyn.Exp * IntSyn.Sub)
       * (MetaSyn.State list -> MetaSyn.State list)
       -> MetaSyn.State list
-end;  (* module type SEARCH *)
+end;; (* module type SEARCH *)

@@ -2,8 +2,8 @@
 (* Author: Carsten Schuermann *)
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
-let recctor MTPRecursion (module MTPGlobal : MTPGLOBAL
-                      module Global : GLOBAL
+module MTPRecursion (MTPGlobal : MTPGLOBAL)
+   (module Global : GLOBAL
                       (*! module IntSyn : INTSYN !*)
                       (*! module FunSyn : FUNSYN !*)
                       (*! sharing FunSyn.IntSyn = IntSyn !*)
@@ -799,4 +799,4 @@ struct
     let apply = apply
     let menu = menu
   end (* local *)
-end; (* functor MTPRecursion *)
+end;; (* functor MTPRecursion *)

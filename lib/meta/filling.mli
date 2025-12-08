@@ -14,6 +14,6 @@ sig
   val expand : StateSyn.state -> operator 
   val apply : operator -> (int * FunSyn.pro)
   val menu : operator -> string
-end; (* module type MTPFILLING *)
+end;; (* module type MTPFILLING *)
 
 

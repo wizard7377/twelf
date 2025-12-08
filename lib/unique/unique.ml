@@ -1,22 +1,21 @@
 (* Uniqueness Checking *)
 (* Author: Frank Pfenning *)
 
-let recctor Unique
-  (module Global : GLOBAL
-   module Whnf : WHNF
-   module Abstract : ABSTRACT
-   module Unify : UNIFY              (* must be trailing! *)
-   module Constraints : CONSTRAINTS
-   module UniqueTable : MODETABLE
-   module UniqueCheck : MODECHECK
-   module Index : INDEX
-   module Subordinate : SUBORDINATE
-
-   module WorldSyn : WORLDSYN
-   module Names : NAMES
-   module Print : PRINT
-   module TypeCheck : TYPECHECK
-   module Timers : TIMERS)
+module Unique
+  (Global : GLOBAL)
+   (Whnf : WHNF)
+   (Abstract : ABSTRACT)
+   (Unify : UNIFY              (* must be trailing! *))
+   (Constraints : CONSTRAINTS)
+   (UniqueTable : MODETABLE)
+   (UniqueCheck : MODECHECK)
+   (Index : INDEX)
+   (Subordinate : SUBORDINATE)
+   (WorldSyn : WORLDSYN)
+   (Names : NAMES)
+   (Print : PRINT)
+   (TypeCheck : TYPECHECK)
+   (Timers : TIMERS)
   : UNIQUE =
 struct
 
@@ -356,4 +355,4 @@ struct
         end
 
   end
-end;  (* functor Unique *)
+end;; (* functor Unique *)

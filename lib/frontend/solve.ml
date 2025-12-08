@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Carsten Schuermann, Jeff Polakow, Roberto Virga *)
 
-let recctor Solve
+module Solve
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    module Names : NAMES
@@ -736,4 +736,4 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
         qLoopT ()
       end
 
-end; (* functor Solve *)
+end;; (* functor Solve *)

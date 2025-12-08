@@ -99,7 +99,7 @@ struct
       ^ "formula" ^ par ("and" ^ par(A)) ^ ".\n"
     | objdec (c, _) = "%% " ^ c ^ " : skipped.\n"
 
-end;  (* module Spass *)
+end;; (* module Spass *)
 
 module Spass =
   Traverse (module IntSyn' = IntSyn

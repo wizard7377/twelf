@@ -12,4 +12,4 @@ sig
   val searchEx : int * IntSyn.Exp list
 (*      * (StateSyn.FunSyn.IntSyn.Exp * StateSyn.FunSyn.IntSyn.Sub) *)
       * (int -> unit) -> unit
-end;  (* module type SEARCH *)
+end;; (* module type SEARCH *)

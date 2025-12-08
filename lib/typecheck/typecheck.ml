@@ -1,7 +1,7 @@
 (* Type Checking *)
 (* Author: Carsten Schuermann *)
 
-let recctor TypeCheck ((*! module IntSyn' : INTSYN !*)
+module TypeCheck ((*! module IntSyn' : INTSYN !*)
                    module Conv : CONV
                    (*! sharing Conv.IntSyn = IntSyn' !*)
                    module Whnf : WHNF
@@ -268,4 +268,4 @@ struct
       let typeCheckCtx = checkCtx
       let typeCheckSub = checkSub
   end  (* local ... *)
-end; (* functor TypeCheck *)
+end;; (* functor TypeCheck *)

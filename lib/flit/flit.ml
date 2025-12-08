@@ -1,12 +1,12 @@
 (* Flit DAG generator *)
 (* Author: Roberto Virga *)
 
-let recctor Flit(module Global : GLOBAL
-             module Word : WORD
-             module Pack : PACK_WORD
-             module Whnf : WHNF
-             module Names : NAMES
-             module Table : TABLE
+module Flit(Global : GLOBAL)
+   (Word : WORD)
+   (Pack : PACK_WORD)
+   (Whnf : WHNF)
+   (Names : NAMES)
+   (module Table : TABLE
                where type key = IntSyn.cid
              module Index : INDEX
              module Print : PRINT)
@@ -764,4 +764,4 @@ struct
     let dumpSymTable = dumpSymTable
     end
 
-end; (* functor Flit *)
+end;; (* functor Flit *)

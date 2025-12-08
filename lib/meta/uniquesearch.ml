@@ -1,7 +1,7 @@
 (* Search (based on abstract machine ) : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-let recctor UniqueSearch (module Global : GLOBAL
+module UniqueSearch (module Global : GLOBAL
                       (*! module IntSyn' : INTSYN !*)
                       (*! module FunSyn' : FUNSYN !*)
                       (*! sharing FunSyn'.IntSyn = IntSyn' !*)
@@ -400,5 +400,5 @@ struct
     let searchEx = search
   end (* local ... *)
 
-end; (* functor Search *)
+end;; (* functor Search *)
 

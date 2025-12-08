@@ -1,7 +1,7 @@
 (* Rationals *)
 (* Author: Roberto Virga *)
 
-let recctor Integers(Integer : INTEGER) : INTEGERS =
+module Integers(Integer : INTEGER) : INTEGERS =
 struct
 
   open Integer
@@ -57,4 +57,4 @@ struct
           else NONE
         end
 
-end;  (* module Integers *)
+end;; (* module Integers *)

@@ -12,4 +12,4 @@ sig
   val expand : StateSyn.state -> operator 
   val apply : operator -> StateSyn.state
   val menu : operator -> string
-end;  (* module type MTPRECURSION *)
+end;; (* module type MTPRECURSION *)

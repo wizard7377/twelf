@@ -1,5 +1,5 @@
 
-module GrowArray :> GROWARRAY =
+module GrowArray : GROWARRAY =
 struct
 
   module A = Array

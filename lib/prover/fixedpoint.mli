@@ -14,6 +14,6 @@ sig
   val expand : (State.Focus * Tomega.TC) -> operator
   val apply : operator -> unit
   val menu : operator -> string
-end; (* module type Fixed Point *)
+end;; (* module type Fixed Point *)
 
 

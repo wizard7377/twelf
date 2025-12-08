@@ -1,7 +1,7 @@
  (* Type checking for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-let recctor FunTypeCheck ((*! module FunSyn' : FUNSYN !*)
+module FunTypeCheck ((*! module FunSyn' : FUNSYN !*)
                       module StateSyn' : STATESYN
                       (*! sharing StateSyn'.FunSyn = FunSyn' !*)
                       module Abstract : ABSTRACT

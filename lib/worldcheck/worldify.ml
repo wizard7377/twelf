@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-let recctor Worldify
+module Worldify
   (module Global : GLOBAL
    (*! module IntSyn : INTSYN !*)
    (*! module Tomega : TOMEGA !*)
@@ -629,4 +629,4 @@ struct
     let worldifyGoal = fn (G,V) => worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top)
   end
 
-end;  (* functor Worldify *)
+end;; (* functor Worldify *)

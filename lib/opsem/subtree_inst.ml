@@ -4,7 +4,7 @@
 (* Instance Checking *)
 (* Author: Brigitte Pientka *)
 
-let recctor MemoTableInst ((*! module IntSyn' : INTSYN !*)
+module MemoTableInst ((*! module IntSyn' : INTSYN !*)
                        (*! module CompSyn' : COMPSYN !*)
                        (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                        module Conv: CONV
@@ -1737,6 +1737,6 @@ let recctor MemoTableInst ((*! module IntSyn' : INTSYN !*)
       end
 
   end (* local *)
-end; (* functor MemoTable *)
+end;; (* functor MemoTable *)
 
 

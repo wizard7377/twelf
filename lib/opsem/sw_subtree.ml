@@ -1,4 +1,4 @@
-let recctor SwMemoTable ((* module TableParam : TABLEPARAM *)
+module SwMemoTable ((* module TableParam : TABLEPARAM *)
                      module MemoTable : MEMOTABLE
                      module MemoTableInst : MEMOTABLE): MEMOTABLE =
                      (*! sharing MemoTableInst.IntSyn = MemoTable.IntSyn !*)
@@ -49,5 +49,5 @@ struct
       TableParam.Subsumption => MemoTableInst.memberCtx args
     | TableParam.Variant => MemoTable.memberCtx args
 
-end;  (* functor SwMemoTable *)
+end;; (* functor SwMemoTable *)
 

@@ -11,4 +11,4 @@ sig
   val auto   : unit -> unit
   val print  : unit -> unit
   val install: (IntSyn.ConDec -> IntSyn.cid) -> unit
-end;  (* module type PROVER *)
+end;; (* module type PROVER *)

@@ -3,4 +3,4 @@ sig
 
   val interruptLoop : (unit -> unit) -> unit
 
-end;  (* module type SIGINT *)
+end;; (* module type SIGINT *)

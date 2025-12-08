@@ -17,4 +17,4 @@ sig
   val ctxToList  : IntSyn.Dec IntSyn.Ctx -> IntSyn.Dec list
   val isSubsumed : Tomega.Worlds -> IntSyn.cid -> unit
   val getWorlds  : IntSyn.cid -> Tomega.Worlds
-end; (* module type WORLDSYN *)
+end;; (* module type WORLDSYN *)

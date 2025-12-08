@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-let recctor Whnf ((*! module IntSyn' : INTSYN !*)): WHNF =
+module Whnf ((*! module IntSyn' : INTSYN !*)): WHNF =
 struct
   (*! module IntSyn = IntSyn' !*)
 
@@ -652,4 +652,4 @@ struct
     let cloInv = cloInv
     let compInv = compInv
   end
-end;  (* functor Whnf *)
+end;; (* functor Whnf *)

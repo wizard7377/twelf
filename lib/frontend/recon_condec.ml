@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga, Jeff Polakow *)
 
-let recctor ReconConDec (module Global : GLOBAL
+module ReconConDec (module Global : GLOBAL
                      (*! module IntSyn' : INTSYN !*)
                      module Names : NAMES
                      (*! sharing Names.IntSyn = IntSyn' !*)

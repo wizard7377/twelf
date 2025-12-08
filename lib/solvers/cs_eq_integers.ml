@@ -1,7 +1,7 @@
 (* Diophantine Equation Solver *)
 (* Author: Roberto Virga *)
 
-let recctor CSEqIntegers (module Integers : INTEGERS
+module CSEqIntegers (module Integers : INTEGERS
                       (*! module IntSyn : INTSYN !*)
                       module Whnf : WHNF
                       (*! sharing Whnf.IntSyn = IntSyn !*)

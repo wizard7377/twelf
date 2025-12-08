@@ -7,7 +7,7 @@
    amortized access under programmer control.
 *)
 
-module Queue :> QUEUE =
+module Queue : QUEUE =
 struct
 
   (* Representation invariant:
@@ -40,4 +40,4 @@ struct
 	(out', SOME (nil, out'))
       end
 
-end;  (* module Queue *)
+end;; (* module Queue *)

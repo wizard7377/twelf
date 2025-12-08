@@ -8,5 +8,5 @@ sig
   val gcd : int * int -> int
   val lcm : int * int -> int
   val solve_gcd : int * int -> int * int
-end;  (* module type INTEGERS *)
+end;; (* module type INTEGERS *)
 

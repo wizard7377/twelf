@@ -7,4 +7,4 @@ sig
 
   val run : StateSyn.state list -> StateSyn.state list * StateSyn.state list 
               (* open cases -> remaining cases * solved cases *)
-end;  (* module type MTPSTRATEGY *)
+end;; (* module type MTPSTRATEGY *)

@@ -1,8 +1,8 @@
 (* Indexing for table *)
 (* Author: Brigitte Pientka *)
 
-let recctor TableIndex (module Global : GLOBAL
-                    module Queue : QUEUE
+module TableIndex (Global : GLOBAL)
+   (module Queue : QUEUE
                     (*! module IntSyn' : INTSYN !*)
                     (*! module CompSyn': COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
@@ -775,5 +775,5 @@ struct
 
   end (* local *)
 
-end;  (* functor TableIndex *)
+end;; (* functor TableIndex *)
 

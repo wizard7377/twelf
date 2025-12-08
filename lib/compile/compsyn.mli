@@ -86,4 +86,4 @@ sig
   
   val pskeletonToString: pskeleton -> string
 
-end;  (* module type COMPSYN *)
+end;; (* module type COMPSYN *)

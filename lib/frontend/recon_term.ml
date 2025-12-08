@@ -7,7 +7,7 @@
 (* Type Reconstruction *)
 (* ------------------- *)
 
-let recctor ReconTerm ((*! module IntSyn' : INTSYN !*)
+module ReconTerm ((*! module IntSyn' : INTSYN !*)
                    module Names : NAMES
                    (*! sharing Names.IntSyn = IntSyn' !*)
                    (*! module Paths' : PATHS !*)
@@ -1364,4 +1364,4 @@ struct
 
   end (* open IntSyn *)
 
-end; (* functor ReconTerm *)
+end;; (* functor ReconTerm *)

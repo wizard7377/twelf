@@ -1,10 +1,10 @@
 (* Splitting *)
 (* Author: Carsten Schuermann *)
 
-let recctor Splitting (module Global : GLOBAL
-                   module MetaSyn' : METASYN
-                   module MetaAbstract : METAABSTRACT
-                   module MetaPrint : METAPRINT
+module Splitting (Global : GLOBAL)
+   (module MetaSyn' : METASYN)
+   (MetaAbstract : METAABSTRACT)
+   (module MetaPrint : METAPRINT
                    sharing MetaPrint.MetaSyn = MetaSyn'
                    sharing MetaAbstract.MetaSyn = MetaSyn'
                    module ModeTable : MODETABLE
@@ -525,4 +525,4 @@ struct
     let index = index
     let menu = menu
   end (* local *)
-end;  (* functor Splitting *)
+end;; (* functor Splitting *)

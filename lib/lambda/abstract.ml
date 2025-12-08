@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-let recctor Abstract ((*! module IntSyn' : INTSYN !*)
+module Abstract ((*! module IntSyn' : INTSYN !*)
                   module Whnf    : WHNF
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
                   module Unify   : UNIFY
@@ -952,4 +952,4 @@ struct
     let closedCtx = closedCtx
     let closedCTX = closedCTX
   end
-end;  (* functor Abstract *)
+end;; (* functor Abstract *)

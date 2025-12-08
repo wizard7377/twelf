@@ -15,4 +15,4 @@ sig
   val var : operator -> int
   val menu : operator -> string
   val index : operator -> int
-end;  (* module type SPLITTING *)
+end;; (* module type SPLITTING *)

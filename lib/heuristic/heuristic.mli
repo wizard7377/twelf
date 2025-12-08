@@ -13,4 +13,4 @@ sig
 
   val compare : index * index -> order
   val indexToString : index -> string
-end; (* module type HEURISTIC *)
+end;; (* module type HEURISTIC *)

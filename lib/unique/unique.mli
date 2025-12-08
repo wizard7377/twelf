@@ -8,4 +8,4 @@ sig
 
   val checkUnique : (IntSyn.cid * ModeSyn.ModeSpine) -> unit  (* raises Error(msg) *)
 
-end;  (* module type UNIQUE *)
+end;; (* module type UNIQUE *)

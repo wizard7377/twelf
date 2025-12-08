@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-let recctor IntSyn (module Global : GLOBAL) :> INTSYN =
+module IntSyn (Global : GLOBAL) : INTSYN =
 struct
 
   type cid = int                        (* Constant identifier        *)
@@ -669,7 +669,7 @@ struct
   *)
   fun targetFam (A) = valOf (targetFamOpt A)
 
-end;  (* functor IntSyn *)
+end;; (* functor IntSyn *)
 
-module IntSyn :> INTSYN =
+module IntSyn : INTSYN =
   IntSyn (module Global = Global);

@@ -1,8 +1,8 @@
 (* Lemma *)
 (* Author: Carsten Schuermann *)
 
-let recctor Lemma (module MetaSyn' : METASYN
-               module MetaAbstract : METAABSTRACT
+module Lemma (module MetaSyn' : METASYN)
+   (module MetaAbstract : METAABSTRACT
                sharing MetaAbstract.MetaSyn = MetaSyn')
   : LEMMA =
 struct
@@ -65,4 +65,4 @@ struct
   in
     let apply = apply
   end (* local *)
-end; (* functor lemma *)
+end;; (* functor lemma *)

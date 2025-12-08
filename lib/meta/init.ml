@@ -1,8 +1,8 @@
 (* Initialization *)
 (* Author: Carsten Schuermann *)
 
-let recctor MTPInit (module MTPGlobal : MTPGLOBAL
-                 module MTPData : MTPDATA
+module MTPInit (MTPGlobal : MTPGLOBAL)
+   (module MTPData : MTPDATA
                  (*! module IntSyn : INTSYN !*)
                  module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn !*)
@@ -71,4 +71,4 @@ struct
   in
     let init = init
   end (* local *)
-end; (* functor Init *)
+end;; (* functor Init *)

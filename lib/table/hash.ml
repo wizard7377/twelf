@@ -1,7 +1,7 @@
 (* Hash Tables *)
 (* Author: Frank Pfenning *)
 
-let recctor HashTable
+module HashTable
   (type key'
    let hash : key' -> int
    let eq : key' * key' -> bool)
@@ -59,14 +59,14 @@ struct
         (f e; appBucket f (!br))
 
   fun app f (a,n) = Array.app (appBucket f) a
-end;  (* functor HashTable *)
+end;; (* functor HashTable *)
 
 module type STRING_HASH =
 sig
   let stringHash : string -> int
 end;
 
-module StringHash :> STRING_HASH =
+module StringHash : STRING_HASH =
 struct
   fun stringHash (s) =
       (* sample 4 characters from string *)
@@ -84,7 +84,7 @@ struct
 	       num(a)+128*(num(b)+128*(num(c)+128*num(d)))
 	     end
       end
-end;  (* module StringHash *)
+end;; (* module StringHash *)
 
 module StringHashTable
   :> TABLE where type key = string =

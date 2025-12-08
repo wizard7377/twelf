@@ -1,9 +1,9 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-let recctor Mpi (module MetaGlobal : METAGLOBAL
-             module MetaSyn' : METASYN
-             module Init : INIT
+module Mpi (MetaGlobal : METAGLOBAL)
+   (module MetaSyn' : METASYN)
+   (module Init : INIT
              sharing Init.MetaSyn = MetaSyn'
              module Filling : FILLING
              sharing Filling.MetaSyn = MetaSyn'
@@ -318,4 +318,4 @@ struct
     let show = show
     let undo = undo
  end (* local *)
-end; (* functor MPI *)
+end;; (* functor MPI *)

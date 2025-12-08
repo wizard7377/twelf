@@ -1,7 +1,7 @@
 (* Integers Modulo a Prime Number *)
 (* Author: Roberto Virga *)
 
-let recctor IntegersMod (let p : int) :> FIELD =
+module IntegersMod (let p : int) : FIELD =
 struct
 
   let name = "integer" ^ (Int.toString p)
@@ -51,4 +51,4 @@ struct
 
   let toString = Int.toString
 
-end;  (* functor IntegersMod *)
+end;; (* functor IntegersMod *)

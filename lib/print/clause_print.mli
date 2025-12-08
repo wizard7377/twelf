@@ -15,4 +15,4 @@ sig
 
   val printSgn : unit -> unit
 
-end;  (* module type CLAUSEPRINT *)
+end;; (* module type CLAUSEPRINT *)

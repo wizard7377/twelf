@@ -10,4 +10,4 @@ sig
   val modeToString   : MetaSyn.mode -> string
   val conDecToString  : IntSyn.ConDec -> string
 
-end; (* module type METAPRINT *)
+end;; (* module type METAPRINT *)

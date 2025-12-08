@@ -3,7 +3,7 @@
 
 (* Reverse subordination order *)
 
-let recctor Subordinate
+module Subordinate
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    module Whnf : WHNF
@@ -569,4 +569,4 @@ struct
     let showDef = showDef
 
   end (* local *)
-end; (* functor Subordinate *)
+end;; (* functor Subordinate *)

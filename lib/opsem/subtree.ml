@@ -4,7 +4,7 @@
 (* Variant Checking *)
 (* Author: Brigitte Pientka *)
 
-let recctor MemoTable ((*! module IntSyn' : INTSYN !*)
+module MemoTable ((*! module IntSyn' : INTSYN !*)
                    (*! module CompSyn' : COMPSYN !*)
                    (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                    module Conv: CONV
@@ -895,5 +895,5 @@ let recctor MemoTable ((*! module IntSyn' : INTSYN !*)
 
 
   end (* local *)
-end; (* functor MemoTable *)
+end;; (* functor MemoTable *)
 

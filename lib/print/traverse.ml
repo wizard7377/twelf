@@ -1,4 +1,4 @@
-let recctor Traverse
+module Traverse
   ((*! module IntSyn' : INTSYN !*)
    module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -154,4 +154,4 @@ in
 
 end  (* local ... *)
 
-end;  (* functor Traverse *)
+end;; (* functor Traverse *)

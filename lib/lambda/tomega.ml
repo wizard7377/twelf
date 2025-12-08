@@ -2,8 +2,8 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Yu Liao, Adam Poswolsky *)
 
-let recctor Tomega (module Whnf : WHNF
-                module Conv : CONV) : TOMEGA =
+module Tomega (Whnf : WHNF)
+   (Conv : CONV) : TOMEGA =
 struct
   exception Error of string
 
@@ -820,4 +820,4 @@ struct
 
 
   end
-end;  (* functor FunSyn *)
+end;; (* functor FunSyn *)

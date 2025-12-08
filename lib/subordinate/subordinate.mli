@@ -35,4 +35,4 @@ sig
   val show : unit -> unit
   val showDef : unit -> unit
 
-end;  (* module type SUBORDINATE *)
+end;; (* module type SUBORDINATE *)

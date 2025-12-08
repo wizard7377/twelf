@@ -5,11 +5,11 @@ sig
 
 end  (* module type SERVER *)
 
-let recctor Server
-  (module SigINT : SIGINT
-   module Timing : TIMING
-   module Lexer : LEXER
-   module Twelf : TWELF)
+module Server
+  (SigINT : SIGINT)
+   (Timing : TIMING)
+   (Lexer : LEXER)
+   (Twelf : TWELF)
   :> SERVER =
 struct
 
@@ -409,7 +409,7 @@ struct
        SigINT.interruptLoop (fn () => serveTop (Twelf.OK));
        OS.Process.success)
 
-end;  (* functor Server *)
+end;; (* functor Server *)
 
 module Server =
   Server (module SigINT = SigINT

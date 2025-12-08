@@ -1,9 +1,9 @@
 (* Strategy *)
 (* Author: Carsten Schuermann *)
 
-let recctor StrategyFRS (module MetaGlobal : METAGLOBAL
-                     module MetaSyn' : METASYN
-                     module Filling : FILLING
+module StrategyFRS (MetaGlobal : METAGLOBAL)
+   (module MetaSyn' : METASYN)
+   (module Filling : FILLING
                      sharing Filling.MetaSyn = MetaSyn'
                      module Splitting : SPLITTING
                      sharing Splitting.MetaSyn = MetaSyn'
@@ -163,13 +163,13 @@ struct
   in
     let run = run
   end (* local *)
-end;  (* functor StrategyFRS *)
+end;; (* functor StrategyFRS *)
 
 
 
-let recctor StrategyRFS (module MetaGlobal : METAGLOBAL
-                     module MetaSyn' : METASYN
-                     module Filling : FILLING
+module StrategyRFS (MetaGlobal : METAGLOBAL)
+   (module MetaSyn' : METASYN)
+   (module Filling : FILLING
                      sharing Filling.MetaSyn = MetaSyn'
                      module Splitting : SPLITTING
                      sharing Splitting.MetaSyn = MetaSyn'
@@ -322,13 +322,13 @@ struct
   in
     let run = run
   end (* local *)
-end;  (* functor StrategyRFS *)
+end;; (* functor StrategyRFS *)
 
 
 
-let recctor Strategy (module MetaGlobal : METAGLOBAL
-                  module MetaSyn' : METASYN
-                  module StrategyFRS : STRATEGY
+module Strategy (MetaGlobal : METAGLOBAL)
+   (module MetaSyn' : METASYN)
+   (module StrategyFRS : STRATEGY
                   sharing StrategyFRS.MetaSyn = MetaSyn'
                   module StrategyRFS : STRATEGY
                   sharing StrategyRFS.MetaSyn = MetaSyn')
@@ -342,4 +342,4 @@ struct
         of MetaGlobal.RFS => StrategyRFS.run SL
          | MetaGlobal.FRS => StrategyFRS.run SL
 
-end; (* functor Strategy *)
+end;; (* functor Strategy *)

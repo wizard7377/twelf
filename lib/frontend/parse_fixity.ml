@@ -1,7 +1,7 @@
 (* Parsing Fixity and Name Preference Declarations *)
 (* Author: Frank Pfenning *)
 
-let recctor ParseFixity
+module ParseFixity
   ((*! module Parsing' : PARSING !*)
    module Names' : NAMES)
      : PARSE_FIXITY =
@@ -139,4 +139,4 @@ struct
     let parseNamePref' = parseNamePref'
   end  (* local ... in *)
 
-end;  (* functor ParseFixity *)
+end;; (* functor ParseFixity *)

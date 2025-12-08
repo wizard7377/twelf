@@ -14,5 +14,5 @@ sig
   val forToString : FunSyn.lfctx * FunSyn.for -> string list -> string
   val proToString : FunSyn.lfctx * FunSyn.pro -> string list -> string
   val lemmaDecToString : FunSyn.lemmaDec -> string
-end;  (* module type PRINT *)
+end;; (* module type PRINT *)
 

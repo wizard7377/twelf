@@ -17,4 +17,4 @@ sig
   val installMmode : (IntSyn.cid * ModeSyn.modeSpine) -> unit 
   val mmodeLookup : IntSyn.cid -> ModeSyn.modeSpine list
 
-end;  (* module type MODETABLE *)
+end;; (* module type MODETABLE *)

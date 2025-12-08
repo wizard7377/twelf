@@ -3,7 +3,7 @@
 
 (* compare to Paths *)
 
-let recctor Interface  () : INTERFACE =
+module Interface  () : INTERFACE =
 struct
 
   type pos = int

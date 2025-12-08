@@ -12,7 +12,7 @@ sig
   let foldl : (int * 'b -> 'b) -> 'b -> intset -> 'b
 end;
 
-module IntSet :> INTSET =
+module IntSet : INTSET =
 struct
 
   type rbt =
@@ -123,4 +123,4 @@ struct
 	end
   end
 
-end;  (* module IntSet *)
+end;; (* module IntSet *)

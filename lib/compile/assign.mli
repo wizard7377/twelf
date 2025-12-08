@@ -22,4 +22,4 @@ sig
   val instance : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> bool 
     
   val firstConstArg : IntSyn.Exp * IntSyn.Sub -> IntSyn.cid option
-end; (* module type ASSIGN *)
+end;; (* module type ASSIGN *)

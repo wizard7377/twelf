@@ -8,4 +8,4 @@ sig
   exception Error of string
 
   val subgoal : MetaSyn.state -> bool
-end;  (* module type QED *)
+end;; (* module type QED *)

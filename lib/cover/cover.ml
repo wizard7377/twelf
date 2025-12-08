@@ -1,10 +1,10 @@
 (* Coverage Checking *)
 (* Author: Frank Pfenning *)
 
-let recctor Cover
-  (module Global : GLOBAL
-   module Whnf : WHNF
-   module Conv : CONV
+module Cover
+  (Global : GLOBAL)
+   (Whnf : WHNF)
+   (module Conv : CONV
    (*! sharing Whnf.IntSyn = IntSyn' !*)
    module Abstract : ABSTRACT
    (*! sharing Abstract.IntSyn = IntSyn' !*)
@@ -2189,4 +2189,4 @@ let _ = pr () *)
         end
 
   end
-end;  (* functor Cover *)
+end;; (* functor Cover *)

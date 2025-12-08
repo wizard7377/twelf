@@ -11,4 +11,4 @@ sig
   val parseNamePref' : ((Names.Qid * Paths.region)
 			* (string list * string list)) Parsing.parser
 
-end;  (* module type PARSE_FIXITY *)
+end;; (* module type PARSE_FIXITY *)

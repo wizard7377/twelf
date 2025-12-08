@@ -1,7 +1,7 @@
 (* Parsing Signature Entries *)
 (* Author: Frank Pfenning *)
 
-let recctor ParseConDec
+module ParseConDec
   ((*! module Parsing' : PARSING !*)
    module ExtConDec' : EXTCONDEC
    module ParseTerm : PARSE_TERM
@@ -104,4 +104,4 @@ struct
     let parseClause' = parseClause'
   end  (* local ... in *)
 
-end;  (* functor ParseConDec *)
+end;; (* functor ParseConDec *)

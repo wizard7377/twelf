@@ -2,7 +2,7 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-let recctor Converter
+module Converter
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)

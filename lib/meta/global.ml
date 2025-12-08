@@ -1,8 +1,8 @@
 (* Meta Global parameters *)
 (* Author: Carsten Schuermann *)
 
-let recctor MTPGlobal
-  (module MetaGlobal : METAGLOBAL): MTPGLOBAL =
+module MTPGlobal
+  (MetaGlobal : METAGLOBAL): MTPGLOBAL =
 struct
   type proverType = New | Old
 
@@ -10,4 +10,4 @@ struct
   let maxFill = MetaGlobal.maxFill
   let maxSplit = MetaGlobal.maxSplit
   let maxRecurse = MetaGlobal.maxRecurse
-end; (* module MTPGlobal *)
+end;; (* module MTPGlobal *)

@@ -1,9 +1,9 @@
 (* Meta Prover *)
 (* Author: Carsten Schuermann *)
 
-let recctor Prover (module MetaGlobal : METAGLOBAL
-                module MetaSyn' : METASYN
-                module Init : INIT
+module Prover (MetaGlobal : METAGLOBAL)
+   (module MetaSyn' : METASYN)
+   (module Init : INIT
                   sharing Init.MetaSyn = MetaSyn'
                 module Strategy : STRATEGY
                   sharing Strategy.MetaSyn = MetaSyn'
@@ -211,4 +211,4 @@ struct
     let auto = auto
     let install = install
   end (* local *)
-end; (* functor Prover *)
+end;; (* functor Prover *)

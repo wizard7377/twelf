@@ -1,7 +1,7 @@
 (* Introduce *)
 (* Author: Carsten Schuermann *)
 
-let recctor Introduce
+module Introduce
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)

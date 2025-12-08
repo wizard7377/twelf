@@ -1,7 +1,7 @@
 (* Weakening substitutions *)
 (* Author: Carsten Schuermann *)
 
-let recctor Weaken ((*! module IntSyn' : INTSYN !*)
+module Weaken ((*! module IntSyn' : INTSYN !*)
                 module Whnf : WHNF): WEAKEN =
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
 struct

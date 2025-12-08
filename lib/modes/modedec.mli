@@ -10,4 +10,4 @@ sig
   val checkFull : IntSyn.cid * ModeSyn.modeSpine * Paths.region -> unit
   val checkPure : (IntSyn.cid * ModeSyn.modeSpine) * Paths.region -> unit
  
-end;  (* module type MODEDEC *)
+end;; (* module type MODEDEC *)

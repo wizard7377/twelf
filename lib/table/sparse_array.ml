@@ -1,7 +1,7 @@
 (* Sparse 1-Dimensional Arrays *)
 (* Author: Roberto Virga *)
 
-let recctor SparseArray (module IntTable : TABLE where type key = int)
+module SparseArray (IntTable : TABLE where type key = int)
   :> SPARSE_ARRAY =
 struct
 
@@ -104,4 +104,4 @@ struct
             modify' i
           end
         else raise General.Subscript
-end;  (* module SparseArray *)
+end;; (* module SparseArray *)

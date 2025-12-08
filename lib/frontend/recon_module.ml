@@ -1,7 +1,7 @@
 (* Elaboration for module expressions *)
 (* Author: Kevin Watkins *)
 
-let recctor ReconModule
+module ReconModule
   (module Global : GLOBAL
    (*! module IntSyn : INTSYN !*)
    module Names : NAMES

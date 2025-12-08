@@ -17,5 +17,5 @@ sig
   let <= : number * number -> bool
   let compare : number * number -> order
 
-end;  (* module type ORDERED_FIELD *)
+end;; (* module type ORDERED_FIELD *)
 

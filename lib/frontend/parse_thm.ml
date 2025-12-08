@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-let recctor ParseThm
+module ParseThm
   ((*! module Paths : PATHS *)
    (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
@@ -469,7 +469,7 @@ struct
     let parseWorlds' = parseWorlds'
   end  (* local ... in *)
 
-end;  (* functor Parser *)
+end;; (* functor Parser *)
 
 
 

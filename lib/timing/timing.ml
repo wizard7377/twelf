@@ -26,9 +26,9 @@ sig
   let toString : center -> string
   let sumToString : sum -> string
 
-end;  (* module type TIMING *)
+end;; (* module type TIMING *)
 
-module Timing :> TIMING =
+module Timing : TIMING =
 struct
 
   (* user and system time add up to total CPU time used *)
@@ -125,13 +125,13 @@ struct
 	end
 
   end (* local ... *)
-end;  (* module Timing *)
+end;; (* module Timing *)
 
 (* This version only counts, but does not time *)
 (* Unused in the default linking, but could be *)
 (* passed as a paramter to Timers *)
 
-module Counting :> TIMING =
+module Counting : TIMING =
 struct
 
   type 'a result = Value of 'a | Exception of exn
@@ -165,4 +165,4 @@ struct
 	sumup (centers, 0)
       end
 
-end;  (* module Counting *)
+end;; (* module Counting *)

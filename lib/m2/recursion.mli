@@ -15,4 +15,4 @@ sig
   val apply : operator -> MetaSyn.state
 
   val menu : operator -> string
-end;  (* module type RECURSION *)
+end;; (* module type RECURSION *)

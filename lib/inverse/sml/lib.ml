@@ -1,5 +1,5 @@
 
-module Lib :> LIB =
+module Lib : LIB =
 struct
 
   nonfix upto mem ins union subset mod div

@@ -1,7 +1,7 @@
 (* Rationals *)
 (* Author: Roberto Virga *)
 
-let recctor Rationals (Integers : INTEGERS) : RATIONALS =
+module Rationals (Integers : INTEGERS) : RATIONALS =
 struct
 
   module Integers = Integers
@@ -186,4 +186,4 @@ struct
     let numerator = numerator
     let denominator = denominator
   end
-end;  (* module Rationals *)
+end;; (* module Rationals *)

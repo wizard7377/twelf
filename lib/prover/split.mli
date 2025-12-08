@@ -14,6 +14,6 @@ sig
   val expand : State.focus -> operator list
   val apply : operator -> unit
   val menu : operator -> string
-end; (* module type Split *)
+end;; (* module type Split *)
 
 

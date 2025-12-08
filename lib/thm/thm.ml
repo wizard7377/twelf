@@ -2,11 +2,11 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-let recctor Thm (module Global : GLOBAL
-             module ThmSyn': THMSYN
-             module TabledSyn : TABLEDSYN
-             module ModeTable : MODETABLE
-             module Order : ORDER
+module Thm (Global : GLOBAL)
+   (module ThmSyn': THMSYN)
+   (TabledSyn : TABLEDSYN)
+   (ModeTable : MODETABLE)
+   (module Order : ORDER
              (*! sharing Order.IntSyn = ThmSyn'.ModeSyn.IntSyn !*)
              module ThmPrint : THMPRINT
                sharing ThmPrint.ThmSyn = ThmSyn'): THM =
@@ -460,4 +460,4 @@ struct
     let installKeepTable = installKeepTable
   end (* local *)
 
-end; (* functor Thm *)
+end;; (* functor Thm *)

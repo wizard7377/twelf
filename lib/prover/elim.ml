@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Date: Thu Mar 16 13:39:26 2006 *)
 
-let recctor Elim
+module Elim
   (module Data : DATA
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
@@ -133,4 +133,4 @@ struct
     let apply = apply
     let menu = menu
   end (* local *)
-end; (* functor elim *)
+end;; (* functor elim *)

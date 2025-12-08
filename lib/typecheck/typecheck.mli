@@ -16,4 +16,4 @@ sig
     val typeCheckCtx : IntSyn.dctx -> unit
     (* val typeCheckSpine : IntSyn.dctx * IntSyn.Spine -> unit *)
     val typeCheckSub : IntSyn.dctx * IntSyn.Sub * IntSyn.dctx -> unit
-end;  (* module type TYPECHECK *)
+end;; (* module type TYPECHECK *)

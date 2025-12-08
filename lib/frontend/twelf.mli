@@ -119,4 +119,4 @@ sig
 
   val version : string		       (* Twelf version *)
 
-end;  (* module type TWELF *)
+end;; (* module type TWELF *)

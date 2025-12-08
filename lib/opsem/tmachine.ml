@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-let recctor TMachine ((*! module IntSyn' : INTSYN !*)
+module TMachine ((*! module IntSyn' : INTSYN !*)
                   (*! module CompSyn' : COMPSYN !*)
                   (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                   module Unify : UNIFY
@@ -342,4 +342,4 @@ struct
     fun solve (gs, dp, sc) = (T.init(); solve' (gs, dp, sc))
   end (* local ... *)
 
-end; (* functor TMachine *)
+end;; (* functor TMachine *)

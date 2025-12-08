@@ -1,7 +1,7 @@
 (* Extensible operation on foreign matter *)
 (* Author: Aleksey Kliger *)
 
-let recctor FgnOpnTable (type arg ; type result) :>
+module FgnOpnTable (type arg ; type result) :
         FGN_OPN where type arg = arg
                 where type result = result = struct
   type csid = int

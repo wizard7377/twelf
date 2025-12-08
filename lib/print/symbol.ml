@@ -1,4 +1,4 @@
-let recctor SymbolAscii () :> SYMBOL =
+module SymbolAscii () : SYMBOL =
 struct
 
   fun idSize s = (s, String.size s)
@@ -13,9 +13,9 @@ struct
   fun fvar s = idSize ("`" ^ s)
   let sym = idSize
 
-end;  (* functor SymbolAscii *)
+end;; (* functor SymbolAscii *)
 
-let recctor SymbolTeXfp () :> SYMBOL =
+module SymbolTeXfp () : SYMBOL =
 struct
 
   (* Illegal constituents: \ _ $ # *)
@@ -86,10 +86,10 @@ struct
     | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
     | sym s = (s, String.size s)        (* ():.= *)
 
-end;  (* functor SymbolTeX *)
+end;; (* functor SymbolTeX *)
 
 
-let recctor SymbolTeX () :> SYMBOL =
+module SymbolTeX () : SYMBOL =
 struct
 
   (* Illegal constituents: \ _ $ # *)
@@ -157,4 +157,4 @@ struct
     | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
     | sym s = (s, String.size s)        (* ():.= *)
 
-end;  (* functor SymbolTeXcd *)
+end;; (* functor SymbolTeXcd *)

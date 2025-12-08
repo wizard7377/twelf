@@ -1,7 +1,7 @@
 (* Approximate language for term reconstruction *)
 (* Author: Kevin Watkins *)
 
-let recctor Approx ((*! module IntSyn' : INTSYN !*)
+module Approx ((*! module IntSyn' : INTSYN !*)
                 module Whnf : WHNF): APPROX =
 		(*! sharing Whnf.IntSyn = IntSyn' !*)
 struct

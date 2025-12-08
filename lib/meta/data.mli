@@ -4,4 +4,4 @@
 module type MTPDATA =
 sig
   val maxFill : int ref
-end;  (* module type MTPDATA *)
+end;; (* module type MTPDATA *)

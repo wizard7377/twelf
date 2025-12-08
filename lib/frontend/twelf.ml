@@ -3,10 +3,10 @@
 (* Modified: Carsten Schuermann, Jeff Polakow *)
 (* Modified: Brigitte Pientka, Roberto Virga *)
 
-let recctor Twelf
-  (module Global : GLOBAL
-   module Timers : TIMERS
-   module Whnf : WHNF
+module Twelf
+  (Global : GLOBAL)
+   (Timers : TIMERS)
+   (module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
    module Print : PRINT
    (*! sharing Print.IntSyn = IntSyn' !*)
@@ -1836,4 +1836,4 @@ struct
 
 
   end  (* local *)
-end; (* functor Twelf *)
+end;; (* functor Twelf *)

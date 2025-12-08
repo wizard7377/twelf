@@ -1,7 +1,7 @@
 (* Global parameters *)
 (* Author: Frank Pfenning *)
 
-module Global :> GLOBAL =
+module Global : GLOBAL =
 struct
 
   let chatter = ref 3
@@ -17,4 +17,4 @@ struct
   fun chPrint n s = if !chatter >= n then print (s ()) else ()
   fun chMessage n s f = if !chatter >= n then f (s ()) else ()
 
-end;  (* module Global *)
+end;; (* module Global *)

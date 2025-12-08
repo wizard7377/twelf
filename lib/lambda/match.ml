@@ -3,7 +3,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-let recctor Match ((*! module IntSyn' : INTSYN !*)
+module Match ((*! module IntSyn' : INTSYN !*)
                module Whnf    : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
                module Unify : UNIFY
@@ -582,4 +582,4 @@ struct
           (match (G, Us1, Us2); NONE)
           handle Match(msg) => SOME(msg)
   end
-end;  (* functor Match *)
+end;; (* functor Match *)

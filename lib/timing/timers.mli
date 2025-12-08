@@ -43,4 +43,4 @@ sig
   val check : unit -> unit		(* check timer values *)
   val show : unit -> unit		(* check, then reset *)
 
-end;  (* module type TIMERS *)
+end;; (* module type TIMERS *)

@@ -1,7 +1,7 @@
 (* Search (based on abstract machine ) *)
 (* Author: Carsten Schuermann *)
 
-let recctor OLDSearch ((*! module IntSyn' : INTSYN !*)
+module OLDSearch ((*! module IntSyn' : INTSYN !*)
                 module MetaGlobal : METAGLOBAL
                 module MetaSyn' : METASYN
                 (*! sharing MetaSyn'.IntSyn = IntSyn' !*)
@@ -345,5 +345,5 @@ struct
     let searchAll = searchAll
   end (* local ... *)
 
-end; (* functor Search *)
+end;; (* functor Search *)
 

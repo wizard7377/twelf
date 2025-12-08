@@ -1,5 +1,5 @@
 
-module Debug :> DEBUG = 
+module Debug : DEBUG = 
 struct 
 
   exception Assert of exn

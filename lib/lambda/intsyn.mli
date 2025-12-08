@@ -283,4 +283,4 @@ sig
   (* Used in Flit *)
   val rename : cid * string -> unit
 
-end;  (* module type INTSYN *)
+end;; (* module type INTSYN *)

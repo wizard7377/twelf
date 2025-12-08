@@ -1,7 +1,7 @@
 (* Convertibility Modulo Beta and Eta *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-let recctor Conv
+module Conv
   ((*! module IntSyn' : INTSYN !*)
    module Whnf   : WHNF): CONV =
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -170,4 +170,4 @@ struct
     let convDec = convDec
     let convSub = convSub
   end (* local *)
-end;  (* functor Conv *)
+end;; (* functor Conv *)

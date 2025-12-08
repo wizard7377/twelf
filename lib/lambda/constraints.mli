@@ -12,4 +12,4 @@ sig
    val simplify : IntSyn.cnstr list -> IntSyn.cnstr list
    val warnConstraints : string list -> unit
 
-end;  (* module type CONSTRAINTS *)
+end;; (* module type CONSTRAINTS *)

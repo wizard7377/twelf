@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-let recctor ReconThm (module Global : GLOBAL
+module ReconThm (module Global : GLOBAL
                   (* module IntSyn : INTSYN *)
                   module Abstract : ABSTRACT
                   (*! sharing Abstract.IntSyn = IntSyn !*)

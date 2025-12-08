@@ -1,10 +1,10 @@
 (* Meta printer for proof states *)
 (* Author: Carsten Schuermann *)
 
-let recctor MetaPrint (module Global : GLOBAL
-                   module MetaSyn' : METASYN
-                   module Formatter : FORMATTER
-                   module Print : PRINT
+module MetaPrint (Global : GLOBAL)
+   (module MetaSyn' : METASYN)
+   (Formatter : FORMATTER)
+   (module Print : PRINT
                    (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
                      sharing Print.Formatter = Formatter
                    module ClausePrint : CLAUSEPRINT
@@ -70,4 +70,4 @@ struct
     let conDecToString = ClausePrint.conDecToString
 
   end (* local *)
-end; (* functor MetaPrint *)
+end;; (* functor MetaPrint *)

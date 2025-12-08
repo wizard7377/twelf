@@ -2,11 +2,11 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-let recctor TomegaAbstract
-  (module Global : GLOBAL
-   module Abstract : ABSTRACT
-   module Whnf : WHNF
-   module Subordinate : SUBORDINATE)
+module TomegaAbstract
+  (Global : GLOBAL)
+   (Abstract : ABSTRACT)
+   (Whnf : WHNF)
+   (Subordinate : SUBORDINATE)
      : TOMEGAABSTRACT =
 struct
 

@@ -2,7 +2,7 @@
 (* Author: Brigitte Pientka *)
 (* Based on abstract machine in absmachine.fun *)
 
-let recctor Tabled ((*! module IntSyn' : INTSYN !*)
+module Tabled ((*! module IntSyn' : INTSYN !*)
                 (*! module CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                 module Unify : UNIFY
@@ -679,7 +679,7 @@ struct
 
  let solve = solveQuery
 
-end; (* functor Tabled *)
+end;; (* functor Tabled *)
 
 
 

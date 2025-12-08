@@ -1,8 +1,8 @@
 (* Filling *)
 (* Author: Carsten Schuermann *)
 
-let recctor Filling (module MetaSyn' : METASYN
-                 module MetaAbstract : METAABSTRACT
+module Filling (module MetaSyn' : METASYN)
+   (module MetaAbstract : METAABSTRACT
                  sharing MetaAbstract.MetaSyn = MetaSyn'
                  module Search   : OLDSEARCH
                  sharing Search.MetaSyn = MetaSyn'
@@ -149,4 +149,4 @@ struct
     let apply = apply
     let menu = menu
   end (* local *)
-end; (* functor Filling *)
+end;; (* functor Filling *)

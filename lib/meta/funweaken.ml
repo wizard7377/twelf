@@ -1,7 +1,7 @@
 (* Weakening substitutions for meta substitutions *)
 (* Author: Carsten Schuermann *)
 
-let recctor FunWeaken ((*! module FunSyn' : FUNSYN !*)
+module FunWeaken ((*! module FunSyn' : FUNSYN !*)
                    module Weaken : WEAKEN): FUNWEAKEN =
                    (*! sharing Weaken.IntSyn = FunSyn'.IntSyn !*)
 struct

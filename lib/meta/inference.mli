@@ -13,6 +13,6 @@ sig
   val expand : StateSyn.state -> operator 
   val apply : operator -> StateSyn.state
   val menu : operator -> string
-end; (* module type Inference *)
+end;; (* module type Inference *)
 
 

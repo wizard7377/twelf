@@ -2,9 +2,9 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-let recctor WorldSyn
-  (module Global : GLOBAL
-   module Whnf : WHNF
+module WorldSyn
+  (Global : GLOBAL)
+   (module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn !*)
    module Index : INDEX
    (*! sharing Index.IntSyn = IntSyn !*)
@@ -580,4 +580,4 @@ struct
     let getWorlds = getWorlds
   end
 
-end;  (* functor WorldSyn *)
+end;; (* functor WorldSyn *)

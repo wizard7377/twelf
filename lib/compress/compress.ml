@@ -1,4 +1,4 @@
-let recctor Compress (module Global : GLOBAL) =
+module Compress (Global : GLOBAL) =
 struct
 
   module I = IntSyn

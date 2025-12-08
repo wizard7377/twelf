@@ -19,4 +19,4 @@ sig
   val parseEstablish' : ThmExtSyn.establish Parsing.parser
   val parseAssert' : ThmExtSyn.assert Parsing.parser
 
-end;  (* module type PARSE_THM *)
+end;; (* module type PARSE_THM *)

@@ -1,9 +1,9 @@
 (* The Parser *)
 (* Author: Richard Fontana *)
 
-let recctor Parse  (module DextSyn  : DEXTSYN
-                module Interface : INTERFACE
-                module Parserr : PARSERR
+module Parse  (module DextSyn  : DEXTSYN)
+   (Interface : INTERFACE)
+   (module Parserr : PARSERR
                      sharing type Parserr.arg = Interface.arg
                      sharing type Parserr.pos = Interface.pos
                      sharing type Parserr.result = DextSyn.Ast

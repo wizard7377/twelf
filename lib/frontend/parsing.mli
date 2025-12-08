@@ -26,4 +26,4 @@ sig
 
   exception Error of string
   val error : Paths.region * string -> 'a	(* always raises Error *)
-end;  (* module type PARSING *)
+end;; (* module type PARSING *)

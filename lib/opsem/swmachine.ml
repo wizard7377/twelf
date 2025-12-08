@@ -1,6 +1,6 @@
-let recctor SwMachine (module Trace : TRACE
-                   module AbsMachine : ABSMACHINE
-                   module TMachine : ABSMACHINE): ABSMACHINE =
+module SwMachine (Trace : TRACE)
+   (AbsMachine : ABSMACHINE)
+   (TMachine : ABSMACHINE): ABSMACHINE =
                    (*! sharing TMachine.IntSyn = AbsMachine.IntSyn !*)
                    (*! sharing TMachine.CompSyn = AbsMachine.CompSyn !*)
 struct
@@ -13,5 +13,5 @@ struct
       then TMachine.solve args
     else  AbsMachine.solve args
 
-end;  (* functor SwMachine *)
+end;; (* functor SwMachine *)
 

@@ -44,4 +44,4 @@ sig
   val show : unit -> unit		(* show trace, break, detail *)
   val reset : unit -> unit		(* reset trace, break, detail *)
 
-end;  (* module type TRACE *)
+end;; (* module type TRACE *)

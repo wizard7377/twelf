@@ -25,9 +25,9 @@
    of tokens.
 *)
 
-let recctor Join(module Lex : LEXERR
-	     module ParserData: PARSER_DATA
-	     module LrParser : LR_PARSER
+module Join(Lex : LEXERR)
+   (module ParserData: PARSER_DATA)
+   (module LrParser : LR_PARSER
 	     sharing ParserData.LrTable = LrParser.LrTable
 	     sharing ParserData.Token = LrParser.Token
 	     sharing type Lex.UserDeclarations.svalue = ParserData.svalue
@@ -69,9 +69,9 @@ end
    yielding a value of type unit -> (svalue,pos) token
  *)
 
-let recctor JoinWithArg(module Lex : ARG_LEXER
-	     module ParserData: PARSER_DATA
-	     module LrParser : LR_PARSER
+module JoinWithArg(Lex : ARG_LEXER)
+   (module ParserData: PARSER_DATA)
+   (module LrParser : LR_PARSER
 	     sharing ParserData.LrTable = LrParser.LrTable
 	     sharing ParserData.Token = LrParser.Token
 	     sharing type Lex.UserDeclarations.svalue = ParserData.svalue

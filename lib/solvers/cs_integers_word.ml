@@ -1,7 +1,7 @@
 (* Solver for machine integers *)
 (* Author: Roberto Virga *)
 
-let recctor CSIntWord ((*! module IntSyn : INTSYN !*)
+module CSIntWord ((*! module IntSyn : INTSYN !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
                    module Unify : UNIFY

@@ -23,4 +23,4 @@ sig
   (* Apply function to all entries in unpredictable order *)
   val app : ('a entry -> unit) -> 'a Table -> unit
 
-end;  (* module type TABLE *)
+end;; (* module type TABLE *)

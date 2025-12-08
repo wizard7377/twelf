@@ -72,4 +72,4 @@ struct
     let unwind = unwind
     let log = log
   end (* local ... *)
-end; (* module Trail *)
+end;; (* module Trail *)

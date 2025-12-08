@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-let recctor ModeCheck ((*! module IntSyn : INTSYN !*)
+module ModeCheck ((*! module IntSyn : INTSYN !*)
                    module ModeTable : MODETABLE
                    (*! sharing ModeSyn.IntSyn = IntSyn !*)
                    module Whnf : WHNF
@@ -862,5 +862,5 @@ struct
     let checkMode = checkMode
     let checkFreeOut = checkFreeOut
   end
-end;  (* functor ModeCheck *)
+end;; (* functor ModeCheck *)
 

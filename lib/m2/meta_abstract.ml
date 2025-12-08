@@ -1,10 +1,10 @@
 (* Meta Abstraction *)
 (* Author: Carsten Schuermann *)
 
-let recctor MetaAbstract (module Global : GLOBAL
-                      module MetaSyn' : METASYN
-                      module MetaGlobal : METAGLOBAL
-                      module Abstract : ABSTRACT
+module MetaAbstract (Global : GLOBAL)
+   (module MetaSyn' : METASYN)
+   (MetaGlobal : METAGLOBAL)
+   (module Abstract : ABSTRACT
                       (*! sharing Abstract.IntSyn = MetaSyn'.IntSyn !*)
                       module ModeTable : MODETABLE
                       (*! sharing ModeSyn.IntSyn = MetaSyn'.IntSyn !*)
@@ -708,4 +708,4 @@ struct
   in
     let abstract = abstract
   end (* local *)
-end; (* functor MetaAbstract *)
+end;; (* functor MetaAbstract *)

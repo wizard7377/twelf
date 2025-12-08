@@ -1,4 +1,4 @@
-module SigINT :> SIGINT =
+module SigINT : SIGINT =
 struct
 
   fun interruptLoop (loop:unit -> unit) =
@@ -18,4 +18,4 @@ struct
 	loop ()
       end
 
-end;  (* module SigINT *)
+end;; (* module SigINT *)

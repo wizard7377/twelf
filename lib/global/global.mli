@@ -14,4 +14,4 @@ sig
   val chPrint : int -> (unit -> string) -> unit
   val chMessage : int -> (unit -> string) -> (string -> unit) -> unit
   val timeLimit : (Time.time option) ref   (* in seconds *)
-end;  (* module type GLOBAL *)
+end;; (* module type GLOBAL *)

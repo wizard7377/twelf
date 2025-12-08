@@ -1,7 +1,7 @@
 (* Gaussian-Elimination Equation Solver *)
 (* Author: Roberto Virga *)
 
-let recctor CSEqField (module Field : FIELD
+module CSEqField (module Field : FIELD
                    (*! module IntSyn : INTSYN !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)

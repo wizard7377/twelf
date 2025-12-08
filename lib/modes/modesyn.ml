@@ -13,10 +13,10 @@ sig
 
   let modeEqual : mode * mode -> bool
   let modeToString : mode -> string
-end;  (* module type MODESYN *)
+end;; (* module type MODESYN *)
 
 
-module ModeSyn :> MODESYN =
+module ModeSyn : MODESYN =
 struct
 
   exception Error of string
@@ -42,4 +42,4 @@ struct
     | modeToString Minus = "output (-)"
     | modeToString Minus1 = "unique output (-1)"
 
-end;  (* module ModeSyn *)
+end;; (* module ModeSyn *)

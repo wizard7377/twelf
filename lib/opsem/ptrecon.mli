@@ -16,4 +16,4 @@ sig
   val solve     : CompSyn.pskeleton * (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
                   * (CompSyn.pskeleton * IntSyn.Exp -> unit) -> unit 
 
-end;  (* module type PTRECON *)
+end;; (* module type PTRECON *)

@@ -60,7 +60,7 @@ sig
   val wdecl : (string list * string) list * callpats -> wdecl
 (*  val wdecl : (decs * decs) list * callpats -> wdecl *)
 
-end;  (* module type THMEXTSYN *)
+end;; (* module type THMEXTSYN *)
 
 
 module type RECON_THM =
@@ -82,4 +82,4 @@ sig
   val establishToEstablish : establish -> (ThmSyn.pDecl * (Paths.region * Paths.region list))
   val assertToAssert : assert -> (ThmSyn.callpats * Paths.region list)
   val wdeclTowDecl : wdecl -> (ThmSyn.wDecl * Paths.region list)
-end;  (* module type RECON_THM *)
+end;; (* module type RECON_THM *)

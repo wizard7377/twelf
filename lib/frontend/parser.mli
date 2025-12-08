@@ -54,4 +54,4 @@ sig
   val parseStream: TextIO.instream -> (fileParseResult * Paths.region) Stream.stream
   val parseTerminalQ : string * string -> ExtQuery.query Stream.stream (* reads from std input *)
 
-end;  (* module type PARSER *)
+end;; (* module type PARSER *)

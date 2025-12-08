@@ -1,9 +1,9 @@
 (* Origins of Declarations *)
 (* Author: Frank Pfenning *)
 
-let recctor Origins
-  (module Global : GLOBAL
-   module Table : TABLE where type key = string): ORIGINS =
+module Origins
+  (Global : GLOBAL)
+   (Table : TABLE where type key = string): ORIGINS =
    (*! module IntSyn' : INTSYN !*)
    (*! module Paths' : PATHS !*)
 struct
@@ -30,4 +30,4 @@ struct
     fun originLookup (cid) = Array.sub (originArray, cid)
   end
 
-end;  (* functor Origins *)
+end;; (* functor Origins *)

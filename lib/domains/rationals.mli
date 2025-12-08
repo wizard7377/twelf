@@ -18,5 +18,5 @@ sig
   val numerator : number -> Integers.int
   val denominator : number -> Integers.int
 
-end;  (* module type RATIONALS *)
+end;; (* module type RATIONALS *)
 

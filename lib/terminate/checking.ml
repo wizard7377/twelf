@@ -2,7 +2,7 @@
 (* Author: Brigitte Pientka *)
 (* for reasoning about orders see [Pientka IJCAR'01] *)
 
-let recctor Checking  (module Global : GLOBAL
+module Checking  (module Global : GLOBAL
                    (*! module IntSyn' : INTSYN !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -1682,4 +1682,4 @@ struct
     let shiftRCtx = shiftRCtx
     let shiftPred = shiftP
   end (* local *)
-end; (* functor checking  *)
+end;; (* functor checking  *)

@@ -15,4 +15,4 @@ sig
   (* for output coverage of prior declarations *)
   val checkFreeOut : IntSyn.cid * ModeSyn.modeSpine -> unit (* raises Error(msg) *)
 
-end;  (* module type MODECHECK *)
+end;; (* module type MODECHECK *)

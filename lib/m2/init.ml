@@ -1,8 +1,8 @@
 (* Initialization *)
 (* Author: Carsten Schuermann *)
 
-let recctor Init (module MetaSyn' : METASYN
-              module MetaAbstract : METAABSTRACT
+module Init (module MetaSyn' : METASYN)
+   (module MetaAbstract : METAABSTRACT
               sharing MetaAbstract.MetaSyn = MetaSyn')
   : INIT =
 struct
@@ -40,4 +40,4 @@ struct
   in
     let init = init
   end (* local *)
-end; (* functor Init *)
+end;; (* functor Init *)

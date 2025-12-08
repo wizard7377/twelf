@@ -1,7 +1,7 @@
 (* Meta Theorem Prover abstraction : Version 1.3 *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-let recctor MTPAbstract ((*! module IntSyn' : INTSYN !*)
+module MTPAbstract ((*! module IntSyn' : INTSYN !*)
                      (*! module FunSyn' : FUNSYN !*)
                      (*! sharing FunSyn'.IntSyn = IntSyn' !*)
                      module StateSyn' : STATESYN
@@ -871,4 +871,4 @@ struct
     let abstractApproxFor = abstractApproxFor
   end
 
-end;  (* functor MTPAbstract *)
+end;; (* functor MTPAbstract *)

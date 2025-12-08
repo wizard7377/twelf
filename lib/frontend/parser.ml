@@ -1,7 +1,7 @@
 (* Top-Level Parser *)
 (* Author: Frank Pfenning *)
 
-let recctor Parser ((*! module Parsing' : PARSING !*)
+module Parser ((*! module Parsing' : PARSING !*)
                 module Stream' : STREAM (* result stream *)
                 module ExtSyn' : EXTSYN
                 (*! sharing ExtSyn'.Paths = Parsing'.Lexer.Paths !*)
@@ -486,4 +486,4 @@ struct
 
   end  (* local ... in *)
 
-end;  (* functor Parser *)
+end;; (* functor Parser *)

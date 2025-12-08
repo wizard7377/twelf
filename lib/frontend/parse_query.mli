@@ -10,4 +10,4 @@ sig
   val parseQuery' : ExtQuery.query Parsing.parser
   val parseSolve' : (ExtQuery.define list * ExtQuery.solve) Parsing.parser
 
-end;  (* module type PARSE_QUERY *)
+end;; (* module type PARSE_QUERY *)

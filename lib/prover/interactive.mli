@@ -19,6 +19,6 @@ sig
 
   val reset  : unit -> unit
 (*  val undo   : unit -> unit *)
-end;  (* module type Interactive *)
+end;; (* module type Interactive *)
 
 

@@ -24,7 +24,7 @@
 (* Stream: a module implementing a lazy stream.  The module type STREAM
    is found in base.sig *)
 
-module Streamm :> STREAMM =
+module Streamm : STREAMM =
 struct
    type 'a str = EVAL of 'a * 'a str ref | UNEVAL of (unit->'a)
 

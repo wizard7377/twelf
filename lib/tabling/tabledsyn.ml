@@ -1,7 +1,7 @@
 (* Tabled Syntax *)
 (* Author: Brigitte Pientka *)
 
-let recctor TabledSyn ((*! module IntSyn' : INTSYN !*)
+module TabledSyn ((*! module IntSyn' : INTSYN !*)
                  module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
                  module Table : TABLE where type key = int
@@ -77,4 +77,4 @@ struct
     let tabledLookup = tabledLookup
     let keepTable = keepTable
   end
-end;  (* functor TabledSyn *)
+end;; (* functor TabledSyn *)

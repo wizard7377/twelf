@@ -8,4 +8,4 @@ sig
   exception Error of string
 
   val abstract : MetaSyn.state -> MetaSyn.state
-end;  (* module type METAABSTRACT *)
+end;; (* module type METAABSTRACT *)

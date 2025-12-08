@@ -13,4 +13,4 @@ sig
   val dProgToString: CompSyn.DProg -> string
   val subgoalsToString : string -> IntSyn.dctx * CompSyn.Conjunction -> string
 
-end; (* module type CPRINT *)
+end;; (* module type CPRINT *)

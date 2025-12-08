@@ -1,7 +1,7 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann, Adam Poswolsky *)
 
-let recctor Opsem ( module Whnf : WHNF
+module Opsem ( module Whnf : WHNF
                module Abstract : ABSTRACT
                module Subordinate : SUBORDINATE
                module TomegaTypeCheck : TOMEGATYPECHECK

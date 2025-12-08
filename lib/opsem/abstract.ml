@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-let recctor AbstractTabled ((*! module IntSyn' : INTSYN !*)
+module AbstractTabled ((*! module IntSyn' : INTSYN !*)
                   module Whnf    : WHNF
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
                   module Unify   : UNIFY
@@ -1052,7 +1052,7 @@ struct
                        raiseType (G, U))
 
   end
-end;  (* functor AbstractTabled *)
+end;; (* functor AbstractTabled *)
 
 
 

@@ -2,16 +2,16 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Yu Liao *)
 
-let recctor TomegaTypeCheck
-  (module Abstract : ABSTRACT
-   module TypeCheck : TYPECHECK
-   module Conv : CONV
-   module Whnf : WHNF
-   module Print : PRINT
-   module TomegaPrint : TOMEGAPRINT
-   module Subordinate : SUBORDINATE
-   module Weaken : WEAKEN
-   module TomegaAbstract : TOMEGAABSTRACT): TOMEGATYPECHECK =
+module TomegaTypeCheck
+  (Abstract : ABSTRACT)
+   (TypeCheck : TYPECHECK)
+   (Conv : CONV)
+   (Whnf : WHNF)
+   (Print : PRINT)
+   (TomegaPrint : TOMEGAPRINT)
+   (Subordinate : SUBORDINATE)
+   (Weaken : WEAKEN)
+   (TomegaAbstract : TOMEGAABSTRACT): TOMEGATYPECHECK =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

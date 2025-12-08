@@ -24,4 +24,4 @@ sig
   val installTabled : ThmSyn.tabledDecl -> unit
   val installKeepTable : ThmSyn.keepTableDecl -> unit
 
-end;  (* module type THM *)
+end;; (* module type THM *)

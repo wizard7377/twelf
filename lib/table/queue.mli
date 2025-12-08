@@ -17,4 +17,4 @@ sig
   (* then q == q' and toList q' is constant time *)
   val toList : 'a queue -> 'a list * 'a queue option
 
-end;  (* module type QUEUE *)
+end;; (* module type QUEUE *)

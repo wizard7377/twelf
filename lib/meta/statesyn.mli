@@ -43,4 +43,4 @@ sig
   val convOrder : order * order -> bool
 
   val normalizeTag : tag * IntSyn.Sub -> tag
-end; (* module type STATESYN *)
+end;; (* module type STATESYN *)

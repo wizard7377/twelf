@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-let recctor Names (module Global : GLOBAL
+module Names (module Global : GLOBAL
                (*! module IntSyn' : INTSYN !*)
                module Constraints : CONSTRAINTS
                (*! sharing Constraints.IntSyn = IntSyn' !*)
@@ -27,7 +27,7 @@ struct
   (* Operator Precedence *)
   (***********************)
 
-  module Fixity :> FIXITY =
+  module Fixity : FIXITY =
   struct
     (* Associativity ascribed to infix operators
        assoc ::= left    e.g. `<-'
@@ -958,4 +958,4 @@ struct
 
   end  (* local varTable ... *)
 
-end;  (* functor Names *)
+end;; (* functor Names *)

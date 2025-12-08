@@ -7,4 +7,4 @@ sig
   val printSgn : unit -> unit
   val printSgnToFile : string -> unit
 
-end;  (* module type PRINT_TWEGA *)
+end;; (* module type PRINT_TWEGA *)

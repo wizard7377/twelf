@@ -1,7 +1,7 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-let recctor FunSyn ((*! module IntSyn' : INTSYN !*)
+module FunSyn ((*! module IntSyn' : INTSYN !*)
                 module Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 module Conv : CONV): FUNSYN =
@@ -286,7 +286,7 @@ struct
     let ctxToList = ctxToList
     let listToCtx = listToCtx
   end
-end;  (* functor FunSyn *)
+end;; (* functor FunSyn *)
 
 module FunSyn =
   FunSyn ((*! module IntSyn' = IntSyn !*)

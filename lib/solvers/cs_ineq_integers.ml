@@ -1,8 +1,8 @@
 (* Solver for linear inequations, based on branch & bound *)
 (* Author: Roberto Virga *)
 
-let recctor CSIneqIntegers (module Integers : INTEGERS
-                        module Rationals : RATIONALS
+module CSIneqIntegers (Integers : INTEGERS)
+   (module Rationals : RATIONALS
                           sharing Rationals.Integers = Integers
                           (*! module IntSyn : INTSYN !*)
                         module Trail : TRAIL

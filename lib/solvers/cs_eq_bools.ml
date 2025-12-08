@@ -1,7 +1,7 @@
 (* Booleans Equation Solver *)
 (* Author: Roberto Virga *)
 
-let recctor CSEqBools ((*! module IntSyn : INTSYN !*)
+module CSEqBools ((*! module IntSyn : INTSYN !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
                    module Unify : UNIFY): CS =

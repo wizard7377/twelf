@@ -16,4 +16,4 @@ sig
 
   val keepTable : IntSyn.cid -> bool
 
-end;  (* module type TABLEDSYN *)
+end;; (* module type TABLEDSYN *)

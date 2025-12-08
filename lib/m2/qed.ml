@@ -1,8 +1,8 @@
 (* QED *)
 (* Author: Carsten Schuermann *)
 
-let recctor Qed (module Global : GLOBAL
-             module MetaSyn' : METASYN)
+module Qed (Global : GLOBAL)
+   (module MetaSyn' : METASYN)
   : QED =
 struct
   module MetaSyn = MetaSyn'
@@ -25,4 +25,4 @@ struct
   in
     let subgoal = subgoal
   end (* local *)
-end; (* functor Qed *)
+end;; (* functor Qed *)

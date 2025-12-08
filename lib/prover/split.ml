@@ -1,7 +1,7 @@
 (* State definition for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-let recctor Split
+module Split
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)

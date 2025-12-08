@@ -9,4 +9,4 @@ struct
   let maxFill = ref 6
   let maxSplit = ref 2
   let maxRecurse = ref 10
-end; (* module MetaGlobal *)
+end;; (* module MetaGlobal *)

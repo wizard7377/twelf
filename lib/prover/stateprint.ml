@@ -1,7 +1,7 @@
 (* Meta Printer Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-let recctor StatePrint
+module StatePrint
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)

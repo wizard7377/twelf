@@ -24,5 +24,5 @@ sig
 
   val suspGoalNo : unit -> int
 
-end;  (* module type TABLED *)
+end;; (* module type TABLED *)
 

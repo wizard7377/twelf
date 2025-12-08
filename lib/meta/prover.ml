@@ -1,7 +1,7 @@
 (* Meta Theorem Prover Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-let recctor MTProver (module MTPGlobal : MTPGLOBAL
+module MTProver (module MTPGlobal : MTPGLOBAL
                   (*! module IntSyn' : INTSYN !*)
                   (*! module FunSyn : FUNSYN !*)
                   (*! sharing FunSyn.IntSyn = IntSyn' !*)
@@ -169,7 +169,7 @@ end (* functor MTProver *)
 
 
 
-let recctor CombiProver (module MTPGlobal : MTPGLOBAL
+module CombiProver (module MTPGlobal : MTPGLOBAL
                      (*! module IntSyn' : INTSYN !*)
                      module ProverOld : PROVER
                      (*! sharing ProverOld.IntSyn = IntSyn' !*)

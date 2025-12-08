@@ -2,7 +2,7 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-let recctor RelFun (module Global : GLOBAL
+module RelFun (module Global : GLOBAL
                 (*! module FunSyn' : FUNSYN !*)
                 module ModeTable : MODETABLE
                 (*! sharing ModeSyn.IntSyn = FunSyn'.IntSyn !*)

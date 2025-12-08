@@ -7,4 +7,4 @@ sig
  val printSgn : string -> bool -> unit
  (* printConst c prints the OMDoc fragment (without name safety) for the constant with cid c. *)
  val printConst : IntSyn.cid -> string
-end;  (* module type PRINT_XML *)
+end;; (* module type PRINT_XML *)

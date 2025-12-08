@@ -11,4 +11,4 @@ sig
   val checkFamReduction : IntSyn.cid -> unit 
   val checkFam : IntSyn.cid -> unit   
 
-end;  (* module type REDUCES *)
+end;; (* module type REDUCES *)

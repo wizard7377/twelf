@@ -1,7 +1,7 @@
 (* Parsing modules *)
 (* Author: Kevin Watkins *)
 
-let recctor ParseModule
+module ParseModule
   ((*! module Paths : PATHS !*)
    (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)

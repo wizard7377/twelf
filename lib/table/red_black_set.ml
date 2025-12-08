@@ -626,5 +626,5 @@ struct
     let union = (fun set1 -> fun set2 -> (let let set = new() in set := union (!set1, !set2); set end))
 
   end
-end;  (* functor RedBlackSet *)
+end;; (* functor RedBlackSet *)
 

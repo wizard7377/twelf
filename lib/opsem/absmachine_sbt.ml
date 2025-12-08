@@ -2,7 +2,7 @@
 (* Author: Iliano Cervesato *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-let recctor AbsMachineSbt ((*! module IntSyn' : INTSYN !*)
+module AbsMachineSbt ((*! module IntSyn' : INTSYN !*)
                        (*! module CompSyn' : COMPSYN !*)
                        (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                        module Unify : UNIFY
@@ -309,6 +309,6 @@ struct
        | CompSyn.Indexing => (mSig := matchIndexSig; solve' args))
   end (* local ... *)
 
-end; (* functor AbsMachineSbt *)
+end;; (* functor AbsMachineSbt *)
 
 

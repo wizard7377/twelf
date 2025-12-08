@@ -1,4 +1,4 @@
-let recctor Trace ((*! module IntSyn' : INTSYN !*)
+module Trace ((*! module IntSyn' : INTSYN !*)
                module Names : NAMES
                (*! sharing Names.IntSyn = IntSyn' !*)
                module Whnf : WHNF
@@ -361,4 +361,4 @@ struct
     fun reset () = (trace (None); break (None); detail := 1)
   end
 
-end;  (* functor Trace *)
+end;; (* functor Trace *)

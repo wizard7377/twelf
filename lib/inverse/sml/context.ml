@@ -1,5 +1,5 @@
 
-module Context :> CONTEXT =
+module Context : CONTEXT =
 struct 
 
   module L = Lib

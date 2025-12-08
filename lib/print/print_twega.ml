@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-let recctor PrintTwega
+module PrintTwega
   ((*! module IntSyn' : INTSYN !*)
    module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)

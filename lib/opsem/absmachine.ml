@@ -2,7 +2,7 @@
 (* Author: Iliano Cervesato *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-let recctor AbsMachine ((*! module IntSyn' : INTSYN !*)
+module AbsMachine ((*! module IntSyn' : INTSYN !*)
                     (*! module CompSyn' : COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                     module Unify : UNIFY
@@ -273,4 +273,4 @@ struct
    let solve = solve
   end (* local ... *)
 
-end; (* functor AbsMachine *)
+end;; (* functor AbsMachine *)

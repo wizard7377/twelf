@@ -15,4 +15,4 @@ sig
   val nameLookup : string -> FunSyn.lemma option
   val constName : FunSyn.lemma -> string	(* will mark if shadowed *)
 
-end;  (* module type NAMES *)
+end;; (* module type NAMES *)

@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Brigitte Pientka *)
 
-let recctor Lexer (module Stream' : STREAM
+module Lexer (module Stream' : STREAM
                (*! module Paths' : PATHS !*)): LEXER =
 struct
 
@@ -431,7 +431,7 @@ struct
 
   end  (* local ... *)
 
-end;  (* functor Lexer *)
+end;; (* functor Lexer *)
 
 module Lexer =
   Lexer (module Stream' = Stream

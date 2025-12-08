@@ -1,7 +1,7 @@
 (* Syntax for elaborated modules *)
 (* Author: Kevin Watkins *)
 
-let recctor ModSyn
+module ModSyn
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    module Names' : NAMES

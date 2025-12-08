@@ -34,5 +34,5 @@ sig
   val ctxToString : Tomega.Dec IntSyn.Ctx -> string
 
 (*  val lemmaDecToString : FunSyn.LemmaDec -> string *)
-end;  (* module type TOMEGAPRINT *)
+end;; (* module type TOMEGAPRINT *)
 

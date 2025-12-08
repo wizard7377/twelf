@@ -1,7 +1,7 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-let recctor Interactive
+module Interactive
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)

@@ -11,4 +11,4 @@ sig
   val parseAbbrev'  : ExtConDec.condec Parsing.parser
   val parseClause' : ExtConDec.condec Parsing.parser
 
-end;  (* module type PARSE_CONDEC *)
+end;; (* module type PARSE_CONDEC *)

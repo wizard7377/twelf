@@ -1,7 +1,7 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-let recctor Normalize
+module Normalize
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)

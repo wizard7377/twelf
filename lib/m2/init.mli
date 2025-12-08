@@ -8,4 +8,4 @@ sig
   exception Error of string
 
   val init : IntSyn.cid list -> MetaSyn.state list
-end;  (* module type INIT *)
+end;; (* module type INIT *)

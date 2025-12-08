@@ -2,9 +2,9 @@
 (* Author: Carsten Schuermann *)
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
-let recctor Recursion (module Global : GLOBAL
-                   module MetaSyn' : METASYN
-                   module Whnf : WHNF
+module Recursion (Global : GLOBAL)
+   (module MetaSyn' : METASYN)
+   (module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
                    module Unify : UNIFY
                    (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
@@ -649,4 +649,4 @@ struct
     let apply = apply
     let menu = menu
   end (* local *)
-end; (* functor Recursion *)
+end;; (* functor Recursion *)

@@ -75,4 +75,4 @@ sig
   exception NotDigit of char
   val stringToNat : string -> int
   val isUpper : string -> bool
-end;  (* module type LEXER *)
+end;; (* module type LEXER *)

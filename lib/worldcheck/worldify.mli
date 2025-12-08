@@ -13,4 +13,4 @@ sig
   val worldifyGoal : IntSyn.Dec IntSyn.Ctx * IntSyn.Exp -> IntSyn.Exp
 (*  val check : Tomega.Worlds -> IntSyn.cid list -> unit
   val closure : Tomega.Worlds -> Tomega.Worlds *)
-end; (* module type WORLDIFY *)
+end;; (* module type WORLDIFY *)

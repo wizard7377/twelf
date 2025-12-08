@@ -7,4 +7,4 @@ sig
 
   val modeToString : IntSyn.cid * ModeSyn.modeSpine -> string
   val modesToString : (IntSyn.cid * ModeSyn.modeSpine) list -> string
-end;  (* module type MODEPRINT *)
+end;; (* module type MODEPRINT *)

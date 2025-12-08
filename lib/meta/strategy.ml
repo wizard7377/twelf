@@ -1,9 +1,9 @@
 (* MTP Strategy: Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-let recctor MTPStrategy (module MTPGlobal : MTPGLOBAL
-                     module StateSyn' : STATESYN
-                     module MTPFilling : MTPFILLING
+module MTPStrategy (MTPGlobal : MTPGLOBAL)
+   (module StateSyn' : STATESYN)
+   (module MTPFilling : MTPFILLING
                        sharing MTPFilling.StateSyn = StateSyn'
                      module MTPData : MTPDATA
                      module MTPSplitting : MTPSPLITTING
@@ -164,6 +164,6 @@ struct
   in
     let run = run
   end (* local *)
-end;  (* functor StrategyFRS *)
+end;; (* functor StrategyFRS *)
 
 

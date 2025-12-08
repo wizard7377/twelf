@@ -2,7 +2,7 @@
 (* Author:  Carsten Schuermann *)
 
 
-let recctor Trans (module DextSyn' : DEXTSYN) (* : TRANS *) =
+module Trans (module DextSyn' : DEXTSYN) (* : TRANS *) =
 
 struct
 

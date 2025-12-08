@@ -1,4 +1,4 @@
-let recctor Parsing
+module Parsing
   (module Stream' : STREAM): PARSING =
    (*! module Lexer' : LEXER !*)
    (*! sharing Lexer'.Stream = Stream' !*)
@@ -25,7 +25,7 @@ struct
   exception Error of string
   fun error (r, msg) = raise Error (Paths.wrap (r, msg))
 
-end;  (* functor Parsing *)
+end;; (* functor Parsing *)
 
 module Parsing =
   Parsing (module Stream' = Stream

@@ -1,7 +1,7 @@
 (* Checking Definitions for Strict *)
 (* Author: Carsten Schuermann *)
 
-let recctor Strict ((*! module IntSyn' : INTSYN !*)
+module Strict ((*! module IntSyn' : INTSYN !*)
                 module Whnf : WHNF): STRICT =
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 (*! module Paths' : PATHS !*)
@@ -147,4 +147,4 @@ struct
     let check = strictTop
     let checkType = occursInType
   end
-end;  (* functor Strict *)
+end;; (* functor Strict *)

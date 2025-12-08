@@ -1,7 +1,7 @@
 (* Solver for a linearly ordered field, based on the simplex method *)
 (* Author: Roberto Virga *)
 
-let recctor CSIneqField (module OrderedField : ORDERED_FIELD
+module CSIneqField (module OrderedField : ORDERED_FIELD
                      (*! module IntSyn : INTSYN !*)
                      module Trail : TRAIL
                      module Unify : UNIFY

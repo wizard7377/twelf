@@ -1,12 +1,12 @@
 (* fquery: Executing logic programs via functional interpretation *)
 (* Author: Carsten Schuermann *)
 
-let recctor Fquery
-  (module Global : GLOBAL
-   module Names : NAMES
-   module ReconQuery : RECON_QUERY
-   module Timers : TIMERS
-   module Print : PRINT)
+module Fquery
+  (Global : GLOBAL)
+   (Names : NAMES)
+   (ReconQuery : RECON_QUERY)
+   (Timers : TIMERS)
+   (Print : PRINT)
  : FQUERY =
 struct
   module ExtQuery = ReconQuery
@@ -70,4 +70,4 @@ struct
         print ("Delphin: " ^ TomegaPrint.prgToString (I.Null, V) ^ "\n")
       end
 
-end; (* functor Solve *)
+end;; (* functor Solve *)

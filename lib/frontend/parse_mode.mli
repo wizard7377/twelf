@@ -9,4 +9,4 @@ sig
 
   val parseMode' : (ExtModes.modedec list) Parsing.parser
 
-end;  (* module type PARSE_MODE *)
+end;; (* module type PARSE_MODE *)

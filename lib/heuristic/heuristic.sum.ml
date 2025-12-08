@@ -105,4 +105,4 @@ struct
   end
 
 
-end; (* functor Heuristic *)
+end;; (* functor Heuristic *)

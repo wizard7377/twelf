@@ -4,7 +4,7 @@
 
 (* Proof term reconstruction from proof skeleton *)
 
-let recctor PtRecon ((*! module IntSyn' : INTSYN !*)
+module PtRecon ((*! module IntSyn' : INTSYN !*)
                  (*! module CompSyn' : COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                     module Unify : UNIFY
@@ -265,4 +265,4 @@ struct
 
   end (* local ... *)
 
-end; (* functor PtRecon *)
+end;; (* functor PtRecon *)

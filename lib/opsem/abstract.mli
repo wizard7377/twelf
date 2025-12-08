@@ -18,4 +18,4 @@ sig
 
   val raiseType : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp   
 
-end;  (* module type ABSTRACTTABLED *)
+end;; (* module type ABSTRACTTABLED *)

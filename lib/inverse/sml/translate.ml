@@ -1,5 +1,5 @@
 
-module Translate :> TRANSLATE =
+module Translate : TRANSLATE =
 struct 
 
   module L = Lib

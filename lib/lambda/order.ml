@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-let recctor Order ((*! module IntSyn' : INTSYN !*)
+module Order ((*! module IntSyn' : INTSYN !*)
                module Table : TABLE where type key = int)
   : ORDER =
 struct
@@ -124,4 +124,4 @@ struct
     let mutLookup = mutLookup
     let closure = fun a -> closure ([a], nil)
   end (* local *)
-end; (* functor Order *)
+end;; (* functor Order *)

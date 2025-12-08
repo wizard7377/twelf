@@ -1,7 +1,7 @@
 (* Search (based on abstract machine ) : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-let recctor MTPSearch (module Global : GLOBAL
+module MTPSearch (module Global : GLOBAL
                    (*! module IntSyn' : INTSYN !*)
                    module Abstract : ABSTRACT
                    (*! sharing Abstract.IntSyn = IntSyn' !*)
@@ -427,5 +427,5 @@ struct
     let searchEx = search
   end (* local ... *)
 
-end; (* functor Search *)
+end;; (* functor Search *)
 

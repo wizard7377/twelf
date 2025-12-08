@@ -15,4 +15,4 @@ sig
   val previous : 'a ring -> 'a ring
   val foldr : ('a * 'b -> 'b) -> 'b -> 'a ring -> 'b
   val map : ('a -> 'b) -> 'a ring -> 'b ring (* does not necessarily map f in order *)
-end;  (* module type RING *)
+end;; (* module type RING *)

@@ -1,7 +1,7 @@
 (* Parsing Terms and Variable Declarations *)
 (* Author: Frank Pfenning *)
 
-let recctor ParseTerm
+module ParseTerm
   ((*! module Parsing' : PARSING !*)
    module ExtSyn' : EXTSYN
    (*! sharing Parsing'.Lexer.Paths = ExtSyn'.Paths !*)
@@ -54,7 +54,7 @@ struct
     (* into a separate module without passing a juxtaposition operator *)
     (* into the shift and resolve functions                            *)
 
-    module P :>
+    module P :
       sig
         let reduce : stack -> stack
         let reduceAll : Paths.region * stack -> ExtSyn.term
@@ -470,4 +470,4 @@ struct
     let parseCtx' = (fun f -> (parseCtx (true, nil, f)))
   end  (* local ... in *)
 
-end;  (* functor ParseTerm *)
+end;; (* functor ParseTerm *)

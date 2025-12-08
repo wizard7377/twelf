@@ -25,7 +25,7 @@
  *
  *)
 
-module IntInf :> INT_INF =
+module IntInf : INT_INF =
   struct
 
   (* It is not clear what advantage there is to having NumFormat as

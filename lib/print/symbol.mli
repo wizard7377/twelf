@@ -12,4 +12,4 @@ sig
 
   val sym : string -> string * int
 
-end;  (* module type SYMBOL *)
+end;; (* module type SYMBOL *)

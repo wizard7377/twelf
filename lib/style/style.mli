@@ -7,4 +7,4 @@ sig
 
   val check : unit ->  unit  (* raises Error (msg) *)
   val checkConDec : IntSyn.cid -> unit
-end;  (* module type STYLECHECK *)
+end;; (* module type STYLECHECK *)

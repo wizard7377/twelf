@@ -19,6 +19,6 @@ sig
   val extract: unit -> MetaSyn.Sgn
   val show   : unit -> unit
   val undo   : unit -> unit 
-end;  (* module type MPI *)
+end;; (* module type MPI *)
 
 

@@ -1,7 +1,7 @@
 (* Meta syntax *)
 (* Author: Carsten Schuermann *)
 
-let recctor MetaSyn ((*! module IntSyn' : INTSYN !*)
+module MetaSyn ((*! module IntSyn' : INTSYN !*)
                  module Whnf : WHNF): METASYN =
                  (*! sharing Whnf.IntSyn = IntSyn' !*)
 struct

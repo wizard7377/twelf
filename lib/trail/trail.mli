@@ -15,4 +15,4 @@ sig
   val mark   : 'a trail -> unit
   val unwind : 'a trail * ('a -> unit) -> unit
   val log    : 'a trail * 'a -> unit
-end; (* module type TRAIL *)
+end;; (* module type TRAIL *)

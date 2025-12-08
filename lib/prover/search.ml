@@ -1,7 +1,7 @@
 (* Search (based on abstract machine ) : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-let recctor Search
+module Search
   (module Global : GLOBAL
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
@@ -438,5 +438,5 @@ struct
     let searchEx = search
   end (* local ... *)
 
-end; (* functor Search *)
+end;; (* functor Search *)
 

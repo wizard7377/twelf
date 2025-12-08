@@ -52,4 +52,4 @@ sig
   val splitSets: 'a ordSet -> 'a ordSet -> ('a -> 'a -> 'a option) -> ('a ordSet * 'a ordSet * 'a ordSet)
   val intersection: 'a ordSet -> 'a ordSet -> 'a ordSet
 
-end;  (* module type RBSET *)
+end;; (* module type RBSET *)

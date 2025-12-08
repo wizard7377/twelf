@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Date: Thu Mar 16 13:08:33 2006 *)
 
-let recctor Fill
+module Fill
   (module Data : DATA
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
@@ -151,4 +151,4 @@ struct
     let apply = apply
     let menu = menu
   end (* local *)
-end; (* functor Filling *)
+end;; (* functor Filling *)

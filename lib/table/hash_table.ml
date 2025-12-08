@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga *)
 
-let recctor HashTable
+module HashTable
   (type key'
    let hash : key' -> int
    let eq : key' * key' -> bool)
@@ -80,4 +80,4 @@ struct
         (f e; appBucket f (!br))
 
   fun app f (a,n) = Array.app (appBucket f) a
-end;  (* functor HashTable *)
+end;; (* functor HashTable *)

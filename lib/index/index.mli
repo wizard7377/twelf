@@ -17,4 +17,4 @@ sig
   (* in order of declaration, defined constants are omitted *)
   val lookup : IntSyn.cid -> IntSyn.Head list
 
-end;  (* module type INDEX *)
+end;; (* module type INDEX *)

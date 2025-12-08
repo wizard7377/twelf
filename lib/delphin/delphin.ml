@@ -1,7 +1,7 @@
 (* Delphin Frontend *)
 (* Author: Carsten Schuermann *)
 
-let recctor Delphin ((* module Tomega : TOMEGA *)
+module Delphin ((* module Tomega : TOMEGA *)
                  module Parser : PARSER
                  module DextSyn : DEXTSYN
                  module Parse : PARSE

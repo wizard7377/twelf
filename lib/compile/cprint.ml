@@ -1,7 +1,7 @@
 (* Printer for Compiled Syntax *)
 (* Author: Iliano Cervesato *)
 
-let recctor CPrint ((*! module IntSyn' : INTSYN !*)
+module CPrint ((*! module IntSyn' : INTSYN !*)
                 (*! module CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                 module Print: PRINT
@@ -126,4 +126,4 @@ struct
 
   end  (* local open ... *)
 
-end; (* functor CPrint *)
+end;; (* functor CPrint *)

@@ -6,4 +6,4 @@ module type PRINT_XML =
 sig
   val printSgn : unit -> unit
   val printSgnToFile : string -> string -> unit
-end;  (* module type PRINT_XML *)
+end;; (* module type PRINT_XML *)

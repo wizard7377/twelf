@@ -14,4 +14,4 @@ sig
   val nameState : State.state -> State.state
   val formatState : State.state -> Formatter.format 
   val stateToString : State.state -> string
-end;  (* module type STATEPRINT *)
+end;; (* module type STATEPRINT *)

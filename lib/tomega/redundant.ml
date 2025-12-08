@@ -1,7 +1,7 @@
 (* Redundancy remover (factoring) *)
 (* Author: Adam Poswolsky (ABP) *)
 
-let recctor Redundant (module Opsem : OPSEM) : REDUNDANT  =
+module Redundant (Opsem : OPSEM) : REDUNDANT  =
   struct
     exception Error of string
 

@@ -21,4 +21,4 @@ sig
   val qLoop  : unit -> bool		(* true means normal exit *)
   val qLoopT : unit -> bool		(* true means normal exit *)
 
-end;  (* module type SOLVE *)
+end;; (* module type SOLVE *)

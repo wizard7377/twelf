@@ -1,7 +1,7 @@
 (* Fixed Point *)
 (* Author: Carsten Schuermann *)
 
-let recctor FixedPoint
+module FixedPoint
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)

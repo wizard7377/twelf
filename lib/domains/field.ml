@@ -29,5 +29,5 @@ sig
   let fromString : string -> number option
   let toString   : number -> string
 
-end;  (* module type FIELD *)
+end;; (* module type FIELD *)
 

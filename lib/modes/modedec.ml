@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-let recctor ModeDec ((*! module ModeSyn' : MODESYN !*)
+module ModeDec ((*! module ModeSyn' : MODESYN !*)
                  (*! module Paths' : PATHS !*)): MODEDEC =
 struct
   (*! module ModeSyn = ModeSyn' !*)
@@ -277,4 +277,4 @@ struct
     let checkFull = checkFull
     let checkPure = checkPure
   end
-end;  (* functor ModeDec *)
+end;; (* functor ModeDec *)

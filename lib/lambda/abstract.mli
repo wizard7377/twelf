@@ -28,4 +28,4 @@ sig
   val raiseTerm    : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp
   val raiseType    : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp
 
-end;  (* module type ABSTRACT *)
+end;; (* module type ABSTRACT *)

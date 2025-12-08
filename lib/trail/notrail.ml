@@ -18,4 +18,4 @@ struct
   fun unwind ((), undo) = ()
 
   fun log ((), action) = ()
-end; (* module NoTrail *)
+end;; (* module NoTrail *)

@@ -24,4 +24,4 @@ sig
      success and SOME(msg) for failure *)
   val instance' : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> string option
 
-end;  (* module type MATCH *)
+end;; (* module type MATCH *)

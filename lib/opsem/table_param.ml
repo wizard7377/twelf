@@ -1,7 +1,7 @@
 (* Table parameters *)
 (* Author: Brigitte Pientka *)
 
-let recctor TableParam (module Global : GLOBAL
+module TableParam (module Global : GLOBAL
                     (*! module IntSyn' : INTSYN !*)
                     (*! module CompSyn' : COMPSYN !*)
                     (*!  sharing CompSyn'.IntSyn = IntSyn'!*)
@@ -90,5 +90,5 @@ struct
   let strengthen = ref false ;
 
 
-end;  (* module TableParam *)
+end;; (* module TableParam *)
 

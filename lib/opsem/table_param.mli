@@ -64,4 +64,4 @@ sig
 
   val strengthen : bool ref
 
-end;  (* module type TABLEPARAM *)
+end;; (* module type TABLEPARAM *)

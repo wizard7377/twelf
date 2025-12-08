@@ -1,8 +1,8 @@
 (* State definition for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-let recctor State
-  (module Formatter : FORMATTER) : STATE =
+module State
+  (Formatter : FORMATTER) : STATE =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Tomega = Tomega' !*)

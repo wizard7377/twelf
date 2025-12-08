@@ -18,4 +18,4 @@ sig
   val app : traversal -> ((int * int * 'a) -> unit) -> 'a region -> unit 
   val fold : traversal -> ((int * int * 'a * 'b) -> 'b) -> 'b -> 'a region -> 'b
   val modify : traversal -> ((int * int * 'a) -> 'a) -> 'a region -> unit
-end; (* module type SPARSE_ARRAY2 *)
+end;; (* module type SPARSE_ARRAY2 *)

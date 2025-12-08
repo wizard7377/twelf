@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga, Jeff Polakow *)
 
-let recctor ReconQuery  (module Global : GLOBAL
+module ReconQuery  (module Global : GLOBAL
                      (*! module IntSyn' : INTSYN !*)
 		     module Names : NAMES
 		     (*! sharing Names.IntSyn = IntSyn' !*)

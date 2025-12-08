@@ -25,4 +25,4 @@ sig
 
   val createAtomConst : IntSyn.dctx * IntSyn.Head -> (IntSyn.Exp * IntSyn.eclo)
   val createAtomBVar : IntSyn.dctx * int -> (IntSyn.Exp * IntSyn.eclo)
-end; (* module type METASYN *)
+end;; (* module type METASYN *)

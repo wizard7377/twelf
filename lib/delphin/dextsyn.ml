@@ -1,7 +1,7 @@
 (* Delphin external syntax *)
 (* Author: Richard Fontana *)
 
-let recctor DextSyn ( (* module Stream' : STREAM *)
+module DextSyn ( (* module Stream' : STREAM *)
                   module ExtSyn' : EXTSYN
                   module Parsing' : PARSING): DEXTSYN =
 (*                    sharing Parsing'.Lexer.Paths = ExtSyn'.Paths  *)

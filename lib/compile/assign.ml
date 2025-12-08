@@ -1,12 +1,12 @@
 (* Assignment *)
 (* Author: Brigitte Pientka *)
 
-let recctor Assign ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF
+module Assign (*! module IntSyn' : INTSYN !*)
+                (Whnf : WHNF)
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                module Unify : UNIFY
+                (Unify : UNIFY)
                 (*! sharing Unify.IntSyn = IntSyn' !*)
-                module Print : PRINT): ASSIGN =
+                (Print : PRINT): ASSIGN =
                 (*! sharing Print.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)
@@ -226,6 +226,6 @@ struct
     end
 
   end
-end; (* functor Assign *)
+end;; (* functor Assign *)
 
 

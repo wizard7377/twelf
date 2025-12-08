@@ -25,4 +25,4 @@ sig
 
 
   val abstractApproxFor : ApproxFor -> FunSyn.for
-end;  (* module type MTPABSTRACT *)
+end;; (* module type MTPABSTRACT *)

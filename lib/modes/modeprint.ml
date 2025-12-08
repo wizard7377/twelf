@@ -1,7 +1,7 @@
 (* Printing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-let recctor ModePrint ((*! module ModeSyn' : MODESYN !*)
+module ModePrint ((*! module ModeSyn' : MODESYN !*)
                    module Names : NAMES
                    (*! sharing Names.IntSyn = ModeSyn'.IntSyn !*)
                    module Formatter : FORMATTER
@@ -67,4 +67,4 @@ struct
     let modesToString = modesToString
   end (* local *)
 
-end; (* functor ModePrint *)
+end;; (* functor ModePrint *)

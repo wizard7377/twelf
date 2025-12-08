@@ -14,6 +14,6 @@ sig
   val expand :  State.focus -> operator option
   val apply : operator -> unit
   val menu : operator -> string
-end; (* module type INTRODUCE *)
+end;; (* module type INTRODUCE *)
 
 

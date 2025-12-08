@@ -12,4 +12,4 @@ sig
   val tabledDeclToString: ThmSyn.tabledDecl -> string           (* -bp *)
   val keepTableDeclToString: ThmSyn.keepTableDecl -> string        (* -bp *)
 
-end;  (* module type THMPRINT *)
+end;; (* module type THMPRINT *)

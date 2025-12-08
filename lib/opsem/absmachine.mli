@@ -12,4 +12,4 @@ sig
   val solve     : (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
                   * (IntSyn.Exp -> unit) -> unit
 
-end;  (* module type ABSMACHINE *)
+end;; (* module type ABSMACHINE *)

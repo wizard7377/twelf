@@ -5,7 +5,7 @@
   with the formatting and printing routines.}
 %************************************************************************
 *)
-let recctor Formatter(): FORMATTER =
+module Formatter(): FORMATTER =
    struct
 (*
 \subsection{Setting default values}

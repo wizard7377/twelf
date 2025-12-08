@@ -1,7 +1,7 @@
 (* Names of Constants and Variables *)
 (* Author: Carsten Schuermann *)
 
-let recctor FunNames (module Global : GLOBAL
+module FunNames (module Global : GLOBAL
                   (*! module FunSyn' : FUNSYN !*)
                   module HashTable : TABLE where type key = string)
   : FUNNAMES =
@@ -97,4 +97,4 @@ struct
            of (NameInfo (name)) => name)
 
   end  (* local ... *)
-end;  (* functor Names *)
+end;; (* functor Names *)

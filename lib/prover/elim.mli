@@ -12,6 +12,6 @@ sig
   val expand : State.focus -> operator list 
   val apply : operator -> unit
   val menu : operator -> string
-end; (* module type ELIM *)
+end;; (* module type ELIM *)
 
 

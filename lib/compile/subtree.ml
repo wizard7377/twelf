@@ -1,6 +1,6 @@
 (* Substitution Tree indexing *)
 (* Author: Brigitte Pientka *)
-let recctor SubTree ((*! module IntSyn' : INTSYN !*)
+module SubTree ((*! module IntSyn' : INTSYN !*)
                  (*!module CompSyn' : COMPSYN !*)
                  (*!  sharing CompSyn'.IntSyn = IntSyn' !*)
                  module Whnf : WHNF
@@ -866,7 +866,7 @@ struct
     let sProgInstall = sProgInstall
     let matchSig = matchSigIt
   end (* local *)
-end; (* functor SubTree *)
+end;; (* functor SubTree *)
 
 
 

@@ -4,7 +4,7 @@
  * MLton is released under the GNU General Public License (GPL).
  * Please see the file MLton-LICENSE for license information.
  *)
-module Layout :> LAYOUT =
+module Layout : LAYOUT =
 struct
 
 (*    module Out = Outstream0   *)

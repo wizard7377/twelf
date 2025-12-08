@@ -1,9 +1,9 @@
 (* Style Checking *)
 (* Author: Carsten Schuermann *)
 
-let recctor StyleCheck (module Whnf : WHNF
-                    module Index : INDEX
-                    module Origins : ORIGINS)
+module StyleCheck (Whnf : WHNF)
+   (Index : INDEX)
+   (Origins : ORIGINS)
   : STYLECHECK =
 struct
   exception Error of string

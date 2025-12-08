@@ -11,4 +11,4 @@ sig
   val nameState : StateSyn.state -> StateSyn.state
   val formatState : StateSyn.state -> Formatter.format 
   val stateToString : StateSyn.state -> string
-end;  (* module type MTPRINT *)
+end;; (* module type MTPRINT *)

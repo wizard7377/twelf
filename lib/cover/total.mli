@@ -14,4 +14,4 @@ sig
 
   val checkFam : IntSyn.cid -> unit	(* may raise Error(msg) *)
 
-end;  (* module type TOTAL *)
+end;; (* module type TOTAL *)

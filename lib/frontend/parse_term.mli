@@ -18,4 +18,4 @@ sig
   val parseDec' : (string option * ExtSyn.term option) Parsing.parser
   val parseCtx' : (ExtSyn.dec list) Parsing.parser
 
-end;  (* module type PARSE_TERM *)
+end;; (* module type PARSE_TERM *)

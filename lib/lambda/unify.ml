@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-let recctor Unify ((*! module IntSyn' : INTSYN !*)
+module Unify ((*! module IntSyn' : INTSYN !*)
                module Whnf    : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
                module Trail   : TRAIL)
@@ -889,4 +889,4 @@ struct
           (unify (G, Us1, Us2); NONE)
           handle Unify(msg) => SOME(msg)
   end
-end;  (* functor Unify *)
+end;; (* functor Unify *)

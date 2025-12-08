@@ -13,4 +13,4 @@ sig
                   * (CompSyn.Flatterm list -> unit) -> unit 
 
 
-end;  (* module type ABSMACHINESBT *)
+end;; (* module type ABSMACHINESBT *)

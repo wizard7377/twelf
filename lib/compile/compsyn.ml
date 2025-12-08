@@ -4,7 +4,7 @@
 (* Modified: Frank Pfenning *)
 (* Modified: Brigitte Pientka *)
 
-let recctor CompSyn (module Global : GLOBAL
+module CompSyn (module Global : GLOBAL
                  (*! module IntSyn' : INTSYN !*)
                  module Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
@@ -193,7 +193,7 @@ struct
         ("(cs _ ) " ^ (pskeletonToString O))
 
 
-end;  (* functor CompSyn *)
+end;; (* functor CompSyn *)
 
 module CompSyn =
   CompSyn (module Global = Global

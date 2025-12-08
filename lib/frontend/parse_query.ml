@@ -1,7 +1,7 @@
 (* Parsing Queries *)
 (* Author: Frank Pfenning *)
 
-let recctor ParseQuery
+module ParseQuery
 
   ((*! module Parsing' : PARSING !*)
    module ExtQuery' : EXTQUERY
@@ -112,4 +112,4 @@ struct
     let parseSolve' = parseSolve'
   end  (* local ... in *)
 
-end;  (* functor ParseQuery *)
+end;; (* functor ParseQuery *)

@@ -3,7 +3,7 @@
 (* Modified: Jeff Polakow, Carsten Schuermann, Larry Greenfield,
              Roberto Virga, Brigitte Pientka *)
 
-let recctor Compile ((*! module IntSyn' : INTSYN !*)
+module Compile ((*! module IntSyn' : INTSYN !*)
                  (*! module CompSyn' : COMPSYN !*)
                  (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                  module Whnf : WHNF
@@ -633,6 +633,6 @@ struct
 
   end  (* local open ... *)
 
-end; (* functor Compile *)
+end;; (* functor Compile *)
 
 

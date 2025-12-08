@@ -10,10 +10,10 @@ sig
     let setExamplesDir : string -> unit (* filesystem directory where twelf examples are kept *)
 end  (* module type SERVER *)
 
-let recctor NetServer
-	    (module Timing : TIMING
-	     module Twelf : TWELF
-	     module Msg : MSG)
+module NetServer
+	    (Timing : TIMING)
+   (Twelf : TWELF)
+   (Msg : MSG)
 	    :> NETSERVER =
 struct
 

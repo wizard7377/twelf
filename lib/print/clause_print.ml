@@ -5,7 +5,7 @@
    printed with backward arrows `<-'
 *)
 
-let recctor ClausePrint
+module ClausePrint
   ((*! module IntSyn' : INTSYN !*)
    module Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)

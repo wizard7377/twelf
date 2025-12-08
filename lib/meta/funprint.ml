@@ -1,7 +1,7 @@
 (* Printing of functional proof terms *)
 (* Author: Carsten Schuermann *)
 
-let recctor FunPrint ((*! module FunSyn' : FUNSYN !*)
+module FunPrint ((*! module FunSyn' : FUNSYN !*)
                   module Formatter : FORMATTER
                   module Names : NAMES
                   (*! sharing Names.IntSyn = FunSyn'.IntSyn !*)
@@ -620,5 +620,5 @@ struct
     let proToString = proToString
     let lemmaDecToString = lemmaDecToString
   end
-end;  (* module type FUNPRINT *)
+end;; (* module type FUNPRINT *)
 

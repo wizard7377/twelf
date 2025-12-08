@@ -1,7 +1,7 @@
 (* Reconstructing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-let recctor ReconMode (module Global : GLOBAL
+module ReconMode (module Global : GLOBAL
                    (*! module ModeSyn' : MODESYN !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = ModeSyn'.IntSyn !*)
@@ -132,4 +132,4 @@ struct
 
     let modeToMode = modeToMode
   end   (* local ... *)
-end;  (* functor ReconMode *)
+end;; (* functor ReconMode *)

@@ -5,7 +5,7 @@
    tech report CMU-CS-01-115
  *)
 
-let recctor Reduces   (module Global : GLOBAL
+module Reduces   (module Global : GLOBAL
                    (*! module IntSyn' : INTSYN !*)
                    module Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -608,4 +608,4 @@ struct
     let checkFamReduction = checkFamReduction
     let checkFam = checkFam
   end (* local *)
-end; (* functor Reduces  *)
+end;; (* functor Reduces  *)

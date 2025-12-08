@@ -1,9 +1,9 @@
 (* Total Declarations *)
 (* Author: Frank Pfenning *)
 
-let recctor Total
-  (module Global : GLOBAL
-   module Table : TABLE where type key = int
+module Total
+  (Global : GLOBAL)
+   (module Table : TABLE where type key = int
 
    (*! module IntSyn' : INTSYN !*)
    module Whnf : WHNF
@@ -236,4 +236,4 @@ struct
         end
   end
 
-end;  (* functor Total *)
+end;; (* functor Total *)

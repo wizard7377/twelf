@@ -21,6 +21,6 @@ sig
 (*  val extract: unit -> MetaSyn.Sgn *)
 (*  val show   : unit -> unit *)
   val undo   : unit -> unit 
-end;  (* module type MTPI *)
+end;; (* module type MTPI *)
 
 

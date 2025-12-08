@@ -1,7 +1,7 @@
 (* Coverage checker for programs *)
 (* Author: Carsten Schuermann *)
 
-let recctor TomegaCoverage
+module TomegaCoverage
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)

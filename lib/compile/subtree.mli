@@ -41,5 +41,5 @@ sig
 
 (*  val goalToString : string -> IntSyn.Dec IntSyn.Ctx * CompSyn.Goal * IntSyn.Sub -> string *)
 
-end;  (* module type SUBTREE *)
+end;; (* module type SUBTREE *)
 

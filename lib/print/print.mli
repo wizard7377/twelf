@@ -38,4 +38,4 @@ sig
 
   val printSgn : unit -> unit
 
-end;  (* module type PRINT *)
+end;; (* module type PRINT *)

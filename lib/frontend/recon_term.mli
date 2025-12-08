@@ -36,7 +36,7 @@ sig
   val dec : string option * term * Paths.region -> dec (* id : tm | _ : tm *)
   val dec0 : string option * Paths.region -> dec (* id | _  (type omitted) *)
 
-end;  (* module type EXTSYN *)
+end;; (* module type EXTSYN *)
 
 (* module type RECON_TERM
    provides the interface to type reconstruction seen by Twelf 
@@ -88,4 +88,4 @@ sig
   val internalInst : 'a -> 'b
   val externalInst : 'a -> 'b
 
-end;  (* module type RECON_TERM *)
+end;; (* module type RECON_TERM *)

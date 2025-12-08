@@ -82,5 +82,5 @@ sig
   val solutions : answer -> ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list
   val lookup : answer -> int
 
-end;  (* module type TABLEINDEX *)
+end;; (* module type TABLEINDEX *)
 

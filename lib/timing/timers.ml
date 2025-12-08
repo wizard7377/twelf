@@ -1,7 +1,7 @@
 (* Timers collecting statistics about Twelf *)
 (* Author: Frank Pfenning *)
 
-let recctor Timers (module Timing' : TIMING)
+module Timers (module Timing' : TIMING)
    : TIMERS =
 struct
 
@@ -45,4 +45,4 @@ struct
 
   fun show () = (check (); reset ())
 
-end;  (* functor Timers *)
+end;; (* functor Timers *)

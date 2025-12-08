@@ -13,4 +13,4 @@ sig
 
   val coverageCheckCases : Tomega.Worlds * (IntSyn.dctx * IntSyn.Sub) list  * IntSyn.dctx -> unit
 
-end;  (* module type COVER *)
+end;; (* module type COVER *)

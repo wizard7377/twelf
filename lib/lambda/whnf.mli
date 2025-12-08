@@ -37,4 +37,4 @@ sig
 
   val cloInv : IntSyn.Exp * IntSyn.Sub -> IntSyn.Exp
   val compInv : IntSyn.Sub * IntSyn.Sub -> IntSyn.Sub
-end; (* module type WHNF *)
+end;; (* module type WHNF *)

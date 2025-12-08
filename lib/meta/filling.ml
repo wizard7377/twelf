@@ -1,7 +1,7 @@
 (* Filling  Version 1.3*)
 (* Author: Carsten Schuermann *)
 
-let recctor MTPFilling (module MTPGlobal : MTPGLOBAL
+module MTPFilling (module MTPGlobal : MTPGLOBAL
                     (*! module IntSyn : INTSYN !*)
                     (*! module FunSyn' : FUNSYN !*)
                     (*! sharing FunSyn'.IntSyn = IntSyn !*)
@@ -102,4 +102,4 @@ struct
     let apply = apply
     let menu = menu
   end (* local *)
-end; (* functor Filling *)
+end;; (* functor Filling *)

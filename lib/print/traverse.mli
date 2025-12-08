@@ -38,7 +38,7 @@ sig
   (* val famdef : string * tp * kind -> condec *)
   (* val skodec : string * tp -> condec *)
 
-end;  (* module type TRAVERSER *)
+end;; (* module type TRAVERSER *)
 
 module type TRAVERSE =
 sig
@@ -52,4 +52,4 @@ sig
 
   val const : string -> Traverser.condec
 
-end;  (* module type TRAVERSE *)
+end;; (* module type TRAVERSE *)

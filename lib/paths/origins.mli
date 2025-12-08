@@ -14,4 +14,4 @@ sig
   val installOrigin : IntSyn.cid * (string * Paths.occConDec option) -> unit
   val originLookup : IntSyn.cid -> (string * Paths.occConDec option)
 
-end;  (* module type ORIGINS *)
+end;; (* module type ORIGINS *)

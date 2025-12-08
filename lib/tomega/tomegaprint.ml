@@ -1,7 +1,7 @@
 (* Printing of functional proof terms *)
 (* Author: Carsten Schuermann *)
 
-let recctor TomegaPrint
+module TomegaPrint
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
@@ -1005,5 +1005,5 @@ struct
     let ctxToString = ctxToString
 (*    let lemmaDecToString = lemmaDecToString *)
   end
-end;  (* module type FUNPRINT *)
+end;; (* module type FUNPRINT *)
 
