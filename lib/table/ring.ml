@@ -1,7 +1,7 @@
 (* Rings (aka cyclic lists) *)
 (* Author: Carsten Schuermann *)
 
-module Ring : RING =
+(Ring : RIN)G =
 struct
 
   exception Empty

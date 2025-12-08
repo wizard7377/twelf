@@ -2,21 +2,21 @@
 (* Author: Roberto Virga *)
 
 module CSIneqIntegers (Integers : INTEGERS)
-   (module Rationals : RATIONALS
+   (Rationals : RATIONALS)
                           sharing Rationals.Integers = Integers
-                          (*! module IntSyn : INTSYN !*)
-                        module Trail : TRAIL
-                        module Unify : UNIFY
+                          (*! (IntSyn : INTSYN) !*)
+                        (Trail : TRAIL)
+                        (Unify : UNIFY)
                         (*! sharing Unify.IntSyn = IntSyn !*)
                         module SparseArray  : SPARSE_ARRAY
-                        module SparseArray2 : SPARSE_ARRAY2
-                        (*! module CSManager : CS_MANAGER !*)
+                        (SparseArray2 : SPARSE_ARRAY2)
+                        (*! (CSManager : CS_MANAGER) !*)
                         (*! sharing CSManager.IntSyn = IntSyn !*)
-                        module CSEqIntegers : CS_EQ_INTEGERS
+                        (CSEqIntegers : CS_EQ_INTEGERS)
                           sharing CSEqIntegers.Integers = Integers
                           (*! sharing CSEqIntegers.IntSyn = IntSyn !*)
                           (*! sharing CSEqIntegers.CSManager = CSManager !*)
-                        module Compat : COMPAT) =
+                        (Compat : COMPAT) =
 struct
   (*! module CSManager = CSManager !*)
 
@@ -91,7 +91,7 @@ struct
     | Exp of IntSyn.dctx * sum                        (*   - sum                           *)
 
     type Restriction =                            (* Restriction: (proof object)       *)
-      Restr of IntSyn.dctx * IntSyn.Exp               (*   Restr (G, U)                    *)
+      Restr of IntSyn.dctx * IntSyn.exp               (*   Restr (G, U)                    *)
 
     type label =
            {owner : owner,                            (* owner of the row/column (if any)  *)

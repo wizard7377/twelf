@@ -22,12 +22,12 @@ sig
   val sProgReset : unit -> unit
 
 
-  val compileCtx: bool -> (IntSyn.Dec IntSyn.Ctx) -> CompSyn.DProg  
+  val compileCtx: bool -> (IntSyn.Dec IntSyn.ctx) -> CompSyn.DProg  
 
-  val compileGoal: (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp) -> CompSyn.Goal
+  val compileGoal: (IntSyn.Dec IntSyn.ctx * IntSyn.exp) -> CompSyn.Goal
 
   (* for the meta theorem prover  --cs *)
-  val compilePsi: bool -> (Tomega.Dec IntSyn.Ctx) -> CompSyn.DProg
+  val compilePsi: bool -> (Tomega.Dec IntSyn.ctx) -> CompSyn.DProg
  
 
 end;; (* module type COMPILE *)

@@ -6,7 +6,7 @@ module CPrint ((*! module IntSyn' : INTSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                 module Print: PRINT
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                module Formatter : FORMATTER
+                (Formatter : FORMATTER)
                   sharing Print.Formatter = Formatter
                 module Names: NAMES): CPRINT =
                 (*! sharing Names.IntSyn = IntSyn' !*)

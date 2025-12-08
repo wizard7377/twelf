@@ -2,39 +2,39 @@
 (* Author: Carsten Schuermann *)
 
 module MTPSplitting (MTPGlobal : MTPGLOBAL)
-   (module Global : GLOBAL
-                      (*! module IntSyn : INTSYN !*)
-                      (*! module FunSyn : FUNSYN !*)
+   (Global : GLOBAL)
+                      (*! (IntSyn : INTSYN) !*)
+                      (*! (FunSyn : FUNSYN) !*)
                       (*! sharing FunSyn.IntSyn = IntSyn !*)
                       module StateSyn' : STATESYN
                       (*! sharing StateSyn'.FunSyn = FunSyn !*)
                         (*! sharing StateSyn'.IntSyn = IntSyn !*)
-                      module Heuristic : HEURISTIC
-                      module MTPAbstract : MTPABSTRACT
+                      (Heuristic : HEURISTIC)
+                      (MTPAbstract : MTPABSTRACT)
                       (*! sharing MTPAbstract.IntSyn = IntSyn !*)
                         sharing MTPAbstract.StateSyn = StateSyn'
-                      module MTPrint : MTPRINT
+                      (MTPrint : MTPRINT)
                         sharing MTPrint.StateSyn = StateSyn'
-                      module Names : NAMES            (* too be removed  -cs *)
+                      (Names : NAMES)            (* too be removed  -cs *)
                       (*! sharing Names.IntSyn = IntSyn !*)    (* too be removed  -cs *)
                       module Conv :CONV
                       (*! sharing Conv.IntSyn = IntSyn !*)
-                      module Whnf : WHNF
+                      (Whnf : WHNF)
                       (*! sharing Whnf.IntSyn = IntSyn !*)
-                      module TypeCheck : TYPECHECK
+                      (TypeCheck : TYPECHECK)
                       (*! sharing TypeCheck.IntSyn = IntSyn !*)
-                      module Subordinate : SUBORDINATE
+                      (Subordinate : SUBORDINATE)
                       (*! sharing Subordinate.IntSyn = IntSyn !*)
                       module FunTypeCheck :FUNTYPECHECK
                       (*! sharing FunTypeCheck.FunSyn = FunSyn !*)
                         sharing FunTypeCheck.StateSyn = StateSyn'
-                      module Index : INDEX
+                      (Index : INDEX)
                       (*! sharing Index.IntSyn = IntSyn !*)
-                      module Print : PRINT
+                      (Print : PRINT)
                       (*! sharing Print.IntSyn = IntSyn !*)
-                      module Unify : UNIFY
+                      (Unify : UNIFY)
                       (*! sharing Unify.IntSyn = IntSyn !*)
-                      (*! module CSManager : CS_MANAGER !*)
+                      (*! (CSManager : CS_MANAGER) !*)
                       (*! sharing CSManager.IntSyn = IntSyn  !*)
                         ): MTPSPLITTING =
 struct

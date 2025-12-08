@@ -7,15 +7,15 @@
 
 module ClausePrint
   ((*! module IntSyn' : INTSYN !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
    module Formatter' : FORMATTER
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn' !*)
      sharing Print.Formatter = Formatter'
-   module Symbol : SYMBOL)
+   (Symbol : SYMBOL)
      : CLAUSEPRINT =
 struct
 

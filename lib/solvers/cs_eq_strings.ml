@@ -1,12 +1,12 @@
 (* String Equation Solver *)
 (* Author: Roberto Virga *)
 
-module CSEqStrings ((*! module IntSyn : INTSYN !*)
-                     module Whnf : WHNF
+module CSEqStrings ((*! (IntSyn : INTSYN) !*)
+                     (Whnf : WHNF)
                      (*! sharing Whnf.IntSyn = IntSyn !*)
-                     module Unify : UNIFY): CS =
+                     (Unify : UNIFY): CS =
                      (*! sharing Unify.IntSyn = IntSyn !*)
-                     (*! module CSManager : CS_MANAGER !*)
+                     (*! (CSManager : CS_MANAGER) !*)
                      (*! sharing CSManager.IntSyn = IntSyn !*)
 struct
   (*! module CSManager = CSManager !*)

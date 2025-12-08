@@ -3,25 +3,25 @@
 module SubTree ((*! module IntSyn' : INTSYN !*)
                  (*!module CompSyn' : COMPSYN !*)
                  (*!  sharing CompSyn'.IntSyn = IntSyn' !*)
-                 module Whnf : WHNF
+                 (Whnf : WHNF)
                  (*!  sharing Whnf.IntSyn = IntSyn' !*)
-                 module Unify : UNIFY
+                 (Unify : UNIFY)
                  (*!  sharing Unify.IntSyn = IntSyn'!*)
-                 module Print : PRINT
+                 (Print : PRINT)
                  (*!  sharing Print.IntSyn = IntSyn' !*)
                     (* CPrint currently unused *)
-                 module CPrint : CPRINT
+                 (CPrint : CPRINT)
                  (*!  sharing CPrint.IntSyn = IntSyn' !*)
                  (*!  sharing CPrint.CompSyn = CompSyn' !*)
                      (* unused *)
-                module Formatter : FORMATTER
+                (Formatter : FORMATTER)
                 (*!  sharing Print.Formatter = Formatter !*)
                      (* unused *)
                 module Names: NAMES
                 (*!  sharing Names.IntSyn = IntSyn' !*)
-                module CSManager : CS_MANAGER
+                (CSManager : CS_MANAGER)
                  (*!  sharing CSManager.IntSyn = IntSyn'!*)
-                 (*! module RBSet : RBSET !*))
+                 (*! (RBSet : RBSET) !*))
   : SUBTREE =
 struct
 (*!  module IntSyn = IntSyn' !*)
@@ -77,25 +77,25 @@ struct
  *)
   type typeLabel = TypeLabel | Body
 
-  type normalSubsts =  (typeLabel * IntSyn.Exp) RBSet.ordSet  (* key = int = bvar *)
+  type normalSubsts =  (typeLabel * IntSyn.exp) RBSet.ordSet  (* key = int = bvar *)
 
-  type assSub = Assign of (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp)
+  type assSub = Assign of (IntSyn.Dec IntSyn.ctx * IntSyn.exp)
   type assSubsts = AssSub RBSet.ordSet          (* key = int = bvar *)
 
-  type querySubsts = (IntSyn.Dec IntSyn.Ctx * (typeLabel * IntSyn.Exp)) RBSet.ordSet
+  type querySubsts = (IntSyn.Dec IntSyn.ctx * (typeLabel * IntSyn.exp)) RBSet.ordSet
 
-  type cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
-  type cnstrSubsts = IntSyn.Exp RBSet.ordSet    (* key = int = bvar *)
+  type cnstr = Eqn of IntSyn.Dec IntSyn.ctx * IntSyn.exp * IntSyn.exp
+  type cnstrSubsts = IntSyn.exp RBSet.ordSet    (* key = int = bvar *)
 
   type cGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
 
   type genType  = Top | Regular
 
   type tree =
-    Leaf of normalSubsts  * IntSyn.Dec IntSyn.Ctx * CGoal
+    Leaf of normalSubsts  * IntSyn.Dec IntSyn.ctx * CGoal
   | Node of normalSubsts  * Tree RBSet.ordSet
 
-   type candidate = (assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.Dec IntSyn.Ctx * CGoal)
+   type candidate = (assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.Dec IntSyn.ctx * CGoal)
 
    (* Initialization of substitutions *)
    let nid         : unit -> normalSubsts = RBSet.new
@@ -153,11 +153,11 @@ struct
 
   fun printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
     | printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(_), s)) = (print ("Exp (_ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(_), s)) = (print ("Exp (_ ). "); printSub s)
     | printSub (IntSyn.Dot (IntSyn.Undef, s)) = (print ("Undef . "); printSub s)
 
    (*

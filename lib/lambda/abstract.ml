@@ -7,7 +7,7 @@ module Abstract ((*! module IntSyn' : INTSYN !*)
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
                   module Unify   : UNIFY
                   (*! sharing Unify.IntSyn = IntSyn' !*)
-                  module Constraints : CONSTRAINTS): ABSTRACT =
+                  (Constraints : CONSTRAINTS): ABSTRACT =
 struct
 
   exception Error of string

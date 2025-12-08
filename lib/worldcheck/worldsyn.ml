@@ -4,32 +4,32 @@
 
 module WorldSyn
   (Global : GLOBAL)
-   (module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn !*)
-   module Index : INDEX
+   (Index : INDEX)
    (*! sharing Index.IntSyn = IntSyn !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn !*)
-   module Unify : UNIFY
+   (Unify : UNIFY)
    (*! sharing Unify.IntSyn = IntSyn !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn !*)
-   module Constraints : CONSTRAINTS
+   (Constraints : CONSTRAINTS)
    (*! sharing Constraints.IntSyn = IntSyn !*)
-   (*! module CSManager : CS_MANAGER !*)
+   (*! (CSManager : CS_MANAGER) !*)
    (*! sharing CSManager.IntSyn = IntSyn !*)
-   module Subordinate : SUBORDINATE
+   (Subordinate : SUBORDINATE)
    (*! sharing Subordinate.IntSyn = IntSyn !*)
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn !*)
 
-   module Table : TABLE where type key = int
+   (Table : TABLE with type key = int)
 
-   (*! module Paths : PATHS !*)
-   module Origins : ORIGINS
+   (*! (Paths : PATHS) !*)
+   (Origins : ORIGINS)
    (*! sharing Origins.Paths = Paths !*)
      (*! sharing Origins.IntSyn = IntSyn !*)
-   module Timers : TIMERS)
+   (Timers : TIMERS)
    : WORLDSYN =
 struct
   module I = IntSyn

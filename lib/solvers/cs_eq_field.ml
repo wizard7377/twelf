@@ -1,13 +1,13 @@
 (* Gaussian-Elimination Equation Solver *)
 (* Author: Roberto Virga *)
 
-module CSEqField (module Field : FIELD
-                   (*! module IntSyn : INTSYN !*)
-                   module Whnf : WHNF
+module CSEqField (Field : FIELD)
+                   (*! (IntSyn : INTSYN) !*)
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                   module Unify : UNIFY): CS_EQ_FIELD =
+                   (Unify : UNIFY): CS_EQ_FIELD =
                    (*! sharing Unify.IntSyn = IntSyn !*)
-                   (*! module CSManager : CS_MANAGER !*)
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = IntSyn !*)
 struct
   (*! module CSManager = CSManager !*)
@@ -21,7 +21,7 @@ struct
     sum of Field.number * Mon mset       (* sum ::= m + M1 + ...       *)
 
   and Mon =                              (* Monomials:                 *)
-    Mon of Field.number * (IntSyn.Exp * IntSyn.Sub) mset
+    Mon of Field.number * (IntSyn.exp * IntSyn.Sub) mset
                                          (* Mon ::= n * U1[s1] * ...   *)
 
   (* A monomial (n * U1[s1] * U2[s2] * ...) is said to be normal iff

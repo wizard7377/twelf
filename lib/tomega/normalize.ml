@@ -5,7 +5,7 @@ module Normalize
   (module IntSyn' : INTSYN)
    (module Tomega' : TOMEGA
      sharing Tomega'.IntSyn = IntSyn'
-   module Whnf : WHNF
+   (Whnf : WHNF)
      sharing Whnf.IntSyn = IntSyn'): NORMALIZE =
 struct
   module IntSyn = IntSyn'

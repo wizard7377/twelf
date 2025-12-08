@@ -3,38 +3,38 @@
 (* Modified: Frank Pfenning *)
 
 module Worldify
-  (module Global : GLOBAL
-   (*! module IntSyn : INTSYN !*)
-   (*! module Tomega : TOMEGA !*)
+  (Global : GLOBAL)
+   (*! (IntSyn : INTSYN) !*)
+   (*! (Tomega : TOMEGA) !*)
    (*! sharing Tomega.IntSyn = IntSyn !*)
-   module WorldSyn : WORLDSYN
+   (WorldSyn : WORLDSYN)
    (*! sharing WorldSyn.IntSyn = IntSyn !*)
    (*! sharing WorldSyn.Tomega = Tomega !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn !*)
-   module Index : INDEX
+   (Index : INDEX)
    (*! sharing Index.IntSyn = IntSyn !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn !*)
-   module Unify : UNIFY
+   (Unify : UNIFY)
    (*! sharing Unify.IntSyn = IntSyn !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn !*)
-   module Constraints : CONSTRAINTS
+   (Constraints : CONSTRAINTS)
    (*! sharing Constraints.IntSyn = IntSyn !*)
-   module CSManager : CS_MANAGER
+   (CSManager : CS_MANAGER)
    (*! sharing CSManager.IntSyn = IntSyn !*)
-   module Subordinate : SUBORDINATE
+   (Subordinate : SUBORDINATE)
    (*! sharing Subordinate.IntSyn = IntSyn !*)
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn !*)
 
-   module Table : TABLE where type key = int
-   module MemoTable : TABLE where type key = int * int
-   module IntSet : INTSET
+   (Table : TABLE with type key = int)
+   (MemoTable : TABLE with type key = int * int)
+   (IntSet : INTSET)
 
-   (*! module Paths : PATHS !*)
-   module Origins : ORIGINS
+   (*! (Paths : PATHS) !*)
+   (Origins : ORIGINS)
    (*! sharing Origins.Paths = Paths !*)
    (*! sharing Origins.IntSyn = IntSyn !*)
        ): WORLDIFY =

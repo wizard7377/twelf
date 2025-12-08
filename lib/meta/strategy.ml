@@ -3,18 +3,18 @@
 
 module MTPStrategy (MTPGlobal : MTPGLOBAL)
    (module StateSyn' : STATESYN)
-   (module MTPFilling : MTPFILLING
+   (MTPFilling : MTPFILLING)
                        sharing MTPFilling.StateSyn = StateSyn'
-                     module MTPData : MTPDATA
-                     module MTPSplitting : MTPSPLITTING
+                     (MTPData : MTPDATA)
+                     (MTPSplitting : MTPSPLITTING)
                        sharing MTPSplitting.StateSyn = StateSyn'
-                     module MTPRecursion : MTPRECURSION
+                     (MTPRecursion : MTPRECURSION)
                        sharing MTPRecursion.StateSyn = StateSyn'
-                     module Inference : INFERENCE
+                     (Inference : INFERENCE)
                        sharing Inference.StateSyn = StateSyn'
-                     module MTPrint : MTPRINT
+                     (MTPrint : MTPRINT)
                        sharing MTPrint.StateSyn = StateSyn'
-                     module Timers : TIMERS)
+                     (Timers : TIMERS)
   : MTPSTRATEGY =
 struct
 

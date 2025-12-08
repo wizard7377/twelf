@@ -2,10 +2,10 @@
 (* Author: Carsten Schuermann *)
 
 module ModePrint ((*! module ModeSyn' : MODESYN !*)
-                   module Names : NAMES
+                   (Names : NAMES)
                    (*! sharing Names.IntSyn = ModeSyn'.IntSyn !*)
-                   module Formatter : FORMATTER
-                   module Print : PRINT
+                   (Formatter : FORMATTER)
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = ModeSyn'.IntSyn !*)
                      sharing Print.Formatter = Formatter)
   : MODEPRINT =

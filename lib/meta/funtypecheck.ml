@@ -4,21 +4,21 @@
 module FunTypeCheck ((*! module FunSyn' : FUNSYN !*)
                       module StateSyn' : STATESYN
                       (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                      module Abstract : ABSTRACT
+                      (Abstract : ABSTRACT)
                       (*! sharing Abstract.IntSyn = FunSyn'.IntSyn !*)
-                      module TypeCheck : TYPECHECK
+                      (TypeCheck : TYPECHECK)
                       (*! sharing TypeCheck.IntSyn = FunSyn'.IntSyn !*)
-                      module Conv : CONV
+                      (Conv : CONV)
                       (*! sharing Conv.IntSyn = FunSyn'.IntSyn !*)
-                      module Whnf : WHNF
+                      (Whnf : WHNF)
                       (*! sharing Whnf.IntSyn = FunSyn'.IntSyn !*)
-                      module Print : PRINT
+                      (Print : PRINT)
                       (*! sharing Print.IntSyn = FunSyn'.IntSyn !*)
-                      module Subordinate : SUBORDINATE
+                      (Subordinate : SUBORDINATE)
                       (*! sharing Subordinate.IntSyn = FunSyn'.IntSyn !*)
-                      module Weaken : WEAKEN
+                      (Weaken : WEAKEN)
                       (*! sharing Weaken.IntSyn = FunSyn'.IntSyn   !*)
-                      module FunPrint : FUNPRINT): FUNTYPECHECK =
+                      (FunPrint : FUNPRINT): FUNTYPECHECK =
                       (*! sharing FunPrint.FunSyn = FunSyn' !*)
 struct
   (*! module FunSyn = FunSyn' !*)

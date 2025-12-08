@@ -1,16 +1,16 @@
 (* Reconstructing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-module ReconMode (module Global : GLOBAL
+module ReconMode (Global : GLOBAL)
                    (*! module ModeSyn' : MODESYN !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = ModeSyn'.IntSyn !*)
                    (*! module Paths' : PATHS !*)
-                   module Names : NAMES
+                   (Names : NAMES)
                    (*! sharing Names.IntSyn = ModeSyn'.IntSyn !*)
-                   module ModePrint : MODEPRINT
+                   (ModePrint : MODEPRINT)
                    (*! sharing ModePrint.ModeSyn = ModeSyn' !*)
-                   module ModeDec : MODEDEC
+                   (ModeDec : MODEDEC)
 
                    module ReconTerm' : RECON_TERM): RECON_MODE =
                    (*! sharing ReconTerm'.IntSyn = ModeSyn'.IntSyn !*)

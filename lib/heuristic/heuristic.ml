@@ -1,7 +1,7 @@
 (* Heuristics : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-module Heuristic : HEURISTIC =
+(Heuristic : HEURISTI)C =
 struct
   type index = {sd: int,                (* Splitting depth *)
                 ind: int option,        (* Induction variable *)

@@ -3,39 +3,39 @@
 (* Author: Carsten Schuermann *)
 
 module Converter
-  (module Global : GLOBAL
+  (Global : GLOBAL)
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   module ModeTable : MODETABLE
+   (ModeTable : MODETABLE)
    (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   module Unify : UNIFY
+   (Unify : UNIFY)
    (*! sharing Unify.IntSyn = IntSyn' !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn' !*)
-   module TomegaPrint : TOMEGAPRINT
+   (TomegaPrint : TOMEGAPRINT)
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
-   module WorldSyn : WORLDSYN
+   (WorldSyn : WORLDSYN)
    (*! sharing WorldSyn.IntSyn = IntSyn' !*)
    (*! sharing WorldSyn.Tomega = Tomega' !*)
-   module Worldify : WORLDIFY
+   (Worldify : WORLDIFY)
    (*! sharing Worldify.IntSyn = IntSyn' !*)
    (*! sharing Worldify.Tomega = Tomega' !*)
-   module TomegaTypeCheck : TOMEGATYPECHECK
+   (TomegaTypeCheck : TOMEGATYPECHECK)
    (*! sharing TomegaTypeCheck.IntSyn = IntSyn' !*)
    (*! sharing TomegaTypeCheck.Tomega = Tomega' !*)
-   module Subordinate : SUBORDINATE
+   (Subordinate : SUBORDINATE)
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-   module TypeCheck : TYPECHECK
+   (TypeCheck : TYPECHECK)
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   module Redundant : REDUNDANT
+   (Redundant : REDUNDANT)
    module TomegaAbstract :TOMEGAABSTRACT
        ): CONVERTER =
 struct

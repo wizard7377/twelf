@@ -2,9 +2,9 @@
 (* Author: Carsten Schuermann *)
 
 module FunSyn ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF
+                (Whnf : WHNF)
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                module Conv : CONV): FUNSYN =
+                (Conv : CONV): FUNSYN =
                 (*! sharing Conv.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)
@@ -30,7 +30,7 @@ struct
     Prim of IntSyn.Dec                  (* LD ::= x :: A              *)
   | Block of CtxBlock                   (*      | B                   *)
 
-  type lfctx = LFDec IntSyn.Ctx         (* Psi ::= . | Psi, LD        *)
+  type lfctx = LFDec IntSyn.ctx         (* Psi ::= . | Psi, LD        *)
 
   type for =                        (* Formulas                   *)
     All of lfDec * for                  (* F ::= All LD. F            *)
@@ -40,7 +40,7 @@ struct
 
   type pro =                        (* Programs                   *)
     Lam of lfDec * pro                  (* P ::= lam LD. P            *)
-  | Inx of IntSyn.Exp * pro             (*     | <M, P>               *)
+  | Inx of IntSyn.exp * pro             (*     | <M, P>               *)
   | Unit                                (*     | <>                   *)
   | Rec of MDec * pro                   (*     | mu xx. P             *)
   | Let of Decs * pro                   (*     | let Ds in P          *)
@@ -58,7 +58,7 @@ struct
     Empty                               (* Ds ::= .                   *)
   | Split of int * Decs                 (*      | <x, yy> = P, Ds     *)
   | New of CtxBlock * Decs              (*      | nu B. Ds            *)
-  | App of (int * IntSyn.Exp) * Decs    (*      | xx = yy M, Ds       *)
+  | App of (int * IntSyn.exp) * Decs    (*      | xx = yy M, Ds       *)
   | PApp of (int * int) * Decs          (*      | xx = yy Phi, Ds     *)
   | Lemma of lemma * Decs               (*      | xx = cc, Ds         *)
   | Left of int * Decs                  (*      | xx = pi1 yy, Ds     *)
@@ -67,7 +67,7 @@ struct
   type lemmaDec =                   (* Lemmas                     *)
     LemmaDec of name list * Pro * For   (* L ::= c:F = P              *)
 
-  type mctx = MDec IntSyn.Ctx           (* Delta ::= . | Delta, xx : F*)
+  type mctx = MDec IntSyn.ctx           (* Delta ::= . | Delta, xx : F*)
 
   local
     module I = IntSyn

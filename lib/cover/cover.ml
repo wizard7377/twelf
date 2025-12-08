@@ -4,32 +4,32 @@
 module Cover
   (Global : GLOBAL)
    (Whnf : WHNF)
-   (module Conv : CONV
+   (Conv : CONV)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   module Unify : UNIFY              (* must be trailing! *)
+   (Unify : UNIFY)              (* must be trailing! *)
    (*! sharing Unify.IntSyn = IntSyn' !*)
-   module Constraints : CONSTRAINTS
+   (Constraints : CONSTRAINTS)
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   module ModeTable : MODETABLE
-   module UniqueTable : MODETABLE
-   module Index : INDEX
+   (ModeTable : MODETABLE)
+   (UniqueTable : MODETABLE)
+   (Index : INDEX)
    (*! sharing Index.IntSyn = IntSyn' !*)
-   module Subordinate : SUBORDINATE
+   (Subordinate : SUBORDINATE)
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
 
-   module WorldSyn : WORLDSYN
-   module Names : NAMES
+   (WorldSyn : WORLDSYN)
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   (*! module Paths : PATHS !*)
-   module Print : PRINT
+   (*! (Paths : PATHS) !*)
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn' !*)
-   module TypeCheck : TYPECHECK
+   (TypeCheck : TYPECHECK)
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   (*! module CSManager : CS_MANAGER !*)
+   (*! (CSManager : CS_MANAGER) !*)
    (*! sharing CSManager.IntSyn = IntSyn' !*)
-   module Timers : TIMERS)
+   (Timers : TIMERS)
   : COVER =
 struct
   exception Error of string

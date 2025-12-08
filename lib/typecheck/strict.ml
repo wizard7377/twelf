@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 
 module Strict ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF): STRICT =
+                (Whnf : WHNF): STRICT =
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 (*! module Paths' : PATHS !*)
 struct

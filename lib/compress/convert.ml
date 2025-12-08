@@ -6,7 +6,7 @@ struct
 	exception NotFound of string
 
 	let sigma : string list ref = ref []
-	let sigmat : class list ref = ref []
+	let sigmat : tClass list ref = ref []
 	let sigmap : bool list ref = ref []
 
 	fun clear () = let in

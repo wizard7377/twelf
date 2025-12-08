@@ -6,13 +6,13 @@
 
 module PrintOMDoc
   ((*! module IntSyn' : INTSYN !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   module Constraints : CONSTRAINTS
+   (Constraints : CONSTRAINTS)
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
    module Formatter' : FORMATTER)
   : PRINT_OMDOC =

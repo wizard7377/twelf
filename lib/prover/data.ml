@@ -1,7 +1,7 @@
 (* Meta data parameters *)
 (* Author: Carsten Schuermann *)
 
-module Data : DATA =
+(Data : DAT)A =
 struct
   let maxFill = ref 5
   let maxSplit = ref 5

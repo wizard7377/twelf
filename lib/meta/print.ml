@@ -1,20 +1,20 @@
 (* Meta Printer Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-module MTPrint (module Global : GLOBAL
-                 (*! module IntSyn : INTSYN !*)
-                 (*! module FunSyn : FUNSYN !*)
+module MTPrint (Global : GLOBAL)
+                 (*! (IntSyn : INTSYN) !*)
+                 (*! (FunSyn : FUNSYN) !*)
                  (*! sharing FunSyn.IntSyn = IntSyn !*)
-                 module Names : NAMES
+                 (Names : NAMES)
                  (*! sharing Names.IntSyn = IntSyn !*)
                  module StateSyn' : STATESYN
                  (*! sharing StateSyn'.FunSyn = FunSyn !*)
                    (*! sharing StateSyn'.IntSyn = IntSyn !*)
                  module Formatter' : FORMATTER
-                 module Print : PRINT
+                 (Print : PRINT)
                    sharing Print.Formatter = Formatter'
                    (*! sharing Print.IntSyn = IntSyn !*)
-                 module FunPrint : FUNPRINT
+                 (FunPrint : FUNPRINT)
                  (*! sharing FunPrint.FunSyn = FunSyn !*)
                    sharing FunPrint.Formatter = Formatter')
   : MTPRINT =

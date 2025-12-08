@@ -1,12 +1,12 @@
 (* Constraint Solver Manager *)
 (* Author: Roberto Virga *)
 
-module CSManager (module Global : GLOBAL
-                   (*! module IntSyn : INTSYN !*)
-                   module Unify : UNIFY
+module CSManager (Global : GLOBAL)
+                   (*! (IntSyn : INTSYN) !*)
+                   (Unify : UNIFY)
                    (*! sharing Unify.IntSyn = IntSyn !*)
-                   module Fixity : FIXITY
-                   (*! module ModeSyn : MODESYN !*))
+                   (Fixity : FIXITY)
+                   (*! (ModeSyn : MODESYN) !*))
   : CS_MANAGER =
 struct
   module IntSyn  = IntSyn

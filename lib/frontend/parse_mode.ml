@@ -2,13 +2,13 @@
 (* Author: Carsten Schuermann *)
 
 module ParseMode
-   ((*! module Paths : PATHS !*)
+   ((*! (Paths : PATHS) !*)
    (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
    module ExtModes' : EXTMODES
    (*! sharing ExtModes'.Paths = Paths !*)
    (*! sharing ExtModes'.ExtSyn.Paths = Paths !*)
-   module ParseTerm : PARSE_TERM
+   (ParseTerm : PARSE_TERM)
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ExtModes'.ExtSyn)
      : PARSE_MODE =

@@ -18,7 +18,7 @@
  * 
  *)
 
-module LrTable : LR_TABLE = 
+(LrTable : LR_TABL)E = 
     struct
 	open Array List
 	infix 9 sub

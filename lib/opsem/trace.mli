@@ -17,13 +17,13 @@ sig
   | Resolved of IntSyn.Head * IntSyn.Head (* resolved with clause c, fam a *)
   | Subgoal of (IntSyn.Head * IntSyn.Head) * (unit -> int) (* clause c, fam a, nth subgoal *)
 
-  | SolveGoal of goalTag * IntSyn.Head * IntSyn.Exp
-  | SucceedGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-  | CommitGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-  | RetryGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-  | FailGoal of goalTag * IntSyn.Head * IntSyn.Exp
+  | SolveGoal of goalTag * IntSyn.Head * IntSyn.exp
+  | SucceedGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.exp
+  | CommitGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.exp
+  | RetryGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.exp
+  | FailGoal of goalTag * IntSyn.Head * IntSyn.exp
 
-  | Unify of (IntSyn.Head * IntSyn.Head) * IntSyn.Exp * IntSyn.Exp (* clause head == goal *)
+  | Unify of (IntSyn.Head * IntSyn.Head) * IntSyn.exp * IntSyn.exp (* clause head == goal *)
   | FailUnify of (IntSyn.Head * IntSyn.Head) * string (* failure message *)
 
   val signal : IntSyn.dctx * Event -> unit

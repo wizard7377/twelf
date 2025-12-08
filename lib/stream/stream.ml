@@ -16,7 +16,7 @@ sig
   let cons : 'a * 'a stream -> 'a stream
 end;
 
-module BasicStream : BASIC_STREAM =
+(BasicStream : BASIC_STREA)M =
 struct
   type 'a stream = Stream of unit -> 'a front
   and 'a front = Empty | Cons of 'a * 'a stream
@@ -31,7 +31,7 @@ end;
 (* Note that this implementation is NOT semantically *)
 (* equivalent to the plain (non-memoizing) streams, since *)
 (* effects will be executed only once in this implementation *)
-module BasicMemoStream : BASIC_STREAM =
+(BasicMemoStream : BASIC_STREA)M =
 struct
 
   type 'a stream = Stream of unit -> 'a front
@@ -143,12 +143,12 @@ struct
 
 end;
 
-(* module Stream : STREAM --- non-memoizing *)
-module Stream : STREAM =
+(* (Stream : STREAM) --- non-memoizing *)
+(Stream : STREA)M =
   Stream (module BasicStream = BasicStream);
 
-(* module MStream : STREAM --- memoizing *)
-module MStream : STREAM =
+(* (MStream : STREAM) --- memoizing *)
+(MStream : STREA)M =
   Stream (module BasicStream = BasicMemoStream);
 
 (*

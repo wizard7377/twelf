@@ -1,5 +1,5 @@
 
-module Syntax : SYNTAX =
+(Syntax : SYNTA)X =
 struct 
 
   module L = Lib

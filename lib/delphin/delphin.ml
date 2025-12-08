@@ -1,13 +1,13 @@
 (* Delphin Frontend *)
 (* Author: Carsten Schuermann *)
 
-module Delphin ((* module Tomega : TOMEGA *)
-                 module Parser : PARSER
-                 module DextSyn : DEXTSYN
-                 module Parse : PARSE
+module Delphin ((* (Tomega : TOMEGA) *)
+                 (Parser : PARSER)
+                 (DextSyn : DEXTSYN)
+                 (Parse : PARSE)
                    sharing Parse.DextSyn = DextSyn
-                 module Twelf : TWELF
-                 module Trans : TRANS
+                 (Twelf : TWELF)
+                 (Trans : TRANS)
                    sharing Trans.DextSyn = DextSyn) : DELPHIN =
 struct
   local

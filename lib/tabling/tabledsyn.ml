@@ -2,10 +2,10 @@
 (* Author: Brigitte Pientka *)
 
 module TabledSyn ((*! module IntSyn' : INTSYN !*)
-                 module Names : NAMES
+                 (Names : NAMES)
                  (*! sharing Names.IntSyn = IntSyn' !*)
-                 module Table : TABLE where type key = int
-                 module Index : INDEX): TABLEDSYN =
+                 (Table : TABLE with type key = int)
+                 (Index : INDEX): TABLEDSYN =
                  (*! sharing Index.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

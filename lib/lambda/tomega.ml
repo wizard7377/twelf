@@ -17,8 +17,8 @@ struct
   type tC   =                       (* Terminiation Condition     *)
     Abs of IntSyn.Dec * tC              (* T ::= {{D}} O              *)
   | Conj of tC * tC                     (*     | O1 ^ O2              *)
-  | Base of ((IntSyn.Exp * IntSyn.Sub) *
-             (IntSyn.Exp * IntSyn.Sub)) Order.Order
+  | Base of ((IntSyn.exp * IntSyn.Sub) *
+             (IntSyn.exp * IntSyn.Sub)) Order.Order
 
   type for                          (* Formulas                   *)
   = World of worlds * for               (* F ::= World l1...ln. F     *)
@@ -28,7 +28,7 @@ struct
   | True                                (*     | T                    *)
   | And of for * for                    (*     | F1 ^ F2              *)
   | FClo of for * Sub                   (*     | F [t]                *)
-  | FVar of (Dec IntSyn.Ctx * For option ref)
+  | FVar of (Dec IntSyn.ctx * For option ref)
                                         (*     | F (G)                *)
 
   and Dec =                             (* Declaration:               *)
@@ -41,7 +41,7 @@ struct
   | Lam of Dec * Prg                    (*     | lam LD. P            *)
   | New of Prg                          (*     | new P                *)
   | Choose of Prg                       (*     | choose P             *)
-  | PairExp of IntSyn.Exp * Prg         (*     | <M, P>               *)
+  | PairExp of IntSyn.exp * Prg         (*     | <M, P>               *)
   | PairBlock of IntSyn.Block * Prg     (*     | <rho, P>             *)
   | PairPrg of Prg * Prg                (*     | <P1, P2>             *)
   | Unit                                (*     | <>                   *)
@@ -50,7 +50,7 @@ struct
   | Case of Cases                       (*     | case t of O          *)
   | PClo of Prg * Sub                   (*     | P [t]                *)
   | Let of Dec * Prg * Prg              (*     | let D = P1 in P2     *)
-  | EVar of Dec IntSyn.Ctx * Prg option ref * For * TC option * TC option * IntSyn.Exp
+  | EVar of Dec IntSyn.ctx * Prg option ref * For * TC option * TC option * IntSyn.exp
                                         (*     | E (G, F, TC)         *)
   | Const of lemma                      (* P ::= cc                   *)
   | Var of int                          (*     | xx                   *)
@@ -59,7 +59,7 @@ struct
 
   and Spine =                           (* Spines:                    *)
     Nil                                 (* S ::= Nil                  *)
-  | AppExp of IntSyn.Exp * Spine        (*     | P U                  *)
+  | AppExp of IntSyn.exp * Spine        (*     | P U                  *)
   | AppBlock of IntSyn.Block * Spine    (*     | P rho                *)
   | AppPrg of Prg * Spine               (*     | P1 P2                *)
   | SClo of Spine * Sub                 (*     | S [t]                *)
@@ -71,12 +71,12 @@ struct
   and Front =                           (* F ::=                      *)
     Idx of int                          (*     | i                    *)
   | Prg of Prg                          (*     | p                    *)
-  | Exp of IntSyn.Exp                   (*     | U                    *)
+  | Exp of IntSyn.exp                   (*     | U                    *)
   | Block of IntSyn.Block               (*     | _x                   *)
   | Undef                               (*     | _                    *)
 
   and Cases =                           (* Cases                      *)
-    Cases of (Dec IntSyn.Ctx * Sub * Prg) list
+    Cases of (Dec IntSyn.ctx * Sub * Prg) list
                                         (* C ::= (Psi' |> s |-> P)    *)
 
   type conDec =                     (* ConDec                     *)

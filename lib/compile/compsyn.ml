@@ -4,11 +4,11 @@
 (* Modified: Frank Pfenning *)
 (* Modified: Brigitte Pientka *)
 
-module CompSyn (module Global : GLOBAL
+module CompSyn (Global : GLOBAL)
                  (*! module IntSyn' : INTSYN !*)
-                 module Names : NAMES
+                 (Names : NAMES)
                  (*! sharing Names.IntSyn = IntSyn' !*)
-                 module Table : TABLE
+                 (Table : TABLE)
                    where type key = int)
   : COMPSYN =
 struct
@@ -21,20 +21,20 @@ struct
   let optimize = ref LinearHeads
 
   type goal =                       (* Goals                      *)
-    Atom of IntSyn.Exp                  (* g ::= p                    *)
-  | Impl of ResGoal * IntSyn.Exp        (*     | (r,A,a) => g         *)
+    Atom of IntSyn.exp                  (* g ::= p                    *)
+  | Impl of ResGoal * IntSyn.exp        (*     | (r,A,a) => g         *)
             * IntSyn.Head * goal
   | All  of IntSyn.Dec * goal           (*     | all x:A. g           *)
 
   and ResGoal =                         (* Residual Goals             *)
-    Eq     of IntSyn.Exp                (* r ::= p = ?                *)
-  | Assign of IntSyn.Exp * AuxGoal      (*     | p = ?, where p has   *)
+    Eq     of IntSyn.exp                (* r ::= p = ?                *)
+  | Assign of IntSyn.exp * AuxGoal      (*     | p = ?, where p has   *)
                                         (* only new vars,             *)
                                         (* then unify all the vars    *)
   | And    of ResGoal                   (*     | r & (A,g)            *)
-              * IntSyn.Exp * goal
+              * IntSyn.exp * goal
   | In     of ResGoal                   (*     | r && (A,g)           *)
-              * IntSyn.Exp * goal
+              * IntSyn.exp * goal
   | Exists of IntSyn.Dec * ResGoal      (*     | exists x:A. r        *)
   | Axists of IntSyn.Dec * ResGoal      (*     | exists' x:_. r       *)
                                         (* exists' is used for local evars
@@ -44,19 +44,19 @@ struct
 
   and AuxGoal =
     Trivial                               (* trivially done *)
-  | UnifyEq of IntSyn.dctx * IntSyn.Exp   (* call unify *)
-             * IntSyn.Exp * AuxGoal
+  | UnifyEq of IntSyn.dctx * IntSyn.exp   (* call unify *)
+             * IntSyn.exp * AuxGoal
 
   (* Static programs -- compiled version for substitution trees *)
-  type conjunction = True | Conjunct of goal * IntSyn.Exp * conjunction
+  type conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
 
   type compHead =
-     Head of (IntSyn.Exp * IntSyn.Dec IntSyn.Ctx * AuxGoal * IntSyn.cid)
+     Head of (IntSyn.exp * IntSyn.Dec IntSyn.ctx * AuxGoal * IntSyn.cid)
 
 
   (* proof skeletons instead of proof term *)
   type flatterm =
-    Pc of IntSyn.cid | Dc of IntSyn.cid | Csolver of IntSyn.Exp
+    Pc of IntSyn.cid | Dc of IntSyn.cid | Csolver of IntSyn.exp
 
   type pskeleton = Flatterm list
 
@@ -131,7 +131,7 @@ struct
   (* The dynamic clause pool --- compiled version of the context *)
   (* Dynamic programs: context with synchronous clause pool *)
 
-  type dProg = DProg of IntSyn.dctx * comDec IntSyn.Ctx
+  type dProg = DProg of IntSyn.dctx * comDec IntSyn.ctx
 
   local
     let maxCid = Global.maxCid

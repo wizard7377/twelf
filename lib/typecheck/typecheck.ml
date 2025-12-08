@@ -2,13 +2,13 @@
 (* Author: Carsten Schuermann *)
 
 module TypeCheck ((*! module IntSyn' : INTSYN !*)
-                   module Conv : CONV
+                   (Conv : CONV)
                    (*! sharing Conv.IntSyn = IntSyn' !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn'  !*)
-                   module Names : NAMES
+                   (Names : NAMES)
                    (*! sharing Names.IntSyn = IntSyn' !*)
-                   module Print : PRINT): TYPECHECK =
+                   (Print : PRINT): TYPECHECK =
                    (*! sharing Print.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

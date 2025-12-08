@@ -22,7 +22,7 @@ the proofs can be found in pf.dvi (written by Andrzej Filinski) and
 the other .elf files.
 *)
 
-module Spass : TRAVERSER =
+(Spass : TRAVERSE)R =
 struct
 
   type tp =

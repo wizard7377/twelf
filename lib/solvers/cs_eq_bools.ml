@@ -1,12 +1,12 @@
 (* Booleans Equation Solver *)
 (* Author: Roberto Virga *)
 
-module CSEqBools ((*! module IntSyn : INTSYN !*)
-                   module Whnf : WHNF
+module CSEqBools ((*! (IntSyn : INTSYN) !*)
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                   module Unify : UNIFY): CS =
+                   (Unify : UNIFY): CS =
                    (*! sharing Unify.IntSyn = IntSyn !*)
-                   (*! module CSManager : CS_MANAGER !*)
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = IntSyn !*)
 struct
   (*! module CSManager = CSManager !*)
@@ -19,7 +19,7 @@ struct
     sum of bool * Mon set                (* sum ::= m + M1 + ...       *)
 
   and Mon =                              (* Monomials:                 *)
-    Mon of (IntSyn.Exp * IntSyn.Sub) set
+    Mon of (IntSyn.exp * IntSyn.Sub) set
                                          (* Mon ::= U1[s1] * ...       *)
 
   (* A monomial (U1[s1] * U2[s2] * ...) is said to be normal iff

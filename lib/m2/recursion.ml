@@ -4,32 +4,32 @@
 
 module Recursion (Global : GLOBAL)
    (module MetaSyn' : METASYN)
-   (module Whnf : WHNF
+   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                   module Unify : UNIFY
+                   (Unify : UNIFY)
                    (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
-                   module Conv : CONV
+                   (Conv : CONV)
                    (*! sharing Conv.IntSyn = MetaSyn'.IntSyn !*)
-                   module Names : NAMES
+                   (Names : NAMES)
                    (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-                   module Subordinate : SUBORDINATE
+                   (Subordinate : SUBORDINATE)
                    (*! sharing Subordinate.IntSyn = MetaSyn'.IntSyn !*)
-                   module Print : PRINT
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                   module Order : ORDER
+                   (Order : ORDER)
                    (*! sharing Order.IntSyn = MetaSyn'.IntSyn !*)
-                   module ModeTable : MODETABLE
+                   (ModeTable : MODETABLE)
                    (*! sharing ModeSyn.IntSyn = MetaSyn'.IntSyn !*)
-                   module Lemma : LEMMA
+                   (Lemma : LEMMA)
                    sharing Lemma.MetaSyn = MetaSyn'
-                   module Filling : FILLING
+                   (Filling : FILLING)
                    sharing Filling.MetaSyn = MetaSyn'
-                   module MetaPrint : METAPRINT
+                   (MetaPrint : METAPRINT)
                    sharing MetaPrint.MetaSyn = MetaSyn'
-                   module MetaAbstract : METAABSTRACT
+                   (MetaAbstract : METAABSTRACT)
                    sharing MetaAbstract.MetaSyn = MetaSyn'
-                   module Formatter : FORMATTER): RECURSION =
-                   (*! module CSManager : CS_MANAGER !*)
+                   (Formatter : FORMATTER): RECURSION =
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = MetaSyn'.IntSyn !*)
 struct
 

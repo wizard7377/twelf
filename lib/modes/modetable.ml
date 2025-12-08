@@ -4,10 +4,10 @@
 
 module ModeTable
   ((*! module IntSyn' : INTSYN !*)
-   (* module Names : NAMES *)
+   (* (Names : NAMES) *)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   module Table : TABLE where type key = int): MODETABLE =
-   (* module Index : INDEX *)
+   (Table : TABLE with type key = int): MODETABLE =)
+   (* (Index : INDEX) *)
    (*! sharing Index.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

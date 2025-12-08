@@ -3,13 +3,13 @@
 (* Modified: Brigitte Pientka *)
 
 module ParseThm
-  ((*! module Paths : PATHS *)
+  ((*! (Paths : PATHS) *)
    (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
    module ThmExtSyn' : THMEXTSYN
    (*! sharing ThmExtSyn'.Paths = Paths !*)
    (*! sharing ThmExtSyn'.ExtSyn.Paths = Paths !*)
-   module ParseTerm : PARSE_TERM
+   (ParseTerm : PARSE_TERM)
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ThmExtSyn'.ExtSyn)
      : PARSE_THM =

@@ -29,7 +29,7 @@ sig
 
 
   (* mixed-prefix context *)
-  type qctx = Quantifier IntSyn.Ctx
+  type qctx = Quantifier IntSyn.ctx
 
   val shiftRCtx : rctx -> (IntSyn.Sub -> IntSyn.Sub) -> rctx
 

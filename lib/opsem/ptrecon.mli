@@ -14,6 +14,6 @@ sig
 
   exception Error of string
   val solve     : CompSyn.pskeleton * (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
-                  * (CompSyn.pskeleton * IntSyn.Exp -> unit) -> unit 
+                  * (CompSyn.pskeleton * IntSyn.exp -> unit) -> unit 
 
 end;; (* module type PTRECON *)

@@ -2,12 +2,12 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-module Names (module Global : GLOBAL
+module Names (Global : GLOBAL)
                (*! module IntSyn' : INTSYN !*)
-               module Constraints : CONSTRAINTS
+               (Constraints : CONSTRAINTS)
                (*! sharing Constraints.IntSyn = IntSyn' !*)
-               module HashTable : TABLE where type key = string
-               module StringTree : TABLE where type key = string)
+               (HashTable : TABLE with type key = string)
+               (StringTree : TABLE with type key = string))
   : NAMES =
 struct
 
@@ -27,7 +27,7 @@ struct
   (* Operator Precedence *)
   (***********************)
 
-  module Fixity : FIXITY =
+  (Fixity : FIXIT)Y =
   struct
     (* Associativity ascribed to infix operators
        assoc ::= left    e.g. `<-'
@@ -607,7 +607,7 @@ struct
      EVars and FVars are local.
   *)
   local
-    type varEntry = EVAR of IntSyn.Exp (* X *)
+    type varEntry = EVAR of IntSyn.exp (* X *)
       (* remove this type? -kw *)
 
     (* varTable mapping identifiers (strings) to EVars and FVars *)
@@ -626,7 +626,7 @@ struct
     (* the mapping must be implemented as an association list *)
     (* since EVars are identified by reference *)
     (* an alternative becomes possible if time stamps are introduced *)
-    let evarList : (IntSyn.Exp * string) list ref = ref nil
+    let evarList : (IntSyn.exp * string) list ref = ref nil
 
     fun evarReset () = (evarList := nil)
     fun evarLookup (X) =

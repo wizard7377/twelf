@@ -67,7 +67,7 @@ end;
 
 (* execute for effect *)
 (* wrapped in module so it can be tracked by CM *)
-module CSInstaller : CS_INSTALLER =
+(CSInstaller : CS_INSTALLE)R =
 struct
   let solvers = [CSEqQ.solver, CSIneqQ.solver,
 		 CSEqStrings.solver,

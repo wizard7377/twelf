@@ -2,10 +2,10 @@
 (* Author: Carsten Schuermann *)
 
 module FunPrint ((*! module FunSyn' : FUNSYN !*)
-                  module Formatter : FORMATTER
-                  module Names : NAMES
+                  (Formatter : FORMATTER)
+                  (Names : NAMES)
                   (*! sharing Names.IntSyn = FunSyn'.IntSyn !*)
-                  module Print : PRINT
+                  (Print : PRINT)
                     sharing Print.Formatter = Formatter): FUNPRINT =
                     (*! sharing Print.IntSyn = FunSyn'.IntSyn !*)
 struct

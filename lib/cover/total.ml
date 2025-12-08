@@ -3,38 +3,38 @@
 
 module Total
   (Global : GLOBAL)
-   (module Table : TABLE where type key = int
+   (Table : TABLE with type key = int)
 
    (*! module IntSyn' : INTSYN !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
 
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
 
-   module ModeTable : MODETABLE
+   (ModeTable : MODETABLE)
    (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   module ModeCheck : MODECHECK
+   (ModeCheck : MODECHECK)
 
-   module Index : INDEX
+   (Index : INDEX)
    (*! sharing Index.IntSyn = IntSyn' !*)
 
-   module Subordinate : SUBORDINATE
+   (Subordinate : SUBORDINATE)
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
 
-   module Order : ORDER
+   (Order : ORDER)
    (*! sharing Order.IntSyn = IntSyn' !*)
-   module Reduces : REDUCES
+   (Reduces : REDUCES)
    (*! sharing Reduces.IntSyn = IntSyn' !*)
 
-   module Cover : COVER
+   (Cover : COVER)
 
-     (*! module Paths : PATHS !*)
-   module Origins : ORIGINS
+     (*! (Paths : PATHS) !*)
+   (Origins : ORIGINS)
    (*! sharing Origins.Paths = Paths !*)
      (*! sharing Origins.IntSyn = IntSyn' !*)
 
-   module Timers : TIMERS)
+   (Timers : TIMERS)
    : TOTAL =
 struct
   (*! module IntSyn = IntSyn' !*)

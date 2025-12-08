@@ -9,16 +9,16 @@ module MemoTable ((*! module IntSyn' : INTSYN !*)
                    (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                    module Conv: CONV
                    (*! sharing Conv.IntSyn = IntSyn' !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   (*! module RBSet : RBSET !*)
-                   (*! module TableParam : TABLEPARAM !*)
+                   (*! (RBSet : RBSET) !*)
+                   (*! (TableParam : TABLEPARAM) !*)
                    (*! sharing TableParam.IntSyn = IntSyn' !*)
                    (*! sharing TableParam.CompSyn = CompSyn' !*)
                    (*! sharing TableParam.RBSet = RBSet !*)
-                   module AbstractTabled : ABSTRACTTABLED
+                   (AbstractTabled : ABSTRACTTABLED)
                    (*! sharing AbstractTabled.IntSyn = IntSyn' !*)
-                   module Print : PRINT
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = IntSyn'!*))
   : MEMOTABLE =
   struct
@@ -34,9 +34,9 @@ module MemoTable ((*! module IntSyn' : INTSYN !*)
     (* normalSubsts: key = int = nvar *)
     (* property: linear *)
 
-    type normalSubsts  = IntSyn.Exp RBSet.ordSet
+    type normalSubsts  = IntSyn.exp RBSet.ordSet
 
-    type exSubsts  = IntSyn.Exp RBSet.ordSet
+    type exSubsts  = IntSyn.exp RBSet.ordSet
 
     let nid : unit -> normalSubsts = RBSet.new
 
@@ -92,7 +92,7 @@ module MemoTable ((*! module IntSyn' : INTSYN !*)
         let s' = ctxToEVarSub (G, s)
         let X = IntSyn.newEVar (IntSyn.Null, IntSyn.EClo(A,s'))
       in
-        IntSyn.Dot(IntSyn.Exp(X), s')
+        IntSyn.Dot(IntSyn.exp(X), s')
       end
 
     (* ---------------------------------------------------------------------- *)
@@ -115,7 +115,7 @@ module MemoTable ((*! module IntSyn' : INTSYN !*)
     fun noChildren C = (C=[])
 
     type Retrieval =
-      Variant of IntSyn.Exp
+      Variant of IntSyn.exp
       | NotCompatible
 
     type CompSub =

@@ -2,21 +2,21 @@
 (* Author: Carsten Schuermann *)
 
 module MTPInit (MTPGlobal : MTPGLOBAL)
-   (module MTPData : MTPDATA
-                 (*! module IntSyn : INTSYN !*)
-                 module Names : NAMES
+   (MTPData : MTPDATA)
+                 (*! (IntSyn : INTSYN) !*)
+                 (Names : NAMES)
                  (*! sharing Names.IntSyn = IntSyn !*)
                  (*! module FunSyn' : FUNSYN !*)
                  (*! sharing FunSyn'.IntSyn = IntSyn !*)
                  module StateSyn' : STATESYN
                  (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                 module Formatter : FORMATTER
-                 module Whnf : WHNF
+                 (Formatter : FORMATTER)
+                 (Whnf : WHNF)
                  (*! sharing Whnf.IntSyn = IntSyn !*)
-                 module Print : PRINT
+                 (Print : PRINT)
                    sharing Print.Formatter = Formatter
                    (*! sharing Print.IntSyn = IntSyn !*)
-                 module FunPrint : FUNPRINT
+                 (FunPrint : FUNPRINT)
                  (*! sharing FunPrint.FunSyn = FunSyn' !*)
                    sharing FunPrint.Formatter = Formatter)
   : MTPINIT =

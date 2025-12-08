@@ -5,7 +5,7 @@ module type WEAKEN =
 sig
   (*! module IntSyn : INTSYN !*)
 
-  val strengthenExp : (IntSyn.Exp * IntSyn.Sub) -> IntSyn.Exp
+  val strengthenExp : (IntSyn.exp * IntSyn.Sub) -> IntSyn.exp
   val strengthenSpine: (IntSyn.Spine * IntSyn.Sub) -> IntSyn.Spine
   val strengthenCtx : (IntSyn.dctx * IntSyn.Sub) -> (IntSyn.dctx * IntSyn.Sub)
   val strengthenDec : (IntSyn.Dec * IntSyn.Sub) -> IntSyn.Dec

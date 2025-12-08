@@ -1,7 +1,7 @@
 (* String Hash Table *)
 (* Author: Frank Pfenning *)
 
-module StringHash : STRING_HASH =
+(StringHash : STRING_HAS)H =
 struct
   fun stringHash (s) =
       (* sample 4 characters from string *)

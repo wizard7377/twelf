@@ -5,27 +5,27 @@
 module AbsMachineSbt ((*! module IntSyn' : INTSYN !*)
                        (*! module CompSyn' : COMPSYN !*)
                        (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                       module Unify : UNIFY
+                       (Unify : UNIFY)
                        (*! sharing Unify.IntSyn = IntSyn' !*)
-                       module SubTree : SUBTREE
+                       (SubTree : SUBTREE)
                        (*! sharing SubTree.IntSyn = IntSyn' !*)
                        (*! sharing SubTree.CompSyn = CompSyn' !*)
-                       module Assign : ASSIGN
+                       (Assign : ASSIGN)
                        (*! sharing Assign.IntSyn = IntSyn' !*)
 
-                       module Index : INDEX
+                       (Index : INDEX)
                        (*! sharing Index.IntSyn = IntSyn' !*)
                        (* CPrint currently unused *)
-                       module CPrint : CPRINT
+                       (CPrint : CPRINT)
                        (*! sharing CPrint.IntSyn = IntSyn' !*)
                        (*! sharing CPrint.CompSyn = CompSyn' !*)
 
-                       module Print : PRINT
+                       (Print : PRINT)
                        (*! sharing Print.IntSyn = IntSyn' !*)
 
-                       module Names : NAMES
+                       (Names : NAMES)
                        (*! sharing Names.IntSyn = IntSyn' !*)
-                       (*! module CSManager : CS_MANAGER !*)
+                       (*! (CSManager : CS_MANAGER) !*)
                        (*! sharing CSManager.IntSyn = IntSyn'!*))
   : ABSMACHINESBT =
 struct
@@ -37,7 +37,7 @@ struct
     module I = IntSyn
     module C = CompSyn
 
-    let mSig : ((IntSyn.Exp * IntSyn.Sub) * CompSyn.DProg * (CompSyn.Flatterm list -> unit) -> unit) ref = ref (fn (ps, dp, sc) => ())
+    let mSig : ((IntSyn.exp * IntSyn.Sub) * CompSyn.DProg * (CompSyn.Flatterm list -> unit) -> unit) ref = ref (fn (ps, dp, sc) => ())
 
   (* We write
        G |- M : g
@@ -80,11 +80,11 @@ struct
 
   fun printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
     | printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(_), s)) = (print ("Exp (_ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
+    | printSub (IntSyn.Dot (IntSyn.exp(_), s)) = (print ("Exp (_ ). "); printSub s)
     | printSub (IntSyn.Dot (IntSyn.Undef, s)) = (print ("Undef . "); printSub s)
 
   (* ctxToEVarSub D = s*)

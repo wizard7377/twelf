@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 
 module FunWeaken ((*! module FunSyn' : FUNSYN !*)
-                   module Weaken : WEAKEN): FUNWEAKEN =
+                   (Weaken : WEAKEN): FUNWEAKEN =
                    (*! sharing Weaken.IntSyn = FunSyn'.IntSyn !*)
 struct
   (*! module FunSyn = FunSyn' !*)

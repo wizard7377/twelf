@@ -61,19 +61,19 @@ sig
 
   val jnothing : job
   val jand : job * job -> job
-  val jwithctx : dec IntSyn.Ctx * job -> job
+  val jwithctx : dec IntSyn.ctx * job -> job
   val jterm : term -> job
   val jclass : term -> job
   val jof : term * term -> job
-  val jof' : term * IntSyn.Exp -> job
+  val jof' : term * IntSyn.exp -> job
 
   type job =
       JNothing
     | JAnd of Job * Job
-    | JWithCtx of IntSyn.Dec IntSyn.Ctx * Job
-    | JTerm of (IntSyn.Exp * Paths.occExp) * IntSyn.Exp * IntSyn.Uni
-    | JClass of (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
-    | JOf of (IntSyn.Exp * Paths.occExp) * (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
+    | JWithCtx of IntSyn.Dec IntSyn.ctx * Job
+    | JTerm of (IntSyn.exp * Paths.occExp) * IntSyn.exp * IntSyn.Uni
+    | JClass of (IntSyn.exp * Paths.occExp) * IntSyn.Uni
+    | JOf of (IntSyn.exp * Paths.occExp) * (IntSyn.exp * Paths.occExp) * IntSyn.Uni
 
   val recon : job -> Job
   val reconQuery : job -> Job
@@ -82,7 +82,7 @@ sig
 
   val termRegion : term -> Paths.region
   val decRegion : dec -> Paths.region
-  val ctxRegion : dec IntSyn.Ctx -> Paths.region option
+  val ctxRegion : dec IntSyn.ctx -> Paths.region option
                   
   (* unimplemented for the moment *)
   val internalInst : 'a -> 'b

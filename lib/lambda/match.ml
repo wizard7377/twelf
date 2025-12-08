@@ -6,7 +6,7 @@
 module Match ((*! module IntSyn' : INTSYN !*)
                module Whnf    : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
-               module Unify : UNIFY
+               (Unify : UNIFY)
                module Trail   : TRAIL)
   : MATCH =
 struct

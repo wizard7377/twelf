@@ -13,7 +13,7 @@ module Conv =
   Conv ((*! module IntSyn' = IntSyn !*)
 	module Whnf = Whnf);
 
-module Tomega : TOMEGA =
+(Tomega : TOMEG)A =
    Tomega (module IntSyn' = IntSyn
 	   module Whnf = Whnf
 	   module Conv = Conv)
@@ -33,7 +33,7 @@ module UnifyTrail =
 	 module Whnf = Whnf
 	 module Trail = Trail);
 
-(* module Normalize : NORMALIZE =  
+(* (Normalize : NORMALIZ)E =  
   Normalize ((*! module IntSyn' = IntSyn !*)
              (*! module Tomega' = Tomega !*)
              module Whnf = Whnf)

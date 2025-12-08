@@ -11,11 +11,11 @@ sig
   exception Error of string
 
 
-  val abstractEVarCtx : (CompSyn.DProg * IntSyn.Exp * IntSyn.Sub) ->  
-                        (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.Exp * TableParam.ResEqn * IntSyn.Sub)
+  val abstractEVarCtx : (CompSyn.DProg * IntSyn.exp * IntSyn.Sub) ->  
+                        (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.exp * TableParam.ResEqn * IntSyn.Sub)
 
   val abstractAnswSub :  IntSyn.Sub -> IntSyn.dctx * IntSyn.Sub  
 
-  val raiseType : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp   
+  val raiseType : IntSyn.dctx * IntSyn.exp -> IntSyn.exp   
 
 end;; (* module type ABSTRACTTABLED *)

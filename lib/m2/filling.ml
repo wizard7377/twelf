@@ -2,13 +2,13 @@
 (* Author: Carsten Schuermann *)
 
 module Filling (module MetaSyn' : METASYN)
-   (module MetaAbstract : METAABSTRACT
+   (MetaAbstract : METAABSTRACT)
                  sharing MetaAbstract.MetaSyn = MetaSyn'
                  module Search   : OLDSEARCH
                  sharing Search.MetaSyn = MetaSyn'
-                 module Whnf : WHNF
+                 (Whnf : WHNF)
                  (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                 module Print : PRINT): FILLING =
+                 (Print : PRINT): FILLING =
                  (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
 struct
   module MetaSyn = MetaSyn'

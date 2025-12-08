@@ -11,25 +11,25 @@ module Parser ((*! module Parsing' : PARSING !*)
                 module ExtModes' : EXTMODES
                 module ThmExtSyn' : THMEXTSYN
                 module ModExtSyn' : MODEXTSYN
-                module ParseConDec : PARSE_CONDEC
+                (ParseConDec : PARSE_CONDEC)
                 (*! sharing ParseConDec.Lexer = Parsing'.Lexer !*)
                   sharing ParseConDec.ExtConDec = ExtConDec'
-                module ParseQuery : PARSE_QUERY
+                (ParseQuery : PARSE_QUERY)
                 (*! sharing ParseQuery.Lexer = Parsing'.Lexer !*)
                   sharing ParseQuery.ExtQuery = ExtQuery'
-                module ParseFixity : PARSE_FIXITY
+                (ParseFixity : PARSE_FIXITY)
                 (*! sharing ParseFixity.Lexer = Parsing'.Lexer !*)
                   sharing ParseFixity.Names = Names'
-                module ParseMode : PARSE_MODE
+                (ParseMode : PARSE_MODE)
                 (*! sharing ParseMode.Lexer = Parsing'.Lexer !*)
                   sharing ParseMode.ExtModes = ExtModes'
-                module ParseThm : PARSE_THM
+                (ParseThm : PARSE_THM)
                 (*! sharing ParseThm.Lexer = Parsing'.Lexer !*)
                   sharing ParseThm.ThmExtSyn = ThmExtSyn'
-                module ParseModule : PARSE_MODULE
+                (ParseModule : PARSE_MODULE)
                 (*! sharing ParseModule.Parsing = Parsing' !*)
                   sharing ParseModule.ModExtSyn = ModExtSyn'
-                module ParseTerm : PARSE_TERM
+                (ParseTerm : PARSE_TERM)
                 (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
                   sharing ParseTerm.ExtSyn = ExtSyn')
   : PARSER =

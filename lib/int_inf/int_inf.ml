@@ -25,14 +25,14 @@
  *
  *)
 
-module IntInf : INT_INF =
+(IntInf : INT_IN)F =
   struct
 
   (* It is not clear what advantage there is to having NumFormat as
    * a submodule.
    *)
 
-    module NumScan : sig
+    (NumScan : sig)
 
         let skipWS : (char, 'a) StringCvt.reader -> 'a -> 'a
 
@@ -257,7 +257,7 @@ module IntInf : INT_INF =
     
       end (* module NumScan *)
 
-    module NumFormat : sig
+    (NumFormat : sig)
 
         let fmtWord : StringCvt.radix -> Word32.word -> string
         let fmtInt : StringCvt.radix -> int -> string	(** should be int32 **)

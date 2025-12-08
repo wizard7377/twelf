@@ -671,5 +671,5 @@ struct
 
 end;; (* functor IntSyn *)
 
-module IntSyn : INTSYN =
+(IntSyn : INTSY)N =
   IntSyn (module Global = Global);

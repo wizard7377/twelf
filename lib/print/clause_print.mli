@@ -7,10 +7,10 @@ sig
   (*! module IntSyn : INTSYN !*)
   module Formatter : FORMATTER
 
-  val formatClause : IntSyn.dctx * IntSyn.Exp -> Formatter.format
+  val formatClause : IntSyn.dctx * IntSyn.exp -> Formatter.format
   val formatConDec : IntSyn.ConDec -> Formatter.format
 
-  val clauseToString : IntSyn.dctx * IntSyn.Exp -> string
+  val clauseToString : IntSyn.dctx * IntSyn.exp -> string
   val conDecToString : IntSyn.ConDec -> string
 
   val printSgn : unit -> unit

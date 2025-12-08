@@ -9,7 +9,7 @@ sig
 
   exception Error of string
 
-  val searchEx : int * IntSyn.Exp list
-(*      * (StateSyn.FunSyn.IntSyn.Exp * StateSyn.FunSyn.IntSyn.Sub) *)
+  val searchEx : int * IntSyn.exp list
+(*      * (StateSyn.FunSyn.IntSyn.exp * StateSyn.FunSyn.IntSyn.Sub) *)
       * (int -> unit) -> unit
 end;; (* module type SEARCH *)

@@ -10,7 +10,7 @@ sig
   let size : 'a sgn -> int
 end
 
-module ListSignat : SIGNAT where type key = int =
+(ListSignat : SIGNAT with type key = int =)
 struct 
 
   module L = Lib
@@ -35,7 +35,7 @@ struct
 
 end
 
-module GrowarraySignat : SIGNAT where type key = int =
+(GrowarraySignat : SIGNAT with type key = int =)
 struct
   
   module L = Lib

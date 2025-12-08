@@ -21,5 +21,5 @@ sig
   (* instance solves statically residuated equations *)
   val instance : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> bool 
     
-  val firstConstArg : IntSyn.Exp * IntSyn.Sub -> IntSyn.cid option
+  val firstConstArg : IntSyn.exp * IntSyn.Sub -> IntSyn.cid option
 end;; (* module type ASSIGN *)

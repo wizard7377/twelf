@@ -12,7 +12,7 @@ struct
 
   fun sgnReset () = Sgn.clear ()
 
-(* xlate_type : IntSyn.Exp -> Syntax.tp *)
+(* xlate_type : IntSyn.exp -> Syntax.tp *)
   fun xlate_type (I.Pi ((I.Dec(_, e1), _), e2)) = S.TPi(S.MINUS, xlate_type e1, xlate_type e2)
     | xlate_type (I.Root (I.Const cid, sp)) = S.TRoot(cid, xlate_spine sp)
     | xlate_type (I.Root (I.Def cid, sp)) = S.TRoot(cid, xlate_spine sp) (* assuming cids of consts and defs to be disjoint *)
@@ -27,7 +27,7 @@ struct
     | xlate_term (I.Root (I.NSDef cid, sp)) = S.ATerm(S.ARoot(S.Const cid, xlate_spine sp)) (* ditto *)
     | xlate_term (I.Root (I.BVar vid, sp)) = S.ATerm(S.ARoot(S.Var (vid - 1), xlate_spine sp))
     | xlate_term (I.Lam (_, e)) = S.NTerm(S.Lam (xlate_term e))
-(* xlate_kind : IntSyn.Exp -> Syntax.knd *)
+(* xlate_kind : IntSyn.exp -> Syntax.knd *)
   fun xlate_kind (I.Pi ((I.Dec(_, e1), _), e2)) = S.KPi(S.MINUS, xlate_type e1, xlate_kind e2)
     | xlate_kind (I.Uni(I.Type)) = S.Type
 

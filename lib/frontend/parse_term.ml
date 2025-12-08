@@ -5,7 +5,7 @@ module ParseTerm
   ((*! module Parsing' : PARSING !*)
    module ExtSyn' : EXTSYN
    (*! sharing Parsing'.Lexer.Paths = ExtSyn'.Paths !*)
-   module Names : NAMES)
+   (Names : NAMES)
   : PARSE_TERM =
 struct
 

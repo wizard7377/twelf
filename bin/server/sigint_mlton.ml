@@ -1,4 +1,4 @@
-module SigINT : SIGINT =
+(SigINT : SIGIN)T =
 struct
 
   fun interruptLoop (loop:unit -> unit) =

@@ -5,13 +5,13 @@ module TomegaPrint
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-(*   module Normalize : NORMALIZE *)
+(*   (Normalize : NORMALIZE) *)
    (*! sharing Normalize.IntSyn = IntSyn' !*)
    (*! sharing Normalize.Tomega = Tomega' !*)
-   module Formatter : FORMATTER
-   module Names : NAMES
+   (Formatter : FORMATTER)
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   module Print : PRINT
+   (Print : PRINT)
      sharing Print.Formatter = Formatter): TOMEGAPRINT =
      (*! sharing Print.IntSyn = IntSyn' !*)
 

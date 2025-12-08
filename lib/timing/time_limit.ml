@@ -4,7 +4,7 @@
  * Modified: Brigitte Pientka
  *)
 
-module TimeLimit : sig
+(TimeLimit : sig)
     exception TimeOut
     let timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
   end = struct

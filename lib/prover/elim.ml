@@ -3,21 +3,21 @@
 (* Date: Thu Mar 16 13:39:26 2006 *)
 
 module Elim
-  (module Data : DATA
+  (Data : DATA)
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
    module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
    (*! sharing Abstract.Tomega = Tomega' !*)
-   module TypeCheck : TYPECHECK
+   (TypeCheck : TYPECHECK)
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Unify : UNIFY): ELIM =
+   (Unify : UNIFY): ELIM =
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
 struct

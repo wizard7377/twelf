@@ -1,46 +1,46 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-module MTPi (module MTPGlobal : MTPGLOBAL
-              (*! module IntSyn : INTSYN !*)
+module MTPi (MTPGlobal : MTPGLOBAL)
+              (*! (IntSyn : INTSYN) !*)
               (*! module FunSyn' : FUNSYN !*)
               (*! sharing FunSyn'.IntSyn = IntSyn !*)
               module StateSyn' : STATESYN
               (*! sharing StateSyn'.IntSyn = IntSyn !*)
               (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-              module RelFun : RELFUN
+              (RelFun : RELFUN)
               (*! sharing RelFun.FunSyn = FunSyn' !*)
-              module Formatter : FORMATTER
-              module Print : PRINT
+              (Formatter : FORMATTER)
+              (Print : PRINT)
               (*! sharing Print.IntSyn = IntSyn !*)
                 sharing Print.Formatter = Formatter
-              module FunTypeCheck : FUNTYPECHECK
+              (FunTypeCheck : FUNTYPECHECK)
               (*! sharing FunTypeCheck.FunSyn = FunSyn' !*)
                 sharing FunTypeCheck.StateSyn = StateSyn'
-              module MTPData : MTPDATA
-              module MTPInit : MTPINIT
+              (MTPData : MTPDATA)
+              (MTPInit : MTPINIT)
               (*! sharing MTPInit.FunSyn = FunSyn' !*)
                 sharing MTPInit.StateSyn = StateSyn'
-              module MTPFilling : MTPFILLING
+              (MTPFilling : MTPFILLING)
               (*! sharing MTPFilling.FunSyn = FunSyn' !*)
                 sharing MTPFilling.StateSyn = StateSyn'
-              module Inference : INFERENCE
+              (Inference : INFERENCE)
               (*! sharing Inference.FunSyn = FunSyn' !*)
                 sharing Inference.StateSyn = StateSyn'
-              module MTPSplitting : MTPSPLITTING
+              (MTPSplitting : MTPSPLITTING)
                 sharing MTPSplitting.StateSyn = StateSyn'
-              module MTPRecursion : MTPRECURSION
+              (MTPRecursion : MTPRECURSION)
                 sharing MTPRecursion.StateSyn = StateSyn'
-              module MTPStrategy : MTPSTRATEGY
+              (MTPStrategy : MTPSTRATEGY)
                 sharing MTPStrategy.StateSyn = StateSyn'
-              module MTPrint : MTPRINT
+              (MTPrint : MTPRINT)
                 sharing MTPrint.StateSyn = StateSyn'
-              module Order : ORDER
+              (Order : ORDER)
               (*! sharing Order.IntSyn = IntSyn !*)
-              module Names : NAMES
+              (Names : NAMES)
               (*! sharing Names.IntSyn = IntSyn !*)
-              module Timers : TIMERS
-              module Ring : RING)
+              (Timers : TIMERS)
+              (Ring : RING)
   : MTPI =
 struct
   exception Error of string

@@ -4,10 +4,10 @@
 module MetaPrint (Global : GLOBAL)
    (module MetaSyn' : METASYN)
    (Formatter : FORMATTER)
-   (module Print : PRINT
+   (Print : PRINT)
                    (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
                      sharing Print.Formatter = Formatter
-                   module ClausePrint : CLAUSEPRINT
+                   (ClausePrint : CLAUSEPRINT)
                    (*! sharing ClausePrint.IntSyn = MetaSyn'.IntSyn !*)
                      sharing ClausePrint.Formatter = Formatter)
 

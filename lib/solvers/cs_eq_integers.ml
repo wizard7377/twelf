@@ -1,13 +1,13 @@
 (* Diophantine Equation Solver *)
 (* Author: Roberto Virga *)
 
-module CSEqIntegers (module Integers : INTEGERS
-                      (*! module IntSyn : INTSYN !*)
-                      module Whnf : WHNF
+module CSEqIntegers (Integers : INTEGERS)
+                      (*! (IntSyn : INTSYN) !*)
+                      (Whnf : WHNF)
                       (*! sharing Whnf.IntSyn = IntSyn !*)
-                      module Unify : UNIFY): CS_EQ_INTEGERS =
+                      (Unify : UNIFY): CS_EQ_INTEGERS =
                       (*! sharing Unify.IntSyn = IntSyn !*)
-                      (*! module CSManager : CS_MANAGER !*)
+                      (*! (CSManager : CS_MANAGER) !*)
                       (*! sharing CSManager.IntSyn = IntSyn !*)
 struct
   (*! module CSManager = CSManager !*)
@@ -21,7 +21,7 @@ struct
     sum of Integers.int * Mon mset       (* sum ::= m + M1 + ...       *)
 
   and Mon =                              (* Monomials:                 *)
-    Mon of Integers.int * (IntSyn.Exp * IntSyn.Sub) mset
+    Mon of Integers.int * (IntSyn.exp * IntSyn.Sub) mset
                                          (* Mon ::= n * U1[s1] * ...   *)
 
 

@@ -2,23 +2,23 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-module RelFun (module Global : GLOBAL
+module RelFun (Global : GLOBAL)
                 (*! module FunSyn' : FUNSYN !*)
-                module ModeTable : MODETABLE
+                (ModeTable : MODETABLE)
                 (*! sharing ModeSyn.IntSyn = FunSyn'.IntSyn !*)
-                module Names : NAMES
+                (Names : NAMES)
                 (*! sharing Names.IntSyn = FunSyn'.IntSyn !*)
-                module Unify : UNIFY
+                (Unify : UNIFY)
                 (*! sharing Unify.IntSyn = FunSyn'.IntSyn !*)
-                module Whnf : WHNF
+                (Whnf : WHNF)
                 (*! sharing Whnf.IntSyn = FunSyn'.IntSyn !*)
-                module Weaken : WEAKEN
+                (Weaken : WEAKEN)
                 (*! sharing Weaken.IntSyn = FunSyn'.IntSyn !*)
-                module TypeCheck : TYPECHECK
+                (TypeCheck : TYPECHECK)
                 (*! sharing TypeCheck.IntSyn = FunSyn'.IntSyn !*)
-                module FunWeaken : FUNWEAKEN
+                (FunWeaken : FUNWEAKEN)
                 (*! sharing FunWeaken.FunSyn = FunSyn' !*)
-                module FunNames : FUNNAMES): RELFUN =
+                (FunNames : FUNNAMES): RELFUN =
                 (*! sharing FunNames.FunSyn = FunSyn' !*)
 struct
   (*! module FunSyn = FunSyn' !*)

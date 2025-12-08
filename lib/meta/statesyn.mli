@@ -7,8 +7,8 @@ sig
   (*! module FunSyn : FUNSYN !*)
 
   type order =	       	        (* Orders                     *)
-    Arg of (IntSyn.Exp * IntSyn.Sub) * 
-           (IntSyn.Exp * IntSyn.Sub)	(* O ::= U[s] : V[s]          *)
+    Arg of (IntSyn.exp * IntSyn.Sub) * 
+           (IntSyn.exp * IntSyn.Sub)	(* O ::= U[s] : V[s]          *)
   | Lex of order list			(*     | (O1 .. On)           *)
   | Simul of order list			(*     | {O1 .. On}           *)
   | All of IntSyn.Dec * order  	(*     | {{D}} O              *)
@@ -28,7 +28,7 @@ sig
   type state =			(* S = <n, (G, B), (IH, OH), d, O, H, F> *)
     State of int			(* Part of theorem                   *)
 	   * (IntSyn.dctx	(* Context of Hypothesis, in general not named *)
-           * Tag IntSyn.Ctx) (* Status information *)
+           * Tag IntSyn.ctx) (* Status information *)
            * (FunSyn.For * Order)	(* Induction hypothesis, order       *)
            * int			(* length of meta context            *)
            * Order			(* Current order *)

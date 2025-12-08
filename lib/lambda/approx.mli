@@ -32,13 +32,13 @@ sig
   val whnf : Exp -> Exp
 
   val uniToApx : IntSyn.Uni -> Uni
-  val classToApx : IntSyn.Exp -> Exp * Uni
-  val exactToApx : IntSyn.Exp * IntSyn.Exp -> Exp * Exp * Uni
+  val classToApx : IntSyn.exp -> Exp * Uni
+  val exactToApx : IntSyn.exp * IntSyn.exp -> Exp * Exp * Uni
 
   exception Ambiguous
   val apxToUni : Uni -> IntSyn.Uni
-  val apxToClass : IntSyn.dctx * Exp * Uni * bool -> IntSyn.Exp
-  val apxToExact : IntSyn.dctx * Exp * IntSyn.eclo * bool -> IntSyn.Exp
+  val apxToClass : IntSyn.dctx * Exp * Uni * bool -> IntSyn.exp
+  val apxToExact : IntSyn.dctx * Exp * IntSyn.eclo * bool -> IntSyn.exp
 
   exception Unify of string
   val matchUni : Uni * Uni -> unit

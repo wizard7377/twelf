@@ -4,23 +4,23 @@
 module MetaAbstract (Global : GLOBAL)
    (module MetaSyn' : METASYN)
    (MetaGlobal : METAGLOBAL)
-   (module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
                       (*! sharing Abstract.IntSyn = MetaSyn'.IntSyn !*)
-                      module ModeTable : MODETABLE
+                      (ModeTable : MODETABLE)
                       (*! sharing ModeSyn.IntSyn = MetaSyn'.IntSyn !*)
-                      module Whnf : WHNF
+                      (Whnf : WHNF)
                       (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                      module Print : PRINT
+                      (Print : PRINT)
                       (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                      module Constraints : CONSTRAINTS
+                      (Constraints : CONSTRAINTS)
                       (*! sharing Constraints.IntSyn = MetaSyn'.IntSyn !*)
-                      module Unify : UNIFY
+                      (Unify : UNIFY)
                       (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
-                      module Names : NAMES
+                      (Names : NAMES)
                       (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-                      module TypeCheck : TYPECHECK
+                      (TypeCheck : TYPECHECK)
                       (*! sharing TypeCheck.IntSyn = MetaSyn'.IntSyn !*)
-                      module Subordinate : SUBORDINATE): METAABSTRACT =
+                      (Subordinate : SUBORDINATE): METAABSTRACT =
                       (*! sharing Subordinate.IntSyn = MetaSyn'.IntSyn  !*)
 struct
   module MetaSyn = MetaSyn'

@@ -52,7 +52,7 @@ struct
 (*	type decl = string * Parse.term *)
 (*	type ctx = decl list *)
 
-	type class = kclass of knd
+	type tClass = kclass of knd
 			| tclass of tp
 
         (* termof elm

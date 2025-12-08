@@ -6,7 +6,7 @@ module ParseQuery
   ((*! module Parsing' : PARSING !*)
    module ExtQuery' : EXTQUERY
    (*! sharing ExtQuery'.Paths = Parsing'.Lexer.Paths !*)
-   module ParseTerm : PARSE_TERM
+   (ParseTerm : PARSE_TERM)
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ExtQuery'.ExtSyn)
   : PARSE_QUERY =

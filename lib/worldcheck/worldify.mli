@@ -10,7 +10,7 @@ sig
   exception Error of string 
 
   val worldify :  IntSyn.cid -> IntSyn.ConDec list
-  val worldifyGoal : IntSyn.Dec IntSyn.Ctx * IntSyn.Exp -> IntSyn.Exp
+  val worldifyGoal : IntSyn.Dec IntSyn.ctx * IntSyn.exp -> IntSyn.exp
 (*  val check : Tomega.Worlds -> IntSyn.cid list -> unit
   val closure : Tomega.Worlds -> Tomega.Worlds *)
 end;; (* module type WORLDIFY *)

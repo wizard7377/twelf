@@ -1,20 +1,20 @@
 (* Filling  Version 1.3*)
 (* Author: Carsten Schuermann *)
 
-module MTPFilling (module MTPGlobal : MTPGLOBAL
-                    (*! module IntSyn : INTSYN !*)
+module MTPFilling (MTPGlobal : MTPGLOBAL)
+                    (*! (IntSyn : INTSYN) !*)
                     (*! module FunSyn' : FUNSYN !*)
                     (*! sharing FunSyn'.IntSyn = IntSyn !*)
                     module StateSyn' : STATESYN
                     (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                    module Abstract : ABSTRACT
+                    (Abstract : ABSTRACT)
                     (*! sharing Abstract.IntSyn = IntSyn !*)
-                    module TypeCheck : TYPECHECK
+                    (TypeCheck : TYPECHECK)
                     (*! sharing TypeCheck.IntSyn = IntSyn !*)
-                    module MTPData : MTPDATA
+                    (MTPData : MTPDATA)
                     module Search   : MTPSEARCH
                       sharing Search.StateSyn = StateSyn'
-                    module Whnf : WHNF): MTPFILLING =
+                    (Whnf : WHNF): MTPFILLING =
                     (*! sharing Whnf.IntSyn = IntSyn !*)
 struct
   (*! module FunSyn = FunSyn' !*)

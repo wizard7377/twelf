@@ -12,8 +12,8 @@ sig
     let abbrev : string * Syntax.tp * Syntax.tp * Syntax.term * Syntax.term -> sigent
     let tyabbrev : string * Syntax.knd * Syntax.knd * Syntax.tp * Syntax.tp -> sigent
     let typeOfSigent : sigent -> Syntax.tp
-    let classifier : int -> Syntax.class
-    let o_classifier : int -> Syntax.class
+    let classifier : int -> Syntax.tClass
+    let o_classifier : int -> Syntax.tClass
     let def : int -> def
     let o_def : int -> def
     let update : int * sigent -> unit
@@ -37,8 +37,8 @@ struct
 
     (* o_ means "original", i.e. before compression *)
     type sigent = {name : string, 
-		   classifier : class,
-		   o_classifier : class,
+		   classifier : tClass,
+		   o_classifier : tClass,
 		   def : def,
 		   o_def : def,
 		   abbreviation : bool}

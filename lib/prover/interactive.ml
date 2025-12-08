@@ -2,42 +2,42 @@
 (* Author: Carsten Schuermann *)
 
 module Interactive
-  (module Global : GLOBAL
+  (Global : GLOBAL)
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
    module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   module Formatter : FORMATTER
-   module Trail : TRAIL
-   module Ring : RING
-   module Names : NAMES
+   (Formatter : FORMATTER)
+   (Trail : TRAIL)
+   (Ring : RING)
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   module Weaken : WEAKEN
+   (Weaken : WEAKEN)
    (*! sharing Weaken.IntSyn = IntSyn' !*)
-   (* module ModeSyn : MODESYN *)
+   (* (ModeSyn : MODESYN) *)
    (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   module WorldSyn : WORLDSYN
+   (WorldSyn : WORLDSYN)
    (*! sharing WorldSyn.IntSyn = IntSyn' !*)
    (*! sharing WorldSyn.Tomega = Tomega' !*)
-   module Introduce : INTRODUCE
+   (Introduce : INTRODUCE)
    (*! sharing Introduce.IntSyn = IntSyn' !*)
    (*! sharing Introduce.Tomega = Tomega' !*)
      sharing Introduce.State = State'
-   module Elim : ELIM
+   (Elim : ELIM)
    (*! sharing Elim.IntSyn = IntSyn' !*)
    (*! sharing Elim.Tomega = Tomega' !*)
      sharing Elim.State = State'
-   module Split : SPLIT
+   (Split : SPLIT)
    (*! sharing Split.IntSyn = IntSyn' !*)
    (*! sharing Split.Tomega = Tomega' !*)
      sharing Split.State = State'
-   module FixedPoint : FIXEDPOINT
+   (FixedPoint : FIXEDPOINT)
    (*! sharing FixedPoint.IntSyn = IntSyn' !*)
    (*! sharing FixedPoint.Tomega = Tomega' !*)
      sharing FixedPoint.State = State'
-   module Fill : FILL
+   (Fill : FILL)
    (*! sharing Fill.IntSyn = IntSyn' !*)
    (*! sharing Fill.Tomega = Tomega' !*)
      sharing Fill.State = State')

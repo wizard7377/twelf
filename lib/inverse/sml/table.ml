@@ -1,5 +1,5 @@
 
-(* module GrowarrayTable : TABLE where type key = int = *)
+(* (GrowarrayTable : TABLE with type key = int = *))
 (* struct *)
   
 (*   module L = Lib *)
@@ -24,7 +24,7 @@
 
 (* end *)
 
-module ArrayTable : TABLE where type key = int =
+(ArrayTable : TABLE with type key = int =)
 struct
   
   module L = Lib

@@ -99,9 +99,9 @@ sig
 
   (* EVar and BVar name choices *)
   val varReset : IntSyn.dctx -> unit (* context in which EVars are created *)
-  val addEVar : IntSyn.Exp * string -> unit (* assumes name not already used *)
-  val getEVarOpt : string -> IntSyn.Exp option (* NONE, if undefined or not EVar *)
-  val evarName : IntSyn.dctx * IntSyn.Exp -> string (* create, if undefined *)
+  val addEVar : IntSyn.exp * string -> unit (* assumes name not already used *)
+  val getEVarOpt : string -> IntSyn.exp option (* NONE, if undefined or not EVar *)
+  val evarName : IntSyn.dctx * IntSyn.exp -> string (* create, if undefined *)
   val bvarName : IntSyn.dctx * int -> string (* raises Unprintable if undefined *)
 
   val decName  : IntSyn.dctx * IntSyn.Dec -> IntSyn.Dec (* status unknown, like decEName *)
@@ -118,7 +118,7 @@ sig
   val skonstName : string -> string
 
   (* Named EVars, used for queries *)
-  val namedEVars : unit -> (IntSyn.Exp * string) list
+  val namedEVars : unit -> (IntSyn.exp * string) list
   (* Uninstantiated named EVars with constraints *)
-  val evarCnstr : unit -> (IntSyn.Exp * string) list
+  val evarCnstr : unit -> (IntSyn.exp * string) list
 end;; (* module type NAMES *)

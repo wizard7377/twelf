@@ -2,31 +2,31 @@
 (* Author: Brigitte Pientka *)
 (* for reasoning about orders see [Pientka IJCAR'01] *)
 
-module Checking  (module Global : GLOBAL
+module Checking  (Global : GLOBAL)
                    (*! module IntSyn' : INTSYN !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   module Conv : CONV
+                   (Conv : CONV)
                    (*! sharing Conv.IntSyn = IntSyn' !*)
-                   module Unify : UNIFY
+                   (Unify : UNIFY)
                    (*! sharing Unify.IntSyn = IntSyn' !*)
-                   module Names : NAMES
+                   (Names : NAMES)
                    (*! sharing Names.IntSyn = IntSyn' !*)
-                   module Index : INDEX
+                   (Index : INDEX)
                    (*! sharing Index.IntSyn = IntSyn' !*)
-                   module Subordinate : SUBORDINATE
+                   (Subordinate : SUBORDINATE)
                    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                   module Formatter : FORMATTER
-                   module Print : PRINT
+                   (Formatter : FORMATTER)
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = IntSyn' !*)
                      sharing Print.Formatter = Formatter
-                   module Order : ORDER
+                   (Order : ORDER)
                    (*! sharing Order.IntSyn = IntSyn' !*)
                    (*! module Paths  : PATHS !*)
-                   module Origins : ORIGINS): CHECKING =
+                   (Origins : ORIGINS): CHECKING =
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn' !*)
-                   (*! module CSManager : CS_MANAGER !*)
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)
@@ -54,7 +54,7 @@ struct
     type rctx = order Predicate list
 
     (* mixed prefix order contex *)
-    type qctx = Quantifier IntSyn.Ctx
+    type qctx = Quantifier IntSyn.ctx
 
   local
     module I = IntSyn

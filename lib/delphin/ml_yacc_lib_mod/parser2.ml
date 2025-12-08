@@ -123,12 +123,12 @@ module ParserGen(LrTable : LR_TABLE)
    (Streamm : STREAMM) : LR_PARSER =
 *)
 
-module LrParser : LR_PARSER =
+(LrParser : LR_PARSE)R =
    struct
       module LrTable = LrTable
       module Streamm = Streamm
 
-      module Token : TOKEN =
+      (Token : TOKE)N =
 	struct
 	    module LrTable = LrTable
 	    type ('a,'b) token = TOKEN of LrTable.term * ('a * 'b * 'b)
@@ -143,7 +143,7 @@ module LrParser : LR_PARSER =
       exception ParseError
       exception ParseImpossible of int
 
-      module Fifo : FIFO =
+      (Fifo : FIF)O =
         struct
 	  type 'a queue = ('a list * 'a list)
 	  let empty = (nil,nil)

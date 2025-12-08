@@ -1,9 +1,9 @@
 (* Names of Constants and Variables *)
 (* Author: Carsten Schuermann *)
 
-module FunNames (module Global : GLOBAL
+module FunNames (Global : GLOBAL)
                   (*! module FunSyn' : FUNSYN !*)
-                  module HashTable : TABLE where type key = string)
+                  (HashTable : TABLE with type key = string))
   : FUNNAMES =
 struct
 

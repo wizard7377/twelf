@@ -5,25 +5,25 @@
 module TMachine ((*! module IntSyn' : INTSYN !*)
                   (*! module CompSyn' : COMPSYN !*)
                   (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                  module Unify : UNIFY
+                  (Unify : UNIFY)
                   (*! sharing Unify.IntSyn = IntSyn' !*)
 
-                  module Assign : ASSIGN
+                  (Assign : ASSIGN)
                   (*! sharing Assign.IntSyn = IntSyn' !*)
 
-                  module Index : INDEX
+                  (Index : INDEX)
                   (*! sharing Index.IntSyn = IntSyn' !*)
 
-                  module CPrint : CPRINT
+                  (CPrint : CPRINT)
                   (*! sharing CPrint.IntSyn = IntSyn' !*)
                   (*! sharing CPrint.CompSyn = CompSyn' !*)
 
-                  module Names : NAMES
+                  (Names : NAMES)
                   (*! sharing Names.IntSyn = IntSyn' !*)
-                  (*! module CSManager : CS_MANAGER !*)
+                  (*! (CSManager : CS_MANAGER) !*)
                   (*! sharing CSManager.IntSyn = IntSyn' !*)
 
-                  module Trace : TRACE): ABSMACHINE =
+                  (Trace : TRACE): ABSMACHINE =
                   (*! sharing Trace.IntSyn = IntSyn' !*)
 struct
 

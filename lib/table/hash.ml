@@ -66,7 +66,7 @@ sig
   let stringHash : string -> int
 end;
 
-module StringHash : STRING_HASH =
+(StringHash : STRING_HAS)H =
 struct
   fun stringHash (s) =
       (* sample 4 characters from string *)

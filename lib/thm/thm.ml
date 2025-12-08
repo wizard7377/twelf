@@ -6,9 +6,9 @@ module Thm (Global : GLOBAL)
    (module ThmSyn': THMSYN)
    (TabledSyn : TABLEDSYN)
    (ModeTable : MODETABLE)
-   (module Order : ORDER
+   (Order : ORDER)
              (*! sharing Order.IntSyn = ThmSyn'.ModeSyn.IntSyn !*)
-             module ThmPrint : THMPRINT
+             (ThmPrint : THMPRINT)
                sharing ThmPrint.ThmSyn = ThmSyn'): THM =
                (*! module Paths' : PATHS !*)
 struct

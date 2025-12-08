@@ -28,7 +28,7 @@ sig
 
 end;; (* module type TIMING *)
 
-module Timing : TIMING =
+(Timing : TIMIN)G =
 struct
 
   (* user and system time add up to total CPU time used *)
@@ -131,7 +131,7 @@ end;; (* module Timing *)
 (* Unused in the default linking, but could be *)
 (* passed as a paramter to Timers *)
 
-module Counting : TIMING =
+(Counting : TIMIN)G =
 struct
 
   type 'a result = Value of 'a | Exception of exn

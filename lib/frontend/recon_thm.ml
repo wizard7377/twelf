@@ -2,12 +2,12 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-module ReconThm (module Global : GLOBAL
-                  (* module IntSyn : INTSYN *)
-                  module Abstract : ABSTRACT
+module ReconThm (Global : GLOBAL)
+                  (* (IntSyn : INTSYN) *)
+                  (Abstract : ABSTRACT)
                   (*! sharing Abstract.IntSyn = IntSyn !*)
-                  module Constraints : CONSTRAINTS
-                  module Names : NAMES
+                  (Constraints : CONSTRAINTS)
+                  (Names : NAMES)
                   (*! sharing Names.IntSyn = IntSyn !*)
                   (*! module Paths' : PATHS !*)
                   module ThmSyn': THMSYN
@@ -15,7 +15,7 @@ module ReconThm (module Global : GLOBAL
                   module ReconTerm': RECON_TERM
                   (*! sharing ReconTerm'.IntSyn = IntSyn !*)
                   (*! sharing ReconTerm'.Paths = Paths'  !*)
-                  module Print : PRINT): RECON_THM =
+                  (Print : PRINT): RECON_THM =
                   (*! sharing Print.IntSyn = IntSyn !*)
 struct
   module ThmSyn = ThmSyn'

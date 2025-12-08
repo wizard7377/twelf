@@ -6,122 +6,122 @@
 module Twelf
   (Global : GLOBAL)
    (Timers : TIMERS)
-   (module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn' !*)
 
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   (*! module Paths : PATHS !*)
-   module Origins : ORIGINS
+   (*! (Paths : PATHS) !*)
+   (Origins : ORIGINS)
    (*! sharing Origins.Paths = Paths !*)
-   module Lexer : LEXER
+   (Lexer : LEXER)
    (*! sharing Lexer.Paths = Paths !*)
-     (*! module Parsing : PARSING !*)
+     (*! (Parsing : PARSING) !*)
      (*! sharing Lexer = Lexer !*)
-   module Parser : PARSER
+   (Parser : PARSER)
      sharing Parser.Names = Names
      (*! sharing Parser.ExtSyn.Paths = Paths !*)
-   module TypeCheck : TYPECHECK
-   module Strict : STRICT
+   (TypeCheck : TYPECHECK)
+   (Strict : STRICT)
    (*! sharing Strict.IntSyn = IntSyn' !*)
    (*! sharing Strict.Paths = Paths !*)
-   module Constraints : CONSTRAINTS
+   (Constraints : CONSTRAINTS)
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   module ReconTerm : RECON_TERM
+   (ReconTerm : RECON_TERM)
    (*! sharing ReconTerm.IntSyn = IntSyn' !*)
    (*! sharing ReconTerm.Paths = Paths !*)
      sharing type ReconTerm.term = Parser.ExtSyn.term
      (* sharing type ReconTerm.Paths.occConDec = Origins.Paths.occConDec *)
-   module ReconConDec : RECON_CONDEC
+   (ReconConDec : RECON_CONDEC)
    (*! sharing ReconConDec.IntSyn = IntSyn' !*)
    (*! sharing ReconConDec.Paths = Paths !*)
      sharing type ReconConDec.condec = Parser.ExtConDec.condec
-   module ReconQuery : RECON_QUERY
-   module ModeTable : MODETABLE
+   (ReconQuery : RECON_QUERY)
+   (ModeTable : MODETABLE)
    (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   module ModeCheck : MODECHECK
+   (ModeCheck : MODECHECK)
    (*! sharing ModeCheck.IntSyn = IntSyn' !*)
    (*! sharing ModeCheck.ModeSyn = ModeSyn !*)
    (*! sharing ModeCheck.Paths = Paths !*)
-   module ReconMode : RECON_MODE
+   (ReconMode : RECON_MODE)
    (*! sharing ReconMode.ModeSyn = ModeSyn !*)
      (*! sharing ReconMode.Paths = Paths !*)
      sharing type ReconMode.modedec = Parser.ExtModes.modedec
-   module ModePrint : MODEPRINT
+   (ModePrint : MODEPRINT)
    (*! sharing ModePrint.ModeSyn = ModeSyn !*)
-   module ModeDec : MODEDEC
+   (ModeDec : MODEDEC)
    (*! sharing ModeDec.ModeSyn = ModeSyn !*)
      (*! sharing ModeDec.Paths = Paths !*)
 
-   module StyleCheck : STYLECHECK
+   (StyleCheck : STYLECHECK)
 
-   module Unique : UNIQUE
+   (Unique : UNIQUE)
    (*! sharing Unique.ModeSyn = ModeSyn !*)
-   module UniqueTable : MODETABLE
+   (UniqueTable : MODETABLE)
 
-   module Cover : COVER
+   (Cover : COVER)
    (*! sharing Cover.IntSyn = IntSyn' !*)
    (*! sharing Cover.ModeSyn = ModeSyn !*)
 
-   module Converter : CONVERTER
+   (Converter : CONVERTER)
    (*! sharing Converter.IntSyn = IntSyn' !*)
    (*! sharing Converter.Tomega = Tomega !*)
-   module TomegaPrint : TOMEGAPRINT
+   (TomegaPrint : TOMEGAPRINT)
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega !*)
-   module TomegaCoverage : TOMEGACOVERAGE
+   (TomegaCoverage : TOMEGACOVERAGE)
    (*! sharing TomegaCoverage.IntSyn = IntSyn' !*)
    (*! sharing TomegaCoverage.Tomega = Tomega !*)
-   module TomegaTypeCheck : TOMEGATYPECHECK
+   (TomegaTypeCheck : TOMEGATYPECHECK)
    (*! sharing TomegaTypeCheck.IntSyn = IntSyn' !*)
    (*! sharing TomegaTypeCheck.Tomega = Tomega !*)
 
-   module Total : TOTAL
+   (Total : TOTAL)
    (*! sharing Total.IntSyn = IntSyn' !*)
 
-   module Reduces : REDUCES
+   (Reduces : REDUCES)
    (*! sharing Reduces.IntSyn = IntSyn' !*)
 
-   module Index : INDEX
+   (Index : INDEX)
    (*! sharing Index.IntSyn = IntSyn' !*)
-   module IndexSkolem : INDEX
+   (IndexSkolem : INDEX)
    (*! sharing IndexSkolem.IntSyn = IntSyn' !*)
-   module Subordinate : SUBORDINATE
+   (Subordinate : SUBORDINATE)
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
    (*! module CompSyn' : COMPSYN !*)
    (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-   module Compile : COMPILE
+   (Compile : COMPILE)
    (*! sharing Compile.IntSyn = IntSyn' !*)
    (*! sharing Compile.CompSyn = CompSyn' !*)
-   module AbsMachine : ABSMACHINE
+   (AbsMachine : ABSMACHINE)
    (*! sharing AbsMachine.IntSyn = IntSyn' !*)
    (*! sharing AbsMachine.CompSyn = CompSyn' !*)
-   (*! module TableParam : TABLEPARAM !*)
-   module Tabled : TABLED
+   (*! (TableParam : TABLEPARAM) !*)
+   (Tabled : TABLED)
    (*! sharing Tabled.IntSyn = IntSyn' !*)
    (*! sharing Tabled.CompSyn = CompSyn' !*)
-   module Solve : SOLVE
+   (Solve : SOLVE)
    (*! sharing Solve.IntSyn = IntSyn' !*)
      sharing type Solve.ExtQuery.query = Parser.ExtQuery.query
      sharing type Solve.ExtQuery.define = Parser.ExtQuery.define
      sharing type Solve.ExtQuery.solve = Parser.ExtQuery.solve
-   module Fquery : FQUERY
+   (Fquery : FQUERY)
    (*! sharing Fquery.IntSyn = IntSyn' !*)
      sharing type Fquery.ExtQuery.query = Parser.ExtQuery.query
      sharing type Fquery.ExtQuery.define = Parser.ExtQuery.define
      sharing type Fquery.ExtQuery.solve = Parser.ExtQuery.solve
              (*! sharing Solve.Paths = Paths !*)
-   module ThmSyn : THMSYN
+   (ThmSyn : THMSYN)
    (*! sharing ThmSyn.Paths = Paths !*)
      sharing ThmSyn.Names = Names
-   module Thm : THM
+   (Thm : THM)
      sharing Thm.ThmSyn = ThmSyn
      (*! sharing Thm.Paths = Paths !*)
-   module ReconThm : RECON_THM
+   (ReconThm : RECON_THM)
      sharing ReconThm.ThmSyn = ThmSyn
      (*! sharing ReconThm.Paths = Paths !*)
      (*! sharing ReconThm.ThmSyn.ModeSyn = ModeSyn !*)
@@ -135,56 +135,56 @@ module Twelf
      sharing type ReconThm.prove = Parser.ThmExtSyn.prove
      sharing type ReconThm.establish = Parser.ThmExtSyn.establish
      sharing type ReconThm.assert = Parser.ThmExtSyn.assert
-   module ThmPrint : THMPRINT
+   (ThmPrint : THMPRINT)
      sharing ThmPrint.ThmSyn = ThmSyn
 
-   module TabledSyn : TABLEDSYN
+   (TabledSyn : TABLEDSYN)
    (*! sharing TabledSyn.IntSyn = IntSyn' !*)
 
-   module WorldSyn : WORLDSYN
+   (WorldSyn : WORLDSYN)
    (*! sharing WorldSyn.IntSyn = IntSyn' !*)
-   module Worldify : WORLDIFY
-(*   module WorldPrint : WORLDPRINT *)
+   (Worldify : WORLDIFY)
+(*   (WorldPrint : WORLDPRINT) *)
    (*! sharing WorldPrint.Tomega = Tomega !*)
 
-   module ModSyn : MODSYN
+   (ModSyn : MODSYN)
    (*! sharing ModSyn.IntSyn = IntSyn' !*)
      sharing ModSyn.Names = Names
      (*! sharing ModSyn.Paths = Paths !*)
-   module ReconModule : RECON_MODULE
+   (ReconModule : RECON_MODULE)
      sharing ReconModule.ModSyn = ModSyn
      sharing type ReconModule.sigdef = Parser.ModExtSyn.sigdef
      sharing type ReconModule.structdec = Parser.ModExtSyn.structdec
      sharing type ReconModule.sigexp = Parser.ModExtSyn.sigexp
      sharing type ReconModule.strexp = Parser.ModExtSyn.strexp
 
-   module MetaGlobal : METAGLOBAL
-   (*! module FunSyn : FUNSYN !*)
+   (MetaGlobal : METAGLOBAL)
+   (*! (FunSyn : FUNSYN) !*)
    (*! sharing FunSyn.IntSyn = IntSyn' !*)
-   module Skolem : SKOLEM
+   (Skolem : SKOLEM)
    (*! sharing Skolem.IntSyn = IntSyn' !*)
-   module Prover : PROVER
+   (Prover : PROVER)
    (*! sharing Prover.IntSyn = IntSyn' !*)
-   module ClausePrint : CLAUSEPRINT
+   (ClausePrint : CLAUSEPRINT)
    (*! sharing ClausePrint.IntSyn = IntSyn' !*)
 
-   module Trace : TRACE
+   (Trace : TRACE)
 
-   module PrintTeX : PRINT
+   (PrintTeX : PRINT)
    (*! sharing PrintTeX.IntSyn = IntSyn' !*)
-   module ClausePrintTeX : CLAUSEPRINT
+   (ClausePrintTeX : CLAUSEPRINT)
    (*! sharing ClausePrintTeX.IntSyn = IntSyn' !*)
 
-   module CSManager : CS_MANAGER
+   (CSManager : CS_MANAGER)
    (*! sharing CSManager.IntSyn = IntSyn' !*)
      sharing CSManager.Fixity = Names.Fixity
    (*! sharing CSManager.ModeSyn = ModeSyn !*)
 
-   module CSInstaller : CS_INSTALLER
-   module Compat : COMPAT
-   module UnknownExn : UNKNOWN_EXN
+   (CSInstaller : CS_INSTALLER)
+   (Compat : COMPAT)
+   (UnknownExn : UNKNOWN_EXN)
 
-   module Msg : MSG
+   (Msg : MSG)
      ):> TWELF =
 struct
 

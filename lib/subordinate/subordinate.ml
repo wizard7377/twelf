@@ -4,15 +4,15 @@
 (* Reverse subordination order *)
 
 module Subordinate
-  (module Global : GLOBAL
+  (Global : GLOBAL)
    (*! module IntSyn' : INTSYN !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   module Table : TABLE where type key = int
-   module MemoTable : TABLE where type key = int * int
-   module IntSet : INTSET): SUBORDINATE =
+   (Table : TABLE with type key = int)
+   (MemoTable : TABLE with type key = int * int)
+   (IntSet : INTSET): SUBORDINATE =
 struct
   (*! module IntSyn = IntSyn' !*)
 

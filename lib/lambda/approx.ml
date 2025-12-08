@@ -2,7 +2,7 @@
 (* Author: Kevin Watkins *)
 
 module Approx ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF): APPROX =
+                (Whnf : WHNF): APPROX =
 		(*! sharing Whnf.IntSyn = IntSyn' !*)
 struct
 

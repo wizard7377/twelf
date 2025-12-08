@@ -1,22 +1,22 @@
 (* Skolem constant administration *)
 (* Author: Carsten Schuermann *)
 
-module Skolem (module Global : GLOBAL
+module Skolem (Global : GLOBAL)
                 (*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF
+                (Whnf : WHNF)
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
-                module Abstract : ABSTRACT
+                (Abstract : ABSTRACT)
                 (*! sharing Abstract.IntSyn = IntSyn' !*)
-                module IndexSkolem : INDEX
+                (IndexSkolem : INDEX)
                 (*! sharing IndexSkolem.IntSyn = IntSyn' !*)
-                module ModeTable : MODETABLE
+                (ModeTable : MODETABLE)
                 (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-                module Print : PRINT
+                (Print : PRINT)
                 (*! sharing Print.IntSyn = IntSyn' !*)
-                module Compile : COMPILE
+                (Compile : COMPILE)
                 (*! sharing Compile.IntSyn = IntSyn' !*)
-                module Timers : TIMERS
-                module Names : NAMES): SKOLEM =
+                (Timers : TIMERS)
+                (Names : NAMES): SKOLEM =
                 (*! sharing Names.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

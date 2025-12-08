@@ -9,11 +9,11 @@ sig
 
   exception Error of string
 
-  val formatFor   : Tomega.Dec IntSyn.Ctx * Tomega.For -> Formatter.format
-  val forToString : Tomega.Dec IntSyn.Ctx * Tomega.For -> string
+  val formatFor   : Tomega.Dec IntSyn.ctx * Tomega.For -> Formatter.format
+  val forToString : Tomega.Dec IntSyn.ctx * Tomega.For -> string
   val formatFun : (string list * Tomega.lemma list) * Tomega.Prg -> Formatter.format
     
-  val formatPrg : Tomega.Dec IntSyn.Ctx * Tomega.Prg -> Formatter.format
+  val formatPrg : Tomega.Dec IntSyn.ctx * Tomega.Prg -> Formatter.format
 (*  val formatLemmaDec: FunSyn.LemmaDec -> Formatter.format *)
 
   val funToString : (string list * Tomega.lemma list) * Tomega.Prg -> string
@@ -27,11 +27,11 @@ sig
   val evarName : string -> Tomega.Prg
   val nameEVar : Tomega.Prg -> string
 
-  val prgToString : Tomega.Dec IntSyn.Ctx * Tomega.Prg -> string
+  val prgToString : Tomega.Dec IntSyn.ctx * Tomega.Prg -> string
     
-  val nameCtx   : Tomega.Dec IntSyn.Ctx -> Tomega.Dec IntSyn.Ctx
-  val formatCtx : Tomega.Dec IntSyn.Ctx -> Formatter.format
-  val ctxToString : Tomega.Dec IntSyn.Ctx -> string
+  val nameCtx   : Tomega.Dec IntSyn.ctx -> Tomega.Dec IntSyn.ctx
+  val formatCtx : Tomega.Dec IntSyn.ctx -> Formatter.format
+  val ctxToString : Tomega.Dec IntSyn.ctx -> string
 
 (*  val lemmaDecToString : FunSyn.LemmaDec -> string *)
 end;; (* module type TOMEGAPRINT *)

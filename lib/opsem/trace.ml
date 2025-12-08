@@ -1,11 +1,11 @@
 module Trace ((*! module IntSyn' : INTSYN !*)
-               module Names : NAMES
+               (Names : NAMES)
                (*! sharing Names.IntSyn = IntSyn' !*)
-               module Whnf : WHNF
+               (Whnf : WHNF)
                (*! sharing Whnf.IntSyn = IntSyn' !*)
-               module Abstract : ABSTRACT
+               (Abstract : ABSTRACT)
                (*! sharing Abstract.IntSyn = IntSyn' !*)
-               module Print : PRINT): TRACE =
+               (Print : PRINT): TRACE =
                (*! sharing Print.IntSyn = IntSyn' !*)
 struct
 
@@ -199,13 +199,13 @@ struct
     | Resolved of IntSyn.Head * IntSyn.Head (* resolved with clause c, fam a *)
     | Subgoal of (IntSyn.Head * IntSyn.Head) * (unit -> int) (* clause c, fam a, nth subgoal *)
 
-    | SolveGoal of goalTag * IntSyn.Head * IntSyn.Exp
-    | SucceedGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-    | CommitGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-    | RetryGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp (* clause c failed, fam a *)
-    | FailGoal of goalTag * IntSyn.Head * IntSyn.Exp
+    | SolveGoal of goalTag * IntSyn.Head * IntSyn.exp
+    | SucceedGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.exp
+    | CommitGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.exp
+    | RetryGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.exp (* clause c failed, fam a *)
+    | FailGoal of goalTag * IntSyn.Head * IntSyn.exp
 
-    | Unify of (IntSyn.Head * IntSyn.Head) * IntSyn.Exp * IntSyn.Exp (* clause head == goal *)
+    | Unify of (IntSyn.Head * IntSyn.Head) * IntSyn.exp * IntSyn.exp (* clause head == goal *)
     | FailUnify of (IntSyn.Head * IntSyn.Head) * string (* failure message *)
 
     fun eventToString (G, IntroHyp (_, D)) =

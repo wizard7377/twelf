@@ -1,12 +1,12 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann, Adam Poswolsky *)
 
-module Opsem ( module Whnf : WHNF
-               module Abstract : ABSTRACT
-               module Subordinate : SUBORDINATE
-               module TomegaTypeCheck : TOMEGATYPECHECK
-               module TomegaPrint : TOMEGAPRINT
-               module Unify : UNIFY): OPSEM =
+module Opsem ( (Whnf : WHNF)
+               (Abstract : ABSTRACT)
+               (Subordinate : SUBORDINATE)
+               (TomegaTypeCheck : TOMEGATYPECHECK)
+               (TomegaPrint : TOMEGAPRINT)
+               (Unify : UNIFY): OPSEM =
 struct
   module T = Tomega
   module I = IntSyn

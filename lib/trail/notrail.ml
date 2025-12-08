@@ -1,7 +1,7 @@
 (* Not Trailing Abstract Operations *)
 (* Author: Roberto Virga *)
 
-module NoTrail : TRAIL =
+(NoTrail : TRAI)L =
 struct
 
   type 'a trail = unit

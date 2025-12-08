@@ -19,11 +19,11 @@ sig
    *)
 
   val callCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * 
-		  IntSyn.Exp * TableParam.ResEqn * TableParam.Status
+		  IntSyn.exp * TableParam.ResEqn * TableParam.Status
                   -> TableParam.callCheckResult
 
   val insertIntoTree : IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * 
-		  IntSyn.Exp * TableParam.ResEqn * TableParam.answer * TableParam.Status
+		  IntSyn.exp * TableParam.ResEqn * TableParam.answer * TableParam.Status
                   -> TableParam.callCheckResult
 
 
@@ -61,6 +61,6 @@ sig
 
   val tableSize : unit -> int
 
-  val memberCtx : (IntSyn.dctx * IntSyn.Exp ) * IntSyn.dctx -> IntSyn.Dec option
+  val memberCtx : (IntSyn.dctx * IntSyn.exp ) * IntSyn.dctx -> IntSyn.Dec option
 end;; (* module type MemoTable *)
 

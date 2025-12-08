@@ -1,12 +1,12 @@
 (* Solver for machine integers *)
 (* Author: Roberto Virga *)
 
-module CSIntWord ((*! module IntSyn : INTSYN !*)
-                   module Whnf : WHNF
+module CSIntWord ((*! (IntSyn : INTSYN) !*)
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                   module Unify : UNIFY
+                   (Unify : UNIFY)
                    (*! sharing Unify.IntSyn = IntSyn !*)
-                   (*! module CSManager : CS_MANAGER !*)
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = IntSyn !*)
                    let wordSize : int)
  : CS =

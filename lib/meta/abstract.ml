@@ -8,18 +8,18 @@ module MTPAbstract ((*! module IntSyn' : INTSYN !*)
                      (*! sharing StateSyn'.FunSyn = FunSyn' !*)
                      module Whnf    : WHNF
                      (*! sharing Whnf.IntSyn = IntSyn' !*)
-                     module Constraints : CONSTRAINTS
+                     (Constraints : CONSTRAINTS)
                      (*! sharing Constraints.IntSyn = IntSyn' !*)
-                     module Unify : UNIFY
+                     (Unify : UNIFY)
                      (*! sharing Unify.IntSyn = IntSyn' !*)
-                     module Subordinate : SUBORDINATE
+                     (Subordinate : SUBORDINATE)
                      (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                     module TypeCheck : TYPECHECK
+                     (TypeCheck : TYPECHECK)
                      (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-                     module FunTypeCheck : FUNTYPECHECK
+                     (FunTypeCheck : FUNTYPECHECK)
                      (*! sharing FunTypeCheck.FunSyn = FunSyn' !*)
                        sharing FunTypeCheck.StateSyn = StateSyn'
-                     module Abstract : ABSTRACT): MTPABSTRACT =
+                     (Abstract : ABSTRACT): MTPABSTRACT =
                      (*! sharing Abstract.IntSyn = IntSyn' !*)
 struct
 

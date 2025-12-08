@@ -1,11 +1,11 @@
 (* Table parameters *)
 (* Author: Brigitte Pientka *)
 
-module TableParam (module Global : GLOBAL
+module TableParam (Global : GLOBAL)
                     (*! module IntSyn' : INTSYN !*)
                     (*! module CompSyn' : COMPSYN !*)
                     (*!  sharing CompSyn'.IntSyn = IntSyn'!*)
-                    (*! module RBSet : RBSET!*))
+                    (*! (RBSet : RBSET)!*))
 : TABLEPARAM =
 struct
 
@@ -19,8 +19,8 @@ struct
 
    type ResEqn =
      Trivial                              (* trivially done *)
-   | Unify of IntSyn.dctx * IntSyn.Exp    (* call unify *)
-     * IntSyn.Exp * ResEqn
+   | Unify of IntSyn.dctx * IntSyn.exp    (* call unify *)
+     * IntSyn.exp * ResEqn
 
    type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub)
                                * CompSyn.pskeleton) list,
@@ -30,7 +30,7 @@ struct
 
    (* globalTable stores the queries whose solution we want to keep *)
    let globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx *
-                       IntSyn.Exp * ResEqn * answer * Status ) list ref
+                       IntSyn.exp * ResEqn * answer * Status ) list ref
                       = ref []
 
    fun resetGlobalTable () = (globalTable := [])
@@ -59,7 +59,7 @@ struct
         of [] => true
       | L  => false)
 
-   type asub = IntSyn.Exp RBSet.ordSet
+   type asub = IntSyn.exp RBSet.ordSet
    let aid : unit -> asub = RBSet.new
 
 

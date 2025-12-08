@@ -3,19 +3,19 @@
 
 module StrategyFRS (MetaGlobal : METAGLOBAL)
    (module MetaSyn' : METASYN)
-   (module Filling : FILLING
+   (Filling : FILLING)
                      sharing Filling.MetaSyn = MetaSyn'
-                     module Splitting : SPLITTING
+                     (Splitting : SPLITTING)
                      sharing Splitting.MetaSyn = MetaSyn'
-                     module Recursion : RECURSION
+                     (Recursion : RECURSION)
                      sharing Recursion.MetaSyn = MetaSyn'
-                     module Lemma : LEMMA
+                     (Lemma : LEMMA)
                      sharing Lemma.MetaSyn = MetaSyn'
-                     module Qed : QED
+                     (Qed : QED)
                      sharing Qed.MetaSyn = MetaSyn'
-                     module MetaPrint : METAPRINT
+                     (MetaPrint : METAPRINT)
                      sharing MetaPrint.MetaSyn = MetaSyn'
-                     module Timers : TIMERS)
+                     (Timers : TIMERS)
   : STRATEGY =
 struct
 
@@ -169,19 +169,19 @@ end;; (* functor StrategyFRS *)
 
 module StrategyRFS (MetaGlobal : METAGLOBAL)
    (module MetaSyn' : METASYN)
-   (module Filling : FILLING
+   (Filling : FILLING)
                      sharing Filling.MetaSyn = MetaSyn'
-                     module Splitting : SPLITTING
+                     (Splitting : SPLITTING)
                      sharing Splitting.MetaSyn = MetaSyn'
-                     module Recursion : RECURSION
+                     (Recursion : RECURSION)
                      sharing Recursion.MetaSyn = MetaSyn'
-                     module Lemma : LEMMA
+                     (Lemma : LEMMA)
                      sharing Lemma.MetaSyn = MetaSyn'
-                     module Qed : QED
+                     (Qed : QED)
                      sharing Qed.MetaSyn = MetaSyn'
-                     module MetaPrint : METAPRINT
+                     (MetaPrint : METAPRINT)
                      sharing MetaPrint.MetaSyn = MetaSyn'
-                     module Timers : TIMERS)
+                     (Timers : TIMERS)
   : STRATEGY =
 struct
 
@@ -328,9 +328,9 @@ end;; (* functor StrategyRFS *)
 
 module Strategy (MetaGlobal : METAGLOBAL)
    (module MetaSyn' : METASYN)
-   (module StrategyFRS : STRATEGY
+   (StrategyFRS : STRATEGY)
                   sharing StrategyFRS.MetaSyn = MetaSyn'
-                  module StrategyRFS : STRATEGY
+                  (StrategyRFS : STRATEGY)
                   sharing StrategyRFS.MetaSyn = MetaSyn')
   : STRATEGY =
 struct

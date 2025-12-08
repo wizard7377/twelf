@@ -1,5 +1,5 @@
 
-module TypecheckEE : TYPECHECK =
+(TypecheckEE : TYPECHEC)K =
 struct 
 
   module L = Lib

@@ -2,23 +2,23 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga, Jeff Polakow *)
 
-module ReconQuery  (module Global : GLOBAL
+module ReconQuery  (Global : GLOBAL)
                      (*! module IntSyn' : INTSYN !*)
-		     module Names : NAMES
+		     (Names : NAMES)
 		     (*! sharing Names.IntSyn = IntSyn' !*)
-                     module Abstract : ABSTRACT
+                     (Abstract : ABSTRACT)
 		     (*! sharing Abstract.IntSyn = IntSyn' !*)
                      (*! module Paths' : PATHS !*)
                      module ReconTerm' : RECON_TERM
 		     (*! sharing ReconTerm'.IntSyn = IntSyn' !*)
 		     (*! sharing ReconTerm'.Paths = Paths' !*)
-		     module TypeCheck : TYPECHECK
+		     (TypeCheck : TYPECHECK)
 		     (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-		     module Strict : STRICT
+		     (Strict : STRICT)
 		     (*! sharing Strict.IntSyn = IntSyn' !*)
 		     (*! sharing Strict.Paths = Paths' !*)
-		     module Timers : TIMERS
-                     module Print : PRINT): RECON_QUERY =
+		     (Timers : TIMERS)
+                     (Print : PRINT): RECON_QUERY =
 		     (*! sharing Print.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

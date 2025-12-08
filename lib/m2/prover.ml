@@ -3,23 +3,23 @@
 
 module Prover (MetaGlobal : METAGLOBAL)
    (module MetaSyn' : METASYN)
-   (module Init : INIT
+   (Init : INIT)
                   sharing Init.MetaSyn = MetaSyn'
-                module Strategy : STRATEGY
+                (Strategy : STRATEGY)
                   sharing Strategy.MetaSyn = MetaSyn'
-                module Filling : FILLING
+                (Filling : FILLING)
                   sharing Filling.MetaSyn = MetaSyn'
-                module Splitting : SPLITTING
+                (Splitting : SPLITTING)
                   sharing Splitting.MetaSyn = MetaSyn'
-                module Recursion : RECURSION
+                (Recursion : RECURSION)
                   sharing Recursion.MetaSyn = MetaSyn'
-                module Qed : QED
+                (Qed : QED)
                   sharing Qed.MetaSyn = MetaSyn'
-                module MetaPrint : METAPRINT
+                (MetaPrint : METAPRINT)
                   sharing MetaPrint.MetaSyn = MetaSyn'
-                module Names : NAMES
+                (Names : NAMES)
                 (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-                module Timers : TIMERS)
+                (Timers : TIMERS)
   : PROVER =
 struct
   (*! module IntSyn = MetaSyn'.IntSyn !*)

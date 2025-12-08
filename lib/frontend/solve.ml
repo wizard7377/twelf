@@ -3,47 +3,47 @@
 (* Modified: Carsten Schuermann, Jeff Polakow, Roberto Virga *)
 
 module Solve
-  (module Global : GLOBAL
+  (Global : GLOBAL)
    (*! module IntSyn' : INTSYN !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
-   module Parser : PARSER
+   (Parser : PARSER)
      sharing Parser.Names = Names
-   module ReconQuery : RECON_QUERY
+   (ReconQuery : RECON_QUERY)
    (*! sharing ReconQuery.IntSyn = IntSyn' !*)
      sharing type ReconQuery.query = Parser.ExtQuery.query
      sharing type ReconQuery.solve = Parser.ExtQuery.solve
      sharing type ReconQuery.define = Parser.ExtQuery.define
    (* sharing type ReconQuery.Paths.occConDec = Origins.Paths.occConDec *)
-   module Timers : TIMERS
-   (*! module CompSyn : COMPSYN !*)
+   (Timers : TIMERS)
+   (*! (CompSyn : COMPSYN) !*)
    (*! sharing CompSyn.IntSyn = IntSyn' !*)
-   module Compile : COMPILE
+   (Compile : COMPILE)
    (*! sharing Compile.IntSyn = IntSyn' !*)
    (*! sharing Compile.CompSyn = CompSyn !*)
-   module CPrint : CPRINT
+   (CPrint : CPRINT)
    (*! sharing CPrint.IntSyn = IntSyn' !*)
    (*! sharing CPrint.CompSyn = CompSyn !*)
-   (*! module CSManager : CS_MANAGER !*)
+   (*! (CSManager : CS_MANAGER) !*)
    (*! sharing CSManager.IntSyn = IntSyn' !*)
-   module AbsMachine : ABSMACHINE
+   (AbsMachine : ABSMACHINE)
    (*! sharing AbsMachine.IntSyn = IntSyn' !*)
    (*! sharing AbsMachine.CompSyn = CompSyn !*)
-   module AbsMachineSbt : ABSMACHINESBT
+   (AbsMachineSbt : ABSMACHINESBT)
     (*! sharing AbsMachineSbt.IntSyn = IntSyn' !*)
     (*! sharing AbsMachineSbt.CompSyn = CompSyn!*)
-   module PtRecon : PTRECON
+   (PtRecon : PTRECON)
    (*! sharing PtRecon.IntSyn = IntSyn' !*)
    (*! sharing PtRecon.CompSyn = CompSyn !*)
-   (*! module TableParam : TABLEPARAM !*)
-   module Tabled : TABLED
+   (*! (TableParam : TABLEPARAM) !*)
+   (Tabled : TABLED)
    (*! sharing Tabled.IntSyn = IntSyn' !*)
    (*! sharing Tabled.CompSyn = CompSyn !*)
-   (*! module MemoTable : MEMOTABLE !*)
+   (*! (MemoTable : MEMOTABLE) !*)
     (*! sharing MemoTable.IntSyn = IntSyn' !*)
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn' !*)
-   module Msg : MSG)
+   (Msg : MSG)
  : SOLVE =
 struct
 
@@ -147,7 +147,7 @@ struct
      query A', where imp is the number of implicitly quantified arguments.
   *)
 
-  exception Solution of IntSyn.Exp
+  exception Solution of IntSyn.exp
   exception SolutionSkel of CompSyn.pskeleton
 
 

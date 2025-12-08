@@ -3,27 +3,27 @@
 (* Modified: Jeff Polakow, Carsten Schuermann, Larry Greenfield,
              Roberto Virga, Brigitte Pientka *)
 
-module Compile ((*! module IntSyn' : INTSYN !*)
+module Compile (*! module IntSyn' : INTSYN !*)
                  (*! module CompSyn' : COMPSYN !*)
                  (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                 module Whnf : WHNF
+                 (Whnf : WHNF)
                  (*! sharing Whnf.IntSyn = IntSyn' !*)
-                 module TypeCheck : TYPECHECK
+                 (TypeCheck : TYPECHECK)
                   (* sharing TypeCheck.IntSyn = IntSyn' !*)
-                 module SubTree : SUBTREE
+                 (SubTree : SUBTREE)
                   (*! sharing SubTree.IntSyn = IntSyn' !*)
                   (*! sharing SubTree.CompSyn = CompSyn' !*)
 
                     (* CPrint currently unused *)
-                 module CPrint : CPRINT
+                 (CPrint : CPRINT)
                  (*! sharing CPrint.IntSyn = IntSyn' !*)
                  (*! sharing CPrint.CompSyn = CompSyn' !*)
 
                    (* CPrint currently unused *)
-                 module Print : PRINT
+                 (Print : PRINT)
                  (*! sharing Print.IntSyn = IntSyn' !*)
 
-                 module Names : NAMES): COMPILE =
+                 (Names : NAMES): COMPILE =
                  (*! sharing Names.IntSyn = IntSyn' !*)
 struct
 

@@ -5,13 +5,13 @@ module TomegaCoverage
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   module TomegaPrint : TOMEGAPRINT
+   (TomegaPrint : TOMEGAPRINT)
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
-   module TomegaTypeCheck : TOMEGATYPECHECK
+   (TomegaTypeCheck : TOMEGATYPECHECK)
    (*! sharing TomegaTypeCheck.IntSyn = IntSyn' !*)
    (*! sharing TomegaTypeCheck.Tomega = Tomega' !*)
-   module Cover : COVER): TOMEGACOVERAGE =
+   (Cover : COVER): TOMEGACOVERAGE =
    (*! sharing Cover.IntSyn = IntSyn' !*)
    (*! sharing Cover.Tomega = Tomega' !*)
 struct

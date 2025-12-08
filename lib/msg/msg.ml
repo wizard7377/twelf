@@ -4,7 +4,7 @@ sig
     let setMessageFunc : (string -> unit) -> unit
 end
 
-module Msg : MSG =
+(Msg : MS)G =
 struct
  let default = print 
  let messageFunc = ref (default)

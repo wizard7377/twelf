@@ -3,11 +3,11 @@
 
 module Parse  (module DextSyn  : DEXTSYN)
    (Interface : INTERFACE)
-   (module Parserr : PARSERR
+   (Parserr : PARSERR)
                      sharing type Parserr.arg = Interface.arg
                      sharing type Parserr.pos = Interface.pos
                      sharing type Parserr.result = DextSyn.Ast
-                module Tokens : Delphin_TOKENS
+                (Tokens : Delphin_TOKENS)
                      sharing type Tokens.token = Parserr.Token.token
                      sharing type Tokens.svalue = Parserr.svalue) : PARSE =
 

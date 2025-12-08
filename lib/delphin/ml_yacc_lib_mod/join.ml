@@ -27,7 +27,7 @@
 
 module Join(Lex : LEXERR)
    (module ParserData: PARSER_DATA)
-   (module LrParser : LR_PARSER
+   (LrParser : LR_PARSER)
 	     sharing ParserData.LrTable = LrParser.LrTable
 	     sharing ParserData.Token = LrParser.Token
 	     sharing type Lex.UserDeclarations.svalue = ParserData.svalue
@@ -71,7 +71,7 @@ end
 
 module JoinWithArg(Lex : ARG_LEXER)
    (module ParserData: PARSER_DATA)
-   (module LrParser : LR_PARSER
+   (LrParser : LR_PARSER)
 	     sharing ParserData.LrTable = LrParser.LrTable
 	     sharing ParserData.Token = LrParser.Token
 	     sharing type Lex.UserDeclarations.svalue = ParserData.svalue

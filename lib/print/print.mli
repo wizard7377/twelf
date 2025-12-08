@@ -16,7 +16,7 @@ sig
   val formatDec : IntSyn.dctx * IntSyn.Dec -> Formatter.format
   val formatDecList : IntSyn.dctx * IntSyn.Dec list -> Formatter.format
   val formatDecList' : IntSyn.dctx * (IntSyn.Dec list * IntSyn.Sub) -> Formatter.format
-  val formatExp : IntSyn.dctx * IntSyn.Exp -> Formatter.format
+  val formatExp : IntSyn.dctx * IntSyn.exp -> Formatter.format
   val formatSpine : IntSyn.dctx * IntSyn.Spine -> Formatter.format list
   val formatConDec : IntSyn.ConDec -> Formatter.format
   val formatConDecI : IntSyn.ConDec -> Formatter.format
@@ -24,14 +24,14 @@ sig
   val formatCtx : IntSyn.dctx * IntSyn.dctx -> Formatter.format
 
   val decToString : IntSyn.dctx * IntSyn.Dec -> string
-  val expToString : IntSyn.dctx * IntSyn.Exp -> string
+  val expToString : IntSyn.dctx * IntSyn.exp -> string
   val conDecToString : IntSyn.ConDec -> string
   val cnstrToString : IntSyn.Cnstr -> string
   val cnstrsToString : IntSyn.cnstr list -> string (* assigns names in contexts *)
   val ctxToString : IntSyn.dctx * IntSyn.dctx -> string
 
-  val evarInstToString : (IntSyn.Exp * string) list -> string
-  val evarCnstrsToStringOpt : (IntSyn.Exp * string) list -> string option
+  val evarInstToString : (IntSyn.exp * string) list -> string
+  val evarCnstrsToStringOpt : (IntSyn.exp * string) list -> string option
 
   val formatWorlds : Tomega.Worlds -> Formatter.format 
   val worldsToString : Tomega.Worlds -> string

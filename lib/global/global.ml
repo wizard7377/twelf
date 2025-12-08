@@ -1,7 +1,7 @@
 (* Global parameters *)
 (* Author: Frank Pfenning *)
 
-module Global : GLOBAL =
+(Global : GLOBA)L =
 struct
 
   let chatter = ref 3

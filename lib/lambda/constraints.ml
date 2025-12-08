@@ -4,7 +4,7 @@
 
 module Constraints
     ((*! module IntSyn' : INTSYN !*)
-     module Conv : CONV): CONSTRAINTS =
+     (Conv : CONV): CONSTRAINTS =
      (*! sharing Conv.IntSyn = IntSyn' !*)
 struct
 

@@ -7,22 +7,22 @@
 module PtRecon ((*! module IntSyn' : INTSYN !*)
                  (*! module CompSyn' : COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                    module Unify : UNIFY
+                    (Unify : UNIFY)
                     (*! sharing Unify.IntSyn = IntSyn' !*)
-                    module Assign : ASSIGN
+                    (Assign : ASSIGN)
                     (*! sharing Assign.IntSyn = IntSyn' !*)
-                    (*! module TableParam : TABLEPARAM !*)
-                    module MemoTable : MEMOTABLE
+                    (*! (TableParam : TABLEPARAM) !*)
+                    (MemoTable : MEMOTABLE)
                     (*! sharing MemoTable.TableParam = TableParam !*)
-                    module Index : INDEX
+                    (Index : INDEX)
                     (*! sharing Index.IntSyn = IntSyn' !*)
                     (* CPrint currently unused *)
-                    module CPrint : CPRINT
+                    (CPrint : CPRINT)
                     (*! sharing CPrint.IntSyn = IntSyn' !*)
                     (*! sharing CPrint.CompSyn = CompSyn' !*)
-                    module Names : NAMES): PTRECON =
+                    (Names : NAMES): PTRECON =
                     (*! sharing Names.IntSyn = IntSyn' !*)
-                    (*! module CSManager : CS_MANAGER !*)
+                    (*! (CSManager : CS_MANAGER) !*)
                     (*! sharing CSManager.IntSyn = IntSyn' !*)
 struct
 

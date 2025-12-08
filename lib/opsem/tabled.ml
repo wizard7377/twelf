@@ -5,37 +5,37 @@
 module Tabled ((*! module IntSyn' : INTSYN !*)
                 (*! module CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                module Unify : UNIFY
+                (Unify : UNIFY)
                 (*! sharing Unify.IntSyn = IntSyn' !*)
-                module TabledSyn : TABLEDSYN
+                (TabledSyn : TABLEDSYN)
                 (*!  sharing TabledSyn.IntSyn = IntSyn' !*)
-                module Assign : ASSIGN
+                (Assign : ASSIGN)
                 (*!  sharing Assign.IntSyn = IntSyn' !*)
-                module Index : INDEX
+                (Index : INDEX)
                 (*!  sharing Index.IntSyn = IntSyn' !*)
-                module Queue : QUEUE
-                (*! module TableParam : TABLEPARAM !*)
+                (Queue : QUEUE)
+                (*! (TableParam : TABLEPARAM) !*)
                 (*!  sharing TableParam.IntSyn = IntSyn' !*)
                 (*!  sharing TableParam.CompSyn = CompSyn' !*)
 
-                module AbstractTabled : ABSTRACTTABLED
+                (AbstractTabled : ABSTRACTTABLED)
                 (*!  sharing AbstractTabled.IntSyn = IntSyn' !*)
                 (*! sharing AbstractTabled.TableParam = TableParam !*)
-                module MemoTable : MEMOTABLE
+                (MemoTable : MEMOTABLE)
                 (*!  sharing MemoTable.IntSyn = IntSyn' !*)
                 (*!  sharing MemoTable.CompSyn = CompSyn'  !*)
                 (*! sharing MemoTable.TableParam = TableParam  !*)
                 (* CPrint currently unused *)
-                module CPrint : CPRINT
+                (CPrint : CPRINT)
                 (*!  sharing CPrint.IntSyn = IntSyn' !*)
                 (*!  sharing CPrint.CompSyn = CompSyn' !*)
                 (* CPrint currently unused *)
-                module Print : PRINT
+                (Print : PRINT)
                 (*!  sharing Print.IntSyn = IntSyn' !*)
 
-(*              module Names : NAMES *)
+(*              (Names : NAMES) *)
                 (*!  sharing Names.IntSyn = IntSyn' !*)
-                (*! module CSManager : CS_MANAGER !*)
+                (*! (CSManager : CS_MANAGER) !*)
                 (*!  sharing CSManager.IntSyn = IntSyn'!*))
   : TABLED =
 struct
@@ -67,9 +67,9 @@ struct
                    current program state
 
     *)
-    type SuspType = Loop | Divergence of ((IntSyn.Exp * IntSyn.Sub) * CompSyn.DProg)
+    type SuspType = Loop | Divergence of ((IntSyn.exp * IntSyn.Sub) * CompSyn.DProg)
 
-    let SuspGoals : ((SuspType * (IntSyn.dctx * IntSyn.Exp * IntSyn.Sub) *  (CompSyn.pskeleton -> unit) *
+    let SuspGoals : ((SuspType * (IntSyn.dctx * IntSyn.exp * IntSyn.Sub) *  (CompSyn.pskeleton -> unit) *
                       Unify.unifTrail * ((IntSyn.Sub * IntSyn.Sub) * T.answer) * int ref)  list) ref  = ref []
 
     exception Error of string

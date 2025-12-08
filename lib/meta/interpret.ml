@@ -3,7 +3,7 @@
 
 module type Interpreter = 
 sig
-  (*! module FunSyn : FUNSYN !*)
+  (*! (FunSyn : FUNSYN) !*)
 
   let run : FunSyn.Pro -> FunSyn.Pro
 end (* Signature Interpreter *)       

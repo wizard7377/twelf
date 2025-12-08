@@ -2,12 +2,12 @@
 (* Author: Kevin Watkins *)
 
 module ParseModule
-  ((*! module Paths : PATHS !*)
+  ((*! (Paths : PATHS) !*)
    (*! module Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
    module ModExtSyn' : MODEXTSYN
    (*! sharing ModExtSyn'.Paths = Paths !*)
-   module ParseTerm : PARSE_TERM
+   (ParseTerm : PARSE_TERM)
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ModExtSyn'.ExtSyn)
   : PARSE_MODULE =

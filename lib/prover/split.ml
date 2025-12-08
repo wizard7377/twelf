@@ -2,29 +2,29 @@
 (* Author: Carsten Schuermann *)
 
 module Split
-  (module Global : GLOBAL
+  (Global : GLOBAL)
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
    module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Unify : UNIFY
+   (Unify : UNIFY)
    (*! sharing Unify.IntSyn = IntSyn' !*)
-   module Constraints : CONSTRAINTS
+   (Constraints : CONSTRAINTS)
    (*! sharing Constraints.IntSyn = IntSyn' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
    (*! sharing Abstract.Tomega = Tomega' !*)
-   module Index : INDEX
+   (Index : INDEX)
    (*! sharing Index.IntSyn = IntSyn' !*)
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn' !*)
-   module TypeCheck : TYPECHECK
+   (TypeCheck : TYPECHECK)
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   module Subordinate : SUBORDINATE): SPLIT =
+   (Subordinate : SUBORDINATE): SPLIT =
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
 
 struct

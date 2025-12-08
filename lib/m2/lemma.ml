@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 
 module Lemma (module MetaSyn' : METASYN)
-   (module MetaAbstract : METAABSTRACT
+   (MetaAbstract : METAABSTRACT)
                sharing MetaAbstract.MetaSyn = MetaSyn')
   : LEMMA =
 struct

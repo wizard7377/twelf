@@ -5,7 +5,7 @@
 module type MODESYN =
 sig
 
-  (*! module IntSyn : INTSYN !*)
+  (*! (IntSyn : INTSYN) !*)
 
   type mode = Plus | Star | Minus | Minus1
   type modeSpine = Mnil | Mapp of Marg * modeSpine
@@ -16,7 +16,7 @@ sig
 end;; (* module type MODESYN *)
 
 
-module ModeSyn : MODESYN =
+(ModeSyn : MODESY)N =
 struct
 
   exception Error of string

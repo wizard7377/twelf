@@ -96,7 +96,7 @@ module type LR_TABLE =
 
 module type TOKEN =
     sig
-	module LrTable : LR_TABLE
+	(LrTable : LR_TABLE)
         type ('a,'b) token = TOKEN of LrTable.term * ('a * 'b * 'b)
 	let sameToken : ('a,'b) token * ('a,'b) token -> bool
     end
@@ -106,8 +106,8 @@ module type TOKEN =
 module type LR_PARSER =
     sig
 	module Streamm: STREAMM
-	module LrTable : LR_TABLE
-	module Token : TOKEN
+	(LrTable : LR_TABLE)
+	(Token : TOKEN)
 
 	sharing LrTable = Token.LrTable
 
@@ -207,8 +207,8 @@ module type PARSER_DATA =
 
 	type result
 
-	module LrTable : LR_TABLE
-	module Token : TOKEN
+	(LrTable : LR_TABLE)
+	(Token : TOKEN)
 	sharing Token.LrTable = LrTable
 
 	(* module Actions contains the functions which mantain the
@@ -250,8 +250,8 @@ module type PARSER_DATA =
 
 module type PARSERR =
     sig
-        module Token : TOKEN
-	module Streamm : STREAMM
+        (Token : TOKEN)
+	(Streamm : STREAMM)
 	exception ParseError
 
 	(* type pos is the type of line numbers *)
@@ -295,8 +295,8 @@ module type PARSERR =
 
 module type ARG_PARSER = 
     sig
-        module Token : TOKEN
-	module Streamm : STREAMM
+        (Token : TOKEN)
+	(Streamm : STREAMM)
 	exception ParseError
 
 	type arg

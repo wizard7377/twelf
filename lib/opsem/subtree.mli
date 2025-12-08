@@ -18,7 +18,7 @@ sig
    * SIDE EFFECT: D, G |- U added to table
    *)
 
-  val callCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.Exp * TableParam.ResEqn 
+  val callCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.exp * TableParam.ResEqn 
                   -> TableParam.callCheckResult
 
 

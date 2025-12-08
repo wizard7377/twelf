@@ -7,7 +7,7 @@
    amortized access under programmer control.
 *)
 
-module Queue : QUEUE =
+(Queue : QUEU)E =
 struct
 
   (* Representation invariant:

@@ -3,25 +3,25 @@
 (* Date: Thu Mar 16 13:08:33 2006 *)
 
 module Fill
-  (module Data : DATA
+  (Data : DATA)
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
    module State' : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
    (*! sharing Abstract.Tomega = Tomega' !*)
-   module TypeCheck : TYPECHECK
+   (TypeCheck : TYPECHECK)
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
    module Search  : SEARCH
    (*! sharing Search.IntSyn = IntSyn' !*)
    (*! sharing Search.Tomega = Tomega' !*)
      sharing Search.State = State'
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Unify : UNIFY): FILL =
+   (Unify : UNIFY): FILL =
    (*! sharing Unify.IntSyn = IntSyn' !*)
 
 struct
@@ -32,13 +32,13 @@ struct
   exception Error of string
 
   type operator =
-    FillWithConst of IntSyn.Exp * IntSyn.cid
+    FillWithConst of IntSyn.exp * IntSyn.cid
        (* Representation Invariant:  FillWithConst (X, c) :
            X is an evar GX |- X : VX
            Sigma |- c : W
            and VX and W are unifiable
        *)
-    | FillWithBVar of IntSyn.Exp * int
+    | FillWithBVar of IntSyn.exp * int
        (* Representation Invariant:  FillWithBVar (X, n) :
            X is an evar GX |- X : VX
            GX |- n : W

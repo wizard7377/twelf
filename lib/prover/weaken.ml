@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 
 module Weaken ((*! module IntSyn' : INTSYN !*)
-                module Whnf : WHNF): WEAKEN =
+                (Whnf : WHNF): WEAKEN =
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

@@ -5,31 +5,31 @@
    tech report CMU-CS-01-115
  *)
 
-module Reduces   (module Global : GLOBAL
+module Reduces   (Global : GLOBAL)
                    (*! module IntSyn' : INTSYN !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   module Names : NAMES
+                   (Names : NAMES)
                    (*! sharing Names.IntSyn = IntSyn' !*)
-                   module Index : INDEX
+                   (Index : INDEX)
                    (*! sharing Index.IntSyn = IntSyn' !*)
-                   module Subordinate : SUBORDINATE
+                   (Subordinate : SUBORDINATE)
                    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                   module Formatter : FORMATTER
-                   module Print : PRINT
+                   (Formatter : FORMATTER)
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = IntSyn' !*)
                      sharing Print.Formatter = Formatter
-                   module Order : ORDER
+                   (Order : ORDER)
                    (*! sharing Order.IntSyn = IntSyn' !*)
                    (*! module Paths  : PATHS !*)
-                   module Checking : CHECKING
+                   (Checking : CHECKING)
                       sharing Checking.Order = Order
                       (*! sharing Checking.IntSyn = IntSyn' !*)
                       (*! sharing Checking.Paths = Paths !*)
-                   module Origins : ORIGINS): REDUCES =
+                   (Origins : ORIGINS): REDUCES =
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn' !*)
-                   (*! module CSManager : CS_MANAGER !*)
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

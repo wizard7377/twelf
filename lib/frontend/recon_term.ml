@@ -8,23 +8,23 @@
 (* ------------------- *)
 
 module ReconTerm ((*! module IntSyn' : INTSYN !*)
-                   module Names : NAMES
+                   (Names : NAMES)
                    (*! sharing Names.IntSyn = IntSyn' !*)
                    (*! module Paths' : PATHS !*)
-                   module Approx : APPROX
+                   (Approx : APPROX)
                    (*! sharing Approx.IntSyn = IntSyn' !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   module Unify : UNIFY
+                   (Unify : UNIFY)
                    (*! sharing Unify.IntSyn = IntSyn' !*)
-                   module Abstract : ABSTRACT
+                   (Abstract : ABSTRACT)
                    (*! sharing Abstract.IntSyn = IntSyn' !*)
-                   module Print : PRINT
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = IntSyn' !*)
-                   (*! module CSManager : CS_MANAGER !*)
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = IntSyn' !*)
-                   module StringTree : TABLE where type key = string
-                   module Msg : MSG)
+                   (StringTree : TABLE with type key = string)
+                   (Msg : MSG)
   : RECON_TERM =
 struct
 
@@ -136,7 +136,7 @@ struct
     let evarApxTable : Apx.Exp StringTree.Table = StringTree.new (0)
     let fvarApxTable : Apx.Exp StringTree.Table = StringTree.new (0)
 
-    let fvarTable : IntSyn.Exp StringTree.Table = StringTree.new (0)
+    let fvarTable : IntSyn.exp StringTree.Table = StringTree.new (0)
   in
 
     fun varReset () = (StringTree.clear evarApxTable;
@@ -205,7 +205,7 @@ struct
   (* External syntax of terms *)
 
   type term =
-      internal of IntSyn.Exp * IntSyn.Exp * Paths.region (* (U, V, r) *)
+      internal of IntSyn.exp * IntSyn.exp * Paths.region (* (U, V, r) *)
         (* G |- U : V nf where V : L or V == kind *)
         (* not used currently *)
 
@@ -236,7 +236,7 @@ struct
         (* U undefined unless L >= kind *)
 
       (* Phase 3 only *)
-    | omitexact of IntSyn.Exp * IntSyn.Exp * Paths.region
+    | omitexact of IntSyn.exp * IntSyn.exp * Paths.region
 
   and dec =
       dec of string option * term * Paths.region
@@ -249,11 +249,11 @@ struct
   type job =
       jnothing
     | jand of job * job
-    | jwithctx of dec IntSyn.Ctx * job
+    | jwithctx of dec IntSyn.ctx * job
     | jterm of term
     | jclass of term
     | jof of term * term
-    | jof' of term * IntSyn.Exp
+    | jof' of term * IntSyn.exp
 
   fun termRegion (internal (U, V, r)) = r
     | termRegion (constant (H, r)) = r
@@ -293,7 +293,7 @@ struct
 
   local
     open Apx
-    type Ctx = type IntSyn.Ctx
+    type Ctx = type IntSyn.ctx
     type Dec = Dec of string option * Exp | NDec of string option
   in
 
@@ -637,18 +637,18 @@ struct
   type job =
       JNothing
     | JAnd of Job * Job
-    | JWithCtx of IntSyn.Dec IntSyn.Ctx * Job
-    | JTerm of (IntSyn.Exp * Paths.occExp) * IntSyn.Exp * IntSyn.Uni
-    | JClass of (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
-    | JOf of (IntSyn.Exp * Paths.occExp) * (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
+    | JWithCtx of IntSyn.Dec IntSyn.ctx * Job
+    | JTerm of (IntSyn.exp * Paths.occExp) * IntSyn.exp * IntSyn.Uni
+    | JClass of (IntSyn.exp * Paths.occExp) * IntSyn.Uni
+    | JOf of (IntSyn.exp * Paths.occExp) * (IntSyn.exp * Paths.occExp) * IntSyn.Uni
 
   (* This little type makes it easier to work with eta-expanded terms
      The idea is that Elim E represents a term U if
        E (s, S) = U[s] @ S *)
 
   type bidi =
-      Elim of IntSyn.Sub * IntSyn.Spine -> IntSyn.Exp
-    | Intro of IntSyn.Exp
+      Elim of IntSyn.Sub * IntSyn.Spine -> IntSyn.exp
+    | Intro of IntSyn.exp
 
   fun elimSub (E, s) = (fn (s', S) => E (comp (s, s'), S))
   fun elimApp (E, U) = (fn (s, S) => E (s, App (EClo (U, s), S)))

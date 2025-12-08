@@ -14,7 +14,7 @@ sig
   val uninstall : IntSyn.cid -> bool	(* true if declared *)
 
   val worldcheck : Tomega.Worlds -> IntSyn.cid -> unit
-  val ctxToList  : IntSyn.Dec IntSyn.Ctx -> IntSyn.Dec list
+  val ctxToList  : IntSyn.Dec IntSyn.ctx -> IntSyn.Dec list
   val isSubsumed : Tomega.Worlds -> IntSyn.cid -> unit
   val getWorlds  : IntSyn.cid -> Tomega.Worlds
 end;; (* module type WORLDSYN *)

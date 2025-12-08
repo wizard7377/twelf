@@ -1,21 +1,21 @@
 (* Meta Theorem Prover Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-module MTProver (module MTPGlobal : MTPGLOBAL
+module MTProver (MTPGlobal : MTPGLOBAL)
                   (*! module IntSyn' : INTSYN !*)
-                  (*! module FunSyn : FUNSYN !*)
+                  (*! (FunSyn : FUNSYN) !*)
                   (*! sharing FunSyn.IntSyn = IntSyn' !*)
-                  module StateSyn : STATESYN
+                  (StateSyn : STATESYN)
                   (*! sharing IntSyn = IntSyn' !*)
                   (*! sharing StateSyn.FunSyn = FunSyn !*)
-                  module Order : ORDER
+                  (Order : ORDER)
                   (*! sharing Order.IntSyn = IntSyn' !*)
-                  module MTPInit : MTPINIT
+                  (MTPInit : MTPINIT)
                   (*! sharing MTPInit.FunSyn = FunSyn !*)
                     sharing MTPInit.StateSyn = StateSyn
-                  module MTPStrategy : MTPSTRATEGY
+                  (MTPStrategy : MTPSTRATEGY)
                     sharing MTPStrategy.StateSyn = StateSyn
-                  module RelFun : RELFUN): PROVER =
+                  (RelFun : RELFUN): PROVER =
                   (*! sharing RelFun.FunSyn = FunSyn !*)
 struct
   (*! module IntSyn = IntSyn' !*)
@@ -169,11 +169,11 @@ end (* functor MTProver *)
 
 
 
-module CombiProver (module MTPGlobal : MTPGLOBAL
+module CombiProver (MTPGlobal : MTPGLOBAL)
                      (*! module IntSyn' : INTSYN !*)
-                     module ProverOld : PROVER
+                     (ProverOld : PROVER)
                      (*! sharing ProverOld.IntSyn = IntSyn' !*)
-                     module ProverNew : PROVER): PROVER =
+                     (ProverNew : PROVER): PROVER =
                      (*! sharing ProverNew.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

@@ -9,18 +9,18 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
                        (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                        module Conv: CONV
                        (*! sharing Conv.IntSyn = IntSyn' !*)
-                       module Whnf : WHNF
-                       module Match : MATCH
+                       (Whnf : WHNF)
+                       (Match : MATCH)
                        (*! sharing Whnf.IntSyn = IntSyn' !*)
-                       (*! module RBSet : RBSET !*)
-                       module Assign : ASSIGN
-                       (*! module TableParam : TABLEPARAM !*)
+                       (*! (RBSet : RBSET) !*)
+                       (Assign : ASSIGN)
+                       (*! (TableParam : TABLEPARAM) !*)
                        (*! sharing TableParam.IntSyn = IntSyn' !*)
                        (*! sharing TableParam.CompSyn = CompSyn' !*)
                        (*! sharing TableParam.RBSet = RBSet !*)
-                       module AbstractTabled : ABSTRACTTABLED
+                       (AbstractTabled : ABSTRACTTABLED)
                        (*! sharing AbstractTabled.IntSyn = IntSyn' !*)
-                       module Print : PRINT
+                       (Print : PRINT)
                        (*! sharing Print.IntSyn = IntSyn'!*))
   : MEMOTABLE =
   struct
@@ -40,7 +40,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
    *)
   (* property: linear *)
 
-  type normalSubsts  = (int (* local depth *) * IntSyn.Exp) RBSet.ordSet
+  type normalSubsts  = (int (* local depth *) * IntSyn.exp) RBSet.ordSet
 
   type exSubsts  = IntSyn.Front RBSet.ordSet
 
@@ -108,7 +108,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
   fun noChildren C = (C=[])
 
   type retrieval =
-      Variant of (int * IntSyn.Exp)
+      Variant of (int * IntSyn.exp)
     | NotCompatible
 
   type compSub =

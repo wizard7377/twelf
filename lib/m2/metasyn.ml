@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 
 module MetaSyn ((*! module IntSyn' : INTSYN !*)
-                 module Whnf : WHNF): METASYN =
+                 (Whnf : WHNF): METASYN =
                  (*! sharing Whnf.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)
@@ -17,13 +17,13 @@ struct
 
   type prefix =                     (* Prefix P := *)
     Prefix of IntSyn.dctx               (* G   declarations           *)
-            * Mode IntSyn.Ctx           (* Mtx modes                  *)
-            * int IntSyn.Ctx            (* Btx splitting depths       *)
+            * Mode IntSyn.ctx           (* Mtx modes                  *)
+            * int IntSyn.ctx            (* Btx splitting depths       *)
 
   type state =                      (* State S :=                 *)
     State of string                     (*             [name]         *)
              * Prefix                   (*             G; Mtx; Btx    *)
-             * IntSyn.Exp               (*             |- V           *)
+             * IntSyn.exp               (*             |- V           *)
 
   type Sgn =                        (* Interface module type        *)
     SgnEmpty                            (* IS ::= .                   *)

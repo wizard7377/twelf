@@ -4,9 +4,9 @@
 module type TOMEGAABSTRACT = 
 sig
   exception Error of string
-  val raiseFor : IntSyn.Dec IntSyn.Ctx * (Tomega.For * IntSyn.Sub) -> Tomega.For
-  val raisePrg : IntSyn.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For -> Tomega.Prg
-  val raiseP   : IntSyn.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For -> Tomega.Prg
-  val raiseF   : IntSyn.Dec IntSyn.Ctx * (Tomega.For * IntSyn.Sub) -> Tomega.For
+  val raiseFor : IntSyn.Dec IntSyn.ctx * (Tomega.For * IntSyn.Sub) -> Tomega.For
+  val raisePrg : IntSyn.Dec IntSyn.ctx * Tomega.Prg * Tomega.For -> Tomega.Prg
+  val raiseP   : IntSyn.Dec IntSyn.ctx * Tomega.Prg * Tomega.For -> Tomega.Prg
+  val raiseF   : IntSyn.Dec IntSyn.ctx * (Tomega.For * IntSyn.Sub) -> Tomega.For
 end (* Signature TOMEGAABSTRACT *)       
 

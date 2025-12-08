@@ -5,25 +5,25 @@ module TomegaUnify
   ((*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   module Abstract : ABSTRACT
+   (Abstract : ABSTRACT)
    (*! sharing Abstract.IntSyn = IntSyn' !*)
-   module TypeCheck : TYPECHECK
+   (TypeCheck : TYPECHECK)
    (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-   module Conv : CONV
+   (Conv : CONV)
    (*! sharing Conv.IntSyn = IntSyn' !*)
-   module Normalize : NORMALIZE
+   (Normalize : NORMALIZE)
    (*! sharing Normalize.IntSyn = IntSyn' !*)
    (*! sharing Normalize.Tomega = Tomega' !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Print : PRINT
+   (Print : PRINT)
    (*! sharing Print.IntSyn = IntSyn' !*)
-   module TomegaPrint : TOMEGAPRINT
+   (TomegaPrint : TOMEGAPRINT)
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
-   module Subordinate : SUBORDINATE
+   (Subordinate : SUBORDINATE)
    (*! sharing Subordinate.IntSyn = IntSyn' !*)
-   module Weaken : WEAKEN): TOMEGAUNIFY =
+   (Weaken : WEAKEN): TOMEGAUNIFY =
    (*! sharing Weaken.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)

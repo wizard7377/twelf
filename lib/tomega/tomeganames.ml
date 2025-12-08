@@ -1,7 +1,7 @@
 (* Naming *)
 (* Author: Carsten Schuermann *)
 
-module TomegaNames : TOMEGANAMES=
+(TomegaNames : TOMEGANAMES)=
   struct
     module T = Tomega
     module I = IntSyn

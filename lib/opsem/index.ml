@@ -2,28 +2,28 @@
 (* Author: Brigitte Pientka *)
 
 module TableIndex (Global : GLOBAL)
-   (module Queue : QUEUE
+   (Queue : QUEUE)
                     (*! module IntSyn' : INTSYN !*)
                     (*! module CompSyn': COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                    module Subordinate : SUBORDINATE
+                    (Subordinate : SUBORDINATE)
                     (*! sharing Subordinate.IntSyn = IntSyn'                   !*)
                     module Conv: CONV
                     (*! sharing Conv.IntSyn = IntSyn' !*)
-                    module Unify : UNIFY
+                    (Unify : UNIFY)
                     (*! sharing Unify.IntSyn = IntSyn' !*)
-                    module AbstractTabled : ABSTRACTTABLED
+                    (AbstractTabled : ABSTRACTTABLED)
                     (*! sharing AbstractTabled.IntSyn = IntSyn' !*)
-                    module Whnf : WHNF
+                    (Whnf : WHNF)
                     (*! sharing Whnf.IntSyn = IntSyn' !*)
-                    module Print : PRINT
+                    (Print : PRINT)
                     (*! sharing Print.IntSyn = IntSyn' !*)
-                    module CPrint : CPRINT
+                    (CPrint : CPRINT)
                     (*! sharing CPrint.IntSyn = IntSyn' !*)
                     (*! sharing CPrint.CompSyn = CompSyn' !*)
-                    module Names : NAMES
+                    (Names : NAMES)
                     (*! sharing Names.IntSyn = IntSyn' !*)
-                    module TypeCheck : TYPECHECK): TABLEINDEX =
+                    (TypeCheck : TYPECHECK): TABLEINDEX =
                     (*! sharing TypeCheck.IntSyn = IntSyn' !*)
 struct
   (*! module IntSyn = IntSyn' !*)
@@ -53,7 +53,7 @@ struct
 
   (* entry = (((i, G, D, U), A)) where i is the access counter
    *)
-  type entry = (((int ref * IntSyn.dctx * IntSyn.dctx * IntSyn.Exp) * answer))
+  type entry = (((int ref * IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer))
 
   type entries = entry list
 
@@ -83,7 +83,7 @@ struct
   let strengthen = AbstractTabled.strengthen ;
 
   (* original query *)
-  let query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.Exp * IntSyn.Sub * (CompSyn.pskeleton -> unit))
+  let query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.exp * IntSyn.Sub * (CompSyn.pskeleton -> unit))
                 option ref = ref NONE
 
   (* ---------------------------------------------------------------------- *)

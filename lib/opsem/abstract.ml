@@ -7,15 +7,15 @@ module AbstractTabled ((*! module IntSyn' : INTSYN !*)
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
                   module Unify   : UNIFY
                   (*! sharing Unify.IntSyn = IntSyn' !*)
-                  module Constraints : CONSTRAINTS
+                  (Constraints : CONSTRAINTS)
                   (*! sharing Constraints.IntSyn = IntSyn' !*)
-                  module Subordinate : SUBORDINATE
+                  (Subordinate : SUBORDINATE)
                   (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                  module Print : PRINT
+                  (Print : PRINT)
                   (*! sharing Print.IntSyn = IntSyn' !*)
                   module Conv    : CONV): ABSTRACTTABLED =
                   (*! sharing Conv.IntSyn = IntSyn' !*)
-                  (*! module TableParam : TABLEPARAM !*)
+                  (*! (TableParam : TABLEPARAM) !*)
                   (*! sharing TableParam.IntSyn = IntSyn' !*)
 struct
 
@@ -209,7 +209,7 @@ struct
         let s' = ctxToEVarSub (G, s)
         let X = IntSyn.newEVar (IntSyn.Null, I.EClo(A,s'))
       in
-        IntSyn.Dot(IntSyn.Exp(X), s')
+        IntSyn.Dot(IntSyn.exp(X), s')
       end
 
 

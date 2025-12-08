@@ -12,45 +12,45 @@ sig
   val optimize : Opt ref
 
   type goal =                       (* Goals                      *)
-    Atom of IntSyn.Exp                  (* g ::= p                    *)
-  | Impl of ResGoal * IntSyn.Exp        (*     | (r,A,a) => g         *)
+    Atom of IntSyn.exp                  (* g ::= p                    *)
+  | Impl of ResGoal * IntSyn.exp        (*     | (r,A,a) => g         *)
             * IntSyn.Head * goal		
   | All  of IntSyn.Dec * goal           (*     | all x:A. g           *)
 
   (* dynamic clauses *)
   and ResGoal =                         (* Residual Goals             *)
-    Eq     of IntSyn.Exp                (* r ::= p = ?                *)
-  | Assign of IntSyn.Exp * AuxGoal      (*     | p = ?, where p has   *)
+    Eq     of IntSyn.exp                (* r ::= p = ?                *)
+  | Assign of IntSyn.exp * AuxGoal      (*     | p = ?, where p has   *)
 					(* only new vars,             *)  
                                         (* then unify all the vars    *)
   | And    of ResGoal                   (*     | r & (A,g)            *)
-              * IntSyn.Exp * Goal       
+              * IntSyn.exp * Goal       
   | In   of ResGoal			(*     | r virt& (A,g)        *)
-              * IntSyn.Exp * Goal       
+              * IntSyn.exp * Goal       
   | Exists of IntSyn.Dec * ResGoal      (*     | exists x:A. r        *)
   | Axists of IntSyn.Dec * ResGoal	(*     | exists x:_. r        *)
 
   and AuxGoal =
     Trivial				  (* trivially done *)
-  | UnifyEq of IntSyn.dctx * IntSyn.Exp   (* call unify *)
-             * IntSyn.Exp * AuxGoal
+  | UnifyEq of IntSyn.dctx * IntSyn.exp   (* call unify *)
+             * IntSyn.exp * AuxGoal
 
 
   (* Static programs -- compiled version for substitution trees *)
 
-  type conjunction = True | Conjunct of goal * IntSyn.Exp * conjunction
+  type conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
 
   type compHead = 
-     Head of (IntSyn.Exp * IntSyn.Dec IntSyn.Ctx * AuxGoal * IntSyn.cid)
+     Head of (IntSyn.exp * IntSyn.Dec IntSyn.ctx * AuxGoal * IntSyn.cid)
 
  (* pskeleton instead of proof term *)
   type flatterm = 
-    Pc of int | Dc of int | Csolver of IntSyn.Exp
+    Pc of int | Dc of int | Csolver of IntSyn.exp
 
   type pskeleton = Flatterm list  
 
   (* The dynamic clause pool --- compiled version of the context *)
-  (* type dpool = (ResGoal * IntSyn.Sub * IntSyn.cid) option IntSyn.Ctx *)
+  (* type dpool = (ResGoal * IntSyn.Sub * IntSyn.cid) option IntSyn.ctx *)
 
   (* Compiled Declarations *)
   (* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
@@ -61,7 +61,7 @@ sig
   | PDec
 
   (* Dynamic programs: context with synchronous clause pool *)
-  type dProg = DProg of (IntSyn.dctx * comDec IntSyn.Ctx)
+  type dProg = DProg of (IntSyn.dctx * comDec IntSyn.ctx)
 
   (* Programs --- compiled version of the module type (no direct head access) *)
   type conDec =			      (* Compiled constant declaration *)

@@ -4,20 +4,20 @@
 module Splitting (Global : GLOBAL)
    (module MetaSyn' : METASYN)
    (MetaAbstract : METAABSTRACT)
-   (module MetaPrint : METAPRINT
+   (MetaPrint : METAPRINT)
                    sharing MetaPrint.MetaSyn = MetaSyn'
                    sharing MetaAbstract.MetaSyn = MetaSyn'
-                   module ModeTable : MODETABLE
+                   (ModeTable : MODETABLE)
                    (*! sharing ModeSyn.IntSyn = MetaSyn'.IntSyn !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
-                   module Index : INDEX
+                   (Index : INDEX)
                    (*! sharing Index.IntSyn = MetaSyn'.IntSyn !*)
-                   module Print : PRINT
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = MetaSyn'.IntSyn !*)
-                   module Unify : UNIFY): SPLITTING =
+                   (Unify : UNIFY): SPLITTING =
                    (*! sharing Unify.IntSyn = MetaSyn'.IntSyn !*)
-                   (*! module CSManager : CS_MANAGER !*)
+                   (*! (CSManager : CS_MANAGER) !*)
                    (*! sharing CSManager.IntSyn = MetaSyn'.IntSyn !*)
 struct
   module MetaSyn = MetaSyn'

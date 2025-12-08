@@ -4,7 +4,7 @@
 module ParseConDec
   ((*! module Parsing' : PARSING !*)
    module ExtConDec' : EXTCONDEC
-   module ParseTerm : PARSE_TERM
+   (ParseTerm : PARSE_TERM)
    (*! sharing ParseTerm.Lexer = Parsing'.Lexer !*)
      sharing ParseTerm.ExtSyn = ExtConDec'.ExtSyn)
      : PARSE_CONDEC =

@@ -1,5 +1,5 @@
 
-module Timers : TIMERS =
+(Timers : TIMER)S =
 struct
 
   let centers : Timing.center list ref = ref []

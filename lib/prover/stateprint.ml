@@ -2,20 +2,20 @@
 (* Author: Carsten Schuermann *)
 
 module StatePrint
-  (module Global : GLOBAL
+  (Global : GLOBAL)
    (*! module IntSyn' : INTSYN !*)
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
    module State'  : STATE
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
    module Formatter' : FORMATTER
-   module Print : PRINT
+   (Print : PRINT)
      sharing Print.Formatter = Formatter'
      (*! sharing Print.IntSyn = IntSyn' !*)
-   module TomegaPrint : TOMEGAPRINT
+   (TomegaPrint : TOMEGAPRINT)
    (*! sharing TomegaPrint.IntSyn = IntSyn' !*)
    (*! sharing TomegaPrint.Tomega = Tomega' !*)
      sharing TomegaPrint.Formatter = Formatter')

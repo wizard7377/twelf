@@ -3,7 +3,7 @@
 (* Modified: Brigitte Pientka *)
 
 module Order ((*! module IntSyn' : INTSYN !*)
-               module Table : TABLE where type key = int)
+               (Table : TABLE with type key = int))
   : ORDER =
 struct
   (*! module IntSyn = IntSyn' !*)

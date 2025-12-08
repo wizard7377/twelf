@@ -2,19 +2,19 @@
 (* Author: Kevin Watkins *)
 
 module ModSyn
-  (module Global : GLOBAL
+  (Global : GLOBAL)
    (*! module IntSyn' : INTSYN !*)
    module Names' : NAMES
    (*! sharing Names'.IntSyn = IntSyn' !*)
    (*! module Paths' : PATHS !*)
-   module Origins : ORIGINS
+   (Origins : ORIGINS)
    (*! sharing Origins.Paths = Paths' !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Strict : STRICT
+   (Strict : STRICT)
    (*! sharing Strict.IntSyn = IntSyn' !*)
-   module IntTree : TABLE where type key = int
-   module HashTable : TABLE where type key = string)
+   (IntTree : TABLE with type key = int)
+   (HashTable : TABLE with type key = string))
   : MODSYN =
 struct
 

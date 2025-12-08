@@ -8,6 +8,6 @@ sig
 
   exception Unify of string
 
-  val unifyFor : Tomega.Dec IntSyn.Ctx * Tomega.For * Tomega.For -> unit
+  val unifyFor : Tomega.Dec IntSyn.ctx * Tomega.For * Tomega.For -> unit
 end (* Signature TOMEGATYPECHECK *)       
 

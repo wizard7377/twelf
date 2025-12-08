@@ -88,7 +88,7 @@ struct
 	  | eq_c_true (TypeC(a,a')) = tp_eq(a, a')
 
         (* The type ppsubst is a compact way of representing a
-           class of substitutions that contains all of the pattern
+           tClass of substitutions that contains all of the pattern
            substitutions. These are the "prepattern" substitutions,
            the ones that are of the form 
            i1.i2. ... in . shift^m

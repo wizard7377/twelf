@@ -17,8 +17,8 @@ sig
   type tC	=			(* Terminiation Condition     *)
     Abs of IntSyn.Dec * tC      	(* T ::= {{D}} O              *)
   | Conj of tC * tC			(*     | O1 ^ O2              *)
-  | Base of ((IntSyn.Exp * IntSyn.Sub) * 
-	     (IntSyn.Exp * IntSyn.Sub)) Order.Order
+  | Base of ((IntSyn.exp * IntSyn.Sub) * 
+	     (IntSyn.exp * IntSyn.Sub)) Order.Order
 
   type for  			(* Formulas                   *)
   = World of worlds * for               (* F ::= World l1...ln. F     *)  
@@ -28,7 +28,7 @@ sig
   | True				(*     | T                    *)
   | And of for * for                    (*     | F1 ^ F2              *)
   | FClo of for * Sub			(*     | F [t]                *)
-  | FVar of (Dec IntSyn.Ctx * For option ref)
+  | FVar of (Dec IntSyn.ctx * For option ref)
 					(*     | F (G)                *)
 
   and Dec =			        (* Declaration:               *)
@@ -41,7 +41,7 @@ sig
   | Lam of Dec * Prg	 	        (*     | lam LD. P            *)
   | New of Prg                          (*     | new P                *)
   | Choose of Prg                       (*     | choose P             *)
-  | PairExp of IntSyn.Exp * Prg         (*     | <M, P>               *)
+  | PairExp of IntSyn.exp * Prg         (*     | <M, P>               *)
   | PairBlock of IntSyn.Block * Prg     (*     | <rho, P>             *) 
   | PairPrg of Prg * Prg                (*     | <P1, P2>             *)
   | Unit				(*     | <>                   *)
@@ -50,7 +50,7 @@ sig
   | Case of Cases                       (*     | case t of O          *)
   | PClo of Prg * Sub			(*     | P [t]                *)
   | Let of Dec * Prg * Prg              (*     | let D = P1 in P2     *)
-  | EVar of Dec IntSyn.Ctx * Prg option ref * For * TC option * TC option * IntSyn.Exp
+  | EVar of Dec IntSyn.ctx * Prg option ref * For * TC option * TC option * IntSyn.exp
 					(*     | E (G, F, _, _, X)    *)
                                         (* X is just just for printing*)
     
@@ -61,7 +61,7 @@ sig
 
   and Spine =				(* Spines:                    *)
     Nil					(* S ::= Nil                  *)
-  | AppExp of IntSyn.Exp * Spine        (*     | P U                  *) 
+  | AppExp of IntSyn.exp * Spine        (*     | P U                  *) 
   | AppBlock of IntSyn.Block * Spine    (*     | P rho                *)
   | AppPrg of Prg * Spine               (*     | P1 P2                *)
   | SClo of Spine * Sub                 (*     | S [t]                *) 
@@ -73,12 +73,12 @@ sig
   and Front =				(* Fronts:                    *)
     Idx of int		  	        (* F ::= i                    *)
   | Prg of Prg				(*     | p                    *)
-  | Exp of IntSyn.Exp			(*     | U                    *)
+  | Exp of IntSyn.exp			(*     | U                    *)
   | Block of IntSyn.Block		(*     | _x                   *)
   | Undef                               (*     | _                    *)
 
   and Cases =				(* Cases                      *)
-    Cases of (Dec IntSyn.Ctx * Sub * Prg) list
+    Cases of (Dec IntSyn.ctx * Sub * Prg) list
 					(* C ::= (Psi' |> s |-> P)    *)
 
   type conDec =			(* ConDec                     *)
@@ -88,10 +88,10 @@ sig
   exception NoMatch
   val coerceSub : Sub -> IntSyn.Sub
   val embedSub  : IntSyn.Sub -> Sub
-  val coerceCtx : Dec IntSyn.Ctx -> IntSyn.Dec IntSyn.Ctx
-  val strengthenCtx : Dec IntSyn.Ctx -> (IntSyn.Dec IntSyn.Ctx * Sub * Sub)
-  val embedCtx  : IntSyn.Dec IntSyn.Ctx -> Dec IntSyn.Ctx
-  val weakenSub : Dec IntSyn.Ctx -> Sub
+  val coerceCtx : Dec IntSyn.ctx -> IntSyn.Dec IntSyn.ctx
+  val strengthenCtx : Dec IntSyn.ctx -> (IntSyn.Dec IntSyn.ctx * Sub * Sub)
+  val embedCtx  : IntSyn.Dec IntSyn.ctx -> Dec IntSyn.ctx
+  val weakenSub : Dec IntSyn.ctx -> Sub
   val invertSub : Sub -> Sub
   val id        : Sub
   val shift     : Sub
@@ -116,24 +116,24 @@ sig
   val eqWorlds    : Worlds * Worlds -> bool
 
   val convFor     : (For * Sub) * (For * Sub) -> bool
-  val newEVar     : Dec IntSyn.Ctx * For -> Prg
-  val newEVarTC   : Dec IntSyn.Ctx * For * TC option * TC option -> Prg 
+  val newEVar     : Dec IntSyn.ctx * For -> Prg
+  val newEVarTC   : Dec IntSyn.ctx * For * TC option * TC option -> Prg 
 
 (* Below are added by Yu Liao *)
-  val ctxDec : Dec IntSyn.Ctx * int -> Dec
+  val ctxDec : Dec IntSyn.ctx * int -> Dec
   val revCoerceSub : IntSyn.Sub -> Sub
-  val revCoerceCtx : IntSyn.Dec IntSyn.Ctx -> Dec IntSyn.Ctx
+  val revCoerceCtx : IntSyn.Dec IntSyn.ctx -> Dec IntSyn.ctx
 
 (* Added references by ABP *)
   val coerceFront : Front -> IntSyn.Front
   val revCoerceFront : IntSyn.Front -> Front
-  val deblockify : IntSyn.Dec IntSyn.Ctx -> IntSyn.Dec IntSyn.Ctx * Sub
+  val deblockify : IntSyn.Dec IntSyn.ctx -> IntSyn.Dec IntSyn.ctx * Sub
 
 (* Stuff that has to do with termination conditions *)
   val TCSub : TC * IntSyn.Sub -> TC
   val normalizeTC : TC -> TC
   val convTC : TC * TC -> bool
-  val transformTC : IntSyn.Dec IntSyn.Ctx * For * int Order.Order list -> TC
+  val transformTC : IntSyn.Dec IntSyn.ctx * For * int Order.Order list -> TC
     
 
 end (* Signature TOMEGA *)

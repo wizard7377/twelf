@@ -1,7 +1,7 @@
 (* Trailing Abstract Operations *)
 (* Author: Roberto Virga *)
 
-module Trail : TRAIL =
+(Trail : TRAI)L =
 struct
 
   local

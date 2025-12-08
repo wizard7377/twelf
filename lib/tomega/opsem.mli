@@ -10,6 +10,6 @@ sig
 
   val evalPrg : Tomega.Prg -> Tomega.Prg
   val topLevel : Tomega.Prg -> unit
-  val createVarSub : Tomega.Dec IntSyn.Ctx * Tomega.Dec IntSyn.Ctx -> Tomega.Sub
-  val matchSub : Tomega.Dec IntSyn.Ctx * Tomega.Sub * Tomega.Sub -> unit
+  val createVarSub : Tomega.Dec IntSyn.ctx * Tomega.Dec IntSyn.ctx -> Tomega.Sub
+  val matchSub : Tomega.Dec IntSyn.ctx * Tomega.Sub * Tomega.Sub -> unit
 end

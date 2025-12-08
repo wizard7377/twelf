@@ -10,15 +10,15 @@ struct
 
   type state =
     State of Tomega.Worlds
-      * Tomega.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For
-  | StateLF of IntSyn.Exp    (* StateLF X, X is always lowered *)
+      * Tomega.Dec IntSyn.ctx * Tomega.Prg * Tomega.For
+  | StateLF of IntSyn.exp    (* StateLF X, X is always lowered *)
 
   type focus =
     Focus of Tomega.Prg * Tomega.Worlds
-  | FocusLF of IntSyn.Exp
+  | FocusLF of IntSyn.exp
 
  (* type State
-    = State of (Tomega.Dec IntSyn.Ctx * Tomega.For) * Tomega.Worlds
+    = State of (Tomega.Dec IntSyn.ctx * Tomega.For) * Tomega.Worlds
  *)
 (*  type SideCondition  (* we need some work here *)
     = None

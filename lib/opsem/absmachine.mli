@@ -10,6 +10,6 @@ sig
   (*! module CompSyn : COMPSYN !*)
 
   val solve     : (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
-                  * (IntSyn.Exp -> unit) -> unit
+                  * (IntSyn.exp -> unit) -> unit
 
 end;; (* module type ABSMACHINE *)

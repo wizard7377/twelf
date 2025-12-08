@@ -1,26 +1,26 @@
 (* Inference:  Version 1.3*)
 (* Author: Carsten Schuermann *)
 
-module Inference (module MTPGlobal : MTPGLOBAL
-                   (*! module IntSyn : INTSYN !*)
+module Inference (MTPGlobal : MTPGLOBAL)
+                   (*! (IntSyn : INTSYN) !*)
                    (*! module FunSyn' : FUNSYN !*)
                    (*! sharing FunSyn'.IntSyn = IntSyn !*)
                    module StateSyn' : STATESYN
                    (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                   module Abstract : ABSTRACT
+                   (Abstract : ABSTRACT)
                    (*! sharing Abstract.IntSyn = IntSyn !*)
-                   module TypeCheck : TYPECHECK
+                   (TypeCheck : TYPECHECK)
                    (*! sharing TypeCheck.IntSyn = IntSyn !*)
-                   module FunTypeCheck : FUNTYPECHECK
+                   (FunTypeCheck : FUNTYPECHECK)
                    (*! sharing FunTypeCheck.FunSyn = FunSyn' !*)
                      sharing FunTypeCheck.StateSyn = StateSyn'
                    module UniqueSearch  : UNIQUESEARCH
                    (*! sharing UniqueSearch.IntSyn = IntSyn !*)
                    (*! sharing UniqueSearch.FunSyn = FunSyn' !*)
                      sharing UniqueSearch.StateSyn = StateSyn'
-                   module Print : PRINT
+                   (Print : PRINT)
                    (*! sharing Print.IntSyn = IntSyn !*)
-                   module Whnf : WHNF): INFERENCE =
+                   (Whnf : WHNF): INFERENCE =
                    (*! sharing Whnf.IntSyn = IntSyn !*)
 struct
   (*! module FunSyn = FunSyn' !*)

@@ -2,27 +2,27 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga, Jeff Polakow *)
 
-module ReconConDec (module Global : GLOBAL
+module ReconConDec (Global : GLOBAL)
                      (*! module IntSyn' : INTSYN !*)
-                     module Names : NAMES
+                     (Names : NAMES)
                      (*! sharing Names.IntSyn = IntSyn' !*)
-                     module Abstract : ABSTRACT
+                     (Abstract : ABSTRACT)
                      (*! sharing Abstract.IntSyn = IntSyn' !*)
                      (*! module Paths' : PATHS !*)
                      module ReconTerm' : RECON_TERM
                      (*! sharing ReconTerm'.IntSyn = IntSyn' !*)
                      (*! sharing ReconTerm'.Paths = Paths' !*)
-                     module Constraints : CONSTRAINTS
+                     (Constraints : CONSTRAINTS)
                      (*! sharing Constraints.IntSyn = IntSyn' !*)
-                     module Strict : STRICT
+                     (Strict : STRICT)
                      (*! sharing Strict.IntSyn = IntSyn' !*)
                      (*! sharing Strict.Paths = Paths' !*)
-                     module TypeCheck : TYPECHECK
+                     (TypeCheck : TYPECHECK)
                      (*! sharing TypeCheck.IntSyn = IntSyn' !*)
-                     module Timers : TIMERS
-                     module Print : PRINT
+                     (Timers : TIMERS)
+                     (Print : PRINT)
                      (*! sharing Print.IntSyn = IntSyn' !*)
-                     module Msg : MSG): RECON_CONDEC =
+                     (Msg : MSG): RECON_CONDEC =
 struct
   (*! module IntSyn = IntSyn' !*)
   (*! module Paths = Paths' !*)

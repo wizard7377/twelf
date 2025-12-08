@@ -3,43 +3,43 @@
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
 module MTPRecursion (MTPGlobal : MTPGLOBAL)
-   (module Global : GLOBAL
-                      (*! module IntSyn : INTSYN !*)
-                      (*! module FunSyn : FUNSYN !*)
+   (Global : GLOBAL)
+                      (*! (IntSyn : INTSYN) !*)
+                      (*! (FunSyn : FUNSYN) !*)
                       (*! sharing FunSyn.IntSyn = IntSyn !*)
                       module StateSyn' : STATESYN
                       (*! sharing StateSyn'.IntSyn = IntSyn !*)
                       (*! sharing StateSyn'.FunSyn = FunSyn !*)
-                      module Abstract : ABSTRACT
+                      (Abstract : ABSTRACT)
                       (*! sharing Abstract.IntSyn = IntSyn !*)
-                      module MTPAbstract : MTPABSTRACT
+                      (MTPAbstract : MTPABSTRACT)
                       (*! sharing MTPAbstract.IntSyn = IntSyn !*)
                       (*! sharing MTPAbstract.FunSyn = FunSyn !*)
                         sharing MTPAbstract.StateSyn = StateSyn'
-                      module FunTypeCheck : FUNTYPECHECK
+                      (FunTypeCheck : FUNTYPECHECK)
                       (*! sharing FunTypeCheck.FunSyn = FunSyn !*)
                         sharing FunTypeCheck.StateSyn = StateSyn'
-                      module MTPrint : MTPRINT
+                      (MTPrint : MTPRINT)
                         sharing MTPrint.StateSyn = StateSyn'
-                      module Whnf : WHNF
+                      (Whnf : WHNF)
                       (*! sharing Whnf.IntSyn = IntSyn !*)
-                      module Unify : UNIFY
+                      (Unify : UNIFY)
                       (*! sharing Unify.IntSyn = IntSyn !*)
-                      module Conv : CONV
+                      (Conv : CONV)
                       (*! sharing Conv.IntSyn = IntSyn !*)
-                      module Names : NAMES
+                      (Names : NAMES)
                       (*! sharing Names.IntSyn = IntSyn !*)
-                      module Subordinate : SUBORDINATE
+                      (Subordinate : SUBORDINATE)
                       (*! sharing Subordinate.IntSyn = IntSyn !*)
-                      module Print : PRINT
+                      (Print : PRINT)
                       (*! sharing Print.IntSyn = IntSyn !*)
-                      module TypeCheck : TYPECHECK
+                      (TypeCheck : TYPECHECK)
                       (*! sharing TypeCheck.IntSyn = IntSyn !*)
-                      module Formatter : FORMATTER
+                      (Formatter : FORMATTER)
                       module FunPrint :FUNPRINT
                       (*! sharing FunPrint.FunSyn = FunSyn !*)
                         sharing FunPrint.Formatter = Formatter
-                        (*! module CSManager : CS_MANAGER !*)
+                        (*! (CSManager : CS_MANAGER) !*)
                       (*! sharing CSManager.IntSyn = IntSyn !*)
 
 )  : MTPRECURSION =

@@ -2,15 +2,15 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-module ModeCheck ((*! module IntSyn : INTSYN !*)
-                   module ModeTable : MODETABLE
+module ModeCheck ((*! (IntSyn : INTSYN) !*)
+                   (ModeTable : MODETABLE)
                    (*! sharing ModeSyn.IntSyn = IntSyn !*)
-                   module Whnf : WHNF
+                   (Whnf : WHNF)
                    (*! sharing Whnf.IntSyn = IntSyn !*)
-                   module Index : INDEX
+                   (Index : INDEX)
                    (*! sharing Index.IntSyn = IntSyn !*)
-                   (*! module Paths : PATHS !*)
-                   module Origins : ORIGINS): MODECHECK =
+                   (*! (Paths : PATHS) !*)
+                   (Origins : ORIGINS): MODECHECK =
                    (*! sharing Origins.Paths = Paths !*)
                      (*! sharing Origins.IntSyn = IntSyn !*)
 struct

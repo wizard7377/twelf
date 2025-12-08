@@ -6,7 +6,7 @@ module Introduce
    (*! module Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
    module State' : STATE
-   module TomegaNames : TOMEGANAMES): INTRODUCE =
+   (TomegaNames : TOMEGANAMES): INTRODUCE =
    (*! sharing State'.IntSyn = IntSyn' !*)
    (*! sharing State'.Tomega = Tomega' !*)
 struct

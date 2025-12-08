@@ -6,10 +6,10 @@ module Flit(Global : GLOBAL)
    (Pack : PACK_WORD)
    (Whnf : WHNF)
    (Names : NAMES)
-   (module Table : TABLE
+   (Table : TABLE)
                where type key = IntSyn.cid
-             module Index : INDEX
-             module Print : PRINT)
+             (Index : INDEX)
+             (Print : PRINT)
   : FLIT =
 struct
 

@@ -18,7 +18,7 @@ sig
   val mark   : unit -> unit
   val unwind : unit -> unit
 
-  val instantiateEVar : IntSyn.Exp option ref * IntSyn.Exp * IntSyn.cnstr list -> unit
+  val instantiateEVar : IntSyn.exp option ref * IntSyn.exp * IntSyn.cnstr list -> unit
   val instantiateLVar : IntSyn.Block option ref * IntSyn.Block -> unit
 
   val resetAwakenCnstrs : unit -> unit
@@ -42,8 +42,8 @@ sig
   val unifySub : IntSyn.dctx * IntSyn.Sub * IntSyn.Sub -> unit  (* raises Unify *)
 
 
-  val invertible : IntSyn.dctx * IntSyn.eclo * IntSyn.Sub * IntSyn.Exp option ref -> bool
-  val invertSub : IntSyn.dctx * IntSyn.Sub * IntSyn.Sub * IntSyn.Exp option ref -> IntSyn.Sub
+  val invertible : IntSyn.dctx * IntSyn.eclo * IntSyn.Sub * IntSyn.exp option ref -> bool
+  val invertSub : IntSyn.dctx * IntSyn.Sub * IntSyn.Sub * IntSyn.exp option ref -> IntSyn.Sub
 
   (* unifiable (G, Us,Us') will instantiate EVars as an effect *)
   val unifiable : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> bool

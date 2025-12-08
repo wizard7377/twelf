@@ -2,12 +2,12 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-module ThmSyn ((*! module IntSyn : INTSYN !*)
+module ThmSyn ((*! (IntSyn : INTSYN) !*)
                 (*! module ModeSyn' : MODESYN !*)
                 (*! sharing ModeSyn'.IntSyn = IntSyn !*)
-                module Abstract : ABSTRACT
+                (Abstract : ABSTRACT)
                 (*! sharing Abstract.IntSyn = IntSyn !*)
-                module Whnf : WHNF
+                (Whnf : WHNF)
                 (*! sharing Whnf.IntSyn = IntSyn !*)
                 (*! module Paths' : PATHS !*)
                 module Names' : NAMES): THMSYN =
@@ -57,8 +57,8 @@ struct
 
   (* Theorem declaration *)
   type thDecl =
-    ThDecl of (IntSyn.Dec IntSyn.Ctx * IntSyn.Dec IntSyn.Ctx) list
-              * IntSyn.Dec IntSyn.Ctx * ModeSyn.Mode IntSyn.Ctx * int
+    ThDecl of (IntSyn.Dec IntSyn.ctx * IntSyn.Dec IntSyn.ctx) list
+              * IntSyn.Dec IntSyn.ctx * ModeSyn.Mode IntSyn.ctx * int
 
   (* Proof declaration *)
   type pDecl =
@@ -66,8 +66,8 @@ struct
 
   (* World declaration *)
 (*  type WDecl =
-    WDecl of (IntSyn.Dec IntSyn.Ctx *
-              IntSyn.Dec IntSyn.Ctx) list * Callpats *)
+    WDecl of (IntSyn.Dec IntSyn.ctx *
+              IntSyn.Dec IntSyn.ctx) list * Callpats *)
   type wDecl =
     WDecl of Names.Qid list * callpats
 

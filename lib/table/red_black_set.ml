@@ -17,7 +17,7 @@
  * condition implies that any node with only one child will be black and
  * its child will be a red leaf.
  *)
-module RBSet : RBSET = 
+(RBSet : RBSE)T = 
 
 struct
 

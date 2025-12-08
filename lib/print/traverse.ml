@@ -1,8 +1,8 @@
 module Traverse
   ((*! module IntSyn' : INTSYN !*)
-   module Whnf : WHNF
+   (Whnf : WHNF)
    (*! sharing Whnf.IntSyn = IntSyn' !*)
-   module Names : NAMES
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn' !*)
    module Traverser' : TRAVERSER)
   : TRAVERSE

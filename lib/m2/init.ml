@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 
 module Init (module MetaSyn' : METASYN)
-   (module MetaAbstract : METAABSTRACT
+   (MetaAbstract : METAABSTRACT)
               sharing MetaAbstract.MetaSyn = MetaSyn')
   : INIT =
 struct

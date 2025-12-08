@@ -1,20 +1,20 @@
 (* Solver for a linearly ordered field, based on the simplex method *)
 (* Author: Roberto Virga *)
 
-module CSIneqField (module OrderedField : ORDERED_FIELD
-                     (*! module IntSyn : INTSYN !*)
-                     module Trail : TRAIL
-                     module Unify : UNIFY
+module CSIneqField (OrderedField : ORDERED_FIELD)
+                     (*! (IntSyn : INTSYN) !*)
+                     (Trail : TRAIL)
+                     (Unify : UNIFY)
                      (*! sharing Unify.IntSyn = IntSyn !*)
                      module SparseArray  : SPARSE_ARRAY
-                     module SparseArray2 : SPARSE_ARRAY2
-                     (*! module CSManager : CS_MANAGER !*)
+                     (SparseArray2 : SPARSE_ARRAY2)
+                     (*! (CSManager : CS_MANAGER) !*)
                      (*! sharing CSManager.IntSyn = IntSyn !*)
-                     module CSEqField : CS_EQ_FIELD
+                     (CSEqField : CS_EQ_FIELD)
                        sharing CSEqField.Field = OrderedField
                        (*! sharing CSEqField.IntSyn = IntSyn !*)
                        (*! sharing CSEqField.CSManager = CSManager !*)
-                     module Compat : COMPAT): CS =
+                     (Compat : COMPAT): CS =
 struct
   (*! module CSManager = CSManager !*)
 
@@ -99,7 +99,7 @@ struct
     | Exp of IntSyn.dctx * sum                        (*   - sum                           *)
 
     type Restriction =                            (* Restriction: (proof object)       *)
-      Restr of IntSyn.dctx * IntSyn.Exp * bool        (*   Restr (G, U, strict)            *)
+      Restr of IntSyn.dctx * IntSyn.exp * bool        (*   Restr (G, U, strict)            *)
 
     type label =
            {owner : owner,                            (* owner of the row/column (if any)  *)

@@ -6,9 +6,9 @@ module type TOMEGATYPECHECK =
 sig
   exception Error of string
 
-  val checkCtx : Tomega.Dec IntSyn.Ctx -> unit
-  val checkFor : Tomega.Dec IntSyn.Ctx * Tomega.For -> unit
-  val checkPrg : Tomega.Dec IntSyn.Ctx * (Tomega.Prg * Tomega.For) -> unit    
-  val checkSub : Tomega.Dec IntSyn.Ctx * Tomega.Sub * Tomega.Dec IntSyn.Ctx -> unit
+  val checkCtx : Tomega.Dec IntSyn.ctx -> unit
+  val checkFor : Tomega.Dec IntSyn.ctx * Tomega.For -> unit
+  val checkPrg : Tomega.Dec IntSyn.ctx * (Tomega.Prg * Tomega.For) -> unit    
+  val checkSub : Tomega.Dec IntSyn.ctx * Tomega.Sub * Tomega.Dec IntSyn.ctx -> unit
 end (* Signature TOMEGATYPECHECK *)       
 

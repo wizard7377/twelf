@@ -2,9 +2,9 @@
 (* Author: Kevin Watkins *)
 
 module ReconModule
-  (module Global : GLOBAL
-   (*! module IntSyn : INTSYN !*)
-   module Names : NAMES
+  (Global : GLOBAL)
+   (*! (IntSyn : INTSYN) !*)
+   (Names : NAMES)
    (*! sharing Names.IntSyn = IntSyn !*)
    (*! module Paths' : PATHS !*)
    module ReconTerm' : RECON_TERM
@@ -13,7 +13,7 @@ module ReconModule
    module ModSyn' : MODSYN
    (*! sharing ModSyn'.IntSyn = IntSyn !*)
      sharing ModSyn'.Names = Names
-   module IntTree : TABLE where type key = int)
+   (IntTree : TABLE with type key = int))
   : RECON_MODULE =
 struct
 

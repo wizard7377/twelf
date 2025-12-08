@@ -1,37 +1,37 @@
 (* Search (based on abstract machine ) : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-module UniqueSearch (module Global : GLOBAL
+module UniqueSearch (Global : GLOBAL)
                       (*! module IntSyn' : INTSYN !*)
                       (*! module FunSyn' : FUNSYN !*)
                       (*! sharing FunSyn'.IntSyn = IntSyn' !*)
                       module StateSyn' : STATESYN
                       (*! sharing StateSyn'.IntSyn = IntSyn' !*)
                       (*! sharing StateSyn'.FunSyn = FunSyn' !*)
-                      module Abstract : ABSTRACT
+                      (Abstract : ABSTRACT)
                       (*! sharing Abstract.IntSyn = IntSyn' !*)
-                      module MTPGlobal : MTPGLOBAL
+                      (MTPGlobal : MTPGLOBAL)
                       (*! module CompSyn' : COMPSYN !*)
                       (*! sharing CompSyn'.IntSyn = IntSyn' !*)
-                      module Whnf : WHNF
+                      (Whnf : WHNF)
                       (*! sharing Whnf.IntSyn = IntSyn' !*)
-                      module Unify : UNIFY
+                      (Unify : UNIFY)
                       (*! sharing Unify.IntSyn = IntSyn' !*)
-                      module Assign : ASSIGN
+                      (Assign : ASSIGN)
                       (*! sharing Assign.IntSyn = IntSyn'                         !*)
-                      module Index : INDEX
+                      (Index : INDEX)
                       (*! sharing Index.IntSyn = IntSyn' !*)
-                      module Compile : COMPILE
+                      (Compile : COMPILE)
                       (*! sharing Compile.IntSyn = IntSyn' !*)
                       (*! sharing Compile.CompSyn = CompSyn' !*)
-                      module CPrint : CPRINT
+                      (CPrint : CPRINT)
                       (*! sharing CPrint.IntSyn = IntSyn' !*)
                       (*! sharing CPrint.CompSyn = CompSyn' !*)
-                      module Print : PRINT
+                      (Print : PRINT)
                       (*! sharing Print.IntSyn = IntSyn' !*)
-                      module Names : NAMES
+                      (Names : NAMES)
                       (*! sharing Names.IntSyn = IntSyn' !*)
-                      (*! module CSManager : CS_MANAGER !*)
+                      (*! (CSManager : CS_MANAGER) !*)
                       (*! sharing CSManager.IntSyn = IntSyn' !*)
                         ): UNIQUESEARCH =
 struct
@@ -43,7 +43,7 @@ struct
 
   exception Error of string
 
-  type acctype = IntSyn.Exp
+  type acctype = IntSyn.exp
 
   local
     module I = IntSyn
