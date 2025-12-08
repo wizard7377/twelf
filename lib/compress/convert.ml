@@ -53,13 +53,11 @@ struct
 (* similar to spine_form for a type family applied to a list of arguments *)
 	and type_spine_form = function
 	    (G, Parse.Id s) -> 
-	    let 
-		let n = findn (!sigma) s
+	    let n = findn (!sigma) s
 	    in
 	        (n, modesofclass (List.nth (!sigmat, n)), [])
-	    end
-	  | (G, Parse.App (t, u)) -> let let (n, m, s) = type_spine_form (G, t)
-					       in (n, m, s @ [u]) end
+	  | (G, Parse.App (t, u)) -> let (n, m, s) = type_spine_form (G, t)
+					       in (n, m, s @ [u])
 	  | (G, _) -> raise Convert "level mismatch" 
 
 	let safezip (l1, l2) = if length l1 = length l2 

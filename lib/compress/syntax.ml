@@ -83,11 +83,9 @@ and spine = spinelt list
 	let rec lower acc x = match x with
 	    ((a as TRoot _), []) -> (a, acc)
 	  | (TPi(m,a,b), elt::sp) -> 
-	    let
-		newacc = TermDot(termof elt, subst_tp acc a, acc)
+	    let newacc = TermDot(termof elt, subst_tp acc a, acc)
 	    in
 		lower newacc (b, sp)
-	    end
 (*
 	  | lower base (TPi(m,a,b), elt::sp) = 
 	    let

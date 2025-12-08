@@ -49,11 +49,9 @@ struct
     let all_ps : bool option Array.array = Array.array(sgn_size, NONE)
 
     let rec split (h::tl) 0 = ([], h, tl)
-       | split (h::tl) n = let 
-	     (pre, thing, post) = split tl (n-1)
+       | split (h::tl) n = let (pre, thing, post) = split tl (n-1)
 	 in
 	     (h::pre, thing, post)
-	 end
        | split [] n = split [NONE] n 
 
     let clear () = begin

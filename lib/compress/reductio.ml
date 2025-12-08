@@ -32,7 +32,7 @@ struct
 	and elt_eq (t, t') = elt_eq' (elt_eroot_elim t, elt_eroot_elim t')
 	and elt_eq' (Elt t, Elt t') = tm_eq (t, t')
 	  | elt_eq' (AElt t, AElt t') = atm_eq (t, t')
-	  | elt_eq' (Ascribe (t, a), Ascribe (t', a')) = ntm_eq (t,t') andalso tp_eq (a,a')
+	  | elt_eq' (Ascribe (t, a), Ascribe (t', a')) = ntm_eq (t,t') && tp_eq (a,a')
 	  | elt_eq' (Omit, Omit) = true
 	  | elt_eq' _ = false
 	and tm_eq (NTerm t, NTerm t') = ntm_eq (t, t')

@@ -38,24 +38,20 @@ let rec sanityCheck cid = ((match I.sgnLookup cid with
 				     let Syntax.Tclass z = Sgn.classifier cid 
 				 in
 (*				     l := (y,z):: !l; *)
-				     Reductio.check ([], y, z) 
-				 end
+				     Reductio.check ([], y, z)
  | I.ConDef(_,_,_,_,_,I.Kind,_) -> let Sgn.DEF_TYPE y = Sgn.def cid in
 				     let Syntax.Kclass z = Sgn.classifier cid 
 				 in
-				     Reductio.check_type  Reductio.CON_LF (Syntax.explodeKind z, y) 
-				 end
+				     Reductio.check_type  Reductio.CON_LF (Syntax.explodeKind z, y)
  | I.AbbrevDef(_,_,_,_,_,I.Type) -> let Sgn.DEF_TERM y = Sgn.def cid in
 				     let Syntax.Tclass z = Sgn.classifier cid 
 				 in
 (*				     l := (y,z):: !l; *)
-				     Reductio.check ([], y, z) 
-				 end
+				     Reductio.check ([], y, z)
  | I.AbbrevDef(_,_,_,_,_,I.Kind) -> let Sgn.DEF_TYPE y = Sgn.def cid in
 				     let Syntax.Kclass z = Sgn.classifier cid 
 				 in
-				     Reductio.check_type Reductio.CON_LF (Syntax.explodeKind z, y) 
-				 end
+				     Reductio.check_type Reductio.CON_LF (Syntax.explodeKind z, y)
  | _ -> true (* we're not checking block declarations or anything else like that *))
 handle Syntax.Syntax _ -> (print ("--> " ^ Int.toString cid); raise Match))
 

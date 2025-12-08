@@ -13,14 +13,12 @@ struct
         (Elt t) -> eta_contract_var' 0 t
       | _ -> raise EtaContract
     and eta_contract_var' n (ATerm(ARoot(Var n', s))) = 
-	let
-	    let s' = map eta_contract_var s
-	    fun decreasing_list 0 [] = true
-	      | decreasing_list n (h::tl) = (n - 1 = h) andalso decreasing_list (n-1) tl
+	let s' = map eta_contract_var s in
+	    let rec decreasing_list 0 [] = true
+	      | decreasing_list n (h::tl) = (n - 1 = h) && decreasing_list (n-1) tl
 	      | decreasing_list _ _ = false
-	in
+	    in
 	    if decreasing_list n s' then n' - n else raise EtaContract
-	end
       | eta_contract_var' n (NTerm(Lam t)) = eta_contract_var' (n+1) t
       | eta_contract_var' _ _ = raise EtaContract
 
