@@ -46,7 +46,7 @@ struct
 			     SOME (modesofclass (List.nth (!sigmat, n))),
 			     List.nth (!sigmap, n),
 			     []))
-	  | (G, Parse.App (t, u)) -> let let (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u]) end
+	  | (G, Parse.App (t, u)) -> let (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u])
 	  | (G, Parse.Lam _) -> raise Convert "illegal redex" 
 	  | (G, _) -> raise Convert "level mismatch" 
 

@@ -47,7 +47,7 @@ struct
       (v, SOME t) -> v ^ ":" ^ (termToString t)
     | (v, NONE) -> v
 
-  let id = maybe (fun (ID s) -> SOME s | _ -> NONE)
+  let id = maybe (function (ID s) -> SOME s | _ -> NONE)
 
   let swap(x,y) = (y,x)
 

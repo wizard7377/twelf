@@ -50,7 +50,7 @@ struct
 
     let rec split (h::tl) 0 = ([], h, tl)
        | split (h::tl) n = let 
-	     let (pre, thing, post) = split tl (n-1)
+	     (pre, thing, post) = split tl (n-1)
 	 in
 	     (h::pre, thing, post)
 	 end

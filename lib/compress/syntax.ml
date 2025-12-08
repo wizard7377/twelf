@@ -84,7 +84,7 @@ and spine = spinelt list
 	    ((a as TRoot _), []) -> (a, acc)
 	  | (TPi(m,a,b), elt::sp) -> 
 	    let
-		let newacc = TermDot(termof elt, subst_tp acc a, acc)
+		newacc = TermDot(termof elt, subst_tp acc a, acc)
 	    in
 		lower newacc (b, sp)
 	    end

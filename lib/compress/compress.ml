@@ -35,7 +35,7 @@ struct
       (I.Pi ((I.Dec(_, e1), _), e2)) -> S.KPi(S.MINUS, xlate_type e1, xlate_kind e2)
     | (I.Uni(I.Type)) -> S.Type
 
-  let open Syntax in
+  open Syntax
   (* simple skeletal form of types
      omits all dependencies, type constants *)
   type simple_tp = Base | Arrow of simple_tp * simple_tp

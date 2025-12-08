@@ -34,24 +34,24 @@ exception Crap
 let rec sanityCheck cid = ((match I.sgnLookup cid with 
    I.ConDec(_,_,_,_,_,I.Type) -> (Reductio.check_plusconst_type (Sgn.typeOf (Sgn.classifier cid)))
  | I.ConDec(_,_,_,_,_,I.Kind) -> (Reductio.check_kind ([], Sgn.kindOf (Sgn.classifier cid)))
- | I.ConDef(_,_,_,_,_,I.Type,_) -> let let Sgn.DEF_TERM y = Sgn.def cid
+ | I.ConDef(_,_,_,_,_,I.Type,_) -> let Sgn.DEF_TERM y = Sgn.def cid in
 				     let Syntax.Tclass z = Sgn.classifier cid 
 				 in
 (*				     l := (y,z):: !l; *)
 				     Reductio.check ([], y, z) 
 				 end
- | I.ConDef(_,_,_,_,_,I.Kind,_) -> let let Sgn.DEF_TYPE y = Sgn.def cid
+ | I.ConDef(_,_,_,_,_,I.Kind,_) -> let Sgn.DEF_TYPE y = Sgn.def cid in
 				     let Syntax.Kclass z = Sgn.classifier cid 
 				 in
 				     Reductio.check_type  Reductio.CON_LF (Syntax.explodeKind z, y) 
 				 end
- | I.AbbrevDef(_,_,_,_,_,I.Type) -> let let Sgn.DEF_TERM y = Sgn.def cid
+ | I.AbbrevDef(_,_,_,_,_,I.Type) -> let Sgn.DEF_TERM y = Sgn.def cid in
 				     let Syntax.Tclass z = Sgn.classifier cid 
 				 in
 (*				     l := (y,z):: !l; *)
 				     Reductio.check ([], y, z) 
 				 end
- | I.AbbrevDef(_,_,_,_,_,I.Kind) -> let let Sgn.DEF_TYPE y = Sgn.def cid
+ | I.AbbrevDef(_,_,_,_,_,I.Kind) -> let Sgn.DEF_TYPE y = Sgn.def cid in
 				     let Syntax.Kclass z = Sgn.classifier cid 
 				 in
 				     Reductio.check_type Reductio.CON_LF (Syntax.explodeKind z, y) 

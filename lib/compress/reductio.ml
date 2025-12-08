@@ -24,10 +24,10 @@ struct
 
         (* equality checking *)
 	let rec tp_eq (TRoot (n, sp), TRoot(n', sp')) = type_const_head_eq(n, n', sp, sp')
-	  | tp_eq (TPi(m,a,b),TPi(m',a',b')) = m = m' andalso tp_eq (a,a') andalso tp_eq (b,b')
+	  | tp_eq (TPi(m,a,b),TPi(m',a',b')) = m = m' && tp_eq (a,a') && tp_eq (b,b')
 	  | tp_eq _ = false
 	and sp_eq ([],[]) = true
-	  | sp_eq (e::sp, e'::sp') = elt_eq (e,e') andalso sp_eq (sp, sp')
+	  | sp_eq (e::sp, e'::sp') = elt_eq (e,e') && sp_eq (sp, sp')
 	  | sp_eq _ = false
 	and elt_eq (t, t') = elt_eq' (elt_eroot_elim t, elt_eroot_elim t')
 	and elt_eq' (Elt t, Elt t') = tm_eq (t, t')

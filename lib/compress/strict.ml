@@ -9,8 +9,9 @@ struct
       that is an eta-expansion of the deBruijn index n,
       then returns n. Otherwise raises EtaContract.
     *)
-    let rec eta_contract_var (Elt t) = eta_contract_var' 0 t
-      | eta_contract_var _ = raise EtaContract
+    let rec eta_contract_var = function
+        (Elt t) -> eta_contract_var' 0 t
+      | _ -> raise EtaContract
     and eta_contract_var' n (ATerm(ARoot(Var n', s))) = 
 	let
 	    let s' = map eta_contract_var s
