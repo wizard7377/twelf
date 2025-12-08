@@ -84,20 +84,20 @@ struct
          History := nil;
          Menu := NONE)
 
-    fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
+    let rec cLToString = function (nil) -> ""
+      | (c :: nil) -> 
           (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
+      | (c :: L) -> 
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
-    fun SplittingToMenu (nil, A) = A
-      | SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A)
+    let rec SplittingToMenu = function (nil, A) -> A
+      | (O :: L, A) -> SplittingToMenu (L, Splitting O :: A)
 
-    fun FillingToMenu (nil, A) = A
-      | FillingToMenu (O :: L, A) = FillingToMenu (L, Filling O :: A)
+    let rec FillingToMenu = function (nil, A) -> A
+      | (O :: L, A) -> FillingToMenu (L, Filling O :: A)
 
-    fun RecursionToMenu (nil, A) = A
-      | RecursionToMenu (O :: L, A) = RecursionToMenu (L, Recursion O :: A)
+    let rec RecursionToMenu = function (nil, A) -> A
+      | (O :: L, A) -> RecursionToMenu (L, Recursion O :: A)
 
     fun menu () =
         if empty () then Menu := NONE
@@ -121,12 +121,12 @@ struct
 
     fun menuToString () =
         let
-          fun menuToString' (k, nil) = ""
-            | menuToString' (k, Splitting O :: M) =
+          let rec menuToString' = function (k, nil) -> ""
+            | (k, Splitting O :: M) -> 
                 (menuToString' (k+1, M)) ^ "\n" ^ (format k) ^ (Splitting.menu O)
-            | menuToString' (k, Filling O :: M) =
+            | (k, Filling O :: M) -> 
                 (menuToString' (k+1, M)) ^ "\n" ^ (format k) ^ (Filling.menu O)
-            | menuToString' (k, Recursion O :: M) =
+            | (k, Recursion O :: M) -> 
                 (menuToString' (k+1, M)) ^ "\n" ^ (format k) ^ (Recursion.menu O)
         in
           case !Menu of
@@ -137,15 +137,15 @@ struct
 
     fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
-          fun makeConDec' (I.Null, V, k) = I.ConDec (name, NONE, k, I.Normal, V, I.Type)
-            | makeConDec' (I.Decl (G, D), V, k) =
+          let rec makeConDec' = function (I.Null, V, k) -> I.ConDec (name, NONE, k, I.Normal, V, I.Type)
+            | (I.Decl (G, D), V, k) -> 
               makeConDec' (G, I.Pi ((D, I.Maybe), V), k+1)
         in
           (makeConDec' (G, V, 0))
         end
 
-    fun makeSignature (nil) = M.SgnEmpty
-      | makeSignature (S :: SL) =
+    let rec makeSignature = function (nil) -> M.SgnEmpty
+      | (S :: SL) -> 
           M.ConDec (makeConDec S,
                       makeSignature SL)
     fun extract () =
@@ -169,8 +169,8 @@ struct
           end
 
 
-    fun contains (nil, _) = true
-      | contains (x :: L, L') =
+    let rec contains = function (nil, _) -> true
+      | (x :: L, L') -> 
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     fun equiv (L1, L2) =
@@ -191,8 +191,8 @@ struct
 
     fun init (k, nL) =
         let
-          fun cids nil = nil
-            | cids (name :: nL) =
+          let rec cids = function nil -> nil
+            | (name :: nL) -> 
               (case Names.stringToQid name
                  of NONE => raise Error ("Malformed qualified identifier " ^ name)
                   | SOME qid =>
@@ -209,8 +209,8 @@ struct
 
     fun select k =
         let
-          fun select' (k, nil) = abort ("No such menu item")
-            | select' (1, Splitting O :: _) =
+          let rec select' = function (k, nil) -> abort ("No such menu item")
+            | (1, Splitting O :: _) -> 
                 let
                   let S' = (Timers.time Timers.splitting Splitting.apply) O
                   let _ = pushHistory ()
@@ -219,7 +219,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Recursion O :: _) =
+            | (1, Recursion O :: _) -> 
                 let
                   let S' = (Timers.time Timers.recursion Recursion.apply) O
                   let _ = pushHistory ()
@@ -228,7 +228,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Filling O :: _) =
+            | (1, Filling O :: _) -> 
                 let
                   let _ =
                     case (Timers.time Timers.filling Filling.apply) O of
@@ -239,7 +239,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (k, _ :: M) = select' (k-1, M)
+            | (k, _ :: M) -> select' (k-1, M)
         in
           (case !Menu of
             NONE => raise Error "No menu defined"

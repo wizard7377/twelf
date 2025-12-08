@@ -18,13 +18,13 @@ struct
     module I = IntSyn
 
     (* for debugging purposes *)
-    fun subToString (G, I.Dot (I.Idx (n), s)) =
+    let rec subToString = function (G, I.Dot (I.Idx (n), s)) -> 
           Int.toString (n) ^ "." ^ subToString (G, s)
-      | subToString (G, I.Dot (I.Exp (U), s)) =
+      | (G, I.Dot (I.Exp (U), s)) -> 
           "(" ^ Print.expToString (G, U) ^ ")." ^ subToString (G, s)
-      | subToString (G, I.Dot (I.Block (L as I.LVar _), s)) =
+      | (G, I.Dot (I.Block (L as I.LVar _), s)) -> 
           LVarToString (G, L) ^ "." ^ subToString (G, s)
-      | subToString (G, I.Shift(n)) = "^" ^ Int.toString (n)
+      | (G, I.Shift(n)) -> "^" ^ Int.toString (n)
 
     and LVarToString (G, I.LVar (ref (SOME B), sk, (l, t))) =
           LVarToString (G, I.blockSub (B, sk))

@@ -38,18 +38,18 @@ struct
 
     exception Error of string
 
-    fun cidFromHead (I.Const a) = a
-      | cidFromHead (I.Def a) = a
+    let rec cidFromHead = function (I.Const a) -> a
+      | (I.Def a) -> a
 
-    fun eqHead (I.Const a, I.Const a') = a = a'
-      | eqHead (I.Def a, I.Def a') = a = a'
-      | eqHead _ = false
+    let rec eqHead = function (I.Const a, I.Const a') -> a = a'
+      | (I.Def a, I.Def a') -> a = a'
+      | _ -> false
 
   fun compose'(IntSyn.Null, G) = G
     | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
-  fun shift (IntSyn.Null, s) = s
-    | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+  let rec shift = function (IntSyn.Null, s) -> s
+    | (IntSyn.Decl(G, D), s) -> I.dot1 (shift(G, s))
 
   (* We write
        G |- M : g
@@ -80,9 +80,9 @@ struct
      Effects: instantiation of EVars in g, s, and dp
               any effect  sc M  might have
   *)
-  fun solve' (O, (C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
+  let rec solve' = function (O, (C.Atom(p), s), dp as C.DProg (G, dPool), sc) -> 
     matchAtom (O, (p,s), dp, sc)
-    | solve' (O, (C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+    | (O, (C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) -> 
       let
         let D' = I.Dec(NONE, I.EClo(A,s))
       in
@@ -210,10 +210,10 @@ struct
            try each constant ci in turn for solving atomic goal ps', starting
            with c1.
         *)
-        fun matchSig (nil, k) =
+        let rec matchSig = function (nil, k) -> 
              raise Error (" \noracle #Pc does not exist \n")
              (* should not happen *)
-          | matchSig (((Hc as (I.Const c))::sgn'), k) =
+          | (((Hc as (I.Const c))::sgn'), k) -> 
             if c = k then
               let
                 let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
@@ -223,7 +223,7 @@ struct
               end
             else
               matchSig (sgn', k)
-          | matchSig (((Hc as (I.Def d))::sgn'), k) =
+          | (((Hc as (I.Def d))::sgn'), k) -> 
             if d = k then
               let
                 let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
@@ -239,10 +239,10 @@ struct
            Try each local assumption for solving atomic goal ps', starting
            with the most recent one.
         *)
-        fun matchDProg (I.Null, i, k) =
+        let rec matchDProg = function (I.Null, i, k) -> 
             (* dynamic program exhausted -- shouldn't happen *)
             raise Error ("\n selected dynamic clause number does not exist in current dynamic clause pool!\n")
-          | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), 1, k) =
+          | (I.Decl (dPool', C.Dec (r, s, Ha')), 1, k) -> 
             if eqHead (Ha, Ha')
               then
                 rSolve (O, ps', (r, I.comp(s, I.Shift(k))), dp,
@@ -250,7 +250,7 @@ struct
             else (* shouldn't happen *)
               raise Error ("\n selected dynamic clause does not match current goal!\n")
 
-          | matchDProg (I.Decl (dPool', dc), i ,k) =
+          | (I.Decl (dPool', dc), i ,k) -> 
               matchDProg (dPool', i-1, k)
       in
         (case Ho of

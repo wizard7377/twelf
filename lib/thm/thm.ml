@@ -48,22 +48,22 @@ struct
     *)
     fun unique (((a, P), r), A) =
       let
-        fun unique' (I.Uni _, nil, A) = A
-          | unique' (I.Pi (_, V), NONE :: P, A) = unique' (V, P, A)
-          | unique' (I.Pi (_, V), SOME x :: P, A) =
+        let rec unique' = function (I.Uni _, nil, A) -> A
+          | (I.Pi (_, V), NONE :: P, A) -> unique' (V, P, A)
+          | (I.Pi (_, V), SOME x :: P, A) -> 
              (List.app (fn x' => if x = x'
                                    then error (r, "Variable " ^ x ^ " used more than once")
                                  else ()) A;
               unique' (V, P, x :: A))
-          | unique' (I.Uni _, _, _) = error (r, "Too many arguments supplied to type family "
+          | (I.Uni _, _, _) -> error (r, "Too many arguments supplied to type family "
                                                 ^ Names.qidToString (Names.constQid a))
-          | unique' (I.Pi (_, V), nil, _) = error (r, "Too few arguments supplied to type family "
+          | (I.Pi (_, V), nil, _) -> error (r, "Too few arguments supplied to type family "
                                                    ^ Names.qidToString (Names.constQid a))
-          | unique' (I.Root _, _, _) = error (r, "Constant " ^ Names.qidToString (Names.constQid a) ^
+          | (I.Root _, _, _) -> error (r, "Constant " ^ Names.qidToString (Names.constQid a) ^
                                               " is an object, not a type family")
 
-        fun skip (0, V, P, A) = unique' (V, P, A)
-          | skip (k, I.Pi (_, V), P, A) = skip (k-1, V, P, A)
+        let rec skip = function (0, V, P, A) -> unique' (V, P, A)
+          | (k, I.Pi (_, V), P, A) -> skip (k-1, V, P, A)
 
       in
         skip (I.constImp a, I.constType a, P, A)
@@ -83,8 +83,8 @@ struct
     *)
     fun uniqueCallpats (L, rs) =
         let
-          fun uniqueCallpats' ((nil, nil), A) = ()
-            | uniqueCallpats' ((aP :: L, r :: rs), A) =
+          let rec uniqueCallpats' = function ((nil, nil), A) -> ()
+            | ((aP :: L, r :: rs), A) -> 
                 uniqueCallpats' ((L, rs), unique ((aP, r), A))
         in
           uniqueCallpats' ((L, rs), nil)
@@ -103,14 +103,14 @@ struct
     *)
     fun wfCallpats (L0, C0, r) =
         let
-          fun makestring nil = ""
-            | makestring (s :: nil) = s
-            | makestring (s :: L) = s ^ " " ^ (makestring L)
+          let rec makestring = function nil -> ""
+            | (s :: nil) -> s
+            | (s :: L) -> s ^ " " ^ (makestring L)
 
-          fun exists' (x, nil, _) = false
-            | exists' (x, NONE :: L, M.Mapp (_, mS)) =
+          let rec exists' = function (x, nil, _) -> false
+            | (x, NONE :: L, M.Mapp (_, mS)) -> 
                 exists' (x, L, mS)
-            | exists' (x, SOME y :: L, M.Mapp (M.Marg (mode, _), mS)) =
+            | (x, SOME y :: L, M.Mapp (M.Marg (mode, _), mS)) -> 
               if x = y then
                 (case mode
                    of M.Plus => true
@@ -122,19 +122,19 @@ struct
              then returns true iff x occurs in argument list P
              Effect: raises Error if position of x is not input (+).
           *)
-          fun skip (0, x, P, mS) = exists' (x, P, mS)
-            | skip (k, x, P, M.Mapp (_, mS)) = skip (k-1, x, P, mS)
+          let rec skip = function (0, x, P, mS) -> exists' (x, P, mS)
+            | (k, x, P, M.Mapp (_, mS)) -> skip (k-1, x, P, mS)
 
-          fun delete (x, (aP as (a, P)) :: C) =
+          let rec delete = function (x, (aP as (a, P)) :: C) -> 
               if skip (I.constImp a, x, P, valOf (ModeTable.modeLookup a)) (* exists by invariant *)
                 then C
               else aP :: delete (x, C)
-            | delete (x, nil) = error (r, "Variable " ^ x ^ " does not occur as argument")
+            | (x, nil) -> error (r, "Variable " ^ x ^ " does not occur as argument")
 
-          fun wfCallpats' (nil, nil) = ()
-            | wfCallpats' (x :: L, C) =
+          let rec wfCallpats' = function (nil, nil) -> ()
+            | (x :: L, C) -> 
                 wfCallpats' (L, delete (x, C))
-            | wfCallpats' _ =
+            | _ -> 
                 error (r, "Mutual argument (" ^ makestring L0
                           ^ ") does not cover all call patterns")
         in
@@ -154,14 +154,14 @@ struct
     *)
     fun wf ((O, L.Callpats C), (r, rs)) =
         let
-          fun wfOrder (L.Varg L) = wfCallpats (L, C, r)
-            | wfOrder (L.Lex L) = wfOrders L
-            | wfOrder (L.Simul L) = wfOrders L
+          let rec wfOrder = function (L.Varg L) -> wfCallpats (L, C, r)
+            | (L.Lex L) -> wfOrders L
+            | (L.Simul L) -> wfOrders L
 
           and wfOrders (nil) = ()
             | wfOrders (O :: L) = (wfOrder O; wfOrders L)
-          fun allModed (nil) = ()
-            | allModed ((a, P) :: Cs) =
+          let rec allModed = function (nil) -> ()
+            | ((a, P) :: Cs) -> 
               (case ModeTable.modeLookup a
                  of NONE => error (r, "Expected " ^ Names.qidToString (Names.constQid a)
                                       ^ " to be moded")
@@ -180,10 +180,10 @@ struct
             in the call pattern
        then nOpt describes the optional  position of the occurrence
     *)
-    fun argPos (x, nil, n) = NONE
-      | argPos (x, NONE :: L, n) =
+    let rec argPos = function (x, nil, n) -> NONE
+      | (x, NONE :: L, n) -> 
           argPos (x, L, n+1)
-      | argPos (x, SOME x' :: L, n) =
+      | (x, SOME x' :: L, n) -> 
           if x = x' then SOME n
           else argPos (x, L, n+1)
 
@@ -213,9 +213,9 @@ struct
                   replaced by positions
 
     *)
-    fun argOrder (L.Varg L, P, n) = O.Arg (locate (L, P, n))
-      | argOrder (L.Simul L, P, n) = O.Simul (argOrderL (L, P, n))
-      | argOrder (L.Lex L, P, n) = O.Lex (argOrderL (L, P, n))
+    let rec argOrder = function (L.Varg L, P, n) -> O.Arg (locate (L, P, n))
+      | (L.Simul L, P, n) -> O.Simul (argOrderL (L, P, n))
+      | (L.Lex L, P, n) -> O.Lex (argOrderL (L, P, n))
 
     and argOrderL (nil, P, n) = nil
       | argOrderL (O :: L, P, n) = argOrder (O, P, n) :: argOrderL (L, P, n)
@@ -231,8 +231,8 @@ struct
         then A' is an accumulator extending A containing all
              images of C under k.
     *)
-    fun argOrderMutual (nil, k, A) = A
-      | argOrderMutual (P :: L, k, A) =
+    let rec argOrderMutual = function (nil, k, A) -> A
+      | (P :: L, k, A) -> 
           argOrderMutual (L, k, k (P, A))
 
     (* installorder (O, LE, LT) = ()
@@ -245,8 +245,8 @@ struct
 
        Effect: updates table associating argument order with type families.
     *)
-    fun installOrder (_, nil, _) = ()
-      | installOrder (O, (aP as (a, P)) :: thmsLE, thmsLT) =
+    let rec installOrder = function (_, nil, _) -> ()
+      | (O, (aP as (a, P)) :: thmsLE, thmsLT) -> 
         let
           let M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
                                     argOrderMutual (aP :: thmsLT,
@@ -307,16 +307,16 @@ struct
                   replaced by positions
 
     *)
-    fun argROrder (L.Varg L, P, n) = O.Arg (locate (L, P, n))
-      | argROrder (L.Simul L, P, n) = O.Simul (argROrderL (L, P, n))
-      | argROrder (L.Lex L, P, n) = O.Lex (argROrderL (L, P, n))
+    let rec argROrder = function (L.Varg L, P, n) -> O.Arg (locate (L, P, n))
+      | (L.Simul L, P, n) -> O.Simul (argROrderL (L, P, n))
+      | (L.Lex L, P, n) -> O.Lex (argROrderL (L, P, n))
 
     and argROrderL (nil, P, n) = nil
       | argROrderL (O :: L, P, n) = argROrder (O, P, n) :: argROrderL (L, P, n)
 
-    fun argPredicate (L.Less, O, O') = O.Less (O, O')
-      | argPredicate (L.Leq, O, O') = O.Leq (O, O')
-      | argPredicate (L.Eq, O, O') = O.Eq (O, O')
+    let rec argPredicate = function (L.Less, O, O') -> O.Less (O, O')
+      | (L.Leq, O, O') -> O.Leq (O, O')
+      | (L.Eq, O, O') -> O.Eq (O, O')
 
     (* installPredicate (name, R, LE, LT) = ()
 
@@ -330,8 +330,8 @@ struct
                type families.
 
     *)
-    fun installPredicate ( _, nil, _) = ()
-      | installPredicate (L.RedOrder(Pred,O1, O2), (aP as (a, P)) :: thmsLE, thmsLT) =
+    let rec installPredicate = function ( _, nil, _) -> ()
+      | (L.RedOrder(Pred,O1, O2), (aP as (a, P)) :: thmsLE, thmsLT) -> 
         let
           let M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
                                    argOrderMutual (aP :: thmsLT,
@@ -370,28 +370,28 @@ struct
 
     fun wfRCallpats (L0, C0, r) =
         let
-          fun makestring nil = ""
-            | makestring (s :: nil) = s
-            | makestring (s :: L) = s ^ " " ^ (makestring L)
+          let rec makestring = function nil -> ""
+            | (s :: nil) -> s
+            | (s :: L) -> s ^ " " ^ (makestring L)
 
-          fun exists' (x, nil) = false
-            | exists' (x, NONE :: L) =
+          let rec exists' = function (x, nil) -> false
+            | (x, NONE :: L) -> 
                 exists' (x, L)
-            | exists' (x, SOME y :: L) =
+            | (x, SOME y :: L) -> 
               if x = y
                 then true
               else exists' (x, L)
 
-          fun delete (x, (aP as (a, P)) :: C) =
+          let rec delete = function (x, (aP as (a, P)) :: C) -> 
               (if exists' (x, P)
                  then C
                else aP :: delete (x, C))
-            | delete (x, nil) = error (r, "Variable " ^ x ^ " does not occur as argument")
+            | (x, nil) -> error (r, "Variable " ^ x ^ " does not occur as argument")
 
-          fun wfCallpats' (nil, nil) = ()
-            | wfCallpats' (x :: L, C) =
+          let rec wfCallpats' = function (nil, nil) -> ()
+            | (x :: L, C) -> 
                 wfCallpats' (L, delete (x, C))
-            | wfCallpats' _ =
+            | _ -> 
                 error (r, "Mutual argument (" ^ makestring L0
                           ^ ") does not cover all call patterns")
         in
@@ -411,9 +411,9 @@ struct
     *)
     fun wfred ((L.RedOrder(Pred,O,O'), L.Callpats C), (r, rs)) =
         let
-          fun wfOrder (L.Varg L) = (wfRCallpats (L, C, r) ; Varg)
-            | wfOrder (L.Lex L) = Lex(wfOrders L)
-            | wfOrder (L.Simul L) = Simul(wfOrders L)
+          let rec wfOrder = function (L.Varg L) -> (wfRCallpats (L, C, r) ; Varg)
+            | (L.Lex L) -> Lex(wfOrders L)
+            | (L.Simul L) -> Simul(wfOrders L)
 
           and wfOrders nil = nil
             | wfOrders (O :: L) = (wfOrder O) :: (wfOrders L)

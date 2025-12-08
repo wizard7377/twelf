@@ -47,12 +47,12 @@ struct
     (* collectConstraints K = cnstrs
        where cnstrs collects all constraints attached to EVars in K
     *)
-    fun collectConstraints (I.Null) = nil
-      | collectConstraints (I.Decl (G, FV _)) = collectConstraints G
-      | collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref nil)))) = collectConstraints G
-      | collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref cnstrL)))) =
+    let rec collectConstraints = function (I.Null) -> nil
+      | (I.Decl (G, FV _)) -> collectConstraints G
+      | (I.Decl (G, EV (I.EVar (_, _, _, ref nil)))) -> collectConstraints G
+      | (I.Decl (G, EV (I.EVar (_, _, _, ref cnstrL)))) -> 
         (C.simplify cnstrL) @ collectConstraints G
-      | collectConstraints (I.Decl (G, LV _)) = collectConstraints G
+      | (I.Decl (G, LV _)) -> collectConstraints G
 
     (* checkConstraints (K) = ()
        Effect: raises Constraints.Error(C) if K contains unresolved constraints
@@ -72,8 +72,8 @@ struct
        to the empty constraint
     *)
     (*
-    fun checkEmpty (nil) = ()
-      | checkEmpty (Cnstr) =
+    let rec checkEmpty = function (nil) -> ()
+      | (Cnstr) -> 
         (case C.simplify Cnstr
            of nil => ()
             | _ => raise Error "Typing ambiguous -- unresolved constraints")
@@ -81,20 +81,20 @@ struct
     (* eqEVar X Y = B
        where B iff X and Y represent same variable
     *)
-    fun eqEVar (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) = (r1 = r2)
-      | eqEVar _ _ = false
+    let rec eqEVar = function (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) -> (r1 = r2)
+      | _ _ -> false
 
     (* eqFVar F Y = B
        where B iff X and Y represent same variable
     *)
-    fun eqFVar (I.FVar (n1, _, _)) (FV (n2,  _)) = (n1 = n2)
-      | eqFVar _ _ = false
+    let rec eqFVar = function (I.FVar (n1, _, _)) (FV (n2,  _)) -> (n1 = n2)
+      | _ _ -> false
 
     (* eqLVar L Y = B
        where B iff X and Y represent same variable
     *)
-    fun eqLVar (I.LVar ((r1, _, _))) (LV (I.LVar ((r2, _, _)))) = (r1 = r2)
-      | eqLVar _ _ = false
+    let rec eqLVar = function (I.LVar ((r1, _, _))) (LV (I.LVar ((r2, _, _)))) -> (r1 = r2)
+      | _ _ -> false
 
 
     (* exists P K = B
@@ -117,11 +117,11 @@ struct
     *)
     (* Wed Aug  6 16:37:57 2003 -fp *)
     (* !!! *)
-    fun or (I.Maybe, _) = I.Maybe
-      | or (_, I.Maybe) = I.Maybe
-      | or (I.Meta, _) = I.Meta
-      | or (_, I.Meta) = I.Meta
-      | or (I.No, I.No) = I.No
+    let rec or = function (I.Maybe, _) -> I.Maybe
+      | (_, I.Maybe) -> I.Maybe
+      | (I.Meta, _) -> I.Meta
+      | (_, I.Meta) -> I.Meta
+      | (I.No, I.No) -> I.No
 
     (* occursInExp (k, U) = DP,
 
@@ -131,11 +131,11 @@ struct
              DP = Maybe   iff k occurs in U some place not as an argument to a Skonst
              DP = Meta    iff k occurs in U and only as arguments to Skonsts
     *)
-    fun occursInExp (k, I.Uni _) = I.No
-      | occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V))
-      | occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S))
-      | occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V))
-      | occursInExp (k, I.FgnExp csfe) =
+    let rec occursInExp = function (k, I.Uni _) -> I.No
+      | (k, I.Pi (DP, V)) -> or (occursInDecP (k, DP), occursInExp (k+1, V))
+      | (k, I.Root (H, S)) -> occursInHead (k, H, occursInSpine (k, S))
+      | (k, I.Lam (D, V)) -> or (occursInDec (k, D), occursInExp (k+1, V))
+      | (k, I.FgnExp csfe) -> 
         I.FgnExpStd.fold csfe (fn (U, DP) => or (DP, (occursInExp (k, Whnf.normalize (U, I.id))))) I.No
 
       (* no case for Redex, EVar, EClo *)
@@ -164,9 +164,9 @@ struct
     *)
     (* optimize to have fewer traversals? -cs *)
     (* pre-Twelf 1.2 code walk Fri May  8 11:17:10 1998 *)
-    fun piDepend (DPV as ((D, I.No), V)) = I.Pi DPV
-      | piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV
-      | piDepend ((D, I.Maybe), V) =
+    let rec piDepend = function (DPV as ((D, I.No), V)) -> I.Pi DPV
+      | (DPV as ((D, I.Meta), V)) -> I.Pi DPV
+      | ((D, I.Maybe), V) -> 
           I.Pi ((D, occursInExp (1, V)), V)
 
     (* raiseType (G, V) = {{G}} V
@@ -177,8 +177,8 @@ struct
 
        All abstractions are potentially dependent.
     *)
-    fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+    let rec raiseType = function (I.Null, V) -> V
+      | (I.Decl (G, D), V) -> raiseType (G, I.Pi ((D, I.Maybe), V))
 
     (* raiseTerm (G, U) = [[G]] U
 
@@ -188,8 +188,8 @@ struct
 
        All abstractions are potentially dependent.
     *)
-    fun raiseTerm (I.Null, U) = U
-      | raiseTerm (I.Decl (G, D), U) = raiseTerm (G, I.Lam (D, U))
+    let rec raiseTerm = function (I.Null, U) -> U
+      | (I.Decl (G, D), U) -> raiseTerm (G, I.Lam (D, U))
 
     (* collectExpW (G, (U, s), K) = K'
 
@@ -201,21 +201,21 @@ struct
              where K'' contains all EVars and FVars in (U,s)
     *)
     (* Possible optimization: Calculate also the normal form of the term *)
-    fun collectExpW (G, (I.Uni L, s), K) = K
-      | collectExpW (G, (I.Pi ((D, _), V), s), K) =
+    let rec collectExpW = function (G, (I.Uni L, s), K) -> K
+      | (G, (I.Pi ((D, _), V), s), K) -> 
           collectExp (I.Decl (G, I.decSub (D, s)), (V, I.dot1 s), collectDec (G, (D, s), K))
-      | collectExpW (G, (I.Root (F as I.FVar (name, V, s'), S), s), K) =
+      | (G, (I.Root (F as I.FVar (name, V, s'), S), s), K) -> 
         if exists (eqFVar F) K
           then collectSpine (G, (S, s), K)
         else (* s' = ^|G| *)
           collectSpine (G, (S, s), I.Decl (collectExp (I.Null, (V, I.id), K), FV (name, V)))
-      | collectExpW (G, (I.Root (I.Proj (L as I.LVar (ref NONE, sk, (l, t)), i), S), s), K) =
+      | (G, (I.Root (I.Proj (L as I.LVar (ref NONE, sk, (l, t)), i), S), s), K) -> 
           collectSpine (G, (S, s), collectBlock (G, I.blockSub (L, s), K))
           (* BUG : We forget to deref L.  use collectBlock instead
              FPCHECK
              -cs Sat Jul 24 18:48:59 2010
             was:
-      | collectExpW (G, (I.Root (I.Proj (L as I.LVar (r, sk, (l, t)), i), S), s), K) =
+      | (G, (I.Root (I.Proj (L as I.LVar (r, sk, (l, t)), i), S), s), K) -> 
         if exists (eqLVar L) K
           (* note: don't collect t again below *)
           (* was: collectSpine (G, (S, s), collectSub (I.Null, t, K)) *)
@@ -322,8 +322,8 @@ struct
        then G0' = G0,G
        and K' = K, K'' where K'' contains all EVars and FVars in G
     *)
-    fun collectCtx (G0, I.Null, K) = (G0, K)
-      | collectCtx (G0, I.Decl (G, D), K) =
+    let rec collectCtx = function (G0, I.Null, K) -> (G0, K)
+      | (G0, I.Decl (G, D), K) -> 
         let
           let (G0', K') = collectCtx (G0, G, K)
           let K'' = collectDec (G0', (D, I.id), K')
@@ -335,8 +335,8 @@ struct
        Invariant: G0 |- G1,...,Gn ctx where Gs = [G1,...,Gn]
        and K' = K, K'' where K'' contains all EVars and FVars in G1,...,Gn
     *)
-    fun collectCtxs (G0, nil, K) = K
-      | collectCtxs (G0, G::Gs, K) =
+    let rec collectCtxs = function (G0, nil, K) -> K
+      | (G0, G::Gs, K) -> 
         let
           let (G0', K') = collectCtx (G0, G, K)
         in
@@ -386,10 +386,10 @@ struct
        then C' = Bidx (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractLVar (I.Decl(K', LV (I.LVar (r', _, _))), depth, L as I.LVar (r, _, _)) =
+    let rec abstractLVar = function (I.Decl(K', LV (I.LVar (r', _, _))), depth, L as I.LVar (r, _, _)) -> 
           if r = r' then I.Bidx (depth+1)
           else abstractLVar (K', depth+1, L)
-      | abstractLVar (I.Decl(K', _), depth, L) =
+      | (I.Decl(K', _), depth, L) -> 
           abstractLVar (K', depth+1, L)
 
     (* abstractExpW (K, depth, (U, s)) = U'
@@ -404,25 +404,25 @@ struct
        and   . ||- U' and . ||- V'
        and   U' is in nf
     *)
-    fun abstractExpW (K, depth, (U as I.Uni (L), s)) = U
-      | abstractExpW (K, depth, (I.Pi ((D, P), V), s)) =
+    let rec abstractExpW = function (K, depth, (U as I.Uni (L), s)) -> U
+      | (K, depth, (I.Pi ((D, P), V), s)) -> 
           piDepend ((abstractDec (K, depth, (D, s)), P),
                     abstractExp (K, depth + 1, (V, I.dot1 s)))
-      | abstractExpW (K, depth, (I.Root (F as I.FVar _, S), s)) =
+      | (K, depth, (I.Root (F as I.FVar _, S), s)) -> 
           I.Root (abstractFVar (K, depth, F),
                   abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Root (I.Proj (L as I.LVar _, i), S), s)) =
+      | (K, depth, (I.Root (I.Proj (L as I.LVar _, i), S), s)) -> 
           I.Root (I.Proj (abstractLVar (K, depth, L), i),
                   abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Root (H, S) ,s)) =
+      | (K, depth, (I.Root (H, S) ,s)) -> 
           I.Root (H, abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Lam (D, U), s)) =
+      | (K, depth, (I.Lam (D, U), s)) -> 
           I.Lam (abstractDec (K, depth, (D, s)),
                  abstractExp (K, depth + 1, (U, I.dot1 s)))
-      | abstractExpW (K, depth, (X as I.EVar _, s)) =
+      | (K, depth, (X as I.EVar _, s)) -> 
           I.Root (abstractEVar (K, depth, X),
                   abstractSub (K, depth, s, I.Nil))
-      | abstractExpW (K, depth, (I.FgnExp csfe, s)) =
+      | (K, depth, (I.FgnExp csfe, s)) -> 
           I.FgnExpStd.Map.apply csfe (fun U -> abstractExp (K, depth, (U, s)))
 
     (* abstractExp (K, depth, (U, s)) = U'
@@ -496,15 +496,15 @@ struct
        Above is now incorrect
        Sun Dec  1 22:36:50 2002 -fp
     *)
-    fun abstractSOME (K, I.Shift 0) = (* n = 0 by invariant, check for now *)
+    let rec abstractSOME = function (K, I.Shift 0) -> (* n = 0 by invariant, check for now *)
           I.Shift (I.ctxLength(K))
-      | abstractSOME (K, I.Shift (n)) = (* n > 0 *)
+      | (K, I.Shift (n)) -> (* n > 0 *)
           I.Shift (I.ctxLength(K))
-      | abstractSOME (K, I.Dot (I.Idx k, s)) =
+      | (K, I.Dot (I.Idx k, s)) -> 
           I.Dot (I.Idx k, abstractSOME (K, s))
-      | abstractSOME (K, I.Dot (I.Exp U, s)) =
+      | (K, I.Dot (I.Exp U, s)) -> 
           I.Dot (I.Exp (abstractExp (K, 0, (U, I.id))), abstractSOME (K, s))
-      | abstractSOME (K, I.Dot (I.Block (L as I.LVar _), s)) =
+      | (K, I.Dot (I.Block (L as I.LVar _), s)) -> 
           I.Dot (I.Block (abstractLVar (K, 0, L)), abstractSOME (K, s))
       (* I.Block (I.Bidx _) should be impossible as head of substitutions *)
 
@@ -519,8 +519,8 @@ struct
        and . ||- G'
        and |G0,G| = depth'
     *)
-    fun abstractCtx (K, depth, I.Null) = (I.Null, depth)
-      | abstractCtx (K, depth, I.Decl (G, D)) =
+    let rec abstractCtx = function (K, depth, I.Null) -> (I.Null, depth)
+      | (K, depth, I.Decl (G, D)) -> 
         let
           let (G', depth') = abstractCtx (K, depth, G)
           let D' = abstractDec (K, depth', (D, I.id))
@@ -538,8 +538,8 @@ struct
        then {{K}}, G0 |- G1',...,Gn' ctx
        and . ||- G1',...,Gn'
     *)
-    fun abstractCtxlist (K, depth, nil) = nil
-      | abstractCtxlist (K, depth, G::Gs) =
+    let rec abstractCtxlist = function (K, depth, nil) -> nil
+      | (K, depth, G::Gs) -> 
         let
           let (G', depth') = abstractCtx (K, depth, G)
           let Gs' = abstractCtxlist (K, depth', Gs)
@@ -552,12 +552,12 @@ struct
 
        Invariant: G |- V : L' for some L'
     *)
-    fun getLevel (I.Uni _) = I.Kind
-      | getLevel (I.Pi (_, U)) = getLevel U
-      | getLevel (I.Root _)  = I.Type
-      | getLevel (I.Redex (U, _)) = getLevel U
-      | getLevel (I.Lam (_, U)) = getLevel U
-      | getLevel (I.EClo (U,_)) = getLevel U
+    let rec getLevel = function (I.Uni _) -> I.Kind
+      | (I.Pi (_, U)) -> getLevel U
+      | (I.Root _) -> I.Type
+      | (I.Redex (U, _)) -> getLevel U
+      | (I.Lam (_, U)) -> getLevel U
+      | (I.EClo (U,_)) -> getLevel U
 
     (* checkType (V) = () if G |- V : type
 
@@ -580,8 +580,8 @@ struct
        and  . |- V' : L
        and  . ||- V'
     *)
-    fun abstractKPi (I.Null, V) = V
-      | abstractKPi (I.Decl (K', EV (I.EVar (_, GX, VX, _))), V) =
+    let rec abstractKPi = function (I.Null, V) -> V
+      | (I.Decl (K', EV (I.EVar (_, GX, VX, _))), V) -> 
         let
           let V' = raiseType (GX, VX)
           let V'' = abstractExp (K', 0, (V', I.id))
@@ -590,7 +590,7 @@ struct
         in
           abstractKPi (K', I.Pi ((I.Dec(NONE, V''), I.Maybe), V))
         end
-      | abstractKPi (I.Decl (K', FV (name,V')), V) =
+      | (I.Decl (K', FV (name,V')), V) -> 
         let
           let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
@@ -598,7 +598,7 @@ struct
         in
           abstractKPi (K', I.Pi ((I.Dec(SOME(name), V''), I.Maybe), V))
         end
-      | abstractKPi (I.Decl (K', LV (I.LVar (r, _, (l, t)))), V) =
+      | (I.Decl (K', LV (I.LVar (r, _, (l, t)))), V) -> 
         let
           let t' = abstractSOME (K', t)
         in
@@ -617,19 +617,19 @@ struct
        and  . |- U' : {{K}} V
        and  . ||- U'
     *)
-    fun abstractKLam (I.Null, U) = U
-      | abstractKLam (I.Decl (K', EV (I.EVar (_, GX, VX, _))), U) =
+    let rec abstractKLam = function (I.Null, U) -> U
+      | (I.Decl (K', EV (I.EVar (_, GX, VX, _))), U) -> 
         let
           let V' = raiseType (GX, VX)
         in
           abstractKLam (K', I.Lam (I.Dec(NONE, abstractExp (K', 0, (V', I.id))), U))
         end
-      | abstractKLam (I.Decl (K', FV (name,V')), U) =
+      | (I.Decl (K', FV (name,V')), U) -> 
           abstractKLam (K', I.Lam (I.Dec(SOME(name), abstractExp (K', 0, (V', I.id))), U))
 
 
-    fun abstractKCtx (I.Null) = I.Null
-      | abstractKCtx (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
+    let rec abstractKCtx = function (I.Null) -> I.Null
+      | (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) -> 
         let
           let V' = raiseType (GX, VX)
           let V'' = abstractExp (K', 0, (V', I.id))
@@ -638,7 +638,7 @@ struct
         in
           I.Decl (abstractKCtx K', I.Dec (NONE, V''))
         end
-      | abstractKCtx (I.Decl (K', FV (name, V'))) =
+      | (I.Decl (K', FV (name, V'))) -> 
         let
           let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
@@ -646,7 +646,7 @@ struct
         in
           I.Decl (abstractKCtx K', I.Dec (SOME(name), V''))
         end
-      | abstractKCtx (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
+      | (I.Decl (K', LV (I.LVar (r, _, (l, t))))) -> 
         let
           let t' = abstractSOME (K', t)
         in
@@ -732,9 +732,9 @@ struct
         of I.Null => true
          | _ => false
 
-    fun closedSub (G, I.Shift _) = true
-      | closedSub (G, I.Dot (I.Idx _, s)) = closedSub (G, s)
-      | closedSub (G, I.Dot (I.Exp U, s)) =
+    let rec closedSub = function (G, I.Shift _) -> true
+      | (G, I.Dot (I.Idx _, s)) -> closedSub (G, s)
+      | (G, I.Dot (I.Exp U, s)) -> 
         (case collectExp (G, (U, I.id), I.Null)
            of I.Null => closedSub (G, s)
             | _ => false)
@@ -744,31 +744,31 @@ struct
         of I.Null => true
          | _ => false
 
-    fun closedCtx I.Null = true
-      | closedCtx (I.Decl (G, D)) =
+    let rec closedCtx = function I.Null -> true
+      | (I.Decl (G, D)) -> 
           closedCtx G andalso closedDec (G, (D, I.id))
 
 
-    fun closedFor (Psi, T.True) = true
-      | closedFor (Psi, T.All ((D, _), F)) =
+    let rec closedFor = function (Psi, T.True) -> true
+      | (Psi, T.All ((D, _), F)) -> 
           closedDEC (Psi, D) andalso closedFor (I.Decl (Psi, D), F)
-      | closedFor (Psi, T.Ex ((D, _), F)) =
+      | (Psi, T.Ex ((D, _), F)) -> 
           closedDec (T.coerceCtx Psi, (D, I.id)) andalso closedFor (I.Decl (Psi, T.UDec D), F)
 
     and closedDEC (Psi, T.UDec D) = closedDec (T.coerceCtx Psi, (D, I.id))
       | closedDEC (Psi, T.PDec (_, F, _, _)) =  closedFor (Psi, F)
 
 
-    fun closedCTX I.Null = true
-      | closedCTX (I.Decl (Psi,  D)) =
+    let rec closedCTX = function I.Null -> true
+      | (I.Decl (Psi,  D)) -> 
           closedCTX Psi andalso closedDEC (Psi, D)
 
-    fun evarsToK (nil) = I.Null
-      | evarsToK (X::Xs) = I.Decl (evarsToK (Xs), EV(X))
+    let rec evarsToK = function (nil) -> I.Null
+      | (X::Xs) -> I.Decl (evarsToK (Xs), EV(X))
 
-    fun KToEVars (I.Null) = nil
-      | KToEVars (I.Decl (K, EV(X))) = X::KToEVars (K)
-      | KToEVars (I.Decl (K, _)) = KToEVars (K)
+    let rec KToEVars = function (I.Null) -> nil
+      | (I.Decl (K, EV(X))) -> X::KToEVars (K)
+      | (I.Decl (K, _)) -> KToEVars (K)
 
     (* collectEVars (G, U[s], Xs) = Xs'
        Invariants:
@@ -786,10 +786,10 @@ struct
        collect and abstract in subsitutions  including residual lemmas
        pending approval of Frank.
     *)
-    fun collectPrg (_, P as T.EVar (Psi, r, F, _, _, _), K) =
+    let rec collectPrg = function (_, P as T.EVar (Psi, r, F, _, _, _), K) -> 
           I.Decl (K, PV P)
-      | collectPrg (Psi, T.Unit, K) = K
-      | collectPrg (Psi, T.PairExp (U, P), K) =
+      | (Psi, T.Unit, K) -> K
+      | (Psi, T.PairExp (U, P), K) -> 
           collectPrg (Psi, P, collectExp (T.coerceCtx Psi, (U, I.id), K))
 
 
@@ -802,49 +802,49 @@ struct
        then C' = Bidx (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractPVar (I.Decl(K', PV (T.EVar (_, r', _, _, _, _))), depth, P as T.EVar (_, r, _, _, _, _)) =
+    let rec abstractPVar = function (I.Decl(K', PV (T.EVar (_, r', _, _, _, _))), depth, P as T.EVar (_, r, _, _, _, _)) -> 
           if r = r' then T.Var (depth+1)
           else abstractPVar (K', depth+1, P)
-      | abstractPVar (I.Decl(K', _), depth, P) =
+      | (I.Decl(K', _), depth, P) -> 
           abstractPVar (K', depth+1, P)
 
-    fun abstractPrg (K, depth, X as T.EVar _) =
+    let rec abstractPrg = function (K, depth, X as T.EVar _) -> 
           abstractPVar (K, depth, X)
-      | abstractPrg (K, depth, T.Unit) = T.Unit
-      | abstractPrg (K, depth, T.PairExp (U, P)) =
+      | (K, depth, T.Unit) -> T.Unit
+      | (K, depth, T.PairExp (U, P)) -> 
            T.PairExp (abstractExp (K, depth, (U, I.id)), abstractPrg (K, depth, P))
 
-    fun collectTomegaSub (T.Shift 0) = I.Null
-      | collectTomegaSub (T.Dot (T.Exp U, t)) =
+    let rec collectTomegaSub = function (T.Shift 0) -> I.Null
+      | (T.Dot (T.Exp U, t)) -> 
           collectExp (I.Null, (U, I.id), collectTomegaSub t)
-      | collectTomegaSub (T.Dot (T.Block B, t)) =
+      | (T.Dot (T.Block B, t)) -> 
           collectBlock (I.Null, B, collectTomegaSub t)
-      | collectTomegaSub (T.Dot (T.Prg P, t)) =
+      | (T.Dot (T.Prg P, t)) -> 
           collectPrg (I.Null, P, collectTomegaSub t)
 
-    fun abstractOrder (K, depth, O.Arg (Us1, Us2)) =
+    let rec abstractOrder = function (K, depth, O.Arg (Us1, Us2)) -> 
           O.Arg ((abstractExp (K, depth, Us1), I.id),
                  (abstractExp (K, depth, Us2), I.id))
-      | abstractOrder (K, depth, O.Simul (Os)) =
+      | (K, depth, O.Simul (Os)) -> 
           O.Simul (map (fun O -> abstractOrder (K, depth, O)) Os)
-      | abstractOrder (K, depth, O.Lex (Os)) =
+      | (K, depth, O.Lex (Os)) -> 
           O.Lex (map (fun O -> abstractOrder (K, depth, O)) Os)
 
-    fun abstractTC (K, depth, T.Abs (D, TC)) =
+    let rec abstractTC = function (K, depth, T.Abs (D, TC)) -> 
           T.Abs (abstractDec (K, depth, (D, I.id)),
                  abstractTC (K, depth, TC))
-      | abstractTC (K, depth, T.Conj (TC1, TC2)) =
+      | (K, depth, T.Conj (TC1, TC2)) -> 
           T.Conj (abstractTC (K, depth, TC1),
                   abstractTC (K, depth, TC2))
-      | abstractTC (K, depth, T.Base (O)) =
+      | (K, depth, T.Base (O)) -> 
           T.Base (abstractOrder (K, depth, O))
 
-    fun abstractTCOpt (K, depth, NONE) = NONE
-      | abstractTCOpt (K, depth, SOME TC) =
+    let rec abstractTCOpt = function (K, depth, NONE) -> NONE
+      | (K, depth, SOME TC) -> 
           SOME (abstractTC (K, depth, TC))
 
-    fun abstractMetaDec (K, depth, T.UDec D) = T.UDec (abstractDec (K, depth, (D, I.id)))
-      | abstractMetaDec (K, depth, T.PDec (xx, F, TC1, TC2)) = T.PDec (xx, abstractFor (K, depth, F), TC1, TC2)
+    let rec abstractMetaDec = function (K, depth, T.UDec D) -> T.UDec (abstractDec (K, depth, (D, I.id)))
+      | (K, depth, T.PDec (xx, F, TC1, TC2)) -> T.PDec (xx, abstractFor (K, depth, F), TC1, TC2)
          (* TC cannot contain free FVAR's or EVars'
             --cs  Fri Apr 30 13:45:50 2004 *)
 
@@ -859,8 +859,8 @@ struct
       | abstractFor (K, depth, T.World (W, F)) =
           T.World (W, abstractFor (K, depth, F))
 
-    fun abstractPsi (I.Null) = I.Null
-      | abstractPsi (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
+    let rec abstractPsi = function (I.Null) -> I.Null
+      | (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) -> 
         let
           let V' = raiseType (GX, VX)
           let V'' = abstractExp (K', 0, (V', I.id))
@@ -869,7 +869,7 @@ struct
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (NONE, V'')))
         end
-      | abstractPsi (I.Decl (K', FV (name, V'))) =
+      | (I.Decl (K', FV (name, V'))) -> 
         let
           let V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
@@ -877,13 +877,13 @@ struct
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (SOME(name), V'')))
         end
-      | abstractPsi (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
+      | (I.Decl (K', LV (I.LVar (r, _, (l, t))))) -> 
         let
           let t' = abstractSOME (K', t)
         in
           I.Decl (abstractPsi K', T.UDec (I.BDec (NONE, (l, t'))))
         end
-      | abstractPsi (I.Decl (K', PV (T.EVar (GX, _, FX, TC1, TC2, _)))) =
+      | (I.Decl (K', PV (T.EVar (GX, _, FX, TC1, TC2, _)))) -> 
         (* What's happening with GX? *)
         (* What's happening with TCs? *)
         let

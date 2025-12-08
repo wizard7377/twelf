@@ -29,8 +29,8 @@ struct
           then print (f ())
         else ()
 
-     fun normalizeHead (T.Const lemma, t) = T.Const lemma
-      | normalizeHead (T.Var k, t) =
+     let rec normalizeHead = function (T.Const lemma, t) -> T.Const lemma
+      | (T.Var k, t) -> 
         (case T.varSub (k, t)
            of T.Idx (k') => T.Var (k'))
         (* no other cases can occur *)
@@ -43,8 +43,8 @@ struct
        and  Psi1 |- H : F
        then Psi  |- F'[t'] == F[t]
     *)
-    fun inferCon (Psi, T.Const lemma) = inferLemma lemma
-      | inferCon (Psi, T.Var k) =
+    let rec inferCon = function (Psi, T.Const lemma) -> inferLemma lemma
+      | (Psi, T.Var k) -> 
           case T.ctxDec (Psi, k) of T.PDec (_, F') => F'
 *)
 

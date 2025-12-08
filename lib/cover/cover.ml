@@ -57,8 +57,8 @@ struct
        then G |- w' : G'
        and  forall x:A in G'  A subordinate to a
      *)
-    fun weaken (I.Null, a) = I.id
-      | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
+    let rec weaken = function (I.Null, a) -> I.id
+      | (I.Decl (G', D as I.Dec (name, V)), a) -> 
         let
           let w' = weaken (G', a)
         in
@@ -68,7 +68,7 @@ struct
       (* added next case, probably should not arise *)
       (* Sun Dec 16 10:42:05 2001 -fp !!! *)
       (*
-      | weaken (I.Decl (G', D as I.BDec _), a) =
+      | (I.Decl (G', D as I.BDec _), a) -> 
            I.dot1 (weaken (G', a))
       *)
 
@@ -113,27 +113,27 @@ struct
     (* inCoverInst (ms) = ci
        converts mode spine ms to cover instructions ci for input coverage
     *)
-    fun inCoverInst (M.Mnil) = Cnil
-      | inCoverInst (M.Mapp (M.Marg (M.Plus, x), ms')) =
+    let rec inCoverInst = function (M.Mnil) -> Cnil
+      | (M.Mapp (M.Marg (M.Plus, x), ms')) -> 
           Match (inCoverInst ms')
-      | inCoverInst (M.Mapp (M.Marg (M.Minus, x), ms')) =
+      | (M.Mapp (M.Marg (M.Minus, x), ms')) -> 
           Skip (inCoverInst ms')
-      | inCoverInst (M.Mapp (M.Marg (M.Star, x), ms')) =
+      | (M.Mapp (M.Marg (M.Star, x), ms')) -> 
           Skip (inCoverInst ms')
 
     (* outCoverInst (ms) = ci
        converts mode spine ms to cover instructions ci for output coverage
     *)
-    fun outCoverInst (M.Mnil) = Cnil
-      | outCoverInst (M.Mapp (M.Marg (M.Plus, x), ms')) =
+    let rec outCoverInst = function (M.Mnil) -> Cnil
+      | (M.Mapp (M.Marg (M.Plus, x), ms')) -> 
           Skip (outCoverInst ms')
-      | outCoverInst (M.Mapp (M.Marg (M.Minus, x), ms')) =
+      | (M.Mapp (M.Marg (M.Minus, x), ms')) -> 
           Match (outCoverInst ms')
       (* this last case should be impossible *)
       (* output coverage only from totality checking, where there can be *)
       (* no undirectional ( * ) arguments *)
       (*
-      | outCoverInst (M.Mapp (M.Marg (M.Star, x), ms')) =
+      | (M.Mapp (M.Marg (M.Star, x), ms')) -> 
           Skip (outCoverInst ms')
       *)
 
@@ -146,23 +146,23 @@ struct
         Top                             (* ^ *)
       | Child of caseLabel * int        (* lab.n, n >= 1 *)
 
-    fun labToString (Top) = "^"
-      | labToString (Child(lab, n)) = labToString(lab) ^ "." ^ Int.toString(n)
+    let rec labToString = function (Top) -> "^"
+      | (Child(lab, n)) -> labToString(lab) ^ "." ^ Int.toString(n)
 
     fun chatter chlev f =
         if !Global.chatter >= chlev
           then print (f ())
         else ()
 
-    fun pluralize (1, s) = s
-      | pluralize (n, s) = s ^ "s"
+    let rec pluralize = function (1, s) -> s
+      | (n, s) -> s ^ "s"
 
     (* we pass in the mode spine specifying coverage, but currently ignore it *)
     fun abbrevCSpine (S, ci) = S
 
     (* fix to identify existential and universal prefixes *)
-    fun abbrevCGoal (G, V, 0, ci) = (G, abbrevCGoal' (G, V, ci))
-      | abbrevCGoal (G, I.Pi((D, P), V), p, ci) = (* p > 0 *)
+    let rec abbrevCGoal = function (G, V, 0, ci) -> (G, abbrevCGoal' (G, V, ci))
+      | (G, I.Pi((D, P), V), p, ci) -> (* p > 0 *)
         let
           let D' = N.decEName (G, D)
         in
@@ -187,8 +187,8 @@ struct
                    F.Space, Print.formatExp (G, V')]
         end
 
-    fun formatCGoals ((V,p)::nil, ci) = [formatCGoal (V, p, ci)]
-      | formatCGoals ((V,p)::Vs, ci) =
+    let rec formatCGoals = function ((V,p)::nil, ci) -> [formatCGoal (V, p, ci)]
+      | ((V,p)::Vs, ci) -> 
           formatCGoal (V, p, ci) :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
 
     fun missingToString (Vs, ci) =
@@ -218,8 +218,8 @@ struct
 
     (* buildSpine n = n; n-1; ...; 1; Nil *)
 
-    fun buildSpine 0 = I.Nil
-      | buildSpine n = (* n > 0 *)
+    let rec buildSpine = function 0 -> I.Nil
+      | n -> (* n > 0 *)
         (* Eta-long invariant violation -kw *)
         I.App (I.Root (I.BVar(n), I.Nil), buildSpine (n-1))
 
@@ -231,14 +231,14 @@ struct
        V = {xk+1:Vk+1}...{xn:Vn} type
        G |- V : type
     *)
-    fun initCGoal' (a, k, G, I.Pi ((D, P), V)) =
+    let rec initCGoal' = function (a, k, G, I.Pi ((D, P), V)) -> 
         let
           let D' = N.decEName (G, D)
           let (V', p) = initCGoal' (a, k+1, I.Decl(G, D'), V)
         in
           (I.Pi ((D', I.Maybe), V'), p)
         end
-      | initCGoal' (a, k, G, I.Uni (I.Type)) =
+      | (a, k, G, I.Uni (I.Type)) -> 
           (I.Root (a, buildSpine k), k)
 
     (* initCGoal (a) = {x1:V1}...{xn:Vn} a x1...xn
@@ -275,8 +275,8 @@ struct
           F.makestring_fmt (fmt)
         end
 
-    fun eqnsToString (nil) = ".\n"
-      | eqnsToString (eqn::eqns) =
+    let rec eqnsToString = function (nil) -> ".\n"
+      | (eqn::eqns) -> 
           equationToString (eqn) ^ ",\n"
           ^ eqnsToString (eqns)
 
@@ -289,9 +289,9 @@ struct
       | Cands of int list               (* candidates for splitting, matching fails *)
       | Fail                            (* coverage fails without candidates *)
 
-    fun candsToString (Fail) = "Fail"
-      | candsToString (Cands(ks)) = "Cands [" ^ List.foldl (fn (k,str) => Int.toString k ^ "," ^ str) "]" ks
-      | candsToString (Eqns(eqns)) = "Eqns [\n" ^ eqnsToString eqns ^ "]"
+    let rec candsToString = function (Fail) -> "Fail"
+      | (Cands(ks)) -> "Cands [" ^ List.foldl (fn (k,str) => Int.toString k ^ "," ^ str) "]" ks
+      | (Eqns(eqns)) -> "Eqns [\n" ^ eqnsToString eqns ^ "]"
 
     (* fail () = Fail
        indicate failure without splitting candidates
@@ -303,17 +303,17 @@ struct
     (* failAdd (k, cands) = cands'
        indicate failure, but add k as splitting candidate
     *)
-    fun failAdd (k, Eqns _) = Cands (k::nil) (* no longer matches *)
-      | failAdd (k, Cands (ks)) = Cands (k::ks) (* remove duplicates? *)
-      | failAdd (k, Fail) = Fail
+    let rec failAdd = function (k, Eqns _) -> Cands (k::nil) (* no longer matches *)
+      | (k, Cands (ks)) -> Cands (k::ks) (* remove duplicates? *)
+      | (k, Fail) -> Fail
 
     (* addEqn (e, cands) = cands'
        indicate possible match if equation e can be solved
     *)
-    fun addEqn (e, Eqns (es)) = Eqns (e::es) (* still may match: add equation *)
-      | addEqn (e, cands as Cands (ks)) = (* already failed: ignore new constraints *)
+    let rec addEqn = function (e, Eqns (es)) -> Eqns (e::es) (* still may match: add equation *)
+      | (e, cands as Cands (ks)) -> (* already failed: ignore new constraints *)
           cands
-      | addEqn (e, Fail) = Fail         (* already failed without candidates *)
+      | (e, Fail) -> Fail         (* already failed without candidates *)
 
     fun unifiable (G, Us1, Us2) =
           Unify.unifiable (G, Us1, Us2)
@@ -323,8 +323,8 @@ struct
 
        Effect: instantiate EVars right-hand sides of equations.
     *)
-    fun matchEqns (nil) = true
-      | matchEqns (Eqn (G, Us1, Us2 as (U2, s2))::es) =
+    let rec matchEqns = function (nil) -> true
+      | (Eqn (G, Us1, Us2 as (U2, s2))::es) -> 
         (* For some reason, s2 is sometimes not a patSub when it should be *)
         (* explicitly convert if possible *)
         (* Sat Dec  7 20:59:46 2002 -fp *)
@@ -341,13 +341,13 @@ struct
          Cands(ks) - candidates ks
        Effect: instantiate EVars in right-hand sides of equations.
     *)
-    fun resolveCands (Eqns (es)) =
+    let rec resolveCands = function (Eqns (es)) -> 
         (* reversed equations Fri Dec 28 09:39:55 2001 -fp !!! *)
         (* why is this important? --cs !!! *)
         if matchEqns (List.rev es) then (Eqns (nil))
         else Fail
-      | resolveCands (Cands (ks)) = Cands (ks)
-      | resolveCands (Fail) = Fail
+      | (Cands (ks)) -> Cands (ks)
+      | (Fail) -> Fail
 
     (* collectConstraints (Xs) = constrs
        collect all the constraints that may be attached to EVars Xs
@@ -355,10 +355,10 @@ struct
        try simplifying away the constraints in case they are "hard"
        disabled for now to get a truer approximation to operational semantics
     *)
-    fun collectConstraints (nil) = nil
-      | collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
+    let rec collectConstraints = function (nil) -> nil
+      | (I.EVar (_, _, _, ref nil)::Xs) -> 
           collectConstraints Xs
-      | collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
+      | (I.EVar (_, _, _, ref constrs)::Xs) -> 
           (* constrs <> nil *)
           (* Constraints.simplify constrs @ *) (* at present, do not simplify -fp *)
           constrs @ collectConstraints Xs
@@ -371,9 +371,9 @@ struct
     *)
     (* This ignores LVars, because collectEVars does *)
     (* Why is that OK?  Sun Dec 16 09:01:40 2001 -fp !!! *)
-    fun checkConstraints (G, Qs, Cands (ks)) = Cands (ks)
-      | checkConstraints (G, Qs, Fail) = Fail
-      | checkConstraints (G, Qs, Eqns _) = (* _ = nil *)
+    let rec checkConstraints = function (G, Qs, Cands (ks)) -> Cands (ks)
+      | (G, Qs, Fail) -> Fail
+      | (G, Qs, Eqns _) -> (* _ = nil *)
         let
           let Xs = Abstract.collectEVars (G, Qs, nil)
           let constrs = collectConstraints Xs
@@ -395,9 +395,9 @@ struct
     (* addKs (cands, klist) = klist'
        add new constructor to candidate list
     *)
-    fun addKs (ccs as Cands(ks), CandList (klist)) = CandList (ccs::klist)
-      | addKs (ces as Eqns(nil), CandList (klist)) = Covered
-      | addKs (cfl as Fail, CandList (klist)) = CandList (cfl::klist)
+    let rec addKs = function (ccs as Cands(ks), CandList (klist)) -> CandList (ccs::klist)
+      | (ces as Eqns(nil), CandList (klist)) -> Covered
+      | (cfl as Fail, CandList (klist)) -> CandList (cfl::klist)
 
     (* matchExp (G, d, (U1, s1), (U2, s2), cands) = cands'
        matches U1[s1] (part of coverage goal)
@@ -635,9 +635,9 @@ struct
        as in matchTop, but r is clause
        NOTE: Simply use constant type for more robustness (see below)
     *)
-    fun matchClause (G, ps', qs as (I.Root (_, _), s), ci) =
+    let rec matchClause = function (G, ps', qs as (I.Root (_, _), s), ci) -> 
           checkConstraints (G, qs, resolveCands (matchTop (G, 0, ps', qs, ci, Eqns (nil))))
-      | matchClause (G, ps', (I.Pi ((I.Dec(_, V1), _), V2), s), ci) =
+      | (G, ps', (I.Pi ((I.Dec(_, V1), _), V2), s), ci) -> 
         let
           (* changed to use subordination and strengthening here *)
           (* Sun Dec 16 10:39:34 2001 -fp *)
@@ -661,8 +661,8 @@ struct
        ci matches S
        klist <> Covered
     *)
-    fun matchSig (G, ps', nil, ci, klist) = klist
-      | matchSig (G, ps', V::ccs', ci, klist) =
+    let rec matchSig = function (G, ps', nil, ci, klist) -> klist
+      | (G, ps', V::ccs', ci, klist) -> 
         let
           let cands = CSManager.trail
                       (fn () => matchClause (G, ps', (V, I.id), ci))
@@ -684,8 +684,8 @@ struct
        G |- V : type
        G_k = (Gsome, D1...D(i-1) piDecs)
      *)
-    fun matchBlocks (G, s', nil, V, k, i, ci, klist) = klist
-      | matchBlocks (G, s', I.Dec (_, V')::piDecs, V, k, i, ci, klist) =
+    let rec matchBlocks = function (G, s', nil, V, k, i, ci, klist) -> klist
+      | (G, s', I.Dec (_, V')::piDecs, V, k, i, ci, klist) -> 
         let
           let cands = CSManager.trail
                       (fn () => matchClause (G, (V, I.id), (V', s'), ci))
@@ -705,8 +705,8 @@ struct
        ci matches for for V = a @ S
        klist <> Covered accumulates mode spines
     *)
-    fun matchCtx (G, s', I.Null, V, k, ci, klist) = klist
-      | matchCtx (G, s', I.Decl(G'', I.Dec(_, V')), V, k, ci, klist) =
+    let rec matchCtx = function (G, s', I.Null, V, k, ci, klist) -> klist
+      | (G, s', I.Decl(G'', I.Dec(_, V')), V, k, ci, klist) -> 
         (* will always fail for input coverage *)
         let
           (*  G'', V' |- ^ : G''
@@ -719,7 +719,7 @@ struct
         in
           matchCtx' (G, s'', G'', V, k+1, ci, addKs (cands, klist))
         end
-      | matchCtx (G, s', I.Decl(G'', I.BDec(_, (cid, s))), V, k, ci, klist) =
+      | (G, s', I.Decl(G'', I.BDec(_, (cid, s))), V, k, ci, klist) -> 
         let
           let (Gsome, piDecs) = I.constBlock cid
           let s'' = I.comp (I.shift, s')
@@ -738,7 +738,7 @@ struct
           matchCtx (G, s', G', V, k, ci, CandList (klist))
 
     (* as matchClause *)
-    fun matchOut (G, V, ci, (V', s'), 0) =
+    let rec matchOut = function (G, V, ci, (V', s'), 0) -> 
         let
           let cands = matchTop (G, 0, (V, I.id), (V', s'), ci, Eqns(nil))
           let cands' = resolveCands (cands)
@@ -746,7 +746,7 @@ struct
         in
           addKs (cands'', CandList (nil))
         end
-      | matchOut (G, V, ci, (V' as I.Pi ((I.Dec(_, V1'), _), V2'), s'), p) = (* p > 0 *)
+      | (G, V, ci, (V' as I.Pi ((I.Dec(_, V1'), _), V2'), s'), p) -> (* p > 0 *)
         let
           let X1 = Whnf.newLoweredEVar (G, (V1', s'))
         (* was let X1 = I.newEVar (G, I.EClo (V1', s')) Mon Feb 28 14:38:21 2011 -cs *)
@@ -763,12 +763,12 @@ struct
        cover instructions ci match S
        G |- V : type
     *)
-    fun match (G, V as I.Root (I.Const (a), S), 0, ci, Input(ccs)) =
+    let rec match = function (G, V as I.Root (I.Const (a), S), 0, ci, Input(ccs)) -> 
           matchCtx' (G, I.id, G, V, 1, ci,
                      matchSig (G, (V, I.id), ccs, ci, CandList (nil)))
-      | match (G, V, 0, ci, Output (V', q)) =
+      | (G, V, 0, ci, Output (V', q)) -> 
           matchOut (G, V, ci, (V', I.Shift (I.ctxLength G)), q)
-      | match (G, I.Pi ((D, _), V'), p, ci, ccs) =
+      | (G, I.Pi ((D, _), V'), p, ci, ccs) -> 
           match (I.Decl (G, D), V', p-1, ci, ccs)
 
     (************************************)
@@ -778,8 +778,8 @@ struct
     (* insert (k, ksn) = ksn'
        ksn is ordered list of ks (smallest index first) with multiplicities
     *)
-    fun insert (k, nil) = ((k, 1)::nil)
-      | insert (k, ksn as (k', n')::ksn') =
+    let rec insert = function (k, nil) -> ((k, 1)::nil)
+      | (k, ksn as (k', n')::ksn') -> 
         (case Int.compare (k, k')
            of LESS => (k, 1)::ksn
             | EQUAL => (k', n'+1)::ksn'
@@ -788,8 +788,8 @@ struct
     (* join (ks, ksn) = ksn'
        ksn is as in function insert
     *)
-    fun join (nil, ksn) = ksn
-      | join (k::ks, ksn) = join (ks, insert (k, ksn))
+    let rec join = function (nil, ksn) -> ksn
+      | (k::ks, ksn) -> join (ks, insert (k, ksn))
 
     (* selectCand (klist) = ksnOpt
        where ksOpt is an indication of coverage (NONE)
@@ -798,8 +798,8 @@ struct
        Simple heuristic: select last splitting candidate from last clause tried
        This will never pick an index variable unless necessary.
     *)
-    fun selectCand (Covered) = NONE     (* success: case is covered! *)
-      | selectCand (CandList (klist)) = selectCand' (klist, nil)
+    let rec selectCand = function (Covered) -> NONE     (* success: case is covered! *)
+      | (CandList (klist)) -> selectCand' (klist, nil)
 
     and selectCand' (nil, ksn) = SOME(ksn) (* failure: case G,V is not covered! *)
       | selectCand' (Fail::klist, ksn) = (* local failure (clash) and no candidates *)
@@ -926,8 +926,8 @@ struct
           (I.Root (H, S), Vs')
         end
 
-    fun constCases (G, Vs, nil, sc) = ()
-      | constCases (G, Vs, I.Const(c)::sgn', sc) =
+    let rec constCases = function (G, Vs, nil, sc) -> ()
+      | (G, Vs, I.Const(c)::sgn', sc) -> 
         let
           let (U, Vs') = createAtomConst (G, I.Const c)
           let _ = CSManager.trail (fn () =>
@@ -938,8 +938,8 @@ struct
           constCases (G, Vs, sgn', sc)
         end
 
-    fun paramCases (G, Vs, 0, sc) = ()
-      | paramCases (G, Vs, k, sc) =
+    let rec paramCases = function (G, Vs, 0, sc) -> ()
+      | (G, Vs, k, sc) -> 
         let
           let (U, Vs') = createAtomBVar (G, k)
           let _ = CSManager.trail (fn () =>
@@ -958,8 +958,8 @@ struct
 
        Update: Always use empty context. Sat Dec  8 13:19:58 2001 -fp
     *)
-    fun createEVarSub (I.Null) = I.id
-      | createEVarSub (I.Decl(G', D as I.Dec (_, V))) =
+    let rec createEVarSub = function (I.Null) -> I.id
+      | (I.Decl(G', D as I.Dec (_, V))) -> 
         let
           let s = createEVarSub G'
           let X = Whnf.newLoweredEVar (I.Null, (V, s))
@@ -1013,12 +1013,12 @@ struct
           blockCases' (G, Vs, (lvar, i+1), (t', piDecs), sc)
         end
 
-    fun worldCases (G, Vs, T.Worlds (nil), sc) = ()
-      | worldCases (G, Vs, T.Worlds (cid::cids), sc) =
+    let rec worldCases = function (G, Vs, T.Worlds (nil), sc) -> ()
+      | (G, Vs, T.Worlds (cid::cids), sc) -> 
           ( blockCases (G, Vs, cid, I.constBlock cid, sc) ;
             worldCases (G, Vs, T.Worlds (cids), sc) )
 
-    fun lowerSplitW (X as I.EVar (_, G, V, _), W, sc) =
+    let rec lowerSplitW = function (X as I.EVar (_, G, V, _), W, sc) -> 
         let
           let sc' = fun U ->  if Unify.unifiable (G, (X, I.id), (U, I.id))
                                 then sc ()
@@ -1029,7 +1029,7 @@ struct
         in
           ()
         end
-      | lowerSplitW (I.Lam (D, U), W, sc) =
+      | (I.Lam (D, U), W, sc) -> 
           lowerSplitW (U, W, sc)
 
     (* splitEVar (X, W, sc) = ()
@@ -1133,11 +1133,11 @@ let _ = pr () *)
 
     (* Stolen from abstract.fun *)
 
-    fun occursInExp (k, I.Uni _) = false
-      | occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
-      | occursInExp (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.FgnExp (cs, ops)) = false
+    let rec occursInExp = function (k, I.Uni _) -> false
+      | (k, I.Pi (DP, V)) -> occursInDecP (k, DP) orelse occursInExp (k+1, V)
+      | (k, I.Root (H, S)) -> occursInHead (k, H) orelse occursInSpine (k, S)
+      | (k, I.Lam (D, V)) -> occursInDec (k, D) orelse occursInExp (k+1, V)
+      | (k, I.FgnExp (cs, ops)) -> false
         (* foreign expression probably should not occur *)
         (* but if they do, variable occurrences don't count *)
         (* occursInExp (k, Whnf.normalize (#toInternal(ops) (), I.id)) *)
@@ -1157,9 +1157,9 @@ let _ = pr () *)
        if k occur in U in a matchable position according to the coverage
        instructions ci
     *)
-    fun occursInMatchPos (k, I.Pi (DP, V), ci) =
+    let rec occursInMatchPos = function (k, I.Pi (DP, V), ci) -> 
           occursInMatchPos (k+1, V, ci)
-      | occursInMatchPos (k, I.Root (H, S), ci) =
+      | (k, I.Root (H, S), ci) -> 
           occursInMatchPosSpine (k, S, ci)
     and occursInMatchPosSpine (k, I.Nil, Cnil) = false
       | occursInMatchPosSpine (k, I.App(U, S), Match(ci)) =
@@ -1196,9 +1196,9 @@ let _ = pr () *)
           instEVarsSkip ((V2, I.Dot (I.Block (L1), s)), p-1, NONE::XsRev, ci)
         end
 
-    fun targetBelowEq (a, I.EVar (ref(NONE), GY, VY, ref nil)) =
+    let rec targetBelowEq = function (a, I.EVar (ref(NONE), GY, VY, ref nil)) -> 
           Subordinate.belowEq (a, I.targetFam VY)
-      | targetBelowEq (a, I.EVar (ref(NONE), GY, VY, ref (_::_))) =
+      | (a, I.EVar (ref(NONE), GY, VY, ref (_::_))) -> 
           (* if contraints remain, consider recursive and thereby unsplittable *)
           true
 
@@ -1209,7 +1209,7 @@ let _ = pr () *)
        This means there is no guarantee that X : {{G}} a @ S has only
        a finite number of instances
     *)
-    fun recursive (X as I.EVar (ref(SOME(U)), GX, VX, _)) =
+    let rec recursive = function (X as I.EVar (ref(SOME(U)), GX, VX, _)) -> 
         let (* GX = I.Null*)
             (* is this always true? --cs!!!*)
           let a = I.targetFam VX
@@ -1220,7 +1220,7 @@ let _ = pr () *)
         in
           recp
         end
-      | recursive (I.Lam (D, U)) = recursive U
+      | (I.Lam (D, U)) -> recursive U
 
     local
       let counter = ref 0
@@ -1294,11 +1294,11 @@ let _ = pr () *)
     (* finitarySplits (XsRev, k, W, cands) = [(k1,n1),...,(km,nm)]@cands
        where all ki are finitary with ni possibilities for X(i+k)
     *)
-    fun finitarySplits (nil, k, W, f, cands) = cands
-      | finitarySplits (NONE::Xs, k, W, f, cands) =
+    let rec finitarySplits = function (nil, k, W, f, cands) -> cands
+      | (NONE::Xs, k, W, f, cands) -> 
         (* parameter blocks can never be split *)
           finitarySplits (Xs, k+1, W, f, cands)
-      | finitarySplits (SOME(X)::Xs, k, W, f, cands) =
+      | (SOME(X)::Xs, k, W, f, cands) -> 
           finitarySplits (Xs, k+1, W, f, CSManager.trail (fn () =>  finitary1 (X, k, W, f,cands)))
 
     (* finitary ({{G}} V, p, W) = [(k1,n1),...,(km,nm)]
@@ -1340,16 +1340,16 @@ let _ = pr () *)
        according to uniqueness mode spine ms
        Invariants: typing as in eqExp, ms ~ S1, ms ~ S2
     *)
-    fun eqInpSpine (ms, (I.SClo(S1,s1'),s1), Ss2) =
+    let rec eqInpSpine = function (ms, (I.SClo(S1,s1'),s1), Ss2) -> 
           eqInpSpine (ms, (S1, I.comp(s1',s1)), Ss2)
-      | eqInpSpine (ms, Ss1, (I.SClo(S2,s2'),s2)) =
+      | (ms, Ss1, (I.SClo(S2,s2'),s2)) -> 
           eqInpSpine (ms, Ss1, (S2, I.comp(s2',s2)))
-      | eqInpSpine (M.Mnil, (I.Nil,s), (I.Nil,s')) = true
+      | (M.Mnil, (I.Nil,s), (I.Nil,s')) -> true
       | eqInpSpine (M.Mapp(M.Marg(M.Plus,_), ms'),
                   (I.App(U,S),s), (I.App(U',S'),s')) =
           eqExp ((U,s), (U',s'))
           andalso eqInpSpine (ms', (S,s), (S',s'))
-      | eqInpSpine (M.Mapp(_, ms'), (I.App(U,S),s), (I.App(U',S'),s')) =
+      | (M.Mapp(_, ms'), (I.App(U,S),s), (I.App(U',S'),s')) -> 
           (* ignore Star, Minus, Minus1 *)
           eqInpSpine (ms', (S,s), (S',s'))
       (* other cases should be impossible since spines must match *)
@@ -1360,17 +1360,17 @@ let _ = pr () *)
        according to mode spine ms.
        Here G = ...kn:a @ Sn, ..., k1:a @ S1, ...
     *)
-    fun eqInp (I.Null, k, a, Ss, ms) = nil
-      | eqInp (I.Decl(G', I.Dec(_, I.Root (I.Const(a'), S'))), k, a, Ss, ms) =
+    let rec eqInp = function (I.Null, k, a, Ss, ms) -> nil
+      | (I.Decl(G', I.Dec(_, I.Root (I.Const(a'), S'))), k, a, Ss, ms) -> 
         (* defined type families disallowed here *)
         if a = a' andalso eqInpSpine (ms, (S', I.Shift(k)), Ss)
           then k::eqInp (G', k+1, a, Ss, ms)
         else eqInp (G', k+1, a, Ss, ms)
-      | eqInp (I.Decl(G', I.Dec(_, I.Pi _)), k, a, Ss, ms) =
+      | (I.Decl(G', I.Dec(_, I.Pi _)), k, a, Ss, ms) -> 
           eqInp (G', k+1, a, Ss, ms)
-      | eqInp (I.Decl(G', I.NDec _), k, a, Ss, ms) =
+      | (I.Decl(G', I.NDec _), k, a, Ss, ms) -> 
           eqInp (G', k+1, a, Ss, ms)
-      | eqInp (I.Decl(G', I.BDec(_, (b, t))), k, a, Ss, ms) =
+      | (I.Decl(G', I.BDec(_, (b, t))), k, a, Ss, ms) -> 
           eqInp (G', k+1, a, Ss, ms)
       (* other cases should be impossible *)
 
@@ -1380,8 +1380,8 @@ let _ = pr () *)
        Sji...Sj{nj} agree on their input arguments according to the
        uniqueness mode spine for aj
     *)
-    fun contractionCands (I.Null, k) = nil
-      | contractionCands (I.Decl(G', I.Dec(_, I.Root (I.Const(a), S))), k) =
+    let rec contractionCands = function (I.Null, k) -> nil
+      | (I.Decl(G', I.Dec(_, I.Root (I.Const(a), S))), k) -> 
         (* defined type families disallowed here *)
         (* using only one uniqueness declaration per type family *)
         (case UniqueTable.modeLookup a
@@ -1390,12 +1390,12 @@ let _ = pr () *)
               case eqInp (G', k+1, a, (S, I.Shift(k)), ms)
                 of nil => contractionCands (G', k+1)
                  | ns => (k::ns)::contractionCands (G', k+1))
-      | contractionCands (I.Decl(G', I.Dec(_, I.Pi _)), k) =
+      | (I.Decl(G', I.Dec(_, I.Pi _)), k) -> 
           (* ignore Pi --- contraction cands unclear *)
           contractionCands (G', k+1)
-      | contractionCands (I.Decl(G', I.NDec _), k) =
+      | (I.Decl(G', I.NDec _), k) -> 
           contractionCands (G', k+1)
-      | contractionCands (I.Decl(G', I.BDec(_, (b, t))), k) =
+      | (I.Decl(G', I.BDec(_, (b, t))), k) -> 
           (* ignore blocks --- contraction cands unclear *)
           contractionCands (G', k+1)
 
@@ -1403,8 +1403,8 @@ let _ = pr () *)
        This isolates the splittable variable G1@G1 from an old-style
        coverage goal ({{G}}V, p)
     *)
-    fun isolateSplittable (G, V, 0) = (G, V)
-      | isolateSplittable (G, I.Pi((D,_), V'), p) =
+    let rec isolateSplittable = function (G, V, 0) -> (G, V)
+      | (G, I.Pi((D,_), V'), p) -> 
           isolateSplittable (I.Decl(G, D), V', p-1)
 
     (* unifyUOutSpine (ms, S1[s1], S2[s2]) = true
@@ -1415,15 +1415,15 @@ let _ = pr () *)
        Effect: EVars in S1[s1], S2[s2] are instantianted, both upon
           failure and success
     *)
-    fun unifyUOutSpine (ms, (I.SClo(S1,s1'),s1), Ss2) =
+    let rec unifyUOutSpine = function (ms, (I.SClo(S1,s1'),s1), Ss2) -> 
           unifyUOutSpine (ms, (S1, I.comp(s1', s1)), Ss2)
-      | unifyUOutSpine (ms, Ss1, (I.SClo(S2,s2'),s2)) =
+      | (ms, Ss1, (I.SClo(S2,s2'),s2)) -> 
           unifyUOutSpine (ms, Ss1, (S2, I.comp(s2',s2)))
-      | unifyUOutSpine (M.Mnil, (I.Nil,s1), (I.Nil,s2)) = true
-      | unifyUOutSpine (M.Mapp(M.Marg(M.Minus1,_),ms'), (I.App(U1,S1),s1), (I.App(U2,S2),s2)) =
+      | (M.Mnil, (I.Nil,s1), (I.Nil,s2)) -> true
+      | (M.Mapp(M.Marg(M.Minus1,_),ms'), (I.App(U1,S1),s1), (I.App(U2,S2),s2)) -> 
           Unify.unifiable (I.Null, (U1,s1), (U2,s2)) (* will have effect! *)
           andalso unifyUOutSpine (ms', (S1,s1), (S2,s2))
-      | unifyUOutSpine (M.Mapp(_,ms'), (I.App(U1,S1),s1), (I.App(U2,S2), s2)) =
+      | (M.Mapp(_,ms'), (I.App(U1,S1),s1), (I.App(U2,S2), s2)) -> 
           (* if mode = + already equal by invariant; otherwise ignore *)
           unifyUOutSpine (ms', (S1,s1), (S2,s2))
       (* Nil/App or App/Nil cannot occur by invariants *)
@@ -1464,17 +1464,17 @@ let _ = pr () *)
     (* unifyOut1 ([X1,...,Xp], [k1, k2, ..., kn] = true
        if X{k1} "==" X{k2} "==" ... "==" X{kn} according to unifyOutEvars
     *)
-    fun unifyUOut1 (XsRev, nil) = true
-      | unifyUOut1 (XsRev, k1::nil) = true
-      | unifyUOut1 (XsRev, k1::k2::ks) =
+    let rec unifyUOut1 = function (XsRev, nil) -> true
+      | (XsRev, k1::nil) -> true
+      | (XsRev, k1::k2::ks) -> 
           unifyUOut2 (XsRev, k1, k2)
           andalso unifyUOut1 (XsRev, k2::ks)
 
     (* unifyOut ([X1,...,Xp], [[k11,...,k1{n1}],...,[km1,...,km{nm}]]) = true
        if unifyOut1 ([X1,...,Xp], [kj1,...,kj{nj}]) for each j
     *)
-    fun unifyUOut (XsRev, nil) = true
-      | unifyUOut (XsRev, ks::kss) =
+    let rec unifyUOut = function (XsRev, nil) -> true
+      | (XsRev, ks::kss) -> 
           unifyUOut1 (XsRev, ks)
           andalso unifyUOut (XsRev, kss)
 
@@ -1613,9 +1613,9 @@ let _ = pr () *)
     (* constsToTypes [c1,...,cn] = [V1,...,Vn] where ci:Vi.
        Generates coverage clauses from module type.
     *)
-    fun constsToTypes (nil) = nil
-      | constsToTypes (I.Const(c)::cs') = I.constType(c)::constsToTypes(cs')
-      | constsToTypes (I.Def(d)::cs') = I.constType(d)::constsToTypes(cs')
+    let rec constsToTypes = function (nil) -> nil
+      | (I.Const(c)::cs') -> I.constType(c)::constsToTypes(cs')
+      | (I.Def(d)::cs') -> I.constType(d)::constsToTypes(cs')
 
     (*******************)
     (* Output Coverage *)
@@ -1624,9 +1624,9 @@ let _ = pr () *)
     (* createCoverClause (G, V, 0) = ({{G}} V, |G|)
        where {{G}} V is in NF
     *)
-    fun createCoverClause (I.Decl (G, D), V, p) =
+    let rec createCoverClause = function (I.Decl (G, D), V, p) -> 
           createCoverClause (G, I.Pi ((D, I.Maybe), V), p+1)
-      | createCoverClause (I.Null, V, p) =
+      | (I.Null, V, p) -> 
           (Whnf.normalize (V, I.id), p)
 
     (* createCoverGoal (., ({{G}} {{GL}} a @ S, s), p, ms) = V' with |G| = p
@@ -1795,8 +1795,8 @@ let _ = pr () *)
                   then s = X1...Xn.^k
                      G |- s : G'
     *)
-    fun newEVarSubst (G, I.Null) = I.Shift(I.ctxLength(G))
-      | newEVarSubst (G, I.Decl(G', D as I.Dec (_, V))) =
+    let rec newEVarSubst = function (G, I.Null) -> I.Shift(I.ctxLength(G))
+      | (G, I.Decl(G', D as I.Dec (_, V))) -> 
         let
           let s' = newEVarSubst (G, G')
           let X = Whnf.newLoweredEVar (G, (V, s'))
@@ -1805,13 +1805,13 @@ let _ = pr () *)
         in
           I.Dot (I.Exp (X), s')
         end
-      | newEVarSubst (G, I.Decl(G', D as I.NDec _)) =
+      | (G, I.Decl(G', D as I.NDec _)) -> 
         let
           let s' = newEVarSubst (G, G')
         in
           I.Dot (I.Undef, s')
         end
-      | newEVarSubst (G, I.Decl(G', D as I.BDec (_, (b, t)))) =
+      | (G, I.Decl(G', D as I.BDec (_, (b, t)))) -> 
         let
           let s' = newEVarSubst (G, G')
           let L1 = I.newLVar (s', (b, t))
@@ -1837,9 +1837,9 @@ let _ = pr () *)
     *)
     (* This ignores LVars, because collectEVars does *)
     (* Why is that OK?  Sun Dec 16 09:01:40 2001 -fp !!! *)
-    fun checkConstraints (G, (Si, ti), Cands (ks)) = Cands (ks)
-      | checkConstraints (G, (Si, ti), Fail) = Fail
-      | checkConstraints (G, (Si, ti), Eqns _) = (* _ = nil *)
+    let rec checkConstraints = function (G, (Si, ti), Cands (ks)) -> Cands (ks)
+      | (G, (Si, ti), Fail) -> Fail
+      | (G, (Si, ti), Eqns _) -> (* _ = nil *)
         let
           let Xs = Abstract.collectEVarsSpine (G, (Si, ti), nil)
           let constrs = collectConstraints Xs
@@ -1865,8 +1865,8 @@ let _ = pr () *)
     (* matchClauses (cg, ccs, klist) = klist'
        as in match, with accumulator argument klist
     *)
-    fun matchClauses (cg, nil, klist) = klist
-      | matchClauses (cg as CGoal(G, S), (CClause (Gi, Si)::ccs), klist) =
+    let rec matchClauses = function (cg, nil, klist) -> klist
+      | (cg as CGoal(G, S), (CClause (Gi, Si)::ccs), klist) -> 
         let
           let ti = newEVarSubst (G, Gi) (* G |- ti : Gi *)
           let cands = CSManager.trail (fn () => matchClause (cg, (Si, ti)))
@@ -1906,17 +1906,17 @@ let _ = pr () *)
        Invariant: 1 <= k <= n
        Xi are either EVars or to be ignored
     *)
-    fun kthSub (I.Dot (I.Exp(X), s), 1) = X
-      | kthSub (I.Dot (_, s), k) = kthSub (s, k-1)
+    let rec kthSub = function (I.Dot (I.Exp(X), s), 1) -> X
+      | (I.Dot (_, s), k) -> kthSub (s, k-1)
 
     (* subToXsRev (X1...Xn.^0) = [Xiopt,...,Xnopt]
        Invariant: Xi are either EVars (translate to SOME(Xi))
                   or not (translate to NONE)
     *)
-    fun subToXsRev (I.Shift(0)) = nil (* n = 0 *)
-      | subToXsRev (I.Dot (I.Exp(X), s)) =
+    let rec subToXsRev = function (I.Shift(0)) -> nil (* n = 0 *)
+      | (I.Dot (I.Exp(X), s)) -> 
           SOME(X)::subToXsRev (s)
-      | subToXsRev (I.Dot (_, s)) =
+      | (I.Dot (_, s)) -> 
           NONE::subToXsRev (s)
 
     (* caseList is a list of possibilities for a variables
@@ -2080,23 +2080,23 @@ let _ = pr () *)
        then G' |- S : {{G}} a >> a  for arbitrary a
        {{G}} erases void declarations in G
     *)
-    fun substToSpine' (I.Shift(n), I.Null, T) = T
-      | substToSpine' (I.Shift(n), G as I.Decl _, T) =
+    let rec substToSpine' = function (I.Shift(n), I.Null, T) -> T
+      | (I.Shift(n), G as I.Decl _, T) -> 
           substToSpine' (I.Dot (I.Idx (n+1), I.Shift(n+1)), G, T)
-      | substToSpine' (I.Dot(_, s), I.Decl(G, I.NDec _), T) =
+      | (I.Dot(_, s), I.Decl(G, I.NDec _), T) -> 
           (* Skip over NDec's; must be either Undef or Idx [from eta-expansion] *)
           (* Unusable meta-decs are eliminated here *)
           substToSpine' (s, G, T)
-      | substToSpine' (I.Dot(I.Exp(U),s), I.Decl(G,V), T) =
+      | (I.Dot(I.Exp(U),s), I.Decl(G,V), T) -> 
           substToSpine' (s, G, I.App(U, T))
-      | substToSpine' (I.Dot(I.Idx(n),s), I.Decl(G,I.Dec(_,V)), T) =
+      | (I.Dot(I.Idx(n),s), I.Decl(G,I.Dec(_,V)), T) -> 
           (* Eta-expand *)
         let
           let (Us,_) = Whnf.whnfEta ((I.Root (I.BVar(n), I.Nil), I.id), (V, I.id))
         in
           substToSpine' (s, G, I.App(I.EClo Us, T))
         end
-      | substToSpine' (I.Dot (_, s) , I.Decl (G, I.BDec (_, (L, t))), T) =
+      | (I.Dot (_, s) , I.Decl (G, I.BDec (_, (L, t))), T) -> 
         (* was: I.Idx in previous line, Sun Jan  5 11:02:19 2003 -fp *)
         (* Treat like I.NDec *)
           (* Attempted fix, didn't work because I don't know how you
@@ -2120,15 +2120,15 @@ let _ = pr () *)
        If    |- G ctx
        then  |- G ctx and  G' |- s : G
     *)
-    fun purify' (I.Null) = (I.Null, I.id)
-      | purify' (I.Decl (G, I.NDec _)) =
+    let rec purify' = function (I.Null) -> (I.Null, I.id)
+      | (I.Decl (G, I.NDec _)) -> 
         let let (G', s) = purify' G
           (* G' |- s : G *)
         in
           (G', I.Dot (I.Undef, s))
           (* G' |- _.s : G,_ *)
         end
-      | purify' (I.Decl (G, D as I.Dec _)) =
+      | (I.Decl (G, D as I.Dec _)) -> 
         let let (G', s) = purify' G
           (* G' |- s : G *)
           (* G |- D : type *)
@@ -2142,7 +2142,7 @@ let _ = pr () *)
       (* added a new case to throw out blocks
          -cs Sat Jan  4 22:55:12 2003
       *)
-      | purify' (I.Decl (G, D as I.BDec _)) =
+      | (I.Decl (G, D as I.BDec _)) -> 
         let let (G', s) = purify' G
           (* G' |- s : G *)
         in

@@ -39,8 +39,8 @@ struct
        and  Psi', G' |- s' : G
        and  G' = G [s],  declarationwise defined
     *)
-    fun ctxSub (I.Null, s) = (I.Null, s)
-      | ctxSub (I.Decl (G, D), s) =
+    let rec ctxSub = function (I.Null, s) -> (I.Null, s)
+      | (I.Decl (G, D), s) -> 
         let
           let (G', s') = ctxSub (G, s)
         in
@@ -70,21 +70,21 @@ struct
                 then . |- F' F formula
            and  G+, G'+ |- F'' formula
         *)
-        fun convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) =
+        let rec convertFor' = function (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) -> 
             let
               let (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1)
             in
               (fun F -> F.All (F.Prim (Weaken.strengthenDec (D, w1)), F' F), F'')
             end
-          | convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
+          | (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) -> 
             let
               let (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
             in
               (F', F.Ex (I.decSub (D, w2), F''))
             end
-          | convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
+          | (I.Uni I.Type, M.Mnil, _, _, _) -> 
               (fun F -> F, F.True)
-          | convertFor' _ = raise Error "type family must be +/- moded"
+          | _ -> raise Error "type family must be +/- moded"
 
         (* shiftPlus (mS) = s'
 
@@ -94,10 +94,10 @@ struct
 
         fun shiftPlus mS =
           let
-            fun shiftPlus' (M.Mnil, n) = n
-              | shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
+            let rec shiftPlus' = function (M.Mnil, n) -> n
+              | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> 
                   shiftPlus' (mS', n+1)
-              | shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
+              | (M.Mapp (M.Marg (M.Minus, _), mS'), n) -> 
                   shiftPlus' (mS', n)
           in
             shiftPlus' (mS, 0)
@@ -117,9 +117,9 @@ struct
        then F' is the conjunction of the logical interpretation of each
             type family
      *)
-    fun convertFor nil = raise Error "Empty theorem"
-      | convertFor [a] = convertOneFor a
-      | convertFor (a :: L) = F.And (convertOneFor a, convertFor L)
+    let rec convertFor = function nil -> raise Error "Empty theorem"
+      | [a] -> convertOneFor a
+      | (a :: L) -> F.And (convertOneFor a, convertFor L)
 
 
 
@@ -129,11 +129,11 @@ struct
        If    U in nf
        then  B iff k occurs in U
     *)
-    fun occursInExpN (k, I.Uni _) = false
-      | occursInExpN (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExpN (k+1, V)
-      | occursInExpN (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
-      | occursInExpN (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExpN (k+1, V)
-      | occursInExpN (k, I.FgnExp csfe) =
+    let rec occursInExpN = function (k, I.Uni _) -> false
+      | (k, I.Pi (DP, V)) -> occursInDecP (k, DP) orelse occursInExpN (k+1, V)
+      | (k, I.Root (H, S)) -> occursInHead (k, H) orelse occursInSpine (k, S)
+      | (k, I.Lam (D, V)) -> occursInDec (k, D) orelse occursInExpN (k+1, V)
+      | (k, I.FgnExp csfe) -> 
         I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExpN (k, Whnf.normalize (U, I.id))) false
     (* no case for Redex, EVar, EClo *)
 
@@ -171,14 +171,14 @@ struct
     *)
     fun shiftinv (w) = Weaken.strengthenSub (w, I.shift)
 
-    fun eqIdx (I.Idx(n), I.Idx(k)) = (n = k)
-      | eqIdx _ = false
+    let rec eqIdx = function (I.Idx(n), I.Idx(k)) -> (n = k)
+      | _ -> false
 
     fun peel w =
       if eqIdx(I.bvarSub (1, w), I.Idx 1) then dot1inv w else shiftinv w
 
-    fun peeln (0, w) = w
-      | peeln (n, w) = peeln (n-1, peel w)
+    let rec peeln = function (0, w) -> w
+      | (n, w) -> peeln (n-1, peel w)
 
 
 
@@ -188,10 +188,10 @@ struct
        If   G2 |- w: G1   and w weakening substitution
        then n' = |G1|
     *)
-    fun domain (G, I.Dot (I.Idx _, s)) = domain (G, s) + 1
-      | domain (I.Null, I.Shift 0) = 0
-      | domain (G as I.Decl _, I.Shift 0) = domain (G, I.Dot (I.Idx 1, I.Shift 1))
-      | domain (I.Decl (G, _), I.Shift n) = domain (G, I.Shift (n-1))
+    let rec domain = function (G, I.Dot (I.Idx _, s)) -> domain (G, s) + 1
+      | (I.Null, I.Shift 0) -> 0
+      | (G as I.Decl _, I.Shift 0) -> domain (G, I.Dot (I.Idx 1, I.Shift 1))
+      | (I.Decl (G, _), I.Shift n) -> domain (G, I.Shift (n-1))
 
 
     (* strenghten (Psi, (a, S), w, m) = (Psi', w')
@@ -215,8 +215,8 @@ struct
                    of NONE => raise Error "Mode declaration expected"
                     | SOME mS => mS
 
-        fun args (I.Nil, M.Mnil) = nil
-          | args (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) =
+        let rec args = function (I.Nil, M.Mnil) -> nil
+          | (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) -> 
               let
                 let L = args (S', mS)
               in
@@ -226,29 +226,29 @@ struct
               end
 
 
-        fun strengthenArgs (nil, s) =  nil
-          | strengthenArgs (U :: L, s) =
+        let rec strengthenArgs = function (nil, s) -> nil
+          | (U :: L, s) -> 
               Weaken.strengthenExp (U, s) :: strengthenArgs (L, s)
 
-        fun occursInArgs (n, nil) = false
-          | occursInArgs (n, U :: L) =
+        let rec occursInArgs = function (n, nil) -> false
+          | (n, U :: L) -> 
             (occursInExp (n, U) orelse occursInArgs (n, L))
 
-        fun occursInPsi (n, (nil, L)) =
+        let rec occursInPsi = function (n, (nil, L)) -> 
               occursInArgs (n, L)
-          | occursInPsi (n, (F.Prim (I.Dec (_, V)) :: Psi1, L)) =
+          | (n, (F.Prim (I.Dec (_, V)) :: Psi1, L)) -> 
               occursInExp (n, V) orelse occursInPsi (n+1, (Psi1, L))
-          | occursInPsi (n, (F.Block (F.CtxBlock (l, G)) :: Psi1, L)) =
+          | (n, (F.Block (F.CtxBlock (l, G)) :: Psi1, L)) -> 
               occursInG (n, G, fn n' => occursInPsi (n', (Psi1, L)))
 
         and occursInG (n, I.Null, k) = k n
           | occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
               occursInG (n, G, fn n' => occursInExp (n', V) orelse k (n'+ 1))
 
-        fun occursBlock (G, (Psi2, L)) =
+        let rec occursBlock = function (G, (Psi2, L)) -> 
           let
             fun occursBlock (I.Null, n) = false
-              | occursBlock (I.Decl (G, D), n) =
+              | (I.Decl (G, D), n) -> 
                   occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1)
           in
             occursBlock (G, 1)
@@ -267,8 +267,8 @@ struct
            and  G1' |- w' : G2
            and  bw' = bw or (G1 =/= G1')
          *)
-        fun inBlock (I.Null, (bw, w1)) = (bw, w1)
-          | inBlock (I.Decl (G, D), (bw, w1)) =
+        let rec inBlock = function (I.Null, (bw, w1)) -> (bw, w1)
+          | (I.Decl (G, D), (bw, w1)) -> 
             if eqIdx(I.bvarSub (1, w1), I.Idx 1) then
               inBlock (G, (true, dot1inv w1))
             else inBlock (G, (bw, Weaken.strengthenSub (w1, I.shift)))
@@ -276,8 +276,8 @@ struct
 
 
 
-        fun blockSub (I.Null, w) = (I.Null, w)
-          | blockSub (I.Decl (G, I.Dec (name, V)), w) =
+        let rec blockSub = function (I.Null, w) -> (I.Null, w)
+          | (I.Decl (G, I.Dec (name, V)), w) -> 
             let
               let (G', w') = blockSub (G, w)
               let V' = Weaken.strengthenExp (V, w')
@@ -299,8 +299,8 @@ struct
                                        and all variables occuring in m
                                        position in S)
         *)
-        fun strengthen' (I.Null, Psi2, L, w1 (* =  I.id *)) = (I.Null, I.id)
-          | strengthen' (I.Decl (Psi1, LD as F.Prim (I.Dec (name, V))), Psi2, L, w1) =
+        let rec strengthen' = function (I.Null, Psi2, L, w1 (* -> I.id *)) = (I.Null, I.id)
+          | (I.Decl (Psi1, LD as F.Prim (I.Dec (name, V))), Psi2, L, w1) -> 
             let
               let (bw, w1') = if eqIdx(I.bvarSub (1, w1), I.Idx 1) then (true, dot1inv w1)
                               else (false, Weaken.strengthenSub (w1, I.shift))
@@ -322,7 +322,7 @@ struct
                   (Psi1'', I.comp (w', I.shift))
                 end
             end
-          | strengthen' (I.Decl (Psi1, LD as F.Block (F.CtxBlock (name, G))), Psi2, L, w1) =
+          | (I.Decl (Psi1, LD as F.Block (F.CtxBlock (name, G))), Psi2, L, w1) -> 
             let
               let (bw, w1') = inBlock (G, (false, w1))
             in
@@ -354,8 +354,8 @@ struct
       let
         let F = convertFor L
 
-        fun name [a] = I.conDecName (I.sgnLookup a)
-          | name (a :: L) = I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
+        let rec name = function [a] -> I.conDecName (I.sgnLookup a)
+          | (a :: L) -> I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
       in
         fun p -> F.Rec (F.MDec (SOME (name L), F), p)
       end
@@ -391,15 +391,15 @@ struct
            and  Gamma |- w : Gamma+
            then P' is a Lam abstraction
         *)
-        fun abstract' ((_, M.Mnil), w) = (fun p -> p)
-          | abstract' ((I.Pi ((D, _), V2), M.Mapp (M.Marg (M.Plus, _), mS)), w) =
+        let rec abstract' = function ((_, M.Mnil), w) -> (fun p -> p)
+          | ((I.Pi ((D, _), V2), M.Mapp (M.Marg (M.Plus, _), mS)), w) -> 
             let
               let D' = Weaken.strengthenDec (D, w)
               let P = abstract' ((V2, mS), I.dot1 w)
             in
               fun p -> F.Lam (F.Prim D', P p)
             end
-          | abstract' ((I.Pi (_, V2), M.Mapp (M.Marg (M.Minus, _), mS)), w) =
+          | ((I.Pi (_, V2), M.Mapp (M.Marg (M.Minus, _), mS)), w) -> 
               abstract' ((V2, mS), I.comp (w, I.shift))
       in
         abstract' ((V, mS), I.id)
@@ -438,7 +438,7 @@ struct
            and  Psi+ |- s' : +x1:A1 .. +xn:An
         *)
 
-        fun transformInit' ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) = (w, s)
+        let rec transformInit' = function ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) -> (w, s)
           | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
                             I.Pi (_, V2), (w, s)) =
             let
@@ -513,8 +513,8 @@ struct
                     for all U, s.t. Psi, G |- U : V
                     Psi |- [[G']] U : {{G'}} V
             *)
-            fun raiseExp' I.Null = (I.id, fun x -> x)
-              | raiseExp' (I.Decl (G, D as I.Dec (_, V))) =
+            let rec raiseExp' = function I.Null -> (I.id, fun x -> x)
+              | (I.Decl (G, D as I.Dec (_, V))) -> 
                 let
                   let (w, k) = raiseExp' G
                 in
@@ -556,8 +556,8 @@ struct
               and  k' is a continuation calculating the corresponding spine:
                    for all S, s.t. Psi, G, G0,|- ... refine
             *)
-            fun raiseType' (I.Null, n) = (I.id, fun x -> x, fun S -> S)
-              | raiseType' (I.Decl (G, D as I.Dec (_, V)), n) =
+            let rec raiseType' = function (I.Null, n) -> (I.id, fun x -> x, fun S -> S)
+              | (I.Decl (G, D as I.Dec (_, V)), n) -> 
                 let
                   let (w, k, k') = raiseType' (G, n+1)
                 in
@@ -583,8 +583,8 @@ struct
         fun exchangeSub (G0) =
           let
             let g0 = I.ctxLength G0
-            fun exchangeSub' (0, s) = s
-              | exchangeSub' (k, s) = exchangeSub' (k-1, I.Dot (I.Idx (k), s))
+            let rec exchangeSub' = function (0, s) -> s
+              | (k, s) -> exchangeSub' (k-1, I.Dot (I.Idx (k), s))
           in
             I.Dot (I.Idx (g0 + 1), exchangeSub' (g0, I.Shift (g0 + 1)))
           end
@@ -608,7 +608,7 @@ struct
            and  Psi+- |- t' : Psi+, -x1:{{G0}} A1... -xn:{{G0}} An
            and  d' = |Delta'|
         *)
-        fun transformDec' (d, (I.Nil, M.Mnil), I.Uni I.Type, (z1, z2), (w, t)) =
+        let rec transformDec' = function (d, (I.Nil, M.Mnil), I.Uni I.Type, (z1, z2), (w, t)) -> 
               (w, t, (d, fn (k, Ds) => Ds k, fun _ -> F.Empty))
           | transformDec' (d, (I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
                           I.Pi ((I.Dec (_, V1), DP), V2), (z1, z2), (w, t)) =
@@ -714,11 +714,11 @@ struct
                    of NONE => raise Error "Mode declaration expected"
                     | SOME mS => mS
 
-        fun transformConc' (I.Nil, M.Mnil) =
+        let rec transformConc' = function (I.Nil, M.Mnil) -> 
               F.Unit
-          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) =
+          | (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) -> 
               transformConc' (S', mS')
-          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) =
+          | (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) -> 
               F.Inx (Weaken.strengthenExp (U, w), transformConc' (S', mS'))
       in
         transformConc' (S, mS)
@@ -898,9 +898,9 @@ struct
             P (F.Case (F.Opts (traverse (Ts, a))))
           end
 
-        fun convertPro' nil = raise Error "Cannot convert Empty program"
-          | convertPro' [a] = convertOnePro a
-          | convertPro' (a :: Ts') = F.Pair (convertOnePro a, convertPro' Ts')
+        let rec convertPro' = function nil -> raise Error "Cannot convert Empty program"
+          | [a] -> convertOnePro a
+          | (a :: Ts') -> F.Pair (convertOnePro a, convertPro' Ts')
 
         let R = recursion Ts
       in

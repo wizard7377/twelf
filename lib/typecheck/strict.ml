@@ -23,8 +23,8 @@ struct
        and |D| = k
        then B iff S = (k1 ; k2 ;...; kn ; NIL), kn <= k, all ki pairwise distinct
     *)
-    fun patSpine (_, I.Nil) = true
-      | patSpine (k, I.App (I.Root (I.BVar (k'), I.Nil), S)) =
+    let rec patSpine = function (_, I.Nil) -> true
+      | (k, I.App (I.Root (I.BVar (k'), I.Nil), S)) -> 
         (* possibly eta-contract? -fp *)
         let fun indexDistinct (I.Nil) = true
               | indexDistinct (I.App (I.Root (I.BVar (k''), I.Nil), S)) =
@@ -33,7 +33,7 @@ struct
         in
           k' <= k andalso patSpine (k, S) andalso indexDistinct S
         end
-      | patSpine _ = false
+      | _ -> false
 
     (* strictExp (k, p, U) = B
 
@@ -43,13 +43,13 @@ struct
        and |D| = k
        then B iff U is strict in p
     *)
-    fun strictExp (_, _, I.Uni _) = false
-      | strictExp (k, p, I.Lam (D, U)) =
+    let rec strictExp = function (_, _, I.Uni _) -> false
+      | (k, p, I.Lam (D, U)) -> 
           (* checking D in this case might be redundant -fp *)
           strictDec (k, p, D) orelse strictExp (k+1, p+1, U)
-      | strictExp (k, p, I.Pi ((D, _), U)) =
+      | (k, p, I.Pi ((D, _), U)) -> 
           strictDec (k, p, D) orelse strictExp (k+1, p+1, U)
-      | strictExp (k, p, I.Root (H, S)) =
+      | (k, p, I.Root (H, S)) -> 
           (case H
              of (I.BVar (k')) =>
                 if (k' = p) then patSpine (k, S)
@@ -59,7 +59,7 @@ struct
               | (I.Def (d))  => strictSpine (k, p, S)
               | (I.FgnConst (cs, conDec)) => strictSpine (k, p, S))
               (* no other cases possible *)
-      | strictExp (k, p, I.FgnExp (cs, ops)) = false
+      | (k, p, I.FgnExp (cs, ops)) -> false
           (* this is a hack - until we investigate this further   -rv *)
     (* no other cases possible *)
 
@@ -89,16 +89,16 @@ struct
        then B iff argument parameter p occurs in strict position in U
                   which starts with argument parameters
     *)
-    fun strictArgParm (p, U as I.Root _) = strictExp (0, p, U)
-      | strictArgParm (p, U as I.Pi _) = strictExp (0, p, U)
-      | strictArgParm (p, U as I.FgnExp _) = strictExp (0, p, U)
-      | strictArgParm (p, I.Lam (D, U)) = strictArgParm (p+1, U)
+    let rec strictArgParm = function (p, U as I.Root _) -> strictExp (0, p, U)
+      | (p, U as I.Pi _) -> strictExp (0, p, U)
+      | (p, U as I.FgnExp _) -> strictExp (0, p, U)
+      | (p, I.Lam (D, U)) -> strictArgParm (p+1, U)
 
-    fun occToString (SOME(ocd), occ) = Paths.wrap (Paths.occToRegionDef1 ocd occ, "")
-      | occToString (NONE, occ) = "Error: "
+    let rec occToString = function (SOME(ocd), occ) -> Paths.wrap (Paths.occToRegionDef1 ocd occ, "")
+      | (NONE, occ) -> "Error: "
 
-    fun decToVarName (I.Dec (NONE, _)) = "implicit variable"
-      | decToVarName (I.Dec (SOME(x), _)) = "variable " ^ x
+    let rec decToVarName = function (I.Dec (NONE, _)) -> "implicit variable"
+      | (I.Dec (SOME(x), _)) -> "variable " ^ x
 
     (* strictTop ((U, V), ocdOpt) = ()
 

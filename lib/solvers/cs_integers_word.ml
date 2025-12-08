@@ -111,9 +111,9 @@ struct
     *)
     fun scanNumber (str) =
           let
-            fun check (chars as (_ :: _)) =
+            let rec check = function (chars as (_ :: _)) -> 
                  (List.all Char.isDigit chars)
-              | check nil =
+              | nil -> 
                   false
           in
             if check (String.explode str)
@@ -231,7 +231,7 @@ struct
        If   G' |- s : G    G |- U : V    (U,s)  in whnf
        then t is the internal representation of U[s] as term
     *)
-    fun fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
+    let rec fromExpW = function (Us as (Root (FgnConst (cs, conDec), _), _)) -> 
           if (cs = !myID)
           then
             let
@@ -251,9 +251,9 @@ struct
                   | NONE => Expr Us))))
             end
           else Expr Us
-      | fromExpW (Us as (Root (Def(d), _), _)) =
+      | (Us as (Root (Def(d), _), _)) -> 
           fromExpW (Whnf.expandDef (Us))
-      | fromExpW Us = Expr Us
+      | Us -> Expr Us
 
     (* fromExp (U, s) = t
 
@@ -268,29 +268,29 @@ struct
        Invariant:
        G |- U : V and U is the Twelf syntax conversion of t
     *)
-    fun toExp (Num d) = numberExp d
-      | toExp (PlusPf ds) = plusPfExp ds
-      | toExp (TimesPf ds) = timesPfExp ds
-      | toExp (QuotPf ds) = quotPfExp ds
-      | toExp (Expr Us) = EClo Us
+    let rec toExp = function (Num d) -> numberExp d
+      | (PlusPf ds) -> plusPfExp ds
+      | (TimesPf ds) -> timesPfExp ds
+      | (QuotPf ds) -> quotPfExp ds
+      | (Expr Us) -> EClo Us
 
     fun solveNumber (G, S, k) = SOME(numberExp (W.fromInt k))
 
     (* fst (S, s) = U1, the first argument in S[s] *)
-    fun fst (App (U1, _), s) = (U1, s)
-      | fst (SClo (S, s'), s) = fst (S, comp (s', s))
+    let rec fst = function (App (U1, _), s) -> (U1, s)
+      | (SClo (S, s'), s) -> fst (S, comp (s', s))
 
     (* snd (S, s) = U2, the second argument in S[s] *)
-    fun snd (App (_, S), s) = fst (S, s)
-      | snd (SClo (S, s'), s) = snd (S, comp (s', s))
+    let rec snd = function (App (_, S), s) -> fst (S, s)
+      | (SClo (S, s'), s) -> snd (S, comp (s', s))
 
     (* trd (S, s) = U1, the third argument in S[s] *)
-    fun trd (App (_, S), s) = snd (S, s)
-      | trd (SClo (S, s'), s) = trd (S, comp (s', s))
+    let rec trd = function (App (_, S), s) -> snd (S, s)
+      | (SClo (S, s'), s) -> trd (S, comp (s', s))
 
     (* fth (S, s) = U1, the fourth argument in S[s] *)
-    fun fth (App (_, S), s) = trd (S, s)
-      | fth (SClo (S, s'), s) = fth (S, comp (s', s))
+    let rec fth = function (App (_, S), s) -> trd (S, s)
+      | (SClo (S, s'), s) -> fth (S, comp (s', s))
 
     fun toInternalPlus (G, U1, U2, U3) () =
           [(G, plusExp(U1, U2, U3))]

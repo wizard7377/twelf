@@ -18,20 +18,20 @@ struct
     module F = Formatter
     module P = Print
 
-    fun modeToString M.Plus = "+"
-      | modeToString M.Star = "*"
-      | modeToString M.Minus = "-"
-      | modeToString M.Minus1 = "-1"
+    let rec modeToString = function M.Plus -> "+"
+      | M.Star -> "*"
+      | M.Minus -> "-"
+      | M.Minus1 -> "-1"
 
     fun argToString (M.Marg (m, _)) = modeToString m
 
-    fun nameDec (I.Dec (_, V) , M.Marg (_, name as SOME _)) = I.Dec (name, V)
-      | nameDec (D, M.Marg (_, NONE)) = D
+    let rec nameDec = function (I.Dec (_, V) , M.Marg (_, name as SOME _)) -> I.Dec (name, V)
+      | (D, M.Marg (_, NONE)) -> D
 
     fun makeSpine (G) =
         let
-          fun makeSpine' (I.Null, _, S) = S
-            | makeSpine' (I.Decl (G, _), k, S) =
+          let rec makeSpine' = function (I.Null, _, S) -> S
+            | (I.Decl (G, _), k, S) -> 
                 makeSpine' (G, k+1, I.App (I.Root (I.BVar k, I.Nil), S))
         in
           makeSpine' (G, 1, I.Nil)
@@ -40,11 +40,11 @@ struct
     fun fmtModeDec (cid, mS) =
         let
           let V = I.constType cid
-          fun fmtModeDec' (G, _, M.Mnil) =
+          let rec fmtModeDec' = function (G, _, M.Mnil) -> 
                 [F.String "(",
                  P.formatExp (G, I.Root (I.Const (cid), makeSpine G)),
                  F.String ")"]
-            | fmtModeDec' (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) =
+            | (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) -> 
                 let
                   let D' = nameDec (D, marg)
                   let D'' = Names.decEName (G, D')
@@ -56,8 +56,8 @@ struct
           F.HVbox (fmtModeDec' (I.Null, V, mS))
         end
 
-    fun fmtModeDecs ((cid, mS)::nil) = fmtModeDec (cid, mS)::nil
-      | fmtModeDecs ((cid, mS)::mdecs) =
+    let rec fmtModeDecs = function ((cid, mS)::nil) -> fmtModeDec (cid, mS)::nil
+      | ((cid, mS)::mdecs) -> 
         fmtModeDec (cid, mS)::F.Break::fmtModeDecs mdecs
 
     fun modeToString cM = F.makestring_fmt (fmtModeDec cM)

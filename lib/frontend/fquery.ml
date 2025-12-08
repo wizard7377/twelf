@@ -38,8 +38,8 @@ struct
       else ""
 
 
-  fun lower (0, G, V) = (G, V)
-    | lower (n, G, I.Pi ((D, _), V)) = lower (n-1, I.Decl (G, D), V)
+  let rec lower = function (0, G, V) -> (G, V)
+    | (n, G, I.Pi ((D, _), V)) -> lower (n-1, I.Decl (G, D), V)
 
   fun run (quy, Paths.Loc (fileName, r)) =
       let

@@ -17,18 +17,18 @@ struct
     module I = IntSyn'
     module T = Tomega'
 
-    fun normalizeFor (T.All (D, F), t) =
+    let rec normalizeFor = function (T.All (D, F), t) -> 
           T.All (T.decSub (D, t),
                  normalizeFor (F, T.dot1 t))
-      | normalizeFor (T.Ex (D, F), t) =
+      | (T.Ex (D, F), t) -> 
           T.Ex (I.decSub (D, T.coerceSub t),
                  normalizeFor (F, T.dot1 t))
-      | normalizeFor (T.And (F1, F2), t) =
+      | (T.And (F1, F2), t) -> 
           T.And (normalizeFor (F1, t),
                  normalizeFor (F2, t))
-      | normalizeFor (T.FClo (F, t1), t2) =
+      | (T.FClo (F, t1), t2) -> 
           normalizeFor (F, T.comp (t1, t2))
-      | normalizeFor (T.World (W, F), t) =
+      | (T.World (W, F), t) -> 
           T.World (W, normalizeFor (F, t))
 (*      | normalizeFor (T.FVar (G, r))   think about it *)
       | normalizeFor (T.True, _) = T.True
@@ -49,11 +49,11 @@ struct
        and  Psi |- P' [t'] :nf: F [t]
     *)
 
-    fun normalizePrg (P as (T.Root (T.Const _,_)), t) = P
-      | normalizePrg ((P as (T.Root (T.Var n, _))), t) =
+    let rec normalizePrg = function (P as (T.Root (T.Const _,_)), t) -> P
+      | ((P as (T.Root (T.Var n, _))), t) -> 
            normalizePrg (P, T.Dot (T.varSub (n, t), T.id))
-      | normalizePrg (T.Lam (D, P'), t) = T.Lam (D, normalizePrg (P', T.dot1 t))
-      | normalizePrg (T.PairExp (U, P'), t) =
+      | (T.Lam (D, P'), t) -> T.Lam (D, normalizePrg (P', T.dot1 t))
+      | (T.PairExp (U, P'), t) -> 
           T.PairExp (I.EClo (Whnf.whnf ((U, T.coerceSub t) : I.eclo)), normalizePrg (P', t))
 (*      | normalizePrg (T.PairBlock (B, P'), t) =
           T.PairBlock (B, normalizePrg P') *)
@@ -81,10 +81,10 @@ struct
       | normalizeDec (T.PDec (n, F), t) = T.PDec (n, (normalizeFor (F, t)))
 *)
 
-    fun normalizeSub (s as T.Shift n) = s
-      | normalizeSub (T.Dot (T.Prg P, s)) =
+    let rec normalizeSub = function (s as T.Shift n) -> s
+      | (T.Dot (T.Prg P, s)) -> 
           T.Dot (T.Prg (normalizePrg (P, T.id)), normalizeSub s)
-      | normalizeSub (T.Dot (F, s)) =
+      | (T.Dot (F, s)) -> 
           T.Dot (F, normalizeSub s)
   in
     let normalizeFor = normalizeFor

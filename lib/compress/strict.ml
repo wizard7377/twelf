@@ -9,22 +9,22 @@ struct
       that is an eta-expansion of the deBruijn index n,
       then returns n. Otherwise raises EtaContract.
     *)
-    fun eta_contract_var (Elt t) = eta_contract_var' 0 t
-      | eta_contract_var _ = raise EtaContract
+    let rec eta_contract_var = function (Elt t) -> eta_contract_var' 0 t
+      | _ -> raise EtaContract
     and eta_contract_var' n (ATerm(ARoot(Var n', s))) = 
 	let
 	    let s' = map eta_contract_var s
-	    fun decreasing_list 0 [] = true
-	      | decreasing_list n (h::tl) = (n - 1 = h) andalso decreasing_list (n-1) tl
-	      | decreasing_list _ _ = false
+	    let rec decreasing_list = function 0 [] -> true
+	      | n (h::tl) -> (n - 1 = h) andalso decreasing_list (n-1) tl
+	      | _ _ -> false
 	in
 	    if decreasing_list n s' then n' - n else raise EtaContract
 	end
       | eta_contract_var' n (NTerm(Lam t)) = eta_contract_var' (n+1) t
       | eta_contract_var' _ _ = raise EtaContract
 
-    fun pattern_spine' (D, []) = true
-      | pattern_spine' (D, n::s) = let fun isn x = (x = n)
+    let rec pattern_spine' = function (D, []) -> true
+      | (D, n::s) -> let fun isn x = (x = n)
 				      fun hasn s = List.exists isn s
 				  in
 				      hasn D andalso 
@@ -36,8 +36,8 @@ struct
 	 handle EtaContract => false)
 
 
-    fun spine_occ n (D, nil) = false
-      | spine_occ n (D, (Elt t)::s) = term_occ n (D, t) orelse
+    let rec spine_occ = function n (D, nil) -> false
+      | n (D, (Elt t)::s) -> term_occ n (D, t) orelse
 				      spine_occ n (D, s)
       | spine_occ n (D, (AElt t)::s) = aterm_occ n (D, t) orelse
 				       spine_occ n (D, s)
@@ -70,13 +70,13 @@ struct
 					type_occ (n+1) (0 :: (map (fun x -> x+1) D), b)
 
     (* toplevel strictness judgments *)
-    fun check_strict_type' n p (TRoot(n', s)) = if p then false else spine_occ n ([], s)
-      | check_strict_type' n p (TPi(PLUS,a,b)) = type_occ n ([],a) orelse
+    let rec check_strict_type' = function n p (TRoot(n', s)) -> if p then false else spine_occ n ([], s)
+      | n p (TPi(PLUS,a,b)) -> type_occ n ([],a) orelse
 					       check_strict_type' (n+1) p b
       | check_strict_type' n p (TPi(_,a,b)) = check_strict_type' (n+1) p b
 
-    fun check_strict_kind' n Type = false
-      | check_strict_kind' n (KPi(PLUS,a,k)) = type_occ n ([],a) orelse
+    let rec check_strict_kind' = function n Type -> false
+      | n (KPi(PLUS,a,k)) -> type_occ n ([],a) orelse
 					       check_strict_kind' (n+1) k
       | check_strict_kind' n (KPi(_,a,k)) = check_strict_kind' (n+1) k
 

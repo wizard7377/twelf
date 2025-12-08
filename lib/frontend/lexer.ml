@@ -94,12 +94,12 @@ struct
   (* stringToToken (idCase, string, region) = (token, region)
      converts special identifiers into tokens, returns ID token otherwise
   *)
-  fun stringToToken (Lower, "<-", r) = (BACKARROW, r)
-    | stringToToken (Lower, "->", r) = (ARROW, r)
-    | stringToToken (Upper, "_", r) = (UNDERSCORE, r)
-    | stringToToken (Lower, "=", r) = (EQUAL, r)
-    | stringToToken (Lower, "type", r) = (TYPE, r)
-    | stringToToken (idCase, s, r) = (ID(idCase,s), r)
+  let rec stringToToken = function (Lower, "<-", r) -> (BACKARROW, r)
+    | (Lower, "->", r) -> (ARROW, r)
+    | (Upper, "_", r) -> (UNDERSCORE, r)
+    | (Lower, " -> ", r) = (EQUAL, r)
+    | (Lower, "type", r) -> (TYPE, r)
+    | (idCase, s, r) -> (ID(idCase,s), r)
 
   (* lex (inputFun) = (token, region) stream
 
@@ -175,20 +175,20 @@ struct
        Lexing errors are currently fatal---some error recovery code is
        indicated in comments.
     *)
-    fun lexInitial (#":", i) = (COLON, P.Reg (i-1,i))
-      | lexInitial (#".", i) = (DOT, P.Reg (i-1,i))
-      | lexInitial (#"(", i) = (LPAREN, P.Reg (i-1,i))
-      | lexInitial (#")", i) = (RPAREN, P.Reg (i-1,i))
-      | lexInitial (#"[", i) = (LBRACKET, P.Reg (i-1,i))
-      | lexInitial (#"]", i) = (RBRACKET, P.Reg (i-1,i))
-      | lexInitial (#"{", i) = (LBRACE, P.Reg (i-1,i))
-      | lexInitial (#"}", i) = (RBRACE, P.Reg (i-1,i))
-      | lexInitial (#"%", i) = lexPercent (char(i), i+1)
-      | lexInitial (#"_", i) = lexID (Upper, P.Reg (i-1,i))
-      | lexInitial (#"'", i) = lexID (Lower, P.Reg (i-1,i)) (* lexQUID (i-1,i) *)
-      | lexInitial (#"\^D", i) = (EOF, P.Reg (i-1,i-1))
-      | lexInitial (#"\"", i) = lexString (P.Reg(i-1, i))
-      | lexInitial (c, i) =
+    let rec lexInitial = function (#":", i) -> (COLON, P.Reg (i-1,i))
+      | (#".", i) -> (DOT, P.Reg (i-1,i))
+      | (#"(", i) -> (LPAREN, P.Reg (i-1,i))
+      | (#")", i) -> (RPAREN, P.Reg (i-1,i))
+      | (#"[", i) -> (LBRACKET, P.Reg (i-1,i))
+      | (#"]", i) -> (RBRACKET, P.Reg (i-1,i))
+      | (#"{", i) -> (LBRACE, P.Reg (i-1,i))
+      | (#"}", i) -> (RBRACE, P.Reg (i-1,i))
+      | (#"%", i) -> lexPercent (char(i), i+1)
+      | (#"_", i) -> lexID (Upper, P.Reg (i-1,i))
+      | (#"'", i) -> lexID (Lower, P.Reg (i-1,i)) (* lexQUID (i-1,i) *)
+      | (#"\^D", i) -> (EOF, P.Reg (i-1,i-1))
+      | (#"\"", i) -> lexString (P.Reg(i-1, i))
+      | (c, i) -> 
         if Char.isSpace (c) then lexInitial (char (i),i+1)
         else if Char.isUpper(c) then lexID (Upper, P.Reg (i-1,i))
         else if Char.isDigit(c) then lexID (Lower, P.Reg (i-1,i))
@@ -339,62 +339,62 @@ struct
               | i => (print (prompt1) ;
                       Compat.inputLine97 (TextIO.stdIn)))
 
-  fun toString' (DOT) = "."
-    | toString' (PATHSEP) = "."
-    | toString' (COLON) = ":"
-    | toString' (LPAREN) = "("
-    | toString' (RPAREN) = ")"
-    | toString' (LBRACKET) = "["
-    | toString' (RBRACKET) = "]"
-    | toString' (LBRACE) = "{"
-    | toString' (RBRACE) = "}"
-    | toString' (BACKARROW) = "<-"
-    | toString' (ARROW) = "->"
-    | toString' (TYPE) = "type"
-    | toString' (EQUAL) = "="
-    | toString' (UNDERSCORE) = "_"
-    | toString' (INFIX) = "%infix"
-    | toString' (PREFIX) = "%prefix"
-    | toString' (POSTFIX) = "%postfix"
-    | toString' (NAME) = "%name"
-    | toString' (DEFINE) = "%define"    (* -rv 8/27/01 *)
-    | toString' (SOLVE) = "%solve"
-    | toString' (QUERY) = "%query"
-    | toString' (FQUERY) = "%fquery"
-    | toString' (COMPILE) = "%compile"  (* -ABP 4/4/03 *)
-    | toString' (QUERYTABLED) = "%querytabled"
-    | toString' (MODE) = "%mode"
-    | toString' (UNIQUE) = "%unique"
-    | toString' (COVERS) = "%covers"
-    | toString' (TOTAL) = "%total"
-    | toString' (TERMINATES) = "%terminates"
-    | toString' (BLOCK) = "%block"      (* -cs 6/3/01. *)
-    | toString' (WORLDS) = "%worlds"
-    | toString' (REDUCES) = "%reduces"              (*  -bp 6/5/99. *)
-    | toString' (TABLED) = "%tabled"                (*  -bp 20/11/01. *)
-    | toString' (KEEPTABLE) = "%keepTable"          (*  -bp 04/11/03. *)
-    | toString' (THEOREM) = "%theorem"
-    | toString' (PROVE) = "%prove"
-    | toString' (ESTABLISH) = "%establish"
-    | toString' (ASSERT) = "%assert"
-    | toString' (ABBREV) = "%abbrev"
-    | toString' (TRUSTME) = "%trustme"
-    | toString' (SUBORD) = "%subord"
-    | toString' (FREEZE) = "%freeze"
-    | toString' (THAW) = "%thaw"
-    | toString' (DETERMINISTIC) = "%deterministic"  (* -rv 11/27/01. *)
-    | toString' (CLAUSE) = "%clause" (* -fp 08/09/02 *)
-    | toString' (SIG) = "%sig"
-    | toString' (STRUCT) = "%struct"
-    | toString' (WHERE) = "%where"
-    | toString' (INCLUDE) = "%include"
-    | toString' (OPEN) = "%open"
-    | toString' (USE) = "%use"
+  let rec toString' = function (DOT) -> "."
+    | (PATHSEP) -> "."
+    | (COLON) -> ":"
+    | (LPAREN) -> "("
+    | (RPAREN) -> ")"
+    | (LBRACKET) -> "["
+    | (RBRACKET) -> "]"
+    | (LBRACE) -> "{"
+    | (RBRACE) -> "}"
+    | (BACKARROW) -> "<-"
+    | (ARROW) -> "->"
+    | (TYPE) -> "type"
+    | (EQUAL) -> "="
+    | (UNDERSCORE) -> "_"
+    | (INFIX) -> "%infix"
+    | (PREFIX) -> "%prefix"
+    | (POSTFIX) -> "%postfix"
+    | (NAME) -> "%name"
+    | (DEFINE) -> "%define"    (* -rv 8/27/01 *)
+    | (SOLVE) -> "%solve"
+    | (QUERY) -> "%query"
+    | (FQUERY) -> "%fquery"
+    | (COMPILE) -> "%compile"  (* -ABP 4/4/03 *)
+    | (QUERYTABLED) -> "%querytabled"
+    | (MODE) -> "%mode"
+    | (UNIQUE) -> "%unique"
+    | (COVERS) -> "%covers"
+    | (TOTAL) -> "%total"
+    | (TERMINATES) -> "%terminates"
+    | (BLOCK) -> "%block"      (* -cs 6/3/01. *)
+    | (WORLDS) -> "%worlds"
+    | (REDUCES) -> "%reduces"              (*  -bp 6/5/99. *)
+    | (TABLED) -> "%tabled"                (*  -bp 20/11/01. *)
+    | (KEEPTABLE) -> "%keepTable"          (*  -bp 04/11/03. *)
+    | (THEOREM) -> "%theorem"
+    | (PROVE) -> "%prove"
+    | (ESTABLISH) -> "%establish"
+    | (ASSERT) -> "%assert"
+    | (ABBREV) -> "%abbrev"
+    | (TRUSTME) -> "%trustme"
+    | (SUBORD) -> "%subord"
+    | (FREEZE) -> "%freeze"
+    | (THAW) -> "%thaw"
+    | (DETERMINISTIC) -> "%deterministic"  (* -rv 11/27/01. *)
+    | (CLAUSE) -> "%clause" (* -fp 08/09/02 *)
+    | (SIG) -> "%sig"
+    | (STRUCT) -> "%struct"
+    | (WHERE) -> "%where"
+    | (INCLUDE) -> "%include"
+    | (OPEN) -> "%open"
+    | (USE) -> "%use"
 
- fun toString (ID(_,s)) = "identifier `" ^ s ^ "'"
-   | toString (EOF) = "end of file or `%.'"
-   | toString (STRING(s)) = "constant string " ^ s
-   | toString (token) = "`" ^ toString' token ^ "'"
+ let rec toString = function (ID(_,s)) -> "identifier `" ^ s ^ "'"
+   | (EOF) -> "end of file or `%.'"
+   | (STRING(s)) -> "constant string " ^ s
+   | (token) -> "`" ^ toString' token ^ "'"
 
  exception NotDigit of char
 
@@ -422,8 +422,8 @@ struct
   (* isUpper (s) = true, if s is a string starting with an uppercase
      letter or underscore (_).
   *)
-  fun isUpper ("") = false
-    | isUpper (s) =
+  let rec isUpper = function ("") -> false
+    | (s) -> 
       let let c = String.sub (s, 0)
        in
          Char.isUpper c orelse c = #"_"

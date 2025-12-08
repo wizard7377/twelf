@@ -95,8 +95,8 @@ struct
        and  G' is a context
        then G |- s : G'
     *)
-    fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
-      | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
+    let rec createEVarSub = function (G, I.Null) -> I.Shift (I.ctxLength G)
+      | (G, I.Decl(G', D as I.Dec (_, V))) -> 
         let
           let s = createEVarSub (G, G')
           let V' = I.EClo (V, s)
@@ -111,10 +111,10 @@ struct
 
        try simplifying away the constraints in case they are "hard"
     *)
-    fun collectConstraints (nil) = nil
-      | collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
+    let rec collectConstraints = function (nil) -> nil
+      | (I.EVar (_, _, _, ref nil)::Xs) -> 
           collectConstraints Xs
-      | collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
+      | (I.EVar (_, _, _, ref constrs)::Xs) -> 
           (* constrs <> nil *)
           Constraints.simplify constrs @ collectConstraints Xs
 
@@ -122,9 +122,9 @@ struct
        adds all uninstantiated EVars from s to Xs to obtain Xs'
        Invariant: s is EVar substitutions
     *)
-    fun collectEVars (G, I.Dot (I.Exp X, s), Xs) =
+    let rec collectEVars = function (G, I.Dot (I.Exp X, s), Xs) -> 
            collectEVars (G, s, Abstract.collectEVars (G, (X, I.id), Xs))
-      | collectEVars (G, I.Shift _, Xs) = Xs
+      | (G, I.Shift _, Xs) -> Xs
       (* other cases impossible by invariants since s is EVarSubst *)
 
     (* noConstraints (G, s) = true iff there are no remaining constraints in s
@@ -144,14 +144,14 @@ struct
           F.Hbox (F.String "{" :: Print.formatDec (G, D) :: F.String "}" :: nil)
 
     (* Declaration lists *)
-    fun formatDList (G, nil, t) = nil
-      | formatDList (G, D :: nil, t) =
+    let rec formatDList = function (G, nil, t) -> nil
+      | (G, D :: nil, t) -> 
         let
           let D' = I.decSub (D, t)
         in
           formatD (G, D') :: nil (* Names.decUName (G, I.decSub(D, t)) *)
         end
-      | formatDList (G, D :: L, t) =
+      | (G, D :: L, t) -> 
         let
           let D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
         in
@@ -160,8 +160,8 @@ struct
         end
 
     (*
-    fun hypsToDList (I.Root _) = nil
-      | hypsToDList (I.Pi ((D, _), V)) =
+    let rec hypsToDList = function (I.Root _) -> nil
+      | (I.Pi ((D, _), V)) -> 
           D::hypsToDList V
     *)
 
@@ -246,12 +246,12 @@ struct
         then  B = true if  L [t] unifies with L'
               B = false otherwise
      *)
-     fun equivList (G, (_, nil), nil) = true
-       | equivList (G, (t, I.Dec (_, V1) :: L1), I.Dec (_, V2) :: L2) =
+     let rec equivList = function (G, (_, nil), nil) -> true
+       | (G, (t, I.Dec (_, V1) :: L1), I.Dec (_, V2) :: L2) -> 
            (( Unify.unify (G, (V1, t), (V2, I.id))
             ; equivList (G, (I.dot1 t, L1), L2)
             ) handle Unify.Unify _ => false)
-       | equivList _ = false
+       | _ -> false
 
 
      (* equivBlock ((G, L), L') = B
@@ -275,9 +275,9 @@ struct
         B = true if exists L' in W such that L = L'
         B = false otherwise
      *)
-     fun equivBlocks W1 nil = true
-       | equivBlocks nil L' = false
-       | equivBlocks (b :: W1) L' =
+     let rec equivBlocks = function W1 nil -> true
+       | nil L' -> false
+       | (b :: W1) L' -> 
            equivBlock (I.constBlock b, L')
            orelse equivBlocks W1 L'
 
@@ -291,8 +291,8 @@ struct
         where V \in L and not V < a then V \in L'
         and   V \in L and V < a then not V \in L'
      *)
-     fun strengthen a (t, nil) = nil
-       | strengthen a (t, (D as I.Dec (_, V)) :: L) =
+     let rec strengthen = function a (t, nil) -> nil
+       | a (t, (D as I.Dec (_, V)) :: L) -> 
          if Subordinate.below (I.targetFam V, a) then (I.decSub (D, t) :: strengthen a (I.dot1 t, L))
          else strengthen a (I.Dot (I.Undef,  t), L)
 
@@ -322,8 +322,8 @@ struct
         Then the function returns () if W2 is subsumed by W1
         otherwise Error is raised
      *)
-     fun subsumedBlocks a W1 nil = ()
-       | subsumedBlocks a W1 (b :: W2) =
+     let rec subsumedBlocks = function a W1 nil -> ()
+       | a W1 (b :: W2) -> 
            ( subsumedBlock a W1 (I.constBlock b)
            ; subsumedBlocks a W1 W2
            )
@@ -353,10 +353,10 @@ struct
         B = true if G1 and G2 are equal (modulo renaming of variables)
         B = false otherwise
      *)
-     fun eqCtx (I.Null, I.Null)  = true
-       | eqCtx (I.Decl (G1, D1), I.Decl (G2, D2)) =
+     let rec eqCtx = function (I.Null, I.Null) -> true
+       | (I.Decl (G1, D1), I.Decl (G2, D2)) -> 
            eqCtx (G1, G2) andalso Conv.convDec ((D1, I.id), (D2, I.id))
-       | eqCtx _ = false
+       | _ -> false
 
      (* eqList (L1, L2) = B
 
@@ -365,10 +365,10 @@ struct
         B = true if L1 and L2 are equal (modulo renaming of variables)
         B = false otherwise
      *)
-     fun eqList (nil, nil) = true
-       | eqList (D1 :: L1, D2 :: L2) =
+     let rec eqList = function (nil, nil) -> true
+       | (D1 :: L1, D2 :: L2) -> 
            Conv.convDec ((D1, I.id), (D2, I.id)) andalso eqList (L1, L2)
-       | eqList _ = false
+       | _ -> false
 
 
      (* eqBlock (b1, b2) = B
@@ -396,13 +396,13 @@ struct
         is listed in W
         otherwise Error is raised
      *)
-     fun subsumedCtx (I.Null, W) = ()
-       | subsumedCtx (I.Decl (G, I.BDec (_, (b, _))), W as T.Worlds Bs) =
+     let rec subsumedCtx = function (I.Null, W) -> ()
+       | (I.Decl (G, I.BDec (_, (b, _))), W as T.Worlds Bs) -> 
           ( if List.exists (fn b' => eqBlock (b, b')) Bs
               then () else raise Error "Dynamic world subsumption failed"
           ; subsumedCtx (G, W)
           )
-       | subsumedCtx (I.Decl (G, _), W as T.Worlds Bs) =
+       | (I.Decl (G, _), W as T.Worlds Bs) -> 
           subsumedCtx (G, W)
 
 
@@ -417,7 +417,7 @@ struct
 
         Invariant: G |- V : type, V nf
      *)
-     fun checkGoal W (G, I.Root (I.Const a, S), occ) =
+     let rec checkGoal = function W (G, I.Root (I.Const a, S), occ) -> 
          let
            let W' = W.getWorlds a
          in
@@ -425,7 +425,7 @@ struct
            ; subsumedCtx (G, W)
            )
          end
-       | checkGoal W (G, I.Pi ((D, _), V2), occ) =
+       | W (G, I.Pi ((D, _), V2), occ) -> 
            checkGoal W (decUName (G, D), V2, P.body occ)
 
     (* checkClause (G, V, W, occ) = ()
@@ -435,10 +435,10 @@ struct
        Invariant: G |- V : type, V nf
        occ is occurrence of V in current clause
      *)
-     fun checkClause W (G, I.Root (a, S), occ) = ()
-       | checkClause W (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), occ) =
+     let rec checkClause = function W (G, I.Root (a, S), occ) -> ()
+       | W (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), occ) -> 
          checkClause W (decEName (G, D), V2, P.body occ)
-       | checkClause W (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), occ) =
+       | W (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), occ) -> 
          (checkClause W (decEName (G, D), V2, P.body occ);
           checkGoal W (G, V1, P.label occ))
 
@@ -451,15 +451,15 @@ struct
     (* Matching hypotheses against worlds *)
     (**************************************)
 
-    fun subGoalToDList (I.Pi ((D, _), V)) = D::subGoalToDList(V)
-      | subGoalToDList (I.Root _) = nil
+    let rec subGoalToDList = function (I.Pi ((D, _), V)) -> D::subGoalToDList(V)
+      | (I.Root _) -> nil
 
     (* worldsToReg (Worlds [c1,...,cn]) = R
        W = R, except that R is a regular expression
        with non-empty contextblocks as leaves
     *)
-    fun worldsToReg (T.Worlds nil) = One
-      | worldsToReg (T.Worlds cids) = Star (worldsToReg' cids)
+    let rec worldsToReg = function (T.Worlds nil) -> One
+      | (T.Worlds cids) -> Star (worldsToReg' cids)
     and worldsToReg' (cid::nil) = Block (cid, I.constBlock cid)
       | worldsToReg' (cid::cids) =
           Plus (Block (cid, I.constBlock cid), worldsToReg' cids)
@@ -471,10 +471,10 @@ struct
 
        Invariant: G |- L dlist, L nf
     *)
-    fun init (_, Vs as (I.Root _, s)) =
+    let rec init = function (_, Vs as (I.Root _, s)) -> 
         (Trace.success () ;
          raise Success (Whnf.normalize Vs))
-      | init (G, (V as I.Pi ((D1 as I.Dec (_, V1), _), V2), s)) =
+      | (G, (V as I.Pi ((D1 as I.Dec (_, V1), _), V2), s)) -> 
         (Trace.unmatched (G, subGoalToDList (Whnf.normalize (V, s))) ; ())
 
     (* accR ((G, (V, s)), R, k)   raises Success
@@ -485,8 +485,8 @@ struct
                   R regular world expression
        trails at choice points to undo EVar instantiations during matching
     *)
-    fun accR (GVs, One, k) = k GVs
-      | accR (GVs as (G, (V, s)), Block (c, (someDecs, piDecs)), k) =
+    let rec accR = function (GVs, One, k) -> k GVs
+      | (GVs as (G, (V, s)), Block (c, (someDecs, piDecs)), k) -> 
         let
           let t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
           let _ = Trace.matchBlock ((G, subGoalToDList (Whnf.normalize (V, s))), Seq (1, piDecs, t))
@@ -506,14 +506,14 @@ struct
           then accR ((G, (V2, I.Dot (I.Exp (I.Root (I.Proj (I.Bidx 1, j), I.Nil)), s))),
                      Seq (j+1, L2', I.Dot (I.Exp (I.Root (I.Proj (I.Bidx 1, j), I.Nil)), t)), k)
         else  (Trace.mismatch (G, (V1, I.id), (V1', t)) ; ())
-      | accR (GVs, Seq (_, nil, t), k) = k GVs
-      | accR (GVs as (G, (I.Root _, s)), R as Seq (_, L', t), k) =
+      | (GVs, Seq (_, nil, t), k) -> k GVs
+      | (GVs as (G, (I.Root _, s)), R as Seq (_, L', t), k) -> 
           ( Trace.missing (G, R); () )  (* L is missing *)
-      | accR (GVs, Plus (r1, r2), k) =
+      | (GVs, Plus (r1, r2), k) -> 
           ( CSManager.trail (fn () => accR (GVs, r1, k)) ;
             accR (GVs, r2, k) )
-      | accR (GVs, Star (One), k) = k GVs (* only possibility for non-termination in next rule *)
-      | accR (GVs, r as Star(r'), k) = (* r' does not accept empty declaration list *)
+      | (GVs, Star (One), k) -> k GVs (* only possibility for non-termination in next rule *)
+      | (GVs, r as Star(r'), k) -> (* r' does not accept empty declaration list *)
           ( CSManager.trail (fn () => k GVs) ;
             accR (GVs, r', fn GVs' => accR (GVs', r, k)))
 
@@ -547,8 +547,8 @@ struct
        Invariant: G |- V : type, V nf
        occ is occurrence of V in current clause
      *)
-     fun worldifyClause (G, V as I.Root (a, S), W, occ) = V
-       | worldifyClause (G, I.Pi ((D as I.Dec (x, V1), I.Maybe), V2), W, occ) =
+     let rec worldifyClause = function (G, V as I.Root (a, S), W, occ) -> V
+       | (G, I.Pi ((D as I.Dec (x, V1), I.Maybe), V2), W, occ) -> 
          let
            let _ = print "{"
            let W2 = worldifyClause (decEName (G, D), V2, W, P.body occ)
@@ -579,8 +579,8 @@ struct
               handle Error' (occ, msg) => raise Error (wrapMsg (c, occ, msg)))
        (* by invariant, other cases cannot apply *)
 
-     fun worldifyBlock (G, nil) = ()
-       | worldifyBlock (G, (D as (I.Dec (_, V))):: L) =
+     let rec worldifyBlock = function (G, nil) -> ()
+       | (G, (D as (I.Dec (_, V))):: L) -> 
          let
            let a = I.targetFam V
            let W' = W.getWorlds a
@@ -590,8 +590,8 @@ struct
            )
          end
 
-     fun worldifyBlocks nil = ()
-       | worldifyBlocks (b :: Bs) =
+     let rec worldifyBlocks = function nil -> ()
+       | (b :: Bs) -> 
          let
            let _ = worldifyBlocks Bs
            let (Gsome, Lblock) = I.constBlock b

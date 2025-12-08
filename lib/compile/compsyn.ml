@@ -161,11 +161,11 @@ struct
      then g' = g[s]
      and  G  |- g' : A
   *)
-  fun goalSub (Atom(p), s) = Atom(IntSyn.EClo(p,s))
-    | goalSub (Impl(d, A, Ha, g), s) =
+  let rec goalSub = function (Atom(p), s) -> Atom(IntSyn.EClo(p,s))
+    | (Impl(d, A, Ha, g), s) -> 
        Impl (resGoalSub (d, s), IntSyn.EClo(A, s), Ha,
              goalSub (g, IntSyn.dot1 s))
-    | goalSub (All(D, g), s) =
+    | (All(D, g), s) -> 
        All (IntSyn.decSub(D,s), goalSub (g, IntSyn.dot1 s))
 
   (* resGoalSub (r, s) = r'
@@ -184,12 +184,12 @@ struct
         Exists (IntSyn.decSub(D, s), resGoalSub (r, IntSyn.dot1 s))
 
 
-  fun pskeletonToString [] = " "
-    | pskeletonToString ((Pc i)::O) =
+  let rec pskeletonToString = function [] -> " "
+    | ((Pc i)::O) -> 
         Names.qidToString (Names.constQid i) ^ " " ^ (pskeletonToString O)
-    | pskeletonToString ((Dc i)::O) =
+    | ((Dc i)::O) -> 
         ("(Dc " ^ (Int.toString i) ^ ") ") ^ (pskeletonToString O)
-    | pskeletonToString (Csolver U ::O) =
+    | (Csolver U ::O) -> 
         ("(cs _ ) " ^ (pskeletonToString O))
 
 

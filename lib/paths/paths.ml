@@ -63,7 +63,7 @@ struct
      like wrapLoc, but converts character positions to line.col format based
      on linesInfo, if possible
   *)
-  fun wrapLoc' (Loc (filename, Reg (i,j)), SOME(linesInfo), msg) =
+  let rec wrapLoc' = function (Loc (filename, Reg (i,j)), SOME(linesInfo), msg) -> 
       let
         let lcfrom = posToLineCol' (linesInfo, i)
         let lcto = posToLineCol' (linesInfo, j)
@@ -71,7 +71,7 @@ struct
       in
         filename ^ ":" ^ regString ^ " " ^ "Error: \n" ^ msg
       end
-    | wrapLoc' (loc, NONE, msg) = wrapLoc0 (loc, msg)
+    | (loc, NONE, msg) -> wrapLoc0 (loc, msg)
 
   fun wrapLoc (loc, msg) =
         wrapLoc' (loc, SOME (getLinesInfo()), msg)
@@ -110,13 +110,13 @@ struct
     | nils                              (* nil *)
 
   (* occToPath (occ, p) = p'(p) and occ corresponds to p' *)
-  fun occToPath (top, path) = path
-    | occToPath (label(occ), path) = occToPath (occ, Label(path))
-    | occToPath (body(occ), path) = occToPath (occ, Body(path))
-    | occToPath (head(occ), path) =
+  let rec occToPath = function (top, path) -> path
+    | (label(occ), path) -> occToPath (occ, Label(path))
+    | (body(occ), path) -> occToPath (occ, Body(path))
+    | (head(occ), path) -> 
       (* path = Here by invariant *)
         occToPath (occ, Head)
-    | occToPath (arg(n,occ), path) = occToPath (occ, Arg(n,path))
+    | (arg(n,occ), path) -> occToPath (occ, Arg(n,path))
 
   type occConDec =                  (* occurrence tree for constant declarations *)
       dec of int * occExp               (* (#implicit, v) in c : V *)
@@ -138,19 +138,19 @@ struct
   fun posToPath u k =
       let
           (* local functions refer to k but not u *)
-          fun inside (leaf r) = posInRegion (k, r)
-            | inside (bind (r, _, _)) = posInRegion (k, r)
-            | inside (root (r, _, _, _, _)) = posInRegion (k, r)
+          let rec inside = function (leaf r) -> posInRegion (k, r)
+            | (bind (r, _, _)) -> posInRegion (k, r)
+            | (root (r, _, _, _, _)) -> posInRegion (k, r)
 
-          fun toPath (leaf (Reg (i,j))) = Here (* check? mark? *)
-            | toPath (bind (Reg (i,j), NONE, u)) =
+          let rec toPath = function (leaf (Reg (i,j))) -> Here (* check? mark? *)
+            | (bind (Reg (i,j), NONE, u)) -> 
               if inside u then Body (toPath u)
               else Here
-            | toPath (bind (Reg (i,j), SOME(u1), u2)) =
+            | (bind (Reg (i,j), SOME(u1), u2)) -> 
               if inside u1 then Label (toPath u1)
               else if inside u2 then Body (toPath u2)
                    else Here
-            | toPath (root (Reg (i,j), h, imp, actual, s)) =
+            | (root (Reg (i,j), h, imp, actual, s)) -> 
               if inside h then Head
               else (case toPathSpine (s, 1)
                       of NONE => Here
@@ -166,35 +166,35 @@ struct
       end
 
   (* toRegion (u) = r, the region associated with the whole occurrence tree u *)
-  fun toRegion (leaf r) = r
-    | toRegion (bind (r, _, _)) = r
-    | toRegion (root (r, _, _, _, _)) = r
+  let rec toRegion = function (leaf r) -> r
+    | (bind (r, _, _)) -> r
+    | (root (r, _, _, _, _)) -> r
 
   (* toRegionSpine (s, r) = r', the join of all regions in s and r *)
-  fun toRegionSpine (nils, r) = r
-    | toRegionSpine (app (u, s), r) =
+  let rec toRegionSpine = function (nils, r) -> r
+    | (app (u, s), r) -> 
         join (toRegion u, toRegionSpine (s, r)) (* order? *)
 
   (* pathToRegion (u, p) = r,
      where r is the region identified by path p in occurrence tree u
   *)
-  fun pathToRegion (u, Here) = toRegion u
-    | pathToRegion (bind (r, NONE, u), Label(path)) =
+  let rec pathToRegion = function (u, Here) -> toRegion u
+    | (bind (r, NONE, u), Label(path)) -> 
       (* addressing implicit type label returns region of binder and its scope *)
       r
-    | pathToRegion (bind (r, SOME(u1), u2), Label(path)) =
+    | (bind (r, SOME(u1), u2), Label(path)) -> 
         pathToRegion (u1, path)
-    | pathToRegion (bind (r, _, u), Body(path)) =
+    | (bind (r, _, u), Body(path)) -> 
         pathToRegion (u, path)
-    | pathToRegion (root (r, _, _, _, _), Label(path)) =
+    | (root (r, _, _, _, _), Label(path)) -> 
         (* addressing binder introduced as the result of eta expansion
            approximate as the eta-expanded root *)
         r
-    | pathToRegion (u as root _, Body(path)) =
+    | (u as root _, Body(path)) -> 
         (* bypassing binder introduced as the result of eta expansion *)
         pathToRegion (u, path)
-    | pathToRegion (root (r, h, imp, actual, s), Head) = toRegion h
-    | pathToRegion (root (r, h, imp, actual, s), Arg (n, path)) =
+    | (root (r, h, imp, actual, s), Head) -> toRegion h
+    | (root (r, h, imp, actual, s), Arg (n, path)) -> 
       if n <= imp
         then (* addressing implicit argument returns region of head *)
              toRegion h
@@ -203,7 +203,7 @@ struct
                 approximate by the whole root *)
              r
       else pathToRegionSpine (s, n-imp, path)
-    | pathToRegion (leaf (r), _) = r    (* possible if leaf was _ (underscore) *)
+    | (leaf (r), _) -> r    (* possible if leaf was _ (underscore) *)
     (* other combinations should be impossible *)
   and pathToRegionSpine (app (u, s), 1, path) =
         pathToRegion (u, path)
@@ -216,13 +216,13 @@ struct
   *)
   fun occToRegionExp u occ = pathToRegion (u, occToPath (occ, Here))
 
-  fun skipImplicit (0, path) = path
-    | skipImplicit (n, Body(path)) =
+  let rec skipImplicit = function (0, path) -> path
+    | (n, Body(path)) -> 
         skipImplicit (n-1, path)
-    | skipImplicit (n, Label(path)) =
+    | (n, Label(path)) -> 
         (* implicit argument: approximate as best possible *)
         Here
-    | skipImplicit (n, Here) =
+    | (n, Here) -> 
         (* addressing body including implicit arguments: approximate by body *)
         Here
     (* anything else should be impossible *)
@@ -242,17 +242,17 @@ struct
   (* occToRegionDef2 d occ = r
      where r is the closest region in V including occ for declaration c : V = U
   *)
-  fun occToRegionDef2 (def (n, u, SOME(v))) occ =
+  let rec occToRegionDef2 = function (def (n, u, SOME(v))) occ -> 
       pathToRegion (v, skipImplicit (n, occToPath (occ, Here)))
-    | occToRegionDef2 (def (n, u, NONE)) occ =
+    | (def (n, u, NONE)) occ -> 
       pathToRegion (u, Here)
 
   (* occToRegionClause d occ = r
      where r is the closest region in V including occ for declaration
      c : V or c : V = U.
   *)
-  fun occToRegionClause (d as dec _) occ = occToRegionDec d occ
-    | occToRegionClause (d as def _) occ = occToRegionDef2 d occ
+  let rec occToRegionClause = function (d as dec _) occ -> occToRegionDec d occ
+    | (d as def _) occ -> occToRegionDef2 d occ
 
 end;; (* functor Paths *)
 

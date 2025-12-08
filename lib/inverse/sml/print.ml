@@ -13,24 +13,24 @@
     fun bracket x = &[$"[",x,$"]"]
     fun squiggle x = &[$"{",x,$"}"]
     fun indent x = Layout.indent x
-    fun uni_to_layout Type = $"type"
-      | uni_to_layout Kind = $"kind"
+    let rec uni_to_layout = function Type -> $"type"
+      | Kind -> $"kind"
 
     fun const_to_string sgn c = name(Sig.lookup sgn c)
 
-    fun spine_to_list Nil = []
-      | spine_to_list (App(E,S)) = E::spine_to_list S
+    let rec spine_to_list = function Nil -> []
+      | (App(E,S)) -> E::spine_to_list S
 
-    fun head_to_layout sgn (Const c) = $(const_to_string sgn c)
-      | head_to_layout sgn (BVar n) = $(Int.toString n)
+    let rec head_to_layout = function sgn (Const c) -> $(const_to_string sgn c)
+      | sgn (BVar n) -> $(Int.toString n)
 
-    fun needs_parens_in_arg_pos (Uni _) = false 
-      | needs_parens_in_arg_pos (Root(_,Nil)) = false
-      | needs_parens_in_arg_pos _ = true
+    let rec needs_parens_in_arg_pos = function (Uni _) -> false 
+      | (Root(_,Nil)) -> false
+      | _ -> true
 
-    fun needs_sparens_in_arg_pos Nil = false 
-      | needs_sparens_in_arg_pos (App(E,Nil)) = needs_parens_in_arg_pos E
-      | needs_sparens_in_arg_pos _ = true
+    let rec needs_sparens_in_arg_pos = function Nil -> false 
+      | (App(E,Nil)) -> needs_parens_in_arg_pos E
+      | _ -> true
 
     fun maybe_paren E l = if needs_parens_in_arg_pos E then paren l else l
 
@@ -47,15 +47,15 @@
 
     type subelem = SubShift of int | SubExp of exp
 
-    fun sub_to_list (sub as Shift n) = [SubShift n]
-      | sub_to_list (Dot(M,sub)) = SubExp M::sub_to_list sub
-      | sub_to_list (Comp(s1,s2)) = sub_to_list s1 @ sub_to_list s2
+    let rec sub_to_list = function (sub as Shift n) -> [SubShift n]
+      | (Dot(M,sub)) -> SubExp M::sub_to_list sub
+      | (Comp(s1,s2)) -> sub_to_list s1 @ sub_to_list s2
 
     fun sub_to_layout sgn sub = 
         let
           let sub' = sub_to_list sub 
-          fun mapfn (SubShift n) = $("^" ^ Int.toString n)
-            | mapfn (SubExp exp) = exp_to_layout sgn exp
+          let rec mapfn = function (SubShift n) -> $("^" ^ Int.toString n)
+            | (SubExp exp) -> exp_to_layout sgn exp
           let sub'' = map mapfn sub'
         in
           Layout.list sub''

@@ -44,37 +44,37 @@ struct
   fun par (s) = "(" ^ s ^ ")"
 
   (* types *)
-  fun atom ("==", SOME(S)) = QFProp ("equal" ^ par (S))
+  let rec atom = function (" -> =", SOME(S)) = QFProp ("equal" ^ par (S))
     (* | atom ("mor", SOME(S)) = Mor ("arrow" ^ par (S)) *)
-    | atom ("mor", SOME(S)) = Mor (S)
-    | atom ("obj", NONE) = Obj
-    | atom _ = What "?atom?"
+    | ("mor", SOME(S)) -> Mor (S)
+    | ("obj", NONE) -> Obj
+    | _ -> What "?atom?"
 
-  fun arrow (QFProp(A1), QFProp(A2)) = 
+  let rec arrow = function (QFProp(A1), QFProp(A2)) -> 
         QFProp ("implies" ^ par (A1 ^ ", " ^ A2))	(* ?? *)
-    | arrow _ = What "?arrow?"
+    | _ -> What "?arrow?"
 
-  fun pi (x, Prop(xs,A)) = Prop (xs ^ "," ^ x, A)
-    | pi (x, QFProp (A)) = Prop (x, "and" ^ par (A))
-    | pi _ = What "?pi?"
+  let rec pi = function (x, Prop(xs,A)) -> Prop (xs ^ "," ^ x, A)
+    | (x, QFProp (A)) -> Prop (x, "and" ^ par (A))
+    | _ -> What "?pi?"
 
   (* terms *)
   fun mor (f, A) = "mor" ^ par (f ^ "," ^ A)
 
-  fun root ("id", NONE, Mor (A)) = mor ("id", A)	(* constants *)
-    | root ("@", SOME(S), Mor(A)) = mor ("comp" ^ par (S), A)
-    | root ("1", NONE, Obj) = "one"
-    | root ("*", SOME(S), Obj) = "prod" ^ par(S)
-    | root ("drop", NONE, Mor(A)) = mor ("drop", A)
-    | root ("fst", NONE, Mor(A)) = mor ("fst", A)
-    | root ("snd", NONE, Mor(A)) = mor ("snd", A)
-    | root ("pair", SOME(S), Mor(A)) = mor ("pair" ^ par (S), A)
-    | root ("=>", SOME(S), Obj) = "func" ^ par(S)
-    | root ("app", NONE, Mor(A)) = mor ("app", A)
-    | root ("cur", SOME(S), Mor(A)) = mor ("cur" ^ par (S), A)
-    | root (x, NONE, Obj) = x		(* object variables *)
-    | root (x, NONE, Mor(A)) = mor (x, A) (* morphism variables *)
-    | root _ = "?root?"
+  let rec root = function ("id", NONE, Mor (A)) -> mor ("id", A)	(* constants *)
+    | ("@", SOME(S), Mor(A)) -> mor ("comp" ^ par (S), A)
+    | ("1", NONE, Obj) -> "one"
+    | ("*", SOME(S), Obj) -> "prod" ^ par(S)
+    | ("drop", NONE, Mor(A)) -> mor ("drop", A)
+    | ("fst", NONE, Mor(A)) -> mor ("fst", A)
+    | ("snd", NONE, Mor(A)) -> mor ("snd", A)
+    | ("pair", SOME(S), Mor(A)) -> mor ("pair" ^ par (S), A)
+    | (" -> >", SOME(S), Obj) = "func" ^ par(S)
+    | ("app", NONE, Mor(A)) -> mor ("app", A)
+    | ("cur", SOME(S), Mor(A)) -> mor ("cur" ^ par (S), A)
+    | (x, NONE, Obj) -> x		(* object variables *)
+    | (x, NONE, Mor(A)) -> mor (x, A) (* morphism variables *)
+    | _ -> "?root?"
 
   fun lam _ = "?lam?"
 
@@ -83,21 +83,21 @@ struct
   fun def (d) = d
 
   let nils = NONE
-  fun app (M, NONE) = SOME(M)
-    | app (M, SOME(S)) = SOME(M ^ "," ^ S)
+  let rec app = function (M, NONE) -> SOME(M)
+    | (M, SOME(S)) -> SOME(M ^ "," ^ S)
 
   (* declarations *)
 
   fun dec (x, A) = x
 
-  fun objdec (c, Prop(xs,A)) =
+  let rec objdec = function (c, Prop(xs,A)) -> 
       "%% " ^ c ^ " :\n"
       ^ "formula" ^ par ("forall" ^ par("[" ^ xs ^ "],\n"
       ^ A)) ^ ".\n"
-    | objdec (c, QFProp(A)) =
+    | (c, QFProp(A)) -> 
       "%% " ^ c ^ " :\n"
       ^ "formula" ^ par ("and" ^ par(A)) ^ ".\n"
-    | objdec (c, _) = "%% " ^ c ^ " : skipped.\n"
+    | (c, _) -> "%% " ^ c ^ " : skipped.\n"
 
 end;; (* module Spass *)
 

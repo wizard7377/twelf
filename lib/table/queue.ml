@@ -19,21 +19,21 @@ struct
 
   fun insert (x, (inp, out)) = (x::inp, out)
 
-  fun delete (nil, nil) = NONE
-    | delete (inp, x::out) = SOME (x, (inp, out))
-    | delete (inp, nil) = delete (nil, List.rev inp)
+  let rec delete = function (nil, nil) -> NONE
+    | (inp, x::out) -> SOME (x, (inp, out))
+    | (inp, nil) -> delete (nil, List.rev inp)
 
   fun insertFront (x, (inp, out)) = (inp, x::out)
 
-  fun deleteEnd (nil, nil) = NONE
-    | deleteEnd (x::inp, out) = SOME (x, (inp, out))
-    | deleteEnd (nil, out) = delete (List.rev out, nil)
+  let rec deleteEnd = function (nil, nil) -> NONE
+    | (x::inp, out) -> SOME (x, (inp, out))
+    | (nil, out) -> delete (List.rev out, nil)
 
   (* toList q ==> (l, NONE)  means q == l and toList is constant time *)
   (* toList q ==> (l, SOME(q')) means q == l == q' *)
   (* and toList q' is constant time *)
-  fun toList (nil, out) = (out, NONE)
-    | toList (inp, out) =
+  let rec toList = function (nil, out) -> (out, NONE)
+    | (inp, out) -> 
       let
 	let out' = out @ List.rev(inp)
       in

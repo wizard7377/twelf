@@ -201,8 +201,8 @@ struct
   (* unwind all active solvers *)
   fun unwind targetCount =
     let
-      fun unwind' 0 = (markCount := targetCount)
-        | unwind' k =
+      let rec unwind' = function 0 -> (markCount := targetCount)
+        | k -> 
           (ArraySlice.appi (fn (_, Solver (solver, active)) =>
                                if !active then #unwind(solver) () else ())
            (ArraySlice.slice (csArray, 0, SOME(!nextCS)));

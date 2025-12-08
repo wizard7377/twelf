@@ -21,17 +21,17 @@ struct
   (*  Basic Translation                                                         *)
   (* -------------------------------------------------------------------------- *)
 
-  fun translate_uni I.Kind = S.Kind 
-    | translate_uni I.Type = S.Type
+  let rec translate_uni = function I.Kind -> S.Kind 
+    | I.Type -> S.Type
 
-  fun translate_head (I.BVar i) = S.BVar i
-    | translate_head (I.Const c) = S.Const c
-    | translate_head (I.Def c) = S.Const c
-    | translate_head _ = raise Translate "translate_head: bad case"
+  let rec translate_head = function (I.BVar i) -> S.BVar i
+    | (I.Const c) -> S.Const c
+    | (I.Def c) -> S.Const c
+    | _ -> raise Translate "translate_head: bad case"
 
-  fun translate_depend I.No = S.No
-    | translate_depend I.Maybe = S.Maybe
-    | translate_depend _ = raise Fail "translate_depend: bad case"
+  let rec translate_depend = function I.No -> S.No
+    | I.Maybe -> S.Maybe
+    | _ -> raise Fail "translate_depend: bad case"
 
   and translate_exp (I.Uni uni) = S.Uni (translate_uni uni)
     | translate_exp (I.Pi((I.Dec(name,U1),depend),U2)) = 
@@ -51,12 +51,12 @@ struct
       S.App(translate_exp U,translate_spine S)
     | translate_spine _ = raise Translate "translate_spine: bad case"
 
-  fun translate_condec (cid,I.ConDec(name,_,_,_,E,U)) =
+  let rec translate_condec = function (cid,I.ConDec(name,_,_,_,E,U)) -> 
       S.Decl {id = cid,
               name = name,
               exp = translate_exp E,
               uni = translate_uni U}
-    | translate_condec (cid,I.ConDef(name,_,_,U,V,I.Type,I.Anc(ex1,h,exa))) =
+    | (cid,I.ConDef(name,_,_,U,V,I.Type,I.Anc(ex1,h,exa))) -> 
       S.Def {id = cid,
              name = name,
              exp = translate_exp V,
@@ -64,19 +64,19 @@ struct
              height=h,
              root = L.the exa,
              uni = S.Type}
-    | translate_condec (cid,I.AbbrevDef(name,mid,n,U,V,lev)) =
+    | (cid,I.AbbrevDef(name,mid,n,U,V,lev)) -> 
       S.Abbrev {id = cid,
                 name = name,
                 exp = translate_exp V,
                 def = translate_exp U,
                 uni = translate_uni lev}
-    | translate_condec cdec = raise Trans1 cdec
+    | cdec -> raise Trans1 cdec
 (*     | translate_condec _ = raise Translate "translate_condec: bad case" *)
 
-  fun can_translate (I.ConDec _) = true
-    | can_translate (I.ConDef _) = true
-    | can_translate (I.AbbrevDef _) = true
-    | can_translate _ = false
+  let rec can_translate = function (I.ConDec _) -> true
+    | (I.ConDef _) -> true
+    | (I.AbbrevDef _) -> true
+    | _ -> false
 
   fun translate_signat'() = 
       let

@@ -15,9 +15,9 @@ struct
 
     fun subgoal (M.State (name, M.Prefix (G, M, B), V)) =
         let
-          fun check I.Null = true
-            | check (I.Decl (M, M.Top)) = check M
-            | check (I.Decl (M, M.Bot)) = false
+          let rec check = function I.Null -> true
+            | (I.Decl (M, M.Top)) -> check M
+            | (I.Decl (M, M.Bot)) -> false
         in
           check M
         end

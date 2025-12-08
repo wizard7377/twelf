@@ -37,8 +37,8 @@ struct
 
     fun cName (cid) = N.qidToString (N.constQid cid)
 
-    fun pName (cid, SOME(x)) = "#" ^ cName cid ^ "_" ^ x
-      | pName (cid, NONE) = "#" ^ cName cid ^ "_?"
+    let rec pName = function (cid, SOME(x)) -> "#" ^ cName cid ^ "_" ^ x
+      | (cid, NONE) -> "#" ^ cName cid ^ "_?"
 
     (*---------------------*)
     (* Auxiliary Functions *)
@@ -50,13 +50,13 @@ struct
 
        Invariants: {x1:V1}...{xn:Vn}a@S NF
     *)
-    fun instEVars (G, (I.Pi ((I.Dec (_, V1), _), V2), s)) =
+    let rec instEVars = function (G, (I.Pi ((I.Dec (_, V1), _), V2), s)) -> 
         let
           let X1 = I.newEVar (G, I.EClo (V1, s))
         in
           instEVars (G, (V2, (I.Dot (I.Exp (X1), s))))
         end
-      | instEVars (G, Vs as (I.Root _, _)) = Vs
+      | (G, Vs as (I.Root _, _)) -> Vs
 
     (* generalized from ../cover/cover.fun *)
     (* createEVarSub (G, G') = s
@@ -65,8 +65,8 @@ struct
        If   G |- G' ctx
        then G |- s : G' and s instantiates each x:A with an EVar G |- X : A
     *)
-    fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
-      | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
+    let rec createEVarSub = function (G, I.Null) -> I.Shift (I.ctxLength G)
+      | (G, I.Decl(G', D as I.Dec (_, V))) -> 
         let
           let s = createEVarSub (G, G')
           let V' = I.EClo (V, s)
@@ -86,7 +86,7 @@ struct
        iff G |- S[s] == S'[s'] on input ( + ) arguments according to ms
        Effect: may instantiate EVars in all inputs
     *)
-    fun unifiableSpines (G, (I.Nil, s), (I.Nil, s'), M.Mnil) = true
+    let rec unifiableSpines = function (G, (I.Nil, s), (I.Nil, s'), M.Mnil) -> true
       | unifiableSpines (G, (I.App (U1, S2), s), (I.App (U1', S2'), s'),
                          M.Mapp (M.Marg (M.Plus, _), ms2)) =
           unifiable (G, (U1, s), (U1', s'))
@@ -140,8 +140,8 @@ struct
        according to mode spine ms
        Effect: raises Error(msg) otherwise
     *)
-    fun checkUniqueConstConsts (c, nil, ms) = ()
-      | checkUniqueConstConsts (c, c'::cs', ms) =
+    let rec checkUniqueConstConsts = function (c, nil, ms) -> ()
+      | (c, c'::cs', ms) -> 
         ( checkDiffConstConst (c, c', ms) ;
           checkUniqueConstConsts (c, cs', ms) )
 
@@ -150,8 +150,8 @@ struct
        according to mode spine ms
        Effect: raises Error(msg) otherwise
     *)
-    fun checkUniqueConsts (nil, ms) = ()
-      | checkUniqueConsts (c::cs, ms) =
+    let rec checkUniqueConsts = function (nil, ms) -> ()
+      | (c::cs, ms) -> 
         ( checkUniqueConstConsts (c, cs, ms);
           checkUniqueConsts (cs, ms) )
 
@@ -165,8 +165,8 @@ struct
        bx = (b, xOpt) is the block identifier and parameter name in which V[s] occur
        Invariant: V[s] = a @ S and ms is mode spine for a
     *)
-    fun checkDiffBlocksInternal (G, Vs, (t, nil), (a, ms), bx) = ()
-      | checkDiffBlocksInternal (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (b, xOpt)) =
+    let rec checkDiffBlocksInternal = function (G, Vs, (t, nil), (a, ms), bx) -> ()
+      | (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (b, xOpt)) -> 
         let
           let a' = I.targetFam V'
           let _ = if (a = a')
@@ -185,8 +185,8 @@ struct
        b is the block identifier and parameter name is which piDecs
        Effect: raises Error(msg) otherwise
     *)
-    fun checkUniqueBlockInternal' (G, (t, nil), (a, ms), b) = ()
-      | checkUniqueBlockInternal' (G, (t, (D as I.Dec(xOpt, V))::piDecs), (a, ms), b) =
+    let rec checkUniqueBlockInternal' = function (G, (t, nil), (a, ms), b) -> ()
+      | (G, (t, (D as I.Dec(xOpt, V))::piDecs), (a, ms), b) -> 
         let
           let a' = I.targetFam V
           let _ = if (a = a')
@@ -217,8 +217,8 @@ struct
        bx = (b, xOpt) is the block identifier and parameter name is which V[s] occur
        Effect: raises Error(msg) otherwise
     *)
-    fun checkUniqueBlockConsts (G, Vs, nil, ms, bx) = ()
-      | checkUniqueBlockConsts (G, Vs, I.Const(cid)::cs, ms, bx) =
+    let rec checkUniqueBlockConsts = function (G, Vs, nil, ms, bx) -> ()
+      | (G, Vs, I.Const(cid)::cs, ms, bx) -> 
         let
           let _ = chatter 6 (fn () => "?- " ^ pName bx ^ " ~ " ^ cName cid ^ "\n")
           let Vs' = instEVars (G, (I.constType cid, I.id))
@@ -238,8 +238,8 @@ struct
        b' is the block indentifier in which piDecs occurs
        Effect: raises Error(msg) otherwise
     *)
-    fun checkUniqueBlockBlock (G, Vs, (t, nil), (a, ms), (bx, b')) = ()
-      | checkUniqueBlockBlock (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (bx, b')) =
+    let rec checkUniqueBlockBlock = function (G, Vs, (t, nil), (a, ms), (bx, b')) -> ()
+      | (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (bx, b')) -> 
         let
           let a' = I.targetFam V'
           let _ = if (a = a')
@@ -254,8 +254,8 @@ struct
        for family a in any block in bs = [b1,...,bn] according to mode spine ms for a
        bx = (b, xOpt) is the block identifier and parameter name is which V[s] occur
     *)
-    fun checkUniqueBlockBlocks (G, Vs, nil, (a, ms), bx) = ()
-      | checkUniqueBlockBlocks (G, Vs, b::bs, (a, ms), bx) =
+    let rec checkUniqueBlockBlocks = function (G, Vs, nil, (a, ms), bx) -> ()
+      | (G, Vs, b::bs, (a, ms), bx) -> 
         let
           let (Gsome, piDecs) = I.constBlock b
           let t = createEVarSub (G, Gsome)
@@ -270,8 +270,8 @@ struct
        according to mode spine ms for a
        b is the block identifier in which piDecs occur for error messages
     *)
-    fun checkUniqueBlock' (G, (t, nil), bs, cs, (a, ms), b) = ()
-      | checkUniqueBlock' (G, (t, (D as I.Dec(xOpt, V))::piDecs), bs, cs, (a, ms), b) =
+    let rec checkUniqueBlock' = function (G, (t, nil), bs, cs, (a, ms), b) -> ()
+      | (G, (t, (D as I.Dec(xOpt, V))::piDecs), bs, cs, (a, ms), b) -> 
         let
           let a' = I.targetFam V
           let _ = if (a = a')
@@ -302,8 +302,8 @@ struct
        for a in bs or any constant in cs according to mode spine ms
        Effect: raise Error(msg) otherwise
     *)
-    fun checkUniqueWorlds (nil, cs, (a, ms)) = ()
-      | checkUniqueWorlds (b::bs, cs, (a, ms)) =
+    let rec checkUniqueWorlds = function (nil, cs, (a, ms)) -> ()
+      | (b::bs, cs, (a, ms)) -> 
         ( checkUniqueBlockInternal (I.constBlock b, (a, ms), b) ;
           checkUniqueBlock (I.constBlock b, b::bs, cs, (a, ms), b) ;
           checkUniqueWorlds (bs, cs, (a, ms)) )

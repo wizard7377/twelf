@@ -117,22 +117,22 @@ struct
     | exists' p (Cons(x,s)) =
         p(x) orelse exists p s
 
-  fun takePos (s, 0) = nil
-    | takePos (s, n) = take' (expose s, n)
+  let rec takePos = function (s, 0) -> nil
+    | (s, n) -> take' (expose s, n)
   and take' (Empty, _) = nil
     | take' (Cons(x,s), n) = x::takePos(s, n-1)
 
   fun take (s,n) = if n < 0 then raise Subscript else takePos (s,n)
 
-  fun fromList (nil) = empty
-    | fromList (x::l) = cons(x,fromList(l))
+  let rec fromList = function (nil) -> empty
+    | (x::l) -> cons(x,fromList(l))
 
   fun toList (s) = toList' (expose s)
   and toList' (Empty) = nil
     | toList' (Cons(x,s)) = x::toList(s)
 
-  fun dropPos (s, 0) = s
-    | dropPos (s, n) = drop' (expose s, n)
+  let rec dropPos = function (s, 0) -> s
+    | (s, n) -> drop' (expose s, n)
   and drop' (Empty, _) = empty
     | drop' (Cons(x,s), n) = dropPos (s, n-1)
 

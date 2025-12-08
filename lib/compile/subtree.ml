@@ -136,29 +136,29 @@ struct
     exception Generalization of string
 
     (* Auxiliary functions *)
-    fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+    let rec cidFromHead = function (I.Const c) -> c
+      | (I.Def c) -> c
 
-    fun dotn (0, s) = s
-      | dotn (i, s) = dotn (i-1, I.dot1 s)
+    let rec dotn = function (0, s) -> s
+      | (i, s) -> dotn (i-1, I.dot1 s)
 
     fun compose'(IntSyn.Null, G) = G
       | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
-    fun shift (IntSyn.Null, s) = s
-      | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+    let rec shift = function (IntSyn.Null, s) -> s
+      | (IntSyn.Decl(G, D), s) -> I.dot1 (shift(G, s))
 
-    fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
+    let rec raiseType = function (I.Null, V) -> V
+      | (I.Decl (G, D), V) -> raiseType (G, I.Lam (D, V))
 
-  fun printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
-    | printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.exp(_), s)) = (print ("Exp (_ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Undef, s)) = (print ("Undef . "); printSub s)
+  let rec printSub = function (IntSyn.Shift n) -> print ("Shift " ^ Int.toString n ^ "\n")
+    | (IntSyn.Dot(IntSyn.Idx n, s)) -> (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
+    | (IntSyn.Dot (IntSyn.exp(IntSyn.EVar (_, _, _, _)), s)) -> (print ("Exp (EVar _ ). "); printSub s)
+    | (IntSyn.Dot (IntSyn.exp(IntSyn.AVar (_)), s)) -> (print ("Exp (AVar _ ). "); printSub s)
+    | (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) -> (print ("Exp (AVar _ ). "); printSub s)
+    | (IntSyn.Dot (IntSyn.exp(IntSyn.EClo (_, _)), s)) -> (print ("Exp (EClo _ ). "); printSub s)
+    | (IntSyn.Dot (IntSyn.exp(_), s)) -> (print ("Exp (_ ). "); printSub s)
+    | (IntSyn.Dot (IntSyn.Undef, s)) -> (print ("Undef . "); printSub s)
 
    (*
      Linear normal higher-order patterns
@@ -329,7 +329,7 @@ struct
     end
 
   (* mkNode (N, sg, r1, (G, RC), r2) = N'    *)
-  fun mkNode (Node(_, Children), sg, rho1, GR as (G, RC), rho2) =
+  let rec mkNode = function (Node(_, Children), sg, rho1, GR as (G, RC), rho2) -> 
       let
         let c = S.new()
       in
@@ -337,7 +337,7 @@ struct
                                 (2, Leaf(rho2, G, RC))];
        Node(sg, c)
       end
-    | mkNode (Leaf(_, G1, RC1), sg, rho1, GR as (G2, RC2), rho2) =
+    | (Leaf(_, G1, RC1), sg, rho1, GR as (G2, RC2), rho2) -> 
       let
         let c = S.new()
       in
@@ -398,18 +398,18 @@ struct
      backtracking implemented via SML failure continuation
 
    *)
-  fun normalizeNExp (I.NVar n, csub) =
+  let rec normalizeNExp = function (I.NVar n, csub) -> 
       let
         let A = I.newAVar ()
       in
         S.insert csub (n, A);
         A
       end
-    | normalizeNExp (I.Root (H, S), nsub) =
+    | (I.Root (H, S), nsub) -> 
          I.Root(H, normalizeNSpine (S, nsub))
-    | normalizeNExp (I.Lam (D, U), nsub) =
+    | (I.Lam (D, U), nsub) -> 
          I.Lam (normalizeNDec(D, nsub), normalizeNExp (U, nsub))
-    | normalizeNExp (I.Pi((D, P), U), nsub) =
+    | (I.Pi((D, P), U), nsub) -> 
          (* cannot happen -bp *)
          I.Pi ((normalizeNDec(D, nsub), P), normalizeNExp (U, nsub))
 
@@ -659,13 +659,13 @@ struct
     end
 
   (* Unification *)
-  fun unifyW (G, (X as I.AVar(r as ref NONE), I.Shift 0), Us2) =
+  let rec unifyW = function (G, (X as I.AVar(r as ref NONE), I.Shift 0), Us2) -> 
       (r := SOME(I.EClo(Us2)))
-    | unifyW (G, (X as I.AVar(r as ref NONE), s), Us2 as (U, s2)) =
+    | (G, (X as I.AVar(r as ref NONE), s), Us2 as (U, s2)) -> 
       (print "unifyW -- not s = Id\n";
        print ("Us2 = " ^ Print.expToString (G, I.EClo(Us2)) ^ "\n");
        r := SOME(I.EClo(Us2)))
-    | unifyW (G, Xs1, Us2) =
+    | (G, Xs1, Us2) -> 
     (* Xs1 should not contain any uninstantiated AVar anymore *)
       Unify.unifyW(G, Xs1, Us2)
 
@@ -677,8 +677,8 @@ struct
 
   (* Convert context G into explicit substitution *)
   (* ctxToEVarSub (i, G, G', asub, s) = s' *)
-  fun ctxToExplicitSub (i, Gquery, I.Null, asub) = I.id
-    | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.Dec(_, A)), asub) =
+  let rec ctxToExplicitSub = function (i, Gquery, I.Null, asub) -> I.id
+    | (i, Gquery, I.Decl(Gclause, I.Dec(_, A)), asub) -> 
       let
         let s = ctxToExplicitSub (i+1, Gquery, Gclause, asub)
         let (U' as I.EVar(X',_,_, _)) = I.newEVar (Gquery, I.EClo(A, s))
@@ -690,7 +690,7 @@ struct
         I.Dot(I.Exp(U'), s)
       end
 
-    | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.ADec(_, d)), asub) =
+    | (i, Gquery, I.Decl(Gclause, I.ADec(_, d)), asub) -> 
       let
         let (U' as (I.AVar X')) = I.newAVar ()
       in
@@ -702,8 +702,8 @@ struct
          (* d = I.ctxLength Glocal_u *)
       end
 
-  fun solveAuxG (C.Trivial, s, Gquery) =  true (* succeed *)
-    | solveAuxG (C.UnifyEq(Glocal,e1, N, eqns), s, Gquery) =
+  let rec solveAuxG = function (C.Trivial, s, Gquery) -> true (* succeed *)
+    | (C.UnifyEq(Glocal,e1, N, eqns), s, Gquery) -> 
       let
         let G = compose' (Glocal, Gquery)
         let s' = shift (Glocal, s)
@@ -715,8 +715,8 @@ struct
 
 
 
-  fun solveCnstr (Gquery, Gclause, nil, s) = true
-    | solveCnstr (Gquery, Gclause, Eqn(Glocal, U1, U2)::Cnstr, s) =
+  let rec solveCnstr = function (Gquery, Gclause, nil, s) -> true
+    | (Gquery, Gclause, Eqn(Glocal, U1, U2)::Cnstr, s) -> 
       (Unify.unifiable(compose'(Gquery, Glocal), (U1, I.id), (U2, shift(Glocal, s))) andalso
        solveCnstr (Gquery, Gclause, Cnstr, s))
 
@@ -737,7 +737,7 @@ struct
 
   fun retrieveChild (num, Child, nsub_query, assignSub, cnstr, Gquery, sc) =
     let
-      fun retrieve (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, cnstrSub, cnstr) =
+      let rec retrieve = function (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, cnstrSub, cnstr) -> 
          (case assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr)
           (* destructively updates assignSub, might initiate backtracking  *)
           of NONE => ()
@@ -752,7 +752,7 @@ struct
              else
               raise Error "Left-over normal substitutions!"))
 
-        | retrieve (Node(nsub, Children), nsub_query, assignSub, cnstrSub, cnstr) =
+        | (Node(nsub, Children), nsub_query, assignSub, cnstrSub, cnstr) -> 
          (case assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr)
           (* destructively updates nsub_query, assignSub,  might fail and initiate backtracking *)
           (* we must undo any changes to assignSub and whatever else is destructively updated,
@@ -779,7 +779,7 @@ struct
  fun retrieveAll (num, Child, nsub_query, assignSub, cnstr, candSet) =
     let
       let i = ref 0
-      fun retrieve (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
+      let rec retrieve = function (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) -> 
          (case assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr)
           (* destructively updates assignSub, might initiate backtracking  *)
           of NONE => ()
@@ -792,7 +792,7 @@ struct
              else
               raise Error "Left-over normal substitutions!"))
 
-        | retrieve (Node(nsub, Children), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
+        | (Node(nsub, Children), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) -> 
          (case assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr)
           (* destructively updates nsub_query, assignSub,  might fail and initiate backtracking *)
           (* we must undo any changes to assignSub and whatever else is destructively updated,

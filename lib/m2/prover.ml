@@ -55,8 +55,8 @@ struct
        Invariant:
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
-    fun contains (nil, _) = true
-      | contains (x :: L, L') =
+    let rec contains = function (nil, _) -> true
+      | (x :: L, L') -> 
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     (* equiv (L1, L2) = B'
@@ -84,10 +84,10 @@ struct
        If   L is a list of cid,
        then s is a string, listing their names
     *)
-    fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
+    let rec cLToString = function (nil) -> ""
+      | (c :: nil) -> 
           (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
+      | (c :: L) -> 
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
     (* init (k, cL) = ()
@@ -144,8 +144,8 @@ struct
     *)
     fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
-          fun makeConDec' (I.Null, V, k) = I.ConDec (name, NONE, k, I.Normal, V, I.Type)
-            | makeConDec' (I.Decl (G, D), V, k) =
+          let rec makeConDec' = function (I.Null, V, k) -> I.ConDec (name, NONE, k, I.Normal, V, I.Type)
+            | (I.Decl (G, D), V, k) -> 
               makeConDec' (G, I.Pi ((D, I.Maybe), V), k+1)
         in
           (makeConDec' (G, V, 0))
@@ -157,8 +157,8 @@ struct
        If   SL is a list of states,
        then IS' is the corresponding interface signaure
     *)
-    fun makeSignature (nil) = M.SgnEmpty
-      | makeSignature (S :: SL) =
+    let rec makeSignature = function (nil) -> M.SgnEmpty
+      | (S :: SL) -> 
           M.ConDec (makeConDec S,
                       makeSignature SL)
 
@@ -169,8 +169,8 @@ struct
     *)
     fun install (installConDec) =
         let
-          fun install' M.SgnEmpty = ()
-            | install' (M.ConDec (e, S)) =
+          let rec install' = function M.SgnEmpty -> ()
+            | (M.ConDec (e, S)) -> 
                 (installConDec e;
                  install' S)
           let IS = if (List.length (!openStates)) > 0 then
@@ -192,8 +192,8 @@ struct
     *)
     fun printState () =
         let
-          fun print' nil = ()
-            | print' (S :: L) =
+          let rec print' = function nil -> ()
+            | (S :: L) -> 
                 (print (MetaPrint.stateToString S);
                  print' L)
         in

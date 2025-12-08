@@ -31,10 +31,10 @@ struct
 
     fun print_table () =
           let
-            fun print_table' nil = ()
-              | print_table' [(name, addr)] =
+            let rec print_table' = function nil -> ()
+              | [(name, addr)] -> 
                   print ("(\"" ^ name ^ "\", " ^ Int.toString addr ^ ")\n")
-              | print_table' ((name, addr) :: pairs) =
+              | ((name, addr) :: pairs) -> 
                   (print ("(\"" ^ name ^ "\", " ^ Int.toString addr ^ "),\n");
                    print_table' pairs)
           in
@@ -67,8 +67,8 @@ struct
 
         let () = if (!Global.chatter >= 3) then print_size () else ()
 
-        fun read_table "" = nil
-          | read_table line =
+        let rec read_table = function "" -> nil
+          | line -> 
               case (String.tokens Char.isSpace line)
                 of [id, addr] =>
                    (id, valOf (Int.fromString addr)) :: read_table (get_line ())
@@ -176,30 +176,30 @@ struct
     let kd = (fn () => W.fromInt 0)
     let ty = (fn () => W.fromInt 1)
 
-    fun const true ty =
+    let rec const = function true ty -> 
           tuple (#"c", (true, true, true), W.fromInt 0, ty)
-      | const false _ = W.fromInt 0
+      | false _ -> W.fromInt 0
 
-    fun var true ty = tuple (#"v", (false, false, false), W.fromInt 0, ty)
-      | var false _ = W.fromInt 0
+    let rec var = function true ty -> tuple (#"v", (false, false, false), W.fromInt 0, ty)
+      | false _ -> W.fromInt 0
 
-    fun pi true (flags, var, exp) = tuple (#"p", flags, var, exp)
-      | pi false _ = W.fromInt 0
+    let rec pi = function true (flags, var, exp) -> tuple (#"p", flags, var, exp)
+      | false _ -> W.fromInt 0
 
-    fun lam true (flags, var, exp) = tuple (#"l", flags, var, exp)
-      | lam false _ = W.fromInt 0
+    let rec lam = function true (flags, var, exp) -> tuple (#"l", flags, var, exp)
+      | false _ -> W.fromInt 0
 
-    fun app true (flags, exp, arg) = tuple (#"a", flags, exp, arg)
-      | app false _ = W.fromInt 0
+    let rec app = function true (flags, exp, arg) -> tuple (#"a", flags, exp, arg)
+      | false _ -> W.fromInt 0
 
-    fun annotate true (flags, arg, exp) = tuple(#":", flags, arg, exp)
-      | annotate false _ = W.fromInt 0
+    let rec annotate = function true (flags, arg, exp) -> tuple(#":", flags, arg, exp)
+      | false _ -> W.fromInt 0
 
     fun scanNumber string =
           let
-            fun check (chars as (_ :: _)) =
+            let rec check = function (chars as (_ :: _)) -> 
                  (List.all Char.isDigit chars)
-              | check nil =
+              | nil -> 
                   false
           in
             if check (String.explode string)
@@ -247,11 +247,11 @@ struct
             of (SOME cid', I.Kind) => (cid >= cid')
              | _ => false
 
-    fun headCID (I.Const cid) = SOME cid
-      | headCID (I.Skonst cid) = SOME cid
-      | headCID (I.Def cid) = SOME cid
-      | headCID (I.NSDef cid) = SOME cid
-      | headCID _ = NONE
+    let rec headCID = function (I.Const cid) -> SOME cid
+      | (I.Skonst cid) -> SOME cid
+      | (I.Def cid) -> SOME cid
+      | (I.NSDef cid) -> SOME cid
+      | _ -> NONE
 
     fun isClause cid =
           case (!startClause, I.constUni cid)
@@ -492,18 +492,18 @@ struct
                        | s a1 a2 (h::t) = s a2 (h::a1) t
                 in s nil nil l
                 end
-             fun merge a nil = a
-               | merge nil b = b
-               | merge (aa as (a::ta)) (bb as (b::tb)) =
+             let rec merge = function a nil -> a
+               | nil b -> b
+               | (aa as (a::ta)) (bb as (b::tb)) -> 
                  case cmp (a, b) of
                      EQUAL => (a :: b :: merge ta tb)
                    | LESS => (a :: merge ta bb)
                    | GREATER => (b :: merge aa tb)
 
-             fun ms nil = nil
-               | ms [s] = [s]
-               | ms [a,b] = merge [a] [b]
-               | ms ll =
+             let rec ms = function nil -> nil
+               | [s] -> [s]
+               | [a,b] -> merge [a] [b]
+               | ll -> 
                  let let (a,b) = split ll
                  in merge (ms a) (ms b)
                  end
@@ -521,8 +521,8 @@ struct
     exception noPriorEntry of string
     exception Error of string
 
-    fun valOfE e NONE = raise e
-      | valOfE e (SOME x) = x
+    let rec valOfE = function e NONE -> raise e
+      | e (SOME x) -> x
 
     let counter = ref 0
 
@@ -618,9 +618,9 @@ struct
 
   local open I in
 
-  fun etaReduce n (Root(h,sp)) = if (etaReduceSpine n sp) then SOME h else NONE
-    | etaReduce n (Lam(_,t)) = etaReduce (n + 1) t
-    | etaReduce _ _ = NONE
+  let rec etaReduce = function n (Root(h,sp)) -> if (etaReduceSpine n sp) then SOME h else NONE
+    | n (Lam(_,t)) -> etaReduce (n + 1) t
+    | _ _ -> NONE
   and etaReduceSpine n (App(fst,sp)) = (case (etaReduce 0 fst) of
                                             SOME (BVar n') => n = n' andalso etaReduceSpine (n-1) sp
                                           | _ => false)
@@ -634,12 +634,12 @@ struct
                                         Table.insert imitatesTable (cid', cid)) | _ => ())
                             | _ => ())
 
-  fun travExp cid (Uni _) = ()
-    | travExp cid (Pi ((D,_),B)) = (travDec cid D; travExp cid B)
-    | travExp cid (Root (H, S)) = (travHead cid H; travSpine cid S)
-    | travExp cid (Redex (M, S)) = (travExp cid M; travSpine cid S)
-    | travExp cid (Lam (D, M)) = (travDec cid D; travExp cid M)
-    | travExp cid _ = ()
+  let rec travExp = function cid (Uni _) -> ()
+    | cid (Pi ((D,_),B)) -> (travDec cid D; travExp cid B)
+    | cid (Root (H, S)) -> (travHead cid H; travSpine cid S)
+    | cid (Redex (M, S)) -> (travExp cid M; travSpine cid S)
+    | cid (Lam (D, M)) -> (travDec cid D; travExp cid M)
+    | cid _ -> ()
   and travDec cid (Dec (_, A)) = travExp cid A
     | travDec cid (BDec (_, (c, _))) = (recordDependency (cid, c); traverse c)
   and travSpine cid Nil = ()

@@ -31,16 +31,16 @@ struct
        and   G1' is maximal such
     *)
 
-    fun weakenSub (G, Shift n, ss) =
+    let rec weakenSub = function (G, Shift n, ss) -> 
         if n < ctxLength G
           then weakenSub (G, Dot (Idx (n+1), Shift (n+1)), ss)
         else id
-      | weakenSub (G, Dot (Idx n, s'), ss) =
+      | (G, Dot (Idx n, s'), ss) -> 
         (case bvarSub (n, ss)
            of Undef => comp (weakenSub (G, s', ss), shift)
             | Idx _ => dot1 (weakenSub (G, s', ss)))
             (* no other cases, ss is strsub *)
-      | weakenSub (G, Dot (Undef, s'), ss) =
+      | (G, Dot (Undef, s'), ss) -> 
            comp (weakenSub (G, s', ss), shift)
 
     (* prune (G, (U, s), ss, rOccur) = U[s][ss]
@@ -206,7 +206,7 @@ struct
        Other effects: EVars may be lowered
                       constraints may be added for non-patterns
     *)
-    fun matchExpW (G, Us1 as (FgnExp csfe1, _), Us2) =
+    let rec matchExpW = function (G, Us1 as (FgnExp csfe1, _), Us2) -> 
           (case (FgnExpStd.UnifyWith.apply csfe1 (G, EClo Us2))
              of (Succeed residualL) =>
                   let
@@ -223,7 +223,7 @@ struct
                   end
               | Fail => raise Match "Foreign Expression Mismatch")
 
-      | matchExpW (G, Us1, Us2 as (FgnExp csfe2, _)) =
+      | (G, Us1, Us2 as (FgnExp csfe2, _)) -> 
           (case (FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1))
              of (Succeed opL) =>
                   let
@@ -239,12 +239,12 @@ struct
                   end
               | Fail => raise Match "Foreign Expression Mismatch")
 
-      | matchExpW (G, (Uni (L1), _), (Uni(L2), _)) =
+      | (G, (Uni (L1), _), (Uni(L2), _)) -> 
           (* L1 = L2 = type, by invariant *)
           (* matchUni (L1, L2) - removed Mon Aug 24 12:18:24 1998 -fp *)
           ()
 
-      | matchExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+      | (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) -> 
           (* s1 = s2 = id by whnf *)
           (* order of calls critical to establish matchSpine invariant *)
           (case (H1, H2) of
@@ -300,27 +300,27 @@ struct
            | _ => raise Match "Head mismatch")
 
 
-      | matchExpW (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) =
+      | (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) -> 
           (matchDec (G, (D1, s1), (D2, s2)) ;
            matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2)))
 
-      | matchExpW (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) =
+      | (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) -> 
           matchExpW (G, Us1, Whnf.expandDef (Us2))
-      | matchExpW (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) =
+      | (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) -> 
           matchExpW (G, Whnf.expandDef (Us1), Us2)
 
-      | matchExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
+      | (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) -> 
           (* D1[s1] = D2[s2]  by invariant *)
           matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),(U2, dot1 s2))
 
-      | matchExpW (G, (Lam (D1, U1), s1), (U2, s2)) =
+      | (G, (Lam (D1, U1), s1), (U2, s2)) -> 
           (* ETA: can't occur if eta expanded *)
           matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),
                     (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2))
            (* for rhs:  (U2[s2])[^] 1 = U2 [s2 o ^] 1 = U2 [^ o (1. s2 o ^)] 1
                         = (U2 [^] 1) [1.s2 o ^] *)
 
-      | matchExpW (G, (U1, s1), (Lam (D2, U2), s2)) =
+      | (G, (U1, s1), (Lam (D2, U2), s2)) -> 
           (* Cannot occur if expressions are eta expanded *)
           matchExp (Decl (G, decSub (D2, s2)),
                     (Redex (EClo (U1, shift), App (Root (BVar (1), Nil), Nil)), dot1 s1),

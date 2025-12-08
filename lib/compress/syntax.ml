@@ -57,10 +57,10 @@ struct
 
         (* termof elm
         returns the term part of the spine element elm *)
-	fun termof (Elt t) = t
-	  | termof (AElt t) = ATerm t
-	  | termof (Ascribe(t, a)) = NTerm t
-	  | termof (Omit) = raise Syntax "invariant violated: arguments to variables cannot be omitted"
+	let rec termof = function (Elt t) -> t
+	  | (AElt t) -> ATerm t
+	  | (Ascribe(t, a)) -> NTerm t
+	  | (Omit) -> raise Syntax "invariant violated: arguments to variables cannot be omitted"
 
 
 
@@ -79,8 +79,8 @@ struct
            that evar and a substitution to apply it to *)
         (* XXX: so we're not carrying out substitutions over the type
                 as we recurse down: is this right? I think it is. *)
-	fun lower acc (a as TRoot _, []) = (a, acc)
-	  | lower acc (TPi(m,a,b), elt::sp) = 
+	let rec lower = function acc (a as TRoot _, []) -> (a, acc)
+	  | acc (TPi(m,a,b), elt::sp) -> 
 	    let
 		let newacc = TermDot(termof elt, subst_tp acc a, acc)
 	    in
@@ -192,8 +192,8 @@ struct
 
 	and tp_reduce (a, k, sp) =
 	    let 
-		fun subst_tpfn s (tpfnLam a) = tpfnLam(subst_tpfn (ZeroDotShift s) a)
-		  | subst_tpfn s (tpfnType a) = tpfnType(subst_tp s a)
+		let rec subst_tpfn = function s (tpfnLam a) -> tpfnLam(subst_tpfn (ZeroDotShift s) a)
+		  | s (tpfnType a) -> tpfnType(subst_tp s a)
 		fun tp_reduce'(tpfnLam(a), KPi(_,b,k), h::sp) = 
 		    let
 			let s = TermDot(termof h, b, Id)
@@ -204,8 +204,8 @@ struct
 		    end
 		  | tp_reduce' (tpfnType a, Type, []) = a
 		  | tp_reduce' _ = raise Syntax "simplified-kind mismatch in type reduction" 
-		fun wrap (a, KPi(_,b,k)) = tpfnLam (wrap(a,k))
-		  | wrap (a, Type) = tpfnType a
+		let rec wrap = function (a, KPi(_,b,k)) -> tpfnLam (wrap(a,k))
+		  | (a, Type) -> tpfnType a
 		let aw = wrap (a, k)
 	    in 
 		tp_reduce' (aw, k, sp)
@@ -314,12 +314,12 @@ struct
 	  | shift_term n (ATerm t) = ATerm(shift_aterm n t)
 	and substs_comp sl = foldr subst_compose Id sl
 
-	fun elt_eroot_elim (AElt(t)) = eroot_elim_plus t
-	  | elt_eroot_elim (Elt(ATerm(t))) = Elt(eroot_elim t)
-	  | elt_eroot_elim x = x
+	let rec elt_eroot_elim = function (AElt(t)) -> eroot_elim_plus t
+	  | (Elt(ATerm(t))) -> Elt(eroot_elim t)
+	  | x -> x
 
-	fun ntm_eroot_elim (Lam(ATerm(t))) = Lam(eroot_elim t)
-	  | ntm_eroot_elim x = x
+	let rec ntm_eroot_elim = function (Lam(ATerm(t))) -> Lam(eroot_elim t)
+	  | x -> x
 
 
 
@@ -329,10 +329,10 @@ struct
 	fun kindOf (kclass k) = k
 
 	let sum = foldl op+ 0
-	fun size_term (NTerm (Lam t)) = 1 + (size_term t)
-	  | size_term (NTerm (NRoot (_, s))) = 1 + size_spine s
-	  | size_term (ATerm (ARoot (_, s))) = 1 + size_spine s
-	  | size_term (ATerm (ERoot _)) = 1
+	let rec size_term = function (NTerm (Lam t)) -> 1 + (size_term t)
+	  | (NTerm (NRoot (_, s))) -> 1 + size_spine s
+	  | (ATerm (ARoot (_, s))) -> 1 + size_spine s
+	  | (ATerm (ERoot _)) -> 1
 	and size_spine s = sum (map size_spinelt s)
 	and size_spinelt (Elt t) = size_term t
 	  | size_spinelt (AElt t) = size_term (ATerm t)
@@ -344,7 +344,7 @@ struct
 	  | size_knd (KPi(_,a,b)) = 1 + size_tp a + size_knd b
 
      (* convert a kind to a context of all the pi-bound variables in it *) 
-	fun explodeKind (Type) = []
-	  | explodeKind (KPi(_,a,k)) = (explodeKind k) @ [a]
+	let rec explodeKind = function (Type) -> []
+	  | (KPi(_,a,k)) -> (explodeKind k) @ [a]
  
 end

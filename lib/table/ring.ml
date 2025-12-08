@@ -14,8 +14,8 @@ struct
   *)
 
   (* empty q = true if q = [], false otherwise *)
-  fun empty (nil, nil) = true 
-    | empty _ = false
+  let rec empty = function (nil, nil) -> true 
+    | _ -> false
 
   (* init l = l (as ring) *)
   fun init l = (nil, l)
@@ -28,30 +28,30 @@ struct
   (* current [] = raise Empty
      current [a1, a2 ... an] = a1
   *)
-  fun current (nil, nil) = raise Empty
-    | current (_, x :: _) = x
-    | current (l, nil) = current (nil, rev l)
+  let rec current = function (nil, nil) -> raise Empty
+    | (_, x :: _) -> x
+    | (l, nil) -> current (nil, rev l)
 
   (* next [] = raise Empty
      next [a1, a2 ... an]) = [a2 ... an, a1]
   *)
-  fun next (nil, nil) = raise Empty
-    | next (r, nil) = next (nil, rev r)
-    | next (r, x :: l) = (x :: r, l)
+  let rec next = function (nil, nil) -> raise Empty
+    | (r, nil) -> next (nil, rev r)
+    | (r, x :: l) -> (x :: r, l)
 
   (* previous [] = ERROR
      previous [a1, a2 ... an]) = [a2 ... an, a1]
   *)
-  fun previous (nil, nil) = raise Empty
-    | previous (nil, l) = previous (rev l, nil)
-    | previous (x :: r, l) = (r, x :: l)
+  let rec previous = function (nil, nil) -> raise Empty
+    | (nil, l) -> previous (rev l, nil)
+    | (x :: r, l) -> (r, x :: l)
 
   (* delete [] = raise Empty
      delete [a1, a2 ... an] = [a2 ... an]
   *)
-  fun delete (nil, nil) = raise Empty
-    | delete (r, nil) = delete (nil, rev r) 
-    | delete (r, x :: l) = (r, l)
+  let rec delete = function (nil, nil) -> raise Empty
+    | (r, nil) -> delete (nil, rev r) 
+    | (r, x :: l) -> (r, l)
 
   (* foldr is inefficient *)
   fun foldr f i (r, l) = List.foldr f i (l @ rev r)

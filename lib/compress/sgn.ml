@@ -48,8 +48,8 @@ struct
     let all_modes : mode list option Array.array = Array.array(sgn_size, NONE)
     let all_ps : bool option Array.array = Array.array(sgn_size, NONE)
 
-    fun  split (h::tl) 0 = ([], h, tl)
-       | split (h::tl) n = let 
+    let rec split = function (h::tl) 0 -> ([], h, tl)
+       | (h::tl) n -> let 
 	     let (pre, thing, post) = split tl (n-1)
 	 in
 	     (h::pre, thing, post)

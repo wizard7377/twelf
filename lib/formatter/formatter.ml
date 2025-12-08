@@ -29,11 +29,11 @@ places.
 The {\tt Spmod} function is used when {\tt Bailout} is active.
 *)
       local
-         fun Spaces' 0 s = s
-          |  Spaces' n s = Spaces' (n-1) (s^" ")
+         let rec Spaces' = function 0 s -> s
+          | n s -> Spaces' (n-1) (s^" ")
          fun Spaces n = if n>0 then Spaces' n "" else ""
-         fun Newlines' 0 s = s
-          |  Newlines' n s = Newlines' (n-1) (s^"\n")
+         let rec Newlines' = function 0 s -> s
+          | n s -> Newlines' (n-1) (s^"\n")
          fun Newlines n = if n>0 then Newlines' n "" else ""
       in
         let Sp = Spaces (* return a number of spaces *)

@@ -114,8 +114,8 @@ struct
 (* hack!!! improve !!!! *)
     fun listToCtx (Gin) =
       let
-        fun listToCtx' (G, nil) = G
-          | listToCtx' (G, D :: Ds) =
+        let rec listToCtx' = function (G, nil) -> G
+          | (G, D :: Ds) -> 
                 listToCtx' (I.Decl (G, D), Ds)
       in
         listToCtx' (I.Null, Gin)
@@ -123,8 +123,8 @@ struct
 
     fun ctxToList (Gin) =
       let
-        fun ctxToList' (I.Null, G ) = G
-          | ctxToList' (I.Decl (G, D), G') =
+        let rec ctxToList' = function (I.Null, G ) -> G
+          | (I.Decl (G, D), G') -> 
           ctxToList' (G, D :: G')
       in
         ctxToList' (Gin, nil)
@@ -136,21 +136,21 @@ struct
        Invariant:
        G'' = G, G'
     *)
-    fun union (G, I.Null) = G
-      | union (G, I.Decl (G', D)) = I.Decl (union(G, G'), D)
+    let rec union = function (G, I.Null) -> G
+      | (G, I.Decl (G', D)) -> I.Decl (union(G, G'), D)
 
     (* makectx Psi = G
 
        Invariant:
        G is Psi, where the Prim/Block information is discarded.
     *)
-    fun makectx (I.Null) = I.Null
-      | makectx (I.Decl (G, Prim D)) = I.Decl (makectx G, D)
-      | makectx (I.Decl (G, Block (CtxBlock (l, G')))) = union (makectx G, G')
+    let rec makectx = function (I.Null) -> I.Null
+      | (I.Decl (G, Prim D)) -> I.Decl (makectx G, D)
+      | (I.Decl (G, Block (CtxBlock (l, G')))) -> union (makectx G, G')
 
-    fun lfctxLength (I.Null) = 0
-      | lfctxLength (I.Decl (Psi, Prim _))= (lfctxLength Psi) + 1
-      | lfctxLength (I.Decl (Psi, Block (CtxBlock (_, G)))) =
+    let rec lfctxLength = function (I.Null) -> 0
+      | (I.Decl (Psi, Prim _)) -> (lfctxLength Psi) + 1
+      | (I.Decl (Psi, Block (CtxBlock (_, G)))) -> 
           (lfctxLength Psi) + (I.ctxLength G)
 
 
@@ -165,10 +165,10 @@ struct
    *)
     fun lfctxLFDec (Psi, k) =
       let
-        fun lfctxLFDec' (I.Decl (Psi', LD as Prim (I.Dec (x, V'))), 1) =
+        let rec lfctxLFDec' = function (I.Decl (Psi', LD as Prim (I.Dec (x, V'))), 1) -> 
               (LD, I.Shift k)
-          | lfctxLFDec' (I.Decl (Psi', Prim _), k') = lfctxLFDec' (Psi', k'-1)
-          | lfctxLFDec' (I.Decl (Psi', LD as Block (CtxBlock (_, G))), k') =
+          | (I.Decl (Psi', Prim _), k') -> lfctxLFDec' (Psi', k'-1)
+          | (I.Decl (Psi', LD as Block (CtxBlock (_, G))), k') -> 
             let
               let l = I.ctxLength G
             in
@@ -191,8 +191,8 @@ struct
        where s' = 1.(1.  ...     s) o ^ ) o ^
                         |G|-times
     *)
-    fun dot1n (I.Null, s) = s
-      | dot1n (I.Decl (G, _) , s) = I.dot1 (dot1n (G, s))
+    let rec dot1n = function (I.Null, s) -> s
+      | (I.Decl (G, _) , s) -> I.dot1 (dot1n (G, s))
 
 
     (* conv ((F1, s1), (F2, s2)) = B
@@ -206,7 +206,7 @@ struct
        then B holds iff G |- F1[s1] = F2[s2] formula
     *)
 
-    fun convFor ((True, _), (True, _)) = true
+    let rec convFor = function ((True, _), (True, _)) -> true
       | convFor ((All (Prim D1, F1), s1),
                  (All (Prim D2, F2), s2)) =
           Conv.convDec ((D1, s1), (D2, s2))
@@ -219,10 +219,10 @@ struct
                  (Ex (D2, F2), s2)) =
           Conv.convDec ((D1, s1), (D2, s2))
           andalso convFor ((F1, I.dot1 s1), (F2, I.dot1 s2))
-      | convFor ((And (F1, F1'), s1), (And (F2, F2'), s2)) =
+      | ((And (F1, F1'), s1), (And (F2, F2'), s2)) -> 
           convFor ((F1, s1), (F2, s2))
           andalso convFor ((F1', s1), (F2', s2))
-      | convFor _ = false
+      | _ -> false
     and convForBlock ((nil, F1, s1), (nil, F2, s2)) =
           convFor ((F1, s1), (F2, s2))
       | convForBlock ((D1 :: G1, F1, s1), (D2 :: G2, F2, s2)) =
@@ -231,38 +231,38 @@ struct
       | convForBlock _ = false
 
 
-    fun ctxSub (I.Null, s) = (I.Null, s)
-      | ctxSub (I.Decl (G, D), s) =
+    let rec ctxSub = function (I.Null, s) -> (I.Null, s)
+      | (I.Decl (G, D), s) -> 
         let
           let (G', s') = ctxSub (G, s)
         in
           (I.Decl (G', I.decSub (D, s')), I.dot1 s)
         end
 
-    fun forSub (All (Prim D, F), s) =
+    let rec forSub = function (All (Prim D, F), s) -> 
           All (Prim (I.decSub (D, s)), forSub (F, I.dot1 s))
-      | forSub (All (Block (CtxBlock (name, G)), F), s) =
+      | (All (Block (CtxBlock (name, G)), F), s) -> 
           let
             let (G', s') = ctxSub (G, s)
           in
             All (Block (CtxBlock (name, G')), forSub (F, s'))
           end
-      | forSub (Ex (D, F), s) =
+      | (Ex (D, F), s) -> 
           Ex (I.decSub (D, s), forSub (F, I.dot1 s))
-      | forSub (True, s) = True
-      | forSub (And (F1, F2), s) =
+      | (True, s) -> True
+      | (And (F1, F2), s) -> 
           And (forSub (F1, s), forSub (F2, s))
 
     fun mdecSub (MDec (name, F), s) = MDec (name, forSub (F, s))
 
 
-    fun normalizeFor (All (Prim D, F), s) =
+    let rec normalizeFor = function (All (Prim D, F), s) -> 
           All (Prim (Whnf.normalizeDec (D, s)), normalizeFor (F, I.dot1 s))
-      | normalizeFor (Ex (D, F), s) =
+      | (Ex (D, F), s) -> 
           Ex (Whnf.normalizeDec (D, s), normalizeFor (F, I.dot1 s))
-      | normalizeFor (And (F1, F2), s) =
+      | (And (F1, F2), s) -> 
           And (normalizeFor (F1, s), normalizeFor (F2, s))
-      | normalizeFor (True, _) = True
+      | (True, _) -> True
 
 
 

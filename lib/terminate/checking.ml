@@ -101,19 +101,19 @@ struct
    (*--------------------------------------------------------------------*)
    (* Printing atomic orders *)
 
-    fun atomicPredToString (G, Less((Us, _), (Us', _))) =
+    let rec atomicPredToString = function (G, Less((Us, _), (Us', _))) -> 
           Print.expToString(G, I.EClo(Us)) ^ " < " ^
           Print.expToString(G, I.EClo(Us'))
-      | atomicPredToString (G, Leq((Us, _), (Us', _))) =
+      | (G, Leq((Us, _), (Us', _))) -> 
           Print.expToString(G, I.EClo(Us)) ^ " <= " ^
           Print.expToString(G, I.EClo(Us'))
-      | atomicPredToString (G, Eq((Us, _), (Us', _))) =
+      | (G, Eq((Us, _), (Us', _))) -> 
           Print.expToString(G, I.EClo(Us)) ^ " = " ^
           Print.expToString(G, I.EClo(Us'))
 
-    fun atomicRCtxToString (G, nil) = " "
-      | atomicRCtxToString (G, O::nil) = atomicPredToString (G, O)
-      | atomicRCtxToString (G, O::D') =
+    let rec atomicRCtxToString = function (G, nil) -> " "
+      | (G, O::nil) -> atomicPredToString (G, O)
+      | (G, O::D') -> 
           atomicRCtxToString (G, D') ^ ", " ^ atomicPredToString (G, O)
 
    (*--------------------------------------------------------------------*)
@@ -126,23 +126,23 @@ struct
          with its terms by applying f to it
     *)
 
-    fun shiftO (R.Arg ((U, us), (V, vs))) f =
+    let rec shiftO = function (R.Arg ((U, us), (V, vs))) f -> 
             R.Arg ((U, (f us)), (V, (f vs)))
-      | shiftO (R.Lex L) f = R.Lex (map (fun O -> shiftO O f) L)
-      | shiftO (R.Simul L) f = R.Simul (map (fun O -> shiftO O f) L)
+      | (R.Lex L) f -> R.Lex (map (fun O -> shiftO O f) L)
+      | (R.Simul L) f -> R.Simul (map (fun O -> shiftO O f) L)
 
-    fun shiftP (Less(O1, O2)) f = Less(shiftO O1 f, shiftO O2 f)
-      | shiftP (Leq(O1, O2)) f = Leq(shiftO O1 f, shiftO O2 f)
-      | shiftP (Eq(O1, O2)) f = Eq(shiftO O1 f, shiftO O2 f)
-      | shiftP (Pi(D as I.Dec(X,V), P)) f = Pi(D, shiftP P f)
+    let rec shiftP = function (Less(O1, O2)) f -> Less(shiftO O1 f, shiftO O2 f)
+      | (Leq(O1, O2)) f -> Leq(shiftO O1 f, shiftO O2 f)
+      | (Eq(O1, O2)) f -> Eq(shiftO O1 f, shiftO O2 f)
+      | (Pi(D as I.Dec(X,V), P)) f -> Pi(D, shiftP P f)
 
     fun shiftRCtx Rl f = map (fun p -> shiftP p f) Rl
 
-    fun shiftArg (Less (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+    let rec shiftArg = function (Less (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f -> 
           Less (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
-      | shiftArg (Leq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+      | (Leq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f -> 
           Leq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
-      | shiftArg (Eq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+      | (Eq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f -> 
           Eq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
 
     fun shiftACtx Rl f = map (fun p -> shiftArg p f) Rl
@@ -152,11 +152,11 @@ struct
 
     fun fmtOrder (G, O) =
         let
-          fun fmtOrder' (R.Arg (Us as (U, s), Vs as (V, s'))) =
+          let rec fmtOrder' = function (R.Arg (Us as (U, s), Vs as (V, s'))) -> 
                 F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
-            | fmtOrder' (R.Lex L) =
+            | (R.Lex L) -> 
                 F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"]
-            | fmtOrder' (R.Simul L) =
+            | (R.Simul L) -> 
                 F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"]
 
           and fmtOrders [] = []
@@ -169,18 +169,18 @@ struct
     fun fmtComparison (G, O, comp, O') =
         F.HOVbox0 1 0 1 [fmtOrder (G, O), F.Break, F.String comp, F.Break, fmtOrder (G, O')]
 
-    fun fmtPredicate' (G, Less(O, O')) = fmtComparison (G, O, "<", O')
-      | fmtPredicate' (G, Leq(O, O'))  = fmtComparison (G, O, "<=", O')
-      | fmtPredicate' (G, Eq(O, O'))  = fmtComparison (G, O, "=", O')
-      | fmtPredicate' (G, Pi(D, P))  =  (* F.String "Pi predicate"  *)
+    let rec fmtPredicate' = function (G, Less(O, O')) -> fmtComparison (G, O, "<", O')
+      | (G, Leq(O, O')) -> fmtComparison (G, O, "<=", O')
+      | (G, Eq(O, O')) -> fmtComparison (G, O, "=", O')
+      | (G, Pi(D, P)) -> (* F.String "Pi predicate"  *)
           F.Hbox [F.String "Pi ", fmtPredicate' (I.Decl (G, D), P)]
 
     fun fmtPredicate (G, P) = fmtPredicate' (Names.ctxName G, P)
 
-    fun fmtRGCtx' (G, nil) = ""
-      | fmtRGCtx' (G, [P]) =
+    let rec fmtRGCtx' = function (G, nil) -> ""
+      | (G, [P]) -> 
         F.makestring_fmt(fmtPredicate' (G, P) )
-      | fmtRGCtx' (G, (P :: Rl)) =
+      | (G, (P :: Rl)) -> 
         F.makestring_fmt(fmtPredicate' (G, P)) ^ " ," ^ fmtRGCtx' (G, Rl)
 
     fun fmtRGCtx (G, Rl) = fmtRGCtx' (Names.ctxName G, Rl)
@@ -202,13 +202,13 @@ struct
         Conv.conv (Us, Us')
 
 
-    fun isUniversal (All) = true
-      | isUniversal (Exist) = false
-      | isUniversal (Exist') = false
+    let rec isUniversal = function (All) -> true
+      | (Exist) -> false
+      | (Exist') -> false
 
-    fun isExistential (All) = false
-      | isExistential (Exist) = true
-      | isExistential (Exist') = true
+    let rec isExistential = function (All) -> false
+      | (Exist) -> true
+      | (Exist') -> true
 
     (* isParameter (Q, X) = B
 
@@ -302,10 +302,10 @@ struct
 
 
     *)
-    fun lookupEq (GQ, nil, UsVs, UsVs', sc) = false
-      | lookupEq (GQ, (Less(_, _) :: D), UsVs, UsVs', sc) =
+    let rec lookupEq = function (GQ, nil, UsVs, UsVs', sc) -> false
+      | (GQ, (Less(_, _) :: D), UsVs, UsVs', sc) -> 
           lookupEq (GQ, D, UsVs, UsVs', sc)
-      | lookupEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
+      | (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) -> 
           CSManager.trail (fn () =>
                            eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc ())
           orelse
@@ -334,10 +334,10 @@ struct
              all restrictions in sc are satisfied
     *)
 
-    fun lookupLt (GQ, nil, UsVs, UsVs', sc) = false
-      | lookupLt (GQ, (Eq(_, _) :: D), UsVs, UsVs', sc) =
+    let rec lookupLt = function (GQ, nil, UsVs, UsVs', sc) -> false
+      | (GQ, (Eq(_, _) :: D), UsVs, UsVs', sc) -> 
           lookupLt (GQ, D, UsVs, UsVs', sc)
-      | lookupLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
+      | (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) -> 
           CSManager.trail (fn () =>
                            eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc ())
           orelse
@@ -352,11 +352,11 @@ struct
         or  D, D' ---> UsVs = UsVs' by transitivity
 
      *)
-    fun eqAtomic (GQ as (G, Q), nil, D', UsVs, UsVs', sc) =
+    let rec eqAtomic = function (GQ as (G, Q), nil, D', UsVs, UsVs', sc) -> 
          CSManager.trail (fn () => eq (G, UsVs, UsVs') andalso sc ())
          orelse
          lookupEq (GQ, D', UsVs, UsVs', sc)
-      | eqAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
+      | (GQ as (G, Q), D, D', UsVs, UsVs', sc) -> 
          CSManager.trail (fn () => eq (G, UsVs, UsVs') andalso sc ())
          orelse
          lookupEq (GQ, D, UsVs, UsVs', sc)
@@ -1330,39 +1330,39 @@ struct
 
     *)
 
-   fun leftDecompose (GQ as (G, Q), nil, D', P) =
+   let rec leftDecompose = function (GQ as (G, Q), nil, D', P) -> 
          rightDecompose (GQ, D', P)
      (* less *)
-     | leftDecompose (GQ, (Less(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+     | (GQ, (Less(R.Arg UsVs, R.Arg UsVs') :: D), D', P) -> 
           ltAtomicL (GQ, D, D', UsVs, UsVs', P)
 
-     | leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P) =
+     | (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P) -> 
          ltLexL (GQ, D, D', O, O', P)
 
-     | leftDecompose (GQ, (Less(R.Simul O, R.Simul O') :: D), D', P) =
+     | (GQ, (Less(R.Simul O, R.Simul O') :: D), D', P) -> 
          ltSimulL (GQ, D, D', O, O', P)
      (* le *)
-     | leftDecompose (GQ, (Leq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+     | (GQ, (Leq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) -> 
          leAtomicL (GQ, D, D', UsVs, UsVs', P)
 
-     | leftDecompose (GQ, (Leq(R.Lex O, R.Lex O') :: D), D', P) =
+     | (GQ, (Leq(R.Lex O, R.Lex O') :: D), D', P) -> 
          leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P)
          andalso
          leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P)
 
-     | leftDecompose (GQ, (Leq(R.Simul O, R.Simul O') :: D), D', P) =
+     | (GQ, (Leq(R.Simul O, R.Simul O') :: D), D', P) -> 
          leSimulL (GQ, D, D', O, O', P)
      (* eq *)
-     | leftDecompose (GQ, (Eq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+     | (GQ, (Eq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) -> 
          eqAtomicL (GQ, D, D', UsVs,  UsVs', P)
 
-     | leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P) =
+     | (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P) -> 
          eqsL (GQ, D, D', O, O', P)
 
-     | leftDecompose (GQ, (Eq(R.Simul O, R.Simul O') :: D), D', P) =
+     | (GQ, (Eq(R.Simul O, R.Simul O') :: D), D', P) -> 
          eqsL (GQ, D, D', O, O', P)
 
-     | leftDecompose (GQ as (G, Q), (Pi(Dec, O) :: D), D', P) =
+     | (GQ as (G, Q), (Pi(Dec, O) :: D), D', P) -> 
          (* drop assumption Pi D. P *)
          ((if !Global.chatter > 3
                  then (print " Ignoring quantified order ";

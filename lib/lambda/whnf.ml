@@ -52,21 +52,21 @@ struct
               (even if U[s] might be eta-reducible to some other expressions).
     *)
     (* optimization(?): quick check w/o substitution first *)
-    fun etaContract (Root (BVar(k), S), s, n) =
+    let rec etaContract = function (Root (BVar(k), S), s, n) -> 
         (case bvarSub (k, s)
            of Idx (k') => if k' > n
                             then (etaContract' (S, s, n); k'-n)
                           else raise Eta
             | _ => raise Eta)
-      | etaContract (Lam (D, U), s, n) =
+      | (Lam (D, U), s, n) -> 
           etaContract (U, dot1 s, n+1)
-      | etaContract (EClo (U, s'), s, n) =
+      | (EClo (U, s'), s, n) -> 
           etaContract (U, comp (s', s), n)
-      | etaContract (EVar (ref (SOME(U)), _, _, _), s, n) =
+      | (EVar (ref (SOME(U)), _, _, _), s, n) -> 
           etaContract (U, s, n)
-      | etaContract (AVar (ref (SOME(U))), s, n) =
+      | (AVar (ref (SOME(U))), s, n) -> 
           etaContract (U, s, n)
-      | etaContract _ = raise Eta
+      | _ -> raise Eta
         (* Should fail: (c@S), (d@S), (F@S), X *)
         (* Not treated (fails): U@S *)
         (* Could weak head-normalize for more thorough checks *)
@@ -97,15 +97,15 @@ struct
        and  s' = Ft1 . s
        and  G |- s' : G1, V
     *)
-    fun dotEta (Ft as Idx _, s) = Dot (Ft, s)
-      | dotEta (Ft as Exp (U), s) =
+    let rec dotEta = function (Ft as Idx _, s) -> Dot (Ft, s)
+      | (Ft as Exp (U), s) -> 
         let
           let Ft' = Idx (etaContract (U, id, 0))
                    handle Eta => Ft
         in
           Dot (Ft', s)
         end
-      | dotEta (Ft as Undef, s) = Dot (Ft, s)
+      | (Ft as Undef, s) -> Dot (Ft, s)
 
 
     (* appendSpine ((S1, s1), (S2, s2)) = S'
@@ -116,10 +116,10 @@ struct
        and   G |- V1 [s1] == V2 [s2]
        then  G |- S' : V1' [s1] > V2' [s2]
     *)
-    fun appendSpine ((Nil, s1), Ss2) = SClo Ss2
-      | appendSpine ((App (U1, S1), s1), Ss2) =
+    let rec appendSpine = function ((Nil, s1), Ss2) -> SClo Ss2
+      | ((App (U1, S1), s1), Ss2) -> 
           App (EClo (U1, s1), appendSpine ((S1, s1), Ss2))
-      | appendSpine ((SClo (S1, s1'), s1), Ss2) =
+      | ((SClo (S1, s1'), s1), Ss2) -> 
           appendSpine ((S1, comp(s1', s1)), Ss2)
 
     (* whnfRedex ((U, s1), (S, s2)) = (U', s')
@@ -135,27 +135,27 @@ struct
 
        Effects: EVars may be lowered to base type.
     *)
-    fun whnfRedex (Us, (SClo (S, s2'), s2)) =
+    let rec whnfRedex = function (Us, (SClo (S, s2'), s2)) -> 
           whnfRedex (Us, (S, comp (s2', s2)))
-      | whnfRedex (Us as (Root R, s1), (Nil, s2)) = Us
-      | whnfRedex ((Root (H1, S1), s1), (S2, s2)) =
+      | (Us as (Root R, s1), (Nil, s2)) -> Us
+      | ((Root (H1, S1), s1), (S2, s2)) -> 
           (* S2 = App _, only possible if term is not eta-expanded *)
           (Root (H1, appendSpine ((S1, s1), (S2, s2))), id)
-      | whnfRedex ((Lam (_, U1), s1), (App (U2, S), s2)) =
+      | ((Lam (_, U1), s1), (App (U2, S), s2)) -> 
           whnfRedex (whnf (U1, dotEta (frontSub (Exp (U2), s2), s1)), (S, s2))
-      | whnfRedex (Us as (Lam _, s1), _) = Us  (* S2[s2] = Nil *)
-      | whnfRedex (Us as (EVar _, s1), (Nil, s2)) = Us
-      | whnfRedex (Us as (X as EVar _, s1), Ss2) =
+      | (Us as (Lam _, s1), _) -> Us  (* S2[s2] = Nil *)
+      | (Us as (EVar _, s1), (Nil, s2)) -> Us
+      | (Us as (X as EVar _, s1), Ss2) -> 
           (* Ss2 must be App, since prior cases do not apply *)
           (* lowerEVar X results in redex, optimize by unfolding call to whnfRedex *)
           (lowerEVar X; whnfRedex (whnf Us, Ss2))
-      | whnfRedex (Us as (AVar(ref (SOME U)), s1), Ss2) =
+      | (Us as (AVar(ref (SOME U)), s1), Ss2) -> 
           whnfRedex((U,s1), Ss2)
-      | whnfRedex (Us as (AVar(ref NONE), s1), Ss2) = Us
-      | whnfRedex (Us as (FgnExp _, _), _) = Us
+      | (Us as (AVar(ref NONE), s1), Ss2) -> Us
+      | (Us as (FgnExp _, _), _) -> Us
       (* Uni and Pi can arise after instantiation of EVar X : K *)
-      | whnfRedex (Us as (Uni _, s1), _) = Us   (* S2[s2] = Nil *)
-      | whnfRedex (Us as (Pi _, s1), _) = Us    (* S2[s2] = Nil *)
+      | (Us as (Uni _, s1), _) -> Us   (* S2[s2] = Nil *)
+      | (Us as (Pi _, s1), _) -> Us    (* S2[s2] = Nil *)
       (* Other cases impossible since (U,s1) whnf *)
 
     (* lowerEVar' (G, V[s]) = (X', U), see lowerEVar *)
@@ -308,28 +308,28 @@ struct
       | whnfExpandDefW Us = Us
     and whnfExpandDef Us = whnfExpandDefW (whnf Us)
 
-    fun newLoweredEVarW (G, (Pi ((D, _), V), s)) =
+    let rec newLoweredEVarW = function (G, (Pi ((D, _), V), s)) -> 
         let
           let D' = decSub (D, s)
         in
           Lam (D', newLoweredEVar (Decl (G, D'), (V, dot1 s)))
         end
-      | newLoweredEVarW (G, Vs) = newEVar (G, EClo Vs)
+      | (G, Vs) -> newEVar (G, EClo Vs)
 
     and newLoweredEVar (G, Vs) = newLoweredEVarW (G, whnfExpandDef Vs)
 
-    fun newSpineVarW (G, (Pi ((Dec (_, Va), _), Vr), s)) =
+    let rec newSpineVarW = function (G, (Pi ((Dec (_, Va), _), Vr), s)) -> 
         let
           let X = newLoweredEVar (G, (Va, s))
         in
           App (X, newSpineVar (G, (Vr, dotEta (Exp (X), s))))
         end
-      | newSpineVarW (G, _) = Nil
+      | (G, _) -> Nil
 
     and newSpineVar (G, Vs) = newSpineVarW (G, whnfExpandDef Vs)
 
-    fun spineToSub (Nil, s) = s
-      | spineToSub (App (U, S), s) = spineToSub (S, dotEta (Exp (U), s))
+    let rec spineToSub = function (Nil, s) -> s
+      | (App (U, S), s) -> spineToSub (S, dotEta (Exp (U), s))
 
 
     (* inferSpine ((S, s1), (V, s2)) = (V', s')
@@ -341,17 +341,17 @@ struct
        then G |- V'[s'] = W
     *)
     (* FIX: this is almost certainly mis-design -kw *)
-    fun inferSpine ((Nil, _), Vs) = Vs
-      | inferSpine ((SClo (S, s'), s), Vs) =
+    let rec inferSpine = function ((Nil, _), Vs) -> Vs
+      | ((SClo (S, s'), s), Vs) -> 
           inferSpine ((S, comp (s', s)), Vs)
-      | inferSpine ((App (U, S), s1), (Pi (_, V2), s2)) =
+      | ((App (U, S), s1), (Pi (_, V2), s2)) -> 
           inferSpine ((S, s1), whnfExpandDef (V2, Dot (Exp (EClo (U, s1)), s2)))
 
     (* inferCon (C) = V  if C = c or C = d or C = sk and |- C : V *)
     (* FIX: this is almost certainly mis-design -kw *)
-    fun inferCon (Const (cid)) = constType (cid)
-      | inferCon (Skonst (cid)) = constType (cid)
-      | inferCon (Def (cid)) = constType (cid)
+    let rec inferCon = function (Const (cid)) -> constType (cid)
+      | (Skonst (cid)) -> constType (cid)
+      | (Def (cid)) -> constType (cid)
 
     (* etaExpand' (U, (V,s)) = U'
 
@@ -363,8 +363,8 @@ struct
     *)
     (* quite inefficient -cs *)
     (* FIX: this is almost certainly mis-design -kw *)
-    fun etaExpand' (U, (Root _, s)) = U
-      | etaExpand' (U, (Pi ((D, _), V), s)) =
+    let rec etaExpand' = function (U, (Root _, s)) -> U
+      | (U, (Pi ((D, _), V), s)) -> 
           Lam (decSub (D, s),
                etaExpand' (Redex (EClo (U, shift),
                                   App (Root (BVar (1), Nil), Nil)), whnfExpandDef (V, dot1 s)))
@@ -459,8 +459,8 @@ struct
           dotEta (Exp (normalizeExp (U, id)), normalizeSub s)
 
 
-    fun normalizeCtx Null = Null
-      | normalizeCtx (Decl (G, D)) =
+    let rec normalizeCtx = function Null -> Null
+      | (Decl (G, D)) -> 
           Decl (normalizeCtx G, normalizeDec (D, id))
 
 
@@ -473,20 +473,20 @@ struct
     *)
     fun invert s =
       let
-        fun lookup (n, Shift _, p) = NONE
-          | lookup (n, Dot (Undef, s'), p) = lookup (n+1, s', p)
-          | lookup (n, Dot (Idx k, s'), p) =
+        let rec lookup = function (n, Shift _, p) -> NONE
+          | (n, Dot (Undef, s'), p) -> lookup (n+1, s', p)
+          | (n, Dot (Idx k, s'), p) -> 
             if k = p then SOME n
             else lookup (n+1, s', p)
 
-        fun invert'' (0, si) = si
-          | invert'' (p, si) =
+        let rec invert'' = function (0, si) -> si
+          | (p, si) -> 
             (case (lookup (1, s, p))
                of SOME k => invert'' (p-1, Dot (Idx k, si))
                 | NONE => invert'' (p-1, Dot (Undef, si)))
 
-        fun invert' (n, Shift p) = invert'' (p, Shift n)
-          | invert' (n, Dot (_, s')) = invert' (n+1, s')
+        let rec invert' = function (n, Shift p) -> invert'' (p, Shift n)
+          | (n, Dot (_, s')) -> invert' (n+1, s')
       in
         invert' (0, s)
       end
@@ -498,8 +498,8 @@ struct
        If   G'' |- t : G    (* and t strsub *)
        then G' |- t : G  and G' subcontext of G
     *)
-    fun strengthen (Shift n (* = 0 *), Null) = Null
-      | strengthen (Dot (Idx k (* k = 1 *), t), Decl (G, D)) =
+    let rec strengthen = function (Shift n (* -> 0 *), Null) = Null
+      | (Dot (Idx k (* k -> 1 *), t), Decl (G, D)) =
         let
           let t' = comp (t, invShift)
         in
@@ -508,9 +508,9 @@ struct
           (* G' |- D[t'] dec *)
           Decl (strengthen (t', G), decSub (D, t'))
         end
-      | strengthen (Dot (Undef, t), Decl (G, D)) =
+      | (Dot (Undef, t), Decl (G, D)) -> 
           strengthen (t, G)
-      | strengthen (Shift n, G) =
+      | (Shift n, G) -> 
           strengthen (Dot (Idx (n+1), Shift (n+1)), G)
 
 
@@ -521,10 +521,10 @@ struct
        then B holds
             iff s = id, G' = G
     *)
-    fun isId' (Shift(k), k') = (k = k')
-      | isId' (Dot (Idx(n), s'), k') =
+    let rec isId' = function (Shift(k), k') -> (k = k')
+      | (Dot (Idx(n), s'), k') -> 
           n = k' andalso isId' (s', k'+1)
-      | isId' _ = false
+      | _ -> false
     fun isId s = isId' (s, 0)
 
     (* cloInv (U, w) = U[w^-1]
@@ -562,8 +562,8 @@ struct
        then  B iff  n1, .., nm pairwise distinct
                and  ni <= k or ni = _ for all 1 <= i <= m
     *)
-    fun isPatSub (Shift(k)) = true
-      | isPatSub (Dot (Idx (n), s)) =
+    let rec isPatSub = function (Shift(k)) -> true
+      | (Dot (Idx (n), s)) -> 
           let fun checkBVar (Shift(k)) = (n <= k)
                 | checkBVar (Dot (Idx (n'), s)) =
                     n <> n' andalso checkBVar (s)
@@ -573,8 +573,8 @@ struct
           in
             checkBVar s andalso isPatSub s
           end
-      | isPatSub (Dot (Undef, s)) = isPatSub s
-      | isPatSub _ = false
+      | (Dot (Undef, s)) -> isPatSub s
+      | _ -> false
         (* Try harder, due to bug somewhere *)
         (* Sat Dec  7 17:05:02 2002 -fp *)
         (* false *)
@@ -585,7 +585,7 @@ struct
             isPatSub (Dot (Idx (etaContract (U', s', 0)), s))
             handle Eta => false
           end
-      | isPatSub _ = false
+      | _ -> false
       *)
 
     (* makePatSub s = SOME(s') if s is convertible to a patSub
@@ -597,8 +597,8 @@ struct
        then  B iff  n1, .., nm pairwise distinct
                and  ni <= k or ni = _ for all 1 <= i <= m
     *)
-    fun mkPatSub (s as Shift(k)) = s
-      | mkPatSub (Dot (Idx (n), s)) =
+    let rec mkPatSub = function (s as Shift(k)) -> s
+      | (Dot (Idx (n), s)) -> 
         let
           let s' = mkPatSub s
           fun checkBVar (Shift(k)) = (n <= k)
@@ -610,15 +610,15 @@ struct
         in
           Dot (Idx (n), s')
         end
-      | mkPatSub (Dot (Undef, s)) = Dot (Undef, mkPatSub s)
-      | mkPatSub (Dot (Exp (U), s)) =
+      | (Dot (Undef, s)) -> Dot (Undef, mkPatSub s)
+      | (Dot (Exp (U), s)) -> 
         let
           let (U', t') = whnf (U, id)
           let k = (etaContract (U', t', 0)) (* may raise Eta *)
         in
           Dot (Idx (k), mkPatSub s)
         end
-      | mkPatSub _ = raise Eta
+      | _ -> raise Eta
 
     fun makePatSub (s) = SOME (mkPatSub (s)) handle Eta => NONE
 

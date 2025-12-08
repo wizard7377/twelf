@@ -47,15 +47,15 @@ struct
        and  G' |- s' : G, G1
        and  fmts is a format list of G1[s1]
     *)
-    fun formatCtxBlock (G, (I.Null, s)) = (G, s, nil)
-      | formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
+    let rec formatCtxBlock = function (G, (I.Null, s)) -> (G, s, nil)
+      | (G, (I.Decl (I.Null, D), s)) -> 
         let
           let D' = I.decSub (D, s)
           let fmt = P.formatDec (G, D')
         in
           (I.Decl (G, D'), I.dot1 s, [fmt])
         end
-      | formatCtxBlock (G, (I.Decl (G', D), s)) =
+      | (G, (I.Decl (G', D), s)) -> 
         let
           let (G'', s'', fmts) = formatCtxBlock (G, (G', s))
           let D'' = I.decSub (D, s'')
@@ -74,7 +74,7 @@ struct
        and  Psi' |- F formula
        then fmts' is a list of formats for F
     *)
-    fun formatFor' (G, (F.All (LD, F), s)) =
+    let rec formatFor' = function (G, (F.All (LD, F), s)) -> 
         (case LD
            of F.Prim D =>
              let
@@ -94,7 +94,7 @@ struct
                 Fmt.String "}", Fmt.Break] @
                formatFor' (G'', (F, s''))
              end)
-      | formatFor' (G, (F.Ex (D, F), s)) =
+      | (G, (F.Ex (D, F), s)) -> 
         let
           let D' = Names.decName (G, D)
         in
@@ -102,7 +102,7 @@ struct
            (G, I.decSub (D', s)), Fmt.String "]]", Fmt.Break] @
           formatFor' (I.Decl (G, D'), (F, I.dot1 s))
         end
-      | formatFor' (G, (F.True, s)) =
+      | (G, (F.True, s)) -> 
         [Fmt.String "True"]
 
 
@@ -128,10 +128,10 @@ struct
            and  Psi |- F1 ^ .. ^ F(index-1) ^ F formula
            then fmts' is a list of pretty printed formats for F
         *)
-        fun formatFor1 (index, G, (F.And (F1, F2), s)) =
+        let rec formatFor1 = function (index, G, (F.And (F1, F2), s)) -> 
               formatFor1 (index, G, (F1, s)) @ [Fmt.Break] @
               formatFor1 (index+1, G, (F2, s))
-          | formatFor1 (index, G, (F, s)) =
+          | (index, G, (F, s)) -> 
               [Fmt.String (nameLookup index), Fmt.Space,
                Fmt.String "::",
                Fmt.Space, Fmt.HVbox (formatFor' (G, (F, s)))]
@@ -166,8 +166,8 @@ struct
         *)
         fun blockName (G1, G2) =
           let
-            fun blockName' (G1, I.Null) = (G1, I.Null)
-              | blockName' (G1, I.Decl (G2, D)) =
+            let rec blockName' = function (G1, I.Null) -> (G1, I.Null)
+              | (G1, I.Decl (G2, D)) -> 
                 let
                   let (G1', G2') = blockName' (G1, G2)
                   let D' = Names.decName (G1, D)
@@ -194,8 +194,8 @@ struct
            If   G1 |- LD lfdec
            then LD' = LD modulo new non-conficting variable names.
         *)
-        fun decName (G, F.Prim D) =  F.Prim (Names.decName (G, D))
-          | decName (G, F.Block CB)= F.Block (ctxBlockName (G, CB))
+        let rec decName = function (G, F.Prim D) -> F.Prim (Names.decName (G, D))
+          | (G, F.Block CB) -> F.Block (ctxBlockName (G, CB))
 
         (* numberOfSplits Ds = n'
 
@@ -205,13 +205,13 @@ struct
         *)
         fun numberOfSplits Ds =
             let
-              fun numberOfSplits' (F.Empty, n) = n
-                | numberOfSplits' (F.New (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.App (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Lemma (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Split (_, Ds), n) = numberOfSplits' (Ds, n+1)
-                | numberOfSplits' (F.Left (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Right (_, Ds), n) = numberOfSplits' (Ds, n)
+              let rec numberOfSplits' = function (F.Empty, n) -> n
+                | (F.New (_, Ds), n) -> numberOfSplits' (Ds, n)
+                | (F.App (_, Ds), n) -> numberOfSplits' (Ds, n)
+                | (F.Lemma (_, Ds), n) -> numberOfSplits' (Ds, n)
+                | (F.Split (_, Ds), n) -> numberOfSplits' (Ds, n+1)
+                | (F.Left (_, Ds), n) -> numberOfSplits' (Ds, n)
+                | (F.Right (_, Ds), n) -> numberOfSplits' (Ds, n)
             in
               numberOfSplits' (Ds, 0)
             end
@@ -230,14 +230,14 @@ struct
         *)
         fun psiName (Psi1, s, Psi2, l) =
           let
-            fun nameDec (D as I.Dec (SOME _, _), name) = D
-              | nameDec (I.Dec (NONE, V), name) = I.Dec (SOME name, V)
+            let rec nameDec = function (D as I.Dec (SOME _, _), name) -> D
+              | (I.Dec (NONE, V), name) -> I.Dec (SOME name, V)
 
-            fun namePsi (I.Decl (Psi, F.Prim D), 1, name) =
+            let rec namePsi = function (I.Decl (Psi, F.Prim D), 1, name) -> 
                   I.Decl (Psi, F.Prim (nameDec (D, name)))
-              | namePsi (I.Decl (Psi, LD as F.Prim D), n, name) =
+              | (I.Decl (Psi, LD as F.Prim D), n, name) -> 
                   I.Decl (namePsi (Psi, n-1, name), LD)
-              | namePsi (I.Decl (Psi, F.Block (F.CtxBlock (label, G))), n, name) =
+              | (I.Decl (Psi, F.Block (F.CtxBlock (label, G))), n, name) -> 
                 let
                   let (Psi', G') = nameG (Psi, G, n, name, fn n' => namePsi (Psi, n', name))
                 in
@@ -254,27 +254,27 @@ struct
                 end
 
 
-            fun ignore (s, 0) = s
-              | ignore (I.Dot (_, s), k) = ignore (s, k-1)
-              | ignore (I.Shift n, k) =
+            let rec ignore = function (s, 0) -> s
+              | (I.Dot (_, s), k) -> ignore (s, k-1)
+              | (I.Shift n, k) -> 
                   ignore (I.Dot (I.Idx (n+1), I.Shift (n+1)), k-1)
 
-            fun copyNames (I.Shift n, G as I.Decl _) Psi1=
+            let rec copyNames = function (I.Shift n, G as I.Decl _) Psi1 -> 
                   copyNames (I.Dot (I.Idx (n+1), I.Shift (n+1)), G) Psi1
-              | copyNames (I.Dot (I.Exp _, s), I.Decl (G, _)) Psi1=
+              | (I.Dot (I.Exp _, s), I.Decl (G, _)) Psi1 -> 
                   copyNames (s, G) Psi1
-              | copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (NONE, _))) Psi1 =
+              | (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (NONE, _))) Psi1 -> 
                   copyNames (s, G) Psi1
-              | copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (SOME name, _))) Psi1 =
+              | (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (SOME name, _))) Psi1 -> 
                 let
                   let Psi1' = namePsi (Psi1, k, name)
                 in
                   copyNames (s, G) Psi1'
                 end
-              | copyNames (I.Shift _, I.Null) Psi1 = Psi1
+              | (I.Shift _, I.Null) Psi1 -> Psi1
 
-            fun psiName' (I.Null) = I.Null
-              | psiName' (I.Decl (Psi, D)) =
+            let rec psiName' = function (I.Null) -> I.Null
+              | (I.Decl (Psi, D)) -> 
                 let
                   let Psi' = psiName' Psi
                 in
@@ -290,8 +290,8 @@ struct
            Invariant:
            G' = G1, G2
         *)
-        fun merge (G1, I.Null) = G1
-          | merge (G1, I.Decl (G2, D)) =
+        let rec merge = function (G1, I.Null) -> G1
+          | (G1, I.Decl (G2, D)) -> 
               I.Decl (merge (G1, G2), D)
 
         (* formatCtx (Psi, G) = fmt'
@@ -305,11 +305,11 @@ struct
           let
             let G0 = F.makectx Psi
 
-            fun formatCtx' (I.Null) = nil
-              | formatCtx' (I.Decl (I.Null, I.Dec (SOME name, V))) =
+            let rec formatCtx' = function (I.Null) -> nil
+              | (I.Decl (I.Null, I.Dec (SOME name, V))) -> 
                   [Fmt.String name, Fmt.String ":",
                    Print.formatExp (G0, V)]
-              | formatCtx' (I.Decl (G, I.Dec (SOME name, V))) =
+              | (I.Decl (G, I.Dec (SOME name, V))) -> 
                   (formatCtx' G) @
                   [Fmt.String ",", Fmt.Break,
                    Fmt.String name, Fmt.String ":",
@@ -327,10 +327,10 @@ struct
         *)
         fun formatTuple (Psi, P) =
           let
-            fun formatTuple' (F.Unit) = nil
-              | formatTuple' (F.Inx (M, F.Unit)) =
+            let rec formatTuple' = function (F.Unit) -> nil
+              | (F.Inx (M, F.Unit)) -> 
               [Print.formatExp (F.makectx Psi, M)]
-              | formatTuple' (F.Inx (M, P')) =
+              | (F.Inx (M, P')) -> 
               (Print.formatExp (F.makectx Psi, M) ::
                Fmt.String "," :: Fmt.Break :: formatTuple' P')
           in
@@ -350,10 +350,10 @@ struct
         *)
         fun formatSplitArgs (Psi, L) =
           let
-            fun formatSplitArgs' (nil) = nil
-              | formatSplitArgs' (M :: nil) =
+            let rec formatSplitArgs' = function (nil) -> nil
+              | (M :: nil) -> 
                   [Print.formatExp (F.makectx Psi, M)]
-              | formatSplitArgs' (M :: L) =
+              | (M :: L) -> 
                   (Print.formatExp (F.makectx Psi, M) ::
                    Fmt.String "," :: Fmt.Break :: formatSplitArgs' L)
           in
@@ -367,8 +367,8 @@ struct
            Invariant:
            G |- Ft = U' : V   for a G, V
         *)
-        fun frontToExp (I.Idx k) = I.Root (I.BVar k, I.Nil)
-          | frontToExp (I.Exp (U)) = U
+        let rec frontToExp = function (I.Idx k) -> I.Root (I.BVar k, I.Nil)
+          | (I.Exp (U)) -> U
 
 
         (* formatDecs1 (Psi, Ds, s, L) = L'
@@ -387,10 +387,10 @@ struct
                 Psi'' |- Mi : Ai
                 (and Mi is a splitting of a the result of an inductive call)
         *)
-        fun formatDecs1 (Psi, F.Split (xx, Ds), I.Dot (Ft, s1), L) =
+        let rec formatDecs1 = function (Psi, F.Split (xx, Ds), I.Dot (Ft, s1), L) -> 
               formatDecs1 (Psi, Ds, s1, frontToExp (Ft) :: L)
-          | formatDecs1 (Psi, F.Empty, s1, L) = L
-          | formatDecs1 (Psi, Ds, I.Shift n, L) =
+          | (Psi, F.Empty, s1, L) -> L
+          | (Psi, Ds, I.Shift n, L) -> 
               formatDecs1 (Psi, Ds, I.Dot (I.Idx (n+1), I.Shift (n+1)), L)
 
 
@@ -404,14 +404,14 @@ struct
            and  Psi1, Delta1 |- Ds' : Psi1', Delta1'
                 (for some Psi1, Delta1, Psi1', Delta1')
         *)
-        fun formatDecs0 (Psi, F.App ((xx, M), Ds)) =
+        let rec formatDecs0 = function (Psi, F.App ((xx, M), Ds)) -> 
             let
               let (Ds', S) =
                 formatDecs0 (Psi, Ds)
             in
               (Ds', I.App (M, S))
             end
-          | formatDecs0 (Psi, Ds) = (Ds, I.Nil)
+          | (Psi, Ds) -> (Ds, I.Nil)
 
 
         (* formatDecs (index, Psi, Ds, (Psi1, s1)) = fmt'
@@ -422,7 +422,7 @@ struct
            and  Psi1 |- s1 : Psi, Psi'
            then fmt' is a pretty print format of Ds
         *)
-        fun formatDecs (index, Psi, Ds as F.App ((xx, _), P), (Psi1, s1)) =
+        let rec formatDecs = function (index, Psi, Ds as F.App ((xx, _), P), (Psi1, s1)) -> 
             let
               let (Ds', S) = formatDecs0 (Psi, Ds)
               let L' = formatDecs1 (Psi, Ds', s1, nil)
@@ -442,7 +442,7 @@ struct
             in
               Fmt.Vbox [formatCtx (Psi, G), Fmt.Break, fmt]
             end
-          | formatDecs (index, Psi, F.Lemma (lemma, Ds), (Psi1, s1)) =
+          | (index, Psi, F.Lemma (lemma, Ds), (Psi1, s1)) -> 
             let
               let (Ds', S) = formatDecs0 (Psi, Ds)
               let L' = formatDecs1 (Psi, Ds', s1, nil)
@@ -453,14 +453,14 @@ struct
                         Fmt.HVbox (Fmt.String (List.nth (names, index)) :: Fmt.Break ::
                                    Print.formatSpine (F.makectx Psi, S))]
             end
-          | formatDecs (index, Psi, F.Left (_, Ds), (Psi1, s1)) =
+          | (index, Psi, F.Left (_, Ds), (Psi1, s1)) -> 
             let
               let fmt =
                 formatDecs (index, Psi, Ds, (Psi1, s1))
             in
               fmt
             end
-          | formatDecs (index, Psi, F.Right (_, Ds), (Psi1, s1)) =
+          | (index, Psi, F.Right (_, Ds), (Psi1, s1)) -> 
             let
               let fmt =
                 formatDecs (index+1, Psi, Ds, (Psi1, s1))
@@ -523,10 +523,10 @@ struct
            where
            then Fmts is a list of arguments
         *)
-        fun argsToSpine (s, I.Null, S) = S
-          | argsToSpine (I.Shift (n), Psi, S) =
+        let rec argsToSpine = function (s, I.Null, S) -> S
+          | (I.Shift (n), Psi, S) -> 
               argsToSpine (I.Dot (I.Idx (n+1), I.Shift (n+1)), Psi, S)
-          | argsToSpine (I.Dot (Ft, s), I.Decl (Psi, D), S) =
+          | (I.Dot (Ft, s), I.Decl (Psi, D), S) -> 
               argsToSpine (s, Psi, I.App (frontToExp Ft, S))
 
 
@@ -552,8 +552,8 @@ struct
            and  Psi |- L a list of cases
            then fmts' list of pretty print formats of L
         *)
-        fun formatPro2 (index, Psi, nil) = nil
-          | formatPro2 (index, Psi, (Psi', s, P) :: nil) =
+        let rec formatPro2 = function (index, Psi, nil) -> nil
+          | (index, Psi, (Psi', s, P) :: nil) -> 
             let
               let Psi'' = psiName (Psi', s, Psi, 0)
               let fhead = if index=0 then "fun" else "and"
@@ -563,7 +563,7 @@ struct
                 Fmt.Space, Fmt.String "=", Fmt.Break,
                 formatPro3 (Psi'', P)], Fmt.Break]
             end
-          | formatPro2 (index, Psi, (Psi', s, P) :: O) =
+          | (index, Psi, (Psi', s, P) :: O) -> 
             let
               let
                 Psi'' = psiName (Psi', s, Psi, 0)
@@ -583,11 +583,11 @@ struct
            and  P is either a Lam .. | Case ... | Pair ...
            then fmts' is alist of pretty print formats of P
         *)
-        fun formatPro1 (index, Psi, F.Lam (D, P)) =
+        let rec formatPro1 = function (index, Psi, F.Lam (D, P)) -> 
               formatPro1 (index, I.Decl (Psi, decName (F.makectx Psi, D)), P)
-          | formatPro1 (index, Psi, F.Case (F.Opts Os)) =
+          | (index, Psi, F.Case (F.Opts Os)) -> 
               formatPro2 (index, Psi, Os)
-          | formatPro1 (index, Psi, F.Pair (P1, P2)) =
+          | (index, Psi, F.Pair (P1, P2)) -> 
               formatPro1 (index, Psi, P1) @ formatPro1 (index+1, Psi, P2)
 
 

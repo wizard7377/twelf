@@ -11,8 +11,8 @@ struct
   local
     module I = IntSyn
 
-    fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+    let rec cidFromHead = function (I.Const c) -> c
+      | (I.Def c) -> c
 
     (* Index array
 

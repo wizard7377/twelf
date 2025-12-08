@@ -242,8 +242,8 @@ struct
             (Array2.column (array, j, (i, len)))
 
     (* return the label at the given position (row or column) *)
-    fun label (Row(i)) = rlabel (i)
-      | label (Col(j)) = clabel (j)
+    let rec label = function (Row(i)) -> rlabel (i)
+      | (Col(j)) -> clabel (j)
 
     (* return the restriction on the given label *)
     fun restriction (l : label) = !(#restr(l))
@@ -274,27 +274,27 @@ struct
           end
 
     (* return the context of a owner *)
-    fun ownerContext (Var (G, mon)) = G
-      | ownerContext (Exp (G, sum)) = G
+    let rec ownerContext = function (Var (G, mon)) -> G
+      | (Exp (G, sum)) -> G
 
     (* return the owner as a sum *)
-    fun ownerSum (Var (G, mon)) = sum(zero_int, [mon])
-      | ownerSum (Exp (G, sum)) = sum
+    let rec ownerSum = function (Var (G, mon)) -> sum(zero_int, [mon])
+      | (Exp (G, sum)) -> sum
 
     (* debugging code - REMOVE *)
-    fun displayPos (Row(row)) =
+    let rec displayPos = function (Row(row)) -> 
           print ("row " ^ Int.toString(row) ^ "\n")
-      | displayPos (Col(col)) =
+      | (Col(col)) -> 
           print ("column " ^ Int.toString(col) ^ "\n")
 
     (* debugging code - REMOVE *)
-    fun displaySum (sum(m, Mon(n, _) :: monL)) =
+    let rec displaySum = function (sum(m, Mon(n, _) :: monL)) -> 
           (
             print (Integers.toString n);
             print " ? + ";
             displaySum (sum(m, monL))
           )
-      | displaySum (sum(m, nil)) =
+      | (sum(m, nil)) -> 
           (
             print (Integers.toString m);
             print " >= 0\n"
@@ -413,8 +413,8 @@ struct
                     (* if j is active, trim the list of candidates to those that have
                        the same coefficient in column j
                     *)
-                    fun filter (j, l, nil) = nil
-                      | filter (j, l : label, candidates) =
+                    let rec filter = function (j, l, nil) -> nil
+                      | (j, l : label, candidates) -> 
                           if not (dead (l))
                           then
                              List.filter
@@ -472,11 +472,11 @@ struct
      fun findPivot (row) =
           let
             (* extend Integers.compare to deal with NONE (= infinity) *)
-            fun compareScore (SOME(d), SOME(d')) =
+            let rec compareScore = function (SOME(d), SOME(d')) -> 
                   compare (d, d')
-              | compareScore (SOME(d), NONE) = LESS
-              | compareScore (NONE, SOME(d')) = GREATER
-              | compareScore (NONE, NONE) = EQUAL
+              | (SOME(d), NONE) -> LESS
+              | (NONE, SOME(d')) -> GREATER
+              | (NONE, NONE) -> EQUAL
 
             (* find the best pivot candidates for the given row *)
             fun findPivotCol (j, l : label, result as (score, champs)) =
@@ -855,11 +855,11 @@ struct
                         unifySum (G, sum, zero))
               else
                 let
-                  fun isVar (sum(m, [mon as Mon(n, _)])) =
+                  let rec isVar = function (sum(m, [mon as Mon(n, _)])) -> 
                         if (m = zero_int) andalso (n = one_int)
                         then SOME(mon)
                         else NONE
-                    | isVar (sum) = NONE
+                    | (sum) -> NONE
                 in
                   case isVar (sum)
                     of SOME(mon) =>
@@ -901,7 +901,7 @@ struct
           let
             fun member (x, l) = List.exists (fun y -> x = y) l
             fun test (l) = restricted(l) andalso not (dead(l))
-            fun reachable ((pos as Row(row)) :: candidates, tried, closure) =
+            let rec reachable = function ((pos as Row(row)) :: candidates, tried, closure) -> 
                   if member (pos, tried)
                   then reachable (candidates, tried, closure)
                   else
@@ -921,7 +921,7 @@ struct
                                  pos :: tried,
                                  closure')
                     end
-              | reachable ((pos as Col(col)) :: candidates, tried, closure) =
+              | ((pos as Col(col)) :: candidates, tried, closure) -> 
                   if member (pos, tried)
                   then reachable (candidates, tried, closure)
                   else
@@ -941,7 +941,7 @@ struct
                                  pos :: tried,
                                  closure')
                     end
-              | reachable (nil, _, closure) = closure
+              | (nil, _, closure) -> closure
             fun restrExp (pos) =
                   let
                     let l = label(pos)
@@ -1185,26 +1185,26 @@ struct
              | _ => ()
 
     (* undo function for trailing tableau operations *)
-    fun undo (Insert(Row(row))) =
+    let rec undo = function (Insert(Row(row))) -> 
           (
             #dead(Array.sub (#rlabels(tableau), row)) := true;
             clearArray2Row (#coeffs(tableau), row, (0, nCols()));
             Array.update(#consts(tableau), row, zero);
             decrNRows ()
           )
-      | undo (Insert(Col(col))) =
+      | (Insert(Col(col))) -> 
           (
             #dead(Array.sub (#clabels(tableau), col)) := true;
             clearArray2Col (#coeffs(tableau), col, (0, nRows()));
             decrNCols ()
           )
-      | undo (Pivot(row, col)) =
+      | (Pivot(row, col)) -> 
           pivot(row, col)
-      | undo (Kill(pos)) =
+      | (Kill(pos)) -> 
           #dead(label(pos)) := false
-      | undo (Restrict(pos)) =
+      | (Restrict(pos)) -> 
           #restr(label(pos)) := NONE
-      | undo (UpdateOwner(pos, owner, tag)) =
+      | (UpdateOwner(pos, owner, tag)) -> 
           setOwnership (pos, owner, tag)
 
     (* reset the internal status of the tableau *)
@@ -1240,12 +1240,12 @@ struct
           Trail.unwind (#trail(tableau), undo)
 
     (* fst (S, s) = U1, the first argument in S[s] *)
-    fun fst (App (U1, _), s) = (U1, s)
-      | fst (SClo (S, s'), s) = fst (S, comp (s', s))
+    let rec fst = function (App (U1, _), s) -> (U1, s)
+      | (SClo (S, s'), s) -> fst (S, comp (s', s))
 
     (* snd (S, s) = U2, the second argument in S[s] *)
-    fun snd (App (U1, S), s) = fst (S, s)
-      | snd (SClo (S, s'), s) = snd (S, comp (s', s))
+    let rec snd = function (App (U1, S), s) -> fst (S, s)
+      | (SClo (S, s'), s) -> snd (S, comp (s', s))
 
     (* checks if the given foreign term can be simplified to a constant *)
     fun isConstantExp (U) =
@@ -1260,7 +1260,7 @@ struct
               | NONE => false)
 
     (* solveGeq (G, S, n) tries to find the n-th solution to G |- '>=' @ S : type *)
-    fun solveGeq (G, S, 0) =
+    let rec solveGeq = function (G, S, 0) -> 
           let
             fun solveGeq0 (W) =
                   case isConstantExp (W)
@@ -1292,7 +1292,7 @@ struct
                 end
             ) handle Error => NONE
           end
-      | solveGeq (G, S, n) = NONE
+      | (G, S, n) -> NONE
 
     (* constructors for higher-order types *)
     fun pi (name, U, V) = Pi ((Dec (SOME(name), U), Maybe), V)

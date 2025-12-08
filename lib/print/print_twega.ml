@@ -34,14 +34,14 @@ local
      maintained in the names module.
      FVar's are printed with a preceding "`" (backquote) character
   *)
-  fun fmtCon (G, I.BVar(n)) = sexp [Str "tw~bvar", F.Break, Integer n]
-    | fmtCon (G, I.Const(cid)) = sexp [Str "tw~const", F.Break, Integer cid]
-    | fmtCon (G, I.Def(cid)) = sexp [Str "tw~def", F.Break, Integer cid]
+  let rec fmtCon = function (G, I.BVar(n)) -> sexp [Str "tw~bvar", F.Break, Integer n]
+    | (G, I.Const(cid)) -> sexp [Str "tw~const", F.Break, Integer cid]
+    | (G, I.Def(cid)) -> sexp [Str "tw~def", F.Break, Integer cid]
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
-  fun fmtUni (I.Type) = Str "tw*type"
-    | fmtUni (I.Kind) = Str "tw*kind"
+  let rec fmtUni = function (I.Type) -> Str "tw*type"
+    | (I.Kind) -> Str "tw*kind"
 
   (* fmtExpW (G, (U, s)) = fmt
 
@@ -53,8 +53,8 @@ local
        G'' |- U : V   G' |- s : G''  (so  G' |- U[s] : V[s])
        (U,s) in whnf
   *)
-  fun fmtExpW (G, (I.Uni(L), s)) = sexp [Str "tw~uni", F.Break, fmtUni L]
-    | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
+  let rec fmtExpW = function (G, (I.Uni(L), s)) -> sexp [Str "tw~uni", F.Break, fmtUni L]
+    | (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) -> 
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
                          let D' = Names.decLUName (G, D) (* could sometimes be EName *)
@@ -69,10 +69,10 @@ local
                       sexp [Str "tw~pi", F.Break, fmtDec (G, (D, s)),
                             F.Break, Str "tw*no", F.Break, fmtExp (G', (V2, I.dot1 s))]
                     end)
-    | fmtExpW (G, (I.Root (H, S), s)) =
+    | (G, (I.Root (H, S), s)) -> 
          sexp [Str "tw~root", F.Break, fmtCon (G, H),
                F.Break, fmtSpine (G, (S, s))]
-    | fmtExpW (G, (I.Lam(D, U), s)) =
+    | (G, (I.Lam(D, U), s)) -> 
       let
         let D' = Names.decLUName (G, D)
         let G' = I.Decl (G, D')
@@ -105,7 +105,7 @@ local
 
      This function prints the quantifiers and abstractions only if hide = false.
   *)
-  fun fmtConDec (I.ConDec (name, parent, imp, _, V, L)) =
+  let rec fmtConDec = function (I.ConDec (name, parent, imp, _, V, L)) -> 
       let
         let _ = Names.varReset IntSyn.Null
       in
@@ -113,9 +113,9 @@ local
               Integer (imp), F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L)]
       end
-    | fmtConDec (I.SkoDec (name, parent, imp, V, L)) =
+    | (I.SkoDec (name, parent, imp, V, L)) -> 
       Str ("%% Skipping Skolem constant " ^ name ^ " %%")
-    | fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
+    | (I.ConDef (name, parent, imp, U, V, L, _)) -> 
       let
         let _ = Names.varReset IntSyn.Null
       in
@@ -124,7 +124,7 @@ local
               F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L)]
       end
-    | fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
+    | (I.AbbrevDef (name, parent, imp, U, V, L)) -> 
       let
         let _ = Names.varReset IntSyn.Null
       in

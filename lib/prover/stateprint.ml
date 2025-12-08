@@ -38,11 +38,11 @@ struct
 
 
 (*
-    fun nameCtx I.Null = I.Null
-      | nameCtx (I.Decl (Psi, T.UDec D)) =
+    let rec nameCtx = function I.Null -> I.Null
+      | (I.Decl (Psi, T.UDec D)) -> 
           I.Decl (nameCtx Psi,
                   T.UDec (Names.decName (T.coerceCtx Psi, D)))
-      | nameCtx (I.Decl (Psi, T.PDec (_, F, TC))) =
+      | (I.Decl (Psi, T.PDec (_, F, TC))) -> 
           I.Decl (nameCtx Psi,
                   T.PDec (SOME "s", F, TC))   (* to be fixed! --cs *)
 
@@ -61,12 +61,12 @@ struct
     fun nameState (S) = S
 
 (*
-    fun formatOrder (G, S.Arg (Us, Vs)) =
+    let rec formatOrder = function (G, S.Arg (Us, Vs)) -> 
           [Print.formatExp (G, I.EClo Us), Fmt.String ":",
            Print.formatExp (G, I.EClo Vs)]
-      | formatOrder (G, S.Lex Os) =
+      | (G, S.Lex Os) -> 
           [Fmt.String "{", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "}"]
-      | formatOrder (G, S.Simul Os) =
+      | (G, S.Simul Os) -> 
           [Fmt.String "[", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "]"]
 
     and formatOrders (G, nil) = nil
@@ -80,12 +80,12 @@ struct
        If   T is a tag
        then fmt' is a a format descibing the tag T
     *)
-    fun formatTag (G, S.Parameter l) = [Fmt.String "<p>"]
-      | formatTag (G, S.Lemma (S.Splits k)) = [Fmt.String "<i",
+    let rec formatTag = function (G, S.Parameter l) -> [Fmt.String "<p>"]
+      | (G, S.Lemma (S.Splits k)) -> [Fmt.String "<i",
                                                  Fmt.String (Int.toString k),
                                                  Fmt.String ">"]
-      | formatTag (G, S.Lemma (S.RL)) = [Fmt.String "<i >"]
-      | formatTag (G, S.Lemma (S.RLdone)) = [Fmt.String "<i*>"]
+      | (G, S.Lemma (S.RL)) -> [Fmt.String "<i >"]
+      | (G, S.Lemma (S.RLdone)) -> [Fmt.String "<i*>"]
 (*      | formatTag (G, S.Assumption k) = [Fmt.String "<a",
                                          Fmt.String (Int.toString k),
                                          Fmt.String ">"] *)
@@ -97,20 +97,20 @@ struct
        If   |- Psi ctx       and Psi is already named
        then fmt' is a format describing the context Psi
     *)
-    fun formatCtx (I.Null) = []
-      | formatCtx (I.Decl (I.Null, T.UDec D)) =
+    let rec formatCtx = function (I.Null) -> []
+      | (I.Decl (I.Null, T.UDec D)) -> 
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Print.formatDec (I.Null, D)])]
         else
           [Print.formatDec (I.Null, D)]
-      | formatCtx (I.Decl (I.Null, T.PDec (SOME s, F, _))) =
+      | (I.Decl (I.Null, T.PDec (SOME s, F, _))) -> 
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space,
                        Fmt.String "::", Fmt.Space, TomegaPrint.formatFor (I.Null, F)])]
         else
           [Fmt.String s, Fmt.Space, Fmt.String "::", Fmt.Space,
            TomegaPrint.formatFor (I.Null, F)]
-      | formatCtx (I.Decl (Psi, T.UDec D)) =
+      | (I.Decl (Psi, T.UDec D)) -> 
         let
           let G = T.coerceCtx Psi
         in
@@ -121,7 +121,7 @@ struct
             formatCtx Psi @ [Fmt.String ",",  Fmt.Break] @
             [Fmt.Break, Print.formatDec (G, D)]
         end
-      | formatCtx (I.Decl (Psi, T.PDec (SOME s, F, _))) =
+      | (I.Decl (Psi, T.PDec (SOME s, F, _))) -> 
         if !Global.chatter >= 4 then
           formatCtx Psi @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space, Fmt.String "::", Fmt.Space, TomegaPrint.formatFor (Psi, F)])]

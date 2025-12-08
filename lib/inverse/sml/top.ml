@@ -95,14 +95,14 @@ let bug = Def{id=11,
 eta_expand sgn (Lam{var=NONE,body=Root(Const 4,App(Root(BVar 1,Nil),Nil))})
 
 
-    fun insert sgn (Decl {id,name,exp,uni}) = 
+    let rec insert = function sgn (Decl {id,name,exp,uni}) -> 
         let
           let exp' = eta_expand sgn exp 
         in
           check sgn exp' (Uni uni);
           Sig.insert sgn (id,Decl {id=id,name=name,exp=exp',uni=uni})
         end
-      | insert sgn (Def {id,name,exp,def,height,root,uni}) =
+      | sgn (Def {id,name,exp,def,height,root,uni}) -> 
         let
           let exp' = eta_expand sgn exp 
           let def' = eta_expand sgn def 
@@ -112,7 +112,7 @@ eta_expand sgn (Lam{var=NONE,body=Root(Const 4,App(Root(BVar 1,Nil),Nil))})
           Sig.insert sgn (id,Def {id=id,name=name,exp=exp',def=def',
                                   height=height,root=root,uni=uni})
         end
-      | insert sgn (Abbrev {id,name,exp,def,uni}) =
+      | sgn (Abbrev {id,name,exp,def,uni}) -> 
         let
           let exp' = eta_expand sgn exp 
           let def' = eta_expand sgn def 

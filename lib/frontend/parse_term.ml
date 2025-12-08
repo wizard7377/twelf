@@ -39,12 +39,12 @@ struct
     fun postfixOp (prec, tm) =
           Postfix (prec, (fun tm1 -> ExtSyn.app (tm, tm1)))
 
-    fun idToTerm (L.Lower, ids, name, r) = ExtSyn.lcid (ids, name, r)
-      | idToTerm (L.Upper, ids, name, r) = ExtSyn.ucid (ids, name, r)
-      | idToTerm (L.Quoted, ids, name, r) = ExtSyn.quid (ids, name, r)
+    let rec idToTerm = function (L.Lower, ids, name, r) -> ExtSyn.lcid (ids, name, r)
+      | (L.Upper, ids, name, r) -> ExtSyn.ucid (ids, name, r)
+      | (L.Quoted, ids, name, r) -> ExtSyn.quid (ids, name, r)
 
-    fun isQuoted (L.Quoted) = true
-      | isQuoted _ = false
+    let rec isQuoted = function (L.Quoted) -> true
+      | _ -> false
 
     type stack = (ExtSyn.term operator) list
     type opr = ExtSyn.term operator
@@ -197,14 +197,14 @@ struct
             | f' => ((nil, (t, r)), f'))
 
 
-    fun stripBar (LS.Cons ((L.ID (_, "|"), r), s')) = (LS.expose s')
-      | stripBar (f as LS.Cons ((L.RPAREN, r), s')) = f
-      | stripBar (LS.Cons ((t, r), s')) =
+    let rec stripBar = function (LS.Cons ((L.ID (_, "|"), r), s')) -> (LS.expose s')
+      | (f as LS.Cons ((L.RPAREN, r), s')) -> f
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `|', found token " ^ L.toString t)
 
 
 
-    fun parseQualIds1 (ls, f as LS.Cons ((t as L.ID (_, id), r0), s')) =
+    let rec parseQualIds1 = function (ls, f as LS.Cons ((t as L.ID (_, id), r0), s')) -> 
         let
           let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
           let r = Paths.join (r0, r1)
@@ -212,92 +212,92 @@ struct
         in
           parseQualIds1 ((ids, name) :: ls, f'')
         end
-      | parseQualIds1 (ls,  LS.Cons ((L.RPAREN, r), s')) =
+      | (ls,  LS.Cons ((L.RPAREN, r), s')) -> 
          (ls, LS.expose s')
-      | parseQualIds1 (ls, LS.Cons ((t, r), s)) =
+      | (ls, LS.Cons ((t, r), s)) -> 
          Parsing.error (r, "Expected label, found token " ^ L.toString t)
 
-    fun parseQualIds' (LS.Cons ((L.LPAREN, r), s')) =
+    let rec parseQualIds' = function (LS.Cons ((L.LPAREN, r), s')) -> 
         parseQualIds1 (nil, LS.expose s')
-      | parseQualIds' (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected list of labels, found token " ^ L.toString t)
 
     (* Copied from parse-mode, should probably try to abstract all
        of the strip* functions into a common location - gaw *)
-    fun stripRParen (LS.Cons ((L.RPAREN, r), s')) = LS.expose s'
-      | stripRParen (LS.Cons ((t, r), s')) = (* t = `.' or ? *)
+    let rec stripRParen = function (LS.Cons ((L.RPAREN, r), s')) -> LS.expose s'
+      | (LS.Cons ((t, r), s')) -> (* t = `.' or ? *)
           Parsing.error (r, "Expected closing `)', found " ^ L.toString t)
 
-    fun parseSubordPair2 (f as LS.Cons ((L.ID _, _), _), qid) =
+    let rec parseSubordPair2 = function (f as LS.Cons ((L.ID _, _), _), qid) -> 
         let
           let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           ((qid, (ids, name)), stripRParen f')
         end
-      | parseSubordPair2 (LS.Cons ((t, r), s'), qid) =
+      | (LS.Cons ((t, r), s'), qid) -> 
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
-    fun parseSubordPair1 (f as LS.Cons ((L.ID _, _), _)) =
+    let rec parseSubordPair1 = function (f as LS.Cons ((L.ID _, _), _)) -> 
         let
           let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseSubordPair2(f', (ids, name))
         end
-      | parseSubordPair1 (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
-    fun parseSubord' (LS.Cons ((L.LPAREN, r), s'), qidpairs) =
+    let rec parseSubord' = function (LS.Cons ((L.LPAREN, r), s'), qidpairs) -> 
         let
           let (qidpair, f) = parseSubordPair1 (LS.expose s')
         in
           parseSubord' (f, qidpair::qidpairs)
         end
-      | parseSubord' (f as LS.Cons ((L.DOT, _), _), qidpairs) =
+      | (f as LS.Cons ((L.DOT, _), _), qidpairs) -> 
           (List.rev qidpairs, f)
-      | parseSubord' (LS.Cons ((t, r), s'), qidpairs) =
+      | (LS.Cons ((t, r), s'), qidpairs) -> 
           Parsing.error (r, "Expected a pair of identifiers, found token "
                             ^ L.toString t)
 
 
-    fun parseFreeze' (f as LS.Cons ((L.ID _, _), _), qids) =
+    let rec parseFreeze' = function (f as LS.Cons ((L.ID _, _), _), qids) -> 
         let
           let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseFreeze' (f', (ids, name)::qids)
         end
-      | parseFreeze' (f as LS.Cons ((L.DOT, _), _), qids) =
+      | (f as LS.Cons ((L.DOT, _), _), qids) -> 
           (List.rev qids, f)
-      | parseFreeze' (LS.Cons ((t, r), s'), qids) =
+      | (LS.Cons ((t, r), s'), qids) -> 
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
     fun parseThaw' (f, qids) = (* same syntax as %freeze *)
           parseFreeze' (f, qids)
 
-    fun parseDeterministic' (f as LS.Cons ((L.ID _, _), _), qids) =
+    let rec parseDeterministic' = function (f as LS.Cons ((L.ID _, _), _), qids) -> 
         let
           let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseDeterministic' (f', (ids, name)::qids)
         end
-      | parseDeterministic' (f as LS.Cons ((L.DOT, _), _), qids) =
+      | (f as LS.Cons ((L.DOT, _), _), qids) -> 
           (List.rev qids, f)
-      | parseDeterministic' (LS.Cons ((t, r), s'), qids) =
+      | (LS.Cons ((t, r), s'), qids) -> 
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
     (* ABP 4/4/03 *)
-    fun parseCompile' (f as LS.Cons ((L.ID _, _), _), qids) =
+    let rec parseCompile' = function (f as LS.Cons ((L.ID _, _), _), qids) -> 
         let
           let ((ids, (L.ID (idCase, name), r1)), f') = parseQualId' f
         in
           parseCompile' (f', (ids, name)::qids)
         end
-      | parseCompile' (f as LS.Cons ((L.DOT, _), _), qids) =
+      | (f as LS.Cons ((L.DOT, _), _), qids) -> 
           (List.rev qids, f)
-      | parseCompile' (LS.Cons ((t, r), s'), qids) =
+      | (LS.Cons ((t, r), s'), qids) -> 
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
@@ -425,8 +425,8 @@ struct
 
 
     (* Parses contexts of the form  G ::= {id:term} | G, {id:term} *)
-    fun stripRBrace (LS.Cons ((L.RBRACE, r), s')) = (LS.expose s', r)
-      | stripRBrace (LS.Cons ((t, r), _))  =
+    let rec stripRBrace = function (LS.Cons ((L.RBRACE, r), s')) -> (LS.expose s', r)
+      | (LS.Cons ((t, r), _)) -> 
           Parsing.error (r, "Expected `}', found " ^ L.toString t)
 
     (* parseDec "{id:term} | {id}" *)
@@ -447,13 +447,13 @@ struct
        and  ds is a context of declarations
        then ds' = ds, x1:V1, ..., xn:Vn
     *)
-    fun parseCtx (b, ds, LS.Cons (BS as ((L.LBRACE, r), s'))) =
+    let rec parseCtx = function (b, ds, LS.Cons (BS as ((L.LBRACE, r), s'))) -> 
         let
           let (d, f') = parseBracedDec (r, LS.expose s')
         in
           parseCtx (false,  d :: ds, f')
         end
-      | parseCtx (b, ds, f as LS.Cons ((t, r), s')) =
+      | (b, ds, f as LS.Cons ((t, r), s')) -> 
         if b then Parsing.error (r, "Expected `{', found " ^ L.toString t)
         else (ds, f)
 

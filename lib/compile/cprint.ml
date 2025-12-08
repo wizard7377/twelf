@@ -23,13 +23,13 @@ struct
       | compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D)
 
     (* goalToString (G, g) where G |- g  goal *)
-    fun goalToString t (G, Atom(p)) =
+    let rec goalToString = function t (G, Atom(p)) -> 
          t ^ "SOLVE   " ^ Print.expToString (G, p) ^ "\n"
-      | goalToString t (G, Impl (p,A,_,g)) =
+      | t (G, Impl (p,A,_,g)) -> 
          t ^ "ASSUME  " ^ Print.expToString (G, A) ^ "\n" ^
          (clauseToString (t ^ "\t") (G, p)) ^
          goalToString t (IntSyn.Decl(G, IntSyn.Dec(NONE, A)), g) ^ "\n"
-      | goalToString t (G, All(D,g)) =
+      | t (G, All(D,g)) -> 
          let
            let D' = Names.decLUName (G, D)
          in
@@ -80,12 +80,12 @@ struct
            clauseToString t (IntSyn.Decl(G, D'), r)
          end
 
-    fun subgoalsToString t (G, True) = t ^ "True "
-      | subgoalsToString t (G, Conjunct(Goal, A, Sg)) =
+    let rec subgoalsToString = function t (G, True) -> t ^ "True "
+      | t (G, Conjunct(Goal, A, Sg)) -> 
         t  ^ goalToString t (IntSyn.Decl(G,IntSyn.Dec(NONE, A)), Goal) ^ " and " ^ subgoalsToString t (G, Sg)
 
     (* conDecToString (c, clause) printed representation of static clause *)
-    fun conDecToString (c, SClause(r)) =
+    let rec conDecToString = function (c, SClause(r)) -> 
         let
           let _ = Names.varReset IntSyn.Null
           let name = IntSyn.conDecName (IntSyn.sgnLookup c)
@@ -94,7 +94,7 @@ struct
           name ^ (if l > 6 then ":\n" else ":") ^
           (clauseToString "\t" (IntSyn.Null, r) ^ "\n")
         end
-      | conDecToString (c, Void) =
+      | (c, Void) -> 
           Print.conDecToString (IntSyn.sgnLookup c) ^ "\n\n"
 
     (* sProgToString () = printed representation of static program *)
@@ -109,7 +109,7 @@ struct
          end
 
     (* dProgToString (G, dProg) = printed representation of dynamic program *)
-    fun dProgToString (DProg (IntSyn.Null, IntSyn.Null)) = ""
+    let rec dProgToString = function (DProg (IntSyn.Null, IntSyn.Null)) -> ""
       | dProgToString (DProg (IntSyn.Decl(G,IntSyn.Dec(SOME x,_)),
                        IntSyn.Decl(dPool, CompSyn.Dec (r,_,_)))) =
           dProgToString (DProg (G,dPool))

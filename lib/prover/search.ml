@@ -54,20 +54,20 @@ struct
        where cid is the type family of the atomic target type of V,
        NONE if V is a kind or object or have variable type.
     *)
-    fun isInstantiated (I.Root (I.Const(cid), _)) = true
-      | isInstantiated (I.Pi(_, V)) = isInstantiated V
-      | isInstantiated (I.Root (I.Def(cid), _)) = true
-      | isInstantiated (I.Redex (V, S)) = isInstantiated V
-      | isInstantiated (I.Lam (_, V)) = isInstantiated V
-      | isInstantiated (I.EVar (ref (SOME(V)),_,_,_)) = isInstantiated V
-      | isInstantiated (I.EClo (V, s)) = isInstantiated V
-      | isInstantiated _ = false
+    let rec isInstantiated = function (I.Root (I.Const(cid), _)) -> true
+      | (I.Pi(_, V)) -> isInstantiated V
+      | (I.Root (I.Def(cid), _)) -> true
+      | (I.Redex (V, S)) -> isInstantiated V
+      | (I.Lam (_, V)) -> isInstantiated V
+      | (I.EVar (ref (SOME(V)),_,_,_)) -> isInstantiated V
+      | (I.EClo (V, s)) -> isInstantiated V
+      | _ -> false
 
     fun compose'(IntSyn.Null, G) = G
       | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
-    fun shift (IntSyn.Null, s) = s
-      | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+    let rec shift = function (IntSyn.Null, s) -> s
+      | (IntSyn.Decl(G, D), s) -> I.dot1 (shift(G, s))
 
 
     (* exists P K = B
@@ -115,8 +115,8 @@ struct
        B hold iff
         r does not occur in any type of EVars in GE
     *)
-    fun nonIndex (_, nil) = true
-      | nonIndex (r, I.EVar (_, _, V, _) :: GE) =
+    let rec nonIndex = function (_, nil) -> true
+      | (r, I.EVar (_, _, V, _) :: GE) -> 
           (not (occursInExp (r, (V, I.id)))) andalso nonIndex (r, GE)
 
     (* select (GE, (V, s), acc) = acc'
@@ -124,15 +124,15 @@ struct
        Invariant:
     *)
     (* Efficiency: repeated whnf for every subterm in Vs!!! *)
-    fun selectEVar (nil) = nil
-      | selectEVar ((X as I.EVar (r, _, _, ref nil)) :: GE) =
+    let rec selectEVar = function (nil) -> nil
+      | ((X as I.EVar (r, _, _, ref nil)) :: GE) -> 
         let
           let Xs = selectEVar (GE)
         in
           if nonIndex (r, Xs) then Xs @ [X]
           else Xs
         end
-      | selectEVar ((X as I.EVar (r, _, _, cnstrs)) :: GE) =  (* Constraint case *)
+      | ((X as I.EVar (r, _, _, cnstrs)) :: GE) -> (* Constraint case *)
         let
           let Xs = selectEVar (GE)
         in
@@ -149,17 +149,17 @@ struct
        and  |G1| = n
        then |- G' = G0 ctx
     *)
-    fun pruneCtx (G, 0) = G
-      | pruneCtx (I.Decl (G, _), n) = pruneCtx (G, n-1)
+    let rec pruneCtx = function (G, 0) -> G
+      | (I.Decl (G, _), n) -> pruneCtx (G, n-1)
 
-  fun cidFromHead (I.Const a) = a
-    | cidFromHead (I.Def a) = a
-    | cidFromHead (I.Skonst a) = a
+  let rec cidFromHead = function (I.Const a) -> a
+    | (I.Def a) -> a
+    | (I.Skonst a) -> a
 
   (* only used for type families of compiled clauses *)
-  fun eqHead (I.Const a, I.Const a') = a = a'
-    | eqHead (I.Def a, I.Def a') = a = a'
-    | eqHead _ = false
+  let rec eqHead = function (I.Const a, I.Const a') -> a = a'
+    | (I.Def a, I.Def a') -> a = a'
+    | _ -> false
 
   (* solve ((g,s), (G,dPool), sc, (acc, k)) => ()
      Invariants:
@@ -172,8 +172,8 @@ struct
             used in the universal case for max search depth)
        if  G |- M :: g[s] then G |- sc :: g[s] => Answer, Answer closed
   *)
-  fun solve (max, depth, (C.Atom p, s), dp, sc) = matchAtom (max, depth, (p,s), dp, sc)
-    | solve (max, depth, (C.Impl (r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+  let rec solve = function (max, depth, (C.Atom p, s), dp, sc) -> matchAtom (max, depth, (p,s), dp, sc)
+    | (max, depth, (C.Impl (r, A, Ha, g), s), C.DProg (G, dPool), sc) -> 
        let
          let D' = I.Dec (NONE, I.EClo (A, s))
        in
@@ -181,7 +181,7 @@ struct
                 C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, Ha))),
                 (fun M -> sc (I.Lam (D', M))))
        end
-    | solve (max, depth, (C.All (D, g), s), C.DProg (G, dPool), sc) =
+    | (max, depth, (C.All (D, g), s), C.DProg (G, dPool), sc) -> 
        let
          let D' = I.decSub (D, s)
        in
@@ -307,8 +307,8 @@ struct
                  ps' as (I.Root (Ha, _), _),
                  dp as C.DProg (G, dPool), sc) =
       let
-        fun matchSig' nil = ()
-          | matchSig' (Hc ::sgn') =
+        let rec matchSig' = function nil -> ()
+          | (Hc ::sgn') -> 
             let
               let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
               let _ = CSManager.trail
@@ -319,8 +319,8 @@ struct
               matchSig' sgn'
             end
 
-        fun matchBlock (nil, (n, i)) = ()
-          | matchBlock ((r, s, H') :: RGs', (n, i)) =
+        let rec matchBlock = function (nil, (n, i)) -> ()
+          | ((r, s, H') :: RGs', (n, i)) -> 
             if eqHead (Ha, H') then
               let
                 let _ = CSManager.trail (fn () =>
@@ -332,8 +332,8 @@ struct
             else matchBlock (RGs', (n, i+1))
 
 
-        fun matchDProg (I.Null, _) = matchSig' (Index.lookup (cidFromHead Ha))
-          | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n) =
+        let rec matchDProg = function (I.Null, _) -> matchSig' (Index.lookup (cidFromHead Ha))
+          | (I.Decl (dPool', C.Dec (r, s, Ha')), n) -> 
             if eqHead (Ha, Ha') then
               let
                 let _ = CSManager.trail (fn () =>
@@ -343,11 +343,11 @@ struct
                 matchDProg (dPool', n+1)
               end
             else matchDProg (dPool', n+1)
-          | matchDProg (I.Decl (dPool', C.Parameter), n) =
+          | (I.Decl (dPool', C.Parameter), n) -> 
               matchDProg (dPool', n+1)
-          | matchDProg (I.Decl (dPool', C.BDec RGs), n) =
+          | (I.Decl (dPool', C.BDec RGs), n) -> 
               (matchBlock (RGs, (n, 1)); matchDProg (dPool', n+1))
-          | matchDProg (I.Decl (dPool', C.PDec), n) =
+          | (I.Decl (dPool', C.PDec), n) -> 
               matchDProg (dPool', n+1)
       in
         matchDProg (dPool, 1)

@@ -35,8 +35,8 @@ struct
        then G1 |- G' = G[s^-1] ctx
        and  G0 |- s' : G1, G'
     *)
-    fun strengthenCtx (I.Null, s) = (I.Null, s)
-      | strengthenCtx (I.Decl (G, D), s) =
+    let rec strengthenCtx = function (I.Null, s) -> (I.Null, s)
+      | (I.Decl (G, D), s) -> 
         let
           let (G', s') = strengthenCtx (G, s)
         in
@@ -45,8 +45,8 @@ struct
 
     fun strengthenSub (s, t) = Whnf.compInv (s, t)
 
-    fun strengthenSpine (I.Nil, t) = I.Nil
-      | strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
+    let rec strengthenSpine = function (I.Nil, t) -> I.Nil
+      | (I.App (U, S), t) -> I.App (strengthenExp (U, t), strengthenSpine (S, t))
 
   in
     let strengthenExp = strengthenExp

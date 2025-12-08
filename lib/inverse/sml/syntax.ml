@@ -93,17 +93,17 @@ struct
   let shift = Shift 1
   let id_sub = Shift 0
 
-  fun id (Decl decl) = #id decl
-    | id (Def def) = #id def
-    | id (Abbrev abb) = #id abb
+  let rec id = function (Decl decl) -> #id decl
+    | (Def def) -> #id def
+    | (Abbrev abb) -> #id abb
 
-  fun name (Decl decl) = #name decl
-    | name (Def def) = #name def
-    | name (Abbrev abb) = #name abb
+  let rec name = function (Decl decl) -> #name decl
+    | (Def def) -> #name def
+    | (Abbrev abb) -> #name abb
 
-  fun exp (Decl decl) = #exp decl
-    | exp (Def def) = #exp def
-    | exp (Abbrev abb) = #exp abb
+  let rec exp = function (Decl decl) -> #exp decl
+    | (Def def) -> #exp def
+    | (Abbrev abb) -> #exp abb
 
   fun is_def c = 
       case Signat.lookup c of
@@ -136,22 +136,22 @@ struct
   type skel = Base
                 | Arrow of skel * skel
 
-  fun card Nil = 0
-    | card (App(M,S)) = 1 + card S
-    | card _ = raise Fail "card: no closures"
+  let rec card = function Nil -> 0
+    | (App(M,S)) -> 1 + card S
+    | _ -> raise Fail "card: no closures"
 
-  fun num_pi_quants (Pi {body,...}) = 1 + num_pi_quants body
-    | num_pi_quants _ = 0
+  let rec num_pi_quants = function (Pi {body,...}) -> 1 + num_pi_quants body
+    | _ -> 0
 
-  fun skel_length Base = 0
-    | skel_length (Arrow(_,tau)) = 1 + skel_length tau
+  let rec skel_length = function Base -> 0
+    | (Arrow(_,tau)) -> 1 + skel_length tau
 
-  fun concat (Nil,M) = App(M,Nil)
-    | concat (App(M,S),M') = App(M,concat(S,M'))
-    | concat (SClo _,_) = raise Fail "concat: no closures"
+  let rec concat = function (Nil,M) -> App(M,Nil)
+    | (App(M,S),M') -> App(M,concat(S,M'))
+    | (SClo _,_) -> raise Fail "concat: no closures"
 
-  fun skeleton (ctx,Uni Type) = Base
-    | skeleton (ctx,Root(Const a,S)) = 
+  let rec skeleton = function (ctx,Uni Type) -> Base
+    | (ctx,Root(Const a,S)) -> 
       let
         let aty = exp(Sig.lookup a)
         let n = num_pi_quants aty
@@ -160,7 +160,7 @@ struct
         if n = n' then Base 
         else raise Fail "skeleton: not eta expanded"
       end
-    | skeleton (ctx,Root(BVar i,S)) = 
+    | (ctx,Root(BVar i,S)) -> 
       let
         let aty = L.ith (i-1) ctx
         let n = skel_length aty
@@ -169,14 +169,14 @@ struct
         if n = n' then Base 
         else raise Fail "skeleton: not eta expanded"
       end
-    | skeleton (ctx,Pi {arg,body,...}) = 
+    | (ctx,Pi {arg,body,...}) -> 
       let
         let tau1 = skeleton(ctx,arg)
         let tau2 = skeleton(ctx,body)
       in
         Arrow(tau1,tau2)
       end
-    | skeleton (_,exp) = raise Fail_exp("skeleton: bad case",exp)
+    | (_,exp) -> raise Fail_exp("skeleton: bad case",exp)
 
   exception Fail_exp_skel of string * exp * skel 
 

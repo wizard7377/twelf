@@ -13,11 +13,11 @@ struct
   fun sgnReset () = Sgn.clear ()
 
 (* xlate_type : IntSyn.exp -> Syntax.tp *)
-  fun xlate_type (I.Pi ((I.Dec(_, e1), _), e2)) = S.TPi(S.MINUS, xlate_type e1, xlate_type e2)
-    | xlate_type (I.Root (I.Const cid, sp)) = S.TRoot(cid, xlate_spine sp)
-    | xlate_type (I.Root (I.Def cid, sp)) = S.TRoot(cid, xlate_spine sp) (* assuming cids of consts and defs to be disjoint *)
-    | xlate_type (I.Root (I.NSDef cid, sp)) = S.TRoot(cid, xlate_spine sp)  (* ditto *)
-    | xlate_type (I.Lam (_, t)) = xlate_type t  (* for type definitions, simply strip off the lambdas and leave
+  let rec xlate_type = function (I.Pi ((I.Dec(_, e1), _), e2)) -> S.TPi(S.MINUS, xlate_type e1, xlate_type e2)
+    | (I.Root (I.Const cid, sp)) -> S.TRoot(cid, xlate_spine sp)
+    | (I.Root (I.Def cid, sp)) -> S.TRoot(cid, xlate_spine sp) (* assuming cids of consts and defs to be disjoint *)
+    | (I.Root (I.NSDef cid, sp)) -> S.TRoot(cid, xlate_spine sp)  (* ditto *)
+    | (I.Lam (_, t)) -> xlate_type t  (* for type definitions, simply strip off the lambdas and leave
                                                    the variables free*)
   and xlate_spine I.Nil = []
     | xlate_spine (I.App(e, s)) = xlate_spinelt e :: xlate_spine s
@@ -28,18 +28,18 @@ struct
     | xlate_term (I.Root (I.BVar vid, sp)) = S.ATerm(S.ARoot(S.Var (vid - 1), xlate_spine sp))
     | xlate_term (I.Lam (_, e)) = S.NTerm(S.Lam (xlate_term e))
 (* xlate_kind : IntSyn.exp -> Syntax.knd *)
-  fun xlate_kind (I.Pi ((I.Dec(_, e1), _), e2)) = S.KPi(S.MINUS, xlate_type e1, xlate_kind e2)
-    | xlate_kind (I.Uni(I.Type)) = S.Type
+  let rec xlate_kind = function (I.Pi ((I.Dec(_, e1), _), e2)) -> S.KPi(S.MINUS, xlate_type e1, xlate_kind e2)
+    | (I.Uni(I.Type)) -> S.Type
 
   local open Syntax in
   (* simple skeletal form of types
      omits all dependencies, type constants *)
   type simple_tp = Base | Arrow of simple_tp * simple_tp
 
-  fun simplify_tp (TPi (_, t1, t2)) = Arrow(simplify_tp t1, simplify_tp t2)
-    | simplify_tp (TRoot _) = Base
-  fun simplify_knd (KPi (_, t1, k2)) = Arrow(simplify_tp t1, simplify_knd k2)
-    | simplify_knd (Type) = Base
+  let rec simplify_tp = function (TPi (_, t1, t2)) -> Arrow(simplify_tp t1, simplify_tp t2)
+    | (TRoot _) -> Base
+  let rec simplify_knd = function (KPi (_, t1, k2)) -> Arrow(simplify_tp t1, simplify_knd k2)
+    | (Type) -> Base
 
   (* hereditarily perform some eta-expansions on
      a (term, type, spine, etc.) in a context
@@ -59,8 +59,8 @@ struct
     Fortunately, this weakened form of eta-expansion is all
     we need to reconcile the discrepancy between what twelf
     maintains as an invariant, and full eta-longness. *)
-  fun eta_expand_term G (NTerm t) T = NTerm(eta_expand_nterm G t T)
-    | eta_expand_term G (ATerm t) T = ATerm(eta_expand_aterm G t)
+  let rec eta_expand_term = function G (NTerm t) T -> NTerm(eta_expand_nterm G t T)
+    | G (ATerm t) T -> ATerm(eta_expand_aterm G t)
   and eta_expand_nterm G (Lam t) (Arrow(t1, t2)) = Lam(eta_expand_term (t1::G) t t2)
     | eta_expand_nterm G (NRoot (h,s)) T = NRoot(h, eta_expand_spine G s T)
     | eta_expand_nterm G (Lam t) Base = raise Syntax "Lambda occurred where term of base type expected"
@@ -184,14 +184,14 @@ struct
       end
     | compress_term G (S.NTerm(S.Lam t),S.TPi(_, a, b)) = S.NTerm(S.Lam (compress_term (a::G) (t, b)))
 
-  fun compress_kind G (NONE, S.KPi(_, a, k)) = S.KPi(S.MINUS, compress_type G (NONE, a), compress_kind (a::G) (NONE, k))
-    | compress_kind G (SOME (m::ms), S.KPi(_, a, k)) = S.KPi(m, compress_type G (NONE, a), compress_kind (a::G) (SOME ms, k))
-    | compress_kind G (SOME [], S.Type) = S.Type
-    | compress_kind G (NONE, S.Type) = S.Type
+  let rec compress_kind = function G (NONE, S.KPi(_, a, k)) -> S.KPi(S.MINUS, compress_type G (NONE, a), compress_kind (a::G) (NONE, k))
+    | G (SOME (m::ms), S.KPi(_, a, k)) -> S.KPi(m, compress_type G (NONE, a), compress_kind (a::G) (SOME ms, k))
+    | G (SOME [], S.Type) -> S.Type
+    | G (NONE, S.Type) -> S.Type
 
 
 (* compress : cid * IntSyn.ConDec -> ConDec *)
-  fun compress (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, a, IntSyn.Type)) =
+  let rec compress = function (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, a, IntSyn.Type)) -> 
       let
           let x = xlate_type a
           let x = eta_expand_tp [] x
@@ -199,14 +199,14 @@ struct
       in
           Sgn.condec(name, compress_type [] (modes, x), x)
       end
-    | compress (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, k, IntSyn.Kind)) =
+    | (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, k, IntSyn.Kind)) -> 
       let
           let x = xlate_kind k
           let modes = Sgn.get_modes cid
       in
           Sgn.tycondec(name, compress_kind [] (modes, x), x)
       end
-    | compress (cid, IntSyn.ConDef (name, NONE, _, m, a, IntSyn.Type, _)) =
+    | (cid, IntSyn.ConDef (name, NONE, _, m, a, IntSyn.Type, _)) -> 
       let
           let m = xlate_term m
           let a = xlate_type a
@@ -215,7 +215,7 @@ struct
       in
           Sgn.defn(name, astar, a, mstar, m)
       end
-    | compress (cid, IntSyn.ConDef (name, NONE, _, a, k, IntSyn.Kind, _)) =
+    | (cid, IntSyn.ConDef (name, NONE, _, a, k, IntSyn.Kind, _)) -> 
       let
           let a = xlate_type a
           let k = xlate_kind k
@@ -224,7 +224,7 @@ struct
       in
           Sgn.tydefn(name, kstar, k, astar, a)
       end
-    | compress (cid, IntSyn.AbbrevDef (name, NONE, _, m, a, IntSyn.Type)) =
+    | (cid, IntSyn.AbbrevDef (name, NONE, _, m, a, IntSyn.Type)) -> 
       let
           let m = xlate_term m
           let a = xlate_type a
@@ -233,7 +233,7 @@ struct
       in
           Sgn.abbrev(name, astar, a, mstar, m)
       end
-    | compress (cid, IntSyn.AbbrevDef (name, NONE, _, a, k, IntSyn.Kind)) =
+    | (cid, IntSyn.AbbrevDef (name, NONE, _, a, k, IntSyn.Kind)) -> 
       let
           let a = xlate_type a
           let k = xlate_kind k
@@ -242,7 +242,7 @@ struct
       in
           Sgn.tyabbrev(name, kstar, k, astar, a)
       end
-    | compress _ = raise Unimp
+    | _ -> raise Unimp
 
   fun sgnLookup (cid) =
       let
@@ -283,8 +283,8 @@ struct
                 | I.ConDef(name, package, o_a, ak, def, uni, _) => (ak, o_a, uni)
                 | I.AbbrevDef(name, package, o_a, ak, def, uni) => (ak, o_a, uni)
                 | _ => raise NoModes
-          fun count_args (I.Pi(_, ak')) = 1 + count_args ak'
-            | count_args _ = 0
+          let rec count_args = function (I.Pi(_, ak')) -> 1 + count_args ak'
+            | _ -> 0
           let total_args = count_args ak
 
           fun can_omit ms =
@@ -299,11 +299,11 @@ struct
                   isValid
               end
 
-          fun optimize' ms [] = rev ms
-            | optimize' ms (S.PLUS::ms') = if can_omit ((rev ms) @ (S.MINUS ::ms'))
+          let rec optimize' = function ms [] -> rev ms
+            | ms (S.PLUS::ms') -> if can_omit ((rev ms) @ (S.MINUS ::ms'))
                                            then optimize' (S.MINUS::ms) ms'
                                            else optimize' (S.PLUS::ms) ms'
-            | optimize' ms (S.MINUS::ms') = if  can_omit ((rev ms) @ (S.OMIT :: ms'))
+            | ms (S.MINUS::ms') -> if  can_omit ((rev ms) @ (S.OMIT :: ms'))
                                            then optimize' (S.OMIT::ms) ms'
                                            else optimize' (S.MINUS::ms) ms'
           fun optimize ms = optimize' [] ms
@@ -325,8 +325,8 @@ struct
                 | I.ConDef(name, package, o_a, ak, def, uni, _) => (ak, o_a)
                 | I.AbbrevDef(name, package, o_a, ak, def, uni) => (ak, o_a)
                 | _ => raise NoModes
-          fun count_args (I.Pi(_, ak')) = 1 + count_args ak'
-            | count_args _ = 0
+          let rec count_args = function (I.Pi(_, ak')) -> 1 + count_args ak'
+            | _ -> 0
           let total_args = count_args ak
       in
           List.tabulate (total_args, (fun x -> if x < omitted_args then S.OMIT else S.MINUS))

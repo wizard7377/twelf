@@ -38,23 +38,23 @@ struct
 
     type Duplicates = BVAR of int | FGN | DEF of int
 
-    fun notCS (I.FromCS) = false
-      | notCS _ = true
+    let rec notCS = function (I.FromCS) -> false
+      | _ -> true
 
    type Opt = type CompSyn.Opt
    let optimize  = CompSyn.optimize
 
-    fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+    let rec cidFromHead = function (I.Const c) -> c
+      | (I.Def c) -> c
 
     (* isConstraint(H) = B
        where B iff H is a constant with constraint status
     *)
-    fun isConstraint (I.Const (c)) =
+    let rec isConstraint = function (I.Const (c)) -> 
           (case I.constStatus (c)
              of (I.Constraint _) => true
               | _ => false)
-      | isConstraint H = false
+      | H -> false
 
     (* head (A) = H, the head of V
 
@@ -62,8 +62,8 @@ struct
        G |- A : type, A enf
        A = H @ S
     *)
-    fun head (I.Root(h, _)) = h
-      | head (I.Pi (_, A)) = head(A)
+    let rec head = function (I.Root(h, _)) -> h
+      | (I.Pi (_, A)) -> head(A)
 
   fun seen (i, Vars) =
         List.exists (fn (d, x) => (x = i)) Vars
@@ -76,18 +76,18 @@ struct
    *)
 
 (*
-  fun etaSpine' (I.Nil, n) = (n=0)
-    | etaSpine' (I.App(U, S), n) =
+  let rec etaSpine' = function (I.Nil, n) -> (n=0)
+    | (I.App(U, S), n) -> 
         if Whnf.etaContract U = n then etaSpine' (S, n-1)
         else false
 
   fun etaSpine (S, n) = etaSpine' (S, n) handle Eta => false
 *)
 
-  fun etaSpine (I.Nil, n) = (n=0)
-    | etaSpine (I.App(I.Root(I.BVar k, I.Nil), S), n) =
+  let rec etaSpine = function (I.Nil, n) -> (n=0)
+    | (I.App(I.Root(I.BVar k, I.Nil), S), n) -> 
        (k = n andalso etaSpine(S, n-1))
-    | etaSpine (I.App(A, S), n) = false
+    | (I.App(A, S), n) -> false
 
   (* collectHead (h, K, Vars, depth) = (K', Vars', replaced)
      adds to K and Vars as in collectExp and collectSpine
@@ -157,26 +157,26 @@ struct
 
      Invariants: U is NF, S is in NF
   *)
-  fun shiftHead ((h as I.BVar k), depth, total) =
+  let rec shiftHead = function ((h as I.BVar k), depth, total) -> 
       (if k > depth then
          I.BVar(k + total)
        else
          I.BVar(k))
-    | shiftHead ((h as I.Const k), depth, total) = h
-    | shiftHead ((h as I.Def k), depth, total) = h
-    | shiftHead ((h as I.NSDef k), depth, total) = h
-    | shiftHead ((h as I.FgnConst k), depth, total) = h
-    | shiftHead ((h as I.Skonst k) , depth, total) = h
+    | ((h as I.Const k), depth, total) -> h
+    | ((h as I.Def k), depth, total) -> h
+    | ((h as I.NSDef k), depth, total) -> h
+    | ((h as I.FgnConst k), depth, total) -> h
+    | ((h as I.Skonst k) , depth, total) -> h
 
 
-  fun shiftExp (I.Root(h, S), depth, total) =
+  let rec shiftExp = function (I.Root(h, S), depth, total) -> 
         I.Root(shiftHead(h, depth, total), shiftSpine(S, depth, total))
-    | shiftExp (I.Uni(L), _, _) = I.Uni(L)
-    | shiftExp (I.Lam(D, U), depth, total) =
+    | (I.Uni(L), _, _) -> I.Uni(L)
+    | (I.Lam(D, U), depth, total) -> 
         I.Lam(shiftDec(D, depth, total), shiftExp(U, depth+1, total))
-    | shiftExp (I.Pi((D, P), U), depth, total) =
+    | (I.Pi((D, P), U), depth, total) -> 
         I.Pi((shiftDec(D, depth, total), P), shiftExp (U, depth+1, total))
-    | shiftExp (I.FgnExp csfe, depth, total) =
+    | (I.FgnExp csfe, depth, total) -> 
         (* calling normalize here because U may not be normal *)
         (* this is overkill and could be very expensive for deeply nested foreign exps *)
         (* Tue Apr  2 12:10:24 2002 -fp -bp *)
@@ -238,14 +238,14 @@ struct
 
      "For any U', U = U' iff (N = U' and Eqn)"
   *)
-   fun linearExp (Gl, U as I.Root(h as I.Def k, S), left, Vars, depth, total, eqns) =
+   let rec linearExp = function (Gl, U as I.Root(h as I.Def k, S), left, Vars, depth, total, eqns) -> 
        let
          let N = I.Root(I.BVar(left + depth), I.Nil)
          let U' = shiftExp(U, depth, total)
        in
          (left-1, Vars, N, C.UnifyEq(Gl, U', N, eqns))
        end
-     | linearExp (Gl, U as I.Root(h, S), left, Vars, depth, total, eqns) =
+     | (Gl, U as I.Root(h, S), left, Vars, depth, total, eqns) -> 
        let
          let (left', Vars', h', replaced) =  linearHead (Gl, h, S, left, Vars, depth, total)
        in
@@ -266,11 +266,11 @@ struct
        end
      (* should be impossible  Mon Apr 15 14:54:42 2002 -fp *)
      (*
-     | linearExp (Gl, U as I.Uni(L), left, Vars, depth, total, eqns) =
+     | (Gl, U as I.Uni(L), left, Vars, depth, total, eqns) -> 
          (left, Vars, I.Uni(L), eqns)
      *)
 
-     | linearExp (Gl, I.Lam(D, U), left, Vars, depth, total, eqns) =
+     | (Gl, I.Lam(D, U), left, Vars, depth, total, eqns) -> 
        let
          let D' = shiftDec(D, depth, total)
          let (left', Vars', U', eqns') = linearExp (I.Decl(Gl, D'), U, left, Vars,
@@ -278,7 +278,7 @@ struct
        in
          (left', Vars', I.Lam(D', U'), eqns')
        end
-   | linearExp (Gl, U as I.FgnExp (cs, ops), left, Vars, depth, total, eqns) =
+   | (Gl, U as I.FgnExp (cs, ops), left, Vars, depth, total, eqns) -> 
        let
          let N = I.Root(I.BVar(left + depth), I.Nil)
          let U' = shiftExp(U, depth, total)
@@ -314,8 +314,8 @@ struct
           let left = List.length K
           let (left', _, R', Eqs) = linearExp(I.Null, R, left, nil, 0, left, C.Trivial)
 
-          fun convertKRes (ResG, nil, 0) = ResG
-            | convertKRes (ResG, ((d,k)::K), i) =
+          let rec convertKRes = function (ResG, nil, 0) -> ResG
+            | (ResG, ((d,k)::K), i) -> 
               (C.Axists(I.ADec (SOME("A"^Int.toString i), d), convertKRes (ResG, K, i-1)))
 
           let r = convertKRes(C.Assign(R', Eqs), List.rev K, left)
@@ -344,8 +344,8 @@ struct
           let left = List.length K
           let (left', _, H', Eqs) = linearExp(I.Null, H, left, nil, 0, left, C.Trivial)
 
-          fun convertKRes (G, nil, 0) = G
-            | convertKRes (G, ((d,k)::K), i) =
+          let rec convertKRes = function (G, nil, 0) -> G
+            | (G, ((d,k)::K), i) -> 
             convertKRes (I.Decl(G, I.ADec (SOME("AVar "^Int.toString i), d)), K, i-1)
 
           let G' = convertKRes(G, List.rev K, left)
@@ -373,10 +373,10 @@ struct
      constraint types, unless fromCS = true (the object come from a
      Constraint Solver module.
   *)
-  fun compileGoalN fromCS (G, R as I.Root _) =
+  let rec compileGoalN = function fromCS (G, R as I.Root _) -> 
       (* A = H @ S *)
        C.Atom (R)
-    | compileGoalN fromCS (G, I.Pi((I.Dec(_,A1), I.No), A2)) =
+    | fromCS (G, I.Pi((I.Dec(_,A1), I.No), A2)) -> 
       (* A = A1 -> A2 *)
       let
         let Ha1 = I.targetHead A1
@@ -388,7 +388,7 @@ struct
         C.Impl(R, A1, Ha1, goal)
 
       end
-    | compileGoalN fromCS (G, I.Pi((D as I.Dec (_, A1), I.Maybe), A2)) =
+    | fromCS (G, I.Pi((D as I.Dec (_, A1), I.Maybe), A2)) -> 
       (* A = {x:A1} A2 *)
        if notCS fromCS andalso isConstraint (head (A1))
        then raise Error "Constraint appears in dynamic clause position"
@@ -444,7 +444,7 @@ struct
      then Stack ~> subgoals  (Stack compiles to subgoals)
      and  G' |- subgoals
   *)
-  fun compileSubgoals fromCS G' (n, I.Decl(Stack, I.No), I.Decl(G, I.Dec(_, A))) =
+  let rec compileSubgoals = function fromCS G' (n, I.Decl(Stack, I.No), I.Decl(G, I.Dec(_, A))) -> 
     let
       (* G |- A and G' |- A[^(n+1)] *)
       let sg = compileSubgoals fromCS G' (n+1, Stack, G)
@@ -452,10 +452,10 @@ struct
       C.Conjunct (compileGoal fromCS (G', (A, I.Shift (n+1))), I.EClo(A, I.Shift(n+1)), sg)
     end
 
-    | compileSubgoals fromCS G' (n, I.Decl(Stack, I.Maybe), I.Decl(G, I.Dec(_, A1))) =
+    | fromCS G' (n, I.Decl(Stack, I.Maybe), I.Decl(G, I.Dec(_, A1))) -> 
        compileSubgoals fromCS G' (n+1, Stack, G)
 
-    | compileSubgoals fromCS G' (n, I.Null, I.Null) = C.True
+    | fromCS G' (n, I.Null, I.Null) -> C.True
 
   (* compileSClause (Stack, G, A) => (Head, SubGoals) (top-level)
      if A is a type interpreted as a clause and (Head, SubGoals)
@@ -469,7 +469,7 @@ struct
           and Head is linear and G' = GAVar, G
   *)
 
-  fun compileSClauseN fromCS (Stack, G, R as I.Root (h, S)) =
+  let rec compileSClauseN = function fromCS (Stack, G, R as I.Root (h, S)) -> 
       let
          let (G', Head) = compileSbtHead (G, R)
          let d = I.ctxLength G' - I.ctxLength G
@@ -479,13 +479,13 @@ struct
          ((G', Head), Sgoals)
        end
 
-    | compileSClauseN fromCS (Stack, G, I.Pi((D as (I.Dec(_,A1)),I.No), A2)) =
+    | fromCS (Stack, G, I.Pi((D as (I.Dec(_,A1)),I.No), A2)) -> 
       compileSClauseN fromCS (I.Decl(Stack, I.No), I.Decl(G, D), A2)
 
-    | compileSClauseN fromCS (Stack, G, I.Pi((D as (I.Dec(_,A1)),I.Meta), A2)) =
+    | fromCS (Stack, G, I.Pi((D as (I.Dec(_,A1)),I.Meta), A2)) -> 
       compileSClauseN fromCS (I.Decl(Stack, I.Meta), I.Decl(G, D), A2)
 
-    | compileSClauseN fromCS (Stack, G, I.Pi((D as (I.Dec(_,A1)),I.Maybe), A2)) =
+    | fromCS (Stack, G, I.Pi((D as (I.Dec(_,A1)),I.Maybe), A2)) -> 
       compileSClauseN fromCS (I.Decl(Stack, I.Maybe), I.Decl(G, D), A2)
 
 
@@ -504,22 +504,22 @@ struct
   *)
   fun compileCtx opt G =
       let
-        fun compileBlock (nil, s, (n, i)) = nil
-          | compileBlock (I.Dec (_, V) :: Vs, t, (n, i)) =
+        let rec compileBlock = function (nil, s, (n, i)) -> nil
+          | (I.Dec (_, V) :: Vs, t, (n, i)) -> 
             let
               let Vt = I.EClo (V, t)
             in
               (compileDClause opt (G, Vt), I.id, I.targetHead Vt)
               :: compileBlock (Vs, I.Dot (I.Exp (I.Root (I.Proj (I.Bidx n, i), I.Nil)), t), (n, i+1))
             end
-        fun compileCtx' (I.Null) = I.Null
-          | compileCtx' (I.Decl (G, I.Dec (_, A))) =
+        let rec compileCtx' = function (I.Null) -> I.Null
+          | (I.Decl (G, I.Dec (_, A))) -> 
             let
               let Ha = I.targetHead A
             in
               I.Decl (compileCtx' G, CompSyn.Dec (compileDClause opt (G, A), I.id, Ha))
             end
-          | compileCtx' (I.Decl (G, I.BDec (_, (c, s)))) =
+          | (I.Decl (G, I.BDec (_, (c, s)))) -> 
             let
               let (G, L)= I.constBlock c
               let dpool = compileCtx' G
@@ -540,22 +540,22 @@ struct
   *)
   fun compilePsi opt Psi =
       let
-        fun compileBlock (nil, s, (n, i)) = nil
-          | compileBlock (I.Dec (_, V) :: Vs, t, (n, i)) =
+        let rec compileBlock = function (nil, s, (n, i)) -> nil
+          | (I.Dec (_, V) :: Vs, t, (n, i)) -> 
             let
               let Vt = I.EClo (V, t)
             in
               (compileDClause opt (T.coerceCtx Psi, Vt), I.id, I.targetHead Vt)
               :: compileBlock (Vs, I.Dot (I.Exp (I.Root (I.Proj (I.Bidx n, i), I.Nil)), t), (n, i+1))
             end
-        fun compileCtx' (I.Null) = I.Null
-          | compileCtx' (I.Decl (G, I.Dec (_, A))) =
+        let rec compileCtx' = function (I.Null) -> I.Null
+          | (I.Decl (G, I.Dec (_, A))) -> 
             let
               let Ha = I.targetHead A
             in
               I.Decl (compileCtx' G, CompSyn.Dec (compileDClause opt (G, A), I.id, Ha))
             end
-          | compileCtx' (I.Decl (G, I.BDec (_, (c, s)))) =
+          | (I.Decl (G, I.BDec (_, (c, s)))) -> 
             let
               let (G, L)= I.constBlock c
               let dpool = compileCtx' G
@@ -563,14 +563,14 @@ struct
             in
               I.Decl (dpool, CompSyn.BDec (compileBlock (L, s, (n, 1))))
             end
-        fun compilePsi' (I.Null) = I.Null
-          | compilePsi' (I.Decl (Psi, T.UDec (I.Dec (_, A)))) =
+        let rec compilePsi' = function (I.Null) -> I.Null
+          | (I.Decl (Psi, T.UDec (I.Dec (_, A)))) -> 
             let
               let Ha = I.targetHead A
             in
               I.Decl (compilePsi' Psi, CompSyn.Dec (compileDClause opt (T.coerceCtx Psi, A), I.id, Ha))
             end
-          | compilePsi' (I.Decl (Psi, T.UDec (I.BDec (_, (c, s))))) =
+          | (I.Decl (Psi, T.UDec (I.BDec (_, (c, s))))) -> 
             let
               let (G, L)= I.constBlock c
               let dpool = compileCtx' G
@@ -579,7 +579,7 @@ struct
               I.Decl (dpool, CompSyn.BDec (compileBlock (L, s, (n, 1))))
 
             end
-          | compilePsi' (I.Decl (Psi, T.PDec _)) =
+          | (I.Decl (Psi, T.PDec _)) -> 
             I.Decl (compilePsi' Psi, CompSyn.PDec)
 
 
@@ -614,17 +614,17 @@ struct
   *)
   (* Defined constants are currently not compiled *)
 
-  fun compileConDec fromCS (a, I.ConDec(_, _, _, _, A, I.Type)) =
+  let rec compileConDec = function fromCS (a, I.ConDec(_, _, _, _, A, I.Type)) -> 
       installClause fromCS (a, A)
-    | compileConDec fromCS (a, I.SkoDec(_, _, _, A, I.Type)) =
+    | fromCS (a, I.SkoDec(_, _, _, A, I.Type)) -> 
       (* we don't use substitution tree indexing for skolem constants yet -bp*)
       (case (!C.optimize)
          of C.No => C.sProgInstall (a, C.SClause (compileDClauseN fromCS true (I.Null, A)))
        | _ => C.sProgInstall (a, C.SClause(compileDClauseN fromCS true (I.Null, A))))
 
-    | compileConDec I.Clause (a, I.ConDef(_, _, _, _, A, I.Type, _)) =
+    | I.Clause (a, I.ConDef(_, _, _, _, A, I.Type, _)) -> 
         C.sProgInstall (a, C.SClause (compileDClauseN I.Clause true (I.Null, Whnf.normalize (A, I.id))))
-    | compileConDec _ _ = ()
+    | _ _ -> ()
 
   fun install fromCS (cid) =  compileConDec fromCS (cid, I.sgnLookup cid)
 

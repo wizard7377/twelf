@@ -34,23 +34,23 @@ struct
          of the form U = U' where G |- U == U' : V (mod beta/eta)
          Neither U nor U' needs to be a pattern
          *)
-    fun simplify nil = nil
-      | simplify ((ref I.Solved) :: cnstrs) =
+    let rec simplify = function nil -> nil
+      | ((ref I.Solved) :: cnstrs) -> 
           simplify cnstrs
-      | simplify ((Eqn as ref (I.Eqn (G, U1, U2))) :: cnstrs) =
+      | ((Eqn as ref (I.Eqn (G, U1, U2))) :: cnstrs) -> 
         if Conv.conv ((U1, I.id), (U2, I.id))
           then simplify cnstrs
         else Eqn :: (simplify cnstrs)
-      | simplify ((FgnCnstr as ref (I.FgnCnstr csfc)) :: cnstrs) =
+      | ((FgnCnstr as ref (I.FgnCnstr csfc)) :: cnstrs) -> 
         if I.FgnCnstrStd.Simplify.apply csfc ()
           then simplify cnstrs
         else FgnCnstr :: (simplify cnstrs)
 
-    fun namesToString (name::nil) = name ^ "."
-      | namesToString (name::names) = name ^ ", " ^ namesToString names
+    let rec namesToString = function (name::nil) -> name ^ "."
+      | (name::names) -> name ^ ", " ^ namesToString names
 
-    fun warnConstraints (nil) = ()
-      | warnConstraints (names) = print ("Constraints remain on " ^ namesToString names ^ "\n")
+    let rec warnConstraints = function (nil) -> ()
+      | (names) -> print ("Constraints remain on " ^ namesToString names ^ "\n")
 
   in
     let simplify = simplify

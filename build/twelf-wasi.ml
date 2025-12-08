@@ -42,8 +42,8 @@ let _ = e (fun size ->
 let e = _export "execute": (unit -> int) -> unit;
 let _ = e (fn () =>
 				  let
-					 fun codeOfStatus Twelf.OK = 0
-						| codeOfStatus Twelf.ABORT = 1
+					 let rec codeOfStatus = function Twelf.OK -> 0
+						| Twelf.ABORT -> 1
 					 let status = case !bref of
 											NONE => (print "No input buffer allocated"; Twelf.ABORT)
 										 | SOME b => Twelf.loadString (CharArray.vector b)

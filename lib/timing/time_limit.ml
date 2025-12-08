@@ -11,8 +11,8 @@
 
     exception TimeOut
 
-    fun timeLimit NONE f x = f x
-      | timeLimit (SOME t) f x = 
+    let rec timeLimit = function NONE f x -> f x
+      | (SOME t) f x -> 
       let
 	let _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
 	let setitimer = SMLofNJ.IntervalTimer.setIntTimer

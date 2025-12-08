@@ -68,8 +68,8 @@ struct
         (* should shadowed identifiers keep their fixity? *)
           Array.update (nameArray, cid, NameInfo("%" ^ name ^ "%"))
 
-    fun shadow NONE = ()
-      | shadow (SOME(_,cid)) =
+    let rec shadow = function NONE -> ()
+      | (SOME(_,cid)) -> 
           override (cid, Array.sub (nameArray, cid))
 
     (* installName (name, cid) = ()

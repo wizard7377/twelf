@@ -24,9 +24,9 @@ struct
 
     (* parseQuery1 (name, f, f')   ": A" from f' or "V" from f. *)
 
-    fun parseQuery1 (name, f, LS.Cons ((L.COLON, r), s')) =
+    let rec parseQuery1 = function (name, f, LS.Cons ((L.COLON, r), s')) -> 
           returnQuery (SOME(name), ParseTerm.parseTerm' (LS.expose s'))
-      | parseQuery1 (name, f, _) = returnQuery (NONE, ParseTerm.parseTerm' f)
+      | (name, f, _) -> returnQuery (NONE, ParseTerm.parseTerm' f)
 
     (* parseQuery' : lexResult front -> ExtQuery.query * lexResult front *)
     (* parseQuery'  "X : A" | "A" *)
@@ -36,9 +36,9 @@ struct
        If we find this, we parse a query of the form "X : A".
        Otherwise we parse a query of the form "A".
     *)
-    fun parseQuery' (f as LS.Cons ((L.ID (L.Upper, name), r), s')) =
+    let rec parseQuery' = function (f as LS.Cons ((L.ID (L.Upper, name), r), s')) -> 
           parseQuery1 (name, f, LS.expose s')
-      | parseQuery' (f) =
+      | (f) -> 
           returnQuery (NONE, ParseTerm.parseTerm' f)
 
     (* parseQuery --- currently not exported *)
@@ -55,43 +55,43 @@ struct
 
     (* parseDefine3 parses the equal sign in a long form define *)
     (* "= U" *)
-    fun parseDefine3 (optName, (tm, LS.Cons ((L.EQUAL, r), s'))) =
+    let rec parseDefine3 = function (optName, (tm, LS.Cons ((L.EQUAL, r), s'))) -> 
           parseDefine4 (optName, SOME(tm), s')
-      | parseDefine3 (_, (tm, LS.Cons ((t, r), _))) =
+      | (_, (tm, LS.Cons ((t, r), _))) -> 
           Parsing.error (r, "Expected `=', found " ^ L.toString t)
 
     (* parseDefine2 switches between short and long form *)
     (* ": V = U" | "= U" *)
-    fun parseDefine2 (optName, LS.Cons ((L.COLON, r), s')) =
+    let rec parseDefine2 = function (optName, LS.Cons ((L.COLON, r), s')) -> 
           parseDefine3 (optName, ParseTerm.parseTerm' (LS.expose s'))
-      | parseDefine2 (optName, LS.Cons ((L.EQUAL, r), s')) =
+      | (optName, LS.Cons ((L.EQUAL, r), s')) -> 
           parseDefine4 (optName, NONE, s')
-      | parseDefine2 (_, LS.Cons ((t, r), _)) =
+      | (_, LS.Cons ((t, r), _)) -> 
           Parsing.error (r, "Expected `:' or `=', found " ^ L.toString t)
 
     (* parseDefine1 parses the name of the constant to be defined *)
     (* "c : V = U" | "_ : V = U" | "c = U" | "_ = U" *)
-    fun parseDefine1 (LS.Cons ((L.ID (idCase,name), r), s')) =
+    let rec parseDefine1 = function (LS.Cons ((L.ID (idCase,name), r), s')) -> 
           parseDefine2 (SOME(name), LS.expose s')
-      | parseDefine1 (LS.Cons ((L.UNDERSCORE, r), s')) =
+      | (LS.Cons ((L.UNDERSCORE, r), s')) -> 
           parseDefine2 (NONE, LS.expose s')
-      | parseDefine1 (LS.Cons ((t, r), _)) =
+      | (LS.Cons ((t, r), _)) -> 
           Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
 
-    fun parseSolve3 (defns, nameOpt, LS.Cons ((L.COLON, r), s'), r0) =
+    let rec parseSolve3 = function (defns, nameOpt, LS.Cons ((L.COLON, r), s'), r0) -> 
         let
           let (tm, f' as LS.Cons ((_, r), _)) = ParseTerm.parseTerm' (LS.expose s')
         in
           ((List.rev defns, ExtQuery.solve (nameOpt, tm, P.join (r0, r))), f')
         end
-      | parseSolve3 (_, _, LS.Cons ((t,r), s'), r0) =
+      | (_, _, LS.Cons ((t,r), s'), r0) -> 
           Parsing.error (r, "Expected `:', found " ^ L.toString t)
 
-    fun parseSolve2 (defns, LS.Cons ((L.UNDERSCORE, r), s'), r0) =
+    let rec parseSolve2 = function (defns, LS.Cons ((L.UNDERSCORE, r), s'), r0) -> 
           parseSolve3 (defns, NONE, LS.expose s', r0)
-      | parseSolve2 (defns, LS.Cons ((L.ID (_, name), r), s'), r0) =
+      | (defns, LS.Cons ((L.ID (_, name), r), s'), r0) -> 
           parseSolve3 (defns, SOME name, LS.expose s', r0)
-      | parseSolve2 (_, LS.Cons ((t,r), s'), r0) =
+      | (_, LS.Cons ((t,r), s'), r0) -> 
           Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
 
     and parseSolve1 (defns, LS.Cons ((L.SOLVE, r0), s')) =

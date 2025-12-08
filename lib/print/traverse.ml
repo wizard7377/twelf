@@ -31,61 +31,61 @@ local
      and   G |- V = V' : L
      else exception Error is raised.
   *)
-  fun inferConW (G, I.BVar (k')) =
+  let rec inferConW = function (G, I.BVar (k')) -> 
       let
         let I.Dec (_,V) = I.ctxDec (G, k')
       in
         Whnf.whnf (V, I.id)
       end
-    | inferConW (G, I.Const(c)) = (I.constType (c), I.id)
-    | inferConW (G, I.Def(d))  = (I.constType (d), I.id)
+    | (G, I.Const(c)) -> (I.constType (c), I.id)
+    | (G, I.Def(d)) -> (I.constType (d), I.id)
     (* no case for FVar, Skonst *)
 
-  fun fromHead (G, I.BVar(n)) = T.bvar (Names.bvarName (G, n))
-    | fromHead (G, I.Const(cid)) =
+  let rec fromHead = function (G, I.BVar(n)) -> T.bvar (Names.bvarName (G, n))
+    | (G, I.Const(cid)) -> 
       let
         let Names.Qid (ids, id) = Names.constQid (cid)
       in
         T.const (ids, id)
       end
     (* | fromHead (G, I.Skonst (cid)) = T.skonst (Names.constName (cid)) *)
-    | fromHead (G, I.Def (cid)) =
+    | (G, I.Def (cid)) -> 
       let
         let Names.Qid (ids, id) = Names.constQid (cid)
       in
         T.def (ids, id)
       end
     (* | fromHead (G, FVar (name, _, _)) = T.fvar (name) *)
-    | fromHead _ = raise Error ("Head not recognized")
+    | _ -> raise Error ("Head not recognized")
 
   (* see also: print.fun *)
-  fun impCon (I.Const (cid)) = I.constImp (cid)
+  let rec impCon = function (I.Const (cid)) -> I.constImp (cid)
     (*| imps (I.Skonst (cid)) = I.constImp (cid) *)
-    | impCon (I.Def (cid)) = I.constImp (cid)
-    | impCon _ = 0
+    | (I.Def (cid)) -> I.constImp (cid)
+    | _ -> 0
 
   (* see also: print.fun *)
   (*
-  fun dropImp (0, S) = S
-    | dropImp (i, I.App (U, S)) = dropImp (i-1, S)
-    | dropImp (i, I.SClo (S, s)) = I.SClo (dropImp (i, S), s)
-    | dropImp _ = raise Error ("Missing implicit arguments")
+  let rec dropImp = function (0, S) -> S
+    | (i, I.App (U, S)) -> dropImp (i-1, S)
+    | (i, I.SClo (S, s)) -> I.SClo (dropImp (i, S), s)
+    | _ -> raise Error ("Missing implicit arguments")
   *)
 
-  fun fromTpW (G, (I.Root (C, S), s)) =
+  let rec fromTpW = function (G, (I.Root (C, S), s)) -> 
         T.atom (fromHead (G, C),
                 fromSpine (impCon C, G, (S, s), inferConW (G, C)))
-    | fromTpW (G, (I.Pi ((D as I.Dec(_,V1), I.No), V2), s)) =
+    | (G, (I.Pi ((D as I.Dec(_,V1), I.No), V2), s)) -> 
         T.arrow (fromTp (G, (V1, s)),
                  fromTp (I.Decl (G, I.decSub (D, s)), (V2, I.dot1 s)))
-    | fromTpW (G, (I.Pi ((D, I.Maybe), V2), s)) =
+    | (G, (I.Pi ((D, I.Maybe), V2), s)) -> 
       let
         let D' = Names.decUName (G, D)
       in
         T.pi (fromDec (G, (D', s)),
               fromTp (I.Decl (G, I.decSub (D', s)), (V2, I.dot1 s)))
       end
-    | fromTpW _ = raise Error ("Type not recognized")
+    | _ -> raise Error ("Type not recognized")
 
   and fromTp (G, Vs) = fromTpW (G, Whnf.whnf Vs)
 
@@ -129,9 +129,9 @@ local
     *)
 
   (* ignore a : K, d : A = M, b : K = A, and skolem constants *)
-  fun fromConDec (I.ConDec (c, parent, i, _, V, I.Type)) =
+  let rec fromConDec = function (I.ConDec (c, parent, i, _, V, I.Type)) -> 
         SOME (T.objdec (c, fromTp (I.Null, (V, I.id))))
-    | fromConDec _ = NONE
+    | _ -> NONE
 
 in
 
@@ -142,12 +142,12 @@ in
                       of NONE => raise Error ("Malformed qualified identifier " ^ name)
                        | SOME qid => qid
           let cidOpt = Names.constLookup qid
-          fun getConDec (NONE) = raise Error ("Undeclared identifier " ^ Names.qidToString qid)
-            | getConDec (SOME cid) = IntSyn.sgnLookup cid
+          let rec getConDec = function (NONE) -> raise Error ("Undeclared identifier " ^ Names.qidToString qid)
+            | (SOME cid) -> IntSyn.sgnLookup cid
           let conDec = getConDec cidOpt
           let _ = Names.varReset IntSyn.Null
-          fun result (NONE) = raise Error ("Wrong kind of declaration")
-            | result (SOME(r)) = r
+          let rec result = function (NONE) -> raise Error ("Wrong kind of declaration")
+            | (SOME(r)) -> r
       in
         result (fromConDec conDec)
       end

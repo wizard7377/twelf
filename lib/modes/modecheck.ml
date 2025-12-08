@@ -87,17 +87,17 @@ struct
            | sMs => sMs
 
     (* nameOf S, selects a name for S *)
-    fun nameOf (Existential (_, NONE)) = "?"
-      | nameOf (Existential (_, SOME name)) = name
-      | nameOf _ = "?"
+    let rec nameOf = function (Existential (_, NONE)) -> "?"
+      | (Existential (_, SOME name)) -> name
+      | _ -> "?"
 
     (* unique (k, ks) = B
 
        Invariant:
        B iff k does not occur in ks
     *)
-    fun unique (k, nil) = true
-      | unique (k, k'::ks) =
+    let rec unique = function (k, nil) -> true
+      | (k, k'::ks) -> 
           (k <> k') andalso unique (k, ks)
 
     (* isUniversal S = B
@@ -105,43 +105,43 @@ struct
        Invariant:
        B iff S = Par
     *)
-    fun isUniversal Universal = true
-      | isUniversal _ = false
+    let rec isUniversal = function Universal -> true
+      | _ -> false
 
     (* isGround S = B
 
        Invariant:
        B iff S = Ex (T x)
     *)
-    fun isGround (Existential (Ground _, _)) = true
-      | isGround _ = false
+    let rec isGround = function (Existential (Ground _, _)) -> true
+      | _ -> false
 
     (* uniqueness S = u
        where u is the uniqueness property of status S
     *)
-    fun uniqueness (Existential (Ground (u), _)) = u
-      | uniqueness (Universal) = Unique
+    let rec uniqueness = function (Existential (Ground (u), _)) -> u
+      | (Universal) -> Unique
 
     (* ambiguate (mode) = mode'
        where mode' forgets uniqueness properties
     *)
-    fun ambiguate (M.Plus) = M.Plus
-      | ambiguate (M.Minus) = M.Minus
-      | ambiguate (M.Minus1) = M.Minus
+    let rec ambiguate = function (M.Plus) -> M.Plus
+      | (M.Minus) -> M.Minus
+      | (M.Minus1) -> M.Minus
 
     (* andUnique (u1, u2) = Unique if u1 = u2 = Unique
        = Ambig otherwise
     *)
-    fun andUnique (Unique, Unique) = Unique
-      | andUnique _ = Ambig
+    let rec andUnique = function (Unique, Unique) -> Unique
+      | _ -> Ambig
 
     (* isFree S = b
 
        Invariant:
        b iff S = Ex (B x)
     *)
-    fun isFree (Existential (Free, _)) = true
-      | isFree _ = false
+    let rec isFree = function (Existential (Free, _)) -> true
+      | _ -> false
 
     exception Eta
 
@@ -153,13 +153,13 @@ struct
        Invariant: G, V1,..., Vn |- U : V for some G, Vi, V.
                   U in NF
     *)
-    fun etaContract (I.Root (I.BVar(k), S),  n) =
+    let rec etaContract = function (I.Root (I.BVar(k), S),  n) -> 
         if k > n
           then ( etaSpine (S, n) ; k-n )
         else raise Eta
-      | etaContract (I.Lam (D, U), n) =
+      | (I.Lam (D, U), n) -> 
           etaContract (U, n+1)
-      | etaContract _ = raise Eta
+      | _ -> raise Eta
 
     (* etaSpine (S, n) = ()
        if S =eta*=> n ; n-1 ; ... ; 1 ; Nil
@@ -182,8 +182,8 @@ struct
          and for all k in mS: k is parameter
          and for all k', k'' in mS: k' <> k''
     *)
-    fun checkPattern (D, k, args, I.Nil) = ()
-      | checkPattern (D, k, args, I.App (U, S)) =
+    let rec checkPattern = function (D, k, args, I.Nil) -> ()
+      | (D, k, args, I.App (U, S)) -> 
         (let
            let k' = etaContract (U, 0)
          in
@@ -209,14 +209,14 @@ struct
        and U is in nf (normal form)
        then B iff U is strict in p
     *)
-    fun strictExpN (D, _, I.Uni _) = false
-      | strictExpN (D, p, I.Lam (_, U)) =
+    let rec strictExpN = function (D, _, I.Uni _) -> false
+      | (D, p, I.Lam (_, U)) -> 
           (* checking D in this case should be redundant -fp *)
           (* strictDecN (D, p, D) orelse *)
           strictExpN (I.Decl(D, Universal), p+1, U)
-      | strictExpN (D, p, I.Pi ((D', _), U)) =
+      | (D, p, I.Pi ((D', _), U)) -> 
           strictDecN (D, p, D') orelse strictExpN (I.Decl(D, Universal), p+1, U)
-      | strictExpN (D, p, I.Root (H, S)) =
+      | (D, p, I.Root (H, S)) -> 
           (case H
              of (I.BVar (k')) =>
                 if (k' = p) then isPattern (D, k', S)
@@ -227,7 +227,7 @@ struct
               | (I.Def (d))  => strictSpineN (D, p, S)
               | (I.FgnConst (cs, conDec)) => strictSpineN (D, p, S))
               (* no other cases possible *)
-      | strictExpN (D, p, I.FgnExp (cs, ops)) = false
+      | (D, p, I.FgnExp (cs, ops)) -> false
           (* this is a hack - until we investigate this further   -rv *)
     (* no other cases possible *)
 
@@ -246,12 +246,12 @@ struct
           strictExpN (D, p, V)
 
     (*
-    fun strictAtom (D, p, mode, I.Nil, (V, s), M.Mnil) = false
+    let rec strictAtom = function (D, p, mode, I.Nil, (V, s), M.Mnil) -> false
       | strictAtom (D, p, M.Minus, I.App (U, S), (I.Pi ((I.Dec (_, V1), _), V2), s),
                      M.Mapp (M.Marg (M.Minus, _), mS)) =
           strictExpN (D, p, Whnf.normalize (V1, s))
           orelse strictAtom (D, p, M.Minus, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS)
-      | strictAtom (D, p, mode, I.App (U, S), (I.Pi (_, V2), s), M.Mapp(_, mS)) =
+      | (D, p, mode, I.App (U, S), (I.Pi (_, V2), s), M.Mapp(_, mS)) -> 
           strictAtom (D, p, mode, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS)
     *)
 
@@ -265,18 +265,18 @@ struct
 
        (occ and mode are used in error messages)
     *)
-    fun freeExpN (D, d, mode, I.Root (I.BVar k, S), occ, strictFun) =
+    let rec freeExpN = function (D, d, mode, I.Root (I.BVar k, S), occ, strictFun) -> 
           (freeVar (D, d, mode, k, P.head occ, strictFun);
            freeSpineN (D, d, mode, S, (1, occ), strictFun))
-      | freeExpN (D, d, mode, I.Root (I.Const _, S), occ, strictFun) =
+      | (D, d, mode, I.Root (I.Const _, S), occ, strictFun) -> 
           freeSpineN (D, d, mode, S, (1, occ), strictFun)
-      | freeExpN (D, d, mode, I.Root (I.Def _, S), occ, strictFun) =
+      | (D, d, mode, I.Root (I.Def _, S), occ, strictFun) -> 
           freeSpineN (D, d, mode, S, (1, occ), strictFun)
-      | freeExpN (D, d, mode, I.Root (I.FgnConst (cs, conDec), S), occ, strictFun) =
+      | (D, d, mode, I.Root (I.FgnConst (cs, conDec), S), occ, strictFun) -> 
           freeSpineN (D, d, mode, S, (1, occ), strictFun)
-      | freeExpN (D, d, mode, I.Lam (_, U), occ, strictFun) =
+      | (D, d, mode, I.Lam (_, U), occ, strictFun) -> 
           freeExpN (I.Decl (D, Universal), d+1, mode, U, P.body occ, strictFun)
-      | freeExpN (D, d, mode, I.FgnExp csfe, occ, strictFun) =
+      | (D, d, mode, I.FgnExp csfe, occ, strictFun) -> 
         I.FgnExpStd.App.apply csfe (fun U -> freeExpN (D, d, mode, Whnf.normalize (U, I.id), occ, strictFun))
         (* punting on the occ here  - ak *)
 
@@ -323,17 +323,17 @@ struct
        then D' >= D where D'(k) Unknown for all existential variables k
             in U that are free in D
     *)
-    fun nonStrictExpN (D, I.Root (I.BVar (k), S)) =
+    let rec nonStrictExpN = function (D, I.Root (I.BVar (k), S)) -> 
           nonStrictSpineN (nonStrictVarD (D, k), S)
-      | nonStrictExpN (D, I.Root (I.Const c, S)) =
+      | (D, I.Root (I.Const c, S)) -> 
           nonStrictSpineN (D, S)
-      | nonStrictExpN (D, I.Root (I.Def d, S)) =
+      | (D, I.Root (I.Def d, S)) -> 
           nonStrictSpineN (D, S)
-      | nonStrictExpN (D, I.Root (I.FgnConst (cs, conDec), S)) =
+      | (D, I.Root (I.FgnConst (cs, conDec), S)) -> 
           nonStrictSpineN (D, S)
-      | nonStrictExpN (D, I.Lam (_, U)) =
+      | (D, I.Lam (_, U)) -> 
           I.ctxPop (nonStrictExpN (I.Decl (D, Universal), U))
-      | nonStrictExpN (D, I.FgnExp _) =
+      | (D, I.FgnExp _) -> 
           raise Error ("Foreign expressions not permitted when checking freeness")
 
     (* nonStrictSpineN (D, S) = D'
@@ -375,7 +375,7 @@ struct
 
        u is the uniqueness property for the new ground assumptions
     *)
-    fun updateExpN (D, I.Root (I.BVar (k), S), u) =
+    let rec updateExpN = function (D, I.Root (I.BVar (k), S), u) -> 
           if isUniversal (I.ctxLookup (D, k))
             then updateSpineN (D, S, u)
           else
@@ -384,16 +384,16 @@ struct
             else if !checkFree
                    then nonStrictSpineN (nonStrictVarD (D, k), S)
                  else D
-      | updateExpN (D, I.Root (I.Const c, S), u) =
+      | (D, I.Root (I.Const c, S), u) -> 
           updateSpineN (D, S, u)
-      | updateExpN (D, I.Root (I.Def d, S), u) =
+      | (D, I.Root (I.Def d, S), u) -> 
           updateSpineN (D, S, u)
-      | updateExpN (D, I.Root (I.FgnConst (cs, conDec), S), u) =
+      | (D, I.Root (I.FgnConst (cs, conDec), S), u) -> 
           updateSpineN (D, S, u)
-      | updateExpN (D, I.Lam (_, U), u) =
+      | (D, I.Lam (_, U), u) -> 
           I.ctxPop (updateExpN (I.Decl (D, Universal), U, u))
       (* no occurrence inside a FgnExp is considered strict *)
-      | updateExpN (D, I.FgnExp _, u) = D
+      | (D, I.FgnExp _, u) -> D
 
     (* updateSpineN (D, S, u) = D'
 
@@ -436,20 +436,20 @@ struct
 
        (p,occ) is used in error message if freeness is to be checked
     *)
-    fun updateAtom' (D, mode, I.Nil, M.Mnil, _) = D
-      | updateAtom' (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) =
+    let rec updateAtom' = function (D, mode, I.Nil, M.Mnil, _) -> D
+      | (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) -> 
           updateAtom' (updateExpN (D, U, Unique), M.Plus, S, mS, (p+1, occ))
-      | updateAtom' (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
+      | (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) -> 
           updateAtom' (updateExpN (D, U, Ambig), M.Minus, S, mS, (p+1, occ))
-      | updateAtom' (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
+      | (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) -> 
           updateAtom' (updateExpN (D, U, Ambig), M.Minus, S, mS, (p+1, occ))
-      | updateAtom' (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
+      | (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) -> 
           updateAtom' (updateExpN (D, U, Ambig), M.Minus1, S, mS, (p+1, occ))
-      | updateAtom' (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
+      | (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) -> 
           updateAtom' (updateExpN (D, U, Unique), M.Minus1, S, mS, (p+1, occ))
       (* when checking freeness, all arguments must be input (+) or output (-) *)
       (* therefore, no case for M.Mapp (M.Marg (M.Minus, _), mS) is provided here *)
-      | updateAtom' (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) =
+      | (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) -> 
           updateAtom' (D, mode, S, mS, (p+1, occ))
 
     (* freeAtom (D, m, S, (V,s), mS, (p, occ)) = ()
@@ -459,13 +459,13 @@ struct
                   G ~ D
                   mode = (-) or (+); ( * ) or (-1) are excluded
     *)
-    fun freeAtom (D, mode, I.Nil, Vs, M.Mnil, _) = ()
+    let rec freeAtom = function (D, mode, I.Nil, Vs, M.Mnil, _) -> ()
       | freeAtom (D, M.Minus, I.App (U, S), (I.Pi ((I.Dec (_, V1), _), V2), s),
                   M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
           (freeExpN (D, 0, M.Minus, U, P.arg(p, occ),
                      (fun q -> strictExpN (D, q, Whnf.normalize (V1, s))));
            freeAtom (D, M.Minus, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS, (p+1, occ)))
-      | freeAtom (D, mode, I.App (U, S), (I.Pi (_, V2), s), M.Mapp (_, mS), (p, occ)) =
+      | (D, mode, I.App (U, S), (I.Pi (_, V2), s), M.Mapp (_, mS), (p, occ)) -> 
           freeAtom (D, mode, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS, (p+1, occ))
 
     (* updateAtom (D, m, S, a, mS, (p, occ))
@@ -497,18 +497,18 @@ struct
 
        (occ and mode are used in error messages)
     *)
-    fun groundExpN (D, mode, I.Root (I.BVar k, S), occ) =
+    let rec groundExpN = function (D, mode, I.Root (I.BVar k, S), occ) -> 
           andUnique (groundVar (D, mode, k, P.head occ),
                      groundSpineN (D, mode, S, (1, occ)))
-      | groundExpN (D, mode, I.Root (I.Const c, S), occ) =
+      | (D, mode, I.Root (I.Const c, S), occ) -> 
           groundSpineN (D, mode, S, (1, occ))
-      | groundExpN (D, mode, I.Root (I.Def d, S), occ) =
+      | (D, mode, I.Root (I.Def d, S), occ) -> 
           groundSpineN (D, mode, S, (1, occ))
-      | groundExpN (D, mode, I.Root (I.FgnConst (cs, conDec), S), occ) =
+      | (D, mode, I.Root (I.FgnConst (cs, conDec), S), occ) -> 
           groundSpineN (D, mode, S, (1, occ))
-      | groundExpN (D, mode, I.Lam (_, U), occ) =
+      | (D, mode, I.Lam (_, U), occ) -> 
           groundExpN (I.Decl (D, Universal), mode, U, P.body occ)
-      | groundExpN (D, mode, I.FgnExp csfe, occ) =
+      | (D, mode, I.FgnExp csfe, occ) -> 
         I.FgnExpStd.fold csfe (fn (U,u) => andUnique (groundExpN (D, mode, Whnf.normalize (U, I.id), occ), u)) Unique
         (* punting on occ here  - ak *)
 
@@ -587,17 +587,17 @@ struct
 
        ((p,occ) used in error messages)
     *)
-    fun groundAtom (D, _, I.Nil, M.Mnil, _) = Unique
-      | groundAtom (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) =
+    let rec groundAtom = function (D, _, I.Nil, M.Mnil, _) -> Unique
+      | (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) -> 
           andUnique (groundExpN (D, M.Plus, U, P.arg (p, occ)),
                      groundAtom (D, M.Plus, S, mS, (p+1, occ)))
-      | groundAtom (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
+      | (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) -> 
           (groundExpN (D, M.Minus, U, P.arg (p, occ)); (* ignore uniqueness result here *)
            groundAtom (D, M.Minus, S, mS, (p+1, occ)))
-      | groundAtom (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
+      | (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) -> 
           (groundExpN (D, M.Minus1, U, P.arg (p, occ)); (* ignore uniqueness result here *)
            groundAtom (D, M.Minus, S, mS, (p+1, occ)))
-      | groundAtom (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) =
+      | (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) -> 
           groundAtom (D, mode, S, mS, (p+1, occ))
 
 
@@ -631,13 +631,13 @@ struct
        that have no mode information associated with them
        (occ used in error messages)
     *)
-    fun checkD1 (D, I.Pi ((I.Dec (name, _), I.Maybe), V), occ, k) =
+    let rec checkD1 = function (D, I.Pi ((I.Dec (name, _), I.Maybe), V), occ, k) -> 
           checkD1 (I.Decl (D, Existential (Free, name)), V, P.body occ,
                    fn (I.Decl (D', m)) => ctxPush (m, k D'))
-      | checkD1 (D, I.Pi ((I.Dec (name, V1), I.No), V2), occ, k) =
+      | (D, I.Pi ((I.Dec (name, V1), I.No), V2), occ, k) -> 
           checkD1 (I.Decl (D, Existential (Free, name)), V2, P.body occ,
                    fn (I.Decl (D', m)) => ctxPush (m, checkG1 (D', V1, P.label occ, k)))
-      | checkD1 (D, I.Root (I.Const a, S), occ, k) =
+      | (D, I.Root (I.Const a, S), occ, k) -> 
           let
             (* for a declaration, all modes must be satisfied *)
             fun checkAll nil = ()
@@ -662,7 +662,7 @@ struct
           in
             checkAll (lookup (a, occ))
           end
-      | checkD1 (D, I.Root (I.Def d, S), occ, k) =
+      | (D, I.Root (I.Def d, S), occ, k) -> 
           let
             (* for a declaration, all modes must be satisfied *)
             fun checkAll nil = ()
@@ -712,8 +712,8 @@ struct
       | checkG1 (D, I.Root (I.Const a, S), occ, k) =
           let
             (* for a goal, at least one mode must be satisfied *)
-            fun checkList found nil = nil (* found = true *)
-              | checkList false [mS] =
+            let rec checkList = function found nil -> nil (* found = true *)
+              | false [mS] -> 
                   (* mS is the last possible mode to check;
                     if the check fails, we don't catch ModeError *)
                   (
@@ -721,7 +721,7 @@ struct
                       of Unique => k (updateAtom (D, M.Minus1, S, a, mS, (1, occ)))
                        | Ambig => k (updateAtom (D, M.Minus, S, a, mS, (1, occ)))
                   )
-              | checkList found (mS :: mSs) =
+              | found (mS :: mSs) -> 
                   (* uniqueness not permitted on multiple modes right now *)
                   (* Wed Aug 20 21:52:31 2003 -fp *)
                   let
@@ -741,8 +741,8 @@ struct
       | checkG1 (D, I.Root (I.Def d, S), occ, k) =
           let
             (* for a goal, at least one mode must be satisfied *)
-            fun checkList found nil = nil (* found = true *)
-              | checkList false [mS] =
+            let rec checkList = function found nil -> nil (* found = true *)
+              | false [mS] -> 
                   (* mS is the last possible mode to check;
                     if the check fails, we don't catch ModeError *)
                   (
@@ -750,7 +750,7 @@ struct
                       of Unique => k (updateAtom (D, M.Minus1, S, d, mS, (1, occ)))
                        | Ambig => k (updateAtom (D, M.Minus, S, d, mS, (1, occ)))
                   )
-              | checkList found (mS :: mSs) =
+              | found (mS :: mSs) -> 
                   (* uniqueness not permitted on multiple modes right now *)
                   (* Wed Aug 20 21:52:31 2003 -fp *)
                   let
@@ -784,8 +784,8 @@ struct
     (* --------------------------------------------------------- mode checking *)
 
 
-    fun cidFromHead (I.Const a) = a
-      | cidFromHead (I.Def a) = a
+    let rec cidFromHead = function (I.Const a) -> a
+      | (I.Def a) -> a
 
     (* checkD (ConDec, occOpt)  = ()
 
@@ -797,12 +797,12 @@ struct
     fun checkD (conDec, fileName, occOpt) =
         let
           let _ = (checkFree := false)
-          fun checkable (I.Root (Ha, _)) =
+          let rec checkable = function (I.Root (Ha, _)) -> 
               (case (ModeTable.mmodeLookup (cidFromHead Ha))
                  of nil => false
                   | _ => true)
-            | checkable (I.Uni _) = false
-            | checkable (I.Pi (_, V)) = checkable V
+            | (I.Uni _) -> false
+            | (I.Pi (_, V)) -> checkable V
           let V = I.conDecType conDec
         in
           if (checkable V)
@@ -815,15 +815,15 @@ struct
           else ()
         end
 
-    fun checkAll (nil) = ()
-      | checkAll (I.Const(c) :: clist) =
+    let rec checkAll = function (nil) -> ()
+      | (I.Const(c) :: clist) -> 
         (if !Global.chatter > 3
            then print (Names.qidToString (Names.constQid c) ^ " ")
          else ();
          checkDlocal (I.Null, I.constType c, P.top)
            handle Error' (occ, msg) => raise Error (wrapMsg (c, occ, msg));
          checkAll clist)
-      | checkAll (I.Def(d) :: clist) =
+      | (I.Def(d) :: clist) -> 
         (if !Global.chatter > 3
            then print (Names.qidToString (Names.constQid d) ^ " ")
          else ();

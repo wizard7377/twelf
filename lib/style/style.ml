@@ -17,8 +17,8 @@ struct
                                         (* distinguishes style correct
                                            from - incorrect declarations *)
 
-    fun toggle Plus = Minus
-      | toggle Minus = Plus
+    let rec toggle = function Plus -> Minus
+      | Minus -> Plus
 
     (* wrapMsg (c, occ, msg) err = s
 
@@ -41,8 +41,8 @@ struct
        Invariant:
        L' = L without digits
     *)
-    fun denumber [] = []
-      | denumber (c :: l) =
+    let rec denumber = function [] -> []
+      | (c :: l) -> 
         let
           let x = ord c
           let l' = denumber l
@@ -51,8 +51,8 @@ struct
             orelse (x >= 97 andalso x <= 122) then c :: l' else l'
         end
 
-    fun options (n :: nil) = n
-      | options (n :: l) = n ^ ", " ^ (options l)
+    let rec options = function (n :: nil) -> n
+      | (n :: l) -> n ^ ", " ^ (options l)
 
 
     fun error c (prefNames, n, occ) err =
@@ -73,26 +73,26 @@ struct
        If  D's name corresponds to the name choice for pol,
        then I is Correct else Incorrect
     *)
-    fun checkVar (I.Dec (SOME n, V), pol) =
+    let rec checkVar = function (I.Dec (SOME n, V), pol) -> 
         (case (Names.getNamePref (I.targetFam V))
            of NONE => Correct
             | SOME (prefENames, prefUNames) =>
               (case pol
                  of Plus => checkVariablename (n, prefENames)
                   | Minus => checkVariablename (n, prefUNames)))
-      | checkVar (I.Dec (NONE, V), pol) = Correct
+      | (I.Dec (NONE, V), pol) -> Correct
 
     (* implicitHead H = k
 
        Invariant:
        k = # implicit arguments associated with H
     *)
-    fun implicitHead (I.BVar k) = 0
-      | implicitHead (I.Const c) = I.constImp c
-      | implicitHead (I.Skonst k) = 0
-      | implicitHead (I.Def d) = I.constImp d
-      | implicitHead (I.NSDef d) = I.constImp d
-      | implicitHead (I.FgnConst _) = 0
+    let rec implicitHead = function (I.BVar k) -> 0
+      | (I.Const c) -> I.constImp c
+      | (I.Skonst k) -> 0
+      | (I.Def d) -> I.constImp d
+      | (I.NSDef d) -> I.constImp d
+      | (I.FgnConst _) -> 0
 
 
     (* checkExp c ((G, P), U, occ) err = L
@@ -106,14 +106,14 @@ struct
        and   err an function mapping occ to regions
        then  L is a list of strings (error messages) computed from U
     *)
-    fun checkExp c ((G, P), I.Uni _, occ) err = []
-      | checkExp c ((G, P), I.Lam (D, U), occ) err =
+    let rec checkExp = function c ((G, P), I.Uni _, occ) err -> []
+      | c ((G, P), I.Lam (D, U), occ) err -> 
         (checkDec c ((G, P), D, Minus, occ) err
          (fn ((G', P'), L') => L' @ checkExp c ((G', P'), U, P.body occ) err))
-      | checkExp c ((G, P), I.Root (H, S), occ) err=
+      | c ((G, P), I.Root (H, S), occ) err -> 
          checkHead c ((G, P), H, P.head occ) err @
         checkSpine c ((G, P), 1, implicitHead H, S, P.body occ) err
-      | checkExp c ((G, P), I.FgnExp (_, _), occ) err = []
+      | c ((G, P), I.FgnExp (_, _), occ) err -> []
 
     (* checkType c ((G, P), V, pol, occ) err = L
 
@@ -233,8 +233,8 @@ struct
        then  L is a list of  strings (error messages) computed from V
        (omitted arguments generate error message where they are used not declared)
     *)
-    fun checkType' c ((G, P), 0, V, occ) err = checkType c ((G, P), V, Plus, occ) err
-      | checkType' c ((G, P), n, I.Pi ((D, I.Maybe), V), occ) err =
+    let rec checkType' = function c ((G, P), 0, V, occ) err -> checkType c ((G, P), V, Plus, occ) err
+      | c ((G, P), n, I.Pi ((D, I.Maybe), V), occ) err -> 
          (checkDecImp ((G, P), D, Plus)
           (fn ((G', P'), L') => L' @
           checkType' c ((G', P'), n-1, V, P.body occ) err))
@@ -250,11 +250,11 @@ struct
        then  L is a list of  strings (error messages) computed from U
        (top level negative occurrences exception.  Treated as pos occurrences)
     *)
-    fun checkExp' c ((G, P), I.Lam (D, U), occ) err =
+    let rec checkExp' = function c ((G, P), I.Lam (D, U), occ) err -> 
          (checkDec c ((G, P), D, Plus, occ) err
           (fn ((G', P'), L') => L' @
           checkExp' c ((G', P'), U, P.body occ) err))
-      | checkExp' c ((G, P), U, occ) err = checkExp c ((G, P), U, occ) err
+      | c ((G, P), U, occ) err -> checkExp c ((G, P), U, occ) err
 
 
     (* checkDef c ((G, P), n, U, occ) err = L
@@ -269,8 +269,8 @@ struct
        then  L is a list of strings (error messages) computed from U
        (top level negative occurrences exception.  Treated as pos occurrences)
     *)
-    fun checkDef c ((G, P), 0, U,  occ) err = checkExp' c ((G, P), U, occ) err
-      | checkDef c ((G, P), n, I.Lam (D, U),  occ) err =
+    let rec checkDef = function c ((G, P), 0, U,  occ) err -> checkExp' c ((G, P), U, occ) err
+      | c ((G, P), n, I.Lam (D, U),  occ) err -> 
          (checkDecImp ((G, P), D, Plus)
           (fn ((G', P'), L') => L' @
            checkDef c ((G', P'), n-1, U, P.body occ) err))
@@ -282,26 +282,26 @@ struct
        and   . |- C : V for some type V, constant declaration
        then  L is a list of  strings (error messages) computed from C
     *)
-    fun checkConDec c (I.ConDec (_, _, implicit, _, U, _)) =
+    let rec checkConDec = function c (I.ConDec (_, _, implicit, _, U, _)) -> 
         (if !Global.chatter > 3
            then print (Names.qidToString (Names.constQid c) ^ " ")
          else ();
            checkType' c ((I.Null, I.Null), implicit, U, P.top) P.occToRegionDec)
-      | checkConDec c (I.ConDef (_, _, implicit, U, V, I.Type, _)) =
+      | c (I.ConDef (_, _, implicit, U, V, I.Type, _)) -> 
            (if !Global.chatter > 3
               then print (Names.qidToString (Names.constQid c) ^ " ")
             else ();
            checkType' c ((I.Null, I.Null), implicit, V, P.top) P.occToRegionDef2 @
            checkDef c ((I.Null, I.Null), implicit, U, P.top) P.occToRegionDef1)
               (* type level definitions ? *)
-      | checkConDec c (I.AbbrevDef (_, _, implicit, U, V, I.Type)) =
+      | c (I.AbbrevDef (_, _, implicit, U, V, I.Type)) -> 
            (if !Global.chatter > 3
               then print (Names.qidToString (Names.constQid c) ^ " ")
             else ();
            checkType' c ((I.Null, I.Null), implicit, V, P.top) P.occToRegionDef2;
            checkDef c ((I.Null, I.Null), implicit, U, P.top) P.occToRegionDef1)
               (* type level abbreviations ? *)
-      | checkConDec c _ = []   (* in all other cases *)
+      | c _ -> []   (* in all other cases *)
 
 
     (* checkAll (c, n) = L

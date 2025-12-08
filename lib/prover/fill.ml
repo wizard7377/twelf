@@ -63,16 +63,16 @@ struct
     *)
     fun expand (S.FocusLF (Y as I.EVar (r, G, V, _))) =   (* Y is lowered *)
       let
-        fun try (Vs as (I.Root _, _), Fs, O) =
+        let rec try = function (Vs as (I.Root _, _), Fs, O) -> 
           (CSManager.trail (fn () => (Unify.unify (G, Vs, (V, I.id)); O :: Fs))
            handle Unify.Unify _ => Fs)
-          | try ((I.Pi ((I.Dec (_, V1), _), V2), s), Fs, O) =
+          | ((I.Pi ((I.Dec (_, V1), _), V2), s), Fs, O) -> 
           let
             let X = I.newEVar (G, I.EClo (V1, s))
           in
             try ((V2, I.Dot (I.Exp X, s)), Fs, O)
           end
-          | try ((I.EClo (V, s'), s), Fs, O) = try ((V, I.comp (s', s)), Fs, O)
+          | ((I.EClo (V, s'), s), Fs, O) -> try ((V, I.comp (s', s)), Fs, O)
 
         (* matchCtx (G, n, Fs) = Fs'
 
@@ -81,14 +81,14 @@ struct
            satisfy the representation invariant, then Fs' is a list of filling operators
            that satisfy the representation invariant.
         *)
-        fun matchCtx (I.Null, _, Fs) = Fs
-          | matchCtx (I.Decl (G, I.Dec (x, V)), n, Fs) =
+        let rec matchCtx = function (I.Null, _, Fs) -> Fs
+          | (I.Decl (G, I.Dec (x, V)), n, Fs) -> 
           matchCtx (G, n+1, try ((V, I.Shift (n+1)), Fs, FillWithBVar (Y, n+1)))
-          | matchCtx (I.Decl (G, I.NDec _), n, Fs) =
+          | (I.Decl (G, I.NDec _), n, Fs) -> 
           matchCtx (G, n+1, Fs)
 
-        fun matchSig (nil, Fs) = Fs
-          | matchSig (I.Const (c)::L, Fs) =
+        let rec matchSig = function (nil, Fs) -> Fs
+          | (I.Const (c)::L, Fs) -> 
           matchSig (L, try ((I.constType (c), I.id), Fs, FillWithConst (Y, c)))
       in
         matchCtx (G, 0, matchSig (Index.lookup (I.targetFam V), nil))
@@ -100,7 +100,7 @@ struct
        If op is a filling operator that satisfies the representation invariant.
        The apply operation is guaranteed to always succeed.
     *)
-    fun apply (FillWithBVar(Y as I.EVar (r, G, V, _), n)) = (* Y is lowered *)
+    let rec apply = function (FillWithBVar(Y as I.EVar (r, G, V, _), n)) -> (* Y is lowered *)
       let
         (* Invariant : G |- s : G'   G' |- V : type *)
         fun doit (Vs as (I.Root _, _),  k) =
@@ -117,7 +117,7 @@ struct
       in
         doit ((W, I.id),  fun S -> Unify.unify (G, (Y, I.id), (I.Root (I.BVar n, S), I.id)))
       end
-    | apply (FillWithConst(Y as I.EVar (r, G0, V, _), c)) =
+    | (FillWithConst(Y as I.EVar (r, G0, V, _), c)) -> 
       let
         fun doit (Vs as (I.Root _, _),  k) =
             (Unify.unify (G0, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
@@ -138,12 +138,12 @@ struct
        If op is a filling operator
        then s' is a string describing the operation in plain text
     *)
-    fun menu (FillWithBVar (X as I.EVar (_, G, _, _), n)) =
+    let rec menu = function (FillWithBVar (X as I.EVar (_, G, _, _), n)) -> 
         (case (I.ctxLookup (Names.ctxName G, n))
           of I.Dec (SOME x, _) =>
             ("Fill " ^ Names.evarName (G, X) ^ " with variable " ^ x))
            (* Invariant: Context is named  --cs Fri Mar  3 14:31:08 2006 *)
-      | menu (FillWithConst (X as I.EVar (_, G, _, _), c)) =
+      | (FillWithConst (X as I.EVar (_, G, _, _), c)) -> 
            ("Fill " ^ Names.evarName (G, X) ^ " with constant " ^ IntSyn.conDecName (IntSyn.sgnLookup c))
 
   in

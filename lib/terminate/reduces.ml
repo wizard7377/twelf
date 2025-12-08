@@ -54,18 +54,18 @@ struct
                                          Origins.linesInfoLookup (fileName),
                                          msg)))
 
-    fun concat (G', I.Null) = G'
-      | concat (G', I.Decl(G, D)) = I.Decl(concat(G', G), D)
+    let rec concat = function (G', I.Null) -> G'
+      | (G', I.Decl(G, D)) -> I.Decl(concat(G', G), D)
    (*--------------------------------------------------------------------*)
    (* Printing *)
 
     fun fmtOrder (G, O) =
         let
-          fun fmtOrder' (R.Arg (Us as (U, s), Vs as (V, s'))) =
+          let rec fmtOrder' = function (R.Arg (Us as (U, s), Vs as (V, s'))) -> 
                 F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
-            | fmtOrder' (R.Lex L) =
+            | (R.Lex L) -> 
                 F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"]
-            | fmtOrder' (R.Simul L) =
+            | (R.Simul L) -> 
                 F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"]
 
           and fmtOrders [] = []
@@ -80,17 +80,17 @@ struct
                          F.Break, fmtOrder (G, O')]
 
 
-    fun fmtPredicate (G, C.Less(O, O')) = fmtComparison (G, O, "<", O')
-      | fmtPredicate (G, C.Leq(O, O'))  = fmtComparison (G, O, "<=", O')
-      | fmtPredicate (G, C.Eq(O, O'))  = fmtComparison (G, O, "=", O')
-      | fmtPredicate (G, C.Pi(D, P))  =
+    let rec fmtPredicate = function (G, C.Less(O, O')) -> fmtComparison (G, O, "<", O')
+      | (G, C.Leq(O, O')) -> fmtComparison (G, O, "<=", O')
+      | (G, C.Eq(O, O')) -> fmtComparison (G, O, "=", O')
+      | (G, C.Pi(D, P)) -> 
           F.Hbox [F.String "Pi ",
                   fmtPredicate (I.Decl(G, D), P)]
 
-    fun rlistToString' (G, nil) = ""
-      | rlistToString' (G, [P]) =
+    let rec rlistToString' = function (G, nil) -> ""
+      | (G, [P]) -> 
         F.makestring_fmt(fmtPredicate (G, P) )
-      | rlistToString' (G, (P::Rl)) =
+      | (G, (P::Rl)) -> 
         F.makestring_fmt(fmtPredicate (G, P)) ^ " ," ^ rlistToString' (G, Rl)
 
     fun rlistToString (G, Rl) = rlistToString' (Names.ctxName G, Rl)
@@ -125,9 +125,9 @@ struct
                              (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
                 select'' (n-1, ((S', s'),
                                 (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
-          fun select' (R.Arg n) = R.Arg (select'' (n, ((S, s), Vid)))
-            | select' (R.Lex L) = R.Lex (map select' L)
-            | select' (R.Simul L) = R.Simul (map select' L)
+          let rec select' = function (R.Arg n) -> R.Arg (select'' (n, ((S, s), Vid)))
+            | (R.Lex L) -> R.Lex (map select' L)
+            | (R.Simul L) -> R.Simul (map select' L)
         in
           select' (R.selLookup c)
         end
@@ -163,13 +163,13 @@ struct
                              (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
                 select'' (n-1, ((S', s'),
                                 (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
-          fun select' (R.Arg n) = R.Arg (select'' (n, ((S, s), Vid)))
-            | select' (R.Lex L) = R.Lex (map select' L)
-            | select' (R.Simul L) = R.Simul (map select' L)
+          let rec select' = function (R.Arg n) -> R.Arg (select'' (n, ((S, s), Vid)))
+            | (R.Lex L) -> R.Lex (map select' L)
+            | (R.Simul L) -> R.Simul (map select' L)
 
-          fun selectP (R.Less(O1, O2)) = C.Less(select' O1, select' O2)
-            | selectP (R.Leq(O1, O2)) = C.Leq(select' O1, select' O2)
-            | selectP (R.Eq(O1, O2)) = C.Eq(select' O1, select' O2)
+          let rec selectP = function (R.Less(O1, O2)) -> C.Less(select' O1, select' O2)
+            | (R.Leq(O1, O2)) -> C.Leq(select' O1, select' O2)
+            | (R.Eq(O1, O2)) -> C.Eq(select' O1, select' O2)
         in
           SOME(selectP (R.selLookupROrder c)) handle R.Error(s) => NONE
         end
@@ -259,10 +259,10 @@ struct
       | checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Const a, S), s),
                     Vs' as (I.Root (I.Const a', S'), s'), occ) =
         let
-          fun lookup (R.Empty, f) = R.Empty
-            | lookup (a's as R.LE (a, a's'), f) =
+          let rec lookup = function (R.Empty, f) -> R.Empty
+            | (a's as R.LE (a, a's'), f) -> 
                 if (f a) then a's else lookup (a's', f)
-            | lookup (a's as R.LT (a, a's'), f) =
+            | (a's as R.LT (a, a's'), f) -> 
                 if (f a) then a's else lookup (a's', f)
           let P = selectOcc (a, (S, s), occ)    (* only if a terminates? *)
           let P' = select (a', (S', s')) (* always succeeds? -fp *)
@@ -516,11 +516,11 @@ struct
     *)
     fun checkFamReduction a =
         let
-          fun checkFam' [] =
+          let rec checkFam' = function [] -> 
               (if !Global.chatter > 3
                  then print "\n"
                else () ; ())
-            | checkFam' (I.Const(b)::bs) =
+            | (I.Const(b)::bs) -> 
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid b) ^ " ")
                  else ();
@@ -532,7 +532,7 @@ struct
                     handle Error' (occ, msg) => error (b, occ, msg)
                          | R.Error (msg) => raise Error (msg));
                    checkFam' bs)
-            | checkFam' (I.Def(d)::bs) =
+            | (I.Def(d)::bs) -> 
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid d) ^ " ")
                  else ();
@@ -565,11 +565,11 @@ struct
 
     fun checkFam a =
         let
-          fun checkFam' [] =
+          let rec checkFam' = function [] -> 
               (if !Global.chatter > 3
                  then print "\n"
                else () ; ())
-            | checkFam' (I.Const b::bs) =
+            | (I.Const b::bs) -> 
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid b) ^ " ")
                  else ();
@@ -581,7 +581,7 @@ struct
                  handle Error' (occ, msg) => error (b, occ, msg)
                       | Order.Error (msg) => raise Error (msg));
                  checkFam' bs)
-            | checkFam' (I.Def(d)::bs) =
+            | (I.Def(d)::bs) -> 
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid d) ^ " ")
                  else ();

@@ -43,14 +43,14 @@ struct
     module C = CompSyn
 
 
-  fun cidFromHead (I.Const a) = a
-    | cidFromHead (I.Def a) = a
-    | cidFromHead (I.Skonst a) = a
+  let rec cidFromHead = function (I.Const a) -> a
+    | (I.Def a) -> a
+    | (I.Skonst a) -> a
 
   (* only used for type families of compiled clauses *)
-  fun eqHead (I.Const a, I.Const a') = a = a'
-    | eqHead (I.Def a, I.Def a') = a = a'
-    | eqHead _ = false
+  let rec eqHead = function (I.Const a, I.Const a') -> a = a'
+    | (I.Def a, I.Def a') -> a = a'
+    | _ -> false
 
   (* solve ((g,s), (G,dPool), sc, (acc, k)) => ()
      Invariants:
@@ -63,8 +63,8 @@ struct
             used in the universal case for max search depth)
        if  G |- M :: g[s] then G |- sc :: g[s] => Answer, Answer closed
   *)
-  fun solve ((C.Atom p, s), dp, sc, acck) = matchAtom ((p,s), dp, sc, acck)
-    | solve ((C.Impl (r, A, H, g), s), C.DProg(G, dPool), sc, acck) =
+  let rec solve = function ((C.Atom p, s), dp, sc, acck) -> matchAtom ((p,s), dp, sc, acck)
+    | ((C.Impl (r, A, H, g), s), C.DProg(G, dPool), sc, acck) -> 
        let
          let D' = I.Dec (NONE, I.EClo (A, s))
        in
@@ -72,7 +72,7 @@ struct
                 C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, H))),
                 (fn (M, acck') => sc (I.Lam (D', M), acck')), acck)
        end
-    | solve ((C.All (D, g), s), C.DProg (G, dPool), sc, acck) =
+    | ((C.All (D, g), s), C.DProg (G, dPool), sc, acck) -> 
        let
          let D' = I.decSub (D, s)
        in
@@ -159,8 +159,8 @@ struct
       let
         fun matchSig acc' =
             let
-              fun matchSig' (nil, acc'') = acc''
-                | matchSig' (Hc ::sgn', acc'') =
+              let rec matchSig' = function (nil, acc'') -> acc''
+                | (Hc ::sgn', acc'') -> 
                   let
                     let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
                     let acc''' = CSManager.trail
@@ -175,8 +175,8 @@ struct
               matchSig' (Index.lookup (cidFromHead Ha), acc')
             end
 
-        fun matchDProg (I.Null, _, acc') = matchSig acc'
-          | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') =
+        let rec matchDProg = function (I.Null, _, acc') -> matchSig acc'
+          | (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') -> 
             if eqHead (Ha, Ha') then
               let
                 let acc'' = CSManager.trail (fn () =>
@@ -187,7 +187,7 @@ struct
                 matchDProg (dPool', n+1, acc'')
               end
             else matchDProg (dPool', n+1, acc')
-          | matchDProg (I.Decl (dPool', C.Parameter), n, acc') =
+          | (I.Decl (dPool', C.Parameter), n, acc') -> 
               matchDProg (dPool', n+1, acc')
       in
         if k < 0 then acc else matchDProg (dPool, 1, acc)
@@ -227,8 +227,8 @@ struct
        B hold iff
         r does not occur in any type of EVars in GE
     *)
-    fun nonIndex (_, nil) = true
-      | nonIndex (r, I.EVar (_, _, V, _) :: GE) =
+    let rec nonIndex = function (_, nil) -> true
+      | (r, I.EVar (_, _, V, _) :: GE) -> 
           (not (occursInExp (r, (V, I.id)))) andalso nonIndex (r, GE)
 
     (* select (GE, (V, s), acc) = acc'
@@ -243,8 +243,8 @@ struct
     *)
     (* Efficiency: repeated whnf for every subterm in Vs!!! *)
 
-    fun selectEVar (nil, _, acc) = acc
-      | selectEVar ((X as I.EVar (r, _, _, _)) :: GE, Vs, acc) =
+    let rec selectEVar = function (nil, _, acc) -> acc
+      | ((X as I.EVar (r, _, _, _)) :: GE, Vs, acc) -> 
           if occursInExp (r, Vs) andalso nonIndex (r, acc) then
             selectEVar (GE, Vs, X :: acc)
           else selectEVar (GE, Vs, acc)
@@ -260,11 +260,11 @@ struct
             otherwise searchEx' terminates with []
     *)
     (* contexts of EVars are recompiled for each search depth *)
-    fun searchEx' max (nil, sc) = [sc ()]
+    let rec searchEx' = function max (nil, sc) -> [sc ()]
         (* Possible optimization:
            Check if there are still variables left over
         *)
-      | searchEx' max (I.EVar (r, G, V, _) :: GE, sc) =
+      | max (I.EVar (r, G, V, _) :: GE, sc) -> 
           solve ((Compile.compileGoal (G, V), I.id),
                  Compile.compileCtx false G,
                  (fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);
@@ -318,8 +318,8 @@ struct
     *)
     (* Shared contexts of EVars in GE may recompiled many times *)
 
-    fun searchAll' (nil, acc, sc) = sc (acc)
-      | searchAll' (I.EVar (r, G, V, _) :: GE, acc, sc) =
+    let rec searchAll' = function (nil, acc, sc) -> sc (acc)
+      | (I.EVar (r, G, V, _) :: GE, acc, sc) -> 
           solve ((Compile.compileGoal (G, V), I.id),
                  Compile.compileCtx false G,
                  (fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);

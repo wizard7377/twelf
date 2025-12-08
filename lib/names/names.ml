@@ -66,52 +66,52 @@ struct
       | precToIntAsc(Nonfix) = minPrecInt
 
     (* prec (fix) = precedence of fix *)
-    fun prec (Infix(p,_)) = p
-      | prec (Prefix(p)) = p
-      | prec (Postfix(p)) = p
-      | prec (Nonfix) = inc (maxPrec)
+    let rec prec = function (Infix(p,_)) -> p
+      | (Prefix(p)) -> p
+      | (Postfix(p)) -> p
+      | (Nonfix) -> inc (maxPrec)
 
     (* toString (fix) = declaration corresponding to fix *)
-    fun toString (Infix(Strength(p),Left)) = "%infix left " ^ Int.toString p
-      | toString (Infix(Strength(p),Right)) = "%infix right " ^ Int.toString p
-      | toString (Infix(Strength(p),None)) = "%infix none " ^ Int.toString p
-      | toString (Prefix(Strength(p))) = "%prefix " ^ Int.toString p
-      | toString (Postfix(Strength(p))) = "%postfix " ^ Int.toString p
-      | toString (Nonfix) = "%nonfix"   (* not legal input *)
+    let rec toString = function (Infix(Strength(p),Left)) -> "%infix left " ^ Int.toString p
+      | (Infix(Strength(p),Right)) -> "%infix right " ^ Int.toString p
+      | (Infix(Strength(p),None)) -> "%infix none " ^ Int.toString p
+      | (Prefix(Strength(p))) -> "%prefix " ^ Int.toString p
+      | (Postfix(Strength(p))) -> "%postfix " ^ Int.toString p
+      | (Nonfix) -> "%nonfix"   (* not legal input *)
 
   end  (* module Fixity *)
 
   (* argNumber (fix) = minimum # of explicit arguments required *)
   (* for operator with fixity fix (0 if there are no requirements) *)
-  fun argNumber (Fixity.Nonfix) = 0
-    | argNumber (Fixity.Infix _) = 2
-    | argNumber (Fixity.Prefix _) = 1
-    | argNumber (Fixity.Postfix _) = 1
+  let rec argNumber = function (Fixity.Nonfix) -> 0
+    | (Fixity.Infix _) -> 2
+    | (Fixity.Prefix _) -> 1
+    | (Fixity.Postfix _) -> 1
 
   (* checkAtomic (name, V, n) = ()
      if V expects exactly n arguments,
      raises Error(msg) otherwise
   *)
-  fun checkAtomic (name, IntSyn.Pi (D, V), 0) = true
+  let rec checkAtomic = function (name, IntSyn.Pi (D, V), 0) -> true
       (* allow extraneous arguments, Sat Oct 23 14:18:27 1999 -fp *)
       (* raise Error ("Constant " ^ name ^ " takes too many explicit arguments for given fixity") *)
-    | checkAtomic (name, IntSyn.Pi (D, V), n) =
+    | (name, IntSyn.Pi (D, V), n) -> 
         checkAtomic (name, V, n-1)
-    | checkAtomic (_, IntSyn.Uni _, 0) = true
-    | checkAtomic (_, IntSyn.Root _, 0) = true
-    | checkAtomic (name, _, _) = false
+    | (_, IntSyn.Uni _, 0) -> true
+    | (_, IntSyn.Root _, 0) -> true
+    | (name, _, _) -> false
 
   (* checkArgNumber (c, n) = ()
      if constant c expects exactly n explicit arguments,
      raises Error (msg) otherwise
   *)
-  fun checkArgNumber (IntSyn.ConDec (name, _, i, _, V, L), n) =
+  let rec checkArgNumber = function (IntSyn.ConDec (name, _, i, _, V, L), n) -> 
         checkAtomic (name, V, i+n)
-    | checkArgNumber (IntSyn.SkoDec (name, _, i, V, L), n) =
+    | (IntSyn.SkoDec (name, _, i, V, L), n) -> 
         checkAtomic (name, V, i+n)
-    | checkArgNumber (IntSyn.ConDef (name, _, i, _, V, L, _), n) =
+    | (IntSyn.ConDef (name, _, i, _, V, L, _), n) -> 
         checkAtomic (name, V, i+n)
-    | checkArgNumber (IntSyn.AbbrevDef (name, _, i, _, V, L), n) =
+    | (IntSyn.AbbrevDef (name, _, i, _, V, L), n) -> 
         checkAtomic (name, V, i+n)
 
   (* checkFixity (name, cidOpt, n) = ()
@@ -119,8 +119,8 @@ struct
      or name is declared and has n exactly explicit arguments,
      raises Error (msg) otherwise
   *)
-  fun checkFixity (name, _, 0) = ()
-    | checkFixity (name, cid, n) =
+  let rec checkFixity = function (name, _, 0) -> ()
+    | (name, cid, n) -> 
       if checkArgNumber (IntSyn.sgnLookup (cid), n) then ()
       else raise Error ("Constant " ^ name ^ " takes too few explicit arguments for given fixity")
 
@@ -155,8 +155,8 @@ struct
   fun qidToString (Qid (ids, name)) =
         List.foldr (fn (id, s) => id ^ "." ^ s) name ids
 
-  fun validateQualName nil = NONE
-    | validateQualName (l as id::ids) =
+  let rec validateQualName = function nil -> NONE
+    | (l as id::ids) -> 
         if List.exists (fun s -> s = "") l
           then NONE
         else SOME (Qid (rev ids, id))
@@ -164,8 +164,8 @@ struct
   fun stringToQid name =
         validateQualName (rev (String.fields (fun c -> c = #".") name))
 
-  fun unqualified (Qid (nil, id)) = SOME id
-    | unqualified _ = NONE
+  let rec unqualified = function (Qid (nil, id)) -> SOME id
+    | _ -> NONE
 
   type namespace = IntSyn.mid StringTree.Table * IntSyn.cid StringTree.Table
 
@@ -316,57 +316,57 @@ struct
     fun structComps mid = #1 (Array.sub (componentsArray, mid))
     fun constComps mid = #2 (Array.sub (componentsArray, mid))
 
-    fun findStruct (structTable, [id]) =
+    let rec findStruct = function (structTable, [id]) -> 
           StringTree.lookup structTable id
-      | findStruct (structTable, id::ids) =
+      | (structTable, id::ids) -> 
         (case StringTree.lookup structTable id
            of NONE => NONE
             | SOME mid => findStruct (structComps mid, ids))
 
-    fun findTopStruct [id] =
+    let rec findTopStruct = function [id] -> 
           HashTable.lookup topStructNamespace id
-      | findTopStruct (id::ids) =
+      | (id::ids) -> 
         (case HashTable.lookup topStructNamespace id
            of NONE => NONE
             | SOME mid => findStruct (structComps mid, ids))
 
-    fun findUndefStruct (structTable, [id], ids') =
+    let rec findUndefStruct = function (structTable, [id], ids') -> 
         (case StringTree.lookup structTable id
            of NONE => SOME (Qid (rev ids', id))
             | SOME _ => NONE)
-      | findUndefStruct (structTable, id::ids, ids') =
+      | (structTable, id::ids, ids') -> 
         (case StringTree.lookup structTable id
            of NONE => SOME (Qid (rev ids', id))
             | SOME mid => findUndefStruct (structComps mid, ids, id::ids'))
 
-    fun findTopUndefStruct [id] =
+    let rec findTopUndefStruct = function [id] -> 
         (case HashTable.lookup topStructNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | findTopUndefStruct (id::ids) =
+      | (id::ids) -> 
         (case HashTable.lookup topStructNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME mid => findUndefStruct (structComps mid, ids, [id]))
 
-    fun constLookupIn ((structTable, constTable), Qid (nil, id)) =
+    let rec constLookupIn = function ((structTable, constTable), Qid (nil, id)) -> 
           StringTree.lookup constTable id
-      | constLookupIn ((structTable, constTable), Qid (ids, id)) =
+      | ((structTable, constTable), Qid (ids, id)) -> 
         (case findStruct (structTable, ids)
            of NONE => NONE
             | SOME mid => StringTree.lookup (constComps mid) id)
 
-    fun structLookupIn ((structTable, constTable), Qid (nil, id)) =
+    let rec structLookupIn = function ((structTable, constTable), Qid (nil, id)) -> 
           StringTree.lookup structTable id
-      | structLookupIn ((structTable, constTable), Qid (ids, id)) =
+      | ((structTable, constTable), Qid (ids, id)) -> 
         (case findStruct (structTable, ids)
            of NONE => NONE
             | SOME mid => StringTree.lookup (structComps mid) id)
 
-    fun constUndefIn ((structTable, constTable), Qid (nil, id)) =
+    let rec constUndefIn = function ((structTable, constTable), Qid (nil, id)) -> 
         (case StringTree.lookup constTable id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | constUndefIn ((structTable, constTable), Qid (ids, id)) =
+      | ((structTable, constTable), Qid (ids, id)) -> 
         (case findUndefStruct (structTable, ids, nil)
            of opt as SOME _ => opt
             | NONE =>
@@ -374,11 +374,11 @@ struct
            of NONE => SOME (Qid (ids, id))
             | SOME _ => NONE))
 
-    fun structUndefIn ((structTable, constTable), Qid (nil, id)) =
+    let rec structUndefIn = function ((structTable, constTable), Qid (nil, id)) -> 
         (case StringTree.lookup structTable id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | structUndefIn ((structTable, constTable), Qid (ids, id)) =
+      | ((structTable, constTable), Qid (ids, id)) -> 
         (case findUndefStruct (structTable, ids, nil)
            of opt as SOME _ => opt
             | NONE =>
@@ -389,25 +389,25 @@ struct
     (* nameLookup (qid) = SOME(cid),  if qid refers to cid in the current context,
                         = NONE,       if there is no such constant
     *)
-    fun constLookup (Qid (nil, id)) =
+    let rec constLookup = function (Qid (nil, id)) -> 
           HashTable.lookup topNamespace id
-      | constLookup (Qid (ids, id)) =
+      | (Qid (ids, id)) -> 
         (case findTopStruct ids
            of NONE => NONE
             | SOME mid => StringTree.lookup (constComps mid) id)
 
-    fun structLookup (Qid (nil, id)) =
+    let rec structLookup = function (Qid (nil, id)) -> 
           HashTable.lookup topStructNamespace id
-      | structLookup (Qid (ids, id)) =
+      | (Qid (ids, id)) -> 
         (case findTopStruct ids
            of NONE => NONE
             | SOME mid => StringTree.lookup (structComps mid) id)
 
-    fun constUndef (Qid (nil, id)) =
+    let rec constUndef = function (Qid (nil, id)) -> 
         (case HashTable.lookup topNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | constUndef (Qid (ids, id)) =
+      | (Qid (ids, id)) -> 
         (case findTopUndefStruct ids
            of opt as SOME _ => opt
             | NONE =>
@@ -415,11 +415,11 @@ struct
            of NONE => SOME (Qid (ids, id))
             | SOME _ => NONE))
 
-    fun structUndef (Qid (nil, id)) =
+    let rec structUndef = function (Qid (nil, id)) -> 
         (case HashTable.lookup topStructNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | structUndef (Qid (ids, id)) =
+      | (Qid (ids, id)) -> 
         (case findTopUndefStruct ids
            of opt as SOME _ => opt
             | NONE =>
@@ -437,9 +437,9 @@ struct
              | SOME mid' => structPath (mid', ids')
         end
 
-    fun maybeShadow (qid, false) = qid
-      | maybeShadow (Qid (nil, id), true) = Qid (nil, "%" ^ id ^ "%")
-      | maybeShadow (Qid (id::ids, name), true) = Qid ("%" ^ id ^ "%"::ids, name)
+    let rec maybeShadow = function (qid, false) -> qid
+      | (Qid (nil, id), true) -> Qid (nil, "%" ^ id ^ "%")
+      | (Qid (id::ids, name), true) -> Qid ("%" ^ id ^ "%"::ids, name)
 
     fun conDecQid condec =
         let
@@ -519,9 +519,9 @@ struct
        Effect: install name preference for type family cid
        raise Error if cid does not refer to a type family
     *)
-    fun installNamePref (cid, (ePref, nil)) =
+    let rec installNamePref = function (cid, (ePref, nil)) -> 
           installNamePref' (cid, (ePref, [String.map Char.toLower (hd ePref)]))
-      | installNamePref (cid, (ePref, uPref)) =
+      | (cid, (ePref, uPref)) -> 
           installNamePref' (cid, (ePref, uPref))
 
     fun getNamePref cid = Array.sub (namePrefArray, cid)
@@ -538,23 +538,23 @@ struct
     type Extent = Local | Global
     type Role = Exist | Univ of Extent
 
-    fun extent (Exist) = Global
-      | extent (Univ (ext)) = ext
+    let rec extent = function (Exist) -> Global
+      | (Univ (ext)) -> ext
 
-    fun namePrefOf'' (Exist, NONE) = "X"
-      | namePrefOf'' (Univ _, NONE) = "x"
-      | namePrefOf'' (Exist, SOME(ePref, uPref)) = hd ePref
-      | namePrefOf'' (Univ _, SOME(ePref, uPref)) = hd uPref
+    let rec namePrefOf'' = function (Exist, NONE) -> "X"
+      | (Univ _, NONE) -> "x"
+      | (Exist, SOME(ePref, uPref)) -> hd ePref
+      | (Univ _, SOME(ePref, uPref)) -> hd uPref
 
-    fun namePrefOf' (Exist, NONE) = "X"
-      | namePrefOf' (Univ _, NONE) = "x"
-      | namePrefOf' (role, SOME(IntSyn.Const cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
-      | namePrefOf' (role, SOME(IntSyn.Def cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
+    let rec namePrefOf' = function (Exist, NONE) -> "X"
+      | (Univ _, NONE) -> "x"
+      | (role, SOME(IntSyn.Const cid)) -> namePrefOf'' (role, Array.sub (namePrefArray, cid))
+      | (role, SOME(IntSyn.Def cid)) -> namePrefOf'' (role, Array.sub (namePrefArray, cid))
         (* the following only needed because reconstruction replaces
            undetermined types with FVars *)
-      | namePrefOf' (role, SOME(IntSyn.FVar _)) = namePrefOf'' (role, NONE)
+      | (role, SOME(IntSyn.FVar _)) -> namePrefOf'' (role, NONE)
 
-      | namePrefOf' (role, SOME(IntSyn.NSDef cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
+      | (role, SOME(IntSyn.NSDef cid)) -> namePrefOf'' (role, Array.sub (namePrefArray, cid))
 
     (* namePrefOf (role, V) = name
        where name is the preferred base name for a variable with type V
@@ -647,12 +647,12 @@ struct
     (* Since constraints are not printable at present, we only *)
     (* return a list of names of EVars that have constraints on them *)
     (* Note that EVars which don't have names, will not be considered! *)
-    fun evarCnstr' (nil, acc) = acc
-      | evarCnstr' ((Xn as (IntSyn.EVar(ref(NONE), _, _, cnstrs), name))::l, acc) =
+    let rec evarCnstr' = function (nil, acc) -> acc
+      | ((Xn as (IntSyn.EVar(ref(NONE), _, _, cnstrs), name))::l, acc) -> 
           (case Constraints.simplify (!cnstrs)
              of nil => evarCnstr' (l, acc)
               | (_::_) => evarCnstr' (l, Xn::acc))
-      | evarCnstr' (_::l, acc) = evarCnstr' (l, acc)
+      | (_::l, acc) -> evarCnstr' (l, acc)
     fun evarCnstr () = evarCnstr' (!evarList, nil)
 
     (* The indexTable maps a name to the last integer suffix used for it.
@@ -664,8 +664,8 @@ struct
     let indexLookup = StringTree.lookup indexTable
     fun indexClear () = StringTree.clear indexTable
 
-    fun nextIndex' (name, NONE) = (indexInsert (name, 1); 1)
-      | nextIndex' (name, SOME(i)) = (indexInsert (name, i+1); i+1)
+    let rec nextIndex' = function (name, NONE) -> (indexInsert (name, 1); 1)
+      | (name, SOME(i)) -> (indexInsert (name, i+1); i+1)
 
     (* nextIndex (name) = i
        where i is the next available integer suffix for name,
@@ -743,8 +743,8 @@ struct
           else name
         end
 
-    fun findName (G, base, Local) = findNameLocal (G, base, 0)
-      | findName (G, base, Global) = tryNextName (G, base)
+    let rec findName = function (G, base, Local) -> findNameLocal (G, base, 0)
+      | (G, base, Global) -> tryNextName (G, base)
 
 
     let takeNonDigits = Substring.takel (not o Char.isDigit)
@@ -758,7 +758,7 @@ struct
        where name is the next unused name appropriate for X,
        based on the name preference declaration for A if X:A
     *)
-    fun newEVarName (G, X as IntSyn.EVar(r, _, V, Cnstr)) =
+    let rec newEVarName = function (G, X as IntSyn.EVar(r, _, V, Cnstr)) -> 
         let
           (* use name preferences below *)
           let name = tryNextName (G, namePrefOf (Exist, V))
@@ -766,7 +766,7 @@ struct
           (evarInsert (X, name);
            name)
         end
-      | newEVarName (G, X as IntSyn.AVar(r)) =
+      | (G, X as IntSyn.AVar(r)) -> 
         let
           (* use name preferences below *)
           let name = tryNextName (G, namePrefOf' (Exist, NONE))
@@ -813,36 +813,36 @@ struct
        If D does not assign a name, this picks, based on the name
        preference declaration.
     *)
-    fun decName' role (G, IntSyn.Dec (NONE, V)) =
+    let rec decName' = function role (G, IntSyn.Dec (NONE, V)) -> 
         let
           let name = findName (G, namePrefOf (role, V), extent (role))
         in
           IntSyn.Dec (SOME(name), V)
         end
-      | decName' role (G, D as IntSyn.Dec (SOME(name), V)) =
+      | role (G, D as IntSyn.Dec (SOME(name), V)) -> 
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
           then IntSyn.Dec (SOME (tryNextName (G, baseOf name)), V)
         else D
-      | decName' role (G, D as IntSyn.BDec (NONE, b as (cid, t))) =
+      | role (G, D as IntSyn.BDec (NONE, b as (cid, t))) -> 
         (* use #l as base name preference for label l *)
         let
           let name = findName (G, "#" ^ IntSyn.conDecName (IntSyn.sgnLookup cid), Local)
         in
           IntSyn.BDec (SOME(name), b)
         end
-      | decName' role (G, D as IntSyn.BDec (SOME(name), b as (cid, t))) =
+      | role (G, D as IntSyn.BDec (SOME(name), b as (cid, t))) -> 
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
           then IntSyn.BDec (SOME (tryNextName (G, baseOf name)), b)
         else D
-      | decName' role (G, IntSyn.ADec (NONE, d)) =
+      | role (G, IntSyn.ADec (NONE, d)) -> 
         let
           let name = findName (G, namePrefOf' (role, NONE), extent (role))
         in
           IntSyn.ADec (SOME(name), d)
         end
-      | decName' role (G, D as IntSyn.ADec (SOME(name), d)) =
+      | role (G, D as IntSyn.ADec (SOME(name), d)) -> 
 (*      IntSyn.ADec(SOME(name), d) *)
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
@@ -873,8 +873,8 @@ struct
         |- G == G' ctx
         where some Declaration in G' have been named/renamed
     *)
-    fun ctxName (IntSyn.Null) = IntSyn.Null
-      | ctxName (IntSyn.Decl (G, D)) =
+    let rec ctxName = function (IntSyn.Null) -> IntSyn.Null
+      | (IntSyn.Decl (G, D)) -> 
         let
           let G' = ctxName G
         in
@@ -884,8 +884,8 @@ struct
     (* ctxLUName G = G'
        like ctxName, but names assigned are local universal names.
     *)
-    fun ctxLUName (IntSyn.Null) = IntSyn.Null
-      | ctxLUName (IntSyn.Decl (G, D)) =
+    let rec ctxLUName = function (IntSyn.Null) -> IntSyn.Null
+      | (IntSyn.Decl (G, D)) -> 
         let
           let G' = ctxLUName G
         in
@@ -896,8 +896,8 @@ struct
        Assigns names to dependent Pi prefix of V with i implicit abstractions
        Used for implicit EVar in constant declarations after abstraction.
     *)
-    fun pisEName' (G, 0, V) = V
-      | pisEName' (G, i, IntSyn.Pi ((D, IntSyn.Maybe), V)) =
+    let rec pisEName' = function (G, 0, V) -> V
+      | (G, i, IntSyn.Pi ((D, IntSyn.Maybe), V)) -> 
         (* i > 0 *)
         let
           let D' = decEName (G, D)
@@ -915,8 +915,8 @@ struct
        with i implicit abstractions
        Used for implicit EVar in constant definitions after abstraction.
     *)
-    fun defEName' (G, 0, UV) = UV
-      | defEName' (G, i, (IntSyn.Lam (D, U), IntSyn.Pi ((_ (* = D *), P), V))) =
+    let rec defEName' = function (G, 0, UV) -> UV
+      | (G, i, (IntSyn.Lam (D, U), IntSyn.Pi ((_ (* -> D *), P), V))) =
         (* i > 0 *)
         let
           let D' = decEName (G, D)
@@ -928,21 +928,21 @@ struct
 
     fun defEName (imp, UV) = defEName' (IntSyn.Null, imp, UV)
 
-    fun nameConDec' (IntSyn.ConDec (name, parent, imp, status, V, L)) =
+    let rec nameConDec' = function (IntSyn.ConDec (name, parent, imp, status, V, L)) -> 
           IntSyn.ConDec (name, parent, imp, status, pisEName (imp, V), L)
-      | nameConDec' (IntSyn.ConDef (name, parent, imp, U, V, L, Anc)) =
+      | (IntSyn.ConDef (name, parent, imp, U, V, L, Anc)) -> 
         let
           let (U', V') = defEName (imp, (U, V))
         in
           IntSyn.ConDef (name, parent, imp, U', V', L, Anc)
         end
-      | nameConDec' (IntSyn.AbbrevDef (name, parent, imp, U, V, L)) =
+      | (IntSyn.AbbrevDef (name, parent, imp, U, V, L)) -> 
         let
           let (U', V') = defEName (imp, (U, V))
         in
           IntSyn.AbbrevDef (name, parent, imp, U', V', L)
         end
-      | nameConDec' (skodec) = skodec (* fix ??? *)
+      | (skodec) -> skodec (* fix ??? *)
 
     (* Assigns names to variables in a constant declaration *)
     (* The varReset (); is necessary so that explicitly named variables keep their name *)

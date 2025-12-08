@@ -48,9 +48,9 @@ struct
 
     fun unwind (trail, undo) =
           let
-            fun unwind' Nil = Nil
-              | unwind' (Mark trail) = trail
-              | unwind' (Cons (action, trail)) =
+            let rec unwind' = function Nil -> Nil
+              | (Mark trail) -> trail
+              | (Cons (action, trail)) -> 
                   (undo action ; unwind' trail)
           in
             trail := unwind' (!trail)

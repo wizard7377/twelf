@@ -52,10 +52,10 @@ struct
        then G |- O' order
        and  G |- O' == O[s] order
     *)
-    fun orderSub (Arg ((U, s1), (V, s2)), s) =
+    let rec orderSub = function (Arg ((U, s1), (V, s2)), s) -> 
           Arg ((U,  I.comp (s1, s)), (V, I.comp (s2, s)))
-      | orderSub (Lex Os, s) = Lex (map (fun O -> orderSub (O, s)) Os)
-      | orderSub (Simul Os, s) = Simul (map (fun O -> orderSub (O, s)) Os)
+      | (Lex Os, s) -> Lex (map (fun O -> orderSub (O, s)) Os)
+      | (Simul Os, s) -> Simul (map (fun O -> orderSub (O, s)) Os)
       (* by invariant: no case for All and And *)
 
 
@@ -67,10 +67,10 @@ struct
        and  G |- O = O' order
        and  each sub term of O' is in normal form.
     *)
-    fun normalizeOrder (Arg (Us, Vs)) =
+    let rec normalizeOrder = function (Arg (Us, Vs)) -> 
           Arg ((Whnf.normalize Us, I.id), (Whnf.normalize Vs, I.id))
-      | normalizeOrder (Lex Os) = Lex (map normalizeOrder Os)
-      | normalizeOrder (Simul Os) = Simul (map normalizeOrder Os)
+      | (Lex Os) -> Lex (map normalizeOrder Os)
+      | (Simul Os) -> Simul (map normalizeOrder Os)
       (* by invariant: no case for All and And *)
 
 
@@ -81,9 +81,9 @@ struct
        and  G |- O2 order
        then B' holds iff G |- O1 == O2 order
     *)
-    fun convOrder (Arg (Us1, _), Arg (Us2, _ )) = Conv.conv (Us1, Us2)
-      | convOrder (Lex Os1, Lex Os2) = convOrders (Os1, Os2)
-      | convOrder (Simul Os1, Simul Os2) = convOrders (Os1, Os2)
+    let rec convOrder = function (Arg (Us1, _), Arg (Us2, _ )) -> Conv.conv (Us1, Us2)
+      | (Lex Os1, Lex Os2) -> convOrders (Os1, Os2)
+      | (Simul Os1, Simul Os2) -> convOrders (Os1, Os2)
     and convOrders (nil, nil) = true
       | convOrders (O1 :: L1, O2 :: L2) =
           convOrder (O1, O2) andalso convOrders (L1, L2)
@@ -95,9 +95,9 @@ struct
        T is either an Assumption or Induction tag
        T' = T - 1
     *)
-    fun decreaseInfo (Splits k) = Splits (k-1)
-      | decreaseInfo RL = RL
-      | decreaseInfo RLdone = RLdone
+    let rec decreaseInfo = function (Splits k) -> Splits (k-1)
+      | RL -> RL
+      | RLdone -> RLdone
 
     fun (* decrease (Assumption k) = Assumption (k-1)
       | *) decrease (Lemma (Sp)) = Lemma (decreaseInfo Sp)
@@ -114,8 +114,8 @@ struct
        then G' |- T' = T[s] tag
     *)
 
-    fun normalizeTag (T as Parameter _, _) = T
-      | normalizeTag (Lemma (K), s) = Lemma (K)
+    let rec normalizeTag = function (T as Parameter _, _) -> T
+      | (Lemma (K), s) -> Lemma (K)
 
   in
     let orderSub = orderSub

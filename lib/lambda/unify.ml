@@ -35,36 +35,36 @@ struct
 
     let globalTrail = Trail.trail () : Action Trail.trail
 
-    fun copyCnstr [] = []
-      | copyCnstr (refC :: clist) =
+    let rec copyCnstr = function [] -> []
+      | (refC :: clist) -> 
           (BindCnstr (refC, !refC) :: copyCnstr clist)
 
-    fun copy (Instantiate refU) =
+    let rec copy = function (Instantiate refU) -> 
           (BindExp (refU , !refU))
-      | copy (InstantiateBlock refB) =
+      | (InstantiateBlock refB) -> 
           (BindBlock (refB , !refB))
-      | copy (Add (cnstrs as ref Cnstrs)) =
+      | (Add (cnstrs as ref Cnstrs)) -> 
           (BindAdd (cnstrs , copyCnstr(!cnstrs)))
-      | copy (Solve (cnstr, Cnstr)) =
+      | (Solve (cnstr, Cnstr)) -> 
           (FSolve (cnstr, Cnstr, !cnstr))
 
 
-    fun resetCnstr [] = []
-      | resetCnstr (BindCnstr(refC, Cnstr)::L) =
+    let rec resetCnstr = function [] -> []
+      | (BindCnstr(refC, Cnstr)::L) -> 
           (refC := Cnstr;
            (refC::(resetCnstr L)))
 
 
-    fun reset (BindExp (refU, U)) =
+    let rec reset = function (BindExp (refU, U)) -> 
           (refU := U;
            Instantiate refU)
-      | reset (BindBlock (refB, B)) =
+      | (BindBlock (refB, B)) -> 
           (refB := B;
            InstantiateBlock refB)
-      | reset (BindAdd (cnstrs , CActions)) =
+      | (BindAdd (cnstrs , CActions)) -> 
           (cnstrs := resetCnstr CActions;
            Add cnstrs)
-      | reset (FSolve (refCnstr, Cnstr, Cnstr')) =
+      | (FSolve (refCnstr, Cnstr, Cnstr')) -> 
           (refCnstr := Cnstr';
            Solve (refCnstr, Cnstr))
 
@@ -73,13 +73,13 @@ struct
 
     fun resume trail = Trail.resume (trail, globalTrail, reset)
 
-    fun undo (Instantiate refU) =
+    let rec undo = function (Instantiate refU) -> 
           (refU := NONE)
-      | undo (InstantiateBlock refB) =
+      | (InstantiateBlock refB) -> 
           (refB := NONE)
-      | undo (Add (cnstrs as ref(cnstr :: cnstrL))) =
+      | (Add (cnstrs as ref(cnstr :: cnstrL))) -> 
           (cnstrs := cnstrL)
-      | undo (Solve (cnstr, Cnstr)) =
+      | (Solve (cnstr, Cnstr)) -> 
           (cnstr := Cnstr)
 
     fun reset () = Trail.reset globalTrail
@@ -108,16 +108,16 @@ struct
        then
        the constraint cnstr is added to all the rigid EVar occurrences in U[s]
     *)
-    fun delayExpW ((U as Uni(L), s1), _) = ()
-      | delayExpW ((Pi ((D, P), U), s), cnstr) =
+    let rec delayExpW = function ((U as Uni(L), s1), _) -> ()
+      | ((Pi ((D, P), U), s), cnstr) -> 
           (delayDec ((D, s), cnstr); delayExp ((U, dot1 s), cnstr))
-      | delayExpW ((Root (H, S), s), cnstr) =
+      | ((Root (H, S), s), cnstr) -> 
           (delayHead (H, cnstr); delaySpine ((S, s), cnstr))
-      | delayExpW ((Lam (D, U), s), cnstr) =
+      | ((Lam (D, U), s), cnstr) -> 
           (delayDec ((D, s), cnstr); delayExp ((U, dot1 s), cnstr))
-      | delayExpW ((EVar (G, r, V, cnstrs), s), cnstr) =
+      | ((EVar (G, r, V, cnstrs), s), cnstr) -> 
           addConstraint(cnstrs, cnstr)
-      | delayExpW ((FgnExp csfe, s), cnstr) = (* s = id *)
+      | ((FgnExp csfe, s), cnstr) -> (* s = id *)
           FgnExpStd.App.apply csfe (fun U -> delayExp ((U, s), cnstr))
       (* no other cases by invariant *)
 
@@ -191,14 +191,14 @@ struct
        then G |- s' : G'' for some G''
        and  s' patsub
     *)
-    fun intersection (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
+    let rec intersection = function (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) -> 
           if (k1 = k2) then dot1 (intersection (s1, s2))
           else comp (intersection (s1, s2), shift)
-      | intersection (s1 as Dot _, Shift (n2)) =
+      | (s1 as Dot _, Shift (n2)) -> 
           intersection (s1, Dot (Idx (n2+1), Shift (n2+1)))
-      | intersection (Shift (n1), s2 as Dot _) =
+      | (Shift (n1), s2 as Dot _) -> 
           intersection (Dot (Idx (n1+1), Shift (n1+1)), s2)
-      | intersection (Shift _ , Shift _) = id
+      | (Shift _ , Shift _) -> id
         (* both substitutions are the same number of shifts by invariant *)
       (* all other cases impossible for pattern substitutions *)
 
@@ -214,16 +214,16 @@ struct
        and   G1' is maximal such
     *)
 
-    fun weakenSub (G, Shift n, ss) =
+    let rec weakenSub = function (G, Shift n, ss) -> 
         if n < ctxLength G
           then weakenSub (G, Dot (Idx (n+1), Shift (n+1)), ss)
         else id
-      | weakenSub (G, Dot (Idx n, s'), ss) =
+      | (G, Dot (Idx n, s'), ss) -> 
         (case bvarSub (n, ss)
            of Undef => comp (weakenSub (G, s', ss), shift)
             | Idx _ => dot1 (weakenSub (G, s', ss)))
             (* no other cases, ss is strsub *)
-      | weakenSub (G, Dot (Undef, s'), ss) =
+      | (G, Dot (Undef, s'), ss) -> 
            comp (weakenSub (G, s', ss), shift)
 
     (* invert (G, (U, s), ss, rOccur) = U[s][ss]
@@ -495,7 +495,7 @@ struct
        Other effects: EVars may be lowered
                       constraints may be added for non-patterns
     *)
-    fun unifyExpW (G, Us1 as (FgnExp csfe1, _), Us2) =
+    let rec unifyExpW = function (G, Us1 as (FgnExp csfe1, _), Us2) -> 
           (case (FgnExpStd.UnifyWith.apply csfe1 (G, EClo Us2))
              of (Succeed residualL) =>
                   let
@@ -512,7 +512,7 @@ struct
                   end
               | Fail => raise Unify "Foreign Expression Mismatch")
 
-      | unifyExpW (G, Us1, Us2 as (FgnExp csfe2, _)) =
+      | (G, Us1, Us2 as (FgnExp csfe2, _)) -> 
           (case (FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1))
              of (Succeed opL) =>
                   let
@@ -528,12 +528,12 @@ struct
                   end
               | Fail => raise Unify "Foreign Expression Mismatch")
 
-      | unifyExpW (G, (Uni (L1), _), (Uni(L2), _)) =
+      | (G, (Uni (L1), _), (Uni(L2), _)) -> 
           (* L1 = L2 = type, by invariant *)
           (* unifyUni (L1, L2) - removed Mon Aug 24 12:18:24 1998 -fp *)
           ()
 
-      | unifyExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+      | (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) -> 
           (* s1 = s2 = id by whnf *)
           (* order of calls critical to establish unifySpine invariant *)
           (case (H1, H2) of
@@ -589,27 +589,27 @@ struct
            | _ => raise Unify "Head mismatch")
 
 
-      | unifyExpW (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) =
+      | (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) -> 
           (unifyDec (G, (D1, s1), (D2, s2)) ;
            unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2)))
 
-      | unifyExpW (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) =
+      | (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) -> 
           unifyExpW (G, Us1, Whnf.expandDef (Us2))
-      | unifyExpW (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) =
+      | (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) -> 
           unifyExpW (G, Whnf.expandDef (Us1), Us2)
 
-      | unifyExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
+      | (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) -> 
           (* D1[s1] = D2[s2]  by invariant *)
           unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),(U2, dot1 s2))
 
-      | unifyExpW (G, (Lam (D1, U1), s1), (U2, s2)) =
+      | (G, (Lam (D1, U1), s1), (U2, s2)) -> 
           (* ETA: can't occur if eta expanded *)
           unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),
                     (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2))
            (* for rhs:  (U2[s2])[^] 1 = U2 [s2 o ^] 1 = U2 [^ o (1. s2 o ^)] 1
                         = (U2 [^] 1) [1.s2 o ^] *)
 
-      | unifyExpW (G, (U1, s1), (Lam (D2, U2), s2)) =
+      | (G, (U1, s1), (Lam (D2, U2), s2)) -> 
           (* Cannot occur if expressions are eta expanded *)
           unifyExp (Decl (G, decSub (D2, s2)),
                     (Redex (EClo (U1, shift), App (Root (BVar (1), Nil), Nil)), dot1 s1),
@@ -666,7 +666,7 @@ struct
                 addConstraint (cnstrs1, cnstr)
               end
 
-      | unifyExpW (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) =
+      | (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) -> 
         if Whnf.isPatSub(s) then
           let let ss = Whnf.invert s
               let U2' = pruneExp (G, Us2, ss, r)
@@ -678,7 +678,7 @@ struct
         else
           addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))
 
-      | unifyExpW (G, Us1 as (U1,s1), Us2 as (EVar (r, GX, V, cnstrs), s)) =
+      | (G, Us1 as (U1,s1), Us2 as (EVar (r, GX, V, cnstrs), s)) -> 
         if Whnf.isPatSub(s) then
           let
             let ss = Whnf.invert s
@@ -691,7 +691,7 @@ struct
         else
           addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))
 
-      | unifyExpW (G, Us1, Us2) =
+      | (G, Us1, Us2) -> 
         raise Unify ("Expression clash")
 
     (* covers most remaining cases *)

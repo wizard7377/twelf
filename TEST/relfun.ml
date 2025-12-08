@@ -10,8 +10,8 @@ local
        | Twelf.ABORT => raise Domain;
 	
 
-  fun printS nil = ()
-    | printS (condec :: S) =
+  let rec printS = function nil -> ()
+    | (condec :: S) -> 
         (TextIO.print ((Print.conDecToString condec) ^ "\n"); printS S)
 in
 

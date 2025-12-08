@@ -35,18 +35,18 @@ local
     Ex (I.Dec (SOME "D", I.Root (cp, I.App (two, I.App (one, I.Nil)))),
     True)))
    
-  fun union (G, I.Null) = G
-    | union (G, I.Decl (G', D)) = I.Decl (union(G, G'), D)
+  let rec union = function (G, I.Null) -> G
+    | (G, I.Decl (G', D)) -> I.Decl (union(G, G'), D)
     
-  fun makectx (I.Null) = I.Null
-    | makectx (I.Decl (G, Prim D)) = I.Decl (makectx G, D)
-    | makectx (I.Decl (G, Block (CtxBlock (l, G')))) = union (makectx G, G')
+  let rec makectx = function (I.Null) -> I.Null
+    | (I.Decl (G, Prim D)) -> I.Decl (makectx G, D)
+    | (I.Decl (G, Block (CtxBlock (l, G')))) -> union (makectx G, G')
     
-  fun printCtx (I.Null) = ()
-    | printCtx (I.Decl (G, Prim (D))) = 
+  let rec printCtx = function (I.Null) -> ()
+    | (I.Decl (G, Prim (D))) -> 
         (printCtx G;
         TextIO.print (Print.decToString (makectx G, D) ^ "\n"))
-    | printCtx (I.Decl (G, _)) = 
+    | (I.Decl (G, _)) -> 
         (printCtx G; TextIO.print ("BLOCK\n"))
 	 
   fun print (Psi, U) = 

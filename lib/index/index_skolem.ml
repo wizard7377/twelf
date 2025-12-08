@@ -11,8 +11,8 @@ struct
   local
     module I = IntSyn
 
-    fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+    let rec cidFromHead = function (I.Const c) -> c
+      | (I.Def c) -> c
 
     (* Index array
 
@@ -42,12 +42,12 @@ struct
        installs c into the correct index queue
        presently ignores definitions
     *)
-    fun install fromCS (H as I.Const c) =
+    let rec install = function fromCS (H as I.Const c) -> 
         (case (fromCS, I.sgnLookup (c))
           of (_, I.ConDec (_, _, _, _, A, I.Type)) => update (cidFromHead (I.targetHead A), H)
            | (I.Clause, I.ConDef (_, _, _, _, A, I.Type, _)) => update (cidFromHead (I.targetHead A), I.Def(c))
            | _ => ())
-      | install fromCS (H as I.Skonst c) =
+      | fromCS (H as I.Skonst c) -> 
         (case I.sgnLookup (c)
            of I.SkoDec (_, _, _, A, I.Type) => update (cidFromHead (I.targetHead A), H)
             | _ => ())

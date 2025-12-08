@@ -233,10 +233,10 @@
     	    | (SOME{neg=false, word, rest}) => SOME(word, rest)
     	  (* end case *))
     
-        fun scanWord StringCvt.BIN = finalWord scanBin
-          | scanWord StringCvt.OCT = finalWord scanOct
-          | scanWord StringCvt.DEC = finalWord scanDec
-          | scanWord StringCvt.HEX = finalWord scanHex
+        let rec scanWord = function StringCvt.BIN -> finalWord scanBin
+          | StringCvt.OCT -> finalWord scanOct
+          | StringCvt.DEC -> finalWord scanDec
+          | StringCvt.HEX -> finalWord scanHex
     
         fun finalInt scanFn getc cs = (case (scanFn getc cs)
     	   of NONE => NONE
@@ -250,10 +250,10 @@
     		  else SOME(W.toInt word, rest)
     	  (* end case *))
     
-        fun scanInt StringCvt.BIN = finalInt scanBin
-          | scanInt StringCvt.OCT = finalInt scanOct
-          | scanInt StringCvt.DEC = finalInt scanDec
-          | scanInt StringCvt.HEX = finalInt scanHex
+        let rec scanInt = function StringCvt.BIN -> finalInt scanBin
+          | StringCvt.OCT -> finalInt scanOct
+          | StringCvt.DEC -> finalInt scanDec
+          | StringCvt.HEX -> finalInt scanHex
     
       end (* module NumScan *)
 
@@ -277,9 +277,9 @@
     
         fun wordToBin w = let
     	  fun mkBit w = if (W.andb(w, 0w1) = 0w0) then #"0" else #"1"
-    	  fun f (0w0, n, l) = (I.+(n, 1), #"0" :: l)
-    	    | f (0w1, n, l) = (I.+(n, 1), #"1" :: l)
-    	    | f (w, n, l) = f(W.>>(w, 0w1), I.+(n, 1), (mkBit w) :: l)
+    	  let rec f = function (0w0, n, l) -> (I.+(n, 1), #"0" :: l)
+    	    | (0w1, n, l) -> (I.+(n, 1), #"1" :: l)
+    	    | (w, n, l) -> f(W.>>(w, 0w1), I.+(n, 1), (mkBit w) :: l)
     	  in
     	    f (w, 0, [])
     	  end
@@ -308,10 +308,10 @@
     	    f (w, 0, [])
     	  end
     
-        fun fmtW StringCvt.BIN = #2 o wordToBin
-          | fmtW StringCvt.OCT = #2 o wordToOct
-          | fmtW StringCvt.DEC = #2 o wordToDec
-          | fmtW StringCvt.HEX = #2 o wordToHex
+        let rec fmtW = function StringCvt.BIN -> #2 o wordToBin
+          | StringCvt.OCT -> #2 o wordToOct
+          | StringCvt.DEC -> #2 o wordToDec
+          | StringCvt.HEX -> #2 o wordToHex
     
         fun fmtWord radix = String.implode o (fmtW radix)
     
@@ -366,11 +366,11 @@
 	let zero = []
 	let one = [1]
 
-	fun bignat 0 = zero
-	  | bignat i = let
+	let rec bignat = function 0 -> zero
+	  | i -> let
 	      let notNbase = Word.notb(itow nbase)
-              fun bn 0w0 = []
-        	| bn i = let
+              let rec bn = function 0w0 -> []
+        	| i -> let
 		    fun dmbase n = 
 		      (Word.>> (n, itow lgBase), Word.andb (n, notNbase))
 		    let (q,r) = dmbase i
@@ -383,13 +383,13 @@
         	  else raise Negative
               end
 
-	fun int [] = 0
-	  | int [d] = d
-	  | int [d,e] = ~(nbase*e) + d
-	  | int (d::r) = ~(nbase*int r) + d
+	let rec int = function [] -> 0
+	  | [d] -> d
+	  | [d,e] -> ~(nbase*e) + d
+	  | (d::r) -> ~(nbase*int r) + d
 
-	fun consd (0, []) = []
-	  | consd (d, r) = d::r
+	let rec consd = function (0, []) -> []
+	  | (d, r) -> d::r
 
 	fun hl i = let
 	  let w = itow i
@@ -400,30 +400,30 @@
 
 	fun sh i = wtoi(Word.<< (itow i, itow lgHBase))
 
-	fun addOne [] = [1]
-	  | addOne (m::rm) = let
+	let rec addOne = function [] -> [1]
+	  | (m::rm) -> let
               let c = nbase+m+1
               in
         	if c < 0 then (c-nbase)::rm else c::(addOne rm)
               end
 
-	fun add ([], digits) = digits
-	  | add (digits, []) = digits
-	  | add (dm::rm, dn::rn) = addd (nbase+dm+dn, rm, rn)
+	let rec add = function ([], digits) -> digits
+	  | (digits, []) -> digits
+	  | (dm::rm, dn::rn) -> addd (nbase+dm+dn, rm, rn)
 	and addd (s, m, n) = 
               if s < 0 then (s-nbase) :: add (m, n) else (s :: addc (m, n))
 	and addc (m, []) = addOne m
 	  | addc ([], n) = addOne n
 	  | addc (dm::rm, dn::rn) = addd (nbase+dm+dn+1, rm, rn)
 
-	fun subtOne (0::mr) = maxDigit::(subtOne mr)
-	  | subtOne [1] = []
-	  | subtOne (n::mr) = (n-1)::mr
-	  | subtOne [] = raise Fail ""
+	let rec subtOne = function (0::mr) -> maxDigit::(subtOne mr)
+	  | [1] -> []
+	  | (n::mr) -> (n-1)::mr
+	  | [] -> raise Fail ""
 
-	fun subt (m, []) = m
-	  | subt ([], n) = raise Negative
-	  | subt (dm::rm, dn::rn) = subd(dm-dn,rm,rn)
+	let rec subt = function (m, []) -> m
+	  | ([], n) -> raise Negative
+	  | (dm::rm, dn::rn) -> subd(dm-dn,rm,rn)
 	and subb ([], n) = raise Negative
 	  | subb (dm::rm, []) = subd (dm-1, rm, [])
 	  | subb (dm::rm, dn::rn) = subd (dm-dn-1, rm, rn)
@@ -442,12 +442,12 @@
               in (x+uh+wtoi hbase, sh ul+zl) end
 
             (* multiply bigint by digit *)
-	fun muld (m, 0) = []
-	  | muld (m, 1) = m (* speedup *)
-	  | muld (m, i) = let
-              fun muldc ([], 0) = []
-        	| muldc ([], c) = [c]
-        	| muldc (d::r, c) = let
+	let rec muld = function (m, 0) -> []
+	  | (m, 1) -> m (* speedup *)
+	  | (m, i) -> let
+              let rec muldc = function ([], 0) -> []
+        	| ([], c) -> [c]
+        	| (d::r, c) -> let
                     let (h, l) = mul2 (d, i)
                     let l1 = l+nbase+c
                     in 
@@ -457,12 +457,12 @@
                     end
               in muldc (m, 0) end
 
-	fun mult (m, []) = []
-	  | mult (m, [d]) = muld (m, d) (* speedup *)
-	  | mult (m, 0::r) = consd (0, mult (m, r)) (* speedup *)
-	  | mult (m, n) = let 
-              fun muln [] = []
-        	| muln (d::r) = add (muld (n, d), consd (0, muln r))
+	let rec mult = function (m, []) -> []
+	  | (m, [d]) -> muld (m, d) (* speedup *)
+	  | (m, 0::r) -> consd (0, mult (m, r)) (* speedup *)
+	  | (m, n) -> let 
+              let rec muln = function [] -> []
+        	| (d::r) -> add (muld (n, d), consd (0, muln r))
               in muln m end
 
             (* divide DP number by digit; assumes u < i , i >= base/2 *)
@@ -477,13 +477,13 @@
               in (sh q1+q0, r0) end
 
             (* divide bignat by digit>0 *)
-	fun divmodd (m, 1) = (m, 0) (* speedup *)
-	  | divmodd (m, i) = let
+	let rec divmodd = function (m, 1) -> (m, 0) (* speedup *)
+	  | (m, i) -> let
               let scale = scale i
               let i' = i * scale
               let m' = muld (m, scale)
-              fun dmi [] = ([], 0)
-        	| dmi (d::r) = let 
+              let rec dmi = function [] -> ([], 0)
+        	| (d::r) -> let 
                     let (qt,rm) = dmi r
                     let (q1,r1) = divmod2 ((rm,d), i')
                     in (consd (q1,qt), r1) end
@@ -491,9 +491,9 @@
               in (q, r div scale) end
 
             (* From Knuth Vol II, 4.3.1, but without opt. in step D3 *)
-	fun divmod (m, []) = raise Div
-	  | divmod ([], n) = ([], []) (* speedup *)
-	  | divmod (d::r, 0::s) = let 
+	let rec divmod = function (m, []) -> raise Div
+	  | ([], n) -> ([], []) (* speedup *)
+	  | (d::r, 0::s) -> let 
               let (qt,rm) = divmod (r,s)
               in (qt, consd (d, rm)) end (* speedup *)
 	  | divmod (m, [d]) = let 
@@ -505,8 +505,8 @@
               let m' = muld (m, scale)
               let n' = muld (n, scale)
               let n1 = List.nth (n', ln-1) (* >= base/2 *)
-              fun divl [] = ([], [])
-        	| divl (d::r) = let
+              let rec divl = function [] -> ([], [])
+        	| (d::r) -> let
                     let (qt,rm) = divl r
                     let m = consd (d, rm)
                     fun msds ([],_) = (0,0)
@@ -524,24 +524,24 @@
               let (rm,_(*0*)) = divmodd (rm',scale)
               in (qt,rm) end
 
-	fun cmp ([],[]) = EQUAL
-	  | cmp (_,[]) = GREATER
-	  | cmp ([],_) = LESS
-	  | cmp ((i : int)::ri,j::rj) =
+	let rec cmp = function ([],[]) -> EQUAL
+	  | (_,[]) -> GREATER
+	  | ([],_) -> LESS
+	  | ((i : int)::ri,j::rj) -> 
               case cmp (ri,rj) of
         	EQUAL => if i = j then EQUAL 
                          else if i < j then LESS 
                          else GREATER
               | c => c
 
-	fun exp (_, 0) = one
-	  | exp ([], n) = if n > 0 then zero else raise Div
-	  | exp (m, n) = 
+	let rec exp = function (_, 0) -> one
+	  | ([], n) -> if n > 0 then zero else raise Div
+	  | (m, n) -> 
               if n < 0 then zero
               else let
-        	fun expm 0 = [1]
-        	  | expm 1 = m
-        	  | expm i = let
+        	let rec expm = function 0 -> [1]
+        	  | 1 -> m
+        	  | i -> let
                       let r = expm (i div 2)
                       let r2 = mult (r,r)
                       in
@@ -553,15 +553,15 @@
           fun try n = if n >= lgHBase then n else try (2*n)
           let pow2lgHBase = try 1
         in
-        fun log2 [] = raise Domain
-          | log2 (h::t) = let
+        let rec log2 = function [] -> raise Domain
+          | (h::t) -> let
               fun qlog (x,0) = 0
                 | qlog (x,b) = 
 		  if x >= wtoi(Word.<< (0w1, itow b)) then
 		    b+qlog (wtoi(Word.>> (itow x, itow b)), b div 2)
                                  else qlog (x, b div 2)
-              fun loop (d,[],lg) = lg + qlog (d,pow2lgHBase)
-                | loop (_,h::t,lg) = loop (h,t,lg + lgBase)
+              let rec loop = function (d,[],lg) -> lg + qlog (d,pow2lgHBase)
+                | (_,h::t,lg) -> loop (h,t,lg + lgBase)
             in
               loop (h,t,0)
             end
@@ -589,8 +589,8 @@
 
 	fun fmt (pow, radpow, puti) n = let 
               let pad = StringCvt.padLeft #"0" pow
-              fun ms0 (0,a) = (pad "")::a
-        	| ms0 (i,a) = (pad (puti i))::a
+              let rec ms0 = function (0,a) -> (pad "")::a
+        	| (i,a) -> (pad (puti i))::a
               fun ml (n,a) =
                     case divmodd (n, radpow) of
                       ([],d) => (puti d)::a
@@ -643,8 +643,8 @@
     let minus_one = BI{sign=NEG, digits=BN.one}
     fun posi digits = BI{sign=POS, digits=digits}
     fun negi digits = BI{sign=NEG, digits=digits}
-    fun zneg [] = zero
-      | zneg digits = BI{sign=NEG, digits=digits}
+    let rec zneg = function [] -> zero
+      | digits -> BI{sign=NEG, digits=digits}
 
     local
     let minNeg = valOf Int.minInt
@@ -652,14 +652,14 @@
     let bigIntMinNeg = negi bigNatMinNeg
     in
 
-    fun toInt (BI{digits=[], ...}) = 0
-      | toInt (BI{sign=POS, digits}) = BN.int digits
-      | toInt (BI{sign=NEG, digits}) =
+    let rec toInt = function (BI{digits -> [], ...}) = 0
+      | (BI{sign -> POS, digits}) = BN.int digits
+      | (BI{sign -> NEG, digits}) =
               (~(BN.int digits)) handle _ =>
                 if digits = bigNatMinNeg then minNeg else raise Overflow
 
-    fun fromInt 0 = zero
-      | fromInt i =
+    let rec fromInt = function 0 -> zero
+      | i -> 
           if i < 0
             then if (i = minNeg)
               then bigIntMinNeg
@@ -677,8 +677,8 @@
     let nbase = LargeInt.fromInt BN.nbase
     let lgBase = Word.fromInt BN.lgBase
     let notNbase = Word32.notb(Word32.fromInt BN.nbase)
-    fun largeNat (0 : LargeInt.int) = []
-      | largeNat i = let
+    let rec largeNat = function (0 : LargeInt.int) -> []
+      | i -> let
           fun bn (0w0 : Word32.word) = []
        	    | bn i = let
 	        fun dmbase n = (Word32.>> (n, lgBase), Word32.andb (n, notNbase))
@@ -690,23 +690,23 @@
        	    if i <= maxDigit then [LargeInt.toInt i] else bn (Word32.fromLargeInt i)
           end
 
-    fun large [] = 0
-      | large [d] = LargeInt.fromInt d
-      | large [d,e] = ~(nbase*(LargeInt.fromInt e)) + (LargeInt.fromInt d)
-      | large (d::r) = ~(nbase*large r) + (LargeInt.fromInt d)
+    let rec large = function [] -> 0
+      | [d] -> LargeInt.fromInt d
+      | [d,e] -> ~(nbase*(LargeInt.fromInt e)) + (LargeInt.fromInt d)
+      | (d::r) -> ~(nbase*large r) + (LargeInt.fromInt d)
 
     let bigNatMinNeg = BN.addOne (largeNat (~(minNeg+1)))
     let bigIntMinNeg = negi bigNatMinNeg
     in
 
-    fun toLarge (BI{digits=[], ...}) = 0
-      | toLarge (BI{sign=POS, digits}) = large digits
-      | toLarge (BI{sign=NEG, digits}) =
+    let rec toLarge = function (BI{digits -> [], ...}) = 0
+      | (BI{sign -> POS, digits}) = large digits
+      | (BI{sign -> NEG, digits}) =
               (~(large digits)) handle _ =>
                 if digits = bigNatMinNeg then minNeg else raise Overflow
 
-    fun fromLarge 0 = zero
-      | fromLarge i =
+    let rec fromLarge = function 0 -> zero
+      | i -> 
           if i < 0
             then if (i = minNeg)
               then bigIntMinNeg
@@ -714,12 +714,12 @@
             else BI{sign=POS, digits= largeNat i}
     end (* local *)
 
-    fun negSign POS = NEG
-      | negSign NEG = POS
+    let rec negSign = function POS -> NEG
+      | NEG -> POS
 
-    fun subtNat (m, []) = {sign=POS, digits=m}
-      | subtNat ([], n) = {sign=NEG, digits=n}
-      | subtNat (m,n) =
+    let rec subtNat = function (m, []) -> {sign=POS, digits=m}
+      | ([], n) -> {sign=NEG, digits=n}
+      | (m,n) -> 
             ({sign=POS,digits = BN.subt(m,n)})
               handle BN.Negative => ({sign=NEG,digits = BN.subt(n,m)})
 
@@ -731,53 +731,53 @@
       | ~ (BI{sign=POS, digits}) = BI{sign=NEG, digits=digits}
       | ~ (BI{sign=NEG, digits}) = BI{sign=POS, digits=digits}
 
-    fun op * (_,BI{digits=[], ...}) = zero
-      | op * (BI{digits=[], ...},_) = zero
-      | op * (BI{sign=POS, digits=d1}, BI{sign=NEG, digits=d2}) =
+    let rec op = function * (_,BI{digits -> [], ...}) = zero
+      | * (BI{digits -> [], ...},_) = zero
+      | * (BI{sign -> POS, digits=d1}, BI{sign=NEG, digits=d2}) =
           BI{sign=NEG,digits=BN.mult(d1,d2)}
-      | op * (BI{sign=NEG, digits=d1}, BI{sign=POS, digits=d2}) =
+      | * (BI{sign -> NEG, digits=d1}, BI{sign=POS, digits=d2}) =
           BI{sign=NEG,digits=BN.mult(d1,d2)}
-      | op * (BI{digits=d1,...}, BI{digits=d2,...}) =
+      | * (BI{digits -> d1,...}, BI{digits=d2,...}) =
           BI{sign=POS,digits=BN.mult(d1,d2)}
 
-    fun op + (BI{digits=[], ...}, i2) = i2
-      | op + (i1, BI{digits=[], ...}) = i1
-      | op + (BI{sign=POS, digits=d1}, BI{sign=NEG, digits=d2}) =
+    let rec op = function + (BI{digits -> [], ...}, i2) = i2
+      | + (i1, BI{digits -> [], ...}) = i1
+      | + (BI{sign -> POS, digits=d1}, BI{sign=NEG, digits=d2}) =
           BI(subtNat(d1, d2))
-      | op + (BI{sign=NEG, digits=d1}, BI{sign=POS, digits=d2}) =
+      | + (BI{sign -> NEG, digits=d1}, BI{sign=POS, digits=d2}) =
           BI(subtNat(d2, d1))
-      | op + (BI{sign, digits=d1}, BI{digits=d2, ...}) =
+      | + (BI{sign, digits -> d1}, BI{digits=d2, ...}) =
           BI{sign=sign, digits=BN.add(d1, d2)}
 
-    fun op - (i1, BI{digits=[], ...}) = i1
-      | op - (BI{digits=[], ...}, BI{sign, digits}) =
+    let rec op = function - (i1, BI{digits -> [], ...}) = i1
+      | - (BI{digits -> [], ...}, BI{sign, digits}) =
           BI{sign=negSign sign, digits=digits}
-      | op - (BI{sign=POS, digits=d1}, BI{sign=POS, digits=d2}) =
+      | - (BI{sign -> POS, digits=d1}, BI{sign=POS, digits=d2}) =
             BI(subtNat(d1, d2))
-      | op - (BI{sign=NEG, digits=d1}, BI{sign=NEG, digits=d2}) =
+      | - (BI{sign -> NEG, digits=d1}, BI{sign=NEG, digits=d2}) =
             BI(subtNat(d2, d1))
-      | op - (BI{sign, digits=d1}, BI{digits=d2, ...}) =
+      | - (BI{sign, digits -> d1}, BI{digits=d2, ...}) =
           BI{sign=sign, digits=BN.add(d1, d2)}
 
-    fun quotrem (BI{sign=POS,digits=m},BI{sign=POS,digits=n}) =
+    let rec quotrem = function (BI{sign -> POS,digits=m},BI{sign=POS,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, posi r))
-      | quotrem (BI{sign=POS,digits=m},BI{sign=NEG,digits=n}) =
+      | (BI{sign -> POS,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (zneg q, posi r))
-      | quotrem (BI{sign=NEG,digits=m},BI{sign=POS,digits=n}) =
+      | (BI{sign -> NEG,digits=m},BI{sign=POS,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (zneg q, zneg r))
-      | quotrem (BI{sign=NEG,digits=m},BI{sign=NEG,digits=n}) =
+      | (BI{sign -> NEG,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, zneg r))
 
-    fun divmod (BI{sign=POS,digits=m},BI{sign=POS,digits=n}) =
+    let rec divmod = function (BI{sign -> POS,digits=m},BI{sign=POS,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, posi r))
-      | divmod (BI{sign=POS,digits=[]},BI{sign=NEG,digits=n}) = (zero,zero)
-      | divmod (BI{sign=POS,digits=m},BI{sign=NEG,digits=n}) = let
+      | (BI{sign -> POS,digits=[]},BI{sign=NEG,digits=n}) = (zero,zero)
+      | (BI{sign -> POS,digits=m},BI{sign=NEG,digits=n}) = let
           let (q,r) = BN.divmod (BN.subtOne m, n)
           in (negi(BN.addOne q), zneg(BN.subtOne(BN.subt(n,r)))) end
-      | divmod (BI{sign=NEG,digits=m},BI{sign=POS,digits=n}) = let
+      | (BI{sign -> NEG,digits=m},BI{sign=POS,digits=n}) = let
           let (q,r) = BN.divmod (BN.subtOne m, n)
           in (negi(BN.addOne q), posi(BN.subtOne(BN.subt(n,r)))) end
-      | divmod (BI{sign=NEG,digits=m},BI{sign=NEG,digits=n}) =
+      | (BI{sign -> NEG,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, zneg r))
 
     fun op div arg = #1(divmod arg)
@@ -785,25 +785,25 @@
     fun op quot arg = #1(quotrem arg)
     fun op rem arg = #2(quotrem arg)
 
-    fun compare (BI{sign=NEG,...},BI{sign=POS,...}) = LESS
-      | compare (BI{sign=POS,...},BI{sign=NEG,...}) = GREATER
-      | compare (BI{sign=POS,digits=d},BI{sign=POS,digits=d'}) = BN.cmp (d,d')
-      | compare (BI{sign=NEG,digits=d},BI{sign=NEG,digits=d'}) = BN.cmp (d',d)
+    let rec compare = function (BI{sign -> NEG,...},BI{sign=POS,...}) = LESS
+      | (BI{sign -> POS,...},BI{sign=NEG,...}) = GREATER
+      | (BI{sign -> POS,digits=d},BI{sign=POS,digits=d'}) = BN.cmp (d,d')
+      | (BI{sign -> NEG,digits=d},BI{sign=NEG,digits=d'}) = BN.cmp (d',d)
 
     fun op < arg = case compare arg of LESS => true | _ => false
     fun op > arg = case compare arg of GREATER => true | _ => false
     fun op <= arg = case compare arg of GREATER => false | _ => true
     fun op >= arg = case compare arg of LESS => false | _ => true
 
-    fun abs (BI{sign=NEG, digits}) = BI{sign=POS, digits=digits}
-      | abs i = i
+    let rec abs = function (BI{sign -> NEG, digits}) = BI{sign=POS, digits=digits}
+      | i -> i
 
     fun max arg = case compare arg of GREATER => #1 arg | _ => #2 arg
     fun min arg = case compare arg of LESS => #1 arg | _ => #2 arg
 
-    fun sign (BI{sign=NEG,...}) = ~1
-      | sign (BI{digits=[],...}) = 0
-      | sign _ = 1
+    let rec sign = function (BI{sign -> NEG,...}) = ~1
+      | (BI{digits -> [],...}) = 0
+      | _ -> 1
 
     fun sameSign (i,j) = sign i = sign j
 
@@ -814,10 +814,10 @@
             | (BI{sign=NEG,digits}) => "~"^(fmtFn digits)
             | (BI{sign=POS,digits}) => fmtFn digits
     in
-    fun fmt StringCvt.BIN = fmt' (BN.fmt2)
-      | fmt StringCvt.OCT = fmt' (BN.fmt8)
-      | fmt StringCvt.DEC = fmt' (BN.fmt10)
-      | fmt StringCvt.HEX = fmt' (BN.fmt16)
+    let rec fmt = function StringCvt.BIN -> fmt' (BN.fmt2)
+      | StringCvt.OCT -> fmt' (BN.fmt8)
+      | StringCvt.DEC -> fmt' (BN.fmt10)
+      | StringCvt.HEX -> fmt' (BN.fmt16)
     end
 
     let toString = fmt StringCvt.DEC
@@ -825,8 +825,8 @@
     local
       fun scan' scanFn getc cs = let
             let cs' = NumScan.skipWS getc cs
-            fun cvt (NONE,_) = NONE
-              | cvt (SOME(i,cs),wr) = SOME(wr i, cs)
+            let rec cvt = function (NONE,_) -> NONE
+              | (SOME(i,cs),wr) -> SOME(wr i, cs)
             in
               case (getc cs')
                of (SOME(#"~", cs'')) => cvt(scanFn getc cs'',zneg)
@@ -837,23 +837,23 @@
               (* end case *)
             end
     in
-    fun scan StringCvt.BIN = scan' (BN.scan2)
-      | scan StringCvt.OCT = scan' (BN.scan8)
-      | scan StringCvt.DEC = scan' (BN.scan10)
-      | scan StringCvt.HEX = scan' (BN.scan16)
+    let rec scan = function StringCvt.BIN -> scan' (BN.scan2)
+      | StringCvt.OCT -> scan' (BN.scan8)
+      | StringCvt.DEC -> scan' (BN.scan10)
+      | StringCvt.HEX -> scan' (BN.scan16)
     end
 
     fun fromString s = StringCvt.scanString (scan StringCvt.DEC) s
 
-    fun pow (_, 0) = one
-      | pow (BI{sign=POS,digits}, n) = posi(BN.exp(digits,n))
-      | pow (BI{sign=NEG,digits}, n) = 
+    let rec pow = function (_, 0) -> one
+      | (BI{sign -> POS,digits}, n) = posi(BN.exp(digits,n))
+      | (BI{sign -> NEG,digits}, n) = 
           if Int.mod (n, 2) = 0
             then posi(BN.exp(digits,n))
             else zneg(BN.exp(digits,n))
 
-    fun log2 (BI{sign=POS,digits}) = BN.log2 digits
-      | log2 _ = raise Domain
+    let rec log2 = function (BI{sign -> POS,digits}) = BN.log2 digits
+      | _ -> raise Domain
 
   end (* module IntInf *)
 

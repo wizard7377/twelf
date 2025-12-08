@@ -37,9 +37,9 @@ struct
      G |- s1 : G1    G1 |- U1 : V1   (U1, s1) in whnf
      G |- s2 : G2    G2 |- U2 : V2   (U2, s2) is template
   *)
-    fun assignExpW (G, (Uni L1, _), (Uni L2, _), cnstr) = (* L1 = L2 by invariant *)
+    let rec assignExpW = function (G, (Uni L1, _), (Uni L2, _), cnstr) -> (* L1 = L2 by invariant *)
           cnstr
-      | assignExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2), cnstr) =
+      | (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2), cnstr) -> 
          (case (H1, H2) of
             (Const(c1), Const(c2)) =>
                 if (c1 = c2) then assignSpine (G, (S1, s1), (S2, s2), cnstr)
@@ -84,18 +84,18 @@ struct
 
           | _ => (raise Assignment ("Head mismatch ")))
 
-      | assignExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2), cnstr) =
+      | (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2), cnstr) -> 
           (* D1[s1] = D2[s2]  by invariant *)
           assignExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2), cnstr)
 
-      | assignExpW (G, (U1, s1), (Lam (D2, U2), s2), cnstr) =
+      | (G, (U1, s1), (Lam (D2, U2), s2), cnstr) -> 
           (* Cannot occur if expressions are eta expanded *)
           assignExp (Decl (G, decSub (D2, s2)),
                     (Redex (EClo (U1, shift), App (Root (BVar (1), Nil), Nil)), dot1 s1),
                     (U2, dot1 s2), cnstr)
            (* same reasoning holds as above *)
 
-      | assignExpW (G, (Pi ((D1 as Dec (_, V1), _), U1), s1), (Pi ((D2 as Dec(_, V2), _), U2), s2), cnstr) =
+      | (G, (Pi ((D1 as Dec (_, V1), _), U1), s1), (Pi ((D2 as Dec(_, V2), _), U2), s2), cnstr) -> 
           let
             let cnstr' = assignExp (G, (V1, s1), (V2, s2), cnstr)
           in
@@ -117,27 +117,27 @@ struct
             (r2 := SOME(EClo Us1);
              cnstr)
 
-      | assignExpW (G, (Lam (D1, U1), s1), (U2, s2), cnstr) =
+      | (G, (Lam (D1, U1), s1), (U2, s2), cnstr) -> 
           (* ETA: can't occur if eta expanded *)
           assignExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),
                     (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2), cnstr)
            (* for rhs:  (U2[s2])[^] 1 = U2 [s2 o ^] 1 = U2 [^ o (1. s2 o ^)] 1
                         = (U2 [^] 1) [1.s2 o ^] *)
 
-      | assignExpW (G, Us1, Us2 as (EClo(U,s'), s), cnstr) =
+      | (G, Us1, Us2 as (EClo(U,s'), s), cnstr) -> 
           assignExp(G, Us1, (U, comp(s', s)), cnstr)
 
-      | assignExpW (G, Us1 as (EVar(r, _, V, Cnstr), s), Us2, cnstr) =
+      | (G, Us1 as (EVar(r, _, V, Cnstr), s), Us2, cnstr) -> 
            (Eqn(G, EClo(Us1), EClo(Us2))::cnstr)
 
-      | assignExpW (G, Us1 as (EClo(U,s'), s), Us2, cnstr) =
+      | (G, Us1 as (EClo(U,s'), s), Us2, cnstr) -> 
           assignExp(G, (U, comp(s', s)), Us2, cnstr)
 
-      | assignExpW (G, Us1 as (FgnExp (_, fe), _), Us2, cnstr) =
+      | (G, Us1 as (FgnExp (_, fe), _), Us2, cnstr) -> 
           (* by invariant Us2 cannot contain any FgnExp *)
           (Eqn(G, EClo(Us1), EClo(Us2))::cnstr)
 
-      | assignExpW (G, Us1, Us2 as (FgnExp (_, fe), _), cnstr) =
+      | (G, Us1, Us2 as (FgnExp (_, fe), _), cnstr) -> 
             (Eqn(G, EClo(Us1), EClo(Us2))::cnstr)
 
     and assignSpine (G, (Nil, _), (Nil, _), cnstr) = cnstr
@@ -155,18 +155,18 @@ struct
     and assignExp (G, Us1, Us2 as (U2, s2), cnstr) =
          assignExpW (G, Whnf.whnf Us1, Whnf.whnf Us2, cnstr)
 
-    fun solveCnstr nil = true
-      | solveCnstr (Eqn(G, U1, U2)::Cnstr) =
+    let rec solveCnstr = function nil -> true
+      | (Eqn(G, U1, U2)::Cnstr) -> 
         (Unify.unifiable(G, (U1, id), (U2, id)) andalso solveCnstr Cnstr)
 
-  fun printSub (Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
-    | printSub (Dot(Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
-    | printSub (Dot (Exp(EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
-    | printSub (Dot (Exp(AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (Dot (Exp(EClo (AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (Dot (Exp(EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
-    | printSub (Dot (Exp(_), s)) = (print ("Exp (_ ). "); printSub s)
-    | printSub (Dot (Undef, s)) = (print ("Undef . "); printSub s)
+  let rec printSub = function (Shift n) -> print ("Shift " ^ Int.toString n ^ "\n")
+    | (Dot(Idx n, s)) -> (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
+    | (Dot (Exp(EVar (_, _, _, _)), s)) -> (print ("Exp (EVar _ ). "); printSub s)
+    | (Dot (Exp(AVar (_)), s)) -> (print ("Exp (AVar _ ). "); printSub s)
+    | (Dot (Exp(EClo (AVar (_), _)), s)) -> (print ("Exp (AVar _ ). "); printSub s)
+    | (Dot (Exp(EClo (_, _)), s)) -> (print ("Exp (EClo _ ). "); printSub s)
+    | (Dot (Exp(_), s)) -> (print ("Exp (_ ). "); printSub s)
+    | (Dot (Undef, s)) -> (print ("Undef . "); printSub s)
 
 
     fun unifyW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
@@ -217,10 +217,10 @@ struct
         | constExpW (_, _) = NONE
         (* other cases cannot occur during compilation *)
 
-      fun ithElem (k, (IntSyn.App(U, S), s)) =
+      let rec ithElem = function (k, (IntSyn.App(U, S), s)) -> 
             if (k = i) then constExp (U, s)
             else ithElem(k+1, (S, s))
-        | ithElem (k, (IntSyn.Nil, s)) = NONE
+        | (k, (IntSyn.Nil, s)) -> NONE
     in
       ithElem (0, (S, s))
     end

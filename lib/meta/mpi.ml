@@ -100,10 +100,10 @@ struct
          History := nil;
          Menu := NONE)
 
-    fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
+    let rec cLToString = function (nil) -> ""
+      | (c :: nil) -> 
           (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
+      | (c :: L) -> 
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
 
@@ -111,10 +111,10 @@ struct
       let
         fun formatTuple (G, P) =
           let
-            fun formatTuple' (F.Unit) = nil
-              | formatTuple' (F.Inx (M, F.Unit)) =
+            let rec formatTuple' = function (F.Unit) -> nil
+              | (F.Inx (M, F.Unit)) -> 
               [Print.formatExp (G, M)]
-              | formatTuple' (F.Inx (M, P')) =
+              | (F.Inx (M, P')) -> 
               (Print.formatExp (G, M) ::
                Fmt.String "," :: Fmt.Break :: formatTuple' P')
           in
@@ -128,8 +128,8 @@ struct
         TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n")
       end
 
-    fun SplittingToMenu (nil, A) = A
-      | SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A)
+    let rec SplittingToMenu = function (nil, A) -> A
+      | (O :: L, A) -> SplittingToMenu (L, Splitting O :: A)
 
     fun FillingToMenu (O, A) = Filling O :: A
 
@@ -160,9 +160,9 @@ struct
 
     fun menuToString () =
         let
-          fun menuToString' (k, nil, (NONE, _)) = (SOME k, "")
-            | menuToString' (k, nil, (kopt' as SOME _, _)) = (kopt', "")
-            | menuToString' (k, Splitting O :: M, kOopt' as (NONE, NONE)) =
+          let rec menuToString' = function (k, nil, (NONE, _)) -> (SOME k, "")
+            | (k, nil, (kopt' as SOME _, _)) -> (kopt', "")
+            | (k, Splitting O :: M, kOopt' as (NONE, NONE)) -> 
               let
                 let kOopt'' = if MTPSplitting.applicable O then (SOME k, SOME O)
                               else kOopt'
@@ -171,7 +171,7 @@ struct
                 (kopt, if k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
               end
-            | menuToString' (k, Splitting O :: M, kOopt' as (SOME k', SOME O')) =
+            | (k, Splitting O :: M, kOopt' as (SOME k', SOME O')) -> 
               let
                 let kOopt'' = if MTPSplitting.applicable O then
                                 case MTPSplitting.compare (O, O')
@@ -183,19 +183,19 @@ struct
                 (kopt, if  k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
               end
-            | menuToString' (k, Filling O :: M, kOopt) =
+            | (k, Filling O :: M, kOopt) -> 
               let
                 let (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPFilling.menu O))
               end
-            | menuToString' (k, Recursion O :: M,kOopt) =
+            | (k, Recursion O :: M,kOopt) -> 
               let
                 let (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPRecursion.menu O))
               end
-            | menuToString' (k, Inference O :: M,kOopt) =
+            | (k, Inference O :: M,kOopt) -> 
               let
                 let (kopt, s) = menuToString' (k+1, M, kOopt)
               in
@@ -230,31 +230,31 @@ struct
           end
 
 
-    fun contains (nil, _) = true
-      | contains (x :: L, L') =
+    let rec contains = function (nil, _) -> true
+      | (x :: L, L') -> 
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     fun equiv (L1, L2) =
           contains (L1, L2) andalso contains (L2, L1)
 
-    fun transformOrder' (G, Order.Arg k) =
+    let rec transformOrder' = function (G, Order.Arg k) -> 
         let
           let k' = (I.ctxLength G) -k+1
           let I.Dec (_, V) = I.ctxDec (G, k')
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
-      | transformOrder' (G, Order.Lex Os) =
+      | (G, Order.Lex Os) -> 
           S.Lex (map (fun O -> transformOrder' (G, O)) Os)
-      | transformOrder' (G, Order.Simul Os) =
+      | (G, Order.Simul Os) -> 
           S.Simul (map (fun O -> transformOrder' (G, O)) Os)
 
-    fun transformOrder (G, F.All (F.Prim D, F), Os) =
+    let rec transformOrder = function (G, F.All (F.Prim D, F), Os) -> 
           S.All (D, transformOrder (I.Decl (G, D), F, Os))
-      | transformOrder (G, F.And (F1, F2), O :: Os) =
+      | (G, F.And (F1, F2), O :: Os) -> 
           S.And (transformOrder (G, F1, [O]),
                  transformOrder (G, F2, Os))
-      | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
+      | (G, F.Ex _, [O]) -> transformOrder' (G, O)
 
     fun select c = (Order.selLookup c handle _ => Order.Lex [])
 
@@ -280,8 +280,8 @@ struct
 
     fun select k =
         let
-          fun select' (k, nil) = abort ("No such menu item")
-            | select' (1, Splitting O :: _) =
+          let rec select' = function (k, nil) -> abort ("No such menu item")
+            | (1, Splitting O :: _) -> 
                 let
                   let S' = (Timers.time Timers.splitting MTPSplitting.apply) O
                   let _ = pushHistory ()
@@ -290,7 +290,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Recursion O :: _) =
+            | (1, Recursion O :: _) -> 
                 let
                   let S' = (Timers.time Timers.recursion MTPRecursion.apply) O
                   let _ = pushHistory ()
@@ -299,7 +299,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Inference O :: _) =
+            | (1, Inference O :: _) -> 
                 let
                   let S' = (Timers.time Timers.recursion Inference.apply) O
                   let _ = pushHistory ()
@@ -308,7 +308,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Filling O :: _) =
+            | (1, Filling O :: _) -> 
                 let
                   let P = (Timers.time Timers.filling MTPFilling.apply) O
                     handle MTPFilling.Error _ =>  abort ("Filling unsuccessful: no object found")
@@ -319,7 +319,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (k, _ :: M) = select' (k-1, M)
+            | (k, _ :: M) -> select' (k-1, M)
         in
           (case !Menu of
             NONE => raise Error "No menu defined"

@@ -32,9 +32,9 @@ struct
 
   fun lookup dict key =
     let
-      fun lk (Empty) = NONE
-	| lk (Red tree) = lk' tree
-        | lk (Black tree) = lk' tree
+      let rec lk = function (Empty) -> NONE
+	| (Red tree) -> lk' tree
+        | (Black tree) -> lk' tree
       and lk' ((key1, datum1), left, right) =
 	    (case compare(key,key1)
 	       of EQUAL => SOME(datum1)
@@ -54,11 +54,11 @@ struct
      and dict is a re-balanced red/black tree (satisfying all invariants)
      and same black height n.
   *)
-  fun restore_right (Black(e, Red lt, Red (rt as (_,Red _,_)))) =
+  let rec restore_right = function (Black(e, Red lt, Red (rt as (_,Red _,_)))) -> 
          Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
+    | (Black(e, Red lt, Red (rt as (_,_,Red _)))) -> 
          Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
+    | (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) -> 
 	 (* l is black, deep rotate *)
 	 Black(rle, Red(e, l, rll), Red(re, rlr, rr))
     | restore_right (Black(e, l, Red(re, rl, rr as Red _))) =
@@ -86,8 +86,8 @@ struct
       (* ins (Red _) may violate color invariant at root *)
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
-      fun ins (Empty) = Red(entry, Empty, Empty)
-	| ins (Red(entry1 as (key1, datum1), left, right)) =
+      let rec ins = function (Empty) -> Red(entry, Empty, Empty)
+	| (Red(entry1 as (key1, datum1), left, right)) -> 
 	  (case compare(key,key1)
 	     of EQUAL => Red(entry, left, right)
 	      | LESS => Red(entry1, ins left, right)
@@ -107,8 +107,8 @@ struct
   (* use non-imperative version? *)
   fun insertShadow (dict, entry as (key,datum)) =
       let let oldEntry = ref NONE (* : 'a entry option ref *)
-          fun ins (Empty) = Red(entry, Empty, Empty)
-	    | ins (Red(entry1 as (key1, datum1), left, right)) =
+          let rec ins = function (Empty) -> Red(entry, Empty, Empty)
+	    | (Red(entry1 as (key1, datum1), left, right)) -> 
 	      (case compare(key,key1)
 		 of EQUAL => (oldEntry := SOME(entry1);
 			      Red(entry, left, right))

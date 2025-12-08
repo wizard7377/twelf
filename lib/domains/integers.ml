@@ -45,11 +45,11 @@ struct
 
   fun fromString (str) =
         let
-          fun check (chars as (c :: chars')) =
+          let rec check = function (chars as (c :: chars')) -> 
                 if (c = #"~")
                 then (List.all Char.isDigit chars')
                 else (List.all Char.isDigit chars)
-            | check nil =
+            | nil -> 
                 false
         in
           if check (String.explode str)

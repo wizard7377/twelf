@@ -15,18 +15,18 @@ struct
 			   sigmap := []
 		       end
 
-	fun findn [] (v : string) = raise NotFound v
-	  | findn (v::tl) v' = if v = v' then 0 else 1 + findn tl v'
+	let rec findn = function [] (v : string) -> raise NotFound v
+	  | (v::tl) v' -> if v = v' then 0 else 1 + findn tl v'
 	fun findid ctx v = (Var(findn ctx v) handle NotFound _ =>
 							Const(findn (!sigma) v))
-	fun modeconvert Parse.mMINUS = MINUS
-	  | modeconvert Parse.mPLUS = PLUS
-	  | modeconvert Parse.mOMIT = OMIT
+	let rec modeconvert = function Parse.mMINUS -> MINUS
+	  | Parse.mPLUS -> PLUS
+	  | Parse.mOMIT -> OMIT
 
-	fun modesofclass (kclass(Type)) = []
-	  | modesofclass (kclass(KPi(m,_,k))) = m :: modesofclass(kclass k)
-	  | modesofclass (tclass(TRoot _)) = []
-	  | modesofclass (tclass(TPi(m,_,a))) = m :: modesofclass(tclass a)
+	let rec modesofclass = function (kclass(Type)) -> []
+	  | (kclass(KPi(m,_,k))) -> m :: modesofclass(kclass k)
+	  | (tclass(TRoot _)) -> []
+	  | (tclass(TPi(m,_,a))) -> m :: modesofclass(tclass a)
 
 (* given a context and an external expression, returns the internal 'spine form' as a 4-tuple
    (h, mopt, p, s)
@@ -35,38 +35,38 @@ struct
          p is true iff the head is a synthesizing constant or a variable
          s is the list of arugments
 *)
-	fun spine_form (G, Parse.Id s) = 
+	let rec spine_form = function (G, Parse.Id s) -> 
 	    (case findid G s of
 		 Var n => (Var n, NONE, true, [])
 	       | Const n => (Const n,
 			     SOME (modesofclass (List.nth (!sigmat, n))),
 			     List.nth (!sigmap, n),
 			     []))
-	  | spine_form (G, Parse.App (t, u)) = let let (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u]) end
-	  | spine_form (G, Parse.Lam _) = raise Convert "illegal redex" 
-	  | spine_form (G, _) = raise Convert "level mismatch" 
+	  | (G, Parse.App (t, u)) -> let let (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u]) end
+	  | (G, Parse.Lam _) -> raise Convert "illegal redex" 
+	  | (G, _) -> raise Convert "level mismatch" 
 
 (* similar to spine_form for a type family applied to a list of arguments *)
-	fun type_spine_form (G, Parse.Id s) = 
+	let rec type_spine_form = function (G, Parse.Id s) -> 
 	    let 
 		let n = findn (!sigma) s
 	    in
 	        (n, modesofclass (List.nth (!sigmat, n)), [])
 	    end
-	  | type_spine_form (G, Parse.App (t, u)) = let let (n, m, s) = type_spine_form (G, t)
+	  | (G, Parse.App (t, u)) -> let let (n, m, s) = type_spine_form (G, t)
 					       in (n, m, s @ [u]) end
-	  | type_spine_form (G, _) = raise Convert "level mismatch" 
+	  | (G, _) -> raise Convert "level mismatch" 
 
 	fun safezip (l1, l2) = if length l1 = length l2 
 			       then ListPair.zip (l1,l2)
 			       else raise Convert "wrong spine length"
 
 (* given a context and an external expression and a mode, return a spine element or raise an exception*)
-	fun eltconvert G (t, MINUS) = Elt (convert (G, t))
-	  | eltconvert G (Parse.Ascribe(t, a), PLUS) = Ascribe(nconvert (G, t), typeconvert (G, a))
-	  | eltconvert G (t, PLUS) = AElt (aconvert(G, t))
-	  | eltconvert G (Parse.Omit, OMIT) = Omit
-	  | eltconvert G (_, OMIT) = raise Convert "found term expected to be omitted"
+	let rec eltconvert = function G (t, MINUS) -> Elt (convert (G, t))
+	  | G (Parse.Ascribe(t, a), PLUS) -> Ascribe(nconvert (G, t), typeconvert (G, a))
+	  | G (t, PLUS) -> AElt (aconvert(G, t))
+	  | G (Parse.Omit, OMIT) -> Omit
+	  | G (_, OMIT) -> raise Convert "found term expected to be omitted"
 		
 (* given a context and an external expression, return an atomic term or raise an exception*)
 	and aconvert (G, t) = 

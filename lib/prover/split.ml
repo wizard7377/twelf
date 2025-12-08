@@ -49,8 +49,8 @@ struct
        then G |- w' : G'
        and  forall x:A in G'  A subordinate to a
      *)
-    fun weaken (I.Null, a) = I.id
-      | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
+    let rec weaken = function (I.Null, a) -> I.id
+      | (I.Decl (G', D as I.Dec (name, V)), a) -> 
         let
           let w' = weaken (G', a)
         in
@@ -60,7 +60,7 @@ struct
       (* added next case, probably should not arise *)
       (* Sun Dec 16 10:42:05 2001 -fp !!! *)
       (*
-      | weaken (I.Decl (G', D as I.BDec _), a) =
+      | (I.Decl (G', D as I.BDec _), a) -> 
            I.dot1 (weaken (G', a))
       *)
 
@@ -182,8 +182,8 @@ struct
           (I.Root (H, S), Vs')
         end
 
-    fun constCases (G, Vs, nil, sc) = ()
-      | constCases (G, Vs, I.Const(c)::sgn', sc) =
+    let rec constCases = function (G, Vs, nil, sc) -> ()
+      | (G, Vs, I.Const(c)::sgn', sc) -> 
         let
           let (U, Vs') = createAtomConst (G, I.Const c)
           let _ = CSManager.trail (fn () =>
@@ -194,8 +194,8 @@ struct
           constCases (G, Vs, sgn', sc)
         end
 
-    fun paramCases (G, Vs, 0, sc) = ()
-      | paramCases (G, Vs, k, sc) =
+    let rec paramCases = function (G, Vs, 0, sc) -> ()
+      | (G, Vs, k, sc) -> 
         let
           let (U, Vs') = createAtomBVar (G, k)
           let _ = CSManager.trail (fn () =>
@@ -214,8 +214,8 @@ struct
 
        Update: Always use empty context. Sat Dec  8 13:19:58 2001 -fp
     *)
-    fun createEVarSub (I.Null) = I.id
-      | createEVarSub (I.Decl(G', D as I.Dec (_, V))) =
+    let rec createEVarSub = function (I.Null) -> I.id
+      | (I.Decl(G', D as I.Dec (_, V))) -> 
         let
           let s = createEVarSub G'
           let V' = I.EClo (V, s)
@@ -260,8 +260,8 @@ struct
           blockCases' (G, Vs, (lvar, i+1), (t', piDecs), sc)
         end
 
-    fun worldCases (G, Vs, T.Worlds (nil), sc) = ()
-      | worldCases (G, Vs, T.Worlds (cid::cids), sc) =
+    let rec worldCases = function (G, Vs, T.Worlds (nil), sc) -> ()
+      | (G, Vs, T.Worlds (cid::cids), sc) -> 
           ( blockCases (G, Vs, cid, I.constBlock cid, sc) ;
             worldCases (G, Vs, T.Worlds (cids), sc) )
 
@@ -301,15 +301,15 @@ struct
        then s = Xp...X1.id, all Xi are new EVars/LVars/MVars
        and  . |- s : Psi
     *)
-    fun createSub (I.Null) = (T.id)
-      | createSub (I.Decl (Psi, T.UDec (I.Dec (xOpt, V1)))) =
+    let rec createSub = function (I.Null) -> (T.id)
+      | (I.Decl (Psi, T.UDec (I.Dec (xOpt, V1)))) -> 
         let
           let (t') = createSub Psi
           let X = I.newEVar (I.Null, I.EClo (Whnf.whnf (V1, T.coerceSub t'))) (* all EVars are global and lowered *)
         in
            (T.Dot (T.Exp X, t'))
         end
-      | createSub (I.Decl (Psi, T.UDec (I.BDec (_, (l, s))))) =
+      | (I.Decl (Psi, T.UDec (I.BDec (_, (l, s))))) -> 
         (* Psi0 |- t : Gsome *)
         (* . |- s : Psi0 *)
         let
@@ -319,7 +319,7 @@ struct
         in
           (T.Dot (T.Block L, t'))
         end
-      | createSub (I.Decl (Psi, T.PDec (_, F, TC1, TC2))) =
+      | (I.Decl (Psi, T.PDec (_, F, TC1, TC2))) -> 
         let (* p > 0 *)
           let t' = createSub Psi
           let Y = T.newEVarTC (I.Null, T.FClo (F, t'), TC1, TC2)
@@ -339,8 +339,8 @@ struct
        where  Psii |- Fi = F [ti]  formula
     *)
 
-    fun mkCases (nil, F) = nil
-      | mkCases ((Psi, t) :: cs, F) =
+    let rec mkCases = function (nil, F) -> nil
+      | ((Psi, t) :: cs, F) -> 
         let
           let X = T.newEVar (Psi, T.FClo (F, t))
         in
@@ -376,8 +376,8 @@ struct
            and  Xs are all logic variables
            then Os is a list of splitting operators
         *)
-        fun splitXs (G, i) (nil, _, _, _) = nil
-          | splitXs (G, i) (X :: Xs, F, W, sc) =
+        let rec splitXs = function (G, i) (nil, _, _, _) -> nil
+          | (G, i) (X :: Xs, F, W, sc) -> 
             let
               let _ = if !Global.chatter >= 6
                         then print ("Split " ^ Print.expToString (I.Null, X) ^ ".\n")

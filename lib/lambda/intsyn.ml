@@ -26,16 +26,16 @@ struct
      Invariant: 1 <= k <= |G|, where |G| is length of G
   *)
 
-  fun ctxLookup (Decl (G', D), 1) = D
-    | ctxLookup (Decl (G', _), k') = ctxLookup (G', k'-1)
+  let rec ctxLookup = function (Decl (G', D), 1) -> D
+    | (Decl (G', _), k') -> ctxLookup (G', k'-1)
 (*    | ctxLookup (Null, k') = (print ("Looking up k' = " ^ Int.toString k' ^ "\n"); raise Error "Out of Bounce\n")*)
     (* ctxLookup (Null, k')  should not occur by invariant *)
 
   (* ctxLength G = |G|, the number of declarations in G *)
   fun ctxLength G =
       let
-        fun ctxLength' (Null, n) = n
-          | ctxLength' (Decl(G, _), n)= ctxLength' (G, n+1)
+        let rec ctxLength' = function (Null, n) -> n
+          | (Decl(G, _), n) -> ctxLength' (G, n+1)
       in
         ctxLength' (G, 0)
       end
@@ -226,19 +226,19 @@ struct
 
   end
 
-  fun conDecName (ConDec (name, _, _, _, _, _)) = name
-    | conDecName (ConDef (name, _, _, _, _, _, _)) = name
-    | conDecName (AbbrevDef (name, _, _, _, _, _)) = name
-    | conDecName (SkoDec (name, _, _, _, _)) = name
-    | conDecName (BlockDec (name, _, _, _)) = name
-    | conDecName (BlockDef (name, _, _)) = name
+  let rec conDecName = function (ConDec (name, _, _, _, _, _)) -> name
+    | (ConDef (name, _, _, _, _, _, _)) -> name
+    | (AbbrevDef (name, _, _, _, _, _)) -> name
+    | (SkoDec (name, _, _, _, _)) -> name
+    | (BlockDec (name, _, _, _)) -> name
+    | (BlockDef (name, _, _)) -> name
 
-  fun conDecParent (ConDec (_, parent, _, _, _, _)) = parent
-    | conDecParent (ConDef (_, parent, _, _, _, _, _)) = parent
-    | conDecParent (AbbrevDef (_, parent, _, _, _, _)) = parent
-    | conDecParent (SkoDec (_, parent, _, _, _)) = parent
-    | conDecParent (BlockDec (_, parent, _, _)) = parent
-    | conDecParent (BlockDef (_, parent, _)) = parent
+  let rec conDecParent = function (ConDec (_, parent, _, _, _, _)) -> parent
+    | (ConDef (_, parent, _, _, _, _, _)) -> parent
+    | (AbbrevDef (_, parent, _, _, _, _)) -> parent
+    | (SkoDec (_, parent, _, _, _)) -> parent
+    | (BlockDec (_, parent, _, _)) -> parent
+    | (BlockDef (_, parent, _)) -> parent
 
 
   (* conDecImp (CD) = k
@@ -248,14 +248,14 @@ struct
           a Skolem constant
      then k stands for the number of implicit elements.
   *)
-  fun conDecImp (ConDec (_, _, i, _, _, _)) = i
-    | conDecImp (ConDef (_, _, i, _, _, _, _)) = i
-    | conDecImp (AbbrevDef (_, _, i, _, _, _)) = i
-    | conDecImp (SkoDec (_, _, i, _, _)) = i
-    | conDecImp (BlockDec (_, _,  _, _)) = 0   (* watch out -- carsten *)
+  let rec conDecImp = function (ConDec (_, _, i, _, _, _)) -> i
+    | (ConDef (_, _, i, _, _, _, _)) -> i
+    | (AbbrevDef (_, _, i, _, _, _)) -> i
+    | (SkoDec (_, _, i, _, _)) -> i
+    | (BlockDec (_, _,  _, _)) -> 0   (* watch out -- carsten *)
 
-  fun conDecStatus (ConDec (_, _, _, status, _, _)) = status
-    | conDecStatus _ = Normal
+  let rec conDecStatus = function (ConDec (_, _, _, status, _, _)) -> status
+    | _ -> Normal
 
   (* conDecType (CD) =  V
 
@@ -264,10 +264,10 @@ struct
           a Skolem constant
      then V is the respective type
   *)
-  fun conDecType (ConDec (_, _, _, _, V, _)) = V
-    | conDecType (ConDef (_, _, _, _, V, _, _)) = V
-    | conDecType (AbbrevDef (_, _, _, _, V, _)) = V
-    | conDecType (SkoDec (_, _, _, V, _)) = V
+  let rec conDecType = function (ConDec (_, _, _, _, V, _)) -> V
+    | (ConDef (_, _, _, _, V, _, _)) -> V
+    | (AbbrevDef (_, _, _, _, V, _)) -> V
+    | (SkoDec (_, _, _, V, _)) -> V
 
 
   (* conDecBlock (CD) =  (Gsome, Lpi)
@@ -286,10 +286,10 @@ struct
           a Skolem constant
      then L is the respective universe
   *)
-  fun conDecUni (ConDec (_, _, _, _, _, L)) = L
-    | conDecUni (ConDef (_, _, _, _, _, L, _)) = L
-    | conDecUni (AbbrevDef (_, _, _, _, _, L)) = L
-    | conDecUni (SkoDec (_, _, _, _, L)) = L
+  let rec conDecUni = function (ConDec (_, _, _, _, _, L)) -> L
+    | (ConDef (_, _, _, _, _, L, _)) -> L
+    | (AbbrevDef (_, _, _, _, _, L)) -> L
+    | (SkoDec (_, _, _, _, L)) -> L
 
 
   fun strDecName (StrDec (name, _)) = name
@@ -427,14 +427,14 @@ struct
      If  s1, s2 patsub
      then s' patsub
    *)
-  fun comp (Shift (0), s) = s
+  let rec comp = function (Shift (0), s) -> s
     (* next line is an optimization *)
     (* roughly 15% on standard suite for Twelf 1.1 *)
     (* Sat Feb 14 10:15:16 1998 -fp *)
-    | comp (s, Shift (0)) = s
-    | comp (Shift (n), Dot (Ft, s)) = comp (Shift (n-1), s)
-    | comp (Shift (n), Shift (m)) = Shift (n+m)
-    | comp (Dot (Ft, s), s') = Dot (frontSub (Ft, s'), comp (s, s'))
+    | (s, Shift (0)) -> s
+    | (Shift (n), Dot (Ft, s)) -> comp (Shift (n-1), s)
+    | (Shift (n), Shift (m)) -> Shift (n+m)
+    | (Dot (Ft, s), s') -> Dot (frontSub (Ft, s'), comp (s, s'))
 
   (* bvarSub (n, s) = Ft'
 
@@ -508,12 +508,12 @@ struct
   (* seems to have no statistically significant effect *)
   (* undo for now Sat Feb 14 20:22:29 1998 -fp *)
   (*
-  fun decSub (D, Shift(0)) = D
-    | decSub (Dec (x, V), s) = Dec (x, EClo (V, s))
+  let rec decSub = function (D, Shift(0)) -> D
+    | (Dec (x, V), s) -> Dec (x, EClo (V, s))
   *)
-  fun decSub (Dec (x, V), s) = Dec (x, EClo (V, s))
-    | decSub (NDec x, s) = NDec x
-    | decSub (BDec (n, (l, t)), s) = BDec (n, (l, comp (t, s)))
+  let rec decSub = function (Dec (x, V), s) -> Dec (x, EClo (V, s))
+    | (NDec x, s) -> NDec x
+    | (BDec (n, (l, t)), s) -> BDec (n, (l, comp (t, s)))
 
   (* dot1 (s) = s'
 
@@ -528,8 +528,8 @@ struct
   (* first line is an optimization *)
   (* roughly 15% on standard suite for Twelf 1.1 *)
   (* Sat Feb 14 10:16:16 1998 -fp *)
-  fun dot1 (s as Shift (0)) = s
-    | dot1 s = Dot (Idx(1), comp(s, shift))
+  let rec dot1 = function (s as Shift (0)) -> s
+    | s -> Dot (Idx(1), comp(s, shift))
 
   (* invDot1 (s) = s'
      invDot1 (1. s' o ^) = s'
@@ -553,9 +553,9 @@ struct
       let (* ctxDec' (G'', k') = x:V
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)
-        fun ctxDec' (Decl (G', Dec (x, V')), 1) = Dec (x, EClo (V', Shift (k)))
-          | ctxDec' (Decl (G', BDec (n, (l, s))), 1) = BDec (n, (l, comp (s, Shift (k))))
-          | ctxDec' (Decl (G', _), k') = ctxDec' (G', k'-1)
+        let rec ctxDec' = function (Decl (G', Dec (x, V')), 1) -> Dec (x, EClo (V', Shift (k)))
+          | (Decl (G', BDec (n, (l, s))), 1) -> BDec (n, (l, comp (s, Shift (k))))
+          | (Decl (G', _), k') -> ctxDec' (G', k'-1)
          (* ctxDec' (Null, k')  should not occur by invariant *)
       in
         ctxDec' (G, k)
@@ -575,8 +575,8 @@ struct
       let BDec (_, (l, s)) = ctxDec (G, k)
       (* G |- s : Gsome *)
       let (Gsome, Lblock) = conDecBlock (sgnLookup l)
-      fun blockDec' (t, D :: L, 1, j) = decSub (D, t)
-        | blockDec' (t, _ :: L, n, j) =
+      let rec blockDec' = function (t, D :: L, 1, j) -> decSub (D, t)
+        | (t, _ :: L, n, j) -> 
             blockDec' (Dot (Exp (Root (Proj (v, j), Nil)), t),
                           L, n-1, j+1)
     in
@@ -603,17 +603,17 @@ struct
 
   (* Definition related functions *)
   (* headOpt (U) = SOME(H) or NONE, U should be strict, normal *)
-  fun headOpt (Root (H, _)) = SOME(H)
-    | headOpt (Lam (_, U)) = headOpt U
-    | headOpt _ = NONE
+  let rec headOpt = function (Root (H, _)) -> SOME(H)
+    | (Lam (_, U)) -> headOpt U
+    | _ -> NONE
 
-  fun ancestor' (NONE) = Anc(NONE, 0, NONE)
-    | ancestor' (SOME(Const(c))) = Anc(SOME(c), 1, SOME(c))
-    | ancestor' (SOME(Def(d))) =
+  let rec ancestor' = function (NONE) -> Anc(NONE, 0, NONE)
+    | (SOME(Const(c))) -> Anc(SOME(c), 1, SOME(c))
+    | (SOME(Def(d))) -> 
       (case sgnLookup(d)
          of ConDef(_, _, _, _, _, _, Anc(_, height, cOpt))
             => Anc(SOME(d), height+1, cOpt))
-    | ancestor' (SOME _) = (* FgnConst possible, BVar impossible by strictness *)
+    | (SOME _) -> (* FgnConst possible, BVar impossible by strictness *)
       Anc(NONE, 0, NONE)
   (* ancestor(U) = ancestor info for d = U *)
   fun ancestor (U) = ancestor' (headOpt U)
@@ -631,13 +631,13 @@ struct
      Does not expand type definitions.
   *)
   (* should there possibly be a FgnConst case? also targetFamOpt -kw *)
-  fun targetHeadOpt (Root (H, _)) = SOME(H)
-    | targetHeadOpt (Pi(_, V)) = targetHeadOpt V
-    | targetHeadOpt (Redex (V, S)) = targetHeadOpt V
-    | targetHeadOpt (Lam (_, V)) = targetHeadOpt V
-    | targetHeadOpt (EVar (ref (SOME(V)),_,_,_)) = targetHeadOpt V
-    | targetHeadOpt (EClo (V, s)) = targetHeadOpt V
-    | targetHeadOpt _ = NONE
+  let rec targetHeadOpt = function (Root (H, _)) -> SOME(H)
+    | (Pi(_, V)) -> targetHeadOpt V
+    | (Redex (V, S)) -> targetHeadOpt V
+    | (Lam (_, V)) -> targetHeadOpt V
+    | (EVar (ref (SOME(V)),_,_,_)) -> targetHeadOpt V
+    | (EClo (V, s)) -> targetHeadOpt V
+    | _ -> NONE
       (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
       *)
@@ -652,14 +652,14 @@ struct
      NONE if V is a kind or object or have variable type.
      Does expand type definitions.
   *)
-  fun targetFamOpt (Root (Const(cid), _)) = SOME(cid)
-    | targetFamOpt (Pi(_, V)) = targetFamOpt V
-    | targetFamOpt (Root (Def(cid), _)) = targetFamOpt (constDef cid)
-    | targetFamOpt (Redex (V, S)) = targetFamOpt V
-    | targetFamOpt (Lam (_, V)) = targetFamOpt V
-    | targetFamOpt (EVar (ref (SOME(V)),_,_,_)) = targetFamOpt V
-    | targetFamOpt (EClo (V, s)) = targetFamOpt V
-    | targetFamOpt _ = NONE
+  let rec targetFamOpt = function (Root (Const(cid), _)) -> SOME(cid)
+    | (Pi(_, V)) -> targetFamOpt V
+    | (Root (Def(cid), _)) -> targetFamOpt (constDef cid)
+    | (Redex (V, S)) -> targetFamOpt V
+    | (Lam (_, V)) -> targetFamOpt V
+    | (EVar (ref (SOME(V)),_,_,_)) -> targetFamOpt V
+    | (EClo (V, s)) -> targetFamOpt V
+    | _ -> NONE
       (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
       *)

@@ -55,46 +55,46 @@ struct
   fun quote (string) = "`" ^ string ^ "'"
 
   (* Print the OK or ABORT messages which are parsed by Emacs *)
-  fun issue (Twelf.OK) = print ("%% OK %%\n")
-    | issue (Twelf.ABORT) = print ("%% ABORT %%\n")
+  let rec issue = function (Twelf.OK) -> print ("%% OK %%\n")
+    | (Twelf.ABORT) -> print ("%% ABORT %%\n")
 
   (* Checking if there are no extraneous arguments *)
-  fun checkEmpty ("") = ()
-    | checkEmpty (args) = error "Extraneous arguments"
+  let rec checkEmpty = function ("") -> ()
+    | (args) -> error "Extraneous arguments"
 
   (* Command argument types *)
   (* File names, given a default *)
-  fun getFile ("", default) = default
-    | getFile (fileName, default) = fileName
+  let rec getFile = function ("", default) -> default
+    | (fileName, default) -> fileName
 
   (* File names, not defaults *)
-  fun getFile' ("") = error "Missing filename"
-    | getFile' (fileName) = fileName
+  let rec getFile' = function ("") -> error "Missing filename"
+    | (fileName) -> fileName
 
   (* Identifiers, used as a constant *)
-  fun getId (id::nil) = id
-    | getId (nil) = error "Missing identifier"
-    | getId (ts) = error "Extraneous arguments"
+  let rec getId = function (id::nil) -> id
+    | (nil) -> error "Missing identifier"
+    | (ts) -> error "Extraneous arguments"
 
   (* Identifiers, used as a trace specification *)
   fun getIds (ids) = ids
 
   (* Strategies for %prove, %establish *)
-  fun getStrategy ("FRS"::nil) = Twelf.Prover.FRS
-    | getStrategy ("RFS"::nil) = Twelf.Prover.RFS
-    | getStrategy (nil) = error "Missing strategy"
-    | getStrategy (t::nil) = error (quote t ^ " is not a strategy (must be FRS or RFS)")
-    | getStrategy (ts) = error "Extraneous arguments"
+  let rec getStrategy = function ("FRS"::nil) -> Twelf.Prover.FRS
+    | ("RFS"::nil) -> Twelf.Prover.RFS
+    | (nil) -> error "Missing strategy"
+    | (t::nil) -> error (quote t ^ " is not a strategy (must be FRS or RFS)")
+    | (ts) -> error "Extraneous arguments"
 
-  fun strategyToString (Twelf.Prover.FRS) = "FRS"
-    | strategyToString (Twelf.Prover.RFS) = "RFS"
+  let rec strategyToString = function (Twelf.Prover.FRS) -> "FRS"
+    | (Twelf.Prover.RFS) -> "RFS"
 
   (* Booleans *)
-  fun getBool ("true"::nil) = true
-    | getBool ("false"::nil) = false
-    | getBool (nil) = error "Missing boolean value"
-    | getBool (t::nil) = error (quote t ^ " is not a boolean")
-    | getBool (ts) = error "Extraneous arguments"
+  let rec getBool = function ("true"::nil) -> true
+    | ("false"::nil) -> false
+    | (nil) -> error "Missing boolean value"
+    | (t::nil) -> error (quote t ^ " is not a boolean")
+    | (ts) -> error "Extraneous arguments"
 
   (* Natural numbers *)
   fun getNat (t::nil) =
@@ -104,88 +104,88 @@ struct
     | getNat (ts) = error "Extraneous arguments"
 
   (* Limits ( *, or natural number) *)
-  fun getLimit ("*"::nil) = NONE
-    | getLimit (t::ts) = SOME (getNat (t::ts))
-    | getLimit (nil) = error "Missing `*' or natural number"
+  let rec getLimit = function ("*"::nil) -> NONE
+    | (t::ts) -> SOME (getNat (t::ts))
+    | (nil) -> error "Missing `*' or natural number"
 
-  fun limitToString (NONE) = "*"
-    | limitToString (SOME(i)) = Int.toString i
+  let rec limitToString = function (NONE) -> "*"
+    | (SOME(i)) -> Int.toString i
 
   (* Tabling strategy *)
-  fun getTableStrategy ("Variant"::nil) = Twelf.Table.Variant
-    | getTableStrategy ("Subsumption"::nil) = Twelf.Table.Subsumption
-    | getTableStrategy (nil) = error "Missing tabling strategy"
-    | getTableStrategy (t::nil) = error (quote t ^ " is not a tabling strategy (must be Variant or Subsumption)")
-    | getTableStrategy (ts) = error "Extraneous arguments"
+  let rec getTableStrategy = function ("Variant"::nil) -> Twelf.Table.Variant
+    | ("Subsumption"::nil) -> Twelf.Table.Subsumption
+    | (nil) -> error "Missing tabling strategy"
+    | (t::nil) -> error (quote t ^ " is not a tabling strategy (must be Variant or Subsumption)")
+    | (ts) -> error "Extraneous arguments"
 
-  fun tableStrategyToString (Twelf.Table.Variant) = "Variant"
-    | tableStrategyToString (Twelf.Table.Subsumption) = "Subsumption"
+  let rec tableStrategyToString = function (Twelf.Table.Variant) -> "Variant"
+    | (Twelf.Table.Subsumption) -> "Subsumption"
 
   (* Tracing mode for term reconstruction *)
-  fun getReconTraceMode ("Progressive"::nil) = Twelf.Recon.Progressive
-    | getReconTraceMode ("Omniscient"::nil) = Twelf.Recon.Omniscient
-    | getReconTraceMode (nil) = error "Missing tracing reconstruction mode"
-    | getReconTraceMode (t::nil) = error (quote t ^ " is not a tracing reconstruction mode\n(must be Progressive or Omniscient)")
-    | getReconTraceMode (ts) = error "Extraneous arguments"
+  let rec getReconTraceMode = function ("Progressive"::nil) -> Twelf.Recon.Progressive
+    | ("Omniscient"::nil) -> Twelf.Recon.Omniscient
+    | (nil) -> error "Missing tracing reconstruction mode"
+    | (t::nil) -> error (quote t ^ " is not a tracing reconstruction mode\n(must be Progressive or Omniscient)")
+    | (ts) -> error "Extraneous arguments"
 
-  fun reconTraceModeToString (Twelf.Recon.Progressive) = "Progressive"
-    | reconTraceModeToString (Twelf.Recon.Omniscient) = "Omniscient"
+  let rec reconTraceModeToString = function (Twelf.Recon.Progressive) -> "Progressive"
+    | (Twelf.Recon.Omniscient) -> "Omniscient"
 
 
   (* Compile options *)
-  fun getCompileOpt ("No"::nil) = Twelf.Compile.No
-    | getCompileOpt ("LinearHeads"::nil) = Twelf.Compile.LinearHeads
-    | getCompileOpt ("Indexing"::nil) = Twelf.Compile.Indexing
-    | getCompileOpt (nil) = error "Missing tabling strategy"
-    | getCompileOpt (t::nil) = error (quote t ^ " is not a compile option (must be No, LinearHeads, or Indexing ")
-    | getCompileOpt (ts) = error "Extraneous arguments"
+  let rec getCompileOpt = function ("No"::nil) -> Twelf.Compile.No
+    | ("LinearHeads"::nil) -> Twelf.Compile.LinearHeads
+    | ("Indexing"::nil) -> Twelf.Compile.Indexing
+    | (nil) -> error "Missing tabling strategy"
+    | (t::nil) -> error (quote t ^ " is not a compile option (must be No, LinearHeads, or Indexing ")
+    | (ts) -> error "Extraneous arguments"
 
-  fun compOptToString (Twelf.Compile.No) = "No"
-    | compOptToString (Twelf.Compile.LinearHeads) = "LinearHeads"
-    | compOptToString (Twelf.Compile.Indexing) = "Indexing"
+  let rec compOptToString = function (Twelf.Compile.No) -> "No"
+    | (Twelf.Compile.LinearHeads) -> "LinearHeads"
+    | (Twelf.Compile.Indexing) -> "Indexing"
 
   (* Setting Twelf parameters *)
-  fun setParm ("chatter"::ts) = Twelf.chatter := getNat ts
-    | setParm ("doubleCheck"::ts) = Twelf.doubleCheck := getBool ts
-    | setParm ("unsafe"::ts) = Twelf.unsafe := getBool ts
-    | setParm ("autoFreeze"::ts) = Twelf.autoFreeze := getBool ts
-    | setParm ("Print.implicit"::ts) = Twelf.Print.implicit := getBool ts
-    | setParm ("Print.depth"::ts) = Twelf.Print.depth := getLimit ts
-    | setParm ("Print.length"::ts) = Twelf.Print.length := getLimit ts
-    | setParm ("Print.indent"::ts) = Twelf.Print.indent := getNat ts
-    | setParm ("Print.width"::ts) = Twelf.Print.width := getNat ts
-    | setParm ("Trace.detail"::ts) = Twelf.Trace.detail := getNat ts
-    | setParm ("Compile.optimize"::ts) = Twelf.Compile.optimize := getCompileOpt ts
-    | setParm ("Recon.trace"::ts) = Twelf.Recon.trace := getBool ts
-    | setParm ("Recon.traceMode"::ts) = Twelf.Recon.traceMode := getReconTraceMode ts
-    | setParm ("Prover.strategy"::ts) = Twelf.Prover.strategy := getStrategy ts
-    | setParm ("Prover.maxSplit"::ts) = Twelf.Prover.maxSplit := getNat ts
-    | setParm ("Prover.maxRecurse"::ts) = Twelf.Prover.maxRecurse := getNat ts
-    | setParm ("Table.strategy"::ts) = Twelf.Table.strategy := getTableStrategy ts
-    | setParm ("Table.strengthen"::ts) = Twelf.Table.strengthen := getBool ts
-    | setParm (t::ts) = error ("Unknown parameter " ^ quote t)
-    | setParm (nil) = error ("Missing parameter")
+  let rec setParm = function ("chatter"::ts) -> Twelf.chatter := getNat ts
+    | ("doubleCheck"::ts) -> Twelf.doubleCheck := getBool ts
+    | ("unsafe"::ts) -> Twelf.unsafe := getBool ts
+    | ("autoFreeze"::ts) -> Twelf.autoFreeze := getBool ts
+    | ("Print.implicit"::ts) -> Twelf.Print.implicit := getBool ts
+    | ("Print.depth"::ts) -> Twelf.Print.depth := getLimit ts
+    | ("Print.length"::ts) -> Twelf.Print.length := getLimit ts
+    | ("Print.indent"::ts) -> Twelf.Print.indent := getNat ts
+    | ("Print.width"::ts) -> Twelf.Print.width := getNat ts
+    | ("Trace.detail"::ts) -> Twelf.Trace.detail := getNat ts
+    | ("Compile.optimize"::ts) -> Twelf.Compile.optimize := getCompileOpt ts
+    | ("Recon.trace"::ts) -> Twelf.Recon.trace := getBool ts
+    | ("Recon.traceMode"::ts) -> Twelf.Recon.traceMode := getReconTraceMode ts
+    | ("Prover.strategy"::ts) -> Twelf.Prover.strategy := getStrategy ts
+    | ("Prover.maxSplit"::ts) -> Twelf.Prover.maxSplit := getNat ts
+    | ("Prover.maxRecurse"::ts) -> Twelf.Prover.maxRecurse := getNat ts
+    | ("Table.strategy"::ts) -> Twelf.Table.strategy := getTableStrategy ts
+    | ("Table.strengthen"::ts) -> Twelf.Table.strengthen := getBool ts
+    | (t::ts) -> error ("Unknown parameter " ^ quote t)
+    | (nil) -> error ("Missing parameter")
 
   (* Getting Twelf parameter values *)
-  fun getParm ("chatter"::ts) = Int.toString (!Twelf.chatter)
-    | getParm ("doubleCheck"::ts) = Bool.toString (!Twelf.doubleCheck)
-    | getParm ("unsafe"::ts) = Bool.toString (!Twelf.unsafe)
-    | getParm ("autoFreeze"::ts) = Bool.toString (!Twelf.autoFreeze)
-    | getParm ("Print.implicit"::ts) = Bool.toString (!Twelf.Print.implicit)
-    | getParm ("Print.depth"::ts) = limitToString (!Twelf.Print.depth)
-    | getParm ("Print.length"::ts) = limitToString (!Twelf.Print.length)
-    | getParm ("Print.indent"::ts) = Int.toString (!Twelf.Print.indent)
-    | getParm ("Print.width"::ts) = Int.toString (!Twelf.Print.width)
-    | getParm ("Trace.detail"::ts) = Int.toString (!Twelf.Trace.detail)
-    | getParm ("Compile.optimize"::ts) = compOptToString (!Twelf.Compile.optimize)
-    | getParm ("Recon.trace"::ts) = Bool.toString (!Twelf.Recon.trace)
-    | getParm ("Recon.traceMode"::ts) = reconTraceModeToString (!Twelf.Recon.traceMode)
-    | getParm ("Prover.strategy"::ts) = strategyToString (!Twelf.Prover.strategy)
-    | getParm ("Prover.maxSplit"::ts) = Int.toString (!Twelf.Prover.maxSplit)
-    | getParm ("Prover.maxRecurse"::ts) = Int.toString (!Twelf.Prover.maxRecurse)
-   | getParm ("Table.strategy"::ts) = tableStrategyToString (!Twelf.Table.strategy) 
-    | getParm (t::ts) = error ("Unknown parameter " ^ quote t)
-    | getParm (nil) = error ("Missing parameter")
+  let rec getParm = function ("chatter"::ts) -> Int.toString (!Twelf.chatter)
+    | ("doubleCheck"::ts) -> Bool.toString (!Twelf.doubleCheck)
+    | ("unsafe"::ts) -> Bool.toString (!Twelf.unsafe)
+    | ("autoFreeze"::ts) -> Bool.toString (!Twelf.autoFreeze)
+    | ("Print.implicit"::ts) -> Bool.toString (!Twelf.Print.implicit)
+    | ("Print.depth"::ts) -> limitToString (!Twelf.Print.depth)
+    | ("Print.length"::ts) -> limitToString (!Twelf.Print.length)
+    | ("Print.indent"::ts) -> Int.toString (!Twelf.Print.indent)
+    | ("Print.width"::ts) -> Int.toString (!Twelf.Print.width)
+    | ("Trace.detail"::ts) -> Int.toString (!Twelf.Trace.detail)
+    | ("Compile.optimize"::ts) -> compOptToString (!Twelf.Compile.optimize)
+    | ("Recon.trace"::ts) -> Bool.toString (!Twelf.Recon.trace)
+    | ("Recon.traceMode"::ts) -> reconTraceModeToString (!Twelf.Recon.traceMode)
+    | ("Prover.strategy"::ts) -> strategyToString (!Twelf.Prover.strategy)
+    | ("Prover.maxSplit"::ts) -> Int.toString (!Twelf.Prover.maxSplit)
+    | ("Prover.maxRecurse"::ts) -> Int.toString (!Twelf.Prover.maxRecurse)
+   | ("Table.strategy"::ts) -> tableStrategyToString (!Twelf.Table.strategy) 
+    | (t::ts) -> error ("Unknown parameter " ^ quote t)
+    | (nil) -> error ("Missing parameter")
 
   (* extracted from doc/guide/twelf.texi *)
   let helpString =
@@ -265,77 +265,77 @@ struct
 
      All input for one command must be on the same line.
   *)
-  fun serve' ("set", args) =
+  let rec serve' = function ("set", args) -> 
       (setParm (tokenize args); serve (Twelf.OK))
-    | serve' ("get", args) =
+    | ("get", args) -> 
       (print (getParm (tokenize args) ^ "\n");
        serve (Twelf.OK))
-    | serve' ("Style.check", args) = 
+    | ("Style.check", args) -> 
       (checkEmpty args; StyleCheck.check (); serve (Twelf.OK))
-    | serve' ("Print.sgn", args) =
+    | ("Print.sgn", args) -> 
       (checkEmpty args; Twelf.Print.sgn (); serve (Twelf.OK))
-    | serve' ("Print.prog", args) =
+    | ("Print.prog", args) -> 
       (checkEmpty args; Twelf.Print.prog (); serve (Twelf.OK))
-    | serve' ("Print.subord", args) =
+    | ("Print.subord", args) -> 
       (checkEmpty args; Twelf.Print.subord (); serve (Twelf.OK))
-    | serve' ("Print.domains", args) =
+    | ("Print.domains", args) -> 
       (checkEmpty args; Twelf.Print.domains (); serve (Twelf.OK))
-    | serve' ("Print.TeX.sgn", args) =
+    | ("Print.TeX.sgn", args) -> 
       (checkEmpty args; Twelf.Print.TeX.sgn (); serve (Twelf.OK))
-    | serve' ("Print.TeX.prog", args) =
+    | ("Print.TeX.prog", args) -> 
       (checkEmpty args; Twelf.Print.TeX.prog (); serve (Twelf.OK))
     (*
       serve' ("toc", args) = error "NYI"
-    | serve' ("list-program", args) = error "NYI"
-    | serve' ("list-module type", args) = error "NYI"
+    | ("list-program", args) -> error "NYI"
+    | ("list-module type", args) -> error "NYI"
     *)
     (* | serve' ("type-at", args) = error "NYI" *)
     (* | serve' ("complete-at", args) = error "NYI" *)
 
-    | serve' ("Trace.trace", args) =
+    | ("Trace.trace", args) -> 
       (Twelf.Trace.trace (Twelf.Trace.Some (getIds (tokenize args)));
        serve (Twelf.OK))
-    | serve' ("Trace.traceAll", args) =
+    | ("Trace.traceAll", args) -> 
       (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.All);
        serve (Twelf.OK))
-    | serve' ("Trace.untrace", args) =
+    | ("Trace.untrace", args) -> 
       (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.None);
        serve (Twelf.OK))
 
-    | serve' ("Trace.break", args) =
+    | ("Trace.break", args) -> 
       (Twelf.Trace.break (Twelf.Trace.Some (getIds (tokenize args)));
        serve (Twelf.OK))
-    | serve' ("Trace.breakAll", args) =
+    | ("Trace.breakAll", args) -> 
       (checkEmpty args; Twelf.Trace.break (Twelf.Trace.All);
        serve (Twelf.OK))
-    | serve' ("Trace.unbreak", args) =
+    | ("Trace.unbreak", args) -> 
       (checkEmpty args; Twelf.Trace.break (Twelf.Trace.None);
        serve (Twelf.OK))
 
-    | serve' ("Trace.show", args) =
+    | ("Trace.show", args) -> 
       (checkEmpty args; Twelf.Trace.show ();
        serve (Twelf.OK))
-    | serve' ("Trace.reset", args) =
+    | ("Trace.reset", args) -> 
       (checkEmpty args; Twelf.Trace.reset ();
        serve (Twelf.OK))
 
-    | serve' ("Timers.show", args) =
+    | ("Timers.show", args) -> 
       (checkEmpty args; Timers.show (); serve (Twelf.OK))
-    | serve' ("Timers.reset", args) =
+    | ("Timers.reset", args) -> 
       (checkEmpty args; Timers.reset (); serve (Twelf.OK))
-    | serve' ("Timers.check", args) =
+    | ("Timers.check", args) -> 
       (checkEmpty args; Timers.reset (); serve (Twelf.OK))
 
-    | serve' ("OS.chDir", args) =
+    | ("OS.chDir", args) -> 
       (Twelf.OS.chDir (getFile' args); serve (Twelf.OK))
-    | serve' ("OS.getDir", args) =
+    | ("OS.getDir", args) -> 
       (checkEmpty args; print (Twelf.OS.getDir () ^ "\n"); serve (Twelf.OK))
-    | serve' ("OS.exit", args) =
+    | ("OS.exit", args) -> 
       (checkEmpty args; ())
 
-    | serve' ("quit", args) = ()		(* quit, as a concession *)
+    | ("quit", args) -> ()		(* quit, as a concession *)
 
-    | serve' ("Config.read", args) =
+    | ("Config.read", args) -> 
       let
 	let fileName = getFile (args, "sources.cfg")
       in
