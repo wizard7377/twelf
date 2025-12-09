@@ -257,7 +257,7 @@ struct
          msg "\\end{bigcode}\n")
 
     (* status ::= OK | ABORT  is the return status of various operations *)
-    type Status = OK | ABORT
+    type status = OK | ABORT
 
     let rec abort chlev (msg) = (chmsg chlev (fn () => msg); ABORT)
     let rec abortFileMsg chlev (fileName, msg) = abort chlev (fileName ^ ":" ^ msg ^ "\n")
@@ -1723,51 +1723,51 @@ struct
 
     module Compile :
     sig
-      type Opt = type CompSyn.Opt
-      let optimize : Opt ref
+      type opt = type CompSyn.Opt
+      let optimize : opt ref
     end
     =
     struct
-      type Opt = type CompSyn.Opt
+      type opt = type CompSyn.Opt
       let optimize = CompSyn.optimize
     end
 
     module Recon :
     sig
-      type TraceMode = type ReconTerm.TraceMode
+      type traceMode = type ReconTerm.TraceMode
       let trace : bool ref
-      let traceMode : TraceMode ref
+      let traceMode : traceMode ref
     end
     =
     struct
-      type TraceMode = type ReconTerm.TraceMode
+      type traceMode = type ReconTerm.TraceMode
       let trace = ReconTerm.trace
       let traceMode = ReconTerm.traceMode
     end
 
     module Recon :
     sig
-      type TraceMode = type ReconTerm.TraceMode
+      type traceMode = type ReconTerm.TraceMode
       let trace : bool ref
-      let traceMode : TraceMode ref
+      let traceMode : traceMode ref
     end
     =
     struct
-      type TraceMode = type ReconTerm.TraceMode
+      type traceMode = type ReconTerm.TraceMode
       let trace = ReconTerm.trace
       let traceMode = ReconTerm.traceMode
     end
 
     module Prover :
     sig                                 (* F=Filling, R=Recursion, S=Splitting *)
-      type Strategy = type MetaGlobal.Strategy  (* FRS or RFS *)
-      let strategy : Strategy ref       (* FRS, strategy used for %prove *)
+      type strategy = type MetaGlobal.Strategy  (* FRS or RFS *)
+      let strategy : strategy ref       (* FRS, strategy used for %prove *)
       let maxSplit : int ref            (* 2, bound on splitting  *)
       let maxRecurse : int ref          (* 10, bound on recursion *)
     end
     =
     struct
-      type Strategy = type MetaGlobal.Strategy  (* FRS or RFS *)
+      type strategy = type MetaGlobal.Strategy  (* FRS or RFS *)
       let strategy = MetaGlobal.strategy
       let maxSplit = MetaGlobal.maxSplit
       let maxRecurse = MetaGlobal.maxRecurse
@@ -1779,7 +1779,7 @@ struct
     let autoFreeze : bool ref = Global.autoFreeze
     let timeLimit : (Time.time option) ref = Global.timeLimit
 
-    type Status = type Status
+    type status = type Status
     let reset = reset
     let loadFile = loadFile
     let loadString = loadString
@@ -1795,8 +1795,8 @@ struct
         let read : string -> config     (* read configuration from config file *)
         let readWithout : string * config -> config
                                         (* read config file, minus contents of another *)
-        let load : config -> Status     (* reset and load configuration *)
-        let append : config -> Status   (* load configuration (w/o reset) *)
+        let load : config -> status     (* reset and load configuration *)
+        let append : config -> status   (* load configuration (w/o reset) *)
         let define : string list -> config  (* explicitly define configuration *)
       end
     = Config
@@ -1806,15 +1806,15 @@ struct
 
     module Table :
       sig
-        type Strategy = type TableParam.Strategy
-        let strategy : Strategy ref
+        type strategy = type TableParam.Strategy
+        let strategy : strategy ref
         let strengthen : bool ref
         let resetGlobalTable : unit -> unit
         let top : unit -> unit
       end
     =
   struct
-    type Strategy = type TableParam.Strategy
+    type strategy = type TableParam.Strategy
     let strategy = TableParam.strategy
     let strengthen = TableParam.strengthen
 

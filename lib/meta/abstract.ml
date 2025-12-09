@@ -31,7 +31,7 @@ struct
 
   type approxFor =                  (* Approximat formula *)
     Head of IntSyn.dctx * (FunSyn.For * IntSyn.Sub) * int       (* AF ::= F [s] *)
-  | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.Dec list) * approxFor
+  | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.dec list) * approxFor
                                         (*      | (t, G2), AF *)
 
   local
@@ -43,8 +43,8 @@ struct
 
     (* Intermediate Data Structure *)
 
-    type EBVar =
-      EV of I.Exp option ref * I.Exp * S.Tag * int
+    type eBVar =
+      EV of I.exp option ref * I.Exp * S.Tag * int
                                         (* y ::= (X , {G2} V)  if {G1, G2 |- X : V
                                           |G1| = d *)
     | BV of I.Dec * S.Tag

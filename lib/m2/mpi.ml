@@ -33,7 +33,7 @@ struct
     module M = MetaSyn
     module I = IntSyn
 
-    type MenuItem =
+    type menuItem =
       Filling of Filling.operator
     | Recursion of Recursion.operator
     | Splitting of Splitting.operator
@@ -41,7 +41,7 @@ struct
     let Open : MetaSyn.State Ring.ring ref = ref (Ring.init [])
     let Solved : MetaSyn.State Ring.ring ref = ref (Ring.init [])
     let History : (MetaSyn.State Ring.ring * MetaSyn.State Ring.ring) list ref = ref nil
-    let Menu : MenuItem list option ref = ref NONE
+    let Menu : menuItem list option ref = ref NONE
 
     let rec initOpen () = Open := Ring.init [];
     let rec initSolved () = Solved := Ring.init [];

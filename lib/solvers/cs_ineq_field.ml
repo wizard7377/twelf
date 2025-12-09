@@ -98,18 +98,18 @@ struct
       Var of IntSyn.dctx * Mon                        (*   - monomial                      *)
     | Exp of IntSyn.dctx * sum                        (*   - sum                           *)
 
-    type Restriction =                            (* Restriction: (proof object)       *)
+    type restriction =                            (* Restriction: (proof object)       *)
       Restr of IntSyn.dctx * IntSyn.exp * bool        (*   Restr (G, U, strict)            *)
 
     type label =
            {owner : owner,                            (* owner of the row/column (if any)  *)
             tag   : int ref,                          (* tag: used to keep track of the    *)
                                                       (* position of a tableau entry       *)
-            restr : Restriction option ref,           (* restriction (if any)              *)
+            restr : restriction option ref,           (* restriction (if any)              *)
             dead  : bool ref}                         (* has the row/column already been   *)
                                                       (* solved?                           *)
 
-    type Operation =                              (* Undoable operations:              *)
+    type operation =                              (* Undoable operations:              *)
       Insert of position                              (* insert a new row/column           *)
     | Pivot of int * int                              (* pivot on (i, j)                   *)
     | Kill of position                                (* mark the given position solved    *)
@@ -589,7 +589,7 @@ struct
             )
           end
 
-    type MaximizeResult =              (* Result of maximization of a row:             *)
+    type maximizeResult =              (* Result of maximization of a row:             *)
       Positive                             (* manifestly maximized at some value > 0       *)
     | Maximized of number                  (* manifestly maximized at c <= 0               *)
     | Unbounded of int                     (* manifestly unbounded, pivoting on column col *)

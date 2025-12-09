@@ -25,18 +25,18 @@ struct
     module M = ModeSyn
     module P = Paths
 
-    type Uniqueness =               (* Uniqueness information *)
+    type uniqueness =               (* Uniqueness information *)
         Unique                          (* u ::= Unique           *)
       | Ambig                           (*     | Ambig            *)
 
-    type Info =                     (* Groundedness information   *)
+    type info =                     (* Groundedness information   *)
         Free                            (* I ::= Free                 *)
       | Unknown                         (*     | Unknown              *)
-      | Ground of Uniqueness            (*     | Ground               *)
+      | Ground of uniqueness            (*     | Ground               *)
 
-    type Status =                   (* Variable status             *)
+    type status =                   (* Variable status             *)
         Existential of                  (* S ::= Existential (I, xOpt) *)
-          Info * string option
+          info * string option
       | Universal                       (*     | Universal             *)
 
 

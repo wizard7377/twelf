@@ -39,7 +39,7 @@ struct
     module I = IntSyn
     module S = State'
 
-    type Operator =
+    type operator =
       Split of T.Prg option ref * T.Prg * string
 
     (* weaken (G, a) = w'

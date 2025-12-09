@@ -105,9 +105,9 @@ struct
        For output coverage, skip input (+), and match output (-).
        Ignore arguments ( * ) should be impossible for output coverage
     *)
-    type CoverInst =
-        Match of CoverInst
-      | Skip of CoverInst
+    type coverInst =
+        Match of coverInst
+      | Skip of coverInst
       | Cnil
 
     (* inCoverInst (ms) = ci
@@ -250,9 +250,9 @@ struct
     (*** Matching ***)
     (****************)
 
-    type CoverClauses =
-        Input of I.Exp list
-      | Output of I.Exp * int (* for now, no factoring --- singleton list *)
+    type coverClauses =
+        Input of I.exp list
+      | Output of I.exp * int (* for now, no factoring --- singleton list *)
 
     (* Equation G |- (U1,s1) = (U2,s2)
        Invariant:
@@ -261,7 +261,7 @@ struct
 
        U1[s1] has no EVars (part of coverage goal)
     *)
-    type Equation = Eqn of I.dctx * I.eclo * I.eclo
+    type equation = Eqn of I.dctx * I.eclo * I.eclo
 
     let rec equationToString (Eqn (G, Us1, Us2)) =
         let let G' = Names.ctxLUName G
@@ -284,8 +284,8 @@ struct
     (* Splitting candidates [k1,...,kl] are indices
        into coverage goal {xn:Vn}...{x1:V1} a M1...Mm, counting right-to-left
     *)
-    type Candidates =
-        Eqns of Equation list           (* equations to be solved, everything matches so far *)
+    type candidates =
+        Eqns of equation list           (* equations to be solved, everything matches so far *)
       | Cands of int list               (* candidates for splitting, matching fails *)
       | Fail                            (* coverage fails without candidates *)
 
@@ -388,9 +388,9 @@ struct
        Candidate lists record constructors and candidates for each
        constructors or indicate that the coverage goal is matched.
     *)
-    type CandList =
+    type candList =
         Covered                         (* covered---no candidates *)
-      | CandList of Candidates list     (* cands1,..., candsn *)
+      | CandList of candidates list     (* cands1,..., candsn *)
 
     (* addKs (cands, klist) = klist'
        add new constructor to candidate list
@@ -848,7 +848,7 @@ struct
        can be updated in the success continuation.
     *)
     local
-      let caseList : (I.Exp * int) list ref = ref nil
+      let caseList : (I.exp * int) list ref = ref nil
     in
       let rec resetCases () = (caseList := nil)
       let rec addCase (V, p) = (caseList := (V,p) :: !caseList)
@@ -1756,11 +1756,11 @@ let _ = pr () *)
     (**********************************************)
 
     (* cg = CGoal (G, S)  with G |- S : {{G'}} type *)
-    type CoverGoal =
+    type coverGoal =
       CGoal of I.dctx * I.Spine
 
     (* cc = CClause (Gi, Si) with  Gi |- Si : {{G}} type *)
-    type CoverClause =
+    type coverClause =
       CClause of I.dctx * I.Spine
 
     let rec formatCGoal (CGoal (G, S)) =
@@ -1924,7 +1924,7 @@ let _ = pr () *)
        can be updated in the success continuation.
     *)
     local
-      let caseList : CoverGoal list ref = ref nil
+      let caseList : coverGoal list ref = ref nil
     in
       let rec resetCases () = (caseList := nil)
       let rec addCase cg = (caseList := cg :: !caseList)

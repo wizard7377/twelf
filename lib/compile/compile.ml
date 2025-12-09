@@ -36,12 +36,12 @@ struct
     module C = CompSyn
   in
 
-    type Duplicates = BVAR of int | FGN | DEF of int
+    type duplicates = BVAR of int | FGN | DEF of int
 
     let rec notCS = function (I.FromCS) -> false
       | _ -> true
 
-   type Opt = type CompSyn.Opt
+   type opt = type CompSyn.Opt
    let optimize  = CompSyn.optimize
 
     let rec cidFromHead = function (I.Const c) -> c

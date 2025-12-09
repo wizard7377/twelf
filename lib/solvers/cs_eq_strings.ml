@@ -69,7 +69,7 @@ struct
     *)
     let rec solveString (G, S, k) = SOME(stringExp (Int.toString k))
 
-    type Concat =
+    type concat =
       Concat of Atom list                  (* Concatenation:             *)
                                            (* Concat::= A1 ++ A2 ++ ...  *)
 
@@ -77,7 +77,7 @@ struct
       String of string                     (* Atom ::= "str"             *)
     | Exp of IntSyn.eclo                   (*        | (U,s)             *)
 
-    exception MyIntsynRep of Concat        (* Internal syntax representation of this module *)
+    exception MyIntsynRep of concat        (* Internal syntax representation of this module *)
 
     let rec extractConcat = function (MyIntsynRep concat) -> concat
       | fe -> raise (UnexpectedFgnExp fe)
@@ -177,11 +177,11 @@ struct
 
     (* Split:                                         *)
     (* Split ::= str1 ++ str2                         *)
-    type Split = Split of string * string
+    type split = Split of string * string
 
     (* Decomposition:                                 *)
     (* Decomp ::= toParse | [parsed1, ..., parsedn]   *)
-    type Decomp = Decomp of string * string list
+    type decomp = Decomp of string * string list
 
     (* index (str1, str2) = [idx1, ..., idxn]
        where the idxk are all the positions in str2 where str1 appear.
@@ -295,9 +295,9 @@ struct
                      | {delay U1 on cnstr1, ..., delay Un on cnstrn}
                      | Failure
     *)
-    type StringUnify =
-      MultAssign of (Dec Ctx * Exp * Exp * Sub) list
-    | MultDelay of Exp list * Cnstr ref
+    type stringUnify =
+      MultAssign of (Dec Ctx * exp * exp * Sub) list
+    | MultDelay of exp list * Cnstr ref
     | Failure
 
     (* toFgnUnify stringUnify = result

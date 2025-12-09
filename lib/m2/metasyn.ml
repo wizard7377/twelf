@@ -9,7 +9,7 @@ struct
 
   exception Error of string
 
-   type Var = int
+   type var = int
 
   type mode =                       (* Mode                       *)
     Bot                                 (* M ::= Bot                  *)
@@ -25,9 +25,9 @@ struct
              * Prefix                   (*             G; Mtx; Btx    *)
              * IntSyn.exp               (*             |- V           *)
 
-  type Sgn =                        (* Interface module type        *)
+  type sgn =                        (* Interface module type        *)
     SgnEmpty                            (* IS ::= .                   *)
-  | ConDec of IntSyn.ConDec * Sgn       (*      | c:V, IS             *)
+  | ConDec of IntSyn.ConDec * sgn       (*      | c:V, IS             *)
 
   local
     module I = IntSyn

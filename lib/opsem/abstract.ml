@@ -28,11 +28,11 @@ struct
     module I = IntSyn
     module C = CompSyn
 
-    type Duplicates = AV of (I.Exp * int) | FGN of int
+    type duplicates = AV of (I.exp * int) | FGN of int
 
     type seenIn = TypeLabel | Body
 
-    type ExistVars = EV of I.Exp
+    type existVars = EV of I.Exp
 
     let rec lengthSub = function (I.Shift n) -> 0
       | (I.Dot(E, s)) -> 1 + lengthSub s

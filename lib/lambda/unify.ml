@@ -16,19 +16,19 @@ struct
   local
     open IntSyn
 
-    type Action =
-      Instantiate of Exp option ref
+    type action =
+      Instantiate of exp option ref
     | InstantiateBlock of Block option ref
     | Add of cnstr list ref
     | Solve of cnstr * Cnstr
 
-    type CAction =
+    type cAction =
       BindCnstr of Cnstr ref * Cnstr
 
-    type FAction =
-      BindExp of Exp option ref * Exp option
+    type fAction =
+      BindExp of exp option ref * exp option
     | BindBlock of Block option ref * Block option
-    | BindAdd of cnstr list ref * CAction list
+    | BindAdd of cnstr list ref * cAction list
     | FSolve of Cnstr ref * Cnstr * Cnstr (* ? *)
 
     type unifTrail = FAction Trail.trail

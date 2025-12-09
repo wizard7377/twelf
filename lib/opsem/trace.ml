@@ -125,7 +125,7 @@ struct
     let currentGoal : (I.dctx * I.Exp) ref =
           ref (I.Null, I.Uni (I.Type)) (* dummy initialization *)
 
-    let currentEVarInst : (I.Exp * string) list ref =
+    let currentEVarInst : (I.exp * string) list ref =
           ref nil
 
     let rec setEVarInst (Xs) =
@@ -189,7 +189,7 @@ struct
          initBreak (!breakSpec);
          initTag ())
 
-    type Event =
+    type event =
       IntroHyp of IntSyn.Head * IntSyn.Dec
     | DischargeHyp of IntSyn.Head * IntSyn.Dec
 

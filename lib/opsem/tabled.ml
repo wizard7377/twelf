@@ -67,7 +67,7 @@ struct
                    current program state
 
     *)
-    type SuspType = Loop | Divergence of ((IntSyn.exp * IntSyn.Sub) * CompSyn.DProg)
+    type suspType = Loop | Divergence of ((IntSyn.exp * IntSyn.Sub) * CompSyn.DProg)
 
     let SuspGoals : ((SuspType * (IntSyn.dctx * IntSyn.exp * IntSyn.Sub) *  (CompSyn.pskeleton -> unit) *
                       Unify.unifTrail * ((IntSyn.Sub * IntSyn.Sub) * T.answer) * int ref)  list) ref  = ref []
