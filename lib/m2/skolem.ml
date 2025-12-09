@@ -45,8 +45,8 @@ struct
            Invariant:
            S' = n; n-1; ... 1; Nil
         *)
-        fun spine 0 = I.Nil
-          | spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
+        let rec spine = function 0 -> I.Nil
+          | n -> I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
 
         (* installSkolem' ((V, mS), s, k) = ()
 
@@ -100,8 +100,8 @@ struct
 
        Effect: Skolem constants for all theorems are generated, named, and indexed
     *)
-    fun install nil = ()
-      | install (a :: aL) =
+    let rec install = function nil -> ()
+      | (a :: aL) -> 
         let
           let I.ConDec (name, _, imp, _, V, L) = I.sgnLookup a
           let SOME mS = ModeTable.modeLookup a

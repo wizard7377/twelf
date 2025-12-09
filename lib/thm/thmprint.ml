@@ -13,32 +13,32 @@ struct
     module I = IntSyn
     module F = Formatter
 
-    fun fmtIds nil = []
-      | fmtIds (n :: nil) = [F.String (n)]
-      | fmtIds (n :: L) = [F.String (n), F.String " "] @ (fmtIds L)
+    let rec fmtIds = function nil -> []
+      | (n :: nil) -> [F.String (n)]
+      | (n :: L) -> [F.String (n), F.String " "] @ (fmtIds L)
 
-    fun fmtParams nil = []
-      | fmtParams (SOME n :: nil) = [F.String (n)]
-      | fmtParams (NONE :: nil) = [F.String ("_")]
-      | fmtParams (SOME n :: L) = [F.String (n), F.String " "] @ (fmtParams L)
-      | fmtParams (NONE :: L) = [F.String ("_"), F.String " "] @ (fmtParams L)
+    let rec fmtParams = function nil -> []
+      | (SOME n :: nil) -> [F.String (n)]
+      | (NONE :: nil) -> [F.String ("_")]
+      | (SOME n :: L) -> [F.String (n), F.String " "] @ (fmtParams L)
+      | (NONE :: L) -> [F.String ("_"), F.String " "] @ (fmtParams L)
 
     fun fmtType (c, L) = F.HVbox ([F.String (I.conDecName (I.sgnLookup c)), F.String " "] @ (fmtParams L))
 
-    fun fmtCallpats nil = []
-      | fmtCallpats (T :: nil) = [F.String "(", fmtType T, F.String ")"]
-      | fmtCallpats (T :: L) = [F.String "(", fmtType T, F.String ") "] @ (fmtCallpats L)
+    let rec fmtCallpats = function nil -> []
+      | (T :: nil) -> [F.String "(", fmtType T, F.String ")"]
+      | (T :: L) -> [F.String "(", fmtType T, F.String ") "] @ (fmtCallpats L)
 
-    fun fmtOptions (L as (_ :: nil)) = [F.HVbox (fmtIds L)]
-      | fmtOptions L = [F.String "(", F.HVbox (fmtIds L), F.String ") "]
+    let rec fmtOptions = function (L as (_ :: nil)) -> [F.HVbox (fmtIds L)]
+      | L -> [F.String "(", F.HVbox (fmtIds L), F.String ") "]
 
 
-    fun fmtOrder (L.Varg L) =
+    let rec fmtOrder = function (L.Varg L) -> 
         (case L of
            (H :: nil) => (fmtIds L)
          | _ => [F.String "(", F.HVbox (fmtIds L), F.String ")"])
-      | fmtOrder (L.Lex L) = [F.String "{", F.HVbox (fmtOrders L), F.String "}"]
-      | fmtOrder (L.Simul L) = [F.String "[", F.HVbox (fmtOrders L), F.String "]"]
+      | (L.Lex L) -> [F.String "{", F.HVbox (fmtOrders L), F.String "}"]
+      | (L.Simul L) -> [F.String "[", F.HVbox (fmtOrders L), F.String "]"]
 
     and fmtOrders nil = nil
       | fmtOrders (O :: nil) = fmtOrder O

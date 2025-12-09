@@ -34,8 +34,8 @@ struct
 
     type ExistVars = EV of I.Exp
 
-    fun lengthSub (I.Shift n) = 0
-      | lengthSub (I.Dot(E, s)) = 1 + lengthSub s
+    let rec lengthSub = function (I.Shift n) -> 0
+      | (I.Dot(E, s)) -> 1 + lengthSub s
 
     (*
        We write {{K}} for the context of K, where EVars have
@@ -61,10 +61,10 @@ struct
     fun compose'(IntSyn.Null, G) = G
       | compose'(IntSyn.Decl(G', D), G) = IntSyn.Decl(compose'(G', G), D)
 
-    fun isId (I.Shift(n)) = (n = 0)
-      | isId (s as I.Dot(I.Idx n, s')) = isId' (s, 0)
-      | isId (s as I.Dot(I.Undef, s')) = isId' (s, 0)
-      | isId (I.Dot(I.Exp _ , s)) = false
+    let rec isId = function (I.Shift(n)) -> (n = 0)
+      | (s as I.Dot(I.Idx n, s')) -> isId' (s, 0)
+      | (s as I.Dot(I.Undef, s')) -> isId' (s, 0)
+      | (I.Dot(I.Exp _ , s)) -> false
 
     and isId' (I.Shift(n), k) = (n = k)
       | isId' (I.Dot(I.Idx(i), s), k) =
@@ -75,18 +75,18 @@ struct
       end
       | isId' (I.Dot(I.Undef, s), k) = isId' (s, k+1)
 
-    fun equalCtx (I.Null, s, I.Null, s') = true
-      | equalCtx (I.Decl(G, D), s, I.Decl(G', D'), s') =
+    let rec equalCtx = function (I.Null, s, I.Null, s') -> true
+      | (I.Decl(G, D), s, I.Decl(G', D'), s') -> 
       Conv.convDec((D, s), (D', s')) andalso (equalCtx (G, I.dot1 s, G', I.dot1 s'))
-      | equalCtx (I.Decl(G, D), s, I.Null, s') = false
-      | equalCtx (I.Null, s, I.Decl(G', D'), s') = false
+      | (I.Decl(G, D), s, I.Null, s') -> false
+      | (I.Null, s, I.Decl(G', D'), s') -> false
 
 
     (* eqEVar X Y = B
      where B iff X and Y represent same variable
      *)
-    fun eqEVarW (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) = (r1 = r2)
-      | eqEVarW _ _ = false
+    let rec eqEVarW = function (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) -> (r1 = r2)
+      | _ _ -> false
 
     fun eqEVar X1 (EV (X2)) =
       (* Sun Dec  1 14:04:17 2002 -bp  may raise exception
@@ -114,10 +114,10 @@ struct
         in
           exists' K
         end
-    fun update' P K =
+    let rec update' = function P K -> 
       let
         fun update' (I.Null) = I.Null
-          | update' (I.Decl(K',((label, Y)))) =
+          | (I.Decl(K',((label, Y)))) -> 
           if (P Y) then
             I.Decl(K', (Body, Y))
           else I.Decl(update' (K'), (label, Y))
@@ -128,8 +128,8 @@ struct
     (* member P K = B option *)
     fun update P K =
       let
-        fun update' (I.Null) = I.Null
-          | update' (I.Decl(K',((label, i), Y))) =
+        let rec update' = function (I.Null) -> I.Null
+          | (I.Decl(K',((label, i), Y))) -> 
           if (P Y) then
             I.Decl(K', ((Body, i), Y))
           else I.Decl(update' (K'), ((label, i), Y))
@@ -137,11 +137,11 @@ struct
         update' K
       end
 
-    fun or (I.Maybe, _) = I.Maybe
-      | or (_, I.Maybe) = I.Maybe
-      | or (I.Meta, _) = I.Meta
-      | or (_, I.Meta) = I.Meta
-      | or (I.No, I.No) = I.No
+    let rec or = function (I.Maybe, _) -> I.Maybe
+      | (_, I.Maybe) -> I.Maybe
+      | (I.Meta, _) -> I.Meta
+      | (_, I.Meta) -> I.Meta
+      | (I.No, I.No) -> I.No
 
 
     (* occursInExp (k, U) = DP,
@@ -152,11 +152,11 @@ struct
              DP = Maybe   iff k occurs in U some place not as an argument to a Skonst
              DP = Meta    iff k occurs in U and only as arguments to Skonsts
     *)
-    fun occursInExp (k, I.Uni _) = I.No
-      | occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V))
-      | occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S))
-      | occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V))
-      | occursInExp (k, I.FgnExp csfe) =
+    let rec occursInExp = function (k, I.Uni _) -> I.No
+      | (k, I.Pi (DP, V)) -> or (occursInDecP (k, DP), occursInExp (k+1, V))
+      | (k, I.Root (H, S)) -> occursInHead (k, H, occursInSpine (k, S))
+      | (k, I.Lam (D, V)) -> or (occursInDec (k, D), occursInExp (k+1, V))
+      | (k, I.FgnExp csfe) -> 
         I.FgnExpStd.fold csfe (fn (U, DP) => or (DP, (occursInExp (k, Whnf.normalize (U, I.id))))) I.No
       (* no case for Redex, EVar, EClo *)
 
@@ -183,9 +183,9 @@ struct
     *)
     (* optimize to have fewer traversals? -cs *)
     (* pre-Twelf 1.2 code walk Fri May  8 11:17:10 1998 *)
-    fun piDepend (DPV as ((D, I.No), V)) = I.Pi DPV
-      | piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV
-      | piDepend ((D, I.Maybe), V) =
+    let rec piDepend = function (DPV as ((D, I.No), V)) -> I.Pi DPV
+      | (DPV as ((D, I.Meta), V)) -> I.Pi DPV
+      | ((D, I.Maybe), V) -> 
           I.Pi ((D, occursInExp (1, V)), V)
 
     (* raiseType (G, V) = {{G}} V
@@ -196,15 +196,15 @@ struct
 
        All abstractions are potentially dependent.
     *)
-    fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+    let rec raiseType = function (I.Null, V) -> V
+      | (I.Decl (G, D), V) -> raiseType (G, I.Pi ((D, I.Maybe), V))
 
-    fun reverseCtx (I.Null, G) = G
-      | reverseCtx (I.Decl(G, D), G') = reverseCtx(G, I.Decl(G', D))
+    let rec reverseCtx = function (I.Null, G) -> G
+      | (I.Decl(G, D), G') -> reverseCtx(G, I.Decl(G', D))
 
 
-    fun ctxToEVarSub (IntSyn.Null, s) = s
-      | ctxToEVarSub (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) =
+    let rec ctxToEVarSub = function (IntSyn.Null, s) -> s
+      | (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) -> 
       let
         let s' = ctxToEVarSub (G, s)
         let X = IntSyn.newEVar (IntSyn.Null, I.EClo(A,s'))
@@ -236,27 +236,27 @@ struct
              2) we do not linearize fgnExp
     *)
     (* Possible optimization: Calculate also the normal form of the term *)
-    fun collectExpW (Gss, Gl, (I.Uni L, s), K, DupVars, flag, d) = (K, DupVars)
-      | collectExpW (Gss, Gl, (I.Pi ((D, _), V), s), K, DupVars, flag, d) =
+    let rec collectExpW = function (Gss, Gl, (I.Uni L, s), K, DupVars, flag, d) -> (K, DupVars)
+      | (Gss, Gl, (I.Pi ((D, _), V), s), K, DupVars, flag, d) -> 
         let
           let (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
         in
           (* should we apply I.dot1(ss) ? Tue Oct 15 21:55:16 2002 -bp *)
           collectExp (Gss, I.Decl (Gl, I.decSub (D, s)), (V, I.dot1 s), K', DupVars, flag, d)
         end
-      | collectExpW (Gss, Gl, (I.Root (_ , S), s), K, DupVars, flag, d) =
+      | (Gss, Gl, (I.Root (_ , S), s), K, DupVars, flag, d) -> 
           collectSpine (Gss, Gl, (S, s), K, DupVars, flag, d)
 
-      | collectExpW (Gss, Gl, (I.Lam (D, U), s), K, DupVars, flag, d) =
+      | (Gss, Gl, (I.Lam (D, U), s), K, DupVars, flag, d) -> 
           let
             let (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
           in
             collectExp (Gss, I.Decl (Gl, I.decSub (D, s)), (U, I.dot1 s), K', DupVars, flag, d+1)
           end
-      | collectExpW (Gss, Gl, (X as I.EVar (r, GX, V, cnstrs), s), K, DupVars, flag, d) =
+      | (Gss, Gl, (X as I.EVar (r, GX, V, cnstrs), s), K, DupVars, flag, d) -> 
           collectEVar (Gss, Gl, (X, s), K, DupVars, flag, d)
 
-      | collectExpW (Gss, Gl, (I.FgnExp csfe, s), K, DupVars, flag, d) =
+      | (Gss, Gl, (I.FgnExp csfe, s), K, DupVars, flag, d) -> 
         I.FgnExpStd.fold csfe
         (fn (U, KD') =>
          let
@@ -507,14 +507,14 @@ struct
        and K' = K, K'' where K'' contains all EVars in G
     *)
 
-    fun collectCtx (Gss,C.DProg(I.Null, I.Null), (K, DupVars), d) =  (K, DupVars)
-      | collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), (K, DupVars), d) =
+    let rec collectCtx = function (Gss,C.DProg(I.Null, I.Null), (K, DupVars), d) -> (K, DupVars)
+      | (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), (K, DupVars), d) -> 
         let
           let (K',DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
         in
           collectDec (Gss, (D, I.id), (K', DupVars'), d - 1, false)
         end
-      | collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Dec(r,s,Ha))), (K, DupVars), d) =
+      | (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Dec(r,s,Ha))), (K, DupVars), d) -> 
         let
           let (K', DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
         in
@@ -555,29 +555,29 @@ struct
 
     *)
 
-    fun abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (U as I.Uni (L), s), eqn) =
+    let rec abstractExpW = function (flag, Gs, posEA, Vars, Gl, total, depth, (U as I.Uni (L), s), eqn) -> 
         (posEA, Vars, U, eqn)
-      | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Pi ((D, P), V), s), eqn) =
+      | (flag, Gs, posEA, Vars, Gl, total, depth, (I.Pi ((D, P), V), s), eqn) -> 
         let
           let (posEA', Vars', D, _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
           let (posEA'', Vars'', V', eqn2) = abstractExp (flag, Gs, posEA', Vars', Gl, total, depth + 1, (V, I.dot1 s), eqn)
         in
           (posEA'', Vars'', piDepend ((D, P), V'),eqn2)
         end
-      | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Root (H, S) ,s), eqn) =
+      | (flag, Gs, posEA, Vars, Gl, total, depth, (I.Root (H, S) ,s), eqn) -> 
         let
           let (posEA', Vars', S, eqn') = abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (S, s), eqn)
         in
           (posEA', Vars', I.Root (H, S), eqn')
         end
-      | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Lam (D, U), s), eqn) =
+      | (flag, Gs, posEA, Vars, Gl, total, depth, (I.Lam (D, U), s), eqn) -> 
         let
           let (posEA', Vars', D', _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
           let (posEA'', Vars'', U', eqn2) = abstractExp (flag, Gs, posEA', Vars', I.Decl(Gl, D'), total, depth + 1, (U, I.dot1 s), eqn)
         in
           (posEA'', Vars'', I.Lam (D',U' ), eqn2)
         end
-      | abstractExpW (flag, Gs as (Gss, ss), posEA as (epos, apos), Vars, Gl, total, depth, (X as I.EVar (_, GX, VX, _), s), eqn) =
+      | (flag, Gs as (Gss, ss), posEA as (epos, apos), Vars, Gl, total, depth, (X as I.EVar (_, GX, VX, _), s), eqn) -> 
         (* X is possibly strengthened ! *)
         if  isId(I.comp(ss, s))
            then  (* X is fully applied *)
@@ -826,16 +826,16 @@ struct
 
        note: we will linearize all dynamic assumptions in G.
     *)
-    fun abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Null, I.Null), G', eqn) =
+    let rec abstractCtx' = function (Gs, epos, Vars, total, depth, C.DProg(I.Null, I.Null), G', eqn) -> 
         (epos, Vars, G', eqn)
-      | abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), G', eqn) =
+      | (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), G', eqn) -> 
         let
           let d = IntSyn.ctxLength (G)
           let ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
         in
           abstractCtx' (Gs, epos', Vars', total, depth - 1, C.DProg(G, dPool), I.Decl (G', D'), eqn)
         end
-      | abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, _)), G', eqn) =
+      | (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, _)), G', eqn) -> 
       let
           let d = IntSyn.ctxLength (G)
           let ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
@@ -854,8 +854,8 @@ struct
 
 
     (* makeEVarCtx (Gs, Kall, D, K, eqn) = G'  *)
-    fun makeEVarCtx (Gs, Vars, DEVars, I.Null, total) = DEVars
-      | makeEVarCtx (Gs, Vars, DEVars, I.Decl (K', (_, EV (E as I.EVar (_, GX, VX, _)))),total) =
+    let rec makeEVarCtx = function (Gs, Vars, DEVars, I.Null, total) -> DEVars
+      | (Gs, Vars, DEVars, I.Decl (K', (_, EV (E as I.EVar (_, GX, VX, _)))),total) -> 
         let
           let V' = raiseType (GX, VX)
           let ( _,Vars', V'', _) = abstractExp (false, Gs, (0, 0),  Vars, I.Null, 0,
@@ -868,11 +868,11 @@ struct
 
     fun makeAVarCtx (Vars, DupVars) =
       let
-        fun avarCtx (Vars, I.Null, k) = I.Null
-          | avarCtx (Vars, I.Decl (K', AV (E as I.EVar (ref NONE, GX, VX, _), d)), k) =
+        let rec avarCtx = function (Vars, I.Null, k) -> I.Null
+          | (Vars, I.Decl (K', AV (E as I.EVar (ref NONE, GX, VX, _), d)), k) -> 
           I.Decl(avarCtx (Vars, K', k+1),
                  I.ADec (SOME("AVar "^Int.toString k ^ "--" ^ Int.toString d), d))
-          | avarCtx (Vars, I.Decl (K', AV (E as I.EVar (_, GX, VX, _), d)), k) =
+          | (Vars, I.Decl (K', AV (E as I.EVar (_, GX, VX, _), d)), k) -> 
           I.Decl(avarCtx (Vars, K', k+1),
                  I.ADec (SOME("AVar "^Int.toString k ^ "--" ^ Int.toString d), d))
       in
@@ -881,14 +881,14 @@ struct
       (* add case for foreign expressions ? *)
 
     (* lowerEVar' (G, V[s]) = (X', U), see lowerEVar *)
-    fun lowerEVar' (X, G, (I.Pi ((D',_), V'), s')) =
+    let rec lowerEVar' = function (X, G, (I.Pi ((D',_), V'), s')) -> 
         let
           let D'' = I.decSub (D', s')
           let (X', U) = lowerEVar' (X, I.Decl (G, D''), Whnf.whnf (V', I.dot1 s'))
         in
           (X', I.Lam (D'', U))
         end
-      | lowerEVar' (X, G, Vs') =
+      | (X, G, Vs') -> 
         let
           let X' = X
         in
@@ -928,8 +928,8 @@ struct
         then
         s = X1 . X2 . ... s'
      *)
-    fun evarsToSub (I.Null, s) = s
-      | evarsToSub (I.Decl (K', (_, EV (E as I.EVar (I as (ref NONE), GX, VX, cnstr)))),s) =
+    let rec evarsToSub = function (I.Null, s) -> s
+      | (I.Decl (K', (_, EV (E as I.EVar (I as (ref NONE), GX, VX, cnstr)))),s) -> 
       let
         let V' = raiseType (GX, VX) (* redundant ? *)
         let X = lowerEVar1 (E, I.EVar(I, I.Null, V', cnstr), Whnf.whnf(V', I.id))
@@ -945,8 +945,8 @@ struct
         s = X1 . X2 . ... s'
      *)
 
-    fun avarsToSub (I.Null, s) = s
-      | avarsToSub (I.Decl (Vars', (AV (E as I.EVar (I, GX, VX, cnstr), d))), s) =
+    let rec avarsToSub = function (I.Null, s) -> s
+      | (I.Decl (Vars', (AV (E as I.EVar (I, GX, VX, cnstr), d))), s) -> 
         let
           let s' = avarsToSub (Vars', s)
           let X' as I.AVar(r) = I.newAVar ()

@@ -12,9 +12,9 @@ struct
     open IntSyn
 
     (* eqUni (L1, L2) = B iff L1 = L2 *)
-    fun eqUni (Type, Type) = true
-      | eqUni (Kind, Kind) = true
-      | eqUni _ = false
+    let rec eqUni = function (Type, Type) -> true
+      | (Kind, Kind) -> true
+      | _ -> false
 
     (* convExpW ((U1, s1), (U2, s2)) = B
 
@@ -26,10 +26,10 @@ struct
 
        Effects: EVars may be lowered
     *)
-    fun convExpW ((Uni(L1), _), (Uni(L2), _)) =
+    let rec convExpW = function ((Uni(L1), _), (Uni(L2), _)) -> 
           eqUni (L1, L2)
 
-      | convExpW (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+      | (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) -> 
           (* s1 = s2 = id by whnf invariant *)
           (* order of calls critical to establish convSpine invariant *)
           (case (H1, H2) of
@@ -56,42 +56,42 @@ struct
            | (_, Def(d2)) => convExpW (Us1, Whnf.expandDef Us2)
            | _ => false)
 
-      | convExpW ((Pi (DP1, V1), s1), (Pi (DP2, V2), s2)) =
+      | ((Pi (DP1, V1), s1), (Pi (DP2, V2), s2)) -> 
           convDecP ((DP1, s1), (DP2, s2))
           andalso convExp ((V1, dot1 s1), (V2, dot1 s2))
 
-      | convExpW (Us1 as (Pi _, _), Us2 as (Root (Def _, _), _)) =
+      | (Us1 as (Pi _, _), Us2 as (Root (Def _, _), _)) -> 
           convExpW (Us1, Whnf.expandDef Us2)
 
-      | convExpW (Us1 as (Root (Def _, _), _), Us2 as (Pi _, _)) =
+      | (Us1 as (Root (Def _, _), _), Us2 as (Pi _, _)) -> 
           convExpW (Whnf.expandDef Us1, Us2)
 
-      | convExpW ((Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
+      | ((Lam (D1, U1), s1), (Lam (D2, U2), s2)) -> 
         (* G |- D1[s1] = D2[s2] by typing invariant *)
           convExp ((U1, dot1 s1),  (U2, dot1 s2))
 
-      | convExpW ((Lam (D1, U1), s1), (U2, s2)) =
+      | ((Lam (D1, U1), s1), (U2, s2)) -> 
           convExp ((U1, dot1 s1),
                    (Redex (EClo (U2, shift),
                            App (Root (BVar (1), Nil), Nil)), dot1 s2))
 
-      | convExpW ((U1,s1), (Lam(D2, U2) ,s2)) =
+      | ((U1,s1), (Lam(D2, U2) ,s2)) -> 
           convExp ((Redex (EClo (U1, shift),
                            App (Root (BVar (1), Nil), Nil)), dot1 s1),
                    (U2, dot1 s2))
 
-      | convExpW ((FgnExp csfe1, s1), Us2) = (* s1 = id *)
+      | ((FgnExp csfe1, s1), Us2) -> (* s1 = id *)
           FgnExpStd.EqualTo.apply csfe1 (EClo Us2)
 
-      | convExpW (Us1, (FgnExp csfe2, s2)) = (* s2 = id *)
+      | (Us1, (FgnExp csfe2, s2)) -> (* s2 = id *)
           FgnExpStd.EqualTo.apply csfe2 (EClo Us1)
 
-      | convExpW ((EVar (r1, _, _, _), s1), (EVar(r2, _, _, _), s2)) =
+      | ((EVar (r1, _, _, _), s1), (EVar(r2, _, _, _), s2)) -> 
           (r1 = r2) andalso convSub (s1, s2)
 
       (* ABP -- 2/18/03 Added missing case*)
       (* Note that under Head, why is NSDef never used?? *)
-      | convExpW _ = false
+      | _ -> false
         (* Possible are:
            L <> Pi D. V   Pi D. V <> L
            X <> U         U <> X

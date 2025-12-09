@@ -35,20 +35,20 @@ local
      maintained in the names module.
      FVar's are printed with a preceding "`" (backquote) character
   *)
-  fun fmtCon (G, I.BVar(n)) =
+  let rec fmtCon = function (G, I.BVar(n)) -> 
       let
         let I.Dec (SOME n, _) = I.ctxDec (G, n)
       in
         sexp [Str ("<Var name = \"" ^ n ^ "\"/>")]
       end
-    | fmtCon (G, I.Const(cid)) = sexp [Str "<Const name=\"", Str (I.conDecName (I.sgnLookup cid)), Str "\"/>"]
-    | fmtCon (G, I.Def(cid)) = sexp [Str "<Def>", F.Break, Integer cid, Str "</Def>"]
-    | fmtCon (G, I.FgnConst (csid, condec)) = sexp [Str "FngConst"]  (* FIX -cs Fri Jan 28 17:45:35 2005*)
+    | (G, I.Const(cid)) -> sexp [Str "<Const name=\"", Str (I.conDecName (I.sgnLookup cid)), Str "\"/>"]
+    | (G, I.Def(cid)) -> sexp [Str "<Def>", F.Break, Integer cid, Str "</Def>"]
+    | (G, I.FgnConst (csid, condec)) -> sexp [Str "FngConst"]  (* FIX -cs Fri Jan 28 17:45:35 2005*)
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
-  fun fmtUni (I.Type) = Str "<Type/>"
-    | fmtUni (I.Kind) = Str "<Kind/>"
+  let rec fmtUni = function (I.Type) -> Str "<Type/>"
+    | (I.Kind) -> Str "<Kind/>"
 
   (* fmtExpW (G, (U, s)) = fmt
 
@@ -60,8 +60,8 @@ local
        G'' |- U : V   G' |- s : G''  (so  G' |- U[s] : V[s])
        (U,s) in whnf
   *)
-  fun fmtExpW (G, (I.Uni(L), s)) = sexp [Str "<Uni>", F.Break, fmtUni L, Str "</Uni>"]
-    | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
+  let rec fmtExpW = function (G, (I.Uni(L), s)) -> sexp [Str "<Uni>", F.Break, fmtUni L, Str "</Uni>"]
+    | (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) -> 
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
                          let D' = Names.decLUName (G, D) (* could sometimes be EName *)
@@ -78,12 +78,12 @@ local
                             F.Break, (* Str "tw*no", F.Break,*) fmtExp (G', (V2, I.dot1 s)),
                             Str "</Arrow>"]
                     end)
-    | fmtExpW (G, (I.Root (H, S), s)) =
+    | (G, (I.Root (H, S), s)) -> 
       (case (fmtSpine (G, (S, s)))
          of NONE =>  fmtCon (G, H)
           | SOME fmts =>  F.HVbox [Str "<App>", fmtCon (G, H),
                F.Break, sexp (fmts), Str "</App>"])
-    | fmtExpW (G, (I.Lam(D, U), s)) =
+    | (G, (I.Lam(D, U), s)) -> 
       let
         let D' = Names.decLUName (G, D)
         let G' = I.Decl (G, D')
@@ -91,7 +91,7 @@ local
         sexp [Str "<Lam>", F.Break, fmtDec (G, (D', s)),
               F.Break, fmtExp (G', (U, I.dot1 s)), Str "</Lam>"]
       end
-    | fmtExpW (G, (I.FgnExp (csid, F), s)) = sexp [Str "FgnExp"] (* FIX -cs Fri Jan 28 17:45:43 2005 *)
+    | (G, (I.FgnExp (csid, F), s)) -> sexp [Str "FgnExp"] (* FIX -cs Fri Jan 28 17:45:43 2005 *)
     (* I.EClo, I.Redex, I.EVar not possible *)
 
   and fmtExp (G, (U, s)) = fmtExpW (G, Whnf.whnf (U, s))
@@ -125,7 +125,7 @@ local
 
      This function prints the quantifiers and abstractions only if hide = false.
   *)
-  fun fmtConDec (I.ConDec (name, parent, imp, _, V, L)) =
+  let rec fmtConDec = function (I.ConDec (name, parent, imp, _, V, L)) -> 
       let
         let _ = Names.varReset IntSyn.Null
       in
@@ -133,9 +133,9 @@ local
               Integer (imp), Str ">", F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L), Str "</Condec>"]
       end
-    | fmtConDec (I.SkoDec (name, parent, imp, V, L)) =
+    | (I.SkoDec (name, parent, imp, V, L)) -> 
       Str ("<! Skipping Skolem constant " ^ name ^ ">")
-    | fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
+    | (I.ConDef (name, parent, imp, U, V, L, _)) -> 
       let
         let _ = Names.varReset IntSyn.Null
       in
@@ -144,7 +144,7 @@ local
               F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L), Str "</Condef>"]
       end
-    | fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
+    | (I.AbbrevDef (name, parent, imp, U, V, L)) -> 
       let
         let _ = Names.varReset IntSyn.Null
       in
@@ -153,7 +153,7 @@ local
               F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L), Str "</Abbrevdef>"]
       end
-    | fmtConDec (I.BlockDec (name, _, _, _)) =
+    | (I.BlockDec (name, _, _, _)) -> 
       Str ("<! Skipping Skolem constant " ^ name ^ ">")
 
   (* fmtEqn assumes that G is a valid printing context *)

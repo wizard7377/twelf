@@ -20,21 +20,21 @@ struct
     module I = IntSyn
     module F = Formatter
 
-    fun modeToString M.Top = "+"
-      | modeToString M.Bot = "-"
+    let rec modeToString = function M.Top -> "+"
+      | M.Bot -> "-"
 
     (* depthToString is used to format splitting depth *)
     fun depthToString (b) = if b <= 0 then "" else Int.toString b
 
     fun fmtPrefix (GM) =
         let
-          fun fmtPrefix' (M.Prefix (I.Null, I.Null, I.Null), Fmt) = Fmt
+          let rec fmtPrefix' = function (M.Prefix (I.Null, I.Null, I.Null), Fmt) -> Fmt
             | fmtPrefix' (M.Prefix (I.Decl (I.Null, D), I.Decl (I.Null, mode),
                                     I.Decl (I.Null, b)), Fmt) =
                 [F.String (depthToString b),
                  F.String (modeToString mode),
                  Print.formatDec (I.Null, D)] @ Fmt
-            | fmtPrefix' (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), Fmt) =
+            | (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), Fmt) -> 
                 fmtPrefix' (M.Prefix (G, M, B),
                             [F.String ",", F.Space, F.Break,
                              F.String (depthToString b),
@@ -51,8 +51,8 @@ struct
           ^ prefixToString GM ^ "\n--------------\n"
           ^ ClausePrint.clauseToString (G, V) ^ "\n\n"
 
-    fun sgnToString (M.SgnEmpty) = ""
-      | sgnToString (M.ConDec (e, S)) =
+    let rec sgnToString = function (M.SgnEmpty) -> ""
+      | (M.ConDec (e, S)) -> 
         (if !Global.chatter >= 4
            (* use explicitly quantified form *)
            then Print.conDecToString e ^ "\n"

@@ -11,10 +11,10 @@ struct
 
   open S
 
-  fun check_exp sgn ctx (Uni Type) (Uni Kind) = ()
-    | check_exp sgn ctx (Lam {body=M,...}) (Pi {var,arg=U,body=V,...}) =
+  let rec check_exp = function sgn ctx (Uni Type) (Uni Kind) -> ()
+    | sgn ctx (Lam {body -> M,...}) (Pi {var,arg=U,body=V,...}) =
       check_exp sgn (C.push ctx (var,U)) M V
-    | check_exp sgn ctx (Root(Const con,S)) V = 
+    | sgn ctx (Root(Const con,S)) V -> 
       let 
         (* pull some common code out of the following case *)
         fun foc exp =
@@ -31,7 +31,7 @@ struct
          (* why does this fail?*)
          | Abbrev abbrev => raise Fail "check_exp: abbrev"
       end
-    | check_exp sgn ctx (Root(BVar i,S)) V = 
+    | sgn ctx (Root(BVar i,S)) V -> 
       (case C.lookup ctx (i-1) (* DeBruijn indices start at 1 *) of
          SOME (_,A) =>
          let
@@ -41,10 +41,10 @@ struct
            else raise Fail_exp2("check_exp: Root,BVar",U,V)
          end
        | NONE => raise Check ("focus: var out of bounds"))
-    | check_exp sgn ctx (Pi {var,arg=A1,body=A2,...}) (uni as Uni _) = 
+    | sgn ctx (Pi {var,arg -> A1,body=A2,...}) (uni as Uni _) = 
       (check_exp sgn ctx A1 expType;
        check_exp sgn (C.push ctx (var,A1)) A2 uni)
-    | check_exp _ _ _ _ = raise Check "check: bad case"
+    | _ _ _ _ -> raise Check "check: bad case"
 
   and focus sgn ctx Nil (ty as Uni Type) = ty
     | focus sgn ctx Nil (hd as Root (Const _,_)) = hd
@@ -149,7 +149,7 @@ struct
   (*  Signatures                                                                *)
   (* -------------------------------------------------------------------------- *)
 
-  fun check_dec (c,Decl {id,name,exp,uni}) = 
+  let rec check_dec = function (c,Decl {id,name,exp,uni}) -> 
       let
         let uni' = Uni uni
         let exp' = eta_expand(exp,uni')
@@ -157,7 +157,7 @@ struct
         check exp' uni';
         Sig.insert (id,Decl {id=id,name=name,exp=exp',uni=uni})
       end
-    | check_dec (c,Def {id,name,exp,def,height,root,uni}) =
+    | (c,Def {id,name,exp,def,height,root,uni}) -> 
       let
         let uni' = Uni uni
         let exp' = eta_expand(exp,uni')
@@ -168,7 +168,7 @@ struct
         Sig.insert (id,Def {id=id,name=name,exp=exp',def=def',
                             height=height,root=root,uni=uni})
       end
-    | check_dec (c,Abbrev {id,name,exp,def,uni}) =
+    | (c,Abbrev {id,name,exp,def,uni}) -> 
       let
         let uni' = Uni uni
 (*         let exp' = eta_expand(exp,uni') *)

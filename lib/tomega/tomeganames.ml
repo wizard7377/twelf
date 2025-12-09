@@ -6,8 +6,8 @@
     module T = Tomega
     module I = IntSyn
 
-    fun decName (Psi, T.UDec D) = T.UDec (Names.decName (T.coerceCtx Psi, D))
-      | decName (Psi, T.PDec (x, F, TC1, TC2)) =
+    let rec decName = function (Psi, T.UDec D) -> T.UDec (Names.decName (T.coerceCtx Psi, D))
+      | (Psi, T.PDec (x, F, TC1, TC2)) -> 
         let
           let I.NDec x' =  Names.decName (T.coerceCtx Psi, I.NDec x)
         in

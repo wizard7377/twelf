@@ -20,9 +20,9 @@ struct
 
     (* Printing Utilities *)
 
-    fun headToString (G, I.Const (c)) = N.qidToString (N.constQid c)
-      | headToString (G, I.Def (d)) = N.qidToString (N.constQid d)
-      | headToString (G, I.BVar(k)) = N.bvarName (G, k)
+    let rec headToString = function (G, I.Const (c)) -> N.qidToString (N.constQid c)
+      | (G, I.Def (d)) -> N.qidToString (N.constQid d)
+      | (G, I.BVar(k)) -> N.bvarName (G, k)
     fun expToString (GU) = P.expToString (GU) ^ ". "
     fun decToString (GD) = P.decToString (GD) ^ ". "
     fun eqnToString (G, U1, U2) =
@@ -30,10 +30,10 @@ struct
 
     fun newline () = print "\n"
 
-    fun printCtx (I.Null) = print "No hypotheses or parameters. "
-      | printCtx (I.Decl(I.Null, D)) =
+    let rec printCtx = function (I.Null) -> print "No hypotheses or parameters. "
+      | (I.Decl(I.Null, D)) -> 
           print (decToString (I.Null, D))
-      | printCtx (I.Decl(G, D)) =
+      | (I.Decl(G, D)) -> 
           (printCtx (G);
            newline ();
            print (decToString (G, D)))
@@ -48,8 +48,8 @@ struct
              | SOME(constr) => inst ^ "\nConstraints:\n" ^ constr
         end
 
-    fun varsToEVarInst (nil) = nil
-      | varsToEVarInst (name::names) =
+    let rec varsToEVarInst = function (nil) -> nil
+      | (name::names) -> 
         case N.getEVarOpt name
           of NONE => (print ("Trace warning: ignoring unknown variable " ^ name ^ "\n");
                       varsToEVarInst (names))
@@ -68,18 +68,18 @@ struct
     let traceSpec : string Spec ref = ref None
     let breakSpec : string Spec ref = ref None
 
-    fun trace (None) = traceSpec := None
-      | trace (Some (names)) = traceSpec := Some (names)
-      | trace (All) = traceSpec := All
+    let rec trace = function (None) -> traceSpec := None
+      | (Some (names)) -> traceSpec := Some (names)
+      | (All) -> traceSpec := All
 
-    fun break (None) = breakSpec := None
-      | break (Some (names)) = breakSpec := Some (names)
-      | break (All) = breakSpec := All
+    let rec break = function (None) -> breakSpec := None
+      | (Some (names)) -> breakSpec := Some (names)
+      | (All) -> breakSpec := All
 
     let detail = ref 1
 
-    fun setDetail (NONE) = print ("Trace warning: detail is not a valid integer\n")
-      | setDetail (SOME(n)) =
+    let rec setDetail = function (NONE) -> print ("Trace warning: detail is not a valid integer\n")
+      | (SOME(n)) -> 
         if 0 <= n (* andalso n <= 2 *)
           then detail := n
         else print ("Trace warning: detail must be positive\n")
@@ -87,8 +87,8 @@ struct
     let traceTSpec : I.cid Spec ref = ref None
     let breakTSpec : I.cid Spec ref = ref None
 
-    fun toCids (nil) = nil
-      | toCids (name::names) =
+    let rec toCids = function (nil) -> nil
+      | (name::names) -> 
         (case N.stringToQid name
            of NONE => (print ("Trace warning: ignoring malformed qualified identifier " ^ name ^ "\n");
                        toCids names)
@@ -98,13 +98,13 @@ struct
                        toCids names)
             | SOME cid => cid::toCids names))
 
-    fun initTrace (None) = traceTSpec := None
-      | initTrace (Some (names)) = traceTSpec := Some (toCids names)
-      | initTrace (All) = traceTSpec := All
+    let rec initTrace = function (None) -> traceTSpec := None
+      | (Some (names)) -> traceTSpec := Some (toCids names)
+      | (All) -> traceTSpec := All
 
-    fun initBreak (None) = breakTSpec := None
-      | initBreak (Some (names)) = breakTSpec := Some (toCids names)
-      | initBreak (All) = breakTSpec := All
+    let rec initBreak = function (None) -> breakTSpec := None
+      | (Some (names)) -> breakTSpec := Some (toCids names)
+      | (All) -> breakTSpec := All
 
     fun printHelp () =
         print
@@ -151,8 +151,8 @@ struct
            of (None, None) => tag := NONE
             | _ => tag := SOME(0))
 
-    fun setWatchForTag (NONE) = (watchForTag := !tag)
-      | setWatchForTag (SOME(n)) = (watchForTag := SOME(n))
+    let rec setWatchForTag = function (NONE) -> (watchForTag := !tag)
+      | (SOME(n)) -> (watchForTag := SOME(n))
 
     fun breakAction (G) =
         let
@@ -208,110 +208,110 @@ struct
     | Unify of (IntSyn.Head * IntSyn.Head) * IntSyn.exp * IntSyn.exp (* clause head == goal *)
     | FailUnify of (IntSyn.Head * IntSyn.Head) * string (* failure message *)
 
-    fun eventToString (G, IntroHyp (_, D)) =
+    let rec eventToString = function (G, IntroHyp (_, D)) -> 
         "% Introducing hypothesis\n" ^ decToString (G, D)
-      | eventToString (G, DischargeHyp (_, I.Dec (SOME(x), _))) =
+      | (G, DischargeHyp (_, I.Dec (SOME(x), _))) -> 
         "% Discharging hypothesis " ^ x
-      | eventToString (G, IntroParm (_, D)) =
+      | (G, IntroParm (_, D)) -> 
         "% Introducing parameter\n" ^ decToString (G, D)
-      | eventToString (G, DischargeParm (_, I.Dec (SOME(x), _))) =
+      | (G, DischargeParm (_, I.Dec (SOME(x), _))) -> 
         "% Discharging parameter " ^ x
 
-      | eventToString (G, Resolved (Hc, Ha)) =
+      | (G, Resolved (Hc, Ha)) -> 
         "% Resolved with clause " ^ headToString (G, Hc) ^ "\n"
         ^ evarsToString (List.rev (!currentEVarInst))
-      | eventToString (G, Subgoal ((Hc, Ha), msg)) =
+      | (G, Subgoal ((Hc, Ha), msg)) -> 
         "% Solving subgoal (" ^ Int.toString (msg ()) ^ ") of clause "
         ^ headToString (G, Hc)
 
-      | eventToString (G, SolveGoal (SOME(tag), _, V)) =
+      | (G, SolveGoal (SOME(tag), _, V)) -> 
         "% Goal " ^ Int.toString tag ^ ":\n" ^ expToString (G, V)
-      | eventToString (G, SucceedGoal (SOME(tag), _, V)) =
+      | (G, SucceedGoal (SOME(tag), _, V)) -> 
         "% Goal " ^ Int.toString tag ^ " succeeded"
-      | eventToString (G, CommitGoal (SOME(tag), _, V)) =
+      | (G, CommitGoal (SOME(tag), _, V)) -> 
         "% Goal " ^ Int.toString tag ^ " committed to first solution"
-      | eventToString (G, RetryGoal (SOME(tag), (Hc, Ha), V)) =
+      | (G, RetryGoal (SOME(tag), (Hc, Ha), V)) -> 
         "% Backtracking from clause " ^ headToString (G, Hc) ^ "\n"
         ^ "% Retrying goal " ^ Int.toString tag ^ ":\n" ^ expToString (G, V)
-      | eventToString (G, FailGoal (SOME(tag), _, V)) =
+      | (G, FailGoal (SOME(tag), _, V)) -> 
         "% Failed goal " ^ Int.toString tag
 
-      | eventToString (G, Unify ((Hc, Ha), Q, P)) =
+      | (G, Unify ((Hc, Ha), Q, P)) -> 
         "% Trying clause " ^ headToString (G, Hc) ^ "\n"
         ^ eqnToString (G, Q, P)
-      | eventToString (G, FailUnify ((Hc, Ha), msg)) =
+      | (G, FailUnify ((Hc, Ha), msg)) -> 
         "% Unification failed with clause " ^ headToString (G, Hc) ^ ":\n"
         ^ msg
 
     fun traceEvent (G, e) = print (eventToString (G, e))
 
-    fun monitorHead (cids, I.Const(c)) = List.exists (fn c' => c = c') cids
-      | monitorHead (cids, I.Def(d)) = List.exists (fn c' => d = c') cids
-      | monitorHead (cids, I.BVar(k)) = false
+    let rec monitorHead = function (cids, I.Const(c)) -> List.exists (fn c' => c = c') cids
+      | (cids, I.Def(d)) -> List.exists (fn c' => d = c') cids
+      | (cids, I.BVar(k)) -> false
 
     fun monitorHeads (cids, (Hc, Ha)) =
           monitorHead (cids, Hc) orelse monitorHead (cids, Ha)
 
-    fun monitorEvent (cids, IntroHyp (H, _)) =
+    let rec monitorEvent = function (cids, IntroHyp (H, _)) -> 
           monitorHead (cids, H)
-      | monitorEvent (cids, DischargeHyp (H, _)) =
+      | (cids, DischargeHyp (H, _)) -> 
           monitorHead (cids, H)
-      | monitorEvent (cids, IntroParm (H, _)) =
+      | (cids, IntroParm (H, _)) -> 
           monitorHead (cids, H)
-      | monitorEvent (cids, DischargeParm (H, _)) =
-          monitorHead (cids, H)
-
-      | monitorEvent (cids, SolveGoal (_, H, V)) =
-          monitorHead (cids, H)
-      | monitorEvent (cids, SucceedGoal (_, (Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, CommitGoal (_, (Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, RetryGoal (_, (Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, FailGoal (_, H, _)) =
+      | (cids, DischargeParm (H, _)) -> 
           monitorHead (cids, H)
 
-      | monitorEvent (cids, Resolved (Hc, Ha)) =
+      | (cids, SolveGoal (_, H, V)) -> 
+          monitorHead (cids, H)
+      | (cids, SucceedGoal (_, (Hc, Ha), _)) -> 
           monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, Subgoal ((Hc, Ha), _)) =
+      | (cids, CommitGoal (_, (Hc, Ha), _)) -> 
+          monitorHeads (cids, (Hc, Ha))
+      | (cids, RetryGoal (_, (Hc, Ha), _)) -> 
+          monitorHeads (cids, (Hc, Ha))
+      | (cids, FailGoal (_, H, _)) -> 
+          monitorHead (cids, H)
+
+      | (cids, Resolved (Hc, Ha)) -> 
+          monitorHeads (cids, (Hc, Ha))
+      | (cids, Subgoal ((Hc, Ha), _)) -> 
           monitorHeads (cids, (Hc, Ha))
 
-      | monitorEvent (cids, Unify ((Hc, Ha), _, _)) =
+      | (cids, Unify ((Hc, Ha), _, _)) -> 
           monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, FailUnify ((Hc, Ha), _)) =
+      | (cids, FailUnify ((Hc, Ha), _)) -> 
           monitorHeads (cids, (Hc, Ha))
 
-    fun monitorDetail (Unify _) = !detail >= 2
-      | monitorDetail (FailUnify _) = !detail >= 2
-      | monitorDetail _ = !detail >= 1
+    let rec monitorDetail = function (Unify _) -> !detail >= 2
+      | (FailUnify _) -> !detail >= 2
+      | _ -> !detail >= 1
 
     (* expensive if tracing Unify! *)
     (* but: maintain only if break or trace is on *)
     (* may not be sufficient for some information *)
-    fun maintain (G, SolveGoal (_, _, V)) = setGoal (G, V)
-      | maintain (G, RetryGoal (_, _, V)) = setGoal (G, V)
-      | maintain (G, FailGoal (_, _, V)) = setGoal (G, V)
-      | maintain (G, Unify (_, Q, P)) =
+    let rec maintain = function (G, SolveGoal (_, _, V)) -> setGoal (G, V)
+      | (G, RetryGoal (_, _, V)) -> setGoal (G, V)
+      | (G, FailGoal (_, _, V)) -> setGoal (G, V)
+      | (G, Unify (_, Q, P)) -> 
         (* show substitution for variables in clause head if tracing unification *)
         setEVarInst (Abstract.collectEVars (G, (P, I.id),
                                             Abstract.collectEVars (G, (Q, I.id), nil)))
-      | maintain _ = ()
+      | _ -> ()
 
-    fun monitorBreak (None, G, e) = false
-      | monitorBreak (Some (cids), G, e) =
+    let rec monitorBreak = function (None, G, e) -> false
+      | (Some (cids), G, e) -> 
         if monitorEvent (cids, e)
           then (maintain (G, e); traceEvent (G, e); breakAction (G); true)
         else false
-      | monitorBreak (All, G, e) =
+      | (All, G, e) -> 
           (maintain (G, e); traceEvent (G, e); breakAction (G); true)
 
-    fun monitorTrace (None, G, e) = false
-      | monitorTrace (Some (cids), G, e) =
+    let rec monitorTrace = function (None, G, e) -> false
+      | (Some (cids), G, e) -> 
         if monitorEvent (cids, e)
           then (maintain (G, e); traceEvent (G, e); newline (); true)
         else false
-      | monitorTrace (All, G, e) =
+      | (All, G, e) -> 
           (maintain (G, e); traceEvent (G, e); newline (); true)
 
     fun watchFor (e) =
@@ -341,12 +341,12 @@ struct
                     else (monitorTrace (!traceTSpec, G, e); ()) (* prints trace, continues *)
         else ()
 
-    fun showSpec (msg, None) = print (msg ^ " = None\n")
-      | showSpec (msg, Some(names)) =
+    let rec showSpec = function (msg, None) -> print (msg ^ " = None\n")
+      | (msg, Some(names)) -> 
         (print (msg ^ " = Some [");
          List.app (fun name -> print (" " ^ name)) names;
          print "]\n")
-      | showSpec (msg, All) = print (msg ^ " = All\n")
+      | (msg, All) -> print (msg ^ " = All\n")
 
     fun tracing () =
         (case (!traceSpec, !breakSpec)

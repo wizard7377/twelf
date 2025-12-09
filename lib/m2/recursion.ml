@@ -57,11 +57,11 @@ struct
     (* duplicate code? -fp *)
     fun vectorToString (G, O) =
         let
-          fun fmtOrder (Order.Arg (Us, Vs)) =
+          let rec fmtOrder = function (Order.Arg (Us, Vs)) -> 
               [F.String (Print.expToString (G, I.EClo Us)), F.String ":",
                F.String (Print.expToString (G, I.EClo Vs))]
-            | fmtOrder (Order.Lex L) = [F.String "{", F.HVbox (fmtOrders L), F.String "}"]
-            | fmtOrder (Order.Simul L) = [F.String "[", F.HVbox (fmtOrders L), F.String "]"]
+            | (Order.Lex L) -> [F.String "{", F.HVbox (fmtOrders L), F.String "}"]
+            | (Order.Simul L) -> [F.String "[", F.HVbox (fmtOrders L), F.String "]"]
 
           and fmtOrders nil = nil
             | fmtOrders (O :: nil) = fmtOrder O
@@ -95,9 +95,9 @@ struct
                 select'W (n, ((S', I.comp (s1', s2')), Vs''))
             | select'W (n, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
                 select' (n-1, ((S', s'), (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
-          fun select (O.Arg n) = O.Arg (select' (n, ((S, s), Vid)))
-            | select (O.Lex L) = O.Lex (map select L)
-            | select (O.Simul L) = O.Simul (map select L)
+          let rec select = function (O.Arg n) -> O.Arg (select' (n, ((S, s), Vid)))
+            | (O.Lex L) -> O.Lex (map select L)
+            | (O.Simul L) -> O.Simul (map select L)
         in
           select (O.selLookup c)
         end
@@ -110,8 +110,8 @@ struct
     *)
     fun set_parameter (G, X as I.EVar (r, _, V, _), k, sc, ops) =
         let
-          fun set_parameter' (0, ops') =  ops'
-            | set_parameter' (k', ops') =
+          let rec set_parameter' = function (0, ops') -> ops'
+            | (k', ops') -> 
                 let
                   let D' as I.Dec (_, V') = I.ctxDec (G, k')
                   let ops'' =
@@ -308,9 +308,9 @@ struct
             recursion operators of all instantiations of EVars s.t. O1 is
             lexicographically smaller than O2
     *)
-    fun ordlt (G, O.Arg UsVs, O.Arg UsVs', sc, ops) =  ltinit (G, 0, UsVs, UsVs', sc, ops)
-      | ordlt (G, O.Lex L, O.Lex L', sc, ops) = ordltLex (G, L, L', sc, ops)
-      | ordlt (G, O.Simul L, O.Simul L', sc, ops) = ordltSimul (G, L, L', sc, ops)
+    let rec ordlt = function (G, O.Arg UsVs, O.Arg UsVs', sc, ops) -> ltinit (G, 0, UsVs, UsVs', sc, ops)
+      | (G, O.Lex L, O.Lex L', sc, ops) -> ordltLex (G, L, L', sc, ops)
+      | (G, O.Simul L, O.Simul L', sc, ops) -> ordltSimul (G, L, L', sc, ops)
 
 
     (* ordltLex (G, L1, L2, sc, ops) = ops'
@@ -426,16 +426,16 @@ struct
        and  G' |- M' mtx
        and  G' |- s' : G
     *)
-    fun createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
+    let rec createEVars = function (M.Prefix (I.Null, I.Null, I.Null)) -> 
           (M.Prefix (I.Null, I.Null, I.Null), I.id)
-      | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
+      | (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) -> 
         let
           let (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s')
         end
-      | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
+      | (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) -> 
         let
           let (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
           let X  = I.newEVar (G', I.EClo (V, s'))
@@ -506,15 +506,15 @@ struct
        then ops' extends ops by all operators
          representing inductive calls to theorems in L
     *)
-    fun expandLazy' (S, O.Empty, ops) = ops
-      | expandLazy' (S, (O.LE (t, L)), ops) = expandLazy' (S, L, ordle (lemma (S, t, ops)))
-      | expandLazy' (S, (O.LT (t, L)), ops) = expandLazy' (S, L, ordlt (lemma (S, t, ops)))
+    let rec expandLazy' = function (S, O.Empty, ops) -> ops
+      | (S, (O.LE (t, L)), ops) -> expandLazy' (S, L, ordle (lemma (S, t, ops)))
+      | (S, (O.LT (t, L)), ops) -> expandLazy' (S, L, ordlt (lemma (S, t, ops)))
 
 
     fun recursionDepth V =
         let
-          fun recursionDepth' (I.Root _, n) = n
-            | recursionDepth' (I.Pi (_, V), n) = recursionDepth' (V, n+1)
+          let rec recursionDepth' = function (I.Root _, n) -> n
+            | (I.Pi (_, V), n) -> recursionDepth' (V, n+1)
         in
           recursionDepth' (V, 0)
         end
@@ -585,8 +585,8 @@ struct
                  either ci =/= c0 orelse
                  G, V0 .. Vi |- V0 [^ i] =/=+ Vi (not convertible on + arguments on c0)
     *)
-    fun removeDuplicates nil = nil
-      | removeDuplicates (S' :: ops) =
+    let rec removeDuplicates = function nil -> nil
+      | (S' :: ops) -> 
         let
           fun compExp (Vs1, Vs2) =
                 compExpW (Whnf.whnf Vs1, Whnf.whnf Vs2)
@@ -615,8 +615,8 @@ struct
        then ops' is a list of recursion operators combined with a filling
          operator to fill non-index variables.
     *)
-    fun fillOps nil = nil
-      | fillOps (S' :: ops) =
+    let rec fillOps = function nil -> nil
+      | (S' :: ops) -> 
         let
           fun fillOps' nil = nil
             | fillOps' (O :: _) = (Filling.apply O)

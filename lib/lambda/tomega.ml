@@ -132,11 +132,11 @@ struct
        and   G = mu G. G \in Psi
        then  G   |- F' front
     *)
-    fun coerceFront (Idx k) = I.Idx k
-      | coerceFront (Prg P) = I.Undef
-      | coerceFront (Exp M) = I.Exp M
-      | coerceFront (Block B) = I.Block B
-      | coerceFront (Undef) = I.Undef
+    let rec coerceFront = function (Idx k) -> I.Idx k
+      | (Prg P) -> I.Undef
+      | (Exp M) -> I.Exp M
+      | (Block B) -> I.Block B
+      | (Undef) -> I.Undef
     (* --Yu Liao Why cases: Block, Undef aren't defined *)
 
     (* embedFront F = F'
@@ -146,10 +146,10 @@ struct
        and   G = mu G. G \in Psi
        then  G   |- F' front
     *)
-    fun embedFront (I.Idx k) = Idx k
-      | embedFront (I.Exp U) = Exp U
-      | embedFront (I.Block B) = Block B
-      | embedFront (I.Undef) = Undef
+    let rec embedFront = function (I.Idx k) -> Idx k
+      | (I.Exp U) -> Exp U
+      | (I.Block B) -> Block B
+      | (I.Undef) -> Undef
 
 
     (* coerceSub t = s
@@ -160,12 +160,12 @@ struct
        where G = mu G. G \in Psi
        and   G' = mu G. G \in Psi'
     *)
-    fun coerceSub (Shift n) = I.Shift n
-      | coerceSub (Dot (Ft, t)) =
+    let rec coerceSub = function (Shift n) -> I.Shift n
+      | (Dot (Ft, t)) -> 
           I.Dot (coerceFront Ft, coerceSub t)
 
-    fun embedSub (I.Shift n) = Shift n
-      | embedSub (I.Dot (Ft, s)) =
+    let rec embedSub = function (I.Shift n) -> Shift n
+      | (I.Dot (Ft, s)) -> 
           Dot (embedFront Ft, embedSub s)
 
 
@@ -173,21 +173,21 @@ struct
        |- Psi ctx[block] holds iff Psi = _x_1 : (L1, t1), ... _x_n : (Ln, tn)
     *)
 
-    fun revCoerceFront (I.Idx k) = Idx k
-      | revCoerceFront (I.Exp M) = Exp M
-      | revCoerceFront (I.Block b) = Block b
-      | revCoerceFront I.Undef = Undef
+    let rec revCoerceFront = function (I.Idx k) -> Idx k
+      | (I.Exp M) -> Exp M
+      | (I.Block b) -> Block b
+      | I.Undef -> Undef
 
 
     (* revCoerceSub t = s
     coerce substitution in LF level t ==> s in Tomega level *)
-    fun revCoerceSub (I.Shift n) = Shift n
-      | revCoerceSub (I.Dot (Ft, t)) = Dot(revCoerceFront Ft, revCoerceSub t)
+    let rec revCoerceSub = function (I.Shift n) -> Shift n
+      | (I.Dot (Ft, t)) -> Dot(revCoerceFront Ft, revCoerceSub t)
 
 
     (* Invariant Yu? *)
-    fun revCoerceCtx I.Null = I.Null
-      | revCoerceCtx (I.Decl (Psi, D as I.BDec (_, (L, t)))) =
+    let rec revCoerceCtx = function I.Null -> I.Null
+      | (I.Decl (Psi, D as I.BDec (_, (L, t)))) -> 
           I.Decl (revCoerceCtx (Psi), UDec D)
 
 
@@ -202,15 +202,15 @@ struct
        and  s' = Ft1 . s
        and  G |- s' : G1, V
     *)
-    fun dotEta (Ft as Idx _, s) = Dot (Ft, s)
-      | dotEta (Ft as Exp (U), s) =
+    let rec dotEta = function (Ft as Idx _, s) -> Dot (Ft, s)
+      | (Ft as Exp (U), s) -> 
         let
           let Ft' = Idx (Whnf.etaContract U)
                    handle Eta => Ft
         in
           Dot (Ft', s)
         end
-      | dotEta (Ft as Undef, s) = Dot (Ft, s)
+      | (Ft as Undef, s) -> Dot (Ft, s)
 
 
     (* embedCtx G = Psi
@@ -219,8 +219,8 @@ struct
        If   G is an LF ctx
        then Psi is G, embedded into Tomega
     *)
-    fun embedCtx I.Null = I.Null
-      | embedCtx (I.Decl (G, D)) =
+    let rec embedCtx = function I.Null -> I.Null
+      | (I.Decl (G, D)) -> 
           I.Decl (embedCtx G, UDec D)
 
 
@@ -289,24 +289,24 @@ struct
         | convTCOpt (SOME TC1, SOME TC2) = convTC (TC1, TC2)
         | convTCOpt _ = false
 
-    fun transformTC' (G, O.Arg k) =
+    let rec transformTC' = function (G, O.Arg k) -> 
         let
           let k' = (I.ctxLength G) -k+1
           let I.Dec (_, V) = I.ctxDec (G, k')
         in
           O.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
-      | transformTC' (G, O.Lex Os) =
+      | (G, O.Lex Os) -> 
           O.Lex (map (fun O -> transformTC' (G, O)) Os)
-      | transformTC' (G, O.Simul Os) =
+      | (G, O.Simul Os) -> 
           O.Simul (map (fun O -> transformTC' (G, O)) Os)
 
-    fun transformTC (G, All ((UDec D, _), F), Os) =
+    let rec transformTC = function (G, All ((UDec D, _), F), Os) -> 
           Abs (D, transformTC (I.Decl (G, D), F, Os))
-      | transformTC (G, And (F1, F2), O :: Os) =
+      | (G, And (F1, F2), O :: Os) -> 
           Conj (transformTC (G, F1, [O]),
                  transformTC (G, F2, Os))
-      | transformTC (G, Ex _, [O]) = Base (transformTC' (G, O))
+      | (G, Ex _, [O]) -> Base (transformTC' (G, O))
 
 
 
@@ -320,9 +320,9 @@ struct
          or  Ft' = ^(n+k)       if  t = Ft1 .. Ftm ^k   and m<n
        and   Psi |- Ft' :: F [t]
     *)
-    fun varSub (1, Dot(Ft, t)) = Ft
-      | varSub (n, Dot(Ft, t)) = varSub (n-1, t)
-      | varSub (n, Shift(k))  = Idx (n+k)
+    let rec varSub = function (1, Dot(Ft, t)) -> Ft
+      | (n, Dot(Ft, t)) -> varSub (n-1, t)
+      | (n, Shift(k)) -> Idx (n+k)
 
 
 
@@ -369,8 +369,8 @@ struct
 
        If t patsub then t' patsub
     *)
-    fun dot1 (t as Shift (0)) = t
-      | dot1 t = Dot (Idx(1), comp(t, Shift 1))
+    let rec dot1 = function (t as Shift (0)) -> t
+      | t -> Dot (Idx(1), comp(t, Shift 1))
 
     let id = Shift 0
     let shift = Shift 1
@@ -382,10 +382,10 @@ struct
        then G is embed Psi
        and  Psi |- w : G
     *)
-    fun weakenSub (I.Null) = id
-      | weakenSub (I.Decl (Psi, D as UDec _)) =
+    let rec weakenSub = function (I.Null) -> id
+      | (I.Decl (Psi, D as UDec _)) -> 
           dot1 (weakenSub Psi)
-      | weakenSub (I.Decl (Psi, D as PDec _)) =
+      | (I.Decl (Psi, D as PDec _)) -> 
           comp (weakenSub Psi, shift)
 
 
@@ -396,20 +396,20 @@ struct
        and   Psi' |- t : Psi
        then  Psi' |- F' = F[t] for
     *)
-    fun forSub (All ((D, Q), F), t) =
+    let rec forSub = function (All ((D, Q), F), t) -> 
           All ((decSub (D, t), Q),
                  forSub (F, dot1 t))
-      | forSub (Ex ((D, Q), F), t) =
+      | (Ex ((D, Q), F), t) -> 
           Ex ((I.decSub (D, coerceSub t), Q),
                  forSub (F, dot1 t))
-      | forSub (And (F1, F2), t) =
+      | (And (F1, F2), t) -> 
           And (forSub (F1, t),
                  forSub (F2, t))
-      | forSub (FClo (F, t1), t2) =
+      | (FClo (F, t1), t2) -> 
           forSub (F, comp (t1, t2))
-      | forSub (World (W, F), t) =
+      | (World (W, F), t) -> 
           World (W, forSub (F, t))
-      | forSub (True, _) = True
+      | (True, _) -> True
 
 
 
@@ -439,11 +439,11 @@ struct
     fun invertSub s =
       let
         (* returns NONE if not found *)
-        fun getFrontIndex (Idx k) = SOME(k)
-          | getFrontIndex (Prg P) = getPrgIndex(P)
-          | getFrontIndex (Exp U) = getExpIndex(U)
-          | getFrontIndex (Block B) = getBlockIndex(B)
-          | getFrontIndex (Undef) = NONE
+        let rec getFrontIndex = function (Idx k) -> SOME(k)
+          | (Prg P) -> getPrgIndex(P)
+          | (Exp U) -> getExpIndex(U)
+          | (Block B) -> getBlockIndex(B)
+          | (Undef) -> NONE
 
 
         (* getPrgIndex returns NONE if it is not an index *)
@@ -473,28 +473,28 @@ struct
           | getBlockIndex _ = NONE
 
 
-        fun lookup (n, Shift _, p) = NONE
-          | lookup (n, Dot (Undef, s'), p) = lookup (n+1, s', p)
-          | lookup (n, Dot (Idx k, s'), p) =
+        let rec lookup = function (n, Shift _, p) -> NONE
+          | (n, Dot (Undef, s'), p) -> lookup (n+1, s', p)
+          | (n, Dot (Idx k, s'), p) -> 
             if k = p then SOME n
             else lookup (n+1, s', p)
 
         (* Suggested by ABP
          * If you do not want this, remove the getFrontIndex and other
-          | lookup (n, Dot (Ft, s'), p) =
+          | (n, Dot (Ft, s'), p) -> 
               (case getFrontIndex(Ft) of
                  NONE => lookup (n+1, s', p)
                | SOME k => if (k=p) then SOME n else lookup (n+1, s', p))
         *)
 
-        fun invertSub'' (0, si) = si
-          | invertSub'' (p, si) =
+        let rec invertSub'' = function (0, si) -> si
+          | (p, si) -> 
             (case (lookup (1, s, p))
                of SOME k => invertSub'' (p-1, Dot (Idx k, si))
                 | NONE => invertSub'' (p-1, Dot (Undef, si)))
 
-        fun invertSub' (n, Shift p) = invertSub'' (p, Shift n)
-          | invertSub' (n, Dot (_, s')) = invertSub' (n+1, s')
+        let rec invertSub' = function (n, Shift p) -> invertSub'' (p, Shift n)
+          | (n, Dot (_, s')) -> invertSub' (n+1, s')
       in
         invertSub' (0, s)
       end
@@ -507,10 +507,10 @@ struct
        then |- G lf-ctx[block]
        and  |- Psi == G
     *)
-    fun coerceCtx I.Null = I.Null
-      | coerceCtx (I.Decl (Psi, UDec D)) =
+    let rec coerceCtx = function I.Null -> I.Null
+      | (I.Decl (Psi, UDec D)) -> 
           I.Decl (coerceCtx Psi, D)
-      | coerceCtx (I.Decl (Psi, PDec (x, _, _, _))) =
+      | (I.Decl (Psi, PDec (x, _, _, _))) -> 
           I.Decl (coerceCtx Psi, I.NDec x)
 
 
@@ -542,7 +542,7 @@ struct
        then B holds iff G |- F1[s1] = F2[s2] formula
     *)
 
-    fun convFor ((True, _), (True, _)) = true
+    let rec convFor = function ((True, _), (True, _)) -> true
       | convFor ((All ((D1, _), F1), t1),
                  (All ((D2, _), F2), t2)) =
           convDec ((D1, t1), (D2, t2))
@@ -551,10 +551,10 @@ struct
                  (Ex ((D2, _), F2), t2)) =
           Conv.convDec ((D1, coerceSub t1), (D2, coerceSub t2))
           andalso convFor ((F1, dot1 t1), (F2, dot1 t2))
-      | convFor ((And (F1, F1'), t1), (And (F2, F2'), t2)) =
+      | ((And (F1, F1'), t1), (And (F2, F2'), t2)) -> 
           convFor ((F1, t1), (F2, t2))
           andalso convFor ((F1', t1), (F2', t2))
-      | convFor _ = false
+      | _ -> false
     and convDec ((UDec D1, t1), (UDec D2, t2)) =
           Conv.convDec ((D1, coerceSub t1), (D2, coerceSub t2))
       | convDec ((PDec (_, F1, TC1, TC1'), t1), (PDec (_, F2, TC2, TC2'), t2)) =
@@ -567,11 +567,11 @@ struct
   fun newEVar (Psi, F) = EVar(Psi, ref NONE, F, NONE, NONE, I.newEVar (coerceCtx Psi, I.Uni I.Type))
   fun newEVarTC (Psi, F, TC, TC') = EVar (Psi, ref NONE, F, TC, TC', I.newEVar (coerceCtx Psi, I.Uni I.Type))
 
-  fun exists (x, []) = false
-    | exists (x, y :: W2) = (x = y) orelse exists (x, W2)
+  let rec exists = function (x, []) -> false
+    | (x, y :: W2) -> (x = y) orelse exists (x, W2)
 
-  fun subset ([], _) = true
-    | subset (x :: W1, W2) = exists (x, W2) andalso subset (W1, W2)
+  let rec subset = function ([], _) -> true
+    | (x :: W1, W2) -> exists (x, W2) andalso subset (W1, W2)
 
   fun eqWorlds (Worlds W1, Worlds W2) =
       subset (W1, W2) andalso subset (W2, W1)
@@ -586,11 +586,11 @@ struct
       let (* ctxDec' (G'', k') = x:V
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)
-        fun ctxDec' (I.Decl (G', UDec (I.Dec(x, V'))), 1) = UDec (I.Dec(x, I.EClo (V', I.Shift (k))))
-          | ctxDec' (I.Decl (G', UDec (I.BDec (l, (c, s)))), 1) = UDec (I.BDec (l, (c, I.comp (s, I.Shift (k)))))
-          | ctxDec' (I.Decl (G', PDec (x, F, TC1, TC2)), 1) =
+        let rec ctxDec' = function (I.Decl (G', UDec (I.Dec(x, V'))), 1) -> UDec (I.Dec(x, I.EClo (V', I.Shift (k))))
+          | (I.Decl (G', UDec (I.BDec (l, (c, s)))), 1) -> UDec (I.BDec (l, (c, I.comp (s, I.Shift (k)))))
+          | (I.Decl (G', PDec (x, F, TC1, TC2)), 1) -> 
               PDec(x, forSub (F, Shift(k)),  TCSubOpt (TC1, I.Shift k), TCSubOpt (TC2, I.Shift k))
-          | ctxDec' (I.Decl (G', _), k') = ctxDec' (G', k'-1)
+          | (I.Decl (G', _), k') -> ctxDec' (G', k'-1)
          (* ctxDec' (Null, k')  should not occur by invariant *)
       in
         ctxDec' (G, k)
@@ -602,8 +602,8 @@ struct
         Invariant:
         iota = n.n-1....1
      *)
-    fun mkInst (0) = nil
-      | mkInst (n) = I.Root (I.BVar (n), I.Nil) :: mkInst (n-1)
+    let rec mkInst = function (0) -> nil
+      | (n) -> I.Root (I.BVar (n), I.Nil) :: mkInst (n-1)
 
 
     (* deblockify G = (G', t')
@@ -612,8 +612,8 @@ struct
        If   |- G ctx
        then G' |- t' : G
     *)
-    fun deblockify  (I.Null) = (I.Null, id)
-      | deblockify  (I.Decl (G, I.BDec (x, (c, s)))) =
+    let rec deblockify = function (I.Null) -> (I.Null, id)
+      | (I.Decl (G, I.BDec (x, (c, s)))) -> 
         let
           let (G', t') = deblockify  G
                                         (* G' |- t' : G *)
@@ -644,13 +644,13 @@ struct
        and   Psi'' |- F' :for
        and   Psi' |- F'[t'] = F[t] for
     *)
-    fun whnfFor (Ft as (All (D, _), t)) = Ft
-      | whnfFor (Ft as (Ex (D, F), t)) = Ft
-      | whnfFor (Ft as (And (F1, F2), t)) = Ft
-      | whnfFor (FClo (F, t1), t2) =
+    let rec whnfFor = function (Ft as (All (D, _), t)) -> Ft
+      | (Ft as (Ex (D, F), t)) -> Ft
+      | (Ft as (And (F1, F2), t)) -> Ft
+      | (FClo (F, t1), t2) -> 
           whnfFor (F, comp (t1, t2))
-      | whnfFor (Ft as (World (W, F), t)) = Ft
-      | whnfFor (Ft as (True, _)) = Ft
+      | (Ft as (World (W, F), t)) -> Ft
+      | (Ft as (True, _)) -> Ft
 
 
 
@@ -670,7 +670,7 @@ struct
        and  Psi |- P' [t'] :nf: F [t]
     *)
 
-    fun normalizePrg (Var n, t) =
+    let rec normalizePrg = function (Var n, t) -> 
         (case varSub (n, t)
            of (Prg P) => P
            | (Idx _) => raise Domain
@@ -678,18 +678,18 @@ struct
            | (Block _) => raise Domain
            | (Undef) => raise Domain
              )
-      |  normalizePrg (PairExp (U, P'), t) =
+      | (PairExp (U, P'), t) -> 
           PairExp (Whnf.normalize (U, coerceSub t), normalizePrg (P', t))
-      | normalizePrg (PairBlock (B, P'), t) =
+      | (PairBlock (B, P'), t) -> 
           PairBlock (I.blockSub (B, coerceSub t), normalizePrg (P', t))
-      | normalizePrg (PairPrg (P1, P2), t) =
+      | (PairPrg (P1, P2), t) -> 
           PairPrg (normalizePrg (P1, t), normalizePrg (P2, t))
-      | normalizePrg (Unit, _) = Unit
-      | normalizePrg (EVar (_, ref (SOME P), _, _, _, _), t) = PClo(P, t)
-      | normalizePrg (P as EVar _, t) = PClo(P,t)
-      | normalizePrg (Lam (D, P), t) = Lam (normalizeDec (D, t), normalizePrg (P, dot1 t))
-      | normalizePrg (Rec (D, P), t) = Rec (normalizeDec (D, t), normalizePrg (P, dot1 t))
-      | normalizePrg (PClo (P, t), t') = normalizePrg (P, comp (t, t'))
+      | (Unit, _) -> Unit
+      | (EVar (_, ref (SOME P), _, _, _, _), t) -> PClo(P, t)
+      | (P as EVar _, t) -> PClo(P,t)
+      | (Lam (D, P), t) -> Lam (normalizeDec (D, t), normalizePrg (P, dot1 t))
+      | (Rec (D, P), t) -> Rec (normalizeDec (D, t), normalizePrg (P, dot1 t))
+      | (PClo (P, t), t') -> normalizePrg (P, comp (t, t'))
 
     and normalizeSpine (Nil, t) = Nil
       | normalizeSpine (AppExp (U, S), t) =
@@ -705,14 +705,14 @@ struct
           PDec (name, forSub (F, t), normalizeTCOpt (TCSubOpt (TC1, coerceSub t)), NONE)
       | normalizeDec (UDec D, t) = UDec (Whnf.normalizeDec (D, coerceSub t))
 
-    fun normalizeSub (s as Shift n) = s
-      | normalizeSub (Dot (Prg P, s)) =
+    let rec normalizeSub = function (s as Shift n) -> s
+      | (Dot (Prg P, s)) -> 
           Dot (Prg (normalizePrg (P, id)), normalizeSub s)
-      | normalizeSub (Dot (Exp E, s)) =
+      | (Dot (Exp E, s)) -> 
           Dot (Exp (Whnf.normalize (E, I.id)), normalizeSub s)
-      | normalizeSub (Dot (Block k, s)) =
+      | (Dot (Block k, s)) -> 
           Dot (Block k, normalizeSub s)
-      | normalizeSub (Dot (Idx k, s)) =
+      | (Dot (Idx k, s)) -> 
           Dot (Idx k, normalizeSub s)
 
     (* derefPrg (P, t) = (P', t')
@@ -730,24 +730,24 @@ struct
        and  Psi |- P [t] == P' [t'] : F [t]
        and  Psi |- P' [t'] :nf: F [t]
     *)
-    fun derefPrg (Var n) = Var n
-      | derefPrg (PairExp (U, P')) =
+    let rec derefPrg = function (Var n) -> Var n
+      | (PairExp (U, P')) -> 
           PairExp (U, derefPrg P')
-      | derefPrg (PairBlock (B, P')) =
+      | (PairBlock (B, P')) -> 
           PairBlock (B, derefPrg P')
-      | derefPrg (PairPrg (P1, P2)) =
+      | (PairPrg (P1, P2)) -> 
           PairPrg (derefPrg (P1), derefPrg (P2))
-      | derefPrg (Unit) = Unit
-      | derefPrg (EVar (_, ref (SOME P), _, _, _, _)) = P
-      | derefPrg (P as EVar _) = P
-      | derefPrg (Lam (D, P)) = Lam (derefDec D, derefPrg P)
-      | derefPrg (Rec (D, P)) = Rec (derefDec D, derefPrg P)
-      | derefPrg (Redex (P, S)) = Redex (derefPrg P, derefSpine S)
-      | derefPrg (Case (Cases Cs)) =
+      | (Unit) -> Unit
+      | (EVar (_, ref (SOME P), _, _, _, _)) -> P
+      | (P as EVar _) -> P
+      | (Lam (D, P)) -> Lam (derefDec D, derefPrg P)
+      | (Rec (D, P)) -> Rec (derefDec D, derefPrg P)
+      | (Redex (P, S)) -> Redex (derefPrg P, derefSpine S)
+      | (Case (Cases Cs)) -> 
           Case (Cases (flattenCases (map (fn (Psi, s, P) => (Psi, s, derefPrg P)) Cs)))
-      | derefPrg (Let (D, P1, P2)) = Let (derefDec D, derefPrg P1, derefPrg P2)
-      | derefPrg (LetPairExp (D1, D2, P1, P2)) = LetPairExp (D1, derefDec D2, derefPrg P1, derefPrg P2)
-      | derefPrg (LetUnit (P1, P2)) = LetUnit (derefPrg P1, derefPrg P2)
+      | (Let (D, P1, P2)) -> Let (derefDec D, derefPrg P1, derefPrg P2)
+      | (LetPairExp (D1, D2, P1, P2)) -> LetPairExp (D1, derefDec D2, derefPrg P1, derefPrg P2)
+      | (LetUnit (P1, P2)) -> LetUnit (derefPrg P1, derefPrg P2)
 
 
     and flattenCases ((Psi, s, Case (Cases L)) :: Cs) =

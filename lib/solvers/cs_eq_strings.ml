@@ -79,8 +79,8 @@ struct
 
     exception MyIntsynRep of Concat        (* Internal syntax representation of this module *)
 
-    fun extractConcat (MyIntsynRep concat) = concat
-      | extractConcat fe = raise (UnexpectedFgnExp fe)
+    let rec extractConcat = function (MyIntsynRep concat) -> concat
+      | fe -> raise (UnexpectedFgnExp fe)
 
     (* A concatenation is said to be normal if
          (a) it does not contain empty string atoms
@@ -94,11 +94,11 @@ struct
        If concat is normal
        G |- U : V and U is the Twelf syntax conversion of concat
     *)
-    fun toExp (Concat nil) = stringExp ""
-      | toExp (Concat [String str]) = stringExp str
-      | toExp (Concat [Exp (U, Shift(0))]) = U
-      | toExp (Concat [Exp Us]) = EClo Us
-      | toExp (Concat (A :: AL)) =
+    let rec toExp = function (Concat nil) -> stringExp ""
+      | (Concat [String str]) -> stringExp str
+      | (Concat [Exp (U, Shift(0))]) -> U
+      | (Concat [Exp Us]) -> EClo Us
+      | (Concat (A :: AL)) -> 
           concatExp (toExp (Concat [A]), toExp (Concat AL))
 
     (* catConcat (concat1, concat2) = concat3
@@ -109,9 +109,9 @@ struct
        then concat3 normal
        and  concat3 = concat1 ++ concat2
     *)
-    fun catConcat (Concat nil, concat2) = concat2
-      | catConcat (concat1, Concat nil) = concat1
-      | catConcat (Concat AL1, Concat AL2) =
+    let rec catConcat = function (Concat nil, concat2) -> concat2
+      | (concat1, Concat nil) -> concat1
+      | (Concat AL1, Concat AL2) -> 
           (case (List.rev AL1, AL2)
              of ((String str1) :: revAL1', (String str2) :: AL2') =>
                Concat ((List.rev revAL1') @ ((String (str1 ^ str2)) :: AL2'))
@@ -124,17 +124,17 @@ struct
        then concat is the representation of U[s] as concatenation of atoms
        and  concat is normal
     *)
-    fun fromExpW (Us as (FgnExp (cs, fe), _)) =
+    let rec fromExpW = function (Us as (FgnExp (cs, fe), _)) -> 
           if (cs = !myID)
           then normalize (extractConcat fe)
           else Concat [Exp Us]
-      | fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
+      | (Us as (Root (FgnConst (cs, conDec), _), _)) -> 
           if (cs = !myID)
           then (case fromString (conDecName (conDec))
                   of SOME(str) => if (str = "") then Concat nil
                                   else Concat [String str])
           else Concat [Exp Us]
-      | fromExpW Us =
+      | Us -> 
           Concat [Exp Us]
 
     (* fromExp (U, s) = concat
@@ -157,10 +157,10 @@ struct
     (* mapSum (f, A1 + ...) = f(A1) ++ ... *)
     fun mapConcat (f, Concat AL) =
           let
-            fun mapConcat' nil = nil
-              | mapConcat' ((Exp Us) :: AL) =
+            let rec mapConcat' = function nil -> nil
+              | ((Exp Us) :: AL) -> 
                   (Exp (f (EClo Us), id)) :: mapConcat' AL
-              | mapConcat' ((String str) :: AL) =
+              | ((String str) :: AL) -> 
                   (String str) :: mapConcat' AL
           in
             Concat (mapConcat' AL)
@@ -169,8 +169,8 @@ struct
     (* appConcat (f, A1 + ... ) = ()  and f(Ui) for Ai = Exp Ui *)
     fun appConcat (f, Concat AL) =
         let
-            fun appAtom (Exp Us) = f (EClo Us)
-              | appAtom (String _) = ()
+            let rec appAtom = function (Exp Us) -> f (EClo Us)
+              | (String _) -> ()
         in
             List.app appAtom AL
         end
@@ -219,12 +219,12 @@ struct
     *)
     fun sameConcat (Concat AL1, Concat AL2) =
           let
-            fun sameConcat' (nil, nil) = true
-              | sameConcat' ((String str1) :: AL1, (String str2) :: AL2) =
+            let rec sameConcat' = function (nil, nil) -> true
+              | ((String str1) :: AL1, (String str2) :: AL2) -> 
                   (str1 = str2) andalso sameConcat' (AL1, AL2)
-              | sameConcat' ((Exp Us1) :: AL1, (Exp Us2) :: AL2) =
+              | ((Exp Us1) :: AL1, (Exp Us2) :: AL2) -> 
                   sameExp(Us1, Us2) andalso sameConcat' (AL1, AL2)
-              | sameConcat' _ = false
+              | _ -> false
           in
             sameConcat' (AL1, AL2)
           end
@@ -303,11 +303,11 @@ struct
     (* toFgnUnify stringUnify = result
        where result is obtained translating stringUnify.
     *)
-    fun toFgnUnify (MultAssign L) =
+    let rec toFgnUnify = function (MultAssign L) -> 
           IntSyn.Succeed (List.map (fun GXUss -> Assign GXUss) L)
-      | toFgnUnify (MultDelay (UL, cnstr)) =
+      | (MultDelay (UL, cnstr)) -> 
           IntSyn.Succeed (List.map (fun U -> Delay (U, cnstr)) UL)
-      | toFgnUnify (Failure) = Fail
+      | (Failure) -> Fail
 
     (* unifyRigid (G, concat1, concat2) = stringUnify
 
@@ -321,8 +321,8 @@ struct
     *)
     and unifyRigid (G, Concat AL1, Concat AL2) =
           let
-            fun unifyRigid' (nil, nil) = MultAssign nil
-              | unifyRigid' ((String str1) :: AL1, (String str2) :: AL2) =
+            let rec unifyRigid' = function (nil, nil) -> MultAssign nil
+              | ((String str1) :: AL1, (String str2) :: AL2) -> 
                   if (str1 = str2) then unifyRigid' (AL1, AL2)
                   else Failure
                 (* FIX: the next two cases are wrong -kw *)
@@ -360,7 +360,7 @@ struct
                   if (sameExpW (Us1, Us2))
                   then unifyRigid' (AL1, AL2)
                   else Failure
-              | unifyRigid' _ = Failure
+              | _ -> Failure
           in
             unifyRigid' (AL1, AL2)
           end
@@ -377,7 +377,7 @@ struct
             else stringUnify = MultDelay [U1, ..., Un] cnstr
                    where U1, ..., Un are expression to be delayed on cnstr
     *)
-    fun unifyString (G, Concat (String prefix :: AL), str, cnstr) =
+    let rec unifyString = function (G, Concat (String prefix :: AL), str, cnstr) -> 
           if (String.isPrefix prefix str)
           then
             let
@@ -386,7 +386,7 @@ struct
               unifyString (G, Concat AL, suffix, cnstr)
             end
           else Failure
-      | unifyString (G, Concat AL, str, cnstr) =
+      | (G, Concat AL, str, cnstr) -> 
           let
             fun unifyString' (AL, nil) =
                   (Failure, nil)
@@ -537,8 +537,8 @@ struct
        if fe is (MyIntsynRep concat) and concat : normal
        then U is the Twelf syntax conversion of concat
     *)
-    fun toInternal (MyIntsynRep concat) () = toExp (normalize concat)
-      | toInternal fe () = raise (UnexpectedFgnExp fe)
+    let rec toInternal = function (MyIntsynRep concat) () -> toExp (normalize concat)
+      | fe () -> raise (UnexpectedFgnExp fe)
 
     (* map (fe) f = U'
 
@@ -551,8 +551,8 @@ struct
        then
          U' is a foreign expression representing concat'
     *)
-    fun map (MyIntsynRep concat) f = toFgn (normalize (mapConcat (f,concat)))
-      | map fe _ = raise (UnexpectedFgnExp fe)
+    let rec map = function (MyIntsynRep concat) f -> toFgn (normalize (mapConcat (f,concat)))
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
     (* app (fe) f = ()
 
@@ -564,18 +564,18 @@ struct
        then f is applied to each Usi
        (since concat : normal, each Usij is in whnf)
     *)
-    fun app (MyIntsynRep concat) f = appConcat (f, concat)
-      | app fe _ = raise (UnexpectedFgnExp fe)
+    let rec app = function (MyIntsynRep concat) f -> appConcat (f, concat)
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
-    fun equalTo (MyIntsynRep concat) U2 =
+    let rec equalTo = function (MyIntsynRep concat) U2 -> 
         sameConcat (normalize (concat),
                     fromExp (U2, id))
-      | equalTo fe _ = raise (UnexpectedFgnExp fe)
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
-    fun unifyWith (MyIntsynRep concat) (G, U2) =
+    let rec unifyWith = function (MyIntsynRep concat) (G, U2) -> 
         toFgnUnify (unifyConcat (G, normalize (concat),
                                  fromExp (U2, id)))
-      | unifyWith fe _ = raise (UnexpectedFgnExp fe)
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
         let csid = !myID
@@ -590,21 +590,21 @@ struct
 
     fun makeFgn (arity, opExp) (S) =
           let
-            fun makeParams 0 = Nil
-              | makeParams n =
+            let rec makeParams = function 0 -> Nil
+              | n -> 
                   App (Root(BVar (n), Nil), makeParams (n-1))
-            fun makeLam E 0 = E
-              | makeLam E n =
+            let rec makeLam = function E 0 -> E
+              | E n -> 
                   Lam (Dec (NONE, string()), makeLam E (n-1))
-            fun expand ((Nil, s), arity) =
+            let rec expand = function ((Nil, s), arity) -> 
                   (makeParams arity, arity)
-              | expand ((App (U, S), s), arity) =
+              | ((App (U, S), s), arity) -> 
                   let
                     let (S', arity') = expand ((S, s), arity-1)
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
-              | expand ((SClo (S, s'), s), arity) =
+              | ((SClo (S, s'), s), arity) -> 
                   expand ((S, comp (s, s')), arity)
             let (S', arity') = expand ((S, id), arity)
           in

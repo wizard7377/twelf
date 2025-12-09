@@ -86,32 +86,32 @@ struct
     module L = Lexer
     module LS = Lexer.Stream
 
-    fun stripDot (LS.Cons((L.DOT, r), s)) = s
-      | stripDot (LS.Cons((L.RPAREN, r), s)) =
+    let rec stripDot = function (LS.Cons((L.DOT, r), s)) -> s
+      | (LS.Cons((L.RPAREN, r), s)) -> 
           Parsing.error (r, "Unexpected right parenthesis")
-      | stripDot (LS.Cons((L.RBRACE, r), s)) =
+      | (LS.Cons((L.RBRACE, r), s)) -> 
           Parsing.error (r, "Unexpected right brace")
-      | stripDot (LS.Cons((L.RBRACKET, r), s)) =
+      | (LS.Cons((L.RBRACKET, r), s)) -> 
           Parsing.error (r, "Unexpected right bracket")
-      | stripDot (LS.Cons ((L.EOF, r), s)) =
+      | (LS.Cons ((L.EOF, r), s)) -> 
           Parsing.error (r, "Unexpected end of file")
-      | stripDot (LS.Cons ((L.EQUAL, r), s)) =
+      | (LS.Cons ((L.EQUAL, r), s)) -> 
           Parsing.error (r, "Unexpected `='")
-      | stripDot (LS.Cons ((t, r), s)) =
+      | (LS.Cons ((t, r), s)) -> 
           Parsing.error (r, "Expected `.', found " ^ L.toString t)
       (* Everything else should be impossible *)
 
     (*
-    fun stripOptionalDot (LS.Cons ((L.DOT,r), s)) = s
-      | stripOptionalDot f = LS.delay (fn () => f)
+    let rec stripOptionalDot = function (LS.Cons ((L.DOT,r), s)) -> s
+      | f -> LS.delay (fn () => f)
     *)
 
-    fun parseBound' (LS.Cons ((L.ID (_, "*"), r), s')) = (NONE, s')
-      | parseBound' (LS.Cons ((L.ID (_, name), r), s')) =
+    let rec parseBound' = function (LS.Cons ((L.ID (_, "*"), r), s')) -> (NONE, s')
+      | (LS.Cons ((L.ID (_, name), r), s')) -> 
         ((SOME (L.stringToNat (name)), s')
          handle Overflow => Parsing.error (r, "Bound too large")
               | L.NotDigit _ => Parsing.error (r, "Bound `" ^ name ^ "' neither `*' nor a natural number"))
-      | parseBound' (LS.Cons ((t,r), s')) =
+      | (LS.Cons ((t,r), s')) -> 
           Parsing.error (r, "Expected bound `*' or natural number, found "
                             ^ L.toString t)
 
@@ -124,9 +124,9 @@ struct
            of (Parsing.Done x, f') => sc (x, f')
             | (Parsing.Continuation k, LS.Cons ((L.LBRACE, r1), s')) =>
               let
-                fun finish (LS.Cons ((L.RBRACE, r2), s'')) =
+                let rec finish = function (LS.Cons ((L.RBRACE, r2), s'')) -> 
                       Stream.Cons ((EndSubsig, r2), recParse (s'', k, theSigParser, sc))
-                  | finish (LS.Cons ((t, r), _)) =
+                  | (LS.Cons ((t, r), _)) -> 
                       Parsing.error (r, "Expected `}', found " ^ L.toString t)
               in
                 Stream.Cons ((BeginSubsig, r1), theSigParser (s', finish))
@@ -360,9 +360,9 @@ struct
 
     and parseTrustMe' (f as LS.Cons ((_, r0), s), sc) =
         let
-          fun parseNextDec' (Stream.Cons((dec,r),s')) =
+          let rec parseNextDec' = function (Stream.Cons((dec,r),s')) -> 
                  Stream.Cons ((TrustMe(dec,r),r0),s')
-            | parseNextDec' (Stream.Empty) =
+            | (Stream.Empty) -> 
                  Parsing.error (r0, "No declaration after `%trustme'")
         in
           parseNextDec' (parseStream' (LS.expose s, sc))
@@ -471,8 +471,8 @@ struct
 
     fun parseTLStream instream =
         let
-          fun finish (LS.Cons ((L.EOF, r), s)) = Stream.Empty
-            | finish (LS.Cons ((L.RBRACE, r), s)) =
+          let rec finish = function (LS.Cons ((L.EOF, r), s)) -> Stream.Empty
+            | (LS.Cons ((L.RBRACE, r), s)) -> 
                 Parsing.error (r, "Unmatched `}'")
         in
           parseStream (L.lexStream instream, finish)

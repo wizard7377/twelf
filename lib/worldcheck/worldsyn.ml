@@ -141,8 +141,8 @@ struct
        and  G' is a context
        then G |- s : G'
     *)
-    fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
-      | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
+    let rec createEVarSub = function (G, I.Null) -> I.Shift (I.ctxLength G)
+      | (G, I.Decl(G', D as I.Dec (_, V))) -> 
         let
           let s = createEVarSub (G, G')
           let V' = I.EClo (V, s)
@@ -157,10 +157,10 @@ struct
 
        try simplifying away the constraints in case they are "hard"
     *)
-    fun collectConstraints (nil) = nil
-      | collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
+    let rec collectConstraints = function (nil) -> nil
+      | (I.EVar (_, _, _, ref nil)::Xs) -> 
           collectConstraints Xs
-      | collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
+      | (I.EVar (_, _, _, ref constrs)::Xs) -> 
           (* constrs <> nil *)
           Constraints.simplify constrs @ collectConstraints Xs
 
@@ -168,9 +168,9 @@ struct
        adds all uninstantiated EVars from s to Xs to obtain Xs'
        Invariant: s is EVar substitutions
     *)
-    fun collectEVars (G, I.Dot (I.Exp X, s), Xs) =
+    let rec collectEVars = function (G, I.Dot (I.Exp X, s), Xs) -> 
            collectEVars (G, s, Abstract.collectEVars (G, (X, I.id), Xs))
-      | collectEVars (G, I.Shift _, Xs) = Xs
+      | (G, I.Shift _, Xs) -> Xs
       (* other cases impossible by invariants since s is EVarSubst *)
 
     (* noConstraints (G, s) = true iff there are no remaining constraints in s
@@ -191,14 +191,14 @@ struct
           F.Hbox (F.String "{" :: Print.formatDec (G, D) :: F.String "}" :: nil)
 
     (* Declaration lists *)
-    fun formatDList (G, nil, t) = nil
-      | formatDList (G, D :: nil, t) =
+    let rec formatDList = function (G, nil, t) -> nil
+      | (G, D :: nil, t) -> 
         let
           let D' = I.decSub (D, t)
         in
           formatD (G, D') :: nil (* Names.decUName (G, I.decSub(D, t)) *)
         end
-      | formatDList (G, D :: L, t) =
+      | (G, D :: L, t) -> 
         let
           let D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
         in
@@ -207,8 +207,8 @@ struct
         end
 
     (*
-    fun hypsToDList (I.Root _) = nil
-      | hypsToDList (I.Pi ((D, _), V)) =
+    let rec hypsToDList = function (I.Root _) -> nil
+      | (I.Pi ((D, _), V)) -> 
           D::hypsToDList V
     *)
 
@@ -282,15 +282,15 @@ struct
     (* Matching hypotheses against worlds *)
     (**************************************)
 
-    fun subGoalToDList (I.Pi ((D, _), V)) = D::subGoalToDList(V)
-      | subGoalToDList (I.Root _) = nil
+    let rec subGoalToDList = function (I.Pi ((D, _), V)) -> D::subGoalToDList(V)
+      | (I.Root _) -> nil
 
     (* worldsToReg (Worlds [c1,...,cn]) = R
        W = R, except that R is a regular expression
        with non-empty contextblocks as leaves
     *)
-    fun worldsToReg (T.Worlds nil) = One
-      | worldsToReg (T.Worlds cids) = Star (worldsToReg' cids)
+    let rec worldsToReg = function (T.Worlds nil) -> One
+      | (T.Worlds cids) -> Star (worldsToReg' cids)
     and worldsToReg' (cid::nil) = Block (I.constBlock cid)
       | worldsToReg' (cid::cids) =
           Plus (Block (I.constBlock cid), worldsToReg' cids)
@@ -302,8 +302,8 @@ struct
 
        Invariant: G |- L dlist, L nf
     *)
-    fun init b (_, nil) = ( Trace.success () ; raise Success)
-      | init b (G, L as (D1 as I.Dec (_, V1))::L2) =
+    let rec init = function b (_, nil) -> ( Trace.success () ; raise Success)
+      | b (G, L as (D1 as I.Dec (_, V1))::L2) -> 
         if Subordinate.belowEq (I.targetFam V1, b)
           then ( Trace.unmatched (G, L) ; () )
         else init b (decUName (G, D1), L2)
@@ -316,8 +316,8 @@ struct
                   R regular world expression
        trails at choice points to undo EVar instantiations during matching
     *)
-    fun accR (GL, One, b, k) = k GL
-      | accR (GL as (G, L), Block (someDecs, piDecs), b, k) =
+    let rec accR = function (GL, One, b, k) -> k GL
+      | (GL as (G, L), Block (someDecs, piDecs), b, k) -> 
         let
           let t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
           let _ = Trace.matchBlock (GL, Seq (piDecs, t))
@@ -339,14 +339,14 @@ struct
                accR ((decUName (G, D), L2), Seq (B', I.comp(t, I.shift)), b, k)
                (* fixed bug in previous line; was: t instead of t o ^ *)
                (* Mon May 7 2007 -fp *)
-      | accR (GL, Seq (nil, t), b, k) = k GL
-      | accR (GL as (G, nil), R as Seq (L', t), b, k) =
+      | (GL, Seq (nil, t), b, k) -> k GL
+      | (GL as (G, nil), R as Seq (L', t), b, k) -> 
           ( Trace.missing (G, R); () )  (* L is missing *)
-      | accR (GL, Plus (r1, r2), b, k) =
+      | (GL, Plus (r1, r2), b, k) -> 
           ( CSManager.trail (fn () => accR (GL, r1, b, k)) ;
             accR (GL, r2, b, k) )
-      | accR (GL, Star (One), b, k) = k GL (* only possibility for non-termination in next rule *)
-      | accR (GL, r as Star(r'), b, k) = (* r' does not accept empty declaration list *)
+      | (GL, Star (One), b, k) -> k GL (* only possibility for non-termination in next rule *)
+      | (GL, r as Star(r'), b, k) -> (* r' does not accept empty declaration list *)
           ( CSManager.trail (fn () => k GL) ;
             accR (GL, r', b, fn GL' => accR (GL', r, b, k)))
 
@@ -367,8 +367,8 @@ struct
 
        Invariants: Rb = reg (worlds (b))
     *)
-    fun checkSubsumedWorlds (nil, Rb, b) = ()
-      | checkSubsumedWorlds (cid::cids, Rb, b) =
+    let rec checkSubsumedWorlds = function (nil, Rb, b) -> ()
+      | (cid::cids, Rb, b) -> 
         let
           let (someDecs, piDecs) = I.constBlock cid
         in
@@ -410,11 +410,11 @@ struct
        Invariant: G |- V : type, V nf
        occ is occurrence of V in current clause
      *)
-     fun checkClause (G, I.Root (a, S), W, occ) = ()
-       | checkClause (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), W, occ) =
+     let rec checkClause = function (G, I.Root (a, S), W, occ) -> ()
+       | (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), W, occ) -> 
          (checkClause (decEName (G, D), V2, W, P.body occ);
           checkGoal (G, V1, W, P.label occ))
-       | checkClause (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), W, occ) =
+       | (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), W, occ) -> 
          (checkBlocks W (G, V1, P.label occ);
           checkClause (decEName (G, D), V2, W, P.body occ);
           checkGoal (G, V1, W, P.label occ))
@@ -442,8 +442,8 @@ struct
                     then print ("World checking family " ^ Names.qidToString (Names.constQid a) ^ ":\n")
                   else ()
           let _ = subsumedReset ()      (* initialize table of subsumed families *)
-          fun checkAll nil = ()
-            | checkAll (I.Const(c) :: clist) =
+          let rec checkAll = function nil -> ()
+            | (I.Const(c) :: clist) -> 
               (if !Global.chatter = 4
                  then print (Names.qidToString (Names.constQid c) ^ " ")
                else ();
@@ -451,7 +451,7 @@ struct
                checkClause (I.Null, I.constType c, W, P.top)
                  handle Error' (occ, msg) => raise Error (wrapMsg (c, occ, msg));
                checkAll clist)
-            | checkAll (I.Def(d) :: clist) =
+            | (I.Def(d) :: clist) -> 
               (if !Global.chatter = 4
                  then print (Names.qidToString (Names.constQid d) ^ " ")
                else ();
@@ -474,8 +474,8 @@ struct
        current subordination relation in order to guarantee
        soundness.
     *)
-    fun ctxAppend (G, I.Null) = G
-      | ctxAppend (G, I.Decl(G',D)) =
+    let rec ctxAppend = function (G, I.Null) -> G
+      | (G, I.Decl(G',D)) -> 
           I.Decl (ctxAppend (G, G'), D)
 
     (* checkSubordBlock (G, G', L') = ()
@@ -494,8 +494,8 @@ struct
        if condec is a block declaration
        raise Error (msg) otherwise
     *)
-    fun conDecBlock (I.BlockDec (_, _, Gsome, Lpi)) = (Gsome, Lpi)
-      | conDecBlock condec =
+    let rec conDecBlock = function (I.BlockDec (_, _, Gsome, Lpi)) -> (Gsome, Lpi)
+      | condec -> 
         raise Error ("Identifier " ^ I.conDecName condec
                      ^ " is not a block label")
 
@@ -509,8 +509,8 @@ struct
        Effect: raises Error(msg) if subordination is not respected
                in some context block in W
     *)
-    fun checkSubordWorlds (nil) = ()
-      | checkSubordWorlds (cid::cids) =
+    let rec checkSubordWorlds = function (nil) -> ()
+      | (cid::cids) -> 
         let
           let (someDecs, piDecs) = constBlock cid
         in
@@ -543,8 +543,8 @@ struct
     *)
     fun ctxToList (Gin) =
         let
-          fun ctxToList' (I.Null, G ) = G
-            | ctxToList' (I.Decl (G, D), G') =
+          let rec ctxToList' = function (I.Null, G ) -> G
+            | (I.Decl (G, D), G') -> 
             ctxToList' (G, D :: G')
         in
           ctxToList' (Gin, nil)

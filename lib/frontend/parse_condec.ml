@@ -25,71 +25,71 @@ struct
         end
 
     (* parseConDec2  "= U" | "" *)
-    fun parseConDec2 (optName, (tm, LS.Cons((L.EQUAL, r), s'))) =
+    let rec parseConDec2 = function (optName, (tm, LS.Cons((L.EQUAL, r), s'))) -> 
           parseConDec3 (optName, SOME(tm), s')
-      | parseConDec2 (SOME(name), (tm, f)) =
+      | (SOME(name), (tm, f)) -> 
           (ExtConDec.condec (name, tm), f)
-      | parseConDec2 (NONE, (tm, LS.Cons((t,r),s'))) =
+      | (NONE, (tm, LS.Cons((t,r),s'))) -> 
           Parsing.error (r, "Illegal anonymous declared constant")
 
     (* parseConDec1  ": V = U" | "= U" *)
-    fun parseConDec1 (optName, LS.Cons ((L.COLON, r), s')) =
+    let rec parseConDec1 = function (optName, LS.Cons ((L.COLON, r), s')) -> 
           parseConDec2 (optName, ParseTerm.parseTerm' (LS.expose s'))
-      | parseConDec1 (optName, LS.Cons ((L.EQUAL, r), s')) =
+      | (optName, LS.Cons ((L.EQUAL, r), s')) -> 
           parseConDec3 (optName, NONE, s')
-      | parseConDec1 (optName, LS.Cons ((t,r), s')) =
+      | (optName, LS.Cons ((t,r), s')) -> 
           Parsing.error (r, "Expected `:' or `=', found " ^ L.toString t)
 
 
    (* BlockDec parser *)
 
 
-    fun parseBlock (LS.Cons ((L.ID (_, "block"), r), s')) =
+    let rec parseBlock = function (LS.Cons ((L.ID (_, "block"), r), s')) -> 
           ParseTerm.parseCtx' (LS.expose s')
-      | parseBlock (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `block', found " ^ L.toString t)
 
-    fun parseSome (name, LS.Cons ((L.ID (_, "some"), r), s')) =
+    let rec parseSome = function (name, LS.Cons ((L.ID (_, "some"), r), s')) -> 
         let
           let (g1, f') = ParseTerm.parseCtx' (LS.expose s')
           let (g2, f'') = parseBlock f'
         in
           (ExtConDec.blockdec (name, g1, g2), f'')
         end
-      | parseSome (name, f as LS.Cons ((L.ID (_, "block"), r), s')) =
+      | (name, f as LS.Cons ((L.ID (_, "block"), r), s')) -> 
         let
           let (g2, f') = parseBlock f
         in
           (ExtConDec.blockdec (name, nil, g2), f')
         end
-      | parseSome (name, LS.Cons ((t, r), s')) =
+      | (name, LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `some' or `block', found " ^ L.toString t)
 
-    fun parseBlockDec1 (name, LS.Cons ((L.COLON, r), s')) =
+    let rec parseBlockDec1 = function (name, LS.Cons ((L.COLON, r), s')) -> 
           parseSome (name, LS.expose s')
-      | parseBlockDec1 (name, LS.Cons ((L.EQUAL, r), s')) =
+      | (name, LS.Cons ((L.EQUAL, r), s')) -> 
           let let (g, f) = ParseTerm.parseQualIds' (LS.expose s')
           in (ExtConDec.blockdef (name, g), f)
           end
-      | parseBlockDec1 (name, LS.Cons ((t, r), s')) =
+      | (name, LS.Cons ((t, r), s')) -> 
 (* added as a feature request by Carl  -- Wed Mar 16 16:11:44 2011  cs *)
           Parsing.error (r, "`:' expected, found token " ^ L.toString t)
 
-    fun parseBlockDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
+    let rec parseBlockDec' = function (LS.Cons ((L.ID (idCase,name), r), s')) -> 
           parseBlockDec1 (name, LS.expose s')
-      | parseBlockDec' (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Label identifier expected, found token " ^ L.toString t)
 
     (* parseConDec' : lexResult front -> ExtConDec.ConDec * lexResult front
        Invariant: first token in exposed input stream is an identifier or underscore
     *)
-    fun parseConDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
+    let rec parseConDec' = function (LS.Cons ((L.ID (idCase,name), r), s')) -> 
           parseConDec1 (SOME(name), LS.expose s')
-      | parseConDec' (LS.Cons ((L.UNDERSCORE, r), s')) =
+      | (LS.Cons ((L.UNDERSCORE, r), s')) -> 
           parseConDec1 (NONE, LS.expose s')
-      | parseConDec' (LS.Cons ((L.BLOCK, r), s')) =
+      | (LS.Cons ((L.BLOCK, r), s')) -> 
           parseBlockDec' (LS.expose s')
-      | parseConDec' (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Constant or block declaration expected, found token " ^ L.toString t)
 
 

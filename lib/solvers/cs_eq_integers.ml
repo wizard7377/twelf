@@ -43,8 +43,8 @@ struct
 
     exception MyIntsynRep of sum
 
-    fun extractSum (MyIntsynRep sum) = sum
-      | extractSum fe = raise (UnexpectedFgnExp fe)
+    let rec extractSum = function (MyIntsynRep sum) -> sum
+      | fe -> raise (UnexpectedFgnExp fe)
 
     let zero = fromInt 0
     let one  = fromInt 1
@@ -94,8 +94,8 @@ struct
     *)
     fun findMSet eq (x, L) =
           let
-            fun findMSet' (tried, nil) = NONE
-              | findMSet' (tried, y :: L) =
+            let rec findMSet' = function (tried, nil) -> NONE
+              | (tried, y :: L) -> 
                   if eq(x, y) then SOME(y, tried @ L)
                   else findMSet' (y :: tried, L)
           in
@@ -105,12 +105,12 @@ struct
     (* equalMset eq (L, L') = true iff L ~ L' (multiset equality) *)
     fun equalMSet eq =
           let
-              fun equalMSet' (nil, nil) = true
-                | equalMSet' (x :: L1', L2) =
+              let rec equalMSet' = function (nil, nil) -> true
+                | (x :: L1', L2) -> 
                     (case (findMSet eq (x, L2))
                        of SOME (y, L2') => (equalMSet' (L1', L2'))
                         | NONE => false)
-                | equalMSet' _ = false
+                | _ -> false
             in
               equalMSet'
             end
@@ -121,11 +121,11 @@ struct
        If sum is normal
        G |- U : V and U is the Twelf syntax conversion of sum
     *)
-    fun toExp (sum (m, nil)) = numberExp m
-      | toExp (sum (m, [mon])) =
+    let rec toExp = function (sum (m, nil)) -> numberExp m
+      | (sum (m, [mon])) -> 
           if (m = zero) then toExpMon mon
           else plusExp (toExp (sum (m, nil)), toExpMon mon)
-      | toExp (sum (m, monLL as (mon :: monL))) =
+      | (sum (m, monLL as (mon :: monL))) -> 
           plusExp (toExp (sum (m, monL)), toExpMon mon)
 
     (* toExpMon mon = U
@@ -222,11 +222,11 @@ struct
        then sum3 normal
        and  sum3 = sum1 + sum2
     *)
-    fun plusSum (sum (m1, nil), sum (m2, monL2)) =
+    let rec plusSum = function (sum (m1, nil), sum (m2, monL2)) -> 
           sum (m1 + m2, monL2)
-      | plusSum (sum (m1, monL1), sum (m2, nil)) =
+      | (sum (m1, monL1), sum (m2, nil)) -> 
           sum (m1 + m2, monL1)
-      | plusSum (sum (m1, mon1 :: monL1), sum (m2, monL2)) =
+      | (sum (m1, mon1 :: monL1), sum (m2, monL2)) -> 
           plusSumMon (plusSum (sum (m1, monL1), sum (m2, monL2)), mon1)
 
     (* plusSumMon (sum1, mon2) = sum3
@@ -258,11 +258,11 @@ struct
        then sum3 normal
        and  sum3 = sum1 * sum2
     *)
-    fun timesSum (sum (m1, nil), sum (m2, nil)) =
+    let rec timesSum = function (sum (m1, nil), sum (m2, nil)) -> 
           sum (m1 * m2, nil)
-      | timesSum (sum (m1, mon1 :: monL1), sum2) =
+      | (sum (m1, mon1 :: monL1), sum2) -> 
           plusSum (timesSumMon (sum2, mon1), timesSum (sum (m1, monL1), sum2))
-      | timesSum (sum1, sum (m2, mon2 :: monL2)) =
+      | (sum1, sum (m2, mon2 :: monL2)) -> 
           plusSum (timesSumMon (sum1, mon2), timesSum (sum1, sum (m2, monL2)))
 
     (* timesSumMon (sum1, mon2) = sum3
@@ -317,16 +317,16 @@ struct
        then sum is the internal representation of U[s] as sum of monomials
        and sum is normal
     *)
-    fun fromExpW (Us as (FgnExp (cs, fe), _)) =
+    let rec fromExpW = function (Us as (FgnExp (cs, fe), _)) -> 
           if (cs = !myID)
           then normalizeSum (extractSum fe)
           else sum (zero, [Mon (one, [Us])])
-      | fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
+      | (Us as (Root (FgnConst (cs, conDec), _), _)) -> 
           if (cs = !myID)
           then (case (fromString (conDecName (conDec)))
                   of SOME(m) => sum (m, nil))
           else sum (zero, [Mon (one, [Us])])
-      | fromExpW Us =
+      | Us -> 
           sum (zero, [Mon (one, [Us])])
 
     (* fromExp (U, s) = sum
@@ -373,9 +373,9 @@ struct
     *)
     fun solvableSum (sum(m, monL)) =
           let
-            fun gcd_list (n1 :: nil) = n1
-              | gcd_list (n1 :: n2 :: nil) = gcd(n1, n2)
-              | gcd_list (n1 :: n2 :: l) = gcd (gcd (n1, n2), gcd_list l)
+            let rec gcd_list = function (n1 :: nil) -> n1
+              | (n1 :: n2 :: nil) -> gcd(n1, n2)
+              | (n1 :: n2 :: l) -> gcd (gcd (n1, n2), gcd_list l)
             let coeffL = List.map (fn Mon(n, _) => n) monL
             let g = gcd_list coeffL
           in
@@ -388,8 +388,8 @@ struct
     *)
     fun findMon f (G, sum(m, monL)) =
           let
-            fun findMon' (nil, monL2) = NONE
-              | findMon' (mon :: monL1, monL2) =
+            let rec findMon' = function (nil, monL2) -> NONE
+              | (mon :: monL1, monL2) -> 
                   (case (f (G, mon, sum(m, monL1 @ monL2)))
                      of (result as SOME _) => result
                       | NONE => findMon' (monL1, mon :: monL2))
@@ -439,7 +439,7 @@ struct
           else [delaySum (G, sum)]
       | solveSum (G, sum) =
           let
-            fun invertMon (G, mon as Mon (n, [(EVar (r, _, _, _), s)]), sum) =
+            let rec invertMon = function (G, mon as Mon (n, [(EVar (r, _, _, _), s)]), sum) -> 
                   if Whnf.isPatSub s
                   then
                     let
@@ -451,7 +451,7 @@ struct
                       else NONE
                     end
                   else NONE
-              | invertMon (G, mon, sum) = NONE
+              | (G, mon, sum) -> NONE
           in
             case findMon invertMon (G, sum)
               of SOME (Mon(n1, [(X1, s1)]), ss1, sum1) =>
@@ -524,8 +524,8 @@ struct
        if fe is (MyIntsynRep sum) and sum : normal
        then U is the Twelf syntax conversion of sum
     *)
-    fun toInternal (MyIntsynRep sum) () = toExp (normalizeSum sum)
-      | toInternal fe () = raise (UnexpectedFgnExp fe)
+    let rec toInternal = function (MyIntsynRep sum) () -> toExp (normalizeSum sum)
+      | fe () -> raise (UnexpectedFgnExp fe)
 
     (* map (fe) f = U'
 
@@ -539,8 +539,8 @@ struct
        then
          U' is a foreign expression representing sum'
     *)
-    fun map (MyIntsynRep sum) f = toFgn (normalizeSum (mapSum (f,sum)))
-      | map fe _ = raise (UnexpectedFgnExp fe)
+    let rec map = function (MyIntsynRep sum) f -> toFgn (normalizeSum (mapSum (f,sum)))
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
     (* app (fe) f = ()
 
@@ -552,19 +552,19 @@ struct
        then f is applied to each Usij
          (since sum : normal, each Usij is in whnf)
     *)
-    fun app (MyIntsynRep sum) f = appSum (f, sum)
-      | app fe _ = raise (UnexpectedFgnExp fe)
+    let rec app = function (MyIntsynRep sum) f -> appSum (f, sum)
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
-    fun equalTo (MyIntsynRep sum) U2 =
+    let rec equalTo = function (MyIntsynRep sum) U2 -> 
         (case minusSum (normalizeSum (sum),
                        (fromExp (U2, id)))
          of sum(m, nil) => (m = zero)
           | _ => false)
-      | equalTo fe _ = raise (UnexpectedFgnExp fe)
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
-    fun unifyWith (MyIntsynRep sum) (G, U2) =
+    let rec unifyWith = function (MyIntsynRep sum) (G, U2) -> 
         unifySum (G, normalizeSum sum, (fromExp (U2, id)))
-      | unifyWith fe _ = raise (UnexpectedFgnExp fe)
+      | fe _ -> raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
         let csid = !myID
@@ -579,21 +579,21 @@ struct
 
     fun makeFgn (arity, opExp) (S) =
           let
-            fun makeParams 0 = Nil
-              | makeParams n =
+            let rec makeParams = function 0 -> Nil
+              | n -> 
                   App (Root(BVar (n), Nil), makeParams (Int.-(n,1)))
-            fun makeLam E 0 = E
-              | makeLam E n =
+            let rec makeLam = function E 0 -> E
+              | E n -> 
                   Lam (Dec (NONE, number()), makeLam E (Int.-(n,1)))
-            fun expand ((Nil, s), arity) =
+            let rec expand = function ((Nil, s), arity) -> 
                   (makeParams arity, arity)
-              | expand ((App (U, S), s), arity) =
+              | ((App (U, S), s), arity) -> 
                   let
                     let (S', arity') = expand ((S, s), (Int.-(arity,1)))
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
-              | expand ((SClo (S, s'), s), arity) =
+              | ((SClo (S, s'), s), arity) -> 
                   expand ((S, comp (s', s)), arity)
             let (S', arity') = expand ((S, id), arity)
           in

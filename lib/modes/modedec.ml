@@ -59,8 +59,8 @@ struct
        If mS contains two entries with the same name
        then Error is raised
     *)
-    fun checkName (M.Mnil) = ()
-      | checkName (M.Mapp (M.Marg (_, SOME name), mS)) =
+    let rec checkName = function (M.Mnil) -> ()
+      | (M.Mapp (M.Marg (_, SOME name), mS)) -> 
         let
           fun checkName' (M.Mnil) = ()
             | checkName' (M.Mapp (M.Marg (_, SOME name'), mS)) =
@@ -84,13 +84,13 @@ struct
        The entries y,n constitute a bug fix, Wed Aug 20 11:50:27 2003 -fp
        The entry n specifies that the type
     *)
-    fun modeConsistent (M.Star, M.Plus) = false    (* m1 should be M.Plus *)
-      | modeConsistent (M.Star, M.Minus) = false   (* m1 should be M.Minus *)
-      | modeConsistent (M.Star, M.Minus1) = false  (* m1 should be M.Minus1 *)
-      | modeConsistent (M.Minus, M.Plus) = false   (* m1 should be M.Plus *)
-      | modeConsistent (M.Minus, M.Minus1) = false (* m1 should be M.Minus1 *)
-      | modeConsistent (M.Minus1, M.Plus) = false  (* m1 should be M.Plus *)
-      | modeConsistent _ = true
+    let rec modeConsistent = function (M.Star, M.Plus) -> false    (* m1 should be M.Plus *)
+      | (M.Star, M.Minus) -> false   (* m1 should be M.Minus *)
+      | (M.Star, M.Minus1) -> false  (* m1 should be M.Minus1 *)
+      | (M.Minus, M.Plus) -> false   (* m1 should be M.Plus *)
+      | (M.Minus, M.Minus1) -> false (* m1 should be M.Minus1 *)
+      | (M.Minus1, M.Plus) -> false  (* m1 should be M.Plus *)
+      | _ -> true
 
     (* empty (k, ms, V) = (ms', V')
 
@@ -100,8 +100,8 @@ struct
        then  ms' = ms, <( *, NONE), Implicit>  ... <( *, NONE), Implicit>   (k times)
        and   V' = V1
     *)
-    fun empty (0, ms, V) = (ms, V)
-      | empty (k, ms, I.Pi (_, V)) =
+    let rec empty = function (0, ms, V) -> (ms, V)
+      | (k, ms, I.Pi (_, V)) -> 
           empty (k-1, I.Decl (ms, (M.Marg (M.Star, NONE), Implicit)), V)
 
 
@@ -124,20 +124,20 @@ struct
         Effect: if the mode mk for k was explicitly declared and inconsistent
                 with m o mk, an error is raised
     *)
-    fun inferVar (I.Decl (ms, (M.Marg (M.Star, nameOpt), Implicit)), mode, 1) =
+    let rec inferVar = function (I.Decl (ms, (M.Marg (M.Star, nameOpt), Implicit)), mode, 1) -> 
           I.Decl (ms, (M.Marg (mode, nameOpt), Implicit))
-      | inferVar (I.Decl (ms, (M.Marg (_, nameOpt), Implicit)), M.Plus, 1) =
+      | (I.Decl (ms, (M.Marg (_, nameOpt), Implicit)), M.Plus, 1) -> 
           I.Decl (ms, (M.Marg (M.Plus, nameOpt), Implicit))
-      | inferVar (I.Decl (ms, (M.Marg (M.Minus, nameOpt), Implicit)), M.Minus1, 1) =
+      | (I.Decl (ms, (M.Marg (M.Minus, nameOpt), Implicit)), M.Minus1, 1) -> 
           I.Decl (ms, (M.Marg (M.Minus1, nameOpt), Implicit))
-      | inferVar (ms as I.Decl (_, (_, Implicit)), _, 1) = ms
-      | inferVar (ms as I.Decl (_, (_, Local)), _, 1) = ms
-      | inferVar (ms as I.Decl (_, (M.Marg (mode', SOME name), Explicit)), mode, 1) =
+      | (ms as I.Decl (_, (_, Implicit)), _, 1) -> ms
+      | (ms as I.Decl (_, (_, Local)), _, 1) -> ms
+      | (ms as I.Decl (_, (M.Marg (mode', SOME name), Explicit)), mode, 1) -> 
         if modeConsistent (mode', mode)
           then ms
         else raise Error ("Mode declaration for " ^ name ^ " expected to be "
                           ^ M.modeToString mode)
-      | inferVar (I.Decl (ms, md), mode, k) =
+      | (I.Decl (ms, md), mode, k) -> 
           I.Decl (inferVar (ms, mode, k-1), md)
 
 
@@ -149,21 +149,21 @@ struct
        then ms' is the mode list consistently updated for all parameters occurring in U,
          wrt. to m. (see inferVar)
     *)
-    fun inferExp (ms, mode, I.Root (I.BVar (k), S)) =
+    let rec inferExp = function (ms, mode, I.Root (I.BVar (k), S)) -> 
           inferSpine (inferVar (ms, mode, k), mode, S)
-      | inferExp (ms, mode, I.Root (I.Const (cid), S)) =
+      | (ms, mode, I.Root (I.Const (cid), S)) -> 
           inferSpine (ms, mode, S)
-      | inferExp (ms, mode, I.Root (I.Def (cid), S)) =
+      | (ms, mode, I.Root (I.Def (cid), S)) -> 
           inferSpine (ms, mode, S)
-      | inferExp (ms, mode, I.Root (I.FgnConst (cs, conDec), S)) =
+      | (ms, mode, I.Root (I.FgnConst (cs, conDec), S)) -> 
           inferSpine (ms, mode, S)
-      | inferExp (ms, mode, I.Lam (D as I.Dec (nameOpt, _), U)) =
+      | (ms, mode, I.Lam (D as I.Dec (nameOpt, _), U)) -> 
           I.ctxPop (inferExp (I.Decl (inferDec (ms, mode, D),
                                       (M.Marg (mode, nameOpt), Local)), mode, U))
-      | inferExp (ms, mode, I.Pi ((D as I.Dec (nameOpt, _), _), V)) =
+      | (ms, mode, I.Pi ((D as I.Dec (nameOpt, _), _), V)) -> 
           I.ctxPop (inferExp (I.Decl (inferDec (ms, mode, D),
                                       (M.Marg (mode, nameOpt), Local)), mode, V)) (* cannot make any assumptions on what is inside a foreign object *)
-      | inferExp (ms, mode, I.FgnExp _) = ms
+      | (ms, mode, I.FgnExp _) -> ms
 
     (* inferSpine (ms, m, S) = ms'
 
@@ -196,14 +196,14 @@ struct
        and mS is a mode spine,
        then ms' is the mode list for V which is consistent with V.
     *)
-    fun inferMode ((ms, I.Uni(I.Type)), M.Mnil) = ms
-      | inferMode ((_, I.Uni(I.Type)), _) = raise Error "Too many modes specified"
-      | inferMode ((ms, I.Pi ((I.Dec (name, V1), _), V2)), M.Mapp (M.Marg (mode, _), mS)) =
+    let rec inferMode = function ((ms, I.Uni(I.Type)), M.Mnil) -> ms
+      | ((_, I.Uni(I.Type)), _) -> raise Error "Too many modes specified"
+      | ((ms, I.Pi ((I.Dec (name, V1), _), V2)), M.Mapp (M.Marg (mode, _), mS)) -> 
           I.ctxPop (inferMode ((I.Decl (inferExp (ms, mode, V1),
                                         (M.Marg (mode, name), Explicit)), V2), mS))
-      | inferMode ((ms, I.Root _), _) =
+      | ((ms, I.Root _), _) -> 
           raise Error "Expected type family, found object constant"
-      | inferMode _ = raise Error "Not enough modes specified"
+      | _ -> raise Error "Not enough modes specified"
 
     (* abstractMode (ms, mS) = mS'
 
@@ -215,8 +215,8 @@ struct
     *)
     fun abstractMode (ms, mS) =
         let
-          fun abstractMode' (I.Null, mS, _) = mS
-            | abstractMode' (I.Decl (ms, (marg, _)), mS, k) =
+          let rec abstractMode' = function (I.Null, mS, _) -> mS
+            | (I.Decl (ms, (marg, _)), mS, k) -> 
                 abstractMode' (ms, M.Mapp (marg, mS), k+1)
         in
           abstractMode' (ms, mS, 1)
@@ -234,9 +234,9 @@ struct
     *)
     fun shortToFull (a, mS, r) =
       let
-        fun calcImplicit' (I.ConDec (_, _, k, _, V, _))  =
+        let rec calcImplicit' = function (I.ConDec (_, _, k, _, V, _)) -> 
               abstractMode (inferMode (empty (k, I.Null, V), mS), mS)
-          | calcImplicit' (I.ConDef (_, _, k, _, V, _, _)) =
+          | (I.ConDef (_, _, k, _, V, _, _)) -> 
             (* ignore definition for defined type family since they are opaque *)
               abstractMode (inferMode (empty (k, I.Null, V), mS), mS)
       in
@@ -267,10 +267,10 @@ struct
     (* checkPure (a, mS, r) = ()
        Effect: raises Error(msg) if the modes in mS mention (-1)
     *)
-    fun checkPure ((a, M.Mnil), r) = ()
-      | checkPure ((a, M.Mapp (M.Marg (M.Minus1, _), mS)), r) =
+    let rec checkPure = function ((a, M.Mnil), r) -> ()
+      | ((a, M.Mapp (M.Marg (M.Minus1, _), mS)), r) -> 
         error (r, "Uniqueness modes (-1) not permitted in `%mode' declarations (use `%unique')")
-      | checkPure ((a, M.Mapp (_, mS)), r) = checkPure ((a, mS), r)
+      | ((a, M.Mapp (_, mS)), r) -> checkPure ((a, mS), r)
 
   in
     let shortToFull = shortToFull

@@ -36,67 +36,67 @@ struct
       handle Overflow => Parsing.error (r, "Integer too large")
            | L.NotDigit _ => Parsing.error (r, "Identifier not a natural number")
 
-    fun stripRParen (LS.Cons ((L.RPAREN, r), s')) = LS.expose s'
-      | stripRParen (LS.Cons ((t, r), _))  =
+    let rec stripRParen = function (LS.Cons ((L.RPAREN, r), s')) -> LS.expose s'
+      | (LS.Cons ((t, r), _)) -> 
           Parsing.error (r, "Expected `)', found " ^ L.toString t)
 
-    fun decideRBrace (r0, (orders, LS.Cons ((L.RBRACE, r), s'))) =
+    let rec decideRBrace = function (r0, (orders, LS.Cons ((L.RBRACE, r), s'))) -> 
           (SOME(E.lex (r0, orders)), LS.expose s')
-      | decideRBrace (r0, (order, LS.Cons ((t, r), _)))  =
+      | (r0, (order, LS.Cons ((t, r), _))) -> 
           Parsing.error (P.join(r0,r), "Expected `}', found " ^ L.toString t)
 
-    fun decideRBracket (r0, (orders, LS.Cons ((L.RBRACKET, r), s'))) =
+    let rec decideRBracket = function (r0, (orders, LS.Cons ((L.RBRACKET, r), s'))) -> 
           (SOME(E.simul (r0, orders)), LS.expose s')
-      | decideRBracket (r0, (order, LS.Cons ((t, r), _)))  =
+      | (r0, (order, LS.Cons ((t, r), _))) -> 
           Parsing.error (P.join(r0,r), "Expected `]', found " ^ L.toString t)
 
-    fun decideRParen (r0, (ids, LS.Cons ((L.RPAREN, r), s'))) =
+    let rec decideRParen = function (r0, (ids, LS.Cons ((L.RPAREN, r), s'))) -> 
           (SOME(E.varg (r,ids)), LS.expose s')
-      | decideRParen (r0, (order, LS.Cons ((t, r), _)))  =
+      | (r0, (order, LS.Cons ((t, r), _))) -> 
           Parsing.error (P.join(r0,r), "Expected `)', found " ^ L.toString t)
 
     (* parseIds "id ... id" = ["id",...,"id"] *)
     (* terminated by non-identifier token *)
-    fun parseIds (LS.Cons ((L.ID (L.Upper, id), r), s')) =
+    let rec parseIds = function (LS.Cons ((L.ID (L.Upper, id), r), s')) -> 
         let
           let (ids, f') = parseIds (LS.expose s')
         in
           (id :: ids, f')
         end
-      | parseIds (LS.Cons ((t as L.ID (_, id), r), s')) =
+      | (LS.Cons ((t as L.ID (_, id), r), s')) -> 
         Parsing.error (r, "Expecter upper case identifier, found " ^ L.toString t)
-      | parseIds f = (nil, f)
+      | f -> (nil, f)
 
     (* parseArgPat "_id ... _id" = [idOpt,...,idOpt] *)
     (* terminated by token different from underscore or id *)
-    fun parseArgPat (LS.Cons ((L.ID (L.Upper, id), r), s')) =
+    let rec parseArgPat = function (LS.Cons ((L.ID (L.Upper, id), r), s')) -> 
         let
           let (idOpts, f') = parseArgPat (LS.expose s')
         in
           (SOME id :: idOpts, f')
         end
-      | parseArgPat (LS.Cons ((L.ID (_, id), r), s')) =
+      | (LS.Cons ((L.ID (_, id), r), s')) -> 
         Parsing.error (r, "Expected upper case identifier, found " ^ id)
-      | parseArgPat (LS.Cons ((L.UNDERSCORE, r), s')) =
+      | (LS.Cons ((L.UNDERSCORE, r), s')) -> 
         let
           let (idOpts, f') = parseArgPat (LS.expose s')
         in
           (NONE :: idOpts, f')
         end
-      | parseArgPat f = (nil, f)
+      | f -> (nil, f)
 
     (* parseCallPat "id _id ... _id" = (id, region, [idOpt,...,idOpt]) *)
-    fun parseCallPat (LS.Cons ((L.ID (_, id), r), s')) =
+    let rec parseCallPat = function (LS.Cons ((L.ID (_, id), r), s')) -> 
         let
           let (idOpts, f' as LS.Cons ((_ ,r'), _)) = parseArgPat (LS.expose s')
         in
           ((id, idOpts, P.join (r, r')), f')
         end
-      | parseCallPat (LS.Cons ((t, r), s)) =
+      | (LS.Cons ((t, r), s)) -> 
         Parsing.error (r, "Expected call pattern, found token " ^ L.toString t)
 
     (* parseCallPats "(id _id ... _id)...(id _id ... _id)." *)
-    fun parseCallPats (LS.Cons ((L.LPAREN, r), s')) =
+    let rec parseCallPats = function (LS.Cons ((L.LPAREN, r), s')) -> 
         let
           let (cpat, f') = parseCallPat (LS.expose s')
           let (cpats, f'') = parseCallPats (stripRParen f')
@@ -104,9 +104,9 @@ struct
           (cpat::cpats, f'')
         end
       (* Parens around call patterns no longer optional *)
-      | parseCallPats (f as LS.Cons ((L.DOT, r), s')) =
+      | (f as LS.Cons ((L.DOT, r), s')) -> 
           (nil, f)
-      | parseCallPats (LS.Cons ((t, r), s)) =
+      | (LS.Cons ((t, r), s)) -> 
         Parsing.error (r, "Expected call patterns, found token " ^ L.toString t)
 
     (* order ::= id | (id ... id)   virtual arguments = subterm ordering
@@ -115,15 +115,15 @@ struct
     *)
     (* parseOrderOpt (f) = (SOME(order), f') or (NONE, f) *)
     (* returns an optional order and front of remaining stream *)
-    fun parseOrderOpt (LS.Cons ((L.LPAREN, r), s')) =
+    let rec parseOrderOpt = function (LS.Cons ((L.LPAREN, r), s')) -> 
           decideRParen (r, parseIds (LS.expose s'))
-      | parseOrderOpt (LS.Cons ((L.LBRACE, r), s')) =
+      | (LS.Cons ((L.LBRACE, r), s')) -> 
           decideRBrace (r, parseOrders (LS.expose s'))
-      | parseOrderOpt (LS.Cons ((L.LBRACKET, r), s')) =
+      | (LS.Cons ((L.LBRACKET, r), s')) -> 
           decideRBracket (r, parseOrders (LS.expose s'))
-      | parseOrderOpt (LS.Cons ((L.ID (L.Upper, id), r), s')) =
+      | (LS.Cons ((L.ID (L.Upper, id), r), s')) -> 
           (SOME (E.varg (r, [id])), LS.expose s')
-      | parseOrderOpt (f as LS.Cons (_, s')) = (NONE, f)
+      | (f as LS.Cons (_, s')) -> (NONE, f)
 
     (* parseOrders (f) = ([order1,...,ordern], f') *)
     (* returns a sequence of orders and remaining front of stream *)
@@ -170,14 +170,14 @@ struct
     (* ------------------- *)
 
     (* parsePDecl "id nat order callpats." *)
-    fun parsePDecl (LS.Cons ((L.ID (_, id), r), s')) =
+    let rec parsePDecl = function (LS.Cons ((L.ID (_, id), r), s')) -> 
         let
           let depth = idToNat (r, id)
           let (t', f') = parseTDecl (LS.expose s')
         in
           (E.prove (depth, t'), f')
         end
-      | parsePDecl (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseProve' "%prove pdecl." *)
@@ -190,14 +190,14 @@ struct
     (* ----------------------- *)
 
     (* parseEDecl "id nat order callpats." *)
-    fun parseEDecl (LS.Cons ((L.ID (_, id), r), s')) =
+    let rec parseEDecl = function (LS.Cons ((L.ID (_, id), r), s')) -> 
         let
           let depth = idToNat (r, id)
           let (t', f') = parseTDecl (LS.expose s')
         in
           (E.establish (depth, t'), f')
         end
-      | parseEDecl (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseEstablish' "%establish pdecl." *)
@@ -220,8 +220,8 @@ struct
     (* %theorem declarations *)
     (* --------------------- *)
 
-    fun stripRBrace (LS.Cons ((L.RBRACE, r), s')) = (LS.expose s', r)
-      | stripRBrace (LS.Cons ((t, r), _))  =
+    let rec stripRBrace = function (LS.Cons ((L.RBRACE, r), s')) -> (LS.expose s', r)
+      | (LS.Cons ((t, r), _)) -> 
           Parsing.error (r, "Expected `}', found " ^ L.toString t)
 
     (* parseDec "{id:term} | {id}" *)
@@ -255,26 +255,26 @@ struct
       | parseDecs (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `{', found " ^ L.toString t)
 
-    fun parsePi (LS.Cons ((L.ID (_, "pi"), r), s')) =
+    let rec parsePi = function (LS.Cons ((L.ID (_, "pi"), r), s')) -> 
           parseDecs (LS.expose s')
-      | parsePi (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `pi', found " ^ L.toString t)
 
-    fun parseSome (gbs, LS.Cons ((L.ID (_, "some"), r), s')) =
+    let rec parseSome = function (gbs, LS.Cons ((L.ID (_, "some"), r), s')) -> 
         let
           let (g1, f') = parseDecs (LS.expose s')
           let (g2, f'') = parsePi f'
         in
           parseSome' ((g1,g2)::gbs, f'')
         end
-      | parseSome (gbs, f as LS.Cons ((L.ID (_, "pi"), r), s')) =
+      | (gbs, f as LS.Cons ((L.ID (_, "pi"), r), s')) -> 
         let
           let (g2, f') = parsePi f
         in
           parseSome' ((E.null, g2)::gbs, f')
         end
-      | parseSome (gbs, f as LS.Cons ((L.RPAREN, r), s')) = (gbs, f)
-      | parseSome (gbs, LS.Cons ((t, r), s')) =
+      | (gbs, f as LS.Cons ((L.RPAREN, r), s')) -> (gbs, f)
+      | (gbs, LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `some' or `pi', found " ^ L.toString t)
 
     and parseSome' (gbs, f as LS.Cons ((L.RPAREN, r), s')) = (gbs, f)
@@ -285,9 +285,9 @@ struct
 
     fun stripParen (gbs, LS.Cons ((L.RPAREN, r), s')) = (gbs, LS.expose s')
 
-    fun parseGBs (LS.Cons ((L.LPAREN, r), s')) =
+    let rec parseGBs = function (LS.Cons ((L.LPAREN, r), s')) -> 
           stripParen (parseSome (nil, LS.expose s'))
-      | parseGBs (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `(', found " ^ L.toString t)
 
     fun forallG ((gbs', f'), r) =
@@ -372,19 +372,19 @@ struct
                              ^ L.toString t)
 
     (* parseColon ": mform" *)
-    fun parseColon (LS.Cons ((L.COLON, r), s')) =
+    let rec parseColon = function (LS.Cons ((L.COLON, r), s')) -> 
           parseCtxScheme (LS.expose s')
-      | parseColon (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `:', found " ^ L.toString t)
 
     (* parseThDec "id : mform" *)
-    fun parseThDec (LS.Cons ((L.ID (_, id), r), s')) =
+    let rec parseThDec = function (LS.Cons ((L.ID (_, id), r), s')) -> 
         let
           let (t', f') = parseColon (LS.expose s')
         in
           (E.dec (id, t'), f')
         end
-      | parseThDec (LS.Cons ((t, r), s')) =
+      | (LS.Cons ((t, r), s')) -> 
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseTheoremDec' "%theorem thdec." *)
@@ -396,10 +396,10 @@ struct
 
     (* parsePredicate f = (pred, f')               *)
     (* parses the reduction predicate, <, <=, =   *)
-    fun parsePredicate (LS.Cons ((L.ID(_, "<"), r), s')) = (E.predicate ("LESS", r), (LS.expose s'))
-      | parsePredicate (LS.Cons ((L.ID(_, "<="), r), s')) = (E.predicate ("LEQ", r), (LS.expose s'))
-      | parsePredicate (LS.Cons ((L.EQUAL, r), s')) = (E.predicate ("EQUAL", r), (LS.expose s'))
-      | parsePredicate (LS.Cons ((t, r), s')) =
+    let rec parsePredicate = function (LS.Cons ((L.ID(_, "<"), r), s')) -> (E.predicate ("LESS", r), (LS.expose s'))
+      | (LS.Cons ((L.ID(_, "< -> "), r), s')) = (E.predicate ("LEQ", r), (LS.expose s'))
+      | (LS.Cons ((L.EQUAL, r), s')) -> (E.predicate ("EQUAL", r), (LS.expose s'))
+      | (LS.Cons ((t, r), s')) -> 
         Parsing.error (r, "Expected reduction predicate <, = or <=, found " ^ L.toString t)
 
 

@@ -25,8 +25,8 @@ struct
 
 
 
-    fun shiftCtx (I.Null, t) = (I.Null, t)
-      | shiftCtx (I.Decl (G, D), t) =
+    let rec shiftCtx = function (I.Null, t) -> (I.Null, t)
+      | (I.Decl (G, D), t) -> 
         let
           let (G', t') =  shiftCtx (G, t)
         in
@@ -40,20 +40,20 @@ struct
        and  |G| = n   for any G
        then Psi0, G[t] |- t : Psi, G
     *)
-    fun dotn (t, 0) = t
-      | dotn (t, n) = I.dot1 (dotn (t, n-1))
+    let rec dotn = function (t, 0) -> t
+      | (t, n) -> I.dot1 (dotn (t, n-1))
 
 
-    fun strengthenToSpine (I.Shift _ (* =0 *), 0, (n, S)) = S
-      | strengthenToSpine (I.Dot (I.Idx _ (* = 1 *), t), l, (n, S)) =
+    let rec strengthenToSpine = function (I.Shift _ (* -> 0 *), 0, (n, S)) = S
+      | (I.Dot (I.Idx _ (* -> 1 *), t), l, (n, S)) =
         let
           let t' = I.comp (t, I.invShift)
         in
           strengthenToSpine (t', l-1, (n+1, I.App (I.Root (I.BVar n, I.Nil), S)))
         end
-      | strengthenToSpine (I.Dot (I.Undef, t), l, (n, S)) =
+      | (I.Dot (I.Undef, t), l, (n, S)) -> 
           strengthenToSpine (t, l-1, (n+1, S))
-      | strengthenToSpine (I.Shift k, l, (n, S)) =
+      | (I.Shift k, l, (n, S)) -> 
           strengthenToSpine (I.Dot (I.Idx (k+1), I.Shift (k+1)), l, (n, S))
 
 
@@ -66,15 +66,15 @@ struct
        then Psi, G' |-  F' for
        and  F' = raise (B', F[t])   (using subordination)
     *)
-    fun raiseFor (B', (T.True, t)) = T.True
-      | raiseFor (B', (T.And (F1, F2), t)) =
+    let rec raiseFor = function (B', (T.True, t)) -> T.True
+      | (B', (T.And (F1, F2), t)) -> 
         let
           let F1' = raiseFor (B', (F1, t))
           let F2' = raiseFor (B', (F2, t))
         in
           T.And (F1', F2')
         end
-      | raiseFor (B', (T.Ex ((I.Dec (x, V), Q), F), t)) =
+      | (B', (T.Ex ((I.Dec (x, V), Q), F), t)) -> 
                                                     (* Psi, G', B' |- V[t] : type *)
                                                     (* Psi, B, G, x:V |- F for *)
                                                     (* Psi, G' |- B' ctx  *)
@@ -120,15 +120,15 @@ struct
        and  P = raise (G, P')   (using subordination)
        and  F = raise (G, F')   (using subordination)
     *)
-    fun raisePrg (G, (T.Unit, t), _) = T.Unit
-      | raisePrg (G, (T.PairPrg (P1, P2), t), T.And (F1, F2)) =
+    let rec raisePrg = function (G, (T.Unit, t), _) -> T.Unit
+      | (G, (T.PairPrg (P1, P2), t), T.And (F1, F2)) -> 
         let
           let P1' = raisePrg (G, (P1, t), F1)
           let P2' = raisePrg (G, (P2, t), F2)
         in
           T.PairPrg (P1', P2')
         end
-      | raisePrg (G, (T.PairExp (U, P), t), T.Ex ((I.Dec (_, V), _), F)) =
+      | (G, (T.PairExp (U, P), t), T.Ex ((I.Dec (_, V), _), F)) -> 
         let
           let w = S.weaken (G, I.targetFam V)
                                                    (* G  |- w  : G'    *)

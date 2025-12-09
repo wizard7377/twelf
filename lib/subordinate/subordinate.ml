@@ -315,10 +315,10 @@ struct
        Effect: if c is a type-level definition,
                update definition graph.
     *)
-    fun installConDec (b, I.ConDef (_, _, _, A, K, I.Kind, _)) =
+    let rec installConDec = function (b, I.ConDef (_, _, _, A, K, I.Kind, _)) -> 
           (* I.targetFam must be defined, but expands definitions! *)
           insertNewDef (b, I.targetFam A)
-      | installConDec _ = ()
+      | _ -> ()
 
     fun installDef c = installConDec (c, I.sgnLookup c)
 
@@ -383,8 +383,8 @@ struct
        Effect: add subordination info from V into table
     *)
     (* there are no kind-level definitions *)
-    fun installKindN (I.Uni(L), a) = ()
-      | installKindN (I.Pi ((I.Dec (_, V1), P), V2), a) =
+    let rec installKindN = function (I.Uni(L), a) -> ()
+      | (I.Pi ((I.Dec (_, V1), P), V2), a) -> 
           (addSubord (I.targetFam V1, a);
            installTypeN (V1);
            installKindN (V2, a))
@@ -415,8 +415,8 @@ struct
     (* BDec, ADec, NDec are disallowed here *)
     fun installDec (I.Dec(_,V)) = installTypeN V
 
-    fun installSome (I.Null) = ()
-      | installSome (I.Decl(G, D)) =
+    let rec installSome = function (I.Null) -> ()
+      | (I.Decl(G, D)) -> 
         ( installSome G; installDec D )
 
     (* b must be block *)
@@ -445,11 +445,11 @@ struct
 
        Effect: raise Error (msg)
     *)
-    fun respectsTypeN' (I.Pi ((D as I.Dec (_, V1), _), V2), a) =
+    let rec respectsTypeN' = function (I.Pi ((D as I.Dec (_, V1), _), V2), a) -> 
           (checkBelow (I.targetFam V1, a);
            respectsTypeN (V1);
            respectsTypeN' (V2, a))
-      | respectsTypeN' (V as I.Root (I.Def _, _), a) =
+      | (V as I.Root (I.Def _, _), a) -> 
         (* this looks like blatant overkill ... *)
         (* Sun Nov 10 11:15:47 2002 -fp *)
         let
@@ -457,7 +457,7 @@ struct
         in
           respectsTypeN' (V', a)
         end
-      | respectsTypeN' (I.Root _, _) = ()
+      | (I.Root _, _) -> ()
     and respectsTypeN (V) = respectsTypeN' (V, I.targetFam V)
 
     fun respects (G, (V, s)) = respectsTypeN (Whnf.normalize (V, s))
@@ -471,8 +471,8 @@ struct
     fun famsToString (bs, msg) =
         IntSet.foldl (fn (a, msg) => Names.qidToString (Names.constQid a) ^ " " ^ msg) "\n" bs
     (*
-    fun famsToString (nil, msg) = msg
-      | famsToString (a::AL, msg) = famsToString (AL, Names.qidToString (Names.constQid a) ^ " " ^ msg)
+    let rec famsToString = function (nil, msg) -> msg
+      | (a::AL, msg) -> famsToString (AL, Names.qidToString (Names.constQid a) ^ " " ^ msg)
     *)
 
     fun showFam (a, bs) =
@@ -484,8 +484,8 @@ struct
 
 
     (* weaken (G, a) = (w') *)
-    fun weaken (I.Null, a) = I.id
-      | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
+    let rec weaken = function (I.Null, a) -> I.id
+      | (I.Decl (G', D as I.Dec (name, V)), a) -> 
         let
           let w' = weaken (G', a)
         in

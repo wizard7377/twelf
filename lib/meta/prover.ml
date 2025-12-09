@@ -36,25 +36,25 @@ struct
     (* List of solved states *)
     let solvedStates : S.State list ref = ref nil
 
-    fun transformOrder' (G, Order.Arg k) =
+    let rec transformOrder' = function (G, Order.Arg k) -> 
         let
           let k' = (I.ctxLength G) -k+1
           let I.Dec (_, V) = I.ctxDec (G, k')
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
-      | transformOrder' (G, Order.Lex Os) =
+      | (G, Order.Lex Os) -> 
           S.Lex (map (fun O -> transformOrder' (G, O)) Os)
-      | transformOrder' (G, Order.Simul Os) =
+      | (G, Order.Simul Os) -> 
           S.Simul (map (fun O -> transformOrder' (G, O)) Os)
 
-    fun transformOrder (G, F.All (F.Prim D, F), Os) =
+    let rec transformOrder = function (G, F.All (F.Prim D, F), Os) -> 
           S.All (D, transformOrder (I.Decl (G, D), F, Os))
-      | transformOrder (G, F.And (F1, F2), O :: Os) =
+      | (G, F.And (F1, F2), O :: Os) -> 
           S.And (transformOrder (G, F1, [O]),
                  transformOrder (G, F2, Os))
-      | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
-      | transformOrder (G, F.True, [O]) = transformOrder' (G, O)
+      | (G, F.Ex _, [O]) -> transformOrder' (G, O)
+      | (G, F.True, [O]) -> transformOrder' (G, O)
         (* last case: no existentials---order must be trivial *)
 
     fun select c = (Order.selLookup c handle _ => Order.Lex [])
@@ -75,8 +75,8 @@ struct
        Invariant:
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
-    fun contains (nil, _) = true
-      | contains (x :: L, L') =
+    let rec contains = function (nil, _) -> true
+      | (x :: L, L') -> 
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     (* equiv (L1, L2) = B'
@@ -103,10 +103,10 @@ struct
        If   L is a list of cid,
        then s is a string, listing their names
     *)
-    fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
+    let rec cLToString = function (nil) -> ""
+      | (c :: nil) -> 
           (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
+      | (c :: L) -> 
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
     (* init (k, cL) = ()

@@ -22,23 +22,23 @@ module Redundant (Opsem : OPSEM) : REDUNDANT  =
            |  _ => false
         )
 
-    fun convert (T.Lam (D, P)) = T.Lam (D, convert P)
-      | convert (T.New P) = T.New (convert P)
-      | convert (T.Choose P) = T.Choose (convert P)
-      | convert (T.PairExp (M, P)) = T.PairExp (M, convert P)
-      | convert (T.PairBlock (rho, P)) = T.PairBlock (rho, convert P)
-      | convert (T.PairPrg (P1, P2)) = T.PairPrg (convert P1, convert P2)
-      | convert (T.Unit) = T.Unit
-      | convert (T.Var x) = T.Var x
-      | convert (T.Const x) = T.Const x
-      | convert (T.Redex (P, S)) = T.Redex (convert P, convertSpine S)
-      | convert (T.Rec (D, P)) = T.Rec (D, convert P)
-      | convert (T.Case (T.Cases O)) = T.Case (T.Cases (convertCases O))
-      | convert (T.Let (D,P1,P2)) = T.Let (D, convert P1, convert P2)
+    let rec convert = function (T.Lam (D, P)) -> T.Lam (D, convert P)
+      | (T.New P) -> T.New (convert P)
+      | (T.Choose P) -> T.Choose (convert P)
+      | (T.PairExp (M, P)) -> T.PairExp (M, convert P)
+      | (T.PairBlock (rho, P)) -> T.PairBlock (rho, convert P)
+      | (T.PairPrg (P1, P2)) -> T.PairPrg (convert P1, convert P2)
+      | (T.Unit) -> T.Unit
+      | (T.Var x) -> T.Var x
+      | (T.Const x) -> T.Const x
+      | (T.Redex (P, S)) -> T.Redex (convert P, convertSpine S)
+      | (T.Rec (D, P)) -> T.Rec (D, convert P)
+      | (T.Case (T.Cases O)) -> T.Case (T.Cases (convertCases O))
+      | (T.Let (D,P1,P2)) -> T.Let (D, convert P1, convert P2)
     (* No EVARs will occur
-      | convert (T.PClo (P,t)) = raise Error "No PClo should exist" (* T.PClo (convert P, t) *)
-      | convert (T.EVar (D, P as ref NONE, F)) = T.EVar (D, P, F)
-      | convert (T.EVar (D, ref (SOME P), F)) = convert P (* some opsem here *)
+      | (T.PClo (P,t)) -> raise Error "No PClo should exist" (* T.PClo (convert P, t) *)
+      | (T.EVar (D, P as ref NONE, F)) -> T.EVar (D, P, F)
+      | (T.EVar (D, ref (SOME P), F)) -> convert P (* some opsem here *)
     *)
 
 
@@ -369,11 +369,11 @@ module Redundant (Opsem : OPSEM) : REDUNDANT  =
     (* For debug purposes *)
     and printCtx(Psi) =
       let
-        fun printDec ( T.UDec (I.Dec (SOME(s), E)) ) =  (print s ; print ": "; print (Print.expToString (T.coerceCtx Psi, E)); print "\n" )
-          | printDec ( T.UDec (I.BDec (SOME(s), (cid, sub)))) = (print s ; print ":\n")
-          | printDec ( T.UDec (I.ADec (SOME(s), i))) = (print s ; print ":(ADec\n")
-          | printDec ( T.UDec (I.NDec) ) = (print "(NDec)\n")
-          | printDec ( T.PDec (SOME(s), F)) = (print s ; print ":(PDec)\n")
+        let rec printDec = function ( T.UDec (I.Dec (SOME(s), E)) ) -> (print s ; print ": "; print (Print.expToString (T.coerceCtx Psi, E)); print "\n" )
+          | ( T.UDec (I.BDec (SOME(s), (cid, sub)))) -> (print s ; print ":\n")
+          | ( T.UDec (I.ADec (SOME(s), i))) -> (print s ; print ":(ADec\n")
+          | ( T.UDec (I.NDec) ) -> (print "(NDec)\n")
+          | ( T.PDec (SOME(s), F)) -> (print s ; print ":(PDec)\n")
       in
         case Psi of
           (I.Null) => (print "Null\n")
@@ -390,21 +390,21 @@ module Redundant (Opsem : OPSEM) : REDUNDANT  =
     *)
     and invertSub s =
       let
-        fun lookup (n, T.Shift _, p) = NONE
-          | lookup (n, T.Dot (T.Undef, s'), p) = lookup (n+1, s', p)
-          | lookup (n, T.Dot (Ft, s'), p) =
+        let rec lookup = function (n, T.Shift _, p) -> NONE
+          | (n, T.Dot (T.Undef, s'), p) -> lookup (n+1, s', p)
+          | (n, T.Dot (Ft, s'), p) -> 
               (case getFrontIndex(Ft) of
                  NONE => lookup (n+1, s', p)
                | SOME k => if (k=p) then SOME n else lookup (n+1, s', p))
 
-        fun invertSub'' (0, si) = si
-          | invertSub'' (p, si) =
+        let rec invertSub'' = function (0, si) -> si
+          | (p, si) -> 
             (case (lookup (1, s, p))
                of SOME k => invertSub'' (p-1, T.Dot (T.Idx k, si))
                 | NONE => invertSub'' (p-1, T.Dot (T.Undef, si)))
 
-        fun invertSub' (n, T.Shift p) = invertSub'' (p, T.Shift n)
-          | invertSub' (n, T.Dot (_, s')) = invertSub' (n+1, s')
+        let rec invertSub' = function (n, T.Shift p) -> invertSub'' (p, T.Shift n)
+          | (n, T.Dot (_, s')) -> invertSub' (n+1, s')
       in
         invertSub' (0, s)
       end

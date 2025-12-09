@@ -9,11 +9,11 @@ struct
   (*! module IntSyn = IntSyn' !*)
   module I = IntSyn
 
-  fun headConDec (I.Const c) = I.sgnLookup c
-    | headConDec (I.Skonst c) = I.sgnLookup c
-    | headConDec (I.Def d) = I.sgnLookup d
-    | headConDec (I.NSDef d) = I.sgnLookup d
-    | headConDec (I.FgnConst (_, cd)) = cd
+  let rec headConDec = function (I.Const c) -> I.sgnLookup c
+    | (I.Skonst c) -> I.sgnLookup c
+    | (I.Def d) -> I.sgnLookup d
+    | (I.NSDef d) -> I.sgnLookup d
+    | (I.FgnConst (_, cd)) -> cd
       (* others impossible by invariant *)
 
   (* The approximate language is based on the idea of erasure.  The
@@ -149,38 +149,38 @@ struct
   (* converting exact terms to approximate terms *)
 
   (* uniToApx (L) = L- *)
-  fun uniToApx (I.Type) = Type
-    | uniToApx (I.Kind) = Kind
+  let rec uniToApx = function (I.Type) -> Type
+    | (I.Kind) -> Kind
 
   (* expToApx (U) = (U-, V-)
      if G |- U : V
      or G |- U ":" V = "hyperkind" *)
-  fun expToApx (I.Uni L) =
+  let rec expToApx = function (I.Uni L) -> 
       let
         let L' = uniToApx L
       in
         (Uni L', Uni (whnfUni (Next L')))
       end
-    | expToApx (I.Pi ((I.Dec (_, V1), _), V2)) =
+    | (I.Pi ((I.Dec (_, V1), _), V2)) -> 
       let
         let (V1', _ (* Type *)) = expToApx (V1)
         let (V2', L') = expToApx (V2)
       in
         (Arrow (V1', V2'), L')
       end
-    | expToApx (I.Root (I.FVar (name, _, _), _)) =
+    | (I.Root (I.FVar (name, _, _), _)) -> 
       (* must have been created to represent a CVar *)
       let
         let (U, V, L) = findByReplacementName (name)
       in
         (U, V)
       end
-    | expToApx (I.Root (H (* Const/Def/NSDef *), _)) =
+    | (I.Root (H (* Const/Def/NSDef *), _)) -> 
         (* are we sure Skonst/FgnConst are never types or kinds? *)
         (Const H, Uni Type)
-    | expToApx (I.Redex (U, _)) = expToApx U
-    | expToApx (I.Lam (_, U)) = expToApx U
-    | expToApx (I.EClo (U, _)) = expToApx U
+    | (I.Redex (U, _)) -> expToApx U
+    | (I.Lam (_, U)) -> expToApx U
+    | (I.EClo (U, _)) -> expToApx U
 
   (* classToApx (V) = (V-, L-)
      if G |- V : L
@@ -229,8 +229,8 @@ struct
   (* converting approximate terms to exact terms *)
 
   (* apxToUni (L-) = L *)
-  fun apxToUniW (Level 1) = I.Type
-    | apxToUniW (Level 2) = I.Kind
+  let rec apxToUniW = function (Level 1) -> I.Type
+    | (Level 2) -> I.Kind
       (* others impossible by invariant *)
   fun apxToUni L = apxToUniW (whnfUni L)
 
@@ -240,9 +240,9 @@ struct
           of v is ground
           v : L-
      post: V is most general such that V- = v and G |- V : L *)
-  fun apxToClassW (G, Uni L, _ (* Next L *), allowed) =
+  let rec apxToClassW = function (G, Uni L, _ (* Next L *), allowed) -> 
         I.Uni (apxToUni L)
-    | apxToClassW (G, Arrow (V1, V2), L, allowed) =
+    | (G, Arrow (V1, V2), L, allowed) -> 
       (* this is probably very bad -- it should be possible to infer
          more accurately which pis can be dependent *)
       (* also, does the name of the bound variable here matter? *)
@@ -253,7 +253,7 @@ struct
       in
         I.Pi ((D, I.Maybe), V2')
       end
-    | apxToClassW (G, V as CVar r, L (* Type or Kind *), allowed) =
+    | (G, V as CVar r, L (* Type or Kind *), allowed) -> 
       (* convert undetermined CVars to FVars *)
       let
         let name = getReplacementName (V, Uni L, Next L, allowed)
@@ -261,7 +261,7 @@ struct
       in
         I.Root (I.FVar (name, I.Uni (apxToUni L), s), I.Nil)
       end
-    | apxToClassW (G, Const H, L (* Type *), allowed) =
+    | (G, Const H, L (* Type *), allowed) -> 
         I.Root (H, Whnf.newSpineVar (G, (I.conDecType (headConDec H), I.id)))
       (* Undefined case impossible *)
   and apxToClass (G, V, L, allowed) = apxToClassW (G, whnf V, L, allowed)
@@ -270,15 +270,15 @@ struct
      if u : V-
      and G' |- V : L and G |- s : G'
      then U- = u and G |- U : V[s] and U is the most general such *)
-  fun apxToExactW (G, U, (I.Pi ((D, _), V), s), allowed) =
+  let rec apxToExactW = function (G, U, (I.Pi ((D, _), V), s), allowed) -> 
       let
         let D' = I.decSub (D, s)
       in
         I.Lam (D', apxToExact (I.Decl (G, D'), U, (V, I.dot1 s), allowed))
       end
-    | apxToExactW (G, U, (I.Uni L, s), allowed) =
+    | (G, U, (I.Uni L, s), allowed) -> 
         apxToClass (G, U, uniToApx L, allowed)
-    | apxToExactW (G, U, Vs as (I.Root (I.FVar (name, _, _), _), s), allowed) =
+    | (G, U, Vs as (I.Root (I.FVar (name, _, _), _), s), allowed) -> 
       let
         let (V, L, _ (* Next L *)) = findByReplacementName (name)
         let Uni L = whnf L
@@ -298,7 +298,7 @@ struct
                I.Root (I.FVar (name', V', s'), I.Nil)
              end
       end
-    | apxToExactW (G, U, Vs (* an atomic type, not Def *), allowed) =
+    | (G, U, Vs (* an atomic type, not Def *), allowed) -> 
         I.newEVar (G, I.EClo Vs)
   and apxToExact (G, U, Vs, allowed) = apxToExactW (G, U, Whnf.whnfExpandDef Vs, allowed)
 
@@ -309,34 +309,34 @@ struct
     (* occurUni (r, l) = ()
        iff r does not occur in l,
        otherwise raises Unify *)
-    fun occurUniW (r, Next L) = occurUniW (r, L)
-      | occurUniW (r, LVar r') =
+    let rec occurUniW = function (r, Next L) -> occurUniW (r, L)
+      | (r, LVar r') -> 
           if r = r' then raise Unify "Level circularity"
           else ()
-      | occurUniW (r, _) = ()
+      | (r, _) -> ()
     fun occurUni (r, L) = occurUniW (r, whnfUni L)
 
     (* matchUni (l1, l2) = ()
        iff l1<I> = l2<I> for some most general instantiation I
        effect: applies I
        otherwise raises Unify *)
-    fun matchUniW (Level i1, Level i2) =
+    let rec matchUniW = function (Level i1, Level i2) -> 
           if i1 = i2 then () else raise Unify "Level clash"
-      | matchUniW (Level i1, Next L2) =
+      | (Level i1, Next L2) -> 
           if i1 > 1 then matchUniW (Level (i1-1), L2)
           else raise Unify "Level clash"
-      | matchUniW (Next L1, Level i2) =
+      | (Next L1, Level i2) -> 
           if i2 > 1 then matchUniW (L1, Level (i2-1))
           else raise Unify "Level clash"
-      | matchUniW (Next L1, Next L2) =
+      | (Next L1, Next L2) -> 
           matchUniW (L1, L2)
-      | matchUniW (LVar r1, L2 as LVar r2) =
+      | (LVar r1, L2 as LVar r2) -> 
           if r1 = r2 then ()
           else r1 := SOME L2
-      | matchUniW (LVar r1, L2) =
+      | (LVar r1, L2) -> 
           (occurUniW (r1, L2);
            r1 := SOME L2)
-      | matchUniW (L1, LVar r2) =
+      | (L1, LVar r2) -> 
           (occurUniW (r2, L1);
            r2 := SOME L1)
     fun matchUni (L1, L2) = matchUniW (whnfUni L1, whnfUni L2)
@@ -344,19 +344,19 @@ struct
     (* occur (r, u) = ()
        iff r does not occur in u,
        otherwise raises Unify *)
-    fun occurW (r, Arrow (V1, V2)) = (occur (r, V1); occur (r, V2))
-      | occurW (r, CVar r') =
+    let rec occurW = function (r, Arrow (V1, V2)) -> (occur (r, V1); occur (r, V2))
+      | (r, CVar r') -> 
           if r = r' then raise Unify "Type/kind variable occurrence"
           else ()
-      | occurW (r, _) = ()
+      | (r, _) -> ()
     and occur (r, U) = occurW (r, whnf U)
 
     (* match (u1, u2) = ()
        iff u1<I> = u2<I> : v for some most general instantiation I
        effect: applies I
        otherwise raises Unify *)
-    fun matchW (Uni L1, Uni L2) = matchUni (L1, L2)
-      | matchW (V1 as Const H1, V2 as Const H2) =
+    let rec matchW = function (Uni L1, Uni L2) -> matchUni (L1, L2)
+      | (V1 as Const H1, V2 as Const H2) -> 
         (case (H1, H2)
            of (I.Const(c1), I.Const(c2)) =>
               if c1 = c2 then ()
@@ -373,37 +373,37 @@ struct
             | (I.NSDef(d1), _) => match (constDefApx d1, V2)
             | (_, I.NSDef(d2)) => match (V1, constDefApx d2)
               (* others cannot occur by invariant *))
-      | matchW (Arrow (V1, V2), Arrow (V3, V4)) =
+      | (Arrow (V1, V2), Arrow (V3, V4)) -> 
           (match (V1, V3)
            handle e => (match (V2, V4); raise e);
            match (V2, V4))
-      | matchW (V1 as Arrow _, Const(I.Def(d2))) =
+      | (V1 as Arrow _, Const(I.Def(d2))) -> 
           match (V1, constDefApx d2)
-      | matchW (Const(I.Def(d1)), V2 as Arrow _) =
+      | (Const(I.Def(d1)), V2 as Arrow _) -> 
           match (constDefApx d1, V2)
-      | matchW (V1 as Arrow _, Const(I.NSDef(d2))) =
+      | (V1 as Arrow _, Const(I.NSDef(d2))) -> 
           match (V1, constDefApx d2)
-      | matchW (Const(I.NSDef(d1)), V2 as Arrow _) =
+      | (Const(I.NSDef(d1)), V2 as Arrow _) -> 
           match (constDefApx d1, V2)
-      | matchW (CVar r1, U2 as CVar r2) =
+      | (CVar r1, U2 as CVar r2) -> 
           if r1 = r2 then ()
           else r1 := SOME U2
-      | matchW (CVar r1, U2) =
+      | (CVar r1, U2) -> 
           (occurW (r1, U2);
            r1 := SOME U2)
-      | matchW (U1, CVar r2) =
+      | (U1, CVar r2) -> 
           (occurW (r2, U1);
            r2 := SOME U1)
-      | matchW _ = raise Unify "Type/kind expression clash"
+      | _ -> raise Unify "Type/kind expression clash"
     and match (U1, U2) = matchW (whnf U1, whnf U2)
 
     fun matchable (U1, U2) = (match (U1, U2); true)
                              handle Unify _ => false
 
-    fun makeGroundUni (Level _) = false
-      | makeGroundUni (Next L) = makeGroundUni L
-      | makeGroundUni (LVar (ref (SOME L))) = makeGroundUni L
-      | makeGroundUni (LVar (r as ref NONE)) = (r := SOME (Level 1);
+    let rec makeGroundUni = function (Level _) -> false
+      | (Next L) -> makeGroundUni L
+      | (LVar (ref (SOME L))) -> makeGroundUni L
+      | (LVar (r as ref NONE)) -> (r := SOME (Level 1);
                                                 true)
 
 end (* module Apx *)

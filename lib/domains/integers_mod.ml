@@ -23,8 +23,8 @@ struct
 
   fun op* (m, n) = normalize (Int.*(m, n))
 
-  fun inverse (0) = raise Div
-    | inverse (n) =
+  let rec inverse = function (0) -> raise Div
+    | (n) -> 
         let
           (* alternative: compute n^(p-2) *)
           fun inverse' i =

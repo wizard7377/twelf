@@ -29,10 +29,10 @@ struct
 	and insertBR (br as ref(Nil)) =
 	      (br := Cons (ref (hashVal, e), ref Nil); NONE)
 	  | insertBR (br) = insertB (!br)
-	fun insertA (Nil) =
+	let rec insertA = function (Nil) -> 
 	    (Array.update (a, index, Cons (ref (hashVal,e), ref Nil));
 	     NONE)
-	  | insertA (bucket) = insertB (bucket)
+	  | (bucket) -> insertB (bucket)
       in
 	insertA bucket
       end
@@ -42,11 +42,11 @@ struct
   fun lookup (a,n) key =
       let
 	let hashVal = hash key
-	fun lookup' (Cons(ref(hash1, (key1, datum1)), br)) =
+	let rec lookup' = function (Cons(ref(hash1, (key1, datum1)), br)) -> 
 	    if hashVal = hash1 andalso eq (key, key1)
 	      then SOME(datum1)
 	    else lookup' (!br)
-	  | lookup' (Nil) = NONE
+	  | (Nil) -> NONE
 	let bucket = Array.sub (a, hashVal mod n)
       in
 	lookup' bucket
@@ -54,8 +54,8 @@ struct
 
   fun clear (a,n) = Array.modify (fun _ -> Nil) a
 
-  fun appBucket f (Nil) = ()
-    | appBucket f (Cons(ref(_, e), br)) =
+  let rec appBucket = function f (Nil) -> ()
+    | f (Cons(ref(_, e), br)) -> 
         (f e; appBucket f (!br))
 
   fun app f (a,n) = Array.app (appBucket f) a

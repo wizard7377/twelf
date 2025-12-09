@@ -85,21 +85,21 @@ struct
                 then . |- F' F formula
            and  G+, G'+ |- F'' formula
         *)
-        fun convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) =
+        let rec convertFor' = function (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) -> 
             let
               let (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1)
             in
               (fun F -> T.All ((T.UDec (Weaken.strengthenDec (D, w1)), T.Explicit), F' F), F'')
             end
-          | convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
+          | (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) -> 
             let
               let (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
             in
               (F', T.Ex ((I.decSub (D, w2), T.Explicit), F''))
             end
-          | convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
+          | (I.Uni I.Type, M.Mnil, _, _, _) -> 
               (fun F -> F, T.True)
-          | convertFor' _ = raise Error "type family must be +/- moded"
+          | _ -> raise Error "type family must be +/- moded"
 
         (* shiftPlus (mS) = s'
 
@@ -109,10 +109,10 @@ struct
 
         fun shiftPlus mS =
           let
-            fun shiftPlus' (M.Mnil, n) = n
-              | shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
+            let rec shiftPlus' = function (M.Mnil, n) -> n
+              | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> 
                   shiftPlus' (mS', n+1)
-              | shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
+              | (M.Mapp (M.Marg (M.Minus, _), mS'), n) -> 
                   shiftPlus' (mS', n)
           in
             shiftPlus' (mS, 0)
@@ -132,9 +132,9 @@ struct
        then F' is the conjunction of the logical interpretation of each
             type family
      *)
-    fun convertFor nil = raise Error "Empty theorem"
-      | convertFor [a] = convertOneFor a
-      | convertFor (a :: L) = T.And (convertOneFor a, convertFor L)
+    let rec convertFor = function nil -> raise Error "Empty theorem"
+      | [a] -> convertOneFor a
+      | (a :: L) -> T.And (convertOneFor a, convertFor L)
 
    (* here ends the preliminary stuff *)
 
@@ -171,32 +171,32 @@ struct
 
     fun menuToString () =
         let
-          fun menuToString' (k, nil) = ""
-            | menuToString' (k, Split O  :: M) =
+          let rec menuToString' = function (k, nil) -> ""
+            | (k, Split O  :: M) -> 
               let
                 let s = menuToString' (k+1, M)
               in
                  s ^ "\n  " ^ (format k) ^ (Split.menu O)
               end
-            | menuToString' (k, Introduce O :: M) =
+            | (k, Introduce O :: M) -> 
               let
                 let s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (Introduce.menu O)
               end
-            | menuToString' (k, Fill O :: M) =
+            | (k, Fill O :: M) -> 
               let
                 let s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (Fill.menu O)
               end
-            | menuToString' (k, Fix O :: M) =
+            | (k, Fix O :: M) -> 
               let
                 let s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (FixedPoint.menu O)
               end
-            | menuToString' (k, Elim O :: M) =
+            | (k, Elim O :: M) -> 
               let
                 let s = menuToString' (k+1, M)
               in
@@ -266,23 +266,23 @@ struct
                 let F2 = map (fun Y -> S.FocusLF Y) Ys
 
 
-                fun splitMenu [] = []
-                  | splitMenu (operators :: l) = map Split operators @ splitMenu l
+                let rec splitMenu = function [] -> []
+                  | (operators :: l) -> map Split operators @ splitMenu l
 
                 let _ = Global.doubleCheck := true
 
 
-                fun introMenu [] =  []
-                  | introMenu ((SOME oper) :: l) = (Introduce oper) :: introMenu l
-                  | introMenu (NONE :: l) = introMenu l
+                let rec introMenu = function [] -> []
+                  | ((SOME oper) :: l) -> (Introduce oper) :: introMenu l
+                  | (NONE :: l) -> introMenu l
 
                 let intro = introMenu (map Introduce.expand F1)
 
 
                 let fill = foldr (fn (S, l) => l @ map (fun O -> Fill O) (Fill.expand S)) nil F2
 
-                fun elimMenu [] = []
-                  | elimMenu (operators :: l) = map Elim operators @ elimMenu l
+                let rec elimMenu = function [] -> []
+                  | (operators :: l) -> map Elim operators @ elimMenu l
 
                 let elim = elimMenu (map Elim.expand F1)
 
@@ -302,16 +302,16 @@ struct
 
     fun select k =
         let
-          fun select' (k, nil) = abort ("No such menu item")
-            | select' (1, Split O :: _) =
+          let rec select' = function (k, nil) -> abort ("No such menu item")
+            | (1, Split O :: _) -> 
                 (Timers.time Timers.splitting Split.apply) O
-            | select' (1, Introduce O :: _) =
+            | (1, Introduce O :: _) -> 
                 Introduce.apply O    (* no timer yet -- cs *)
-            | select' (1, Elim O :: _) =
+            | (1, Elim O :: _) -> 
                 Elim.apply O    (* no timer yet -- cs *)
-            | select' (1, Fill O :: _) =
+            | (1, Fill O :: _) -> 
                 (Timers.time Timers.filling Fill.apply) O
-            | select' (k, _ :: M) = select' (k-1, M)
+            | (k, _ :: M) -> select' (k-1, M)
         in
           (case !Menu of
             NONE => raise Error "No menu defined"
@@ -361,16 +361,16 @@ struct
            of [] => print "Please initialize first\n"
             | (S.State (W, Psi, P, F) :: _) =>
               let
-                fun findIEVar nil = raise Error ("cannot focus on " ^ n)
-                  | findIEVar (Y :: Ys) =
+                let rec findIEVar = function nil -> raise Error ("cannot focus on " ^ n)
+                  | (Y :: Ys) -> 
                     if Names.evarName (T.coerceCtx Psi, Y) = n then
                        (Focus := (S.StateLF Y :: !Focus);
                         normalize ();
                         menu ();
                         printmenu ())
                     else findIEVar Ys
-                fun findTEVar nil = findIEVar (S.collectLF P)
-                  | findTEVar ((X as T.EVar (Psi, r, F, TC, TCs, Y)) :: Xs) =
+                let rec findTEVar = function nil -> findIEVar (S.collectLF P)
+                  | ((X as T.EVar (Psi, r, F, TC, TCs, Y)) :: Xs) -> 
                     if Names.evarName (T.coerceCtx Psi, Y) = n then
                       (Focus := (S.State (W, TomegaPrint.nameCtx Psi, X, F) :: !Focus);
                        normalize ();

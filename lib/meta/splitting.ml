@@ -70,9 +70,9 @@ struct
     module H = Heuristic
 
 
-    fun makeOperator ((S, k), L, S.Splits n, g, I, m, true) =    (* recursive case *)
+    let rec makeOperator = function ((S, k), L, S.Splits n, g, I, m, true) -> (* recursive case *)
           Operator ((S, k), L, {sd=n, ind=I, c=List.length L, m=m, r=1, p=g+1})
-      | makeOperator ((S, k), L, S.Splits n, g, I, m, false) =   (* non-recursive case *)
+      | ((S, k), L, S.Splits n, g, I, m, false) -> (* non-recursive case *)
           Operator ((S, k), L, {sd=n, ind=I, c=List.length L, m=m, r=0, p=g+1})
 
     (* aux (G, B) = L'
@@ -83,10 +83,10 @@ struct
        then . |- L' = GxB lfctx
     *)
 
-    fun aux (I.Null, I.Null) = I.Null
-      | aux (I.Decl (G, D), I.Decl (B, S.Lemma _)) =
+    let rec aux = function (I.Null, I.Null) -> I.Null
+      | (I.Decl (G, D), I.Decl (B, S.Lemma _)) -> 
           I.Decl (aux (G, B), F.Prim D)
-      | aux (G as I.Decl (_, D), B as I.Decl (_, S.Parameter (SOME l))) =
+      | (G as I.Decl (_, D), B as I.Decl (_, S.Parameter (SOME l))) -> 
         let
           let F.LabelDec  (name, _, G2) = F.labelLookup l
           let (Psi', G') = aux' (G, B, List.length G2)
@@ -110,7 +110,7 @@ struct
        B iff G [s]  == G' [s']
        Might migrate in to conv module  --cs
     *)
-    fun conv (Gs, Gs') =
+    let rec conv = function (Gs, Gs') -> 
       let
         exception Conv
         fun conv ((I.Null, s), (I.Null, s')) = (s, s')
@@ -123,7 +123,7 @@ struct
               if Conv.conv ((V, s1), (V', s1')) then ps
               else raise Conv
             end
-          | conv _ = raise Conv
+          | _ -> raise Conv
       in
         (conv (Gs, Gs'); true) handle Conv => false
       end
@@ -195,8 +195,8 @@ struct
        Remark: This is someEVars from recursion.fun with a generalized ih --cs
     *)
 
-    fun someEVars (G, nil, s) =  s
-      | someEVars (G, I.Dec (_, V) :: L, s) =
+    let rec someEVars = function (G, nil, s) -> s
+      | (G, I.Dec (_, V) :: L, s) -> 
           someEVars(G, L, I.Dot (I.Exp (I.newEVar (G, I.EClo (V, s))), s))
 
 
@@ -217,14 +217,14 @@ struct
       end
 
 
-    fun maxNumberLocalParams (I.Pi ((I.Dec (_, V1), _), V2), a) =
+    let rec maxNumberLocalParams = function (I.Pi ((I.Dec (_, V1), _), V2), a) -> 
         let
           let m = maxNumberLocalParams (V2, a)
         in
           if I.targetFam V1 = a then m+1
           else m
         end
-      | maxNumberLocalParams (I.Root _, a) = 0
+      | (I.Root _, a) -> 0
 
 
 
@@ -242,18 +242,18 @@ struct
        then G2 |- G' = G[s] ctx
     *)
 
-    fun ctxSub (nil, s) = nil
-      | ctxSub (D :: G, s) = I.decSub (D, s) :: ctxSub (G, I.dot1 s)
+    let rec ctxSub = function (nil, s) -> nil
+      | (D :: G, s) -> I.decSub (D, s) :: ctxSub (G, I.dot1 s)
 
 
 
-    fun createTags (0, l) = I.Null
-      | createTags (n, l) =
+    let rec createTags = function (0, l) -> I.Null
+      | (n, l) -> 
            I.Decl (createTags (n-1, l),  S.Parameter (SOME l))
 
 
-    fun createLemmaTags (I.Null) = I.Null
-      | createLemmaTags (I.Decl (G, D)) =
+    let rec createLemmaTags = function (I.Null) -> I.Null
+      | (I.Decl (G, D)) -> 
            I.Decl (createLemmaTags G,  S.Lemma (S.Splits (!MTPGlobal.maxSplit)))
 
     (* constCases (G, (V, s), I, abstract, ops) = ops'
@@ -266,8 +266,8 @@ struct
        then ops' is a list extending ops, containing all possible
          operators from I
     *)
-    fun constCases (G, Vs, nil, abstract, ops) = ops
-      | constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
+    let rec constCases = function (G, Vs, nil, abstract, ops) -> ops
+      | (G, Vs, I.Const c::Sgn, abstract, ops) -> 
         let
           let (U, Vs') = createAtomConst (G, I.Const c)
         in
@@ -290,8 +290,8 @@ struct
        then ops' is a list extending ops, containing all possible
          operators introduced by parameters <= k in G
     *)
-    fun paramCases (G, Vs, 0, abstract, ops) = ops
-      | paramCases (G, Vs, k, abstract, ops) =
+    let rec paramCases = function (G, Vs, 0, abstract, ops) -> ops
+      | (G, Vs, k, abstract, ops) -> 
         let
           let (U, Vs') = createAtomBVar (G, k)
         in
@@ -313,8 +313,8 @@ struct
       let
         let g = I.ctxLength G
 
-        fun select (0, ops)  = ops
-          | select (d', ops) =
+        let rec select = function (0, ops) -> ops
+          | (d', ops) -> 
             let
               let n = g-d'+1
               let I.Dec (_, V) = I.ctxDec (G, n)
@@ -347,9 +347,9 @@ struct
        then ops' is a list of all operators unifying with V[s']
             (it contains constant and parameter cases)
     *)
-    fun lowerSplitDest (G, k, (V as I.Root (I.Const c, _), s'), abstract, cases) =
+    let rec lowerSplitDest = function (G, k, (V as I.Root (I.Const c, _), s'), abstract, cases) -> 
           cases (c, G, I.ctxLength G , (V, s'), abstract)
-      | lowerSplitDest (G, k, (I.Pi ((D, P), V), s'), abstract, cases) =
+      | (G, k, (I.Pi ((D, P), V), s'), abstract, cases) -> 
           let
             let D' = I.decSub (D, s')
           in
@@ -486,11 +486,11 @@ struct
        If    U in nf
        then  B iff k occurs in U
     *)
-    fun occursInExp (k, I.Uni _) = false
-      | occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.Root (C, S)) = occursInCon (k, C) orelse occursInSpine (k, S)
-      | occursInExp (k, I.Lam (D,V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.FgnExp csfe) =
+    let rec occursInExp = function (k, I.Uni _) -> false
+      | (k, I.Pi (DP, V)) -> occursInDecP (k, DP) orelse occursInExp (k+1, V)
+      | (k, I.Root (C, S)) -> occursInCon (k, C) orelse occursInSpine (k, S)
+      | (k, I.Lam (D,V)) -> occursInDec (k, D) orelse occursInExp (k+1, V)
+      | (k, I.FgnExp csfe) -> 
         I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExp (k, Whnf.normalize (U, I.id))) false
       (* no case for Redex, EVar, EClo *)
 
@@ -552,14 +552,14 @@ struct
 
 
 
-    fun occursInOrder (n, S.Arg (Us, Vt), k, sc) =
+    let rec occursInOrder = function (n, S.Arg (Us, Vt), k, sc) -> 
         let
           let U' = Whnf.normalize Us
         in
           if occursInExp (k, U') then SOME (n) else sc (n+1)
         end
-      | occursInOrder (n, S.Lex Os, k, sc) = occursInOrders (n, Os, k, sc)
-      | occursInOrder (n, S.Simul Os, k, sc) = occursInOrders (n, Os, k, sc)
+      | (n, S.Lex Os, k, sc) -> occursInOrders (n, Os, k, sc)
+      | (n, S.Simul Os, k, sc) -> occursInOrders (n, Os, k, sc)
       (* no other case should be possible by invariant *)
 
     and occursInOrders (n, nil, k, sc) = sc n
@@ -721,8 +721,8 @@ struct
        Invariant:
        B holds iff F is inactive
     *)
-    fun isInActive (Active _) = false
-      | isInActive (InActive) = true
+    let rec isInActive = function (Active _) -> false
+      | (InActive) -> true
 
 
     (* applicable (Op) = B'
@@ -762,22 +762,22 @@ struct
     *)
     fun menu (Op as Operator ((S.State (n, (G, B), (IH, OH), d, O, H, F), i), Sl, I)) =
         let
-          fun active (nil, n) = n
-            | active (InActive :: L, n) = active (L, n)
-            | active ((Active _) :: L, n) = active (L, n+1)
+          let rec active = function (nil, n) -> n
+            | (InActive :: L, n) -> active (L, n)
+            | ((Active _) :: L, n) -> active (L, n+1)
 
-          fun inactive (nil, n) = n
-            | inactive (InActive :: L, n) = inactive (L, n+1)
-            | inactive ((Active _) :: L, n) = inactive (L, n)
+          let rec inactive = function (nil, n) -> n
+            | (InActive :: L, n) -> inactive (L, n+1)
+            | ((Active _) :: L, n) -> inactive (L, n)
 
-          fun casesToString 0 = "zero cases"
-            | casesToString 1 = "1 case"
-            | casesToString n = (Int.toString n) ^ " cases"
+          let rec casesToString = function 0 -> "zero cases"
+            | 1 -> "1 case"
+            | n -> (Int.toString n) ^ " cases"
 
 
 
-          fun flagToString (_, 0) = ""
-            | flagToString (n, m) = " [active: " ^(Int.toString n) ^
+          let rec flagToString = function (_, 0) -> ""
+            | (n, m) -> " [active: " ^(Int.toString n) ^
                 " inactive: " ^ (Int.toString m) ^ "]"
         in
           "Splitting : " ^ Print.decToString (G, I.ctxDec (G, i)) ^

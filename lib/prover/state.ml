@@ -40,24 +40,24 @@ struct
        If   P is a well-typed program
        then [X1 .. Xn] are all the open subgoals that occur within P
     *)
-    fun findPrg (T.Lam (_, P)) = findPrg P
-      | findPrg (T.New P) = findPrg P
-      | findPrg (T.Choose P) = findPrg P
-      | findPrg (T.PairExp (_, P)) = findPrg P
-      | findPrg (T.PairBlock (B, P)) = findPrg P
-      | findPrg (T.PairPrg (P1, P2)) = findPrg P1 @ findPrg P2
-      | findPrg (T.Unit) = []
-      | findPrg (T.Rec (_, P)) = findPrg P
-      | findPrg (T.Case (T.Cases C)) = findCases C
-      | findPrg (T.PClo (P, t)) = findPrg P @ findSub t
-      | findPrg (T.Let (D, P1, P2)) = findPrg P1 @ findPrg P2
-      | findPrg (T.LetPairExp (D1, D2, P1, P2)) = findPrg P1 @ findPrg P2
-      | findPrg (T.LetUnit (P1, P2)) = findPrg P1 @ findPrg P2
-      | findPrg (X as T.EVar (_, ref NONE, _, _, _, _)) = [X]
-      | findPrg (X as T.EVar (_, ref (SOME P), _, _, _, _)) = findPrg P
-      | findPrg (T.Const _) = []
-      | findPrg (T.Var _) = []
-      | findPrg (T.Redex (P, S)) = findPrg P @ findSpine S
+    let rec findPrg = function (T.Lam (_, P)) -> findPrg P
+      | (T.New P) -> findPrg P
+      | (T.Choose P) -> findPrg P
+      | (T.PairExp (_, P)) -> findPrg P
+      | (T.PairBlock (B, P)) -> findPrg P
+      | (T.PairPrg (P1, P2)) -> findPrg P1 @ findPrg P2
+      | (T.Unit) -> []
+      | (T.Rec (_, P)) -> findPrg P
+      | (T.Case (T.Cases C)) -> findCases C
+      | (T.PClo (P, t)) -> findPrg P @ findSub t
+      | (T.Let (D, P1, P2)) -> findPrg P1 @ findPrg P2
+      | (T.LetPairExp (D1, D2, P1, P2)) -> findPrg P1 @ findPrg P2
+      | (T.LetUnit (P1, P2)) -> findPrg P1 @ findPrg P2
+      | (X as T.EVar (_, ref NONE, _, _, _, _)) -> [X]
+      | (X as T.EVar (_, ref (SOME P), _, _, _, _)) -> findPrg P
+      | (T.Const _) -> []
+      | (T.Var _) -> []
+      | (T.Redex (P, S)) -> findPrg P @ findSpine S
 
     and findCases nil = []
       | findCases ((_, _, P) :: C) = findPrg P @ findCases C
@@ -81,29 +81,29 @@ struct
        If   P is a well-typed program
        then [X1 .. Xn] are all the open subgoals that occur within P
     *)
-    fun findExp (Psi, T.Lam (D, P)) K = findExp (I.Decl (Psi, D), P) K
-      | findExp (Psi, T.New P) K = findExp (Psi, P) K
-      | findExp (Psi, T.Choose P) K = findExp (Psi, P) K
-      | findExp (Psi, T.PairExp (M, P)) K =
+    let rec findExp = function (Psi, T.Lam (D, P)) K -> findExp (I.Decl (Psi, D), P) K
+      | (Psi, T.New P) K -> findExp (Psi, P) K
+      | (Psi, T.Choose P) K -> findExp (Psi, P) K
+      | (Psi, T.PairExp (M, P)) K -> 
           findExp (Psi, P) (Abstract.collectEVars (T.coerceCtx Psi, (M, I.id), K))
-      | findExp (Psi, T.PairBlock (B, P)) K = findExp (Psi, P) K
+      | (Psi, T.PairBlock (B, P)) K -> findExp (Psi, P) K
           (* by invariant: Blocks don't contain free evars. *)
-      | findExp (Psi, T.PairPrg (P1, P2)) K = findExp (Psi, P2) (findExp (Psi, P1) K)
-      | findExp (Psi, T.Unit) K = K
-      | findExp (Psi, T.Rec (D, P)) K = findExp (Psi, P) K
-      | findExp (Psi, T.Case (T.Cases C)) K = findExpCases (Psi, C) K
-      | findExp (Psi, T.PClo (P, t)) K =
+      | (Psi, T.PairPrg (P1, P2)) K -> findExp (Psi, P2) (findExp (Psi, P1) K)
+      | (Psi, T.Unit) K -> K
+      | (Psi, T.Rec (D, P)) K -> findExp (Psi, P) K
+      | (Psi, T.Case (T.Cases C)) K -> findExpCases (Psi, C) K
+      | (Psi, T.PClo (P, t)) K -> 
           findExpSub (Psi, t) (findExp (Psi, P) K)
-      | findExp (Psi, T.Let (D, P1, P2)) K =
+      | (Psi, T.Let (D, P1, P2)) K -> 
           findExp (I.Decl (Psi, D), P2) (findExp (Psi, P1) K)
-      | findExp (Psi, T.LetPairExp (D1, D2, P1, P2)) K =
+      | (Psi, T.LetPairExp (D1, D2, P1, P2)) K -> 
           findExp (I.Decl (I.Decl (Psi, T.UDec D1), D2), P2) (findExp (Psi, P1) K)
-      | findExp (Psi, T.LetUnit (P1, P2)) K =
+      | (Psi, T.LetUnit (P1, P2)) K -> 
           findExp (Psi, P2) (findExp (Psi, P1) K)
-      | findExp (Psi, X as T.EVar _) K = K
-      | findExp (Psi, T.Const _) K = K
-      | findExp (Psi, T.Var _) K = K
-      | findExp (Psi, T.Redex (P, S)) K = findExpSpine (Psi, S) K
+      | (Psi, X as T.EVar _) K -> K
+      | (Psi, T.Const _) K -> K
+      | (Psi, T.Var _) K -> K
+      | (Psi, T.Redex (P, S)) K -> findExpSpine (Psi, S) K
 
     and findExpSpine (Psi, T.Nil) K = K
       | findExpSpine (Psi, T.AppPrg (_, S)) K = findExpSpine (Psi, S) K

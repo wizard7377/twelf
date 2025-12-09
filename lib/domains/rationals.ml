@@ -21,8 +21,8 @@ struct
 
     exception Div
 
-    fun normalize (Fract (0, _, _)) = zero
-      | normalize (Fract (s, n, d)) =
+    let rec normalize = function (Fract (0, _, _)) -> zero
+      | (Fract (s, n, d)) -> 
           let
             fun gcd (m, n) =
                   if (m = I.fromInt(0)) then n
@@ -55,8 +55,8 @@ struct
     fun op* (Fract (s1, n1, d1), Fract (s2, n2, d2)) =
           normalize (Fract(Int.*(s1, s2), I.*(n1, n2), I.*(d1, d2)))
 
-    fun inverse (Fract (0, _, _)) = raise Div
-      | inverse (Fract (s, n, d)) = (Fract (s, d, n))
+    let rec inverse = function (Fract (0, _, _)) -> raise Div
+      | (Fract (s, n, d)) -> (Fract (s, d, n))
 
     fun sign (Fract (s, n, d)) = s
 
@@ -85,11 +85,11 @@ struct
 
     fun fromString (str) =
           let
-            fun check_numerator (chars as (c :: chars')) =
+            let rec check_numerator = function (chars as (c :: chars')) -> 
                   if (c = #"~")
                   then (List.all Char.isDigit chars')
                   else (List.all Char.isDigit chars)
-              | check_numerator nil =
+              | nil -> 
                   false
             fun check_denominator (chars) =
                   (List.all Char.isDigit chars)

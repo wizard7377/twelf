@@ -66,8 +66,8 @@ struct
        then Sopt = NONE if L = []
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
-    fun findMin nil = NONE
-      | findMin (O :: L) =
+    let rec findMin = function nil -> NONE
+      | (O :: L) -> 
         let
           fun findMin' (nil, k, result) = result
             | findMin' (O' :: L', k ,result)=
@@ -232,8 +232,8 @@ struct
        then Sopt = NONE if L = []
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
-    fun findMin nil = NONE
-      | findMin (O :: L) =
+    let rec findMin = function nil -> NONE
+      | (O :: L) -> 
           let
             fun findMin' (nil, k, result) = result
               | findMin' (O' :: L', k ,result)=

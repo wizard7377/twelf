@@ -63,8 +63,8 @@ struct
       Lemma of int * F.For              (* Residual Lemma *)
 
 
-    fun closedCtx (I.Null) = ()
-      | closedCtx (I.Decl (G, D)) =
+    let rec closedCtx = function (I.Null) -> ()
+      | (I.Decl (G, D)) -> 
         if Abstract.closedDec (G, (D, I.id)) then raise Domain
         else closedCtx G
 
@@ -74,8 +74,8 @@ struct
         Invariant:
         S' = n;..;1;Nil
      *)
-    fun spine 0 = I.Nil
-      | spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
+    let rec spine = function 0 -> I.Nil
+      | n -> I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
 
     (* someEVars (G, G1, s) = s'
 
@@ -84,8 +84,8 @@ struct
        and  G |- s : G
        then G |- s' : G, G1
     *)
-    fun someEVars (G, nil, s) =  s
-      | someEVars (G, I.Dec (_, V) :: L, s) =
+    let rec someEVars = function (G, nil, s) -> s
+      | (G, I.Dec (_, V) :: L, s) -> 
       someEVars(G, L, I.Dot (I.Exp (I.newEVar (G, I.EClo (V, s))), s))
 
 
@@ -99,8 +99,8 @@ struct
 
        NOTE, should go into a different module. Code duplication!
     *)
-    fun ctxSub (nil, s) = nil
-      | ctxSub (D :: G, s) = I.decSub (D, s) :: ctxSub (G, I.dot1 s)
+    let rec ctxSub = function (nil, s) -> nil
+      | (D :: G, s) -> I.decSub (D, s) :: ctxSub (G, I.dot1 s)
 
 
 
@@ -114,8 +114,8 @@ struct
        then |- G' = G1, G2 ctx
        and  G' |- B' tags
     *)
-    fun appendCtx (GB1, T, nil) = GB1
-      | appendCtx ((G1, B1), T, D :: G2) =
+    let rec appendCtx = function (GB1, T, nil) -> GB1
+      | ((G1, B1), T, D :: G2) -> 
           appendCtx ((I.Decl (G1, D), I.Decl (B1, T)), T, G2)
 
 
@@ -135,9 +135,9 @@ struct
      and  G' |- s' : G1
      and  af : forall . |- AF aux formulas. Ex . |- AF' = {{G''}} AF  auxFor
      *)
-    fun createCtx ((G, B), nil, s) =
+    let rec createCtx = function ((G, B), nil, s) -> 
           ((G, B), s, fun AF -> AF)
-      | createCtx ((G, B), n :: ll, s) =
+      | ((G, B), n :: ll, s) -> 
         let
           let F.LabelDec (l, G1, G2) = F.labelLookup n
 
@@ -163,8 +163,8 @@ struct
        then G |- s' : G0
        and  s' = X1 .. Xn where n = |G0|
     *)
-    fun createEVars (G, I.Null) = I.Shift (I.ctxLength G)
-      | createEVars (G, I.Decl (G0, I.Dec (_, V))) =
+    let rec createEVars = function (G, I.Null) -> I.Shift (I.ctxLength G)
+      | (G, I.Decl (G0, I.Dec (_, V))) -> 
         let
           let s = createEVars (G, G0)
         in
@@ -182,8 +182,8 @@ struct
        then B' holds iff
             G1 = V1 .. Vn and G, G1, V1 .. Vi-1 |- Vi unifies with V [s o ^i] : L
     *)
-    fun checkCtx (G, nil, (V2, s)) = false
-      | checkCtx (G, (D as I.Dec (_, V1)) :: G2, (V2, s)) =
+    let rec checkCtx = function (G, nil, (V2, s)) -> false
+      | (G, (D as I.Dec (_, V1)) :: G2, (V2, s)) -> 
           (CSManager.trail (fn () => Unify.unifiable (G, (V1, I.id), (V2, s)))
           orelse checkCtx (I.Decl (G, D), G2, (V2, I.comp (s, I.shift))))
 
@@ -229,8 +229,8 @@ struct
        Ds1, Ds2 are a list of residual lemmas
        Ds' = Ds1 @ Ds2, where all duplicates are removed
     *)
-    fun appendRL (nil, Ds) = Ds
-      | appendRL ((L as Lemma (n, F)) :: Ds1, Ds2) =
+    let rec appendRL = function (nil, Ds) -> Ds
+      | ((L as Lemma (n, F)) :: Ds1, Ds2) -> 
         let
           let Ds' = appendRL (Ds1, Ds2)
         in
@@ -314,8 +314,8 @@ struct
            Invariant:
            If    G1, D < G
         *)
-        fun set_parameter' ((I.Null, I.Null), _, Ds) =  Ds
-          | set_parameter' ((I.Decl (G, D), I.Decl (B, S.Parameter _)), k, Ds) =
+        let rec set_parameter' = function ((I.Null, I.Null), _, Ds) -> Ds
+          | ((I.Decl (G, D), I.Decl (B, S.Parameter _)), k, Ds) -> 
             let
               let D' as I.Dec (_, V') = I.decSub (D, I.Shift (k))
               let Ds' =
@@ -327,7 +327,7 @@ struct
             in
               set_parameter' ((G, B), k+1, Ds')
             end
-          | set_parameter' ((I.Decl (G, D), I.Decl (B, _)), k, Ds) =
+          | ((I.Decl (G, D), I.Decl (B, _)), k, Ds) -> 
               set_parameter' ((G, B), k+1, Ds)
       in
         set_parameter' (GB, 1, Ds)
@@ -665,8 +665,8 @@ struct
        and  GB' |- s' : GB
     *)
 
-    fun skolem ((du, de), GB, w, F.True, sc) = (GB, w)
-      | skolem ((du, de), GB, w, F.All (F.Prim D, F), sc) =
+    let rec skolem = function ((du, de), GB, w, F.True, sc) -> (GB, w)
+      | ((du, de), GB, w, F.All (F.Prim D, F), sc) -> 
           skolem ((du+1, de), GB, w, F,
                   fn (s, de') =>
                                         (* s'  :  GB, Ds |- s : GB   *)
@@ -684,7 +684,7 @@ struct
                                         (* _   : maps (GB, Ds, G'[....], D[?] |- F : for) to  (GB, Ds, |- {{G[....], D[?]}} F : for) *)
                         )
                      end)
-      | skolem ((du, de), (G, B), w, F.Ex (I.Dec (name, V), F), sc) =
+      | ((du, de), (G, B), w, F.Ex (I.Dec (name, V), F), sc) -> 
                                         (* V   : GB, G |- V type *)
           let
             let (s', V', F') = sc (w, de)
@@ -735,8 +735,8 @@ struct
        G |- Ds new decs
        G' |- s : G
     *)
-    fun updateState (S, (nil, s)) = S
-      | updateState (S as S.State (n, (G, B), (IH, OH), d, O, H, F), (Lemma (n', Frl') :: L, s)) =
+    let rec updateState = function (S, (nil, s)) -> S
+      | (S as S.State (n, (G, B), (IH, OH), d, O, H, F), (Lemma (n', Frl') :: L, s)) -> 
         let
           let ((G'', B''), s') = skolem ((0, 0), (G, B), I.id, F.forSub (Frl', s),
                                          fn (s', _) => (s', fn V' => V', fn F' => F'))
@@ -758,15 +758,15 @@ struct
        sc returns with all addition assumptions/residual lemmas for a certain
        branch of the theorem.
     *)
-    fun selectFormula (n, (G0, F.All (F.Prim (D as I.Dec (_, V)), F), S.All (_, O)), S) =
+    let rec selectFormula = function (n, (G0, F.All (F.Prim (D as I.Dec (_, V)), F), S.All (_, O)), S) -> 
           selectFormula (n, (I.Decl (G0, D), F, O), S)
-      | selectFormula (n, (G0, F.And (F1, F2), S.And (O1, O2)), S) =
+      | (n, (G0, F.And (F1, F2), S.And (O1, O2)), S) -> 
         let
           let (n', S') = selectFormula (n, (G0, F1, O1), S)
         in
           selectFormula (n, (G0, F2, O2), S')
         end
-      | selectFormula (nih, (Gall, Fex, Oex), S as S.State (ncurrent, (G0, B0), (_, _), _, Ocurrent, H, F)) =
+      | (nih, (Gall, Fex, Oex), S as S.State (ncurrent, (G0, B0), (_, _), _, Ocurrent, H, F)) -> 
         let
 
           let Ds = recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), nil, Ocurrent, H, F))

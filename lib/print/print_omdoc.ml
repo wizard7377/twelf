@@ -41,11 +41,11 @@ local
   fun nl() = "\n" ^ tabs(!indent)
 
   fun escape s = let
-          fun escapelist nil = nil
-            | escapelist (#"&" :: rest) = String.explode "&amp;" @ (escapelist rest)
-            | escapelist (#"<" :: rest) = String.explode "&lt;" @ (escapelist rest)
-            | escapelist (#">" :: rest) = String.explode "&gt;" @ (escapelist rest)
-            | escapelist (c :: rest) = c :: (escapelist rest)
+          let rec escapelist = function nil -> nil
+            | (#"&" :: rest) -> String.explode "&amp;" @ (escapelist rest)
+            | (#"<" :: rest) -> String.explode "&lt;" @ (escapelist rest)
+            | (#">" :: rest) -> String.explode "&gt;" @ (escapelist rest)
+            | (c :: rest) -> c :: (escapelist rest)
   in
     String.implode (escapelist (String.explode s))
   end
@@ -89,28 +89,28 @@ local
   fun sexp (l) = String.concat l
 
   (* This is probably defined elsewhere, too. It's needed to check how many arguments there will be in an om:OMA element *)
-  fun spineLength I.Nil = 0
-    | spineLength (I.SClo (S, _)) = spineLength S
-    | spineLength (I.App(_, S)) = 1 + (spineLength S)
+  let rec spineLength = function I.Nil -> 0
+    | (I.SClo (S, _)) -> spineLength S
+    | (I.App(_, S)) -> 1 + (spineLength S)
 
   (* fmtCon (c) = "c" where the name is assigned according the the Name table
      maintained in the names module.
      FVar's are printed with a preceding "`" (backquote) character
   *)
-  fun fmtCon (G, I.BVar(x)) =
+  let rec fmtCon = function (G, I.BVar(x)) -> 
       let
         let I.Dec (SOME n, _) = I.ctxDec (G, x)
       in
         sexp [Str ("<om:OMV name=\"" ^ VarName(I.ctxLength G - x + 1,n) ^ "\"/>")]
       end
-    | fmtCon (G, I.Const(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
-    | fmtCon (G, I.Def(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
-    | fmtCon (G, I.FgnConst (csid, condec)) = sexp [Str "FgnConst"]  (* FIX -cs Fri Jan 28 17:45:35 2005*)
+    | (G, I.Const(cid)) -> sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
+    | (G, I.Def(cid)) -> sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
+    | (G, I.FgnConst (csid, condec)) -> sexp [Str "FgnConst"]  (* FIX -cs Fri Jan 28 17:45:35 2005*)
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
-  fun fmtUni (I.Type) = Str "<om:OMS cd=\"twelf\" name=\"type\"/>"
-    | fmtUni (I.Kind) = Str "<om:OMS cd=\"twelf\" name=\"kind\"/>"
+  let rec fmtUni = function (I.Type) -> Str "<om:OMS cd=\"twelf\" name=\"type\"/>"
+    | (I.Kind) -> Str "<om:OMS cd=\"twelf\" name=\"kind\"/>"
 
   (* fmtExpW (G, (U, s)) = fmt
 
@@ -122,8 +122,8 @@ local
        G'' |- U : V   G' |- s : G''  (so  G' |- U[s] : V[s])
        (U,s) in whnf
   *)
-  fun fmtExpW (G, (I.Uni(L), s), _) = sexp [fmtUni L]
-    | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s), imp) =
+  let rec fmtExpW = function (G, (I.Uni(L), s), _) -> sexp [fmtUni L]
+    | (G, (I.Pi((D as I.Dec(_,V1),P),V2), s), imp) -> 
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
                          let (D' as I.Dec (SOME(name), V1')) = Names.decLUName (G, D) (* could sometimes be EName *)
@@ -146,7 +146,7 @@ local
                             fmtExp (G', (V2, I.dot1 s), 0), nl_unind(),
                             Str "</om:OMA>"]
                     end)
-    | fmtExpW (G, (I.Root (H, S), s), _) = let
+    | (G, (I.Root (H, S), s), _) -> let
         let l = spineLength(S)
         let out = ref ""
         let _ = if (l = 0) then
@@ -182,7 +182,7 @@ local
       in
         !out
       end
-    | fmtExpW (G, (I.Lam(D, U), s), imp) =
+    | (G, (I.Lam(D, U), s), imp) -> 
       let
         let (D' as I.Dec (SOME(name), V)) = Names.decLUName (G, D)
         let G' = I.Decl (G, D')
@@ -196,7 +196,7 @@ local
       in
         fmtBinder(lam, name, id, fmtType, fmtBody)
       end
-    | fmtExpW (G, (I.FgnExp (csid, F), s), 0) = sexp [Str "FgnExp"] (* FIX -cs Fri Jan 28 17:45:43 2005 *)
+    | (G, (I.FgnExp (csid, F), s), 0) -> sexp [Str "FgnExp"] (* FIX -cs Fri Jan 28 17:45:43 2005 *)
 
     (* I.EClo, I.Redex, I.EVar not possible *)
 
@@ -290,30 +290,30 @@ local
      This function prints the quantifiers and abstractions only if hide = false.
   *)
 
-  fun fmtConDec (cid, I.ConDec (name, parent, imp, _, V, L)) =
+  let rec fmtConDec = function (cid, I.ConDec (name, parent, imp, _, V, L)) -> 
       let
         let _ = Names.varReset IntSyn.Null
         let name = Name cid
       in
         fmtSymbol(name, V, imp)
       end
-    | fmtConDec (_, I.SkoDec (name, parent, imp, V, L)) =
+    | (_, I.SkoDec (name, parent, imp, V, L)) -> 
       Str ("<!-- Skipping Skolem constant " ^ name ^ "-->")
-    | fmtConDec (cid, I.ConDef (name, parent, imp, U, V, L, _)) =
+    | (cid, I.ConDef (name, parent, imp, U, V, L, _)) -> 
       let
         let _ = Names.varReset IntSyn.Null
         let name = Name cid
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
       end
-    | fmtConDec (cid, I.AbbrevDef (name, parent, imp, U, V, L)) =
+    | (cid, I.AbbrevDef (name, parent, imp, U, V, L)) -> 
       let
         let _ = Names.varReset IntSyn.Null
         let name = Name cid
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
       end
-    | fmtConDec (_, I.BlockDec (name, _, _, _)) =
+    | (_, I.BlockDec (name, _, _, _)) -> 
       Str ("<!-- Skipping Skolem constant " ^ name ^ "-->")
 
 in

@@ -47,9 +47,9 @@ struct
   (* freeVar (XOpt, [(X1,"X1"),...,(Xn,"Xn")]) = true
      iff XOpt = SOME("Xi"), false otherwise
   *)
-  fun freeVar (SOME(name), Xs) =
+  let rec freeVar = function (SOME(name), Xs) -> 
         List.exists (fn (_, name') => name = name') Xs
-    | freeVar _ = false
+    | _ -> false
 
   (* queryToQuery (q) = (V, XOpt, [(X1,"X1"),...,(Xn,"Xn")])
      where XOpt is the optional proof term variable
@@ -156,10 +156,10 @@ struct
       let
 	let _ = Names.varReset IntSyn.Null
         let _ = T.resetErrors fileName
-        fun mkd (define (_, tm1, NONE)) = T.jterm tm1
-          | mkd (define (_, tm1, SOME (tm2))) = T.jof (tm1, tm2)
-        fun mkj (nil) = T.jnothing
-          | mkj (def::defs) = T.jand (mkd def, mkj defs)
+        let rec mkd = function (define (_, tm1, NONE)) -> T.jterm tm1
+          | (define (_, tm1, SOME (tm2))) -> T.jof (tm1, tm2)
+        let rec mkj = function (nil) -> T.jnothing
+          | (def::defs) -> T.jand (mkd def, mkj defs)
         let T.JAnd (defines', T.JClass ((V, _), L)) =
               (Timers.time Timers.recon T.reconQuery)
                 (T.jand (mkj defines, T.jclass tm))
@@ -170,16 +170,16 @@ struct
                     | _ => error (r0, "Query was not a type"))
 
 	(* let Xs = Names.namedEVars () *)
-        fun sc (M, nil, _) =
+        let rec sc = function (M, nil, _) -> 
               (case finishSolve (sol, M, V)
                  of NONE => nil
                   | SOME condec => [(condec, NONE)])
-          | sc (M, def::defs, T.JAnd (T.JTerm ((U, oc1), V, L), f)) =
+          | (M, def::defs, T.JAnd (T.JTerm ((U, oc1), V, L), f)) -> 
               (case finishDefine (def, ((U, oc1), (V, NONE), L))
                  of (NONE, _) => sc (M, defs, f)
                   | (SOME condec, ocdOpt) =>
                       (condec, ocdOpt)::sc (M, defs, f))
-          | sc (M, def::defs, T.JAnd (T.JOf ((U, oc1), (V, oc2), L), f)) =
+          | (M, def::defs, T.JAnd (T.JOf ((U, oc1), (V, oc2), L), f)) -> 
               (case finishDefine (def, ((U, oc1), (V, SOME oc2), L))
                  of (NONE, _) => sc (M, defs, f)
                   | (SOME condec, ocdOpt) =>

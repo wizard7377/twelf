@@ -154,8 +154,8 @@ fun stripcr s = Substring.string (Substring.dropr (fun x -> x = #"\r") (Compat.S
 let rec flashProto() = 
     let 
 	let buf : string ref = ref ""
-	fun isnull #"\000" = true
-	  | isnull _ = false
+	let rec isnull = function #"\000" -> true
+	  | _ -> false
 	fun recv (u : server) s = 
 	    let
 		let _ = buf := !buf ^ s
@@ -178,9 +178,9 @@ let rec flashProto() =
 let rec humanProto() = 
     let 
 	let buf : string ref = ref ""
-	fun isnewl #"\n" = true
-	  | isnewl #"\r" = false
-	  | isnewl _ = false
+	let rec isnewl = function #"\n" -> true
+	  | #"\r" -> false
+	  | _ -> false
 	fun recv (u : server) s = 
 	    let
 		let _ = buf := !buf ^ s
@@ -209,8 +209,8 @@ let rec httpProto dir =
 	let method : string ref = ref ""
 	let url : string ref = ref ""
 	let headers : string list ref = ref []
-	fun isnewl #"\n" = true
-	  | isnewl _ = false
+	let rec isnewl = function #"\n" -> true
+	  | _ -> false
 
 	fun handlePostRequest (u : server) =
 	    let
@@ -275,9 +275,9 @@ let rec httpProto dir =
 		 parsingHeaders := false
 	     end handle Bind => raise EOF)
 		
-	fun interp (u : server) [] = raise Match
-	  | interp u [x] = ibuf := x
-	  | interp u (h::tl) = 
+	let rec interp = function (u : server) [] -> raise Match
+	  | u [x] -> ibuf := x
+	  | u (h::tl) -> 
 	    let
 		let sch = stripcr h
 	    in

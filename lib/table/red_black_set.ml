@@ -35,8 +35,8 @@ struct
 
   type 'a ordSet = 'a set ref
 
-  fun isEmpty (Set(_, Empty)) = true
-    | isEmpty (Set(_,T)) = false
+  let rec isEmpty = function (Set(_, Empty)) -> true
+    | (Set(_,T)) -> false
 
   let empty = Set(0, Empty)
   
@@ -59,9 +59,9 @@ struct
 
   fun lookup (Set(n, dict)) key =
     let
-      fun lk (Empty) = NONE
-	| lk (Red tree) = lk' tree
-        | lk (Black tree) = lk' tree
+      let rec lk = function (Empty) -> NONE
+	| (Red tree) -> lk' tree
+        | (Black tree) -> lk' tree
       and lk' ((key1, datum1), left, right) =
 	    (case compare(key,key1)
 	       of EQUAL => SOME(datum1)
@@ -84,11 +84,11 @@ struct
      and dict is a re-balanced red/black tree (satisfying all invariants)
      and same black height n.
   *)
-  fun restore_right (Black(e, Red lt, Red (rt as (_,Red _,_)))) =
+  let rec restore_right = function (Black(e, Red lt, Red (rt as (_,Red _,_)))) -> 
          Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
+    | (Black(e, Red lt, Red (rt as (_,_,Red _)))) -> 
          Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
+    | (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) -> 
 	 (* l is black, deep rotate *)
 	 Black(rle, Red(e, l, rll), Red(re, rlr, rr))
     | restore_right (Black(e, l, Red (re, rl, rr as Red _))) =
@@ -117,8 +117,8 @@ struct
       (* ins (Red _) may violate color invariant at root *)
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
-      fun ins (Empty) = (nItems := n+1; Red(entry, Empty, Empty))
-	| ins (Red(entry1 as (key1, datum1), left, right)) =
+      let rec ins = function (Empty) -> (nItems := n+1; Red(entry, Empty, Empty))
+	| (Red(entry1 as (key1, datum1), left, right)) -> 
 	  (case compare(key,key1)
 	     of EQUAL => 
               ((*print ("Found " ^ Int.toString key ^ " already in set -- keep entry--do not overwrite\n");*)
@@ -141,8 +141,8 @@ struct
     end
 
 
-  fun insertList (S, nil) = S
-    | insertList (S, e::list) = insertList (insert (S, e), list)
+  let rec insertList = function (S, nil) -> S
+    | (S, e::list) -> insertList (insert (S, e), list)
 
 
   fun insertLast (Set(n, dict), datum) = 
@@ -157,8 +157,8 @@ struct
 
   fun insertShadow (Set(n, dict), entry as (key, datum)) =  
     let let oldEntry = ref NONE (* : 'a entry option ref *)
-      fun ins (Empty) = Red(entry, Empty, Empty)
-	| ins (Red(entry1 as (key1, datum1), left, right)) =
+      let rec ins = function (Empty) -> Red(entry, Empty, Empty)
+	| (Red(entry1 as (key1, datum1), left, right)) -> 
 	(case compare(key,key1)
 	   of EQUAL => (oldEntry := SOME(entry1);
 			Red(entry, left, right))
@@ -193,64 +193,64 @@ struct
     in
     fun delete (Set(nItems, t), k) = 
         let
-	  fun zip (Top, t) = t
-            | zip (LeftRed(x, b, z), a) = zip(z, Red(x, a, b))
-            | zip (LeftBlack(x, b, z), a) = zip(z, Black(x, a, b))
-            | zip (RightRed(a, x, z), b) = zip(z, Red(x, a, b))
-            | zip (RightBlack(a, x, z), b) = zip(z, Black(x, a, b))
+	  let rec zip = function (Top, t) -> t
+            | (LeftRed(x, b, z), a) -> zip(z, Red(x, a, b))
+            | (LeftBlack(x, b, z), a) -> zip(z, Black(x, a, b))
+            | (RightRed(a, x, z), b) -> zip(z, Red(x, a, b))
+            | (RightBlack(a, x, z), b) -> zip(z, Black(x, a, b))
 	  (* bbZip propagates a black deficit up the tree until either the top
          * is reached, or the deficit can be covered.  It returns a boolean
          * that is true if there is still a deficit and the zipped tree.
          *)
-          fun bbZip (Top, t) = (true, t)
-            | bbZip (LeftBlack(x, Red(y, c, d), z), a) = (* case 1L *)
+          let rec bbZip = function (Top, t) -> (true, t)
+            | (LeftBlack(x, Red(y, c, d), z), a) -> (* case 1L *)
                 bbZip (LeftRed(x, c, LeftBlack(y, d, z)), a)
-            | bbZip (LeftRed(x, Red(y, c, d), z), a) = (* case 1L *)
+            | (LeftRed(x, Red(y, c, d), z), a) -> (* case 1L *)
                 bbZip (LeftRed(x, c, LeftBlack(y, d, z)), a)
-            | bbZip (LeftBlack(x, Black(w, Red(y, c, d), e), z), a) = (* case 3L *)
+            | (LeftBlack(x, Black(w, Red(y, c, d), e), z), a) -> (* case 3L *)
                 bbZip (LeftBlack(x, Black(y, c, Red(w, d, e)), z), a)
-            | bbZip (LeftRed(x, Black(w, Red(y, c, d), e), z), a) = (* case 3L *)
+            | (LeftRed(x, Black(w, Red(y, c, d), e), z), a) -> (* case 3L *)
                 bbZip (LeftRed(x, Black(y, c, Red(w, d, e)), z), a)
 
-            | bbZip (LeftBlack(x, Black(y, c, Red(w, d, e)), z), a) = (* case 4L *)
+            | (LeftBlack(x, Black(y, c, Red(w, d, e)), z), a) -> (* case 4L *)
                 (false, zip (z, Black(y, Black(x, a, c), Black(w, d, e))))
 
-            | bbZip (LeftRed(x, Black(y, c, Red(w, d, e)), z), a) = (* case 4L *)
+            | (LeftRed(x, Black(y, c, Red(w, d, e)), z), a) -> (* case 4L *)
                 (false, zip (z, Red(y, Black(x, a, c), Black(w, d, e))))
 
-            | bbZip (LeftRed(x, Black(y, c, d), z), a) = (* case 2L *)
+            | (LeftRed(x, Black(y, c, d), z), a) -> (* case 2L *)
                 (false, zip (z, Black(x, a, Red(y, c, d))))
-            | bbZip (LeftBlack(x, Black(y, c, d), z), a) = (* case 2L *)
+            | (LeftBlack(x, Black(y, c, d), z), a) -> (* case 2L *)
                 bbZip (z, Black(x, a, Red(y, c, d)))
-            | bbZip (RightBlack(Red(y, c, d), x, z), b) = (* case 1R *)
+            | (RightBlack(Red(y, c, d), x, z), b) -> (* case 1R *)
                 bbZip (RightRed(d, x, RightBlack(c, y, z)), b)
-            | bbZip (RightRed(Red(y, c, d), x, z), b) = (* case 1R *)
+            | (RightRed(Red(y, c, d), x, z), b) -> (* case 1R *)
                 bbZip (RightRed(d, x, RightBlack(c, y, z)), b)
-	    | bbZip (RightBlack(Black(y , Red(w, c, d), e), x, z), b) = (* case 3R *)
+	    | (RightBlack(Black(y , Red(w, c, d), e), x, z), b) -> (* case 3R *)
                 bbZip (RightBlack(Black(w, c, Red(y, d, e)), x, z), b)
-	    | bbZip (RightRed(Black(y , Red(w, c, d), e), x, z), b) = (* case 3R *)
+	    | (RightRed(Black(y , Red(w, c, d), e), x, z), b) -> (* case 3R *)
                 bbZip (RightRed(Black(w, c, Red(y, d, e)), x, z), b)
-            | bbZip (RightBlack(Black(y, c, Red(w, d, e)), x, z), b) = (* case 4R *)
+            | (RightBlack(Black(y, c, Red(w, d, e)), x, z), b) -> (* case 4R *)
                 (false, zip (z, Black(y, c, Black(x, Red(w, d, e), b))))
-            | bbZip (RightRed(Black(y, c, Red(w, d, e)), x, z), b) = (* case 4R *)
+            | (RightRed(Black(y, c, Red(w, d, e)), x, z), b) -> (* case 4R *)
                 (false, zip (z, Red(y, c, Black(x, Red(w, d, e), b))))
 
-            | bbZip (RightRed(Black(y, c, d), x, z), b) = (* case 2R *)
+            | (RightRed(Black(y, c, d), x, z), b) -> (* case 2R *)
                 (false, zip (z, Black(x, Red(y, c,  d), b)))
 
-            | bbZip (RightBlack(Black(y, c, d), x, z), b) = (* case 2R *)
+            | (RightBlack(Black(y, c, d), x, z), b) -> (* case 2R *)
                 bbZip (z, Black(x, Red(y, c, d),  b))
 
-            | bbZip (z, t) = (false, zip(z, t))
+            | (z, t) -> (false, zip(z, t))
 
-          fun delMin (Red(y, Empty, b), z) = (y, (false, zip(z, b)))
-            | delMin (Black(y , Empty, b), z) = (y, bbZip(z, b))
-            | delMin (Red(y, a, b), z) = delMin(a, LeftRed(y, b, z))
-            | delMin (Black(y, a, b), z) = delMin(a, LeftBlack(y, b, z))
+          let rec delMin = function (Red(y, Empty, b), z) -> (y, (false, zip(z, b)))
+            | (Black(y , Empty, b), z) -> (y, bbZip(z, b))
+            | (Red(y, a, b), z) -> delMin(a, LeftRed(y, b, z))
+            | (Black(y, a, b), z) -> delMin(a, LeftBlack(y, b, z))
 
-	  fun joinBlack (a, Empty, z) = #2(bbZip(z, a))       
-	    | joinBlack (Empty, b, z) = #2(bbZip(z, b))       
-	    | joinBlack (a, b, z) = let
+	  let rec joinBlack = function (a, Empty, z) -> #2(bbZip(z, a))       
+	    | (Empty, b, z) -> #2(bbZip(z, b))       
+	    | (a, b, z) -> let
                 let (x, (needB, b')) = delMin(b, Top)
                 in
                   if needB
@@ -258,8 +258,8 @@ struct
                     else zip(z, Black(x, a, b'))
                 end
 
-	  fun joinRed (Empty, Empty, z) = zip(z, Empty)
-            | joinRed (a, b, z) = let
+	  let rec joinRed = function (Empty, Empty, z) -> zip(z, Empty)
+            | (a, b, z) -> let
                 let (x, (needB, b')) = delMin(b, Top)
                 in
                   if needB
@@ -267,13 +267,13 @@ struct
                     else zip(z, Red(x, a, b'))
                 end
 
-          fun del (Empty, z) = raise Error "not found\n"
-            | del (Red(y as (k', _), a, b), z) = (case compare(k, k')
+          let rec del = function (Empty, z) -> raise Error "not found\n"
+            | (Red(y as (k', _), a, b), z) -> (case compare(k, k')
                  of LESS => del (a, LeftRed(y, b, z))
                   | EQUAL => joinRed (a, b, z)
                   | GREATER => del (b, RightRed(a, y, z))
                 (* end case *))
-            | del (Black(y as (k', _), a, b), z) = (case compare(k, k')
+            | (Black(y as (k', _), a, b), z) -> (case compare(k, k')
                  of LESS => del (a, LeftBlack(y, b, z))
                   | EQUAL => joinBlack (a, b, z)
                   | GREATER => del (b, RightBlack(a, y, z))
@@ -355,9 +355,9 @@ struct
   (* functions for walking the tree while keeping a stack of parents
    * to be visited.
    *)
-    fun next ((t as Red( _, _, b))::rest) = (t, left(b, rest))
-      | next ((t as Black( _, _, b))::rest) = (t, left(b, rest))
-      | next _ = (Empty, [])
+    let rec next = function ((t as Red( _, _, b))::rest) -> (t, left(b, rest))
+      | ((t as Black( _, _, b))::rest) -> (t, left(b, rest))
+      | _ -> (Empty, [])
     and left (Empty, rest) = rest
       | left (t as Red(_, a, _), rest) = left(a, t::rest)
       | left (t as Black(_, a, _), rest) = left(a, t::rest)
@@ -370,34 +370,34 @@ struct
   (* add an item that is guaranteed to be larger than any in l *)
     fun addItem (a, l) = 
       let
-	fun incr (a, t, ZERO) = ONE(a, t, ZERO)
-	  | incr (a1, t1, ONE(a2, t2, r)) = TWO(a1, t1, a2, t2, r)
-	  | incr (a1, t1, TWO(a2, t2, a3, t3, r)) =
+	let rec incr = function (a, t, ZERO) -> ONE(a, t, ZERO)
+	  | (a1, t1, ONE(a2, t2, r)) -> TWO(a1, t1, a2, t2, r)
+	  | (a1, t1, TWO(a2, t2, a3, t3, r)) -> 
 	  ONE(a1, t1, incr(a2, Black (a3, t3, t2), r))
       in
 	incr(a, Empty, l)
       end
   (* link the digits into a tree *)
     fun linkAll t = let
-	  fun link (t, ZERO) = t
-	    | link (t1, ONE(a, t2, r)) = link(Black (a, t2, t1), r)
-	    | link (t, TWO(a1, t1, a2, t2, r)) =
+	  let rec link = function (t, ZERO) -> t
+	    | (t1, ONE(a, t2, r)) -> link(Black (a, t2, t1), r)
+	    | (t, TWO(a1, t1, a2, t2, r)) -> 
 		link(Black (a1, Red(a2, t2, t1),  t), r)
 	  in
 	    link (Empty, t)
 	  end
 
-    fun getEntry (Red (x, _, _)) = x
-      | getEntry (Black (x, _, _)) = x
+    let rec getEntry = function (Red (x, _, _)) -> x
+      | (Black (x, _, _)) -> x
 
       
   (* return the union of the two sets *)
     fun union (Set (n1, s1), Set (n2, s2)) = 
       let
-	fun ins ((Empty, _), n, result) = (n, result)
-	  | ins ((Red (x, _, _), r), n, result) =
+	let rec ins = function ((Empty, _), n, result) -> (n, result)
+	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result))
-	  | ins ((Black (x, _, _), r), n, result) =
+	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result))
 	  fun union' (t1, t2, n, result) = 
 	    (case (next t1, next t2)
@@ -454,10 +454,10 @@ struct
      they are ignored !*)
     fun difference (Set(_, s1), Set(_, s2)) = 
       let
-	fun ins ((Empty, _), n, result) = (n, result)
-	  | ins ((Red (x, _, _), r), n, result) =
+	let rec ins = function ((Empty, _), n, result) -> (n, result)
+	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	  | ins ((Black (x, _, _), r), n, result) =
+	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	fun diff (t1, t2, n, result) = 
 	  (case (next t1, next t2)
@@ -484,10 +484,10 @@ struct
        *)
     fun difference2 (Set(_, s1), Set(_, s2)) = 
       let
-	fun ins ((Empty, _), n, result) = (n, result)
-	  | ins ((Red (x, _, _), r), n, result) =
+	let rec ins = function ((Empty, _), n, result) -> (n, result)
+	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	  | ins ((Black (x, _, _), r), n, result) =
+	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	fun diff (t1, t2, (n1, result1), (n2, result2)) = 
 	  (case (next t1, next t2)
@@ -518,10 +518,10 @@ struct
 
     fun diffMod F (Set(_, s1), Set(_, s2)) = 
      let
-	fun ins ((Empty, _), n, result) = (n, result)
-	  | ins ((Red (x, _, _), r), n, result) =
+	let rec ins = function ((Empty, _), n, result) -> (n, result)
+	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	  | ins ((Black (x, _, _), r), n, result) =
+	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	fun diff (t1, t2, (n1, result1), (n2, result2)) = 
 	  (case (next t1, next t2)
@@ -545,10 +545,10 @@ struct
 
     fun splitSets F (Set(_, s1), Set(_, s2)) = 
      let
-	fun ins ((Empty, _), n, result) = (n, result)
-	  | ins ((Red (x, _, _), r), n, result) =
+	let rec ins = function ((Empty, _), n, result) -> (n, result)
+	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	  | ins ((Black (x, _, _), r), n, result) =
+	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	fun split (t1, t2, nr as (n, result), nr1 as (n1, result1), nr2 as (n2, result2)) = 
 	  (case (next t1, next t2)

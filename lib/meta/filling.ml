@@ -43,8 +43,8 @@ struct
        and  G |- Xi' : A1 [X1'/x1..X(i-1)'/x(i-1)]          for all i <= n
        and  G; D |- P' = <X1', <.... <Xn', <>> ..> in F     for some D
     *)
-    fun createEVars (G, (F.True, s)) = (nil, F.Unit)
-      | createEVars (G, (F.Ex (I.Dec (_, V), F), s)) =
+    let rec createEVars = function (G, (F.True, s)) -> (nil, F.Unit)
+      | (G, (F.Ex (I.Dec (_, V), F), s)) -> 
         let
           let X = I.newEVar (G, I.EClo (V, s))
           let X' = Whnf.lowerEVar X

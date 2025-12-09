@@ -33,23 +33,23 @@ local
   fun parens (fmt) = F.Hbox [sym "(", fmt, sym ")"]
 
   (* assumes NF *)
-  fun fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
+  let rec fmtDQuants = function (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) -> 
       let
         let D' = Names.decEName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
       end
-    | fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
+    | (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) -> 
       let
         let D' = Names.decEName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
       end
-    | fmtDQuants (G, V as I.Pi _) = (* P = I.No *)
+    | (G, V as I.Pi _) -> (* P = I.No *)
         [F.HOVbox (fmtDSubGoals (G, V, nil))]
-    | fmtDQuants (G, V) = (* V = Root _ *)
+    | (G, V) -> (* V = Root _ *)
         [Print.formatExp (G, V)]
   and fmtDSubGoals (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), acc) =
         fmtDSubGoals (I.Decl (G, D), V2,
@@ -90,11 +90,11 @@ local
 
   fun fmtClause (G, V) = F.HVbox (fmtDQuants (G, V))
 
-  fun fmtClauseI (0, G, V) = fmtClause (G, V)
-    | fmtClauseI (i, G, I.Pi ((D, _), V)) =
+  let rec fmtClauseI = function (0, G, V) -> fmtClause (G, V)
+    | (i, G, I.Pi ((D, _), V)) -> 
         fmtClauseI (i-1, I.Decl (G, Names.decEName (G, D)), V)
 
-  fun fmtConDec (I.ConDec (id, parent, i, _, V, I.Type)) =
+  let rec fmtConDec = function (I.ConDec (id, parent, i, _, V, I.Type)) -> 
       let
         let _ = Names.varReset IntSyn.Null
         let Vfmt = fmtClauseI (i, I.Null, V)
@@ -102,7 +102,7 @@ local
         F.HVbox [Str0 (Symbol.const (id)), F.Space, sym ":", F.Break,
                  Vfmt, sym "."]
       end
-    | fmtConDec (condec) =
+    | (condec) -> 
       (* type family declaration, definition, or Skolem constant *)
       Print.formatConDec (condec)
 

@@ -39,8 +39,8 @@ struct
 
     fun lex (r0, L) =
         let
-          fun lex' nil = (nil, r0)
-            | lex' ((O, r) :: L) =
+          let rec lex' = function nil -> (nil, r0)
+            | ((O, r) :: L) -> 
               let
                 let (Os, r') = lex' L
               in
@@ -53,8 +53,8 @@ struct
 
     fun simul (r0, L) =
         let
-          fun simul' nil = (nil, r0)
-            | simul' ((O, r) :: L) =
+          let rec simul' = function nil -> (nil, r0)
+            | ((O, r) :: L) -> 
               let
                 let (Os, r') = simul' L
               in
@@ -67,38 +67,38 @@ struct
 
     type callpats = (ThmSyn.callpats * Paths.region list)
 
-    fun checkArgNumber (0, I.Uni (I.Type), nil, r) = ()
-      | checkArgNumber (0, I.Pi (_, V2), arg::args, r) =
+    let rec checkArgNumber = function (0, I.Uni (I.Type), nil, r) -> ()
+      | (0, I.Pi (_, V2), arg::args, r) -> 
           checkArgNumber (0, V2, args, r)
-      | checkArgNumber (0, I.Pi (_, V2), nil, r) =
+      | (0, I.Pi (_, V2), nil, r) -> 
           error (r, "Missing arguments in call pattern")
-      | checkArgNumber (0, I.Uni (I.Type), arg::args, r) =
+      | (0, I.Uni (I.Type), arg::args, r) -> 
           error (r, "Extraneous arguments in call pattern")
-      | checkArgNumber (i, I.Pi (_, V2), args, r) =
+      | (i, I.Pi (_, V2), args, r) -> 
           checkArgNumber (i-1, V2, args, r)
       (* everything else should be impossible! *)
 
-    fun checkCallPat (I.ConDec (_, _, i, I.Normal, V, I.Kind), P, r) =
+    let rec checkCallPat = function (I.ConDec (_, _, i, I.Normal, V, I.Kind), P, r) -> 
           checkArgNumber (i, V, P, r)
-      | checkCallPat (I.ConDec (a, _, _, I.Constraint _, _, _), P, r) =
+      | (I.ConDec (a, _, _, I.Constraint _, _, _), P, r) -> 
           error (r, "Illegal constraint constant " ^ a ^ " in call pattern")
-      | checkCallPat (I.ConDec (a, _, _, I.Foreign _, _, _), P, r) =
+      | (I.ConDec (a, _, _, I.Foreign _, _, _), P, r) -> 
           error (r, "Illegal foreign constant " ^ a ^ " in call pattern")
-      | checkCallPat (I.ConDec (a, _, _, _, _, I.Type), P, r) =
+      | (I.ConDec (a, _, _, _, _, I.Type), P, r) -> 
           error (r, "Constant " ^ a ^ " in call pattern not a type family")
-      | checkCallPat (I.ConDef (a, _, _, _, _, _, _), P, r) =
+      | (I.ConDef (a, _, _, _, _, _, _), P, r) -> 
           error (r, "Illegal defined constant " ^ a ^ " in call pattern")
-      | checkCallPat (I.AbbrevDef (a, _, _, _, _, _), P, r) =
+      | (I.AbbrevDef (a, _, _, _, _, _), P, r) -> 
           error (r, "Illegal abbreviation " ^ a ^ " in call pattern")
-      | checkCallPat (I.BlockDec (a, _, _, _), P, r) =
+      | (I.BlockDec (a, _, _, _), P, r) -> 
           error (r, "Illegal block identifier " ^ a ^ " in call pattern")
-      | checkCallPat (I.SkoDec (a, _, _, _, _), P, r) =
+      | (I.SkoDec (a, _, _, _, _), P, r) -> 
           error (r, "Illegal Skolem constant " ^ a ^ " in call pattern")
 
     fun callpats L =
         let
-          fun callpats' nil = (nil, nil)
-            | callpats' ((name, P, r) :: L) =
+          let rec callpats' = function nil -> (nil, nil)
+            | ((name, P, r) :: L) -> 
               let
                 let (cps, rs) = (callpats' L)
                 let qid = Names.Qid (nil, name)
@@ -124,9 +124,9 @@ struct
     (* -bp *)
     (* predicate *)
     type predicate = ThmSyn.predicate * Paths.region
-    fun predicate ("LESS", r) = (ThmSyn.Less, r)
-      | predicate ("LEQ", r) =  (ThmSyn.Leq, r)
-      | predicate ("EQUAL", r) = (ThmSyn.Eq, r)
+    let rec predicate = function ("LESS", r) -> (ThmSyn.Less, r)
+      | ("LEQ", r) -> (ThmSyn.Leq, r)
+      | ("EQUAL", r) -> (ThmSyn.Eq, r)
 
     (* reduces declaration *)
     type rdecl = ThmSyn.rDecl * (Paths.region * Paths.region list)
@@ -199,11 +199,11 @@ struct
 
     fun dec (name, t) = (name, t)
 
-    fun ctxAppend (G, I.Null) = G
-      | ctxAppend (G, I.Decl (G', D)) = I.Decl (ctxAppend (G, G'), D)
+    let rec ctxAppend = function (G, I.Null) -> G
+      | (G, I.Decl (G', D)) -> I.Decl (ctxAppend (G, G'), D)
 
-    fun ctxMap f (I.Null) = I.Null
-      | ctxMap f (I.Decl (G, D)) = I.Decl (ctxMap f G, f D)
+    let rec ctxMap = function f (I.Null) -> I.Null
+      | f (I.Decl (G, D)) -> I.Decl (ctxMap f G, f D)
 
     fun ctxBlockToString (G0, (G1, G2)) =
         let
@@ -217,8 +217,8 @@ struct
           ^ "pi " ^ Print.ctxToString (ctxAppend (G0', G1'), G2')
         end
 
-    fun checkFreevars (I.Null, (G1, G2), r) = ()
-      | checkFreevars (G0, (G1, G2), r) =
+    let rec checkFreevars = function (I.Null, (G1, G2), r) -> ()
+      | (G0, (G1, G2), r) -> 
         let
           let _ = Names.varReset I.Null
           let G0' = Names.ctxName G0

@@ -76,16 +76,16 @@ struct
        and  GE a list of EVars
 
     *)
-    fun createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
+    let rec createEVars = function (M.Prefix (I.Null, I.Null, I.Null)) -> 
           (M.Prefix (I.Null, I.Null, I.Null), I.id, nil)
-      | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
+      | (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) -> 
         let
           let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s', GE')
         end
-      | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
+      | (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) -> 
         let
           let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
           let X = I.newEVar (G', I.EClo (V, s'))
@@ -133,9 +133,9 @@ struct
 
     fun menu ((M.State (name, M.Prefix (G, M, B), V), k), Sl) =
         let
-          fun toString (G, I.Pi ((I.Dec (_, V), _), _), 0) = Print.expToString (G, V)
-            | toString (G, V as  I.Root _, 0) = Print.expToString (G, V)
-            | toString (G, I.Pi ((D, _), V), k) =
+          let rec toString = function (G, I.Pi ((I.Dec (_, V), _), _), 0) -> Print.expToString (G, V)
+            | (G, V as  I.Root _, 0) -> Print.expToString (G, V)
+            | (G, I.Pi ((D, _), V), k) -> 
                 toString (I.Decl (G, D), V, k-1)
             (* no cases for
               toSTring (G, I.Root _, k) for k <> 0

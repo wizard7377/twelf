@@ -81,23 +81,23 @@ struct
   type bound = int option
 
   (* exceeds : bound * bound -> bool *)
-  fun exceeds (SOME(n), SOME(m)) = (n >= m)
-    | exceeds (SOME(n), NONE) = false
-    | exceeds (NONE, _) = true
+  let rec exceeds = function (SOME(n), SOME(m)) -> (n >= m)
+    | (SOME(n), NONE) -> false
+    | (NONE, _) -> true
 
   (* boundEq : bound * bound -> bool *)
-  fun boundEq (SOME(n), SOME(m)) = (n = m)
-    | boundEq (NONE, NONE) = true
-    | boundEq _ = false
+  let rec boundEq = function (SOME(n), SOME(m)) -> (n = m)
+    | (NONE, NONE) -> true
+    | _ -> false
 
   (* boundToString : bound -> string *)
-  fun boundToString (SOME(n)) = Int.toString (n)
-    | boundToString (NONE) = "*"
+  let rec boundToString = function (SOME(n)) -> Int.toString (n)
+    | (NONE) -> "*"
 
   (* boundMin : bound * bound -> bound *)
-  fun boundMin (SOME(n), SOME(m)) = SOME(Int.min (n,m))
-    | boundMin (b, NONE) = b
-    | boundMin (NONE, b) = b
+  let rec boundMin = function (SOME(n), SOME(m)) -> SOME(Int.min (n,m))
+    | (b, NONE) -> b
+    | (NONE, b) -> b
 
   (* checkSolutions : bound * bound * int -> unit *)
   (* raises AbortQuery(msg) if the actual solutions do not match *)

@@ -36,9 +36,9 @@ struct
 
   fun lookup dict x =
     let
-      fun lk (Empty) = false
-	| lk (Red tree) = lk' tree
-        | lk (Black tree) = lk' tree
+      let rec lk = function (Empty) -> false
+	| (Red tree) -> lk' tree
+        | (Black tree) -> lk' tree
       and lk' (x1, left, right) =
 	    (case Int.compare(x,x1)
 	       of EQUAL => true
@@ -58,11 +58,11 @@ struct
      and dict is a re-balanced red/black tree (satisfying all invariants)
      and same black height n.
   *)
-  fun restore_right (Black(e, Red lt, Red (rt as (_,Red _,_)))) =
+  let rec restore_right = function (Black(e, Red lt, Red (rt as (_,Red _,_)))) -> 
          Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
+    | (Black(e, Red lt, Red (rt as (_,_,Red _)))) -> 
          Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
+    | (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) -> 
 	 (* l is black, deep rotate *)
 	 Black(rle, Red(e, l, rll), Red(re, rlr, rr))
     | restore_right (Black(e, l, Red(re, rl, rr as Red _))) =
@@ -90,8 +90,8 @@ struct
       (* ins (Red _) may violate color invariant at root *)
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
-      fun ins (Empty) = Red(x, Empty, Empty)
-	| ins (Red(x1, left, right)) =
+      let rec ins = function (Empty) -> Red(x, Empty, Empty)
+	| (Red(x1, left, right)) -> 
 	  (case Int.compare(x,x1)
 	     of EQUAL => Red(x, left, right)
 	      | LESS => Red(x1, ins left, right)

@@ -61,8 +61,8 @@ struct
        raises Error exception if constraints Cnstr cannot be simplified
        to the empty constraint
     *)
-    fun checkEmpty (nil) = ()
-      | checkEmpty (Cnstr) =
+    let rec checkEmpty = function (nil) -> ()
+      | (Cnstr) -> 
         (case C.simplify Cnstr
            of nil => ()
             | _ => raise Error "Unresolved constraints")
@@ -100,9 +100,9 @@ struct
        then B' = true
        else B' = false
     *)
-    fun modeEq (ModeSyn.Marg (ModeSyn.Plus, _), M.Top) = true
-      | modeEq (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) = true
-      | modeEq _ = false
+    let rec modeEq = function (ModeSyn.Marg (ModeSyn.Plus, _), M.Top) -> true
+      | (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) -> true
+      | _ -> false
 
     (* atxLookup (atx, r)  = Eopt'
 
@@ -111,9 +111,9 @@ struct
        then Eopt' = SOME EV and . |- V : type
        else Eopt' = NONE
     *)
-    fun atxLookup (I.Null, _) = NONE
-      | atxLookup (I.Decl (M, BV), r) = atxLookup (M, r)
-      | atxLookup (I.Decl (M, E as EV (r', _, _)), r) =
+    let rec atxLookup = function (I.Null, _) -> NONE
+      | (I.Decl (M, BV), r) -> atxLookup (M, r)
+      | (I.Decl (M, E as EV (r', _, _)), r) -> 
         if (r = r') then SOME E
         else atxLookup (M, r)
 
@@ -127,14 +127,14 @@ struct
 
        All abstractions are potentially dependent.
     *)
-    fun raiseType (0, G, V) = V
-      | raiseType (depth, I.Decl (G, D), V) =
+    let rec raiseType = function (0, G, V) -> V
+      | (depth, I.Decl (G, D), V) -> 
           raiseType (depth-1, G, I.Pi ((D, I.Maybe), V))
 
     (* weaken (depth,  G, a) = (w')
     *)
-    fun weaken (0, G, a) = I.id
-      | weaken (depth, I.Decl (G', D as I.Dec (name, V)), a) =
+    let rec weaken = function (0, G, a) -> I.id
+      | (depth, I.Decl (G', D as I.Dec (name, V)), a) -> 
         let
           let w' = weaken (depth-1, G', a)
         in
@@ -151,9 +151,9 @@ struct
     (* V in nf or enf? -fp *)
     fun countPi V =
         let
-          fun countPi' (I.Root _, n) = n
-            | countPi' (I.Pi (_, V), n) = countPi' (V, n+1)
-            | countPi' (I.EClo (V, _), n) = countPi' (V, n)
+          let rec countPi' = function (I.Root _, n) -> n
+            | (I.Pi (_, V), n) -> countPi' (V, n+1)
+            | (I.EClo (V, _), n) -> countPi' (V, n)
         in
           countPi' (V, 0)
         end
@@ -348,8 +348,8 @@ struct
                       Adepth) =
           (* s = id *)
           let
-            fun collectModeW' (((I.Nil, _), ModeSyn.Mnil), Adepth) = Adepth
-              | collectModeW' (((I.SClo(S, s'), s), M), Adepth) =
+            let rec collectModeW' = function (((I.Nil, _), ModeSyn.Mnil), Adepth) -> Adepth
+              | (((I.SClo(S, s'), s), M), Adepth) -> 
                   collectModeW' (((S, I.comp (s', s)), M), Adepth)
               | collectModeW' (((I.App (U, S), s), ModeSyn.Mapp (m, mS)),
                                Adepth) =
@@ -500,10 +500,10 @@ struct
     *)
     fun lookupEV (A, r) =
       let
-        fun lookupEV' (I.Decl (A, EV (r, V, _)), r', k) =
+        let rec lookupEV' = function (I.Decl (A, EV (r, V, _)), r', k) -> 
             if (r = r') then (k, V)
             else lookupEV' (A, r', k+1)
-          | lookupEV' (I.Decl (A, BV), r', k) =
+          | (I.Decl (A, BV), r', k) -> 
               lookupEV' (A, r', k+1)
         (* lookupEV' I.Null cannot occur by invariant *)
       in
@@ -523,10 +523,10 @@ struct
     *)
     fun lookupBV (A, i) =
       let
-        fun lookupBV' (I.Decl (A, EV (r, V, _)), i, k) =
+        let rec lookupBV' = function (I.Decl (A, EV (r, V, _)), i, k) -> 
               lookupBV' (A, i, k+1)
-          | lookupBV' (I.Decl (A, BV), 1, k) = k
-          | lookupBV' (I.Decl (A, BV), i, k) =
+          | (I.Decl (A, BV), 1, k) -> k
+          | (I.Decl (A, BV), i, k) -> 
               lookupBV' (A, i-1, k+1)
         (* lookupBV' I.Null cannot occur by invariant *)
       in
@@ -544,16 +544,16 @@ struct
        and   . ||- U' and . ||- V'
        and   U' is in nf
     *)
-    fun abstractExpW (A, G, depth, (V as I.Uni (L), s)) = V
-      | abstractExpW (A, G, depth, (I.Pi ((D, P), V), s)) =
+    let rec abstractExpW = function (A, G, depth, (V as I.Uni (L), s)) -> V
+      | (A, G, depth, (I.Pi ((D, P), V), s)) -> 
           Abstract.piDepend ((abstractDec (A, G, depth, (D, s)), P),
                              abstractExp (A, I.Decl (G, I.decSub (D, s)),
                                           depth + 1, (V, I.dot1 s)))
-      | abstractExpW (A, G, depth, (I.Lam (D, U), s)) =
+      | (A, G, depth, (I.Lam (D, U), s)) -> 
           I.Lam (abstractDec (A, G, depth, (D, s)),
                  abstractExp (A, I.Decl (G, I.decSub (D, s)),
                               depth + 1, (U, I.dot1 s)))
-      | abstractExpW (A, G, depth, (I.Root (C as I.BVar k, S), s)) = (* s = id *)
+      | (A, G, depth, (I.Root (C as I.BVar k, S), s)) -> (* s = id *)
           if k > depth then
             let
               let k' = lookupBV (A, k-depth)
@@ -562,9 +562,9 @@ struct
             end
           else
             I.Root (C, abstractSpine (A, G, depth, (S, s)))
-      | abstractExpW (A, G, depth, (I.Root (C, S), s)) =  (* s = id *)
+      | (A, G, depth, (I.Root (C, S), s)) -> (* s = id *)
           I.Root (C, abstractSpine (A, G, depth, (S, s)))
-      | abstractExpW (A, G, depth, (I.EVar (r, _, V, _), s)) =
+      | (A, G, depth, (I.EVar (r, _, V, _), s)) -> 
           let
             let (k, Vraised) = lookupEV (A, r)
             (* IMPROVE: remove the raised variable, replace by V -cs ?-fp *)
@@ -573,7 +573,7 @@ struct
                     abstractSub (A, G, depth, (Vraised, I.id),
                                  s, I.targetFam V, I.Nil))
           end
-      | abstractExpW (A, G, depth, (I.FgnExp csfe, s)) =
+      | (A, G, depth, (I.FgnExp csfe, s)) -> 
           I.FgnExpStd.Map.apply csfe (fun U -> abstractExp (A, G, depth, (U, s)))
         (* hack - should discuss with cs     -rv *)
 
@@ -659,8 +659,8 @@ struct
        M' = M x A    (similar to G x A, but just represents mode information)
        G'' = G [x] A
     *)
-    fun abstractCtx (I.Null, GM as M.Prefix (I.Null, I.Null, I.Null)) = (GM, I.Null)
-      | abstractCtx (I.Decl (A, BV), M.Prefix (I.Decl (G, D), I.Decl (M, marg), I.Decl (B, b))) =
+    let rec abstractCtx = function (I.Null, GM as M.Prefix (I.Null, I.Null, I.Null)) -> (GM, I.Null)
+      | (I.Decl (A, BV), M.Prefix (I.Decl (G, D), I.Decl (M, marg), I.Decl (B, b))) -> 
           let
             let (M.Prefix (G', M', B'), lG') = abstractCtx (A, M.Prefix (G, M, B))
             let D' = abstractDec (A, G, 0, (D, I.id))
@@ -673,7 +673,7 @@ struct
                         I.Decl (B', b)),
               I.Decl (lG', D'))
           end
-      | abstractCtx (I.Decl (A, EV (r, V, m)), GM) =
+      | (I.Decl (A, EV (r, V, m)), GM) -> 
           let
             let (M.Prefix (G', M', B'), lG') = abstractCtx (A, GM)
             let V'' = abstractExp (A, lG', 0, (V, I.id))

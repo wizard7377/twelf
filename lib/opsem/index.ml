@@ -106,13 +106,13 @@ struct
      *    ym...y1, xn...x1
      *
      *)
-    fun concat (I.Null, G') = G'
-      | concat (I.Decl(G, D), G') = I.Decl(concat(G,G'), D)
+    let rec concat = function (I.Null, G') -> G'
+      | (I.Decl(G, D), G') -> I.Decl(concat(G,G'), D)
 
 
 
-   fun reverse (I.Null, G') = G'
-     | reverse (I.Decl(G, D), G') =
+   let rec reverse = function (I.Null, G') -> G'
+     | (I.Decl(G, D), G') -> 
          reverse (G, I.Decl(G', D))
 
     (* ---------------------------------------------------------------------- *)
@@ -133,8 +133,8 @@ struct
            print ", \n\t";
            proofTerms (G, D, U, S))
 
-        fun printT [] = ()
-          | printT (((k, G, D, U), {solutions =  S, lookup = i})::T) =
+        let rec printT = function [] -> ()
+          | (((k, G, D, U), {solutions -> S, lookup = i})::T) =
             case S
               of [] => (printT T ;
                         print (Print.expToString (I.Null,
@@ -158,8 +158,8 @@ struct
 
     fun printTableEntries () =
       let
-        fun printT [] = ()
-          | printT (((k, G, D, U), {solutions =  S, lookup = i})::T) =
+        let rec printT = function [] -> ()
+          | (((k, G, D, U), {solutions -> S, lookup = i})::T) =
           (printT T ;
            print (Print.expToString (I.Null,
                                      A.raiseType(concat(G, D), U)) ^ "\n Access Counter : " ^ (Int.toString (!k)) ^ " \n"))
@@ -175,8 +175,8 @@ struct
 
     (* Term Abstraction *)
 
-    fun lengthSpine (I.Nil) = 0
-      | lengthSpine (I.SClo(S, s')) = 1 + lengthSpine(S)
+    let rec lengthSpine = function (I.Nil) -> 0
+      | (I.SClo(S, s')) -> 1 + lengthSpine(S)
 
 
     fun exceedsTermDepth (i) =
@@ -198,10 +198,10 @@ struct
       if x > y then x
       else y
 
-    fun oroption (NONE, NONE, NONE) = false
-      | oroption (SOME(k), _ , _) = true
-      | oroption (_ , SOME(n), _) = true
-      | oroption (_ , _, SOME(n)) = true
+    let rec oroption = function (NONE, NONE, NONE) -> false
+      | (SOME(k), _ , _) -> true
+      | (_ , SOME(n), _) -> true
+      | (_ , _, SOME(n)) -> true
 
     fun abstractionSet () =
       oroption(!termDepth, !ctxDepth, !ctxLength)
@@ -306,8 +306,8 @@ struct
     * then  G |- s' : D, G
     *)
 
-   fun reinstSub (G, I.Null, s) = s
-      | reinstSub (G, I.Decl(D, I.Dec(_,A)), s) =
+   let rec reinstSub = function (G, I.Null, s) -> s
+      | (G, I.Decl(D, I.Dec(_,A)), s) -> 
       let
         let X = I.newEVar (I.Null, A)
       in
@@ -564,8 +564,8 @@ struct
          Dk, G |- U[sk] is an instance of G' |- U'[si']
    *)
 
-    fun memberSubsumes ((G, D, U, s), (G', U', [])) = false
-      | memberSubsumes ((G, D, U, s), (G', U', (((D1, s1), _)::A))) =
+    let rec memberSubsumes = function ((G, D, U, s), (G', U', [])) -> false
+      | ((G, D, U, s), (G', U', (((D1, s1), _)::A))) -> 
         let
           let Upi = A.raiseType(G, U)
           let Upi' = A.raiseType(G',U')
@@ -586,8 +586,8 @@ struct
             memberSubsumes ((G, D, U, s), (G', U', A))
         end
 
-  fun shift (0, s) = s
-    | shift (n, s) = shift(n-1, I.dot1 s)
+  let rec shift = function (0, s) -> s
+    | (n, s) -> shift(n-1, I.dot1 s)
 
 
    fun answCheckSubsumes (G, D, U, s, O) =
@@ -708,8 +708,8 @@ struct
     fun lookup {solutions = S, lookup = i} = i
 
 
-    fun noAnswers [] = true
-      | noAnswers ((H as ((G', D', U'), answ))::L') =
+    let rec noAnswers = function [] -> true
+      | ((H as ((G', D', U'), answ))::L') -> 
           case (List.take (solutions(answ), lookup(answ)))
             of [] => noAnswers L'
           | L  => false
@@ -729,8 +729,8 @@ struct
     (* needs to take into account previous size of table *)
     fun updateTable () =
           let
-            fun update [] T Flag = (Flag, T)
-              | update (((k, G, D, U), {solutions = S, lookup = i})::T) T' Flag =
+            let rec update = function [] T Flag -> (Flag, T)
+              | (((k, G, D, U), {solutions -> S, lookup = i})::T) T' Flag =
               let
                 let l = length(S)
               in

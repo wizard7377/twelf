@@ -26,14 +26,14 @@ struct
       fun stripTC TC = TC
 
 
-    fun stripTCOpt NONE = NONE
-      | stripTCOpt (SOME TC) = SOME (stripTC TC)
+    let rec stripTCOpt = function NONE -> NONE
+      | (SOME TC) -> SOME (stripTC TC)
 
-    fun stripDec (T.UDec D) = T.UDec D
-      | stripDec (T.PDec (name, F, TC1, TC2)) = T.PDec (name, F, TC1, stripTCOpt TC2)
+    let rec stripDec = function (T.UDec D) -> T.UDec D
+      | (T.PDec (name, F, TC1, TC2)) -> T.PDec (name, F, TC1, stripTCOpt TC2)
 
-    fun strip I.Null = I.Null
-      | strip (I.Decl (Psi, D)) = I.Decl (strip Psi, stripDec D)
+    let rec strip = function I.Null -> I.Null
+      | (I.Decl (Psi, D)) -> I.Decl (strip Psi, stripDec D)
 
 
     (* expand S = S'
@@ -43,25 +43,25 @@ struct
        and  F does not start with an all quantifier
        then S' = (Psi, x1:A1, ... xn:An |> F)
     *)
-    fun expand (S.Focus (R as T.EVar (Psi, r, T.All ((D, _), F), NONE, NONE, _), W)) =
+    let rec expand = function (S.Focus (R as T.EVar (Psi, r, T.All ((D, _), F), NONE, NONE, _), W)) -> 
         let
           let D' = TomegaNames.decName (Psi, D)
         in
           SOME (R, T.Lam (D', T.newEVar (I.Decl (strip Psi, D'), F)))
         end
-      | expand (S.Focus (R as T.EVar (Psi, r, T.Ex ((D as I.Dec (_, V), _), F), NONE, NONE, _), W)) =
+      | (S.Focus (R as T.EVar (Psi, r, T.Ex ((D as I.Dec (_, V), _), F), NONE, NONE, _), W)) -> 
            let
              let X = I.newEVar (T.coerceCtx (Psi), V)
              let Y = T.newEVar (Psi, T.forSub (F, T.Dot (T.Exp X, T.id)))
            in
              SOME (R, T.PairExp (X, Y))
            end
-      | expand (S.Focus (R as T.EVar (Psi, r, T.True, NONE, NONE, _), W)) =
+      | (S.Focus (R as T.EVar (Psi, r, T.True, NONE, NONE, _), W)) -> 
            (SOME (R, T.Unit))
 
-      | expand (S.Focus (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), W)) =
+      | (S.Focus (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), W)) -> 
            expand (S.Focus (T.EVar (Psi, r, T.forSub (F, s), TC1, TC2, X), W))
-      | expand (S.Focus (T.EVar (Psi, r, _, _, _, _), W)) = NONE
+      | (S.Focus (T.EVar (Psi, r, _, _, _, _), W)) -> NONE
 
     (* apply O = S
 

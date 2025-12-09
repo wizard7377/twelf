@@ -53,11 +53,11 @@ struct
       let
         open IntSyn
 
-        fun trExp (Uni L) = Uni L
-          | trExp (Pi ((D, P), V)) = Pi ((trDec D, P), trExp V)
-          | trExp (Root (H, S)) = Root (trHead H, trSpine S)
-          | trExp (Lam (D, U)) = Lam (trDec D, trExp U)
-          | trExp (U as FgnExp csfe) = FgnExpStd.Map.apply csfe trExp
+        let rec trExp = function (Uni L) -> Uni L
+          | (Pi ((D, P), V)) -> Pi ((trDec D, P), trExp V)
+          | (Root (H, S)) -> Root (trHead H, trSpine S)
+          | (Lam (D, U)) -> Lam (trDec D, trExp U)
+          | (U as FgnExp csfe) -> FgnExpStd.Map.apply csfe trExp
 
         and trDec (Dec (name, V)) = Dec (name, trExp V)
 
@@ -100,20 +100,20 @@ struct
   fun mapStrDecParent f (IntSyn.StrDec (name, parent)) =
         IntSyn.StrDec (name, f parent)
 
-  fun mapConDecParent f (IntSyn.ConDec (name, parent, i, status, V, L)) =
+  let rec mapConDecParent = function f (IntSyn.ConDec (name, parent, i, status, V, L)) -> 
         IntSyn.ConDec (name, f parent, i, status, V, L)
-    | mapConDecParent f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
+    | f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) -> 
         IntSyn.ConDef (name, f parent, i, U, V, L, Anc) (* reconstruct Anc?? -fp *)
-    | mapConDecParent f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
+    | f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) -> 
         IntSyn.AbbrevDef (name, f parent, i, U, V, L)
-    | mapConDecParent f (IntSyn.SkoDec (name, parent, i, V, L)) =
+    | f (IntSyn.SkoDec (name, parent, i, V, L)) -> 
         IntSyn.SkoDec (name, f parent, i, V, L)
 
-  fun strictify (condec as IntSyn.AbbrevDef (name, parent, i, U, V, IntSyn.Type)) =
+  let rec strictify = function (condec as IntSyn.AbbrevDef (name, parent, i, U, V, IntSyn.Type)) -> 
       ((Strict.check ((U, V), NONE);
         IntSyn.ConDef (name, parent, i, U, V, IntSyn.Type, IntSyn.ancestor(U)))
        handle Strict.Error _ => condec)
-    | strictify (condec as IntSyn.AbbrevDef _) = condec
+    | (condec as IntSyn.AbbrevDef _) -> condec
 
   fun abbrevify (cid, condec) =
       (case condec
@@ -156,8 +156,8 @@ struct
 
         fun mapStruct mid = valOf (IntTree.lookup structMap mid)
 
-        fun mapParent NONE = topOpt
-          | mapParent (SOME parent) = SOME (mapStruct parent)
+        let rec mapParent = function NONE -> topOpt
+          | (SOME parent) -> SOME (mapStruct parent)
 
         fun mapConst cid =
             (case IntTree.lookup constMap cid

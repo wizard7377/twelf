@@ -44,9 +44,9 @@ struct
       Side effect: May raise Parsing.Error
     *)
 
-    fun checkEOF (LS.Cons ((L.EOF, r), s')) = r (* region information useless
+    let rec checkEOF = function (LS.Cons ((L.EOF, r), s')) -> r (* region information useless
                                                    since it only refers to string --cs *)
-      | checkEOF (LS.Cons ((t, r), _))  =
+      | (LS.Cons ((t, r), _)) -> 
           Parsing.error (r, "Expected `}', found " ^ L.toString t)
          (* Note that this message is inapplicable when we use
             checkEOF in stringToterm --rf *)
@@ -106,8 +106,8 @@ struct
        Invariant:
        {G}V = V'
     *)
-    fun closure (I.Null, V) = V
-      | closure (I.Decl (G, D), V) =
+    let rec closure = function (I.Null, V) -> V
+      | (I.Decl (G, D), V) -> 
           closure (G, I.Pi ((D, I.Maybe), V))
 
     (* internalizeBlock  (n, G, Vb, S) (L2, s) = ()
@@ -122,8 +122,8 @@ struct
        then internalizeBlock adds new declarations into the module type that
               correspond to the block declarations.
     *)
-    fun internalizeBlock _ (nil, _) = ()
-      | internalizeBlock (n, G, Vb, S) (I.Dec (SOME name, V) :: L2, s) =
+    let rec internalizeBlock = function _ (nil, _) -> ()
+      | (n, G, Vb, S) (I.Dec (SOME name, V) :: L2, s) -> 
         let
           let name' = "o_" ^ name
           let V1 = I.EClo (V, s)        (* G, B |- V' : type *)
@@ -151,8 +151,8 @@ struct
        then S' extends S
        and G0 |- S' : V >> type.
     *)
-    fun makeSpine (_, I.Null, S) = S
-      | makeSpine (n, I.Decl (G, D), S) =
+    let rec makeSpine = function (_, I.Null, S) -> S
+      | (n, I.Decl (G, D), S) -> 
           makeSpine (n+1, G, I.App (I.Root (I.BVar (n+1), I.Nil), S))
 
 
@@ -162,10 +162,10 @@ struct
        If   condec is a condec,
        then all pi declarations are internalized if condec was a blockdec
     *)
-    fun internalizeCondec (cid, I.ConDec _) = ()
-      | internalizeCondec (cid, I.ConDef _) = ()
-      | internalizeCondec (cid, I.AbbrevDef _) = ()
-      | internalizeCondec (cid, I.BlockDec (name, _, Gsome, Lpi)) =
+    let rec internalizeCondec = function (cid, I.ConDec _) -> ()
+      | (cid, I.ConDef _) -> ()
+      | (cid, I.AbbrevDef _) -> ()
+      | (cid, I.BlockDec (name, _, Gsome, Lpi)) -> 
         let
           let V' = closure (Gsome, I.Uni I.Type)
           let C = I.ConDec (name ^ "'", NONE, 0, I.Normal, V', I.Kind)
@@ -178,7 +178,7 @@ struct
         in
           internalizeBlock (1, Gsome, Vb, S') (Lpi, I.shift)
         end
-      | internalizeCondec (cid, I.SkoDec _) = ()
+      | (cid, I.SkoDec _) -> ()
 
 
     (* sigToCtx () = ()
@@ -206,16 +206,16 @@ struct
 
     (* Externalization *)
 
-    fun dropSpine (0, S) = S
-      | dropSpine (n, I.App (_, S)) = dropSpine (n-1, S)
+    let rec dropSpine = function (0, S) -> S
+      | (n, I.App (_, S)) -> dropSpine (n-1, S)
 
-    fun makeSub (I.Nil, s) = s
-      | makeSub (I.App (U, S), s) = makeSub (S, I.Dot (I.Exp U, s))
+    let rec makeSub = function (I.Nil, s) -> s
+      | (I.App (U, S), s) -> makeSub (S, I.Dot (I.Exp U, s))
 
-    fun externalizeExp' (U as I.Uni _)  = U
-      | externalizeExp' (I.Pi ((D, DP), U)) = I.Pi ((externalizeDec D, DP), externalizeExp U)
-      | externalizeExp' (I.Root (H as I.BVar _, S)) = I.Root (H, externalizeSpine S)
-      | externalizeExp' (I.Root (H as I.Const c, S)) =
+    let rec externalizeExp' = function (U as I.Uni _) -> U
+      | (I.Pi ((D, DP), U)) -> I.Pi ((externalizeDec D, DP), externalizeExp U)
+      | (I.Root (H as I.BVar _, S)) -> I.Root (H, externalizeSpine S)
+      | (I.Root (H as I.Const c, S)) -> 
         (case I.constUni c
            of I.Kind => I.Root (H, externalizeSpine S)
             | I.Type => let
@@ -224,14 +224,14 @@ struct
                         in
                           I.Root (I.Proj (I.Bidx b, i), externalizeSpine S')
                         end)
-      | externalizeExp' (I.Root (I.Proj _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.Skonst _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.Def _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.NSDef _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.FVar _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.FgnConst _, _)) = raise Domain
-      | externalizeExp' (I.Redex (U, S)) = I.Redex (externalizeExp U, externalizeSpine S)
-      | externalizeExp' (I.Lam (D, U)) = I.Lam (externalizeDec D, externalizeExp U)
+      | (I.Root (I.Proj _, _)) -> raise Domain
+      | (I.Root (I.Skonst _, _)) -> raise Domain
+      | (I.Root (I.Def _, _)) -> raise Domain
+      | (I.Root (I.NSDef _, _)) -> raise Domain
+      | (I.Root (I.FVar _, _)) -> raise Domain
+      | (I.Root (I.FgnConst _, _)) -> raise Domain
+      | (I.Redex (U, S)) -> I.Redex (externalizeExp U, externalizeSpine S)
+      | (I.Lam (D, U)) -> I.Lam (externalizeDec D, externalizeExp U)
     and externalizeExp (U) = externalizeExp' (Whnf.normalize (U, I.id))
     (* Check : the translators hould only generate normal forms. Fix during the next pass --cs Thu Apr 17 17:06:24 2003 *)
 
@@ -247,20 +247,20 @@ struct
       | externalizeFront (I.Block B) = I.Block (externalizeBlock B)
       | externalizeFront (F as I.Undef) = F
 
-    fun externalizePrg (n, T.Lam (D, P)) = T.Lam (externalizeMDec (n, D), externalizePrg (n+1, P))
-      | externalizePrg (n, T.New P) = T.New (externalizePrg (n, P))
-      | externalizePrg (n, T.Box (W, P)) = T.Box (W, externalizePrg (n, P))
-      | externalizePrg (n, T.Choose P) = T.Choose (externalizePrg (n, P))
-      | externalizePrg (n, T.PairExp (U, P)) = T.PairExp (externalizeExp U, externalizePrg (n, P))
-      | externalizePrg (n, T.PairPrg (P1, P2)) = T.PairPrg (externalizePrg (n, P1), externalizePrg (n, P2))
-      | externalizePrg (n, T.PairBlock (B, P)) = T.PairBlock (externalizeBlock B, externalizePrg (n, P))
-      | externalizePrg (n, T.Unit) =  T.Unit
-      | externalizePrg (n, T.Var k) = T.Var k
-      | externalizePrg (n, T.Const c) = T.Const c
-      | externalizePrg (n, T.Redex (P, S)) = T.Redex  (externalizePrg (n, P), externalizeMSpine (n, S))
-      | externalizePrg (n, T.Rec (D, P)) = T.Rec (externalizeMDec (n, D), externalizePrg (n+1, P))
-      | externalizePrg (n, T.Case (T.Cases O)) = T.Case (T.Cases (externalizeCases O))
-      | externalizePrg (n, T.Let (D, P1, P2)) = T.Let (externalizeMDec (n, D), externalizePrg (n, P1), externalizePrg (n+1, P2))
+    let rec externalizePrg = function (n, T.Lam (D, P)) -> T.Lam (externalizeMDec (n, D), externalizePrg (n+1, P))
+      | (n, T.New P) -> T.New (externalizePrg (n, P))
+      | (n, T.Box (W, P)) -> T.Box (W, externalizePrg (n, P))
+      | (n, T.Choose P) -> T.Choose (externalizePrg (n, P))
+      | (n, T.PairExp (U, P)) -> T.PairExp (externalizeExp U, externalizePrg (n, P))
+      | (n, T.PairPrg (P1, P2)) -> T.PairPrg (externalizePrg (n, P1), externalizePrg (n, P2))
+      | (n, T.PairBlock (B, P)) -> T.PairBlock (externalizeBlock B, externalizePrg (n, P))
+      | (n, T.Unit) -> T.Unit
+      | (n, T.Var k) -> T.Var k
+      | (n, T.Const c) -> T.Const c
+      | (n, T.Redex (P, S)) -> T.Redex  (externalizePrg (n, P), externalizeMSpine (n, S))
+      | (n, T.Rec (D, P)) -> T.Rec (externalizeMDec (n, D), externalizePrg (n+1, P))
+      | (n, T.Case (T.Cases O)) -> T.Case (T.Cases (externalizeCases O))
+      | (n, T.Let (D, P1, P2)) -> T.Let (externalizeMDec (n, D), externalizePrg (n, P1), externalizePrg (n+1, P2))
       (* PClo should not be possible, since by invariant, parser
          always generates a program in normal form  --cs Thu Apr 17 16:56:07 2003
       *)
@@ -308,22 +308,22 @@ struct
 
 
 
-    fun transTerm (D.Rtarrow (t1, t2)) =
+    let rec transTerm = function (D.Rtarrow (t1, t2)) -> 
         let
           let (s1, c1) = transTerm t1
           let (s2, c2) = transTerm t2
         in
           (s1 ^ " -> " ^ s2, c1 @ c2)
         end
-      | transTerm (D.Ltarrow (t1, t2)) =
+      | (D.Ltarrow (t1, t2)) -> 
         let
           let (s1, c1) = transTerm t1
           let (s2, c2) = transTerm t2
         in
           (s1 ^ " <- " ^ s2, c1 @ c2)
         end
-      | transTerm (D.Type) = ("type", nil)
-      | transTerm (D.Id s) =
+      | (D.Type) -> ("type", nil)
+      | (D.Id s) -> 
         let
           let qid = Names.Qid (nil, s)
         in
@@ -333,42 +333,42 @@ struct
                               of I.BlockDec _ => (s ^ "'", nil)
                                | _ => (s, nil))
         end
-      | transTerm (D.Pi (D, t)) =
+      | (D.Pi (D, t)) -> 
         let
           let (s1, c1) = transDec D
           let (s2, c2) = transTerm t
         in
           ("{" ^ s1 ^ "}" ^ s2, c1 @ c2)
         end
-      | transTerm (D.Fn (D, t)) =
+      | (D.Fn (D, t)) -> 
         let
           let (s1, c1) = transDec D
           let (s2, c2) = transTerm t
         in
           ("[" ^ s1 ^ "]" ^ s2, c1 @ c2)
         end
-      | transTerm (D.App (t1, t2)) =
+      | (D.App (t1, t2)) -> 
         let
           let (s1, c1) = transTerm t1
           let (s2, c2) = transTerm t2
         in
           (s1 ^ " " ^ s2, c1 @ c2)
         end
-      | transTerm (D.Omit) = ("_", nil)
-      | transTerm (D.Paren (t)) =
+      | (D.Omit) -> ("_", nil)
+      | (D.Paren (t)) -> 
         let
           let (s, c) = transTerm t
         in
           ("(" ^  s ^ ")", c)
         end
-      | transTerm (D.Of (t1, t2)) =
+      | (D.Of (t1, t2)) -> 
         let
           let (s1, c1) = transTerm t1
           let (s2, c2) = transTerm t2
         in
           (s1 ^ ":" ^ s2, c1 @ c2)
         end
-      | transTerm (D.Dot (t, s2)) =
+      | (D.Dot (t, s2)) -> 
         let
           let (s1, c1) = transTerm t
         in
@@ -388,7 +388,7 @@ struct
           (s ^ ":" ^ s', c)
         end
 
-    fun transWorld (D.WorldIdent s) =
+    let rec transWorld = function (D.WorldIdent s) -> 
            (* We should use the worlds we have defined in Tomega, but this
               is not good enough, because worlds are not defined
               by a regualar expression.  Therefore this is a patch *)
@@ -402,9 +402,9 @@ struct
         in
           [cid]
         end
-      | transWorld (D.Plus (W1, W2)) = transWorld W1 @ transWorld W2
-      | transWorld (D.Concat (W1, W2)) = transWorld W1 @ transWorld W2
-      | transWorld (D.Times W) = transWorld W
+      | (D.Plus (W1, W2)) -> transWorld W1 @ transWorld W2
+      | (D.Concat (W1, W2)) -> transWorld W1 @ transWorld W2
+      | (D.Times W) -> transWorld W
 
     fun transFor' (Psi, D) =
         let
@@ -422,38 +422,38 @@ struct
        then |- Psi <= ExtDPsi
        and  Psi |- F <= ExtF
     *)
-    fun transFor (Psi, D.True) = T.True
-      | transFor (Psi, D.And (EF1, EF2)) =
+    let rec transFor = function (Psi, D.True) -> T.True
+      | (Psi, D.And (EF1, EF2)) -> 
           T.And (transFor (Psi, EF1), transFor (Psi, EF2))
-      | transFor (Psi, D.Forall (D, F)) =
+      | (Psi, D.Forall (D, F)) -> 
         let
           let (D'', nil) = transDec D
           let D' = transFor' (Psi, stringTodec (D''))
         in
            T.All ((T.UDec D', T.Explicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.Exists (D, F)) =
+      | (Psi, D.Exists (D, F)) -> 
         let
           let (D'', nil) = transDec D
           let D' = transFor' (Psi, stringTodec (D''))
         in
            T.Ex ((D', T.Explicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.ForallOmitted (D, F)) =
+      | (Psi, D.ForallOmitted (D, F)) -> 
         let
           let (D'', nil) = transDec D
           let D' = transFor' (Psi, stringTodec (D''))
         in
            T.All ((T.UDec D', T.Implicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.ExistsOmitted (D, F)) =
+      | (Psi, D.ExistsOmitted (D, F)) -> 
         let
           let (D'', nil) = transDec D
           let D' = transFor' (Psi, stringTodec (D''))
         in
            T.Ex ((D', T.Implicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.World (W, EF)) =
+      | (Psi, D.World (W, EF)) -> 
            T.World (T.Worlds (transWorld W), transFor (Psi, EF))
 
 
@@ -485,9 +485,9 @@ struct
        Invariant:
        n is the name of the function head dH
     *)
-    fun head (D.Head s) = s
-      | head (D.AppLF (H, _)) = head H
-      | head (D.AppMeta (H, _)) = head H
+    let rec head = function (D.Head s) -> s
+      | (D.AppLF (H, _)) -> head H
+      | (D.AppMeta (H, _)) -> head H
 
     (* lamClosure (F, P) = P'
 
@@ -498,26 +498,26 @@ struct
        and . |- P :: F'
        then P' = lam D1 ... lam Dn P
     *)
-    fun lamClosure (T.All ((D, _), F), P) = T.Lam (D, lamClosure (F, P))
-      | lamClosure (T.World(_, F), P) = lamClosure (F, P)
-      | lamClosure (T.Ex _, P) = P
+    let rec lamClosure = function (T.All ((D, _), F), P) -> T.Lam (D, lamClosure (F, P))
+      | (T.World(_, F), P) -> lamClosure (F, P)
+      | (T.Ex _, P) -> P
 
 
-    fun exists (c, []) = raise Error "Current world is not subsumed"
-      | exists (c, c' :: cids) = if c = c' then () else exists (c, cids)
+    let rec exists = function (c, []) -> raise Error "Current world is not subsumed"
+      | (c, c' :: cids) -> if c = c' then () else exists (c, cids)
 
-    fun subsumed ([], cids') = ()
-      | subsumed (c :: cids, cids') = (exists (c, cids'); subsumed (cids, cids'))
+    let rec subsumed = function ([], cids') -> ()
+      | (c :: cids, cids') -> (exists (c, cids'); subsumed (cids, cids'))
 
 
-    fun checkForWorld (T.World (W as T.Worlds cids, F), t', T.Worlds cids') =
+    let rec checkForWorld = function (T.World (W as T.Worlds cids, F), t', T.Worlds cids') -> 
         let
           let _ =  subsumed (cids', cids)
         (* check that W is at least as large as W' *)
         in
           (F, t', W)
         end
-      | checkForWorld FtW = FtW
+      | FtW -> FtW
 
 
     (* dotn (t, n) = t'
@@ -527,8 +527,8 @@ struct
        and  |G| = n   for any G
        then Psi0, G[t] |- t : Psi, G
     *)
-    fun dotn (t, 0) = t
-      | dotn (t, n) = I.dot1 (dotn (t, n-1))
+    let rec dotn = function (t, 0) -> t
+      | (t, n) -> I.dot1 (dotn (t, n-1))
 
     (* append (Psi1, Psi2) = Psi3
 
@@ -537,8 +537,8 @@ struct
        and  |- Psi2 ctx
        then |- Psi3 = Psi1, Psi2 ctx
     *)
-    fun append (Psi, I.Null) = Psi
-      | append (Psi, I.Decl (Psi', D)) =
+    let rec append = function (Psi, I.Null) -> Psi
+      | (Psi, I.Decl (Psi', D)) -> 
           I.Decl (append (Psi, Psi'), D)
 
 
@@ -578,10 +578,10 @@ struct
        then eventually x = ().     --cs
     *)
 
-    fun transDecs (Psi, D.Empty, sc, W) = sc (Psi, W)
-      | transDecs (Psi, D.FormDecl (FormD, Ds), sc, W) = (transForDec (Psi, FormD, Ds, sc, W))
-      | transDecs (Psi, D.ValDecl (ValD, Ds), sc, W) = (transValDec (Psi, ValD, Ds, sc, W))
-      | transDecs (Psi, D.NewDecl (D, Ds), sc, W) =
+    let rec transDecs = function (Psi, D.Empty, sc, W) -> sc (Psi, W)
+      | (Psi, D.FormDecl (FormD, Ds), sc, W) -> (transForDec (Psi, FormD, Ds, sc, W))
+      | (Psi, D.ValDecl (ValD, Ds), sc, W) -> (transValDec (Psi, ValD, Ds, sc, W))
+      | (Psi, D.NewDecl (D, Ds), sc, W) -> 
           let
             let D' = T.UDec (parseDec (Psi, D))
           in
@@ -955,8 +955,8 @@ struct
           let G' = extract (I.Null, (U, I.id))
           let Dlist = T.ctxToBDecs (T.coerceCtx Psi, G', W)
 
-          fun project ((G, env), []) = (env, 1)   (* is this the right starting point --cs *)
-            | project ((G, env), x :: N) =
+          let rec project = function ((G, env), []) -> (env, 1)   (* is this the right starting point --cs *)
+            | ((G, env), x :: N) -> 
               let
                 let (env', k) = project ((G, env), N)
                 let U = I.Root (I.Proj (I.Bidx 1, k), I.Nil)
@@ -965,8 +965,8 @@ struct
                 ((U, V, x) :: env', k+1)
               end
 
-          fun extend ((Psi', env'), []) = (Psi', env')
-            | extend ((Psi', env'), (N, D) :: Dlist') =
+          let rec extend = function ((Psi', env'), []) -> (Psi', env')
+            | ((Psi', env'), (N, D) :: Dlist') -> 
               let
                 let (Psi'', env'') = extend ((Psi', env'),  Dlist')
                 let Psi''' = I.Decl (Psi'', T.UDec D)
@@ -981,8 +981,8 @@ struct
            let (Psi', env') = extend ((Psi, env), Dlist)
            let _ = printCtx (Names.ctxName (T.coerceCtx Psi'), env')
 
-          fun universalClosure ([], F) = F
-            | universalClosure ((_, D) :: Ds, F)  = T.All (T.UDec D, universalClosure (Ds, F))
+          let rec universalClosure = function ([], F) -> F
+            | ((_, D) :: Ds, F) -> T.All (T.UDec D, universalClosure (Ds, F))
 
           let (P', (F, t)) = transProgS ((Psi, env), EP, W)
 
@@ -1091,8 +1091,8 @@ struct
           let G' = extract (I.Null, (U, I.id))
           let Dlist = T.ctxToBDecs (T.coerceCtx Psi, G', W)
 
-          fun project ((G, env), []) = (env, 1)   (* is this the right starting point --cs *)
-            | project ((G, env), x :: N) =
+          let rec project = function ((G, env), []) -> (env, 1)   (* is this the right starting point --cs *)
+            | ((G, env), x :: N) -> 
               let
                 let (env', k) = project ((G, env), N)
                 let U = I.Root (I.Proj (I.Bidx 1, k), I.Nil)
@@ -1101,8 +1101,8 @@ struct
                 ((U, V, x) :: env', k+1)
               end
 
-          fun extend ((Psi', env'), []) = (Psi', env')
-            | extend ((Psi', env'), (N, D) :: Dlist') =
+          let rec extend = function ((Psi', env'), []) -> (Psi', env')
+            | ((Psi', env'), (N, D) :: Dlist') -> 
               let
                 let (Psi'', env'') = extend ((Psi', env'),  Dlist')
                 let Psi''' = I.Decl (Psi'', T.UDec D)
@@ -1118,8 +1118,8 @@ struct
           let (Psi', env') = extend ((Psi, env), Dlist)
           let _ = printCtx (Names.ctxName (T.coerceCtx Psi'), env')
 
-          fun universalClosure ([], F) = F
-            | universalClosure ((_, D) :: Ds, F)  = T.All (T.UDec D, universalClosure (Ds, F))
+          let rec universalClosure = function ([], F) -> F
+            | ((_, D) :: Ds, F) -> T.All (T.UDec D, universalClosure (Ds, F))
 
           let (P', (F, t)) = transProgS ((Psi, env), eP, W)
           let F' = T.forSub (F, t)

@@ -107,15 +107,15 @@ struct
 
 
 
-        fun makeSpine ([], F) = (T.Nil, F)
-          | makeSpine (x :: L, F' as T.And (F1, F2)) =
+        let rec makeSpine = function ([], F) -> (T.Nil, F)
+          | (x :: L, F' as T.And (F1, F2)) -> 
             let
               let (S', F') =  makeSpine (L, T.forSub (F', T.Dot (T.Exp (I.Root (I.Def x, I.Nil)), T.id)))
             in
               (T.AppExp (I.Root (I.Def x, I.Nil), S'), F')
             end
 
-          | makeSpine (x :: L, T.All ((D, _), F')) =
+          | (x :: L, T.All ((D, _), F')) -> 
             let
               let _ = checkDec(I.Root (I.Def x, I.Nil), D)
               let (S', F') =  makeSpine (L, T.forSub (F', T.Dot (T.Exp (I.Root (I.Def x, I.Nil)), T.id)))

@@ -92,9 +92,9 @@ struct
     *)
     fun mutual a =
         let
-          fun mutual' (Empty, a's) = a's
-            | mutual' (LE (a, M), a's) = mutual' (M, a :: a's)
-            | mutual' (LT (a, M), a's) = mutual' (M, a :: a's)
+          let rec mutual' = function (Empty, a's) -> a's
+            | (LE (a, M), a's) -> mutual' (M, a :: a's)
+            | (LT (a, M), a's) -> mutual' (M, a :: a's)
         in
           mutual' (mutLookup a, nil)
         end
@@ -106,8 +106,8 @@ struct
        then a3s is a list of type fmailies, which are mutual recursive to each other
        and include a1s and a2s.
     *)
-    fun closure (nil, a2s) = a2s
-      | closure (a :: a1s, a2s) =
+    let rec closure = function (nil, a2s) -> a2s
+      | (a :: a1s, a2s) -> 
         if List.exists (fn a' => a = a') a2s
           then closure (a1s, a2s)
         else closure (mutual a @ a1s, a :: a2s)

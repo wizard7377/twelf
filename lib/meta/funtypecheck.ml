@@ -37,7 +37,7 @@ struct
        B iff G [s]  == G' [s']
        Might migrate in to conv module  --cs
     *)
-    fun conv (Gs, Gs') =
+    let rec conv = function (Gs, Gs') -> 
       let
         exception Conv
         fun conv ((I.Null, s), (I.Null, s')) = (s, s')
@@ -50,7 +50,7 @@ struct
               if Conv.conv ((V, s1), (V', s1')) then ps
               else raise Conv
             end
-          | conv _ = raise Conv
+          | _ -> raise Conv
       in
         (conv (Gs, Gs'); true) handle Conv => false
       end
@@ -64,8 +64,8 @@ struct
        and  L : 'a list
        then G' = G, L : 'a ctx
     *)
-    fun extend (G, nil) = G
-      | extend (G, D :: L) = extend (I.Decl (G, D), L)
+    let rec extend = function (G, nil) -> G
+      | (G, D :: L) -> extend (I.Decl (G, D), L)
 
 
     (* validBlock (Psi, k, (l : G)) = ()
@@ -84,19 +84,19 @@ struct
 
     fun validBlock (Psi, k, (l, G)) =
       let
-        fun skipBlock (I.Null, k) = k
-          | skipBlock (I.Decl (G', _), k) = skipBlock (G', k-1)
+        let rec skipBlock = function (I.Null, k) -> k
+          | (I.Decl (G', _), k) -> skipBlock (G', k-1)
 
-        fun validBlock' (I.Decl (Psi, F.Block (F.CtxBlock (l', G'))), 0) =
+        let rec validBlock' = function (I.Decl (Psi, F.Block (F.CtxBlock (l', G'))), 0) -> 
               if (l' = l) andalso conv ((G, I.id), (G', I.id)) then ()
               else raise Error "Typecheck Error: Not a valid block"
-          | validBlock' (I.Decl (Psi, F.Prim _), 0) =
+          | (I.Decl (Psi, F.Prim _), 0) -> 
               raise Error "Typecheck Error: Not a valid block"
-          | validBlock' (I.Null, k) =
+          | (I.Null, k) -> 
               raise Error "Typecheck Error: Not a valid block"
-          | validBlock' (I.Decl (Psi, F.Block (F.CtxBlock (l', G'))), k) =
+          | (I.Decl (Psi, F.Block (F.CtxBlock (l', G'))), k) -> 
               validBlock' (Psi, skipBlock (G', k))
-          | validBlock' (I.Decl (Psi, F.Prim (D)), k) =
+          | (I.Decl (Psi, F.Prim (D)), k) -> 
               validBlock' (Psi, k-1)
 
       in
@@ -116,8 +116,8 @@ struct
         let n = I.ctxLength G
         let m = I.ctxLength Psi'
 
-        fun args (0, a, S) = S
-          | args (n', a, S) =
+        let rec args = function (0, a, S) -> S
+          | (n', a, S) -> 
             let
               let I.Dec (_, V) = I.ctxDec (G, n')
             in
@@ -133,11 +133,11 @@ struct
               I.Exp (I.Root (I.BVar (n+m'), args (n, I.targetFam (V), I.Nil)))
             end
 
-        fun raiseSub'' (0, s) = s
-          | raiseSub'' (m', s) = raiseSub'' (m'-1, I.Dot (term m', s))
+        let rec raiseSub'' = function (0, s) -> s
+          | (m', s) -> raiseSub'' (m'-1, I.Dot (term m', s))
 
-        fun raiseSub' (0, s) = raiseSub'' (m, s)
-          | raiseSub' (n', s) = raiseSub' (n'-1, I.Dot (I.Idx n', s))
+        let rec raiseSub' = function (0, s) -> raiseSub'' (m, s)
+          | (n', s) -> raiseSub' (n'-1, I.Dot (I.Idx n', s))
 
       in
         raiseSub' (n, I.Shift (n+m))
@@ -153,13 +153,13 @@ struct
 
     fun raiseType (F.CtxBlock (l, G), Psi') =
       let
-        fun raiseType'' (I.Null, Vn, a) = Vn
-          | raiseType'' (I.Decl (G', D as I.Dec (_, V')), Vn, a) =
+        let rec raiseType'' = function (I.Null, Vn, a) -> Vn
+          | (I.Decl (G', D as I.Dec (_, V')), Vn, a) -> 
             if Subordinate.belowEq (I.targetFam V', a)
               then raiseType'' (G', Abstract.piDepend ((D, I.Maybe), Vn), a)
             else raiseType'' (G', Weaken.strengthenExp (Vn, I.shift), a)
-        fun raiseType' (Psi1, nil) = nil
-          | raiseType' (Psi1, F.Prim (D as I.Dec (x, V)) :: Psi1') =
+        let rec raiseType' = function (Psi1, nil) -> nil
+          | (Psi1, F.Prim (D as I.Dec (x, V)) :: Psi1') -> 
             let
               let s = raiseSub (G, Psi1)
               let Vn = Whnf.normalize (V, s)
@@ -180,8 +180,8 @@ struct
        Each xx in F in L is mapped to xx in PI B. F in L'
        L' preserves the order of L
     *)
-    fun raiseM (B, nil) = nil
-      | raiseM (B, F.MDec (xx, F) :: L) =
+    let rec raiseM = function (B, nil) -> nil
+      | (B, F.MDec (xx, F) :: L) -> 
           F.MDec (xx, F.All (F.Block B, F)) :: raiseM (B, L)
 
     (* psub (k, Phi, s) = s'
@@ -196,26 +196,26 @@ struct
        then s' = k-n . ... k . id
     *)
 
-    fun psub (k, I.Null, s) = s
-      | psub (k, I.Decl (G, _), s) =
+    let rec psub = function (k, I.Null, s) -> s
+      | (k, I.Decl (G, _), s) -> 
           psub (k-1, G, I.Dot (I.Idx k, s))
 
 
-    fun deltaSub (I.Null, s) = I.Null
-      | deltaSub (I.Decl (Delta, DD), s) =
+    let rec deltaSub = function (I.Null, s) -> I.Null
+      | (I.Decl (Delta, DD), s) -> 
           I.Decl (deltaSub (Delta, s), F.mdecSub (DD, s))
 
     fun shift Delta = deltaSub (Delta, I.shift)
 
-    fun shifts (I.Null, Delta) = Delta
-      | shifts (I.Decl (G, _), Delta) =
+    let rec shifts = function (I.Null, Delta) -> Delta
+      | (I.Decl (G, _), Delta) -> 
           shifts (G, shift Delta)
 
     fun shiftBlock (F.CtxBlock (_, G), Delta) =
       shifts (G, Delta)
 
-    fun shiftSub (I.Null, s) = s
-      | shiftSub (I.Decl (G, _), s) = shiftSub (G, I.comp (I.shift, s))
+    let rec shiftSub = function (I.Null, s) -> s
+      | (I.Decl (G, _), s) -> shiftSub (G, I.comp (I.shift, s))
 
     fun shiftSubBlock (F.CtxBlock (_, G), s) =
       shiftSub (G, s)
@@ -231,8 +231,8 @@ struct
               and  Psi |- F' = F[s] formula
        otherwise Error is raised
     *)
-    fun check (Psi, Delta, F.Unit, (F.True, _)) = ()
-      | check (Psi, Delta, F.Rec (DD, P), F) =
+    let rec check = function (Psi, Delta, F.Unit, (F.True, _)) -> ()
+      | (Psi, Delta, F.Rec (DD, P), F) -> 
           (check (Psi, I.Decl (Delta, DD), P, F))
       | check (Psi, Delta, F.Lam (LD as F.Prim (I.Dec (_, V)), P),
                (F.All (F.Prim (I.Dec (_, V')), F'), s')) =
@@ -247,21 +247,21 @@ struct
                   P,
                   (F', F.dot1n (G, s')))
          else raise Error "Typecheck Error: Block Abstraction")
-      | check (Psi, Delta, F.Inx (M, P), (F.Ex (I.Dec (_, V'), F'), s')) =
+      | (Psi, Delta, F.Inx (M, P), (F.Ex (I.Dec (_, V'), F'), s')) -> 
           (TypeCheck.typeCheck (F.makectx Psi, (M, (I.EClo (V', s'))));
            check (Psi, Delta, P, (F', I.Dot (I.Exp (M), s'))))
-      | check (Psi, Delta, F.Case (F.Opts O), (F', s')) =
+      | (Psi, Delta, F.Case (F.Opts O), (F', s')) -> 
           checkOpts (Psi, Delta, O, (F', s'))
-      | check (Psi, Delta, F.Pair (P1, P2), (F.And (F1', F2'), s')) =
+      | (Psi, Delta, F.Pair (P1, P2), (F.And (F1', F2'), s')) -> 
           (check(Psi, Delta, P1, (F1', s'));
            check(Psi, Delta, P2, (F2', s')))
-      | check (Psi, Delta, F.Let (Ds, P), (F', s')) =
+      | (Psi, Delta, F.Let (Ds, P), (F', s')) -> 
         let
           let (Psi', Delta', s'') = assume (Psi, Delta, Ds)
         in
           check (extend (Psi, Psi'), extend (Delta, Delta'), P, (F', I.comp (s', s'')))
         end
-      | check _ = raise Error "Typecheck Error: Term not well-typed"
+      | _ -> raise Error "Typecheck Error: Term not well-typed"
 
     and infer (Delta, kk) = (I.ctxLookup (Delta, kk), I.id)
 
@@ -405,7 +405,7 @@ struct
           (* checkSub' ((G', w), s, G, m) = ()
           *)
 
-          fun checkSub' ((I.Null, w1), s1, I.Null, _) = s1
+          let rec checkSub' = function ((I.Null, w1), s1, I.Null, _) -> s1
             | checkSub' ((I.Decl (G', I.Dec (_, V')), w1), I.Dot (I.Idx k', s1),
                          I.Decl (G, I.Dec (_, V)), m) =
               if k' = m then
@@ -431,18 +431,18 @@ struct
       check (I.Null, I.Null, P, (T, I.id))
 
 
-    fun isFor (G, F.All (F.Prim D, F)) =
+    let rec isFor = function (G, F.All (F.Prim D, F)) -> 
           ((TypeCheck.checkDec (G, (D, I.id));
             isFor (I.Decl (G, D), F))
            handle TypeCheck.Error msg => raise Error msg)
-      | isFor (G, F.All (F.Block (F.CtxBlock (_, G1)), F)) =
+      | (G, F.All (F.Block (F.CtxBlock (_, G1)), F)) -> 
           isForBlock (G, F.ctxToList G1, F)
-      | isFor (G, F.Ex (D, F)) =
+      | (G, F.Ex (D, F)) -> 
           ((TypeCheck.checkDec (G, (D, I.id));
             isFor (I.Decl (G, D), F))
            handle TypeCheck.Error msg => raise Error msg)
-      | isFor (G, F.True) = ()
-      | isFor (G, F.And (F1, F2)) =
+      | (G, F.True) -> ()
+      | (G, F.And (F1, F2)) -> 
           (isFor (G, F1); isFor (G, F2))
 
     and isForBlock (G, nil, F) = isFor (G, F)
@@ -452,13 +452,13 @@ struct
 
 
 
-    fun checkTags' (V, F.Ex _) = ()
-      | checkTags' (I.Pi (_, V), F.All (_, F)) =
+    let rec checkTags' = function (V, F.Ex _) -> ()
+      | (I.Pi (_, V), F.All (_, F)) -> 
           checkTags' (V, F)
-      | checkTags' _ = raise Domain
+      | _ -> raise Domain
 
-    fun checkTags (I.Null, I.Null) = ()
-      | checkTags (I.Decl (G, I.Dec (_, V)), I.Decl (B, T)) =
+    let rec checkTags = function (I.Null, I.Null) -> ()
+      | (I.Decl (G, I.Dec (_, V)), I.Decl (B, T)) -> 
         (checkTags (G, B);
          case T
            of S.Lemma (_) =>  ()

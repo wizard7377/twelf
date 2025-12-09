@@ -29,8 +29,8 @@ struct
         
     let empty = T {length = 0, tree = Empty}
         
-    fun isEmpty (T {length = 0, ...}) = true
-      | isEmpty _ = false
+    let rec isEmpty = function (T {length -> 0, ...}) = true
+      | _ -> false
         
     fun str s =
         case s of
@@ -237,8 +237,8 @@ struct
         case ts of
             [] => []
           | t :: ts => t :: (let let s = str s
-                                 fun loop [] = []
-                                   | loop (t :: ts) = s :: t:: (loop ts)
+                                 let rec loop = function [] -> []
+                                   | (t :: ts) -> s :: t:: (loop ts)
                              in loop ts
                              end)
                 

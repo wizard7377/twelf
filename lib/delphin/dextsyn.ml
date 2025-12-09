@@ -129,11 +129,11 @@ local
 let rec parseLFDecs (Ast dl) =
   let let tf = OS.FileSys.tmpName ()
       let tos = TextIO.openOut tf
-      fun parseLFDecs' [] = ()
-       |  parseLFDecs' ((LFConDec ld) ::ds) =
+      let rec parseLFDecs' = function [] -> ()
+       | ((LFConDec ld) ::ds) -> 
            (TextIO.output(tos, ld);
            parseLFDecs' ds)
-       |  parseLFDecs' (_ ::ds) = parseLFDecs' ds
+       | (_ ::ds) -> parseLFDecs' ds
       let _ = parseLFDecs' dl
       let _ = TextIO.closeOut tos
       let _ = Twelf.loadFile tf
@@ -146,8 +146,8 @@ let rec parseLFDecs (Ast dl) =
 
 let rec rulesToCase (Ast decs) =
    let
-      fun rulesToCase' [] = []
-      |   rulesToCase' (ProgDec (Head (s,pts), prg) :: ds) =
+      let rec rulesToCase' = function [] -> []
+      | (ProgDec (Head (s,pts), prg) :: ds) -> 
             let let cds = rulesToCase' ds
             in
                case cds of
@@ -158,7 +158,7 @@ let rec rulesToCase (Ast decs) =
                          ProgDec (Head (s,[]), Case [(pts,prg)]):: cds
                 | _ => ProgDec (Head (s,[]), Case [(pts,prg)]):: cds
              end
-      |   rulesToCase' (d::ds) =
+      | (d::ds) -> 
              let let cds = rulesToCase' ds
              in
                 (d::cds)
@@ -170,11 +170,11 @@ let rec rulesToCase (Ast decs) =
 
 
  (* Invariant:  all programs in ast have been put in case form *)
-  fun abstractProgs' [] = []
-    | abstractProgs' (ProgDec (Head (nm,e), cp)::ds) =
+  let rec abstractProgs' = function [] -> []
+    | (ProgDec (Head (nm,e), cp)::ds) -> 
          ProgDec (Head (nm,e), Rec (MDec (nm, NONE), cp))::
                  (abstractProgs' ds)
-    | abstractProgs' (d::ds) = (d::(abstractProgs' ds))
+    | (d::ds) -> (d::(abstractProgs' ds))
 
 
  fun abstractProgs ast =

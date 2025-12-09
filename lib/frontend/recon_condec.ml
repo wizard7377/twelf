@@ -53,7 +53,7 @@ struct
   *)
   (* should printing of result be moved to frontend? *)
   (* Wed May 20 08:08:50 1998 -fp *)
-  fun condecToConDec (condec(name, tm), Paths.Loc (fileName, r), abbFlag) =
+  let rec condecToConDec = function (condec(name, tm), Paths.Loc (fileName, r), abbFlag) -> 
       let
         let _ = Names.varReset IntSyn.Null
         let _ = ExtSyn.resetErrors fileName
@@ -74,7 +74,7 @@ struct
       in
         (SOME(cd), SOME(ocd))
       end
-    | condecToConDec (condef(optName, tm1, tm2Opt), Paths.Loc (fileName, r), abbFlag) =
+    | (condef(optName, tm1, tm2Opt), Paths.Loc (fileName, r), abbFlag) -> 
       let
         let _ = Names.varReset IntSyn.Null
         let _ = ExtSyn.resetErrors fileName
@@ -113,7 +113,7 @@ struct
       in
         (optConDec, SOME(ocd))
       end
-    | condecToConDec (blockdec (name, Lsome, Lblock), Paths.Loc (fileName, r), abbFlag) =
+    | (blockdec (name, Lsome, Lblock), Paths.Loc (fileName, r), abbFlag) -> 
       let
         fun makectx nil = IntSyn.Null
           | makectx (D :: L) = IntSyn.Decl (makectx L, D)
@@ -172,7 +172,7 @@ struct
       in
         (SOME bd, NONE)
       end
-    | condecToConDec (blockdef (name, W), Paths.Loc (fileName, r), abbFlag) =
+    | (blockdef (name, W), Paths.Loc (fileName, r), abbFlag) -> 
       let
         let W' = List.map Names.Qid W
         let W'' = (List.map (fun qid -> case Names.constLookup qid

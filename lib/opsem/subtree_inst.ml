@@ -65,8 +65,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
   (* destructively updates L *)
   fun delete (x, L : ctx ) =
     let
-      fun del (x, [], L) = NONE
-        | del (x, ((H as (y,E))::L), L') =
+      let rec del = function (x, [], L) -> NONE
+        | (x, ((H as (y,E))::L), L') -> 
             if x = y then SOME((y,E), (rev L')@ L) else del(x, L, H::L')
     in
       case del (x, (!L), [])
@@ -76,10 +76,10 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
 
   fun member (x, L:ctx) =
     let
-      fun memb (x, []) = NONE
-        | memb (x, (H as (y,E as IntSyn.Dec(n,U))::L)) =
+      let rec memb = function (x, []) -> NONE
+        | (x, (H as (y,E as IntSyn.Dec(n,U))::L)) -> 
             if x = y then SOME(y,E) else memb(x, L)
-        | memb (x, (H as (y,E as IntSyn.ADec(n,d))::L)) =
+        | (x, (H as (y,E as IntSyn.ADec(n,d))::L)) -> 
             (if x = y then SOME((y,E)) else memb(x, L))
     in
       memb (x, (!L))
@@ -161,35 +161,35 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
   (* for debugging only *)
     fun expToS (G,U) = (Print.expToString (G, U) handle _ => " <_ >")
 
-    fun printSub (G, I.Shift n) = print ("I.Shift " ^ Int.toString n ^ "\n")
-      | printSub (G, I.Dot(I.Idx n, s)) =
+    let rec printSub = function (G, I.Shift n) -> print ("I.Shift " ^ Int.toString n ^ "\n")
+      | (G, I.Dot(I.Idx n, s)) -> 
         (print ("Idx " ^ Int.toString n ^ " . "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EVar (ref(SOME(U)),_ ,  _, _)), s)) =
+      | (G, I.Dot (I.Exp(X as I.EVar (ref(SOME(U)),_ ,  _, _)), s)) -> 
         (print ("Exp ( EVar " ^ expToS(G, X) ^ ").")  ; printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EVar (_, _, _, _)), s)) =
+      | (G, I.Dot (I.Exp(X as I.EVar (_, _, _, _)), s)) -> 
         (print ("Exp ( EVar  " ^ expToS(G, X) ^ ").")  ; printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(I.AVar (_)), s)) =
+      | (G, I.Dot (I.Exp(I.AVar (_)), s)) -> 
         (print ("Exp (AVar _ ). "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(I.EClo (I.AVar (ref (SOME(U))), s')), s)) =
+      | (G, I.Dot (I.Exp(I.EClo (I.AVar (ref (SOME(U))), s')), s)) -> 
         (print ("Exp (AVar " ^ expToS (G, I.EClo(U,s'))  ^ ").") ; printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EClo (I.EVar (ref(SOME(U)), _, _, _),s')), s)) =
+      | (G, I.Dot (I.Exp(X as I.EClo (I.EVar (ref(SOME(U)), _, _, _),s')), s)) -> 
         (print ("Exp (EVarClo " ^ expToS (G, I.EClo(U,s')) ^ ") "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EClo (U, s')), s)) =
+      | (G, I.Dot (I.Exp(X as I.EClo (U, s')), s)) -> 
         (print ("Exp (EClo " ^ expToS (G, Whnf.normalize(U,s')) ^ ") "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(E), s)) =
+      | (G, I.Dot (I.Exp(E), s)) -> 
         (print ("Exp ( " ^ expToS (G,E) ^ " ). "); printSub (G, s))
-      | printSub (G, I.Dot (I.Undef, s)) = (print ("Undef . "); printSub (G, s))
+      | (G, I.Dot (I.Undef, s)) -> (print ("Undef . "); printSub (G, s))
 
   (* auxiliary function  -- needed to dereference AVars -- expensive?*)
-    fun normalizeSub (I.Shift n) = I.Shift n
-      | normalizeSub (I.Dot(I.Exp(I.EClo(I.AVar (ref (SOME(U))), s')), s)) =
+    let rec normalizeSub = function (I.Shift n) -> I.Shift n
+      | (I.Dot(I.Exp(I.EClo(I.AVar (ref (SOME(U))), s')), s)) -> 
       I.Dot(I.Exp(Whnf.normalize (U, s')), normalizeSub s)
-    | normalizeSub (I.Dot (I.Exp(I.EClo(I.EVar(ref(SOME(U)), _, _, _), s')), s)) =
+    | (I.Dot (I.Exp(I.EClo(I.EVar(ref(SOME(U)), _, _, _), s')), s)) -> 
       I.Dot(I.Exp(Whnf.normalize (U, s')), normalizeSub s)
 
-    | normalizeSub (I.Dot (I.Exp(U), s)) =
+    | (I.Dot (I.Exp(U), s)) -> 
       I.Dot(I.Exp(Whnf.normalize (U, I.id)), normalizeSub s)
-    | normalizeSub (I.Dot(I.Idx n, s)) =
+    | (I.Dot(I.Idx n, s)) -> 
       I.Dot (I.Idx n, normalizeSub s)
 
   (* ------------------------------------------------------ *)
@@ -201,10 +201,10 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
    no permutations or eta-expansion of arguments are allowed
    *)
 
-  fun etaSpine (I.Nil, n) = (n=0)
-    | etaSpine (I.App(I.Root(I.BVar k, I.Nil), S), n) =
+  let rec etaSpine = function (I.Nil, n) -> (n=0)
+    | (I.App(I.Root(I.BVar k, I.Nil), S), n) -> 
        (k = n andalso etaSpine(S, n-1))
-    | etaSpine (I.App(A, S), n) = false
+    | (I.App(A, S), n) -> false
 
 
     fun cidFromHead (I.Const c) = c
@@ -245,14 +245,14 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
  (* Matching for linear terms based on assignment *)
 
     (* lowerEVar' (G, V[s]) = (X', U), see lowerEVar *)
-    fun lowerEVar' (X, G, (I.Pi ((D',_), V'), s')) =
+    let rec lowerEVar' = function (X, G, (I.Pi ((D',_), V'), s')) -> 
         let
           let D'' = I.decSub (D', s')
           let (X', U) = lowerEVar' (X, I.Decl (G, D''), Whnf.whnf (V', I.dot1 s'))
         in
           (X', I.Lam (D'', U))
         end
-      | lowerEVar' (X, G, Vs') =
+      | (X, G, Vs') -> 
         let
           let X' = X
         in
@@ -286,15 +286,15 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
         (* pre-Twelf 1.2 code walk, Fri May  8 11:05:08 1998 *)
         raise Error "abstraction : LowerEVars: Typing ambiguous -- constraint of functional type cannot be simplified"
 
-    fun ctxToAVarSub (G', I.Null, s) = s
-      | ctxToAVarSub (G', I.Decl(D,I.Dec(_,A)), s) =
+    let rec ctxToAVarSub = function (G', I.Null, s) -> s
+      | (G', I.Decl(D,I.Dec(_,A)), s) -> 
       let
         let E as I.EVar (r, _, _, cnstr) = I.newEVar (I.Null, A)
       in
         I.Dot(I.Exp(E), ctxToAVarSub (G', D, s))
       end
 
-      | ctxToAVarSub (G', I.Decl(D,I.ADec(_,d)), s) =
+      | (G', I.Decl(D,I.ADec(_,d)), s) -> 
       let
         let X = I.newAVar ()
       in
@@ -312,7 +312,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
     *)
 
   (* [asub]E1  = U *)
-  fun assign ((* total as (t, passed)*)d, Dec1 as I.Dec(n, V), E1 as I.Root(I.BVar k, S1), U, asub) =
+  let rec assign = function ((* total as (t, passed)*)d, Dec1 as I.Dec(n, V), E1 as I.Root(I.BVar k, S1), U, asub) -> 
      (* it is an evar -- (k-d, EVar (SOME(U), V)) *)
      let
        let E as I.EVar(r, _, _ , cnstr) = I.newEVar (I.Null, V)
@@ -322,7 +322,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
         S.insert asub (k - d, I.Exp(X))
      end
 
-     | assign ((* total as (t, passed)*) d, Dec1 as I.ADec(n, d'), E1 as I.Root(I.BVar k, S1), U, asub) =
+     | ((* total as (t, passed)*) d, Dec1 as I.ADec(n, d'), E1 as I.Root(I.BVar k, S1), U, asub) -> 
        (* it is an Avar and d = d' (k-d, AVar(SOME(U)) *)
        let
          let A as I.AVar(r) = I.newAVar ()
@@ -1028,7 +1028,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
     else
       NONE
    *)
-  fun compatibleCtx (asub, (Dsq, Gsq, eqn_sq), []) = NONE
+  let rec compatibleCtx = function (asub, (Dsq, Gsq, eqn_sq), []) -> NONE
     | compatibleCtx (asub, (Dsq, Gsq, eqn_sq),
                      ((_, Delta', G', eqn', answRef', _, status')::GRlist)) =
       if instanceCtx (asub, (Dsq, Gsq), (Delta', G'))
@@ -1080,15 +1080,15 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
 
 
   (* [asub]nsub_t = sq  where sq is the query substitution *)
-  fun instChild (N as Leaf((D_t, nsub_t), GList), (D_sq, sq), asub) =
+  let rec instChild = function (N as Leaf((D_t, nsub_t), GList), (D_sq, sq), asub) -> 
         instanceSub ((D_t, nsub_t), (D_sq,  sq), asub)
-    | instChild (N as Node((D_t, nsub_t), Children'), (D_sq, sq), asub) =
+    | (N as Node((D_t, nsub_t), Children'), (D_sq, sq), asub) -> 
         instanceSub ((D_t, nsub_t), (D_sq, sq), asub)
 
   fun findAllInst (G_r, children, Ds, asub) =
     let
-      fun findAllCands (G_r, nil, (Dsq, sub_u), asub, IList) = IList
-        | findAllCands (G_r, (x::L), (Dsq, sub_u), asub, IList) =
+      let rec findAllCands = function (G_r, nil, (Dsq, sub_u), asub, IList) -> IList
+        | (G_r, (x::L), (Dsq, sub_u), asub, IList) -> 
         let
           let asub' = S.copy asub
         in
@@ -1110,8 +1110,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
        return true, if VarDefs are solvable
               false otherwise
  *)
-  fun solveEqn ((T.Trivial, s), G) = true
-    | solveEqn ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
+  let rec solveEqn = function ((T.Trivial, s), G) -> true
+    | ((T.Unify(G',e1, N (* evar *), eqns), s), G) -> 
       let
         let G'' = compose (G', G)
         let s' = shift (G'', s)
@@ -1129,8 +1129,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
        return true, if VarDefs are solvable
               false otherwise
  *)
-  fun solveEqn' ((T.Trivial, s), G) = true
-    | solveEqn' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
+  let rec solveEqn' = function ((T.Trivial, s), G) -> true
+    | ((T.Unify(G',e1, N (* evar *), eqns), s), G) -> 
       let
         let G'' = compose (G', G)
         let s' = shift (G', s)
@@ -1148,8 +1148,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
        return true, if VarDefs are solvable
               false otherwise
  *)
-  fun solveEqn' (T.Trivial, s) = true
-    | solveEqn' (T.Unify(G',e1, N (* evar *), eqns), s) =
+  let rec solveEqn' = function (T.Trivial, s) -> true
+    | (T.Unify(G',e1, N (* evar *), eqns), s) -> 
       let
         let s' = shift (G', s)
       in
@@ -1165,8 +1165,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
        return true, if VarDefs are solvable
               false otherwise
  *)
-  fun solveEqnI' (T.Trivial, s) = true
-    | solveEqnI' (T.Unify(G',e1, N (* evar *), eqns), s) =
+  let rec solveEqnI' = function (T.Trivial, s) -> true
+    | (T.Unify(G',e1, N (* evar *), eqns), s) -> 
       let
         let s' = shift (G', s)
         (* note: we check whether N[s'] is an instance of e1[s'] !!! *)
@@ -1184,8 +1184,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
        return true, if VarDefs are solvable
               false otherwise
  *)
-  fun solveEqnI' ((T.Trivial, s), G) = true
-    | solveEqnI' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
+  let rec solveEqnI' = function ((T.Trivial, s), G) -> true
+    | ((T.Unify(G',e1, N (* evar *), eqns), s), G) -> 
       let
         let G'' = compose (G', G)
         let s' = shift (G', s)
@@ -1286,11 +1286,11 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
         let
           let InstCand = findAllInst (G_r, children, (Dq, sq), asub)
 
-          fun checkCandidates nil =
+          let rec checkCandidates = function nil -> 
              (* no child is compatible with sq *)
              raise Instance "No compatible child\n"
 
-            | checkCandidates ((ChildRef, Drho2, asub)::ICands) =
+            | ((ChildRef, Drho2, asub)::ICands) -> 
               (* there is an instance  *)
               (retrieve' (!ChildRef, Drho2, asub, GR))
                handle Instance msg =>  ((* print msg; *)checkCandidates ICands)
@@ -1387,15 +1387,15 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
        end
 
   (* ---------------------------------------------------------------------- *)
-  fun compChild (N as Leaf((D_t, nsub_t), GList), (D_e, nsub_e)) =
+  let rec compChild = function (N as Leaf((D_t, nsub_t), GList), (D_e, nsub_e)) -> 
         compatibleSub ((D_t, nsub_t), (D_e,  nsub_e))
-    | compChild (N as Node((D_t, nsub_t), Children'), (D_e, nsub_e)) =
+    | (N as Node((D_t, nsub_t), Children'), (D_e, nsub_e)) -> 
         compatibleSub ((D_t, nsub_t), (D_e, nsub_e))
 
   fun findAllCandidates (G_r, children, Ds) =
     let
-      fun findAllCands (G_r, nil, (Dsq, sub_u), VList, SList) = (VList, SList)
-        | findAllCands (G_r, (x::L), (Dsq, sub_u), VList, SList) =
+      let rec findAllCands = function (G_r, nil, (Dsq, sub_u), VList, SList) -> (VList, SList)
+        | (G_r, (x::L), (Dsq, sub_u), VList, SList) -> 
           case compChild (!x, (Dsq, sub_u))
             of NoCompatibleSub => findAllCands (G_r, L, (Dsq, sub_u), VList, SList)
             | SplitSub (Dsigma, Drho1, Drho2) =>
@@ -1416,10 +1416,10 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
     (!GRlistRef)
     end
 
-  fun eqHeads (I.Const k, I.Const k') =  (k = k')
-    | eqHeads (I.BVar k, I.BVar k') =  (k = k')
-    | eqHeads (I.Def k, I.Def k') = (k = k')
-    | eqHeads (_, _) = false
+  let rec eqHeads = function (I.Const k, I.Const k') -> (k = k')
+    | (I.BVar k, I.BVar k') -> (k = k')
+    | (I.Def k, I.Def k') -> (k = k')
+    | (_, _) -> false
 
  (* eqTerm (t2, (t, rho1)) = bool
     returns true iff t2 = t[rho1]
@@ -1427,18 +1427,18 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
   t may contain nvars
  *)
 
- fun eqTerm (I.Root(H2, S2), (t as I.Root(H, S), rho1)) =
+ let rec eqTerm = function (I.Root(H2, S2), (t as I.Root(H, S), rho1)) -> 
      if eqHeads (H2, H)
        then eqSpine(S2, (S, rho1))
      else
        false
-   | eqTerm (T2, (I.NVar n, rho1)) =
+   | (T2, (I.NVar n, rho1)) -> 
      (case (S.lookup rho1 n)
         of NONE => false
       | SOME ((dt1, T1)) => eqTerm (T2, (T1, nid())))
-   | eqTerm (I.Lam(D2, T2), (I.Lam(D, T), rho1)) =
+   | (I.Lam(D2, T2), (I.Lam(D, T), rho1)) -> 
      eqTerm (T2, (T, rho1))
-   | eqTerm (_, (_, _)) = false
+   | (_, (_, _)) -> false
 
  and eqSpine (I.Nil, (I.Nil, rho1)) = true
   | eqSpine (I.App(T2, S2), (I.App(T, S), rho1)) =
@@ -1450,8 +1450,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
  (* ---------------------------------------------------------------------- *)
  (* Insert via variant checking *)
 
-  fun variantCtx ((G, eqn), []) = NONE
-    | variantCtx ((G,eqn), ((l', D_G, G', eqn', answRef', _, status')::GRlist)) =
+  let rec variantCtx = function ((G, eqn), []) -> NONE
+    | ((G,eqn), ((l', D_G, G', eqn', answRef', _, status')::GRlist)) -> 
       (if (equalCtx' (G, G') andalso equalEqn(eqn, eqn'))
          then SOME(l', answRef', status')
        else
@@ -1488,13 +1488,13 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
           let (VariantCand, SplitCand) = findAllCandidates (G_r, children, (Dsq, sq))
           let (D_nsub, D_G) = collectEVar (Dsq, sq)
           let GR' = (l, D_G, G_r, eqn, answRef, stage, status)
-          fun checkCandidates (nil, nil) =
+          let rec checkCandidates = function (nil, nil) -> 
              (* no child is compatible with sq *)
              (fn () => (Nref := Node((D, sub), (ref (Leaf((D_nsub, sq), ref [GR'])))::children);
                         answList := (answRef :: (!answList))),
                 T.NewEntry(answRef))
 
-            | checkCandidates (nil, ((ChildRef, (Dsigma, Drho1, Drho2))::_)) =
+            | (nil, ((ChildRef, (Dsigma, Drho1, Drho2))::_)) -> 
               (* split an existing node *)
               if ((!TableParam.divHeuristic) andalso
                   divergingSub (Dsigma, Drho1, Drho2))
@@ -1509,11 +1509,11 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
                             answList := (answRef :: (!answList))),
                  T.NewEntry(answRef)))
 
-            | checkCandidates (((ChildRef, Drho2, asub)::nil),  _) =
+            | (((ChildRef, Drho2, asub)::nil),  _) -> 
               (* unique "perfect" candidate (left) *)
                 insert (ChildRef, Drho2, GR)
 
-            | checkCandidates (((ChildRef, Drho2, asub)::L), SCands) =
+            | (((ChildRef, Drho2, asub)::L), SCands) -> 
               (* there are several "perfect" candidates *)
               (case (insert (ChildRef, Drho2, GR))
                  of (_, T.NewEntry(answRef)) =>  checkCandidates (L, SCands)
@@ -1548,8 +1548,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
      *)
     fun answCheckVariant (s', answRef, O) =
       let
-        fun member ((D, sk), []) = false
-          | member ((D, sk), (((D1, s1),_)::S)) =
+        let rec member = function ((D, sk), []) -> false
+          | ((D, sk), (((D1, s1),_)::S)) -> 
             if equalSub (sk,s1) andalso equalCtx'(D, D1) then
               true
             else
@@ -1583,8 +1583,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
 
     note: G' is destructively updated
     *)
-    fun makeCtx (n, I.Null, DEVars : ctx) = ()
-      | makeCtx (n, I.Decl(G, D), DEVars : ctx) =
+    let rec makeCtx = function (n, I.Null, DEVars : ctx) -> ()
+      | (n, I.Decl(G, D), DEVars : ctx) -> 
         (insertList ((n, D), DEVars);
          makeCtx (n+1, G, DEVars))
 
@@ -1681,8 +1681,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
 
     fun updateTable () =
       let
-        fun update [] Flag = Flag
-          | update (answRef::AList) Flag =
+        let rec update = function [] Flag -> Flag
+          | (answRef::AList) Flag -> 
             (let
 
               let l = length(T.solutions(answRef))
@@ -1727,8 +1727,8 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
     *)
     fun memberCtx ((G,V), G') =
       let
-        fun instanceCtx' ((G, V), I.Null, n) = NONE
-          | instanceCtx' ((G, V), I.Decl(G', D' as I.Dec(_, V')), n) =
+        let rec instanceCtx' = function ((G, V), I.Null, n) -> NONE
+          | ((G, V), I.Decl(G', D' as I.Dec(_, V')), n) -> 
           if Match.instance(G, (V, I.id), (V', I.Shift n))
              then SOME(D')
            else instanceCtx' ((G,V), G',n+1)

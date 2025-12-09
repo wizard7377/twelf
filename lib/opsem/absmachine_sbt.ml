@@ -55,27 +55,27 @@ struct
      return to indicate backtracking.
   *)
 
-  fun cidFromHead (I.Const a) = a
-    | cidFromHead (I.Def a) = a
+  let rec cidFromHead = function (I.Const a) -> a
+    | (I.Def a) -> a
 
-  fun eqHead (I.Const a, I.Const a') = a = a'
-    | eqHead (I.Def a, I.Def a') = a = a'
-    | eqHead _ = false
+  let rec eqHead = function (I.Const a, I.Const a') -> a = a'
+    | (I.Def a, I.Def a') -> a = a'
+    | _ -> false
 
   (* Wed Mar 13 10:27:00 2002 -bp  *)
   (* should probably go to intsyn.fun *)
   fun compose'(IntSyn.Null, G) = G
     | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
-  fun shift (IntSyn.Null, s) = s
-    | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+  let rec shift = function (IntSyn.Null, s) -> s
+    | (IntSyn.Decl(G, D), s) -> I.dot1 (shift(G, s))
 
  fun invShiftN (n, s) =
    if n = 0 then I.comp(I.invShift, s)
    else I.comp(I.invShift, invShiftN(n-1, s))
 
- fun raiseType (I.Null, V) = V
-   | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+ let rec raiseType = function (I.Null, V) -> V
+   | (I.Decl (G, D), V) -> raiseType (G, I.Pi ((D, I.Maybe), V))
 
 
   fun printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
@@ -224,8 +224,8 @@ struct
    (* match module type *)
   and matchSig (ps' as (I.Root(Ha,S),s), dp as C.DProg (G, dPool), sc) =
       let
-        fun mSig nil = ()       (* return on failure *)
-          | mSig ((Hc as I.Const c)::sgn') =
+        let rec mSig = function nil -> ()       (* return on failure *)
+          | ((Hc as I.Const c)::sgn') -> 
           let
             let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
           in
@@ -266,20 +266,20 @@ struct
            Try each local assumption for solving atomic goal ps', starting
            with the most recent one.
         *)
-        fun matchDProg (I.Null, _) =
+        let rec matchDProg = function (I.Null, _) -> 
             (* dynamic program exhausted, try module type
                there is a choice depending on how we compiled module type
              *)
           (!mSig) (ps', dp, sc)
 
-          | matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
+          | (I.Decl (dPool', C.Dec(r, s, Ha')), k) -> 
             if eqHead (Ha, Ha')
               then (CSManager.trail (* trail to undo EVar instantiations *)
                     (fn () => rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,
                                       (fun S -> sc ((C.Dc k) :: S))));
                     matchDProg (dPool', k+1))
             else matchDProg (dPool', k+1)
-          | matchDProg (I.Decl (dPool', C.Parameter), k) =
+          | (I.Decl (dPool', C.Parameter), k) -> 
               matchDProg (dPool', k+1)
 
          fun matchConstraint (solve, try) =

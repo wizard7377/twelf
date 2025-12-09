@@ -23,16 +23,16 @@ struct
        and  . |- s' : G
        M and B are mode and bound contexts matching G, and similarly for M' and B'.
     *)
-    fun createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
+    let rec createEVars = function (M.Prefix (I.Null, I.Null, I.Null)) -> 
           (M.Prefix (I.Null, I.Null, I.Null), I.id)
-      | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
+      | (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) -> 
         let
           let (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s')
         end
-      | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
+      | (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) -> 
         let
           let (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
           let X  = I.newEVar (G', I.EClo (V, s'))

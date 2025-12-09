@@ -28,19 +28,19 @@ struct
   fun PiPlus ((s, to), t) = Pi (mPLUS, (s, to), t)
   fun PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t)
 
-  fun modeToString mMINUS = ""
-    | modeToString mPLUS = "+ "
-    | modeToString mOMIT = "* "
+  let rec modeToString = function mMINUS -> ""
+    | mPLUS -> "+ "
+    | mOMIT -> "* "
 
-  fun termToString (Id s) = s
-    | termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
-    | termToString (Lam (vd, t)) = "[" ^ (vardecToString vd) ^ "] " ^ (termToString t)
-    | termToString (Pi (m, vd, t)) = "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t)
-    | termToString (Type) = "type"
-    | termToString (Arrow (t, u)) = "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")"
-    | termToString (PlusArrow (t, u)) = "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")"
-    | termToString (Ascribe (t, u)) = "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")"
-    | termToString (Omit) = "*"
+  let rec termToString = function (Id s) -> s
+    | (App (t, u)) -> "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
+    | (Lam (vd, t)) -> "[" ^ (vardecToString vd) ^ "] " ^ (termToString t)
+    | (Pi (m, vd, t)) -> "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t)
+    | (Type) -> "type"
+    | (Arrow (t, u)) -> "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")"
+    | (PlusArrow (t, u)) -> "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")"
+    | (Ascribe (t, u)) -> "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")"
+    | (Omit) -> "*"
   and vardecToString (v, SOME t) = v ^ ":" ^ (termToString t)
     | vardecToString (v, NONE) = v
 

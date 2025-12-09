@@ -50,7 +50,7 @@ struct
        and  G0 |- F' = F1 for
        and  G0 |- V' = V1 : type
     *)
-    fun createEVars (G, (I.Pi ((I.Dec (_, V), I.Meta), V'), s)) =
+    let rec createEVars = function (G, (I.Pi ((I.Dec (_, V), I.Meta), V'), s)) -> 
         let
           let X = I.newEVar (G, I.EClo (V, s))
           let X' = Whnf.lowerEVar X
@@ -58,7 +58,7 @@ struct
         in
           (X' :: Xs, FVs')
         end
-      | createEVars (G, FVs as (_, s)) = (nil, FVs)
+      | (G, FVs as (_, s)) -> (nil, FVs)
 
 
 
@@ -73,7 +73,7 @@ struct
        and  G; . |- F' : formula
 
     *)
-    fun forward (G, B, V as I.Pi ((_, I.Meta), _)) =
+    let rec forward = function (G, B, V as I.Pi ((_, I.Meta), _)) -> 
         let
           let _ = if !Global.doubleCheck
                     then TypeCheck.typeCheck (G, (V, I.Uni I.Type))
@@ -86,7 +86,7 @@ struct
 
               | [] => NONE) handle UniqueSearch.Error _ => NONE
         end
-      | forward (G, B, V) = NONE
+      | (G, B, V) -> NONE
 
 
 
@@ -109,9 +109,9 @@ struct
        where Bnew stems from B where all used lemmas (S.RL) are now tagged with (S.RLdone)
     *)
 
-    fun expand' ((G0, B0), (I.Null, I.Null), n) =
+    let rec expand' = function ((G0, B0), (I.Null, I.Null), n) -> 
         ((I.Null, I.Null), fn ((G', B'), w') => ((G', B'), w'))
-      | expand' ((G0, B0), (I.Decl (G, D as I.Dec (_, V)), I.Decl (B, T as S.Lemma (S.RL))), n) =
+      | ((G0, B0), (I.Decl (G, D as I.Dec (_, V)), I.Decl (B, T as S.Lemma (S.RL))), n) -> 
         let
           let ((G0', B0'), sc') = expand' ((G0, B0), (G, B), n+1)
           let s = I.Shift (n+1)
@@ -132,7 +132,7 @@ struct
                           I.Decl (B', S.Lemma (S.Splits (!MTPGlobal.maxSplit)))), I.comp (w', I.shift))
                   end)
         end
-      | expand' (GB0, (I.Decl (G, D), I.Decl (B, T)), n) =
+      | (GB0, (I.Decl (G, D), I.Decl (B, T)), n) -> 
         let
           let ((G0', B0'), sc') = expand' (GB0, (G, B), n+1)
         in

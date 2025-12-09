@@ -79,7 +79,7 @@ struct
                                         msg)))
 
     (* G is unused here *)
-    fun checkDynOrder (G, Vs, 0, occ) =
+    let rec checkDynOrder = function (G, Vs, 0, occ) -> 
         (* raise Error' (occ, "Output coverage for clauses of order >= 3 not yet implemented") *)
         (* Functional calculus now checks this *)
         (* Sun Jan  5 12:17:06 2003 -fp *)
@@ -87,7 +87,7 @@ struct
            then print ("Output coverage: skipping redundant checking of third-order clause\n")
          else ();
          ())
-      | checkDynOrder (G, Vs, n, occ) = (* n > 0 *)
+      | (G, Vs, n, occ) -> (* n > 0 *)
           checkDynOrderW (G, Whnf.whnf Vs, n, occ)
     and checkDynOrderW (G, (I.Root _, s), n, occ) = ()
         (* atomic subgoal *)
@@ -146,10 +146,10 @@ struct
        iff every mode in mode spine ms is either input or output
        Effect: raises Error (msg) otherwise
     *)
-    fun checkDefinite (a, M.Mnil) = ()
-      | checkDefinite (a, M.Mapp (M.Marg (M.Plus, _), ms')) = checkDefinite (a, ms')
-      | checkDefinite (a, M.Mapp (M.Marg (M.Minus, _), ms')) = checkDefinite (a, ms')
-      | checkDefinite (a, M.Mapp (M.Marg (M.Star, xOpt), ms')) =
+    let rec checkDefinite = function (a, M.Mnil) -> ()
+      | (a, M.Mapp (M.Marg (M.Plus, _), ms')) -> checkDefinite (a, ms')
+      | (a, M.Mapp (M.Marg (M.Minus, _), ms')) -> checkDefinite (a, ms')
+      | (a, M.Mapp (M.Marg (M.Star, xOpt), ms')) -> 
         (* Note: filename and location are missing in this error message *)
         (* Fri Apr  5 19:25:54 2002 -fp *)
         error (a, P.top,
@@ -162,8 +162,8 @@ struct
        iff local output coverage for every subgoal in ci:Vi is satisfied.
        Effect: raises Error (msg) otherwise, where msg has filename and location.
     *)
-    fun checkOutCover nil = ()
-      | checkOutCover (I.Const(c)::cs) =
+    let rec checkOutCover = function nil -> ()
+      | (I.Const(c)::cs) -> 
         ( if !Global.chatter >= 4
             then print (N.qidToString (N.constQid c) ^ " ")
           else () ;
@@ -173,7 +173,7 @@ struct
           checkClause (I.Null, (I.constType (c), I.id), P.top)
              handle Error' (occ, msg) => error (c, occ, msg) ;
           checkOutCover cs )
-      | checkOutCover (I.Def(d)::cs) =
+      | (I.Def(d)::cs) -> 
         ( if !Global.chatter >= 4
             then print (N.qidToString (N.constQid d) ^ " ")
           else () ;

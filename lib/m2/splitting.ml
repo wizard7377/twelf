@@ -58,8 +58,8 @@ struct
        then C' is a list extending C, containing all possible
          cases from I
     *)
-    fun constCases (G, Vs, nil, abstract, ops) = ops
-      | constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
+    let rec constCases = function (G, Vs, nil, abstract, ops) -> ops
+      | (G, Vs, I.Const c::Sgn, abstract, ops) -> 
         let
           let (U, Vs') = M.createAtomConst (G, I.Const c)
         in
@@ -82,8 +82,8 @@ struct
        then C' is a list extending C, containing all possible
          cases introduced by parameters <= k in G
     *)
-    fun paramCases (G, Vs, 0, abstract, ops) = ops
-      | paramCases (G, Vs, k, abstract, ops) =
+    let rec paramCases = function (G, Vs, 0, abstract, ops) -> ops
+      | (G, Vs, k, abstract, ops) -> 
         let
           let (U, Vs') = M.createAtomBVar (G, k)
         in
@@ -104,10 +104,10 @@ struct
        then C' is a list of all cases unifying with V[s']
             (it contains constant and parameter cases)
     *)
-    fun lowerSplitDest (G, (V as I.Root (I.Const c, _), s'), abstract) =
+    let rec lowerSplitDest = function (G, (V as I.Root (I.Const c, _), s'), abstract) -> 
           constCases (G, (V, s'), Index.lookup c, abstract,
                       paramCases (G, (V, s'), I.ctxLength G, abstract, nil))
-      | lowerSplitDest (G, (I.Pi ((D, P), V), s'), abstract) =
+      | (G, (I.Pi ((D, P), V), s'), abstract) -> 
           let
             let D' = I.decSub (D, s')
           in
@@ -136,11 +136,11 @@ struct
        If    U in nf
        then  B iff k occurs in U
     *)
-    fun occursInExp (k, I.Uni _) = false
-      | occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.Root (C, S)) = occursInCon (k, C) orelse occursInSpine (k, S)
-      | occursInExp (k, I.Lam (D,V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.FgnExp csfe) =
+    let rec occursInExp = function (k, I.Uni _) -> false
+      | (k, I.Pi (DP, V)) -> occursInDecP (k, DP) orelse occursInExp (k+1, V)
+      | (k, I.Root (C, S)) -> occursInCon (k, C) orelse occursInSpine (k, S)
+      | (k, I.Lam (D,V)) -> occursInDec (k, D) orelse occursInExp (k+1, V)
+      | (k, I.FgnExp csfe) -> 
         I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExp (k, Whnf.normalize (U, I.id))) false
       (* no case for Redex, EVar, EClo *)
 
@@ -170,18 +170,18 @@ struct
        then B holds iff U does not contain any Bot variables
     *)
 
-    fun checkVar (I.Decl (M, M.Top), 1) = true
-      | checkVar (I.Decl (M, M.Bot), 1) = false
-      | checkVar (I.Decl (M, _), k) = checkVar (M, k-1)
+    let rec checkVar = function (I.Decl (M, M.Top), 1) -> true
+      | (I.Decl (M, M.Bot), 1) -> false
+      | (I.Decl (M, _), k) -> checkVar (M, k-1)
 
-    fun checkExp (M, I.Uni _) = true
-      | checkExp (M, I.Pi ((D, P), V)) =
+    let rec checkExp = function (M, I.Uni _) -> true
+      | (M, I.Pi ((D, P), V)) -> 
           checkDec (M, D) andalso checkExp (I.Decl (M, M.Top), V)
-      | checkExp (M, I.Lam (D, V)) =
+      | (M, I.Lam (D, V)) -> 
           checkDec (M, D) andalso checkExp (I.Decl (M, M.Top), V)
-      | checkExp (M, I.Root (I.BVar k, S)) =
+      | (M, I.Root (I.BVar k, S)) -> 
           checkVar (M, k) andalso checkSpine (M, S)
-      | checkExp (M, I.Root (_, S)) =
+      | (M, I.Root (_, S)) -> 
           checkSpine (M, S)
 
     and checkSpine (M, I.Nil) = true
@@ -199,9 +199,9 @@ struct
        then B' = true
        else B' = false
     *)
-    fun modeEq (ModeSyn.Marg (ModeSyn.Plus, _), M.Top) = true
-      | modeEq (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) = true
-      | modeEq _ = false
+    let rec modeEq = function (ModeSyn.Marg (ModeSyn.Plus, _), M.Top) -> true
+      | (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) -> true
+      | _ -> false
 
     (*
        The inherit functions below copy the splitting depth attribute
@@ -221,17 +221,17 @@ struct
        it is impossible for     k < n < d
     *)
     (* invariants on inheritXXX functions? -fp *)
-    fun inheritBelow (b', k', I.Lam (D', U'), Bdd') =
+    let rec inheritBelow = function (b', k', I.Lam (D', U'), Bdd') -> 
           inheritBelow (b', k'+1, U',
                         inheritBelowDec (b', k', D', Bdd'))
-      | inheritBelow (b', k', I.Pi ((D',_), V'), Bdd') =
+      | (b', k', I.Pi ((D',_), V'), Bdd') -> 
           inheritBelow (b', k'+1, V',
                         inheritBelowDec (b', k', D', Bdd'))
-      | inheritBelow (b', k', I.Root (I.BVar(n'), S'), (B', d, d')) =
+      | (b', k', I.Root (I.BVar(n'), S'), (B', d, d')) -> 
         if n' = k'+d' andalso n' > k' (* necessary for d' = 0 *)
           then inheritBelowSpine (b', k', S', (I.Decl (B', b'), d, d'-1))
         else inheritBelowSpine (b', k', S', (B', d, d'))
-      | inheritBelow (b', k', I.Root (C, S'), Bdd') =
+      | (b', k', I.Root (C, S'), Bdd') -> 
           inheritBelowSpine (b', k', S', Bdd')
     and inheritBelowSpine (b', k', I.Nil, Bdd') = Bdd'
       | inheritBelowSpine (b', k', I.App (U', S'), Bdd') =
@@ -240,15 +240,15 @@ struct
           inheritBelow (b', k', V', Bdd')
 
     (* skip *)
-    fun skip (k, I.Lam (D, U), Bdd') =
+    let rec skip = function (k, I.Lam (D, U), Bdd') -> 
           skip (k+1, U, skipDec (k, D, Bdd'))
-      | skip (k, I.Pi ((D,_), V), Bdd') =
+      | (k, I.Pi ((D,_), V), Bdd') -> 
           skip (k+1, V, skipDec (k, D, Bdd'))
-      | skip (k, I.Root (I.BVar(n), S), (B', d, d')) =
+      | (k, I.Root (I.BVar(n), S), (B', d, d')) -> 
         if n = k+d andalso n > k (* necessary for d = 0 *)
           then skipSpine (k, S, (B', d-1, d'))
         else skipSpine (k, S, (B', d, d'))
-      | skip (k, I.Root (C, S), Bdd') =
+      | (k, I.Root (C, S), Bdd') -> 
           skipSpine (k, S, Bdd')
     and skipSpine (k, I.Nil, Bdd') = Bdd'
       | skipSpine (k, I.App (U, S), Bdd') =
@@ -257,13 +257,13 @@ struct
           skip (k, V, Bdd')
 
     (* Uni impossible *)
-    fun inheritExp (B, k, I.Lam (D, U), k', I.Lam (D', U'), Bdd') =
+    let rec inheritExp = function (B, k, I.Lam (D, U), k', I.Lam (D', U'), Bdd') -> 
            inheritExp (B, k+1, U, k'+1, U',
                        inheritDec (B, k, D, k', D', Bdd'))
-      | inheritExp (B, k, I.Pi ((D, _), V), k', I.Pi ((D', _), V'), Bdd') =
+      | (B, k, I.Pi ((D, _), V), k', I.Pi ((D', _), V'), Bdd') -> 
            inheritExp (B, k+1, V, k'+1, V',
                        inheritDec (B, k, D, k', D', Bdd'))
-      | inheritExp (B, k, V as I.Root (I.BVar (n), S), k', V', (B', d, d')) =
+      | (B, k, V as I.Root (I.BVar (n), S), k', V', (B', d, d')) -> 
         if n = k+d andalso n > k (* new original variable *)
           then (* inheritBelow (I.ctxLookup (B, n-k) - 1, k', V', (B', d-1, d')) *)
             skipSpine (k, S, inheritNewRoot (B, I.ctxLookup (B, n-k), k, V, k', V', (B', d, d')))
@@ -278,7 +278,7 @@ struct
                in
                  inheritSpine (B, k, S, k', S', (B', d, d'))
                end
-      | inheritExp (B, k, I.Root (C, S), k', I.Root (C', S'), Bdd') =
+      | (B, k, I.Root (C, S), k', I.Root (C', S'), Bdd') -> 
           (* C ~ C' *)
           inheritSpine (B, k, S, k', S', Bdd')
 
@@ -417,7 +417,7 @@ struct
        and  G' |- s' : G
        and  ops' is a list of all possiblie splitting operators
     *)
-    fun expand' (M.Prefix (I.Null, I.Null, I.Null), isIndex, abstract, makeAddress) =
+    let rec expand' = function (M.Prefix (I.Null, I.Null, I.Null), isIndex, abstract, makeAddress) -> 
           (M.Prefix (I.Null, I.Null, I.Null), I.id, nil)
       | expand' (M.Prefix (I.Decl (G, D), I.Decl (M, mode as M.Top), I.Decl (B, b)),
                  isIndex, abstract, makeAddress) =
@@ -494,20 +494,20 @@ struct
     *)
     fun menu (Op as ((M.State (name, M.Prefix (G, M, B), V), i), Sl)) =
         let
-          fun active (nil, n) = n
-            | active (InActive :: L, n) = active (L, n)
-            | active ((Active _) :: L, n) = active (L, n+1)
+          let rec active = function (nil, n) -> n
+            | (InActive :: L, n) -> active (L, n)
+            | ((Active _) :: L, n) -> active (L, n+1)
 
-          fun inactive (nil, n) = n
-            | inactive (InActive :: L, n) = inactive (L, n+1)
-            | inactive ((Active _) :: L, n) = inactive (L, n)
+          let rec inactive = function (nil, n) -> n
+            | (InActive :: L, n) -> inactive (L, n+1)
+            | ((Active _) :: L, n) -> inactive (L, n)
 
-          fun indexToString 0 = "zero cases"
-            | indexToString 1 = "1 case"
-            | indexToString n = (Int.toString n) ^ " cases"
+          let rec indexToString = function 0 -> "zero cases"
+            | 1 -> "1 case"
+            | n -> (Int.toString n) ^ " cases"
 
-          fun flagToString (_, 0) = ""
-            | flagToString (n, m) = " [active: " ^(Int.toString n) ^
+          let rec flagToString = function (_, 0) -> ""
+            | (n, m) -> " [active: " ^(Int.toString n) ^
                 " inactive: " ^ (Int.toString m) ^ "]"
         in
           "Splitting : " ^ Print.decToString (G, I.ctxDec (G, i))

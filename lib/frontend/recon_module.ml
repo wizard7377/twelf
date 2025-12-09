@@ -160,12 +160,12 @@ struct
                 | SOME rl => rl := (Inst, r)::(!rl))
         let _ = List.app add eqns
 
-        fun doInst ((Internal cid, r), condec) =
+        let rec doInst = function ((Internal cid, r), condec) -> 
               (ModSyn.strictify (ExtSyn.internalInst (condec, ModSyn.abbrevify (cid, IntSyn.sgnLookup cid), r))
               handle ExtSyn.Error msg =>
                 raise ExtSyn.Error (msg ^ "\nin instantiation generated for "
                                     ^ Names.qidToString (Names.constQid cid)))
-          | doInst ((External tm, r), condec) =
+          | ((External tm, r), condec) -> 
               ModSyn.strictify (ExtSyn.externalInst (condec, tm, r))
 
         fun transformConDec (cid, condec) =

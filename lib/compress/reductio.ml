@@ -23,9 +23,9 @@ struct
 	type tp_c = term * tp
 
         (* equality checking *)
-	fun tp_eq (TRoot (n, sp), TRoot(n', sp')) = type_const_head_eq(n, n', sp, sp')
-	  | tp_eq (TPi(m,a,b),TPi(m',a',b')) = m = m' andalso tp_eq (a,a') andalso tp_eq (b,b')
-	  | tp_eq _ = false
+	let rec tp_eq = function (TRoot (n, sp), TRoot(n', sp')) -> type_const_head_eq(n, n', sp, sp')
+	  | (TPi(m,a,b),TPi(m',a',b')) -> m = m' andalso tp_eq (a,a') andalso tp_eq (b,b')
+	  | _ -> false
 	and sp_eq ([],[]) = true
 	  | sp_eq (e::sp, e'::sp') = elt_eq (e,e') andalso sp_eq (sp, sp')
 	  | sp_eq _ = false
@@ -83,9 +83,9 @@ struct
 	    end
 
         (* is an equality constraint satisfied? *)
-	fun eq_c_true (EltC(e,e')) = elt_eq(e, e')
-	  | eq_c_true (SpineC(s,s')) = sp_eq(s, s')
-	  | eq_c_true (TypeC(a,a')) = tp_eq(a, a')
+	let rec eq_c_true = function (EltC(e,e')) -> elt_eq(e, e')
+	  | (SpineC(s,s')) -> sp_eq(s, s')
+	  | (TypeC(a,a')) -> tp_eq(a, a')
 
         (* The type ppsubst is a compact way of representing a
            tClass of substitutions that contains all of the pattern
@@ -168,8 +168,8 @@ struct
 	and prepattern (s : subst) = pp_normalize s
 
 	(* pp_ispat: is this ppsubst a pattern substitution? *)
-	fun pp_ispat ([],shift) = true
-	  | pp_ispat (n::s,shift) = let fun isn x = (x = n)
+	let rec pp_ispat = function ([],shift) -> true
+	  | (n::s,shift) -> let fun isn x = (x = n)
 				     fun hasn s = List.exists isn s
 				 in
 				     n < shift andalso
@@ -180,16 +180,16 @@ struct
         (* take a list of int options and a shift value and
         produce an actual substitution. This is morally a one-sided
         inverse to pp_normalize *)
-	fun makesubst ([],0) = Id
-	  | makesubst ([],shift) = Shift (0, shift)
-	  | makesubst (v::vs,shift) = VarOptDot (v, makesubst (vs,shift))
+	let rec makesubst = function ([],0) -> Id
+	  | ([],shift) -> Shift (0, shift)
+	  | (v::vs,shift) -> VarOptDot (v, makesubst (vs,shift))
 
         (* take in a ppsubst and return a substitution (which may involve VarOptDots) that is its inverse. *)
 	fun pp_invert (vs,shift) =
 	    let
 		let inds = List.tabulate(shift, (fun x -> x))
-		fun search n [] (x : int) = NONE
-		  | search n (h::tl) x = 
+		let rec search = function n [] (x : int) -> NONE
+		  | n (h::tl) x -> 
 		    if x = h 
 		    then SOME n
 		    else search (n+1) tl x
@@ -206,7 +206,7 @@ struct
 
            If sl is not pattern it raises NonPattern.
            If RHS is not in the range of sl, then MissingVar is raised by substitution *)
-	fun flex_left ((r as ref NONE,a), s : subst, rhs) = 
+	let rec flex_left = function ((r as ref NONE,a), s : subst, rhs) -> 
 	    let
 		let pps = prepattern s handle Domain => raise NonPattern
 		let _ = if pp_ispat pps then () else raise NonPattern
@@ -216,7 +216,7 @@ struct
 	    in
 		()
 	    end
-	  | flex_left _ = raise Error "evar invariant violated"
+	  | _ -> raise Error "evar invariant violated"
 
         (* match_one' takes an equation (which by invariant does not
            have an instantiated evar on the left, and is ground on the
@@ -518,10 +518,10 @@ struct
   we are simply deciding, by trial and error, which of the arguments
   to B we should omit and which to force to be synthesizing.
  *)
-	fun check_strictness_type _ (TRoot(n, s)) = true
-	  | check_strictness_type plusconst (TPi(OMIT,_,b)) = 
+	let rec check_strictness_type = function _ (TRoot(n, s)) -> true
+	  | plusconst (TPi(OMIT,_,b)) -> 
 	    check_strictness_type plusconst b andalso Strict.check_strict_type plusconst b 
-	  | check_strictness_type plusconst (TPi(_,_,b)) = check_strictness_type plusconst b
+	  | plusconst (TPi(_,_,b)) -> check_strictness_type plusconst b
 							
 	let check_plusconst_strictness = check_strictness_type true
 	let check_minusconst_strictness = check_strictness_type false

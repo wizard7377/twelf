@@ -51,23 +51,23 @@ struct
   *)
 
 
-  fun cidFromHead (I.Const a) = a
-    | cidFromHead (I.Def a) = a
+  let rec cidFromHead = function (I.Const a) -> a
+    | (I.Def a) -> a
 
-  fun eqHead (I.Const a, I.Const a') = a = a'
-    | eqHead (I.Def a, I.Def a') = a = a'
-    | eqHead _ = false
+  let rec eqHead = function (I.Const a, I.Const a') -> a = a'
+    | (I.Def a, I.Def a') -> a = a'
+    | _ -> false
 
   (* Wed Mar 13 10:27:00 2002 -bp  *)
   (* should probably go to intsyn.fun *)
-  fun compose (G, IntSyn.Null) = G
-    | compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
+  let rec compose = function (G, IntSyn.Null) -> G
+    | (G, IntSyn.Decl(G', D)) -> IntSyn.Decl(compose(G, G'), D)
 
-  fun shiftSub (IntSyn.Null, s) = s
-    | shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
+  let rec shiftSub = function (IntSyn.Null, s) -> s
+    | (IntSyn.Decl(G, D), s) -> I.dot1 (shiftSub (G, s))
 
-  fun raiseType (I.Null, V) = V
-    | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+  let rec raiseType = function (I.Null, V) -> V
+    | (I.Decl (G, D), V) -> raiseType (G, I.Pi ((D, I.Maybe), V))
 
   (* solve ((g, s), dp, sc) = ()
      Invariants:
@@ -80,17 +80,17 @@ struct
      Effects: instantiation of EVars in g, s, and dp
               any effect  sc M  might have
   *)
-  fun solve ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
+  let rec solve = function ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) -> 
       matchAtom ((p,s), dp, sc)
 
-    | solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+    | ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) -> 
       let
         let D' = I.Dec(NONE, I.EClo(A,s))
       in
         solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
                 (fun M -> sc (I.Lam (D', M))))
       end
-    | solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
+    | ((C.All(D, g), s), C.DProg (G, dPool), sc) -> 
       let
         let D' = Names.decLUName (G, I.decSub (D, s))
 (*      let D' = I.decSub (D, s) *)
@@ -192,8 +192,8 @@ struct
 
            #succeeds >= 1 (succeeds at least once)
         *)
-        fun matchSig nil = ()   (* return unit on failure *)
-          | matchSig (Hc::sgn') =
+        let rec matchSig = function nil -> ()   (* return unit on failure *)
+          | (Hc::sgn') -> 
             let
               let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -210,8 +210,8 @@ struct
 
            succeeds exactly once (#succeeds = 1)
         *)
-        fun matchSigDet nil = ()        (* return unit on failure *)
-          | matchSigDet (Hc::sgn') =
+        let rec matchSigDet = function nil -> ()        (* return unit on failure *)
+          | (Hc::sgn') -> 
             let
               let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -227,12 +227,12 @@ struct
            Try each local assumption for solving atomic goal ps', starting
            with the most recent one.
         *)
-        fun matchDProg (I.Null, _) =
+        let rec matchDProg = function (I.Null, _) -> 
             (* dynamic program exhausted, try module type *)
           if deterministic
             then matchSigDet (Index.lookup (cidFromHead Ha))
           else matchSig (Index.lookup (cidFromHead Ha))
-          | matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
+          | (I.Decl (dPool', C.Dec(r, s, Ha')), k) -> 
             if eqHead (Ha, Ha')
             then
               if deterministic
@@ -249,7 +249,7 @@ struct
                                    (fun S -> sc (I.Root(I.BVar(k), S)))));
                  matchDProg (dPool', k+1))
             else matchDProg (dPool', k+1)
-          | matchDProg (I.Decl (dPool', C.Parameter), k) =
+          | (I.Decl (dPool', C.Parameter), k) -> 
               matchDProg (dPool', k+1)
         fun matchConstraint (cnstrSolve, try) =
               let

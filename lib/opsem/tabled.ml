@@ -76,18 +76,18 @@ struct
 
   (* ---------------------------------------------------------------------- *)
 
-   fun cidFromHead (I.Const a) = a
-     | cidFromHead (I.Def a) = a
+   let rec cidFromHead = function (I.Const a) -> a
+     | (I.Def a) -> a
 
-   fun eqHead (I.Const a, I.Const a') = a = a'
-     | eqHead (I.Def a, I.Def a') = a = a'
-     | eqHead _ = false
+   let rec eqHead = function (I.Const a, I.Const a') -> a = a'
+     | (I.Def a, I.Def a') -> a = a'
+     | _ -> false
 
    fun append(IntSyn.Null, G) = G
      | append(IntSyn.Decl(G', D), G) = IntSyn.Decl(append(G', G), D)
 
-   fun shift (IntSyn.Null, s) = s
-     | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+   let rec shift = function (IntSyn.Null, s) -> s
+     | (IntSyn.Decl(G, D), s) -> I.dot1 (shift(G, s))
 
     fun raiseType (I.Null, V) = V
       | raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
@@ -155,8 +155,8 @@ struct
        return true, if VarDefs are solvable
               false otherwise
  *)
-  fun solveEqn ((T.Trivial, s), G) = true
-    | solveEqn ((T.Unify(G',e1, N, eqns), s), G) =
+  let rec solveEqn = function ((T.Trivial, s), G) -> true
+    | ((T.Unify(G',e1, N, eqns), s), G) -> 
       (* D, G, G' |- e1 and D, G, G' |- N and D, G |- eqns *)
       (* . |- s : D *)
       let
@@ -176,8 +176,8 @@ struct
     handle Unify.Unify msg => false
 
 
-  fun getHypGoal (DProg, (C.Atom p, s)) = (DProg, (p,s))
-    | getHypGoal (C.DProg(G, dPool), (C.Impl(r, A, Ha, g), s)) =
+  let rec getHypGoal = function (DProg, (C.Atom p, s)) -> (DProg, (p,s))
+    | (C.DProg(G, dPool), (C.Impl(r, A, Ha, g), s)) -> 
     let
       let D' = IntSyn.Dec(NONE, I.EClo(A,s))
     in
@@ -195,7 +195,7 @@ struct
          else
            getHypGoal (C.DProg(I.Decl(G, D'),I.Decl (dPool, C.Dec(r, s, Ha))), (g, I.dot1 s))
        end
-     | getHypGoal (C.DProg(G, dPool), (C.All(D, g), s)) =
+     | (C.DProg(G, dPool), (C.All(D, g), s)) -> 
        let
          let D' = I.decSub (D, s)
        in
@@ -227,8 +227,8 @@ struct
 
   fun fillTable () =
     let
-      fun insert (nil) = ()
-        | insert ((DAVars, DEVars, G', U', eqn', answRef, status)::T) =
+      let rec insert = function (nil) -> ()
+        | ((DAVars, DEVars, G', U', eqn', answRef, status)::T) -> 
         case MT.insertIntoTree (DAVars, DEVars, G', U', eqn', answRef, status)
           of T.NewEntry(_) => insert T
             | _ => ()
@@ -265,8 +265,8 @@ struct
      any effect  sc O1  might have
 
    *)
-   fun retrieve' ((G, U, s), asub, [], sc)  = ()
-     | retrieve' ((G, U, s), (esub, asub), (((D', s1), O1)::A), sc) =
+   let rec retrieve' = function ((G, U, s), asub, [], sc) -> ()
+     | ((G, U, s), (esub, asub), (((D', s1), O1)::A), sc) -> 
      let
        let s1' = ctxToEVarSub (D', I.Shift(I.ctxLength(D')) (* I.id *))
        let scomp =  I.comp(s1, s1')
@@ -301,8 +301,8 @@ struct
         Effects: instantiation of EVars in s
 
    *)
-   fun retrieveV ((G, U, s),  [], sc)  = ()
-     | retrieveV ((G, U, s),  (((DEVars, s1), O1)::A), sc) =
+   let rec retrieveV = function ((G, U, s),  [], sc) -> ()
+     | ((G, U, s),  (((DEVars, s1), O1)::A), sc) -> 
      let
        let s1' = ctxToEVarSub (DEVars, I.Shift(I.ctxLength(DEVars)) (* I.id *))
        let scomp =  I.comp(s1, s1')
@@ -552,8 +552,8 @@ struct
            try each constant ci in turn for solving atomic goal ps', starting
            with c1.
         *)
-        fun matchSig nil = ()   (* return indicates failure *)
-          | matchSig ((Hc as I.Const c)::sgn') =
+        let rec matchSig = function nil -> ()   (* return indicates failure *)
+          | ((Hc as I.Const c)::sgn') -> 
             let
               let C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -570,7 +570,7 @@ struct
            Try each local assumption for solving atomic goal ps', starting
            with the most recent one.
         *)
-        fun matchDProg (I.Null, I.Null, _) =
+        let rec matchDProg = function (I.Null, I.Null, _) -> 
             (* dynamic program exhausted, try module type *)
             matchSig (Index.lookup (cidFromHead Ha))
 
@@ -585,7 +585,7 @@ struct
                    matchDProg (G, dPool', k+1))
 
             else matchDProg (G, dPool', k+1)
-          | matchDProg (I.Decl(G, _), I.Decl (dPool', C.Parameter), k) =
+          | (I.Decl(G, _), I.Decl (dPool', C.Parameter), k) -> 
               matchDProg (G, dPool', k+1)
 
           fun matchConstraint (solve, try) =
@@ -620,7 +620,7 @@ struct
       then retrieve all new answers
      else fail
      *)
-  fun retrieval (Loop, (G', U', s'), sc, (asub, answRef), n) =
+  let rec retrieval = function (Loop, (G', U', s'), sc, (asub, answRef), n) -> 
     if T.noAnswers answRef then
       (* still  no answers available from previous stages *)
       (* NOTE: do not add the susp goal to suspGoal list
@@ -632,7 +632,7 @@ struct
        *)
       retrieve (n, (G', U', s'), (asub, answRef), sc)
 
-    | retrieval (Divergence ((p,s), dp), (G', U', s'), sc, (asub, answRef), n) =
+    | (Divergence ((p,s), dp), (G', U', s'), sc, (asub, answRef), n) -> 
       matchAtom ((p, s), dp,
              (fun pskeleton ->
               case MT.answerCheck (s', answRef, pskeleton)
@@ -650,8 +650,8 @@ struct
 
   fun nextStage () =
     let
-      fun resume [] = ()
-        | resume (((Susp, s, sc, trail, (asub, answRef), k)::Goals)) =
+      let rec resume = function [] -> ()
+        | (((Susp, s, sc, trail, (asub, answRef), k)::Goals)) -> 
         (CSManager.trail        (fn () => (Unify.resume trail;
                                            retrieval (Susp, s, sc, (asub, answRef), k)));
          resume (Goals))

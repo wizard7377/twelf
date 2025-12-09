@@ -262,17 +262,17 @@ struct
     fun abort chlev (msg) = (chmsg chlev (fn () => msg); ABORT)
     fun abortFileMsg chlev (fileName, msg) = abort chlev (fileName ^ ":" ^ msg ^ "\n")
 
-    fun abortIO (fileName, {cause = OS.SysErr (m, _), function = f, name = n}) =
+    let rec abortIO = function (fileName, {cause -> OS.SysErr (m, _), function = f, name = n}) =
         (msg ("IO Error on file " ^ fileName ^ ":\n" ^ m ^ "\n");
          ABORT)
-      | abortIO (fileName, {function = f, ...}) =
+      | (fileName, {function -> f, ...}) =
         (msg ("IO Error on file " ^ fileName ^ " from function "
                        ^ f ^ "\n");
          ABORT)
 
     (* should move to paths, or into the prover module... but not here! -cs *)
-    fun joinregion (r, nil) = r
-      | joinregion (r, r' :: rs) =
+    let rec joinregion = function (r, nil) -> r
+      | (r, r' :: rs) -> 
           joinregion (Paths.join (r, r'), rs)
 
     fun joinregions (r::rs) = joinregion (r, rs)
@@ -458,7 +458,7 @@ struct
        Effects: global state
                 may raise standard exceptions
     *)
-    fun install1 (fileName, (Parser.ConDec condec, r)) =
+    let rec install1 = function (fileName, (Parser.ConDec condec, r)) -> 
         (* Constant declarations c : V, c : V = U plus variations *)
         (let
            let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), false)
@@ -494,7 +494,7 @@ struct
          handle Constraints.Error (eqns) =>
                 raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
-      | install1 (fileName, (Parser.AbbrevDec condec, r)) =
+      | (fileName, (Parser.AbbrevDec condec, r)) -> 
         (* Abbreviations %abbrev c = U and %abbrev c : V = U *)
         (let
           let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), true)
@@ -516,7 +516,7 @@ struct
         handle Constraints.Error (eqns) =>
                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
-      | install1 (fileName, (Parser.ClauseDec condec, r)) =
+      | (fileName, (Parser.ClauseDec condec, r)) -> 
         (* Clauses %clause c = U or %clause c : V = U or %clause c : V *)
         (* these are like definitions, but entered into the program table *)
         (let
@@ -537,7 +537,7 @@ struct
                 raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
       (* Solve declarations %solve c : A *)
-      | install1 (fileName, (Parser.Solve (defines, solve), r)) =
+      | (fileName, (Parser.Solve (defines, solve), r)) -> 
         (let
           let conDecL = Solve.solve (defines, solve, Paths.Loc (fileName, r))
                         handle Solve.AbortQuery (msg) =>
@@ -559,27 +559,27 @@ struct
                 raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
       (* %query <expected> <try> A or %query <expected> <try> X : A *)
-      | install1 (fileName, (Parser.Query(expected,try,query), r)) =
+      | (fileName, (Parser.Query(expected,try,query), r)) -> 
         (* Solve.query might raise Solve.AbortQuery (msg) *)
         (Solve.query ((expected, try, query), Paths.Loc (fileName, r))
          handle Solve.AbortQuery (msg)
                 => raise Solve.AbortQuery (Paths.wrap (r, msg)))
       (* %fquery <expected> <try> A or %fquery <expected> <try> X : A *)
-      | install1 (fileName, (Parser.FQuery (query), r)) =
+      | (fileName, (Parser.FQuery (query), r)) -> 
         (* Solve.query might raise Fquery.AbortQuery (msg) *)
         (Fquery.run (query, Paths.Loc (fileName, r))
          handle Fquery.AbortQuery (msg)
                 => raise Fquery.AbortQuery (Paths.wrap (r, msg)))
 
       (* %queryTabled <expected> <try> A or %query <expected> <try> X : A *)
-      | install1 (fileName, (Parser.Querytabled(numSol, try,query), r)) =
+      | (fileName, (Parser.Querytabled(numSol, try,query), r)) -> 
         (* Solve.query might raise Solve.AbortQuery (msg) *)
         (Solve.querytabled ((numSol, try, query), Paths.Loc (fileName, r))
          handle Solve.AbortQuery (msg)
                 => raise Solve.AbortQuery (Paths.wrap (r, msg)))
 
       (* %trustme <decl> *)
-      | install1 (fileName, (Parser.TrustMe(dec,r'), r)) =
+      | (fileName, (Parser.TrustMe(dec,r'), r)) -> 
         let
           let _ = if not (!Global.unsafe)
                     then raise Thm.Error("%trustme not safe: Toggle `unsafe' flag")
@@ -594,7 +594,7 @@ struct
         end
 
       (* %subord (<qid> <qid>) ... *)
-      | install1 (fileName, (Parser.SubordDec (qidpairs), r)) =
+      | (fileName, (Parser.SubordDec (qidpairs), r)) -> 
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -619,7 +619,7 @@ struct
         end
 
       (* %freeze <qid> ... *)
-      | install1 (fileName, (Parser.FreezeDec (qids), r)) =
+      | (fileName, (Parser.FreezeDec (qids), r)) -> 
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -645,7 +645,7 @@ struct
         end
 
       (* %thaw <qid> ... *)
-      | install1 (fileName, (Parser.ThawDec (qids), r)) =
+      | (fileName, (Parser.ThawDec (qids), r)) -> 
         let
           let _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%thaw not safe: Toggle `unsafe' flag"
@@ -680,7 +680,7 @@ struct
         end
 
       (* %deterministic <qid> ... *)
-      | install1 (fileName, (Parser.DeterministicDec (qids), r)) =
+      | (fileName, (Parser.DeterministicDec (qids), r)) -> 
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -703,7 +703,7 @@ struct
         end
 
       (* %compile <qids> *) (* -ABP 4/4/03 *)
-      | install1 (fileName, (Parser.Compile (qids), r)) =
+      | (fileName, (Parser.Compile (qids), r)) -> 
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -751,7 +751,7 @@ struct
         end
 
       (* Fixity declaration for operator precedence parsing *)
-      | install1 (fileName, (Parser.FixDec ((qid,r),fixity), _)) =
+      | (fileName, (Parser.FixDec ((qid,r),fixity), _)) -> 
         (case Names.constLookup qid
            of NONE => raise Names.Error ("Undeclared identifier "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -765,7 +765,7 @@ struct
          handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg)))
 
       (* Name preference declaration for printing *)
-      | install1 (fileName, (Parser.NamePref ((qid,r), namePref), _)) =
+      | (fileName, (Parser.NamePref ((qid,r), namePref), _)) -> 
         (case Names.constLookup qid
            of NONE => raise Names.Error ("Undeclared identifier "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -774,7 +774,7 @@ struct
          handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg)))
 
       (* Mode declaration *)
-      | install1 (fileName, (Parser.ModeDec mterms, r)) =
+      | (fileName, (Parser.ModeDec mterms, r)) -> 
         let
           let mdecs = List.map ReconMode.modeToMode mterms
           let _ = ReconTerm.checkErrors (r)
@@ -806,7 +806,7 @@ struct
         end
 
       (* Unique declaration *)
-      | install1 (fileName, (Parser.UniqueDec mterms, r)) =
+      | (fileName, (Parser.UniqueDec mterms, r)) -> 
         let
           let mdecs = List.map ReconMode.modeToMode mterms
           let _ = ReconTerm.checkErrors (r)
@@ -832,7 +832,7 @@ struct
         end
 
       (* Coverage declaration *)
-      | install1 (fileName, (Parser.CoversDec mterms, r)) =
+      | (fileName, (Parser.CoversDec mterms, r)) -> 
         let
           let mdecs = List.map ReconMode.modeToMode mterms
           let _ = ReconTerm.checkErrors (r)
@@ -850,7 +850,7 @@ struct
         end
 
       (* Total declaration *)
-      | install1 (fileName, (Parser.TotalDec lterm, r)) =
+      | (fileName, (Parser.TotalDec lterm, r)) -> 
         (* time activities separately in total.fun *)
         let
         (* Mon Dec  2 17:20:18 2002 -fp *)
@@ -865,8 +865,8 @@ struct
 
 (* ******************************************* *)
 (*  Temporarily disabled -- cs Thu Oct 30 12:46:44 2003
-          fun checkFreeOut nil = ()
-            | checkFreeOut (a :: La) =
+          let rec checkFreeOut = function nil -> ()
+            | (a :: La) -> 
               let
                 let SOME ms = ModeTable.modeLookup a
                 let _ = ModeCheck.checkFreeOut (a, ms)
@@ -897,9 +897,9 @@ struct
 
 (*      let result1 = NONE *)
 
-          fun covererror (SOME msg1, msg2) = raise Cover.Error (Paths.wrap (r, "Functional and relational coverage checker report coverage error:\n[Functional] "
+          let rec covererror = function (SOME msg1, msg2) -> raise Cover.Error (Paths.wrap (r, "Functional and relational coverage checker report coverage error:\n[Functional] "
                                                                             ^ msg1 ^ "\n[Relational] " ^ msg2))
-            | covererror (NONE, msg2)      = raise Cover.Error (Paths.wrap (r, "Functional coverage succeeds, relationals fails:\n[Relational] " ^ msg2))
+            | (NONE, msg2) -> raise Cover.Error (Paths.wrap (r, "Functional coverage succeeds, relationals fails:\n[Relational] " ^ msg2))
 
 7 ******************************************* *)
 
@@ -1104,8 +1104,8 @@ struct
                                                                 ^ Names.qidToString (Names.constQid a)))
                     else ())
                  (cpa, rs)
-          fun flatten nil F = F
-            | flatten (cid :: L) F =
+          let rec flatten = function nil F -> F
+            | (cid :: L) F -> 
                 (case IntSyn.sgnLookup cid
                   of IntSyn.BlockDec _ => flatten L (cid :: F)
                    | IntSyn.BlockDef (_, _, L') => flatten (L @ L') F)
@@ -1436,8 +1436,8 @@ struct
 
       fun editName edit (file, mtime) = (edit file, mtime)
 
-      fun modified (_, ref NONE) = true
-        | modified (file, ref (SOME time)) =
+      let rec modified = function (_, ref NONE) -> true
+        | (file, ref (SOME time)) -> 
           (case Time.compare (time, OS.FileSys.modTime file)
              of EQUAL => false
               | _     => true)
@@ -1486,11 +1486,11 @@ struct
             *)
             fun appendUniq (l1, l2) =
                   let
-                    fun appendUniq' (x :: l2) =
+                    let rec appendUniq' = function (x :: l2) -> 
                           if List.exists (fun y -> x = y) l1
                           then appendUniq' l2
                           else x :: appendUniq' (l2)
-                      | appendUniq' nil = List.rev l1
+                      | nil -> List.rev l1
                   in
                     List.rev (appendUniq' (List.rev l2))
                   end
@@ -1587,7 +1587,7 @@ struct
               (d, List.filter (not o redundant) fs)
           end
 
-      fun loadAbort (mfile, OK) =
+      let rec loadAbort = function (mfile, OK) -> 
           let
             let status = loadFile (ModFile.fileName mfile)
           in
@@ -1596,7 +1596,7 @@ struct
                | _  => ();
             status
           end
-        | loadAbort (_, ABORT) = ABORT
+        | (_, ABORT) -> ABORT
 
       (* load (config) = Status
          resets the global module type and then reads the files in config
@@ -1610,8 +1610,8 @@ struct
       *)
       and append (pwdir, sources) =
           let
-            fun fromFirstModified nil = nil
-              | fromFirstModified (sources as x::xs) =
+            let rec fromFirstModified = function nil -> nil
+              | (sources as x::xs) -> 
                 if ModFile.modified x
                   then sources
                   else fromFirstModified xs

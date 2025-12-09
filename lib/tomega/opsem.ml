@@ -85,8 +85,8 @@ struct
      | matchVal _ = raise NoMatch
 
 
-    fun append (G1, I.Null) = G1
-      | append (G1, I.Decl (G2, D)) = I.Decl (append (G1, G2), D)
+    let rec append = function (G1, I.Null) -> G1
+      | (G1, I.Decl (G2, D)) -> I.Decl (append (G1, G2), D)
 
 (* raisePrg is used in handling of NEW construct
    raisePrg (G, P, F) = (P', F'))
@@ -216,12 +216,12 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
                 then G' |- S : {{G}} a >> a  for arbitrary a
                     {{G}} erases void declarations in G
               *)
-             fun substToSpine' (I.Shift(n), I.Null, T) = T
-               | substToSpine' (I.Shift(n), G as I.Decl _, T) =
+             let rec substToSpine' = function (I.Shift(n), I.Null, T) -> T
+               | (I.Shift(n), G as I.Decl _, T) -> 
                    substToSpine' (I.Dot (I.Idx (n+1), I.Shift(n+1)), G, T)
-               | substToSpine' (I.Dot(I.Exp(U),s), I.Decl(G,V), T) =
+               | (I.Dot(I.Exp(U),s), I.Decl(G,V), T) -> 
                    substToSpine' (s, G, T.AppExp (U, T))
-               | substToSpine' (I.Dot(I.Idx(n),s), I.Decl(G,I.Dec(_,V)), T) =
+               | (I.Dot(I.Idx(n),s), I.Decl(G,I.Dec(_,V)), T) -> 
                    (* Eta-expand *)
                    let
                      let (Us,_) = Whnf.whnfEta ((I.Root (I.BVar(n), I.Nil), I.id), (V, I.id))
@@ -231,12 +231,12 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
 
 
-             fun choose (k, I.Null) = raise Abort
-               | choose (k, I.Decl (Psi', T.PDec _)) =
+             let rec choose = function (k, I.Null) -> raise Abort
+               | (k, I.Decl (Psi', T.PDec _)) -> 
                    choose (k+1, Psi')
-               | choose (k, I.Decl (Psi', T.UDec (I.Dec _))) =
+               | (k, I.Decl (Psi', T.UDec (I.Dec _))) -> 
                    choose (k+1, Psi')
-               | choose (k, I.Decl (Psi', T.UDec (I.BDec (_, (l1, s1))))) =
+               | (k, I.Decl (Psi', T.UDec (I.BDec (_, (l1, s1))))) -> 
                    let
                      let (Gsome, Gpi) = I.constBlock l1
                      let S = substToSpine' (s1, Gsome, T.AppBlock (I.Bidx k, T.Nil))
@@ -415,8 +415,8 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
        d = | Psi' |
 
     *)
-    fun topLevel (Psi, d, (T.Unit, t)) = ()
-      | topLevel (Psi, d, (T.Let (D', P1, T.Case Cs), t)) =
+    let rec topLevel = function (Psi, d, (T.Unit, t)) -> ()
+      | (Psi, d, (T.Let (D', P1, T.Case Cs), t)) -> 
         (* lf value definition *)
         let
           (* printLF (G, s, G') k = ()
@@ -450,7 +450,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
         in
           V'
         end
-      | topLevel (Psi, d, (T.Let (D,  T.Lam (D' as T.UDec (I.BDec (SOME name, (cid, s))), P1), P2), t)) =
+      | (Psi, d, (T.Let (D,  T.Lam (D' as T.UDec (I.BDec (SOME name, (cid, s))), P1), P2), t)) -> 
         (* new declaration *)
         let
           let _ = print ("new " ^ name ^ "\n")
@@ -459,7 +459,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
         in
           ()
         end
-      | topLevel (Psi, d, (T.Let (D, P1, P2), t)) =
+      | (Psi, d, (T.Let (D, P1, P2), t)) -> 
         (* function definition *)
         let
           let T.PDec (SOME name, F, _, _) = D
