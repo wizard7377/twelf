@@ -47,7 +47,7 @@ struct
     module F = Formatter
 
 
-    type Quantifier =                     (* Quantifier to mark parameters *)
+    type quantifier =                     (* Quantifier to mark parameters *)
       Universal                               (* Q ::= Uni                     *)
     | Existential                             (*     | Ex                      *)
 

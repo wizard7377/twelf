@@ -59,7 +59,7 @@ struct
     module Fmt = Formatter
     module A = MTPAbstract
 
-    type Dec =                      (* Newly created *)
+    type dec =                      (* Newly created *)
       Lemma of int * F.For              (* Residual Lemma *)
 
 

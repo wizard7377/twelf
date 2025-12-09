@@ -18,7 +18,7 @@ struct
   exception Error of string
   local
 
-    type Internal =
+    type internal =
       Empty
     | Const of int * int
     | Type of int

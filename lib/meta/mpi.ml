@@ -54,7 +54,7 @@ struct
     module S = StateSyn
     module Fmt = Formatter
 
-    type MenuItem =
+    type menuItem =
       Filling of MTPFilling.operator
     | Recursion of MTPRecursion.operator
     | Splitting of MTPSplitting.operator
@@ -63,7 +63,7 @@ struct
     let Open : StateSyn.State Ring.ring ref = ref (Ring.init [])
     let Solved : StateSyn.State Ring.ring ref = ref (Ring.init [])
     let History : (StateSyn.State Ring.ring * StateSyn.State Ring.ring) list ref = ref nil
-    let Menu : MenuItem list option ref = ref NONE
+    let Menu : menuItem list option ref = ref NONE
 
     let rec initOpen () = Open := Ring.init [];
     let rec initSolved () = Solved := Ring.init [];

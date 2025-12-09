@@ -21,10 +21,10 @@ struct
     module FX = CSManager.Fixity
     module MS = ModeSyn (* CSManager.ModeSyn *)
 
-    exception MyFgnCnstrRepPlus of dctx * Exp * Exp * Exp * Exp
+    exception MyFgnCnstrRepPlus of dctx * exp * exp * exp * exp
                                         (* FgnCnstr Representation: (G, proof, U1, U2, U3) *)
-    exception MyFgnCnstrRepTimes of dctx * Exp * Exp * Exp * Exp
-    exception MyFgnCnstrRepQuot of dctx * Exp * Exp * Exp * Exp
+    exception MyFgnCnstrRepTimes of dctx * exp * exp * exp * exp
+    exception MyFgnCnstrRepQuot of dctx * exp * exp * exp * exp
 
     let wordSize' = Int.min (wordSize, W.wordSize);
 
@@ -218,7 +218,7 @@ struct
              of SOME(conDec) => SOME(conDec)
               | NONE => parseQuotPf (string))))
 
-    type FixTerm =                                      (* Term                       *)
+    type fixTerm =                                      (* Term                       *)
       Num of W.word                                         (* Term ::= n                 *)
     | PlusPf of (W.word * W.word)                           (*        | n1+n2             *)
     | TimesPf of (W.word * W.word)                          (*        | n1*n2             *)

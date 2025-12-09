@@ -15,7 +15,7 @@ struct
     module I = IntSyn
     module P = Paths
 
-    type Arg = Implicit | Explicit | Local
+    type arg = Implicit | Explicit | Local
 
     (* Representation invariant:
 

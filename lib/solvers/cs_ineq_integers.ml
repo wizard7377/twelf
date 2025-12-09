@@ -90,18 +90,18 @@ struct
       Var of IntSyn.dctx * Mon                        (*   - monomial                      *)
     | Exp of IntSyn.dctx * sum                        (*   - sum                           *)
 
-    type Restriction =                            (* Restriction: (proof object)       *)
+    type restriction =                            (* Restriction: (proof object)       *)
       Restr of IntSyn.dctx * IntSyn.exp               (*   Restr (G, U)                    *)
 
     type label =
            {owner : owner,                            (* owner of the row/column (if any)  *)
             tag   : int ref,                          (* tag: used to keep track of the    *)
                                                       (* position of a tableau entry       *)
-            restr : Restriction option ref,           (* restriction (if any)              *)
+            restr : restriction option ref,           (* restriction (if any)              *)
             dead  : bool ref}                         (* has the row/column already been   *)
                                                       (* solved?                           *)
 
-    type Operation =                              (* Undoable operations:              *)
+    type operation =                              (* Undoable operations:              *)
       Insert of position                              (* insert a new row/column           *)
     | Pivot of int * int                              (* pivot on (i, j)                   *)
     | Kill of position                                (* mark the given position solved    *)
@@ -605,14 +605,14 @@ struct
     let rec unaryMinusDecomp ((d, wposL)) =
           (~d, List.map (fn (d, pos) => (~d, pos)) wposL)
 
-    type MaximizeResult =              (* Result of maximization of a row:             *)
+    type maximizeResult =              (* Result of maximization of a row:             *)
       Nonnegative of number                (* nonnegative value c                          *)
     | Unbounded of int                     (* manifestly unbounded, pivoting on column col *)
 
-    type BranchResult =
+    type branchResult =
       BranchSucceed of int option
     | BranchFail
-    | BranchDivide of int * BranchResult * BranchResult
+    | BranchDivide of int * branchResult * branchResult
 
     (* decompose a sum in whnf into a weighted sum of tableau positions *)
     let rec decomposeSum (G, sum (m, monL)) =

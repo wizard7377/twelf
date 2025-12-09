@@ -535,8 +535,8 @@ struct
     (* local names are more easily re-used: they don't increment the
        counter associated with a name
     *)
-    type Extent = Local | Global
-    type Role = Exist | Univ of Extent
+    type extent = Local | Global
+    type role = Exist | Univ of extent
 
     let rec extent = function (Exist) -> Global
       | (Univ (ext)) -> ext

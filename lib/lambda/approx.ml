@@ -58,16 +58,16 @@ struct
                                         
   (* The approximate language *)
 
-    type Uni =
+    type uni =
         Level of int (* 1 = type, 2 = kind, 3 = hyperkind, etc. *)
-      | Next of Uni
-      | LVar of Uni option ref
+      | Next of uni
+      | LVar of uni option ref
     
-    type Exp =
-        Uni of Uni
-      | Arrow of Exp * Exp
+    type exp =
+        Uni of uni
+      | Arrow of exp * exp
       | Const of I.Head (* Const/Def/NSDef *)
-      | CVar of Exp option ref
+      | CVar of exp option ref
       | Undefined
 
   (* Because approximate type reconstruction uses the pattern G |- U
@@ -102,7 +102,7 @@ struct
                  
     local
       (* just a little list since these are only for printing errors *)
-      type varEntry = (Exp * Exp * Uni) * string
+      type varEntry = (exp * exp * uni) * string
       let varList : varEntry list ref = ref nil
     in
       let rec varReset () = (varList := nil)

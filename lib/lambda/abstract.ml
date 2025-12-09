@@ -21,7 +21,7 @@ struct
 
     (* Intermediate Data Structure *)
 
-    type EFLVar =
+    type eFLVar =
       EV of I.Exp                       (* Y ::= X         for  GX |- X : VX *)
     | FV of string * I.Exp              (*     | (F, V)        if . |- F : V *)
     | LV of I.Block                     (*     | L             if . |- L in W *)

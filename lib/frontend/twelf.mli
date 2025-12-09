@@ -43,9 +43,9 @@ sig
 
   module Table :
   sig
-    type Strategy = Variant | Subsumption  (* Variant | Subsumption *)
+    type strategy = Variant | Subsumption  (* Variant | Subsumption *)
 
-    val strategy : Strategy ref	      (* strategy used for %querytabled *)
+    val strategy : strategy ref	      (* strategy used for %querytabled *)
     val strengthen : bool ref	      (* strengthenng used %querytabled *)
     val resetGlobalTable : unit -> unit (* reset global table           *)
 
@@ -68,21 +68,21 @@ sig
 
   module Compile :
   sig
-    type Opt = No | LinearHeads | Indexing 
-    val optimize : Opt ref
+    type opt = No | LinearHeads | Indexing 
+    val optimize : opt ref
   end
 
   module Recon :
   sig
-    type TraceMode = Progressive | Omniscient
+    type traceMode = Progressive | Omniscient
     val trace : bool ref
-    val traceMode : TraceMode ref
+    val traceMode : traceMode ref
   end
 
   module Prover :
   sig
-    type Strategy = RFS | FRS      (* F=Filling, R=Recursion, S=Splitting *)
-    val strategy : Strategy ref	       (* FRS, strategy used for %prove *)
+    type strategy = RFS | FRS      (* F=Filling, R=Recursion, S=Splitting *)
+    val strategy : strategy ref	       (* FRS, strategy used for %prove *)
     val maxSplit : int ref	       (* 2, bound on splitting  *)
     val maxRecurse : int ref	       (* 10, bound on recursion *)
   end
@@ -96,10 +96,10 @@ sig
   type status = OK | ABORT	       (* return status *)
 
   val reset : unit -> unit	       (* reset global module type *)
-  val loadFile : string -> Status      (* load file *)
-  val loadString : string -> Status    (* load string *)
-  val readDecl : unit -> Status	       (* read declaration interactively *)
-  val decl : string -> Status	       (* print declaration of constant *)
+  val loadFile : string -> status      (* load file *)
+  val loadString : string -> status    (* load string *)
+  val readDecl : unit -> status	       (* read declaration interactively *)
+  val decl : string -> status	       (* print declaration of constant *)
 
   val top : unit -> unit	       (* top-level for interactive queries *)
 
@@ -110,12 +110,12 @@ sig
     val read : string -> config	       (* read config file *)
     val readWithout : string * config -> config 
                                        (* read config file, minus contents of another *)
-    val load : config -> Status	       (* reset and load configuration *)
-    val append : config -> Status      (* load configuration (w/o reset) *)
+    val load : config -> status	       (* reset and load configuration *)
+    val append : config -> status      (* load configuration (w/o reset) *)
     val define : string list -> config (* explicitly define configuration *)
   end
 
-  val make : string -> Status	       (* read and load configuration *)
+  val make : string -> status	       (* read and load configuration *)
 
   val version : string		       (* Twelf version *)
 

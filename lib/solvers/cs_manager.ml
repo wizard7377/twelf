@@ -80,7 +80,7 @@ struct
 
     (* List of installed solvers *)
 
-    type Solver = Solver of solver * bool ref
+    type solver = Solver of solver * bool ref
 
     let maxCS = Global.maxCSid
     let csArray = Array.array (maxCS+1, Solver (emptySolver, ref false)) : Solver Array.array

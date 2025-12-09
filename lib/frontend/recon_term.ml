@@ -293,8 +293,8 @@ struct
 
   local
     open Apx
-    type Ctx = type IntSyn.ctx
-    type Dec = Dec of string option * Exp | NDec of string option
+    type ctx = type IntSyn.ctx
+    type dec = Dec of string option * exp | NDec of string option
   in
 
     (* Phase 1:

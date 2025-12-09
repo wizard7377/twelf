@@ -19,9 +19,9 @@ sig
              * Prefix			(*             G; Mtx; Btx    *)
              * IntSyn.exp		(*             |- V           *)
 
-  type Sgn =			(* Interface module type        *)
+  type sgn =			(* Interface module type        *)
     SgnEmpty				(* IS ::= .                   *)
-  | ConDec of IntSyn.ConDec * Sgn       (*      | c:V, IS             *)
+  | ConDec of IntSyn.ConDec * sgn       (*      | c:V, IS             *)
 
   val createAtomConst : IntSyn.dctx * IntSyn.Head -> (IntSyn.exp * IntSyn.eclo)
   val createAtomBVar : IntSyn.dctx * int -> (IntSyn.exp * IntSyn.eclo)

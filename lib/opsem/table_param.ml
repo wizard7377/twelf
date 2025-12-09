@@ -15,9 +15,9 @@ struct
 
    exception Error of string
 
-   type Strategy = Variant | Subsumption
+   type strategy = Variant | Subsumption
 
-   type ResEqn =
+   type resEqn =
      Trivial                              (* trivially done *)
    | Unify of IntSyn.dctx * IntSyn.exp    (* call unify *)
      * IntSyn.exp * ResEqn
@@ -26,11 +26,11 @@ struct
                                * CompSyn.pskeleton) list,
                   lookup: int} ref
 
-   type Status = Complete | Incomplete
+   type status = Complete | Incomplete
 
    (* globalTable stores the queries whose solution we want to keep *)
    let globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx *
-                       IntSyn.exp * ResEqn * answer * Status ) list ref
+                       IntSyn.exp * resEqn * answer * status ) list ref
                       = ref []
 
    let rec resetGlobalTable () = (globalTable := [])
@@ -65,7 +65,7 @@ struct
 
    type callCheckResult =
        NewEntry of answer
-     | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * Status
+     | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * status
      | DivergingEntry of (IntSyn.Sub * answer)
 
    type answState = new | repeated
