@@ -204,7 +204,7 @@ struct
 
 
     let rec ctxToEVarSub = function (IntSyn.Null, s) -> s
-      | (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) -> 
+      | (IntSyn.Decl(G,IntSyn.dec(_,A)), s) -> 
       let
         let s' = ctxToEVarSub (G, s)
         let X = IntSyn.newEVar (IntSyn.Null, I.EClo(A,s'))

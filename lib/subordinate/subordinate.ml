@@ -164,7 +164,7 @@ struct
                                      ^ " must be a type family to be frozen or thawed")
             | I.Kind =>
         (case IntSyn.sgnLookup a
-           of IntSyn.ConDec _ => a
+           of IntSyn.conDec _ => a
             | IntSyn.ConDef _ =>
                 IntSyn.targetFam (IntSyn.constDef a)
             | IntSyn.SkoDec _ => a
@@ -401,7 +401,7 @@ struct
             of NONE => (insertNewFam (c);
                         installKindN (V, c))
              | SOME a => (case IntSyn.sgnLookup c
-                            of IntSyn.ConDec _ => checkFreeze (c, a)
+                            of IntSyn.conDec _ => checkFreeze (c, a)
                              | IntSyn.SkoDec _ => checkFreeze (c, a)
                                (* FIX: skolem types should probably be created frozen -kw *)
                              | _ => ();

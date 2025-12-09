@@ -105,7 +105,7 @@ struct
      if constant c expects exactly n explicit arguments,
      raises Error (msg) otherwise
   *)
-  let rec checkArgNumber = function (IntSyn.ConDec (name, _, i, _, V, L), n) -> 
+  let rec checkArgNumber = function (IntSyn.conDec (name, _, i, _, V, L), n) -> 
         checkAtomic (name, V, i+n)
     | (IntSyn.SkoDec (name, _, i, V, L), n) -> 
         checkAtomic (name, V, i+n)
@@ -709,7 +709,7 @@ struct
     (* ctxDefined (G, name) = true iff `name' is declared in context G *)
     let rec ctxDefined (G, name) =
         let fun cdfd (IntSyn.Null) = false
-              | cdfd (IntSyn.Decl(G', IntSyn.Dec(SOME(name'),_))) =
+              | cdfd (IntSyn.Decl(G', IntSyn.dec(SOME(name'),_))) =
                   name = name' orelse cdfd G'
               | cdfd (IntSyn.Decl(G', IntSyn.BDec(SOME(name'),_))) =
                   name = name' orelse cdfd G'
@@ -800,11 +800,11 @@ struct
     *)
     let rec bvarName (G, k) =
         case IntSyn.ctxLookup (G, k)
-          of IntSyn.Dec(SOME(name), _) => name
+          of IntSyn.dec(SOME(name), _) => name
            | IntSyn.ADec(SOME(name), _) =>  name
            | IntSyn.NDec(SOME(name)) =>  name (* Evars can depend on NDec :-( *)
            | IntSyn.ADec(None, _) => "ADec_"
-           | IntSyn.Dec(None, _) => "Dec_"
+           | IntSyn.dec(None, _) => "Dec_"
            | _ => raise Unprintable
 
     (* decName' role (G, D) = G,D'
@@ -813,16 +813,16 @@ struct
        If D does not assign a name, this picks, based on the name
        preference declaration.
     *)
-    let rec decName' = function role (G, IntSyn.Dec (NONE, V)) -> 
+    let rec decName' = function role (G, IntSyn.dec (NONE, V)) -> 
         let
           let name = findName (G, namePrefOf (role, V), extent (role))
         in
-          IntSyn.Dec (SOME(name), V)
+          IntSyn.dec (SOME(name), V)
         end
-      | role (G, D as IntSyn.Dec (SOME(name), V)) -> 
+      | role (G, D as IntSyn.dec (SOME(name), V)) -> 
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
-          then IntSyn.Dec (SOME (tryNextName (G, baseOf name)), V)
+          then IntSyn.dec (SOME (tryNextName (G, baseOf name)), V)
         else D
       | role (G, D as IntSyn.BDec (NONE, b as (cid, t))) -> 
         (* use #l as base name preference for label l *)
@@ -928,8 +928,8 @@ struct
 
     let rec defEName (imp, UV) = defEName' (IntSyn.Null, imp, UV)
 
-    let rec nameConDec' = function (IntSyn.ConDec (name, parent, imp, status, V, L)) -> 
-          IntSyn.ConDec (name, parent, imp, status, pisEName (imp, V), L)
+    let rec nameConDec' = function (IntSyn.conDec (name, parent, imp, status, V, L)) -> 
+          IntSyn.conDec (name, parent, imp, status, pisEName (imp, V), L)
       | (IntSyn.ConDef (name, parent, imp, U, V, L, Anc)) -> 
         let
           let (U', V') = defEName (imp, (U, V))

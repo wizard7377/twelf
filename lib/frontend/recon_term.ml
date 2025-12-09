@@ -377,7 +377,7 @@ struct
            of NONE => fc (G, qid, r)
             | SOME cid =>
               (case IntSyn.sgnLookup cid
-                 of IntSyn.ConDec _ => constant (IntSyn.Const cid, r)
+                 of IntSyn.conDec _ => constant (IntSyn.Const cid, r)
                   | IntSyn.ConDef _ => constant (IntSyn.Def cid, r)
                   | IntSyn.AbbrevDef _ => constant (IntSyn.NSDef cid, r)
                   | _ =>
@@ -616,7 +616,7 @@ struct
     let rec ctxToApx = function IntSyn.Null -> IntSyn.Null
       | (IntSyn.Decl (G, IntSyn.NDec x)) -> 
           IntSyn.Decl (ctxToApx G, NDec x)
-      | (IntSyn.Decl (G, IntSyn.Dec (name, V))) -> 
+      | (IntSyn.Decl (G, IntSyn.dec (name, V))) -> 
           let
             let (V', _) = Apx.classToApx V
           in
@@ -637,7 +637,7 @@ struct
   type job =
       JNothing
     | JAnd of Job * Job
-    | JWithCtx of IntSyn.Dec IntSyn.ctx * Job
+    | JWithCtx of IntSyn.dec IntSyn.ctx * Job
     | JTerm of (IntSyn.exp * Paths.occExp) * IntSyn.exp * IntSyn.Uni
     | JClass of (IntSyn.exp * Paths.occExp) * IntSyn.Uni
     | JOf of (IntSyn.exp * Paths.occExp) * (IntSyn.exp * Paths.occExp) * IntSyn.Uni

@@ -7,7 +7,7 @@ sig
   exception Error of string
 
   (* for new declarations *)
-  val checkD : IntSyn.ConDec * string * Paths.occConDec option -> unit  (* raises Error (msg) *)
+  val checkD : IntSyn.conDec * string * Paths.occConDec option -> unit  (* raises Error (msg) *)
 
   (* for prior declarations *)
   val checkMode : IntSyn.cid * ModeSyn.modeSpine -> unit (* raises Error(msg) *)

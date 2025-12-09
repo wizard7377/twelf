@@ -19,7 +19,7 @@ sig
     Less of 'a * 'a
   | Leq of 'a * 'a 
   | Eq of 'a * 'a 
-  | Pi of IntSyn.Dec * 'a Predicate        
+  | Pi of IntSyn.dec * 'a Predicate        
     
 
   type order = (IntSyn.eclo * IntSyn.eclo) Order.Order 

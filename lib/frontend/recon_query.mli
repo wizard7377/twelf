@@ -33,6 +33,6 @@ sig
 		     (* Yi the EVars in the query and "Yi" their names *)
 
   val solveToSolve : define list * solve * Paths.location
-                     -> IntSyn.exp * (IntSyn.exp -> (IntSyn.ConDec * Paths.occConDec option) list)
+                     -> IntSyn.exp * (IntSyn.exp -> (IntSyn.conDec * Paths.occConDec option) list)
   
 end (* module type RECON_QUERY *)

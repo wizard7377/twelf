@@ -77,12 +77,12 @@ sig
   val structUndefIn : namespace * qid -> qid option
 
   (* This function maps cids/mids to names.  It uses the information in
-     the IntSyn.ConDec or IntSyn.StrDec entries only, and only considers
+     the IntSyn.conDec or IntSyn.StrDec entries only, and only considers
      the name->cid/mid mapping defined above in order to tell whether a
      name is shadowed (any constant or module whose canonical name
      would map to something else, or to nothing at all, in the case of
      an anonymous module, is shadowed). *)
-  val conDecQid : IntSyn.ConDec -> qid
+  val conDecQid : IntSyn.conDec -> qid
   val constQid : IntSyn.cid -> qid (* will mark if shadowed *)
   val structQid : IntSyn.mid -> qid (* will mark if shadowed *)
 
@@ -104,15 +104,15 @@ sig
   val evarName : IntSyn.dctx * IntSyn.exp -> string (* create, if undefined *)
   val bvarName : IntSyn.dctx * int -> string (* raises Unprintable if undefined *)
 
-  val decName  : IntSyn.dctx * IntSyn.Dec -> IntSyn.Dec (* status unknown, like decEName *)
-  val decEName : IntSyn.dctx * IntSyn.Dec -> IntSyn.Dec (* assign existential name *)
-  val decUName : IntSyn.dctx * IntSyn.Dec -> IntSyn.Dec (* assign universal name *)
-  val decLUName: IntSyn.dctx * IntSyn.Dec -> IntSyn.Dec (* assign local universal name *)
+  val decName  : IntSyn.dctx * IntSyn.dec -> IntSyn.dec (* status unknown, like decEName *)
+  val decEName : IntSyn.dctx * IntSyn.dec -> IntSyn.dec (* assign existential name *)
+  val decUName : IntSyn.dctx * IntSyn.dec -> IntSyn.dec (* assign universal name *)
+  val decLUName: IntSyn.dctx * IntSyn.dec -> IntSyn.dec (* assign local universal name *)
 
   val ctxName  : IntSyn.dctx -> IntSyn.dctx (* assign global existential names *)
   val ctxLUName: IntSyn.dctx -> IntSyn.dctx (* assign local universal names *)
 
-  val nameConDec : IntSyn.ConDec -> IntSyn.ConDec
+  val nameConDec : IntSyn.conDec -> IntSyn.conDec
 
   (* Skolem constants *)
   val skonstName : string -> string

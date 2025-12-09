@@ -10,14 +10,14 @@ sig
 
   exception Error of string
 
-  val abbrevify : IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec
-  val strictify : IntSyn.ConDec -> IntSyn.ConDec
+  val abbrevify : IntSyn.cid * IntSyn.conDec -> IntSyn.conDec
+  val strictify : IntSyn.conDec -> IntSyn.conDec
 
   type module
 
   (*
   type action = IntSyn.cid * (string * Paths.occConDec option) -> unit
-  type transform = IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec
+  type transform = IntSyn.cid * IntSyn.conDec -> IntSyn.conDec
   *)
 
   val installStruct : IntSyn.StrDec * module * Names.namespace option
@@ -27,7 +27,7 @@ sig
                    * (IntSyn.cid * (string * Paths.occConDec option) -> unit) (* action *)
                    * bool -> unit
   val instantiateModule : module *
-                          (Names.namespace -> (IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec))
+                          (Names.namespace -> (IntSyn.cid * IntSyn.conDec -> IntSyn.conDec))
 			  (* Names.namespace -> transform *)
 			  -> module
 

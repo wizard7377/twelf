@@ -8,10 +8,10 @@ sig
   module Formatter : FORMATTER
 
   val formatClause : IntSyn.dctx * IntSyn.exp -> Formatter.format
-  val formatConDec : IntSyn.ConDec -> Formatter.format
+  val formatConDec : IntSyn.conDec -> Formatter.format
 
   val clauseToString : IntSyn.dctx * IntSyn.exp -> string
-  val conDecToString : IntSyn.ConDec -> string
+  val conDecToString : IntSyn.conDec -> string
 
   val printSgn : unit -> unit
 

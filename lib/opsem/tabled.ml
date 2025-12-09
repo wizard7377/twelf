@@ -179,7 +179,7 @@ struct
   let rec getHypGoal = function (DProg, (C.Atom p, s)) -> (DProg, (p,s))
     | (C.DProg(G, dPool), (C.Impl(r, A, Ha, g), s)) -> 
     let
-      let D' = IntSyn.Dec(NONE, I.EClo(A,s))
+      let D' = IntSyn.dec(NONE, I.EClo(A,s))
     in
       if (!TableParam.strengthen)
         then

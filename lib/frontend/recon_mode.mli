@@ -46,5 +46,5 @@ sig
   include EXTMODES
 
   exception Error of string
-  val modeToMode : modedec -> (IntSyn.cid * ModeSyn.ModeSpine) * Paths.region
+  val modeToMode : modedec -> (IntSyn.cid * ModeSyn.modeSpine) * Paths.region
 end;; (* module type RECON_MODE *)

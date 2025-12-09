@@ -15,11 +15,11 @@ struct
 
   type sigEntry = (* global module type entry *)
     (* constant declaration plus optional precedence and mode information *)
-    IntSyn.ConDec * Fixity.fixity option * ModeSyn.ModeSpine list
+    IntSyn.conDec * Fixity.fixity option * ModeSyn.modeSpine list
 
   type fgnConDec = (* foreign constant declaration *)
     {
-      parse : string -> IntSyn.ConDec option
+      parse : string -> IntSyn.conDec option
     }
 
   type solver = (* constraint solver *)
@@ -163,7 +163,7 @@ struct
   (* ask each active solver to try and parse the given string *)
   let rec parse string =
         let
-          exception Parsed of IntSyn.csid * IntSyn.ConDec
+          exception Parsed of IntSyn.csid * IntSyn.conDec
           let rec parse' (cs, solver : solver) =
                 (case #fgnConst(solver)
                            of NONE => ()

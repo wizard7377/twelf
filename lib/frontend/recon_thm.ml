@@ -192,7 +192,7 @@ struct
     let decl = I.Decl
 
     type labeldec = decs * decs
-    type thm = labeldec list * ExtSyn.dec I.Ctx * ModeSyn.Mode I.Ctx * int
+    type thm = labeldec list * ExtSyn.dec I.Ctx * ModeSyn.mode I.Ctx * int
 
     type theorem = thm -> thm
     type theoremdec = string * theorem

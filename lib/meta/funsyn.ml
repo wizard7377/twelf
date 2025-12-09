@@ -16,7 +16,7 @@ struct
   type name = string
   type lemma = int
 
-  type dlist = IntSyn.Dec list
+  type dlist = IntSyn.dec list
 
   type labelDec =                   (* ContextBody                *)
     LabelDec of name * dlist * dlist
@@ -27,14 +27,14 @@ struct
       label option * IntSyn.dctx        (* B ::= l : Phi              *)
 
   type lfDec =                      (* Contexts                   *)
-    Prim of IntSyn.Dec                  (* LD ::= x :: A              *)
+    Prim of IntSyn.dec                  (* LD ::= x :: A              *)
   | Block of CtxBlock                   (*      | B                   *)
 
   type lfctx = LFDec IntSyn.ctx         (* Psi ::= . | Psi, LD        *)
 
   type for =                        (* Formulas                   *)
     All of lfDec * for                  (* F ::= All LD. F            *)
-  | Ex  of IntSyn.Dec * for             (*     | Ex  D. F             *)
+  | Ex  of IntSyn.dec * for             (*     | Ex  D. F             *)
   | True                                (*     | T                    *)
   | And of for * for                    (*     | F1 ^ F2              *)
 

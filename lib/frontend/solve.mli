@@ -10,7 +10,7 @@ sig
 
   exception AbortQuery of string
 
-  val solve : ExtQuery.define list * ExtQuery.solve * Paths.location -> (IntSyn.ConDec * Paths.occConDec option) list
+  val solve : ExtQuery.define list * ExtQuery.solve * Paths.location -> (IntSyn.conDec * Paths.occConDec option) list
 
   val query : (int option * int option * ExtQuery.query) * Paths.location -> unit
 					(* may raise AbortQuery(msg) *)

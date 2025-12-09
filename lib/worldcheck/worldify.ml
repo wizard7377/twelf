@@ -68,7 +68,7 @@ struct
                              "Block " ^ Names.qidToString (Names.constQid c) ^ ":" ^ msg)))
 
 
-  type dlist = IntSyn.Dec list
+  type dlist = IntSyn.dec list
 
 
   local
