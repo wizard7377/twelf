@@ -138,7 +138,7 @@ struct
 
    (* here ends the preliminary stuff *)
 
-    type MenuItem
+    type menuItem
     = Split     of Split.operator
     | Fill      of Fill.operator
     | Introduce of Introduce.operator
@@ -147,7 +147,7 @@ struct
 
     let Focus : (S.State list) ref = ref []
 
-    let Menu : MenuItem list option ref = ref NONE
+    let Menu : menuItem list option ref = ref NONE
 
 
     let rec SplittingToMenu (O, A) = Split O :: A
