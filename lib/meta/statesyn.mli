@@ -11,7 +11,7 @@ sig
            (IntSyn.exp * IntSyn.Sub)	(* O ::= U[s] : V[s]          *)
   | Lex of order list			(*     | (O1 .. On)           *)
   | Simul of order list			(*     | {O1 .. On}           *)
-  | All of IntSyn.Dec * order  	(*     | {{D}} O              *)
+  | All of IntSyn.dec * order  	(*     | {{D}} O              *)
   | And of order * order		(*     | O1 ^ O2              *)
 
 

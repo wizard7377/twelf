@@ -70,7 +70,7 @@ sig
   type job =
       JNothing
     | JAnd of Job * Job
-    | JWithCtx of IntSyn.Dec IntSyn.ctx * Job
+    | JWithCtx of IntSyn.dec IntSyn.ctx * Job
     | JTerm of (IntSyn.exp * Paths.occExp) * IntSyn.exp * IntSyn.Uni
     | JClass of (IntSyn.exp * Paths.occExp) * IntSyn.Uni
     | JOf of (IntSyn.exp * Paths.occExp) * (IntSyn.exp * Paths.occExp) * IntSyn.Uni

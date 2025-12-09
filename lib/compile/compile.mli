@@ -17,14 +17,14 @@ sig
 
   val optimize : Opt ref
 
-  val install : IntSyn.ConDecForm -> IntSyn.cid -> unit
+  val install : IntSyn.conDecForm -> IntSyn.cid -> unit
 
   val sProgReset : unit -> unit
 
 
-  val compileCtx: bool -> (IntSyn.Dec IntSyn.ctx) -> CompSyn.DProg  
+  val compileCtx: bool -> (IntSyn.dec IntSyn.ctx) -> CompSyn.DProg  
 
-  val compileGoal: (IntSyn.Dec IntSyn.ctx * IntSyn.exp) -> CompSyn.Goal
+  val compileGoal: (IntSyn.dec IntSyn.ctx * IntSyn.exp) -> CompSyn.Goal
 
   (* for the meta theorem prover  --cs *)
   val compilePsi: bool -> (Tomega.Dec IntSyn.ctx) -> CompSyn.DProg

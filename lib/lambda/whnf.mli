@@ -27,7 +27,7 @@ sig
 
   (* Full normalization *)
   val normalize: IntSyn.eclo -> IntSyn.exp
-  val normalizeDec: IntSyn.Dec * IntSyn.Sub -> IntSyn.Dec
+  val normalizeDec: IntSyn.dec * IntSyn.Sub -> IntSyn.Dec
   val normalizeCtx: IntSyn.dctx -> IntSyn.dctx
 
   (* Inverting substitutions *)

@@ -48,7 +48,7 @@ sig
 
   exception Error of string
 
-  val fromConDec : IntSyn.ConDec -> Traverser.condec option
+  val fromConDec : IntSyn.conDec -> Traverser.condec option
 
   val const : string -> Traverser.condec
 

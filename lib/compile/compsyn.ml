@@ -24,7 +24,7 @@ struct
     Atom of IntSyn.exp                  (* g ::= p                    *)
   | Impl of ResGoal * IntSyn.exp        (*     | (r,A,a) => g         *)
             * IntSyn.Head * goal
-  | All  of IntSyn.Dec * goal           (*     | all x:A. g           *)
+  | All  of IntSyn.dec * goal           (*     | all x:A. g           *)
 
   and ResGoal =                         (* Residual Goals             *)
     Eq     of IntSyn.exp                (* r ::= p = ?                *)
@@ -35,8 +35,8 @@ struct
               * IntSyn.exp * goal
   | In     of ResGoal                   (*     | r && (A,g)           *)
               * IntSyn.exp * goal
-  | Exists of IntSyn.Dec * ResGoal      (*     | exists x:A. r        *)
-  | Axists of IntSyn.Dec * ResGoal      (*     | exists' x:_. r       *)
+  | Exists of IntSyn.dec * ResGoal      (*     | exists x:A. r        *)
+  | Axists of IntSyn.dec * ResGoal      (*     | exists' x:_. r       *)
                                         (* exists' is used for local evars
                                            which are introduced to linearize
                                            the head of a clause;
@@ -51,7 +51,7 @@ struct
   type conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
 
   type compHead =
-     Head of (IntSyn.exp * IntSyn.Dec IntSyn.ctx * AuxGoal * IntSyn.cid)
+     Head of (IntSyn.exp * IntSyn.dec IntSyn.ctx * AuxGoal * IntSyn.cid)
 
 
   (* proof skeletons instead of proof term *)

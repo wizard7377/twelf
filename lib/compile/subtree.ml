@@ -79,12 +79,12 @@ struct
 
   type normalSubsts =  (typeLabel * IntSyn.exp) RBSet.ordSet  (* key = int = bvar *)
 
-  type assSub = Assign of (IntSyn.Dec IntSyn.ctx * IntSyn.exp)
+  type assSub = Assign of (IntSyn.dec IntSyn.ctx * IntSyn.exp)
   type assSubsts = AssSub RBSet.ordSet          (* key = int = bvar *)
 
-  type querySubsts = (IntSyn.Dec IntSyn.ctx * (typeLabel * IntSyn.exp)) RBSet.ordSet
+  type querySubsts = (IntSyn.dec IntSyn.ctx * (typeLabel * IntSyn.exp)) RBSet.ordSet
 
-  type cnstr = Eqn of IntSyn.Dec IntSyn.ctx * IntSyn.exp * IntSyn.exp
+  type cnstr = Eqn of IntSyn.dec IntSyn.ctx * IntSyn.exp * IntSyn.exp
   type cnstrSubsts = IntSyn.exp RBSet.ordSet    (* key = int = bvar *)
 
   type cGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
@@ -92,10 +92,10 @@ struct
   type genType  = Top | Regular
 
   type tree =
-    Leaf of normalSubsts  * IntSyn.Dec IntSyn.ctx * CGoal
+    Leaf of normalSubsts  * IntSyn.dec IntSyn.ctx * CGoal
   | Node of normalSubsts  * Tree RBSet.ordSet
 
-   type candidate = (assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.Dec IntSyn.ctx * CGoal)
+   type candidate = (assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.dec IntSyn.ctx * CGoal)
 
    (* Initialization of substitutions *)
    let nid         : unit -> normalSubsts = RBSet.new

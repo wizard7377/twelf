@@ -61,6 +61,6 @@ sig
 
   val tableSize : unit -> int
 
-  val memberCtx : (IntSyn.dctx * IntSyn.exp ) * IntSyn.dctx -> IntSyn.Dec option
+  val memberCtx : (IntSyn.dctx * IntSyn.exp ) * IntSyn.dctx -> IntSyn.dec option
 end;; (* module type MemoTable *)
 

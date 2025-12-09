@@ -1009,7 +1009,7 @@ struct
         let
           let Tdec = ReconThm.theoremDecToTheoremDec tdec
           let _ = ReconTerm.checkErrors (r)
-          let (GBs, E as IntSyn.ConDec (name, _, k, _, V, L)) = ThmSyn.theoremDecToConDec (Tdec, r)
+          let (GBs, E as IntSyn.conDec (name, _, k, _, V, L)) = ThmSyn.theoremDecToConDec (Tdec, r)
           let _ = FunSyn.labelReset ()
           let _ = List.foldr (fn ((G1, G2), k) => FunSyn.labelAdd
                             (FunSyn.LabelDec (Int.toString k, FunSyn.ctxToList G1, FunSyn.ctxToList G2))) 0 GBs

@@ -15,7 +15,7 @@ sig
     Atom of IntSyn.exp                  (* g ::= p                    *)
   | Impl of ResGoal * IntSyn.exp        (*     | (r,A,a) => g         *)
             * IntSyn.Head * goal		
-  | All  of IntSyn.Dec * goal           (*     | all x:A. g           *)
+  | All  of IntSyn.dec * goal           (*     | all x:A. g           *)
 
   (* dynamic clauses *)
   and ResGoal =                         (* Residual Goals             *)
@@ -27,8 +27,8 @@ sig
               * IntSyn.exp * Goal       
   | In   of ResGoal			(*     | r virt& (A,g)        *)
               * IntSyn.exp * Goal       
-  | Exists of IntSyn.Dec * ResGoal      (*     | exists x:A. r        *)
-  | Axists of IntSyn.Dec * ResGoal	(*     | exists x:_. r        *)
+  | Exists of IntSyn.dec * ResGoal      (*     | exists x:A. r        *)
+  | Axists of IntSyn.dec * ResGoal	(*     | exists x:_. r        *)
 
   and AuxGoal =
     Trivial				  (* trivially done *)
@@ -41,7 +41,7 @@ sig
   type conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
 
   type compHead = 
-     Head of (IntSyn.exp * IntSyn.Dec IntSyn.ctx * AuxGoal * IntSyn.cid)
+     Head of (IntSyn.exp * IntSyn.dec IntSyn.ctx * AuxGoal * IntSyn.cid)
 
  (* pskeleton instead of proof term *)
   type flatterm = 

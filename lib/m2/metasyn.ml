@@ -27,7 +27,7 @@ struct
 
   type sgn =                        (* Interface module type        *)
     SgnEmpty                            (* IS ::= .                   *)
-  | ConDec of IntSyn.ConDec * sgn       (*      | c:V, IS             *)
+  | ConDec of IntSyn.conDec * sgn       (*      | c:V, IS             *)
 
   local
     module I = IntSyn

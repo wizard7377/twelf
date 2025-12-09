@@ -190,8 +190,8 @@ struct
     | G (NONE, S.Type) -> S.Type
 
 
-(* compress : cid * IntSyn.ConDec -> ConDec *)
-  let rec compress = function (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, a, IntSyn.Type)) -> 
+(* compress : cid * IntSyn.conDec -> ConDec *)
+  let rec compress = function (cid, IntSyn.conDec (name, NONE, _, IntSyn.Normal, a, IntSyn.Type)) -> 
       let
           let x = xlate_type a
           let x = eta_expand_tp [] x
@@ -199,7 +199,7 @@ struct
       in
           Sgn.condec(name, compress_type [] (modes, x), x)
       end
-    | (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, k, IntSyn.Kind)) -> 
+    | (cid, IntSyn.conDec (name, NONE, _, IntSyn.Normal, k, IntSyn.Kind)) -> 
       let
           let x = xlate_kind k
           let modes = Sgn.get_modes cid

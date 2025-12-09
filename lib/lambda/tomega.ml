@@ -15,7 +15,7 @@ struct
   type quantifier = Implicit | Explicit
 
   type tC   =                       (* Terminiation Condition     *)
-    Abs of IntSyn.Dec * tC              (* T ::= {{D}} O              *)
+    Abs of IntSyn.dec * tC              (* T ::= {{D}} O              *)
   | Conj of tC * tC                     (*     | O1 ^ O2              *)
   | Base of ((IntSyn.exp * IntSyn.Sub) *
              (IntSyn.exp * IntSyn.Sub)) Order.Order
@@ -23,7 +23,7 @@ struct
   type for                          (* Formulas                   *)
   = World of worlds * for               (* F ::= World l1...ln. F     *)
   | All of (Dec * quantifier) * for     (*     | All LD. F            *)
-  | Ex  of (IntSyn.Dec * quantifier) * for
+  | Ex  of (IntSyn.dec * quantifier) * for
                                         (*     | Ex  D. F             *)
   | True                                (*     | T                    *)
   | And of for * for                    (*     | F1 ^ F2              *)
@@ -32,7 +32,7 @@ struct
                                         (*     | F (G)                *)
 
   and Dec =                             (* Declaration:               *)
-    UDec of IntSyn.Dec                  (* D ::= x:A                  *)
+    UDec of IntSyn.dec                  (* D ::= x:A                  *)
   | PDec of string option * For * TC option * TC option
                                         (*     | xx :: F              *)
 
@@ -54,7 +54,7 @@ struct
                                         (*     | E (G, F, TC)         *)
   | Const of lemma                      (* P ::= cc                   *)
   | Var of int                          (*     | xx                   *)
-  | LetPairExp of IntSyn.Dec * Dec * Prg * Prg
+  | LetPairExp of IntSyn.dec * Dec * Prg * Prg
   | LetUnit of Prg * Prg
 
   and Spine =                           (* Spines:                    *)

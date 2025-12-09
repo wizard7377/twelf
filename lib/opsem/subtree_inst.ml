@@ -54,7 +54,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
   (* ---------------------------------------------------------------------- *)
   (* Context for existential variable *)
 
-  type ctx = ((int * IntSyn.Dec) list) ref
+  type ctx = ((int * IntSyn.dec) list) ref
 
   (* functions for handling context for existential variables *)
 
@@ -77,7 +77,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
   let rec member (x, L:ctx) =
     let
       let rec memb = function (x, []) -> NONE
-        | (x, (H as (y,E as IntSyn.Dec(n,U))::L)) -> 
+        | (x, (H as (y,E as IntSyn.dec(n,U))::L)) -> 
             if x = y then SOME(y,E) else memb(x, L)
         | (x, (H as (y,E as IntSyn.ADec(n,d))::L)) -> 
             (if x = y then SOME((y,E)) else memb(x, L))
@@ -688,7 +688,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
        NONE => (case member (d, D) of
                   NONE => IntSyn.Shift (evars + avars (* 0 *))
 
-                | SOME(x, IntSyn.Dec(n,V)) =>
+                | SOME(x, IntSyn.dec(n,V)) =>
                     (* Found an EVar which is not yet
                      instantiated -- must be instantiated when
                      solving residual equations! *)

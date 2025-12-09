@@ -15,7 +15,7 @@ sig
 
 
   type tC	=			(* Terminiation Condition     *)
-    Abs of IntSyn.Dec * tC      	(* T ::= {{D}} O              *)
+    Abs of IntSyn.dec * tC      	(* T ::= {{D}} O              *)
   | Conj of tC * tC			(*     | O1 ^ O2              *)
   | Base of ((IntSyn.exp * IntSyn.Sub) * 
 	     (IntSyn.exp * IntSyn.Sub)) Order.Order
@@ -23,7 +23,7 @@ sig
   type for  			(* Formulas                   *)
   = World of worlds * for               (* F ::= World l1...ln. F     *)  
   | All of (Dec * quantifier) * for     (*     | All LD. F            *)
-  | Ex  of (IntSyn.Dec * quantifier)  * for
+  | Ex  of (IntSyn.dec * quantifier)  * for
 					(*     | Ex  D. F             *)
   | True				(*     | T                    *)
   | And of for * for                    (*     | F1 ^ F2              *)
@@ -32,7 +32,7 @@ sig
 					(*     | F (G)                *)
 
   and Dec =			        (* Declaration:               *)
-    UDec of IntSyn.Dec                  (* D ::= x:A                  *)
+    UDec of IntSyn.dec                  (* D ::= x:A                  *)
   | PDec of string option * For * TC option * TC option  
                                         (*     | xx :: F              *)
 
@@ -56,7 +56,7 @@ sig
     
   | Const of lemma                      (* P ::= cc                   *)
   | Var of int                          (*     | xx                   *)
-  | LetPairExp of IntSyn.Dec * Dec * Prg * Prg
+  | LetPairExp of IntSyn.dec * Dec * Prg * Prg
   | LetUnit of Prg * Prg
 
   and Spine =				(* Spines:                    *)
@@ -88,9 +88,9 @@ sig
   exception NoMatch
   val coerceSub : Sub -> IntSyn.Sub
   val embedSub  : IntSyn.Sub -> Sub
-  val coerceCtx : Dec IntSyn.ctx -> IntSyn.Dec IntSyn.ctx
-  val strengthenCtx : Dec IntSyn.ctx -> (IntSyn.Dec IntSyn.ctx * Sub * Sub)
-  val embedCtx  : IntSyn.Dec IntSyn.ctx -> Dec IntSyn.ctx
+  val coerceCtx : Dec IntSyn.ctx -> IntSyn.dec IntSyn.ctx
+  val strengthenCtx : Dec IntSyn.ctx -> (IntSyn.dec IntSyn.ctx * Sub * Sub)
+  val embedCtx  : IntSyn.dec IntSyn.ctx -> Dec IntSyn.ctx
   val weakenSub : Dec IntSyn.ctx -> Sub
   val invertSub : Sub -> Sub
   val id        : Sub
@@ -122,18 +122,18 @@ sig
 (* Below are added by Yu Liao *)
   val ctxDec : Dec IntSyn.ctx * int -> Dec
   val revCoerceSub : IntSyn.Sub -> Sub
-  val revCoerceCtx : IntSyn.Dec IntSyn.ctx -> Dec IntSyn.ctx
+  val revCoerceCtx : IntSyn.dec IntSyn.ctx -> Dec IntSyn.ctx
 
 (* Added references by ABP *)
   val coerceFront : Front -> IntSyn.Front
   val revCoerceFront : IntSyn.Front -> Front
-  val deblockify : IntSyn.Dec IntSyn.ctx -> IntSyn.Dec IntSyn.ctx * Sub
+  val deblockify : IntSyn.dec IntSyn.ctx -> IntSyn.dec IntSyn.ctx * Sub
 
 (* Stuff that has to do with termination conditions *)
   val TCSub : TC * IntSyn.Sub -> TC
   val normalizeTC : TC -> TC
   val convTC : TC * TC -> bool
-  val transformTC : IntSyn.Dec IntSyn.ctx * For * int Order.Order list -> TC
+  val transformTC : IntSyn.dec IntSyn.ctx * For * int Order.Order list -> TC
     
 
 end (* Signature TOMEGA *)

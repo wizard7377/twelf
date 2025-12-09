@@ -10,7 +10,7 @@ sig
   type lemma = int 
 
   type labelDec =			(* ContextBody                *)
-    LabelDec of string * IntSyn.Dec list * IntSyn.Dec list
+    LabelDec of string * IntSyn.dec list * IntSyn.dec list
 					(* BB ::= l: SOME Theta. Phi  *)
 
   type ctxBlock =                   (* ContextBlocks              *)
@@ -18,7 +18,7 @@ sig
      label option * IntSyn.dctx		(* B ::= l : Phi              *) 
 
   type lfDec =			(* Contexts                   *)
-    Prim of IntSyn.Dec			(* LD ::= x :: A              *)
+    Prim of IntSyn.dec			(* LD ::= x :: A              *)
   | Block of CtxBlock			(*      | B                   *)
 
   (* ??? *)
@@ -26,7 +26,7 @@ sig
 
   type for =			(* Formulas                   *)
     All of lfDec * for			(* F ::= All LD. F            *)
-  | Ex  of IntSyn.Dec * for		(*     | Ex  D. F             *)
+  | Ex  of IntSyn.dec * for		(*     | Ex  D. F             *)
   | True				(*     | T                    *)
   | And of for * for                    (*     | F1 ^ F2              *)
 
@@ -85,8 +85,8 @@ sig
   val forSub : For * IntSyn.Sub -> For
   val normalizeFor : For * IntSyn.Sub -> For
 
-  val listToCtx : IntSyn.Dec list -> IntSyn.dctx
-  val ctxToList : IntSyn.dctx -> IntSyn.Dec list
+  val listToCtx : IntSyn.dec list -> IntSyn.dctx
+  val ctxToList : IntSyn.dctx -> IntSyn.dec list
 end (* Signature FUNSYN *)       
 
 

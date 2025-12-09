@@ -63,7 +63,7 @@ struct
         let (i, V') = (Timers.time Timers.abstract Abstract.abstractDecImp) V
                         handle Abstract.Error (msg)
                                => raise Abstract.Error (Paths.wrap (r, msg))
-        let cd = Names.nameConDec (IntSyn.ConDec (name, NONE, i, IntSyn.Normal, V', L))
+        let cd = Names.nameConDec (IntSyn.conDec (name, NONE, i, IntSyn.Normal, V', L))
         let ocd = Paths.dec (i, oc)
         let _ = if !Global.chatter >= 3
                   then Msg.message ((Timers.time Timers.printing Print.conDecToString) cd ^ "\n")

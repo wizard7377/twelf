@@ -43,8 +43,8 @@ sig
 
   (* Theorem declaration  *)
   type thDecl =
-    ThDecl of (IntSyn.Dec IntSyn.ctx * IntSyn.Dec IntSyn.ctx) list
-              * IntSyn.Dec IntSyn.ctx * ModeSyn.Mode IntSyn.ctx * int
+    ThDecl of (IntSyn.dec IntSyn.ctx * IntSyn.dec IntSyn.ctx) list
+              * IntSyn.dec IntSyn.ctx * ModeSyn.mode IntSyn.ctx * int
 
   (* Proof declaration *)
   type pDecl = 
@@ -52,13 +52,13 @@ sig
 
   (* World declaration *)
 (*  type WDecl = 
-    WDecl of (IntSyn.Dec IntSyn.ctx * 
-	      IntSyn.Dec IntSyn.ctx) list * Callpats
+    WDecl of (IntSyn.dec IntSyn.ctx * 
+	      IntSyn.dec IntSyn.ctx) list * Callpats
 *)
   type wDecl = 
     WDecl of Names.Qid list * callpats
 
   val theoremDecToConDec : ((string * thDecl) * Paths.region) -> 
-                           (IntSyn.Dec IntSyn.ctx * IntSyn.Dec IntSyn.ctx) list * IntSyn.ConDec
+                           (IntSyn.dec IntSyn.ctx * IntSyn.dec IntSyn.ctx) list * IntSyn.conDec
   val theoremDecToModeSpine : ((string * thDecl) * Paths.region) -> ModeSyn.modeSpine
 end;; (* module type THMSYN *)

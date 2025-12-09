@@ -8,7 +8,7 @@ sig
     exception Error of string
 
     val check : IntSyn.exp * IntSyn.exp  -> unit
-    val checkDec : IntSyn.dctx * (IntSyn.Dec * IntSyn.Sub) -> unit 
+    val checkDec : IntSyn.dctx * (IntSyn.dec * IntSyn.Sub) -> unit 
     val checkConv : IntSyn.exp * IntSyn.exp -> unit
     val infer : IntSyn.exp -> IntSyn.exp
     val infer' : IntSyn.dctx * IntSyn.exp -> IntSyn.exp

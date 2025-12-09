@@ -50,7 +50,7 @@ struct
                              Origins.linesInfoLookup (fileName),
                              "While checking constant " ^ Names.qidToString (Names.constQid c) ^ ":\n" ^ msg)))
 
-  type dlist = IntSyn.Dec list
+  type dlist = IntSyn.dec list
 
 
   local

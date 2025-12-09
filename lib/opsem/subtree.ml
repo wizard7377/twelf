@@ -48,7 +48,7 @@ module MemoTable ((*! module IntSyn' : INTSYN !*)
     let rec isId s = RBSet.isEmpty s
 
     (* ---------------------------------------------------------------------- *)
-    type ctx = ((int * IntSyn.Dec) list) ref
+    type ctx = ((int * IntSyn.dec) list) ref
 
     let rec emptyCtx () :  ctx = ref []
 
@@ -87,7 +87,7 @@ module MemoTable ((*! module IntSyn' : INTSYN !*)
     *)
 
     let rec ctxToEVarSub = function (IntSyn.Null, s) -> s
-      | (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) -> 
+      | (IntSyn.Decl(G,IntSyn.dec(_,A)), s) -> 
       let
         let s' = ctxToEVarSub (G, s)
         let X = IntSyn.newEVar (IntSyn.Null, IntSyn.EClo(A,s'))

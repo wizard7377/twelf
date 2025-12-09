@@ -27,14 +27,14 @@ struct
   exception Error of string
 
   type constInfo =
-      ConstInfo of IntSyn.ConDec * Names.Fixity.fixity * (string list * string list) option * (string * Paths.occConDec option)
+      ConstInfo of IntSyn.conDec * Names.Fixity.fixity * (string list * string list) option * (string * Paths.occConDec option)
 
   type structInfo =
       StructInfo of IntSyn.StrDec
 
   (* A module consists of:
      1. a map from cids to constant entries containing
-          a. a constant declaration entry (IntSyn.ConDec)
+          a. a constant declaration entry (IntSyn.conDec)
           b. the fixity of the constant
           c. the name preference for the constant (if any)
      2. a map from mids to module entries containing
@@ -46,7 +46,7 @@ struct
       StructInfo IntTree.Table * ConstInfo IntTree.Table * Names.namespace
 
   type action = IntSyn.cid * (string * Paths.occConDec option) -> unit
-  type transform = IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec
+  type transform = IntSyn.cid * IntSyn.conDec -> IntSyn.conDec
 
   (* invariant: U in nf, result in nf *)
   let rec mapExpConsts f U =
@@ -77,7 +77,7 @@ struct
               let cid' = f cid
             in
               case IntSyn.sgnLookup cid'
-                of IntSyn.ConDec _ => Const cid'
+                of IntSyn.conDec _ => Const cid'
                  | IntSyn.SkoDec _ => Skonst cid'
                  | IntSyn.ConDef _ => Def cid'
                  | IntSyn.AbbrevDef _ => NSDef cid'
@@ -86,8 +86,8 @@ struct
         Whnf.normalize (trExp U, IntSyn.id)
       end
 
-  and mapConDecConsts f (IntSyn.ConDec (name, parent, i, status, V, L)) =
-        IntSyn.ConDec (name, parent, i, status, mapExpConsts f V, L)
+  and mapConDecConsts f (IntSyn.conDec (name, parent, i, status, V, L)) =
+        IntSyn.conDec (name, parent, i, status, mapExpConsts f V, L)
     | mapConDecConsts f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
         IntSyn.ConDef (name, parent, i, mapExpConsts f U,
                        mapExpConsts f V, L, Anc) (* reconstruct Anc?? -fp *)
@@ -100,8 +100,8 @@ struct
   let rec mapStrDecParent f (IntSyn.StrDec (name, parent)) =
         IntSyn.StrDec (name, f parent)
 
-  let rec mapConDecParent = function f (IntSyn.ConDec (name, parent, i, status, V, L)) -> 
-        IntSyn.ConDec (name, f parent, i, status, V, L)
+  let rec mapConDecParent = function f (IntSyn.conDec (name, parent, i, status, V, L)) -> 
+        IntSyn.conDec (name, f parent, i, status, V, L)
     | f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) -> 
         IntSyn.ConDef (name, f parent, i, U, V, L, Anc) (* reconstruct Anc?? -fp *)
     | f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) -> 
