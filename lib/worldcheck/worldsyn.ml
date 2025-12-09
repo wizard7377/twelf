@@ -83,11 +83,11 @@ struct
        If R = (D1,...,Dn)[s] then G |- s : G' and G' |- D1,...,Dn ctx
        If R = r* then r = 1 or r does not accept the empty world
     *)
-    type Reg                        (* Regular world expressions  *)
+    type reg                        (* Regular world expressions  *)
       = Block of I.dctx * dlist         (* R ::= LD                   *)
       | Seq of dlist * I.Sub            (*     | (D1,...,Dn)[s]       *)
-      | Star of Reg                     (*     | R*                   *)
-      | Plus of Reg * Reg               (*     | R1 + R2              *)
+      | Star of reg                     (*     | R*                   *)
+      | Plus of reg * reg               (*     | R1 + R2              *)
       | One                             (*     | 1                    *)
 
     exception Success                   (* signals worldcheck success *)
@@ -240,9 +240,9 @@ struct
     sig
       let clause : I.cid -> unit
       let constraintsRemain : unit -> unit
-      let matchBlock : (I.dctx * dlist) * Reg -> unit
+      let matchBlock : (I.dctx * dlist) * reg -> unit
       let unmatched : I.dctx * dlist -> unit
-      let missing : I.dctx * Reg -> unit
+      let missing : I.dctx * reg -> unit
       let mismatch : I.dctx * I.eclo * I.eclo -> unit
       let success : unit -> unit
     end =
