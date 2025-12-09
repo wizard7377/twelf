@@ -25,11 +25,11 @@ local
   module I = IntSyn
   module F = Formatter
   let Str = F.String
-  fun Str0 (s, n) = F.String0 n s
-  fun Name (x) = F.String ("\"" ^ x ^ "\"")
-  fun Integer (n) = F.String ("\"" ^ Int.toString n ^ "\"")
+  let rec Str0 (s, n) = F.String0 n s
+  let rec Name (x) = F.String ("\"" ^ x ^ "\"")
+  let rec Integer (n) = F.String ("\"" ^ Int.toString n ^ "\"")
 
-  fun sexp (fmts) = F.Hbox [F.HVbox fmts]
+  let rec sexp (fmts) = F.Hbox [F.HVbox fmts]
 
   (* fmtCon (c) = "c" where the name is assigned according the the Name table
      maintained in the names module.
@@ -157,7 +157,7 @@ local
       Str ("<! Skipping Skolem constant " ^ name ^ ">")
 
   (* fmtEqn assumes that G is a valid printing context *)
-  fun fmtEqn (I.Eqn (G, U1, U2)) = (* print context?? *)
+  let rec fmtEqn (I.Eqn (G, U1, U2)) = (* print context?? *)
       sexp [Str "<Equation>", F.Break, fmtExp (G, (U1, I.id)), F.Break, fmtExp (G, (U2, I.id)),
             Str "</Equation>"]
 
@@ -165,7 +165,7 @@ local
      context and will name or rename variables to make it so.
      fmtEqns should only be used for printing constraints.
   *)
-  fun fmtEqnName (I.Eqn (G, U1, U2)) =
+  let rec fmtEqnName (I.Eqn (G, U1, U2)) =
       fmtEqn (I.Eqn (Names.ctxLUName G, U1, U2))
 
 in
@@ -175,22 +175,22 @@ in
          actually applied in the scope (typically, using Names.decName)
      (b) types need not be well-formed, since they are not used
   *)
-  fun formatDec (G, D) = fmtDec (G, (D, I.id))
-  fun formatExp (G, U) = fmtExp (G, (U, I.id))
+  let rec formatDec (G, D) = fmtDec (G, (D, I.id))
+  let rec formatExp (G, U) = fmtExp (G, (U, I.id))
 (*  fun formatSpine (G, S) = sexp (fmtSpine (G, (S, I.id))) *)
-  fun formatConDec (condec) = fmtConDec (condec)
-  fun formatEqn (E) = fmtEqn E
+  let rec formatConDec (condec) = fmtConDec (condec)
+  let rec formatEqn (E) = fmtEqn E
 
-  fun decToString (G, D) = F.makestring_fmt (formatDec (G, D))
-  fun expToString (G, U) = F.makestring_fmt (formatExp (G, U))
-  fun conDecToString (condec) = F.makestring_fmt (formatConDec (condec))
-  fun eqnToString (E) = F.makestring_fmt (formatEqn E)
+  let rec decToString (G, D) = F.makestring_fmt (formatDec (G, D))
+  let rec expToString (G, U) = F.makestring_fmt (formatExp (G, U))
+  let rec conDecToString (condec) = F.makestring_fmt (formatConDec (condec))
+  let rec eqnToString (E) = F.makestring_fmt (formatEqn E)
 
-  fun printSgn () =
+  let rec printSgn () =
       IntSyn.sgnApp (fn (cid) => (print (F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
                                   print "\n"))
 
-  fun printSgnToFile path filename =
+  let rec printSgnToFile path filename =
       let
         let file = TextIO.openOut (path ^ filename)
         let _ = TextIO.output (file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!-- nsgmls ex.xml -->\n<!DOCTYPE Signature SYSTEM \"lf.dtd\">\n<Signature>")

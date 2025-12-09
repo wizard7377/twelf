@@ -46,7 +46,7 @@ struct
        and  G  |- V1 [s1] = V2 [s2] : L
        otherwise exception Error is raised
     *)
-    fun checkExp (G, Us, Vs) =
+    let rec checkExp (G, Us, Vs) =
         let
           let Us' = inferExp (G, Us)
         in
@@ -244,13 +244,13 @@ struct
           (checkCtx G; checkDec (G, (D, I.id)))
 
 
-    fun check (U, V) = checkExp (I.Null, (U, I.id), (V, I.id))
-    fun infer U = I.EClo (inferExp (I.Null, (U, I.id)))
-    fun infer' (G, U) = I.EClo (inferExp (G, (U, I.id)))
+    let rec check (U, V) = checkExp (I.Null, (U, I.id), (V, I.id))
+    let rec infer U = I.EClo (inferExp (I.Null, (U, I.id)))
+    let rec infer' (G, U) = I.EClo (inferExp (G, (U, I.id)))
 
 
 
-    fun checkConv (U1, U2) =
+    let rec checkConv (U1, U2) =
           if Conv.conv ((U1, I.id), (U2, I.id)) then ()
           else raise Error ("Terms not equal\n  left: " ^
                             Print.expToString (I.Null, U1) ^ "\n  right:" ^

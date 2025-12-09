@@ -1,7 +1,7 @@
 (* Rings (aka cyclic lists) *)
 (* Author: Carsten Schuermann *)
 
-(Ring : RIN)G =
+(Ring : RING) =
 struct
 
   exception Empty
@@ -18,12 +18,12 @@ struct
     | _ -> false
 
   (* init l = l (as ring) *)
-  fun init l = (nil, l)
+  let rec init l = (nil, l)
 
   (* insert ([], x) = [x]
      insert ([a1, a2 ... an], x) = [x, a1, a2, ... an]
   *)
-  fun insert ((r, l), y) = (r, y :: l)
+  let rec insert ((r, l), y) = (r, y :: l)
 
   (* current [] = raise Empty
      current [a1, a2 ... an] = a1
@@ -54,9 +54,9 @@ struct
     | (r, x :: l) -> (r, l)
 
   (* foldr is inefficient *)
-  fun foldr f i (r, l) = List.foldr f i (l @ rev r)
+  let rec foldr f i (r, l) = List.foldr f i (l @ rev r)
 
   (* order of map is undefined.  relevant? *)
-  fun map f (r, l) = (List.map f r, List.map f l)
+  let rec map f (r, l) = (List.map f r, List.map f l)
 
 end;; (* module Ring *)

@@ -169,48 +169,48 @@ struct
     | (Dot (Undef, s)) -> (print ("Undef . "); printSub s)
 
 
-    fun unifyW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
+    let rec unifyW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
       (* s = id *)
       r := SOME(EClo(Us2))
       | unifyW (G, Xs1, Us2) =
       (* Xs1 should not contain any uninstantiated AVar anymore *)
       Unify.unifyW(G, Xs1, Us2)
 
-    fun unify(G, Xs1, Us2) = unifyW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
+    let rec unify(G, Xs1, Us2) = unifyW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
-    fun matchW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
+    let rec matchW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
       (* s = id *)
       r := SOME(EClo(Us2))
       | matchW (G, Xs1, Us2) =
       (* Xs1 should not contain any uninstantiated AVar anymore *)
       Match.matchW(G, Xs1, Us2)
 
-    fun match(G, Xs1, Us2) = matchW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
+    let rec match(G, Xs1, Us2) = matchW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
   in
     let solveCnstr = solveCnstr
 
-    fun unifiable (G, Us1, Us2) =
+    let rec unifiable (G, Us1, Us2) =
         (unify (G, Us1, Us2); true)
          handle Unify.Unify msg => false
 
-    fun instance (G, Us1, Us2) =
+    let rec instance (G, Us1, Us2) =
         (match (G, Us1, Us2); true)
          handle Match.Match msg => false
 
     (*
-    fun assign(G, Us1, Us2) = assignExp(G, Us1, Us2, [])
+    let rec assign(G, Us1, Us2) = assignExp(G, Us1, Us2, [])
     *)
 
-    fun assignable (G, Us1, Uts2) =
+    let rec assignable (G, Us1, Uts2) =
         (SOME(assignExp (G, Us1, Uts2, []))
          handle (Assignment(msg)) =>  NONE)
 
-  fun firstConstArg (A as IntSyn.Root(h as IntSyn.Const c, S), s) =
+  let rec firstConstArg (A as IntSyn.Root(h as IntSyn.Const c, S), s) =
     let
       let i = IntSyn.conDecImp(IntSyn.sgnLookup(c)) (* #implicit arguments to predicate *)
 
-      fun constExp (U, s) = constExpW (Whnf.whnf (U,s))
+      let rec constExp (U, s) = constExpW (Whnf.whnf (U,s))
       and constExpW (IntSyn.Lam (D, U), s) = constExp (U, s)
         | constExpW (IntSyn.Root (H as IntSyn.Const cid, S), s) =
            SOME(cid)

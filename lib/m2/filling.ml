@@ -25,12 +25,12 @@ struct
 
     exception Success of M.State
 
-    fun delay (search, Params) () =
+    let rec delay (search, Params) () =
       (search Params
        handle Search.Error s => raise Error s)
 
-    fun makeAddressInit S k = (S, k)
-    fun makeAddressCont makeAddress k = makeAddress (k+1)
+    let rec makeAddressInit S k = (S, k)
+    let rec makeAddressCont makeAddress k = makeAddress (k+1)
 
     (* operators (G, GE, (V, s), abstract, makeAddress) = (OE', OL')
 
@@ -47,7 +47,7 @@ struct
         and OL' is a list containing one operator which instantiates all - non-index variables
           in V' with the smallest possible terms.
     *)
-    fun operators (G, GE, Vs, abstractAll, abstractEx,  makeAddress) =
+    let rec operators (G, GE, Vs, abstractAll, abstractEx,  makeAddress) =
           operatorsW (G, GE, Whnf.whnf Vs, abstractAll, abstractEx,  makeAddress)
     and operatorsW (G, GE, Vs as (I.Root (C, S), _), abstractAll, abstractEx,  makeAddress) =
           (nil,
@@ -109,13 +109,13 @@ struct
         and OL' is a list containing one operator which instantiates all - non-index variables
           in V' with the smallest possible terms.
     *)
-    fun expand (S as M.State (name, M.Prefix (G, M, B), V)) =
+    let rec expand (S as M.State (name, M.Prefix (G, M, B), V)) =
         let
           let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
-          fun abstractAll acc = (MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
+          let rec abstractAll acc = (MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
                                                                 I.EClo (V, s'))) :: acc
                                 handle MetaAbstract.Error s => acc)
-          fun abstractEx () = (raise Success (MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
+          let rec abstractEx () = (raise Success (MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
                                                                I.EClo (V, s')))))
                                handle MetaAbstract.Error s => ()
 
@@ -129,9 +129,9 @@ struct
        Invariant:
        S is state and f is a function constructing the successor state S'
     *)
-    fun apply (_, f) = f ()
+    let rec apply (_, f) = f ()
 
-    fun menu ((M.State (name, M.Prefix (G, M, B), V), k), Sl) =
+    let rec menu ((M.State (name, M.Prefix (G, M, B), V), k), Sl) =
         let
           let rec toString = function (G, I.Pi ((I.Dec (_, V), _), _), 0) -> Print.expToString (G, V)
             | (G, V as  I.Root _, 0) -> Print.expToString (G, V)

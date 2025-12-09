@@ -64,13 +64,13 @@ struct
 
   (* Wed Mar 13 10:27:00 2002 -bp  *)
   (* should probably go to intsyn.fun *)
-  fun compose'(IntSyn.Null, G) = G
+  let rec compose'(IntSyn.Null, G) = G
     | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
   let rec shift = function (IntSyn.Null, s) -> s
     | (IntSyn.Decl(G, D), s) -> I.dot1 (shift(G, s))
 
- fun invShiftN (n, s) =
+ let rec invShiftN (n, s) =
    if n = 0 then I.comp(I.invShift, s)
    else I.comp(I.invShift, invShiftN(n-1, s))
 
@@ -78,7 +78,7 @@ struct
    | (I.Decl (G, D), V) -> raiseType (G, I.Pi ((D, I.Maybe), V))
 
 
-  fun printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
+  let rec printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
     | printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
     | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
     | printSub (IntSyn.Dot (IntSyn.exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
@@ -89,7 +89,7 @@ struct
 
   (* ctxToEVarSub D = s*)
 
-    fun ctxToEVarSub (Gglobal, I.Null, s) = s
+    let rec ctxToEVarSub (Gglobal, I.Null, s) = s
       | ctxToEVarSub (Gglobal, I.Decl(G,I.Dec(_,A)), s) =
       let
         let s' = ctxToEVarSub (Gglobal, G, s)
@@ -116,7 +116,7 @@ struct
      Effects: instantiation of EVars in g, s, and dp
               any effect  sc M  might have
   *)
-  fun solve' ((C.Atom(p), s), dp as C.DProg (G, dpool), sc)  =
+  let rec solve' ((C.Atom(p), s), dp as C.DProg (G, dpool), sc)  =
        matchAtom ((p,s), dp, sc)
     | solve' ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
@@ -282,7 +282,7 @@ struct
           | (I.Decl (dPool', C.Parameter), k) -> 
               matchDProg (dPool', k+1)
 
-         fun matchConstraint (solve, try) =
+         let rec matchConstraint (solve, try) =
               let
                 let succeeded =
                   CSManager.trail
@@ -302,7 +302,7 @@ struct
       end
 
   in
-    fun solve args  =
+    let rec solve args  =
       (case (!CompSyn.optimize) of
          CompSyn.No => (mSig := matchSig ; solve' args)
        | CompSyn.LinearHeads => (mSig := matchSig; solve' args)

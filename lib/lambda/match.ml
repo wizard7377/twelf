@@ -56,7 +56,7 @@ struct
        Effect: prunes EVars in U[s] according to ss
                raises Match if U[s][ss] does not exist, or rOccur occurs in U[s]
     *)
-    fun pruneExp  (G, Us, ss, rOccur) =
+    let rec pruneExp  (G, Us, ss, rOccur) =
           pruneExpW (G, Whnf.whnf Us, ss, rOccur)
     and pruneExpW (G, (U as Uni _, s), _, _) = U
       | pruneExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
@@ -210,7 +210,7 @@ struct
           (case (FgnExpStd.UnifyWith.apply csfe1 (G, EClo Us2))
              of (Succeed residualL) =>
                   let
-                    fun execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
+                    let rec execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
                             let W' = pruneExp (G, (W, id), ss, r)
                           in
@@ -227,7 +227,7 @@ struct
           (case (FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1))
              of (Succeed opL) =>
                   let
-                    fun execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
+                    let rec execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
                             let W' = pruneExp (G, (W, id), ss, r)
                           in
@@ -546,7 +546,7 @@ struct
       Sun Dec  1 11:33:13 2002 -cs
 
 *)
-    fun match1W (G, Us1, Us2) =
+    let rec match1W (G, Us1, Us2) =
           (matchExpW (G, Us1, Us2); awakeCnstr (Unify.nextCnstr ()))
 
     and match1 (G, Us1, Us2) =
@@ -561,10 +561,10 @@ struct
           if (FgnCnstrStd.Awake.apply csfc ()) then ()
           else raise Match "Foreign constraint violated"
 
-    fun matchW (G, Us1, Us2) =
+    let rec matchW (G, Us1, Us2) =
           (Unify.resetAwakenCnstrs (); match1W (G, Us1, Us2))
 
-    fun match (G, Us1, Us2) =
+    let rec match (G, Us1, Us2) =
           (Unify.resetAwakenCnstrs (); match1 (G, Us1, Us2))
 
   in
@@ -573,12 +573,12 @@ struct
     let matchSub = matchSub
     let matchBlock = matchBlock
 
-    fun instance (G, Us1, Us2) =
+    let rec instance (G, Us1, Us2) =
           (match (G, Us1, Us2);
            true)
           handle Match msg =>  false
 
-    fun instance' (G, Us1, Us2) =
+    let rec instance' (G, Us1, Us2) =
           (match (G, Us1, Us2); NONE)
           handle Match(msg) => SOME(msg)
   end

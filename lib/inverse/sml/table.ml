@@ -34,14 +34,14 @@ struct
   type 'a table = {arr : 'a option array,
                    used : int ref}
 
-  fun table n = {arr = A.array(n,NONE),
+  let rec table n = {arr = A.array(n,NONE),
                  used = ref 0}
 
-  fun clear {arr,used} = 
+  let rec clear {arr,used} = 
       (used := 0;
        A.modify (fun _ -> NONE) arr)
 
-  fun insert (t as {arr,used}) (n,v) =
+  let rec insert (t as {arr,used}) (n,v) =
       if n < 0 orelse n > A.length arr then raise Subscript
       else
         case A.sub(arr,n) of 
@@ -50,20 +50,20 @@ struct
                    t)
         | SOME _ => raise Fail "insert: key already present"
 
-  fun lookup ({arr,...}:'a table) n = 
+  let rec lookup ({arr,...}:'a table) n = 
       if n < 0 orelse n > A.length arr then raise Subscript else
       case A.sub(arr,n) of
         NONE => raise Subscript
       | SOME v => v
 
-  fun size ({arr,...}:'a table) = A.length arr
+  let rec size ({arr,...}:'a table) = A.length arr
 
   exception Done
 
-  fun app f {arr,used} = 
+  let rec app f {arr,used} = 
       let
         let used' = !used 
-        fun f'(i,x) = if i >= used' then raise Done else
+        let rec f'(i,x) = if i >= used' then raise Done else
                       case x of 
                         SOME n => f n
                       | NONE => ()
@@ -72,10 +72,10 @@ struct
         handle Done => ()
       end
 
-  fun appi f {arr,used} = 
+  let rec appi f {arr,used} = 
       let
         let used' = !used 
-        fun f'(i,x) = if i >= used' then raise Done else
+        let rec f'(i,x) = if i >= used' then raise Done else
                       case x of 
                         SOME n => f(i,n)
                       | NONE => ()

@@ -24,14 +24,14 @@ struct
        Effect: Resets mode array
     *)
 
-    fun reset () = Table.clear modeSignature
+    let rec reset () = Table.clear modeSignature
 
     (* modeLookup a = mSOpt
 
        Looks up the mode of a in the mode array (if they are multiple, returns the last one
        inserted.
     *)
-    fun modeLookup a =
+    let rec modeLookup a =
           case (Table.lookup modeSignature a)
             of SOME (mS :: _) => SOME(mS)
              | NONE => NONE
@@ -41,7 +41,7 @@ struct
 
        Looks up the modes of a in the mode array.
     *)
-    fun mmodeLookup a =
+    let rec mmodeLookup a =
           case (Table.lookup modeSignature a)
             of SOME mSs => mSs
              | NONE => nil
@@ -52,13 +52,13 @@ struct
        Effect: the ModeSpine mS is stored with the type family a; if there were previous
                modes stored with a, they are replaced by mS
     *)
-    fun installMode (a, mS) =
+    let rec installMode (a, mS) =
           Table.insert modeSignature (a, [mS])
 
     (* uninstallMode a = true iff a was declared in mode table
        Effect: the mode stored with a is removed
     *)
-    fun uninstallMode a =
+    let rec uninstallMode a =
         case modeLookup a
           of NONE => false
            | SOME _ => (Table.delete modeSignature a; true)
@@ -68,7 +68,7 @@ struct
        Effect: the ModeSpine mS is stored with the type family a; if there were previous
                models stored with a, the new mode mS is added to them.
     *)
-    fun installMmode (a, mS) =
+    let rec installMmode (a, mS) =
           let
             let mSs = mmodeLookup a
           in

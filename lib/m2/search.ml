@@ -157,7 +157,7 @@ struct
   and matchAtom (ps' as (I.Root (Ha, _), _),
                  dp as C.DProg (G, dPool), sc, (acc, k)) =
       let
-        fun matchSig acc' =
+        let rec matchSig acc' =
             let
               let rec matchSig' = function (nil, acc'') -> acc''
                 | (Hc ::sgn', acc'') -> 
@@ -200,7 +200,7 @@ struct
        If    G |- s : G1   G1 |- U : V
        then  B holds iff r occurs in (the normal form of) U
     *)
-    fun occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
+    let rec occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
 
     and occursInExpW (r, (I.Uni _, _)) = false
       | occursInExpW (r, (I.Pi ((D, _), V), s)) =
@@ -279,9 +279,9 @@ struct
        then R' is the result of applying f to P and
          traversing all possible numbers up to MetaGlobal.maxLevel
     *)
-    fun deepen f P =
+    let rec deepen f P =
         let
-          fun deepen' (level, acc) =
+          let rec deepen' (level, acc) =
             if level > (!MetaGlobal.maxFill) then acc
             else (if !Global.chatter > 5 then print "#" else ();
                     deepen' (level+1, f level P))
@@ -299,7 +299,7 @@ struct
        then acc' is a list containing the one result from executing the success continuation
          All EVar's got instantiated with the smallest possible terms.
     *)
-    fun searchEx (G, GE, Vs, sc) =
+    let rec searchEx (G, GE, Vs, sc) =
       (if !Global.chatter > 5 then print "[Search: " else ();
          deepen searchEx' (selectEVar (GE, Vs, nil),
                            fun Params -> (if !Global.chatter > 5 then
@@ -336,7 +336,7 @@ struct
          been instantiated
        then acc' is a list of results from executing the success continuation
     *)
-    fun searchAll (G, GE, Vs, sc) =
+    let rec searchAll (G, GE, Vs, sc) =
           searchAll' (selectEVar (GE, Vs, nil), nil, sc)
 
 

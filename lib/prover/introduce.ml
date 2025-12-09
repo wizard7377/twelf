@@ -23,7 +23,7 @@ struct
     type operator = T.Prg * T.Prg
 
 (*    fun stripTC (T.Abs (_, TC)) = TC *)
-      fun stripTC TC = TC
+      let rec stripTC TC = TC
 
 
     let rec stripTCOpt = function NONE -> NONE
@@ -68,14 +68,14 @@ struct
        Invariant:
        O = S
     *)
-    fun apply (T.EVar (_, r, _, _, _, _), P) = (r := SOME P)   (* need to trail for back *)
+    let rec apply (T.EVar (_, r, _, _, _, _), P) = (r := SOME P)   (* need to trail for back *)
 
     (* menu O = s
 
        Invariant:
        s = "Apply universal introduction rules"
     *)
-    fun menu (r, P) = "Intro " ^ TomegaPrint.nameEVar r
+    let rec menu (r, P) = "Intro " ^ TomegaPrint.nameEVar r
 
 
   in

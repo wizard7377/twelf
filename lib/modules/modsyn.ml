@@ -49,7 +49,7 @@ struct
   type transform = IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec
 
   (* invariant: U in nf, result in nf *)
-  fun mapExpConsts f U =
+  let rec mapExpConsts f U =
       let
         open IntSyn
 
@@ -97,7 +97,7 @@ struct
     | mapConDecConsts f (IntSyn.SkoDec (name, parent, i, V, L)) =
         IntSyn.SkoDec (name, parent, i, mapExpConsts f V, L)
 
-  fun mapStrDecParent f (IntSyn.StrDec (name, parent)) =
+  let rec mapStrDecParent f (IntSyn.StrDec (name, parent)) =
         IntSyn.StrDec (name, f parent)
 
   let rec mapConDecParent = function f (IntSyn.ConDec (name, parent, i, status, V, L)) -> 
@@ -115,7 +115,7 @@ struct
        handle Strict.Error _ => condec)
     | (condec as IntSyn.AbbrevDef _) -> condec
 
-  fun abbrevify (cid, condec) =
+  let rec abbrevify (cid, condec) =
       (case condec
          of I.ConDec (name, parent, i, _, V, L) =>
             let
@@ -154,17 +154,17 @@ struct
         let constMap : IntSyn.cid IntTree.Table =
               IntTree.new (0)
 
-        fun mapStruct mid = valOf (IntTree.lookup structMap mid)
+        let rec mapStruct mid = valOf (IntTree.lookup structMap mid)
 
         let rec mapParent = function NONE -> topOpt
           | (SOME parent) -> SOME (mapStruct parent)
 
-        fun mapConst cid =
+        let rec mapConst cid =
             (case IntTree.lookup constMap cid
                of NONE => cid
                 | SOME cid' => cid')
 
-        fun doStruct (mid, StructInfo strdec) =
+        let rec doStruct (mid, StructInfo strdec) =
             let
               let strdec' = mapStrDecParent mapParent strdec
               let mid' = IntSyn.sgnStructAdd strdec'
@@ -186,7 +186,7 @@ struct
               IntTree.insert structMap (mid, mid')
             end
 
-        fun doConst (cid, ConstInfo (condec, fixity, namePrefOpt, origin)) =
+        let rec doConst (cid, ConstInfo (condec, fixity, namePrefOpt, origin)) =
             let
               let condec1 = mapConDecParent mapParent condec
               let condec2 = mapConDecConsts mapConst condec1
@@ -223,7 +223,7 @@ struct
 
   let decToDef = strictify o abbrevify
 
-  fun installStruct (strdec, module, nsOpt, installAction, isDef) =
+  let rec installStruct (strdec, module, nsOpt, installAction, isDef) =
       let
         let transformConDec = if isDef then decToDef
                               else (fn (_, condec) => condec)
@@ -239,7 +239,7 @@ struct
                        installAction, transformConDec)
       end
 
-  fun installSig (module, nsOpt, installAction, isDef) =
+  let rec installSig (module, nsOpt, installAction, isDef) =
       let
         let transformConDec = if isDef then decToDef
                               else (fn (_, condec) => condec)
@@ -248,7 +248,7 @@ struct
                        installAction, transformConDec)
       end
 
-  fun abstractModule (namespace, topOpt) =
+  let rec abstractModule (namespace, topOpt) =
       let
         let structTable : StructInfo IntTree.Table =
               IntTree.new (0)
@@ -261,7 +261,7 @@ struct
                 | SOME mid => (fn SOME mid' => if mid = mid' then NONE
                                                else SOME mid'))
 
-        fun doStruct (_, mid) =
+        let rec doStruct (_, mid) =
             let
               let strdec = IntSyn.sgnStructLookup mid
               let strdec' = mapStrDecParent mapParent strdec
@@ -290,7 +290,7 @@ struct
         (structTable, constTable, namespace)
       end
 
-  fun instantiateModule (module as (_, _, namespace), transform) =
+  let rec instantiateModule (module as (_, _, namespace), transform) =
       let
         let transformConDec = transform namespace
         let mid = IntSyn.sgnStructAdd (IntSyn.StrDec ("wheresubj", NONE))
@@ -306,18 +306,18 @@ struct
     let defList : string list ref = ref nil
     let defCount : int ref = ref 0
     let defs : module HashTable.Table = HashTable.new (4096)
-    fun defsClear () = HashTable.clear defs
+    let rec defsClear () = HashTable.clear defs
     let defsInsert = HashTable.insertShadow defs
     let defsLookup = HashTable.lookup defs
     let defsDelete = HashTable.delete defs
   in
 
-    fun reset () = (defList := nil; defCount := 0;
+    let rec reset () = (defList := nil; defCount := 0;
                     defsClear ())
 
-    fun resetFrom mark =
+    let rec resetFrom mark =
         let
-          fun ct (l, i) = if i <= mark then l
+          let rec ct (l, i) = if i <= mark then l
                           else
                             let
                               let h::t = l
@@ -330,9 +330,9 @@ struct
           defCount := mark
         end
 
-    fun sigDefSize () = !defCount
+    let rec sigDefSize () = !defCount
 
-    fun installSigDef (id, module) =
+    let rec installSigDef (id, module) =
         (case defsInsert (id, module)
            of NONE => (defList := id::(!defList);
                        defCount := !defCount + 1)

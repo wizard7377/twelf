@@ -23,12 +23,12 @@ struct
       | M.Minus -> "-"
       | M.Minus1 -> "-1"
 
-    fun argToString (M.Marg (m, _)) = modeToString m
+    let rec argToString (M.Marg (m, _)) = modeToString m
 
     let rec nameDec = function (I.Dec (_, V) , M.Marg (_, name as SOME _)) -> I.Dec (name, V)
       | (D, M.Marg (_, NONE)) -> D
 
-    fun makeSpine (G) =
+    let rec makeSpine (G) =
         let
           let rec makeSpine' = function (I.Null, _, S) -> S
             | (I.Decl (G, _), k, S) -> 
@@ -37,7 +37,7 @@ struct
           makeSpine' (G, 1, I.Nil)
         end
 
-    fun fmtModeDec (cid, mS) =
+    let rec fmtModeDec (cid, mS) =
         let
           let V = I.constType cid
           let rec fmtModeDec' = function (G, _, M.Mnil) -> 
@@ -60,8 +60,8 @@ struct
       | ((cid, mS)::mdecs) -> 
         fmtModeDec (cid, mS)::F.Break::fmtModeDecs mdecs
 
-    fun modeToString cM = F.makestring_fmt (fmtModeDec cM)
-    fun modesToString mdecs = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
+    let rec modeToString cM = F.makestring_fmt (fmtModeDec cM)
+    let rec modesToString mdecs = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
   in
     let modeToString = modeToString
     let modesToString = modesToString

@@ -83,16 +83,16 @@ struct
      | (I.Def a, I.Def a') -> a = a'
      | _ -> false
 
-   fun append(IntSyn.Null, G) = G
+   let rec append(IntSyn.Null, G) = G
      | append(IntSyn.Decl(G', D), G) = IntSyn.Decl(append(G', G), D)
 
    let rec shift = function (IntSyn.Null, s) -> s
      | (IntSyn.Decl(G, D), s) -> I.dot1 (shift(G, s))
 
-    fun raiseType (I.Null, V) = V
+    let rec raiseType (I.Null, V) = V
       | raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
 
-    fun compose(IntSyn.Null, G) = G
+    let rec compose(IntSyn.Null, G) = G
       | compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D)
 
     (* ---------------------------------------------------------------------- *)
@@ -121,7 +121,7 @@ struct
 
     *)
 
-    fun ctxToEVarSub (I.Null, s) = s
+    let rec ctxToEVarSub (I.Null, s) = s
       | ctxToEVarSub (I.Decl(G,I.Dec(_,A)), s) =
       let
         let X = I.newEVar (I.Null, A)
@@ -129,7 +129,7 @@ struct
         I.Dot(I.Exp(X), ctxToEVarSub (G, s))
       end
 
-    fun ctxToAVarSub (I.Null, s) = s
+    let rec ctxToAVarSub (I.Null, s) = s
       | ctxToAVarSub (I.Decl(G,I.Dec(_,A)), s) =
       let
         let X = I.newEVar (I.Null, A)
@@ -167,11 +167,11 @@ struct
         andalso solveEqn ((eqns, s), G)
      end
 
-  fun unifySub' (G, s1, s2) =
+  let rec unifySub' (G, s1, s2) =
     (Unify.unifySub (G, s1, s2); true)
     handle Unify.Unify msg => false
 
-  fun unify (G, Us, Us') =
+  let rec unify (G, Us, Us') =
     (Unify.unify (G, Us, Us') ; true)
     handle Unify.Unify msg => false
 
@@ -202,7 +202,7 @@ struct
          getHypGoal (C.DProg(I.Decl(G, D'), I.Decl(dPool, C.Parameter)), (g, I.dot1 s))
        end
 
-  fun updateGlobalTable (goal, flag) =
+  let rec updateGlobalTable (goal, flag) =
     let
       let (dProg as C.DProg(G, dPool), (p,s)) = getHypGoal (C.DProg(I.Null,I.Null), (goal, I.id))
       let (G', DAVars, DEVars, U', eqn', s') =  A.abstractEVarCtx (dProg, p, s)
@@ -223,9 +223,9 @@ struct
 
 
 
-  fun keepTable c = TabledSyn.keepTable c
+  let rec keepTable c = TabledSyn.keepTable c
 
-  fun fillTable () =
+  let rec fillTable () =
     let
       let rec insert = function (nil) -> ()
         | ((DAVars, DEVars, G', U', eqn', answRef, status)::T) -> 
@@ -316,7 +316,7 @@ struct
        retrieveV ((G, U, s),  A, sc)
      end
 
-   fun retrieveSW ((G, U, s), asub, AnswL, sc) = retrieve' ((G, U, s), asub, AnswL, sc)
+   let rec retrieveSW ((G, U, s), asub, AnswL, sc) = retrieve' ((G, U, s), asub, AnswL, sc)
 
    (* currently not used -- however, it may be better to  not use the same retrieval function for
       subsumption and variant retrieval, and we want to revive this function *)
@@ -339,7 +339,7 @@ struct
 
      Effects: instantiation of EVars in s, and asub
    *)
-    fun retrieve (k, (G, U, s), (asub, answRef), sc) =
+    let rec retrieve (k, (G, U, s), (asub, answRef), sc) =
         let
           let lkp  = T.lookup(answRef)
           let asw' = List.take(rev(T.solutions(answRef)),
@@ -362,7 +362,7 @@ struct
      Effects: instantiation of EVars in g, s, and dp
      any effect  sc M  might have
      *)
-   fun solve ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
+   let rec solve ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
      if TabledSyn.tabledLookup (I.targetFam p)
        then
          let
@@ -588,7 +588,7 @@ struct
           | (I.Decl(G, _), I.Decl (dPool', C.Parameter), k) -> 
               matchDProg (G, dPool', k+1)
 
-          fun matchConstraint (solve, try) =
+          let rec matchConstraint (solve, try) =
             let
               let succeeded =
                 CSManager.trail
@@ -641,14 +641,14 @@ struct
 
 
 
-  fun tableSize () =  MT.tableSize ()
-  fun suspGoalNo () =  List.length(!SuspGoals)
+  let rec tableSize () =  MT.tableSize ()
+  let rec suspGoalNo () =  List.length(!SuspGoals)
 
   (*  nextStage () = bool
      Side effect: advances lookup pointers
    *)
 
-  fun nextStage () =
+  let rec nextStage () =
     let
       let rec resume = function [] -> ()
         | (((Susp, s, sc, trail, (asub, answRef), k)::Goals)) -> 
@@ -668,9 +668,9 @@ struct
    end
 
 
- fun reset () = (SuspGoals := []; MT.reset(); TableParam.stageCtr := 0)
+ let rec reset () = (SuspGoals := []; MT.reset(); TableParam.stageCtr := 0)
 
- fun solveQuery ((g, s), dp as C.DProg (G, dPool), sc) =
+ let rec solveQuery ((g, s), dp as C.DProg (G, dPool), sc) =
    (* only works when query is atomic -- if query is not atomic,
       then the subordination relation might be extended and strengthening may not be sound *)
    solve((g, s), dp, sc)

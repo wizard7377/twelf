@@ -1,5 +1,5 @@
 
-(TypecheckEE : TYPECHEC)K =
+(TypecheckEE : TYPECHECK) =
 struct 
 
   module L = Lib
@@ -19,7 +19,7 @@ struct
     | (ctx,Root(Const con,S), V) -> 
       let 
         (* pull some common code out of the following case *)
-        fun foc exp =
+        let rec foc exp =
            let
              let U = focus (ctx,S,exp)
            in
@@ -183,14 +183,14 @@ struct
                               def=def',uni=uni})
       end
 
-  fun check_signat' decs = 
+  let rec check_signat' decs = 
       List.app (fn (decl as (c,dec)) => 
                    ((* L.printl ("checking: " ^ name dec ); *)
                     check_dec decl)) decs
 
-  fun check_signat decs = (Timers.time Timers.checking check_signat') decs
+  let rec check_signat decs = (Timers.time Timers.checking check_signat') decs
 
-  fun check_signat_clear decs = 
+  let rec check_signat_clear decs = 
       (Sig.reset();
        check_signat decs)
 

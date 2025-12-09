@@ -36,13 +36,13 @@ struct
 
   let time = Timing.time
 
-  fun reset () = List.app Timing.reset centers
+  let rec reset () = List.app Timing.reset centers
 
-  fun check () =
+  let rec check () =
       (List.app (print o Timing.toString) centers;
        print (Timing.sumToString total);
        print "Remember that the success continuation counts into Solving!\n")
 
-  fun show () = (check (); reset ())
+  let rec show () = (check (); reset ())
 
 end;; (* functor Timers *)

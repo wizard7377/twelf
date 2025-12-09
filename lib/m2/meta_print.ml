@@ -24,9 +24,9 @@ struct
       | M.Bot -> "-"
 
     (* depthToString is used to format splitting depth *)
-    fun depthToString (b) = if b <= 0 then "" else Int.toString b
+    let rec depthToString (b) = if b <= 0 then "" else Int.toString b
 
-    fun fmtPrefix (GM) =
+    let rec fmtPrefix (GM) =
         let
           let rec fmtPrefix' = function (M.Prefix (I.Null, I.Null, I.Null), Fmt) -> Fmt
             | fmtPrefix' (M.Prefix (I.Decl (I.Null, D), I.Decl (I.Null, mode),
@@ -44,9 +44,9 @@ struct
           F.HVbox (fmtPrefix' (GM, []))
         end
 
-    fun prefixToString GM = F.makestring_fmt (fmtPrefix GM)
+    let rec prefixToString GM = F.makestring_fmt (fmtPrefix GM)
 
-    fun stateToString (M.State (name, GM as M.Prefix (G, M, B), V)) =
+    let rec stateToString (M.State (name, GM as M.Prefix (G, M, B), V)) =
           name ^ ":\n"
           ^ prefixToString GM ^ "\n--------------\n"
           ^ ClausePrint.clauseToString (G, V) ^ "\n\n"

@@ -142,7 +142,7 @@ struct
         end
 
 
-    fun raiseP (G, P, F) =
+    let rec raiseP (G, P, F) =
       let
         let (G', s) = T.deblockify G
 (*      let P' = T.normalizePrg (P, s) (* G' |- P' : F' *) *)
@@ -152,7 +152,7 @@ struct
         P''
       end
 
-    fun raiseF (G, (F, t)) =
+    let rec raiseF (G, (F, t)) =
       let
         let (G', s) = T.deblockify G
         let F' = raiseFor (G', (F, I.comp (t, T.coerceSub s)))

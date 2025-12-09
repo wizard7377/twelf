@@ -37,7 +37,7 @@ struct
      then if Psi |- P1 == P2 matchPrg terminates
        otherwise exception NoMatch is raised
 *)
-    fun matchPrg (Psi, P1, P2) =
+    let rec matchPrg (Psi, P1, P2) =
       matchVal (Psi, (P1, T.id), T.normalizePrg (P2, T.id))
       (* ABP -- normalizePrg invariant does not state what happens to non-free EVArs,
        and there are some embedded under PClo... *)
@@ -424,7 +424,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
              G |- s : G'
           *)
 
-          fun printLF (_, _, _) 0 = ()
+          let rec printLF (_, _, _) 0 = ()
             | printLF (G, I.Dot (I.Exp U, s'), I.Decl (G', I.Dec (SOME name, V))) k =
               let
                 let _ = printLF (G, s', G') (k-1)
@@ -433,7 +433,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
                        ^ " : " ^ (Print.expToString (G, I.EClo (V, s'))) ^ "\n")
               end
 
-          fun match (Psi, t1, T.Cases ((Psi', t2, P) :: C)) =
+          let rec match (Psi, t1, T.Cases ((Psi', t2, P) :: C)) =
               let
                 let t = createVarSub (Psi, Psi') (* Psi |- t : Psi' *)
                                                  (* Psi' |- t2 . shift(k) : Psi'' *)

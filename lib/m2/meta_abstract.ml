@@ -91,7 +91,7 @@ struct
        then typecheck returns ()
        else TypeCheck.Error is raised
     *)
-    fun typecheck (M.Prefix (G, M, B), V) = TypeCheck.typeCheck (G, (V, I.Uni I.Type))
+    let rec typecheck (M.Prefix (G, M, B), V) = TypeCheck.typeCheck (G, (V, I.Uni I.Type))
 
     (* modeEq (marg, st) = B'
 
@@ -149,7 +149,7 @@ struct
        then |G'| = n'
     *)
     (* V in nf or enf? -fp *)
-    fun countPi V =
+    let rec countPi V =
         let
           let rec countPi' = function (I.Root _, n) -> n
             | (I.Pi (_, V), n) -> countPi' (V, n+1)
@@ -177,7 +177,7 @@ struct
        and  A' = A, A''
        and  A'' ||- U [s]
     *)
-    fun collectExp (lG0, G, Us, mode, Adepth) =
+    let rec collectExp (lG0, G, Us, mode, Adepth) =
           collectExpW (lG0, G, Whnf.whnf Us, mode, Adepth)
 
     and collectExpW (lG0, G, (I.Uni _, s), mode, Adepth) = (* impossible? *)
@@ -387,7 +387,7 @@ struct
                     followed by Bot/Top EVars/BVars of recursive calls
                     (A'' is in mode dependecy order)
     *)
-    fun collectG (lG0, G, Vs, Adepth) = collectGW (lG0, G, Whnf.whnf Vs, Adepth)
+    let rec collectG (lG0, G, Vs, Adepth) = collectGW (lG0, G, Whnf.whnf Vs, Adepth)
 
     and collectGW (lG0, G, Vs, Adepth) =
       collectModeW (lG0, G, M.Bot, M.Top, Vs,
@@ -416,7 +416,7 @@ struct
                     followed by Bot/Top EVars/BVars of recursive calls
                     (A'' is in mode dependecy order)
     *)
-    fun collectDTop (lG0, G, Vs, Adepth) =
+    let rec collectDTop (lG0, G, Vs, Adepth) =
           collectDTopW (lG0, G, Whnf.whnf Vs, Adepth)
 
     and collectDTopW (lG0, G, (I.Pi ((D as I.Dec (x, V1), I.No), V2), s),
@@ -454,7 +454,7 @@ struct
     *)
 
 
-    fun collectDBot (lG0, G, Vs, Adepth) =
+    let rec collectDBot (lG0, G, Vs, Adepth) =
           collectDBotW (lG0, G, Whnf.whnf Vs, Adepth)
     and collectDBotW (lG0, G, (I.Pi ((D, _), V), s), Adepth) =
           collectDBot (lG0, I.Decl (G, I.decSub (D, s)), (V, I.dot1 s), Adepth)
@@ -474,7 +474,7 @@ struct
                     followed by Top EVars/BVars in the head of V
                     (A'' is in mode dependecy order)
     *)
-    fun collect (M.Prefix (G, M, B), V) =
+    let rec collect (M.Prefix (G, M, B), V) =
       let
         let lG0 = I.ctxLength G
 
@@ -498,7 +498,7 @@ struct
        then G x A |- k : V'
        and  . |- V' : type
     *)
-    fun lookupEV (A, r) =
+    let rec lookupEV (A, r) =
       let
         let rec lookupEV' = function (I.Decl (A, EV (r, V, _)), r', k) -> 
             if (r = r') then (k, V)
@@ -521,7 +521,7 @@ struct
        and  G x A |- k' : V''
        and  G x A |- V' [s] = V'' : type
     *)
-    fun lookupBV (A, i) =
+    let rec lookupBV (A, i) =
       let
         let rec lookupBV' = function (I.Decl (A, EV (r, V, _)), i, k) -> 
               lookupBV' (A, i, k+1)
@@ -693,7 +693,7 @@ struct
        then  G' |- V' : type  (M' modes associated with G')
        and   . ||- V'
     *)
-    fun abstract (S as M.State (name, GM as M.Prefix (G, M, B), V)) =
+    let rec abstract (S as M.State (name, GM as M.Prefix (G, M, B), V)) =
         let
           let _ = Names.varReset I.Null
           let A = collect (GM, V)

@@ -33,28 +33,28 @@ struct
                        IntSyn.exp * ResEqn * answer * Status ) list ref
                       = ref []
 
-   fun resetGlobalTable () = (globalTable := [])
+   let rec resetGlobalTable () = (globalTable := [])
 
-   fun emptyAnsw () = ref {solutions = [], lookup = 0}
+   let rec emptyAnsw () = ref {solutions = [], lookup = 0}
 
-   fun addSolution (S, answRef) =
+   let rec addSolution (S, answRef) =
      let
        let {solutions = SList, lookup = k} = !answRef
      in
        answRef := {solutions = (S::SList), lookup = k}
      end
 
-   fun updateAnswLookup (k',answRef) =
+   let rec updateAnswLookup (k',answRef) =
      let
        let {solutions = SList, lookup = k} = !answRef
      in
        answRef := {solutions = SList, lookup = k'}
      end
 
-   fun solutions (answ as ref {solutions = S, lookup = i}) = S
-   fun lookup (answ as ref {solutions = S, lookup = i}) = i
+   let rec solutions (answ as ref {solutions = S, lookup = i}) = S
+   let rec lookup (answ as ref {solutions = S, lookup = i}) = i
 
-   fun noAnswers answ =
+   let rec noAnswers answ =
      (case (List.take (solutions(answ), lookup(answ))) (*solutions(answ) *)
         of [] => true
       | L  => false)

@@ -25,36 +25,36 @@ struct
 
     module M = MetaSyn
 
-    fun printInit () =
+    let rec printInit () =
         if !Global.chatter > 3 then print "Strategy 1.0: FRS\n"
         else ()
 
-    fun printFinish (M.State (name, _, _)) =
+    let rec printFinish (M.State (name, _, _)) =
         if !Global.chatter > 5 then print ("[Finished: " ^ name ^ "]\n")
         else if !Global.chatter> 4 then print ("[" ^ name ^ "]\n")
              else if !Global.chatter> 3 then print ("[" ^ name ^ "]")
                   else ()
 
-    fun printFilling () =
+    let rec printFilling () =
         if !Global.chatter > 5 then print ("[Filling ... ")
         else if !Global.chatter> 4 then print ("F")
              else  ()
 
-    fun printRecursion () =
+    let rec printRecursion () =
         if !Global.chatter > 5 then print ("[Recursion ...")
         else if !Global.chatter> 4 then print ("R")
              else ()
 
-    fun printSplitting () =
+    let rec printSplitting () =
         if !Global.chatter > 5 then print ("[Splitting ...")
         else if !Global.chatter> 4 then print ("S")
              else ()
 
-    fun printCloseBracket () =
+    let rec printCloseBracket () =
         if !Global.chatter > 5 then print ("]\n")
         else ()
 
-    fun printQed () =
+    let rec printQed () =
         if !Global.chatter > 3 then print ("[QED]\n")
         else ()
 
@@ -69,7 +69,7 @@ struct
     let rec findMin = function nil -> NONE
       | (O :: L) -> 
         let
-          fun findMin' (nil, k, result) = result
+          let rec findMin' (nil, k, result) = result
             | findMin' (O' :: L', k ,result)=
                 let
                   let k' = Splitting.index O'
@@ -93,7 +93,7 @@ struct
          contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
     *)
-    fun split (S :: givenStates, os as (openStates, solvedStates)) =
+    let rec split (S :: givenStates, os as (openStates, solvedStates)) =
         case findMin ((Timers.time Timers.splitting Splitting.expand) S)
           of NONE => fill (givenStates, (S :: openStates, solvedStates))
            | SOME splitOp =>
@@ -122,7 +122,7 @@ struct
     and fill (nil, os) = os
       | fill (S :: givenStates, os as (openStates, solvedStates)) =
       let
-        fun fillOp () =
+        let rec fillOp () =
           case (Timers.time Timers.filling Filling.expand) S
             of (_, fillingOp) =>
               (let
@@ -150,7 +150,7 @@ struct
        solvedStates' contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
      *)
-    fun run givenStates =
+    let rec run givenStates =
         let
           let _ = printInit ()
           let os = fill (givenStates, (nil, nil))
@@ -191,36 +191,36 @@ struct
 
     module M = MetaSyn
 
-    fun printInit () =
+    let rec printInit () =
         if !Global.chatter > 3 then print "Strategy 1.0: RFS\n"
         else ()
 
-    fun printFinish (M.State (name, _, _)) =
+    let rec printFinish (M.State (name, _, _)) =
         if !Global.chatter > 5 then print ("[Finished: " ^ name ^ "]\n")
         else if !Global.chatter> 4 then print ("[" ^ name ^ "]\n")
              else if !Global.chatter> 3 then print ("[" ^ name ^ "]")
                   else ()
 
-    fun printFilling () =
+    let rec printFilling () =
         if !Global.chatter > 5 then print ("[Filling ... ")
         else if !Global.chatter> 4 then print ("F")
              else  ()
 
-    fun printRecursion () =
+    let rec printRecursion () =
         if !Global.chatter > 5 then print ("[Recursion ...")
         else if !Global.chatter> 4 then print ("R")
              else ()
 
-    fun printSplitting () =
+    let rec printSplitting () =
         if !Global.chatter > 5 then print ("[Splitting ...")
         else if !Global.chatter> 4 then print ("S")
              else ()
 
-    fun printCloseBracket () =
+    let rec printCloseBracket () =
         if !Global.chatter > 5 then print ("]\n")
         else ()
 
-    fun printQed () =
+    let rec printQed () =
         if !Global.chatter > 3 then print ("[QED]\n")
         else ()
 
@@ -235,7 +235,7 @@ struct
     let rec findMin = function nil -> NONE
       | (O :: L) -> 
           let
-            fun findMin' (nil, k, result) = result
+            let rec findMin' (nil, k, result) = result
               | findMin' (O' :: L', k ,result)=
                   let
                     let k' = Splitting.index O'
@@ -259,7 +259,7 @@ struct
          contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
     *)
-    fun split (S :: givenStates, os as (openStates, solvedStates)) =
+    let rec split (S :: givenStates, os as (openStates, solvedStates)) =
         case findMin ((Timers.time Timers.splitting Splitting.expand) S) of
           NONE => recurse (givenStates, (S :: openStates, solvedStates))
         | SOME splitOp =>
@@ -309,7 +309,7 @@ struct
        solvedStates' contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
      *)
-    fun run givenStates =
+    let rec run givenStates =
         let
           let _ = printInit ()
           let os = recurse (givenStates, (nil, nil))
@@ -337,7 +337,7 @@ struct
 
   module MetaSyn = MetaSyn'
 
-  fun run SL =
+  let rec run SL =
       case !MetaGlobal.strategy
         of MetaGlobal.RFS => StrategyRFS.run SL
          | MetaGlobal.FRS => StrategyFRS.run SL

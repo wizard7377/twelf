@@ -46,7 +46,7 @@ struct
 
     exception Error' of P.occ * string
 
-    fun error (c, occ, msg) =
+    let rec error (c, occ, msg) =
         (case Origins.originLookup c
            of (fileName, NONE) => raise Error (fileName ^ ":" ^ msg)
             | (fileName, SOME occDec) =>
@@ -59,7 +59,7 @@ struct
    (*--------------------------------------------------------------------*)
    (* Printing *)
 
-    fun fmtOrder (G, O) =
+    let rec fmtOrder (G, O) =
         let
           let rec fmtOrder' = function (R.Arg (Us as (U, s), Vs as (V, s'))) -> 
                 F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
@@ -75,7 +75,7 @@ struct
           fmtOrder' O
         end
 
-    fun fmtComparison (G, O, comp, O') =
+    let rec fmtComparison (G, O, comp, O') =
         F.HOVbox0 1 0 1 [fmtOrder (G, O), F.Break, F.String comp,
                          F.Break, fmtOrder (G, O')]
 
@@ -93,9 +93,9 @@ struct
       | (G, (P::Rl)) -> 
         F.makestring_fmt(fmtPredicate (G, P)) ^ " ," ^ rlistToString' (G, Rl)
 
-    fun rlistToString (G, Rl) = rlistToString' (Names.ctxName G, Rl)
+    let rec rlistToString (G, Rl) = rlistToString' (Names.ctxName G, Rl)
 
-    fun orderToString (G, P) = F.makestring_fmt(fmtPredicate (Names.ctxName G, P))
+    let rec orderToString (G, P) = F.makestring_fmt(fmtPredicate (Names.ctxName G, P))
 
 
    (*--------------------------------------------------------------------*)
@@ -110,11 +110,11 @@ struct
       and  G |- si : Gi  Gi |- Ui : Vi
       and  G |- Vi[s]  == V[si] : type   forall 1<=i<=n
     *)
-    fun select (c, (S, s)) =
+    let rec select (c, (S, s)) =
         let
           let SO = R.selLookup c
           let Vid = (I.constType c, I.id)
-          fun select'' (n, (Ss', Vs'')) =
+          let rec select'' (n, (Ss', Vs'')) =
                 select''W (n, (Ss', Whnf.whnf Vs''))
           and select''W (1, ((I.App (U', S'), s'),
                              (I.Pi ((I.Dec (_, V''), _), _), s''))) =
@@ -132,7 +132,7 @@ struct
           select' (R.selLookup c)
         end
 
-    fun selectOcc (c, (S, s), occ) =
+    let rec selectOcc (c, (S, s), occ) =
         select (c, (S, s))
         handle R.Error (msg) =>
           raise Error' (occ, "Termination violation: no order assigned for " ^
@@ -149,10 +149,10 @@ struct
        and  G |- si : Gi  Gi |- Ui : Vi
        and  G |- Vi[s]  == V[si] : type   forall 1<=i<=n
     *)
-    fun selectROrder (c, (S, s)) =
+    let rec selectROrder (c, (S, s)) =
         let
           let Vid = (I.constType c, I.id)
-          fun select'' (n, (Ss', Vs'')) =
+          let rec select'' (n, (Ss', Vs'')) =
                 select''W (n, (Ss', Whnf.whnf Vs''))
           and select''W (1, ((I.App (U', S'), s'),
                              (I.Pi ((I.Dec (_, V''), _), _), s''))) =
@@ -184,7 +184,7 @@ struct
 
     *)
 
-    fun abstractRO (G, D, O) = C.Pi(D, O)
+    let rec abstractRO (G, D, O) = C.Pi(D, O)
 
     (* getROrder (G, Q, (V, s)) = O
        If G: Q
@@ -193,7 +193,7 @@ struct
        and  G |- O
 
      *)
-    fun getROrder (G, Q, Vs, occ) = getROrderW (G, Q, Whnf.whnf Vs, occ)
+    let rec getROrder (G, Q, Vs, occ) = getROrderW (G, Q, Whnf.whnf Vs, occ)
     and getROrderW (G, Q, Vs as (I.Root (I.Const a, S), s), occ) =
          let
            let O = selectROrder (a, (S, s))
@@ -246,7 +246,7 @@ struct
        else Error is raised.
     *)
 
-    fun checkGoal (G0, Q0, Rl, Vs, Vs', occ) =
+    let rec checkGoal (G0, Q0, Rl, Vs, Vs', occ) =
           checkGoalW (G0, Q0, Rl, Whnf.whnf Vs, Vs', occ)
     and checkGoalW (G0, Q0, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), Vs', occ) =
         (checkClause ((G0, Q0, Rl), I.Null, I.Null, (V1, s), P.label occ);
@@ -370,7 +370,7 @@ struct
                       ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
 
-    fun checkClause' (Vs, occ) =
+    let rec checkClause' (Vs, occ) =
       checkClause ((I.Null, I.Null, nil), I.Null, I.Null, Vs, occ)
 
     (*-------------------------------------------------------------------*)
@@ -390,7 +390,7 @@ struct
 
      *)
 
-     fun checkRGoal (G, Q, Rl, Vs, occ) =
+     let rec checkRGoal (G, Q, Rl, Vs, occ) =
            checkRGoalW (G, Q, Rl, Whnf.whnf Vs, occ)
 
      and checkRGoalW (G, Q, Rl, Vs as (I.Root (I.Const a, S), s), occ) = () (* trivial *)
@@ -514,7 +514,7 @@ struct
 
        Note: checking reduction is a separate property of termination
     *)
-    fun checkFamReduction a =
+    let rec checkFamReduction a =
         let
           let rec checkFam' = function [] -> 
               (if !Global.chatter > 3
@@ -563,7 +563,7 @@ struct
              reduction properties.
     *)
 
-    fun checkFam a =
+    let rec checkFam a =
         let
           let rec checkFam' = function [] -> 
               (if !Global.chatter > 3
@@ -601,7 +601,7 @@ struct
           checkFam' (Index.lookup a)
         end
 
-    fun reset () = (R.reset(); R.resetROrder())
+    let rec reset () = (R.reset(); R.resetROrder())
 
   in
     let reset = reset

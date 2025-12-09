@@ -20,7 +20,7 @@ struct
        If   c is type constant identifier
        then S' is initial prover state.
     *)
-    fun init' cid =
+    let rec init' cid =
       let
         let (V, _) = M.createAtomConst (I.Null, I.Const cid)
       in
@@ -35,7 +35,7 @@ struct
        If   c1 .. cn are mutually recursive
        then S1 .. Sn is an initial prover state.
     *)
-    fun init cidList = map init' cidList
+    let rec init cidList = map init' cidList
 
   in
     let init = init

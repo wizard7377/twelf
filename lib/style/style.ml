@@ -29,7 +29,7 @@ struct
        and err a function that computes adequate region information for c
        then s is msg wrapped with location information
     *)
-    fun wrapMsg (c, occ, msg) err =
+    let rec wrapMsg (c, occ, msg) err =
         (case Origins.originLookup c
            of (fileName, NONE) => (fileName ^ ":" ^ msg)
             | (fileName, SOME occDec) =>
@@ -55,7 +55,7 @@ struct
       | (n :: l) -> n ^ ", " ^ (options l)
 
 
-    fun error c (prefNames, n, occ) err =
+    let rec error c (prefNames, n, occ) err =
          [wrapMsg (c, occ, "Variable naming: expected " ^ options prefNames ^ " found " ^ n ^ "\n") err]
 
     (* checkVariblename (n, prefNames) = I
@@ -63,7 +63,7 @@ struct
        Invariant:
        If n occurs in prefNames then I = Correct otherwise Incorrect
     *)
-    fun checkVariablename (n, prefNames) =
+    let rec checkVariablename (n, prefNames) =
       if List.exists (fn n' => (denumber (explode n) = denumber (explode n'))) prefNames then Correct
       else Incorrect (prefNames, n)
 
@@ -311,7 +311,7 @@ struct
        and   n the max. number of cids
        then  L is a list of  strings (error messages) computed from the module type c<=n
     *)
-    fun checkAll (c, n) =
+    let rec checkAll (c, n) =
         (if c <= n then checkConDec c (I.sgnLookup c) @ checkAll (c+1, n) else [])
 
     (* checkAll () = L
@@ -319,7 +319,7 @@ struct
        Invariant:
        L is a list of  strings (error messages) computed from the entire Twelf module type
     *)
-    fun check () =
+    let rec check () =
       let
         let (n, _) = I.sgnSize ()
       in (map print (checkAll (0, n)); ())

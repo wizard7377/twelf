@@ -31,15 +31,15 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
       local
          let rec Spaces' = function 0 s -> s
           | n s -> Spaces' (n-1) (s^" ")
-         fun Spaces n = if n>0 then Spaces' n "" else ""
+         let rec Spaces n = if n>0 then Spaces' n "" else ""
          let rec Newlines' = function 0 s -> s
           | n s -> Newlines' (n-1) (s^"\n")
-         fun Newlines n = if n>0 then Newlines' n "" else ""
+         let rec Newlines n = if n>0 then Newlines' n "" else ""
       in
         let Sp = Spaces (* return a number of spaces *)
-        fun Spmod n = Spaces (n mod (!Pagewidth))
+        let rec Spmod n = Spaces (n mod (!Pagewidth))
         let Nl = Newlines (* return a number of newlines *)
-        fun Np() = "\n\012\n" (* CTRL_L == "\012" *)
+        let rec Np() = "\n\012\n" (* CTRL_L == "\012" *)
       end
 
 
@@ -170,7 +170,7 @@ then simply starts the auxiliary function
    the current group so far as (0,0).
 *)
 local
-   fun vlistWidth'(i,nil,(totmin,totmax),(tmmin,tmmax)) =
+   let rec vlistWidth'(i,nil,(totmin,totmax),(tmmin,tmmax)) =
                   (Max(totmin,tmmin), Max(totmax,tmmax))
     |  vlistWidth'(i,Dbk::t, (totmin,totmax), (tmmin,tmmax)) =
                     vlistWidth'(i,t, (Max(totmin,tmmin),Max(totmax,tmmax)),
@@ -183,7 +183,7 @@ local
                                 sumpair((Width0(Vert,Unused,i,x)),
                                          (tmmin,tmmax)))
 in
-   fun vlistWidth(l,indent) = vlistWidth'(indent,l,(0,0),(0,0))
+   let rec vlistWidth(l,indent) = vlistWidth'(indent,l,(0,0),(0,0))
 end
 (*
 Now to the purely {\bf horizontal boxes}:
@@ -321,7 +321,7 @@ auxiliary function {\ml summaxwidth}. Since the lists of which we want to
 determine the maximum width do not contain breaks, all but the last
  argument to the {\ml Width0} function is actually irrelevant.
 *)
-  fun summaxwidth l =
+  let rec summaxwidth l =
       (List.foldr (fn (fmt,ysum) =>
               let let (_,y) = Width0(Hori,Unused,Unused,fmt)
               in y + ysum end)
@@ -695,10 +695,10 @@ Finally we have {\ml print\_fmt} and {\ml makestring\_fmt}
    {\ml print'p} to do the formatting work.
 *)
 
-      fun makestring_fmt fm =
+      let rec makestring_fmt fm =
           String.concat(rev(snd(print'p(!Pagewidth,0,!Blanks,!Indent,!Skip,Hori,fm,nil))))
 
-      fun print_fmt fm =
+      let rec print_fmt fm =
           List.foldr (fn (s,_) => print s)
                 ()
                 (snd(print'p(!Pagewidth,0,!Blanks,!Indent,!Skip,Hori,fm,nil)))
@@ -712,17 +712,17 @@ make the use of {\tt fmtstreams} on files more convenient.
 *)
       type fmtstream = Formatstream of TextIO.outstream
 
-      fun open_fmt outs = Formatstream(outs)
+      let rec open_fmt outs = Formatstream(outs)
 
-      fun close_fmt (Formatstream outs) = outs
+      let rec close_fmt (Formatstream outs) = outs
 
-      fun output_fmt(Formatstream outs,fm) =
+      let rec output_fmt(Formatstream outs,fm) =
           List.foldr (fn (s,_) => TextIO.output(outs, s))
                 ()
                 (snd(print'p(!Pagewidth,0,!Blanks,!Indent,!Skip,Hori,fm,nil)))
 
       (*
-      fun debug_output_fmt(Formatstream fs, fm) =
+      let rec debug_output_fmt(Formatstream fs, fm) =
                   let let mw = (!Pagewidth)
                             let (min,max) = Width0(Hori,!Blanks,!Indent,fm)
                             let (w,s) = print'p(!Pagewidth,0,!Blanks,!Indent,!Skip,Hori,fm, nil)
@@ -739,12 +739,12 @@ make the use of {\tt fmtstreams} on files more convenient.
                           end
        *)
 
-      fun file_open_fmt filename =
+      let rec file_open_fmt filename =
          let let fmt_stream = open_fmt(TextIO.openOut filename)
              let close_func = fn () => ( TextIO.closeOut(close_fmt(fmt_stream)) )
           in (close_func, fmt_stream) end
 
-      fun with_open_fmt filename func =
+      let rec with_open_fmt filename func =
          let let (close_func, fmt_stream) = file_open_fmt filename
              let result = func fmt_stream
                           handle exn => ( close_func () ; raise exn )

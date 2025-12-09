@@ -117,7 +117,7 @@ struct
 
     (* pass parseStream as theSigParser in order to be able to use
        this function polymorphically in the definition of parseStream *)
-    fun recParse (s, recparser, theSigParser, sc) =
+    let rec recParse (s, recparser, theSigParser, sc) =
           Stream.delay (fn () => recParse' (LS.expose s, recparser, theSigParser, sc))
     and recParse' (f, recparser, theSigParser, sc) =
         (case recparser f
@@ -134,7 +134,7 @@ struct
             | (Parsing.Continuation _, LS.Cons ((t, r), _)) =>
                 Parsing.error (r, "Expected `{', found " ^ L.toString t))
 
-    fun parseStream (s, sc) =
+    let rec parseStream (s, sc) =
           Stream.delay (fn () => parseStream' (LS.expose s, sc))
 
     (* parseStream' : lexResult front -> fileParseResult front *)
@@ -417,7 +417,7 @@ struct
 
     and parseSigDef' (f as LS.Cons ((_, r1), _), sc) =
         let
-          fun finish (sigdef, f' as LS.Cons ((_, r2), _)) =
+          let rec finish (sigdef, f' as LS.Cons ((_, r2), _)) =
                 Stream.Cons ((SigDef sigdef, Paths.join (r1, r2)),
                              parseStream (stripDot f', sc))
         in
@@ -426,7 +426,7 @@ struct
 
     and parseStructDec' (f as LS.Cons ((_, r1), _), sc) =
         let
-          fun finish (structdec, f' as LS.Cons ((_, r2), _)) =
+          let rec finish (structdec, f' as LS.Cons ((_, r2), _)) =
                 Stream.Cons ((StructDec structdec, Paths.join (r1, r2)),
                              parseStream (stripDot f', sc))
         in
@@ -435,7 +435,7 @@ struct
 
     and parseInclude' (f as LS.Cons ((_, r1), _), sc) =
         let
-          fun finish (sigexp, f' as LS.Cons ((_, r2), _)) =
+          let rec finish (sigexp, f' as LS.Cons ((_, r2), _)) =
                 Stream.Cons ((Include sigexp, Paths.join (r1, r2)),
                              parseStream (stripDot f', sc))
         in
@@ -461,7 +461,7 @@ struct
       | parseUse' (LS.Cons ((_, r), _), sc) =
         Parsing.error (r, "Constraint solver name expected")
 
-    fun parseQ (s) = Stream.delay (fn () => parseQ' (LS.expose s))
+    let rec parseQ (s) = Stream.delay (fn () => parseQ' (LS.expose s))
     and parseQ' (f) =
         let
           let (query, f') = ParseQuery.parseQuery' (f)
@@ -469,7 +469,7 @@ struct
           Stream.Cons (query, parseQ (stripDot (f')))
         end
 
-    fun parseTLStream instream =
+    let rec parseTLStream instream =
         let
           let rec finish = function (LS.Cons ((L.EOF, r), s)) -> Stream.Empty
             | (LS.Cons ((L.RBRACE, r), s)) -> 
@@ -482,7 +482,7 @@ struct
 
     let parseStream = parseTLStream
 
-    fun parseTerminalQ prompts = parseQ (L.lexTerminal prompts)
+    let rec parseTerminalQ prompts = parseQ (L.lexTerminal prompts)
 
   end  (* local ... in *)
 

@@ -56,14 +56,14 @@ struct
     module M = ModeSyn
     module W = WorldSyn
 
-    fun abort s =
+    let rec abort s =
         (print ("* " ^ s ^ "\n");
          raise Error s)
 
     (* this is pretty preliminary:
        I think we should just adapt the internal representation for formulas
     *)
-    fun convertOneFor cid =
+    let rec convertOneFor cid =
       let
         let V  = case I.sgnLookup cid
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
@@ -107,7 +107,7 @@ struct
          s' = ^(# of +'s in mS)
          *)
 
-        fun shiftPlus mS =
+        let rec shiftPlus mS =
           let
             let rec shiftPlus' = function (M.Mnil, n) -> n
               | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> 
@@ -150,26 +150,26 @@ struct
     let Menu : MenuItem list option ref = ref NONE
 
 
-    fun SplittingToMenu (O, A) = Split O :: A
+    let rec SplittingToMenu (O, A) = Split O :: A
 
-    fun initFocus () = (Focus := [])
+    let rec initFocus () = (Focus := [])
 
 
-    fun normalize () =
+    let rec normalize () =
         (case (!Focus)
           of (S.State (W, Psi, P, F) :: Rest) =>
               (Focus := (S.State (W, Psi, T.derefPrg P, F) :: Rest))
            | _ => ())
 
-    fun reset () =
+    let rec reset () =
         (initFocus ();
          Menu := NONE)
 
-    fun format k =
+    let rec format k =
         if k < 10 then (Int.toString k) ^ ".  "
         else (Int.toString k) ^ ". "
 
-    fun menuToString () =
+    let rec menuToString () =
         let
           let rec menuToString' = function (k, nil) -> ""
             | (k, Split O  :: M) -> 
@@ -215,7 +215,7 @@ struct
         end
 
 
-    fun printStats () =
+    let rec printStats () =
         let
           let nopen   = 0
           let nsolved = 0
@@ -226,7 +226,7 @@ struct
            print ("   solved goals : " ^ (Int.toString (nsolved)) ^ "\n"))
         end
 
-    fun printmenu () =
+    let rec printmenu () =
         (case !Focus
            of [] => abort "QED"
             | (S.State (W, Psi, P, F) :: R) =>
@@ -254,7 +254,7 @@ struct
 
 
 
-    fun menu () =
+    let rec menu () =
         (case (!Focus)
            of [] => print "Please initialize first\n"
             | (S.State (W, Psi, P, F) :: _) =>
@@ -300,7 +300,7 @@ struct
               end)
 
 
-    fun select k =
+    let rec select k =
         let
           let rec select' = function (k, nil) -> abort ("No such menu item")
             | (1, Split O :: _) -> 
@@ -320,13 +320,13 @@ struct
         end
 
 
-    fun init names =
+    let rec init names =
         let
           let _ = TomegaPrint.evarReset()
           let cL = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
           let F = convertFor cL
           let Ws = map W.lookup cL
-          fun select c = (Order.selLookup c handle _ => Order.Lex [])
+          let rec select c = (Order.selLookup c handle _ => Order.Lex [])
 
           let TC = Tomega.transformTC (I.Null, F, map select cL)
           (* so far omitted:  make sure that all parts of the theorem are
@@ -356,7 +356,7 @@ struct
        Let n be a string.
        Side effect: Focus on selected subgoal.
     *)
-    fun focus n =
+    let rec focus n =
         (case (!Focus)
            of [] => print "Please initialize first\n"
             | (S.State (W, Psi, P, F) :: _) =>
@@ -393,7 +393,7 @@ struct
                         printmenu ())))
 
 
-    fun return () =
+    let rec return () =
       (case (!Focus)
         of [S] => if S.close S then print "[Q.E.D.]\n" else ()
          | (S :: Rest) => (Focus := Rest ; normalize (); menu (); printmenu ()))

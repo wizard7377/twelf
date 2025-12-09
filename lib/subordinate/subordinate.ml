@@ -31,8 +31,8 @@ struct
     *)
     let soGraph : (IntSet.intset) Table.Table = Table.new (32)
     let insert = Table.insert soGraph
-    fun adjNodes a = valOf (Table.lookup soGraph a)  (* must be defined! *)
-    fun insertNewFam a =
+    let rec adjNodes a = valOf (Table.lookup soGraph a)  (* must be defined! *)
+    let rec insertNewFam a =
            Table.insert soGraph (a, IntSet.empty)
     let updateFam = Table.insert soGraph
 
@@ -46,7 +46,7 @@ struct
 
     (* Apply f to every node reachable from b *)
     (* Includes the node itself (reflexive) *)
-    fun appReachable f b =
+    let rec appReachable f b =
         let fun rch (b, visited) =
                 if IntSet.member (b, visited)
                   then visited
@@ -57,7 +57,7 @@ struct
         end
 
     exception Reachable
-    fun reach (b, a, visited) =
+    let rec reach (b, a, visited) =
         let fun rch (b, visited) =
                 if IntSet.member (b, visited)
                   then visited
@@ -71,12 +71,12 @@ struct
           rch  (b, visited)
         end
 
-    fun reachable (b, a) = reach (b, a, IntSet.empty)
+    let rec reachable (b, a) = reach (b, a, IntSet.empty)
 
     (* b must be new *)
     (* this is sometimes violated below, is this a bug? *)
     (* Thu Mar 10 13:13:01 2005 -fp *)
-    fun addNewEdge (b, a) =
+    let rec addNewEdge (b, a) =
         ( memoCounter := !memoCounter+1 ;
           memoInsert ((b,a), (true, !memoCounter)) ;
           updateFam (b, IntSet.insert(a,adjNodes(b))) )
@@ -91,12 +91,12 @@ struct
        Frozen type families cannot be extended later with additional
        constructors.
      *)
-    fun fGet (a) =
+    let rec fGet (a) =
         (case fLookup a
            of SOME frozen => frozen
             | NONE => false)
 
-    fun fSet (a, frozen) =
+    let rec fSet (a, frozen) =
         let let _ = Global.chPrint 5
                     (fn () => (if frozen then "Freezing " else "Thawing ")
                               ^ Names.qidToString (Names.constQid a) ^ "\n")
@@ -105,7 +105,7 @@ struct
         end
 
     (* pre: a is not a type definition *)
-    fun checkFreeze (c, a) =
+    let rec checkFreeze (c, a) =
         if fGet a
         then raise Error ("Freezing violation: constant "
                           ^ Names.qidToString (Names.constQid (c))
@@ -116,7 +116,7 @@ struct
     (* no longer needed since freeze is now transitive *)
     (* Sat Mar 12 21:40:15 2005 -fp *)
     (*
-    fun frozenSubError (a, b) =
+    let rec frozenSubError (a, b) =
         raise Error ("Freezing violation: frozen type family "
                      ^ Names.qidToString (Names.constQid b)
                      ^ "\nwould depend on unfrozen type family "
@@ -127,7 +127,7 @@ struct
     (* Sat Mar 12 21:40:15 2005 -fp *)
     (* pre: a, b are not type definitions *)
     (*
-    fun checkFrozenSub (a, b) =
+    let rec checkFrozenSub (a, b) =
         (case (fGet a, fGet b)
            of (false, true) => frozenSubError (a, b)
             | _ => ())
@@ -137,7 +137,7 @@ struct
     (* no longer needed since freeze is transitive *)
     (* Sat Mar 12 21:38:58 2005 -fp *)
     (*
-    fun checkMakeFrozen (b, otherFrozen) =
+    let rec checkMakeFrozen (b, otherFrozen) =
         (* Is this broken ??? *)
         (* Mon Nov 11 16:54:29 2002 -fp *)
         (* Example:
@@ -148,7 +148,7 @@ struct
            is OK, but as b |> a in its subordination
         *)
         let
-          fun check a =
+          let rec check a =
             if fGet a orelse List.exists (fun x -> x = a) otherFrozen
               then ()
             else frozenSubError (a, b)
@@ -158,7 +158,7 @@ struct
         end
     *)
 
-    fun expandFamilyAbbrevs a =
+    let rec expandFamilyAbbrevs a =
         (case I.constUni a
            of I.Type => raise Error ("Constant " ^ Names.qidToString (Names.constQid a)
                                      ^ " must be a type family to be frozen or thawed")
@@ -173,7 +173,7 @@ struct
 
     (* superseded by freeze *)
     (*
-    fun installFrozen (L) =
+    let rec installFrozen (L) =
         let
           let L = map expandFamilyAbbrevs L
           (* let _ = print ("L = " ^ (foldl (fn (c,s) => Names.qidToString (Names.constQid c) ^ s) "\n" L)); *)
@@ -190,7 +190,7 @@ struct
        Intended to be called from programs
     *)
     let freezeList : IntSet.intset ref = ref IntSet.empty
-    fun freeze (L) =
+    let rec freeze (L) =
         let
           let _ = freezeList := IntSet.empty
           let L' = map expandFamilyAbbrevs L
@@ -205,7 +205,7 @@ struct
         end
 
     (* frozen L = true if one of the families in L is frozen *)
-    fun frozen (L) =
+    let rec frozen (L) =
         let
           let L' = map expandFamilyAbbrevs L
         in
@@ -216,11 +216,11 @@ struct
 
        Invariant: a, b families
     *)
-    fun computeBelow (a, b) =
+    let rec computeBelow (a, b) =
         (reachable (b, a); memoInsert ((b,a), (false,!memoCounter)); false)
         handle Reachable => (memoInsert ((b,a), (true, !memoCounter)); true)
 
-    fun below (a, b) =
+    let rec below (a, b) =
         case memoLookup (b, a)
           of NONE => computeBelow (a, b)
            | SOME(true,c) => true       (* true entries remain valid *)
@@ -231,15 +231,15 @@ struct
 
        Invariant: a, b families
     *)
-    fun belowEq (a, b) = (a = b) orelse below (a, b)
+    let rec belowEq (a, b) = (a = b) orelse below (a, b)
 
     (* a == b = true iff a and b subordinate each other
 
        Invariant: a, b families
     *)
-    fun equiv (a, b) = belowEq (a, b) andalso belowEq (b, a)
+    let rec equiv (a, b) = belowEq (a, b) andalso belowEq (b, a)
 
-    fun addSubord (a, b) =
+    let rec addSubord (a, b) =
         if below (a, b) then ()
         else if fGet b
                (* if b is frozen and not already b #> a *)
@@ -253,12 +253,12 @@ struct
     (* Thawing frozen families *)
     (* Returns list of families that were thawed *)
     let aboveList : IntSyn.cid list ref = ref nil
-    fun addIfBelowEq a's =
+    let rec addIfBelowEq a's =
         fun b -> if List.exists (fun a -> belowEq (a, b)) a's
                   then aboveList := b::(!aboveList)
                 else ()
 
-    fun thaw a's =
+    let rec thaw a's =
         let
           let a's' = map expandFamilyAbbrevs a's
           let _ = aboveList := nil
@@ -294,7 +294,7 @@ struct
     (* occursInDef a = true
        iff there is a b such that a #> b
     *)
-    fun occursInDef a =
+    let rec occursInDef a =
         (case Table.lookup defGraph a
            of NONE => false
             | SOME _ => true)
@@ -306,7 +306,7 @@ struct
            b = [x1:A1]...[xn:An] {y1:B1}...{y1:Bm} a @ S : K
        to record a #> b.
     *)
-    fun insertNewDef (b, a) =
+    let rec insertNewDef (b, a) =
         (case Table.lookup defGraph a
            of NONE => Table.insert defGraph (a, IntSet.insert (b, IntSet.empty))
             | SOME(bs) => Table.insert defGraph (a, IntSet.insert (b, bs)))
@@ -320,13 +320,13 @@ struct
           insertNewDef (b, I.targetFam A)
       | _ -> ()
 
-    fun installDef c = installConDec (c, I.sgnLookup c)
+    let rec installDef c = installConDec (c, I.sgnLookup c)
 
     (* checkNoDef a = ()
        Effect: raises Error(msg) if there exists a b such that b <# a
                or b <# a' for some a' < a.
     *)
-    fun checkNoDef a =
+    let rec checkNoDef a =
         if occursInDef a
           then raise Error ("Definition violation: family "
                             ^ Names.qidToString (Names.constQid a)
@@ -345,7 +345,7 @@ struct
 
        Effect: Empties soGraph, fTable, defGraph
     *)
-    fun reset () = (Table.clear soGraph;
+    let rec reset () = (Table.clear soGraph;
                     Table.clear fTable;
                     MemoTable.clear memoTable;
                     Table.clear defGraph)
@@ -393,7 +393,7 @@ struct
 
        Effect: if c : V, add subordination from V into table
     *)
-    fun install c =
+    let rec install c =
         let
           let V = I.constType c
         in
@@ -413,14 +413,14 @@ struct
        Effect: if b : Block, add subordination from Block into table
     *)
     (* BDec, ADec, NDec are disallowed here *)
-    fun installDec (I.Dec(_,V)) = installTypeN V
+    let rec installDec (I.Dec(_,V)) = installTypeN V
 
     let rec installSome = function (I.Null) -> ()
       | (I.Decl(G, D)) -> 
         ( installSome G; installDec D )
 
     (* b must be block *)
-    fun installBlock b =
+    let rec installBlock b =
         let
           let I.BlockDec(_, _, G, Ds) = I.sgnLookup b
         in
@@ -433,7 +433,7 @@ struct
     (* checkBelow (a, b) = () iff a <| b
        Effect: raise Error(msg) otherwise
     *)
-    fun checkBelow (a, b) =
+    let rec checkBelow (a, b) =
         if not (below (a, b))
           then raise Error ("Subordination violation: "
                             ^ Names.qidToString (Names.constQid (a)) ^ " not <| " ^ Names.qidToString (Names.constQid (b)))
@@ -460,27 +460,27 @@ struct
       | (I.Root _, _) -> ()
     and respectsTypeN (V) = respectsTypeN' (V, I.targetFam V)
 
-    fun respects (G, (V, s)) = respectsTypeN (Whnf.normalize (V, s))
-    fun respectsN (G, V) = respectsTypeN (V)
+    let rec respects (G, (V, s)) = respectsTypeN (Whnf.normalize (V, s))
+    let rec respectsN (G, V) = respectsTypeN (V)
 
     (* Printing *)
 
     (* Right now, AL is in always reverse order *)
     (* Reverse again --- do not sort *)
     (* Right now, Table.app will pick int order -- do not sort *)
-    fun famsToString (bs, msg) =
+    let rec famsToString (bs, msg) =
         IntSet.foldl (fn (a, msg) => Names.qidToString (Names.constQid a) ^ " " ^ msg) "\n" bs
     (*
     let rec famsToString = function (nil, msg) -> msg
       | (a::AL, msg) -> famsToString (AL, Names.qidToString (Names.constQid a) ^ " " ^ msg)
     *)
 
-    fun showFam (a, bs) =
+    let rec showFam (a, bs) =
         (print (Names.qidToString (Names.constQid a)
                 ^ (if fGet a then " #> " else " |> ")
                 ^ famsToString (bs, "\n")))
 
-    fun show () = Table.app showFam soGraph;
+    let rec show () = Table.app showFam soGraph;
 
 
     (* weaken (G, a) = (w') *)
@@ -505,24 +505,24 @@ struct
       let heightArray = Array.array (32, 0)
       let maxHeight = ref 0
 
-      fun inc (r) = (r := !r+1)
-      fun incArray (h) = (Array.update (heightArray, h, Array.sub (heightArray, h)+1))
+      let rec inc (r) = (r := !r+1)
+      let rec incArray (h) = (Array.update (heightArray, h, Array.sub (heightArray, h)+1))
       (* ignore blocks and skolem constants *)
-      fun max (h) = (maxHeight := Int.max (h, !maxHeight))
-      fun reset () = (declared := 0; defined := 0; abbrev := 0; other := 0;
+      let rec max (h) = (maxHeight := Int.max (h, !maxHeight))
+      let rec reset () = (declared := 0; defined := 0; abbrev := 0; other := 0;
                       Array.modify (fun i -> 0) heightArray;
                       maxHeight := 0)
     in
-      fun analyzeAnc (I.Anc (NONE, _, _)) = ( incArray 0 )
+      let rec analyzeAnc (I.Anc (NONE, _, _)) = ( incArray 0 )
         | analyzeAnc (I.Anc (_, h, _)) = ( incArray h ; max h )
-      fun analyze (I.ConDec (_, _, _, _, _, L)) =
+      let rec analyze (I.ConDec (_, _, _, _, _, L)) =
           ( inc declared )
         | analyze (I.ConDef (_, _, _, _, _, L, ancestors)) =
           ( inc defined ; analyzeAnc ancestors )
         | analyze (I.AbbrevDef (_, _, _, _, _, L)) =
           ( inc abbrev )
         | analyze _ = ( inc other )
-      fun showDef () =
+      let rec showDef () =
           let
             let _ = reset ()
             let _ = I.sgnApp (fun c -> analyze (I.sgnLookup c))

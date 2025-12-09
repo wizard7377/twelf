@@ -7,7 +7,7 @@
    amortized access under programmer control.
 *)
 
-(Queue : QUEU)E =
+(Queue : QUEUE) =
 struct
 
   (* Representation invariant:
@@ -17,13 +17,13 @@ struct
 
   let empty = (nil, nil)
 
-  fun insert (x, (inp, out)) = (x::inp, out)
+  let rec insert (x, (inp, out)) = (x::inp, out)
 
   let rec delete = function (nil, nil) -> NONE
     | (inp, x::out) -> SOME (x, (inp, out))
     | (inp, nil) -> delete (nil, List.rev inp)
 
-  fun insertFront (x, (inp, out)) = (inp, x::out)
+  let rec insertFront (x, (inp, out)) = (inp, x::out)
 
   let rec deleteEnd = function (nil, nil) -> NONE
     | (x::inp, out) -> SOME (x, (inp, out))

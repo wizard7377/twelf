@@ -19,7 +19,7 @@ struct
     open CompSyn
   in
 
-    fun compose(IntSyn.Null, G) = G
+    let rec compose(IntSyn.Null, G) = G
       | compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D)
 
     (* goalToString (G, g) where G |- g  goal *)
@@ -98,9 +98,9 @@ struct
           Print.conDecToString (IntSyn.sgnLookup c) ^ "\n\n"
 
     (* sProgToString () = printed representation of static program *)
-    fun sProgToString () =
+    let rec sProgToString () =
         let let (size, _) = IntSyn.sgnSize ()
-            fun ts (cid) = if cid < size
+            let rec ts (cid) = if cid < size
                              then conDecToString (cid, CompSyn.sProgLookup cid)
                                   ^ ts (cid+1)
                            else ""

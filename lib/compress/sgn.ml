@@ -56,28 +56,28 @@ struct
 	 end
        | split [] n = split [NONE] n 
 
-    fun clear () = let in
+    let rec clear () = let in
 		       Array.modify (fun _ -> NONE) sigma;
 		       Array.modify (fun _ -> NONE) all_modes;
 		       Array.modify (fun _ -> NONE) all_ps
 		   end
 		       
-    fun condec (s, a, oa) = {name = s, classifier = tclass a, o_classifier = tclass oa,
+    let rec condec (s, a, oa) = {name = s, classifier = tclass a, o_classifier = tclass oa,
 			     def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
-    fun tycondec (s, k, ok) = {name = s, classifier = kclass k, o_classifier = kclass ok,
+    let rec tycondec (s, k, ok) = {name = s, classifier = kclass k, o_classifier = kclass ok,
 			       def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
-    fun defn (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
+    let rec defn (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
 				  def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = false}
-    fun tydefn (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
+    let rec tydefn (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
 				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = false}
-    fun abbrev (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
+    let rec abbrev (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
 				    def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = true}
-    fun tyabbrev (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
+    let rec tyabbrev (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
 				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = true}
-    fun typeOfSigent (e : sigent) = Syntax.typeOf (#classifier e)
+    let rec typeOfSigent (e : sigent) = Syntax.typeOf (#classifier e)
 
-    fun setter table (n, x) = Array.update (table, n, SOME x)
-    fun getter table id = Array.sub (table, id)
+    let rec setter table (n, x) = Array.update (table, n, SOME x)
+    let rec getter table id = Array.sub (table, id)
 
     let set_modes = setter all_modes
     let get_modes = getter all_modes
@@ -86,9 +86,9 @@ struct
     let update = setter sigma
     let sub = getter sigma
 
-    fun classifier id = (#classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)
-    fun o_classifier id = (#o_classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)
-    fun def id = (#def (Option.valOf(sub id)) handle Option => raise NoSuch id)
-    fun o_def id = (#o_def (Option.valOf(sub id)) handle Option => raise NoSuch id)
-    fun abbreviation id = (#abbreviation (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    let rec classifier id = (#classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    let rec o_classifier id = (#o_classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    let rec def id = (#def (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    let rec o_def id = (#o_def (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    let rec abbreviation id = (#abbreviation (Option.valOf(sub id)) handle Option => raise NoSuch id)
 end

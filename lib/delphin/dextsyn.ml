@@ -177,7 +177,7 @@ let rec rulesToCase (Ast decs) =
     | (d::ds) -> (d::(abstractProgs' ds))
 
 
- fun abstractProgs ast =
+ let rec abstractProgs ast =
       let
           let ast' = rulesToCase ast
           let (Ast decs) = ast'

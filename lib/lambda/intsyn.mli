@@ -171,24 +171,24 @@ sig
   (* standard operations on foreign expressions *)
   module FgnExpStd : sig
     (* convert to internal syntax *)
-    module ToInternal : FGN_OPN where type arg = unit
-                                   where type result = Exp
+    module ToInternal : FGN_OPN with type arg = unit
+                                   with type result = Exp
 
     (* apply function to subterms *)
-    module Map : FGN_OPN where type arg = Exp -> Exp
-			    where type result = Exp
+    module Map : FGN_OPN with type arg = Exp -> Exp
+			    with type result = Exp
 
     (* apply function to subterms, for effect *)
-    module App : FGN_OPN where type arg = Exp -> unit
-			    where type result = unit
+    module App : FGN_OPN with type arg = Exp -> unit
+			    with type result = unit
 
     (* test for equality *)
-    module EqualTo : FGN_OPN where type arg = Exp
-                                where type result = bool
+    module EqualTo : FGN_OPN with type arg = Exp
+                                with type result = bool
 
     (* unify with another term *)
-    module UnifyWith : FGN_OPN where type arg = Dec Ctx * Exp
-                                  where type result = FgnUnify
+    module UnifyWith : FGN_OPN with type arg = Dec Ctx * Exp
+                                  with type result = FgnUnify
 
     (* fold a function over the subterms *)
     val fold : (csid * FgnExp) -> (Exp * 'a -> 'a) -> 'a -> 'a
@@ -197,16 +197,16 @@ sig
   (* standard operations on foreign constraints *)
   module FgnCnstrStd : sig
     (* convert to internal syntax *)
-    module ToInternal : FGN_OPN where type arg = unit
-                                   where type result = (Dec Ctx * Exp) list
+    module ToInternal : FGN_OPN with type arg = unit
+                                   with type result = (Dec Ctx * Exp) list
 
     (* awake *)
-    module Awake : FGN_OPN where type arg = unit
-                              where type result = bool
+    module Awake : FGN_OPN with type arg = unit
+                              with type result = bool
 
     (* simplify *)
-    module Simplify : FGN_OPN where type arg = unit
-                                 where type result = bool
+    module Simplify : FGN_OPN with type arg = unit
+                                 with type result = bool
   end
   
   val conDecName   : ConDec -> string

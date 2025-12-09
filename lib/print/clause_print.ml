@@ -27,10 +27,10 @@ local
   module I = IntSyn
   module F = Formatter
   let Str = F.String
-  fun Str0 (s, n) = F.String0 n s
-  fun sym (s) = Str0 (Symbol.sym s)
+  let rec Str0 (s, n) = F.String0 n s
+  let rec sym (s) = Str0 (Symbol.sym s)
 
-  fun parens (fmt) = F.Hbox [sym "(", fmt, sym ")"]
+  let rec parens (fmt) = F.Hbox [sym "(", fmt, sym ")"]
 
   (* assumes NF *)
   let rec fmtDQuants = function (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) -> 
@@ -88,7 +88,7 @@ local
     | fmtGHyps (G, V) = (* V = Root _ *)
         [Print.formatExp (G, V)]
 
-  fun fmtClause (G, V) = F.HVbox (fmtDQuants (G, V))
+  let rec fmtClause (G, V) = F.HVbox (fmtDQuants (G, V))
 
   let rec fmtClauseI = function (0, G, V) -> fmtClause (G, V)
     | (i, G, I.Pi ((D, _), V)) -> 
@@ -108,13 +108,13 @@ local
 
 in
 
-  fun formatClause (G, V) = fmtClause (G, V)
-  fun formatConDec (condec) = fmtConDec (condec)
+  let rec formatClause (G, V) = fmtClause (G, V)
+  let rec formatConDec (condec) = fmtConDec (condec)
 
-  fun clauseToString (G, V) = F.makestring_fmt (formatClause (G, V))
-  fun conDecToString (condec) = F.makestring_fmt (formatConDec (condec))
+  let rec clauseToString (G, V) = F.makestring_fmt (formatClause (G, V))
+  let rec conDecToString (condec) = F.makestring_fmt (formatConDec (condec))
 
-  fun printSgn () =
+  let rec printSgn () =
       IntSyn.sgnApp (fn (cid) => (print (conDecToString (IntSyn.sgnLookup cid)); print "\n"))
 end  (* local ... *)
 

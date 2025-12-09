@@ -58,23 +58,23 @@ exception Error' of Tomega.Sub
     let rec isIdx1 = function (I.Idx 1) -> true
       | _ -> false
 
-    fun modeSpine a =
+    let rec modeSpine a =
         case ModeTable.modeLookup a
           of NONE => raise Error "Mode declaration expected"
            | SOME mS => mS
 
-    fun typeOf a =
+    let rec typeOf a =
         case I.sgnLookup a
           of I.ConDec (name, _, _, _, V, I.Kind) => V
            | _ => raise Error "Type Constant declaration expected"
 
 
-    fun nameOf a =
+    let rec nameOf a =
         case I.sgnLookup a
           of I.ConDec (name, _, _, _, V, I.Kind) => name
            | _ => raise Error "Type Constant declaration expected"
 
-    fun chatter chlev f =
+    let rec chatter chlev f =
         if !Global.chatter >= chlev
           then print ("[tomega] " ^ f ())
         else ()
@@ -89,9 +89,9 @@ exception Error' of Tomega.Sub
        and  G |- U : V
        then G' |- U' = U[s^-1] : V [s^-1]
     *)
-    fun strengthenExp (U, s) = Whnf.normalize (Whnf.cloInv (U, s), I.id)
+    let rec strengthenExp (U, s) = Whnf.normalize (Whnf.cloInv (U, s), I.id)
 
-    fun strengthenSub (s, t) = Whnf.compInv (s, t)
+    let rec strengthenSub (s, t) = Whnf.compInv (s, t)
 
     (* strengthenDec (x:V, s) = x:V'
 
@@ -241,7 +241,7 @@ exception Error' of Tomega.Sub
     let rec validSig = function (Psi0, nil) -> ()
       | (Psi0, (G, V) :: Sig) -> 
         let
-          fun append (G, I.Null) = G
+          let rec append (G, I.Null) = G
             | append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D)
 
         in
@@ -250,7 +250,7 @@ exception Error' of Tomega.Sub
         end
 
 
-    fun convertOneFor cid =
+    let rec convertOneFor cid =
       let
         let V  = case I.sgnLookup cid
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
@@ -296,7 +296,7 @@ exception Error' of Tomega.Sub
          s' = ^(# of +'s in mS)
          *)
 
-        fun shiftPlus mS =
+        let rec shiftPlus mS =
           let
             let rec shiftPlus' = function (M.Mnil, n) -> n
               | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> 
@@ -345,7 +345,7 @@ exception Error' of Tomega.Sub
 
 
 
-    fun convertFor L =
+    let rec convertFor L =
       let
         let (_, F') = createIH L
       in
@@ -394,7 +394,7 @@ exception Error' of Tomega.Sub
        then G |- w' : G'
        and  w = 1.w' o ^
     *)
-    fun dot1inv (w) = strengthenSub (I.comp (I.shift, w), I.shift)
+    let rec dot1inv (w) = strengthenSub (I.comp (I.shift, w), I.shift)
 
     (* shiftinv (w) = w'
 
@@ -403,9 +403,9 @@ exception Error' of Tomega.Sub
        and  1 does not occur in w
        then w  = w' o ^
     *)
-    fun shiftinv (w) = strengthenSub (w, I.shift)
+    let rec shiftinv (w) = strengthenSub (w, I.shift)
 
-    fun peel w =
+    let rec peel w =
       if isIdx1(I.bvarSub (1, w)) then dot1inv w else shiftinv w
 
     let rec peeln = function (0, w) -> w
@@ -450,7 +450,7 @@ exception Error' of Tomega.Sub
        where Psi' extends Psi1 (but is a subset of Psi?)
     *)
 
-    fun strengthen (Psi, (a, S), w, m) =
+    let rec strengthen (Psi, (a, S), w, m) =
       let
         let mS = modeSpine a
 
@@ -500,7 +500,7 @@ exception Error' of Tomega.Sub
 
         let rec occursBlock = function (G, (Psi2, L)) -> 
           let
-            fun occursBlock (I.Null, n) = false
+            let rec occursBlock (I.Null, n) = false
               | (I.Decl (G, D), n) -> 
                   occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1)
           in
@@ -602,9 +602,9 @@ exception Error' of Tomega.Sub
 
 
 
-    fun lookupIH (Psi, L, a) =
+    let rec lookupIH (Psi, L, a) =
         let
-          fun lookupIH' (b::L, a, k)=
+          let rec lookupIH' (b::L, a, k)=
               if a = b then k
               else lookupIH' (L, a, k-1)
         in
@@ -622,7 +622,7 @@ exception Error' of Tomega.Sub
        and n = k + m - 1
        then Psi |- t' = m, m+1 ... n. ^n :  Psi0
     *)
-    fun createIHSub (Psi, L) =
+    let rec createIHSub (Psi, L) =
          T.Shift (I.ctxLength Psi - 1 (*List.length L *))
 
 
@@ -638,7 +638,7 @@ exception Error' of Tomega.Sub
        and  Psi+ |- s' : Gamma+
        and  x1:A1 .. xn:An |- w: Gamma+    (w weakening substitution)
     *)
-    fun transformInit (Psi, L, (a, S), w1) =
+    let rec transformInit (Psi, L, (a, S), w1) =
       let
         let mS = modeSpine a
         let V = typeOf a
@@ -687,7 +687,7 @@ exception Error' of Tomega.Sub
        then P is proof term consisting of all - objects of S,
             defined in PsiAll
     *)
-    fun transformConc ((a, S), w) =
+    let rec transformConc ((a, S), w) =
       let
 
         let rec transformConc' = function (I.Nil, M.Mnil) -> 
@@ -722,7 +722,7 @@ exception Error' of Tomega.Sub
       | renameSpine f (I.App (U, S)) = I.App (renameExp f U, renameSpine f S)
 
 
-    fun rename (I.BDec (_, (c, s)), V) =
+    let rec rename (I.BDec (_, (c, s)), V) =
         let
           let (G, L) = I.constBlock c
 
@@ -808,7 +808,7 @@ exception Error' of Tomega.Sub
               let n = domain (Psi1, w1) (* n = |Psi0, G', B'| *)
               let m = I.ctxLength Psi0  (* m = |Psi0| *)
 
-              fun lookupbase a =
+              let rec lookupbase a =
                   let
                     let s = I.conDecName (I.sgnLookup a)
                     let l = T.lemmaName s
@@ -862,7 +862,7 @@ exception Error' of Tomega.Sub
                  and  Psi0, G', B |- S'' :: F' >> F''
               *)
 
-              fun apply ((S, mS), Ft) = applyW ((S, mS), T.whnfFor (Ft))
+              let rec apply ((S, mS), Ft) = applyW ((S, mS), T.whnfFor (Ft))
               and applyW ((I.Nil, M.Mnil), Ft') = (T.Nil, T.forSub Ft')
                 | applyW ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
                          (T.All (D, F'), t')) =
@@ -1012,7 +1012,7 @@ exception Error' of Tomega.Sub
             and  Sig (L') = (Gsome, Lblock')
        then C' is a list of cases (corresponding to each (G, V) in Sig)
     *)
-    fun traverse (Psi0, L, Sig, wmap, projs) =
+    let rec traverse (Psi0, L, Sig, wmap, projs) =
       let
 
 
@@ -1040,7 +1040,7 @@ exception Error' of Tomega.Sub
             If   Sig (L) = (Gsome, Lblock)
             and  Sig (L') = (Gsome, Lblock')
     *)
-    fun transformWorlds (fams, T.Worlds cids) =
+    let rec transformWorlds (fams, T.Worlds cids) =
         let
           (* convertList (a, L, w) = L'
 
@@ -1089,7 +1089,7 @@ exception Error' of Tomega.Sub
        and  |- Psi0, Gi ctx
        and  Psi, Gi |- Vi : type.
     *)
-    fun dynamicSig (Psi0, a, T.Worlds cids) =
+    let rec dynamicSig (Psi0, a, T.Worlds cids) =
         let
 
 
@@ -1171,7 +1171,7 @@ exception Error' of Tomega.Sub
             family in L into functional form
     *)
 
-    fun convertPrg (L, projs) =
+    let rec convertPrg (L, projs) =
       let
         let (name, F0) = createIH L
         let D0 = T.PDec (SOME name, F0, NONE, NONE)
@@ -1194,7 +1194,7 @@ exception Error' of Tomega.Sub
         let W = convertWorlds L
         let (W', wmap) = transformWorlds (L, W)
 
-        fun convertOnePrg (a, F) =
+        let rec convertOnePrg (a, F) =
           let
             let name = nameOf a
             let V = typeOf a            (* Psi0 |- {x1:V1} ... {xn:Vn} type *)
@@ -1240,7 +1240,7 @@ exception Error' of Tomega.Sub
         P
       end
 
-    fun installFor [cid] =
+    let rec installFor [cid] =
         let
           let F = convertFor [cid]
           let name = I.conDecName (I.sgnLookup cid)
@@ -1351,7 +1351,7 @@ exception Error' of Tomega.Sub
     let rec mkResult = function 0 -> T.Unit
       | n -> T.PairExp (I.Root (I.BVar n, I.Nil), mkResult (n-1))
 
-    fun convertGoal (G, V)  =
+    let rec convertGoal (G, V)  =
       let
         let a = I.targetFam V
         let W = WorldSyn.lookup a

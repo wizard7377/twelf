@@ -48,7 +48,7 @@ struct
         end
 
 
-    fun convertOneFor cid =
+    let rec convertOneFor cid =
       let
         let V  = case I.sgnLookup cid
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
@@ -92,7 +92,7 @@ struct
          s' = ^(# of +'s in mS)
          *)
 
-        fun shiftPlus mS =
+        let rec shiftPlus mS =
           let
             let rec shiftPlus' = function (M.Mnil, n) -> n
               | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> 
@@ -160,7 +160,7 @@ struct
        then G |- w' : G'
        and  w = 1.w' o ^
     *)
-    fun dot1inv (w) = Weaken.strengthenSub (I.comp (I.shift, w), I.shift)
+    let rec dot1inv (w) = Weaken.strengthenSub (I.comp (I.shift, w), I.shift)
 
     (* shiftinv (w) = w'
 
@@ -169,12 +169,12 @@ struct
        and  1 does not occur in w
        then w  = w' o ^
     *)
-    fun shiftinv (w) = Weaken.strengthenSub (w, I.shift)
+    let rec shiftinv (w) = Weaken.strengthenSub (w, I.shift)
 
     let rec eqIdx = function (I.Idx(n), I.Idx(k)) -> (n = k)
       | _ -> false
 
-    fun peel w =
+    let rec peel w =
       if eqIdx(I.bvarSub (1, w), I.Idx 1) then dot1inv w else shiftinv w
 
     let rec peeln = function (0, w) -> w
@@ -209,7 +209,7 @@ struct
        where Psi' extends Psi1
     *)
 
-    fun strengthen (Psi, (a, S), w, m) =
+    let rec strengthen (Psi, (a, S), w, m) =
       let
         let mS = case ModeTable.modeLookup a
                    of NONE => raise Error "Mode declaration expected"
@@ -247,7 +247,7 @@ struct
 
         let rec occursBlock = function (G, (Psi2, L)) -> 
           let
-            fun occursBlock (I.Null, n) = false
+            let rec occursBlock (I.Null, n) = false
               | (I.Decl (G, D), n) -> 
                   occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1)
           in
@@ -350,7 +350,7 @@ struct
       end
 
 
-    fun recursion L =
+    let rec recursion L =
       let
         let F = convertFor L
 
@@ -371,7 +371,7 @@ struct
             +x1:A1, .., +xn:An; . |- P in [[-x1:A1]] .. [[-xn:An]] true
             . ;. |- (P' P) in [[+x1:A1]] .. [[+xn:An]] [[-x1:A1]] .. [[-xn:An]] true
     *)
-    fun abstract (a) =
+    let rec abstract (a) =
 
       let
         let mS = case ModeTable.modeLookup a
@@ -417,7 +417,7 @@ struct
        and  Psi+ |- s' : Gamma+
        and  x1:A1 .. xn:An |- w: Gamma+    (w weakening substitution)
     *)
-    fun transformInit (Psi, (a, S), w1) =
+    let rec transformInit (Psi, (a, S), w1) =
       let
         let mS = case ModeTable.modeLookup a
                    of NONE => raise Error "Mode declaration expected"
@@ -481,7 +481,7 @@ struct
        and  d' = |Delta'|
     *)
 
-    fun transformDec (Ts, (Psi, G0), d, (a, S), w1, w2, t0) =
+    let rec transformDec (Ts, (Psi, G0), d, (a, S), w1, w2, t0) =
       let
         let mS = case ModeTable.modeLookup a
                    of NONE => raise Error "Mode declaration expected"
@@ -499,7 +499,7 @@ struct
            and  Psi, G |- U : V    (for some V)
            then Psi, G |- [[G]] U : {{G}} V     (wrt subordination)
         *)
-        fun raiseExp (G, U, a) =
+        let rec raiseExp (G, U, a) =
           let
 
             (* raiseExp G = (w', k)
@@ -540,7 +540,7 @@ struct
            and  Psi, G, x:{{G}} V |- x G : V
         *)
 
-        fun raiseType (G, U, a) =
+        let rec raiseType (G, U, a) =
           let
             (* raiseType (G, n) = (w', k, S')
 
@@ -580,7 +580,7 @@ struct
            For some Psi, some G, some V:
            Psi, V, G0 |- s' : Psi, G0, V
         *)
-        fun exchangeSub (G0) =
+        let rec exchangeSub (G0) =
           let
             let g0 = I.ctxLength G0
             let rec exchangeSub' = function (0, s) -> s
@@ -664,9 +664,9 @@ struct
              then d' = d+i   and P' select ih, and then decomposes is, using
                   (i-1) Rights and 1 Left
           *)
-          fun varHead Ts (w'', t'', (d', Dplus, Dminus)) =
+          let rec varHead Ts (w'', t'', (d', Dplus, Dminus)) =
             let
-              fun head' ([a'], d1, k1) = (d1, k1)
+              let rec head' ([a'], d1, k1) = (d1, k1)
                 | head' (a'::Ts', d1, k1) =
                   if a = a' then
                     (d1+1, fun xx -> F.Left (xx, (k1 1)))
@@ -683,7 +683,7 @@ struct
               end
 
 
-          fun lemmaHead (w'', t'', (d', Dplus, Dminus)) =
+          let rec lemmaHead (w'', t'', (d', Dplus, Dminus)) =
             let
               let name = I.conDecName (I.sgnLookup a)
               let l = (case (FunNames.nameLookup name)
@@ -708,7 +708,7 @@ struct
        then P is proof term consisting of all - objects of S,
             defined in PsiAll
     *)
-    fun transformConc ((a, S), w) =
+    let rec transformConc ((a, S), w) =
       let
         let mS = case ModeTable.modeLookup a
                    of NONE => raise Error "Mode declaration expected"
@@ -733,7 +733,7 @@ struct
        and  c is a type family which entries are currently traversed
        then L' is a list of cases
     *)
-    fun traverse (Ts, c) =
+    let rec traverse (Ts, c) =
       let
 
         (* traverseNeg (c'', Psi, (V, v), L) = ([w', d', PQ'], L')    [] means optional
@@ -750,7 +750,7 @@ struct
            and  PQ'  is a pair, generating the proof term
         *)
 
-        fun traverseNeg (c'', Psi, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v), L) =
+        let rec traverseNeg (c'', Psi, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v), L) =
             (case traverseNeg (c'', I.Decl (Psi, F.Prim
                                      (Weaken.strengthenDec (D, v))),
 (*                                   (Names.decName (F.makectx Psi, Weaken.strengthenDec (D, v)))),
@@ -859,7 +859,7 @@ struct
           | traversePos (c'', Psi, G, (V, v), NONE, L) =
             (NONE, L)
 
-        fun traverseSig' (c'', L) =
+        let rec traverseSig' (c'', L) =
           if c'' = #1 (I.sgnSize ()) then L
           else
             (case I.sgnLookup (c'')
@@ -882,9 +882,9 @@ struct
             family in Ts into functional form
     *)
 
-    fun convertPro Ts =
+    let rec convertPro Ts =
       let
-        fun convertOnePro a =
+        let rec convertOnePro a =
           let
             let V = case I.sgnLookup a
                       of I.ConDec (name, _, _, _, V, I.Kind) => V

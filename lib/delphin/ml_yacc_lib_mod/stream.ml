@@ -24,17 +24,17 @@
 (* Stream: a module implementing a lazy stream.  The module type STREAM
    is found in base.sig *)
 
-(Streamm : STREAM)M =
+(Streamm : STREAMM) =
 struct
    type 'a str = EVAL of 'a * 'a str ref | UNEVAL of (unit->'a)
 
    type 'a stream = 'a str ref
 
-   fun get(ref(EVAL t)) = t
+   let rec get(ref(EVAL t)) = t
      | get(s as ref(UNEVAL f)) = 
 	    let let t = (f(), ref(UNEVAL f)) in s := EVAL t; t end
 
-   fun streamify f = ref(UNEVAL f)
-   fun cons(a,s) = ref(EVAL(a,s))
+   let rec streamify f = ref(UNEVAL f)
+   let rec cons(a,s) = ref(EVAL(a,s))
 
 end;

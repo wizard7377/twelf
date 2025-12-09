@@ -51,7 +51,7 @@ struct
   exception Error' of P.occ * string
 
   (* copied from terminates/reduces.fun *)
-  fun wrapMsg (c, occ, msg) =
+  let rec wrapMsg (c, occ, msg) =
       (case Origins.originLookup c
          of (fileName, NONE) => (fileName ^ ":" ^ msg)
           | (fileName, SOME occDec) =>
@@ -59,7 +59,7 @@ struct
                              Origins.linesInfoLookup (fileName),
                              "Constant " ^ Names.qidToString (Names.constQid c) ^ ":" ^ msg)))
 
-  fun wrapMsgBlock (c, occ, msg) =
+  let rec wrapMsgBlock (c, occ, msg) =
       (case Origins.originLookup c
          of (fileName, NONE) => (fileName ^ ":" ^ msg)
           | (fileName, SOME occDec) =>
@@ -130,7 +130,7 @@ struct
     (* noConstraints (G, s) = true iff there are no remaining constraints in s
        Invariants: s is an EVar substitution X1...Xn.^k
     *)
-    fun noConstraints (G, s) =
+    let rec noConstraints (G, s) =
         (case collectConstraints (collectEVars (G, s, nil))
            of nil => true
             | _ => false)
@@ -140,7 +140,7 @@ struct
     (************)
 
     (* Declarations *)
-    fun formatD (G, D) =
+    let rec formatD (G, D) =
           F.Hbox (F.String "{" :: Print.formatDec (G, D) :: F.String "}" :: nil)
 
     (* Declaration lists *)
@@ -166,21 +166,21 @@ struct
     *)
 
     (* Hypotheses and declaration lists *)
-    fun wGoalToString ((G, L), Seq (_, piDecs, t)) =
+    let rec wGoalToString ((G, L), Seq (_, piDecs, t)) =
         F.makestring_fmt (F.HVbox [F.HVbox (formatDList (G, L, I.id)), F.Break,
                                    F.String "<|", F.Break,
                                    F.HVbox (formatDList (G, piDecs, t))])
 
     (* Declaration list *)
-    fun worldToString (G, Seq (_, piDecs, t)) =
+    let rec worldToString (G, Seq (_, piDecs, t)) =
           F.makestring_fmt (F.HVbox (formatDList (G, piDecs, t)))
 
     (* Hypotheses *)
-    fun hypsToString (G, L) =
+    let rec hypsToString (G, L) =
           F.makestring_fmt (F.HVbox (formatDList (G, L, I.id)))
 
     (* Mismatch between hypothesis and world declaration *)
-    fun mismatchToString (G, (V1, s1), (V2, s2)) =
+    let rec mismatchToString (G, (V1, s1), (V2, s2)) =
         F.makestring_fmt (F.HVbox [Print.formatExp (G, I.EClo (V1, s1)), F.Break,
                                    F.String "<>", F.Break,
                                    Print.formatExp (G, I.EClo (V2, s2))])
@@ -200,36 +200,36 @@ struct
       let success : unit -> unit
     end =
     struct
-      fun clause (c) =
+      let rec clause (c) =
           print ("World checking clause " ^ Names.qidToString (Names.constQid c) ^ "\n")
-      fun constraintsRemain () =
+      let rec constraintsRemain () =
           if !Global.chatter > 7
             then print ("Constraints remain after matching hypotheses against context block\n")
           else ()
-      fun matchBlock (GL, R) =          (* R = (D1,...,Dn)[t] *)
+      let rec matchBlock (GL, R) =          (* R = (D1,...,Dn)[t] *)
           if !Global.chatter > 7
             then print ("Matching:\n" ^ wGoalToString (GL, R) ^ "\n")
           else ()
-      fun unmatched GL =
+      let rec unmatched GL =
           if !Global.chatter > 7
             then print ("Unmatched hypotheses:\n" ^ hypsToString GL ^ "\n")
           else ()
-      fun missing (G, R) =              (* R = (D1,...,Dn)[t] *)
+      let rec missing (G, R) =              (* R = (D1,...,Dn)[t] *)
           if !Global.chatter > 7
             then print ("Missing hypotheses:\n" ^ worldToString (G, R) ^ "\n")
           else ()
-      fun mismatch (G, Vs1, Vs2) =
+      let rec mismatch (G, Vs1, Vs2) =
           if !Global.chatter > 7
             then print ("Mismatch:\n" ^ mismatchToString (G, Vs1, Vs2) ^ "\n")
           else ()
-      fun success () =
+      let rec success () =
           if !Global.chatter > 7
             then print ("Success\n")
           else ()
     end
 
-    fun decUName (G, D) = I.Decl (G, Names.decUName (G, D))
-    fun decEName (G, D) = I.Decl (G, Names.decEName (G, D))
+    let rec decUName (G, D) = I.Decl (G, Names.decUName (G, D))
+    let rec decEName (G, D) = I.Decl (G, Names.decEName (G, D))
 
 
 
@@ -261,7 +261,7 @@ struct
         then B = true if there exists a substitution . |- t : G, s.t. L[t] = L'
              B = false otherwise
      *)
-     fun equivBlock ((G, L), L') =
+     let rec equivBlock ((G, L), L') =
          let
            let t = createEVarSub (I.Null, G)
          in
@@ -306,7 +306,7 @@ struct
         Then the function returns () if (G, L) is subsumed by W1
         otherwise Error is raised
      *)
-     fun subsumedBlock a W1 (G, L) =
+     let rec subsumedBlock a W1 (G, L) =
          let
            let t = createEVarSub (I.Null, G) (* G |- t : someDecs *)
            let L' = strengthen a (t, L)
@@ -336,7 +336,7 @@ struct
         Then the function returns () if W2 is subsumed by W1
         otherwise Error is raised
      *)
-     fun subsumedWorld a (T.Worlds W1) (T.Worlds W2) =
+     let rec subsumedWorld a (T.Worlds W1) (T.Worlds W2) =
          subsumedBlocks a W1 W2
 
 
@@ -378,7 +378,7 @@ struct
         B = true if b1 and b2 are equal (modulo renaming of variables)
         B = false otherwise
      *)
-     fun eqBlock (b1, b2) =
+     let rec eqBlock (b1, b2) =
          let
            let (G1, L1) = I.constBlock b1
            let (G2, L2) = I.constBlock b2
@@ -442,7 +442,7 @@ struct
          (checkClause W (decEName (G, D), V2, P.body occ);
           checkGoal W (G, V1, P.label occ))
 
-     fun checkConDec W (I.ConDec (s, m, k, status, V, L)) =
+     let rec checkConDec W (I.ConDec (s, m, k, status, V, L)) =
            checkClause W (I.Null, V, P.top)
 
 
@@ -528,7 +528,7 @@ struct
 
        Invariant: G |- V : type, V nf
     *)
-    fun worldifyGoal (G, V, W as T.Worlds cids, occ) =
+    let rec worldifyGoal (G, V, W as T.Worlds cids, occ) =
         let
           let b = I.targetFam V
           let Wb = W.getWorlds b
@@ -570,7 +570,7 @@ struct
        iff all subgoals in all clauses defining a satisfy world spec W
        Effect: raises Error(msg) otherwise, where msg includes location
      *)
-     fun worldifyConDec W (c, I.ConDec (s, m, k, status, V, L)) =
+     let rec worldifyConDec W (c, I.ConDec (s, m, k, status, V, L)) =
          (if !Global.chatter = 4
             then print (Names.qidToString (Names.constQid c) ^ " ")
           else ();
@@ -601,9 +601,9 @@ struct
            handle Error' (occ, s) => raise Error (wrapMsgBlock (b, occ, "World not hereditarily closed"))
          end
 
-     fun worldifyWorld (T.Worlds Bs) = worldifyBlocks Bs
+     let rec worldifyWorld (T.Worlds Bs) = worldifyBlocks Bs
 
-     fun worldify a =
+     let rec worldify a =
          let
            let W = W.getWorlds a
            let _ = print "[?"

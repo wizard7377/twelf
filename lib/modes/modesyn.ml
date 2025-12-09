@@ -16,7 +16,7 @@ sig
 end;; (* module type MODESYN *)
 
 
-(ModeSyn : MODESY)N =
+(ModeSyn : MODESYN) =
 struct
 
   exception Error of string

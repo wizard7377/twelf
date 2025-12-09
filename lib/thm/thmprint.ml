@@ -23,7 +23,7 @@ struct
       | (SOME n :: L) -> [F.String (n), F.String " "] @ (fmtParams L)
       | (NONE :: L) -> [F.String ("_"), F.String " "] @ (fmtParams L)
 
-    fun fmtType (c, L) = F.HVbox ([F.String (I.conDecName (I.sgnLookup c)), F.String " "] @ (fmtParams L))
+    let rec fmtType (c, L) = F.HVbox ([F.String (I.conDecName (I.sgnLookup c)), F.String " "] @ (fmtParams L))
 
     let rec fmtCallpats = function nil -> []
       | (T :: nil) -> [F.String "(", fmtType T, F.String ")"]
@@ -44,28 +44,28 @@ struct
       | fmtOrders (O :: nil) = fmtOrder O
       | fmtOrders (O :: L) = fmtOrder O @ (F.String " " :: fmtOrders L)
 
-    fun tDeclToString (L.TDecl (O, L.Callpats L)) = F.makestring_fmt (F.HVbox (fmtOrder O @
+    let rec tDeclToString (L.TDecl (O, L.Callpats L)) = F.makestring_fmt (F.HVbox (fmtOrder O @
                                                            (F.String " " :: fmtCallpats L)))
-    fun callpatsToString (L.Callpats L) = F.makestring_fmt (F.HVbox (fmtCallpats L))
+    let rec callpatsToString (L.Callpats L) = F.makestring_fmt (F.HVbox (fmtCallpats L))
 
    (* -bp *)
-    fun fmtROrder (L.RedOrder(P,O,O'))=
+    let rec fmtROrder (L.RedOrder(P,O,O'))=
         case P of
             L.Less => (fmtOrder O) @ (F.String " < " :: fmtOrder O')
           | L.Leq => (fmtOrder O) @ (F.String " <= " :: fmtOrder O')
           | L.Eq => (fmtOrder O) @ (F.String " = " :: fmtOrder O')
 
-    fun ROrderToString R =
+    let rec ROrderToString R =
         F.makestring_fmt (F.HVbox (fmtROrder R))
 
-    fun rDeclToString (L.RDecl (R,L.Callpats L)) =
+    let rec rDeclToString (L.RDecl (R,L.Callpats L)) =
         F.makestring_fmt (F.HVbox ((fmtROrder R @ (F.String " " :: fmtCallpats L))))
 
 
-    fun tabledDeclToString (L.TabledDecl cid) =
+    let rec tabledDeclToString (L.TabledDecl cid) =
         F.makestring_fmt (F.HVbox ([F.String (I.conDecName (I.sgnLookup cid))]))
 
-    fun keepTableDeclToString (L.KeepTableDecl cid) =
+    let rec keepTableDeclToString (L.KeepTableDecl cid) =
         F.makestring_fmt (F.HVbox ([F.String (I.conDecName (I.sgnLookup cid))]))
 
   in

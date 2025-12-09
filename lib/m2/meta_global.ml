@@ -1,7 +1,7 @@
 (* Global parameters *)
 (* Author: Carsten Schuermann *)
 
-(MetaGlobal : METAGLOBA)L =
+(MetaGlobal : METAGLOBAL) =
 struct
   type strategy = RFS | FRS
 

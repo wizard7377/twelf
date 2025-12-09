@@ -1,7 +1,7 @@
 (* Heuristics : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-(Heuristic : HEURISTI)C =
+(Heuristic : HEURISTIC) =
 struct
   type index = {sd: int,                (* Splitting depth *)
                 ind: int option,        (* Induction variable *)
@@ -15,14 +15,14 @@ struct
     let rec recToString = function 0 -> "non-rec = 2"
       | 1 -> "rec = 1"
 
-    fun realFmt (r) = Real.fmt (StringCvt.FIX (SOME(2))) r
+    let rec realFmt (r) = Real.fmt (StringCvt.FIX (SOME(2))) r
 
     let rec ratio = function (0, 0) -> 1.0
       | (c, 0) -> 1.1
       | (c, m) -> (Real.fromInt c) / (Real.fromInt m)
 
 
-    fun sqr (x:real) = x * x;
+    let rec sqr (x:real) = x * x;
 
     (* sum of the parameters k1 + m1/c1 + 1/ind + r1 *)
     (* the higher the sum the more preferred it is;  *)
@@ -44,13 +44,13 @@ struct
             (sqr(Real.fromInt k1)) + ratio(1,i1) + (1.0 - ratio(c1,m1)) + (Real.fromInt r1)
 
     (* associate a higher value to non-rec than to rec  *)
-    fun conv{sd=k1, ind=i, c=c1, m=m1, r=1, p=p1} =
+    let rec conv{sd=k1, ind=i, c=c1, m=m1, r=1, p=p1} =
         {sd=k1, ind=i, c=c1, m=m1, r=1, p=p1}
       | conv {sd=k1, ind=i, c=c1, m=m1, r=0, p=p1} =
         {sd=k1, ind=i, c=c1, m=m1, r=2, p=p1}
 
 
-    fun ccompare ({sd=k1, ind=i1, c=c1, m=m1, r=r1, p=p1},
+    let rec ccompare ({sd=k1, ind=i1, c=c1, m=m1, r=r1, p=p1},
                   {sd=k2, ind=i2, c=c2, m=m2, r=r2, p=p2}) =
         (case (Real.compare (sum{sd=k2, ind=i2, c=c2, m=m2, r=r2, p=p2},
                              sum{sd=k1, ind=i1, c=c1, m=m1, r=r1, p=p1}),
@@ -58,7 +58,7 @@ struct
              of  (EQUAL, result) => result
            | (result, _) => result)
 
-    fun compare ({sd=k1, ind=i1, c=c1, m=m1, r=r1, p=p1},
+    let rec compare ({sd=k1, ind=i1, c=c1, m=m1, r=r1, p=p1},
                  {sd=k2, ind=i2, c=c2, m=m2, r=r2, p=p2}) =
         ccompare (conv({sd=k1, ind=i1, c=c1, m=m1, r=r1, p=p1}),
                   conv({sd=k2, ind=i2, c=c2, m=m2, r=r2, p=p2}))

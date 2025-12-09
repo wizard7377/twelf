@@ -45,13 +45,13 @@ struct
 
     let boolID = ref ~1 : cid ref
 
-    fun bool () = Root (Const (!boolID), Nil)
+    let rec bool () = Root (Const (!boolID), Nil)
 
     let trueID  = ref ~1 : cid ref
     let falseID = ref ~1 : cid ref
 
-    fun trueExp ()  = Root (Const (!trueID), Nil)
-    fun falseExp () = Root (Const (!falseID), Nil)
+    let rec trueExp ()  = Root (Const (!trueID), Nil)
+    let rec falseExp () = Root (Const (!falseID), Nil)
 
     let rec solveBool = function (G, S, 0) -> SOME(trueExp ())
       | (G, S, 1) -> SOME(falseExp ())
@@ -64,19 +64,19 @@ struct
     let impliesID = ref ~1 : cid ref
     let iffID     = ref ~1 : cid ref
 
-    fun notExp (U)        = Root (Const (!notID), App (U, Nil))
-    fun xorExp (U, V)     = Root (Const (!xorID), App (U, App (V, Nil)))
-    fun andExp (U, V)     = Root (Const (!andID), App (U, App (V, Nil)))
-    fun orExp (U, V)      = Root (Const (!orID), App (U, App (V, Nil)))
-    fun impliesExp (U, V) = Root (Const (!impliesID), App (U, App (V, Nil)))
-    fun iffExp (U, V)     = Root (Const (!iffID), App (U, App (V, Nil)))
+    let rec notExp (U)        = Root (Const (!notID), App (U, Nil))
+    let rec xorExp (U, V)     = Root (Const (!xorID), App (U, App (V, Nil)))
+    let rec andExp (U, V)     = Root (Const (!andID), App (U, App (V, Nil)))
+    let rec orExp (U, V)      = Root (Const (!orID), App (U, App (V, Nil)))
+    let rec impliesExp (U, V) = Root (Const (!impliesID), App (U, App (V, Nil)))
+    let rec iffExp (U, V)     = Root (Const (!iffID), App (U, App (V, Nil)))
 
     (* member eq (x, L) = true iff there there is a y in L s.t. eq(y, x) *)
-    fun member eq (x, L) =
+    let rec member eq (x, L) =
           List.exists (fun y -> eq(x, y)) L
 
     (* differenceSet eq L1 L2 = (L1 \ L2) U (L2 \ L1) *)
-    fun differenceSet eq (L1, L2) =
+    let rec differenceSet eq (L1, L2) =
           let
             let L1' = List.filter (fun x -> not (member eq (x, L2))) L1
             let L2' = List.filter (fun x -> not (member eq (x, L1))) L2
@@ -85,13 +85,13 @@ struct
           end
 
     (* equalSet eq (L1, L2) = true iff L1 is equal to L2 (both seen as sets) *)
-    fun equalSet eq (L1, L2) =
+    let rec equalSet eq (L1, L2) =
           (case differenceSet eq (L1, L2)
              of nil => true
               | (_ :: _) => false)
 
     (* unionSet eq (L1, L2) = L1 U L2 *)
-    fun unionSet eq (L1, L2) =
+    let rec unionSet eq (L1, L2) =
           let
             let L2' = List.filter (fun x -> not (member eq (x, L1))) L2
           in
@@ -135,7 +135,7 @@ struct
       | toExpEClo Us = EClo Us
 
     (* compatibleMon (mon1, mon2) = true only if mon1 = mon2 (as monomials) *)
-    fun compatibleMon (Mon UsL1, Mon UsL2) =
+    let rec compatibleMon (Mon UsL1, Mon UsL2) =
           equalSet (fn (Us1, Us2) => sameExp (Us1, Us2))
                    (UsL1, UsL2)
 
@@ -208,7 +208,7 @@ struct
        then sum3 normal
        and  sum3 = sum1 xor sum2
     *)
-    fun xorSum (sum (m1, monL1), sum (m2, monL2)) =
+    let rec xorSum (sum (m1, monL1), sum (m2, monL2)) =
           sum (not (m1 = m2), differenceSet compatibleMon (monL1, monL2))
 
     (* andSum (sum1, sum2) = sum3
@@ -251,7 +251,7 @@ struct
        then sum' normal
        and  sum' = not sum
     *)
-    fun notSum (sum (m, monL)) =
+    let rec notSum (sum (m, monL)) =
           sum (not m, monL)
 
     (* orSum (sum1, sum2) = sum3
@@ -262,7 +262,7 @@ struct
        then sum3 normal
        and  sum3 = sum1 or sum2
     *)
-    fun orSum (sum1, sum2) =
+    let rec orSum (sum1, sum2) =
           xorSum (sum1, xorSum (sum2, andSum (sum1, sum2)))
 
     (* impliesSum (sum1, sum2) = sum3
@@ -273,7 +273,7 @@ struct
        then sum3 normal
        and  sum3 = sum1 implies sum2
     *)
-    fun impliesSum (sum1, sum2) =
+    let rec impliesSum (sum1, sum2) =
           notSum (xorSum (sum1, andSum (sum1, sum2)))
 
     (* iffSum (sum1, sum2) = sum3
@@ -284,7 +284,7 @@ struct
        then sum3 normal
        and  sum3 = sum1 iff sum2
     *)
-    fun iffSum (sum1, sum2) =
+    let rec iffSum (sum1, sum2) =
            notSum (xorSum (sum1, sum2))
 
     (* fromExpW (U, s) = sum
@@ -324,7 +324,7 @@ struct
           Mon (List.map (fun Us -> Whnf.whnf (f (EClo Us), id)) UsL)
 
     (* appSum (f, m + M1 + ...) = ()     and appMon (f, Mi) for each i *)
-    fun appSum (f, sum (m, monL)) =
+    let rec appSum (f, sum (m, monL)) =
         List.app (fun mon -> appMon (f, mon)) monL
 
     (* appMon (f, n * (U1, s1) + ... ) = () and f (Ui[si]) for each i *)
@@ -335,7 +335,7 @@ struct
          SOME(x) if f(M) = SOME(x) for some monomial M in sum
          NONE    if f(M) = NONE for all monomials M in sum
     *)
-    fun findMon f (G, sum(m, monL)) =
+    let rec findMon f (G, sum(m, monL)) =
           let
             let rec findMon' = function (nil, monL2) -> NONE
               | (mon :: monL1, monL2) -> 
@@ -354,7 +354,7 @@ struct
        then result is the outcome (of type FgnUnify) of solving the
        equation sum1 = sum2 by gaussian elimination.
     *)
-    fun unifySum (G, sum1, sum2) =
+    let rec unifySum (G, sum1, sum2) =
           let
             let rec invertMon = function (G, Mon [(LHS as EVar (r, _, _, _), s)], sum) -> 
                   if Whnf.isPatSub s
@@ -443,7 +443,7 @@ struct
     let rec unifyWith = function (MyIntsynRep sum) (G, U2) -> unifySum (G, normalizeSum sum, fromExp (U2, id))
       | fe _ -> raise (UnexpectedFgnExp fe)
 
-    fun installFgnExpOps () = let
+    let rec installFgnExpOps () = let
         let csid = !myID
         let _ = FgnExpStd.ToInternal.install (csid, toInternal)
         let _ = FgnExpStd.Map.install (csid, map)
@@ -454,7 +454,7 @@ struct
         ()
     end
 
-    fun makeFgn (arity, opExp) (S) =
+    let rec makeFgn (arity, opExp) (S) =
           let
             let rec makeParams = function 0 -> Nil
               | n -> 
@@ -477,23 +477,23 @@ struct
             makeLam (toFgn (opExp S')) arity'
           end
 
-    fun makeFgnUnary opSum =
+    let rec makeFgnUnary opSum =
           makeFgn (1,
             fn (App (U, Nil)) =>
                opSum (fromExp (U, id)))
 
-    fun makeFgnBinary opSum =
+    let rec makeFgnBinary opSum =
           makeFgn (2,
             fn (App (U1, App (U2, Nil))) =>
               opSum (fromExp (U1, id), fromExp (U2, id)))
 
-    fun arrow (U, V) = Pi ((Dec (NONE, U), No), V)
+    let rec arrow (U, V) = Pi ((Dec (NONE, U), No), V)
 
     (* init (cs, installFunction) = ()
        Initialize the constraint solver.
        installFunction is used to add its module type symbols.
     *)
-    fun init (cs, installF) =
+    let rec init (cs, installF) =
           (
             myID := cs;
 

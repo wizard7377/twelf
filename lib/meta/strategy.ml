@@ -24,36 +24,36 @@ struct
 
     module S = StateSyn
 
-    fun printInit () =
+    let rec printInit () =
         if !Global.chatter > 3 then print "Strategy\n"
         else ()
 
-    fun printFilling () =
+    let rec printFilling () =
         if !Global.chatter > 5 then print ("[Filling ... ")
         else if !Global.chatter> 4 then print ("F")
              else  ()
 
-    fun printRecursion () =
+    let rec printRecursion () =
         if !Global.chatter > 5 then print ("[Recursion ...")
         else if !Global.chatter> 4 then print ("R")
              else ()
 
-    fun printInference () =
+    let rec printInference () =
         if !Global.chatter > 5 then print ("[Inference ...")
         else if !Global.chatter> 4 then print ("I")
              else ()
 
-    fun printSplitting splitOp =
+    let rec printSplitting splitOp =
         (* if !Global.chatter > 5 then print ("[" ^ MTPSplitting.menu splitOp) *)
         if !Global.chatter > 5 then print ("[Splitting ...")
         else if !Global.chatter> 4 then print ("S")
              else ()
 
-    fun printCloseBracket () =
+    let rec printCloseBracket () =
         if !Global.chatter > 5 then print ("]\n")
         else ()
 
-    fun printQed () =
+    let rec printQed () =
         (if !Global.chatter > 3 then print ("[QED]\n")
          else ();
          if !Global.chatter > 4 then print ("Statistics: required Twelf.Prover.maxFill := "
@@ -71,7 +71,7 @@ struct
     let rec findMin = function nil -> NONE
       | L -> 
           let
-            fun findMin' (nil, result) = result
+            let rec findMin' (nil, result) = result
               | findMin' (O' :: L', NONE) =
                 if MTPSplitting.applicable O' then
                    findMin' (L', SOME O')
@@ -99,7 +99,7 @@ struct
          contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
     *)
-    fun split (S :: givenStates, os as (openStates, solvedStates)) =
+    let rec split (S :: givenStates, os as (openStates, solvedStates)) =
         case findMin ((Timers.time Timers.splitting MTPSplitting.expand) S) of
           NONE => fill (givenStates, (S :: openStates, solvedStates))
         | SOME splitOp =>
@@ -146,7 +146,7 @@ struct
        solvedStates' contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
      *)
-    fun run givenStates =
+    let rec run givenStates =
         (let
           let _ = printInit ()
           let (openStates, solvedStates) = fill (givenStates, (nil, nil))

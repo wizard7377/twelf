@@ -99,12 +99,12 @@ struct
       | RL -> RL
       | RLdone -> RLdone
 
-    fun (* decrease (Assumption k) = Assumption (k-1)
+    let rec (* decrease (Assumption k) = Assumption (k-1)
       | *) decrease (Lemma (Sp)) = Lemma (decreaseInfo Sp)
       | decrease None = None
 
 
-    fun splitDepth (Splits k) = k
+    let rec splitDepth (Splits k) = k
 
     (* normalizeTag (T, s) = T'
 

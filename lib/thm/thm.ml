@@ -27,7 +27,7 @@ struct
     module I = IntSyn
     module P = ThmPrint
     module O = Order
-    fun error (r, msg) = raise Error (Paths.wrap (r, msg))
+    let rec error (r, msg) = raise Error (Paths.wrap (r, msg))
 
     (* To check validity of a termination declaration  O C
        we enforce that all variable names which occur in C must be distinct
@@ -46,7 +46,7 @@ struct
        else exception Error is raised.
        (r is region information for error message)
     *)
-    fun unique (((a, P), r), A) =
+    let rec unique (((a, P), r), A) =
       let
         let rec unique' = function (I.Uni _, nil, A) -> A
           | (I.Pi (_, V), NONE :: P, A) -> unique' (V, P, A)
@@ -81,7 +81,7 @@ struct
        each region corresponds to one type in the call pattern,
        in order)
     *)
-    fun uniqueCallpats (L, rs) =
+    let rec uniqueCallpats (L, rs) =
         let
           let rec uniqueCallpats' = function ((nil, nil), A) -> ()
             | ((aP :: L, r :: rs), A) -> 
@@ -101,7 +101,7 @@ struct
        else exception Error is raised
        (r region information, needed for error messages)
     *)
-    fun wfCallpats (L0, C0, r) =
+    let rec wfCallpats (L0, C0, r) =
         let
           let rec makestring = function nil -> ""
             | (s :: nil) -> s
@@ -152,7 +152,7 @@ struct
        else exception Error is raised
        (r, rs  region information, needed for error messages)
     *)
-    fun wf ((O, L.Callpats C), (r, rs)) =
+    let rec wf ((O, L.Callpats C), (r, rs)) =
         let
           let rec wfOrder = function (L.Varg L) -> wfCallpats (L, C, r)
             | (L.Lex L) -> wfOrders L
@@ -196,7 +196,7 @@ struct
             in the call pattern
        then n' describes the position of the virtual argument in P
     *)
-    fun locate (x :: vars, params, imp) =
+    let rec locate (x :: vars, params, imp) =
         case argPos (x, params, imp+1)
           of NONE => locate (vars, params, imp)
            | SOME n => n
@@ -266,7 +266,7 @@ struct
 
        Effect: All orders are stored
     *)
-    fun installDecl (O, L.Callpats L) =
+    let rec installDecl (O, L.Callpats L) =
         (installOrder (O, L, nil);
          map (fn (a, _) => a) L)
 
@@ -283,16 +283,16 @@ struct
         rs is a list of regions of C
         used for error messages)
     *)
-    fun installTerminates (L.TDecl T, rrs) = (wf (T, rrs); installDecl T)
+    let rec installTerminates (L.TDecl T, rrs) = (wf (T, rrs); installDecl T)
 
-    fun uninstallTerminates cid = O.uninstall cid
+    let rec uninstallTerminates cid = O.uninstall cid
 
     (* installTotal (T, (r, rs)) = L'
        Invariant as in installTerminates
     *)
-    fun installTotal (L.TDecl T, rrs) = (wf (T, rrs); installDecl T)
+    let rec installTotal (L.TDecl T, rrs) = (wf (T, rrs); installDecl T)
 
-    fun uninstallTotal cid = O.uninstall cid
+    let rec uninstallTotal cid = O.uninstall cid
 
     (* -bp *)
 
@@ -358,7 +358,7 @@ struct
 
        Effect: reduction order is stored
     *)
-    fun installRDecl (R, L.Callpats L) =
+    let rec installRDecl (R, L.Callpats L) =
         (installPredicate (R, L, nil);
          map (fn (a, _) => a) L)
 
@@ -368,7 +368,7 @@ struct
        Tue Apr 30 10:32:31 2002 -bp
      *)
 
-    fun wfRCallpats (L0, C0, r) =
+    let rec wfRCallpats (L0, C0, r) =
         let
           let rec makestring = function nil -> ""
             | (s :: nil) -> s
@@ -409,7 +409,7 @@ struct
        else exception Error is raised
        (r, rs  region information, needed for error messages)
     *)
-    fun wfred ((L.RedOrder(Pred,O,O'), L.Callpats C), (r, rs)) =
+    let rec wfred ((L.RedOrder(Pred,O,O'), L.Callpats C), (r, rs)) =
         let
           let rec wfOrder = function (L.Varg L) -> (wfRCallpats (L, C, r) ; Varg)
             | (L.Lex L) -> Lex(wfOrders L)
@@ -442,12 +442,12 @@ struct
         rs is a list of regions of C
         used for error messages)
     *)
-    fun installReduces (L.RDecl (R, C), rrs) = (wfred ((R, C), rrs); installRDecl (R, C))
-    fun uninstallReduces cid = O.uninstallROrder cid
+    let rec installReduces (L.RDecl (R, C), rrs) = (wfred ((R, C), rrs); installRDecl (R, C))
+    let rec uninstallReduces cid = O.uninstallROrder cid
 
-    fun installTabled (L.TabledDecl cid) = TabledSyn.installTabled cid
+    let rec installTabled (L.TabledDecl cid) = TabledSyn.installTabled cid
 
-    fun installKeepTable (L.KeepTableDecl cid) = TabledSyn.installKeepTable cid
+    let rec installKeepTable (L.KeepTableDecl cid) = TabledSyn.installKeepTable cid
 
   in
     let installTotal = installTotal

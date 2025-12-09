@@ -6,7 +6,7 @@ module HashTable
   (type key'
    let hash : key' -> int
    let eq : key' * key' -> bool)
-  :> TABLE where type key = key' =
+  :> TABLE with type key = key' =
 struct
   type key = key'
   type 'a entry = key * 'a
@@ -16,14 +16,14 @@ struct
   type 'a bucket = Nil | Cons of 'a ref * ('a bucket) ref
   type 'a Table = ((int * 'a entry) bucket) array * int
 
-  fun new (n) = (Array.array (n,Nil), n)
+  let rec new (n) = (Array.array (n,Nil), n)
 
-  fun insertShadow (a,n) (e as (key, datum)) =
+  let rec insertShadow (a,n) (e as (key, datum)) =
       let
 	let hashVal = hash key
 	let index = hashVal mod n
 	let bucket = Array.sub (a, index)
-	fun insertB (Cons(r' as ref(hash', e' as (key', datum')), br')) =
+	let rec insertB (Cons(r' as ref(hash', e' as (key', datum')), br')) =
 	    if hashVal = hash' andalso eq (key, key')
 	       then (r' := (hashVal, e); SOME (e'))
 	    else insertBR (br')
@@ -38,9 +38,9 @@ struct
 	insertA bucket
       end
 
-  fun insert h e = (insertShadow h e; ())
+  let rec insert h e = (insertShadow h e; ())
 
-  fun lookup (a,n) key =
+  let rec lookup (a,n) key =
       let
 	let hashVal = hash key
 	let rec lookup' = function (Cons(ref(hash1, (key1, datum1)), br)) -> 
@@ -53,12 +53,12 @@ struct
 	lookup' bucket
       end
 
-  fun delete (a,n) key =
+  let rec delete (a,n) key =
       let
 	let hashVal = hash key
 	let index = hashVal mod n
 	let bucket = Array.sub (a, index)
-	fun deleteBR (br as ref(Cons (ref (hash1, (key1, _)), br1))) =
+	let rec deleteBR (br as ref(Cons (ref (hash1, (key1, _)), br1))) =
 	      if hashVal = hash1 andalso eq (key, key1)
                 then br := !br1
               else deleteBR br1
@@ -73,11 +73,11 @@ struct
 	deleteA bucket
       end
 
-  fun clear (a,n) = Array.modify (fun _ -> Nil) a
+  let rec clear (a,n) = Array.modify (fun _ -> Nil) a
 
   let rec appBucket = function f (Nil) -> ()
     | f (Cons(ref(_, e), br)) -> 
         (f e; appBucket f (!br))
 
-  fun app f (a,n) = Array.app (appBucket f) a
+  let rec app f (a,n) = Array.app (appBucket f) a
 end;; (* functor HashTable *)

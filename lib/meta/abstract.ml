@@ -88,7 +88,7 @@ struct
     (* exists P K = B
        where B iff K = K1, Y, K2  s.t. P Y  holds
     *)
-    fun exists P K =
+    let rec exists P K =
         let fun exists' (I.Null) = false
               | exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
         in
@@ -285,7 +285,7 @@ struct
        and  G x A |- k' : V''
        and  G x A |- V' [s] = V'' : type
     *)
-    fun lookupBV (K, i) =
+    let rec lookupBV (K, i) =
       let
         let rec lookupBV' = function (I.Decl (K, EV (r, V, _, _)), i, k) -> 
               lookupBV' (K, i, k+1)
@@ -422,7 +422,7 @@ struct
 
        Invariant: G |- V : L' for some L'
     *)
-    fun checkType V =
+    let rec checkType V =
         (case getLevel V
            of I.Type => ()
             | _ => raise Error "Typing ambiguous -- free type variable")
@@ -528,7 +528,7 @@ struct
        and  G' |- B' tags
        and  G' |- s' : G
     *)
-    fun abstractNew ((G0, B0), s, B) =
+    let rec abstractNew ((G0, B0), s, B) =
         let
           let cf = collectGlobalSub (G0, s, B, fn (_, K') => K')
           let K = cf (0, I.Null)
@@ -552,7 +552,7 @@ struct
        and  B' |- G' tags
        and  G' |- s' : G
     *)
-    fun abstractSubAll (t, B1, (G0, B0), s, B) =
+    let rec abstractSubAll (t, B1, (G0, B0), s, B) =
         let
           (* skip'' (K, (G, B)) = K'
 
@@ -812,7 +812,7 @@ struct
        then G'; . |- F' = {EVARS} AF  for
     *)
 
-    fun makeFor (K, w, Head (G, (F, s), d)) =
+    let rec makeFor (K, w, Head (G, (F, s), d)) =
         let
           let cf = collectGlobalSub (G, s, createEmptyB d, fn (_, K') => K')
           let k = I.ctxLength K

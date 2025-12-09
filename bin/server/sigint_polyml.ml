@@ -1,4 +1,4 @@
-(SigINT : SIGIN)T =
+(SigINT : SIGINT) =
 struct
 
   fun interruptLoop (loop:unit -> unit) =

@@ -378,7 +378,7 @@ struct
        and (U',id) in whnf and U' in head-eta-long form
     *)
     (* FIX: this is almost certainly mis-design -kw *)
-    fun etaExpandRoot (U as Root(H, S)) =
+    let rec etaExpandRoot (U as Root(H, S)) =
           etaExpand' (U, inferSpine ((S, id), (inferCon(H), id)))
 
     (* whnfEta ((U, s1), (V, s2)) = ((U', s1'), (V', s2)')
@@ -398,7 +398,7 @@ struct
        Similar to etaExpand', but without recursive expansion
     *)
     (* FIX: this is almost certainly mis-design -kw *)
-    fun whnfEta (Us, Vs) = whnfEtaW (whnf Us, whnf Vs)
+    let rec whnfEta (Us, Vs) = whnfEtaW (whnf Us, whnf Vs)
 
     and whnfEtaW (UsVs as (_, (Root _, _))) = UsVs
       | whnfEtaW (UsVs as ((Lam _, _), (Pi _, _))) = UsVs
@@ -417,7 +417,7 @@ struct
        If (U, s) contain no existential variables,
        then U' in normal formal
     *)
-    fun normalizeExp Us = normalizeExpW (whnf Us)
+    let rec normalizeExp Us = normalizeExpW (whnf Us)
 
     and normalizeExpW (U as Uni (L), s) = U
       | normalizeExpW (Pi (DP, U), s) =
@@ -471,7 +471,7 @@ struct
        then G' |- s' : G
        s.t. s o s' = id
     *)
-    fun invert s =
+    let rec invert s =
       let
         let rec lookup = function (n, Shift _, p) -> NONE
           | (n, Dot (Undef, s'), p) -> lookup (n+1, s', p)
@@ -525,7 +525,7 @@ struct
       | (Dot (Idx(n), s'), k') -> 
           n = k' andalso isId' (s', k'+1)
       | _ -> false
-    fun isId s = isId' (s, 0)
+    let rec isId s = isId' (s, 0)
 
     (* cloInv (U, w) = U[w^-1]
 
@@ -537,7 +537,7 @@ struct
        then G' |- U[w^-1] : V[w^-1]
        Effects: None
     *)
-    fun cloInv (U, w) = EClo (U, invert w)
+    let rec cloInv (U, w) = EClo (U, invert w)
 
     (* cloInv (s, w) = s o w^-1
 
@@ -549,7 +549,7 @@ struct
        then G2 |- s o w^-1 : G1
        Effects: None
     *)
-    fun compInv (s, w) = comp (s, invert w)
+    let rec compInv (s, w) = comp (s, invert w)
 
     (* functions previously in the Pattern functor *)
     (* eventually, they may need to be mutually recursive with whnf *)
@@ -601,7 +601,7 @@ struct
       | (Dot (Idx (n), s)) -> 
         let
           let s' = mkPatSub s
-          fun checkBVar (Shift(k)) = (n <= k)
+          let rec checkBVar (Shift(k)) = (n <= k)
             | checkBVar (Dot (Idx (n'), s')) =
               n <> n' andalso checkBVar (s')
             | checkBVar (Dot (Undef, s')) =
@@ -620,7 +620,7 @@ struct
         end
       | _ -> raise Eta
 
-    fun makePatSub (s) = SOME (mkPatSub (s)) handle Eta => NONE
+    let rec makePatSub (s) = SOME (mkPatSub (s)) handle Eta => NONE
 
   in
     let isPatSub = isPatSub

@@ -12,7 +12,7 @@ module Redundant (Opsem : OPSEM) : REDUNDANT  =
     module T = Tomega
     module I = IntSyn
 
-    fun optionRefEqual (r1, r2, func) =
+    let rec optionRefEqual (r1, r2, func) =
       if (r1 = r2) then
         true
       else

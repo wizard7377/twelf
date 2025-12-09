@@ -20,7 +20,7 @@ struct
     module LS = Lexer.Stream
     module P = Paths
 
-    fun returnQuery (optName, (tm, f)) = (ExtQuery.query (optName, tm), f)
+    let rec returnQuery (optName, (tm, f)) = (ExtQuery.query (optName, tm), f)
 
     (* parseQuery1 (name, f, f')   ": A" from f' or "V" from f. *)
 
@@ -42,11 +42,11 @@ struct
           returnQuery (NONE, ParseTerm.parseTerm' f)
 
     (* parseQuery --- currently not exported *)
-    fun parseQuery (s) = parseQuery' (LS.expose s)
+    let rec parseQuery (s) = parseQuery' (LS.expose s)
 
     (* parseDefine4 parses the definition body *)
     (* "U" *)
-    fun parseDefine4 (optName, optT, s) =
+    let rec parseDefine4 (optName, optT, s) =
         let
           let (tm', f') = ParseTerm.parseTerm' (LS.expose s)
         in

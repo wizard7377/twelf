@@ -1,10 +1,10 @@
 
-(Timers : TIMER)S =
+(Timers : TIMERS) =
 struct
 
   let centers : Timing.center list ref = ref []
 
-  fun add_timer name =
+  let rec add_timer name =
       let
         let center = Timing.newCenter name
       in
@@ -21,12 +21,12 @@ struct
 
   let time = Timing.time
 
-  fun reset () = List.app Timing.reset (!centers)
+  let rec reset () = List.app Timing.reset (!centers)
 
-  fun check () =
+  let rec check () =
       (List.app (print o Timing.toString) (!centers);
        print (Timing.sumToString total))
 
-  fun show () = (check (); reset ()) 
+  let rec show () = (check (); reset ()) 
 
 end

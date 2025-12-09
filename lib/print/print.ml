@@ -39,27 +39,27 @@ local
   (* Disambiguation of block logic variable names *)
   let lvars : I.Block option ref list ref
             = ref nil
-  fun lookuplvar (l) =
+  let rec lookuplvar (l) =
       let
         let _ = if (List.exists (fun r -> r = l) (!lvars)) then () else lvars := !lvars @ [l]   (* speed improvment possible Tue Mar  1 13:27:04 2011 --cs *)
-        fun find (r :: L) n =  if r = l then n else find L (n+1)
+        let rec find (r :: L) n =  if r = l then n else find L (n+1)
       in
         Int.toString (find (!lvars) 0)
       end
 
 
   let Str = F.String
-  fun Str0 (s, n) = F.String0 n s
-  fun sym (s) = Str0 (Symbol.sym s)
+  let rec Str0 (s, n) = F.String0 n s
+  let rec sym (s) = Str0 (Symbol.sym s)
 
   let rec nameOf = function (SOME(id)) -> id
     | (NONE) -> "_"
 
   (* fmtEVar (G, X) = "X", the name of the EVar X *)
   (* Effect: Names.evarName will assign a name if X does not yet have one *)
-  fun fmtEVar (G, X) = Str0 (Symbol.evar (Names.evarName(G, X)))
+  let rec fmtEVar (G, X) = Str0 (Symbol.evar (Names.evarName(G, X)))
   (* should probably be a new Symbol constructor for AVars -kw *)
-  fun fmtAVar (G, X) = Str0 (Symbol.evar (Names.evarName(G, X) ^ "_"))
+  let rec fmtAVar (G, X) = Str0 (Symbol.evar (Names.evarName(G, X) ^ "_"))
 
   (* isNil S = true iff S == Nil *)
   let rec isNil = function (I.Nil) -> true
@@ -78,7 +78,7 @@ local
      where Xr is the raised version of Xl.
      Xr is not actually created, just printed using the name of Xl.
   *)
-  fun subToSpine (depth, s) =
+  let rec subToSpine (depth, s) =
       let fun sTS (I.Shift(k), S) =
               if k < depth
                 then sTS (I.Dot (I.Idx (k+1), I.Shift(k+1)), S)
@@ -178,7 +178,7 @@ local
   (* arrow (V1, V2) = oa
      where oa is the operator/argument representation of V1 -> V2
   *)
-  fun arrow (V1, V2) =
+  let rec arrow (V1, V2) =
          OpArgs(FX.Infix(arrowPrec, FX.Right),
                 [F.Break, sym "->", F.Space],
                 I.App (V1, I.App(V2, I.Nil)))
@@ -207,14 +207,14 @@ local
     | (FX.Postfix _) -> 1
 
   (* FIX: this is certainly not correct -kw *)
-  fun fmtConstPath (f, Names.Qid (ids, id)) =
+  let rec fmtConstPath (f, Names.Qid (ids, id)) =
         F.HVbox (foldr (fn (id, fmt) => Str0 (Symbol.str (id))::sym "."::fmt)
                        [Str0 (f (id))] ids)
 
   let rec parmDec = function (D::L, 1) -> D
     | (D::L, j) -> parmDec (L, j-1)
 
-  fun parmName (cid, i) =
+  let rec parmName (cid, i) =
       let
         let (Gsome, Gblock) = I.constBlock (cid)
       in
@@ -239,23 +239,23 @@ local
        "*"    (* to be fixed --cs *)
 
 
-  fun constQid (cid) =
+  let rec constQid (cid) =
       if !noShadow
       then Names.conDecQid (I.sgnLookup cid)
       else Names.constQid cid
 
-    fun cidToFmt (cid) = F.String (Names.qidToString (Names.constQid cid))
+    let rec cidToFmt (cid) = F.String (Names.qidToString (Names.constQid cid))
     let rec formatCids = function (nil) -> nil
       | (cid::nil) -> [cidToFmt cid]
       | (cid::cids) -> cidToFmt cid
                                  :: F.Break :: F.String "|" :: F.Space
                                  :: formatCids cids
 
-    fun formatWorlds (T.Worlds cids) =
+    let rec formatWorlds (T.Worlds cids) =
         F.Hbox [F.String "(", F.HVbox (formatCids cids), F.String ")"]
 
 
-    fun worldsToString (W) = F.makestring_fmt (formatWorlds W)
+    let rec worldsToString (W) = F.makestring_fmt (formatWorlds W)
 
   (* fmtCon (c) = "c" where the name is assigned according the the Name table
      maintained in the names module.
@@ -295,12 +295,12 @@ local
      formats X[s] by printing X @ S, where S is the substitution s in spine form.
      This is an implicit form of raising.
   *)
-  fun evarArgs (G, d, X, s) =
+  let rec evarArgs (G, d, X, s) =
       OpArgs (FX.Nonfix, [fmtEVar(G, X)],
               subToSpine (I.ctxLength(G), s))
 
 
-  fun evarArgs' (G, d, X, s) =
+  let rec evarArgs' (G, d, X, s) =
       OpArgs (FX.Nonfix, [fmtAVar(G, X)],
               subToSpine (I.ctxLength(G), s))
 
@@ -313,14 +313,14 @@ local
     | (I.SClo (S, s'), s) -> snd (S, I.comp (s', s))
 
   (* elide (l) = true  iff  l exceeds the optional printLength bound *)
-  fun elide (l) = case !printLength
+  let rec elide (l) = case !printLength
                      of NONE => false
                       | SOME(l') => (l > l')
 
   let ldots = sym "..."
 
   (* addots (l) = true  iff  l is equal to the optional printLength bound *)
-  fun addots (l) = case !printLength
+  let rec addots (l) = case !printLength
                      of NONE => false
                       | SOME(l') => (l = l')
 
@@ -328,7 +328,7 @@ local
      where fmt' contains additional parentheses when the precedence of
      fixity' is greater or equal to that of fixity, otherwise it is unchanged.
   *)
-  fun parens ((fixity', fixity), fmt) =
+  let rec parens ((fixity', fixity), fmt) =
       if FX.leq (FX.prec(fixity), FX.prec(fixity'))
         then F.Hbox [sym "(", fmt, sym ")"]
       else fmt
@@ -362,7 +362,7 @@ local
   (* aa (ctx, fmt) = fmt'
      Extend the current "left context" by fmt.
   *)
-  fun aa (Ctxt (fixity, accum, l), fmt) = addAccum (fmt, fixity, accum)
+  let rec aa (Ctxt (fixity, accum, l), fmt) = addAccum (fmt, fixity, accum)
 
   (* fmtUni (L) = "L" *)
   let rec fmtUni = function (I.Type) -> sym "type"
@@ -758,7 +758,7 @@ local
         ::fmtDecList (I.Decl (G0, D), L)
 
   (* Assume unique names are already assigned in G0 and G! *)
-  fun fmtCtx (G0, G) = fmtDecList (G0, ctxToDecList (G, nil))
+  let rec fmtCtx (G0, G) = fmtDecList (G0, ctxToDecList (G, nil))
 
 
   let rec fmtBlock = function (I.Null, Lblock) -> 
@@ -864,7 +864,7 @@ local
         end
     | (I.FgnCnstr (csfc as (cs, _))) -> 
         let
-          fun fmtExpL (nil) = [Str "Empty Constraint"]
+          let rec fmtExpL (nil) = [Str "Empty Constraint"]
             | fmtExpL ((G, U) :: nil) =
                 [fmtExp (Names.ctxLUName G, 0, noCtxt, (U, I.id))]
             | fmtExpL ((G,U) :: expL) =
@@ -912,7 +912,7 @@ local
     | ((U,_)::Xnames, Xs) -> 
         collectEVars (Xnames, Abstract.collectEVars (I.Null, (U, I.id), Xs))
 
-  fun eqCnstr r1 r2 = (r1 = r2)
+  let rec eqCnstr r1 r2 = (r1 = r2)
 
   let rec mergeConstraints = function (nil, cnstrs2) -> cnstrs2
     | (cnstr::cnstrs1, cnstrs2) -> 
@@ -933,29 +933,29 @@ in
          actually applied in the scope (typically, using Names.decName)
      (b) types need not be well-formed, since they are not used
   *)
-  fun formatDec (G, D) = fmtDec (G, 0, (D, I.id))
-  fun formatDecList (G, D) = F.HVbox (fmtDecList (G, D))
-  fun formatDecList' (G, (D,s)) = F.HVbox (fmtDecList' (G, (D, s)))
-  fun formatExp (G, U) = fmtExp (G, 0, noCtxt, (U, I.id))
-  fun formatSpine (G, S) = fmtSpine (G, 0, 0, (S, I.id))
-  fun formatConDec (condec) = fmtConDec (false, condec)
-  fun formatConDecI (condec) = fmtConDec (true, condec)
-  fun formatCnstr (Cnstr) = F.Vbox0 0 1 (fmtCnstr Cnstr)
-  fun formatCnstrs (cnstrL) = F.Vbox0 0 1 (fmtCnstrL cnstrL)
-  fun formatCtx (G0, G) = F.HVbox (fmtCtx (G0, G))      (* assumes G0 and G are named *)
+  let rec formatDec (G, D) = fmtDec (G, 0, (D, I.id))
+  let rec formatDecList (G, D) = F.HVbox (fmtDecList (G, D))
+  let rec formatDecList' (G, (D,s)) = F.HVbox (fmtDecList' (G, (D, s)))
+  let rec formatExp (G, U) = fmtExp (G, 0, noCtxt, (U, I.id))
+  let rec formatSpine (G, S) = fmtSpine (G, 0, 0, (S, I.id))
+  let rec formatConDec (condec) = fmtConDec (false, condec)
+  let rec formatConDecI (condec) = fmtConDec (true, condec)
+  let rec formatCnstr (Cnstr) = F.Vbox0 0 1 (fmtCnstr Cnstr)
+  let rec formatCnstrs (cnstrL) = F.Vbox0 0 1 (fmtCnstrL cnstrL)
+  let rec formatCtx (G0, G) = F.HVbox (fmtCtx (G0, G))      (* assumes G0 and G are named *)
 
-  fun decToString (G, D) = F.makestring_fmt (formatDec (G, D))
-  fun expToString (G, U) = F.makestring_fmt (formatExp (G, U))
-  fun conDecToString (condec) = F.makestring_fmt (formatConDec (condec))
-  fun cnstrToString (Cnstr) = F.makestring_fmt (formatCnstr Cnstr)
-  fun cnstrsToString (cnstrL) = F.makestring_fmt (formatCnstrs cnstrL)
-  fun ctxToString (G0, G) = F.makestring_fmt (formatCtx (G0, G))
+  let rec decToString (G, D) = F.makestring_fmt (formatDec (G, D))
+  let rec expToString (G, U) = F.makestring_fmt (formatExp (G, U))
+  let rec conDecToString (condec) = F.makestring_fmt (formatConDec (condec))
+  let rec cnstrToString (Cnstr) = F.makestring_fmt (formatCnstr Cnstr)
+  let rec cnstrsToString (cnstrL) = F.makestring_fmt (formatCnstrs cnstrL)
+  let rec ctxToString (G0, G) = F.makestring_fmt (formatCtx (G0, G))
 
-  fun evarInstToString Xnames =
+  let rec evarInstToString Xnames =
         F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (fmtEVarInst Xnames), Str "."])
 
 
-  fun evarCnstrsToStringOpt Xnames =
+  let rec evarCnstrsToStringOpt Xnames =
       let
         let Ys = collectEVars (Xnames, nil)     (* collect EVars in instantiations *)
         let cnstrL = collectConstraints Ys
@@ -965,7 +965,7 @@ in
            | _ => SOME (cnstrsToString (cnstrL))
       end
 
-  fun printSgn () =
+  let rec printSgn () =
       IntSyn.sgnApp (fn (cid) => (print (F.makestring_fmt (formatConDecI (IntSyn.sgnLookup cid)));
                                   print "\n"))
 

@@ -43,15 +43,15 @@ struct
     let History : (MetaSyn.State Ring.ring * MetaSyn.State Ring.ring) list ref = ref nil
     let Menu : MenuItem list option ref = ref NONE
 
-    fun initOpen () = Open := Ring.init [];
-    fun initSolved () = Solved := Ring.init [];
-    fun empty () = Ring.empty (!Open)
-    fun current () = Ring.current (!Open)
-    fun delete () = Open := Ring.delete (!Open)
-    fun insertOpen S = Open := Ring.insert (!Open, S)
-    fun insertSolved S = Solved := Ring.insert (!Solved, S)
+    let rec initOpen () = Open := Ring.init [];
+    let rec initSolved () = Solved := Ring.init [];
+    let rec empty () = Ring.empty (!Open)
+    let rec current () = Ring.current (!Open)
+    let rec delete () = Open := Ring.delete (!Open)
+    let rec insertOpen S = Open := Ring.insert (!Open, S)
+    let rec insertSolved S = Solved := Ring.insert (!Solved, S)
 
-    fun insert S =
+    let rec insert S =
         if Qed.subgoal S then
           (insertSolved S;
            print (MetaPrint.stateToString S);
@@ -59,13 +59,13 @@ struct
            print "\n")
         else insertOpen S
 
-    fun collectOpen () = Ring.foldr op:: nil (!Open)
-    fun collectSolved () = Ring.foldr op:: nil (!Solved)
-    fun nextOpen () = Open := Ring.next (!Open)
+    let rec collectOpen () = Ring.foldr op:: nil (!Open)
+    let rec collectSolved () = Ring.foldr op:: nil (!Solved)
+    let rec nextOpen () = Open := Ring.next (!Open)
 
-    fun pushHistory () =
+    let rec pushHistory () =
           History :=  (!Open, !Solved) :: (!History)
-    fun popHistory () =
+    let rec popHistory () =
         case (!History)
           of nil => raise Error "History stack empty"
            | (Open', Solved') :: History' =>
@@ -74,11 +74,11 @@ struct
               Solved := Solved')
 
 
-    fun abort s =
+    let rec abort s =
         (print ("* " ^ s);
          raise Error s)
 
-    fun reset () =
+    let rec reset () =
         (initOpen ();
          initSolved ();
          History := nil;
@@ -99,7 +99,7 @@ struct
     let rec RecursionToMenu = function (nil, A) -> A
       | (O :: L, A) -> RecursionToMenu (L, Recursion O :: A)
 
-    fun menu () =
+    let rec menu () =
         if empty () then Menu := NONE
         else
           let
@@ -115,11 +115,11 @@ struct
           end
 
 
-    fun format k =
+    let rec format k =
         if k < 10 then (Int.toString k) ^ ".  "
         else (Int.toString k) ^ ". "
 
-    fun menuToString () =
+    let rec menuToString () =
         let
           let rec menuToString' = function (k, nil) -> ""
             | (k, Splitting O :: M) -> 
@@ -135,7 +135,7 @@ struct
         end
 
 
-    fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
+    let rec makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
           let rec makeConDec' = function (I.Null, V, k) -> I.ConDec (name, NONE, k, I.Normal, V, I.Type)
             | (I.Decl (G, D), V, k) -> 
@@ -148,14 +148,14 @@ struct
       | (S :: SL) -> 
           M.ConDec (makeConDec S,
                       makeSignature SL)
-    fun extract () =
+    let rec extract () =
         if empty () then makeSignature (collectSolved ())
         else (print "[Error: Proof not completed yet]\n"; M.SgnEmpty)
 
-    fun show () =
+    let rec show () =
         print (MetaPrint.sgnToString (extract ()) ^ "\n")
 
-    fun printMenu () =
+    let rec printMenu () =
         if empty () then (show (); print "[QED]\n")
         else
           let
@@ -173,10 +173,10 @@ struct
       | (x :: L, L') -> 
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
-    fun equiv (L1, L2) =
+    let rec equiv (L1, L2) =
           contains (L1, L2) andalso contains (L2, L1)
 
-    fun init' (k, cL as (c :: _)) =
+    let rec init' (k, cL as (c :: _)) =
         let
           let _ = MetaGlobal.maxFill := k
           let _ = reset ();
@@ -189,7 +189,7 @@ struct
                              ^ "\n            expected: " ^ (cLToString cL'))
         end
 
-    fun init (k, nL) =
+    let rec init (k, nL) =
         let
           let rec cids = function nil -> nil
             | (name :: nL) -> 
@@ -207,7 +207,7 @@ struct
                  | Error s => abort ("Mpi Error: " ^ s))
         end
 
-    fun select k =
+    let rec select k =
         let
           let rec select' = function (k, nil) -> abort ("No such menu item")
             | (1, Splitting O :: _) -> 
@@ -251,7 +251,7 @@ struct
         end
 
 
-    fun lemma name =
+    let rec lemma name =
         if empty () then raise Error "Nothing to prove"
         else
           let
@@ -268,7 +268,7 @@ struct
             (menu (); printMenu ())
           end
 
-    fun solve () =
+    let rec solve () =
         if empty () then raise Error "Nothing to prove"
         else
           let
@@ -286,7 +286,7 @@ struct
             (menu (); printMenu ())
           end
 
-    fun auto () =
+    let rec auto () =
         let
           let (Open', Solved') = Strategy.run (collectOpen ())
             handle Splitting.Error s => abort ("Splitting Error: " ^ s)
@@ -301,9 +301,9 @@ struct
           (menu (); printMenu ())
         end
 
-    fun next () = (nextOpen (); menu (); printMenu ())
+    let rec next () = (nextOpen (); menu (); printMenu ())
 
-    fun undo () = (popHistory (); menu (); printMenu ())
+    let rec undo () = (popHistory (); menu (); printMenu ())
 
   in
     let init = init

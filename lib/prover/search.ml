@@ -63,7 +63,7 @@ struct
       | (I.EClo (V, s)) -> isInstantiated V
       | _ -> false
 
-    fun compose'(IntSyn.Null, G) = G
+    let rec compose'(IntSyn.Null, G) = G
       | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
     let rec shift = function (IntSyn.Null, s) -> s
@@ -73,7 +73,7 @@ struct
     (* exists P K = B
        where B iff K = K1, Y, K2  s.t. P Y  holds
     *)
-    fun exists P K =
+    let rec exists P K =
         let fun exists' (I.Null) = false
               | exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
         in
@@ -87,7 +87,7 @@ struct
        If    G |- s : G1   G1 |- U : V
        then  B holds iff r occurs in (the normal form of) U
     *)
-    fun occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
+    let rec occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
 
     and occursInExpW (r, (I.Uni _, _)) = false
       | occursInExpW (r, (I.Pi ((D, _), V), s)) =
@@ -381,9 +381,9 @@ struct
        then R' is the result of applying f to P and
          traversing all possible numbers up to MTPGlobal.maxLevel
     *)
-    fun deepen depth f P =
+    let rec deepen depth f P =
         let
-          fun deepen' level =
+          let rec deepen' level =
             if level > depth then ()
             else (if !Global.chatter > 5 then print "#" else ();
                     (f level P;
@@ -403,7 +403,7 @@ struct
          All EVar's got instantiated with the smallest possible terms.
     *)
 
-    fun searchEx (it, depth) (GE, sc) =
+    let rec searchEx (it, depth) (GE, sc) =
       (if !Global.chatter > 5 then print "[Search: " else ();
          deepen depth searchEx' (selectEVar (GE),
                                  fun max -> (if !Global.chatter > 5 then print "OK]\n" else ();
@@ -432,7 +432,7 @@ struct
        success continuation will raise exception
     *)
     (* Shared contexts of EVars in GE may recompiled many times *)
-    fun search (maxFill, GE, sc) = searchEx (1, maxFill) (GE, sc)
+    let rec search (maxFill, GE, sc) = searchEx (1, maxFill) (GE, sc)
 
   in
     let searchEx = search

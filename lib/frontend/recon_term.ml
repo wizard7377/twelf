@@ -37,9 +37,9 @@ struct
 
   let delayedList : (unit -> unit) list ref = ref nil
 
-  fun clearDelayed () = (delayedList := nil)
-  fun addDelayed f = (delayedList := f::(!delayedList))
-  fun runDelayed () =
+  let rec clearDelayed () = (delayedList := nil)
+  let rec addDelayed f = (delayedList := f::(!delayedList))
+  let rec runDelayed () =
       let
         let rec run' = function nil -> ()
           | (h::t) -> (run' t; h ())
@@ -56,17 +56,17 @@ struct
   let rec exceeds = function (i, NONE) -> false
     | (i, SOME(j)) -> i > j
 
-  fun resetErrors (fileName) =
+  let rec resetErrors (fileName) =
       (errorCount := 0;
        errorFileName := fileName)
 
-  fun die (r) =
+  let rec die (r) =
         raise Error (Paths.wrap (r,
                      " " ^ Int.toString (!errorCount)
                      ^ " error" ^ (if !errorCount > 1 then "s" else "")
                      ^ " found"))
 
-  fun checkErrors (r) =
+  let rec checkErrors (r) =
        if !errorCount > 0 then die (r) else ()
 
   (* Since this module uses a non-standard error reporting mechanism,
@@ -76,18 +76,18 @@ struct
      when chatter = 1, the first such error will appear on the same line
      as "[Loading file ...", terribly confusing the Emacs error parsing code.
    *)
-  fun chatterOneNewline () =
+  let rec chatterOneNewline () =
       if !Global.chatter = 1 andalso !errorCount = 1
         then Msg.message "\n"
       else ()
 
-  fun fatalError (r, msg) =
+  let rec fatalError (r, msg) =
       (errorCount := !errorCount + 1;
        chatterOneNewline ();
        Msg.message (!errorFileName ^ ":" ^ Paths.wrap (r, msg) ^ "\n");
        die (r))
 
-  fun error (r, msg) =
+  let rec error (r, msg) =
       (errorCount := !errorCount + 1;
        chatterOneNewline ();
        Msg.message (!errorFileName ^ ":" ^ Paths.wrap (r, msg) ^ "\n");
@@ -95,7 +95,7 @@ struct
           then die (r)
        else ())
 
-  fun formatExp (G, U) =
+  let rec formatExp (G, U) =
       Print.formatExp (G, U)
       handle Names.Unprintable => F.String "%_unprintable_%"
 
@@ -139,11 +139,11 @@ struct
     let fvarTable : IntSyn.exp StringTree.Table = StringTree.new (0)
   in
 
-    fun varReset () = (StringTree.clear evarApxTable;
+    let rec varReset () = (StringTree.clear evarApxTable;
                        StringTree.clear fvarApxTable;
                        StringTree.clear fvarTable)
 
-    fun getEVarTypeApx name =
+    let rec getEVarTypeApx name =
         (case StringTree.lookup evarApxTable name
            of SOME V => V
             | NONE =>
@@ -163,7 +163,7 @@ struct
                 V
               end))
 
-    fun getFVarTypeApx name =
+    let rec getFVarTypeApx name =
         (case StringTree.lookup fvarApxTable name
            of SOME V => V
             | NONE =>
@@ -174,7 +174,7 @@ struct
                 V
               end)
 
-    fun getEVar (name, allowed) =
+    let rec getEVar (name, allowed) =
         (case Names.getEVarOpt name
            of SOME (X as IntSyn.EVar (_, G, V, _)) => (X, raiseType (G, V))
             | NONE =>
@@ -188,7 +188,7 @@ struct
                 (X, V')
               end)
 
-    fun getFVarType (name, allowed) =
+    let rec getFVarType (name, allowed) =
         (case StringTree.lookup fvarTable name
            of SOME V => V
             | NONE =>
@@ -241,10 +241,10 @@ struct
   and dec =
       dec of string option * term * Paths.region
 
-  fun backarrow (tm1, tm2) = arrow (tm2, tm1)
+  let rec backarrow (tm1, tm2) = arrow (tm2, tm1)
 
   (* for now *)
-  fun dec0 (nameOpt, r) = dec (nameOpt, omitted (r), r)
+  let rec dec0 (nameOpt, r) = dec (nameOpt, omitted (r), r)
 
   type job =
       jnothing
@@ -329,7 +329,7 @@ struct
              termToExp tm' = U
      *)
 
-    fun filterLevel (tm, L, max, msg) =
+    let rec filterLevel (tm, L, max, msg) =
         let
           let notGround = makeGroundUni L
           let Level i = whnfUni L
@@ -350,7 +350,7 @@ struct
           else ()
         end
 
-    fun findOmitted (G, qid, r) =
+    let rec findOmitted (G, qid, r) =
           (error (r, "Undeclared identifier "
                      ^ Names.qidToString (valOf (Names.constUndef qid)));
            omitted (r))
@@ -364,7 +364,7 @@ struct
           if name = name' then SOME (k)
           else findBVar' (G, name, k+1)
 
-    fun findBVar fc (G, qid, r) =
+    let rec findBVar fc (G, qid, r) =
         (case Names.unqualified qid
            of NONE => fc (G, qid, r)
             | SOME name =>
@@ -372,7 +372,7 @@ struct
                  of NONE => fc (G, qid, r)
                   | SOME k => bvar (k, r)))
 
-    fun findConst fc (G, qid, r) =
+    let rec findConst fc (G, qid, r) =
         (case Names.constLookup qid
            of NONE => fc (G, qid, r)
             | SOME cid =>
@@ -386,7 +386,7 @@ struct
                             ^ "' is not a constant, definition or abbreviation");
                      omitted (r))))
 
-    fun findCSConst fc (G, qid, r) =
+    let rec findCSConst fc (G, qid, r) =
         (case Names.unqualified qid
            of NONE => fc (G, qid, r)
             | SOME name =>
@@ -395,14 +395,14 @@ struct
                   | SOME (cs, conDec) =>
                       constant (IntSyn.FgnConst (cs, conDec), r)))
 
-    fun findEFVar fc (G, qid, r) =
+    let rec findEFVar fc (G, qid, r) =
         (case Names.unqualified qid
            of NONE => fc (G, qid, r)
             | SOME name => (if !queryMode then evar else fvar) (name, r))
 
-    fun findLCID x = findBVar (findConst (findCSConst findOmitted)) x
-    fun findUCID x = findBVar (findConst (findCSConst (findEFVar findOmitted))) x
-    fun findQUID x = findConst (findCSConst findOmitted) x
+    let rec findLCID x = findBVar (findConst (findCSConst findOmitted)) x
+    let rec findUCID x = findBVar (findConst (findCSConst (findEFVar findOmitted))) x
+    let rec findQUID x = findConst (findCSConst findOmitted) x
 
 
     let rec inferApx = function (G, tm as internal (U, V, r)) -> 
@@ -442,7 +442,7 @@ struct
           let cd = headConDec H
           let (U', V', L') = exactToApx (IntSyn.Root (H, IntSyn.Nil),
                                          IntSyn.conDecType cd)
-          fun dropImplicit (V, 0) = V
+          let rec dropImplicit (V, 0) = V
             | dropImplicit (Arrow (_, V), i) = dropImplicit (V, i-1)
           let V'' = dropImplicit (V', IntSyn.conDecImp cd)
         in
@@ -549,7 +549,7 @@ struct
           jand (inferApxJob (G, j1), inferApxJob (G, j2))
       | (G, jwithctx (g, j)) -> 
         let
-          fun ia (Null) = (G, Null)
+          let rec ia (Null) = (G, Null)
             | ia (Decl (g, tm)) =
               let
                 let (G', g') = ia (g)
@@ -623,7 +623,7 @@ struct
             IntSyn.Decl (ctxToApx G, Dec (name, V'))
           end
 
-    fun inferApxJob' (G, t) =
+    let rec inferApxJob' (G, t) =
         inferApxJob (ctxToApx G, t)
 
   end (* open Apx *)
@@ -650,16 +650,16 @@ struct
       Elim of IntSyn.Sub * IntSyn.Spine -> IntSyn.exp
     | Intro of IntSyn.exp
 
-  fun elimSub (E, s) = (fn (s', S) => E (comp (s, s'), S))
-  fun elimApp (E, U) = (fn (s, S) => E (s, App (EClo (U, s), S)))
+  let rec elimSub (E, s) = (fn (s', S) => E (comp (s, s'), S))
+  let rec elimApp (E, U) = (fn (s, S) => E (s, App (EClo (U, s), S)))
 
-  fun bvarElim (n) = (fn (s, S) =>
+  let rec bvarElim (n) = (fn (s, S) =>
       (case bvarSub (n, s)
          of Idx (n') => Root (BVar n', S)
           | Exp (U) => Redex (U, S)))
-  fun fvarElim (name, V, s) =
+  let rec fvarElim (name, V, s) =
         (fn (s', S) => Root (FVar (name, V, comp (s, s')), S))
-  fun redexElim (U) = (fn (s, S) => Redex (EClo (U, s), S))
+  let rec redexElim (U) = (fn (s, S) => Redex (EClo (U, s), S))
   (* headElim (H) = E
      assumes H not Proj _ *)
   let rec headElim = function (BVar n) -> bvarElim n
@@ -673,7 +673,7 @@ struct
      raised elim forms.
      this conforms to the external interpretation:
      the type of the returned elim form is ([[G]] V) *)
-  fun evarElim (X as EVar _) =
+  let rec evarElim (X as EVar _) =
         (fn (s, S) => EClo (X, Whnf.spineToSub (S, s)))
 
   let rec etaExpandW = function (E, (Pi ((D as Dec (_, Va), _), Vr), s)) -> 
@@ -693,7 +693,7 @@ struct
   let rec toIntro = function (Elim E, Vs) -> etaExpand (E, Vs)
     | (Intro U, Vs) -> U
 
-  fun addImplicit1W (G, E, (Pi ((Dec (_, Va), _), Vr), s), i (* >= 1 *)) =
+  let rec addImplicit1W (G, E, (Pi ((Dec (_, Va), _), Vr), s), i (* >= 1 *)) =
       let
         let X = Whnf.newLoweredEVar (G, (Va, s))
       in
@@ -708,17 +708,17 @@ struct
   (* Report mismatches after the entire process finishes -- yields better
      error messages *)
 
-  fun reportConstraints (Xnames) =
+  let rec reportConstraints (Xnames) =
       (case Print.evarCnstrsToStringOpt (Xnames)
          of NONE => ()
           | SOME(constr) => print ("Constraints:\n" ^ constr ^ "\n"))
       handle Names.Unprintable => print "%_constraints unprintable_%\n"
 
-  fun reportInst (Xnames) =
+  let rec reportInst (Xnames) =
       (Msg.message (Print.evarInstToString (Xnames) ^ "\n"))
       handle Names.Unprintable => Msg.message "%_unifier unprintable_%\n"
 
-  fun delayMismatch (G, V1, V2, r2, location_msg, problem_msg) =
+  let rec delayMismatch (G, V1, V2, r2, location_msg, problem_msg) =
       addDelayed (fn () =>
       let
         let Xs = Abstract.collectEVars (G, (V2, id),
@@ -740,7 +740,7 @@ struct
                    ^ location_msg)
       end)
 
-  fun delayAmbiguous (G, U, r, msg) =
+  let rec delayAmbiguous (G, U, r, msg) =
       addDelayed (fn () =>
       let
         let Ufmt = formatExp (G, U)
@@ -751,7 +751,7 @@ struct
                   ^ msg)
       end)
 
-  fun unifyIdem x =
+  let rec unifyIdem x =
       let
         (* this reset should be unnecessary -- for safety only *)
         let _ = Unify.reset ()
@@ -764,7 +764,7 @@ struct
         ()
       end
 
-  fun unifiableIdem x =
+  let rec unifiableIdem x =
       let
         (* this reset should be unnecessary -- for safety only *)
         let _ = Unify.reset ()
@@ -780,10 +780,10 @@ struct
   let trace = ref false
   let traceMode = ref Omniscient
 
-  fun report f = case !traceMode of Progressive => f ()
+  let rec report f = case !traceMode of Progressive => f ()
                                   | Omniscient => addDelayed f
 
-  fun reportMismatch (G, Vs1, Vs2, problem_msg) =
+  let rec reportMismatch (G, Vs1, Vs2, problem_msg) =
       report (fn () =>
       let
         let Xs = Abstract.collectEVars (G, Vs2,
@@ -799,7 +799,7 @@ struct
         ()
       end)
 
-  fun reportUnify' (G, Vs1, Vs2) =
+  let rec reportUnify' (G, Vs1, Vs2) =
       let
         let Xs = Abstract.collectEVars (G, Vs2,
                  Abstract.collectEVars (G, Vs1, nil))
@@ -818,7 +818,7 @@ struct
         ()
       end
 
-  fun reportUnify (G, Vs1, Vs2) =
+  let rec reportUnify (G, Vs1, Vs2) =
         (case !traceMode
            of Progressive => reportUnify' (G, Vs1, Vs2)
             | Omniscient =>
@@ -856,7 +856,7 @@ struct
         ()
       end
 
-  fun reportInfer x = report (fn () => reportInfer' x)
+  let rec reportInfer x = report (fn () => reportInfer' x)
 
 
     (* inferExact (G, tm) = (tm', U, V)
@@ -1247,7 +1247,7 @@ struct
           JAnd (inferExactJob (G, j1), inferExactJob (G, j2))
       | (G, jwithctx (g, j)) -> 
         let
-          fun ie (Null) = (G, Null)
+          let rec ie (Null) = (G, Null)
             | ie (Decl (g, tm)) =
               let
                 let (G', Gresult) = ie (g)
@@ -1264,7 +1264,7 @@ struct
           let (tm', B, V) = inferExact (G, tm)
           let U = toIntro (B, (V, id))
           let (oc, r) = occIntro (tm')
-          fun iu (Uni Type) = Kind
+          let rec iu (Uni Type) = Kind
             | iu (Pi (_, V)) = iu V
             | iu (Root _) = Type
             | iu (Redex (V, _)) = iu V
@@ -1313,7 +1313,7 @@ struct
           JOf ((U1, oc1), (V2, oc1), Type)
         end
 
-    fun recon' (j) =
+    let rec recon' (j) =
         let
           (* we leave it to the context to call Names.varReset
              reason: this code allows reconstructing terms containing
@@ -1333,11 +1333,11 @@ struct
           j''
         end
 
-    fun recon (j) = (queryMode := false; recon' j)
-    fun reconQuery (j) = (queryMode := true; recon' j)
+    let rec recon (j) = (queryMode := false; recon' j)
+    let rec reconQuery (j) = (queryMode := true; recon' j)
 
     (* Invariant, G must be named! *)
-    fun reconWithCtx' (G, j) =
+    let rec reconWithCtx' (G, j) =
         let
           (* we leave it to the context to call Names.varReset
              reason: this code allows reconstructing terms containing
@@ -1356,11 +1356,11 @@ struct
         in
           j''
         end
-    fun reconWithCtx (G, j) = (queryMode := false; reconWithCtx' (G, j))
-    fun reconQueryWithCtx (G, j) = (queryMode := true; reconWithCtx' (G, j))
+    let rec reconWithCtx (G, j) = (queryMode := false; reconWithCtx' (G, j))
+    let rec reconQueryWithCtx (G, j) = (queryMode := true; reconWithCtx' (G, j))
 
-  fun internalInst x = raise Match
-  fun externalInst x = raise Match
+  let rec internalInst x = raise Match
+  let rec externalInst x = raise Match
 
   end (* open IntSyn *)
 

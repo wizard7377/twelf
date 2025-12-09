@@ -2,3 +2,10 @@
 (library
 
  (name twelf))
+(env 
+ (release (flags (:standard)))
+ (dev     (flags (:standard -w -32 -w -27 -w -8)))
+ (sane   (flags (:standard -error-style short -warn-error -a)))
+ (check (flags (:standard -w -32 -w -27 -w -8 -warn-error -a)))
+ 
+ )

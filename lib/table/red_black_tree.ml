@@ -4,7 +4,7 @@
 module RedBlackTree
   (type key'
    let compare : key' * key' -> order)
-  :> TABLE where type key = key' =
+  :> TABLE with type key = key' =
 struct
   type key = key'
   type 'a entry = key * 'a
@@ -30,7 +30,7 @@ struct
 
   local
 
-  fun lookup dict key =
+  let rec lookup dict key =
     let
       let rec lk = function (Empty) -> NONE
         | (Red tree) -> lk' tree
@@ -80,7 +80,7 @@ struct
          Black(lre, Red(le, ll, lrl), Red(e, lrr, r))
     | dict -> dict
 
-  fun insert (dict, entry as (key,datum)) =
+  let rec insert (dict, entry as (key,datum)) =
     let
       (* let ins : 'a dict -> 'a dict  inserts entry *)
       (* ins (Red _) may violate color invariant at root *)
@@ -118,7 +118,7 @@ struct
         | RIGHTB of ('a dict * 'a entry * 'a zipper)
         | RIGHTR of ('a dict * 'a entry * 'a zipper)
     in
-    fun delete t key =
+    let rec delete t key =
         let
           let rec zip = function (TOP, t) -> t
             | (LEFTB(x, b, z), a) -> zip(z, Black(x, a, b))
@@ -200,7 +200,7 @@ struct
     end (* local *)
 
   (* use non-imperative version? *)
-  fun insertShadow (dict, entry as (key,datum)) =
+  let rec insertShadow (dict, entry as (key,datum)) =
       let let oldEntry = ref NONE (* : 'a entry option ref *)
           let rec ins = function (Empty) -> Red(entry, Empty, Empty)
             | (Red(entry1 as (key1, datum1), left, right)) -> 
@@ -224,7 +224,7 @@ struct
           !oldEntry))
       end
 
-  fun app f dict =
+  let rec app f dict =
       let fun ap (Empty) = ()
             | ap (Red tree) = ap' tree
             | ap (Black tree) = ap' tree
@@ -235,7 +235,7 @@ struct
       end
 
   in
-    fun new (n) = ref (Empty) (* ignore size hint *)
+    let rec new (n) = ref (Empty) (* ignore size hint *)
     let insert = (fun table -> fun entry -> (table := insert (!table, entry)))
     let insertShadow =
         (fun table -> fun entry ->

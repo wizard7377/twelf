@@ -1,7 +1,7 @@
 (* Trailing Abstract Operations *)
 (* Author: Roberto Virga *)
 
-(Trail : TRAI)L =
+(Trail : TRAIL) =
 struct
 
   local
@@ -12,15 +12,15 @@ struct
 
     type 'a trail = 'a Trail ref
 
-    fun trail () = ref Nil
+    let rec trail () = ref Nil
 
-    fun reset trail =
+    let rec reset trail =
           trail := Nil
 
 
-    fun suspend (trail, copy) =
+    let rec suspend (trail, copy) =
       let
-	fun suspend' Nil = Nil
+	let rec suspend' Nil = Nil
 (*	  | suspend' (Mark trail) = (Mark (suspend' trail))*)
 	  | suspend' (Mark trail) = (suspend' trail)
 	  | suspend' (Cons (action, trail)) =
@@ -30,9 +30,9 @@ struct
 	ref ftrail
       end
 
-    fun resume (ftrail, trail, reset) = 
+    let rec resume (ftrail, trail, reset) = 
       let
-	fun resume' Nil = Nil
+	let rec resume' Nil = Nil
 (*	  | resume' (Mark ftrail) = (Mark (resume' ftrail)) *)
 	  | resume' (Mark ftrail) = resume' ftrail
 	  | resume' (Cons (faction, ftrail)) = 
@@ -43,10 +43,10 @@ struct
       end 
 
 
-    fun mark trail =
+    let rec mark trail =
           trail := Mark (!trail)
 
-    fun unwind (trail, undo) =
+    let rec unwind (trail, undo) =
           let
             let rec unwind' = function Nil -> Nil
               | (Mark trail) -> trail
@@ -56,7 +56,7 @@ struct
             trail := unwind' (!trail)
           end
 
-    fun log (trail, action) =
+    let rec log (trail, action) =
           trail := Cons (action, !trail)
 
   in

@@ -4,14 +4,14 @@ local
   module I = IntSyn 
   module S = StateSyn
 
-  fun load file =
+  let rec load file =
     case Twelf.Config.load (Twelf.Config.read file)
       of Twelf.OK => Twelf.OK
        | Twelf.ABORT => raise Domain;
 	
 
   (* just for non-inductive types *)
-  fun transformOrder' (G, Order.Arg k) = 
+  let rec transformOrder' (G, Order.Arg k) = 
       let 
 	let k' = (I.ctxLength G) -k+1
 	let I.Dec (_, V) = I.ctxDec (G, k')
@@ -23,16 +23,16 @@ local
     | transformOrder' (G, Order.Simul Os) = 
         S.Simul (map (fun O -> transformOrder' (G, O)) Os)
 
-  fun transformOrder (G, F.All (F.Prim D, F), Os) =
+  let rec transformOrder (G, F.All (F.Prim D, F), Os) =
 	S.All (D, transformOrder (I.Decl (G, D), F, Os))
     | transformOrder (G, F.And (F1, F2), O :: Os) =
 	S.And (transformOrder (G, F1, [O]),
 	       transformOrder (G, F2, Os))
     | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O) 
 
-  fun select c = (Order.selLookup c handle _ => Order.Lex [])
+  let rec select c = (Order.selLookup c handle _ => Order.Lex [])
     
-  fun test (depth, names) =
+  let rec test (depth, names) =
     (let 
       let a = map (fun x -> valOf (Names.nameLookup x)) names
       let name = foldr op^ "" names

@@ -9,7 +9,7 @@ struct
   type location = Loc of string * region (* loc ::= (filename, region) *)
 
   type linesInfo = pos list
-  fun posToLineCol' (linesInfo, i) =
+  let rec posToLineCol' (linesInfo, i) =
       let fun ptlc (j::js) = if i >= j then (List.length js, i-j)
                              else ptlc js
             (* first line should start at 0 *)
@@ -25,37 +25,37 @@ struct
     (* maintained with state *)
     let linePosList = ref nil : pos list ref
   in
-    fun resetLines () = linePosList := nil
-    fun newLine (i) = linePosList := i::(!linePosList)
-    fun getLinesInfo () = !linePosList
+    let rec resetLines () = linePosList := nil
+    let rec newLine (i) = linePosList := i::(!linePosList)
+    let rec getLinesInfo () = !linePosList
     (* posToLineCol (i) = (line,column) for character position i *)
-    fun posToLineCol (i) = posToLineCol' (!linePosList, i)
+    let rec posToLineCol (i) = posToLineCol' (!linePosList, i)
   end
 
   (* join (r1, r2) = r
      where r is the  smallest region containing both r1 and r2
   *)
-  fun join (Reg (i1, j1), Reg (i2, j2)) = Reg (Int.min (i1, i2), Int.max (j1, j2))
+  let rec join (Reg (i1, j1), Reg (i2, j2)) = Reg (Int.min (i1, i2), Int.max (j1, j2))
 
   (* The right endpoint of the interval counts IN RANGE *)
-  fun posInRegion (k, Reg (i,j)) = i <= k andalso k <= j
+  let rec posInRegion (k, Reg (i,j)) = i <= k andalso k <= j
 
-  fun lineColToString (line,col) =
+  let rec lineColToString (line,col) =
       Int.toString (line+1) ^ "." ^ Int.toString (col+1)
 
   (* toString r = "line1.col1-line2.col2", a format parsable by Emacs *)
-  fun toString (Reg (i,j)) =
+  let rec toString (Reg (i,j)) =
         lineColToString (posToLineCol i) ^ "-"
         ^ lineColToString (posToLineCol j)
 
   (* wrap (r, msg) = msg' which contains region *)
-  fun wrap (r, msg) = (toString r ^ " Error: \n" ^ msg)
+  let rec wrap (r, msg) = (toString r ^ " Error: \n" ^ msg)
 
   (* wrapLoc ((loc, r), msg) = msg' which contains region and filename
      This should be used for locations retrieved from origins, where
      the region is given in character positions, rather than lines and columns
   *)
-  fun wrapLoc0 (Loc (filename, Reg (i,j)), msg) =
+  let rec wrapLoc0 (Loc (filename, Reg (i,j)), msg) =
          filename ^ ":" ^ Int.toString (i+1) ^ "-" ^ Int.toString (j+1)
          ^ " " ^ "Error: \n" ^ msg
 
@@ -73,7 +73,7 @@ struct
       end
     | (loc, NONE, msg) -> wrapLoc0 (loc, msg)
 
-  fun wrapLoc (loc, msg) =
+  let rec wrapLoc (loc, msg) =
         wrapLoc' (loc, SOME (getLinesInfo()), msg)
 
   (* Paths, occurrences and occurrence trees only work well for normal forms *)
@@ -135,7 +135,7 @@ struct
      5,6 => "x"
      8,9 => "y"
   *)
-  fun posToPath u k =
+  let rec posToPath u k =
       let
           (* local functions refer to k but not u *)
           let rec inside = function (leaf r) -> posInRegion (k, r)
@@ -214,7 +214,7 @@ struct
   (* occToRegionExp u occ = r,
      where r is the closest region including occ in occurrence tree u
   *)
-  fun occToRegionExp u occ = pathToRegion (u, occToPath (occ, Here))
+  let rec occToRegionExp u occ = pathToRegion (u, occToPath (occ, Here))
 
   let rec skipImplicit = function (0, path) -> path
     | (n, Body(path)) -> 
@@ -230,13 +230,13 @@ struct
   (* occToRegionDec d occ = r
      where r is the closest region in v including occ for declaration c : V
   *)
-  fun occToRegionDec (dec (n, v)) occ =
+  let rec occToRegionDec (dec (n, v)) occ =
       pathToRegion (v, skipImplicit (n, occToPath (occ, Here)))
 
   (* occToRegionDef1 d occ = r
      where r is the closest region in u including occ for declaration c : V = U
   *)
-  fun occToRegionDef1 (def (n, u, vOpt)) occ =
+  let rec occToRegionDef1 (def (n, u, vOpt)) occ =
       pathToRegion (u, skipImplicit (n, occToPath (occ, Here)))
 
   (* occToRegionDef2 d occ = r

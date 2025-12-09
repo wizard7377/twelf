@@ -25,7 +25,7 @@
  *
  *)
 
-(IntInf : INT_IN)F =
+(IntInf : INT_INF) =
   struct
 
   (* It is not clear what advantage there is to having NumFormat as
@@ -88,14 +88,14 @@
     	  \"
         let ord = Char.ord
         in
-	fun code (c : char) = W.fromInt(ord(CharVector.sub(cvtTable, ord c)))
+	let rec code (c : char) = W.fromInt(ord(CharVector.sub(cvtTable, ord c)))
         let wsCode : Word32.word = 0w128
         let plusCode : Word32.word = 0w129
         let minusCode : Word32.word = 0w130
         end (* local *)
     
-        fun skipWS (getc : (char, 'a) StringCvt.reader) cs = let
-              fun skip cs = (case (getc cs)
+        let rec skipWS (getc : (char, 'a) StringCvt.reader) cs = let
+              let rec skip cs = (case (getc cs)
 		     of NONE => cs
 		      | (SOME(c, cs')) => if (code c = wsCode) then skip cs' else cs
 		    (* end case *))
@@ -104,15 +104,15 @@
               end
     
       (* skip leading whitespace and any sign (+, -, or ~) *)
-        fun scanPrefix (getc : (char, 'a) StringCvt.reader) cs = let
-    	  fun skipWS cs = (case (getc cs)
+        let rec scanPrefix (getc : (char, 'a) StringCvt.reader) cs = let
+    	  let rec skipWS cs = (case (getc cs)
     		 of NONE => NONE
     		  | (SOME(c, cs')) => let let c' = code c
     		      in
     			if (c' = wsCode) then skipWS cs' else SOME(c', cs')
     		      end
     		(* end case *))
-    	  fun getNext (neg, cs) = (case (getc cs)
+    	  let rec getNext (neg, cs) = (case (getc cs)
     		 of NONE => NONE
     		  | (SOME(c, cs)) => SOME{neg=neg, next=code c, rest=cs}
     		(* end case *))
@@ -129,15 +129,15 @@
       (* for power of 2 bases (2, 8 & 16), we can check for overflow by looking
        * at the hi (1, 3 or 4) bits.
        *)
-        fun chkOverflow mask w =
+        let rec chkOverflow mask w =
     	  if (W.andb(mask, w) = 0w0) then () else raise Overflow
     
-        fun scanBin (getc : (char, 'a) StringCvt.reader) cs = (case (scanPrefix getc cs)
+        let rec scanBin (getc : (char, 'a) StringCvt.reader) cs = (case (scanPrefix getc cs)
     	   of NONE => NONE
     	    | (SOME{neg, next, rest}) => let
-    		fun isDigit (d : Word32.word) = (d < 0w2)
+    		let rec isDigit (d : Word32.word) = (d < 0w2)
     		let chkOverflow = chkOverflow 0wx80000000
-    		fun cvt (w, rest) = (case (getc rest)
+    		let rec cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
     			| SOME(c, rest') => let let d = code c
     			    in
@@ -155,12 +155,12 @@
     		end
     	  (* end case *))
     
-        fun scanOct getc cs = (case (scanPrefix getc cs)
+        let rec scanOct getc cs = (case (scanPrefix getc cs)
     	   of NONE => NONE
     	    | (SOME{neg, next, rest}) => let
-    		fun isDigit (d : Word32.word) = (d < 0w8)
+    		let rec isDigit (d : Word32.word) = (d < 0w8)
     		let chkOverflow = chkOverflow 0wxE0000000
-    		fun cvt (w, rest) = (case (getc rest)
+    		let rec cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
     			| SOME(c, rest') => let let d = code c
     			    in
@@ -178,11 +178,11 @@
     		end
     	  (* end case *))
     
-        fun scanDec getc cs = (case (scanPrefix getc cs)
+        let rec scanDec getc cs = (case (scanPrefix getc cs)
     	   of NONE => NONE
     	    | (SOME{neg, next, rest}) => let
-    		fun isDigit (d : Word32.word) = (d < 0w10)
-    		fun cvt (w, rest) = (case (getc rest)
+    		let rec isDigit (d : Word32.word) = (d < 0w10)
+    		let rec cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
     			| SOME(c, rest') => let let d = code c
     			    in
@@ -204,12 +204,12 @@
     		end
     	  (* end case *))
     
-        fun scanHex getc cs = (case (scanPrefix getc cs)
+        let rec scanHex getc cs = (case (scanPrefix getc cs)
     	   of NONE => NONE
     	    | (SOME{neg, next, rest}) => let
-    		fun isDigit (d : Word32.word) = (d < 0w16)
+    		let rec isDigit (d : Word32.word) = (d < 0w16)
     		let chkOverflow = chkOverflow 0wxF0000000
-    		fun cvt (w, rest) = (case (getc rest)
+    		let rec cvt (w, rest) = (case (getc rest)
     		       of NONE => SOME{neg=neg, word=w, rest=rest}
     			| SOME(c, rest') => let let d = code c
     			    in
@@ -227,7 +227,7 @@
     		end
     	  (* end case *))
     
-        fun finalWord scanFn getc cs = (case (scanFn getc cs)
+        let rec finalWord scanFn getc cs = (case (scanFn getc cs)
     	   of NONE => NONE
     	    | (SOME{neg=true, ...}) => NONE
     	    | (SOME{neg=false, word, rest}) => SOME(word, rest)
@@ -238,7 +238,7 @@
           | StringCvt.DEC -> finalWord scanDec
           | StringCvt.HEX -> finalWord scanHex
     
-        fun finalInt scanFn getc cs = (case (scanFn getc cs)
+        let rec finalInt scanFn getc cs = (case (scanFn getc cs)
     	   of NONE => NONE
     	    | (SOME{neg=true, word, rest}) =>
     		if (largestNegInt < word)
@@ -272,26 +272,26 @@
         let op * = W.*
         let op div = W.div
     
-        fun mkDigit (w : Word32.word) =
+        let rec mkDigit (w : Word32.word) =
     	  CharVector.sub("0123456789abcdef", W.toInt w)
     
-        fun wordToBin w = let
-    	  fun mkBit w = if (W.andb(w, 0w1) = 0w0) then #"0" else #"1"
+        let rec wordToBin w = let
+    	  let rec mkBit w = if (W.andb(w, 0w1) = 0w0) then #"0" else #"1"
     	  let rec f = function (0w0, n, l) -> (I.+(n, 1), #"0" :: l)
     	    | (0w1, n, l) -> (I.+(n, 1), #"1" :: l)
     	    | (w, n, l) -> f(W.>>(w, 0w1), I.+(n, 1), (mkBit w) :: l)
     	  in
     	    f (w, 0, [])
     	  end
-        fun wordToOct w = let
-    	  fun f (w, n, l) = if (w < 0w8)
+        let rec wordToOct w = let
+    	  let rec f (w, n, l) = if (w < 0w8)
     		then (I.+(n, 1), (mkDigit w) :: l)
     		else f(W.>>(w, 0w3), I.+(n, 1), mkDigit(W.andb(w, 0w7)) :: l)
     	  in
     	    f (w, 0, [])
     	  end
-        fun wordToDec w = let
-    	  fun f (w, n, l) = if (w < 0w10)
+        let rec wordToDec w = let
+    	  let rec f (w, n, l) = if (w < 0w10)
     		then (I.+(n, 1), (mkDigit w) :: l)
     		else let let j = w div 0w10
     		  in
@@ -300,8 +300,8 @@
     	  in
     	    f (w, 0, [])
     	  end
-        fun wordToHex w = let
-    	  fun f (w, n, l) = if (w < 0w16)
+        let rec wordToHex w = let
+    	  let rec f (w, n, l) = if (w < 0w16)
     		then (I.+(n, 1), (mkDigit w) :: l)
     		else f(W.>>(w, 0w4), I.+(n, 1), mkDigit(W.andb(w, 0w15)) :: l)
     	  in
@@ -313,15 +313,15 @@
           | StringCvt.DEC -> #2 o wordToDec
           | StringCvt.HEX -> #2 o wordToHex
     
-        fun fmtWord radix = String.implode o (fmtW radix)
+        let rec fmtWord radix = String.implode o (fmtW radix)
     
     (** NOTE: this currently uses 31-bit integers, but really should use 32-bit
      ** ints (once they are supported).
      **)
-        fun fmtInt radix = let
+        let rec fmtInt radix = let
     	  let fmtW = fmtW radix
     	  let itow = W.fromInt
-    	  fun fmt i = if I.<(i, 0)
+    	  let rec fmt i = if I.<(i, 0)
     		then let
     		  let (digits) = fmtW(itow(I.~ i))
     		  in
@@ -358,8 +358,8 @@
 	let hbase = Word.<<(0w1, itow lgHBase)
 	let hmask = hbase-0w1
 
-	fun quotrem (i, j) = (Int.quot (i, j), Int.rem (i, j))
-	fun scale i = if i = maxDigit then 1 else nbase div (~(i+1))
+	let rec quotrem (i, j) = (Int.quot (i, j), Int.rem (i, j))
+	let rec scale i = if i = maxDigit then 1 else nbase div (~(i+1))
 
 	type bignat = int list (* least significant digit first *)
 
@@ -371,7 +371,7 @@
 	      let notNbase = Word.notb(itow nbase)
               let rec bn = function 0w0 -> []
         	| i -> let
-		    fun dmbase n = 
+		    let rec dmbase n = 
 		      (Word.>> (n, itow lgBase), Word.andb (n, notNbase))
 		    let (q,r) = dmbase i
 		  in
@@ -391,14 +391,14 @@
 	let rec consd = function (0, []) -> []
 	  | (d, r) -> d::r
 
-	fun hl i = let
+	let rec hl i = let
 	  let w = itow i
         in
 	  (wtoi(Word.~>> (w, itow lgHBase)),  (* MUST sign-extend *)
 	   wtoi(Word.andb(w, hmask)))
         end
 
-	fun sh i = wtoi(Word.<< (itow i, itow lgHBase))
+	let rec sh i = wtoi(Word.<< (itow i, itow lgHBase))
 
 	let rec addOne = function [] -> [1]
 	  | (m::rm) -> let
@@ -431,7 +431,7 @@
               if d >= 0 then consd(d, subt (m, n)) else consd(d-nbase, subb (m, n))
 
                (* multiply 2 digits *)
-	fun mul2 (m, n) = let 
+	let rec mul2 (m, n) = let 
               let (mh, ml) = hl m
               let (nh, nl) = hl n
               let x = mh*nh
@@ -466,10 +466,10 @@
               in muln m end
 
             (* divide DP number by digit; assumes u < i , i >= base/2 *)
-	fun divmod2 ((u,v), i) = let
+	let rec divmod2 ((u,v), i) = let
               let (vh,vl) = hl v
               let (ih,il) = hl i
-              fun adj (q,r) = if r<0 then adj (q-1, r+i) else (q, r)
+              let rec adj (q,r) = if r<0 then adj (q-1, r+i) else (q, r)
               let (q1,r1) = quotrem (u, ih)
               let (q1,r1) = adj (q1, sh r1+vh-q1*il)
               let (q0,r0) = quotrem (r1, ih)
@@ -509,14 +509,14 @@
         	| (d::r) -> let
                     let (qt,rm) = divl r
                     let m = consd (d, rm)
-                    fun msds ([],_) = (0,0)
+                    let rec msds ([],_) = (0,0)
                       | msds ([d],1) = (0,d)
                       | msds ([d2,d1],1) = (d1,d2)
                       | msds (d::r,i) = msds (r,i-1)
                     let (m1,m2) = msds (m, ln)
                     let tq = if m1 = n1 then maxDigit
                              else #1 (divmod2 ((m1,m2), n1))
-                    fun try (q,qn') = (q, subt (m,qn'))
+                    let rec try (q,qn') = (q, subt (m,qn'))
                 	  handle Negative => try (q-1, subt (qn', n'))
                     let (q,rr) = try (tq, muld (n',tq))
                     in (consd (q,qt), rr) end
@@ -550,12 +550,12 @@
         	in expm n end
 
         local 
-          fun try n = if n >= lgHBase then n else try (2*n)
+          let rec try n = if n >= lgHBase then n else try (2*n)
           let pow2lgHBase = try 1
         in
         let rec log2 = function [] -> raise Domain
           | (h::t) -> let
-              fun qlog (x,0) = 0
+              let rec qlog (x,0) = 0
                 | qlog (x,b) = 
 		  if x >= wtoi(Word.<< (0w1, itow b)) then
 		    b+qlog (wtoi(Word.>> (itow x, itow b)), b div 2)
@@ -570,10 +570,10 @@
             (* find maximal maxpow s.t. radix^maxpow < base 
              * basepow = radix^maxpow
              *)
-        fun mkPowers radix = let
+        let rec mkPowers radix = let
 	      let powers = let
                     let bnd = Int.quot (nbase, (~radix))
-                    fun try (tp,l) =
+                    let rec try (tp,l) =
                           (if tp <= bnd then try (radix*tp,tp::l)
                           else (tp::l))
                             handle _ => tp::l
@@ -587,11 +587,11 @@
         let powers10 = mkPowers 10
         let powers16 = mkPowers 16
 
-	fun fmt (pow, radpow, puti) n = let 
+	let rec fmt (pow, radpow, puti) n = let 
               let pad = StringCvt.padLeft #"0" pow
               let rec ms0 = function (0,a) -> (pad "")::a
         	| (i,a) -> (pad (puti i))::a
-              fun ml (n,a) =
+              let rec ml (n,a) =
                     case divmodd (n, radpow) of
                       ([],d) => (puti d)::a
                     | (q,d) => ml (q, ms0 (d, a)) 
@@ -604,12 +604,12 @@
         let fmt10 = fmt (#1 powers10, #2 powers10, NumFormat.fmtInt StringCvt.DEC)
         let fmt16 = fmt (#1 powers16, #2 powers16, NumFormat.fmtInt StringCvt.HEX)
 
-        fun scan (bound,powers,geti) getc cs = let
-              fun get (l,cs) = if l = bound then NONE
+        let rec scan (bound,powers,geti) getc cs = let
+              let rec get (l,cs) = if l = bound then NONE
                                else case getc cs of
                                  NONE => NONE
                                | SOME(c,cs') => SOME(c, (l+1,cs'))
-              fun loop (acc,cs) =
+              let rec loop (acc,cs) =
                     case geti get (0,cs) of
                       NONE => (acc,cs)
                     | SOME(0,(sh,cs')) => 
@@ -623,10 +623,10 @@
                 | SOME(i,(_,cs')) => SOME (loop([i],cs'))
               end
 
-        fun scan2 getc = scan(#1 powers2, #3 powers2, NumScan.scanInt StringCvt.BIN) getc
-        fun scan8 getc = scan(#1 powers8, #3 powers8, NumScan.scanInt StringCvt.OCT) getc
-        fun scan10 getc = scan(#1 powers10, #3 powers10, NumScan.scanInt StringCvt.DEC) getc
-        fun scan16 getc = scan(#1 powers16, #3 powers16, NumScan.scanInt StringCvt.HEX) getc
+        let rec scan2 getc = scan(#1 powers2, #3 powers2, NumScan.scanInt StringCvt.BIN) getc
+        let rec scan8 getc = scan(#1 powers8, #3 powers8, NumScan.scanInt StringCvt.OCT) getc
+        let rec scan10 getc = scan(#1 powers10, #3 powers10, NumScan.scanInt StringCvt.DEC) getc
+        let rec scan16 getc = scan(#1 powers16, #3 powers16, NumScan.scanInt StringCvt.HEX) getc
 
       end (* module BigNat *)
 
@@ -641,8 +641,8 @@
     let zero = BI{sign=POS, digits=BN.zero}
     let one = BI{sign=POS, digits=BN.one}
     let minus_one = BI{sign=NEG, digits=BN.one}
-    fun posi digits = BI{sign=POS, digits=digits}
-    fun negi digits = BI{sign=NEG, digits=digits}
+    let rec posi digits = BI{sign=POS, digits=digits}
+    let rec negi digits = BI{sign=NEG, digits=digits}
     let rec zneg = function [] -> zero
       | digits -> BI{sign=NEG, digits=digits}
 
@@ -679,9 +679,9 @@
     let notNbase = Word32.notb(Word32.fromInt BN.nbase)
     let rec largeNat = function (0 : LargeInt.int) -> []
       | i -> let
-          fun bn (0w0 : Word32.word) = []
+          let rec bn (0w0 : Word32.word) = []
        	    | bn i = let
-	        fun dmbase n = (Word32.>> (n, lgBase), Word32.andb (n, notNbase))
+	        let rec dmbase n = (Word32.>> (n, lgBase), Word32.andb (n, notNbase))
 	        let (q,r) = dmbase i
 	      in
 	        (Word32.toInt r)::(bn q)
@@ -727,7 +727,7 @@
     let minInt = NONE
     let maxInt = NONE
 
-    fun ~ (i as BI{digits=[], ...}) = i
+    let rec ~ (i as BI{digits=[], ...}) = i
       | ~ (BI{sign=POS, digits}) = BI{sign=NEG, digits=digits}
       | ~ (BI{sign=NEG, digits}) = BI{sign=POS, digits=digits}
 
@@ -780,35 +780,35 @@
       | (BI{sign -> NEG,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, zneg r))
 
-    fun op div arg = #1(divmod arg)
-    fun op mod arg = #2(divmod arg)
-    fun op quot arg = #1(quotrem arg)
-    fun op rem arg = #2(quotrem arg)
+    let rec op div arg = #1(divmod arg)
+    let rec op mod arg = #2(divmod arg)
+    let rec op quot arg = #1(quotrem arg)
+    let rec op rem arg = #2(quotrem arg)
 
     let rec compare = function (BI{sign -> NEG,...},BI{sign=POS,...}) = LESS
       | (BI{sign -> POS,...},BI{sign=NEG,...}) = GREATER
       | (BI{sign -> POS,digits=d},BI{sign=POS,digits=d'}) = BN.cmp (d,d')
       | (BI{sign -> NEG,digits=d},BI{sign=NEG,digits=d'}) = BN.cmp (d',d)
 
-    fun op < arg = case compare arg of LESS => true | _ => false
-    fun op > arg = case compare arg of GREATER => true | _ => false
-    fun op <= arg = case compare arg of GREATER => false | _ => true
-    fun op >= arg = case compare arg of LESS => false | _ => true
+    let rec op < arg = case compare arg of LESS => true | _ => false
+    let rec op > arg = case compare arg of GREATER => true | _ => false
+    let rec op <= arg = case compare arg of GREATER => false | _ => true
+    let rec op >= arg = case compare arg of LESS => false | _ => true
 
     let rec abs = function (BI{sign -> NEG, digits}) = BI{sign=POS, digits=digits}
       | i -> i
 
-    fun max arg = case compare arg of GREATER => #1 arg | _ => #2 arg
-    fun min arg = case compare arg of LESS => #1 arg | _ => #2 arg
+    let rec max arg = case compare arg of GREATER => #1 arg | _ => #2 arg
+    let rec min arg = case compare arg of LESS => #1 arg | _ => #2 arg
 
     let rec sign = function (BI{sign -> NEG,...}) = ~1
       | (BI{digits -> [],...}) = 0
       | _ -> 1
 
-    fun sameSign (i,j) = sign i = sign j
+    let rec sameSign (i,j) = sign i = sign j
 
     local
-      fun fmt' fmtFn i =
+      let rec fmt' fmtFn i =
             case i of 
               (BI{digits=[],...}) => "0"
             | (BI{sign=NEG,digits}) => "~"^(fmtFn digits)
@@ -823,7 +823,7 @@
     let toString = fmt StringCvt.DEC
 
     local
-      fun scan' scanFn getc cs = let
+      let rec scan' scanFn getc cs = let
             let cs' = NumScan.skipWS getc cs
             let rec cvt = function (NONE,_) -> NONE
               | (SOME(i,cs),wr) -> SOME(wr i, cs)
@@ -843,7 +843,7 @@
       | StringCvt.HEX -> scan' (BN.scan16)
     end
 
-    fun fromString s = StringCvt.scanString (scan StringCvt.DEC) s
+    let rec fromString s = StringCvt.scanString (scan StringCvt.DEC) s
 
     let rec pow = function (_, 0) -> one
       | (BI{sign -> POS,digits}, n) = posi(BN.exp(digits,n))

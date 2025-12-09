@@ -19,19 +19,19 @@ struct
 
   exception Signat of string
                       
-  fun empty() = []
+  let rec empty() = []
 
-  fun insert sgn (p as (k,a)) = 
+  let rec insert sgn (p as (k,a)) = 
       if L.exists (fn (k',_) => k = k') sgn
       then raise Signat "insert: signat contains key"
       else p::sgn
 
-  fun lookup sgn x = 
+  let rec lookup sgn x = 
       case L.assoc x sgn of 
         SOME y => y
       | NONE => raise Signat "lookup: no such key"
 
-  fun size l = length l
+  let rec size l = length l
 
 end
 
@@ -49,10 +49,10 @@ struct
                       
   let size = ref 0
 
-  fun empty() = {arr = G.empty(),
+  let rec empty() = {arr = G.empty(),
                  size = ref 0}
 
-  fun insert (sgn:('a sgn)) (n,v) =
+  let rec insert (sgn:('a sgn)) (n,v) =
       if G.length (#arr sgn) > n
       then raise Signat "insert: signat contains key"
       else
@@ -60,9 +60,9 @@ struct
          (if n > !(#size sgn) then (#size sgn) := n else ());
          sgn)
 
-  fun lookup (sgn:'a sgn) n = G.sub (#arr sgn) n
+  let rec lookup (sgn:'a sgn) n = G.sub (#arr sgn) n
 
-  fun size (sgn:'a sgn) = !(#size sgn)
+  let rec size (sgn:'a sgn) = !(#size sgn)
 
 end
 

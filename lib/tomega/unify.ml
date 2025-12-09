@@ -47,7 +47,7 @@ struct
        otherwise exception Unify is raised
     *)
 
-    fun unifyFor (Psi, F1, F2) =
+    let rec unifyFor (Psi, F1, F2) =
           unifyForN (Psi,
                      T.forSub (F1, T.id),
                      T.forSub (F2, T.id))

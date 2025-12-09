@@ -32,10 +32,10 @@ struct
     let max = W.>> (W.notb zero, Word.fromInt (W.wordSize - wordSize'))
 
     (* numCheck (d) = true iff d <= max *)
-    fun numCheck (d) = W.<= (d, max)
+    let rec numCheck (d) = W.<= (d, max)
 
     (* plusCheck (d1, d2) = true iff d1 + d2 <= max *)
-    fun plusCheck (d1, d2) =
+    let rec plusCheck (d1, d2) =
           let
             let d3 = W.+ (d1, d2)
           in
@@ -45,13 +45,13 @@ struct
           end
 
     (* timesCheck (d1, d2) = true iff d1 * d2 <= max *)
-    fun timesCheck (d1, d2) =
+    let rec timesCheck (d1, d2) =
           if(d1 = zero orelse d2 = zero) then true
           else let let d3 = W.div (W.div (max, d1), d2)
                in W.> (d3, zero) end
 
     (* quotCheck (d1, d2) = true iff  d2 != zero *)
-    fun quotCheck (d1, d2) = W.> (d2, zero)
+    let rec quotCheck (d1, d2) = W.> (d2, zero)
 
     (* constraint solver ID of this module *)
     let myID = ref ~1 : csid ref
@@ -59,20 +59,20 @@ struct
     (* constant ID of the type family constant "wordXX" *)
     let wordID = ref ~1 : cid ref
 
-    fun word () = Root (Const (!wordID), Nil)
+    let rec word () = Root (Const (!wordID), Nil)
 
     (* constant ID's of the operators defined by this module *)
     let plusID  = ref ~1 : cid ref   (* + : wordXX -> wordXX -> wordXX -> type *)
     let timesID = ref ~1 : cid ref   (* * : wordXX -> wordXX -> wordXX -> type *)
     let quotID  = ref ~1 : cid ref   (* / : wordXX -> wordXX -> wordXX -> type *)
 
-    fun plusExp (U, V, W) = Root (Const (!plusID),
+    let rec plusExp (U, V, W) = Root (Const (!plusID),
                                   App (U, App (V, App (W , Nil))))
 
-    fun timesExp (U, V, W) = Root (Const (!timesID),
+    let rec timesExp (U, V, W) = Root (Const (!timesID),
                                    App (U, App (V, App (W, Nil))))
 
-    fun quotExp (U, V, W) = Root (Const (!quotID),
+    let rec quotExp (U, V, W) = Root (Const (!quotID),
                                   App (U, App (V, App (W , Nil))))
 
     (* constant ID's of the proof object generators and their proof objects *)
@@ -84,24 +84,24 @@ struct
     let proofTimesID = ref ~1 : cid ref (* proof* : {U}{V}{W}{P} prove* U V W P *)
     let proofQuotID  = ref ~1 : cid ref (* proof/ : {U}{V}{W}{P} prove/ U V W P *)
 
-    fun provePlusExp (U, V, W, P) = Root (Const (!provePlusID),
+    let rec provePlusExp (U, V, W, P) = Root (Const (!provePlusID),
                                           App (U, App (V, App (W, App (P , Nil)))))
-    fun proofPlusExp (U, V, W, P) = Root (Const (!proofPlusID),
+    let rec proofPlusExp (U, V, W, P) = Root (Const (!proofPlusID),
                                           App (U, App (V, App (W, App (P , Nil)))))
 
-    fun proofTimesExp (U, V, W, P) = Root (Const (!proofTimesID),
+    let rec proofTimesExp (U, V, W, P) = Root (Const (!proofTimesID),
                                            App (U, App (V, App (W, App (P , Nil)))))
-    fun proveTimesExp (U, V, W, P) = Root (Const (!proveTimesID),
+    let rec proveTimesExp (U, V, W, P) = Root (Const (!proveTimesID),
                                            App (U, App (V, App (W, App (P , Nil)))))
 
-    fun proveQuotExp (U, V, W, P) = Root (Const (!proveQuotID),
+    let rec proveQuotExp (U, V, W, P) = Root (Const (!proveQuotID),
                                           App (U, App (V, App (W, App (P , Nil)))))
-    fun proofQuotExp (U, V, W, P) = Root (Const (!proofQuotID),
+    let rec proofQuotExp (U, V, W, P) = Root (Const (!proofQuotID),
                                           App (U, App (V, App (W, App (P , Nil)))))
 
-    fun numberConDec (d) = ConDec (W.fmt StringCvt.DEC (d), NONE, 0, Normal, word (), Type)
+    let rec numberConDec (d) = ConDec (W.fmt StringCvt.DEC (d), NONE, 0, Normal, word (), Type)
 
-    fun numberExp (d) = Root (FgnConst (!myID, numberConDec (d)), Nil)
+    let rec numberExp (d) = Root (FgnConst (!myID, numberConDec (d)), Nil)
 
     (* scanNumber (str) = numOpt
 
@@ -109,7 +109,7 @@ struct
          numOpt = SOME(n) if str is the decimal representation of the number n
                 = NONE otherwise
     *)
-    fun scanNumber (str) =
+    let rec scanNumber (str) =
           let
             let rec check = function (chars as (_ :: _)) -> 
                  (List.all Char.isDigit chars)
@@ -130,12 +130,12 @@ struct
        If str parses to the number n
        then conDec is the (foreign) constant declaration of n
     *)
-    fun parseNumber string =
+    let rec parseNumber string =
           case (scanNumber string)
             of SOME(d) => SOME(numberConDec d)
              | NONE => NONE
 
-    fun plusPfConDec (d1, d2) =
+    let rec plusPfConDec (d1, d2) =
           let
             let d3 = W.+ (d1, d2)
           in
@@ -147,9 +147,9 @@ struct
                     Type)
           end
 
-    fun plusPfExp ds = Root (FgnConst (!myID, plusPfConDec ds), Nil)
+    let rec plusPfExp ds = Root (FgnConst (!myID, plusPfConDec ds), Nil)
 
-    fun timesPfConDec (d1, d2) =
+    let rec timesPfConDec (d1, d2) =
           let
             let d3 = W.* (d1, d2)
           in
@@ -161,9 +161,9 @@ struct
                     Type)
           end
 
-    fun timesPfExp ds = Root(FgnConst (!myID, timesPfConDec ds), Nil)
+    let rec timesPfExp ds = Root(FgnConst (!myID, timesPfConDec ds), Nil)
 
-    fun quotPfConDec (d1, d2) =
+    let rec quotPfConDec (d1, d2) =
           let
             let d3 = W.div (d1, d2)
           in
@@ -175,9 +175,9 @@ struct
                     Type)
           end
 
-    fun quotPfExp ds = Root (FgnConst (!myID, quotPfConDec ds), Nil)
+    let rec quotPfExp ds = Root (FgnConst (!myID, quotPfConDec ds), Nil)
 
-    fun scanBinopPf oper string =
+    let rec scanBinopPf oper string =
           let
             let args = String.tokens (fun c -> c = oper) string
           in
@@ -196,7 +196,7 @@ struct
        If string parses to the proof object of n1<operator>n2
        then conDec is the (foreign) constant declaration of n1<operator>n2
     *)
-    fun parseBinopPf oper string =
+    let rec parseBinopPf oper string =
           case (oper, scanBinopPf oper string)
             of (#"+", SOME(ds)) => SOME(plusPfConDec ds)
              | (#"*", SOME(ds)) => SOME(timesPfConDec ds)
@@ -207,7 +207,7 @@ struct
     let parseTimesPf = parseBinopPf #"*"
     let parseQuotPf = parseBinopPf #"/"
 
-    fun parseAll string =
+    let rec parseAll string =
           (case (parseNumber (string))
              of SOME(conDec) => SOME(conDec)
               | NONE =>
@@ -274,7 +274,7 @@ struct
       | (QuotPf ds) -> quotPfExp ds
       | (Expr Us) -> EClo Us
 
-    fun solveNumber (G, S, k) = SOME(numberExp (W.fromInt k))
+    let rec solveNumber (G, S, k) = SOME(numberExp (W.fromInt k))
 
     (* fst (S, s) = U1, the first argument in S[s] *)
     let rec fst = function (App (U1, _), s) -> (U1, s)
@@ -292,7 +292,7 @@ struct
     let rec fth = function (App (_, S), s) -> trd (S, s)
       | (SClo (S, s'), s) -> fth (S, comp (s', s))
 
-    fun toInternalPlus (G, U1, U2, U3) () =
+    let rec toInternalPlus (G, U1, U2, U3) () =
           [(G, plusExp(U1, U2, U3))]
 
     and awakePlus (G, proof, U1, U2, U3) () =
@@ -453,7 +453,7 @@ struct
     (* solveProvePlus (G, S, n) tries to find the n-th solution to
          G |- prove+ @ S : type
     *)
-    fun solveProvePlus (G, S, k) =
+    let rec solveProvePlus (G, S, k) =
           let
             let Us1 = fst (S, id)
             let Us2 = snd (S, id)
@@ -471,7 +471,7 @@ struct
     (* solveProveTimes (G, S, n) tries to find the n-th solution to
          G |- prove* @ S : type
     *)
-    fun solveProveTimes (G, S, k) =
+    let rec solveProveTimes (G, S, k) =
           let
             let Us1 = fst (S, id)
             let Us2 = snd (S, id)
@@ -489,7 +489,7 @@ struct
     (* solveProveQuot (G, S, n) tries to find the n-th solution to
          G |- prove/ @ S : type
     *)
-    fun solveProveQuot (G, S, k) =
+    let rec solveProveQuot (G, S, k) =
           let
             let Us1 = fst (S, id)
             let Us2 = snd (S, id)
@@ -504,11 +504,11 @@ struct
                | NONE => NONE
           end
 
-    fun arrow (U, V) = Pi ((Dec (NONE, U), No), V)
-    fun pi (name, U, V) = Pi ((Dec (SOME(name), U), Maybe), V)
-    fun bvar n = Root (BVar n, Nil)
+    let rec arrow (U, V) = Pi ((Dec (NONE, U), No), V)
+    let rec pi (name, U, V) = Pi ((Dec (SOME(name), U), Maybe), V)
+    let rec bvar n = Root (BVar n, Nil)
 
-    fun installFgnCnstrOps () = let
+    let rec installFgnCnstrOps () = let
         let csid = !myID
         let _ = FgnCnstrStd.ToInternal.install (csid,
                                                 (fn (MyFgnCnstrRepPlus (G, _, U1, U2, U3)) => toInternalPlus (G, U1, U2, U3)
@@ -533,7 +533,7 @@ struct
        Initialize the constraint solver.
        installFunction is used to add its module type symbols.
     *)
-    fun init (cs, installF) =
+    let rec init (cs, installF) =
           (
             myID := cs;
 

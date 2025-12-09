@@ -9,7 +9,7 @@ module CompSyn (Global : GLOBAL)
                  (Names : NAMES)
                  (*! sharing Names.IntSyn = IntSyn' !*)
                  (Table : TABLE)
-                   where type key = int)
+                   with type key = int)
   : COMPSYN =
 struct
 
@@ -143,16 +143,16 @@ struct
     (* Invariants *)
     (* 0 <= cid < I.sgnSize () *)
     (* program array indexed by clause names (no direct head access) *)
-    fun sProgInstall (cid, conDec) = Array.update (sProgArray, cid, conDec)
+    let rec sProgInstall (cid, conDec) = Array.update (sProgArray, cid, conDec)
 
-    fun sProgLookup (cid) = Array.sub (sProgArray, cid)
-    fun sProgReset () = Array.modify (fun _ -> Void) sProgArray
+    let rec sProgLookup (cid) = Array.sub (sProgArray, cid)
+    let rec sProgReset () = Array.modify (fun _ -> Void) sProgArray
 
     let detTableInsert = Table.insert detTable;
-    fun detTableCheck (cid) = (case (Table.lookup detTable cid)
+    let rec detTableCheck (cid) = (case (Table.lookup detTable cid)
                                  of SOME(deterministic) => deterministic
                                   | NONE => false)
-    fun detTableReset () = Table.clear detTable;
+    let rec detTableReset () = Table.clear detTable;
   end
   (* goalSub (g, s) = g'
 

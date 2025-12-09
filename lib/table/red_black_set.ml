@@ -17,7 +17,7 @@
  * condition implies that any node with only one child will be black and
  * its child will be a red leaf.
  *)
-(RBSet : RBSE)T = 
+(RBSet : RBSET) = 
 
 struct
 
@@ -40,7 +40,7 @@ struct
 
   let empty = Set(0, Empty)
   
-  fun singleton x = Set(1, Red(x, Empty, Empty))
+  let rec singleton x = Set(1, Red(x, Empty, Empty))
 
   let compare = Int.compare
   (* Representation Invariants *)
@@ -57,7 +57,7 @@ struct
 
   local
 
-  fun lookup (Set(n, dict)) key =
+  let rec lookup (Set(n, dict)) key =
     let
       let rec lk = function (Empty) -> NONE
 	| (Red tree) -> lk' tree
@@ -72,7 +72,7 @@ struct
       end
 
 
-  fun last (Set(n, dict)) = (n, valOf (lookup (Set(n, dict)) n))
+  let rec last (Set(n, dict)) = (n, valOf (lookup (Set(n, dict)) n))
 
   (* let restore_right : 'a dict -> 'a dict *)
   (*
@@ -98,7 +98,7 @@ struct
 
   (* restore_left is like restore_right, except *)
   (* the color invariant may be violated only at the root of left child *)
-  fun restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
+  let rec restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
 	 Red(e, Black lt, Black rt)	(* re-color *)
     | restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
 	 Red(e, Black lt, Black rt)	(* re-color *)
@@ -110,7 +110,7 @@ struct
 	 Black(lre, Red(le, ll, lrl), Red(e, lrr, r))
     | restore_left dict = dict
 
-  fun insert (Set(n, dict), entry as (key, datum)) = 
+  let rec insert (Set(n, dict), entry as (key, datum)) = 
     let      
       let nItems = ref n
       (* let ins : 'a dict -> 'a dict  inserts entry *)
@@ -145,7 +145,7 @@ struct
     | (S, e::list) -> insertList (insert (S, e), list)
 
 
-  fun insertLast (Set(n, dict), datum) = 
+  let rec insertLast (Set(n, dict), datum) = 
     let
       let Set(n', dic') =  insert (Set(n, dict), (n+1, datum))
     in 
@@ -155,7 +155,7 @@ struct
      output set s' *)
 
 
-  fun insertShadow (Set(n, dict), entry as (key, datum)) =  
+  let rec insertShadow (Set(n, dict), entry as (key, datum)) =  
     let let oldEntry = ref NONE (* : 'a entry option ref *)
       let rec ins = function (Empty) -> Red(entry, Empty, Empty)
 	| (Red(entry1 as (key1, datum1), left, right)) -> 
@@ -191,7 +191,7 @@ struct
         | RightRed of ('a dict * 'a entry * 'a zipper)
         | RightBlack of ('a dict * 'a entry * 'a zipper)
     in
-    fun delete (Set(nItems, t), k) = 
+    let rec delete (Set(nItems, t), k) = 
         let
 	  let rec zip = function (Top, t) -> t
             | (LeftRed(x, b, z), a) -> zip(z, Red(x, a, b))
@@ -285,7 +285,7 @@ struct
 
 
   (* does not apply f to all elements of S in order! *)
-  fun app f (Set(n, dict)) =
+  let rec app f (Set(n, dict)) =
       let fun ap (Empty) = ()
 	    | ap (Red tree) = ap' tree
 	    | ap (Black tree) = ap' tree
@@ -295,7 +295,7 @@ struct
 	ap dict
       end
 
-  fun update f (Set(n, dict)) =
+  let rec update f (Set(n, dict)) =
       let fun upd (Empty) = Empty
 	    | upd (Red tree) = Red(upd' tree)
 	    | upd (Black tree) = Black(upd' tree)
@@ -311,7 +311,7 @@ struct
 	Set(n, upd dict)
       end
 
-  fun forall (Set(n, dict)) f =
+  let rec forall (Set(n, dict)) f =
       let fun ap (Empty) = ()
 	    | ap (Red tree) = ap' tree
 	    | ap (Black tree) = ap' tree
@@ -321,7 +321,7 @@ struct
 	ap dict
       end
 
-  fun existsOpt (Set(n, dict)) f =
+  let rec existsOpt (Set(n, dict)) f =
       let fun ap (Empty) = NONE
 	    | ap (Red tree) = ap' tree
 	    | ap (Black tree) = ap' tree
@@ -332,7 +332,7 @@ struct
 	ap dict
       end
 
-  fun exists (Set(n, dict)) f =
+  let rec exists (Set(n, dict)) f =
       let fun ap (Empty) = false
 	    | ap (Red tree) = ap' tree
 	    | ap (Black tree) = ap' tree
@@ -345,7 +345,7 @@ struct
       end
 
 
-  fun setsize (Set (n, _)) = n
+  let rec setsize (Set (n, _)) = n
 
   (* support for constructing red-black trees in linear time from increasing
    * ordered sequences (based on a description by R. Hinze).  Note that the
@@ -361,14 +361,14 @@ struct
     and left (Empty, rest) = rest
       | left (t as Red(_, a, _), rest) = left(a, t::rest)
       | left (t as Black(_, a, _), rest) = left(a, t::rest)
-    fun start m = left(m, [])
+    let rec start m = left(m, [])
 
     type 'a digit
       = ZERO
       | ONE of ('a entry * 'a dict * 'a digit)
       | TWO of ('a entry * 'a dict * 'a entry * 'a dict * 'a digit)
   (* add an item that is guaranteed to be larger than any in l *)
-    fun addItem (a, l) = 
+    let rec addItem (a, l) = 
       let
 	let rec incr = function (a, t, ZERO) -> ONE(a, t, ZERO)
 	  | (a1, t1, ONE(a2, t2, r)) -> TWO(a1, t1, a2, t2, r)
@@ -378,7 +378,7 @@ struct
 	incr(a, Empty, l)
       end
   (* link the digits into a tree *)
-    fun linkAll t = let
+    let rec linkAll t = let
 	  let rec link = function (t, ZERO) -> t
 	    | (t1, ONE(a, t2, r)) -> link(Black (a, t2, t1), r)
 	    | (t, TWO(a1, t1, a2, t2, r)) -> 
@@ -392,14 +392,14 @@ struct
 
       
   (* return the union of the two sets *)
-    fun union (Set (n1, s1), Set (n2, s2)) = 
+    let rec union (Set (n1, s1), Set (n2, s2)) = 
       let
 	let rec ins = function ((Empty, _), n, result) -> (n, result)
 	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result))
 	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result))
-	  fun union' (t1, t2, n, result) = 
+	  let rec union' (t1, t2, n, result) = 
 	    (case (next t1, next t2)
 	       of ((Empty, _), (Empty, _)) => (n, result)
 	        | ((Empty, _), t2) => ins(t2, n, result)
@@ -427,9 +427,9 @@ struct
       end
 
   (* return the intersection of the two sets *)
-    fun intersection (Set(_, s1), Set(_, s2)) = 
+    let rec intersection (Set(_, s1), Set(_, s2)) = 
       let
-	fun intersect (t1, t2, n, result) = 
+	let rec intersect (t1, t2, n, result) = 
 	  (case (next t1, next t2)
 	     of ((Empty, r), (tree, r')) => (n, result)
 	       | ((tree, r), (Empty, r')) => (n, result)
@@ -452,14 +452,14 @@ struct
   (* return the set difference  S1 - S2 
      if there are elements in S2 which do not appear in S1
      they are ignored !*)
-    fun difference (Set(_, s1), Set(_, s2)) = 
+    let rec difference (Set(_, s1), Set(_, s2)) = 
       let
 	let rec ins = function ((Empty, _), n, result) -> (n, result)
 	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	fun diff (t1, t2, n, result) = 
+	let rec diff (t1, t2, n, result) = 
 	  (case (next t1, next t2)
 	     of ((Empty, _), _) => (n, result)
 	      | (t1, (Empty, _)) => ins(t1, n, result)
@@ -482,14 +482,14 @@ struct
      contains all elements occurring in S1 but not in S2
      and d2 contains all elements occurring in S2 but not in S1
        *)
-    fun difference2 (Set(_, s1), Set(_, s2)) = 
+    let rec difference2 (Set(_, s1), Set(_, s2)) = 
       let
 	let rec ins = function ((Empty, _), n, result) -> (n, result)
 	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	fun diff (t1, t2, (n1, result1), (n2, result2)) = 
+	let rec diff (t1, t2, (n1, result1), (n2, result2)) = 
 	  (case (next t1, next t2)
 	     of ((Empty, _), t2) => ((n1, result1), ins(t2, n2, result2))
 	      | (t1, (Empty, _)) => (ins(t1, n1, result1), (n2, result2))
@@ -516,14 +516,14 @@ struct
         and (x, d2) in S2, d1 ~ d2
     *)
 
-    fun diffMod F (Set(_, s1), Set(_, s2)) = 
+    let rec diffMod F (Set(_, s1), Set(_, s2)) = 
      let
 	let rec ins = function ((Empty, _), n, result) -> (n, result)
 	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	fun diff (t1, t2, (n1, result1), (n2, result2)) = 
+	let rec diff (t1, t2, (n1, result1), (n2, result2)) = 
 	  (case (next t1, next t2)
 	     of ((Empty, _), t2) => ((n1, result1), ins(t2, n2, result2))
 	      | (t1, (Empty, _)) => (ins(t1, n1, result1), (n2, result2))
@@ -543,14 +543,14 @@ struct
       end
 
 
-    fun splitSets F (Set(_, s1), Set(_, s2)) = 
+    let rec splitSets F (Set(_, s1), Set(_, s2)) = 
      let
 	let rec ins = function ((Empty, _), n, result) -> (n, result)
 	  | ((Red (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
 	  | ((Black (x, _, _), r), n, result) -> 
 	    ins(next r, n+1, addItem(x, result)) 
-	fun split (t1, t2, nr as (n, result), nr1 as (n1, result1), nr2 as (n2, result2)) = 
+	let rec split (t1, t2, nr as (n, result), nr1 as (n1, result1), nr2 as (n2, result2)) = 
 	  (case (next t1, next t2)
 	     of ((Empty, _), t2) => (nr, nr1, ins(t2, n2, result2))
 	      | (t1, (Empty, _)) => (nr, ins(t1, n1, result1), nr2)
@@ -573,8 +573,8 @@ struct
       end
 
   in
-    fun new () = ref (empty) (* ignore size hint *)
-    fun copy S = let let S' = new() in S' := (!S); S' end
+    let rec new () = ref (empty) (* ignore size hint *)
+    let rec copy S = let let S' = new() in S' := (!S); S' end
     let insert = (fun set -> fun entry -> (set := insert (!set, entry)))
     let insertLast = (fun set -> fun datum -> (set := insertLast (!set, datum)))
     let insertList = (fun set -> fun list -> (set := insertList (!set, list)))
@@ -594,7 +594,7 @@ struct
     let exists = (fun ordSet -> fun f -> exists (!ordSet) f)
     let existsOpt = (fun ordSet -> fun f -> existsOpt (!ordSet) f)
 
-    fun size S = setsize (!S) 
+    let rec size S = setsize (!S) 
 
     let difference = (fun set1 -> fun set2 -> (let let set = new() in set := difference (!set1, !set2); set end))
 

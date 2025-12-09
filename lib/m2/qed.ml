@@ -13,7 +13,7 @@ struct
     module M = MetaSyn
     module I = IntSyn
 
-    fun subgoal (M.State (name, M.Prefix (G, M, B), V)) =
+    let rec subgoal (M.State (name, M.Prefix (G, M, B), V)) =
         let
           let rec check = function I.Null -> true
             | (I.Decl (M, M.Top)) -> check M

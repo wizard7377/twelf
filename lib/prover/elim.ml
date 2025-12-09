@@ -40,7 +40,7 @@ struct
 (* These lines need to move *)
 
     (* fun stripTC (T.Abs (_, TC)) = TC *)
-    fun stripTC TC = TC
+    let rec stripTC TC = TC
 
 
     let rec stripTCOpt = function NONE -> NONE
@@ -59,7 +59,7 @@ struct
        If   |- S state
        then op' is an operator which performs the filling operation
     *)
-    fun expand (S.Focus (Y as T.EVar (Psi, r, G, V, _, _), W)) =   (* Y is lowered *)
+    let rec expand (S.Focus (Y as T.EVar (Psi, r, G, V, _, _), W)) =   (* Y is lowered *)
       let
         let rec matchCtx = function (I.Null, _, Fs) -> Fs
           | (I.Decl (G, T.PDec (x, F, _, _)), n, Fs) -> 
@@ -122,7 +122,7 @@ struct
        If op is a filling operator
        then s' is a string describing the operation in plain text
     *)
-    fun menu (Local (X as T.EVar (Psi, _, _, _, _, _), n)) =
+    let rec menu (Local (X as T.EVar (Psi, _, _, _, _, _), n)) =
         (case (I.ctxLookup (Psi, n))
           of T.PDec (SOME x, _, _, _) =>
             ("Elim " ^ TomegaPrint.nameEVar X  ^ " with variable " ^ x))

@@ -7,7 +7,7 @@ module Flit(Global : GLOBAL)
    (Whnf : WHNF)
    (Names : NAMES)
    (Table : TABLE)
-               where type key = IntSyn.cid
+               with type key = IntSyn.cid
              (Index : INDEX)
              (Print : PRINT)
   : FLIT =
@@ -29,7 +29,7 @@ struct
     let tcb_table : (string * int) list option ref = ref NONE
     let tcb_size : int ref = ref 0
 
-    fun print_table () =
+    let rec print_table () =
           let
             let rec print_table' = function nil -> ()
               | [(name, addr)] -> 
@@ -45,20 +45,20 @@ struct
             )
           end
 
-    fun print_size () =
+    let rec print_size () =
          print ("let tcb_size = " ^ Int.toString (!tcb_size) ^ ";\n")
 
-    fun init filename =
+    let rec init filename =
       let
         let stream = TextIO.openIn filename
 
         let linecount = ref 0 : int ref;
-        fun get_line () = (linecount := !linecount + 1; Compat.inputLine97 stream)
+        let rec get_line () = (linecount := !linecount + 1; Compat.inputLine97 stream)
 
-        fun error () = raise Error ("Error reading file '" ^ filename
+        let rec error () = raise Error ("Error reading file '" ^ filename
                                      ^ "', line " ^ (Int.toString (!linecount)))
 
-        fun read_size () =
+        let rec read_size () =
               case (Int.fromString (get_line ()))
                 of SOME(tcb_size) => tcb_size
                  | NONE => error ()
@@ -103,12 +103,12 @@ struct
     let imitatesTable : int IHT.Table = IHT.new 32
     let replaceTable : string IHT.Table = IHT.new 32
 
-    fun cname cid = I.conDecName (I.sgnLookup cid)
+    let rec cname cid = I.conDecName (I.sgnLookup cid)
 
-    fun clookup name =
+    let rec clookup name =
           let
             let size = #1 (I.sgnSize ());
-            fun clookup' cid =
+            let rec clookup' cid =
                   if (cid = size)
                   then raise Error ("symbol " ^ name ^ " not found")
                   else if (cname cid = name)
@@ -118,13 +118,13 @@ struct
             clookup' 0
           end
 
-    fun print_once cid =
+    let rec print_once cid =
           case (Table.lookup printTable cid)
             of NONE => (Table.insert printTable (cid, ());
                         print (Print.conDecToString (I.sgnLookup cid) ^ "\n"))
              | SOME _ => ()
 
-    fun print_tuple (addr, code, (cld, prd, cls), arg1, arg2) =
+    let rec print_tuple (addr, code, (cld, prd, cls), arg1, arg2) =
            print ((W.fmt StringCvt.DEC addr) ^ " : " ^
                   Char.toString code ^ "\t" ^
                   Bool.toString cld ^ "\t" ^
@@ -133,7 +133,7 @@ struct
                   (W.fmt StringCvt.DEC arg1) ^ "\t" ^
                   (W.fmt StringCvt.DEC arg2) ^ "\n")
 
-    fun writeArray array =
+    let rec writeArray array =
           case (!out)
             of SOME(stream) =>
                  (tuples := !tuples + 1;
@@ -142,7 +142,7 @@ struct
                                                  (array, 0, NONE))))
              | NONE => ()
 
-    fun tuple (code, flags as (cld, prd, cls), arg1, arg2) =
+    let rec tuple (code, flags as (cld, prd, cls), arg1, arg2) =
           let
             let addr = W.fromInt (!tuples + !tcb_size)
             let array = Word8Array.array (Pack.bytesPerElem * size_of_expr,
@@ -195,7 +195,7 @@ struct
     let rec annotate = function true (flags, arg, exp) -> tuple(#":", flags, arg, exp)
       | false _ -> W.fromInt 0
 
-    fun scanNumber string =
+    let rec scanNumber string =
           let
             let rec check = function (chars as (_ :: _)) -> 
                  (List.all Char.isDigit chars)
@@ -207,7 +207,7 @@ struct
             else NONE
           end
 
-    fun scanBinopPf oper string =
+    let rec scanBinopPf oper string =
           let
             let args = String.tokens (fun c -> c = oper) string
           in
@@ -221,7 +221,7 @@ struct
           end
 
     (* currently unused *)
-    fun scanTernopPf oper1 oper2 string =
+    let rec scanTernopPf oper1 oper2 string =
           let
             let args = String.tokens (fun c -> c = oper1) string
           in
@@ -242,7 +242,7 @@ struct
                | _ => NONE
           end
 
-    fun isPredicate cid =
+    let rec isPredicate cid =
           case (!startClause, I.constUni cid)
             of (SOME cid', I.Kind) => (cid >= cid')
              | _ => false
@@ -253,7 +253,7 @@ struct
       | (I.NSDef cid) -> SOME cid
       | _ -> NONE
 
-    fun isClause cid =
+    let rec isClause cid =
           case (!startClause, I.constUni cid)
             of (SOME cid', I.Type) =>
               if (cid >= cid')
@@ -267,7 +267,7 @@ struct
               else false
              | _ => false
 
-    fun lookup cid =
+    let rec lookup cid =
           case (Table.lookup symTable cid)
             of SOME(idx) => idx
              | NONE =>
@@ -370,7 +370,7 @@ struct
             annotate true ((true, pred, cls), arg, exp)
           end
 
-    fun initTuples () =
+    let rec initTuples () =
           let
             let _ = tuples := 0
             let _ = Table.clear symTable
@@ -383,9 +383,9 @@ struct
                | NONE => raise Error "dump(...) before init(...)"
             end
 
-    fun dump (name, file) =
+    let rec dump (name, file) =
           let
-            fun dump' cid =
+            let rec dump' cid =
                   let
                     let _ = out := SOME (BinIO.openOut file);
                     let stream = valOf (!out)
@@ -395,9 +395,9 @@ struct
                   in
                     idx
                   end
-           fun error msg =
+           let rec error msg =
                  let
-                   fun closeOut () =
+                   let rec closeOut () =
                          case (!out)
                            of SOME (stream) => BinIO.closeOut stream
                             | NONE => ()
@@ -411,33 +411,33 @@ struct
                | NONE => error ("symbol " ^ name ^ " not found\n")
           end
 
-    fun setFlag () =
+    let rec setFlag () =
           case (!startClause)
             of SOME(cid) => print ("Error: flag already set\n")
              | NONE => startClause := SOME(#1 (I.sgnSize ()))
 
-    fun setEndTcb () =
+    let rec setEndTcb () =
           case (!startSemant)
             of SOME(cid) => print ("Error: flag already set\n")
              | NONE => startSemant := SOME(#1 (I.sgnSize ()))
 
-    fun dumpFlagged file =
+    let rec dumpFlagged file =
           let
             let max = #1 (I.sgnSize ())
-            fun compileSeq cid =
+            let rec compileSeq cid =
                   if (cid < max)
                   then
                     (lookup cid;
                      compileSeq (cid + 1))
                   else ()
-            fun dump' cid =
+            let rec dump' cid =
                   (out := SOME(BinIO.openOut file);
                    initTuples();
                    compileSeq cid;
                    BinIO.closeOut (valOf (!out)))
-           fun error msg =
+           let rec error msg =
                  let
-                   fun closeOut () =
+                   let rec closeOut () =
                          case (!out)
                            of SOME(stream) => BinIO.closeOut stream
                             | NONE => ()
@@ -451,17 +451,17 @@ struct
                | NONE => error ("setFlag() has not been called yet\n")
           end
 
-     fun dumpSymTable (name1, name2, file) =
+     let rec dumpSymTable (name1, name2, file) =
            let
              let stream = TextIO.openOut file
              let F.Strength nonfixLevel = F.minPrec
-             fun dumpFixity cid =
+             let rec dumpFixity cid =
                    (case (N.getFixity cid)
                       of F.Infix (F.Strength level, F.Left) => (level, 1)
                        | F.Infix (F.Strength level, F.Right) => (level, 2)
                        | F.Infix (F.Strength level, F.None) => (level, 3)
                        | F.Nonfix => (nonfixLevel, 0))
-             fun dumpEntry cid =
+             let rec dumpEntry cid =
                    (case (Table.lookup symTable cid, dumpFixity cid)
                       of (SOME(idx), (level, assoc)) =>
                            TextIO.output (stream,
@@ -470,11 +470,11 @@ struct
                                           Int.toString(level) ^ "\t" ^
                                           Int.toString(assoc) ^ "\n")
                        | (NONE, _) => ())
-             fun dumpTable (cid1, cid2) =
+             let rec dumpTable (cid1, cid2) =
                    if (cid1 <= cid2)
                    then (dumpEntry cid1; dumpTable (cid1+1, cid2))
                    else ()
-             fun error msg = print ("Error: " ^ msg ^ "\n")
+             let rec error msg = print ("Error: " ^ msg ^ "\n")
            in
              (case (N.constLookup (valOf (N.stringToQid name1)),
                     N.constLookup (valOf (N.stringToQid name2)))
@@ -485,9 +485,9 @@ struct
              TextIO.closeOut stream
            end
 
-     fun sort cmp l =
+     let rec sort cmp l =
          let
-             fun split l =
+             let rec split l =
                  let fun s a1 a2 nil = (a1, a2)
                        | s a1 a2 (h::t) = s a2 (h::a1) t
                 in s nil nil l
@@ -510,7 +510,7 @@ struct
          in ms l
          end
 
-     fun sortedKeys t =
+     let rec sortedKeys t =
          let
              let r = ref []
              let _ =  IHT.app (fun x -> r := x :: !r) t
@@ -527,7 +527,7 @@ struct
     let counter = ref 0
 
     (* returns a tuple of the name of the cid and SOME of the shadowing cid if any *)
-    fun isShadowedBy cid =
+    let rec isShadowedBy cid =
         let
             let name = I.conDecName(I.sgnLookup cid)
             let currentcid = valOfE (noPriorEntry name) (SHT.lookup shadowTable name)
@@ -536,14 +536,14 @@ struct
         end
 
     (* returns true if it changed any names *)
-    fun isShadowing () =
+    let rec isShadowing () =
         let
             (* let _ = print "clearing table...\n" *)
             let _ = SHT.clear shadowTable
             let changes = ref false
-            fun processDep rcid cid =
+            let rec processDep rcid cid =
                 let
-                    fun handleProblem (currentcid, name) =
+                    let rec handleProblem (currentcid, name) =
                         (case Table.lookup replaceTable cid of SOME _ => ()
                       | _ =>
                              let
@@ -580,7 +580,7 @@ struct
                       | NONE => ()
                 end
 
-            fun processCid cid =
+            let rec processCid cid =
                 let
 
                     let name = I.conDecName(I.sgnLookup cid)
@@ -595,19 +595,19 @@ struct
             !changes
         end
 
-  fun is_def cid = ((I.constDef cid; true) handle Match => false)
+  let rec is_def cid = ((I.constDef cid; true) handle Match => false)
 
-  fun fixityDec cid =
+  let rec fixityDec cid =
       (case N.getFixity cid of
           (f as F.Infix _) =>
               F.toString f ^ " " ^ I.conDecName(I.sgnLookup cid) ^ ".\n"
               | _ => "")
 
-  fun record_once k cid = (case IHT.insertShadow recordTable (cid,()) of
+  let rec record_once k cid = (case IHT.insertShadow recordTable (cid,()) of
                                NONE => ((* print("DX Recording " ^ Int.toString cid ^ ".\n") ; *)  k cid)
                              | SOME _ => ())
 
-  fun recordDependency (x, y) =
+  let rec recordDependency (x, y) =
       let
 (*        let msg = "DX dep " ^ Int.toString x ^ " on " ^ Int.toString y ^ "\n" *)
           let table = (case IHT.lookup depTable x of SOME y => y
@@ -627,7 +627,7 @@ struct
     | etaReduceSpine n Nil = true
     | etaReduceSpine n _ = false
 
-  fun checkTrivial cid = (case sgnLookup cid of
+  let rec checkTrivial cid = (case sgnLookup cid of
                               (AbbrevDef (_,_,_,M,V,_)) =>
                                   (case etaReduce 0 M of SOME (Const cid') =>
                                        (print ("DX inserting " ^ Int.toString cid' ^ " = " ^ Int.toString cid ^ "\n");
@@ -661,7 +661,7 @@ struct
 
   end
 
-  fun initForText () =
+  let rec initForText () =
       let
       in
           startClause := NONE;
@@ -674,20 +674,20 @@ struct
 
   exception InfixWithImplicitArgs
 
-  fun appRange f min max =
+  let rec appRange f min max =
       if (min < max)
           then
               (f min;
                appRange f (min + 1) max)
       else ()
 
-  fun dumpAll (max, first, outputSemant, outputChecker) =
+  let rec dumpAll (max, first, outputSemant, outputChecker) =
       let
           let streamSemant = TextIO.openOut outputSemant
           let streamChecker = TextIO.openOut outputChecker
           let streamTcb = TextIO.openOut "dumptcb" (* DX *)
-          fun waitUntilFalse f = if f() then waitUntilFalse f else ()
-          fun outputCid cid = (* if cid < (valOf(!startSemant)) then () else *) (* DX *)
+          let rec waitUntilFalse f = if f() then waitUntilFalse f else ()
+          let rec outputCid cid = (* if cid < (valOf(!startSemant)) then () else *) (* DX *)
               let
                   let s = Print.conDecToString(I.sgnLookup cid) ^ "\n"
                   let s' = if cid >= valOf(!startClause) andalso is_def cid
@@ -713,14 +713,14 @@ struct
           TextIO.closeOut (streamTcb) (* DX *)
       end
 
-  fun dumpText (outputSemant, outputChecker) =
+  let rec dumpText (outputSemant, outputChecker) =
       let
           let max = #1 (I.sgnSize ())
 
           (* let _ = print ("DX startSemant = " ^ Int.toString(valOf(!startSemant)) ^ "\n") *)
           (* let _ = print ("DX startClause = " ^ Int.toString(valOf(!startClause)) ^ "\n") *)
 
-          fun correctFixities cid =
+          let rec correctFixities cid =
               if (cid < max)
                   then
                       (let
@@ -742,7 +742,7 @@ struct
 
           let _ = correctFixities 0
 
-          fun error msg = print ("Error: " ^ msg ^ "\n")
+          let rec error msg = print ("Error: " ^ msg ^ "\n")
       in
           case (!startClause)
            of SOME (cid) =>

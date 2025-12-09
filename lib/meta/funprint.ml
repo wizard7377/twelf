@@ -115,10 +115,10 @@ struct
        and  names is a list of n names,
        then fmt' is the pretty printed format
     *)
-    fun formatFor (Psi, F) names =
+    let rec formatFor (Psi, F) names =
       let
 
-        fun nameLookup index = List.nth (names, index)
+        let rec nameLookup index = List.nth (names, index)
 
         (* formatFor1 (index, G, (F, s)) = fmts'
 
@@ -136,13 +136,13 @@ struct
                Fmt.String "::",
                Fmt.Space, Fmt.HVbox (formatFor' (G, (F, s)))]
 
-        fun formatFor0 Args =
+        let rec formatFor0 Args =
           Fmt.Vbox0 0 1 (formatFor1 Args)
       in
         (Names.varReset I.Null; formatFor0 (0, F.makectx Psi, (F, I.id)))
       end
 
-    fun formatForBare (G, F) = Fmt.HVbox (formatFor' (G, (F, I.id)))
+    let rec formatForBare (G, F) = Fmt.HVbox (formatFor' (G, (F, I.id)))
 
 
 
@@ -154,9 +154,9 @@ struct
        and  names is a list of n names,
        then fmt' is the pretty printed format of P
     *)
-    fun formatPro Args names =
+    let rec formatPro Args names =
       let
-        fun nameLookup index = List.nth (names, index)
+        let rec nameLookup index = List.nth (names, index)
 
         (* blockName (G1, G2) = G2'
 
@@ -164,7 +164,7 @@ struct
            If   G1 |- G2 ctx
            then G2' = G2 modulo new non-conficting variable names.
         *)
-        fun blockName (G1, G2) =
+        let rec blockName (G1, G2) =
           let
             let rec blockName' = function (G1, I.Null) -> (G1, I.Null)
               | (G1, I.Decl (G2, D)) -> 
@@ -185,7 +185,7 @@ struct
            If   G1 |- CB ctxblock
            then CB' = CB modulo new non-conficting variable names.
         *)
-        fun ctxBlockName (G1, F.CtxBlock (name, G2)) =
+        let rec ctxBlockName (G1, F.CtxBlock (name, G2)) =
           F.CtxBlock (name, blockName (G1, G2))
 
         (* decName (G, LD) = LD'
@@ -203,7 +203,7 @@ struct
            If   Psi, Delta |- Ds :: Psi', Delta'
            then n'= |Psi'| - |Psi|
         *)
-        fun numberOfSplits Ds =
+        let rec numberOfSplits Ds =
             let
               let rec numberOfSplits' = function (F.Empty, n) -> n
                 | (F.New (_, Ds), n) -> numberOfSplits' (Ds, n)
@@ -228,7 +228,7 @@ struct
            then Psi1' = Psi1 modulo variable naming
            and  for all x in Psi2 s.t. s(x) = x in Psi1'
         *)
-        fun psiName (Psi1, s, Psi2, l) =
+        let rec psiName (Psi1, s, Psi2, l) =
           let
             let rec nameDec = function (D as I.Dec (SOME _, _), name) -> D
               | (I.Dec (NONE, V), name) -> I.Dec (SOME name, V)
@@ -301,7 +301,7 @@ struct
            and  Psi |- G ctx
            then fmt' is a pretty print format of G
         *)
-        fun formatCtx (Psi, G) =
+        let rec formatCtx (Psi, G) =
           let
             let G0 = F.makectx Psi
 
@@ -325,7 +325,7 @@ struct
            and  Psi; Delta |- P = Inx (M1, Inx ... (Mn, Unit))
            then fmt' is a pretty print format of (M1, .., Mn)
         *)
-        fun formatTuple (Psi, P) =
+        let rec formatTuple (Psi, P) =
           let
             let rec formatTuple' = function (F.Unit) -> nil
               | (F.Inx (M, F.Unit)) -> 
@@ -348,7 +348,7 @@ struct
            and  Psi |- Mk:Ak for all 1<=k<=n
            then fmt' is a pretty print format of (M1, .., Mn)
         *)
-        fun formatSplitArgs (Psi, L) =
+        let rec formatSplitArgs (Psi, L) =
           let
             let rec formatSplitArgs' = function (nil) -> nil
               | (M :: nil) -> 
@@ -538,7 +538,7 @@ struct
            where index represents the function name
            and   s the spine.
         *)
-        fun formatHead (index, Psi', s, Psi) =
+        let rec formatHead (index, Psi', s, Psi) =
               Fmt.Hbox [Fmt.Space,
                         Fmt.HVbox (Fmt.String (nameLookup index) :: Fmt.Break ::
                                    Print.formatSpine (F.makectx Psi',
@@ -596,19 +596,19 @@ struct
            and  Psi; . |- P :: F
            then fmt' is a pretty print format of P
         *)
-        fun formatPro0 (Psi, F.Rec (DD, P)) =
+        let rec formatPro0 (Psi, F.Rec (DD, P)) =
           Fmt.Vbox0 0 1 (formatPro1 (0, Psi, P))
       in
         (Names.varReset I.Null; formatPro0 Args)
       end
 
-    fun formatLemmaDec (F.LemmaDec (names, P, F)) =
+    let rec formatLemmaDec (F.LemmaDec (names, P, F)) =
       Fmt.Vbox0 0 1 [formatFor (I.Null, F) names, Fmt.Break,
                      formatPro (I.Null, P) names]
 
-    fun forToString Args names = Fmt.makestring_fmt (formatFor Args names)
-    fun proToString Args names = Fmt.makestring_fmt (formatPro Args names)
-    fun lemmaDecToString Args = Fmt.makestring_fmt (formatLemmaDec Args)
+    let rec forToString Args names = Fmt.makestring_fmt (formatFor Args names)
+    let rec proToString Args names = Fmt.makestring_fmt (formatPro Args names)
+    let rec lemmaDecToString Args = Fmt.makestring_fmt (formatLemmaDec Args)
 
   in
     let formatFor = formatFor

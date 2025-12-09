@@ -18,15 +18,15 @@ struct
   (* readLine () = (command, args)
      reads a command and and its arguments from the command line.
   *)
-  fun readLine () =
+  let rec readLine () =
       let
         (* let line = TextIO.inputLine (TextIO.stdIn) *)
 	(* Fix for MLton, Fri Dec 20 21:50:22 2002 -sweeks (fp) *)
-	fun getLine () = Compat.inputLine97 (TextIO.stdIn)
+	let rec getLine () = Compat.inputLine97 (TextIO.stdIn)
 	                 handle OS.SysErr (_, SOME _) => getLine ()
 	let line = getLine ()
-        fun triml ss = Substring.dropl Char.isSpace ss
-        fun trimr ss = Substring.dropr Char.isSpace ss
+        let rec triml ss = Substring.dropl Char.isSpace ss
+        let rec trimr ss = Substring.dropr Char.isSpace ss
         let line' = triml (trimr (Compat.Substring.full line))
       in
 	if line = ""
@@ -46,13 +46,13 @@ struct
      splits the arguments string into a list of space-separated
      tokens
   *)
-  fun tokenize (args) = String.tokens Char.isSpace args
+  let rec tokenize (args) = String.tokens Char.isSpace args
 
   (* exception Error for server errors *)
   exception Error of string
-  fun error (msg) = raise Error(msg)
+  let rec error (msg) = raise Error(msg)
 
-  fun quote (string) = "`" ^ string ^ "'"
+  let rec quote (string) = "`" ^ string ^ "'"
 
   (* Print the OK or ABORT messages which are parsed by Emacs *)
   let rec issue = function (Twelf.OK) -> print ("%% OK %%\n")
@@ -77,7 +77,7 @@ struct
     | (ts) -> error "Extraneous arguments"
 
   (* Identifiers, used as a trace specification *)
-  fun getIds (ids) = ids
+  let rec getIds (ids) = ids
 
   (* Strategies for %prove, %establish *)
   let rec getStrategy = function ("FRS"::nil) -> Twelf.Prover.FRS
@@ -97,7 +97,7 @@ struct
     | (ts) -> error "Extraneous arguments"
 
   (* Natural numbers *)
-  fun getNat (t::nil) =
+  let rec getNat (t::nil) =
         (Lexer.stringToNat t
 	 handle Lexer.NotDigit (char) => error (quote t ^ " is not a natural number"))
     | getNat (nil) = error "Missing natural number"
@@ -395,14 +395,14 @@ struct
   and serve (Twelf.OK) = (issue (Twelf.OK); serveLine ())
     | serve (Twelf.ABORT) = (issue (Twelf.ABORT); serveLine ())
 
-  fun serveTop (status) =
+  let rec serveTop (status) =
       serve (status)
       handle Error (msg) => (print ("Server error: " ^ msg ^ "\n");
 			     serveTop (Twelf.ABORT))
 	   | exn => (print ("Uncaught exception: " ^ exnMessage exn ^ "\n");
 		     serveTop (Twelf.ABORT))
 
-  fun server (name, _) =
+  let rec server (name, _) =
       (* ignore server name and arguments *)
       (print (Twelf.version ^ "\n");
        Timing.init ();			(* initialize timers *)

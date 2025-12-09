@@ -53,7 +53,7 @@ struct
        and  G' |- V' = {a S'}. V[s' o ^]
        and  ((G', M'), V') is a state
     *)
-    fun apply (M.State (name, GM, V), a) =
+    let rec apply (M.State (name, GM, V), a) =
         let
           let (GM' as M.Prefix (G', M', B'), s') = createEVars GM
           let (U', Vs') = M.createAtomConst (G', I.Const a)  (* Vs' = type *)

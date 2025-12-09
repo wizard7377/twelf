@@ -49,7 +49,7 @@ local
     | (I.Decl (G, _)) -> 
         (printCtx G; TextIO.print ("BLOCK\n"))
 	 
-  fun print (Psi, U) = 
+  let rec print (Psi, U) = 
     TextIO.print (Print.expToString (makectx Psi, U) ^ "\n")
 	
 

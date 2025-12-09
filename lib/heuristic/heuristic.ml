@@ -1,7 +1,7 @@
 (* Heuristics : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-(Heuristic : HEURISTI)C =
+(Heuristic : HEURISTIC) =
 struct
   type index = {sd: int,                (* Splitting depth *)
                 ind: int option,        (* Induction variable *)
@@ -46,9 +46,9 @@ struct
     let rec recToString = function 0 -> "non-rec"
       | 1 -> "rec"
 
-    fun realFmt (r) = Real.fmt (StringCvt.FIX (SOME(2))) r
+    let rec realFmt (r) = Real.fmt (StringCvt.FIX (SOME(2))) r
 
-    fun ratio (c, m) = (Real.fromInt c) / (Real.fromInt m)
+    let rec ratio (c, m) = (Real.fromInt c) / (Real.fromInt m)
 
     let rec sum = function {sd -> k1, ind=NONE, c=c1, m=m1, r=r1, p=p1} =
         realFmt ((Real.fromInt k1) + ratio(m1,c1) + (Real.fromInt r1))

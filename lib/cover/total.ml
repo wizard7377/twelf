@@ -50,10 +50,10 @@ struct
     (* totalTable (a) = SOME() iff a is total, otherwise NONE *)
     let totalTable : unit Table.Table = Table.new(0)
 
-    fun reset () = Table.clear totalTable
-    fun install (cid) = Table.insert totalTable (cid, ())
-    fun lookup (cid) = Table.lookup totalTable (cid)
-    fun uninstall (cid) = Table.delete totalTable (cid)
+    let rec reset () = Table.clear totalTable
+    let rec install (cid) = Table.insert totalTable (cid, ())
+    let rec lookup (cid) = Table.lookup totalTable (cid)
+    let rec uninstall (cid) = Table.delete totalTable (cid)
   in
     let reset = reset
     let install = install
@@ -62,7 +62,7 @@ struct
           of NONE => false
            | SOME _ => (uninstall cid ; true))
 
-    fun total (cid) = (* call only on constants *)
+    let rec total (cid) = (* call only on constants *)
         case lookup cid
           of NONE => false
            | SOME _ => true
@@ -70,7 +70,7 @@ struct
     exception Error' of P.occ * string
 
     (* copied from terminates/reduces.fun *)
-    fun error (c, occ, msg) =
+    let rec error (c, occ, msg) =
         (case Origins.originLookup c
            of (fileName, NONE) => raise Error (fileName ^ ":" ^ msg)
             | (fileName, SOME occDec) =>
@@ -107,7 +107,7 @@ struct
 
        Invariants: G |- V[s] : type
     *)
-    fun checkClause (G, Vs, occ) = checkClauseW (G, Whnf.whnf Vs, occ)
+    let rec checkClause (G, Vs, occ) = checkClauseW (G, Whnf.whnf Vs, occ)
     and checkClauseW (G, (I.Pi ((D1, I.Maybe), V2), s), occ) =
         (* quantifier *)
         let
@@ -190,7 +190,7 @@ struct
        Currently, there is no global output coverage.
        Effect: raises Error (msg) otherwise, where msg has filename and location.
     *)
-    fun checkFam (a) =
+    let rec checkFam (a) =
         let
           (* Ensuring that there is no bad interaction with type-level definitions *)
           let _ = Cover.checkNoDef (a)  (* a cannot be a type-level definition *)

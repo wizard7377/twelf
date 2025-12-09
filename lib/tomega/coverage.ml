@@ -31,7 +31,7 @@ struct
        f () returns the string to be printed
          if current chatter level exceeds chlev
     *)
-    fun chatter chlev f =
+    let rec chatter chlev f =
       if !Global.chatter >= chlev
         then print ("[coverage] " ^ f ())
       else ()
@@ -117,7 +117,7 @@ struct
         end
 
 
-    fun purify (Psi0, t, Psi) =
+    let rec purify (Psi0, t, Psi) =
         let
           let (t', Psi', s') = purifyCtx (t, Psi)
           let _ = TomegaTypeCheck.checkSub (Psi0, t', Psi')

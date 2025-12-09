@@ -61,7 +61,7 @@ struct
        then dec is the result of parsing it
        otherwise Parsing.error is raised.
     *)
-    fun stringTodec s =
+    let rec stringTodec s =
       let
         let f = LS.expose (L.lexStream (TextIO.openString s))
         let ((x, yOpt), f') = ParseTerm.parseDec' f
@@ -75,7 +75,7 @@ struct
 
 
 
-    fun stringToblocks s =
+    let rec stringToblocks s =
       let
         let f = LS.expose (L.lexStream (TextIO.openString s))
         let (dl, f') = ParseTerm.parseCtx' f
@@ -90,7 +90,7 @@ struct
        then W is the result of parsing it
        otherwise Parsing.error is raised.
     *)
-    fun stringToWorlds s =
+    let rec stringToWorlds s =
         let
           let f = LS.expose (L.lexStream (TextIO.openString s))
           let (t, f') = ParseTerm.parseQualIds' f
@@ -188,12 +188,12 @@ struct
        It converts every block declaration to a type family (stored in the global
        module type) and a list of declarations.
     *)
-    fun internalizeSig () =
+    let rec internalizeSig () =
         let
           let (max, _) = I.sgnSize  ()
             (* we might want to save max, here to restore the original
                  module type after parsing is over  --cs Thu Apr 17 09:46:29 2003 *)
-          fun internalizeSig' n =
+          let rec internalizeSig' n =
               if n>=max then ()
               else
                 (internalizeCondec (n, I.sgnLookup n); internalizeSig' (n+1))
@@ -406,7 +406,7 @@ struct
       | (D.Concat (W1, W2)) -> transWorld W1 @ transWorld W2
       | (D.Times W) -> transWorld W
 
-    fun transFor' (Psi, D) =
+    let rec transFor' (Psi, D) =
         let
           let G = I.Decl (I.Null, D)
           let ReconTerm.JWithCtx (I.Decl (I.Null, D'), ReconTerm.JNothing) =
@@ -468,7 +468,7 @@ struct
        then U is the result of parsing it
        otherwise Parsing.error is raised.
     *)
-    fun stringToterm s =
+    let rec stringToterm s =
         let
           let f = LS.expose (L.lexStream (TextIO.openString s))
           let (t, f') = ParseTerm.parseTerm' f
@@ -542,7 +542,7 @@ struct
           I.Decl (append (Psi, Psi'), D)
 
 
-    fun parseTerm (Psi, (s, V)) =
+    let rec parseTerm (Psi, (s, V)) =
         let
           let (term', c) = transTerm s
           let term = stringToterm (term')
@@ -552,7 +552,7 @@ struct
           U
         end
 
-    fun parseDec (Psi, s) =
+    let rec parseDec (Psi, s) =
         let
           let (dec', c) = transDec s
           let dec = stringTodec (dec')
@@ -947,7 +947,7 @@ struct
             let (U, V) = parseTerm ((Psi, env), s ^ " type")
             let _ = print (Print.expToString (G, U) ^ "\n")
 
-          fun extract (G, Us) = extractW (G, Whnf.whnf Us)
+          let rec extract (G, Us) = extractW (G, Whnf.whnf Us)
           and extractW (G, (I.Pi ((D as I.Dec (_, _), _), V'), s)) =
                 extract (I.Decl(G, I.decSub (D, s)), (V', I.dot1 s))
             | extractW (G, _) = G
@@ -1083,7 +1083,7 @@ struct
           let (U, V) = parseTerm ((Psi, env), s ^ " type")
 (*        let _ = print (Print.expToString (G, U) ^ "\n") *)
 
-          fun extract (G, Us) = extractW (G, Whnf.whnf Us)
+          let rec extract (G, Us) = extractW (G, Whnf.whnf Us)
           and extractW (G, (I.Pi ((D as I.Dec (_, _), _), V'), s)) =
                 extract (I.Decl(G, I.decSub (D, s)), (V', I.dot1 s))
             | extractW (G, _) = G
@@ -1137,7 +1137,7 @@ struct
        If Ds is a list of declarations then P is
        the translated program, that does not do anything
     *)
-    fun transProgram Ds =
+    let rec transProgram Ds =
           transDecs (I.Null, Ds, fn (Psi, W) => (T.Unit), T.Worlds [])
 
 

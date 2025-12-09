@@ -19,7 +19,7 @@ struct
   (* ctxPop (G) => G'
      Invariant: G = G',D
   *)
-  fun ctxPop (Decl (G, D)) = G
+  let rec ctxPop (Decl (G, D)) = G
 
   exception Error of string             (* raised if out of space     *)
   (* ctxLookup (G, k) = D, kth declaration in G from right to left
@@ -32,7 +32,7 @@ struct
     (* ctxLookup (Null, k')  should not occur by invariant *)
 
   (* ctxLength G = |G|, the number of declarations in G *)
-  fun ctxLength G =
+  let rec ctxLength G =
       let
         let rec ctxLength' = function (Null, n) -> n
           | (Decl(G, _), n) -> ctxLength' (G, n+1)
@@ -204,9 +204,9 @@ struct
 
 
 
-    fun fold csfe f b = let
+    let rec fold csfe f b = let
         let r = ref b
-        fun g U = r := f (U,!r)
+        let rec g U = r := f (U,!r)
     in
         App.apply csfe g ; !r
     end
@@ -277,7 +277,7 @@ struct
      then Gsome is the context of some variables
      and  Lpi is the list of pi variables
   *)
-  fun conDecBlock (BlockDec (_, _, Gsome, Lpi)) = (Gsome, Lpi)
+  let rec conDecBlock (BlockDec (_, _, Gsome, Lpi)) = (Gsome, Lpi)
 
   (* conDecUni (CD) =  L
 
@@ -292,9 +292,9 @@ struct
     | (SkoDec (_, _, _, _, L)) -> L
 
 
-  fun strDecName (StrDec (name, _)) = name
+  let rec strDecName (StrDec (name, _)) = name
 
-  fun strDecParent (StrDec (_, parent)) = parent
+  let rec strDecParent (StrDec (_, parent)) = parent
 
   local
     let maxCid = Global.maxCid
@@ -316,17 +316,17 @@ struct
     (* If Const(cid) is valid, then sgnArray(cid) = ConDec _ *)
     (* If Def(cid) is valid, then sgnArray(cid) = ConDef _ *)
 
-    fun sgnClean (i) = if i >= !nextCid then ()
+    let rec sgnClean (i) = if i >= !nextCid then ()
                        else (Array.update (sgnArray, i, dummyEntry);
                              sgnClean (i+1))
 
-    fun sgnReset () = ((* Fri Dec 20 12:04:24 2002 -fp *)
+    let rec sgnReset () = ((* Fri Dec 20 12:04:24 2002 -fp *)
                        (* this circumvents a space leak *)
                        sgnClean (0);
                        nextCid := 0; nextMid := 0)
-    fun sgnSize () = (!nextCid, !nextMid)
+    let rec sgnSize () = (!nextCid, !nextMid)
 
-    fun sgnAdd (conDec) =
+    let rec sgnAdd (conDec) =
         let
           let cid = !nextCid
         in
@@ -338,17 +338,17 @@ struct
         end
 
     (* 0 <= cid < !nextCid *)
-    fun sgnLookup (cid) = Array.sub (sgnArray, cid)
+    let rec sgnLookup (cid) = Array.sub (sgnArray, cid)
 
-    fun sgnApp (f) =
+    let rec sgnApp (f) =
         let
-          fun sgnApp' (cid) =
+          let rec sgnApp' (cid) =
               if cid = !nextCid then () else (f cid; sgnApp' (cid+1))
         in
           sgnApp' (0)
         end
 
-    fun sgnStructAdd (strDec) =
+    let rec sgnStructAdd (strDec) =
         let
           let mid = !nextMid
         in
@@ -360,10 +360,10 @@ struct
         end
 
     (* 0 <= mid < !nextMid *)
-    fun sgnStructLookup (mid) = Array.sub (sgnStructArray, mid)
+    let rec sgnStructLookup (mid) = Array.sub (sgnStructArray, mid)
 
     (* A hack used in Flit - jcreed 6/05 *)
-    fun rename (cid, new) =
+    let rec rename (cid, new) =
         let
             let newConDec = case sgnLookup cid of
                 ConDec (n,m,i,s,e,u) => ConDec(new,m,i,s,e,u)
@@ -377,17 +377,17 @@ struct
 
   end
 
-  fun constDef (d) =
+  let rec constDef (d) =
       (case sgnLookup (d)
          of ConDef(_, _, _, U,_, _, _) => U
           | AbbrevDef (_, _, _, U,_, _) => U)
 
-  fun constType (c) = conDecType (sgnLookup c)
-  fun constImp (c) = conDecImp (sgnLookup c)
-  fun constUni (c) = conDecUni (sgnLookup c)
-  fun constBlock (c) = conDecBlock (sgnLookup c)
+  let rec constType (c) = conDecType (sgnLookup c)
+  let rec constImp (c) = conDecImp (sgnLookup c)
+  let rec constUni (c) = conDecUni (sgnLookup c)
+  let rec constBlock (c) = conDecBlock (sgnLookup c)
 
-  fun constStatus (c) =
+  let rec constStatus (c) =
       (case sgnLookup (c)
          of ConDec (_, _, _, status, _, _) => status
           | _ => Normal)
@@ -539,7 +539,7 @@ struct
      If G' |- s' : G
      (so G',V[s] |- s : G,V)
   *)
-  fun invDot1 (s) = comp (comp(shift, s), invShift)
+  let rec invDot1 (s) = comp (comp(shift, s), invShift)
 
 
   (* Declaration Contexts *)
@@ -549,7 +549,7 @@ struct
      If      |G| >= k, where |G| is size of G,
      then    G |- k : V  and  G |- V : L
   *)
-  fun ctxDec (G, k) =
+  let rec ctxDec (G, k) =
       let (* ctxDec' (G'', k') = x:V
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)
@@ -570,7 +570,7 @@ struct
      then G |- pi (v, i) : V
   *)
 
-  fun blockDec (G, v as (Bidx k), i) =
+  let rec blockDec (G, v as (Bidx k), i) =
     let
       let BDec (_, (l, s)) = ctxDec (G, k)
       (* G |- s : Gsome *)
@@ -587,19 +587,19 @@ struct
   (* EVar related functions *)
 
   (* newEVar (G, V) = newEVarCnstr (G, V, nil) *)
-  fun newEVar (G, V) = EVar(ref NONE, G, V, ref nil)
+  let rec newEVar (G, V) = EVar(ref NONE, G, V, ref nil)
 
   (* newAVar G = new AVar (assignable variable) *)
   (* AVars carry no type, ctx, or cnstr *)
-  fun newAVar () = AVar(ref NONE)
+  let rec newAVar () = AVar(ref NONE)
 
   (* newTypeVar (G) = X, X new
      where G |- X : type
   *)
-  fun newTypeVar (G) = EVar(ref NONE, G, Uni(Type), ref nil)
+  let rec newTypeVar (G) = EVar(ref NONE, G, Uni(Type), ref nil)
 
   (* newLVar (l, s) = (l[s]) *)
-  fun newLVar (sk, (cid, t)) = LVar (ref NONE, sk, (cid, t))
+  let rec newLVar (sk, (cid, t)) = LVar (ref NONE, sk, (cid, t))
 
   (* Definition related functions *)
   (* headOpt (U) = SOME(H) or NONE, U should be strict, normal *)
@@ -616,10 +616,10 @@ struct
     | (SOME _) -> (* FgnConst possible, BVar impossible by strictness *)
       Anc(NONE, 0, NONE)
   (* ancestor(U) = ancestor info for d = U *)
-  fun ancestor (U) = ancestor' (headOpt U)
+  let rec ancestor (U) = ancestor' (headOpt U)
 
   (* defAncestor(d) = ancestor of d, d must be defined *)
-  fun defAncestor (d) =
+  let rec defAncestor (d) =
       (case sgnLookup(d)
          of ConDef(_, _, _, _, _, _, anc) => anc)
 
@@ -645,7 +645,7 @@ struct
   (* targetHead (A) = a
      as in targetHeadOpt, except V must be a valid type
   *)
-  fun targetHead (A) = valOf (targetHeadOpt A)
+  let rec targetHead (A) = valOf (targetHeadOpt A)
 
   (* targetFamOpt (V) = SOME(cid) or NONE
      where cid is the type family of the atomic target type of V,
@@ -667,9 +667,9 @@ struct
   (* targetFam (A) = a
      as in targetFamOpt, except V must be a valid type
   *)
-  fun targetFam (A) = valOf (targetFamOpt A)
+  let rec targetFam (A) = valOf (targetFamOpt A)
 
 end;; (* functor IntSyn *)
 
-(IntSyn : INTSY)N =
+(IntSyn : INTSYN) =
   IntSyn (module Global = Global);

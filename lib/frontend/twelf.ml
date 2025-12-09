@@ -192,16 +192,16 @@ struct
     (*! module IntSyn = IntSyn' !*)
     module S = Parser.Stream
 
-    fun msg s = Msg.message s
-    fun chmsg n s = Global.chMessage n s msg
+    let rec msg s = Msg.message s
+    let rec chmsg n s = Global.chMessage n s msg
 
-    fun fileOpenMsg (fileName) =
+    let rec fileOpenMsg (fileName) =
         (case !Global.chatter
            of 0 => ()
             | 1 => msg ("[Loading file " ^ fileName ^ " ...")
             | _ => msg ("[Opening file " ^ fileName ^ "]\n"))
 
-    fun fileCloseMsg (fileName) =
+    let rec fileCloseMsg (fileName) =
         (case !Global.chatter
            of 0 => ()
             | 1 => msg ("]\n")
@@ -215,7 +215,7 @@ struct
        opens fileName for input to obtain instream and evaluates body.
        The file is closed during normal and abnormal exit of body.
     *)
-    fun withOpenIn (fileName) (scope) =
+    let rec withOpenIn (fileName) (scope) =
         let
           let instream = TextIO.openIn fileName
           let _ = fileOpenMsg (fileName)
@@ -232,7 +232,7 @@ struct
        formats instantiated EVars as a substitution.
        Abbreviate as empty string if chatter level is < 3.
     *)
-    fun evarInstToString (Xs) =
+    let rec evarInstToString (Xs) =
         if !Global.chatter >= 3
           then Print.evarInstToString (Xs)
         else ""
@@ -241,17 +241,17 @@ struct
        formats expression as a string.
        Abbreviate as empty string if chatter level is < 3.
     *)
-    fun expToString GU =
+    let rec expToString GU =
         if !Global.chatter >= 3
           then Print.expToString GU
         else ""
 
-    fun printProgTeX () =
+    let rec printProgTeX () =
         (msg "\\begin{bigcode}\n";
          ClausePrintTeX.printSgn ();
          msg "\\end{bigcode}\n")
 
-    fun printSgnTeX () =
+    let rec printSgnTeX () =
         (msg "\\begin{bigcode}\n";
          PrintTeX.printSgn ();
          msg "\\end{bigcode}\n")
@@ -259,8 +259,8 @@ struct
     (* status ::= OK | ABORT  is the return status of various operations *)
     type Status = OK | ABORT
 
-    fun abort chlev (msg) = (chmsg chlev (fn () => msg); ABORT)
-    fun abortFileMsg chlev (fileName, msg) = abort chlev (fileName ^ ":" ^ msg ^ "\n")
+    let rec abort chlev (msg) = (chmsg chlev (fn () => msg); ABORT)
+    let rec abortFileMsg chlev (fileName, msg) = abort chlev (fileName ^ ":" ^ msg ^ "\n")
 
     let rec abortIO = function (fileName, {cause -> OS.SysErr (m, _), function = f, name = n}) =
         (msg ("IO Error on file " ^ fileName ^ ":\n" ^ m ^ "\n");
@@ -275,9 +275,9 @@ struct
       | (r, r' :: rs) -> 
           joinregion (Paths.join (r, r'), rs)
 
-    fun joinregions (r::rs) = joinregion (r, rs)
+    let rec joinregions (r::rs) = joinregion (r, rs)
 
-    fun constraintsMsg (cnstrL) =
+    let rec constraintsMsg (cnstrL) =
         "Typing ambiguous -- unresolved constraints\n" ^ Print.cnstrsToString cnstrL
 
     (* let handleExceptions : int -> string -> ('a -> Status) -> 'a -> Status *)
@@ -333,7 +333,7 @@ struct
     *)
     let context : Names.namespace option ref = ref NONE
 
-    fun installConst fromCS (cid, fileNameocOpt) =
+    let rec installConst fromCS (cid, fileNameocOpt) =
         let
           let _ = Origins.installOrigin (cid, fileNameocOpt)
           let _ = Index.install fromCS (IntSyn.Const cid)
@@ -351,7 +351,7 @@ struct
        Note: if fromCS = FromCS then the declaration comes from a Constraint
        Solver and some limitations on the types are lifted.
     *)
-    fun installConDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
+    let rec installConDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
           let _ = (Timers.time Timers.modes ModeCheck.checkD) (conDec, fileName, ocOpt)
           let cid = IntSyn.sgnAdd conDec
@@ -370,7 +370,7 @@ struct
           cid
         end
 
-    fun installBlockDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
+    let rec installBlockDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
           let cid = IntSyn.sgnAdd conDec
           let _ = (case (fromCS, !context)
@@ -388,7 +388,7 @@ struct
           cid
         end
 
-    fun installBlockDef fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
+    let rec installBlockDef fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
           let cid = IntSyn.sgnAdd conDec
           let _ = (case (fromCS, !context)
@@ -405,9 +405,9 @@ struct
         end
 
 
-    fun installStrDec (strdec, module, r, isDef) =
+    let rec installStrDec (strdec, module, r, isDef) =
         let
-          fun installAction (data as (cid, _)) =
+          let rec installAction (data as (cid, _)) =
               (installConst IntSyn.Ordinary data;
                if !Global.chatter >= 4
                  then msg (Print.conDecToString (IntSyn.sgnLookup cid) ^ "\n")
@@ -422,9 +422,9 @@ struct
           ()
         end
 
-    fun includeSig (module, r, isDef) =
+    let rec includeSig (module, r, isDef) =
         let
-          fun installAction (data as (cid, _)) =
+          let rec installAction (data as (cid, _)) =
               (installConst IntSyn.Ordinary data;
                if !Global.chatter >= 4
                  then msg (Print.conDecToString (IntSyn.sgnLookup cid) ^ "\n")
@@ -438,9 +438,9 @@ struct
           ()
         end
 
-    fun cidToString a = Names.qidToString (Names.constQid a)
+    let rec cidToString a = Names.qidToString (Names.constQid a)
 
-    fun invalidate uninstallFun cids msg =
+    let rec invalidate uninstallFun cids msg =
         let
           let uninstalledCids = List.filter (fun a -> uninstallFun a) cids
           let _ = case uninstalledCids
@@ -462,7 +462,7 @@ struct
         (* Constant declarations c : V, c : V = U plus variations *)
         (let
            let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), false)
-           fun icd (SOME (conDec as IntSyn.BlockDec _)) =
+           let rec icd (SOME (conDec as IntSyn.BlockDec _)) =
                let
                  (* allocate new cid. *)
                  let cid = installBlockDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
@@ -498,7 +498,7 @@ struct
         (* Abbreviations %abbrev c = U and %abbrev c : V = U *)
         (let
           let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), true)
-          fun icd (SOME(conDec)) =
+          let rec icd (SOME(conDec)) =
               let
                   (* names are assigned in ReconConDec *)
                   (* let conDec' = nameConDec (conDec) *)
@@ -522,7 +522,7 @@ struct
         (let
            (* let _ = print "%clause " *)
            let (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName, r), false)
-           fun icd (SOME (conDec)) =
+           let rec icd (SOME (conDec)) =
                let
                  let cid = installConDec IntSyn.Clause (conDec, (fileName, ocOpt), r)
                in
@@ -542,7 +542,7 @@ struct
           let conDecL = Solve.solve (defines, solve, Paths.Loc (fileName, r))
                         handle Solve.AbortQuery (msg) =>
                          raise Solve.AbortQuery (Paths.wrap (r, msg))
-          fun icd (conDec, ocOpt) =
+          let rec icd (conDec, ocOpt) =
           (let
              (* should print here, not in ReconQuery *)
              (* allocate new cid after checking modes! *)
@@ -596,7 +596,7 @@ struct
       (* %subord (<qid> <qid>) ... *)
       | (fileName, (Parser.SubordDec (qidpairs), r)) -> 
         let
-          fun toCid qid =
+          let rec toCid qid =
               case Names.constLookup qid
                 of NONE => raise Names.Error ("Undeclared identifier "
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -621,7 +621,7 @@ struct
       (* %freeze <qid> ... *)
       | (fileName, (Parser.FreezeDec (qids), r)) -> 
         let
-          fun toCid qid =
+          let rec toCid qid =
               case Names.constLookup qid
                 of NONE => raise Names.Error ("Undeclared identifier "
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -650,7 +650,7 @@ struct
           let _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%thaw not safe: Toggle `unsafe' flag"
                   else ()
-          fun toCid qid =
+          let rec toCid qid =
               case Names.constLookup qid
                 of NONE => raise Names.Error ("Undeclared identifier "
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -682,14 +682,14 @@ struct
       (* %deterministic <qid> ... *)
       | (fileName, (Parser.DeterministicDec (qids), r)) -> 
         let
-          fun toCid qid =
+          let rec toCid qid =
               case Names.constLookup qid
                 of NONE =>
                     raise Names.Error ("Undeclared identifier "
                                        ^ Names.qidToString (valOf (Names.constUndef qid))
                                        ^ " in deterministic declaration")
                  | SOME cid => cid
-          fun insertCid cid = CompSyn.detTableInsert (cid, true)
+          let rec insertCid cid = CompSyn.detTableInsert (cid, true)
           let cids = List.map toCid qids
                        handle Names.Error (msg) =>
                          raise Names.Error (Paths.wrap (r, msg))
@@ -705,7 +705,7 @@ struct
       (* %compile <qids> *) (* -ABP 4/4/03 *)
       | (fileName, (Parser.Compile (qids), r)) -> 
         let
-          fun toCid qid =
+          let rec toCid qid =
               case Names.constLookup qid
                 of NONE => raise Names.Error ("Undeclared identifier "
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -716,7 +716,7 @@ struct
 
           (* MOVED -- ABP 4/4/03 *)
           (* ******************************************* *)
-          fun checkFreeOut nil = ()
+          let rec checkFreeOut nil = ()
             | checkFreeOut (a :: La) =
               let
                 let SOME ms = ModeTable.modeLookup a
@@ -733,7 +733,7 @@ struct
           let F = Converter.convertFor cids
           let _ = TomegaTypeCheck.checkPrg (IntSyn.Null, (P, F))
 
-          fun f cid = IntSyn.conDecName (IntSyn.sgnLookup cid)
+          let rec f cid = IntSyn.conDecName (IntSyn.sgnLookup cid)
 
           let _ = if !Global.chatter >= 2
                     then msg ("\n" ^
@@ -1226,7 +1226,7 @@ struct
           ()
         end
 
-    fun installSubsig (fileName, s) =
+    let rec installSubsig (fileName, s) =
         let
           let namespace = Names.newNamespace ()
 
@@ -1238,7 +1238,7 @@ struct
                     then msg ("\n% begin subsignature\n")
                   else ()
 
-          fun install s = install' ((Timers.time Timers.parsing S.expose) s)
+          let rec install s = install' ((Timers.time Timers.parsing S.expose) s)
           and install' (S.Cons ((Parser.BeginSubsig, _), s')) =
                 install (installSubsig (fileName, s'))
             | install' (S.Cons ((Parser.EndSubsig, _), s')) = s'
@@ -1288,12 +1288,12 @@ struct
        error messages and finally returning the status (either OK or
        ABORT).
     *)
-    fun loadFile (fileName) =
+    let rec loadFile (fileName) =
         handleExceptions 0 fileName (withOpenIn fileName)
          (fun instream ->
           let
             let _ = ReconTerm.resetErrors fileName
-            fun install s = install' ((Timers.time Timers.parsing S.expose) s)
+            let rec install s = install' ((Timers.time Timers.parsing S.expose) s)
             and install' (S.Empty) = OK
                 (* Origins.installLinesInfo (fileName, Paths.getLinesInfo ()) *)
                 (* now done in installConDec *)
@@ -1310,10 +1310,10 @@ struct
        error messages and finally returning the status (either OK or
        ABORT).
     *)
-    fun loadString str = handleExceptions 0 "string"
+    let rec loadString str = handleExceptions 0 "string"
         (fn () =>
             let let _ = ReconTerm.resetErrors "string"
-                fun install s = install' ((Timers.time Timers.parsing S.expose) s)
+                let rec install s = install' ((Timers.time Timers.parsing S.expose) s)
                 and install' (S.Empty) = OK
                   | install' (S.Cons((Parser.BeginSubsig, _), s')) =
                     (installSubsig ("string", s'); install s')
@@ -1325,17 +1325,17 @@ struct
 
     (* Interactive Query Top Level *)
 
-    fun sLoop () = if Solve.qLoop () then OK else ABORT
+    let rec sLoop () = if Solve.qLoop () then OK else ABORT
 
-    fun topLoop () = case (handleExceptions 0 "stdIn" sLoop) () (* "stdIn" as fake fileName *)
+    let rec topLoop () = case (handleExceptions 0 "stdIn" sLoop) () (* "stdIn" as fake fileName *)
                        of ABORT => topLoop ()
                         | OK => ()
 
 
     (* top () = () starts interactive query loop *)
-    fun top () = topLoop ()
+    let rec top () = topLoop ()
 
-    fun installCSMDec (conDec, optFixity, mdecL) =
+    let rec installCSMDec (conDec, optFixity, mdecL) =
         let
           let _ = ModeCheck.checkD (conDec, "%use", NONE)
           (* put a more reasonable region here? -kw *)
@@ -1360,7 +1360,7 @@ struct
     let _ = CSManager.setInstallFN (installCSMDec)
 
     (* reset () = () clears all global tables, including the module type *)
-    fun reset () = (IntSyn.sgnReset (); Names.reset (); Origins.reset ();
+    let rec reset () = (IntSyn.sgnReset (); Names.reset (); Origins.reset ();
                     ModeTable.reset ();
                     UniqueTable.reset (); (* -fp Wed Mar  9 20:24:45 2005 *)
                     Index.reset ();
@@ -1380,11 +1380,11 @@ struct
                     context := NONE
                     )
 
-    fun readDecl () =
+    let rec readDecl () =
         handleExceptions 0 "stdIn"
         (fn () =>
          let let _ = ReconTerm.resetErrors "stdIn"
-             fun install s = install' ((Timers.time Timers.parsing S.expose) s)
+             let rec install s = install' ((Timers.time Timers.parsing S.expose) s)
              and install' (S.Empty) = ABORT
                | install' (S.Cons((Parser.BeginSubsig, _), s')) =
                    (installSubsig ("stdIn", s'); OK)
@@ -1395,7 +1395,7 @@ struct
          end) ()
 
     (* decl (id) = () prints declaration of constant id *)
-    fun decl (id) =
+    let rec decl (id) =
         (case Names.stringToQid id
            of NONE => (msg (id ^ " is not a well-formed qualified identifier\n"); ABORT)
             | SOME qid =>
@@ -1430,11 +1430,11 @@ struct
     struct
       type mfile = string * Time.time option ref
 
-      fun create file = (file, ref NONE)
+      let rec create file = (file, ref NONE)
 
-      fun fileName (file, _) = file
+      let rec fileName (file, _) = file
 
-      fun editName edit (file, mtime) = (edit file, mtime)
+      let rec editName edit (file, mtime) = (edit file, mtime)
 
       let rec modified = function (_, ref NONE) -> true
         | (file, ref (SOME time)) -> 
@@ -1442,10 +1442,10 @@ struct
              of EQUAL => false
               | _     => true)
 
-      fun makeModified (_, mtime) =
+      let rec makeModified (_, mtime) =
           mtime := NONE
 
-      fun makeUnmodified (file, mtime) =
+      let rec makeUnmodified (file, mtime) =
           mtime := SOME (OS.FileSys.modTime file)
     end
 
@@ -1472,19 +1472,19 @@ struct
                by adding the specified prefix. If the path is already
                absolute, no prefix is added to it.
             *)
-            fun mkRel (prefix, path) =
+            let rec mkRel (prefix, path) =
                 OS.Path.mkCanonical
                   (if OS.Path.isAbsolute path
                    then path
                    else OS.Path.concat (prefix, path))
 
       (* more efficient recursive version  Sat 08/26/2002 -rv *)
-      fun read config =
+      let rec read config =
           let
             (* appendUniq (list1, list2) appends list2 to list1, removing all
                elements of list2 which are already in list1.
             *)
-            fun appendUniq (l1, l2) =
+            let rec appendUniq (l1, l2) =
                   let
                     let rec appendUniq' = function (x :: l2) -> 
                           if List.exists (fun y -> x = y) l1
@@ -1497,7 +1497,7 @@ struct
             (* isConfig (item) is true iff item has the suffix of a
                configuration file.
             *)
-            fun isConfig item =
+            let rec isConfig item =
                 let
                   let suffix_size = (String.size (!suffix)) + 1
                   let suffix_start = (String.size item) - suffix_size
@@ -1509,7 +1509,7 @@ struct
             (* fromUnixPath path transforms path (assumed to be in Unix form)
                to the local OS conventions.
             *)
-            fun fromUnixPath path =
+            let rec fromUnixPath path =
                 let
                   let vol = OS.Path.getVolume config
                   let isAbs = String.isPrefix "/" path
@@ -1517,12 +1517,12 @@ struct
                 in
                   OS.Path.toString {isAbs = isAbs, vol=vol, arcs=arcs}
                 end
-            fun read' (sources, configs) config =
+            let rec read' (sources, configs) config =
                 withOpenIn config
                   (fun instream ->
                       let
                         let {dir=configDir, file=_} = OS.Path.splitDirFile config
-                        fun parseItem (sources, configs) item =
+                        let rec parseItem (sources, configs) item =
                             if isConfig item
                             then
                               if List.exists (fn config' => item = config') configs
@@ -1532,7 +1532,7 @@ struct
                               if List.exists (fn source' => item = source') sources
                               then (sources, configs) (* we have already collected this one *)
                               else (sources @ [item], configs)
-                        fun parseLine (sources, configs) line =
+                        let rec parseLine (sources, configs) line =
                             if Substring.isEmpty line (* end of file *)
                             then (sources, configs)
                             else
@@ -1572,12 +1572,12 @@ struct
 
       (* Read a config file s but omit everything that is already in config c
          XXX: naive and inefficient implementation *)
-      fun readWithout (s, c) =
+      let rec readWithout (s, c) =
           let
               let (d,fs) = read s
               let (d',fs') = c
               let fns' = map (fun m -> mkRel(d', ModFile.fileName m)) fs'
-              fun redundant m =
+              let rec redundant m =
                   let
                       let n = mkRel(d, ModFile.fileName m)
                   in
@@ -1602,7 +1602,7 @@ struct
          resets the global module type and then reads the files in config
          in order, stopping at the first error.
       *)
-      fun load (config as (_, sources)) =
+      let rec load (config as (_, sources)) =
           (reset (); List.app ModFile.makeModified sources; append (config))
       (* append (config) = Status
          reads the files in config in order, beginning at the first
@@ -1616,7 +1616,7 @@ struct
                   then sources
                   else fromFirstModified xs
 
-            fun mkAbsolute p =
+            let rec mkAbsolute p =
                 Compat.OS.Path.mkAbsolute {path=p, relativeTo=pwdir}
 
             let sources' =
@@ -1630,7 +1630,7 @@ struct
             List.foldl loadAbort OK sources''
           end
 
-      fun define (sources) = (OS.FileSys.getDir (),
+      let rec define (sources) = (OS.FileSys.getDir (),
                               List.map ModFile.create sources)
 
     end  (* module Config *)
@@ -1638,7 +1638,7 @@ struct
     (* make (configFile)
        read and then load configuration from configFile
     *)
-    fun make (fileName) =
+    let rec make (fileName) =
           Config.load (Config.read fileName)
   in
 
@@ -1672,15 +1672,15 @@ struct
       let indent = Print.Formatter.Indent
       let width = Print.Formatter.Pagewidth
       let noShadow = Print.noShadow
-      fun sgn () = Print.printSgn ()
-      fun prog () = ClausePrint.printSgn ()
-      fun subord () = Subordinate.show ()
-      fun def () = Subordinate.showDef ()
-      fun domains () = msg (CSInstaller.version)
+      let rec sgn () = Print.printSgn ()
+      let rec prog () = ClausePrint.printSgn ()
+      let rec subord () = Subordinate.show ()
+      let rec def () = Subordinate.showDef ()
+      let rec domains () = msg (CSInstaller.version)
       module TeX =
       struct
-        fun sgn () = printSgnTeX ()
-        fun prog () = printProgTeX ()
+        let rec sgn () = printSgnTeX ()
+        let rec prog () = printProgTeX ()
       end
     end
 
@@ -1718,7 +1718,7 @@ struct
     struct
       let chDir = OS.FileSys.chDir
       let getDir = OS.FileSys.getDir
-      fun exit () = OS.Process.exit (OS.Process.success)
+      let rec exit () = OS.Process.exit (OS.Process.success)
     end
 
     module Compile :
@@ -1821,11 +1821,11 @@ struct
     let resetGlobalTable = TableParam.resetGlobalTable
 
     (* top () = () starts interactive query loop *)
-    fun top () =
+    let rec top () =
       let
-        fun sLoopT () = if Solve.qLoopT () then OK else ABORT
+        let rec sLoopT () = if Solve.qLoopT () then OK else ABORT
 
-        fun topLoopT () =
+        let rec topLoopT () =
           case (handleExceptions 0 "stdIn" sLoopT) () (* "stdIn" as fake fileName *)
             of ABORT => topLoopT ()
           | OK => ()

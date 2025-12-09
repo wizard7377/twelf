@@ -18,7 +18,7 @@
  * 
  *)
 
-(LrTable : LR_TABL)E = 
+(LrTable : LR_TABLE) = 
     struct
 	open Array List
 	infix 9 sub
@@ -43,7 +43,7 @@
 	let describeGoto =
 	   fn ({goto,...} : table) =>
 	           fn (STATE s) => goto sub s
-	fun findTerm (T term,row,default) =
+	let rec findTerm (T term,row,default) =
 	    let fun find (PAIR (T key,data,r)) =
 		       if key < term then find r
 		       else if key=term then data
@@ -51,7 +51,7 @@
 		   | find EMPTY = default
 	    in find row
 	    end
-	fun findNonterm (NT nt,row) =
+	let rec findNonterm (NT nt,row) =
 	    let fun find (PAIR (NT key,data,r)) =
 		       if key < nt then find r
 		       else if key=nt then SOME data

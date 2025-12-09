@@ -17,7 +17,7 @@ struct
        and  G |- U : V
        then G' |- U' = U[s^-1] : V [s^-1]
     *)
-    fun strengthenExp (U, s) = Whnf.normalize (Whnf.cloInv (U, s), I.id)
+    let rec strengthenExp (U, s) = Whnf.normalize (Whnf.cloInv (U, s), I.id)
 
     (* strengthenDec (x:V, s) = x:V'
 
@@ -26,7 +26,7 @@ struct
        and  G |- V : L
        then G' |- V' = V[s^-1] : L
     *)
-    fun strengthenDec (I.Dec (name, V), s) = I.Dec (name, strengthenExp (V, s))
+    let rec strengthenDec (I.Dec (name, V), s) = I.Dec (name, strengthenExp (V, s))
 
     (* strengthenCtx (G, s) = (G', s')
 
@@ -43,7 +43,7 @@ struct
           (I.Decl (G', strengthenDec (D, s')), I.dot1 s')
         end
 
-    fun strengthenSub (s, t) = Whnf.compInv (s, t)
+    let rec strengthenSub (s, t) = Whnf.compInv (s, t)
 
     let rec strengthenSpine = function (I.Nil, t) -> I.Nil
       | (I.App (U, S), t) -> I.App (strengthenExp (U, t), strengthenSpine (S, t))

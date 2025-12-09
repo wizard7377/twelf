@@ -21,24 +21,24 @@ struct
 
     let stringID = ref ~1 : IntSyn.cid ref
 
-    fun string () = Root (Const (!stringID), Nil)
+    let rec string () = Root (Const (!stringID), Nil)
 
     let concatID = ref ~1 : IntSyn.cid ref
 
-    fun concatExp (U, V) = Root (Const (!concatID), App (U, App (V, Nil)))
+    let rec concatExp (U, V) = Root (Const (!concatID), App (U, App (V, Nil)))
 
-    fun toString s = ("\"" ^ s ^ "\"")
+    let rec toString s = ("\"" ^ s ^ "\"")
 
-    fun stringConDec (str) = ConDec (toString (str), NONE, 0, Normal,
+    let rec stringConDec (str) = ConDec (toString (str), NONE, 0, Normal,
                                      string (), Type)
 
-    fun stringExp (str) = Root (FgnConst (!myID, stringConDec (str)), Nil)
+    let rec stringExp (str) = Root (FgnConst (!myID, stringConDec (str)), Nil)
 
     (* fromString string =
          SOME(str)  if string parses to the string str
          NONE       otherwise
     *)
-    fun fromString string =
+    let rec fromString string =
           let
             let len = String.size string
           in
@@ -56,7 +56,7 @@ struct
        If str parses to the string str
        then conDec is the (foreign) constant declaration of str
     *)
-    fun parseString string =
+    let rec parseString string =
           (case fromString (string)
              of SOME(str) => SOME(stringConDec (str))
               | NONE => NONE)
@@ -67,7 +67,7 @@ struct
        U is the term obtained applying the foreign constant
        corresponding to the string str to an empty spine
     *)
-    fun solveString (G, S, k) = SOME(stringExp (Int.toString k))
+    let rec solveString (G, S, k) = SOME(stringExp (Int.toString k))
 
     type Concat =
       Concat of Atom list                  (* Concatenation:             *)
@@ -155,7 +155,7 @@ struct
           catConcat (normalize (Concat [A]), normalize(Concat AL))
 
     (* mapSum (f, A1 + ...) = f(A1) ++ ... *)
-    fun mapConcat (f, Concat AL) =
+    let rec mapConcat (f, Concat AL) =
           let
             let rec mapConcat' = function nil -> nil
               | ((Exp Us) :: AL) -> 
@@ -167,7 +167,7 @@ struct
           end
 
     (* appConcat (f, A1 + ... ) = ()  and f(Ui) for Ai = Exp Ui *)
-    fun appConcat (f, Concat AL) =
+    let rec appConcat (f, Concat AL) =
         let
             let rec appAtom = function (Exp Us) -> f (EClo Us)
               | (String _) -> ()
@@ -186,10 +186,10 @@ struct
     (* index (str1, str2) = [idx1, ..., idxn]
        where the idxk are all the positions in str2 where str1 appear.
     *)
-    fun index (str1, str2) =
+    let rec index (str1, str2) =
           let
             let max = (String.size str2) - (String.size str1)
-            fun index' i =
+            let rec index' i =
                   if (i <= max)
                   then
                     if String.isPrefix str1 (String.extract (str2, i, NONE))
@@ -204,10 +204,10 @@ struct
     (* split (str1, str2) = [Split(l1,r1), ..., Split(ln,rn)]
        where, for each k, str2 = lk ++ str1 ++ rk.
     *)
-    fun split (str1, str2) =
+    let rec split (str1, str2) =
           let
             let len = String.size str1
-            fun split' i =
+            let rec split' i =
                   Split (String.extract (str2, 0, SOME(i)),
                          String.extract (str2, i+len, NONE))
           in
@@ -217,7 +217,7 @@ struct
     (* sameConcat (concat1, concat2) =
          true only if concat1 = concat2 (as concatenations)
     *)
-    fun sameConcat (Concat AL1, Concat AL2) =
+    let rec sameConcat (Concat AL1, Concat AL2) =
           let
             let rec sameConcat' = function (nil, nil) -> true
               | ((String str1) :: AL1, (String str2) :: AL2) -> 
@@ -388,7 +388,7 @@ struct
           else Failure
       | (G, Concat AL, str, cnstr) -> 
           let
-            fun unifyString' (AL, nil) =
+            let rec unifyString' (AL, nil) =
                   (Failure, nil)
               | unifyString' (nil, [Decomp (parse, parsedL)]) =
                   (MultAssign nil, parse :: parsedL)
@@ -400,7 +400,7 @@ struct
                   if (Whnf.isPatSub s)
                   then
                     let
-                      fun assign r nil = NONE
+                      let rec assign r nil = NONE
                         | assign r ((_, EVar (r', _, _, _),
                                         Root (FgnConst (cs, conDec), Nil), _) :: L) =
                             if (r = r') then fromString (conDecName (conDec))
@@ -430,7 +430,7 @@ struct
                   (MultDelay ([EClo Us], cnstr), nil)
               | unifyString' ([String str], candidates) =
                   let
-                    fun successors (Decomp (parse, parsedL)) =
+                    let rec successors (Decomp (parse, parsedL)) =
                           List.mapPartial (fn (Split (prefix, "")) =>
                                                  SOME (Decomp (prefix, parsedL))
                                             | (Split (prefix, suffix)) => NONE)
@@ -442,7 +442,7 @@ struct
                   end
               | unifyString' ((String str) :: AL, candidates) =
                   let
-                    fun successors (Decomp (parse, parsedL)) =
+                    let rec successors (Decomp (parse, parsedL)) =
                           List.map (fn (Split (prefix, suffix)) =>
                                           Decomp (suffix, prefix :: parsedL))
                                    (split (str, parse))
@@ -471,7 +471,7 @@ struct
             else stringUnify = MultDelay [U1, ..., Un] cnstr
                    where U1, ..., Un are expression to be delayed on cnstr
     *)
-    fun unifyConcat (G, concat1 as (Concat AL1), concat2 as (Concat AL2)) =
+    let rec unifyConcat (G, concat1 as (Concat AL1), concat2 as (Concat AL2)) =
           let
             let U1 = toFgn concat1
             let U2 = toFgn concat2
@@ -577,7 +577,7 @@ struct
                                  fromExp (U2, id)))
       | fe _ -> raise (UnexpectedFgnExp fe)
 
-    fun installFgnExpOps () = let
+    let rec installFgnExpOps () = let
         let csid = !myID
         let _ = FgnExpStd.ToInternal.install (csid, toInternal)
         let _ = FgnExpStd.Map.install (csid, map)
@@ -588,7 +588,7 @@ struct
         ()
     end
 
-    fun makeFgn (arity, opExp) (S) =
+    let rec makeFgn (arity, opExp) (S) =
           let
             let rec makeParams = function 0 -> Nil
               | n -> 
@@ -611,18 +611,18 @@ struct
             makeLam (toFgn (opExp S')) arity'
           end
 
-    fun makeFgnBinary opConcat =
+    let rec makeFgnBinary opConcat =
           makeFgn (2,
             fn (App (U1, App (U2, Nil))) =>
               opConcat (fromExp (U1, id), fromExp (U2, id)))
 
-    fun arrow (U, V) = Pi ((Dec (NONE, U), No), V)
+    let rec arrow (U, V) = Pi ((Dec (NONE, U), No), V)
 
     (* init (cs, installFunction) = ()
        Initialize the constraint solver.
        installFunction is used to add its module type symbols.
     *)
-    fun init (cs, installF) =
+    let rec init (cs, installF) =
           (
             myID := cs;
 

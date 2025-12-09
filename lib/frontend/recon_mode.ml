@@ -21,7 +21,7 @@ struct
   (*! module Paths = Paths' !*)
 
   exception Error of string
-  fun error (r, msg) = raise Error (Paths.wrap (r, msg))
+  let rec error (r, msg) = raise Error (Paths.wrap (r, msg))
 
   local
     module M = ModeSyn
@@ -31,10 +31,10 @@ struct
 
     type mode = M.Mode * P.region
 
-    fun plus r = (M.Plus, r)
-    fun star r = (M.Star, r)
-    fun minus r = (M.Minus, r)
-    fun minus1 r = (M.Minus1, r)
+    let rec plus r = (M.Plus, r)
+    let rec star r = (M.Star, r)
+    let rec minus r = (M.Minus, r)
+    let rec minus1 r = (M.Minus1, r)
 
     type modedec = (I.cid * M.ModeSpine) * P.region
 
@@ -43,9 +43,9 @@ struct
       type mterm = (I.cid * M.ModeSpine) * P.region
       type mspine = M.ModeSpine * P.region
 
-      fun mnil r = (M.Mnil, r)
-      fun mapp (((m, r1), name), (mS, r2)) = (M.Mapp (M.Marg (m, name), mS), P.join (r1, r2))
-      fun mroot (ids, id, r1, (mS, r2)) =
+      let rec mnil r = (M.Mnil, r)
+      let rec mapp (((m, r1), name), (mS, r2)) = (M.Mapp (M.Marg (m, name), mS), P.join (r1, r2))
+      let rec mroot (ids, id, r1, (mS, r2)) =
           let
             let r = P.join (r1, r2)
             let qid = Names.Qid (ids, id)
@@ -57,7 +57,7 @@ struct
                | SOME cid => ((cid, ModeDec.shortToFull (cid, mS, r)), r)
           end
 
-      fun toModedec nmS = nmS
+      let rec toModedec nmS = nmS
     end  (* module Short *)
 
     module Full =
@@ -65,10 +65,10 @@ struct
       type mterm = T.dec I.Ctx * M.Mode I.Ctx
                      -> (I.cid * M.ModeSpine) * P.region
 
-      fun mpi ((m, _), d, t) (g, D) =
+      let rec mpi ((m, _), d, t) (g, D) =
             t (I.Decl (g, d), I.Decl (D, m))
 
-      fun mroot (tm, r) (g, D) =
+      let rec mroot (tm, r) (g, D) =
           let
             let T.JWithCtx (G, T.JOf ((V, _), _, _)) =
                   T.recon (T.jwithctx (g, T.jof (tm, T.typ (r))))
@@ -106,7 +106,7 @@ struct
             (ModeDec.checkFull (a, mS, r);  ((a, mS), r))
           end
 
-      fun toModedec t =
+      let rec toModedec t =
           let
             let _ = Names.varReset I.Null
             let t' = t (I.Null, I.Null)
@@ -116,7 +116,7 @@ struct
 
     end  (* module Full *)
 
-    fun modeToMode (m, r) = (m, r)
+    let rec modeToMode (m, r) = (m, r)
 
   in
     type mode = mode

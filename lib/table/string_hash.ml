@@ -1,12 +1,12 @@
 (* String Hash Table *)
 (* Author: Frank Pfenning *)
 
-(StringHash : STRING_HAS)H =
+(StringHash : STRING_HASH) =
 struct
-  fun stringHash (s) =
+  let rec stringHash (s) =
       (* sample 4 characters from string *)
       let
-	fun num (i) = Char.ord (String.sub (s,i)) mod 128
+	let rec num (i) = Char.ord (String.sub (s,i)) mod 128
 	let n = String.size (s)
       in
 	if n = 0 then 0

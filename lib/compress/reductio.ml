@@ -53,7 +53,7 @@ struct
 		let def = Sgn.def n
 		let def' = Sgn.def n'
 		let eq_and_strict = (n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n)))
- 		fun redux t n sp = reduce(srTerm(t, typeOf(Sgn.classifier n)), sp) 
+ 		let rec redux t n sp = reduce(srTerm(t, typeOf(Sgn.classifier n)), sp) 
 	    in
 		    case (eq_and_strict, def, def') of 
 			(true, _, _) => sp_eq(sp, sp')
@@ -71,7 +71,7 @@ struct
 		let def = Sgn.def n
 		let def' = Sgn.def n'
 		let eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
-		fun redux a n sp = tp_reduce(a, kindOf(Sgn.classifier n), sp)
+		let rec redux a n sp = tp_reduce(a, kindOf(Sgn.classifier n), sp)
 	    in
 		    case (eq_and_strict, def, def') of 
 			(true, _, _) => sp_eq(sp, sp')
@@ -97,7 +97,7 @@ struct
 	type ppsubst = int list * int
 
 	(* pp_shift pps m: compute pps o shift^m *)
-	fun pp_shift (vs,shift) m = 
+	let rec pp_shift (vs,shift) m = 
 	    let 
 		let len = length vs
 	    in
@@ -107,7 +107,7 @@ struct
 	    end
 
         (* pp_nth: extract the result of applying a ppsubst to the nth variable *)
-	fun pp_nth (vs,shift) n = 
+	let rec pp_nth (vs,shift) n = 
 	    let 
 		let len = length vs
 	    in
@@ -117,7 +117,7 @@ struct
 	    end
 
         (* pp_o: compose two ppsubsts *)
-	fun pp_o (pps, (vs, shift)) = 
+	let rec pp_o (pps, (vs, shift)) = 
 	    let
 		let (vs', shift') =  pp_shift pps shift
 	    in
@@ -125,14 +125,14 @@ struct
 	    end
 
         (* pp_comp: compose a list of ppsubsts *)
-	fun pp_comp ppsl = foldr pp_o ([],0) ppsl
+	let rec pp_comp ppsl = foldr pp_o ([],0) ppsl
 
         (* pp_normalize s
            if a substitution s is equal to a 'prepattern'
            i1.i2. ... in . shift^m (no restriction on the i's being distinct)
            returns ([i1, i2, ... , in], m).
            Otherwise raises Domain. *)
-	fun pp_normalize s = pp_normalize' s
+	let rec pp_normalize s = pp_normalize' s
 	and pp_normalize' Id = ([], 0)
 	  | pp_normalize' (TermDot(t, a, s)) =
 	    let 
@@ -170,7 +170,7 @@ struct
 	(* pp_ispat: is this ppsubst a pattern substitution? *)
 	let rec pp_ispat = function ([],shift) -> true
 	  | (n::s,shift) -> let fun isn x = (x = n)
-				     fun hasn s = List.exists isn s
+				     let rec hasn s = List.exists isn s
 				 in
 				     n < shift andalso
 				     not (hasn s) andalso
@@ -185,7 +185,7 @@ struct
 	  | (v::vs,shift) -> VarOptDot (v, makesubst (vs,shift))
 
         (* take in a ppsubst and return a substitution (which may involve VarOptDots) that is its inverse. *)
-	fun pp_invert (vs,shift) =
+	let rec pp_invert (vs,shift) =
 	    let
 		let inds = List.tabulate(shift, (fun x -> x))
 		let rec search = function n [] (x : int) -> NONE
@@ -226,7 +226,7 @@ struct
            not pattern. *)
 
 	(* XXX this just_one stuff is here for debugging: replace with match_one *)
-	fun just_one c = [c]
+	let rec just_one c = [c]
 	and just_one' c = [c]
 	and match_one' (EltC(Elt(NTerm(Lam t)),Elt(NTerm(Lam t')))) =
 	    just_one (EltC(Elt t, Elt t'))
@@ -263,7 +263,7 @@ struct
 		let def = Sgn.def n
 		let def' = Sgn.def n'
 		let eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
-		fun redux t n sp = reduce(srTerm(t, typeOf(Sgn.classifier n)), sp)
+		let rec redux t n sp = reduce(srTerm(t, typeOf(Sgn.classifier n)), sp)
 		let eq = 	
 		    case (eq_and_strict, def, def') of 
 			(true, _, _) => SpineC(s, s')
@@ -280,7 +280,7 @@ struct
 		let def = Sgn.def n
 		let def' = Sgn.def n'
 		let eq_and_strict = n = n' andalso (def = Sgn.DEF_NONE orelse not (Sgn.abbreviation n))
-		fun redux a n sp = tp_reduce(a, kindOf(Sgn.classifier n), sp)
+		let rec redux a n sp = tp_reduce(a, kindOf(Sgn.classifier n), sp)
 		let eq = 	
 		    case (eq_and_strict, def, def') of 
 			(true, _, _) => SpineC(s, s')
@@ -293,8 +293,8 @@ struct
 		just_one' eq
 	    end
 
-	fun matching (p) =  let
-	    fun matching' (c::p,p') =
+	let rec matching (p) =  let
+	    let rec matching' (c::p,p') =
 		(let let eqs = match_one c in matching'(eqs @ p, p') end
 		 handle NonPattern => matching'(p, c::p'))
 	      | matching' ([], p') = p'
@@ -304,13 +304,13 @@ struct
 
 
 (*	fun ctxcons (a, G) = map (shift_tp 0) (a::G) *)
-	fun ctxcons (a, G) = a::G
+	let rec ctxcons (a, G) = a::G
 
 	type cg_mode = CG_SYNTH
 			 | CG_CHECK of tp
 
 (* 	let constraint_gen : tp list -> spine * tp * cg_mode -> eq_c list * tp_c list
-        fun constraint_gen G (s, z, c) = (p, q, aopt) *)
+        let rec constraint_gen G (s, z, c) = (p, q, aopt) *)
 	(* invariants: 
 	   s is ground
 	   if c is CG_CHECK c', then c' is ground 
@@ -321,7 +321,7 @@ struct
            ... is SOME of a type if c was CG_SYNTH
            ... is NONE           if c was CG_CHECK of something *)
 
-	fun constraint_gen G (s, z, c) = constraint_gen' G (s, z, c)
+	let rec constraint_gen G (s, z, c) = constraint_gen' G (s, z, c)
 	and constraint_gen' G ([], a as TRoot _, CG_CHECK(a' as TRoot _)) = 
 	    ([TypeC(a,a')], [], NONE) (* PERF: we might be able to reject this faster if we knew a and a'
                                          were not defined types and were different *)
@@ -497,8 +497,8 @@ struct
 	  | elt_synth (G, Elt _) = raise Error "trying to synthesize a merely checkable element"
 	  | elt_synth (G, Omit) = raise Error "trying to synthesize an omitted argument"
 
-	fun check_plusconst_type t = check_type CON_PLUS ([], t)
-	fun check_minusconst_type t = check_type CON_MINUS ([], t)
+	let rec check_plusconst_type t = check_type CON_PLUS ([], t)
+	let rec check_minusconst_type t = check_type CON_MINUS ([], t)
 
 (* check_strictness_type : bool -> tp -> bool
 

@@ -66,7 +66,7 @@ struct
        If   |- S state
        then op' is an operator which performs the filling operation
     *)
-    fun expand (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) =
+    let rec expand (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) =
         let
           let _ = if (!Global.doubleCheck) then TypeCheck.typeCheckCtx (G) else ()
           let (Xs, P) = createEVars (G, (F, I.id))
@@ -87,7 +87,7 @@ struct
        If op is a filling operator
        then B' holds iff the filling operation was successful
     *)
-    fun apply f = f ()
+    let rec apply f = f ()
 
     (* menu op = s'
 
@@ -95,7 +95,7 @@ struct
        If op is a filling operator
        then s' is a string describing the operation in plain text
     *)
-    fun menu _ =  "Filling   (tries to close this subgoal)"
+    let rec menu _ =  "Filling   (tries to close this subgoal)"
 
   in
     let expand = expand

@@ -46,41 +46,41 @@ struct
     let OrderTable : TDec Table.Table = Table.new(0)
     let RedOrderTable : RDec Table.Table = Table.new(0)
 
-    fun reset () = Table.clear OrderTable
-    fun resetROrder () = Table.clear RedOrderTable
+    let rec reset () = Table.clear OrderTable
+    let rec resetROrder () = Table.clear RedOrderTable
 
-    fun install (cid, O) = Table.insert OrderTable (cid, O)
-    fun uninstall cid =
+    let rec install (cid, O) = Table.insert OrderTable (cid, O)
+    let rec uninstall cid =
         case Table.lookup OrderTable cid
           of NONE => false
            | SOME _ => (Table.delete OrderTable cid ; true)
 
-    fun installROrder (cid, P) = Table.insert RedOrderTable (cid, P)
-    fun uninstallROrder cid =
+    let rec installROrder (cid, P) = Table.insert RedOrderTable (cid, P)
+    let rec uninstallROrder cid =
         case Table.lookup RedOrderTable cid
           of NONE => false
            | SOME _ => (Table.delete RedOrderTable cid ; true)
 
 
-    fun lookup cid = Table.lookup OrderTable cid
-    fun lookupROrder cid = Table.lookup RedOrderTable cid
+    let rec lookup cid = Table.lookup OrderTable cid
+    let rec lookupROrder cid = Table.lookup RedOrderTable cid
 
-    fun selLookup a =
+    let rec selLookup a =
         case lookup a
           of NONE => raise Error ("No termination order assigned for " ^ I.conDecName (I.sgnLookup a))
            | SOME (TDec (S, _)) => S
 
-    fun selLookupROrder a =
+    let rec selLookupROrder a =
         case lookupROrder a
           of NONE => raise Error ("No reduction order assigned for " ^ I.conDecName (I.sgnLookup a) ^ ".")
            | SOME (RDec (P, _)) => P
 
-    fun mutLookupROrder a =
+    let rec mutLookupROrder a =
         case lookupROrder a
           of NONE => raise Error ("No order assigned for " ^ I.conDecName (I.sgnLookup a) ^ ".")
            | SOME (RDec (_, M)) => M
 
-    fun mutLookup a =
+    let rec mutLookup a =
         case lookup a
           of NONE => raise Error ("No order assigned for " ^ I.conDecName (I.sgnLookup a))
            | SOME (TDec (_, M)) => M
@@ -91,7 +91,7 @@ struct
        If   a occurs in a call pattern (a1 P1) .. (an Pn)
        then a's = a1 .. an
     *)
-    fun mutual a =
+    let rec mutual a =
         let
           let rec mutual' = function (Empty, a's) -> a's
             | (LE (a, M), a's) -> mutual' (M, a :: a's)

@@ -27,20 +27,20 @@ struct
        Effect: Resets tabled array
     *)
 
-    fun reset () = Table.clear tabledSignature
+    let rec reset () = Table.clear tabledSignature
 
     (* installTabled (a, tabled) = ()
 
        Effect: the tabled is stored with the type family a
     *)
-    fun installTabled a = Table.insert tabledSignature (a, false)
+    let rec installTabled a = Table.insert tabledSignature (a, false)
 
     (* installTabled (a, tabled) = ()
 
        Effect: the tabled is stored with the type family a
     *)
 
-    fun installKeepTable a =
+    let rec installKeepTable a =
       ((* Table.delete tabledSignature a; *)
        Table.insertShadow tabledSignature (a, true);())
 
@@ -51,7 +51,7 @@ struct
 
     *)
 
-    fun tabledLookup a =
+    let rec tabledLookup a =
      (case (Table.lookup tabledSignature a) of
        NONE => false
      | SOME _ => true)
@@ -64,7 +64,7 @@ struct
           otherwise false
     *)
 
-    fun keepTable a =
+    let rec keepTable a =
      (case (Table.lookup tabledSignature a) of
        NONE => false
      | SOME true => true

@@ -70,7 +70,7 @@ struct
        If G |- V : L
        then G |- X[w] : V
     *)
-    fun createEVar (G, V) =
+    let rec createEVar (G, V) =
         let (* G |- V : L *)
           let w = weaken (G, I.targetFam V)       (* G  |- w  : G'    *)
           let iw = Whnf.invert w                  (* G' |- iw : G     *)
@@ -86,7 +86,7 @@ struct
        where . |- s : {x1:V1}...{xp:Vp}
        and s = Xp...X1.id, all Xi are new EVars
     *)
-    fun instEVars (Vs, p, XsRev) = instEVarsW (Whnf.whnf Vs, p, XsRev)
+    let rec instEVars (Vs, p, XsRev) = instEVarsW (Whnf.whnf Vs, p, XsRev)
     and instEVarsW (Vs, 0, XsRev) = (Vs, XsRev)
       | instEVarsW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev) =
         let (* p > 0 *)
@@ -110,9 +110,9 @@ struct
     local
       let caseList : (T.Dec I.Ctx * T.Sub) list ref = ref nil
     in
-      fun resetCases () = (caseList := nil)
-      fun addCase (Psi, t) = (caseList := (Psi, t) :: !caseList)
-      fun getCases () = (!caseList)
+      let rec resetCases () = (caseList := nil)
+      let rec addCase (Psi, t) = (caseList := (Psi, t) :: !caseList)
+      let rec getCases () = (!caseList)
     end
 
     (* createEVarSpine (G, (V, s)) = (S', (V', s'))
@@ -125,7 +125,7 @@ struct
        and  G |- W [1.2...n. s o ^n] = V' [s']
        and  G |- S : V [s] >  V' [s']
     *)
-    fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
+    let rec createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
     and createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
       | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let (* G |- V1[s] : L *)
@@ -143,7 +143,7 @@ struct
        then . |- U' = c @ (X1; .. Xn; Nil)
        and  . |- U' : V' [s']
     *)
-    fun createAtomConst (G, H as I.Const (cid)) =
+    let rec createAtomConst (G, H as I.Const (cid)) =
         let
           let V = I.constType cid
           let (S, Vs) = createEVarSpine (G, (V, I.id))
@@ -158,7 +158,7 @@ struct
        then . |- U' = k @ (Xn; .. Xn; Nil)
        and  . |- U' : V' [s']
     *)
-    fun createAtomBVar (G, k) =
+    let rec createAtomBVar (G, k) =
         let
           let I.Dec (_, V) = I.ctxDec (G, k)
           let (S, Vs) = createEVarSpine (G, (V, I.id))
@@ -175,7 +175,7 @@ struct
        then . |- U' = #i(l) @ (X1; .. Xn; Nil)
        and  . |- U' : V' [s']
     *)
-    fun createAtomProj (G, H, (V, s)) =
+    let rec createAtomProj (G, H, (V, s)) =
         let
           let (S, Vs') = createEVarSpine (G, (V, s))
         in
@@ -225,7 +225,7 @@ struct
         end
 
     (* hack *)
-    fun blockName (cid) = I.conDecName (I.sgnLookup (cid))
+    let rec blockName (cid) = I.conDecName (I.sgnLookup (cid))
 
     (* blockCases (G, Vs, B, (Gsome, piDecs), sc) =
 
@@ -235,7 +235,7 @@ struct
             G |- V[s] = A[t] : type
             where t instantiates variable in Gsome with new EVars
     *)
-    fun blockCases (G, Vs, cid, (Gsome, piDecs), sc) =
+    let rec blockCases (G, Vs, cid, (Gsome, piDecs), sc) =
         let
           let t = createEVarSub Gsome   (* accounts for subordination *)
           (* . |- t : Gsome *)
@@ -265,7 +265,7 @@ struct
           ( blockCases (G, Vs, cid, I.constBlock cid, sc) ;
             worldCases (G, Vs, T.Worlds (cids), sc) )
 
-    fun lowerSplit (G, Vs, W, sc) = lowerSplitW (G, Whnf.whnf Vs, W, sc)
+    let rec lowerSplit (G, Vs, W, sc) = lowerSplitW (G, Whnf.whnf Vs, W, sc)
     and lowerSplitW (G, Vs as (I.Root (I.Const a, _), s), W, sc) =
         let
           let _ = constCases (G, Vs, Index.lookup a, sc) (* will trail *)
@@ -288,7 +288,7 @@ struct
        calls sc () for all cases, after instantiation of X
        W are the currently possible worlds
     *)
-    fun splitEVar ((X as I.EVar (_, GX, V, _)), W, sc) = (* GX = I.Null *)
+    let rec splitEVar ((X as I.EVar (_, GX, V, _)), W, sc) = (* GX = I.Null *)
           lowerSplit (I.Null, (V, I.id), W,
                       fun U -> if Unify.unifiable (I.Null, (X, I.id), (U, I.id))
                                 then sc ()
@@ -364,7 +364,7 @@ struct
                  and  t = t' [si]
     *)
 
-    fun split (S.Focus (T.EVar (Psi, r, F, NONE, NONE, _), W)) =
+    let rec split (S.Focus (T.EVar (Psi, r, F, NONE, NONE, _), W)) =
       let
 
         (* splitXs (G, i) (Xs, F, W, sc) = Os
@@ -399,14 +399,14 @@ struct
 
         let t = createSub Psi  (* . |- t :: Psi *)
         let Xs = State.collectLFSub t
-        fun init () = (addCase (Abstract.abstractTomegaSub t))
+        let rec init () = (addCase (Abstract.abstractTomegaSub t))
         let G = T.coerceCtx Psi
         let Os = splitXs (G, 1) (Xs, F, W, init)
       in
         Os
       end
 
-    fun expand (S as S.Focus (T.EVar (Psi, r, F, NONE, NONE, _), W)) =
+    let rec expand (S as S.Focus (T.EVar (Psi, r, F, NONE, NONE, _), W)) =
       if Abstract.closedCTX Psi then split S else []
 
     (* apply (Op) = Sl'
@@ -417,8 +417,8 @@ struct
 
        Side effect: If Sl contains inactive states, an exception is raised
     *)
-    fun apply (Split (r, P, s)) = (r := SOME P)    (* trailing required -cs Thu Apr 22 12:05:04 2004 *)
-    fun menu (Split (_, _, s)) = "Split " ^ s
+    let rec apply (Split (r, P, s)) = (r := SOME P)    (* trailing required -cs Thu Apr 22 12:05:04 2004 *)
+    let rec menu (Split (_, _, s)) = "Split " ^ s
   in
     type operator = Operator
 

@@ -1,5 +1,5 @@
 
-(Context : CONTEX)T =
+(Context : CONTEXT) =
 struct 
 
   module L = Lib
@@ -9,11 +9,11 @@ struct
                       
   let empty = []
 
-  fun lookup(l,n) = 
+  let rec lookup(l,n) = 
       SOME (L.ith n l) handle Fail _ => NONE
 
-  fun push (ctx,p) = p::ctx
+  let rec push (ctx,p) = p::ctx
 
-  fun list l = l
+  let rec list l = l
 
 end

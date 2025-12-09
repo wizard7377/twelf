@@ -22,7 +22,7 @@ the proofs can be found in pf.dvi (written by Andrzej Filinski) and
 the other .elf files.
 *)
 
-(Spass : TRAVERSE)R =
+(Spass : TRAVERSER) =
 struct
 
   type tp =
@@ -41,7 +41,7 @@ struct
 
   type condec = string
 
-  fun par (s) = "(" ^ s ^ ")"
+  let rec par (s) = "(" ^ s ^ ")"
 
   (* types *)
   let rec atom = function (" -> =", SOME(S)) = QFProp ("equal" ^ par (S))
@@ -59,7 +59,7 @@ struct
     | _ -> What "?pi?"
 
   (* terms *)
-  fun mor (f, A) = "mor" ^ par (f ^ "," ^ A)
+  let rec mor (f, A) = "mor" ^ par (f ^ "," ^ A)
 
   let rec root = function ("id", NONE, Mor (A)) -> mor ("id", A)	(* constants *)
     | ("@", SOME(S), Mor(A)) -> mor ("comp" ^ par (S), A)
@@ -76,11 +76,11 @@ struct
     | (x, NONE, Mor(A)) -> mor (x, A) (* morphism variables *)
     | _ -> "?root?"
 
-  fun lam _ = "?lam?"
+  let rec lam _ = "?lam?"
 
-  fun bvar (x) = x
-  fun const (c) = c
-  fun def (d) = d
+  let rec bvar (x) = x
+  let rec const (c) = c
+  let rec def (d) = d
 
   let nils = NONE
   let rec app = function (M, NONE) -> SOME(M)
@@ -88,7 +88,7 @@ struct
 
   (* declarations *)
 
-  fun dec (x, A) = x
+  let rec dec (x, A) = x
 
   let rec objdec = function (c, Prop(xs,A)) -> 
       "%% " ^ c ^ " :\n"

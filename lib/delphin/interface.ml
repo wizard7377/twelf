@@ -8,10 +8,10 @@ struct
 
   type pos = int
   let line = ref 0
-  fun init_line () = (line := 1)
-  fun next_line () = (line := !line + 1)
+  let rec init_line () = (line := 1)
+  let rec next_line () = (line := !line + 1)
 
-  fun error (errmsg, line:pos, _) =
+  let rec error (errmsg, line:pos, _) =
     TextIO.output(TextIO.stdOut, "Line " ^ (Int.toString(line)) ^ ": "
                   ^ errmsg ^ "\n")
 

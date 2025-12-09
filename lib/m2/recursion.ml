@@ -55,7 +55,7 @@ struct
 
 
     (* duplicate code? -fp *)
-    fun vectorToString (G, O) =
+    let rec vectorToString (G, O) =
         let
           let rec fmtOrder = function (Order.Arg (Us, Vs)) -> 
               [F.String (Print.expToString (G, I.EClo Us)), F.String ":",
@@ -83,10 +83,10 @@ struct
        and  G |- Vj' [tj'] = V1j' [sj'] : L
        and  G |- Uik = Uk'[sk']
     *)
-    fun vector (c, (S, s)) =
+    let rec vector (c, (S, s)) =
         let
           let Vid = (I.constType c, I.id)
-          fun select' (n, (Ss', Vs'')) =
+          let rec select' (n, (Ss', Vs'')) =
                 select'W (n, (Ss', Whnf.whnf Vs''))
           and select'W (1, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V''), _), _), s''))) =
                 ((U', s'), (V'', s''))
@@ -108,7 +108,7 @@ struct
        appends a list of recursion operators to ops after
        instantiating X with all possible local parameters (between 1 and k)
     *)
-    fun set_parameter (G, X as I.EVar (r, _, V, _), k, sc, ops) =
+    let rec set_parameter (G, X as I.EVar (r, _, V, _), k, sc, ops) =
         let
           let rec set_parameter' = function (0, ops') -> ops'
             | (k', ops') -> 
@@ -143,7 +143,7 @@ struct
        then ops' is an extension of ops, containing all
             recursion operators
     *)
-    fun ltinit (G, k, (Us, Vs), UsVs', sc, ops) =
+    let rec ltinit (G, k, (Us, Vs), UsVs', sc, ops) =
           ltinitW (G, k, Whnf.whnfEta (Us, Vs), UsVs', sc, ops)
     and ltinitW (G, k, (Us, Vs as (I.Root _, _)), UsVs', sc, ops) =
           lt (G, k, (Us, Vs), UsVs', sc, ops)
@@ -454,10 +454,10 @@ struct
      and  G' |- V1' [s1'] = V1 [^n]
      and  G' |- V2' [s2'] = a S
     *)
-    fun select (G, Vs) = selectW (G, (Whnf.whnf Vs))
+    let rec select (G, Vs) = selectW (G, (Whnf.whnf Vs))
     and selectW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let
-          fun select' (G, (Vs1, Vs2)) =
+          let rec select' (G, (Vs1, Vs2)) =
               selectW' (G, (Vs1, Whnf.whnf Vs2))
           and selectW' (G, (Vs1, Vs2 as (I.Root _, _))) = (G, (Vs1, Vs2))
             | selectW' (G, ((V1, s1), (I.Pi ((D, P), V2'), s2))) =
@@ -485,7 +485,7 @@ struct
               (where  a : {W1} ..{Wm} b S, and Vi'' are among W1 .. Wm)
 
     *)
-    fun lemma (S, t, ops) =
+    let rec lemma (S, t, ops) =
         let
           let M.State (name, GM, V) = Lemma.apply (S, t)
           let (M.Prefix (G', M', B'), s') = createEVars GM
@@ -511,7 +511,7 @@ struct
       | (S, (O.LT (t, L)), ops) -> expandLazy' (S, L, ordlt (lemma (S, t, ops)))
 
 
-    fun recursionDepth V =
+    let rec recursionDepth V =
         let
           let rec recursionDepth' = function (I.Root _, n) -> n
             | (I.Pi (_, V), n) -> recursionDepth' (V, n+1)
@@ -526,7 +526,7 @@ struct
        then ops' a list of operations which cause a recursive call
          (only induction variables are instantiated)
     *)
-    fun expandLazy (S as M.State (_, _, V)) =
+    let rec expandLazy (S as M.State (_, _, V)) =
         if recursionDepth V > (!MetaGlobal.maxRecurse) then nil
         else expandLazy' (S, (O.mutLookup (I.targetFam  V)), nil)
 
@@ -540,7 +540,7 @@ struct
        and G |- V2[s2] = c2 ; S2
        then B' holds iff c1 =  c2 and V1[s1] ==+ V2[s2]   (convertible on + arguments of c1)
     *)
-    fun inputConv (Vs1, Vs2) = inputConvW (Whnf.whnf Vs1, Whnf.whnf Vs2)
+    let rec inputConv (Vs1, Vs2) = inputConvW (Whnf.whnf Vs1, Whnf.whnf Vs2)
     and inputConvW ((I.Root (I.Const c1, S1), s1), (I.Root (I.Const c2, S2), s2)) =
           (* s1 = s2 = id *)
           if c1 = c2 then inputConvSpine (valOf (ModeTable.modeLookup c1),
@@ -588,7 +588,7 @@ struct
     let rec removeDuplicates = function nil -> nil
       | (S' :: ops) -> 
         let
-          fun compExp (Vs1, Vs2) =
+          let rec compExp (Vs1, Vs2) =
                 compExpW (Whnf.whnf Vs1, Whnf.whnf Vs2)
           and compExpW (Vs1, (I.Root _, _)) = false
             | compExpW (Vs1 as (V1, s1), (I.Pi ((D2, _), V2), s2)) =
@@ -598,7 +598,7 @@ struct
           and compDec (Vs1, (I.Dec (_, V2), s2)) =
                 inputConv (Vs1, (V2, s2))
 
-          fun check (M.State (name, GM, V)) = checkW (Whnf.whnf (V, I.id))
+          let rec check (M.State (name, GM, V)) = checkW (Whnf.whnf (V, I.id))
           and checkW (I.Pi ((D, _), V), s) =
                 checkDec ((D, I.comp (s, I.shift)), (V, I.dot1 s))
           and checkDec ((I.Dec (_, V1), s1), Vs2) =
@@ -618,7 +618,7 @@ struct
     let rec fillOps = function nil -> nil
       | (S' :: ops) -> 
         let
-          fun fillOps' nil = nil
+          let rec fillOps' nil = nil
             | fillOps' (O :: _) = (Filling.apply O)
 
           let (fillop, _) = Filling.expand S'
@@ -633,14 +633,14 @@ struct
        then ops' a list of operations which cause a recursive call
          (all variables of recursive call are instantiated)
     *)
-    fun expandEager S = removeDuplicates (fillOps (expandLazy S))
+    let rec expandEager S = removeDuplicates (fillOps (expandLazy S))
 
-    fun apply S = S
+    let rec apply S = S
 
-    fun menu (S as M.State (name, M.Prefix (G', M', B'), I.Pi ((I.Dec (_, V), _), _))) =
+    let rec menu (S as M.State (name, M.Prefix (G', M', B'), I.Pi ((I.Dec (_, V), _), _))) =
       "Recursion : " ^ (Print.expToString (G', V))
 
-    fun handleExceptions f P =
+    let rec handleExceptions f P =
         (f P) handle Order.Error s => raise Error s
 
   in

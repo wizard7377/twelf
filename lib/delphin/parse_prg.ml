@@ -32,7 +32,7 @@ let rec fparse fname =
            (fun _ -> Compat.inputLine97 infile)
        let empty = !Interface.line
        let dummyEOF = Tokens.EOF(empty, empty)
-       fun loop lexer =
+       let rec loop lexer =
            let let (result, lexer) = invoke lexer
                let (nextToken, lexer) = Parserr.Streamm.get lexer
            in
@@ -57,7 +57,7 @@ let rec sparse () =
            (fun _ -> Compat.inputLine97 infile)
     let empty = !Interface.line
     let dummyEOF = Tokens.EOF(empty, empty)
-    fun loop lexer =
+    let rec loop lexer =
       let let (result, lexer) = invoke lexer
           let (nextToken, lexer) = Parserr.Streamm.get lexer
        in
@@ -79,7 +79,7 @@ let rec  gparse fname =
            (fun _ -> Compat.inputLine97 infile)
        let empty = !Interface.line
        let dummyEOF = Tokens.EOF(empty, empty)
-       fun loop lexer =
+       let rec loop lexer =
            let let (result, lexer) = invoke lexer
                let (nextToken, lexer) = Parserr.Streamm.get lexer
            in

@@ -2,11 +2,11 @@
 
 let functor UnknownExn (exnHistory : exn -> string list) : UNKNOWN_EXN =
 struct
-  fun unknownExn exn =
+  let rec unknownExn exn =
     let
       let history = rev (exnHistory exn)
-      fun wrap1 x = "  raised at: " ^ x ^ "\n"
-      fun wrapn x = "             " ^ x ^ "\n"
+      let rec wrap1 x = "  raised at: " ^ x ^ "\n"
+      let rec wrapn x = "             " ^ x ^ "\n"
     in
       concat (
         "Unrecognized exception "

@@ -8,35 +8,35 @@ struct
 
   type number = int
 
-  fun normalize (n) = n mod p
+  let rec normalize (n) = n mod p
 
   let zero = 0
   let one  = 1
 
   exception Div
 
-  fun op~ (n) = Int.-(p, n)
+  let rec op~ (n) = Int.-(p, n)
 
-  fun op+ (m, n) = normalize (Int.+(m, n))
+  let rec op+ (m, n) = normalize (Int.+(m, n))
 
-  fun op- (m, n) = normalize (Int.-(m, n))
+  let rec op- (m, n) = normalize (Int.-(m, n))
 
-  fun op* (m, n) = normalize (Int.*(m, n))
+  let rec op* (m, n) = normalize (Int.*(m, n))
 
   let rec inverse = function (0) -> raise Div
     | (n) -> 
         let
           (* alternative: compute n^(p-2) *)
-          fun inverse' i =
+          let rec inverse' i =
                 if (normalize (Int.*(n, i)) = 1) then i
                 else inverse' (Int.+(i, 1))
         in
           inverse' 1
         end
 
-  fun fromInt (n) = normalize (n)
+  let rec fromInt (n) = normalize (n)
 
-  fun fromString (str) =
+  let rec fromString (str) =
         let
           let check = (List.all Char.isDigit)
         in

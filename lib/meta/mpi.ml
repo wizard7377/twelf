@@ -65,23 +65,23 @@ struct
     let History : (StateSyn.State Ring.ring * StateSyn.State Ring.ring) list ref = ref nil
     let Menu : MenuItem list option ref = ref NONE
 
-    fun initOpen () = Open := Ring.init [];
-    fun initSolved () = Solved := Ring.init [];
-    fun empty () = Ring.empty (!Open)
-    fun current () = Ring.current (!Open)
-    fun delete () = Open := Ring.delete (!Open)
-    fun insertOpen S = Open := Ring.insert (!Open, S)
-    fun insertSolved S = Solved := Ring.insert (!Solved, S)
+    let rec initOpen () = Open := Ring.init [];
+    let rec initSolved () = Solved := Ring.init [];
+    let rec empty () = Ring.empty (!Open)
+    let rec current () = Ring.current (!Open)
+    let rec delete () = Open := Ring.delete (!Open)
+    let rec insertOpen S = Open := Ring.insert (!Open, S)
+    let rec insertSolved S = Solved := Ring.insert (!Solved, S)
 
-    fun insert S = insertOpen S
+    let rec insert S = insertOpen S
 
-    fun collectOpen () = Ring.foldr op:: nil (!Open)
-    fun collectSolved () = Ring.foldr op:: nil (!Solved)
-    fun nextOpen () = Open := Ring.next (!Open)
+    let rec collectOpen () = Ring.foldr op:: nil (!Open)
+    let rec collectSolved () = Ring.foldr op:: nil (!Solved)
+    let rec nextOpen () = Open := Ring.next (!Open)
 
-    fun pushHistory () =
+    let rec pushHistory () =
           History :=  (!Open, !Solved) :: (!History)
-    fun popHistory () =
+    let rec popHistory () =
         case (!History)
           of nil => raise Error "History stack empty"
            | (Open', Solved') :: History' =>
@@ -90,11 +90,11 @@ struct
               Solved := Solved')
 
 
-    fun abort s =
+    let rec abort s =
         (print ("* " ^ s);
          raise Error s)
 
-    fun reset () =
+    let rec reset () =
         (initOpen ();
          initSolved ();
          History := nil;
@@ -107,9 +107,9 @@ struct
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
 
-    fun printFillResult (_, P) =
+    let rec printFillResult (_, P) =
       let
-        fun formatTuple (G, P) =
+        let rec formatTuple (G, P) =
           let
             let rec formatTuple' = function (F.Unit) -> nil
               | (F.Inx (M, F.Unit)) -> 
@@ -131,13 +131,13 @@ struct
     let rec SplittingToMenu = function (nil, A) -> A
       | (O :: L, A) -> SplittingToMenu (L, Splitting O :: A)
 
-    fun FillingToMenu (O, A) = Filling O :: A
+    let rec FillingToMenu (O, A) = Filling O :: A
 
-    fun RecursionToMenu (O, A) = Recursion O :: A
+    let rec RecursionToMenu (O, A) = Recursion O :: A
 
-    fun InferenceToMenu (O, A) = Inference O :: A
+    let rec InferenceToMenu (O, A) = Inference O :: A
 
-    fun menu () =
+    let rec menu () =
         if empty () then Menu := NONE
         else
           let
@@ -154,11 +154,11 @@ struct
           end
 
 
-    fun format k =
+    let rec format k =
         if k < 10 then (Int.toString k) ^ ".  "
         else (Int.toString k) ^ ". "
 
-    fun menuToString () =
+    let rec menuToString () =
         let
           let rec menuToString' = function (k, nil, (NONE, _)) -> (SOME k, "")
             | (k, nil, (kopt' as SOME _, _)) -> (kopt', "")
@@ -213,7 +213,7 @@ struct
         end
 
 
-    fun printMenu () =
+    let rec printMenu () =
         if empty () then (print "[QED]\n";
                           print ("Statistics: required Twelf.Prover.maxFill := "
                                  ^ (Int.toString (!MTPData.maxFill)) ^ "\n"))
@@ -234,7 +234,7 @@ struct
       | (x :: L, L') -> 
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
-    fun equiv (L1, L2) =
+    let rec equiv (L1, L2) =
           contains (L1, L2) andalso contains (L2, L1)
 
     let rec transformOrder' = function (G, Order.Arg k) -> 
@@ -256,9 +256,9 @@ struct
                  transformOrder (G, F2, Os))
       | (G, F.Ex _, [O]) -> transformOrder' (G, O)
 
-    fun select c = (Order.selLookup c handle _ => Order.Lex [])
+    let rec select c = (Order.selLookup c handle _ => Order.Lex [])
 
-    fun init (k, names) =
+    let rec init (k, names) =
         let
           let cL = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
           let _ = MTPGlobal.maxFill := k
@@ -278,7 +278,7 @@ struct
                 | Error s => abort ("Mpi Error: " ^ s))
         end
 
-    fun select k =
+    let rec select k =
         let
           let rec select' = function (k, nil) -> abort ("No such menu item")
             | (1, Splitting O :: _) -> 
@@ -333,7 +333,7 @@ struct
 
 
 
-    fun solve () =
+    let rec solve () =
         if empty () then raise Error "Nothing to prove"
         else
           let
@@ -353,7 +353,7 @@ struct
           end
 
 
-    fun check () =
+    let rec check () =
         if empty () then raise Error "Nothing to check"
         else
           let
@@ -363,7 +363,7 @@ struct
           end
 
 
-    fun auto () =
+    let rec auto () =
         let
           let (Open', Solved') = MTPStrategy.run (collectOpen ())
             handle MTPSplitting.Error s => abort ("MTPSplitting. Error: " ^ s)
@@ -380,9 +380,9 @@ struct
         end
 
 
-    fun next () = (nextOpen (); menu (); printMenu ())
+    let rec next () = (nextOpen (); menu (); printMenu ())
 
-    fun undo () = (popHistory (); menu (); printMenu ())
+    let rec undo () = (popHistory (); menu (); printMenu ())
 
   in
     let init = init

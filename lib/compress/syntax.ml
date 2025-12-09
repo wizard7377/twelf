@@ -47,7 +47,7 @@ struct
 	type tpfn = tpfnType of tp
 		      | tpfnLam of tpfn
 
-	fun EVarDotId ev = EVarDot (ev, [], Id)
+	let rec EVarDotId ev = EVarDot (ev, [], Id)
 
 (*	type decl = string * Parse.term *)
 (*	type ctx = decl list *)
@@ -70,7 +70,7 @@ struct
 
 	exception Debugs of subst_result * spinelt list
 
-	fun curryfoldr sf sl x = foldr (fn (s,x') => sf s x') x sl
+	let rec curryfoldr sf sl x = foldr (fn (s,x') => sf s x') x sl
 
 
 	(* lower (a, sp)
@@ -194,7 +194,7 @@ struct
 	    let 
 		let rec subst_tpfn = function s (tpfnLam a) -> tpfnLam(subst_tpfn (ZeroDotShift s) a)
 		  | s (tpfnType a) -> tpfnType(subst_tp s a)
-		fun tp_reduce'(tpfnLam(a), KPi(_,b,k), h::sp) = 
+		let rec tp_reduce'(tpfnLam(a), KPi(_,b,k), h::sp) = 
 		    let
 			let s = TermDot(termof h, b, Id)
 			let a' = subst_tpfn s a
@@ -323,10 +323,10 @@ struct
 
 
 
-	fun ctxLookup (G, n) = subst_tp (Shift (0, n + 1)) (List.nth (G, n))
+	let rec ctxLookup (G, n) = subst_tp (Shift (0, n + 1)) (List.nth (G, n))
 
-	fun typeOf (tclass a) = a
-	fun kindOf (kclass k) = k
+	let rec typeOf (tclass a) = a
+	let rec kindOf (kclass k) = k
 
 	let sum = foldl op+ 0
 	let rec size_term = function (NTerm (Lam t)) -> 1 + (size_term t)

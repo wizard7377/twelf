@@ -251,7 +251,7 @@ struct
             else matchDProg (dPool', k+1)
           | (I.Decl (dPool', C.Parameter), k) -> 
               matchDProg (dPool', k+1)
-        fun matchConstraint (cnstrSolve, try) =
+        let rec matchConstraint (cnstrSolve, try) =
               let
                 let succeeded =
                   CSManager.trail

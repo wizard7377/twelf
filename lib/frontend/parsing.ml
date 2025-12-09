@@ -17,13 +17,13 @@ struct
 
   type 'a recparser = 'a RecParseResult parser
 
-  fun recwith (recparser, func) f =
+  let rec recwith (recparser, func) f =
       (case recparser f
          of (Done x, f') => (Done (func x), f')
           | (Continuation k, f') => (Continuation (recwith (k, func)), f'))
 
   exception Error of string
-  fun error (r, msg) = raise Error (Paths.wrap (r, msg))
+  let rec error (r, msg) = raise Error (Paths.wrap (r, msg))
 
 end;; (* functor Parsing *)
 

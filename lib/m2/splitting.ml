@@ -124,7 +124,7 @@ struct
        and  abstract abstraction function
        then C' = (C1, ... Cn) are resulting cases from splitting D[s]
     *)
-    fun split (M.Prefix (G, M, B), (D as I.Dec (_, V), s), abstract) =
+    let rec split (M.Prefix (G, M, B), (D as I.Dec (_, V), s), abstract) =
            lowerSplitDest (I.Null, (V, s),
                            fn (name', U') => abstract (name', M.Prefix (G, M, B),
                                                        I.Dot (I.Exp (U'), s)))
@@ -157,9 +157,9 @@ struct
     and occursInDec (k, I.Dec (_, V)) = occursInExp (k, V)
     and occursInDecP (k, (D, _)) = occursInDec (k, D)
 
-    fun isIndexInit k = false
-    fun isIndexSucc (D, isIndex) k = occursInDec (k, D) orelse isIndex (k+1)
-    fun isIndexFail (D, isIndex) k = isIndex (k+1)
+    let rec isIndexInit k = false
+    let rec isIndexSucc (D, isIndex) k = occursInDec (k, D) orelse isIndex (k+1)
+    let rec isIndexFail (D, isIndex) k = isIndex (k+1)
 
     (* checkExp (M, U) = B
 
@@ -373,7 +373,7 @@ struct
             then   following holds: S' = F' (name', G', M', s')
                                     S' is a new state
     *)
-    fun abstractInit (M.State (name, GM, V)) (name', M.Prefix (G', M', B'), s') =
+    let rec abstractInit (M.State (name, GM, V)) (name', M.Prefix (G', M', B'), s') =
           inheritSplitDepth
           (M.State (name, GM, V),
            MetaAbstract.abstract (M.State (name ^ name', M.Prefix (G', M', B'), I.EClo (V, s'))))
@@ -393,13 +393,13 @@ struct
             then   following holds: S' = F (name', (G', D[s]) , (M', mode) , 1 . s' o ^)
                                     is a new state
     *)
-    fun abstractCont ((D, mode, b), abstract) (name', M.Prefix (G', M', B'), s') =
+    let rec abstractCont ((D, mode, b), abstract) (name', M.Prefix (G', M', B'), s') =
           abstract (name', M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', mode),
                                      I.Decl (B', b)),
                     I.dot1 s')
 
-    fun makeAddressInit S k = (S, k)
-    fun makeAddressCont makeAddress k = makeAddress (k+1)
+    let rec makeAddressInit S k = (S, k)
+    let rec makeAddressCont makeAddress k = makeAddress (k+1)
 
     (* expand' (M.Prefix (G, M), isIndex, abstract, makeAddress) = (M.Prefix (G', M'), s', ops')
 
@@ -458,7 +458,7 @@ struct
        and  G |- V : L
        then ops' is a list of all possiblie splitting operators
     *)
-    fun expand (S as M.State (name, M.Prefix (G, M, B), V)) =
+    let rec expand (S as M.State (name, M.Prefix (G, M, B), V)) =
       let
         let (_, _, ops) =
           expand' (M.Prefix (G, M, B), isIndexInit, abstractInit S, makeAddressInit S)
@@ -471,7 +471,7 @@ struct
        Invariant:
        If   Op = (_, S) then k = |S|
     *)
-    fun index (_, Sl) = List.length Sl
+    let rec index (_, Sl) = List.length Sl
 
 
     (* apply (Op) = Sl'
@@ -479,7 +479,7 @@ struct
        Invariant:
        If   Op = (_, Sl) then Sl' = Sl
     *)
-    fun apply (_, Sl) =
+    let rec apply (_, Sl) =
       map (fn (Active S) => S
             | InActive => raise Error "Not applicable: leftover constraints")
       Sl
@@ -492,7 +492,7 @@ struct
        and  G |- D : L
        then s' = string describing the operator
     *)
-    fun menu (Op as ((M.State (name, M.Prefix (G, M, B), V), i), Sl)) =
+    let rec menu (Op as ((M.State (name, M.Prefix (G, M, B), V), i), Sl)) =
         let
           let rec active = function (nil, n) -> n
             | (InActive :: L, n) -> active (L, n)
@@ -515,7 +515,7 @@ struct
            (flagToString (active (Sl, 0), inactive (Sl, 0))) ^ ")"
         end
 
-    fun var ((_, i), _) = i
+    let rec var ((_, i), _) = i
 
   in
     let expand = expand

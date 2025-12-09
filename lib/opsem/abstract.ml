@@ -58,7 +58,7 @@ struct
        constraints after simplification.
     *)
 
-    fun compose'(IntSyn.Null, G) = G
+    let rec compose'(IntSyn.Null, G) = G
       | compose'(IntSyn.Decl(G', D), G) = IntSyn.Decl(compose'(G', G), D)
 
     let rec isId = function (I.Shift(n)) -> (n = 0)
@@ -88,7 +88,7 @@ struct
     let rec eqEVarW = function (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) -> (r1 = r2)
       | _ _ -> false
 
-    fun eqEVar X1 (EV (X2)) =
+    let rec eqEVar X1 (EV (X2)) =
       (* Sun Dec  1 14:04:17 2002 -bp  may raise exception
        if strengthening is applied,i.e. the substitution is not always id! *)
       let
@@ -100,7 +100,7 @@ struct
 
     (* a few helper functions to manage K *)
     (* member P K = B option *)
-    fun member' P K =
+    let rec member' P K =
         let fun exists' (I.Null) = NONE
               | exists' (I.Decl(K',(l, EV(Y)))) = if P(EV(Y)) then SOME(l) else exists' (K')
         in
@@ -108,7 +108,7 @@ struct
         end
 
     (* member P K = B option *)
-    fun member P K =
+    let rec member P K =
         let fun exists' (I.Null) = NONE
               | exists' (I.Decl(K',(i, Y))) = if P(Y) then SOME(i) else exists' (K')
         in
@@ -116,7 +116,7 @@ struct
         end
     let rec update' = function P K -> 
       let
-        fun update' (I.Null) = I.Null
+        let rec update' (I.Null) = I.Null
           | (I.Decl(K',((label, Y)))) -> 
           if (P Y) then
             I.Decl(K', (Body, Y))
@@ -126,7 +126,7 @@ struct
       end
 
     (* member P K = B option *)
-    fun update P K =
+    let rec update P K =
       let
         let rec update' = function (I.Null) -> I.Null
           | (I.Decl(K',((label, i), Y))) -> 
@@ -849,7 +849,7 @@ struct
           abstractCtx' (Gs, epos', Vars', total, depth - 1, C.DProg(G, dPool), I.Decl (G', D'), eqn')
         end
 *)
-    fun abstractCtx (Gs, epos, Vars, total, depth, dProg) =
+    let rec abstractCtx (Gs, epos, Vars, total, depth, dProg) =
       abstractCtx' (Gs, epos, Vars, total, depth, dProg, I.Null, TableParam.Trivial)
 
 
@@ -866,7 +866,7 @@ struct
           DEVars''
         end
 
-    fun makeAVarCtx (Vars, DupVars) =
+    let rec makeAVarCtx (Vars, DupVars) =
       let
         let rec avarCtx = function (Vars, I.Null, k) -> I.Null
           | (Vars, I.Decl (K', AV (E as I.EVar (ref NONE, GX, VX, _), d)), k) -> 
@@ -972,7 +972,7 @@ struct
        Note: G' and U' are possibly strengthened
    *)
 
-    fun abstractEVarCtx (dp as C.DProg(G,dPool), p, s) =
+    let rec abstractEVarCtx (dp as C.DProg(G,dPool), p, s) =
       let
         let (Gs, ss, d) =  (if (!TableParam.strengthen) then
                               let

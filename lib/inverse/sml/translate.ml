@@ -1,5 +1,5 @@
 
-(Translate : TRANSLAT)E =
+(Translate : TRANSLATE) =
 struct 
 
   module L = Lib
@@ -78,7 +78,7 @@ struct
     | (I.AbbrevDef _) -> true
     | _ -> false
 
-  fun translate_signat'() = 
+  let rec translate_signat'() = 
       let
         let n = L.fst (IntSyn.sgnSize()) 
         let ns = L.upto(0,n-1)
@@ -88,7 +88,7 @@ struct
         map (fn (dec as (c,e)) => (c,translate_condec dec)) cds'
       end
 
-  fun translate_signat() = (Timers.time Timers.translation translate_signat') ()
+  let rec translate_signat() = (Timers.time Timers.translation translate_signat') ()
 
 end
 

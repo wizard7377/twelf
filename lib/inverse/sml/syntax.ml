@@ -1,5 +1,5 @@
 
-(Syntax : SYNTA)X =
+(Syntax : SYNTAX) =
 struct 
 
   module L = Lib
@@ -72,11 +72,11 @@ struct
     type signat = dec T.table
 
     let global_signat : dec T.table = T.table 100000 
-    fun lookup c = T.lookup global_signat c
-    fun insert (c,d) = ignore(T.insert global_signat (c,d))
-    fun app f = T.appi f global_signat
-    fun size() = T.size global_signat
-    fun reset() = T.clear global_signat
+    let rec lookup c = T.lookup global_signat c
+    let rec insert (c,d) = ignore(T.insert global_signat (c,d))
+    let rec app f = T.appi f global_signat
+    let rec size() = T.size global_signat
+    let rec reset() = T.clear global_signat
   end
 
   module Sig = Signat
@@ -88,7 +88,7 @@ struct
   let expType = Uni Type
   let expKind = Uni Kind
 
-  fun bvar n = Root(BVar n,Nil)
+  let rec bvar n = Root(BVar n,Nil)
   let one = bvar 1
   let shift = Shift 1
   let id_sub = Shift 0
@@ -105,13 +105,13 @@ struct
     | (Def def) -> #exp def
     | (Abbrev abb) -> #exp abb
 
-  fun is_def c = 
+  let rec is_def c = 
       case Signat.lookup c of
         Def _ => true
       | Abbrev _ => true
       | Decl _ => false        
 
-  fun def c = 
+  let rec def c = 
       case Signat.lookup c of
         Def def => #def def
       | Abbrev abb => #def abb
@@ -189,11 +189,11 @@ struct
        This is just for eta expansion, and we don't want this
        code to be tangled with the different typechecker versions.
     *)
-    fun shift_head (lev,con as Const _) = con
+    let rec shift_head (lev,con as Const _) = con
       | shift_head (lev,var as BVar n) = 
         if n >= lev then BVar (n+1) else var
 
-    fun shift_spine (lev,Nil) = Nil
+    let rec shift_spine (lev,Nil) = Nil
       | shift_spine (lev,App(M,S)) = App(shift_exp(lev,M),shift_spine(lev,S))
       | shift_spine (lev,SClo _) = 
         raise Fail "shift_spine: shouldn't have closures during eta expansion"
@@ -210,9 +210,9 @@ struct
       | shift_exp _ = 
         raise Fail "shift_exp: shouldn't have redexes or closures during eta expansion"
 
-    fun shift_spine' exp = shift_spine(0,exp)
+    let rec shift_spine' exp = shift_spine(0,exp)
 
-    fun long_exp (ctx,exp as Uni Type,Base) = exp
+    let rec long_exp (ctx,exp as Uni Type,Base) = exp
       | long_exp (ctx,Pi {arg,body,depend,var}, Base) =
         let
           let arg' = long_exp(ctx,arg,Base) 
@@ -265,7 +265,7 @@ struct
         end
       | long_spine _ = raise Fail "long_spine: bad case"
 
-    fun eta_expand'(e1,Uni Kind) = e1
+    let rec eta_expand'(e1,Uni Kind) = e1
       | eta_expand'(e1,e2) = 
         let
           let () = changed := false
@@ -276,7 +276,7 @@ struct
           e2'
         end
 
-    fun eta_expand e = (Timers.time Timers.eta_normal eta_expand') e
+    let rec eta_expand e = (Timers.time Timers.eta_normal eta_expand') e
 
   end
 

@@ -4,7 +4,7 @@ local
   module I = IntSyn
   module T = Tomega
 
-  fun load file =
+  let rec load file =
     case Twelf.Config.load (Twelf.Config.read file)
       of Twelf.OK => Twelf.OK
        | Twelf.ABORT => raise Domain;
@@ -18,7 +18,7 @@ in
  let _ = Compiler.Control.Print.printDepth := 100;
 
 
-  fun test names =
+  let rec test names =
     (let 
       let a = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
       let name = foldr op^ "" names
@@ -46,7 +46,7 @@ in
     end)
 
        
-  fun print names =
+  let rec print names =
     let
       let P = test names
     in

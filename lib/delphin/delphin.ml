@@ -21,12 +21,12 @@ struct
     module I = IntSyn
     module T = Tomega
 
-    fun chatter chlev f =
+    let rec chatter chlev f =
         if !Global.chatter >= chlev
           then print (f ())
         else ()
 
-    fun loadFile (s1, s2) =
+    let rec loadFile (s1, s2) =
       let
         let _ = Twelf.reset ()
         let _ = Twelf.loadFile s1
@@ -53,7 +53,7 @@ struct
         V
       end
 
-    fun top () = loop ()
+    let rec top () = loop ()
 
     and loop () =
       let
@@ -73,10 +73,10 @@ struct
       arg = LF object which is the argument
    *)
 
-    fun runSimpleTest sourcesFile funcList args  =
+    let rec runSimpleTest sourcesFile funcList args  =
       let
 
-        fun test (names as [name]) =
+        let rec test (names as [name]) =
           (let
              let La = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
              let (lemma, projs, sels) = Converter.installPrg La
@@ -102,7 +102,7 @@ struct
            in (Tomega.lemmaDef (hd sels), F)
            end)
 
-        fun checkDec (u, D as T.UDec (I.Dec (_, V))) =  (print "$"; TypeCheck.typeCheck (I.Null, (u, V)))
+        let rec checkDec (u, D as T.UDec (I.Dec (_, V))) =  (print "$"; TypeCheck.typeCheck (I.Null, (u, V)))
 (*        | checkDec (u, D as PDec (_, T.All (D, F')))) = ???  *)
 
 
@@ -156,7 +156,7 @@ Nil))) else (T.Redex(P, T.AppExp (I.Root (I.Const x, I.Nil), T.Nil)))
         ()
       end
 
-    fun eval P =
+    let rec eval P =
         let
           let V = Opsem.evalPrg P
         in

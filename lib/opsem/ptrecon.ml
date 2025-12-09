@@ -45,7 +45,7 @@ struct
       | (I.Def a, I.Def a') -> a = a'
       | _ -> false
 
-  fun compose'(IntSyn.Null, G) = G
+  let rec compose'(IntSyn.Null, G) = G
     | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
   let rec shift = function (IntSyn.Null, s) -> s
@@ -260,7 +260,7 @@ struct
       end
 
 
-  fun solve (O, (g, s), dp as C.DProg(G, dPool), sc) =
+  let rec solve (O, (g, s), dp as C.DProg(G, dPool), sc) =
       solve' (O, (g,s), dp, sc) handle Error msg => print msg
 
   end (* local ... *)

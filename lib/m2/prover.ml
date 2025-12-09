@@ -39,14 +39,14 @@ struct
 
 
 
-    fun error s = raise Error s
+    let rec error s = raise Error s
 
     (* reset () = ()
 
        Invariant:
        Resets the internal state of open states/solved states
     *)
-    fun reset () =
+    let rec reset () =
         (openStates := nil;
          solvedStates := nil)
 
@@ -64,7 +64,7 @@ struct
        Invariant:
        B' holds iff L1 is equivalent to L2 (modulo permutation)
     *)
-    fun equiv (L1, L2) =
+    let rec equiv (L1, L2) =
           contains (L1, L2) andalso contains (L2, L1)
 
     (* insertState S = ()
@@ -73,7 +73,7 @@ struct
        If S is successful prove state, S is stored in solvedStates
        else S is stored in openStates
     *)
-    fun insertState S =
+    let rec insertState S =
         if Qed.subgoal S then solvedStates := S :: (! solvedStates)
         else openStates := S :: (! openStates)
 
@@ -98,7 +98,7 @@ struct
        then init initializes the openStates/solvedStates
        else an Error exception is raised
     *)
-    fun init (k, cL as (c :: _)) =
+    let rec init (k, cL as (c :: _)) =
         let
           let _ = MetaGlobal.maxFill := k
           let _ = reset ();
@@ -117,7 +117,7 @@ struct
        Solves as many States in openStates
        as possible.
     *)
-    fun auto () =
+    let rec auto () =
         let
           let _ = print "M2.Prover.auto\n"
           let (Open, solvedStates') = Strategy.run (!openStates)
@@ -142,7 +142,7 @@ struct
        and  G |- V : type
        then e' = (name, |G|, {G}.V, Type) is a module type conDec
     *)
-    fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
+    let rec makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
           let rec makeConDec' = function (I.Null, V, k) -> I.ConDec (name, NONE, k, I.Normal, V, I.Type)
             | (I.Decl (G, D), V, k) -> 
@@ -167,7 +167,7 @@ struct
        Invariant:
        Installs solved states into the global module type.
     *)
-    fun install (installConDec) =
+    let rec install (installConDec) =
         let
           let rec install' = function M.SgnEmpty -> ()
             | (M.ConDec (e, S)) -> 
@@ -190,7 +190,7 @@ struct
        Invariant:
        Prints the list of open States and the list of closed states.
     *)
-    fun printState () =
+    let rec printState () =
         let
           let rec print' = function nil -> ()
             | (S :: L) -> 

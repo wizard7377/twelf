@@ -70,7 +70,7 @@ struct
 
   exception Error of string
 
-  fun error (r, msg) = raise Error (P.wrap (r, msg))
+  let rec error (r, msg) = raise Error (P.wrap (r, msg))
 
   (* isSym (c) = B iff c is a legal symbolic identifier constituent *)
   (* excludes quote character and digits, which are treated specially *)
@@ -81,13 +81,13 @@ struct
      part of a UTF8 Unicode encoding.  Treat these as lowercase
      identifiers.  Somewhat of a hack until there is native Unicode
      string support. *)
-  fun isUTF8 (c) = not (Char.isAscii c)
+  let rec isUTF8 (c) = not (Char.isAscii c)
 
   (* isQuote (c) = B iff c is the quote character *)
-  fun isQuote (c) = (c = #"'")
+  let rec isQuote (c) = (c = #"'")
 
   (* isIdChar (c) = B iff c is legal identifier constituent *)
-  fun isIdChar (c) = Char.isLower(c) orelse Char.isUpper (c)
+  let rec isIdChar (c) = Char.isLower(c) orelse Char.isUpper (c)
                      orelse Char.isDigit (c) orelse isSym(c)
                      orelse isQuote (c) orelse isUTF8(c)
 
@@ -125,7 +125,7 @@ struct
          readNext relies on the invariant that identifiers are never
          spread across lines
       *)
-      fun readNext () =
+      let rec readNext () =
           let
             let nextLine = inputFun (!right)
             let nextSize = String.size (nextLine)
@@ -144,7 +144,7 @@ struct
          Invariant: i >= !left
          Effects: will read input if i >= !right
       *)
-      fun char (i) =
+      let rec char (i) =
           if i >= !right then (readNext (); char (i))
           else String.sub (!s, i - !left)
 
@@ -153,19 +153,19 @@ struct
                     Note that the relevant parts must already have been read!
          Effects: None
       *)
-      fun string (i,j) = String.substring (!s, i - !left, j-i)
+      let rec string (i,j) = String.substring (!s, i - !left, j-i)
     end
 
     (* The remaining functions do not access the state or *)
     (* stream directly, using only functions char and string *)
 
-    fun idToToken (idCase, P.Reg (i,j)) = stringToToken (idCase, string (i,j), P.Reg (i,j))
+    let rec idToToken (idCase, P.Reg (i,j)) = stringToToken (idCase, string (i,j), P.Reg (i,j))
 
     (* Quote characters are part of the name *)
     (* Treat quoted identifiers as lowercase, since they no longer *)
     (* override infix state.  Quoted identifiers are now only used *)
     (* inside pragmas *)
-    fun qidToToken (P.Reg (i,j)) = (ID(Lower, string(i,j+1)), P.Reg (i,j+1))
+    let rec qidToToken (P.Reg (i,j)) = (ID(Lower, string(i,j+1)), P.Reg (i,j+1))
 
     (* The main lexing functions take a character c and the next
        input position i and return a token with its region
@@ -310,7 +310,7 @@ struct
                   (* recover: (EOF, (i-1,i-1)) *)
               | _ => lexString (P.Reg(i, j+1)))
 
-    fun lexContinue (j) = Stream.delay (fn () => lexContinue' (j))
+    let rec lexContinue (j) = Stream.delay (fn () => lexContinue' (j))
     and lexContinue' (j) = lexContinue'' (lexInitial (char(j), j+1))
 
     and lexContinue'' (mt as (ID _, P.Reg (i,j))) =
@@ -331,9 +331,9 @@ struct
     lexContinue (0)
   end  (* fun lex (inputFun) = let ... in ... end *)
 
-  fun lexStream (instream) = lex (fun i -> Compat.inputLine97 (instream))
+  let rec lexStream (instream) = lex (fun i -> Compat.inputLine97 (instream))
 
-  fun lexTerminal (prompt0, prompt1) =
+  let rec lexTerminal (prompt0, prompt1) =
         lex (fun 0 -> (print (prompt0) ;
                       Compat.inputLine97 (TextIO.stdIn))
               | i => (print (prompt1) ;
@@ -400,7 +400,7 @@ struct
 
  (* charToNat(c) = n converts character c to decimal equivalent *)
  (* raises NotDigit(c) if c is not a digit 0-9 *)
- fun charToNat (c) =
+ let rec charToNat (c) =
      let let digit = Char.ord(c) - Char.ord(#"0")
      in
        if digit < 0 orelse digit > 9
@@ -410,9 +410,9 @@ struct
 
  (* stringToNat(s) = n converts string s to a natural number *)
  (* raises NotDigit(c) if s contains character c which is not a digit *)
- fun stringToNat (s) =
+ let rec stringToNat (s) =
      let let l = String.size s
-         fun stn (i, n) =
+         let rec stn (i, n) =
              if i = l then n
              else stn (i+1, 10 * n + charToNat (String.sub (s, i)))
      in

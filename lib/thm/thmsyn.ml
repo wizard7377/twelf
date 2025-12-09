@@ -19,7 +19,7 @@ struct
   module Names = Names'
 
   exception Error of string
-  fun error (r, msg) = raise Error (Paths.wrap (r, msg))
+  let rec error (r, msg) = raise Error (Paths.wrap (r, msg))
 
 
   type param = string option
@@ -84,7 +84,7 @@ struct
        then D' is a constant type declaration of this theorem
     *)
 
-    fun theoremDecToConDec ((name, ThDecl (GBs, G, MG, i)), r) =
+    let rec theoremDecToConDec ((name, ThDecl (GBs, G, MG, i)), r) =
         let
           (* theoremToConDec' G V = V'
 
@@ -115,7 +115,7 @@ struct
          quantifier information for the theorem
     *)
 
-    fun theoremDecToModeSpine ((name,  ThDecl (GBs, G, MG, i)), r) =
+    let rec theoremDecToModeSpine ((name,  ThDecl (GBs, G, MG, i)), r) =
       let
         let rec theoremToModeSpine' = function (I.Null, I.Null, mS) -> mS
           | (I.Decl (G, I.Dec (x, _)), I.Decl (MG, m), mS) -> 

@@ -136,7 +136,7 @@ struct
       | (Eq(O1, O2)) f -> Eq(shiftO O1 f, shiftO O2 f)
       | (Pi(D as I.Dec(X,V), P)) f -> Pi(D, shiftP P f)
 
-    fun shiftRCtx Rl f = map (fun p -> shiftP p f) Rl
+    let rec shiftRCtx Rl f = map (fun p -> shiftP p f) Rl
 
     let rec shiftArg = function (Less (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f -> 
           Less (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
@@ -145,12 +145,12 @@ struct
       | (Eq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f -> 
           Eq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
 
-    fun shiftACtx Rl f = map (fun p -> shiftArg p f) Rl
+    let rec shiftACtx Rl f = map (fun p -> shiftArg p f) Rl
 
    (*--------------------------------------------------------------------*)
    (* Printing *)
 
-    fun fmtOrder (G, O) =
+    let rec fmtOrder (G, O) =
         let
           let rec fmtOrder' = function (R.Arg (Us as (U, s), Vs as (V, s'))) -> 
                 F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
@@ -166,7 +166,7 @@ struct
           fmtOrder' O
         end
 
-    fun fmtComparison (G, O, comp, O') =
+    let rec fmtComparison (G, O, comp, O') =
         F.HOVbox0 1 0 1 [fmtOrder (G, O), F.Break, F.String comp, F.Break, fmtOrder (G, O')]
 
     let rec fmtPredicate' = function (G, Less(O, O')) -> fmtComparison (G, O, "<", O')
@@ -175,7 +175,7 @@ struct
       | (G, Pi(D, P)) -> (* F.String "Pi predicate"  *)
           F.Hbox [F.String "Pi ", fmtPredicate' (I.Decl (G, D), P)]
 
-    fun fmtPredicate (G, P) = fmtPredicate' (Names.ctxName G, P)
+    let rec fmtPredicate (G, P) = fmtPredicate' (Names.ctxName G, P)
 
     let rec fmtRGCtx' = function (G, nil) -> ""
       | (G, [P]) -> 
@@ -183,7 +183,7 @@ struct
       | (G, (P :: Rl)) -> 
         F.makestring_fmt(fmtPredicate' (G, P)) ^ " ," ^ fmtRGCtx' (G, Rl)
 
-    fun fmtRGCtx (G, Rl) = fmtRGCtx' (Names.ctxName G, Rl)
+    let rec fmtRGCtx (G, Rl) = fmtRGCtx' (Names.ctxName G, Rl)
 
 
     (*--------------------------------------------------------------------*)
@@ -193,11 +193,11 @@ struct
        Invariant:
        The inital constraint continuation
     *)
-    fun init () = true
+    let rec init () = true
 
-    fun eqCid(c, c') = (c = c')
+    let rec eqCid(c, c') = (c = c')
 
-    fun conv ((Us, Vs), (Us', Vs')) =
+    let rec conv ((Us, Vs), (Us', Vs')) =
         Conv.conv (Vs, Vs') andalso
         Conv.conv (Us, Us')
 
@@ -218,7 +218,7 @@ struct
        then B holds iff X is unrestricted (uninstantiated and free
        of constraints, or lowered only) or instantiated to a universal parameter
     *)
-    fun isParameter (Q, X) = isParameterW (Q, Whnf.whnf (X, I.id))
+    let rec isParameter (Q, X) = isParameterW (Q, Whnf.whnf (X, I.id))
 
     and isParameterW (Q, Us) =
         isUniversal (I.ctxLookup (Q, Whnf.etaContract (I.EClo Us)))
@@ -240,7 +240,7 @@ struct
        and G : Q
        then B holds iff X is an atomic term which is not a parameter
      *)
-    fun isAtomic (GQ, Us) = isAtomicW (GQ, Whnf.whnf Us)
+    let rec isAtomic (GQ, Us) = isAtomicW (GQ, Whnf.whnf Us)
 
     and isAtomicW (GQ, (X as I.Root (I.Const c, S), s)) =
           isAtomicS (GQ, (S, s))
@@ -272,7 +272,7 @@ struct
        and V[s2] is atomic
        and only U'[s'] contains EVars
     *)
-    fun eq (G, (Us, Vs), (Us', Vs')) =
+    let rec eq (G, (Us, Vs), (Us', Vs')) =
       Unify.unifiable (G, Vs, Vs')
       andalso Unify.unifiable (G, Us, Us')
 
@@ -1676,7 +1676,7 @@ struct
      and G |- P
      and D implies P
     *)
-    fun deduce (G, Q, D, P) = leftDecompose((G, Q), D, nil, P)
+    let rec deduce (G, Q, D, P) = leftDecompose((G, Q), D, nil, P)
   in
     let deduce = deduce
     let shiftRCtx = shiftRCtx

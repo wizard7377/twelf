@@ -111,7 +111,7 @@ struct
 
        ocdOpt is an optional occurrence tree for condec for error messages
     *)
-    fun strictTop ((U, V), ocdOpt) =
+    let rec strictTop ((U, V), ocdOpt) =
         let fun strictArgParms (I.Root (I.BVar _, _), _, occ) =
                 raise Error (occToString (ocdOpt, occ) ^ "Head not rigid, use %abbrev")
               | strictArgParms (I.Root _, _, _) = ()
@@ -131,7 +131,7 @@ struct
           strictArgParms (U, V, Paths.top)
         end
 
-   fun occursInType ((i, V), ocdOpt) =
+   let rec occursInType ((i, V), ocdOpt) =
        let fun oit ((0, V), occ) = ()
              | oit ((i, I.Pi((D,P), V)), occ) =
                (case Abstract.piDepend ((D,P), V)

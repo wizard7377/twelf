@@ -123,12 +123,12 @@ module ParserGen(LrTable : LR_TABLE)
    (Streamm : STREAMM) : LR_PARSER =
 *)
 
-(LrParser : LR_PARSE)R =
+(LrParser : LR_PARSER) =
    struct
       module LrTable = LrTable
       module Streamm = Streamm
 
-      (Token : TOKE)N =
+      (Token : TOKEN) =
 	struct
 	    module LrTable = LrTable
 	    type ('a,'b) token = TOKEN of LrTable.term * ('a * 'b * 'b)
@@ -143,15 +143,15 @@ module ParserGen(LrTable : LR_TABLE)
       exception ParseError
       exception ParseImpossible of int
 
-      (Fifo : FIF)O =
+      (Fifo : FIFO) =
         struct
 	  type 'a queue = ('a list * 'a list)
 	  let empty = (nil,nil)
 	  exception Empty
-	  fun get(a::x, y) = (a, (x,y))
+	  let rec get(a::x, y) = (a, (x,y))
 	    | get(nil, nil) = raise Empty
 	    | get(nil, y) = get(rev y, nil)
- 	  fun put(a,(x,y)) = (x,a::y)
+ 	  let rec put(a,(x,y)) = (x,a::y)
         end
 
       type ('a,'b) elem = (state * ('a * 'b * 'b))
@@ -183,7 +183,7 @@ module ParserGen(LrTable : LR_TABLE)
 	 let println = fun s -> (print s; print "\n")
 	 let showState = fn (STATE s) => "STATE " ^ (Int.toString s)
       in
-        fun printStack(stack: ('a,'b) stack, n: int) =
+        let rec printStack(stack: ('a,'b) stack, n: int) =
          case stack
            of (state,_) :: rest =>
                  (print("\t" ^ Int.toString n ^ ": ");
@@ -271,7 +271,7 @@ module ParserGen(LrTable : LR_TABLE)
 	let let prAction = prAction showTerminal
 	    let action = LrTable.action table
 	    let goto = LrTable.goto table
-	    fun parseStep(lexPair,stack,queue,0) = (lexPair,stack,queue,0,NONE)
+	    let rec parseStep(lexPair,stack,queue,0) = (lexPair,stack,queue,0,NONE)
 	      | parseStep(lexPair as (TOKEN (terminal, value as (_,leftPos,_)),
 				      lexer
 				     ),
@@ -315,7 +315,7 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 			      leftPos,leftPos)
 		else ()
 
-        fun tokAt(t,p) = TOKEN(t,(errtermvalue t,p,p))
+        let rec tokAt(t,p) = TOKEN(t,(errtermvalue t,p,p))
 
 	let minDelta = 3
 
@@ -367,7 +367,7 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 (* parse: given a lexPair, a stack, and the distance from the error
    token, return the distance past the error token that we are able to parse.*)
 
-	fun parse (lexPair,stack,queuePos : int) =
+	let rec parse (lexPair,stack,queuePos : int) =
 	    case distanceParse(lexPair,stack,Fifo.empty,queuePos+maxAdvance+1)
              of (_,_,_,distance,SOME ACCEPT) => 
 		        if maxAdvance-distance-1 >= 0 
@@ -377,12 +377,12 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 
 (* catList: concatenate results of scanning list *)
 
-	fun catList l f = List.foldr (fn(a,r)=> f a @ r) [] l
+	let rec catList l f = List.foldr (fn(a,r)=> f a @ r) [] l
 
-        fun keywordsDelta new = if List.exists (fn(TOKEN(t,_))=>is_keyword t) new
+        let rec keywordsDelta new = if List.exists (fn(TOKEN(t,_))=>is_keyword t) new
 	               then minDelta else 0
 
-        fun tryChange{lex,stack,pos,leftPos,rightPos,orig,new} =
+        let rec tryChange{lex,stack,pos,leftPos,rightPos,orig,new} =
 	     let let lex' = List.foldr (fn (t',p)=>(t',Streamm.cons p)) lex new
 		 let distance = parse(lex',stack,pos+length new-length orig)
 	      in if distance >= minAdvance + keywordsDelta new 
@@ -397,7 +397,7 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 	      Do not delete unshiftable terminals. *)
 
 
-    fun tryDelete n ((stack,lexPair as (TOKEN(term,(_,l,r)),_)),qPos) =
+    let rec tryDelete n ((stack,lexPair as (TOKEN(term,(_,l,r)),_)),qPos) =
 	let fun del(0,accum,left,right,lexPair) =
 	          tryChange{lex=lexPair,stack=stack,
 			    pos=qPos,leftPos=left,rightPos=right,
@@ -411,7 +411,7 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 (* tryInsert: try to insert tokens before the current terminal;
        return a list of the successes  *)
 
-        fun tryInsert((stack,lexPair as (TOKEN(_,(_,l,_)),_)),queuePos) =
+        let rec tryInsert((stack,lexPair as (TOKEN(_,(_,l,_)),_)),queuePos) =
 	       catList terms (fun t ->
 		 tryChange{lex=lexPair,stack=stack,
 			   pos=queuePos,orig=[],new=[tokAt(t,l)],
@@ -436,7 +436,7 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 	     (l,r) are the (leftmost,rightmost) position of toks', 
 	     lp is what remains of the stream after deletion 
      *)
-        fun do_delete(nil,lp as (TOKEN(_,(_,l,_)),_)) = SOME(nil,l,l,lp)
+        let rec do_delete(nil,lp as (TOKEN(_,(_,l,_)),_)) = SOME(nil,l,l,lp)
           | do_delete([t],(tok as TOKEN(t',(_,l,r)),lp')) =
 	       if t=t'
 		   then SOME([tok],l,r,Streamm.get lp')
@@ -449,7 +449,7 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 			  | NONE => NONE
 		   else NONE
 			     
-        fun tryPreferred((stack,lexPair),queuePos) =
+        let rec tryPreferred((stack,lexPair),queuePos) =
 	    catList preferred_change (fn (delete,insert) =>
 	       if List.exists noShift delete then [] (* should give warning at
 						 parser-generation time *)
@@ -553,7 +553,7 @@ let rec mkFixError({is_keyword,terms,errtermvalue,
 	    let distanceParse = distanceParse(table,showTerminal,saction,arg)
 	    let fixError = mkFixError(ec,distanceParse,minAdvance,maxAdvance)
 	    let ssParse = ssParse(table,showTerminal,saction,fixError,arg)
-	    fun loop (lexPair,stack,queue,_,SOME ACCEPT) =
+	    let rec loop (lexPair,stack,queue,_,SOME ACCEPT) =
 		   ssParse(lexPair,stack,queue)
 	      | loop (lexPair,stack,queue,0,_) = ssParse(lexPair,stack,queue)
 	      | loop (lexPair,stack,queue,distance,SOME ERROR) =

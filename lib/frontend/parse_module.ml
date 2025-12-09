@@ -135,7 +135,7 @@ struct
     | (LS.Cons ((t, r), s')) -> 
         Parsing.error (r, "Expected module type identifier, found token " ^ L.toString t)
 
-  fun parseSigDef' (LS.Cons ((L.SIG, r), s')) =
+  let rec parseSigDef' (LS.Cons ((L.SIG, r), s')) =
         parseSgDef' (LS.expose s')
 
   let rec parseStrDec2' = function (idOpt, LS.Cons ((L.COLON, r), s')) -> 
@@ -157,13 +157,13 @@ struct
     | (LS.Cons ((t, r), s')) -> 
         Parsing.error (r, "Expected module identifier, found token " ^ L.toString t)
 
-  fun parseStructDec' (LS.Cons ((L.STRUCT, r), s')) =
+  let rec parseStructDec' (LS.Cons ((L.STRUCT, r), s')) =
         parseStrDec' (LS.expose s')
 
-  fun parseInclude' (LS.Cons ((L.INCLUDE, r), s')) =
+  let rec parseInclude' (LS.Cons ((L.INCLUDE, r), s')) =
         parseSigExp' (LS.expose s')
 
-  fun parseOpen' (LS.Cons ((L.OPEN, r), s')) =
+  let rec parseOpen' (LS.Cons ((L.OPEN, r), s')) =
         parseStructExp' (LS.expose s')
 
 end

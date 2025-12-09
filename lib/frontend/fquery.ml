@@ -23,7 +23,7 @@ struct
      formats instantiated EVars as a substitution.
      Abbreviate as empty string if chatter level is < 3.
   *)
-  fun evarInstToString (Xs) =
+  let rec evarInstToString (Xs) =
       if !Global.chatter >= 3
         then Print.evarInstToString (Xs)
       else ""
@@ -32,7 +32,7 @@ struct
      formats expression as a string.
      Abbreviate as empty string if chatter level is < 3.
   *)
-  fun expToString GU =
+  let rec expToString GU =
       if !Global.chatter >= 3
         then Print.expToString GU
       else ""
@@ -41,7 +41,7 @@ struct
   let rec lower = function (0, G, V) -> (G, V)
     | (n, G, I.Pi ((D, _), V)) -> lower (n-1, I.Decl (G, D), V)
 
-  fun run (quy, Paths.Loc (fileName, r)) =
+  let rec run (quy, Paths.Loc (fileName, r)) =
       let
         (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
         let (V, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))

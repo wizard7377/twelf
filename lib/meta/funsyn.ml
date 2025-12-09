@@ -83,8 +83,8 @@ struct
                    : LemmaDec Array.array
     let nextLemma = ref 0
 
-    fun labelLookup label = Array.sub (labelArray, label)
-    fun labelAdd (labelDec) =
+    let rec labelLookup label = Array.sub (labelArray, label)
+    let rec labelAdd (labelDec) =
         let
           let label = !nextLabel
         in
@@ -94,12 +94,12 @@ struct
                 nextLabel := label + 1;
                 label)
         end
-    fun labelSize () = (!nextLabel)
-    fun labelReset () = (nextLabel := 0)
+    let rec labelSize () = (!nextLabel)
+    let rec labelReset () = (nextLabel := 0)
 
 
-    fun lemmaLookup lemma = Array.sub (lemmaArray, lemma)
-    fun lemmaAdd (lemmaDec) =
+    let rec lemmaLookup lemma = Array.sub (lemmaArray, lemma)
+    let rec lemmaAdd (lemmaDec) =
         let
           let lemma = !nextLemma
         in
@@ -109,10 +109,10 @@ struct
                 nextLemma := lemma + 1;
                 lemma)
         end
-    fun lemmaSize () = (!nextLemma)
+    let rec lemmaSize () = (!nextLemma)
 
 (* hack!!! improve !!!! *)
-    fun listToCtx (Gin) =
+    let rec listToCtx (Gin) =
       let
         let rec listToCtx' = function (G, nil) -> G
           | (G, D :: Ds) -> 
@@ -121,7 +121,7 @@ struct
         listToCtx' (I.Null, Gin)
       end
 
-    fun ctxToList (Gin) =
+    let rec ctxToList (Gin) =
       let
         let rec ctxToList' = function (I.Null, G ) -> G
           | (I.Decl (G, D), G') -> 
@@ -163,7 +163,7 @@ struct
        and     Psi |- w' : Psi1, LD\1   (w' is a weakening substitution)
        and     LD\1 is LD if LD is prim, and LD\1 = x:A if LD = G, x:A
    *)
-    fun lfctxLFDec (Psi, k) =
+    let rec lfctxLFDec (Psi, k) =
       let
         let rec lfctxLFDec' = function (I.Decl (Psi', LD as Prim (I.Dec (x, V'))), 1) -> 
               (LD, I.Shift k)
@@ -253,7 +253,7 @@ struct
       | (And (F1, F2), s) -> 
           And (forSub (F1, s), forSub (F2, s))
 
-    fun mdecSub (MDec (name, F), s) = MDec (name, forSub (F, s))
+    let rec mdecSub (MDec (name, F), s) = MDec (name, forSub (F, s))
 
 
     let rec normalizeFor = function (All (Prim D, F), s) -> 

@@ -1,21 +1,21 @@
 (* Not Trailing Abstract Operations *)
 (* Author: Roberto Virga *)
 
-(NoTrail : TRAI)L =
+(NoTrail : TRAIL) =
 struct
 
   type 'a trail = unit
 
-  fun trail () = ()
+  let rec trail () = ()
 
-  fun suspend ((), copy) = ()
-  fun resume ((),(), reset) = ()
+  let rec suspend ((), copy) = ()
+  let rec resume ((),(), reset) = ()
   
-  fun reset () = ()
+  let rec reset () = ()
 
-  fun mark () = ()
+  let rec mark () = ()
 
-  fun unwind ((), undo) = ()
+  let rec unwind ((), undo) = ()
 
-  fun log ((), action) = ()
+  let rec log ((), action) = ()
 end;; (* module NoTrail *)

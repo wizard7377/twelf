@@ -9,9 +9,9 @@ struct
   let zero = fromInt 0
   let one = fromInt 1
 
-  fun solve_gcd (m, n) =
+  let rec solve_gcd (m, n) =
         let
-          fun solve' (m, n) =
+          let rec solve' (m, n) =
                 let
                   let q = quot (m, n)
                   let r = rem (m, n)
@@ -34,16 +34,16 @@ struct
           else (fn (x, y) => (sm*y, sn*x)) (solve' (an, am))
         end
 
-  fun gcd (m, n) =
+  let rec gcd (m, n) =
         let
           let (x, y) = solve_gcd (m, n)
         in
           m*x + n*y
         end
 
-  fun lcm (m, n) = quot (m*n, gcd (m, n))
+  let rec lcm (m, n) = quot (m*n, gcd (m, n))
 
-  fun fromString (str) =
+  let rec fromString (str) =
         let
           let rec check = function (chars as (c :: chars')) -> 
                 if (c = #"~")

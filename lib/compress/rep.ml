@@ -64,7 +64,7 @@ handle Syntax.Syntax _ => (print ("--> " ^ Int.toString cid); raise Match))
 let rec gen_graph n autoCompress =
     let
 	let _ = autoCompress n 
-	fun sanity n = if n < 0 then true else 
+	let rec sanity n = if n < 0 then true else 
 		       (sanity (n-1) andalso (if sanityCheck n then true else (print ("insane: <" ^ (Int.toString n) ^ ">\n"); raise Crap)) )
 	let _ = sanity n 
 	let pairs = List.tabulate (n+1, (fun x -> ( o_cidSize x, cidSize x) ))

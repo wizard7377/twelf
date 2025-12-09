@@ -83,12 +83,12 @@ struct
     let Kind = Level 2
     let Hyperkind = Level 3
 
-    fun newLVar () = LVar (ref NONE)
-    fun newCVar () = CVar (ref NONE)
+    let rec newLVar () = LVar (ref NONE)
+    let rec newCVar () = CVar (ref NONE)
 
     (* whnfUni (l) = l'
        where l = l' and l' is in whnf *)
-    fun whnfUni (Next L) =
+    let rec whnfUni (Next L) =
         (case whnfUni L
            of Level i => Level (i+1)
             | L' => Next L')
@@ -97,7 +97,7 @@ struct
 
     (* whnf (u) = u'
        where u = u' and u' is in whnf *)
-    fun whnf (CVar (ref (SOME V))) = whnf V
+    let rec whnf (CVar (ref (SOME V))) = whnf V
       | whnf V = V
                  
     local
@@ -105,17 +105,17 @@ struct
       type varEntry = (Exp * Exp * Uni) * string
       let varList : varEntry list ref = ref nil
     in
-      fun varReset () = (varList := nil)
-      fun varLookupRef r = List.find (fn ((CVar r', _, _), _) => r = r') (!varList)
-      fun varLookupName name = List.find (fn (_, name') => name = name') (!varList)
-      fun varInsert ((U, V, L), name) = (varList := ((U, V, L), name)::(!varList))
+      let rec varReset () = (varList := nil)
+      let rec varLookupRef r = List.find (fn ((CVar r', _, _), _) => r = r') (!varList)
+      let rec varLookupName name = List.find (fn (_, name') => name = name') (!varList)
+      let rec varInsert ((U, V, L), name) = (varList := ((U, V, L), name)::(!varList))
 
       exception Ambiguous
 
       (* getReplacementName (u, v, l, allowed) = name
          if u : v : l
          and u is a CVar at type family or kind level *)
-      fun getReplacementName (U as CVar r, V, L, allowed) =
+      let rec getReplacementName (U as CVar r, V, L, allowed) =
           (case varLookupRef r
              of SOME (_, name) => name
               | NONE =>
@@ -125,7 +125,7 @@ struct
                                of Level 2 => "A"
                                 | Level 3 => "K"
                                   (* others impossible by invariant *)
-                  fun try i =
+                  let rec try i =
                       let
                         let name = "%" ^ pref ^ Int.toString i ^ "%"
                       in
@@ -140,7 +140,7 @@ struct
       (* findByReplacementName (name) = (u, v, l)
          if getReplacementName (u, v, l, allowed) = name was already called
          then u : v : l *)
-      fun findByReplacementName name =
+      let rec findByReplacementName name =
           (case varLookupName name
              of SOME (UVL, _) => UVL
                 (* must be in list by invariant *))
@@ -185,7 +185,7 @@ struct
   (* classToApx (V) = (V-, L-)
      if G |- V : L
      or G |- V ":" L = "hyperkind" *)
-  fun classToApx (V) =
+  let rec classToApx (V) =
       let
         let (V', L') = expToApx (V)
         let Uni L'' = whnf L'
@@ -195,7 +195,7 @@ struct
 
   (* exactToApx (U, V) = (U-, V-)
      if G |- U : V *)
-  fun exactToApx (U, V) =
+  let rec exactToApx (U, V) =
       let
         let (V', L') = classToApx (V)
       in
@@ -211,7 +211,7 @@ struct
 
   (* constDefApx (d) = V-
      if |- d = V : type *)
-  fun constDefApx d =
+  let rec constDefApx d =
       (case I.sgnLookup d
          of I.ConDef (_, _, _, U, _, _, _) =>
             let
@@ -232,7 +232,7 @@ struct
   let rec apxToUniW = function (Level 1) -> I.Type
     | (Level 2) -> I.Kind
       (* others impossible by invariant *)
-  fun apxToUni L = apxToUniW (whnfUni L)
+  let rec apxToUni L = apxToUniW (whnfUni L)
 
   (* apxToClass (G, v, L-, allowed) = V
      pre: L is ground and <= Hyperkind,
@@ -314,7 +314,7 @@ struct
           if r = r' then raise Unify "Level circularity"
           else ()
       | (r, _) -> ()
-    fun occurUni (r, L) = occurUniW (r, whnfUni L)
+    let rec occurUni (r, L) = occurUniW (r, whnfUni L)
 
     (* matchUni (l1, l2) = ()
        iff l1<I> = l2<I> for some most general instantiation I
@@ -339,7 +339,7 @@ struct
       | (L1, LVar r2) -> 
           (occurUniW (r2, L1);
            r2 := SOME L1)
-    fun matchUni (L1, L2) = matchUniW (whnfUni L1, whnfUni L2)
+    let rec matchUni (L1, L2) = matchUniW (whnfUni L1, whnfUni L2)
 
     (* occur (r, u) = ()
        iff r does not occur in u,
@@ -397,7 +397,7 @@ struct
       | _ -> raise Unify "Type/kind expression clash"
     and match (U1, U2) = matchW (whnf U1, whnf U2)
 
-    fun matchable (U1, U2) = (match (U1, U2); true)
+    let rec matchable (U1, U2) = (match (U1, U2); true)
                              handle Unify _ => false
 
     let rec makeGroundUni = function (Level _) -> false

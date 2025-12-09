@@ -50,7 +50,7 @@ struct
        in the type of an input (+) argument
     *)
 
-    fun error (r, msg) = raise Error (P.wrap (r, msg))
+    let rec error (r, msg) = raise Error (P.wrap (r, msg))
 
     (* checkname mS = ()
 
@@ -62,7 +62,7 @@ struct
     let rec checkName = function (M.Mnil) -> ()
       | (M.Mapp (M.Marg (_, SOME name), mS)) -> 
         let
-          fun checkName' (M.Mnil) = ()
+          let rec checkName' (M.Mnil) = ()
             | checkName' (M.Mapp (M.Marg (_, SOME name'), mS)) =
               if name = name' then
                 raise Error ("Variable name clash: " ^ name ^ " is not unique")
@@ -213,7 +213,7 @@ struct
        then  mS' = {m1} .. {mn} mS
        where m1 .. mn are the infered modes for the implicit parameters
     *)
-    fun abstractMode (ms, mS) =
+    let rec abstractMode (ms, mS) =
         let
           let rec abstractMode' = function (I.Null, mS, _) -> mS
             | (I.Decl (ms, (marg, _)), mS, k) -> 
@@ -232,7 +232,7 @@ struct
 
        Full form can be different then intended by the user.
     *)
-    fun shortToFull (a, mS, r) =
+    let rec shortToFull (a, mS, r) =
       let
         let rec calcImplicit' = function (I.ConDec (_, _, k, _, V, _)) -> 
               abstractMode (inferMode (empty (k, I.Null, V), mS), mS)
@@ -252,7 +252,7 @@ struct
        if mS is not a valid mode spine in full form then
        exception Error is raised.
     *)
-    fun checkFull (a, mS, r) =
+    let rec checkFull (a, mS, r) =
         (checkName mS;
          case I.sgnLookup a
            of I.ConDec (_, _, _, _, V, _)  =>

@@ -40,9 +40,9 @@ struct
        then Ss' is a list of initial states for the theorem prover
     *)
 
-    fun init (F, OF) =
+    let rec init (F, OF) =
       let
-        fun init' ((G, B), S.All (_, O), F.All (F.Prim D, F'), Ss) =
+        let rec init' ((G, B), S.All (_, O), F.All (F.Prim D, F'), Ss) =
             let
               let D' = Names.decName (G, D)
             in

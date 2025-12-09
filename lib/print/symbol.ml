@@ -1,7 +1,7 @@
 module SymbolAscii () : SYMBOL =
 struct
 
-  fun idSize s = (s, String.size s)
+  let rec idSize s = (s, String.size s)
 
   let str = idSize
   let evar = idSize
@@ -10,7 +10,7 @@ struct
   let skonst = idSize
   let label = idSize
   let def = idSize
-  fun fvar s = idSize ("`" ^ s)
+  let rec fvar s = idSize ("`" ^ s)
   let sym = idSize
 
 end;; (* functor SymbolAscii *)
@@ -40,7 +40,7 @@ struct
     | #"9" -> "$_9$"
     | c -> String.str c
 
-  fun quote s = String.translate quoteChar s
+  let rec quote s = String.translate quoteChar s
 
   (*
   let rec mathQuoteChar = function #"\\" -> "\\\\"
@@ -60,17 +60,17 @@ struct
     | #"9" -> "{_9}"
     | c -> String.str c
 
-  fun mathQuote s = String.translate mathQuoteChar s
+  let rec mathQuote s = String.translate mathQuoteChar s
   *)
 
-  fun str s = ("\\Str{" ^ quote s ^ "}", String.size s)
-  fun evar s = ("\\EVar{" ^ quote s ^ "}", String.size s)
-  fun bvar s = ("\\BVar{" ^ quote s ^ "}", String.size s)
-  fun const s = ("\\Const{" ^ quote s ^ "}", String.size s)
-  fun label s = ("\\Label{" ^ quote s ^ "}", String.size s)
-  fun skonst s = ("\\Skonst{" ^ quote s ^ "}", String.size s)
-  fun def s = ("\\Def{" ^ quote s ^ "}", String.size s)
-  fun fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
+  let rec str s = ("\\Str{" ^ quote s ^ "}", String.size s)
+  let rec evar s = ("\\EVar{" ^ quote s ^ "}", String.size s)
+  let rec bvar s = ("\\BVar{" ^ quote s ^ "}", String.size s)
+  let rec const s = ("\\Const{" ^ quote s ^ "}", String.size s)
+  let rec label s = ("\\Label{" ^ quote s ^ "}", String.size s)
+  let rec skonst s = ("\\Skonst{" ^ quote s ^ "}", String.size s)
+  let rec def s = ("\\Def{" ^ quote s ^ "}", String.size s)
+  let rec fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
 
   let rec sym = function "->" -> ("$\\rightarrow$", 1)
     | "<-" -> ("$\\leftarrow$", 1)
@@ -111,7 +111,7 @@ struct
     | #"9" -> "$_9$"
     | c -> String.str c
 
-  fun quote s = String.translate quoteChar s
+  let rec quote s = String.translate quoteChar s
 
   (*
   let rec mathQuoteChar = function #"\\" -> "\\\\"
@@ -131,17 +131,17 @@ struct
     | #"9" -> "{_9}"
     | c -> String.str c
 
-  fun mathQuote s = String.translate mathQuoteChar s
+  let rec mathQuote s = String.translate mathQuoteChar s
   *)
 
-  fun str s = ("\\Str{" ^ quote s ^ "}", String.size s)
-  fun evar s = ("\\EVar{" ^ quote s ^ "}", String.size s)
-  fun bvar s = ("\\BVar{" ^ quote s ^ "}", String.size s)
-  fun const s = ("\\Const{" ^ quote s ^ "}", String.size s)
-  fun label s = ("\\Label{" ^ quote s ^ "}", String.size s)
-  fun skonst s = ("\\Skonst{" ^ quote s ^ "}", String.size s)
-  fun def s = ("\\Def{" ^ quote s ^ "}", String.size s)
-  fun fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
+  let rec str s = ("\\Str{" ^ quote s ^ "}", String.size s)
+  let rec evar s = ("\\EVar{" ^ quote s ^ "}", String.size s)
+  let rec bvar s = ("\\BVar{" ^ quote s ^ "}", String.size s)
+  let rec const s = ("\\Const{" ^ quote s ^ "}", String.size s)
+  let rec label s = ("\\Label{" ^ quote s ^ "}", String.size s)
+  let rec skonst s = ("\\Skonst{" ^ quote s ^ "}", String.size s)
+  let rec def s = ("\\Def{" ^ quote s ^ "}", String.size s)
+  let rec fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
 
   let rec sym = function "->" -> ("$\\rightarrow$", 1)
     | "<-" -> ("$\\leftarrow$", 1)

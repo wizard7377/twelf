@@ -2,13 +2,13 @@ local
   module F = FunSyn;
   module I = IntSyn 
 
-  fun load file =
+  let rec load file =
     case Twelf.Config.load (Twelf.Config.read file)
       of Twelf.OK => Twelf.OK
        | Twelf.ABORT => raise Domain;
 	
 
-  fun test names =
+  let rec test names =
     (let 
       let a = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
       let name = foldr op^ "" names

@@ -1,7 +1,7 @@
 (* Sparse 1-Dimensional Arrays *)
 (* Author: Roberto Virga *)
 
-module SparseArray (IntTable : TABLE where type key = int)
+module SparseArray (IntTable : TABLE with type key = int)
   :> SPARSE_ARRAY =
 struct
 
@@ -9,45 +9,45 @@ struct
 
   let size = 29;
 
-  fun unsafeSub ({table, default}, i) =
+  let rec unsafeSub ({table, default}, i) =
         case (IntTable.lookup table i)
           of NONE => default
            | SOME(v) => v
 
-  fun unsafeUpdate ({table, default}, i, v) =
+  let rec unsafeUpdate ({table, default}, i, v) =
         IntTable.insert table (i, v)
 
-  fun array default =
+  let rec array default =
         {default = default, table = IntTable.new size}
 
-  fun sub (array, i) =
+  let rec sub (array, i) =
         if (i >= 0)
         then unsafeSub (array, i)
         else raise General.Subscript
 
-  fun update (array, i, v) =
+  let rec update (array, i, v) =
         if (i >= 0)
         then unsafeUpdate (array, i, v)
         else raise General.Subscript
 
-  fun extract (array, i, len) =
+  let rec extract (array, i, len) =
         if (i >= 0) andalso (len >= 0)
         then Vector.tabulate (len, (fun off -> unsafeSub (array, i+off)))
         else raise General.Subscript
 
-  fun copyVec {src, si, len, dst, di} =
+  let rec copyVec {src, si, len, dst, di} =
         if (di >= 0)
         then
           VectorSlice.appi (fn (i, v) => unsafeUpdate (dst, i, v))
                            (VectorSlice.slice (src, si, len))
         else raise General.Subscript
 
-  fun app f (array, i, len) =
+  let rec app f (array, i, len) =
         if (i >= 0) andalso (len >= 0)
         then
           let
             let imax = i+len
-            fun app' i' =
+            let rec app' i' =
                   if (i' < imax)
                   then
                     (
@@ -60,11 +60,11 @@ struct
           end
         else raise General.Subscript
 
-  fun foldl f init (array, i, len) =
+  let rec foldl f init (array, i, len) =
         if (i >= 0) andalso (len >= 0)
         then
           let
-            fun foldl' i' =
+            let rec foldl' i' =
                   if (i' >= i)
                   then f(i', unsafeSub (array, i'), foldl' (i'-1))
                   else init
@@ -73,12 +73,12 @@ struct
           end
         else raise General.Subscript
 
-  fun foldr f init (array, i, len) =
+  let rec foldr f init (array, i, len) =
         if (i >= 0) andalso (len >= 0)
         then
           let
             let imax = i+len
-            fun foldr' i' =
+            let rec foldr' i' =
                   if (i' < imax)
                   then f(i', unsafeSub (array, i'), foldr' (i'+1))
                   else init
@@ -87,12 +87,12 @@ struct
           end
         else raise General.Subscript
 
-  fun modify f (array, i, len) =
+  let rec modify f (array, i, len) =
         if (i >= 0) andalso (len >= 0)
         then
           let
             let imax = i+len
-            fun modify' i' =
+            let rec modify' i' =
                   if (i' < imax)
                   then
                     (

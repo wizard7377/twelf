@@ -9,7 +9,7 @@ struct
 	let sigmat : tClass list ref = ref []
 	let sigmap : bool list ref = ref []
 
-	fun clear () = let in
+	let rec clear () = let in
 			   sigma := [];
 			   sigmat := [];
 			   sigmap := []
@@ -17,7 +17,7 @@ struct
 
 	let rec findn = function [] (v : string) -> raise NotFound v
 	  | (v::tl) v' -> if v = v' then 0 else 1 + findn tl v'
-	fun findid ctx v = (Var(findn ctx v) handle NotFound _ =>
+	let rec findid ctx v = (Var(findn ctx v) handle NotFound _ =>
 							Const(findn (!sigma) v))
 	let rec modeconvert = function Parse.mMINUS -> MINUS
 	  | Parse.mPLUS -> PLUS
@@ -57,7 +57,7 @@ struct
 					       in (n, m, s @ [u]) end
 	  | (G, _) -> raise Convert "level mismatch" 
 
-	fun safezip (l1, l2) = if length l1 = length l2 
+	let rec safezip (l1, l2) = if length l1 = length l2 
 			       then ListPair.zip (l1,l2)
 			       else raise Convert "wrong spine length"
 

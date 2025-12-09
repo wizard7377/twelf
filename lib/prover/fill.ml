@@ -61,7 +61,7 @@ struct
        If   |- S state
        then op' satifies representation invariant.
     *)
-    fun expand (S.FocusLF (Y as I.EVar (r, G, V, _))) =   (* Y is lowered *)
+    let rec expand (S.FocusLF (Y as I.EVar (r, G, V, _))) =   (* Y is lowered *)
       let
         let rec try = function (Vs as (I.Root _, _), Fs, O) -> 
           (CSManager.trail (fn () => (Unify.unify (G, Vs, (V, I.id)); O :: Fs))
@@ -103,7 +103,7 @@ struct
     let rec apply = function (FillWithBVar(Y as I.EVar (r, G, V, _), n)) -> (* Y is lowered *)
       let
         (* Invariant : G |- s : G'   G' |- V : type *)
-        fun doit (Vs as (I.Root _, _),  k) =
+        let rec doit (Vs as (I.Root _, _),  k) =
             (Unify.unify (G, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
           | doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
             let
@@ -119,7 +119,7 @@ struct
       end
     | (FillWithConst(Y as I.EVar (r, G0, V, _), c)) -> 
       let
-        fun doit (Vs as (I.Root _, _),  k) =
+        let rec doit (Vs as (I.Root _, _),  k) =
             (Unify.unify (G0, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
           | doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
             let

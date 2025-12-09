@@ -12,7 +12,7 @@ sig
   let foldl : (int * 'b -> 'b) -> 'b -> intset -> 'b
 end;
 
-(IntSet : INTSE)T =
+(IntSet : INTSET) =
 struct
 
   type rbt =
@@ -34,7 +34,7 @@ struct
 
   local
 
-  fun lookup dict x =
+  let rec lookup dict x =
     let
       let rec lk = function (Empty) -> false
 	| (Red tree) -> lk' tree
@@ -72,7 +72,7 @@ struct
 
   (* restore_left is like restore_right, except *)
   (* the color invariant may be violated only at the root of left child *)
-  fun restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
+  let rec restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
 	 Red(e, Black lt, Black rt)	(* re-color *)
     | restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
 	 Red(e, Black lt, Black rt)	(* re-color *)
@@ -84,7 +84,7 @@ struct
 	 Black(lre, Red(le, ll, lrl), Red(e, lrr, r))
     | restore_left dict = dict
 
-  fun insert (dict, x) =
+  let rec insert (dict, x) =
     let
       (* let ins : 'a dict -> 'a dict  inserts entry *)
       (* ins (Red _) may violate color invariant at root *)
@@ -112,7 +112,7 @@ struct
     let empty = Empty
     let insert = fn (x,t) => insert (t, x)
     let member = fn (x,t) => lookup t x
-    fun foldl f a t =
+    let rec foldl f a t =
         let fun fo (Empty, r) = r
               | fo (Red (x, left, right), r) =
 	          fo (right, f (x, fo (left, r)))

@@ -42,7 +42,7 @@ struct
        and  G |- W [1.2...n. s o ^n] = V' [s']
        and  G |- S : V [s] >  V' [s']
     *)
-    fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
+    let rec createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
     and createEVarSpineW (G, Vs as (I.Uni I.Type, s)) = (I.Nil, Vs) (* s = id *)
       | createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
       | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
@@ -60,7 +60,7 @@ struct
        then . |- U' = c @ (Xn; .. Xn; Nil)
        and  . |- U' : V' [s']
     *)
-    fun createAtomConst (G, H) =
+    let rec createAtomConst (G, H) =
       let
         let cid = (case H
                      of (I.Const cid) => cid
@@ -78,7 +78,7 @@ struct
        then . |- U' = k @ (Xn; .. Xn; Nil)
        and  . |- U' : V' [s']
     *)
-    fun createAtomBVar (G, k) =
+    let rec createAtomBVar (G, k) =
       let
         let I.Dec (_, V) = I.ctxDec (G, k)
         let (S, Vs) = createEVarSpine (G, (V, I.id))

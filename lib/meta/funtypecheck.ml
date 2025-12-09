@@ -40,7 +40,7 @@ struct
     let rec conv = function (Gs, Gs') -> 
       let
         exception Conv
-        fun conv ((I.Null, s), (I.Null, s')) = (s, s')
+        let rec conv ((I.Null, s), (I.Null, s')) = (s, s')
           | conv ((I.Decl (G, I.Dec (_, V)), s),
                   (I.Decl (G', I.Dec (_, V')), s')) =
             let
@@ -82,7 +82,7 @@ struct
        and  G == x1:A1 .. xn:An
     *)
 
-    fun validBlock (Psi, k, (l, G)) =
+    let rec validBlock (Psi, k, (l, G)) =
       let
         let rec skipBlock = function (I.Null, k) -> k
           | (I.Decl (G', _), k) -> skipBlock (G', k-1)
@@ -111,7 +111,7 @@ struct
        and  Psi, l:G |- Psi' ctx
        then Psi, {G} Psi', l:G|- s' : Psi, l:G, Psi'
     *)
-    fun raiseSub (G, Psi') =
+    let rec raiseSub (G, Psi') =
       let
         let n = I.ctxLength G
         let m = I.ctxLength Psi'
@@ -126,7 +126,7 @@ struct
               else args (n'-1, a, S)
             end
 
-        fun term m' =
+        let rec term m' =
             let
               let I.Dec (_, V) = I.ctxDec (Psi', m')
             in
@@ -151,7 +151,7 @@ struct
        L' preserves the order of L
     *)
 
-    fun raiseType (F.CtxBlock (l, G), Psi') =
+    let rec raiseType (F.CtxBlock (l, G), Psi') =
       let
         let rec raiseType'' = function (I.Null, Vn, a) -> Vn
           | (I.Decl (G', D as I.Dec (_, V')), Vn, a) -> 
@@ -205,19 +205,19 @@ struct
       | (I.Decl (Delta, DD), s) -> 
           I.Decl (deltaSub (Delta, s), F.mdecSub (DD, s))
 
-    fun shift Delta = deltaSub (Delta, I.shift)
+    let rec shift Delta = deltaSub (Delta, I.shift)
 
     let rec shifts = function (I.Null, Delta) -> Delta
       | (I.Decl (G, _), Delta) -> 
           shifts (G, shift Delta)
 
-    fun shiftBlock (F.CtxBlock (_, G), Delta) =
+    let rec shiftBlock (F.CtxBlock (_, G), Delta) =
       shifts (G, Delta)
 
     let rec shiftSub = function (I.Null, s) -> s
       | (I.Decl (G, _), s) -> shiftSub (G, I.comp (I.shift, s))
 
-    fun shiftSubBlock (F.CtxBlock (_, G), s) =
+    let rec shiftSubBlock (F.CtxBlock (_, G), s) =
       shiftSub (G, s)
 
     (* check (Psi, Delta, P, (F, s)) = ()
@@ -427,7 +427,7 @@ struct
            (* [Psi' strict in  t] <------------------------- omission*)
            checkOpts(Psi, Delta, O, (F', s')))
 
-    fun checkRec (P, T) =
+    let rec checkRec (P, T) =
       check (I.Null, I.Null, P, (T, I.id))
 
 
@@ -474,7 +474,7 @@ struct
 
        Remark: Function is only partially implemented
     *)
-    fun isState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
+    let rec isState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
         (TypeCheck.typeCheckCtx G;
          checkTags (G, B);
          if (not (Abstract.closedCtx G)) then raise Error "State context not closed!" else ();

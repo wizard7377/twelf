@@ -61,7 +61,7 @@ struct
     *)
 
    (* copied from worldcheck/worldsyn.fun *)
-    fun wrapMsg (c, occ, msg) =
+    let rec wrapMsg (c, occ, msg) =
         (case Origins.originLookup c
            of (fileName, NONE) => (fileName ^ ":" ^ msg)
             | (fileName, SOME occDec) =>
@@ -69,7 +69,7 @@ struct
                              Origins.linesInfoLookup (fileName),
                              "Constant " ^ Names.qidToString (Names.constQid c) ^ "\n" ^ msg)))
 
-    fun wrapMsg' (fileName, r, msg) =
+    let rec wrapMsg' (fileName, r, msg) =
           P.wrapLoc (P.Loc (fileName, r), msg)
 
     exception ModeError of P.occ * string
@@ -81,7 +81,7 @@ struct
        Raises an error if no mode for a has declared.
        (occ is used in error message)
     *)
-    fun lookup (a, occ) =
+    let rec lookup (a, occ) =
         case ModeTable.mmodeLookup a
           of nil => raise Error' (occ, "No mode declaration for " ^ I.conDecName (I.sgnLookup a))
            | sMs => sMs
@@ -194,7 +194,7 @@ struct
            else raise Eta
          end)
 
-    fun isPattern (D, k, S) =
+    let rec isPattern (D, k, S) =
         (checkPattern (D, k, nil, S); true)
         handle Eta => false
 
@@ -471,7 +471,7 @@ struct
     (* updateAtom (D, m, S, a, mS, (p, occ))
        see updateAtom', and performs additional freeness check if required
     *)
-    fun updateAtom (D, mode, S, a, mS, (p, occ)) =
+    let rec updateAtom (D, mode, S, a, mS, (p, occ)) =
         let
           let _ = if !checkFree
                     then freeAtom (D, ambiguate mode, S, (I.constType a, I.id), mS, (p, occ))
@@ -606,12 +606,12 @@ struct
     (* ctxPush (Ds, m) = Ds'
        raises the contexts Ds prepending m
     *)
-    fun ctxPush (m, Ds) = List.map (fun D -> I.Decl (D, m)) Ds
+    let rec ctxPush (m, Ds) = List.map (fun D -> I.Decl (D, m)) Ds
 
     (* ctxPop Ds = Ds'
        lowers the contexts Ds
     *)
-    fun ctxPop Ds = List.map (fn I.Decl (D, m) => D) Ds
+    let rec ctxPop Ds = List.map (fn I.Decl (D, m) => D) Ds
 
     (* checkD1 (D, V, occ, k) = ()
 
@@ -640,10 +640,10 @@ struct
       | (D, I.Root (I.Const a, S), occ, k) -> 
           let
             (* for a declaration, all modes must be satisfied *)
-            fun checkAll nil = ()
+            let rec checkAll nil = ()
               | checkAll (mS :: mSs) =
                   let
-                    fun checkSome [D'] =
+                    let rec checkSome [D'] =
                           (* D' is the only (last) possibility; on failure, we raise ModeError *)
                           (
                             groundAtom (D', M.Minus, S, mS, (1, occ)); (* ignore return *)
@@ -665,10 +665,10 @@ struct
       | (D, I.Root (I.Def d, S), occ, k) -> 
           let
             (* for a declaration, all modes must be satisfied *)
-            fun checkAll nil = ()
+            let rec checkAll nil = ()
               | checkAll (mS :: mSs) =
                   let
-                    fun checkSome [D'] =
+                    let rec checkSome [D'] =
                           (* D' is the only (last) possibility; on failure, we raise ModeError *)
                           (
                             groundAtom (D', M.Minus, S, mS, (1, occ)); (* ignore return *)
@@ -777,7 +777,7 @@ struct
 
        otherwise exception ModeError is raised (occ used in error messages)
     *)
-    fun checkDlocal (D, V, occ) =
+    let rec checkDlocal (D, V, occ) =
           (checkD1 (D, V, occ, fn D' => [D'])
            handle ModeError (occ, msg) => raise Error' (occ, msg))
 
@@ -794,7 +794,7 @@ struct
 
        (occOpt is used in error messages)
     *)
-    fun checkD (conDec, fileName, occOpt) =
+    let rec checkD (conDec, fileName, occOpt) =
         let
           let _ = (checkFree := false)
           let rec checkable = function (I.Root (Ha, _)) -> 
@@ -831,7 +831,7 @@ struct
            handle Error' (occ, msg) => raise Error (wrapMsg (d, occ, msg));
          checkAll clist)
 
-    fun checkMode (a, ms) =
+    let rec checkMode (a, ms) =
         let
           let _ = if !Global.chatter > 3
                     then print ("Mode checking family " ^ Names.qidToString (Names.constQid a) ^ ":\n")
@@ -844,7 +844,7 @@ struct
           ()
         end
 
-    fun checkFreeOut (a, ms) =
+    let rec checkFreeOut (a, ms) =
         let
           let _ = if !Global.chatter > 3
                     then print ("Checking output freeness of " ^ Names.qidToString (Names.constQid a) ^ ":\n")

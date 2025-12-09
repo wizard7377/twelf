@@ -23,12 +23,12 @@ struct
     let rec headToString = function (G, I.Const (c)) -> N.qidToString (N.constQid c)
       | (G, I.Def (d)) -> N.qidToString (N.constQid d)
       | (G, I.BVar(k)) -> N.bvarName (G, k)
-    fun expToString (GU) = P.expToString (GU) ^ ". "
-    fun decToString (GD) = P.decToString (GD) ^ ". "
-    fun eqnToString (G, U1, U2) =
+    let rec expToString (GU) = P.expToString (GU) ^ ". "
+    let rec decToString (GD) = P.decToString (GD) ^ ". "
+    let rec eqnToString (G, U1, U2) =
           P.expToString (G, U1) ^ " = " ^ P.expToString (G, U2) ^ ". "
 
-    fun newline () = print "\n"
+    let rec newline () = print "\n"
 
     let rec printCtx = function (I.Null) -> print "No hypotheses or parameters. "
       | (I.Decl(I.Null, D)) -> 
@@ -38,7 +38,7 @@ struct
            newline ();
            print (decToString (G, D)))
 
-    fun evarsToString (Xnames) =
+    let rec evarsToString (Xnames) =
         let
           let inst = P.evarInstToString (Xnames)
           let constrOpt = P.evarCnstrsToStringOpt (Xnames)
@@ -55,9 +55,9 @@ struct
                       varsToEVarInst (names))
            | SOME(X) => (X,name)::varsToEVarInst (names)
 
-    fun printVars (names) = print (evarsToString (varsToEVarInst names))
+    let rec printVars (names) = print (evarsToString (varsToEVarInst names))
 
-    fun printVarstring (line) =
+    let rec printVarstring (line) =
           printVars (List.tl (String.tokens Char.isSpace line))
 
     type 'a Spec =
@@ -106,7 +106,7 @@ struct
       | (Some (names)) -> breakTSpec := Some (toCids names)
       | (All) -> breakTSpec := All
 
-    fun printHelp () =
+    let rec printHelp () =
         print
 "<newline> - continue --- execute with current settings\n\
 \n - next --- take a single step\n\
@@ -128,24 +128,24 @@ struct
     let currentEVarInst : (I.Exp * string) list ref =
           ref nil
 
-    fun setEVarInst (Xs) =
+    let rec setEVarInst (Xs) =
         currentEVarInst := List.map (fun X -> (X, N.evarName (I.Null, X))) Xs
 
-    fun setGoal (G, V) =
+    let rec setGoal (G, V) =
         (currentGoal := (G, V);
          setEVarInst (Abstract.collectEVars (G, (V, I.id), nil)))
 
     type goalTag = int option
 
     let tag : goalTag ref = ref NONE
-    fun tagGoal () =
+    let rec tagGoal () =
         case !tag
           of NONE => NONE
            | SOME(n) => (tag := SOME(n+1); !tag)
 
     let watchForTag : goalTag ref = ref NONE
 
-    fun initTag () =
+    let rec initTag () =
         (watchForTag := NONE;
          case (!traceTSpec,!breakTSpec)
            of (None, None) => tag := NONE
@@ -154,7 +154,7 @@ struct
     let rec setWatchForTag = function (NONE) -> (watchForTag := !tag)
       | (SOME(n)) -> (watchForTag := SOME(n))
 
-    fun breakAction (G) =
+    let rec breakAction (G) =
         let
           let _ = print " "
           let line = Compat.inputLine97 (TextIO.stdIn)
@@ -184,7 +184,7 @@ struct
                      breakAction (G))
         end
 
-    fun init () =
+    let rec init () =
         (initTrace (!traceSpec);
          initBreak (!breakSpec);
          initTag ())
@@ -243,13 +243,13 @@ struct
         "% Unification failed with clause " ^ headToString (G, Hc) ^ ":\n"
         ^ msg
 
-    fun traceEvent (G, e) = print (eventToString (G, e))
+    let rec traceEvent (G, e) = print (eventToString (G, e))
 
     let rec monitorHead = function (cids, I.Const(c)) -> List.exists (fn c' => c = c') cids
       | (cids, I.Def(d)) -> List.exists (fn c' => d = c') cids
       | (cids, I.BVar(k)) -> false
 
-    fun monitorHeads (cids, (Hc, Ha)) =
+    let rec monitorHeads (cids, (Hc, Ha)) =
           monitorHead (cids, Hc) orelse monitorHead (cids, Ha)
 
     let rec monitorEvent = function (cids, IntroHyp (H, _)) -> 
@@ -314,7 +314,7 @@ struct
       | (All, G, e) -> 
           (maintain (G, e); traceEvent (G, e); newline (); true)
 
-    fun watchFor (e) =
+    let rec watchFor (e) =
         case !watchForTag
           of NONE => false
            | SOME(t) => (case e
@@ -325,12 +325,12 @@ struct
                             | FailGoal (SOME(t'), _, _) => (t' = t)
                             | _ => false)
 
-    fun skipping () =
+    let rec skipping () =
         case !watchForTag
           of NONE => false
            | SOME _ => true
 
-    fun signal (G, e) =
+    let rec signal (G, e) =
         if monitorDetail (e)
           then if skipping ()
                  then if watchFor (e)
@@ -348,17 +348,17 @@ struct
          print "]\n")
       | (msg, All) -> print (msg ^ " = All\n")
 
-    fun tracing () =
+    let rec tracing () =
         (case (!traceSpec, !breakSpec)
            of (None, None) => false
             | _ => true)
 
-    fun show () =
+    let rec show () =
         (showSpec ("trace", !traceSpec);
          showSpec ("break", !breakSpec);
          print ("detail = " ^ Int.toString (!detail) ^ "\n"))
 
-    fun reset () = (trace (None); break (None); detail := 1)
+    let rec reset () = (trace (None); break (None); detail := 1)
   end
 
 end;; (* functor Trace *)

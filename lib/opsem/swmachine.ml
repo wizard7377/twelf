@@ -8,7 +8,7 @@ struct
   (*! module IntSyn = AbsMachine.IntSyn !*)
   (*! module CompSyn = AbsMachine.CompSyn !*)
 
-  fun solve args =
+  let rec solve args =
     if Trace.tracing ()
       then TMachine.solve args
     else  AbsMachine.solve args

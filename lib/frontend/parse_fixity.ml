@@ -16,13 +16,13 @@ struct
     module LS = Lexer.Stream
     module FX = Names.Fixity
 
-    fun fixToString (FX.Strength(p)) = Int.toString p
+    let rec fixToString (FX.Strength(p)) = Int.toString p
 
     (* idToPrec (region, (idCase, name)) = n
        where n is the precedence indicated by name, which should consists
        of all digits.  Raises error otherwise, or if precedence it too large
     *)
-    fun idToPrec (r, (_, name)) =
+    let rec idToPrec (r, (_, name)) =
       let let prec = FX.Strength (L.stringToNat (name))
                      handle Overflow => Parsing.error (r, "Precedence too large")
                           | L.NotDigit _ => Parsing.error (r, "Precedence not a natural number")
@@ -62,10 +62,10 @@ struct
                             ^ L.toString t)
 
     (* parsePrefix "n id" where n is precedence *)
-    fun parsePrefix (f) = parseFixPrec (FX.Prefix, f)
+    let rec parsePrefix (f) = parseFixPrec (FX.Prefix, f)
 
     (* parsePostfix "n id" where n is precedence *)
-    fun parsePostfix (f) = parseFixPrec (FX.Postfix, f)
+    let rec parsePostfix (f) = parseFixPrec (FX.Postfix, f)
 
     (* parseFixity' : lexResult stream -> (name,fixity) * lexResult stream
        Invariant: token stream starts with %infix, %prefix or %postfix
@@ -75,7 +75,7 @@ struct
       | (LS.Cons ((L.POSTFIX, r), s')) -> parsePostfix (LS.expose s')
       (* anything else should be impossible *)
 
-    fun parseFixity (s) = parseFixity' (LS.expose (s))
+    let rec parseFixity (s) = parseFixity' (LS.expose (s))
 
     (*------------------------------------*)
     (* Parsing name preferences %name ... *)
@@ -130,9 +130,9 @@ struct
     (* parseNamePref' "%name id string" or "%name id string string"
        Invariant: token stream starts with %name
     *)
-    fun parseNamePref' (LS.Cons ((L.NAME, r), s')) = parseName1 (LS.expose s')
+    let rec parseNamePref' (LS.Cons ((L.NAME, r), s')) = parseName1 (LS.expose s')
 
-    fun parseNamePref (s) = parseNamePref' (LS.expose s)
+    let rec parseNamePref (s) = parseNamePref' (LS.expose s)
 
   in
     let parseFixity' = parseFixity'

@@ -17,7 +17,7 @@ struct
     module LS = Lexer.Stream
 
     (* parseConDec3  "U" *)
-    fun parseConDec3 (optName, optTm, s) =
+    let rec parseConDec3 (optName, optTm, s) =
         let
           let (tm', f') = ParseTerm.parseTerm' (LS.expose s)
         in
@@ -94,9 +94,9 @@ struct
 
 
     (* parseConDec --- currently not exported *)
-    fun parseConDec (s) = parseConDec' (LS.expose s)
-    fun parseAbbrev' (LS.Cons ((L.ABBREV, r), s)) = parseConDec (s)
-    fun parseClause' (LS.Cons ((L.CLAUSE, r), s)) = parseConDec (s) (* -fp *)
+    let rec parseConDec (s) = parseConDec' (LS.expose s)
+    let rec parseAbbrev' (LS.Cons ((L.ABBREV, r), s)) = parseConDec (s)
+    let rec parseClause' (LS.Cons ((L.CLAUSE, r), s)) = parseConDec (s) (* -fp *)
 
   in
     let parseConDec' = parseConDec'

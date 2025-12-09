@@ -5,7 +5,7 @@ module HashTable
   (type key'
    let hash : key' -> int
    let eq : key' * key' -> bool)
-  :> TABLE where type key = key' =
+  :> TABLE with type key = key' =
 struct
   type key = key'
   type 'a entry = key * 'a
@@ -15,14 +15,14 @@ struct
   type 'a bucket = Nil | Cons of 'a ref * ('a bucket) ref
   type 'a Table = ((int * 'a entry) bucket) array * int
 
-  fun new (n) = (Array.array (n,Nil), n)
+  let rec new (n) = (Array.array (n,Nil), n)
 
-  fun insertShadow (a,n) (e as (key, datum)) =
+  let rec insertShadow (a,n) (e as (key, datum)) =
       let
 	let hashVal = hash key
 	let index = hashVal mod n
 	let bucket = Array.sub (a, index)
-	fun insertB (Cons(r' as ref(hash', e' as (key', datum')), br')) =
+	let rec insertB (Cons(r' as ref(hash', e' as (key', datum')), br')) =
 	    if hashVal = hash' andalso eq (key, key')
 	       then (r' := (hashVal, e); SOME (e'))
 	    else insertBR (br')
@@ -37,9 +37,9 @@ struct
 	insertA bucket
       end
 
-  fun insert h e = (insertShadow h e; ())
+  let rec insert h e = (insertShadow h e; ())
 
-  fun lookup (a,n) key =
+  let rec lookup (a,n) key =
       let
 	let hashVal = hash key
 	let rec lookup' = function (Cons(ref(hash1, (key1, datum1)), br)) -> 
@@ -52,13 +52,13 @@ struct
 	lookup' bucket
       end
 
-  fun clear (a,n) = Array.modify (fun _ -> Nil) a
+  let rec clear (a,n) = Array.modify (fun _ -> Nil) a
 
   let rec appBucket = function f (Nil) -> ()
     | f (Cons(ref(_, e), br)) -> 
         (f e; appBucket f (!br))
 
-  fun app f (a,n) = Array.app (appBucket f) a
+  let rec app f (a,n) = Array.app (appBucket f) a
 end;; (* functor HashTable *)
 
 module type STRING_HASH =
@@ -66,12 +66,12 @@ sig
   let stringHash : string -> int
 end;
 
-(StringHash : STRING_HAS)H =
+(StringHash : STRING_HASH) =
 struct
-  fun stringHash (s) =
+  let rec stringHash (s) =
       (* sample 4 characters from string *)
       let
-	fun num (i) = Char.ord (String.sub (s,i)) mod 128
+	let rec num (i) = Char.ord (String.sub (s,i)) mod 128
 	let n = String.size (s)
       in
 	if n = 0 then 0
@@ -87,7 +87,7 @@ struct
 end;; (* module StringHash *)
 
 module StringHashTable
-  :> TABLE where type key = string =
+  :> TABLE with type key = string =
   HashTable (type key' = string
 	     let hash = StringHash.stringHash
 	     let eq = (op =));

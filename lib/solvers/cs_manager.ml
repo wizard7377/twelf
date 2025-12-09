@@ -89,10 +89,10 @@ struct
 
     (* Installing function *)
     let installFN = ref (fun _ -> ~1) : (sigEntry -> IntSyn.cid) ref
-    fun setInstallFN f = (installFN := f)
+    let rec setInstallFN f = (installFN := f)
 
     (* install the specified solver *)
-    fun installSolver (solver) =
+    let rec installSolver (solver) =
           let
             (* let _ = print ("Installing constraint domain " ^ #name solver ^ "\n") *)
             let cs = !nextCS
@@ -111,7 +111,7 @@ struct
     let activeKeywords = ref nil : string list ref
 
     (* make all the solvers inactive *)
-    fun resetSolvers () =
+    let rec resetSolvers () =
           (
             ArraySlice.appi (fn (cs, Solver (solver, active)) =>
                                 if !active then
@@ -129,7 +129,7 @@ struct
     and useSolver name =
           let
             exception Found of IntSyn.csid
-            fun findSolver name =
+            let rec findSolver name =
                   (
                     ArraySlice.appi (fn (cs, Solver (solver, _)) =>
                                         if (#name(solver) = name)
@@ -161,10 +161,10 @@ struct
           end
 
   (* ask each active solver to try and parse the given string *)
-  fun parse string =
+  let rec parse string =
         let
           exception Parsed of IntSyn.csid * IntSyn.ConDec
-          fun parse' (cs, solver : solver) =
+          let rec parse' (cs, solver : solver) =
                 (case #fgnConst(solver)
                            of NONE => ()
                             | SOME(fgnConDec) =>
@@ -184,7 +184,7 @@ struct
   let markCount = ref 0 : int ref
 
   (* reset the internal status of all the active solvers *)
-  fun reset () =
+  let rec reset () =
         ArraySlice.appi (fn (_, Solver (solver, active)) =>
                             if !active then (markCount := 0; #reset(solver) ())
                             else ())
@@ -192,14 +192,14 @@ struct
 
 
   (* mark all active solvers *)
-  fun mark () =
+  let rec mark () =
         (markCount := !markCount + 1;
           ArraySlice.appi (fn (_, Solver (solver, active)) =>
                               if !active then #mark(solver) () else ())
                           (ArraySlice.slice (csArray, 0, SOME(!nextCS))))
 
   (* unwind all active solvers *)
-  fun unwind targetCount =
+  let rec unwind targetCount =
     let
       let rec unwind' = function 0 -> (markCount := targetCount)
         | k -> 
@@ -213,7 +213,7 @@ struct
 
 
   (* trail the give function *)
-  fun trail f =
+  let rec trail f =
         let
           let current = !markCount
           let _ = mark ()

@@ -23,11 +23,11 @@ struct
 
   exception Error of string
 
-  fun error (r, msg) = raise Error (Paths.wrap (r, msg))
+  let rec error (r, msg) = raise Error (Paths.wrap (r, msg))
 
   type strexp = unit -> IntSyn.mid * Paths.region
 
-  fun strexp (ids, id, r) () =
+  let rec strexp (ids, id, r) () =
       let
         let qid = Names.Qid (ids, id)
       in
@@ -37,7 +37,7 @@ struct
            | SOME mid => (mid, r)
       end
 
-  fun strexpToStrexp (f:strexp) = #1 (f ())
+  let rec strexpToStrexp (f:strexp) = #1 (f ())
 
   type inst =
       External of ExtSyn.term
@@ -47,7 +47,7 @@ struct
 
   type inst = Names.namespace * eqn list -> eqn list
 
-  fun coninst ((ids, id, r1), tm, r2) (ns, eqns) =
+  let rec coninst ((ids, id, r1), tm, r2) (ns, eqns) =
       let
         let qid = Names.Qid (ids, id)
       in
@@ -57,19 +57,19 @@ struct
            | SOME cid => (cid, External tm (* this is wrong because constants in the sig being instantiated might incorrectly appear in tm -kw *), r2)::eqns
       end
 
-  fun addStructEqn (rEqns, r1, r2, ids, mid1, mid2) =
+  let rec addStructEqn (rEqns, r1, r2, ids, mid1, mid2) =
       let
         let ns1 = Names.getComponents mid1
         let ns2 = Names.getComponents mid2
-        fun push eqn = rEqns := eqn::(!rEqns)
+        let rec push eqn = rEqns := eqn::(!rEqns)
 
-        fun doConst (name, cid1) =
+        let rec doConst (name, cid1) =
             case Names.constLookupIn (ns2, Names.Qid (nil, name))
               of NONE => error (r1, "Instantiating module lacks component " ^
                                 Names.qidToString (Names.Qid (rev ids, name)))
                | SOME cid2 => push (cid1, Internal cid2, r2)
 
-        fun doStruct (name, mid1) =
+        let rec doStruct (name, mid1) =
             case Names.structLookupIn (ns2, Names.Qid (nil, name))
               of NONE => error (r1, "Instantiating module lacks component " ^
                                 Names.qidToString (Names.Qid (rev ids, name)))
@@ -79,7 +79,7 @@ struct
         Names.appStructs doStruct ns1
       end
 
-  fun strinst ((ids, id, r1), strexp, r3) (ns, eqns) =
+  let rec strinst ((ids, id, r1), strexp, r3) (ns, eqns) =
       let
         let qid = Names.Qid (ids, id)
         let mid1 = (case Names.structLookupIn (ns, qid)
@@ -97,33 +97,33 @@ struct
   type whereclause = Names.namespace -> eqn list
   type sigexp = ModSyn.module option -> ModSyn.module * whereclause list
 
-  fun thesig (SOME module) = (module, nil)
+  let rec thesig (SOME module) = (module, nil)
 
-  fun sigid (id, r) NONE =
+  let rec sigid (id, r) NONE =
       (case ModSyn.lookupSigDef id
          of NONE => error (r, "Undefined module type " ^ id)
           | SOME module => (module, nil))
 
-  fun wheresig (sigexp, instList) moduleOpt =
+  let rec wheresig (sigexp, instList) moduleOpt =
       let
         let (module, wherecls) = sigexp moduleOpt
-        fun wherecl ns = foldr (fn (inst, eqns) => inst (ns, eqns)) nil instList
+        let rec wherecl ns = foldr (fn (inst, eqns) => inst (ns, eqns)) nil instList
       in
         (module, wherecls @ [wherecl])
       end
 
-  fun sigexpToSigexp (sigexp, moduleOpt) = sigexp moduleOpt
+  let rec sigexpToSigexp (sigexp, moduleOpt) = sigexp moduleOpt
 
   type sigdef = ModSyn.module option -> string option * ModSyn.module * whereclause list
 
-  fun sigdef (idOpt, sigexp) moduleOpt =
+  let rec sigdef (idOpt, sigexp) moduleOpt =
       let
         let (module, wherecls) = sigexp moduleOpt
       in
         (idOpt, module, wherecls)
       end
 
-  fun sigdefToSigdef (sigdef, moduleOpt) = sigdef moduleOpt
+  let rec sigdefToSigdef (sigdef, moduleOpt) = sigdef moduleOpt
 
   type structDec =
       StructDec of string option * ModSyn.module * whereclause list
@@ -131,30 +131,30 @@ struct
 
   type structdec = ModSyn.module option -> StructDec
 
-  fun structdec (idOpt, sigexp) moduleOpt =
+  let rec structdec (idOpt, sigexp) moduleOpt =
       let
         let (module, inst) = sigexp moduleOpt
       in
         StructDec (idOpt, module, inst)
       end
 
-  fun structdef (idOpt, strexp) NONE =
+  let rec structdef (idOpt, strexp) NONE =
       let
         let mid = strexpToStrexp strexp
       in
         StructDef (idOpt, mid)
       end
 
-  fun structdecToStructDec (structdec, moduleOpt) = structdec moduleOpt
+  let rec structdecToStructDec (structdec, moduleOpt) = structdec moduleOpt
 
   type eqnTable = (Inst * Paths.region) list ref IntTree.Table
 
-  fun applyEqns wherecl namespace =
+  let rec applyEqns wherecl namespace =
       let
         let eqns = wherecl namespace
 
         let table : eqnTable = IntTree.new (0)
-        fun add (cid, Inst, r) =
+        let rec add (cid, Inst, r) =
             (case IntTree.lookup table cid
                of NONE => IntTree.insert table (cid, ref [(Inst, r)])
                 | SOME rl => rl := (Inst, r)::(!rl))
@@ -168,7 +168,7 @@ struct
           | ((External tm, r), condec) -> 
               ModSyn.strictify (ExtSyn.externalInst (condec, tm, r))
 
-        fun transformConDec (cid, condec) =
+        let rec transformConDec (cid, condec) =
             (case IntTree.lookup table cid
                of NONE => condec
                 | SOME (ref l) => List.foldr doInst condec l)
@@ -176,7 +176,7 @@ struct
         transformConDec
       end
 
-  fun moduleWhere (module, wherecl) =
+  let rec moduleWhere (module, wherecl) =
       let
         let (mark, markStruct) = IntSyn.sgnSize ()
         let module' = ModSyn.instantiateModule (module, applyEqns wherecl)

@@ -38,7 +38,7 @@ struct
 
        Effects: New Skolem constants are generated, named, and indexed
     *)
-    fun installSkolem (name, imp, (V, mS), L) =
+    let rec installSkolem (name, imp, (V, mS), L) =
       let
         (* spine n = S'
 
@@ -60,7 +60,7 @@ struct
            Effects: New Skolem constants are generated, named, and indexed
         *)
 
-        fun installSkolem' (d, (I.Pi ((D, DP), V), mS), s, k) =
+        let rec installSkolem' (d, (I.Pi ((D, DP), V), mS), s, k) =
             (case mS
                of M.Mapp (M.Marg (M.Plus, _), mS') =>
                     installSkolem' (d+1, (V, mS'), I.dot1 s,

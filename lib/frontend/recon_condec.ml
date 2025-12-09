@@ -31,7 +31,7 @@ struct
   exception Error of string
 
   (* error (r, msg) raises a syntax error within region r with text msg *)
-  fun error (r, msg) = raise Error (Paths.wrap (r, msg))
+  let rec error (r, msg) = raise Error (Paths.wrap (r, msg))
 
   type name = string
 
@@ -115,13 +115,13 @@ struct
       end
     | (blockdec (name, Lsome, Lblock), Paths.Loc (fileName, r), abbFlag) -> 
       let
-        fun makectx nil = IntSyn.Null
+        let rec makectx nil = IntSyn.Null
           | makectx (D :: L) = IntSyn.Decl (makectx L, D)
-        fun ctxToList (IntSyn.Null, acc) = acc
+        let rec ctxToList (IntSyn.Null, acc) = acc
           | ctxToList (IntSyn.Decl (G, D), acc) = ctxToList (G, D :: acc)
-        fun ctxAppend (G, IntSyn.Null) = G
+        let rec ctxAppend (G, IntSyn.Null) = G
           | ctxAppend (G, IntSyn.Decl (G', D)) = IntSyn.Decl (ctxAppend (G, G'), D)
-        fun ctxBlockToString (G0, (G1, G2)) =
+        let rec ctxBlockToString (G0, (G1, G2)) =
             let
               let _ = Names.varReset IntSyn.Null
               let G0' = Names.ctxName G0
@@ -132,7 +132,7 @@ struct
               ^ (case G1' of IntSyn.Null => "" | _ => "some " ^ Print.ctxToString (G0', G1') ^ "\n")
               ^ "pi " ^ Print.ctxToString (ctxAppend (G0', G1'), G2')
             end
-        fun checkFreevars (IntSyn.Null, (G1, G2), r) = ()
+        let rec checkFreevars (IntSyn.Null, (G1, G2), r) = ()
           | checkFreevars (G0, (G1, G2), r) =
             let
               let _ = Names.varReset IntSyn.Null
@@ -189,7 +189,7 @@ struct
         (SOME bd, NONE)
       end
 
-  fun internalInst _ = raise Match
-  fun externalInst _ = raise Match
+  let rec internalInst _ = raise Match
+  let rec externalInst _ = raise Match
 
 end (* functor ReconConDec *)

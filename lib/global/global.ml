@@ -1,7 +1,7 @@
 (* Global parameters *)
 (* Author: Frank Pfenning *)
 
-(Global : GLOBA)L =
+(Global : GLOBAL) =
 struct
 
   let chatter = ref 3
@@ -14,7 +14,7 @@ struct
   let autoFreeze = ref true (* !!!reconsider later!!! Thu Mar 10 09:42:28 2005 *)
   let timeLimit = ref (NONE : (Time.time option))
 
-  fun chPrint n s = if !chatter >= n then print (s ()) else ()
-  fun chMessage n s f = if !chatter >= n then f (s ()) else ()
+  let rec chPrint n s = if !chatter >= n then print (s ()) else ()
+  let rec chMessage n s f = if !chatter >= n then f (s ()) else ()
 
 end;; (* module Global *)

@@ -31,13 +31,13 @@ struct
     module P = Paths
     module T = ReconTerm'
 
-    fun error (r, msg) = raise Error (P.wrap (r, msg))
+    let rec error (r, msg) = raise Error (P.wrap (r, msg))
 
     type order = ThmSyn.Order * Paths.region
 
-    fun varg (r, L) = (ThmSyn.Varg L, r)
+    let rec varg (r, L) = (ThmSyn.Varg L, r)
 
-    fun lex (r0, L) =
+    let rec lex (r0, L) =
         let
           let rec lex' = function nil -> (nil, r0)
             | ((O, r) :: L) -> 
@@ -51,7 +51,7 @@ struct
           (ThmSyn.Lex Os, r1)
         end
 
-    fun simul (r0, L) =
+    let rec simul (r0, L) =
         let
           let rec simul' = function nil -> (nil, r0)
             | ((O, r) :: L) -> 
@@ -95,7 +95,7 @@ struct
       | (I.SkoDec (a, _, _, _, _), P, r) -> 
           error (r, "Illegal Skolem constant " ^ a ^ " in call pattern")
 
-    fun callpats L =
+    let rec callpats L =
         let
           let rec callpats' = function nil -> (nil, nil)
             | ((name, P, r) :: L) -> 
@@ -118,8 +118,8 @@ struct
         end
 
     type tdecl = ThmSyn.tDecl * (Paths.region * Paths.region list)
-    fun tdecl ((O, r), (C, rs)) = (ThmSyn.TDecl (O, C), (r, rs))
-    fun tdeclTotDecl T  = T
+    let rec tdecl ((O, r), (C, rs)) = (ThmSyn.TDecl (O, C), (r, rs))
+    let rec tdeclTotDecl T  = T
 
     (* -bp *)
     (* predicate *)
@@ -130,18 +130,18 @@ struct
 
     (* reduces declaration *)
     type rdecl = ThmSyn.rDecl * (Paths.region * Paths.region list)
-    fun rdecl ((P, r0), (O1,r1), (O2, r2), (C, rs)) =
+    let rec rdecl ((P, r0), (O1,r1), (O2, r2), (C, rs)) =
         let
             let r = Paths.join (r1, r2)
         in
             (ThmSyn.RDecl (ThmSyn.RedOrder(P ,O1, O2), C), (Paths.join (r0, r), rs))
         end
 
-    fun rdeclTorDecl T  = T
+    let rec rdeclTorDecl T  = T
 
      (* tabled declaration *)
     type tableddecl = (ThmSyn.tabledDecl * Paths.region)
-    fun tableddecl (name, r) =
+    let rec tableddecl (name, r) =
         let
           let qid = Names.Qid (nil, name)
         in
@@ -154,11 +154,11 @@ struct
         end
 
 
-    fun tableddeclTotabledDecl T  = T
+    let rec tableddeclTotabledDecl T  = T
 
     (* keepTable declaration *)
     type keepTabledecl = (ThmSyn.keepTableDecl * Paths.region)
-    fun keepTabledecl (name, r) =
+    let rec keepTabledecl (name, r) =
         let
           let qid = Names.Qid (nil, name)
         in
@@ -171,21 +171,21 @@ struct
         end
 
 
-    fun keepTabledeclToktDecl T  = T
+    let rec keepTabledeclToktDecl T  = T
 
     (* Theorem and prove declarations *)
 
     type prove = ThmSyn.pDecl * (Paths.region * Paths.region list)
-    fun prove (n, (td, rrs)) = (ThmSyn.PDecl (n, td), rrs)
-    fun proveToProve P = P
+    let rec prove (n, (td, rrs)) = (ThmSyn.PDecl (n, td), rrs)
+    let rec proveToProve P = P
 
     type establish = ThmSyn.pDecl * (Paths.region * Paths.region list)
-    fun establish (n, (td, rrs)) = (ThmSyn.PDecl (n, td), rrs)
-    fun establishToEstablish P = P
+    let rec establish (n, (td, rrs)) = (ThmSyn.PDecl (n, td), rrs)
+    let rec establishToEstablish P = P
 
     type assert = ThmSyn.callpats * Paths.region list
-    fun assert (cp, rs) = (cp, rs)
-    fun assertToAssert P = P
+    let rec assert (cp, rs) = (cp, rs)
+    let rec assertToAssert P = P
 
     type decs = ExtSyn.dec I.Ctx
     let null = I.Null
@@ -197,7 +197,7 @@ struct
     type theorem = thm -> thm
     type theoremdec = string * theorem
 
-    fun dec (name, t) = (name, t)
+    let rec dec (name, t) = (name, t)
 
     let rec ctxAppend = function (G, I.Null) -> G
       | (G, I.Decl (G', D)) -> I.Decl (ctxAppend (G, G'), D)
@@ -205,7 +205,7 @@ struct
     let rec ctxMap = function f (I.Null) -> I.Null
       | f (I.Decl (G, D)) -> I.Decl (ctxMap f G, f D)
 
-    fun ctxBlockToString (G0, (G1, G2)) =
+    let rec ctxBlockToString (G0, (G1, G2)) =
         let
           let _ = Names.varReset I.Null
           let G0' = Names.ctxName G0
@@ -229,7 +229,7 @@ struct
                  ^ ctxBlockToString (G0', (G1', G2')))
         end
 
-    fun abstractCtxPair (g1, g2) =
+    let rec abstractCtxPair (g1, g2) =
         let
           (* each block reconstructed independent of others *)
           let r = (case (T.ctxRegion g1, T.ctxRegion g2)
@@ -248,24 +248,24 @@ struct
           (G1', G2')
         end
 
-    fun top (GBs, g, M, k) = (GBs, g, M, k)
+    let rec top (GBs, g, M, k) = (GBs, g, M, k)
 
-    fun exists (g', t) (GBs, g, M, k) =
+    let rec exists (g', t) (GBs, g, M, k) =
           t (GBs, ctxAppend (g, g'),
              ctxAppend (M, ctxMap (fun _ -> M.Minus) g'), k)
 
-    fun forall (g', t) (GBs, g, M, k) =
+    let rec forall (g', t) (GBs, g, M, k) =
           t (GBs, ctxAppend (g, g'),
              ctxAppend (M, ctxMap (fun _ -> M.Plus) g'), k)
 
-    fun forallStar (g', t) (GBs, g, M, _) =
+    let rec forallStar (g', t) (GBs, g, M, _) =
           t (GBs, ctxAppend (g, g'),
              ctxAppend (M, ctxMap (fun _ -> M.Plus) g'), I.ctxLength g')
 
     fun forallG (gbs, t:thm->thm) (_:thm):thm =
           t (gbs, I.Null, I.Null, 0)
 
-    fun theoremToTheorem t =
+    let rec theoremToTheorem t =
         let
           let (gbs, g, M, k) = t (nil, I.Null, I.Null, 0)
           let _ = Names.varReset IntSyn.Null
@@ -275,12 +275,12 @@ struct
           L.ThDecl (GBs, G, M, k)
         end
 
-    fun theoremDecToTheoremDec (name, t) =
+    let rec theoremDecToTheoremDec (name, t) =
           (name, theoremToTheorem t)
 
     (* World checker *)
 
-    fun abstractWDecl W =
+    let rec abstractWDecl W =
         let
           let W' = List.map Names.Qid W
         in
@@ -288,8 +288,8 @@ struct
         end
 
     type wdecl =  ThmSyn.wDecl * Paths.region list
-    fun wdecl (W, (cp, rs)) = (ThmSyn.WDecl (abstractWDecl W, cp), rs)
-    fun wdeclTowDecl T = T
+    let rec wdecl (W, (cp, rs)) = (ThmSyn.WDecl (abstractWDecl W, cp), rs)
+    let rec wdeclTowDecl T = T
 
   in
     (* avoid this re-copying? -fp *)

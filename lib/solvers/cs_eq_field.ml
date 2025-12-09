@@ -50,7 +50,7 @@ struct
     (* constant ID of the type family constant "number" *)
     let numberID = ref ~1 : cid ref
 
-    fun number () = Root (Const (!numberID), Nil)
+    let rec number () = Root (Const (!numberID), Nil)
 
     (* constant ID's of the object constants defined by this module *)
     let unaryMinusID  = ref ~1 : cid ref  (* ~ : number -> number           *)
@@ -58,13 +58,13 @@ struct
     let minusID       = ref ~1 : cid ref  (* - : number -> number -> number *)
     let timesID       = ref ~1 : cid ref  (* * : number -> number -> number *)
 
-    fun unaryMinusExp (U) = Root (Const (!unaryMinusID), App (U, Nil))
-    fun plusExp (U, V)    = Root (Const (!plusID), App (U, App (V, Nil)))
-    fun minusExp (U, V)   = Root (Const (!minusID), App (U, App (V, Nil)))
-    fun timesExp (U, V)   = Root (Const (!timesID), App (U, App (V, Nil)))
+    let rec unaryMinusExp (U) = Root (Const (!unaryMinusID), App (U, Nil))
+    let rec plusExp (U, V)    = Root (Const (!plusID), App (U, App (V, Nil)))
+    let rec minusExp (U, V)   = Root (Const (!minusID), App (U, App (V, Nil)))
+    let rec timesExp (U, V)   = Root (Const (!timesID), App (U, App (V, Nil)))
 
-    fun numberConDec (d) = ConDec (toString (d), NONE, 0, Normal, number (), Type)
-    fun numberExp (d) = Root (FgnConst (!myID, numberConDec (d)), Nil)
+    let rec numberConDec (d) = ConDec (toString (d), NONE, 0, Normal, number (), Type)
+    let rec numberExp (d) = Root (FgnConst (!myID, numberConDec (d)), Nil)
 
     (* parseNumber str = SOME(conDec) or NONE
 
@@ -72,7 +72,7 @@ struct
        If str parses to the number n
        then conDec is the (foreign) constant declaration of n
     *)
-    fun parseNumber string =
+    let rec parseNumber string =
           (case fromString (string)
              of SOME(d) => SOME(numberConDec (d))
               | NONE => NONE)
@@ -83,14 +83,14 @@ struct
        U is the term obtained applying the foreign constant
        corresponding to the number k to an empty spine
     *)
-    fun solveNumber (G, S, k) = SOME(numberExp (fromInt k))
+    let rec solveNumber (G, S, k) = SOME(numberExp (fromInt k))
 
     (* findMset eq (x, L) =
          SOME (y, L') if there exists y such that eq (x, y)
                          and L ~ (y :: L') (multiset equality)
          NONE if there is no y in L such that eq (x, y)
     *)
-    fun findMSet eq (x, L) =
+    let rec findMSet eq (x, L) =
           let
             let rec findMSet' = function (tried, nil) -> NONE
               | (tried, y :: L) -> 
@@ -101,7 +101,7 @@ struct
           end
 
     (* equalMset eq (L, L') = true iff L ~ L' (multiset equality) *)
-    fun equalMSet eq =
+    let rec equalMSet eq =
           let
               let rec equalMSet' = function (nil, nil) -> true
                 | (x :: L1', L2) -> 
@@ -148,7 +148,7 @@ struct
       | toExpEClo Us = EClo Us
 
     (* compatibleMon (mon1, mon2) = true only if mon1 = mon2 (as monomials) *)
-    fun compatibleMon (Mon (_, UsL1), Mon (_, UsL2)) =
+    let rec compatibleMon (Mon (_, UsL1), Mon (_, UsL2)) =
           equalMSet (fn (Us1, Us2) => sameExpW (Us1, Us2)) (UsL1, UsL2)
 
     (* sameExpW ((U1,s1), (U2,s2)) = T
@@ -294,7 +294,7 @@ struct
        then sum' normal
        and  sum' = ~1 * sum
     *)
-    fun unaryMinusSum (sum) =
+    let rec unaryMinusSum (sum) =
           timesSum (sum (~one, nil), sum)
 
     (* minusSum (sum1, sum2) = sum3
@@ -305,7 +305,7 @@ struct
        then sum3 normal
        and  sum3 = sum1 - sum2
     *)
-    fun minusSum (sum1, sum2) =
+    let rec minusSum (sum1, sum2) =
           plusSum (sum1, unaryMinusSum (sum2))
 
     (* fromExpW (U, s) = sum
@@ -362,7 +362,7 @@ struct
           Mon (n, List.map (fun Us -> Whnf.whnf (f (EClo Us), id)) UsL)
 
     (* appSum (f, m + M1 + ...) = ()     and appMon (f, Mi) for each i *)
-    fun appSum (f, sum (m, monL)) =
+    let rec appSum (f, sum (m, monL)) =
         List.app (fun mon -> appMon (f, mon)) monL
 
     (* appMon (f, n * (U1, s1) + ... ) = () and f (Ui[si]) for each i *)
@@ -373,7 +373,7 @@ struct
          SOME(x) if f(M) = SOME(x) for some monomial M in sum
          NONE    if f(M) = NONE for all monomials M in sum
     *)
-    fun findMon f (G, sum(m, monL)) =
+    let rec findMon f (G, sum(m, monL)) =
           let
             let rec findMon' = function (nil, monL2) -> NONE
               | (mon :: monL1, monL2) -> 
@@ -392,7 +392,7 @@ struct
        then result is the outcome (of type FgnUnify) of solving the
        equation sum1 = sum2 by gaussian elimination.
     *)
-    fun unifySum (G, sum1, sum2) =
+    let rec unifySum (G, sum1, sum2) =
           let
             let rec invertMon = function (G, Mon (n, [(LHS as EVar (r, _, _, _), s)]), sum) -> 
                   if Whnf.isPatSub s
@@ -481,7 +481,7 @@ struct
     let rec unifyWith = function (MyIntsynRep sum) (G, U2) -> unifySum (G, normalizeSum sum, (fromExp (U2, id)))
       | fe _ -> raise (UnexpectedFgnExp fe)
 
-    fun installFgnExpOps () = let
+    let rec installFgnExpOps () = let
         let csid = !myID
         let _ = FgnExpStd.ToInternal.install (csid, toInternal)
         let _ = FgnExpStd.Map.install (csid, map)
@@ -493,7 +493,7 @@ struct
     end
 
 
-    fun makeFgn (arity, opExp) (S) =
+    let rec makeFgn (arity, opExp) (S) =
           let
             let rec makeParams = function 0 -> Nil
               | n -> 
@@ -516,23 +516,23 @@ struct
             makeLam (toFgn (opExp S')) arity'
           end
 
-    fun makeFgnUnary opSum =
+    let rec makeFgnUnary opSum =
           makeFgn (1,
             fn (App (U, Nil)) =>
                opSum (fromExp (U, id)))
 
-    fun makeFgnBinary opSum =
+    let rec makeFgnBinary opSum =
           makeFgn (2,
             fn (App (U1, App (U2, Nil))) =>
               opSum (fromExp (U1, id), fromExp (U2, id)))
 
-    fun arrow (U, V) = Pi ((Dec (NONE, U), No), V)
+    let rec arrow (U, V) = Pi ((Dec (NONE, U), No), V)
 
     (* init (cs, installFunction) = ()
        Initialize the constraint solver.
        installFunction is used to add its module type symbols.
     *)
-    fun init (cs, installF) =
+    let rec init (cs, installF) =
           (
             myID := cs;
 
@@ -604,10 +604,10 @@ struct
 
     let number = number
 
-    fun unaryMinus U = toFgn (unaryMinusSum (fromExp (U, id)))
-    fun plus (U, V) = toFgn (plusSum (fromExp (U ,id), fromExp (V, id)))
-    fun minus (U, V) = toFgn (minusSum (fromExp (U, id), fromExp (V, id)))
-    fun times (U, V) = toFgn (timesSum (fromExp (U, id), fromExp (V, id)))
+    let rec unaryMinus U = toFgn (unaryMinusSum (fromExp (U, id)))
+    let rec plus (U, V) = toFgn (plusSum (fromExp (U ,id), fromExp (V, id)))
+    let rec minus (U, V) = toFgn (minusSum (fromExp (U, id), fromExp (V, id)))
+    let rec times (U, V) = toFgn (timesSum (fromExp (U, id), fromExp (V, id)))
 
     let constant = numberExp
   end (* local *)

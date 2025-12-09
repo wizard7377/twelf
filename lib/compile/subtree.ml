@@ -104,13 +104,13 @@ struct
    let querySubId  : unit -> querySubsts = RBSet.new
 
    (* Identity substitution *)
-   fun isId s = RBSet.isEmpty s
+   let rec isId s = RBSet.isEmpty s
 
    (* Initialize substitution tree *)
-   fun makeTree () = ref (Node (nid (), RBSet.new()))
+   let rec makeTree () = ref (Node (nid (), RBSet.new()))
 
    (* Test if node has any children *)
-   fun noChildren C = RBSet.isEmpty C
+   let rec noChildren C = RBSet.isEmpty C
 
 
   (* Index array
@@ -142,7 +142,7 @@ struct
     let rec dotn = function (0, s) -> s
       | (i, s) -> dotn (i-1, I.dot1 s)
 
-    fun compose'(IntSyn.Null, G) = G
+    let rec compose'(IntSyn.Null, G) = G
       | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
     let rec shift = function (IntSyn.Null, s) -> s
@@ -217,13 +217,13 @@ struct
   (* nctr = |D| =  #normal variables *)
    let nctr = ref 1
 
-   fun newNVar () =
+   let rec newNVar () =
      (nctr := !nctr + 1;
       I.NVar(!nctr))
 
 
 
-   fun eqHeads (I.Const k, I.Const k') =  (k = k')
+   let rec eqHeads (I.Const k, I.Const k') =  (k = k')
      | eqHeads (I.BVar k, I.BVar k') =  (k  = k')
      | eqHeads (I.Def k, I.Def k') = (k = k')
      | eqHeads ( _, _) = false
@@ -237,9 +237,9 @@ struct
    then
      C[rho_u'] = U and C[rho_t'] = T
    *)
-   fun compatible (label, T, U, rho_t, rho_u) =
+   let rec compatible (label, T, U, rho_t, rho_u) =
      let
-       fun genExp (label, b, T as I.NVar n, U as I.Root(H, S)) =
+       let rec genExp (label, b, T as I.NVar n, U as I.Root(H, S)) =
            (S.insert rho_u (n, (label, U)); T)
          | genExp (label, b, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
            if eqHeads(H1, H2)
@@ -275,7 +275,7 @@ struct
        and genDec (label, b, I.Dec(N, E1), I.Dec(N', E2)) =
                    I.Dec(N, genExp(label, b, E1, E2))
 
-       fun genTop (label, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+       let rec genTop (label, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
          if eqHeads(H1, H2)
            then I.Root(H1, genSpine(label, Regular, S1, S2))
          else
@@ -305,7 +305,7 @@ struct
     Glocal_e ~ Glocal_t  (have approximately the same type)
 
    *)
-  fun compatibleSub (nsub_t, nsub_e) =
+  let rec compatibleSub (nsub_t, nsub_e) =
     let
       let (sg, rho_t, rho_e) = (nid(), nid (), nid ())
      (* by invariant rho_t = empty, since nsub_t <= nsub_e *)
@@ -351,7 +351,7 @@ struct
   (* compareChild (children, (n, child), n, n', (G, R)) = ()
 
    *)
-  fun compareChild (children, (n, child), nsub_t, nsub_e, GR as (G_clause2, Res_clause2)) =
+  let rec compareChild (children, (n, child), nsub_t, nsub_e, GR as (G_clause2, Res_clause2)) =
     (case compatibleSub (nsub_t, nsub_e) of
        NONE => (S.insert children (n+1, Leaf(nsub_e, G_clause2, Res_clause2)))
      | SOME(sg, rho1, rho2) =>
@@ -437,10 +437,10 @@ struct
       G  |- nsub_goal : N
      *)
 
-  fun assign (nvaronly, Glocal_u1, Us1, U2, nsub_goal, asub, csub, cnstr) =
+  let rec assign (nvaronly, Glocal_u1, Us1, U2, nsub_goal, asub, csub, cnstr) =
     let
       let depth = I.ctxLength Glocal_u1
-      fun assignHead (nvaronly, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
+      let rec assignHead (nvaronly, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
           (case (H1, H2)
              of (I.Const(c1), I.Const(c2)) =>
                 if (c1 = c2)
@@ -615,11 +615,11 @@ struct
     G'     |- cnstr[csub]
 
    *)
-  fun assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
+  let rec assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
     let
       let nsub_query' = querySubId ()
       let cref = ref cnstr
-      fun assign' (nsub_query, nsub) =
+      let rec assign' (nsub_query, nsub) =
         let
           let (nsub_query_left, nsub_left1) = S.differenceModulo nsub_query nsub
                                 (fn (Glocal_u, (l, U)) => fn  (l', T) =>
@@ -634,11 +634,11 @@ struct
     end
 
 
-  fun assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr) =
+  let rec assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr) =
     let
       let nsub_query' = querySubId ()
       let cref = ref cnstr
-      fun assign' (nsub_query, nsub) =
+      let rec assign' (nsub_query, nsub) =
         let
           let (nsub_query_left, nsub_left) = S.differenceModulo nsub_query nsub
                                 (fn (Glocal_u, (l, U)) => fn  (l', T) =>
@@ -669,9 +669,9 @@ struct
     (* Xs1 should not contain any uninstantiated AVar anymore *)
       Unify.unifyW(G, Xs1, Us2)
 
-  fun unify(G, Xs1, Us2) = unifyW(G, Whnf.whnf Xs1, Whnf.whnf Us2)
+  let rec unify(G, Xs1, Us2) = unifyW(G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
-  fun unifiable (G, Us1, Us2) =
+  let rec unifiable (G, Us1, Us2) =
       (unify(G, Us1, Us2); true)
       handle Unify.Unify msg => false
 
@@ -721,7 +721,7 @@ struct
        solveCnstr (Gquery, Gclause, Cnstr, s))
 
 
-  fun solveResiduals (Gquery, Gclause, CGoals(AuxG, cid, ConjGoals, i), asub, cnstr', sc) =
+  let rec solveResiduals (Gquery, Gclause, CGoals(AuxG, cid, ConjGoals, i), asub, cnstr', sc) =
     let
       let s = ctxToExplicitSub (1, Gquery, Gclause, asub)
       let success =  solveAuxG (AuxG, s, Gquery) andalso solveCnstr (Gquery, Gclause, cnstr', s)
@@ -733,9 +733,9 @@ struct
     end
 
 
-  fun ithChild (CGoals(_, _, _, i), n) = (i = n)
+  let rec ithChild (CGoals(_, _, _, i), n) = (i = n)
 
-  fun retrieveChild (num, Child, nsub_query, assignSub, cnstr, Gquery, sc) =
+  let rec retrieveChild (num, Child, nsub_query, assignSub, cnstr, Gquery, sc) =
     let
       let rec retrieve = function (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, cnstrSub, cnstr) -> 
          (case assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr)
@@ -765,7 +765,7 @@ struct
       retrieve (Child, nsub_query, assignSub, cnstrSubId (), cnstr)
     end
 
-  fun retrieval (n, STree as Node(s, Children), G, r, sc) =
+  let rec retrieval (n, STree as Node(s, Children), G, r, sc) =
     (* s = id *)
     let
       let (nsub_query, assignSub) = (querySubId (), assignSubId ())
@@ -776,7 +776,7 @@ struct
 
  (*----------------------------------------------------------------------------*)
  (* Retrieval via set of candidates *)
- fun retrieveAll (num, Child, nsub_query, assignSub, cnstr, candSet) =
+ let rec retrieveAll (num, Child, nsub_query, assignSub, cnstr, candSet) =
     let
       let i = ref 0
       let rec retrieve = function (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) -> 
@@ -805,12 +805,12 @@ struct
       retrieve (Child, nsub_query, assignSub, (nid(), cnstrSubId ()), cnstr)
     end
 
- fun retrieveCandidates (n, STree as Node(s, Children), Gquery, r, sc) =
+ let rec retrieveCandidates (n, STree as Node(s, Children), Gquery, r, sc) =
     (* s = id *)
     let
       let (nsub_query, assignSub) = (querySubId (), assignSubId ())
       let candSet = S.new()
-      fun solveCandidate (i, candSet) =
+      let rec solveCandidate (i, candSet) =
         case (S.lookup candSet i)
           of NONE => ((* print "No candidate left anymore\n" ;*) () )
            | SOME(assignSub, nsub_left, cnstrSub, cnstr, Gclause, Residuals
@@ -828,7 +828,7 @@ struct
       solveCandidate (1, candSet)
     end
 
- fun matchSig (a, G, ps as (I.Root(Ha,S),s), sc) =
+ let rec matchSig (a, G, ps as (I.Root(Ha,S),s), sc) =
      let
        let (n, Tree) = Array.sub (indexArray, a)
      in
@@ -837,20 +837,20 @@ struct
      end
 
 
- fun matchSigIt (a, G, ps as (I.Root(Ha,S),s), sc) =
+ let rec matchSigIt (a, G, ps as (I.Root(Ha,S),s), sc) =
      let
        let (n, Tree) = Array.sub (indexArray, a)
      in
        retrieval (n, !Tree, G, I.EClo(ps), sc)
      end
 
- fun sProgReset () =
+ let rec sProgReset () =
    (nctr := 1;
      Array.modify (fn (n, Tree) => (n := 0; Tree := !(makeTree ());
                                    (n, Tree))) indexArray)
 
 
- fun sProgInstall (a, C.Head(E, G, Eqs, cid), R) =
+ let rec sProgInstall (a, C.Head(E, G, Eqs, cid), R) =
    let
      let (n, Tree) = Array.sub (indexArray, a)
      let nsub_goal = S.new()

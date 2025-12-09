@@ -69,9 +69,9 @@ struct
            Solve (refCnstr, Cnstr))
 
 
-    fun suspend () = Trail.suspend (globalTrail, copy)
+    let rec suspend () = Trail.suspend (globalTrail, copy)
 
-    fun resume trail = Trail.resume (trail, globalTrail, reset)
+    let rec resume trail = Trail.resume (trail, globalTrail, reset)
 
     let rec undo = function (Instantiate refU) -> 
           (refU := NONE)
@@ -82,19 +82,19 @@ struct
       | (Solve (cnstr, Cnstr)) -> 
           (cnstr := Cnstr)
 
-    fun reset () = Trail.reset globalTrail
+    let rec reset () = Trail.reset globalTrail
 
-    fun mark () = Trail.mark globalTrail
+    let rec mark () = Trail.mark globalTrail
 
-    fun unwind () = Trail.unwind (globalTrail, undo)
+    let rec unwind () = Trail.unwind (globalTrail, undo)
 
-    fun addConstraint (cnstrs, cnstr) =
+    let rec addConstraint (cnstrs, cnstr) =
           (
             cnstrs := cnstr :: (!cnstrs);
             Trail.log (globalTrail, Add (cnstrs))
           )
 
-    fun solveConstraint (cnstr as ref (Cnstr)) =
+    let rec solveConstraint (cnstr as ref (Cnstr)) =
           (
             cnstr := Solved;
             Trail.log (globalTrail, Solve (cnstr, Cnstr))
@@ -159,16 +159,16 @@ struct
     local
       let awakenCnstrs = ref nil : cnstr list ref
     in
-      fun resetAwakenCnstrs () = (awakenCnstrs := nil)
+      let rec resetAwakenCnstrs () = (awakenCnstrs := nil)
 
-      fun nextCnstr () =
+      let rec nextCnstr () =
             case !awakenCnstrs
               of nil => NONE
                | (cnstr :: cnstrL) =>
                    (awakenCnstrs := cnstrL; SOME(cnstr))
 
       (* Instantiating EVars  *)
-      fun instantiateEVar (refU, V, cnstrL) =
+      let rec instantiateEVar (refU, V, cnstrL) =
             (
               refU := SOME(V);
               Trail.log (globalTrail, Instantiate (refU));
@@ -176,7 +176,7 @@ struct
             )
 
       (* Instantiating LVars  *)
-      fun instantiateLVar (refB, B) =
+      let rec instantiateLVar (refB, B) =
             ( refB := SOME(B);
               Trail.log (globalTrail, InstantiateBlock (refB))
             )
@@ -235,7 +235,7 @@ struct
                or rOccurs occurs in U[s]
                does NOT prune EVars in U[s] according to ss; fails instead
     *)
-    fun invertExp (G, Us, ss, rOccur) =
+    let rec invertExp (G, Us, ss, rOccur) =
           invertExpW (G, Whnf.whnf Us, ss, rOccur)
     and invertExpW (G, (U as Uni _, s), _, _) = U
       | invertExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
@@ -346,7 +346,7 @@ struct
        Effect: prunes EVars in U[s] according to ss
                raises Unify if U[s][ss] does not exist, or rOccur occurs in U[s]
     *)
-    fun pruneExp  (G, Us, ss, rOccur) =
+    let rec pruneExp  (G, Us, ss, rOccur) =
           pruneExpW (G, Whnf.whnf Us, ss, rOccur)
     and pruneExpW (G, (U as Uni _, s), _, _) = U
       | pruneExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
@@ -499,7 +499,7 @@ struct
           (case (FgnExpStd.UnifyWith.apply csfe1 (G, EClo Us2))
              of (Succeed residualL) =>
                   let
-                    fun execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
+                    let rec execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
                             let W' = pruneExp (G, (W, id), ss, r)
                           in
@@ -516,7 +516,7 @@ struct
           (case (FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1))
              of (Succeed opL) =>
                   let
-                    fun execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
+                    let rec execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
                             let W' = pruneExp (G, (W, id), ss, r)
                           in
@@ -826,7 +826,7 @@ struct
       Sun Dec  1 11:33:13 2002 -cs
 
 *)
-    fun unify1W (G, Us1, Us2) =
+    let rec unify1W (G, Us1, Us2) =
           (unifyExpW (G, Us1, Us2); awakeCnstr (nextCnstr ()))
 
     and unify1 (G, Us1, Us2) =
@@ -841,10 +841,10 @@ struct
           if (FgnCnstrStd.Awake.apply csfc ()) then ()
           else raise Unify "Foreign constraint violated"
 
-    fun unifyW (G, Us1, Us2) =
+    let rec unifyW (G, Us1, Us2) =
           (resetAwakenCnstrs (); unify1W (G, Us1, Us2))
 
-    fun unify (G, Us1, Us2) =
+    let rec unify (G, Us1, Us2) =
           (resetAwakenCnstrs (); unify1 (G, Us1, Us2))
 
   in
@@ -874,18 +874,18 @@ struct
     let unifySub = unifySub
     let unifyBlock = unifyBlock
 
-    fun invertible (G, Us, ss, rOccur) =
+    let rec invertible (G, Us, ss, rOccur) =
           (invertExp (G, Us, ss, rOccur); true)
           handle NotInvertible => false
 
     let invertSub = invertSub
 
-    fun unifiable (G, Us1, Us2) =
+    let rec unifiable (G, Us1, Us2) =
           (unify (G, Us1, Us2);
            true)
           handle Unify msg =>  false
 
-    fun unifiable' (G, Us1, Us2) =
+    let rec unifiable' (G, Us1, Us2) =
           (unify (G, Us1, Us2); NONE)
           handle Unify(msg) => SOME(msg)
   end

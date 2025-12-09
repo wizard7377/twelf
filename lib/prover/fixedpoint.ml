@@ -29,7 +29,7 @@ struct
        and  F does not start with an all quantifier
        then S' = (Psi, xx :: F |> F)
     *)
-    fun expand (S.Focus (T.EVar (Psi, r, F, _, TCs, _), W), O) =
+    let rec expand (S.Focus (T.EVar (Psi, r, F, _, TCs, _), W), O) =
         let
 (*        let D = T.PDec (SOME "IH" , F, SOME O, SOME O) *)
           let I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE)
@@ -44,14 +44,14 @@ struct
        Invariant:
        O = S
     *)
-    fun apply (r, P) = (r := SOME P)   (* should be trailed -cs Thu Apr 22 11:20:32 2004 *)
+    let rec apply (r, P) = (r := SOME P)   (* should be trailed -cs Thu Apr 22 11:20:32 2004 *)
 
     (* menu O = s
 
        Invariant:
        s = "Apply universal introduction rules"
     *)
-    fun menu _ = "Recursion introduction"
+    let rec menu _ = "Recursion introduction"
 
 
   in

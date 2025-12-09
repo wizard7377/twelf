@@ -29,7 +29,7 @@ struct
   exception Error of string
 
   (* error (r, msg) raises a syntax error within region r with text msg *)
-  fun error (r, msg) = raise Error (Paths.wrap (r, msg))
+  let rec error (r, msg) = raise Error (Paths.wrap (r, msg))
 
   type name = string
 
@@ -62,7 +62,7 @@ struct
   *)
   (* call TypeCheck... if !doubleCheck = true? *)
   (* Wed May 20 08:00:28 1998 -fp *)
-  fun queryToQuery (query (optName, tm), Paths.Loc (fileName, r)) = 
+  let rec queryToQuery (query (optName, tm), Paths.Loc (fileName, r)) = 
       let
         (* construct an external term for the result of the query
         let res = (case optName
@@ -116,7 +116,7 @@ struct
         (conDecOpt, SOME(ocd))
       end
 
-  fun finishSolve (solve (nameOpt, tm, r), U, V) =
+  let rec finishSolve (solve (nameOpt, tm, r), U, V) =
       let
         let (i, (U', V')) =
             (Timers.time Timers.abstract Abstract.abstractDef) (U, V)
@@ -152,7 +152,7 @@ struct
   *)
   (* call TypeCheck... if !doubleCheck = true? *)
   (* Wed May 20 08:00:28 1998 -fp *)
-  fun solveToSolve (defines, sol as solve (optName, tm, r0), Paths.Loc (fileName, r)) = 
+  let rec solveToSolve (defines, sol as solve (optName, tm, r0), Paths.Loc (fileName, r)) = 
       let
 	let _ = Names.varReset IntSyn.Null
         let _ = T.resetErrors fileName

@@ -42,7 +42,7 @@ struct
   exception Error' of P.occ * string
 
   (* copied from terminates/reduces.fun *)
-  fun wrapMsg (c, occ, msg) =
+  let rec wrapMsg (c, occ, msg) =
       (case Origins.originLookup c
          of (fileName, NONE) => (fileName ^ ":" ^ msg)
           | (fileName, SOME occDec) =>
@@ -58,9 +58,9 @@ struct
 
 
     let worldsTable : T.Worlds Table.Table = Table.new (0)
-    fun reset () = Table.clear worldsTable
-    fun insert (cid, W) = Table.insert worldsTable (cid, W)
-    fun getWorlds (b) =
+    let rec reset () = Table.clear worldsTable
+    let rec insert (cid, W) = Table.insert worldsTable (cid, W)
+    let rec getWorlds (b) =
         (case Table.lookup worldsTable b
            of NONE => raise Error ("Family " ^ Names.qidToString (Names.constQid b) ^ " has no worlds declaration")
             | SOME (Wb) => Wb)
@@ -71,9 +71,9 @@ struct
        subsume that of a modulo subordination
     *)
     let subsumedTable : unit Table.Table = Table.new (0)
-    fun subsumedReset () = Table.clear subsumedTable
-    fun subsumedInsert (cid) = Table.insert subsumedTable (cid, ())
-    fun subsumedLookup (cid) =
+    let rec subsumedReset () = Table.clear subsumedTable
+    let rec subsumedInsert (cid) = Table.insert subsumedTable (cid, ())
+    let rec subsumedLookup (cid) =
         (case Table.lookup subsumedTable cid
            of NONE => false
             | SOME _ => true)
@@ -94,7 +94,7 @@ struct
 
 
     (* Format a regular world *)
-    fun formatReg r =
+    let rec formatReg r =
         (case r
            of Block (G, dl) =>
               Print.formatDecList (G, dl)
@@ -121,7 +121,7 @@ struct
          msg for family b:
          G |- dl </: Rb
      *)
-    fun formatSubsump msg (G, dl, Rb, b) =
+    let rec formatSubsump msg (G, dl, Rb, b) =
         (*
             F.HVbox ([F.String ((Names.qidToString (Names.constQid b)) ^ ":")])
         *)
@@ -176,7 +176,7 @@ struct
     (* noConstraints (G, s) = true iff there are no remaining constraints in s
        Invariants: s is an EVar substitution X1...Xn.^k
     *)
-    fun noConstraints (G, s) =
+    let rec noConstraints (G, s) =
         (case collectConstraints (collectEVars (G, s, nil))
            of nil => true
             | _ => false)
@@ -187,7 +187,7 @@ struct
     (************)
 
     (* Declarations *)
-    fun formatD (G, D) =
+    let rec formatD (G, D) =
           F.Hbox (F.String "{" :: Print.formatDec (G, D) :: F.String "}" :: nil)
 
     (* Declaration lists *)
@@ -213,21 +213,21 @@ struct
     *)
 
     (* Hypotheses and declaration lists *)
-    fun wGoalToString ((G, L), Seq (piDecs, t)) =
+    let rec wGoalToString ((G, L), Seq (piDecs, t)) =
         F.makestring_fmt (F.HVbox [F.HVbox (formatDList (G, L, I.id)), F.Break,
                                    F.String "<|", F.Break,
                                    F.HVbox (formatDList (G, piDecs, t))])
 
     (* Declaration list *)
-    fun worldToString (G, Seq (piDecs, t)) =
+    let rec worldToString (G, Seq (piDecs, t)) =
           F.makestring_fmt (F.HVbox (formatDList (G, piDecs, t)))
 
     (* Hypotheses *)
-    fun hypsToString (G, L) =
+    let rec hypsToString (G, L) =
           F.makestring_fmt (F.HVbox (formatDList (G, L, I.id)))
 
     (* Mismatch between hypothesis and world declaration *)
-    fun mismatchToString (G, (V1, s1), (V2, s2)) =
+    let rec mismatchToString (G, (V1, s1), (V2, s2)) =
         F.makestring_fmt (F.HVbox [Print.formatExp (G, I.EClo (V1, s1)), F.Break,
                                    F.String "<>", F.Break,
                                    Print.formatExp (G, I.EClo (V2, s2))])
@@ -247,36 +247,36 @@ struct
       let success : unit -> unit
     end =
     struct
-      fun clause (c) =
+      let rec clause (c) =
           print ("World checking clause " ^ Names.qidToString (Names.constQid c) ^ "\n")
-      fun constraintsRemain () =
+      let rec constraintsRemain () =
           if !Global.chatter > 7
             then print ("Constraints remain after matching hypotheses against context block\n")
           else ()
-      fun matchBlock (GL, R) =          (* R = (D1,...,Dn)[t] *)
+      let rec matchBlock (GL, R) =          (* R = (D1,...,Dn)[t] *)
           if !Global.chatter > 7
             then print ("Matching:\n" ^ wGoalToString (GL, R) ^ "\n")
           else ()
-      fun unmatched GL =
+      let rec unmatched GL =
           if !Global.chatter > 7
             then print ("Unmatched hypotheses:\n" ^ hypsToString GL ^ "\n")
           else ()
-      fun missing (G, R) =              (* R = (D1,...,Dn)[t] *)
+      let rec missing (G, R) =              (* R = (D1,...,Dn)[t] *)
           if !Global.chatter > 7
             then print ("Missing hypotheses:\n" ^ worldToString (G, R) ^ "\n")
           else ()
-      fun mismatch (G, Vs1, Vs2) =
+      let rec mismatch (G, Vs1, Vs2) =
           if !Global.chatter > 7
             then print ("Mismatch:\n" ^ mismatchToString (G, Vs1, Vs2) ^ "\n")
           else ()
-      fun success () =
+      let rec success () =
           if !Global.chatter > 7
             then print ("Success\n")
           else ()
     end
 
-    fun decUName (G, D) = I.Decl (G, Names.decUName (G, D))
-    fun decEName (G, D) = I.Decl (G, Names.decEName (G, D))
+    let rec decUName (G, D) = I.Decl (G, Names.decUName (G, D))
+    let rec decEName (G, D) = I.Decl (G, Names.decEName (G, D))
 
     (**************************************)
     (* Matching hypotheses against worlds *)
@@ -356,7 +356,7 @@ struct
 
        Invariants: Rb = reg (worlds (b))
     *)
-    fun checkSubsumedBlock (G, L', Rb, b) =
+    let rec checkSubsumedBlock (G, L', Rb, b) =
         (( accR ((G, L'), Rb, b, init b) ;
           raise Error (F.makestring_fmt (formatSubsump "World subsumption failure" (G, L', Rb, b))))
          handle Success => ())
@@ -382,7 +382,7 @@ struct
 
        Invariants: G |- V : type, V nf
     *)
-    fun checkBlocks (T.Worlds cids) (G, V, occ) =
+    let rec checkBlocks (T.Worlds cids) (G, V, occ) =
         let
           let b = I.targetFam V
           let Wb = getWorlds b handle Error (msg) => raise Error' (occ, msg)
@@ -436,7 +436,7 @@ struct
        iff all subgoals in all clauses defining a satisfy world spec W
        Effect: raises Error(msg) otherwise, where msg includes location
     *)
-    fun worldcheck W a =
+    let rec worldcheck W a =
         let
           let _ = if !Global.chatter > 3
                     then print ("World checking family " ^ Names.qidToString (Names.constQid a) ^ ":\n")
@@ -483,7 +483,7 @@ struct
                in context block SOME G'. PI L'
        Invariants: G |- SOME G'. PI L' block
     *)
-    fun checkSubordBlock (G, G', L) =
+    let rec checkSubordBlock (G, G', L) =
           checkSubordBlock' (ctxAppend (G, G'), L)
     and checkSubordBlock' (G, (D as I.Dec(_,V))::L') =
           ( Subordinate.respectsN (G, V); (* is V nf?  Assume here: yes! *)
@@ -503,7 +503,7 @@ struct
        if cid is defined as a context block
        Effect: raise Error (msg) otherwise
     *)
-    fun constBlock (cid) = conDecBlock (I.sgnLookup cid)
+    let rec constBlock (cid) = conDecBlock (I.sgnLookup cid)
 
     (* checkSubordWorlds (W) = ()
        Effect: raises Error(msg) if subordination is not respected
@@ -523,25 +523,25 @@ struct
 
        Effect: raises Error if W does not respect subordination
     *)
-    fun install (a, W as T.Worlds(cids)) =
+    let rec install (a, W as T.Worlds(cids)) =
         ( checkSubordWorlds cids
             handle Subordinate.Error (msg) => raise Error (msg) ;
           insert (a, W) )
 
-    fun uninstall a =
+    let rec uninstall a =
         case Table.lookup worldsTable a
           of NONE => false
            | SOME _ => (Table.delete worldsTable a; true)
 
     (* lookup (a) = SOME W if worlds declared for a, NONE otherwise *)
-    fun lookup a = getWorlds a
+    let rec lookup a = getWorlds a
 
     (* ctxToList G = L
 
        Invariant:
        G = L  (G is left associative, L is right associative)
     *)
-    fun ctxToList (Gin) =
+    let rec ctxToList (Gin) =
         let
           let rec ctxToList' = function (I.Null, G ) -> G
             | (I.Decl (G, D), G') -> 
@@ -558,7 +558,7 @@ struct
 
        Invariants: G |- V : type, V nf
     *)
-    fun isSubsumed (T.Worlds cids) b =
+    let rec isSubsumed (T.Worlds cids) b =
         let
           let Wb = getWorlds b
           let Rb = worldsToReg Wb

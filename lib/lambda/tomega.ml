@@ -94,8 +94,8 @@ struct
                    : ConDec Array.array
     let nextLemma = ref 0
 
-    fun lemmaLookup lemma = Array.sub (lemmaArray, lemma)
-    fun lemmaAdd (lemmaDec) =
+    let rec lemmaLookup lemma = Array.sub (lemmaArray, lemma)
+    let rec lemmaAdd (lemmaDec) =
         let
           let lemma = !nextLemma
         in
@@ -105,16 +105,16 @@ struct
                 nextLemma := lemma + 1;
                 lemma)
         end
-    fun lemmaSize () = (!nextLemma)
-    fun lemmaDef lemma =
+    let rec lemmaSize () = (!nextLemma)
+    let rec lemmaDef lemma =
         case (lemmaLookup lemma)
           of ValDec (_, P, _) => P
-    fun lemmaFor lemma =
+    let rec lemmaFor lemma =
         case (lemmaLookup lemma)
           of ForDec (_, F) => F
            | ValDec (_, _, F) => F
 
-    fun lemmaName s = lemmaName' (!nextLemma) s
+    let rec lemmaName s = lemmaName' (!nextLemma) s
     and lemmaName' ~1 s = raise Error "Function name not found"
       | lemmaName' n s =
         (case lemmaLookup n
@@ -232,16 +232,16 @@ struct
          then G |- O' order
          and  G |- O' == O[s] order
       *)
-      fun orderSub (O.Arg ((U, s1), (V, s2)), s) =
+      let rec orderSub (O.Arg ((U, s1), (V, s2)), s) =
             O.Arg ((U,  I.comp (s1, s)), (V, I.comp (s2, s)))
         | orderSub (O.Lex Os, s) = O.Lex (map (fun O -> orderSub (O, s)) Os)
         | orderSub (O.Simul Os, s) = O.Simul (map (fun O -> orderSub (O, s)) Os)
 
-      fun TCSub (Base O, s) = Base (orderSub (O, s))
+      let rec TCSub (Base O, s) = Base (orderSub (O, s))
         | TCSub (Conj (TC1, TC2), s) = Conj (TCSub (TC1, s), TCSub (TC2, s))
         | TCSub (Abs (D, TC), s) = Abs (I.decSub (D, s), TCSub (TC, I.dot1 s))
 
-      fun TCSubOpt (NONE, s) = NONE
+      let rec TCSubOpt (NONE, s) = NONE
         | TCSubOpt (SOME TC, s) = SOME (TCSub (TC, s))
 
       (* normalizeTC (O) = O'
@@ -252,16 +252,16 @@ struct
          and  G |- O = O' TC
          and  each sub term of O' is in normal form.
       *)
-      fun normalizeTC' (O.Arg (Us, Vs)) =
+      let rec normalizeTC' (O.Arg (Us, Vs)) =
             O.Arg ((Whnf.normalize Us, I.id), (Whnf.normalize Vs, I.id))
         | normalizeTC' (O.Lex Os) = O.Lex (map normalizeTC' Os)
         | normalizeTC' (O.Simul Os) = O.Simul (map normalizeTC' Os)
 
-      fun normalizeTC (Base  O) = Base (normalizeTC' O)
+      let rec normalizeTC (Base  O) = Base (normalizeTC' O)
         | normalizeTC (Conj (TC1, TC2)) = Conj (normalizeTC TC1, normalizeTC TC2)
         | normalizeTC (Abs (D, TC)) = Abs (Whnf.normalizeDec (D, I.id), normalizeTC TC)
 
-      fun normalizeTCOpt (NONE) = NONE
+      let rec normalizeTCOpt (NONE) = NONE
         | normalizeTCOpt (SOME TC) = SOME (normalizeTC TC)
 
       (* convTC (O1, O2) = B'
@@ -271,21 +271,21 @@ struct
          and  G |- O2 TC
          then B' holds iff G |- O1 == O2 TC
       *)
-      fun convTC' (O.Arg (Us1, _), O.Arg (Us2, _ )) = Conv.conv (Us1, Us2)
+      let rec convTC' (O.Arg (Us1, _), O.Arg (Us2, _ )) = Conv.conv (Us1, Us2)
         | convTC' (O.Lex Os1, O.Lex Os2) = convTCs (Os1, Os2)
         | convTC' (O.Simul Os1, O.Simul Os2) = convTCs (Os1, Os2)
       and convTCs (nil, nil) = true
         | convTCs (O1 :: L1, O2 :: L2) =
             convTC' (O1, O2) andalso convTCs (L1, L2)
 
-      fun convTC (Base  O, Base O') =  convTC' (O, O')
+      let rec convTC (Base  O, Base O') =  convTC' (O, O')
         | convTC (Conj (TC1, TC2), Conj (TC1', TC2')) = convTC (TC1, TC1')
                      andalso convTC (TC2, TC2')
         | convTC (Abs (D, TC), Abs (D', TC')) = Conv.convDec ((D, I.id), (D', I.id)) andalso
                      convTC (TC, TC')
         | convTC _ = false
 
-      fun convTCOpt (NONE, NONE) = true
+      let rec convTCOpt (NONE, NONE) = true
         | convTCOpt (SOME TC1, SOME TC2) = convTC (TC1, TC2)
         | convTCOpt _ = false
 
@@ -436,7 +436,7 @@ struct
        then G' |- s' : G
        s.t. s o s' = id
     *)
-    fun invertSub s =
+    let rec invertSub s =
       let
         (* returns NONE if not found *)
         let rec getFrontIndex = function (Idx k) -> SOME(k)
@@ -523,7 +523,7 @@ struct
        and  |- Psi == G
        and  G |- s : Psi
     *)
-    fun strengthenCtx Psi =
+    let rec strengthenCtx Psi =
         let
           let w = weakenSub Psi
           let s = invertSub w
@@ -564,8 +564,8 @@ struct
 
 
   (* newEVar (G, V) = newEVarCnstr (G, V, nil) *)
-  fun newEVar (Psi, F) = EVar(Psi, ref NONE, F, NONE, NONE, I.newEVar (coerceCtx Psi, I.Uni I.Type))
-  fun newEVarTC (Psi, F, TC, TC') = EVar (Psi, ref NONE, F, TC, TC', I.newEVar (coerceCtx Psi, I.Uni I.Type))
+  let rec newEVar (Psi, F) = EVar(Psi, ref NONE, F, NONE, NONE, I.newEVar (coerceCtx Psi, I.Uni I.Type))
+  let rec newEVarTC (Psi, F, TC, TC') = EVar (Psi, ref NONE, F, TC, TC', I.newEVar (coerceCtx Psi, I.Uni I.Type))
 
   let rec exists = function (x, []) -> false
     | (x, y :: W2) -> (x = y) orelse exists (x, W2)
@@ -573,7 +573,7 @@ struct
   let rec subset = function ([], _) -> true
     | (x :: W1, W2) -> exists (x, W2) andalso subset (W1, W2)
 
-  fun eqWorlds (Worlds W1, Worlds W2) =
+  let rec eqWorlds (Worlds W1, Worlds W2) =
       subset (W1, W2) andalso subset (W2, W1)
 
 
@@ -582,7 +582,7 @@ struct
      If      |G| >= k, where |G| is size of G,
      then    G |- k : V  and  G |- V : L
   *)
-    fun ctxDec (G, k) =
+    let rec ctxDec (G, k) =
       let (* ctxDec' (G'', k') = x:V
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)

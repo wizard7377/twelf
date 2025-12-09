@@ -25,7 +25,7 @@ struct
     (* extract (s, i) = substring of s starting at index i
        Effect: raises Subscript if i > |s|
     *)
-    fun extract (s, i) =
+    let rec extract (s, i) =
         if i = String.size s
           then NONE
         else SOME (String.extract (s, i, NONE))
@@ -33,7 +33,7 @@ struct
     (* splitModeId (r, id) = (mode, idOpt) where id = "<mode><idOpt>"
        Invariant: id <> ""
     *)
-    fun splitModeId (r, id) =
+    let rec splitModeId (r, id) =
         case String.sub (id, 0)
           of #"*" => (E.star r, extract (id, 1))
            | #"-" => (if (String.size id > 1 andalso String.sub (id, 1) = #"1")

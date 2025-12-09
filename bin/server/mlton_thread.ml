@@ -7,7 +7,7 @@ struct
   module Thread =
   struct
     open MLton.Thread
-    fun prepare (f, x) = f
+    let rec prepare (f, x) = f
   end
 
 end

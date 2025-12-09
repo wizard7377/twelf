@@ -65,7 +65,7 @@ struct
     let rec head = function (I.Root(h, _)) -> h
       | (I.Pi (_, A)) -> head(A)
 
-  fun seen (i, Vars) =
+  let rec seen (i, Vars) =
         List.exists (fn (d, x) => (x = i)) Vars
 
   (* etaSpine (S, n) = true
@@ -81,7 +81,7 @@ struct
         if Whnf.etaContract U = n then etaSpine' (S, n-1)
         else false
 
-  fun etaSpine (S, n) = etaSpine' (S, n) handle Eta => false
+  let rec etaSpine (S, n) = etaSpine' (S, n) handle Eta => false
 *)
 
   let rec etaSpine = function (I.Nil, n) -> (n=0)
@@ -92,7 +92,7 @@ struct
   (* collectHead (h, K, Vars, depth) = (K', Vars', replaced)
      adds to K and Vars as in collectExp and collectSpine
    *)
-  fun collectHead(h as I.BVar k, S, K, Vars, depth) =
+  let rec collectHead(h as I.BVar k, S, K, Vars, depth) =
        (* check if k is in Vars *)
        (if (k > depth) then
            (* check if h is an eta-expanded variable *)
@@ -118,7 +118,7 @@ struct
 
       for each new variable (d, k-d) for depth wrt locally bound variables
    *)
-   fun collectSpine(I.Nil, K, Vars, depth) = (K, Vars)
+   let rec collectSpine(I.Nil, K, Vars, depth) = (K, Vars)
      | collectSpine(I.App(U, S), K, Vars, depth) =
        let
          let (K', Vars') = collectExp(U, K, Vars, depth)
@@ -203,7 +203,7 @@ struct
    and
       Eqn accumulates residual equation UnifyEq(Gl, M, N)
   *)
-   fun linearHead(G, h as I.BVar(k), S, left, Vars, depth, total) =
+   let rec linearHead(G, h as I.BVar(k), S, left, Vars, depth, total) =
        if k > depth then
          (if etaSpine(S, depth) then
             (if (seen (k-depth, Vars)) then
@@ -308,7 +308,7 @@ struct
        and of the form
            (Axists(_ , Axists( _, ....., Axists( _, Assign (E, AuxG)))))
   *)
-    fun compileLinearHead (G, R as I.Root (h, S)) =
+    let rec compileLinearHead (G, R as I.Root (h, S)) =
         let
           let (K, _) =  collectExp (R, nil, nil, 0)
           let left = List.length K
@@ -338,7 +338,7 @@ struct
            G |- H ResGoal  and H is linear
 
   *)
-    fun compileSbtHead (G, H as I.Root (h, S)) =
+    let rec compileSbtHead (G, H as I.Root (h, S)) =
         let
           let (K, _) =  collectExp (H, nil, nil, 0)
           let left = List.length K
@@ -489,10 +489,10 @@ struct
       compileSClauseN fromCS (I.Decl(Stack, I.Maybe), I.Decl(G, D), A2)
 
 
-  fun compileDClause opt (G, A) =
+  let rec compileDClause opt (G, A) =
         compileDClauseN I.Ordinary opt (G, Whnf.normalize (A, I.id))
 
-  fun compileGoal (G, A) =
+  let rec compileGoal (G, A) =
     compileGoalN I.Ordinary (G, Whnf.normalize (A, I.id))
 
   (* compileCtx G = (G, dPool)
@@ -502,7 +502,7 @@ struct
      then |- G ~> dPool  (context G compile to clause pool dPool)
      and  |- dPool  dpool
   *)
-  fun compileCtx opt G =
+  let rec compileCtx opt G =
       let
         let rec compileBlock = function (nil, s, (n, i)) -> nil
           | (I.Dec (_, V) :: Vs, t, (n, i)) -> 
@@ -538,7 +538,7 @@ struct
      then |- G ~> dPool  (context G compile to clause pool dPool)
      and  |- dPool  dpool
   *)
-  fun compilePsi opt Psi =
+  let rec compilePsi opt Psi =
       let
         let rec compileBlock = function (nil, s, (n, i)) -> nil
           | (I.Dec (_, V) :: Vs, t, (n, i)) -> 
@@ -593,7 +593,7 @@ struct
      Effect: compiles and installs compiled form of A according to
              the specified compilation strategy
   *)
-  fun installClause fromCS (a, A) =
+  let rec installClause fromCS (a, A) =
     (case (!C.optimize)
      of C.No => C.sProgInstall (a, C.SClause (compileDClauseN fromCS true (I.Null, A)))
       | C.LinearHeads => C.sProgInstall (a, C.SClause(compileDClauseN fromCS true (I.Null, A)))
@@ -626,9 +626,9 @@ struct
         C.sProgInstall (a, C.SClause (compileDClauseN I.Clause true (I.Null, Whnf.normalize (A, I.id))))
     | _ _ -> ()
 
-  fun install fromCS (cid) =  compileConDec fromCS (cid, I.sgnLookup cid)
+  let rec install fromCS (cid) =  compileConDec fromCS (cid, I.sgnLookup cid)
 
-  fun sProgReset () = (SubTree.sProgReset(); C.sProgReset())
+  let rec sProgReset () = (SubTree.sProgReset(); C.sProgReset())
 
 
   end  (* local open ... *)

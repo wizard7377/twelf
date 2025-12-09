@@ -131,7 +131,7 @@ struct
        Invariant:
        S = (. |> F) is the initial state
     *)
-    fun init (F, W) =
+    let rec init (F, W) =
         let
           let X = T.newEVar (I.Null, F)
         in State (W, I.Null, X, F)
@@ -143,7 +143,7 @@ struct
        Invariant:
        If  B holds iff S  doesn't contain any free subgoals
     *)
-    fun close (State (W, _, P, _)) =
+    let rec close (State (W, _, P, _)) =
          (case (findPrg P, findExp (I.Null, P) [])
             of (nil, nil) => true
              | _ => false)

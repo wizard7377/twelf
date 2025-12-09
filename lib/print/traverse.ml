@@ -137,7 +137,7 @@ in
 
   let fromConDec = fromConDec
 
-  fun const (name) =
+  let rec const (name) =
       let let qid = case Names.stringToQid name
                       of NONE => raise Error ("Malformed qualified identifier " ^ name)
                        | SOME qid => qid

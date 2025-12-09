@@ -38,7 +38,7 @@ struct
        then |- S' State    and S' named
        and  |- S = S' state
     *)
-    fun nameState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
+    let rec nameState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
         let
           let _ = Names.varReset I.Null
           let G' = Names.ctxName G
@@ -105,7 +105,7 @@ struct
        If   |- S state      and  S named
        then fmt' is a format describing the state S
     *)
-    fun formatState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
+    let rec formatState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
           Fmt.Vbox0 0 1
           [Fmt.HVbox0 1 0 1 (formatOrder (G, O)), Fmt.Break,
            Fmt.String "========================", Fmt.Break,
@@ -120,7 +120,7 @@ struct
        If   |- S state      and  S named
        then S' is a string descring state S in plain text
     *)
-    fun stateToString S =
+    let rec stateToString S =
       (Fmt.makestring_fmt (formatState S))
 
 

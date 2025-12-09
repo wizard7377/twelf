@@ -10,7 +10,7 @@ struct
 
   let debug = ref ~1
 
-  fun sgnReset () = Sgn.clear ()
+  let rec sgnReset () = Sgn.clear ()
 
 (* xlate_type : IntSyn.exp -> Syntax.tp *)
   let rec xlate_type = function (I.Pi ((I.Dec(_, e1), _), e2)) -> S.TPi(S.MINUS, xlate_type e1, xlate_type e2)
@@ -124,7 +124,7 @@ struct
  (* the length of the mode list, if there is one, should correspond to the number of pis in the input type.
     however, as indicated in the XXX comment below, it seems necessary to treat SOME of empty list
     as if it were NONE. This doesn't seem right. *)
-  fun compress_type G s = (* if !debug < 0
+  let rec compress_type G s = (* if !debug < 0
                           then *) compress_type' G s
                           (* else  (if !debug = 0 then raise Debug(G, s) else ();
                                 debug := !debug - 1; compress_type' G s) *)
@@ -244,7 +244,7 @@ struct
       end
     | _ -> raise Unimp
 
-  fun sgnLookup (cid) =
+  let rec sgnLookup (cid) =
       let
           let c = Sgn.sub cid
       in
@@ -261,13 +261,13 @@ struct
 
  (*  let sgnApp  = IntSyn.sgnApp
 
-  fun sgnCompress () = sgnApp (ignore o sgnLookup) *)
+  let rec sgnCompress () = sgnApp (ignore o sgnLookup) *)
 
-  fun sgnCompressUpTo x = if x < 0 then () else (sgnCompressUpTo (x - 1); sgnLookup x; ())
+  let rec sgnCompressUpTo x = if x < 0 then () else (sgnCompressUpTo (x - 1); sgnLookup x; ())
 
   let check = Reductio.check
 
-  fun extract f = ((f(); raise Match) handle Debug x => x)
+  let rec extract f = ((f(); raise Match) handle Debug x => x)
 
   let set_modes = Sgn.set_modes
 
@@ -275,7 +275,7 @@ struct
 
 
   (* given a cid, pick some vaguely plausible omission modes *)
-  fun naiveModes cid =
+  let rec naiveModes cid =
       let
           let (ak, omitted_args, uni) =
               case I.sgnLookup cid of
@@ -287,7 +287,7 @@ struct
             | _ -> 0
           let total_args = count_args ak
 
-          fun can_omit ms =
+          let rec can_omit ms =
               let
                   let _ = Sgn.set_modes (cid, ms)
                   let s = compress (cid, I.sgnLookup cid)
@@ -306,7 +306,7 @@ struct
             | ms (S.MINUS::ms') -> if  can_omit ((rev ms) @ (S.OMIT :: ms'))
                                            then optimize' (S.OMIT::ms) ms'
                                            else optimize' (S.MINUS::ms) ms'
-          fun optimize ms = optimize' [] ms
+          let rec optimize ms = optimize' [] ms
       in
           if uni = I.Kind
           then List.tabulate (total_args, (fun _ -> S.MINUS))
@@ -317,7 +317,7 @@ struct
   (* Given a cid, return the "ideal" modes specified by twelf-
      omitted arguments. It is cheating to really use these for
      compression: the resulting module type will not typecheck. *)
-  fun idealModes cid =
+  let rec idealModes cid =
       let
           let (ak, omitted_args) =
               case I.sgnLookup cid of
@@ -334,17 +334,17 @@ struct
 
 (* not likely to work if the mode-setting function f actually depends on
    properties of earlier sgn entries *)
-  fun setModesUpTo x f = if x < 0 then () else (setModesUpTo (x - 1) f;
+  let rec setModesUpTo x f = if x < 0 then () else (setModesUpTo (x - 1) f;
                                                 Sgn.set_modes (x, f x); ())
 
-  fun sgnAutoCompress n f = (let
+  let rec sgnAutoCompress n f = (let
       let modes = f n
   in
       Sgn.set_modes(n, modes);
       Sgn.update (n, compress (n, IntSyn.sgnLookup n))
   end handle NoModes => ())
 
-  fun sgnAutoCompressUpTo' n0 n f =
+  let rec sgnAutoCompressUpTo' n0 n f =
       if n0 > n
       then ()
       else let
@@ -364,7 +364,7 @@ struct
           in
               sgnAutoCompressUpTo' (n0 + 1) n f
           end
-  fun sgnAutoCompressUpTo n f = sgnAutoCompressUpTo' 0 n f
+  let rec sgnAutoCompressUpTo n f = sgnAutoCompressUpTo' 0 n f
 
   let check = Reductio.check
 

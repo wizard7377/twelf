@@ -156,7 +156,7 @@ let rec flashProto() =
 	let buf : string ref = ref ""
 	let rec isnull = function #"\000" -> true
 	  | _ -> false
-	fun recv (u : server) s = 
+	let rec recv (u : server) s = 
 	    let
 		let _ = buf := !buf ^ s
 		let (rem::cmds) = rev(String.fields isnull (!buf))
@@ -164,7 +164,7 @@ let rec flashProto() =
 	    in
 		buf := rem
 	    end
-	fun send (u : server) s = (#send u) (s ^ "\000")
+	let rec send (u : server) s = (#send u) (s ^ "\000")
     in
 	{
 	 init = (fn () =>  Msg.message (Twelf.version ^ "\n%%% OK %%%\n")),
@@ -181,7 +181,7 @@ let rec humanProto() =
 	let rec isnewl = function #"\n" -> true
 	  | #"\r" -> false
 	  | _ -> false
-	fun recv (u : server) s = 
+	let rec recv (u : server) s = 
 	    let
 		let _ = buf := !buf ^ s
 		let (rem::cmds) = rev(String.fields isnewl (!buf))
@@ -189,7 +189,7 @@ let rec humanProto() =
 	    in
 		buf := rem
 	    end
-	fun send (u : server) s = (#send u) ("> " ^ s)
+	let rec send (u : server) s = (#send u) ("> " ^ s)
     in
 	{
 	 init = (fn () =>  Msg.message (Twelf.version ^ "\n%%% OK %%%\n")),
@@ -212,7 +212,7 @@ let rec httpProto dir =
 	let rec isnewl = function #"\n" -> true
 	  | _ -> false
 
-	fun handlePostRequest (u : server) =
+	let rec handlePostRequest (u : server) =
 	    let
 		let shouldQuit = ((#exec u) (!ibuf); false) handle Quit => true
 		let response = !obuf
@@ -222,7 +222,7 @@ let rec httpProto dir =
 		#send u response;
 		if shouldQuit then raise Quit else raise EOF
 	    end 
-	fun handleGetRequest (u : server) =
+	let rec handleGetRequest (u : server) =
 	    let
 		let ok = "200 OK"
 		let missing = "404 Not Found"
@@ -246,25 +246,25 @@ let rec httpProto dir =
 		raise EOF;
 		()
 	    end 
-	fun handleRequest (u : server) = 
+	let rec handleRequest (u : server) = 
 	    if !method = "GET" then handleGetRequest u
 	    else if !method = "POST" then handlePostRequest u
 	    else #send u "HTTP/1.1 500 Server Error\n\n"
-	fun headerExec s = headers := (s :: !headers)
-	fun recvContent u = (if (size (!ibuf) >= !contentLength) then handleRequest u else ())
-	fun parseHeaders() = 
+	let rec headerExec s = headers := (s :: !headers)
+	let rec recvContent u = (if (size (!ibuf) >= !contentLength) then handleRequest u else ())
+	let rec parseHeaders() = 
 	    (let
 		 let (request::headers) = rev (!headers)
 		 let [m, u, httpVersion] = String.tokens (fun x -> x = #" ") request
 		 let _ = method := m
 		 let _ = url := u
-		 fun getField s = 
+		 let rec getField s = 
 		     let
 			 let (k::v) = String.fields (fun x -> x = #":") s
 			 let v = join ":" v
 		     in
 			 (k, substring(v, 1, (size v) - 1)) end
-		 fun proc_one s = 
+		 let rec proc_one s = 
 		     let
 			 let (k, v) = getField s 
 		     in 
@@ -285,13 +285,13 @@ let rec httpProto dir =
 		then (ibuf := join "\n" tl; parseHeaders(); recvContent u)
 		else (headerExec (stripcr h); interp u tl)
 	    end
-	fun recv (u : server) s = 
+	let rec recv (u : server) s = 
 	    (ibuf := !ibuf ^ s;
 	     if !parsingHeaders 
 	     then interp u (String.fields isnewl (!ibuf))
 	     else recvContent u)
-	fun send (u : server) s = obuf := !obuf ^ s
-	fun reset () = (parsingHeaders := true; ibuf := ""; obuf := ""; contentLength := 0; headers := []; url := ""; method := "")
+	let rec send (u : server) s = obuf := !obuf ^ s
+	let rec reset () = (parsingHeaders := true; ibuf := ""; obuf := ""; contentLength := 0; headers := []; url := ""; method := "")
     in
 	{
 	 init = (fn () => ()),
@@ -309,7 +309,7 @@ let rec protoServer (proto : protocol) portNum =
 	let _ = S.bind (sock, INetSock.any portNum)
 	let _ = S.listen (sock, maxConnections)
 
-	fun read_one conn u () =
+	let rec read_one conn u () =
 	    let
 		let v = S.recvVec(conn, 1024) (* arbitrary buffer size *)
 	    in
@@ -317,7 +317,7 @@ let rec protoServer (proto : protocol) portNum =
 		then raise EOF
 		else (#recv proto) u (vec2str v)
 	    end
-	fun accept_one () = 
+	let rec accept_one () = 
 	    let
 		let (conn, addr) = S.accept sock
 		let _ = (#reset proto) ()

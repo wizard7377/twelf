@@ -4,10 +4,10 @@ sig
     let setMessageFunc : (string -> unit) -> unit
 end
 
-(Msg : MS)G =
+(Msg : MSG) =
 struct
  let default = print 
  let messageFunc = ref (default)
- fun setMessageFunc f = (messageFunc := f)
- fun message s = ((!messageFunc) s)
+ let rec setMessageFunc f = (messageFunc := f)
+ let rec message s = ((!messageFunc) s)
 end

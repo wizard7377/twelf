@@ -48,7 +48,7 @@ struct
 
 *)
 
-      fun nameCtx Psi = Psi
+      let rec nameCtx Psi = Psi
 
 
     (* nameState S = S'
@@ -58,7 +58,7 @@ struct
        then |- S' State    and S' named
        and  |- S = S' state
     *)
-    fun nameState (S) = S
+    let rec nameState (S) = S
 
 (*
     let rec formatOrder = function (G, S.Arg (Us, Vs)) -> 
@@ -136,7 +136,7 @@ struct
        If   |- S state      and  S named
        then fmt' is a format describing the state S
     *)
-    fun formatState (S.State (W, Psi, P, F, _)) =
+    let rec formatState (S.State (W, Psi, P, F, _)) =
           Fmt.Vbox0 0 1
           [Fmt.String "------------------------", Fmt.Break,
            Fmt.String "------------------------", Fmt.Break,
@@ -148,7 +148,7 @@ struct
        If   |- S state      and  S named
        then S' is a string descring state S in plain text
     *)
-    fun stateToString S =
+    let rec stateToString S =
       (Fmt.makestring_fmt (formatState S))
 
 

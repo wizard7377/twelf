@@ -32,15 +32,15 @@ local
      nl() : newline (with current indentation) *)
   let indent = ref 0
   let tabstring = "   "
-  fun tabs(n) = if (n <= 0) then "" else tabstring ^ tabs(n-1)
-  fun ind_reset() = (indent := 0)
-  fun ind(n) = indent := !indent + n
-  fun unind(n) = indent := !indent - n
-  fun nl_ind() = (indent := !indent + 1; "\n" ^ tabs(!indent))
-  fun nl_unind() = (indent := !indent - 1; "\n" ^ tabs(!indent))
-  fun nl() = "\n" ^ tabs(!indent)
+  let rec tabs(n) = if (n <= 0) then "" else tabstring ^ tabs(n-1)
+  let rec ind_reset() = (indent := 0)
+  let rec ind(n) = indent := !indent + n
+  let rec unind(n) = indent := !indent - n
+  let rec nl_ind() = (indent := !indent + 1; "\n" ^ tabs(!indent))
+  let rec nl_unind() = (indent := !indent - 1; "\n" ^ tabs(!indent))
+  let rec nl() = "\n" ^ tabs(!indent)
 
-  fun escape s = let
+  let rec escape s = let
           let rec escapelist = function nil -> nil
             | (#"&" :: rest) -> String.explode "&amp;" @ (escapelist rest)
             | (#"<" :: rest) -> String.explode "&lt;" @ (escapelist rest)
@@ -55,11 +55,11 @@ local
  let namesafe = ref true
 
   (* XML start characters: ":" | "_" | [A-Z] | [a-z], further characters: "-" | "." | [0-9] *)
-  fun replace c = if (Char.isAlphaNum c) orelse (Char.contains ":_-." c) then
+  let rec replace c = if (Char.isAlphaNum c) orelse (Char.contains ":_-." c) then
         (String.str c)
   else
         "_"
-  fun Name (cid) = let
+  let rec Name (cid) = let
         let n = I.conDecName(I.sgnLookup cid)
         let name = String.translate replace n
         let start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
@@ -70,7 +70,7 @@ local
                 n
   end
   (* x must be the number of the varialbe in left ro right order in the context *)
-  fun VarName (x,n) = let
+  let rec VarName (x,n) = let
         let name = String.translate replace n
         let start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
   in
@@ -82,11 +82,11 @@ local
 
   (* Some original Formatter functions replaced with trivial functions. *)
   (* let Str  = F.String
-  fun Str0 (s, n) = F.String0 n s
-  fun Integer (n) = ("\"" ^ Int.toString n ^ "\"") *)
-  fun Str (s) = s
+  let rec Str0 (s, n) = F.String0 n s
+  let rec Integer (n) = ("\"" ^ Int.toString n ^ "\"") *)
+  let rec Str (s) = s
   (* fun sexp (fmts) = F.Hbox [F.HVbox fmts] *)
-  fun sexp (l) = String.concat l
+  let rec sexp (l) = String.concat l
 
   (* This is probably defined elsewhere, too. It's needed to check how many arguments there will be in an om:OMA element *)
   let rec spineLength = function I.Nil -> 0
@@ -323,19 +323,19 @@ in
          actually applied in the scope (typically, using Names.decName)
      (b) types need not be well-formed, since they are not used
   *)
-  fun formatExp (G, U, imp) = fmtExp (G, (U, I.id), imp)
+  let rec formatExp (G, U, imp) = fmtExp (G, (U, I.id), imp)
 (*  fun formatSpine (G, S) = sexp (fmtSpine (G, (S, I.id))) *)
-  fun formatConDec (condec) = fmtConDec (condec)
+  let rec formatConDec (condec) = fmtConDec (condec)
 
   (* fun expToString (G, U) = F.makestring_fmt (formatExp (G, U, 0)) *)
-  fun conDecToString (condec) = (formatConDec (condec))
+  let rec conDecToString (condec) = (formatConDec (condec))
 
 
-  fun fmtConst cid = formatConDec (cid, IntSyn.sgnLookup cid) ^ "\n" ^ fmtPresentation(cid) ^ fmtFixity(cid)
+  let rec fmtConst cid = formatConDec (cid, IntSyn.sgnLookup cid) ^ "\n" ^ fmtPresentation(cid) ^ fmtFixity(cid)
 
-  fun printConst cid = (namesafe := false; fmtConst cid)
+  let rec printConst cid = (namesafe := false; fmtConst cid)
 
-  fun printSgn filename ns =
+  let rec printSgn filename ns =
       let
         let _ = namesafe := ns
         let _ = ind_reset()

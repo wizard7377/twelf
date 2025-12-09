@@ -56,7 +56,7 @@ struct
      formats instantiated EVars as a substitution.
      Abbreviate as empty string if chatter level is < 3.
   *)
-  fun evarInstToString (Xs) =
+  let rec evarInstToString (Xs) =
       if !Global.chatter >= 3
         then Print.evarInstToString (Xs)
       else ""
@@ -65,7 +65,7 @@ struct
      formats expression as a string.
      Abbreviate as empty string if chatter level is < 3.
   *)
-  fun expToString GU =
+  let rec expToString GU =
       if !Global.chatter >= 3
         then Print.expToString GU
       else ""
@@ -102,7 +102,7 @@ struct
   (* checkSolutions : bound * bound * int -> unit *)
   (* raises AbortQuery(msg) if the actual solutions do not match *)
   (* the expected number, given the bound on the number of tries *)
-  fun checkSolutions (expected, try, solutions) =
+  let rec checkSolutions (expected, try, solutions) =
       if boundEq (boundMin (expected, try), SOME(solutions))
         then ()
       else raise AbortQuery ("Query error -- wrong number of solutions: expected "
@@ -113,7 +113,7 @@ struct
   (* checkStages : bound * int -> unit *)
   (* raises AbortQuery(msg) if the actual #stages do not match *)
   (* the expected number, given the bound on the number of tries *)
-  fun checkStages (try, stages) =
+  let rec checkStages (try, stages) =
      if boundEq (try, SOME(stages))
         then ()
       else raise AbortQuery ("Query error -- wrong number of stages: "
@@ -124,7 +124,7 @@ struct
      Effects: inputs one line from standard input,
               raises exception AbortQuery(msg) is first character is "q" or "Q"
   *)
-  fun moreSolutions () =
+  let rec moreSolutions () =
       (print ("More? ");
        case String.sub (Compat.inputLine97 (TextIO.stdIn), 0)
          of #"y" => true
@@ -156,7 +156,7 @@ struct
      error messages and finally returning the status (either OK or
      ABORT).
   *)
-  fun solve' (defines, solve, Paths.Loc (fileName, r)) =
+  let rec solve' (defines, solve, Paths.Loc (fileName, r)) =
       let
         let (A, finish) = (* self timing *)
               ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r))
@@ -173,7 +173,7 @@ struct
                 else ()
         let g = (Timers.time Timers.compiling Compile.compileGoal)
                     (IntSyn.Null, A)
-        fun search () = AbsMachine.solve
+        let rec search () = AbsMachine.solve
                           ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
                            fun M -> raise Solution M)
       in
@@ -198,7 +198,7 @@ struct
   -- this version can be used to produce oracles, however no user
   directive is added yet.
 *)
-  fun solveSbt (defines, solve, Paths.Loc (fileName, r)) =
+  let rec solveSbt (defines, solve, Paths.Loc (fileName, r)) =
       let
         let (A, finish) = (* self timing *)
               ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r))
@@ -237,7 +237,7 @@ struct
           raise AbortQuery ("\n----------- TIME OUT ---------------\n" )
       end
 
-  fun solve args =
+  let rec solve args =
     case (!Compile.optimize) of
       (* solves A where program clauses are indexed using substitution trees
          and reconstructs the proof term X afterwards - bp
@@ -248,7 +248,7 @@ struct
 
 
   (* %query <expected> <try> A or %query <expected> <try> X : A *)
-  fun query' ((expected, try, quy), Paths.Loc (fileName, r)) =
+  let rec query' ((expected, try, quy), Paths.Loc (fileName, r)) =
     let
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
       let (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
@@ -283,7 +283,7 @@ struct
          and raises exception Done if bound has been reached, otherwise it returns
          to search for further solutions
        *)
-      fun scInit M =
+      let rec scInit M =
         (solutions := !solutions+1;
          if !Global.chatter >= 3
            then (Msg.message ("---------- Solution " ^ Int.toString (!solutions) ^ " ----------\n");
@@ -310,7 +310,7 @@ struct
                      then raise Done
                    else ())
 
-        fun search () = AbsMachine.solve
+        let rec search () = AbsMachine.solve
                          ((g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
                           scInit)
               in
@@ -339,7 +339,7 @@ struct
               end
 
   (* %query <expected> <try> A or %query <expected> <try> X : A *)
-  fun querySbt ((expected, try, quy), Paths.Loc (fileName, r)) =
+  let rec querySbt ((expected, try, quy), Paths.Loc (fileName, r)) =
     let
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
       let (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
@@ -375,7 +375,7 @@ struct
          and raises exception Done if bound has been reached, otherwise it returns
          to search for further solutions
        *)
-      fun scInit M =
+      let rec scInit M =
         (solutions := !solutions+1;
          if !Global.chatter >= 3
            then (Msg.message ("---------- Solution " ^ Int.toString (!solutions) ^ " ----------\n");
@@ -410,7 +410,7 @@ struct
                if exceeds (SOME(!solutions),try)
                  then raise Done
                else ())
-        fun search () = AbsMachineSbt.solve
+        let rec search () = AbsMachineSbt.solve
                           ((g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
                            scInit)
     in
@@ -439,7 +439,7 @@ struct
     end
 
   (* %query <expected> <try> A or %query <expected> <try> X : A  *)
-  fun query args =
+  let rec query args =
     case (!Compile.optimize) of
          (* Execute query where program clauses are
             indexed using substitution trees -- if we require the proof term X
@@ -454,7 +454,7 @@ struct
 or  %querytabled <expected solutions> <max stages tried>  X : A
   note : %querytabled terminates if we have found the expected number of
   solutions or if we have reached the maximal number of stages *)
-  fun querytabled ((numSol, try, quy), Paths.Loc (fileName, r)) =
+  let rec querytabled ((numSol, try, quy), Paths.Loc (fileName, r)) =
     let
       let _ = if !Global.chatter >= 3
                 then Msg.message ("%querytabled " ^ boundToString numSol ^ " " ^
@@ -493,7 +493,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
          and raises exception Done if bound has been reached, otherwise it returns
          to search for further solutions
        *)
-      fun scInit O =
+      let rec scInit O =
         (solutions := !solutions+1;
          solExists := true ;
          if !Global.chatter >= 3
@@ -536,7 +536,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
            )
 
       (* loops -- scinit will raise exception Done *)
-      fun loop () =  (if exceeds (SOME(!stages-1),try)
+      let rec loop () =  (if exceeds (SOME(!stages-1),try)
                       then ((if !Global.chatter >= 1
                              then Msg.message
                                       ("\n ================= " ^
@@ -571,7 +571,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                       raise Done)
       let _ = Tabled.reset ()
       let _ = Tabled.fillTable ()
-      fun tabledSearch () =
+      let rec tabledSearch () =
         (Tabled.solve((g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
                       scInit) ;
          CSManager.reset ();    (* in case Done was raised *)
@@ -633,7 +633,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
 
   (* Interactive Query Top Level *)
 
-  fun qLoop () = qLoops (CSManager.reset ();
+  let rec qLoop () = qLoops (CSManager.reset ();
                          Parser.parseTerminalQ ("?- ", "   ")) (* primary, secondary prompt *)
   and qLoops (s) = qLoops' ((Timers.time Timers.parsing S.expose) s)
   and qLoops' (S.Empty) = true          (* normal exit *)
@@ -643,7 +643,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                                         (* times itself *)
         let g = (Timers.time Timers.compiling Compile.compileGoal)
                     (IntSyn.Null, A)
-        fun scInit M =
+        let rec scInit M =
             ((if !Global.chatter >= 1
               then Msg.message ((Timers.time Timers.printing evarInstToString)
                                     Xs ^ "\n")
@@ -678,7 +678,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
 
 
   (* querytabled interactive top loop *)
-  fun qLoopT () = qLoopsT (CSManager.reset ();
+  let rec qLoopT () = qLoopsT (CSManager.reset ();
                          Parser.parseTerminalQ ("?- ", "   ")) (* primary, secondary prompt *)
   and qLoopsT (s) = qLoopsT' ((Timers.time Timers.parsing S.expose) s)
   and qLoopsT' (S.Empty) = true         (* normal exit *)
@@ -690,7 +690,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
         let g = (Timers.time Timers.compiling Compile.compileGoal)
                     (IntSyn.Null, A)
         let _ = Tabled.reset ()
-        fun scInit O =
+        let rec scInit O =
             ((if !Global.chatter >= 1
               then Msg.message ((Timers.time Timers.printing evarInstToString) Xs ^ "\n")
               else ());
@@ -711,7 +711,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
              solExists := true;
              if moreSolutions () then () else raise Done)
         (* loops -- scinit will raise exception Done *)
-        fun loop () =  (if Tabled.nextStage () then
+        let rec loop () =  (if Tabled.nextStage () then
                           loop ()
                        else
                         (* table did not change,

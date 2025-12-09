@@ -17,16 +17,16 @@
 	let _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
 	let setitimer = SMLofNJ.IntervalTimer.setIntTimer
 
-	fun timerOn () = ignore(setitimer (SOME t))
+	let rec timerOn () = ignore(setitimer (SOME t))
 
-	fun timerOff () = ignore(setitimer NONE)
+	let rec timerOff () = ignore(setitimer NONE)
 
 	let escapeCont = SMLofNJ.Cont.callcc (fun k -> (
 		SMLofNJ.Cont.callcc (fn k' => (SMLofNJ.Cont.throw k k'));
 		timerOff();
 		raise TimeOut))
 
-	fun handler _ = escapeCont
+	let rec handler _ = escapeCont
 
       in
 	Signals.setHandler (Signals.sigALRM, Signals.HANDLER handler);

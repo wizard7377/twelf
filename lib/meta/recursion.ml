@@ -204,7 +204,7 @@ struct
        It is not yet clear what should happen if there are inductive calls where more
        then one contextblocks are introduced --cs
     *)
-    fun checkLabels ((G', B'), (V, s), ll (* as nil *), l) =
+    let rec checkLabels ((G', B'), (V, s), ll (* as nil *), l) =
         if l < 0 then NONE
         else
           let
@@ -263,7 +263,7 @@ struct
        then
        G0 |- Ds decs
     *)
-    fun recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), ll, Ocurrent, H, F)) =
+    let rec recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), ll, Ocurrent, H, F)) =
       let
         let ((G', B'), s', af) = createCtx ((G0, B0), ll, I.id)
                                         (* G' |- s' : G0 *)
@@ -273,7 +273,7 @@ struct
         let Oex' =  S.orderSub (Oex, t')
         let Ocurrent' = S.orderSub (Ocurrent, s')
 
-        fun sc Ds =
+        let rec sc Ds =
           let
             let Fnew = A.abstractApproxFor AF
           in
@@ -284,7 +284,7 @@ struct
               Lemma (nih, Fnew) :: Ds
           end
 
-        fun ac ((G', B'), Vs, Ds) =
+        let rec ac ((G', B'), Vs, Ds) =
           (case checkLabels ((G', B'), Vs, ll, F.labelSize ()-1)
              of NONE => Ds
               | SOME l' =>
@@ -774,7 +774,7 @@ struct
           (nih+1, updateState (S, (Ds, I.id)))
         end
 
-    fun expand (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) =
+    let rec expand (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) =
       let
         let _ = if (!Global.doubleCheck) then FunTypeCheck.isState S else ();
 
@@ -785,13 +785,13 @@ struct
 
 
 
-    fun apply S =
+    let rec apply S =
       (if (!Global.doubleCheck) then FunTypeCheck.isState S else ();
        S)
 
-    fun menu _ = "Recursion (calculates ALL new assumptions & residual lemmas)"
+    let rec menu _ = "Recursion (calculates ALL new assumptions & residual lemmas)"
 
-    fun handleExceptions f P =
+    let rec handleExceptions f P =
         (f P) handle Order.Error s => raise Error s
 
   in

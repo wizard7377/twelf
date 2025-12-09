@@ -24,7 +24,7 @@ struct
     module S = Subordinate
     module TA = TomegaAbstract
 
-    fun chatter chlev f =
+    let rec chatter chlev f =
         if !Global.chatter >= chlev
           then print (f ())
         else ()
@@ -58,7 +58,7 @@ struct
        and  Psi  |- F'[t1] == F[t2]
        then Psi  |- F''[t1] == F'[t']
     *)
-    fun inferSpine (Psi, S, Ft) = inferSpineW (Psi, S, T.whnfFor Ft)
+    let rec inferSpine (Psi, S, Ft) = inferSpineW (Psi, S, T.whnfFor Ft)
     and inferSpineW (Psi, T.Nil, (F, t)) = (F, t)
       | inferSpineW (Psi, T.AppExp (M, S), (T.All ((T.UDec (I.Dec (_, A)), _), F), t)) =
         let
@@ -633,7 +633,7 @@ struct
       | isValue _ = raise Error "P isn't Value!"
 *)
 
-    fun check (Psi, (P, F)) = checkPrg (Psi, (P, (F, T.id)))
+    let rec check (Psi, (P, F)) = checkPrg (Psi, (P, (F, T.id)))
 
 
 

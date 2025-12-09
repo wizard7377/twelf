@@ -24,9 +24,9 @@ struct
 		| Ascribe of term * term
 		| Omit
 
-  fun PiMinus ((s, to), t) = Pi (mMINUS, (s, to), t)
-  fun PiPlus ((s, to), t) = Pi (mPLUS, (s, to), t)
-  fun PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t)
+  let rec PiMinus ((s, to), t) = Pi (mMINUS, (s, to), t)
+  let rec PiPlus ((s, to), t) = Pi (mPLUS, (s, to), t)
+  let rec PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t)
 
   let rec modeToString = function mMINUS -> ""
     | mPLUS -> "+ "
@@ -46,9 +46,9 @@ struct
 
   let id = maybe (fn (ID s) => SOME s | _ => NONE)
 
-  fun swap(x,y) = (y,x)
+  let rec swap(x,y) = (y,x)
 
-  fun vardec() = id << `COLON && ($term wth SOME) ||
+  let rec vardec() = id << `COLON && ($term wth SOME) ||
 		 id wth (fun s -> (s, NONE)) 
   and term() = parsefixityadj (
 	       alt[id wth (Atm o Id),
@@ -69,7 +69,7 @@ struct
   let condec = (opt (`MINUS) wth (not o Option.isSome)) && id << `COLON && $term << `DOT
 
 
-  fun parseof x =  Stream.toList (Parsing.transform ($term)
+  let rec parseof x =  Stream.toList (Parsing.transform ($term)
 				 (Parsing.transform (!!tok)
 				  (Pos.markstream (StreamUtil.stostream (x ^ "\n%.")))))
 end

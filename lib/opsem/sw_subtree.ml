@@ -11,40 +11,40 @@ struct
   (*! module TableParam = MemoTable.TableParam !*)
 
 
-  fun callCheck args =
+  let rec callCheck args =
     case (!TableParam.strategy)
       of TableParam.Variant => MemoTable.callCheck args
     | TableParam.Subsumption => MemoTableInst.callCheck args
 
 
-  fun insertIntoTree args =
+  let rec insertIntoTree args =
     case (!TableParam.strategy)
       of TableParam.Variant => MemoTable.insertIntoTree args
     | TableParam.Subsumption => MemoTableInst.insertIntoTree args
 
-  fun answerCheck args =
+  let rec answerCheck args =
     case (!TableParam.strategy)
       of TableParam.Variant => MemoTable.answerCheck args
     | TableParam.Subsumption => MemoTableInst.answerCheck args
 
 
-  fun reset () =
+  let rec reset () =
     case (!TableParam.strategy)
       of TableParam.Variant => MemoTable.reset ()
     | TableParam.Subsumption => MemoTableInst.reset ()
 
-  fun updateTable () =
+  let rec updateTable () =
     case (!TableParam.strategy)
       of TableParam.Variant => MemoTable.updateTable ()
     | TableParam.Subsumption => MemoTableInst.updateTable ()
 
-  fun tableSize () =
+  let rec tableSize () =
     case (!TableParam.strategy)
       of TableParam.Variant => MemoTable.tableSize ()
     | TableParam.Subsumption => MemoTableInst.tableSize ()
 
 
-  fun memberCtx args =
+  let rec memberCtx args =
     case (!TableParam.strategy) of
       TableParam.Subsumption => MemoTableInst.memberCtx args
     | TableParam.Variant => MemoTable.memberCtx args

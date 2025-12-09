@@ -57,7 +57,7 @@ struct
     (* checkConstraints (K) = ()
        Effect: raises Constraints.Error(C) if K contains unresolved constraints
     *)
-    fun checkConstraints (K) =
+    let rec checkConstraints (K) =
         let
           let constraints = collectConstraints K
           let _ = case constraints
@@ -100,7 +100,7 @@ struct
     (* exists P K = B
        where B iff K = K1, Y, K2  s.t. P Y  holds
     *)
-    fun exists P K =
+    let rec exists P K =
         let fun exists' (I.Null) = false
               | exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
         in
@@ -352,7 +352,7 @@ struct
        then C' = BVar (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractEVar (I.Decl (K', EV (I.EVar(r',_,_,_))), depth, X as I.EVar (r, _, _, _)) =
+    let rec abstractEVar (I.Decl (K', EV (I.EVar(r',_,_,_))), depth, X as I.EVar (r, _, _, _)) =
         if r = r' then I.BVar (depth+1)
         else abstractEVar (K', depth+1, X)
 (*      | abstractEVar (I.Decl (K', FV (n', _)), depth, X) =
@@ -369,7 +369,7 @@ struct
        then C' = BVar (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractFVar (I.Decl(K', FV (n', _)), depth, F as I.FVar (n, _, _)) =
+    let rec abstractFVar (I.Decl(K', FV (n', _)), depth, F as I.FVar (n, _, _)) =
           if n = n' then I.BVar (depth+1)
           else abstractFVar (K', depth+1, F)
 (*      | abstractFVar (I.Decl(K', EV _), depth, F) =
@@ -563,7 +563,7 @@ struct
 
        Invariant: G |- V : L' for some L'
     *)
-    fun checkType V =
+    let rec checkType V =
         (case getLevel V
            of I.Type => ()
             | _ => raise Error "Typing ambiguous -- free type variable")
@@ -665,7 +665,7 @@ struct
        and   . ||- V'
        and   k' = |K|
     *)
-    fun abstractDecImp V =
+    let rec abstractDecImp V =
         let
           let K = collectExp (I.Null, (V, I.id), I.Null)
           let _ = checkConstraints (K)
@@ -690,7 +690,7 @@ struct
        and   . ||- U'
        and   k' = |K|
     *)
-    fun abstractDef (U, V) =
+    let rec abstractDef (U, V) =
         let
           let K = collectExp (I.Null, (U, I.id), collectExp (I.Null, (V, I.id), I.Null))
           let _ = checkConstraints K
@@ -700,7 +700,7 @@ struct
         end
 
 
-    fun abstractSpineExt (S, s) =
+    let rec abstractSpineExt (S, s) =
         let
           let K = collectSpine (I.Null, (S, s), I.Null)
           let _ = checkConstraints (K)
@@ -718,7 +718,7 @@ struct
        and G1',...,Gn' nf
        and . ||- G1',...,Gn' ctx
     *)
-    fun abstractCtxs (Gs) =
+    let rec abstractCtxs (Gs) =
         let
           let K = collectCtxs (I.Null, Gs, I.Null)
           let _ = checkConstraints K
@@ -727,7 +727,7 @@ struct
         end
 
     (* closedDec (G, D) = true iff D contains no EVar or FVar *)
-    fun closedDec (G, (I.Dec (_, V), s)) =
+    let rec closedDec (G, (I.Dec (_, V), s)) =
       case collectExp (G, (V, s), I.Null)
         of I.Null => true
          | _ => false
@@ -739,7 +739,7 @@ struct
            of I.Null => closedSub (G, s)
             | _ => false)
 
-    fun closedExp (G, (U, s)) =
+    let rec closedExp (G, (U, s)) =
       case collectExp (G, (U, I.id), I.Null)
         of I.Null => true
          | _ => false
@@ -775,10 +775,10 @@ struct
          G |- U[s] : V
          Xs' extends Xs by new EVars in U[s]
     *)
-    fun collectEVars (G, Us, Xs) =
+    let rec collectEVars (G, Us, Xs) =
           KToEVars (collectExp (G, Us, evarsToK (Xs)))
 
-    fun collectEVarsSpine (G, (S, s), Xs) =
+    let rec collectEVarsSpine (G, (S, s), Xs) =
           KToEVars (collectSpine (G, (S, s), evarsToK (Xs)))
 
 
@@ -894,7 +894,7 @@ struct
           I.Decl (abstractPsi K', T.PDec (NONE, F', TC1, TC2))
         end
 
-    fun abstractTomegaSub t =
+    let rec abstractTomegaSub t =
       let
         let K = collectTomegaSub t
         let t' = abstractTomegaSub' (K, 0, t)
@@ -914,7 +914,7 @@ struct
           (T.Dot (T.Prg (abstractPrg (K, depth, P)),
                   abstractTomegaSub' (K, depth, t)))
 
-    fun abstractTomegaPrg P =
+    let rec abstractTomegaPrg P =
       let
         let K = collectPrg (I.Null, P, I.Null)
         let P' = abstractPrg (K, 0, P)

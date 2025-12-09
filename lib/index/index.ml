@@ -28,13 +28,13 @@ struct
     (* reset () = ()
        Empties index array
     *)
-    fun reset () = Array.modify (fun _ -> Queue.empty) indexArray
+    let rec reset () = Array.modify (fun _ -> Queue.empty) indexArray
 
     (* update (a, c) = ()
        inserts c into the index queue for family a
        Invariant: a = target family of c
     *)
-    fun update (a, c) =
+    let rec update (a, c) =
         Array.update (indexArray, a,
                       Queue.insert (c, Array.sub (indexArray, a)))
 
@@ -42,29 +42,29 @@ struct
        installs c into the correct index queue
        presently ignores definitions
     *)
-    fun install fromCS (H as I.Const c) =
+    let rec install fromCS (H as I.Const c) =
         (case (fromCS, I.sgnLookup (c))
            of (_, I.ConDec (_, _, _, _, A, I.Type)) => update (cidFromHead (I.targetHead A), H)
             | (I.Clause, I.ConDef (_, _, _, _, A, I.Type, _)) => (update (cidFromHead (I.targetHead A), I.Def(c)))
             | _ => ())
 
-    fun remove (a, cid) =
+    let rec remove (a, cid) =
         (case Queue.deleteEnd (Array.sub (indexArray, a))
            of NONE => ()
             | SOME (c as I.Const cid', queue') =>
                 if cid = cid' then Array.update (indexArray, a, queue')
                 else ())
 
-    fun uninstall cid =
+    let rec uninstall cid =
         (case I.sgnLookup cid
            of I.ConDec (_, _, _, _, A, I.Type) => remove (cidFromHead (I.targetHead A), cid)
             | I.ConDef (_, _, _, _, A, I.Type, _) => remove (cidFromHead (I.targetHead A), cid)
             | _ => ())
 
-    fun resetFrom mark =
+    let rec resetFrom mark =
         let
           let (limit, _) = I.sgnSize ()
-          fun iter i = if i < mark then ()
+          let rec iter i = if i < mark then ()
                        else (uninstall i;
                              Array.update (indexArray, i, Queue.empty))
         in
@@ -79,7 +79,7 @@ struct
        A second lookup after the first without intermediate inserts will
        be in constant time.
     *)
-    fun lookup a =
+    let rec lookup a =
         let fun lk (l, NONE) = l
               | lk (l, SOME(q')) =
                 (Array.update (indexArray, a, q'); l)

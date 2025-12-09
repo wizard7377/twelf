@@ -50,9 +50,9 @@ struct
 
     let evarList : (T.Prg) list ref = ref nil
 
-    fun evarReset () = (evarList := nil)
+    let rec evarReset () = (evarList := nil)
 
-    fun evarName n =
+    let rec evarName n =
       let
 
         let rec evarName' = function nil -> raise Error "not found"
@@ -62,7 +62,7 @@ struct
         evarName' (!evarList)
       end
 
-    fun nameEVar (T.EVar (_, _, _, _, _, X as I.EVar (_, G, r, _))) = Names.evarName (G, X)
+    let rec nameEVar (T.EVar (_, _, _, _, _, X as I.EVar (_, G, r, _))) = Names.evarName (G, X)
 
     (* formatCtxBlock (G, (G1, s1)) = (G', s', fmts')
 
@@ -93,7 +93,7 @@ struct
         end
 
 
-    fun constName c = I.conDecName (I.sgnLookup c)
+    let rec constName c = I.conDecName (I.sgnLookup c)
 
     let rec formatWorld = function nil -> []
       | [c] -> [Fmt.String (constName c)]
@@ -159,8 +159,8 @@ struct
 
 
 
-    fun formatFor (G, F) = Fmt.HVbox (formatFor' (G, T.forSub (F, T.id)))
-    fun forToString (Psi, F) = Fmt.makestring_fmt (formatFor (Psi, F))
+    let rec formatFor (G, F) = Fmt.HVbox (formatFor' (G, T.forSub (F, T.id)))
+    let rec forToString (Psi, F) = Fmt.makestring_fmt (formatFor (Psi, F))
 
 
     (* formatPrg (Psi, P) names = fmt'
@@ -191,7 +191,7 @@ struct
            If   Psi, Delta |- Ds :: Psi', Delta'
            then n'= |Psi'| - |Psi|
         *)
-        fun numberOfSplits Ds =
+        let rec numberOfSplits Ds =
             let
               let rec numberOfSplits' = function (T.Empty, n) -> n
                 | (T.New (_, Ds), n) -> numberOfSplits' (Ds, n)
@@ -217,7 +217,7 @@ struct
            then Psi1' = Psi1 modulo variable naming
            and  for all x in Psi2 s.t. s(x) = x in Psi1'
         *)
-        fun psiName (Psi1, s, Psi2, l) =
+        let rec psiName (Psi1, s, Psi2, l) =
           let
             let rec nameDec = function (D as I.Dec (SOME _, _), name) -> D
               | (I.Dec (NONE, V), name) -> I.Dec (SOME name, V)
@@ -289,7 +289,7 @@ struct
            and  Psi |- G ctx
            then fmt' is a pretty print format of G
         *)
-        fun formatCtx (Psi, G) =
+        let rec formatCtx (Psi, G) =
           let
             let G0 = T.makectx Psi
 
@@ -313,7 +313,7 @@ struct
            and  Psi; Delta |- P = Inx (M1, Inx ... (Mn, Unit))
            then fmt' is a pretty print format of (M1, .., Mn)
         *)
-        fun formatTuple (Psi, P) =
+        let rec formatTuple (Psi, P) =
           let
             let rec formatTuple' = function (T.Unit) -> nil
               | (T.Inx (M, T.Unit)) -> 
@@ -336,7 +336,7 @@ struct
            and  Psi |- Mk:Ak for all 1<=k<=n
            then fmt' is a pretty print format of (M1, .., Mn)
         *)
-        fun formatSplitArgs (Psi, L) =
+        let rec formatSplitArgs (Psi, L) =
           let
             let rec formatSplitArgs' = function (nil) -> nil
               | (M :: nil) -> 
@@ -753,7 +753,7 @@ struct
                   @ fmtCaseRest(L)
                 end
 
-              fun fmtCase ((Psi1, s1, P2)::L) =
+              let rec fmtCase ((Psi1, s1, P2)::L) =
                 let
                   let Psi1' = psiName (Psi1, s1, Psi, 1)
                   let S = argsToSpine (s1, 1, T.Nil)
@@ -904,10 +904,10 @@ struct
           end
 *)
 
-        fun lookup (name :: names, proj :: projs) lemma =
+        let rec lookup (name :: names, proj :: projs) lemma =
             if lemma = proj then name else lookup (names, projs) lemma
 
-        fun formatPrg0 ((names, projs), T.Rec (D as T.PDec (SOME _, F, _, _), P)) =
+        let rec formatPrg0 ((names, projs), T.Rec (D as T.PDec (SOME _, F, _, _), P)) =
           let
 
             let max = 1 (* number of ih. *)
@@ -915,15 +915,15 @@ struct
             Fmt.Vbox0 0 1 (formatPrg1 (names, (max, max), I.Decl (I.Null, D), P, fun lemma -> lookup (names, projs) lemma))
           end
 
-    fun formatFun Args =
+    let rec formatFun Args =
         (Names.varReset I.Null; formatPrg0 Args)
 
 (*    fun formatLemmaDec (T.LemmaDec (names, P, F)) =
       Fmt.Vbox0 0 1 [formatFor (I.Null, F) names, Fmt.Break,
                      formatPrg (I.Null, P) names]
 *)
-    fun funToString Args = Fmt.makestring_fmt (formatFun Args)
-    fun prgToString Args = Fmt.makestring_fmt (formatPrg3 (fun _ -> "?")  Args)
+    let rec funToString Args = Fmt.makestring_fmt (formatFun Args)
+    let rec prgToString Args = Fmt.makestring_fmt (formatPrg3 (fun _ -> "?")  Args)
 (*   fun lemmaDecToString Args = Fmt.makestring_fmt (formatLemmaDec Args) *)
 
 (*    fun prgToString Args names = "not yet implemented " *)
@@ -952,7 +952,7 @@ struct
        If   |- Psi ctx       and Psi is already named
        then fmt' is a format describing the context Psi
     *)
-    fun formatCtx (I.Null) = []
+    let rec formatCtx (I.Null) = []
       | formatCtx (I.Decl (I.Null, T.UDec D)) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Print.formatDec (I.Null, D)])]
@@ -985,7 +985,7 @@ struct
           [Fmt.Break, Fmt.String s, Fmt.Space, Fmt.String ("::" ^ flag TC1), Fmt.Space,
            formatFor (Psi, F)]
 
-    fun ctxToString Psi = Fmt.makestring_fmt (Fmt.HVbox (formatCtx Psi))
+    let rec ctxToString Psi = Fmt.makestring_fmt (Fmt.HVbox (formatCtx Psi))
 
   in
     let formatFor = formatFor

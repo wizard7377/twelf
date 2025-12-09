@@ -32,11 +32,11 @@ struct
     let backArrowOp = Infix ((FX.dec FX.minPrec, FX.Left), ExtSyn.backarrow)
     let colonOp = Infix ((FX.dec (FX.dec FX.minPrec), FX.Left), ExtSyn.hastype)
 
-    fun infixOp (infixity, tm) =
+    let rec infixOp (infixity, tm) =
           Infix (infixity, (fn (tm1, tm2) => ExtSyn.app (ExtSyn.app (tm, tm1), tm2)))
-    fun prefixOp (prec, tm) =
+    let rec prefixOp (prec, tm) =
           Prefix (prec, (fun tm1 -> ExtSyn.app (tm, tm1)))
-    fun postfixOp (prec, tm) =
+    let rec postfixOp (prec, tm) =
           Postfix (prec, (fun tm1 -> ExtSyn.app (tm, tm1)))
 
     let rec idToTerm = function (L.Lower, ids, name, r) -> ExtSyn.lcid (ids, name, r)
@@ -75,18 +75,18 @@ struct
                      | Atom _ :: <pOp>
       *)
       (* let reduce : <pRed> -> <p> *)
-      fun reduce (Atom(tm2)::Infix(_,con)::Atom(tm1)::p') =
+      let rec reduce (Atom(tm2)::Infix(_,con)::Atom(tm1)::p') =
              Atom(con(tm1,tm2))::p'
         | reduce (Atom(tm)::Prefix(_,con)::p') = Atom(con(tm))::p'
         | reduce (Postfix(_,con)::Atom(tm)::p') = Atom(con(tm))::p'
         (* no other cases should be possible by stack invariant *)
 
       (* let reduceRec : <pStable> -> ExtSyn.term *)
-      fun reduceRec (Atom(e)::nil) = e
+      let rec reduceRec (Atom(e)::nil) = e
         | reduceRec (p) = reduceRec (reduce p)
 
       (* let reduceAll : <p> -> ExtSyn.term *)
-      fun reduceAll (r, Atom(e)::nil) = e
+      let rec reduceAll (r, Atom(e)::nil) = e
         | reduceAll (r, Infix _::p') = Parsing.error (r, "Incomplete infix expression")
         | reduceAll (r, Prefix _::p') = Parsing.error (r, "Incomplete prefix expression")
         | reduceAll (r, nil) = Parsing.error (r, "Empty expression")
@@ -94,14 +94,14 @@ struct
 
       (* let shiftAtom : term * <pStable> -> <p> *)
       (* does not raise Error exception *)
-      fun shiftAtom (tm, p as (Atom _::p')) =
+      let rec shiftAtom (tm, p as (Atom _::p')) =
           (* insert juxOp operator and reduce *)
           (* juxtaposition binds most strongly *)
             reduce (Atom(tm)::juxOp::p)
         | shiftAtom (tm, p) = Atom(tm)::p
 
       (* let shift : Paths.region * opr * <pStable> -> <p> *)
-      fun shift (r, opr as Atom _, p as (Atom _::p')) =
+      let rec shift (r, opr as Atom _, p as (Atom _::p')) =
             (* insert juxOp operator and reduce *)
             (* juxtaposition binds most strongly *)
             reduce (opr::juxOp::p)
@@ -186,7 +186,7 @@ struct
        pre: f begins with L.ID
 
        Note: precondition for recursive call is enforced by the lexer. *)
-    fun parseQualId' (f as LS.Cons ((t as L.ID (_, id), r), s')) =
+    let rec parseQualId' (f as LS.Cons ((t as L.ID (_, id), r), s')) =
         (case LS.expose s'
            of LS.Cons ((L.PATHSEP, _), s'') =>
               let
@@ -273,7 +273,7 @@ struct
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
-    fun parseThaw' (f, qids) = (* same syntax as %freeze *)
+    let rec parseThaw' (f, qids) = (* same syntax as %freeze *)
           parseFreeze' (f, qids)
 
     let rec parseDeterministic' = function (f as LS.Cons ((L.ID _, _), _), qids) -> 
@@ -304,7 +304,7 @@ struct
 
     (* let parseExp : (L.token * L.region) LS.stream * <p>
                         -> ExtSyn.term * (L.token * L.region) LS.front *)
-    fun parseExp (s, p) = parseExp' (LS.expose s, p)
+    let rec parseExp (s, p) = parseExp' (LS.expose s, p)
 
     and parseExp' (f as LS.Cons((L.ID _, r0), _), p) =
         let

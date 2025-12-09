@@ -57,16 +57,16 @@ struct
       | (G, F.True, [O]) -> transformOrder' (G, O)
         (* last case: no existentials---order must be trivial *)
 
-    fun select c = (Order.selLookup c handle _ => Order.Lex [])
+    let rec select c = (Order.selLookup c handle _ => Order.Lex [])
 
-    fun error s = raise Error s
+    let rec error s = raise Error s
 
     (* reset () = ()
 
        Invariant:
        Resets the internal state of open states/solved states
     *)
-    fun reset () =
+    let rec reset () =
         (openStates := nil;
          solvedStates := nil)
 
@@ -84,7 +84,7 @@ struct
        Invariant:
        B' holds iff L1 is equivalent to L2 (modulo permutation)
     *)
-    fun equiv (L1, L2) =
+    let rec equiv (L1, L2) =
           contains (L1, L2) andalso contains (L2, L1)
 
     (* insertState S = ()
@@ -93,7 +93,7 @@ struct
        If S is successful prove state, S is stored in solvedStates
        else S is stored in openStates
     *)
-    fun insertState S =
+    let rec insertState S =
         openStates := S :: (! openStates)
 
 
@@ -117,7 +117,7 @@ struct
        then init initializes the openStates/solvedStates
        else an Error exception is raised
     *)
-    fun init (k, cL as (c :: _)) =
+    let rec init (k, cL as (c :: _)) =
         let
           let _ = MTPGlobal.maxFill := k
           let _ = reset ();
@@ -139,7 +139,7 @@ struct
        Solves as many States in openStates
        as possible.
     *)
-    fun auto () =
+    let rec auto () =
         let
           let (Open, solvedStates') = MTPStrategy.run (!openStates)
              handle Splitting.Error s => error ("Splitting Error: " ^ s)
@@ -156,8 +156,8 @@ struct
         end
 
 
-    fun print () = ()
-    fun install _ = ()
+    let rec print () = ()
+    let rec install _ = ()
 
   in
     let init = init
@@ -180,26 +180,26 @@ struct
 
   exception Error of string
 
-  fun he f = f () handle ProverNew.Error s => raise Error s
+  let rec he f = f () handle ProverNew.Error s => raise Error s
                         | ProverOld.Error s => raise Error s
 
   local
-    fun init Args =
+    let rec init Args =
       he (fn () => case !(MTPGlobal.prover)
                      of MTPGlobal.New => ProverNew.init Args
                       | MTPGlobal.Old => ProverOld.init Args)
 
-    fun auto Args =
+    let rec auto Args =
       he (fn () => case !(MTPGlobal.prover)
                         of MTPGlobal.New => ProverNew.auto Args
                          | MTPGlobal.Old => ProverOld.auto Args)
 
-    fun print Args =
+    let rec print Args =
       he (fn () => case !(MTPGlobal.prover)
                         of MTPGlobal.New => ProverNew.print Args
                          | MTPGlobal.Old => ProverOld.print Args)
 
-    fun install Args =
+    let rec install Args =
       he (fn () => case !(MTPGlobal.prover)
                         of MTPGlobal.New => ProverNew.install Args
                          | MTPGlobal.Old => ProverOld.install Args)

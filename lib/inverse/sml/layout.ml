@@ -4,14 +4,14 @@
  * MLton is released under the GNU General Public License (GPL).
  * Please see the file MLton-LICENSE for license information.
  *)
-(Layout : LAYOU)T =
+(Layout : LAYOUT) =
 struct
 
 (*    module Out = Outstream0   *)
 
     let detailed = ref false
         
-    fun switch {detailed = d,normal = n} x =
+    let rec switch {detailed = d,normal = n} x =
         if !detailed then d x else n x
            
     type t = T of {length: int,
@@ -25,21 +25,21 @@ struct
 
     type layout = t
 
-    fun length (T {length, ...}) = length
+    let rec length (T {length, ...}) = length
         
     let empty = T {length = 0, tree = Empty}
         
     let rec isEmpty = function (T {length -> 0, ...}) = true
       | _ -> false
         
-    fun str s =
+    let rec str s =
         case s of
             "" => empty
           | _ => T {length = String.size s, tree = String s}
                 
-    fun fold (l, b, f) = foldl f b l
+    let rec fold (l, b, f) = foldl f b l
         
-    fun seq ts =
+    let rec seq ts =
         let let len = fold (ts, 0, fn (t,n) => n + length t)
         in case len of
             0 => empty
@@ -61,9 +61,9 @@ struct
         6] *)
 
     local
-        fun make force ts =
+        let rec make force ts =
             let
-                fun loop ts =
+                let rec loop ts =
                     case ts of
                         [] => (ts, 0)
                       | t :: ts =>
@@ -82,20 +82,20 @@ struct
         let mayAlign = make false
     end
 
-    fun indent (t, n) = T {length = length t, tree = Indent (t, n)}
+    let rec indent (t, n) = T {length = length t, tree = Indent (t, n)}
         
     let tabSize: int = 8
         
-    fun K x _ = x
+    let rec K x _ = x
 
-    fun blanks (n: int): string =
+    let rec blanks (n: int): string =
         concat [CharVector.tabulate (n div tabSize, K #"\t"),
                 CharVector.tabulate (n mod tabSize, K #" ")]
         
 (*
-    fun outputTree (t, out) =
+    let rec outputTree (t, out) =
         let let print = Out.outputc out
-            fun loop (T {tree, length}) =
+            let rec loop (T {tree, length}) =
                 (print "(length "
                  ; print (Int.toString length)
                  ; print ")"
@@ -120,9 +120,9 @@ struct
 (* doesn't include newlines. new version below - tom *)
 
 (*
-    fun tostring t =
+    let rec tostring t =
         let
-            fun loop (T {tree, ...}, accum) =
+            let rec loop (T {tree, ...}, accum) =
                 case tree of
                     Empty => accum
                   | String s => s :: accum
@@ -143,11 +143,11 @@ struct
                lineWidth: int} =
         let
             (*let _ = outputTree (t, out)*)
-            fun newline () = print "\n"
+            let rec newline () = print "\n"
                 
-            fun outputCompact (t, {at, printAt}) =
+            let rec outputCompact (t, {at, printAt}) =
                 let
-                    fun loop (T {tree, ...}) =
+                    let rec loop (T {tree, ...}) =
                         case tree of
                             Empty => ()
                           | String s => print s
@@ -163,9 +163,9 @@ struct
                     ; {at = at, printAt = at}
                 end
             
-            fun loop (t as T {length, tree}, state as {at, printAt}) =
+            let rec loop (t as T {length, tree}, state as {at, printAt}) =
                 let
-                    fun prePrint () =
+                    let rec prePrint () =
                         if at >= printAt
                         then () (* can't back up *)
                         else print (blanks (printAt - at))
@@ -202,11 +202,11 @@ struct
 
     let defaultWidth: int = 80
 
-    fun tostringex wid l =
+    let rec tostringex wid l =
         let
             let acc = ref nil : string list ref
 
-            fun pr s = acc := s :: !acc
+            let rec pr s = acc := s :: !acc
         in
             layout_print {tree = l, lineWidth = wid, print = pr};
 
@@ -216,7 +216,7 @@ struct
     let tostring = tostringex defaultWidth
 
 (*
-    fun outputWidth (t, width, out) =
+    let rec outputWidth (t, width, out) =
     layout_print {tree = t,
                lineWidth = width,
                print = Out.outputc out}
@@ -226,14 +226,14 @@ struct
             fn (t, p) => layout_print {tree = t, lineWidth = defaultWidth, print = p}
 
 (*
-    fun outputl (t, out) = (output (t, out); Out.newline out)
+    let rec outputl (t, out) = (output (t, out); Out.newline out)
 *)      
 
 (*     fun makeOutput layoutX (x, out) = output (layoutX x, out)
  *)        
-    fun ignore _ = empty
+    let rec ignore _ = empty
         
-    fun separate (ts, s) =
+    let rec separate (ts, s) =
         case ts of
             [] => []
           | t :: ts => t :: (let let s = str s
@@ -242,13 +242,13 @@ struct
                              in loop ts
                              end)
                 
-    fun separateLeft (ts, s) =
+    let rec separateLeft (ts, s) =
         case ts of
             [] => []
           | [t] => ts
           | t :: ts => t :: (map (fun t -> seq [str s, t]) ts)
                 
-    fun separateRight (ts, s) =
+    let rec separateRight (ts, s) =
         rev (let let ts = rev ts
              in case ts of
                  [] => []
@@ -256,7 +256,7 @@ struct
                | t :: ts => t :: (map (fun t -> seq [t, str s]) ts)
              end)
         
-    fun alignPrefix (ts, prefix) =
+    let rec alignPrefix (ts, prefix) =
         case ts of
             [] => empty
           | t :: ts =>
@@ -264,35 +264,35 @@ struct
                                      ~ (String.size prefix))]
                 
     local
-        fun sequence (start, finish, sep) ts =
+        let rec sequence (start, finish, sep) ts =
             seq [str start, mayAlign (separateRight (ts, sep)), str finish]
     in
         let list = sequence ("[", "]", ",")
-        fun listex start finish sep = sequence (start, finish, sep)
+        let rec listex start finish sep = sequence (start, finish, sep)
         let schemeList = sequence ("(", ")", " ")
         let tuple = sequence ("(", ")", ",")
-        fun record fts =
+        let rec record fts =
             sequence ("{", "}", ",")
             (map (fn (f, t) => seq [str (f ^ " = "), t]) fts)
 
-        fun recordex sep fts =
+        let rec recordex sep fts =
             sequence ("{", "}", ",")
             (map (fn (f, t) => seq [str (f ^ " " ^ sep ^ " "), t]) fts)
 
     end
 
-    fun vector v = tuple (Vector.foldr (op ::) [] v)
+    let rec vector v = tuple (Vector.foldr (op ::) [] v)
 
-    fun array x = list (Array.foldr (op ::) [] x)
+    let rec array x = list (Array.foldr (op ::) [] x)
 
-    fun namedRecord (name, fields) = seq [str name, str " ", record fields]
+    let rec namedRecord (name, fields) = seq [str name, str " ", record fields]
         
-    fun paren t = seq [str "(", t, str ")"]
+    let rec paren t = seq [str "(", t, str ")"]
         
-    fun tuple2 (l1, l2) (x1, x2) = tuple [l1 x1, l2 x2]
-    fun tuple3 (l1, l2, l3) (x1, x2, x3) = tuple [l1 x1, l2 x2, l3 x3]
-    fun tuple4 (l1, l2, l3, l4) (x1, x2, x3, x4) = tuple [l1 x1, l2 x2, l3 x3, l4 x4]
-    fun tuple5 (l1, l2, l3, l4, l5) (x1, x2, x3, x4, x5) =
+    let rec tuple2 (l1, l2) (x1, x2) = tuple [l1 x1, l2 x2]
+    let rec tuple3 (l1, l2, l3) (x1, x2, x3) = tuple [l1 x1, l2 x2, l3 x3]
+    let rec tuple4 (l1, l2, l3, l4) (x1, x2, x3, x4) = tuple [l1 x1, l2 x2, l3 x3, l4 x4]
+    let rec tuple5 (l1, l2, l3, l4, l5) (x1, x2, x3, x4, x5) =
         tuple [l1 x1, l2 x2, l3 x3, l4 x4, l5 x5]
 
     let indent = fun x -> fun y -> indent(y, x)

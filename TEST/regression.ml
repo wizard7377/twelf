@@ -7,12 +7,12 @@ module RegressionTest = struct
  local
    let _ = Twelf.chatter := 0
    let errors = ref 0
-   fun reportError(file) = 
+   let rec reportError(file) = 
 	 (errors := !errors + 1;
 	  print ("Regression test failed on "^file^"\n"))
  in
  
- fun test (file) =
+ let rec test (file) =
      let
 	 let _ = print ("Test:        "^file) 
 	 let stat = Twelf.make file 
@@ -23,7 +23,7 @@ module RegressionTest = struct
 	   | Twelf.ABORT => (reportError (file); Twelf.ABORT)
      end;
      
- fun testUnsafe (file) = 
+ let rec testUnsafe (file) = 
      let
 	 let _ = print ("Test Unsafe: "^file) 
 	 let _ = Twelf.unsafe := true 
@@ -48,10 +48,10 @@ module RegressionTest = struct
 	       OS.Process.failure)
      end
 
- fun process (filename) = 
+ let rec process (filename) = 
      let 
 	 let file = TextIO.openIn filename
-	 fun runline (str : string) =
+	 let rec runline (str : string) =
 	     if String.isPrefix "#" str 
 	     then NONE
 	     else if String.isPrefix "testUnsafe" str 
@@ -63,13 +63,13 @@ module RegressionTest = struct
 
          exception Aborted
 
-	 fun getstatus (status,msg) = 
+	 let rec getstatus (status,msg) = 
 	     case status of 
 		 NONE => ()
 	       | SOME(Twelf.OK) => print ("..."^msg)
 	       | SOME(Twelf.ABORT) => print ("...ABORT!\n"; raise Aborted)
 
-	 fun readfile() = 
+	 let rec readfile() = 
 	     case TextIO.inputLine file of
 		 NONE => (TextIO.closeIn file; conclude())
 	       | (SOME s) => 

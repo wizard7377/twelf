@@ -25,13 +25,13 @@ struct
 
     let rec pattern_spine' = function (D, []) -> true
       | (D, n::s) -> let fun isn x = (x = n)
-				      fun hasn s = List.exists isn s
+				      let rec hasn s = List.exists isn s
 				  in
 				      hasn D andalso 
 				      not (hasn s) andalso
 				      pattern_spine' (D, s) 
 				  end
-    fun pattern_spine (D, s) = 
+    let rec pattern_spine (D, s) = 
 	((pattern_spine' (D, map eta_contract_var s))
 	 handle EtaContract => false)
 
@@ -82,6 +82,6 @@ struct
 
 
 (* p is whether we should imagine we are checking a c+ (rather than c-) constant *)
-    fun check_strict_type p b = check_strict_type' 0 p b
-    fun check_strict_kind k = check_strict_kind' 0 k
+    let rec check_strict_type p b = check_strict_type' 0 p b
+    let rec check_strict_kind k = check_strict_kind' 0 k
 end

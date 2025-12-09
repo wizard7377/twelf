@@ -119,9 +119,9 @@ struct
 
     (* printTable () = () *)
 
-    fun printTable () =
+    let rec printTable () =
       let
-        fun proofTerms (G, D, U, []) = print ""
+        let rec proofTerms (G, D, U, []) = print ""
           | proofTerms (G, D, U, (((D', s'), _)::S)) =
           ((* (print (Print.expToString (I.Null,  *)
 (*              A.raiseType(Names.ctxName(concat(G,D')), I.EClo(U, s')))) *)
@@ -156,7 +156,7 @@ struct
 
     (* printTableEntries () = () *)
 
-    fun printTableEntries () =
+    let rec printTableEntries () =
       let
         let rec printT = function [] -> ()
           | (((k, G, D, U), {solutions -> S, lookup = i})::T) =
@@ -179,22 +179,22 @@ struct
       | (I.SClo(S, s')) -> 1 + lengthSpine(S)
 
 
-    fun exceedsTermDepth (i) =
+    let rec exceedsTermDepth (i) =
       case (!termDepth) of
         NONE => false
       | SOME(n) => (i > n)
 
-    fun exceedsCtxDepth (i) =
+    let rec exceedsCtxDepth (i) =
       case (!ctxDepth) of
         NONE => false
       | SOME(n) => (print ("\n exceedsCtxDepth " ^Int.toString i ^ " > " ^ Int.toString n ^ " ? ") ;(i > n))
 
-    fun exceedsCtxLength (i) =
+    let rec exceedsCtxLength (i) =
       case (!ctxLength) of
         NONE => false
       | SOME(n) => (i > n)
 
-    fun max (x,y) =
+    let rec max (x,y) =
       if x > y then x
       else y
 
@@ -203,7 +203,7 @@ struct
       | (_ , SOME(n), _) -> true
       | (_ , _, SOME(n)) -> true
 
-    fun abstractionSet () =
+    let rec abstractionSet () =
       oroption(!termDepth, !ctxDepth, !ctxLength)
 
     (* countDepth U =
@@ -214,7 +214,7 @@ struct
 
     *)
 
-    fun exceeds (U) = countDecl(0,0, U)
+    let rec exceeds (U) = countDecl(0,0, U)
 
     and countDecl (ctrType, ctrLength, I.Pi((D, _), V)) =
          let
@@ -319,7 +319,7 @@ struct
    (* ---------------------------------------------------------------------- *)
    (* variant (U,s) (U',s')) = bool   *)
 
-    fun variant (Us, Us') = Conv.conv (Us, Us')
+    let rec variant (Us, Us') = Conv.conv (Us, Us')
 
     (* subsumes ((G, D, U), (G', D', U')) = bool
      *
@@ -332,7 +332,7 @@ struct
      *    otherwise false
      *
      *)
-    fun subsumes ((G, D, U), (G', D', U')) =
+    let rec subsumes ((G, D, U), (G', D', U')) =
       let
         let Upi = A.raiseType (G, U)
         let Upi' = A.raiseType (G', U')
@@ -343,7 +343,7 @@ struct
       end
 
 
-    fun equalSub (I.Shift k, I.Shift k') = (k = k')
+    let rec equalSub (I.Shift k, I.Shift k') = (k = k')
       | equalSub (I.Dot(F, S), I.Dot(F', S')) =
         equalFront (F, F') andalso equalSub (S, S')
       | equalSub (I.Dot(F,S), I.Shift k) = false
@@ -353,11 +353,11 @@ struct
       | equalFront (I.Exp U, I.Exp V) = Conv.conv ((U, I.id), (V, I.id))
       | equalFront (I.Undef, I.Undef) = true
 
-    fun equalSub1 (I.Dot(ms, s), I.Dot(ms', s')) =
+    let rec equalSub1 (I.Dot(ms, s), I.Dot(ms', s')) =
           equalSub (s, s')
 
 
-    fun equalCtx (I.Null, I.Null) = true
+    let rec equalCtx (I.Null, I.Null) = true
       | equalCtx (I.Decl(Dk, I.Dec(_, A)), I.Decl(D1, I.Dec(_, A1))) =
         Conv.conv ((A, I.id), (A1, I.id)) andalso equalCtx(Dk, D1)
 
@@ -384,10 +384,10 @@ struct
     any entry found later, will be an instance of this entry)
     *)
 
-    fun callCheckVariant (G, D, U) =
+    let rec callCheckVariant (G, D, U) =
       let
         let Upi = A.raiseType(concat(G, D), U)
-        fun lookup ((G, D, U), []) =
+        let rec lookup ((G, D, U), []) =
           (table := ((ref 1, G, D, U), {solutions = [],lookup = 0})::(!table);
            (if (!Global.chatter) >= 5 then
               (print ("\n \n Added " );
@@ -439,9 +439,9 @@ struct
     *)
 
 
-    fun callCheckSubsumes (G, D, U) =
+    let rec callCheckSubsumes (G, D, U) =
       let
-        fun lookup ((G, D, U), []) =
+        let rec lookup ((G, D, U), []) =
             (table := ((ref 1, G, D, U), {solutions = [],lookup = 0})::(!table);
              (if (!Global.chatter) >= 5 then
                 print ("Added " ^  Print.expToString (I.Null,A.raiseType(concat(G, D), U)) ^ " to Table \n")
@@ -472,7 +472,7 @@ struct
       end
 
     (* ---------------------------------------------------------------------- *)
-    fun member ((Dk, sk), []) = false
+    let rec member ((Dk, sk), []) = false
       | member ((Dk, sk), (((D1, s1),_)::S)) =
       (* do we really need to compare Gus and Gs1 ?  *)
       if equalSub (sk,s1) andalso equalCtx (Dk, D1) then
@@ -498,7 +498,7 @@ struct
         sk is the abstraction of s and Dk contains all "free" vars
 
      *)
-    fun answCheckVariant (G, D, U, s, O) =
+    let rec answCheckVariant (G, D, U, s, O) =
       let
         let Upi = A.raiseType(concat(G, D), U)
 
@@ -511,7 +511,7 @@ struct
                 else
                   ()
 
-        fun lookup  (G, D, U, s) [] T =
+        let rec lookup  (G, D, U, s) [] T =
           (* cannot happen ! *)
           (print (Print.expToString(I.Null, I.EClo(A.raiseType(G,U),s))
                   ^ " call should always be already in the table !\n") ;
@@ -590,7 +590,7 @@ struct
     | (n, s) -> shift(n-1, I.dot1 s)
 
 
-   fun answCheckSubsumes (G, D, U, s, O) =
+   let rec answCheckSubsumes (G, D, U, s, O) =
       let
         let Upi = A.raiseType(G, U)
         let _ = if (!Global.chatter) >= 4 then
@@ -599,7 +599,7 @@ struct
                        ^ "\n"))
                 else ()
 
-        fun lookup ((G, D, U , s), [], T) =
+        let rec lookup ((G, D, U , s), [], T) =
           (* cannot happen ! *)
           (print (Print.expToString(concat(G, D), I.EClo(U,s))
                   ^ " call should always be already in the table !\n") ;
@@ -701,11 +701,11 @@ struct
    (* ---------------------------------------------------------------------- *)
    (* TOP LEVEL *)
 
-    fun reset () = (table := [])
+    let rec reset () = (table := [])
 
 
-    fun solutions {solutions = S, lookup = i} = S
-    fun lookup {solutions = S, lookup = i} = i
+    let rec solutions {solutions = S, lookup = i} = S
+    let rec lookup {solutions = S, lookup = i} = i
 
 
     let rec noAnswers = function [] -> true
@@ -715,19 +715,19 @@ struct
           | L  => false
 
 
-    fun callCheck (G, D, U) =
+    let rec callCheck (G, D, U) =
           case (!strategy) of
             Variant => callCheckVariant (G, D, U)
           | Subsumption => callCheckSubsumes (G, D, U)
 
-    fun answCheck (G, D, U, s, O) =
+    let rec answCheck (G, D, U, s, O) =
       case (!strategy) of
         Variant => answCheckVariant (G, D, U, s, O)
       | Subsumption => answCheckSubsumes (G, D, U, s, O)
 
 
     (* needs to take into account previous size of table *)
-    fun updateTable () =
+    let rec updateTable () =
           let
             let rec update = function [] T Flag -> (Flag, T)
               | (((k, G, D, U), {solutions -> S, lookup = i})::T) T' Flag =

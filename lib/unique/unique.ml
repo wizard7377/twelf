@@ -30,12 +30,12 @@ struct
     module N = Names
     module T = Tomega
 
-    fun chatter chlev f =
+    let rec chatter chlev f =
         if !Global.chatter >= chlev
           then print (f ())
         else ()
 
-    fun cName (cid) = N.qidToString (N.constQid cid)
+    let rec cName (cid) = N.qidToString (N.constQid cid)
 
     let rec pName = function (cid, SOME(x)) -> "#" ^ cName cid ^ "_" ^ x
       | (cid, NONE) -> "#" ^ cName cid ^ "_?"
@@ -79,7 +79,7 @@ struct
        iff G |- U[s] = U'[s'] : V  (for some V)
        Effect: may instantiate EVars in all inputs
     *)
-    fun unifiable (G, (U, s), (U', s')) =
+    let rec unifiable (G, (U, s), (U', s')) =
         Unify.unifiable (G, (U, s), (U', s'))
 
     (* unifiableSpines (G, (S, s), (S', s'), ms) = true
@@ -104,7 +104,7 @@ struct
                            (I.Root (I.Const (a'), S'), s'), ms) =
         (a = a') andalso unifiableSpines (G, (S, s), (S', s'), ms)
 
-    fun checkNotUnifiableTypes (G, Vs, Vs', ms, (bx, by)) =
+    let rec checkNotUnifiableTypes (G, Vs, Vs', ms, (bx, by)) =
         ( chatter 6 (fn () => "?- " ^ pName bx ^ " ~ " ^ pName by ^ "\n") ;
           CSManager.trail (fn () =>
                            if unifiableRoots (G, Vs, Vs', ms)
@@ -121,7 +121,7 @@ struct
        according to mode spine ms
        Effect: raises Error(msg) otherwise
     *)
-    fun checkDiffConstConst (I.Const(cid), I.Const(cid'), ms) =
+    let rec checkDiffConstConst (I.Const(cid), I.Const(cid'), ms) =
         let
           let _ = chatter 6 (fn () => "?- " ^ cName cid ^ " ~ " ^ cName cid' ^ "\n")
           let Vs = instEVars (I.Null, (I.constType cid, I.id))
@@ -203,7 +203,7 @@ struct
     (* checkUniqueBlockInternal ((Gsome, piDecs), (a, ms))
        see checkUniqueBlockInternal'
     *)
-    fun checkUniqueBlockInternal ((Gsome, piDecs), (a, ms), b) =
+    let rec checkUniqueBlockInternal ((Gsome, piDecs), (a, ms), b) =
         let
           let t = createEVarSub (I.Null, Gsome)
           (* . |- t : Gsome *)
@@ -290,7 +290,7 @@ struct
     (* checkUniqueBlock ((Gsome, piDecs), bs, cs, (a, ms), b) = ()
        see checkUniqueBlock'
     *)
-    fun checkUniqueBlock ((Gsome, piDecs), bs, cs, (a, ms), b) =
+    let rec checkUniqueBlock ((Gsome, piDecs), bs, cs, (a, ms), b) =
         let
           let t = createEVarSub (I.Null, Gsome)
         in
@@ -312,7 +312,7 @@ struct
     (* checkNoDef (a) = ()
        Effect: raises Error if a is a defined type family
     *)
-    fun checkNoDef (a) =
+    let rec checkNoDef (a) =
         (case I.sgnLookup a
            of I.ConDef _ =>
                 raise Error ("Uniqueness checking " ^ cName a
@@ -323,7 +323,7 @@ struct
        checks uniqueness of applicable cases with respect to mode spine ms
        Effect: raises Error (msg) otherwise
     *)
-    fun checkUnique (a, ms) =
+    let rec checkUnique (a, ms) =
         let
           let _ = chatter 4 (fn () => "Uniqueness checking family " ^ cName a
                              ^ "\n")

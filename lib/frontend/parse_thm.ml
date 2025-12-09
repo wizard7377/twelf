@@ -31,7 +31,7 @@ struct
        where n an natural number indicated by name, which should consist
        of all digits.  Raises error otherwise, or if integer it too large
     *)
-    fun idToNat (r, name) =
+    let rec idToNat (r, name) =
       L.stringToNat (name)
       handle Overflow => Parsing.error (r, "Integer too large")
            | L.NotDigit _ => Parsing.error (r, "Identifier not a natural number")
@@ -138,14 +138,14 @@ struct
 
     (* parseOrder (f) = (order, f') *)
     (* returns an order and front of remaining stream *)
-    fun parseOrder (f) = parseOrder' (parseOrderOpt f)
+    let rec parseOrder (f) = parseOrder' (parseOrderOpt f)
     and parseOrder' (SOME(order), f') = (order, f')
       | parseOrder' (NONE, LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected order, found " ^ L.toString t)
 
     (* parseTDecl "order callPats." *)
     (* parses Termination Declaration, followed by `.' *)
-    fun parseTDecl f =
+    let rec parseTDecl f =
         let
           let (order, f') = parseOrder f
           let (callpats, f'') = parseCallPats f'
@@ -154,7 +154,7 @@ struct
         end
 
     (* parseTerminates' "%terminates tdecl." *)
-    fun parseTerminates' (LS.Cons ((L.TERMINATES, r), s')) =
+    let rec parseTerminates' (LS.Cons ((L.TERMINATES, r), s')) =
           parseTDecl (LS.expose s')
 
     (* ------------------- *)
@@ -162,7 +162,7 @@ struct
     (* ------------------- *)
 
     (* parseTotal' "%total tdecl." *)
-    fun parseTotal' (LS.Cons ((L.TOTAL, r), s')) =
+    let rec parseTotal' (LS.Cons ((L.TOTAL, r), s')) =
           parseTDecl (LS.expose s')
 
     (* ------------------- *)
@@ -181,7 +181,7 @@ struct
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseProve' "%prove pdecl." *)
-    fun parseProve' (LS.Cons ((L.PROVE, r), s')) =
+    let rec parseProve' (LS.Cons ((L.PROVE, r), s')) =
           parsePDecl (LS.expose s')
 
 
@@ -201,7 +201,7 @@ struct
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseEstablish' "%establish pdecl." *)
-    fun parseEstablish' (LS.Cons ((L.ESTABLISH, r), s')) =
+    let rec parseEstablish' (LS.Cons ((L.ESTABLISH, r), s')) =
           parseEDecl (LS.expose s')
 
     (* -------------------- *)
@@ -209,7 +209,7 @@ struct
     (* -------------------- *)
 
     (* parseAssert' "%assert cp" *)
-    fun parseAssert' (LS.Cons ((L.ASSERT, r), s')) =
+    let rec parseAssert' (LS.Cons ((L.ASSERT, r), s')) =
         let
           let (callpats, f'') = parseCallPats (LS.expose s')
         in
@@ -283,14 +283,14 @@ struct
       | parseSome' (gbs, LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `)' or `|', found " ^ L.toString t)
 
-    fun stripParen (gbs, LS.Cons ((L.RPAREN, r), s')) = (gbs, LS.expose s')
+    let rec stripParen (gbs, LS.Cons ((L.RPAREN, r), s')) = (gbs, LS.expose s')
 
     let rec parseGBs = function (LS.Cons ((L.LPAREN, r), s')) -> 
           stripParen (parseSome (nil, LS.expose s'))
       | (LS.Cons ((t, r), s')) -> 
           Parsing.error (r, "Expected `(', found " ^ L.toString t)
 
-    fun forallG ((gbs', f'), r) =
+    let rec forallG ((gbs', f'), r) =
         let
           let (t'', f'') = parseForallStar f'
         in
@@ -389,7 +389,7 @@ struct
 
     (* parseTheoremDec' "%theorem thdec." *)
     (* We enforce the quantifier alternation restriction syntactically *)
-    fun parseTheoremDec' (LS.Cons ((L.THEOREM, r), s')) =
+    let rec parseTheoremDec' (LS.Cons ((L.THEOREM, r), s')) =
           parseThDec (LS.expose s')
 
     (*  -bp6/5/99. *)
@@ -405,7 +405,7 @@ struct
 
     (* parseRDecl "order callPats." *)
     (* parses Reducer Declaration, followed by `.' *)
-    fun parseRDecl f =
+    let rec parseRDecl f =
         let
           let (oOut, f1) = parseOrder f
           let (p, f2) = parsePredicate f1
@@ -416,33 +416,33 @@ struct
         end
 
    (* parseReduces' "%reduces thedec. " *)
-   fun parseReduces' (LS.Cons ((L.REDUCES, r), s')) =
+   let rec parseReduces' (LS.Cons ((L.REDUCES, r), s')) =
         parseRDecl (LS.expose s')
 
 
-    fun parseTabledDecl (f as LS.Cons ((L.ID (_, id), r), s'))=
+    let rec parseTabledDecl (f as LS.Cons ((L.ID (_, id), r), s'))=
           (case (LS.expose s') of
              (f as LS.Cons ((L.DOT, r'), s)) =>  (E.tableddecl (id, r), f)
             | _ => Parsing.error (r, "Expected ."))
 
 
   (* parseTabled' "%tabled thedec. " *)
-   fun parseTabled' (LS.Cons ((L.TABLED, r), s')) =
+   let rec parseTabled' (LS.Cons ((L.TABLED, r), s')) =
         parseTabledDecl (LS.expose s')
 
 
-   fun parseKeepTableDecl (f as LS.Cons ((L.ID (_, id), r), s'))=
+   let rec parseKeepTableDecl (f as LS.Cons ((L.ID (_, id), r), s'))=
           (case (LS.expose s') of
              (f as LS.Cons ((L.DOT, r'), s)) =>  (E.keepTabledecl (id, r), f)
             | _ => Parsing.error (r, "Expected ."))
 
 
   (* parseKeepTable' "%keepTabled thedec. " *)
-   fun parseKeepTable' (LS.Cons ((L.KEEPTABLE, r), s')) =
+   let rec parseKeepTable' (LS.Cons ((L.KEEPTABLE, r), s')) =
         parseKeepTableDecl (LS.expose s')
 
 
-   fun parseWDecl f =
+   let rec parseWDecl f =
        let
 (*       let (GBs, f1) = parseGBs f *)
          let (qids, f1) = ParseTerm.parseQualIds' f
@@ -451,7 +451,7 @@ struct
          (E.wdecl (qids, E.callpats callpats), f2)
        end
 
-   fun parseWorlds' (LS.Cons ((L.WORLDS, r), s')) =
+   let rec parseWorlds' (LS.Cons ((L.WORLDS, r), s')) =
         parseWDecl (LS.expose s')
 
 

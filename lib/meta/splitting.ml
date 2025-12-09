@@ -113,7 +113,7 @@ struct
     let rec conv = function (Gs, Gs') -> 
       let
         exception Conv
-        fun conv ((I.Null, s), (I.Null, s')) = (s, s')
+        let rec conv ((I.Null, s), (I.Null, s')) = (s, s')
           | conv ((I.Decl (G, I.Dec (_, V)), s),
                   (I.Decl (G', I.Dec (_, V')), s')) =
             let
@@ -140,7 +140,7 @@ struct
        and  G |- W [1.2...n. s o ^n] = V' [s']
        and  G |- S : V [s] >  V' [s']
     *)
-    fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
+    let rec createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
     and createEVarSpineW (G, Vs as (I.Uni I.Type, s)) = (I.Nil, Vs) (* s = id *)
       | createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
       | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
@@ -158,7 +158,7 @@ struct
        then . |- U' = c @ (Xn; .. Xn; Nil)
        and  . |- U' : V' [s']
     *)
-    fun createAtomConst (G, H) =
+    let rec createAtomConst (G, H) =
       let
         let cid = (case H
                      of (I.Const cid) => cid
@@ -176,7 +176,7 @@ struct
        then . |- U' = k @ (Xn; .. Xn; Nil)
        and  . |- U' : V' [s']
     *)
-    fun createAtomBVar (G, k) =
+    let rec createAtomBVar (G, k) =
       let
         let I.Dec (_, V) = I.ctxDec (G, k)
         let (S, Vs) = createEVarSpine (G, (V, I.id))
@@ -200,9 +200,9 @@ struct
           someEVars(G, L, I.Dot (I.Exp (I.newEVar (G, I.EClo (V, s))), s))
 
 
-    fun maxNumberParams a =
+    let rec maxNumberParams a =
       let
-        fun maxNumberParams' (n) =
+        let rec maxNumberParams' (n) =
           if n < 0 then 0
           else
             let
@@ -228,10 +228,10 @@ struct
 
 
 
-    fun maxNumberConstCases a =
+    let rec maxNumberConstCases a =
           List.length (Index.lookup a)
 
-    fun maxNumberCases (V, a) =
+    let rec maxNumberCases (V, a) =
       maxNumberParams a + maxNumberLocalParams (V, a) + maxNumberConstCases a
 
     (* ctxSub (G, s) = G'
@@ -304,12 +304,12 @@ struct
         end
 
 
-    fun constAndParamCases ops0 (c, G, k, (V, s'), abstract)  =
+    let rec constAndParamCases ops0 (c, G, k, (V, s'), abstract)  =
           constCases (G, (V, s'), Index.lookup c, abstract,
                       paramCases (G, (V, s'), k, abstract, ops0))
 
 
-    fun metaCases (d, ops0) (c, G, k, Vs, abstract) =
+    let rec metaCases (d, ops0) (c, G, k, Vs, abstract) =
       let
         let g = I.ctxLength G
 
@@ -359,10 +359,10 @@ struct
 
 
 
-    fun abstractErrorLeft ((G, B), s) =
+    let rec abstractErrorLeft ((G, B), s) =
       (raise MTPAbstract.Error "Cannot split left of parameters")
 
-    fun abstractErrorRight ((G, B), s) =
+    let rec abstractErrorRight ((G, B), s) =
       (raise MTPAbstract.Error "Cannot split right of parameters")
 
 
@@ -388,16 +388,16 @@ struct
 
        then cases' = (S1, ... Sn) are cases of the split
     *)
-    fun split ((D as I.Dec (_, V), T), sc, abstract) =
+    let rec split ((D as I.Dec (_, V), T), sc, abstract) =
         let
-          fun split' (n, cases) =
+          let rec split' (n, cases) =
             if n < 0 then
               let
                 let ((G', B'), s', (G0, B0), _) = sc (I.Null, I.Null)
                                         (* |- G' = parameter blocks of G  ctx*)
                                         (* G' |- B' tags *)
                                         (* G' |- s' : G *)
-                fun abstract' U' =
+                let rec abstract' U' =
                   let
                                         (* G' |- U' : V[s'] *)
                                         (* G' |- U'.s' : G, V[s'] *)
@@ -444,7 +444,7 @@ struct
                    Invariant:
                    If   G' |- U' : V[s']
                    then |- S' state *)
-                fun abstract' U' =
+                let rec abstract' U' =
                                         (* G' |- U' : V[s'] *)
                   if p then (raise MTPAbstract.Error "Cannot split right of parameters")
                   else
@@ -508,9 +508,9 @@ struct
     and occursInDecP (k, (D, _)) = occursInDec (k, D)
 
 
-    fun isIndexInit k = false
-    fun isIndexSucc (D, isIndex) k = occursInDec (k, D) orelse isIndex (k+1)
-    fun isIndexFail (D, isIndex) k = isIndex (k+1)
+    let rec isIndexInit k = false
+    let rec isIndexSucc (D, isIndex) k = occursInDec (k, D) orelse isIndex (k+1)
+    let rec isIndexFail (D, isIndex) k = isIndex (k+1)
 
 
     (* abstractInit S ((G', B'), s') = S'
@@ -522,7 +522,7 @@ struct
        and  G' |- s' : G
        then |- S' = (n, (G', B'), (IH, OH), d, O[s'], H[s'], F[s']) state
     *)
-    fun abstractInit (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) ((G', B'), s') =
+    let rec abstractInit (S as S.State (n, (G, B), (IH, OH), d, O, H, F)) ((G', B'), s') =
           (if !Global.doubleCheck then TypeCheck.typeCheckCtx G' else ();
            if !Global.doubleCheck then FunTypeCheck.isFor (G', F.forSub (F, s')) else ();
           S.State (n, (G', B'), (IH, OH), d, S.orderSub (O, s'),
@@ -542,13 +542,13 @@ struct
                     (Gn', Bn'), sn'  (|- Gn' ctx,  Gn' |- Bn' tags,  Gn' |- sn' : G)
                  to S'               (|- S' state)
     *)
-    fun abstractCont ((D, T), abstract) ((G, B), s) =
+    let rec abstractCont ((D, T), abstract) ((G, B), s) =
           abstract ((I.Decl (G, Whnf.normalizeDec (D, s)),
                      I.Decl (B, S.normalizeTag (T, s))), I.dot1 s)
 
 
-    fun makeAddressInit S k = (S, k)
-    fun makeAddressCont makeAddress k = makeAddress (k+1)
+    let rec makeAddressInit S k = (S, k)
+    let rec makeAddressCont makeAddress k = makeAddress (k+1)
 
 
 
@@ -567,8 +567,8 @@ struct
           occursInOrder (n, O, k, fn n' => occursInOrders (n', Os, k, sc))
 
 
-    fun inductionInit O k = occursInOrder (0, O, k, fun n -> NONE)
-    fun inductionCont induction k = induction (k+1)
+    let rec inductionInit O k = occursInOrder (0, O, k, fun n -> NONE)
+    let rec inductionCont induction k = induction (k+1)
 
     (* expand' ((G, B), isIndex, abstract, makeAddress) = (sc', ops')
 
@@ -607,7 +607,7 @@ struct
                      makeAddressCont makeAddress,
                      inductionCont induction)
           let I.Dec (xOpt, V) = D
-          fun sc' (Gp, Bp) =
+          let rec sc' (Gp, Bp) =
             let
               let ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
               let X = I.newEVar (G', I.EClo (V, s'))     (* G' |- X : V[s'] *)
@@ -636,7 +636,7 @@ struct
                      makeAddressCont makeAddress,
                      inductionCont induction)
           let I.Dec (xOpt, V) = D
-          fun sc' (Gp, Bp) =
+          let rec sc' (Gp, Bp) =
             let
               let ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
               let X = I.newEVar (G', I.EClo (V, s'))
@@ -655,7 +655,7 @@ struct
                      makeAddressCont makeAddress,
                      inductionCont induction)
           let I.Dec (xOpt, V) = D
-          fun sc' (Gp, Bp) =
+          let rec sc' (Gp, Bp) =
             let
               let ((G', B'), s', (G0, B0), p') = sc (Gp, Bp)
               let X = I.newEVar (G', I.EClo (V, s'))
@@ -674,7 +674,7 @@ struct
                      makeAddressCont makeAddress,
                      inductionCont induction)
           let I.Dec (xOpt, V) = D
-          fun sc' (Gp, Bp) =
+          let rec sc' (Gp, Bp) =
             let
               let ((G', B'), s', (G0, B0), _) = sc (Gp, Bp)
             in
@@ -694,7 +694,7 @@ struct
        If   |- S state
        then ops' is a list of all possiblie splitting operators
     *)
-    fun expand (S0 as S.State (n, (G0, B0), _, _, O, _, _)) =
+    let rec expand (S0 as S.State (n, (G0, B0), _, _, O, _, _)) =
       let
         let _ = if !Global.doubleCheck then FunTypeCheck.isState S0 else ()
         let (_, ops) =
@@ -709,10 +709,10 @@ struct
        If   Op = (_, Sl)
        then k = |Sl|
     *)
-    fun index (Operator ((S, index), Sl, {c=k, ...})) = k
+    let rec index (Operator ((S, index), Sl, {c=k, ...})) = k
 
 
-    fun compare (Operator (_, _, I1), Operator (_, _, I2)) =
+    let rec compare (Operator (_, _, I1), Operator (_, _, I2)) =
           H.compare (I1, I2)
 
 
@@ -731,7 +731,7 @@ struct
        If   Op = (_, Sl)
        then B' holds iff Sl does not contain inactive states
     *)
-    fun applicable (Operator (_, Sl, I)) = not (List.exists isInActive Sl)
+    let rec applicable (Operator (_, Sl, I)) = not (List.exists isInActive Sl)
 
 
     (* apply (Op) = Sl'
@@ -742,7 +742,7 @@ struct
 
        Side effect: If Sl contains inactive states, an exception is raised
     *)
-    fun apply (Operator (_, Sl, I)) =
+    let rec apply (Operator (_, Sl, I)) =
       map (fn (Active S) =>
                (if (!Global.doubleCheck) then FunTypeCheck.isState S else ();
                 S)
@@ -760,7 +760,7 @@ struct
        (menu should hence be only called on operators which have
         been calculated from a named state)
     *)
-    fun menu (Op as Operator ((S.State (n, (G, B), (IH, OH), d, O, H, F), i), Sl, I)) =
+    let rec menu (Op as Operator ((S.State (n, (G, B), (IH, OH), d, O, H, F), i), Sl, I)) =
         let
           let rec active = function (nil, n) -> n
             | (InActive :: L, n) -> active (L, n)
