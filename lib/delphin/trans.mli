@@ -9,10 +9,10 @@ sig
 
   val internalizeSig : unit -> unit
 
-  val transFor : (* IntSyn.dctx * *) DextSyn.Form -> Tomega.For
-  val transDecs: DextSyn.Decs -> Tomega.Prg 
+  val transFor : (* IntSyn.dctx * *) DextSyn.form -> Tomega.For
+  val transDecs: DextSyn.decs -> Tomega.Prg 
 
   val externalizePrg : Tomega.Prg -> Tomega.Prg
 
-(* val transPro : DextSyn.Prog -> Tomega.Prg *) 
+(* val transPro : DextSyn.prog -> Tomega.Prg *) 
  end
