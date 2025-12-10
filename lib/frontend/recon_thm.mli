@@ -28,8 +28,8 @@ sig
   type tableddecl
   val tableddecl :  (string * Paths.region) -> tableddecl
 
-  type keepTabledecl
-  val keepTabledecl :  (string * Paths.region) -> keepTabledecl
+  type keeptabledecl
+  val keepTabledecl :  (string * Paths.region) -> keeptabledecl
 
   type prove
   val prove : int * tdecl -> prove

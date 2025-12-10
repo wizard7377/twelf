@@ -35,10 +35,10 @@ struct
     | LE of IntSyn.cid * mutual         (*     |  <= (a) C            *)
     | LT of IntSyn.cid * mutual         (*     |  > (a) C             *)
 
-  type tDec =                       (* Termination declaration    *)
+  type tdec =                       (* Termination declaration    *)
       TDec of int order * mutual        (* TDec ::= (O, C)            *)
 
-  type rDec =                       (* Reduction declaration      *)
+  type rdec =                       (* Reduction declaration      *)
       RDec of predicate * mutual        (* RDec ::= (P, C)            *)
 
   local

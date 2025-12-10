@@ -23,10 +23,10 @@ sig
     | LE of IntSyn.cid * mutual		(*     | mutual dependencies  *)
     | LT of IntSyn.cid * mutual		(*     | lex order for  -     *)
 
-  type tDec =			(* Termination declaration *)
+  type tdec =			(* Termination declaration *)
       TDec of int order * mutual
 
-  type rDec =			(* Reduction declaration      *)
+  type rdec =			(* Reduction declaration      *)
       RDec of predicate * mutual
 
   val reset : unit -> unit

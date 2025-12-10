@@ -8,10 +8,10 @@ sig
   type location = Loc of string * region (* loc ::= (filename, region) *)
 
   (* line numbering, used when printing regions *)
-  type linesInfo			(* mapping from character positions to lines in a file *)
+  type linesinfo			(* mapping from character positions to lines in a file *)
   val resetLines : unit -> unit         (* reset line numbering *)
   val newLine : int -> unit		(* new line starts at character i *)
-  val getLinesInfo : unit -> linesInfo  (* get lines info for current file *)
+  val getLinesInfo : unit -> linesinfo  (* get lines info for current file *)
 
   val join : region * region -> region	(* join(r1,r2) = smallest region enclosing r1 and r2 *)
   val toString : region -> string	(* line1.col1-line2.col2, parsable by Emacs *)
@@ -48,21 +48,21 @@ sig
      An occurrence tree is a data module mapping occurrences in a term
      to regions in an input stream.  Occurrence trees are constructed during parsing.
   *)
-  type occExp				(* occurrence tree for u expressions *)
+  type occexp				(* occurrence tree for u expressions *)
   and occSpine				(* occurrence tree for s spines *)
 
-  val leaf : region -> occExp		(* could be _ or identifier *)
-  val bind : region * occExp option * occExp -> occExp
-  val root : region * occExp * int * int * occSpine -> occExp
-  val app : occExp * occSpine -> occSpine
+  val leaf : region -> occexp		(* could be _ or identifier *)
+  val bind : region * occexp option * occexp -> occexp
+  val root : region * occexp * int * int * occSpine -> occexp
+  val app : occexp * occSpine -> occSpine
   val nils : occSpine
 
-  type occConDec			(* occurrence tree for constant declarations *)
-  val dec : int * occExp -> occConDec   (* (#implicit, v) in c : V *)
-  val def : int * occExp * occExp option -> occConDec
+  type occcondec			(* occurrence tree for constant declarations *)
+  val dec : int * occexp -> occcondec   (* (#implicit, v) in c : V *)
+  val def : int * occexp * occexp option -> occcondec
 					(* (#implicit, u, v) in c : V = U *)
 
-  val toRegion : occExp -> region
+  val toRegion : occexp -> region
   val toRegionSpine : occSpine * region -> region
 
   val posToPath : occExp -> int -> path

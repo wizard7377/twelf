@@ -7,11 +7,11 @@ sig
   module Fixity  : FIXITY
   (*! module ModeSyn : MODESYN !*)
 
-  type sigEntry = (* global module type entry *)
+  type sigentry = (* global module type entry *)
     (* constant declaration plus optional precedence and mode information *)
     IntSyn.conDec * Fixity.fixity option * ModeSyn.modeSpine list
 
-  type fgnConDec = (* foreign constant declaration *)
+  type fgncondec = (* foreign constant declaration *)
     {
       parse : string -> IntSyn.conDec option
     }

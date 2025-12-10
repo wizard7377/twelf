@@ -135,9 +135,9 @@ struct
         (currentGoal := (G, V);
          setEVarInst (Abstract.collectEVars (G, (V, I.id), nil)))
 
-    type goalTag = int option
+    type goaltag = int option
 
-    let tag : goalTag ref = ref NONE
+    let tag : goaltag ref = ref NONE
     let rec tagGoal () =
         case !tag
           of NONE => NONE

@@ -4,8 +4,8 @@ sig
   (* Program interface *)
   (*! module IntSyn : INTSYN !*)
 
-  type goalTag
-  val tagGoal : unit -> goalTag
+  type goaltag
+  val tagGoal : unit -> goaltag
 
   type event =
     IntroHyp of IntSyn.Head * IntSyn.Dec

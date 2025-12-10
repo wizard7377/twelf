@@ -74,9 +74,9 @@ sig
 
   module Recon :
   sig
-    type traceMode = Progressive | Omniscient
+    type tracemode = Progressive | Omniscient
     val trace : bool ref
-    val traceMode : traceMode ref
+    val traceMode : tracemode ref
   end
 
   module Prover :

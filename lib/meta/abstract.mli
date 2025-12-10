@@ -9,9 +9,9 @@ sig
 
   exception Error of string
 
-  type approxFor =			(* Approximat formula *)
+  type approxfor =			(* Approximat formula *)
     Head of IntSyn.dctx * (FunSyn.For * IntSyn.Sub) * int	(* AF ::= F [s] *)
-  | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.dec list) * approxFor
+  | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.dec list) * approxfor
 					(*  | (t, G2), AF *)
 
 

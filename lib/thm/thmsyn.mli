@@ -18,7 +18,7 @@ sig
   (* -bp *)
   type predicate = Less | Leq | Eq
 
-  type redOrder = 
+  type redorder = 
       RedOrder of predicate * order * order
   
   type callpats =
@@ -31,23 +31,23 @@ sig
   (* -bp *)
   (* Reduction declaration *)
   type rDecl = 
-    RDecl of (redOrder * callpats)
+    RDecl of (redorder * callpats)
 
    (* Tabled declaration *)
    type tabledDecl = 
     TabledDecl of IntSyn.cid
 
    (* KeepTable declaration *)
-   type keepTableDecl = 
+   type keeptabledecl = 
     KeepTableDecl of IntSyn.cid
 
   (* Theorem declaration  *)
-  type thDecl =
+  type thdecl =
     ThDecl of (IntSyn.dec IntSyn.ctx * IntSyn.dec IntSyn.ctx) list
               * IntSyn.dec IntSyn.ctx * ModeSyn.mode IntSyn.ctx * int
 
   (* Proof declaration *)
-  type pDecl = 
+  type pdecl = 
     PDecl of int * tDecl
 
   (* World declaration *)
