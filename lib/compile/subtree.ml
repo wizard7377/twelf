@@ -75,31 +75,31 @@ struct
    indexing and existential variables and nvars will be instantiated
    during assignment
  *)
-  type typeLabel = TypeLabel | Body
+  type typelabel = TypeLabel | Body
 
-  type normalSubsts =  (typeLabel * IntSyn.exp) RBSet.ordSet  (* key = int = bvar *)
+  type normalsubsts =  (typelabel * IntSyn.exp) RBSet.ordSet  (* key = int = bvar *)
 
-  type assSub = Assign of (IntSyn.dec IntSyn.ctx * IntSyn.exp)
-  type assSubsts = AssSub RBSet.ordSet          (* key = int = bvar *)
+  type asssub = Assign of (IntSyn.dec IntSyn.ctx * IntSyn.exp)
+  type asssubsts = AssSub RBSet.ordSet          (* key = int = bvar *)
 
-  type querySubsts = (IntSyn.dec IntSyn.ctx * (typeLabel * IntSyn.exp)) RBSet.ordSet
+  type querysubsts = (IntSyn.dec IntSyn.ctx * (typelabel * IntSyn.exp)) RBSet.ordSet
 
   type cnstr = Eqn of IntSyn.dec IntSyn.ctx * IntSyn.exp * IntSyn.exp
   type cnstrSubsts = IntSyn.exp RBSet.ordSet    (* key = int = bvar *)
 
-  type cGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
+  type cgoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
 
   type genType  = Top | Regular
 
   type tree =
-    Leaf of normalSubsts  * IntSyn.dec IntSyn.ctx * CGoal
-  | Node of normalSubsts  * Tree RBSet.ordSet
+    Leaf of normalsubsts  * IntSyn.dec IntSyn.ctx * CGoal
+  | Node of normalsubsts  * Tree RBSet.ordSet
 
-   type candidate = (assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.dec IntSyn.ctx * CGoal)
+   type candidate = (asssubsts * normalsubsts * cnstrSubsts * Cnstr * IntSyn.dec IntSyn.ctx * CGoal)
 
    (* Initialization of substitutions *)
-   let nid         : unit -> normalSubsts = RBSet.new
-   let assignSubId : unit -> assSubsts = RBSet.new
+   let nid         : unit -> normalsubsts = RBSet.new
+   let assignSubId : unit -> asssubsts = RBSet.new
    let cnstrSubId  : unit -> cnstrSubsts = RBSet.new
    let querySubId  : unit -> querySubsts = RBSet.new
 

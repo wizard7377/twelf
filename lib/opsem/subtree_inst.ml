@@ -40,7 +40,7 @@ module MemoTableInst ((*! module IntSyn' : INTSYN !*)
    *)
   (* property: linear *)
 
-  type normalSubsts  = (int (* local depth *) * IntSyn.exp) RBSet.ordSet
+  type normalsubsts  = (int (* local depth *) * IntSyn.exp) RBSet.ordSet
 
   type exSubsts  = IntSyn.Front RBSet.ordSet
 

@@ -13,24 +13,24 @@ sig
   type bdepth = int    (* depth of locally bound variables *)
 
   (* normal (linear) substitutions *)
-(*  type normalSubsts = (IntSyn.dec IntSyn.ctx * IntSyn.exp) RBSet.ordSet *)
-  type typeLabel = TypeLabel | Body
-  type normalSubsts =  (typeLabel * IntSyn.exp) RBSet.ordSet 
-  type querySubsts = (IntSyn.dec IntSyn.ctx * (typeLabel * IntSyn.exp)) RBSet.ordSet 
+(*  type normalsubsts = (IntSyn.dec IntSyn.ctx * IntSyn.exp) RBSet.ordSet *)
+  type typelabel = TypeLabel | Body
+  type normalsubsts =  (typelabel * IntSyn.exp) RBSet.ordSet 
+  type querysubsts = (IntSyn.dec IntSyn.ctx * (typelabel * IntSyn.exp)) RBSet.ordSet 
 
-  type cGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid  * CompSyn.Conjunction * int
+  type cgoal = CGoals of CompSyn.AuxGoal * IntSyn.cid  * CompSyn.Conjunction * int
 
   (* assignable (linear) subsitutions *)
-  type assSub = Assign of IntSyn.dec IntSyn.ctx * IntSyn.exp
-  type assSubsts = AssSub RBSet.ordSet  (* key = int = bvar *) 
+  type asssub = Assign of IntSyn.dec IntSyn.ctx * IntSyn.exp
+  type asssubsts = AssSub RBSet.ordSet  (* key = int = bvar *) 
 
   type cnstr = Eqn of IntSyn.dec IntSyn.ctx * IntSyn.exp * IntSyn.exp
       
   type tree = 
-    Leaf of normalSubsts *  IntSyn.dec IntSyn.ctx * CGoal
-  | Node of normalSubsts * Tree RBSet.ordSet
+    Leaf of normalsubsts *  IntSyn.dec IntSyn.ctx * CGoal
+  | Node of normalsubsts * Tree RBSet.ordSet
 
-(*  type candidate = assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.dec IntSyn.ctx * CGoal *)
+(*  type candidate = asssubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.dec IntSyn.ctx * CGoal *)
 
   val indexArray : ((int ref) * (Tree ref)) Array.array
 

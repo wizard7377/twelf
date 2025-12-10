@@ -17,7 +17,7 @@ struct
 
    type strategy = Variant | Subsumption
 
-   type resEqn =
+   type reseqn =
      Trivial                              (* trivially done *)
    | Unify of IntSyn.dctx * IntSyn.exp    (* call unify *)
      * IntSyn.exp * ResEqn
@@ -63,12 +63,12 @@ struct
    let aid : unit -> asub = RBSet.new
 
 
-   type callCheckResult =
+   type callcheckresult =
        NewEntry of answer
      | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * status
      | DivergingEntry of (IntSyn.Sub * answer)
 
-   type answState = new | repeated
+   type answstate = new | repeated
 
 (* ---------------------------------------------------------------------- *)
 (* global search parameters *)

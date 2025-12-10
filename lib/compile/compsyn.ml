@@ -50,7 +50,7 @@ struct
   (* Static programs -- compiled version for substitution trees *)
   type conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
 
-  type compHead =
+  type comphead =
      Head of (IntSyn.exp * IntSyn.dec IntSyn.ctx * AuxGoal * IntSyn.cid)
 
 
@@ -122,7 +122,7 @@ struct
 
   (* Compiled Declarations *)
   (* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
-  type comDec =
+  type comdec =
     Parameter
   | Dec of ResGoal * IntSyn.Sub * IntSyn.Head
   | BDec of (ResGoal * IntSyn.Sub *IntSyn.Head) list
@@ -131,7 +131,7 @@ struct
   (* The dynamic clause pool --- compiled version of the context *)
   (* Dynamic programs: context with synchronous clause pool *)
 
-  type dProg = DProg of IntSyn.dctx * comDec IntSyn.ctx
+  type dprog = DProg of IntSyn.dctx * comdec IntSyn.ctx
 
   local
     let maxCid = Global.maxCid

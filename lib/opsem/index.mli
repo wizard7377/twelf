@@ -21,7 +21,7 @@ sig
 
   val query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.exp * IntSyn.Sub * (CompSyn.pskeleton -> unit)) option ref
 
-  type answState = New | Repeated
+  type answstate = New | Repeated
 
   (* table: G, Gdprog |- goal , 
             (answ list (ith stage) , answ list (1 to i-1 th stage))
@@ -58,7 +58,7 @@ sig
    *  else New
    *)
 
-  val answerCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.exp * IntSyn.Sub * CompSyn.pskeleton -> answState
+  val answerCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.exp * IntSyn.Sub * CompSyn.pskeleton -> answstate
 
   (* reset table *)
   val reset: unit -> unit

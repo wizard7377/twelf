@@ -34,7 +34,7 @@ module MemoTable ((*! module IntSyn' : INTSYN !*)
     (* normalSubsts: key = int = nvar *)
     (* property: linear *)
 
-    type normalSubsts  = IntSyn.exp RBSet.ordSet
+    type normalsubsts  = IntSyn.exp RBSet.ordSet
 
     type exSubsts  = IntSyn.exp RBSet.ordSet
 

@@ -59,7 +59,7 @@ struct
 
   type index = entry list
 
-  type answState = New | Repeated
+  type answstate = New | Repeated
 
   type strategy = Variant | Subsumption
 
