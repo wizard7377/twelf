@@ -13,7 +13,7 @@ struct
     module P = Paths
   in
 
-  type idCase =
+  type idcase =
       Upper                             (* [A-Z]<id> or _<id> *)
     | Lower                             (* any other <id> *)
     | Quoted                            (* '<id>', currently unused *)

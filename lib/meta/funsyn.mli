@@ -13,11 +13,11 @@ sig
     LabelDec of string * IntSyn.dec list * IntSyn.dec list
 					(* BB ::= l: SOME Theta. Phi  *)
 
-  type ctxBlock =                   (* ContextBlocks              *)
+  type ctxblock =                   (* ContextBlocks              *)
     CtxBlock of 
      label option * IntSyn.dctx		(* B ::= l : Phi              *) 
 
-  type lfDec =			(* Contexts                   *)
+  type lfdec =			(* Contexts                   *)
     Prim of IntSyn.dec			(* LD ::= x :: A              *)
   | Block of CtxBlock			(*      | B                   *)
 
@@ -56,7 +56,7 @@ sig
   | Left of int * Decs                  (*      | xx = pi1 yy, Ds     *)
   | Right of int * Decs                 (*      | xx = pi2 yy, Ds     *)
  
-  type lemmaDec =			(* Lemmas                     *)
+  type lemmadec =			(* Lemmas                     *)
     LemmaDec of string list * Pro * For	(* L ::= c:F = P              *)
 
   (* ??? *)

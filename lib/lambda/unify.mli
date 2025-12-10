@@ -6,11 +6,11 @@ sig
 
   (*! module IntSyn : INTSYN !*)
 
-  type unifTrail
+  type uniftrail
 
   (* suspending and resuming trailing *)
-  val suspend : unit -> unifTrail
-  val resume : unifTrail  -> unit
+  val suspend : unit -> uniftrail
+  val resume : uniftrail  -> unit
 
   (* trailing of variable instantiation *)
 

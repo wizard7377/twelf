@@ -1734,26 +1734,26 @@ struct
 
     module Recon :
     sig
-      type traceMode = type ReconTerm.TraceMode
+      type tracemode = type ReconTerm.TraceMode
       let trace : bool ref
-      let traceMode : traceMode ref
+      let traceMode : tracemode ref
     end
     =
     struct
-      type traceMode = type ReconTerm.TraceMode
+      type tracemode = type ReconTerm.TraceMode
       let trace = ReconTerm.trace
       let traceMode = ReconTerm.traceMode
     end
 
     module Recon :
     sig
-      type traceMode = type ReconTerm.TraceMode
+      type tracemode = type ReconTerm.TraceMode
       let trace : bool ref
-      let traceMode : traceMode ref
+      let traceMode : tracemode ref
     end
     =
     struct
-      type traceMode = type ReconTerm.TraceMode
+      type tracemode = type ReconTerm.TraceMode
       let trace = ReconTerm.trace
       let traceMode = ReconTerm.traceMode
     end

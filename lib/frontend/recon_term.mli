@@ -52,7 +52,7 @@ sig
   val resetErrors : string -> unit      (* filename -fp *)
   val checkErrors : Paths.region -> unit
 
-  type traceMode = Progressive | Omniscient
+  type tracemode = Progressive | Omniscient
   val trace : bool ref
   val traceMode : TraceMode ref
 

@@ -14,7 +14,7 @@ sig
   module ThmExtSyn : THMEXTSYN
   module ModExtSyn : MODEXTSYN
 
-  type fileParseResult =
+  type fileparseresult =
       ConDec of ExtConDec.condec
     | FixDec of (Names.Qid * Paths.region) * Names.Fixity.fixity
     | NamePref of (Names.Qid * Paths.region) * (string list * string list)

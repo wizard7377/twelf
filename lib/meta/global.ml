@@ -4,7 +4,7 @@
 module MTPGlobal
   (MetaGlobal : METAGLOBAL): MTPGLOBAL =
 struct
-  type proverType = New | Old
+  type provertype = New | Old
 
   let prover = ref New
   let maxFill = MetaGlobal.maxFill

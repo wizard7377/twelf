@@ -7,7 +7,7 @@ struct
   module Stream = Stream'
   (*! module Lexer = Lexer' !*)
 
-  type lexResult = Lexer.Token * Paths.region
+  type lexresult = Lexer.Token * Paths.region
 
   type 'a parser = lexResult Stream.front -> 'a * lexResult Stream.front
 

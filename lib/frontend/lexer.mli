@@ -8,7 +8,7 @@ sig
   module Stream : STREAM
   (*! module Paths : PATHS !*)
 
-  type idCase =
+  type idcase =
       Upper				(* [A-Z]<id> or _<id> *)
     | Lower				(* any other <id> *)
     | Quoted				(* '<id>', currently unused *)

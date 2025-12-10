@@ -31,7 +31,7 @@ struct
     | BindAdd of cnstr list ref * cAction list
     | FSolve of Cnstr ref * Cnstr * Cnstr (* ? *)
 
-    type unifTrail = FAction Trail.trail
+    type uniftrail = FAction Trail.trail
 
     let globalTrail = Trail.trail () : Action Trail.trail
 
@@ -848,7 +848,7 @@ struct
           (resetAwakenCnstrs (); unify1 (G, Us1, Us2))
 
   in
-    type unifTrail = unifTrail
+    type uniftrail = uniftrail
 
     let reset = reset
     let mark = mark

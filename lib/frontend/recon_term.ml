@@ -776,7 +776,7 @@ struct
 
   (* tracing code *)
 
-  type traceMode = Progressive | Omniscient
+  type tracemode = Progressive | Omniscient
   let trace = ref false
   let traceMode = ref Omniscient
 

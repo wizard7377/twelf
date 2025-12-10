@@ -40,12 +40,12 @@ struct
         ctxLength' (G, 0)
       end
 
-  type fgnExp = exn                     (* foreign expression representation *)
+  type fgnexp = exn                     (* foreign expression representation *)
   exception UnexpectedFgnExp of FgnExp
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
-  type fgnCnstr = exn                   (* foreign unification constraint
+  type fgncnstr = exn                   (* foreign unification constraint
                                            representation *)
   exception UnexpectedFgnCnstr of FgnCnstr
                                         (* raised by a constraint solver
@@ -167,11 +167,11 @@ struct
     Anc of cid option * int * cid option (* head(expand(d)), height, head(expand[height](d)) *)
                                         (* NONE means expands to {x:A}B *)
 
-  type strDec =                     (* Structure declaration      *)
+  type strdec =                     (* Structure declaration      *)
       StrDec of string * mid option
 
   (* Form of constant declaration *)
-  type conDecForm =
+  type condecform =
     FromCS                              (* from constraint domain *)
   | Ordinary                            (* ordinary declaration *)
   | Clause                              (* %clause declaration *)

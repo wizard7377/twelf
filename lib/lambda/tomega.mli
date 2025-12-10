@@ -14,9 +14,9 @@ sig
   type quantifier = Implicit | Explicit
 
 
-  type tC	=			(* Terminiation Condition     *)
-    Abs of IntSyn.dec * tC      	(* T ::= {{D}} O              *)
-  | Conj of tC * tC			(*     | O1 ^ O2              *)
+  type tc	=			(* Terminiation Condition     *)
+    Abs of IntSyn.dec * tc      	(* T ::= {{D}} O              *)
+  | Conj of tc * tc			(*     | O1 ^ O2              *)
   | Base of ((IntSyn.exp * IntSyn.Sub) * 
 	     (IntSyn.exp * IntSyn.Sub)) Order.Order
 

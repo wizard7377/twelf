@@ -157,7 +157,7 @@ struct
     let rec tableddeclTotabledDecl T  = T
 
     (* keepTable declaration *)
-    type keepTabledecl = (ThmSyn.keepTableDecl * Paths.region)
+    type keeptabledecl = (ThmSyn.keeptabledecl * Paths.region)
     let rec keepTabledecl (name, r) =
         let
           let qid = Names.Qid (nil, name)
@@ -315,7 +315,7 @@ struct
     type tableddecl = tableddecl
     let tableddecl = tableddecl
 
-    type keepTabledecl = keepTabledecl
+    type keeptabledecl = keeptabledecl
     let keepTabledecl = keepTabledecl
 
     type prove = prove

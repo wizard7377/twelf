@@ -45,7 +45,7 @@ struct
   module ThmExtSyn = ThmExtSyn'
   module ModExtSyn = ModExtSyn'
 
-  type fileParseResult =
+  type fileparseresult =
       ConDec of ExtConDec.condec
     | FixDec of (Names.Qid * Paths.region) * Names.Fixity.fixity
     | NamePref of (Names.Qid * Paths.region) * (string list * string list)
