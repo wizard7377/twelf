@@ -27,12 +27,12 @@ sig
   type cnstr = Eqn of IntSyn.dec IntSyn.ctx * IntSyn.exp * IntSyn.exp
       
   type tree = 
-    Leaf of normalsubsts *  IntSyn.dec IntSyn.ctx * CGoal
-  | Node of normalsubsts * Tree RBSet.ordSet
+    Leaf of normalsubsts *  IntSyn.dec IntSyn.ctx * cgoal
+  | Node of normalsubsts * tree RBSet.ordSet
 
-(*  type candidate = asssubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.dec IntSyn.ctx * CGoal *)
+(*  type candidate = asssubsts * normalsubsts * cnstrSubsts * cnstr * IntSyn.dec IntSyn.ctx * cgoal *)
 
-  val indexArray : ((int ref) * (Tree ref)) Array.array
+  val indexArray : ((int ref) * (tree ref)) Array.array
 
   val sProgReset : unit -> unit
   val sProgInstall : (IntSyn.cid * CompSyn.CompHead * CompSyn.Conjunction) -> unit

@@ -41,13 +41,13 @@ struct
       end
 
   type fgnexp = exn                     (* foreign expression representation *)
-  exception UnexpectedFgnExp of FgnExp
+  exception UnexpectedFgnExp of fgnexp
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
   type fgncnstr = exn                   (* foreign unification constraint
                                            representation *)
-  exception UnexpectedFgnCnstr of FgnCnstr
+  exception UnexpectedFgnCnstr of fgncnstr
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 

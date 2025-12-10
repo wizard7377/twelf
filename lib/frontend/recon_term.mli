@@ -54,7 +54,7 @@ sig
 
   type tracemode = Progressive | Omniscient
   val trace : bool ref
-  val traceMode : TraceMode ref
+  val traceMode : tracemode ref
 
   (* Reconstruction jobs *)
   type job

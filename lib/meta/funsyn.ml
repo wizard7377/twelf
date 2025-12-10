@@ -28,7 +28,7 @@ struct
 
   type lfdec =                      (* Contexts                   *)
     Prim of IntSyn.dec                  (* LD ::= x :: A              *)
-  | Block of CtxBlock                   (*      | B                   *)
+  | Block of ctxblock                   (*      | B                   *)
 
   type lfctx = LFDec IntSyn.ctx         (* Psi ::= . | Psi, LD        *)
 

@@ -20,7 +20,7 @@ struct
    type reseqn =
      Trivial                              (* trivially done *)
    | Unify of IntSyn.dctx * IntSyn.exp    (* call unify *)
-     * IntSyn.exp * ResEqn
+     * IntSyn.exp * reseqn
 
    type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub)
                                * CompSyn.pskeleton) list,

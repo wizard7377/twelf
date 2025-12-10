@@ -92,16 +92,16 @@ struct
   type genType  = Top | Regular
 
   type tree =
-    Leaf of normalsubsts  * IntSyn.dec IntSyn.ctx * CGoal
-  | Node of normalsubsts  * Tree RBSet.ordSet
+    Leaf of normalsubsts  * IntSyn.dec IntSyn.ctx * cgoal
+  | Node of normalsubsts  * tree RBSet.ordSet
 
-   type candidate = (asssubsts * normalsubsts * cnstrSubsts * Cnstr * IntSyn.dec IntSyn.ctx * CGoal)
+   type candidate = (asssubsts * normalsubsts * cnstrSubsts * cnstr * IntSyn.dec IntSyn.ctx * cgoal)
 
    (* Initialization of substitutions *)
    let nid         : unit -> normalsubsts = RBSet.new
    let assignSubId : unit -> asssubsts = RBSet.new
    let cnstrSubId  : unit -> cnstrSubsts = RBSet.new
-   let querySubId  : unit -> querySubsts = RBSet.new
+   let querySubId  : unit -> querysubsts = RBSet.new
 
    (* Identity substitution *)
    let rec isId s = RBSet.isEmpty s
