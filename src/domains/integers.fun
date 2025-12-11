@@ -49,7 +49,7 @@ struct
                 if (c = #"~")
                 then (List.all Char.isDigit chars')
                 else (List.all Char.isDigit chars)
-            | check nil =
+            | (* GEN CASE BRANCH *) check nil =
                 false
         in
           if check (String.explode str)

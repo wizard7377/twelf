@@ -27,7 +27,7 @@ struct
   *)
 
   fun ctxLookup (Decl (G', D), 1) = D
-    | ctxLookup (Decl (G', _), k') = ctxLookup (G', k'-1)
+    | (* GEN CASE BRANCH *) ctxLookup (Decl (G', _), k') = ctxLookup (G', k'-1)
 (*    | ctxLookup (Null, k') = (print ("Looking up k' = " ^ Int.toString k' ^ "\n"); raise Error "Out of Bounce\n")*)
     (* ctxLookup (Null, k')  should not occur by invariant *)
 
@@ -35,7 +35,7 @@ struct
   fun ctxLength G =
       let
         fun ctxLength' (Null, n) = n
-          | ctxLength' (Decl(G, _), n)= ctxLength' (G, n+1)
+          | (* GEN CASE BRANCH *) ctxLength' (Decl(G, _), n)= ctxLength' (G, n+1)
       in
         ctxLength' (G, 0)
       end
@@ -227,18 +227,18 @@ struct
   end
 
   fun conDecName (ConDec (name, _, _, _, _, _)) = name
-    | conDecName (ConDef (name, _, _, _, _, _, _)) = name
-    | conDecName (AbbrevDef (name, _, _, _, _, _)) = name
-    | conDecName (SkoDec (name, _, _, _, _)) = name
-    | conDecName (BlockDec (name, _, _, _)) = name
-    | conDecName (BlockDef (name, _, _)) = name
+    | (* GEN CASE BRANCH *) conDecName (ConDef (name, _, _, _, _, _, _)) = name
+    | (* GEN CASE BRANCH *) conDecName (AbbrevDef (name, _, _, _, _, _)) = name
+    | (* GEN CASE BRANCH *) conDecName (SkoDec (name, _, _, _, _)) = name
+    | (* GEN CASE BRANCH *) conDecName (BlockDec (name, _, _, _)) = name
+    | (* GEN CASE BRANCH *) conDecName (BlockDef (name, _, _)) = name
 
   fun conDecParent (ConDec (_, parent, _, _, _, _)) = parent
-    | conDecParent (ConDef (_, parent, _, _, _, _, _)) = parent
-    | conDecParent (AbbrevDef (_, parent, _, _, _, _)) = parent
-    | conDecParent (SkoDec (_, parent, _, _, _)) = parent
-    | conDecParent (BlockDec (_, parent, _, _)) = parent
-    | conDecParent (BlockDef (_, parent, _)) = parent
+    | (* GEN CASE BRANCH *) conDecParent (ConDef (_, parent, _, _, _, _, _)) = parent
+    | (* GEN CASE BRANCH *) conDecParent (AbbrevDef (_, parent, _, _, _, _)) = parent
+    | (* GEN CASE BRANCH *) conDecParent (SkoDec (_, parent, _, _, _)) = parent
+    | (* GEN CASE BRANCH *) conDecParent (BlockDec (_, parent, _, _)) = parent
+    | (* GEN CASE BRANCH *) conDecParent (BlockDef (_, parent, _)) = parent
 
 
   (* conDecImp (CD) = k
@@ -249,13 +249,13 @@ struct
      then k stands for the number of implicit elements.
   *)
   fun conDecImp (ConDec (_, _, i, _, _, _)) = i
-    | conDecImp (ConDef (_, _, i, _, _, _, _)) = i
-    | conDecImp (AbbrevDef (_, _, i, _, _, _)) = i
-    | conDecImp (SkoDec (_, _, i, _, _)) = i
-    | conDecImp (BlockDec (_, _,  _, _)) = 0   (* watch out -- carsten *)
+    | (* GEN CASE BRANCH *) conDecImp (ConDef (_, _, i, _, _, _, _)) = i
+    | (* GEN CASE BRANCH *) conDecImp (AbbrevDef (_, _, i, _, _, _)) = i
+    | (* GEN CASE BRANCH *) conDecImp (SkoDec (_, _, i, _, _)) = i
+    | (* GEN CASE BRANCH *) conDecImp (BlockDec (_, _,  _, _)) = 0   (* watch out -- carsten *)
 
   fun conDecStatus (ConDec (_, _, _, status, _, _)) = status
-    | conDecStatus _ = Normal
+    | (* GEN CASE BRANCH *) conDecStatus _ = Normal
 
   (* conDecType (CD) =  V
 
@@ -265,9 +265,9 @@ struct
      then V is the respective type
   *)
   fun conDecType (ConDec (_, _, _, _, V, _)) = V
-    | conDecType (ConDef (_, _, _, _, V, _, _)) = V
-    | conDecType (AbbrevDef (_, _, _, _, V, _)) = V
-    | conDecType (SkoDec (_, _, _, V, _)) = V
+    | (* GEN CASE BRANCH *) conDecType (ConDef (_, _, _, _, V, _, _)) = V
+    | (* GEN CASE BRANCH *) conDecType (AbbrevDef (_, _, _, _, V, _)) = V
+    | (* GEN CASE BRANCH *) conDecType (SkoDec (_, _, _, V, _)) = V
 
 
   (* conDecBlock (CD) =  (Gsome, Lpi)
@@ -287,9 +287,9 @@ struct
      then L is the respective universe
   *)
   fun conDecUni (ConDec (_, _, _, _, _, L)) = L
-    | conDecUni (ConDef (_, _, _, _, _, L, _)) = L
-    | conDecUni (AbbrevDef (_, _, _, _, _, L)) = L
-    | conDecUni (SkoDec (_, _, _, _, L)) = L
+    | (* GEN CASE BRANCH *) conDecUni (ConDef (_, _, _, _, _, L, _)) = L
+    | (* GEN CASE BRANCH *) conDecUni (AbbrevDef (_, _, _, _, _, L)) = L
+    | (* GEN CASE BRANCH *) conDecUni (SkoDec (_, _, _, _, L)) = L
 
 
   fun strDecName (StrDec (name, _)) = name
@@ -431,10 +431,10 @@ struct
     (* next line is an optimization *)
     (* roughly 15% on standard suite for Twelf 1.1 *)
     (* Sat Feb 14 10:15:16 1998 -fp *)
-    | comp (s, Shift (0)) = s
-    | comp (Shift (n), Dot (Ft, s)) = comp (Shift (n-1), s)
-    | comp (Shift (n), Shift (m)) = Shift (n+m)
-    | comp (Dot (Ft, s), s') = Dot (frontSub (Ft, s'), comp (s, s'))
+    | (* GEN CASE BRANCH *) comp (s, Shift (0)) = s
+    | (* GEN CASE BRANCH *) comp (Shift (n), Dot (Ft, s)) = comp (Shift (n-1), s)
+    | (* GEN CASE BRANCH *) comp (Shift (n), Shift (m)) = Shift (n+m)
+    | (* GEN CASE BRANCH *) comp (Dot (Ft, s), s') = Dot (frontSub (Ft, s'), comp (s, s'))
 
   (* bvarSub (n, s) = Ft'
 
@@ -445,8 +445,8 @@ struct
      and   G |- Ft' : V [s]
   *)
   and bvarSub (1, Dot(Ft, s)) = Ft
-    | bvarSub (n, Dot(Ft, s)) = bvarSub (n-1, s)
-    | bvarSub (n, Shift(k))  = Idx (n+k)
+    | (* GEN CASE BRANCH *) bvarSub (n, Dot(Ft, s)) = bvarSub (n-1, s)
+    | (* GEN CASE BRANCH *) bvarSub (n, Shift(k))  = Idx (n+k)
 
   (* blockSub (B, s) = B'
 
@@ -462,21 +462,21 @@ struct
       (case bvarSub (k, s)
          of Idx k' => Bidx k'
           | Block B => B)
-    | blockSub (LVar (ref (SOME B), sk, _), s) =
+    | (* GEN CASE BRANCH *) blockSub (LVar (ref (SOME B), sk, _), s) =
         blockSub (B, comp (sk, s))
     (* -fp Sun Dec  1 21:18:30 2002 *)
     (* --cs Sun Dec  1 11:25:41 2002 *)
     (* Since always . |- t : Gsome, discard s *)
     (* where is this needed? *)
     (* Thu Dec  6 20:30:26 2001 -fp !!! *)
-    | blockSub (LVar (r as ref NONE, sk, (l, t)), s) =
+    | (* GEN CASE BRANCH *) blockSub (LVar (r as ref NONE, sk, (l, t)), s) =
         LVar(r, comp(sk, s), (l, t))
       (* was:
         LVar (r, comp(sk, s), (l, comp (t, s)))
         July 22, 2010 -fp -cs
        *)
         (* comp(^k, s) = ^k' for some k' by invariant *)
-    | blockSub (L as Inst ULs, s') = Inst (map (fn U => EClo (U, s')) ULs)
+    | (* GEN CASE BRANCH *) blockSub (L as Inst ULs, s') = Inst (map (fn U => EClo (U, s')) ULs)
     (* this should be right but somebody should verify *)
 
   (* frontSub (Ft, s) = Ft'
@@ -491,9 +491,9 @@ struct
      raise it in whnf and handle it here so Exp (EClo (U, s)) => Undef
   *)
   and frontSub (Idx (n), s) = bvarSub (n, s)
-    | frontSub (Exp (U), s) = Exp (EClo (U, s))
-    | frontSub (Undef, s) = Undef
-    | frontSub (Block (B), s) = Block (blockSub (B, s))
+    | (* GEN CASE BRANCH *) frontSub (Exp (U), s) = Exp (EClo (U, s))
+    | (* GEN CASE BRANCH *) frontSub (Undef, s) = Undef
+    | (* GEN CASE BRANCH *) frontSub (Block (B), s) = Block (blockSub (B, s))
 
   (* decSub (x:V, s) = D'
 
@@ -512,8 +512,8 @@ struct
     | decSub (Dec (x, V), s) = Dec (x, EClo (V, s))
   *)
   fun decSub (Dec (x, V), s) = Dec (x, EClo (V, s))
-    | decSub (NDec x, s) = NDec x
-    | decSub (BDec (n, (l, t)), s) = BDec (n, (l, comp (t, s)))
+    | (* GEN CASE BRANCH *) decSub (NDec x, s) = NDec x
+    | (* GEN CASE BRANCH *) decSub (BDec (n, (l, t)), s) = BDec (n, (l, comp (t, s)))
 
   (* dot1 (s) = s'
 
@@ -529,7 +529,7 @@ struct
   (* roughly 15% on standard suite for Twelf 1.1 *)
   (* Sat Feb 14 10:16:16 1998 -fp *)
   fun dot1 (s as Shift (0)) = s
-    | dot1 s = Dot (Idx(1), comp(s, shift))
+    | (* GEN CASE BRANCH *) dot1 s = Dot (Idx(1), comp(s, shift))
 
   (* invDot1 (s) = s'
      invDot1 (1. s' o ^) = s'
@@ -554,8 +554,8 @@ struct
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)
         fun ctxDec' (Decl (G', Dec (x, V')), 1) = Dec (x, EClo (V', Shift (k)))
-          | ctxDec' (Decl (G', BDec (n, (l, s))), 1) = BDec (n, (l, comp (s, Shift (k))))
-          | ctxDec' (Decl (G', _), k') = ctxDec' (G', k'-1)
+          | (* GEN CASE BRANCH *) ctxDec' (Decl (G', BDec (n, (l, s))), 1) = BDec (n, (l, comp (s, Shift (k))))
+          | (* GEN CASE BRANCH *) ctxDec' (Decl (G', _), k') = ctxDec' (G', k'-1)
          (* ctxDec' (Null, k')  should not occur by invariant *)
       in
         ctxDec' (G, k)
@@ -576,7 +576,7 @@ struct
       (* G |- s : Gsome *)
       val (Gsome, Lblock) = conDecBlock (sgnLookup l)
       fun blockDec' (t, D :: L, 1, j) = decSub (D, t)
-        | blockDec' (t, _ :: L, n, j) =
+        | (* GEN CASE BRANCH *) blockDec' (t, _ :: L, n, j) =
             blockDec' (Dot (Exp (Root (Proj (v, j), Nil)), t),
                           L, n-1, j+1)
     in
@@ -604,16 +604,16 @@ struct
   (* Definition related functions *)
   (* headOpt (U) = SOME(H) or NONE, U should be strict, normal *)
   fun headOpt (Root (H, _)) = SOME(H)
-    | headOpt (Lam (_, U)) = headOpt U
-    | headOpt _ = NONE
+    | (* GEN CASE BRANCH *) headOpt (Lam (_, U)) = headOpt U
+    | (* GEN CASE BRANCH *) headOpt _ = NONE
 
   fun ancestor' (NONE) = Anc(NONE, 0, NONE)
-    | ancestor' (SOME(Const(c))) = Anc(SOME(c), 1, SOME(c))
-    | ancestor' (SOME(Def(d))) =
+    | (* GEN CASE BRANCH *) ancestor' (SOME(Const(c))) = Anc(SOME(c), 1, SOME(c))
+    | (* GEN CASE BRANCH *) ancestor' (SOME(Def(d))) =
       (case sgnLookup(d)
          of ConDef(_, _, _, _, _, _, Anc(_, height, cOpt))
             => Anc(SOME(d), height+1, cOpt))
-    | ancestor' (SOME _) = (* FgnConst possible, BVar impossible by strictness *)
+    | (* GEN CASE BRANCH *) ancestor' (SOME _) = (* FgnConst possible, BVar impossible by strictness *)
       Anc(NONE, 0, NONE)
   (* ancestor(U) = ancestor info for d = U *)
   fun ancestor (U) = ancestor' (headOpt U)
@@ -632,12 +632,12 @@ struct
   *)
   (* should there possibly be a FgnConst case? also targetFamOpt -kw *)
   fun targetHeadOpt (Root (H, _)) = SOME(H)
-    | targetHeadOpt (Pi(_, V)) = targetHeadOpt V
-    | targetHeadOpt (Redex (V, S)) = targetHeadOpt V
-    | targetHeadOpt (Lam (_, V)) = targetHeadOpt V
-    | targetHeadOpt (EVar (ref (SOME(V)),_,_,_)) = targetHeadOpt V
-    | targetHeadOpt (EClo (V, s)) = targetHeadOpt V
-    | targetHeadOpt _ = NONE
+    | (* GEN CASE BRANCH *) targetHeadOpt (Pi(_, V)) = targetHeadOpt V
+    | (* GEN CASE BRANCH *) targetHeadOpt (Redex (V, S)) = targetHeadOpt V
+    | (* GEN CASE BRANCH *) targetHeadOpt (Lam (_, V)) = targetHeadOpt V
+    | (* GEN CASE BRANCH *) targetHeadOpt (EVar (ref (SOME(V)),_,_,_)) = targetHeadOpt V
+    | (* GEN CASE BRANCH *) targetHeadOpt (EClo (V, s)) = targetHeadOpt V
+    | (* GEN CASE BRANCH *) targetHeadOpt _ = NONE
       (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
       *)
@@ -653,13 +653,13 @@ struct
      Does expand type definitions.
   *)
   fun targetFamOpt (Root (Const(cid), _)) = SOME(cid)
-    | targetFamOpt (Pi(_, V)) = targetFamOpt V
-    | targetFamOpt (Root (Def(cid), _)) = targetFamOpt (constDef cid)
-    | targetFamOpt (Redex (V, S)) = targetFamOpt V
-    | targetFamOpt (Lam (_, V)) = targetFamOpt V
-    | targetFamOpt (EVar (ref (SOME(V)),_,_,_)) = targetFamOpt V
-    | targetFamOpt (EClo (V, s)) = targetFamOpt V
-    | targetFamOpt _ = NONE
+    | (* GEN CASE BRANCH *) targetFamOpt (Pi(_, V)) = targetFamOpt V
+    | (* GEN CASE BRANCH *) targetFamOpt (Root (Def(cid), _)) = targetFamOpt (constDef cid)
+    | (* GEN CASE BRANCH *) targetFamOpt (Redex (V, S)) = targetFamOpt V
+    | (* GEN CASE BRANCH *) targetFamOpt (Lam (_, V)) = targetFamOpt V
+    | (* GEN CASE BRANCH *) targetFamOpt (EVar (ref (SOME(V)),_,_,_)) = targetFamOpt V
+    | (* GEN CASE BRANCH *) targetFamOpt (EClo (V, s)) = targetFamOpt V
+    | (* GEN CASE BRANCH *) targetFamOpt _ = NONE
       (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
       *)

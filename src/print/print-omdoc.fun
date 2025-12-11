@@ -42,10 +42,10 @@ local
 
   fun escape s = let
           fun escapelist nil = nil
-            | escapelist (#"&" :: rest) = String.explode "&amp;" @ (escapelist rest)
-            | escapelist (#"<" :: rest) = String.explode "&lt;" @ (escapelist rest)
-            | escapelist (#">" :: rest) = String.explode "&gt;" @ (escapelist rest)
-            | escapelist (c :: rest) = c :: (escapelist rest)
+            | (* GEN CASE BRANCH *) escapelist (#"&" :: rest) = String.explode "&amp;" @ (escapelist rest)
+            | (* GEN CASE BRANCH *) escapelist (#"<" :: rest) = String.explode "&lt;" @ (escapelist rest)
+            | (* GEN CASE BRANCH *) escapelist (#">" :: rest) = String.explode "&gt;" @ (escapelist rest)
+            | (* GEN CASE BRANCH *) escapelist (c :: rest) = c :: (escapelist rest)
   in
     String.implode (escapelist (String.explode s))
   end
@@ -90,8 +90,8 @@ local
 
   (* This is probably defined elsewhere, too. It's needed to check how many arguments there will be in an om:OMA element *)
   fun spineLength I.Nil = 0
-    | spineLength (I.SClo (S, _)) = spineLength S
-    | spineLength (I.App(_, S)) = 1 + (spineLength S)
+    | (* GEN CASE BRANCH *) spineLength (I.SClo (S, _)) = spineLength S
+    | (* GEN CASE BRANCH *) spineLength (I.App(_, S)) = 1 + (spineLength S)
 
   (* fmtCon (c) = "c" where the name is assigned according the the Name table
      maintained in the names module.
@@ -103,14 +103,14 @@ local
       in
         sexp [Str ("<om:OMV name=\"" ^ VarName(I.ctxLength G - x + 1,n) ^ "\"/>")]
       end
-    | fmtCon (G, I.Const(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
-    | fmtCon (G, I.Def(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
-    | fmtCon (G, I.FgnConst (csid, condec)) = sexp [Str "FgnConst"]  (* FIX -cs Fri Jan 28 17:45:35 2005*)
+    | (* GEN CASE BRANCH *) fmtCon (G, I.Const(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
+    | (* GEN CASE BRANCH *) fmtCon (G, I.Def(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
+    | (* GEN CASE BRANCH *) fmtCon (G, I.FgnConst (csid, condec)) = sexp [Str "FgnConst"]  (* FIX -cs Fri Jan 28 17:45:35 2005*)
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
   fun fmtUni (I.Type) = Str "<om:OMS cd=\"twelf\" name=\"type\"/>"
-    | fmtUni (I.Kind) = Str "<om:OMS cd=\"twelf\" name=\"kind\"/>"
+    | (* GEN CASE BRANCH *) fmtUni (I.Kind) = Str "<om:OMS cd=\"twelf\" name=\"kind\"/>"
 
   (* fmtExpW (G, (U, s)) = fmt
 
@@ -123,7 +123,7 @@ local
        (U,s) in whnf
   *)
   fun fmtExpW (G, (I.Uni(L), s), _) = sexp [fmtUni L]
-    | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s), imp) =
+    | (* GEN CASE BRANCH *) fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s), imp) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
                          val (D' as I.Dec (SOME(name), V1')) = Names.decLUName (G, D) (* could sometimes be EName *)
@@ -146,7 +146,7 @@ local
                             fmtExp (G', (V2, I.dot1 s), 0), nl_unind(),
                             Str "</om:OMA>"]
                     end)
-    | fmtExpW (G, (I.Root (H, S), s), _) = let
+    | (* GEN CASE BRANCH *) fmtExpW (G, (I.Root (H, S), s), _) = let
         val l = spineLength(S)
         val out = ref ""
         val _ = if (l = 0) then
@@ -182,7 +182,7 @@ local
       in
         !out
       end
-    | fmtExpW (G, (I.Lam(D, U), s), imp) =
+    | (* GEN CASE BRANCH *) fmtExpW (G, (I.Lam(D, U), s), imp) =
       let
         val (D' as I.Dec (SOME(name), V)) = Names.decLUName (G, D)
         val G' = I.Decl (G, D')
@@ -196,7 +196,7 @@ local
       in
         fmtBinder(lam, name, id, fmtType, fmtBody)
       end
-    | fmtExpW (G, (I.FgnExp (csid, F), s), 0) = sexp [Str "FgnExp"] (* FIX -cs Fri Jan 28 17:45:43 2005 *)
+    | (* GEN CASE BRANCH *) fmtExpW (G, (I.FgnExp (csid, F), s), 0) = sexp [Str "FgnExp"] (* FIX -cs Fri Jan 28 17:45:43 2005 *)
 
     (* I.EClo, I.Redex, I.EVar not possible *)
 
@@ -208,9 +208,9 @@ local
      args is the number of arguments after which </om:OMA> must be inserted, no effect if negative
   *)
   and fmtSpine (G, (I.Nil, _),_) = nl_unind()
-    | fmtSpine (G, (I.SClo (S, s'), s), args) =
+    | (* GEN CASE BRANCH *) fmtSpine (G, (I.SClo (S, s'), s), args) =
         fmtSpine (G, (S, I.comp(s',s)), args)
-    | fmtSpine (G, (I.App(U, S), s), args) = let
+    | (* GEN CASE BRANCH *) fmtSpine (G, (I.App(U, S), s), args) = let
         (* print first argument, 0 is dummy value *)
         val out = ref (nl() ^ fmtExp (G, (U, s), 0))
         (* close application if args reaches 0 *)
@@ -297,23 +297,23 @@ local
       in
         fmtSymbol(name, V, imp)
       end
-    | fmtConDec (_, I.SkoDec (name, parent, imp, V, L)) =
+    | (* GEN CASE BRANCH *) fmtConDec (_, I.SkoDec (name, parent, imp, V, L)) =
       Str ("<!-- Skipping Skolem constant " ^ name ^ "-->")
-    | fmtConDec (cid, I.ConDef (name, parent, imp, U, V, L, _)) =
+    | (* GEN CASE BRANCH *) fmtConDec (cid, I.ConDef (name, parent, imp, U, V, L, _)) =
       let
         val _ = Names.varReset IntSyn.Null
         val name = Name cid
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
       end
-    | fmtConDec (cid, I.AbbrevDef (name, parent, imp, U, V, L)) =
+    | (* GEN CASE BRANCH *) fmtConDec (cid, I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
         val _ = Names.varReset IntSyn.Null
         val name = Name cid
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
       end
-    | fmtConDec (_, I.BlockDec (name, _, _, _)) =
+    | (* GEN CASE BRANCH *) fmtConDec (_, I.BlockDec (name, _, _, _)) =
       Str ("<!-- Skipping Skolem constant " ^ name ^ "-->")
 
 in
@@ -341,16 +341,16 @@ in
         val _ = ind_reset()
         val file = TextIO.openOut (filename)
         val OMDocPrefix =
-"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ^
-"<!DOCTYPE omdoc PUBLIC \"-//OMDoc//DTD OMDoc V1.2//EN\" " ^
-(* "\"https://svn.mathweb.org/repos/mathweb.org/branches/omdoc-1.2/dtd/omdoc.dtd\">\n" ^ *)
-"\"../../dtd/omdoc.dtd\">\n" ^
-"<omdoc xml:id=\"" ^ filename ^ "\" " ^
-"xmlns=\"http://www.mathweb.org/omdoc\" " ^
-"xmlns:om=\"http://www.openmath.org/OpenMath\" " ^
-"version=\"1.2\">\n\n"
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ^
+  "<!DOCTYPE omdoc PUBLIC \"-//OMDoc//DTD OMDoc V1.2//EN\" " ^
+  (* "\"https://svn.mathweb.org/repos/mathweb.org/branches/omdoc-1.2/dtd/omdoc.dtd\">\n" ^ *)
+  "\"../../dtd/omdoc.dtd\">\n" ^
+  "<omdoc xml:id=\"" ^ filename ^ "\" " ^
+  "xmlns=\"http://www.mathweb.org/omdoc\" " ^
+  "xmlns:om=\"http://www.openmath.org/OpenMath\" " ^
+  "version=\"1.2\">\n\n"
         val _ = TextIO.output (file, OMDocPrefix ^ "<theory xml:id=\"global\">\n\n")
-
+  
         val _ = IntSyn.sgnApp (fn (cid) => (
                         (TextIO.output (file, fmtConst cid)) ;
                         TextIO.output (file, "\n\n")
@@ -358,7 +358,7 @@ in
         )
         val _ = TextIO.output (file, "</theory>\n\n</omdoc>")
         val _ = TextIO.closeOut file
-
+  
       in
         ()
       end

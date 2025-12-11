@@ -101,9 +101,9 @@ struct
          Menu := NONE)
 
     fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
+      | (* GEN CASE BRANCH *) cLToString (c :: nil) =
           (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
+      | (* GEN CASE BRANCH *) cLToString (c :: L) =
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
 
@@ -112,9 +112,9 @@ struct
         fun formatTuple (G, P) =
           let
             fun formatTuple' (F.Unit) = nil
-              | formatTuple' (F.Inx (M, F.Unit)) =
+              | (* GEN CASE BRANCH *) formatTuple' (F.Inx (M, F.Unit)) =
               [Print.formatExp (G, M)]
-              | formatTuple' (F.Inx (M, P')) =
+              | (* GEN CASE BRANCH *) formatTuple' (F.Inx (M, P')) =
               (Print.formatExp (G, M) ::
                Fmt.String "," :: Fmt.Break :: formatTuple' P')
           in
@@ -129,7 +129,7 @@ struct
       end
 
     fun SplittingToMenu (nil, A) = A
-      | SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A)
+      | (* GEN CASE BRANCH *) SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A)
 
     fun FillingToMenu (O, A) = Filling O :: A
 
@@ -161,8 +161,8 @@ struct
     fun menuToString () =
         let
           fun menuToString' (k, nil, (NONE, _)) = (SOME k, "")
-            | menuToString' (k, nil, (kopt' as SOME _, _)) = (kopt', "")
-            | menuToString' (k, Splitting O :: M, kOopt' as (NONE, NONE)) =
+            | (* GEN CASE BRANCH *) menuToString' (k, nil, (kopt' as SOME _, _)) = (kopt', "")
+            | (* GEN CASE BRANCH *) menuToString' (k, Splitting O :: M, kOopt' as (NONE, NONE)) =
               let
                 val kOopt'' = if MTPSplitting.applicable O then (SOME k, SOME O)
                               else kOopt'
@@ -171,7 +171,7 @@ struct
                 (kopt, if k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
               end
-            | menuToString' (k, Splitting O :: M, kOopt' as (SOME k', SOME O')) =
+            | (* GEN CASE BRANCH *) menuToString' (k, Splitting O :: M, kOopt' as (SOME k', SOME O')) =
               let
                 val kOopt'' = if MTPSplitting.applicable O then
                                 case MTPSplitting.compare (O, O')
@@ -183,19 +183,19 @@ struct
                 (kopt, if  k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
               end
-            | menuToString' (k, Filling O :: M, kOopt) =
+            | (* GEN CASE BRANCH *) menuToString' (k, Filling O :: M, kOopt) =
               let
                 val (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPFilling.menu O))
               end
-            | menuToString' (k, Recursion O :: M,kOopt) =
+            | (* GEN CASE BRANCH *) menuToString' (k, Recursion O :: M,kOopt) =
               let
                 val (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPRecursion.menu O))
               end
-            | menuToString' (k, Inference O :: M,kOopt) =
+            | (* GEN CASE BRANCH *) menuToString' (k, Inference O :: M,kOopt) =
               let
                 val (kopt, s) = menuToString' (k+1, M, kOopt)
               in
@@ -231,7 +231,7 @@ struct
 
 
     fun contains (nil, _) = true
-      | contains (x :: L, L') =
+      | (* GEN CASE BRANCH *) contains (x :: L, L') =
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     fun equiv (L1, L2) =
@@ -244,17 +244,17 @@ struct
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
-      | transformOrder' (G, Order.Lex Os) =
+      | (* GEN CASE BRANCH *) transformOrder' (G, Order.Lex Os) =
           S.Lex (map (fn O => transformOrder' (G, O)) Os)
-      | transformOrder' (G, Order.Simul Os) =
+      | (* GEN CASE BRANCH *) transformOrder' (G, Order.Simul Os) =
           S.Simul (map (fn O => transformOrder' (G, O)) Os)
 
     fun transformOrder (G, F.All (F.Prim D, F), Os) =
           S.All (D, transformOrder (I.Decl (G, D), F, Os))
-      | transformOrder (G, F.And (F1, F2), O :: Os) =
+      | (* GEN CASE BRANCH *) transformOrder (G, F.And (F1, F2), O :: Os) =
           S.And (transformOrder (G, F1, [O]),
                  transformOrder (G, F2, Os))
-      | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
+      | (* GEN CASE BRANCH *) transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
 
     fun select c = (Order.selLookup c handle _ => Order.Lex [])
 
@@ -281,7 +281,7 @@ struct
     fun select k =
         let
           fun select' (k, nil) = abort ("No such menu item")
-            | select' (1, Splitting O :: _) =
+            | (* GEN CASE BRANCH *) select' (1, Splitting O :: _) =
                 let
                   val S' = (Timers.time Timers.splitting MTPSplitting.apply) O
                   val _ = pushHistory ()
@@ -290,7 +290,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Recursion O :: _) =
+            | (* GEN CASE BRANCH *) select' (1, Recursion O :: _) =
                 let
                   val S' = (Timers.time Timers.recursion MTPRecursion.apply) O
                   val _ = pushHistory ()
@@ -299,7 +299,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Inference O :: _) =
+            | (* GEN CASE BRANCH *) select' (1, Inference O :: _) =
                 let
                   val S' = (Timers.time Timers.recursion Inference.apply) O
                   val _ = pushHistory ()
@@ -308,7 +308,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (1, Filling O :: _) =
+            | (* GEN CASE BRANCH *) select' (1, Filling O :: _) =
                 let
                   val P = (Timers.time Timers.filling MTPFilling.apply) O
                     handle MTPFilling.Error _ =>  abort ("Filling unsuccessful: no object found")
@@ -319,7 +319,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | select' (k, _ :: M) = select' (k-1, M)
+            | (* GEN CASE BRANCH *) select' (k, _ :: M) = select' (k-1, M)
         in
           (case !Menu of
             NONE => raise Error "No menu defined"

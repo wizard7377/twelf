@@ -53,13 +53,13 @@ struct
               (* it is possible to calculuate
                  index/induction variable information here
                  define occursOrder in StateSyn.fun  --cs *)
-   (*      | init' (G, B, O, (F.All (F.Block _, F), s)) =
+       (*      | init' (G, B, O, (F.All (F.Block _, F), s)) =
            no such case yet  --cs *)
-          | init' (GB, S.And (O1, O2), F.And (F1, F2), Ss) =
+          | (* GEN CASE BRANCH *) init' (GB, S.And (O1, O2), F.And (F1, F2), Ss) =
               init' (GB, O1, F1, init' (GB, O2, F2, Ss))
-          | init' (GB, O, F' as F.Ex _, Ss) =
+          | (* GEN CASE BRANCH *) init' (GB, O, F' as F.Ex _, Ss) =
               S.State (List.length Ss + 1, GB, (F, OF), 1, O, nil, F') :: Ss
-          | init' (GB, O, F' as F.True, Ss) =
+          | (* GEN CASE BRANCH *) init' (GB, O, F' as F.True, Ss) =
               S.State (List.length Ss + 1, GB, (F, OF), 1, O, nil, F') :: Ss
             (* added in case there are no existentials -fp *)
       in

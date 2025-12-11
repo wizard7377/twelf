@@ -60,7 +60,7 @@ struct
         in
           (X' :: Xs, FVs')
         end
-      | createEVars (G, FVs as (_, s)) = (nil, FVs)
+      | (* GEN CASE BRANCH *) createEVars (G, FVs as (_, s)) = (nil, FVs)
 
 
 
@@ -85,10 +85,10 @@ struct
           (case  UniqueSearch.searchEx (2, Xs, fn nil => [(Whnf.normalize (V', s'))]
                                                 | _ => raise UniqueSearch.Error "Too many solutions")
              of [VF''] => SOME VF''
-
+    
               | [] => NONE) handle UniqueSearch.Error _ => NONE
         end
-      | forward (G, B, V) = NONE
+      | (* GEN CASE BRANCH *) forward (G, B, V) = NONE
 
 
 
@@ -113,7 +113,7 @@ struct
 
     fun expand' ((G0, B0), (I.Null, I.Null), n) =
         ((I.Null, I.Null), fn ((G', B'), w') => ((G', B'), w'))
-      | expand' ((G0, B0), (I.Decl (G, D as I.Dec (_, V)), I.Decl (B, T as S.Lemma (S.RL))), n) =
+      | (* GEN CASE BRANCH *) expand' ((G0, B0), (I.Decl (G, D as I.Dec (_, V)), I.Decl (B, T as S.Lemma (S.RL))), n) =
         let
           val ((G0', B0'), sc') = expand' ((G0, B0), (G, B), n+1)
           val s = I.Shift (n+1)
@@ -125,8 +125,8 @@ struct
                  ((I.Decl (G0', D), I.Decl (B0', S.Lemma (S.RLdone))),
                   fn ((G', B'), w') =>
                   let
-
-
+      
+      
                     val V'' = Whnf.normalize (V', w')
                                         (* G' |- V'' : type *)
                   in
@@ -134,7 +134,7 @@ struct
                           I.Decl (B', S.Lemma (S.Splits (!MTPGlobal.maxSplit)))), I.comp (w', I.shift))
                   end)
         end
-      | expand' (GB0, (I.Decl (G, D), I.Decl (B, T)), n) =
+      | (* GEN CASE BRANCH *) expand' (GB0, (I.Decl (G, D), I.Decl (B, T)), n) =
         let
           val ((G0', B0'), sc') = expand' (GB0, (G, B), n+1)
         in
@@ -155,7 +155,7 @@ struct
           val _ = if (!Global.doubleCheck) then TypeCheck.typeCheckCtx (Gnew) else ()
           val ((G', B'), w') = sc ((Gnew, Bnew), I.id)
           val _ = TypeCheck.typeCheckCtx G'
-
+    
           val S' = S.State (n, (G', B'), (IH, OH), d, S.orderSub (O, w'),
                    map (fn (i, F') => (i, F.forSub (F', w'))) H, F.forSub (F, w'))
           val _ = if !Global.doubleCheck

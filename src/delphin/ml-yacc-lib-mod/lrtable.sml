@@ -48,7 +48,7 @@ structure LrTable : LR_TABLE =
 		       if key < term then find r
 		       else if key=term then data
 		       else default
-		   | find EMPTY = default
+		   | (* GEN CASE BRANCH *) find EMPTY = default
 	    in find row
 	    end
 	fun findNonterm (NT nt,row) =
@@ -56,7 +56,7 @@ structure LrTable : LR_TABLE =
 		       if key < nt then find r
 		       else if key=nt then SOME data
 		       else NONE
-		   | find EMPTY = NONE
+		   | (* GEN CASE BRANCH *) find EMPTY = NONE
 	    in find row
 	    end
 	val action = fn ({action,...} : table) =>

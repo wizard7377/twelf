@@ -61,32 +61,32 @@ struct
 
     (* returns integer for precedence such that lower values correspond to higher precedence, useful for exports *)
     fun precToIntAsc(Infix(Strength n,_)) = maxPrecInt + 1 - n
-      | precToIntAsc(Prefix(Strength n)) = maxPrecInt + 1 - n
-      | precToIntAsc(Postfix(Strength n)) = maxPrecInt + 1 - n
-      | precToIntAsc(Nonfix) = minPrecInt
+      | (* GEN CASE BRANCH *) precToIntAsc(Prefix(Strength n)) = maxPrecInt + 1 - n
+      | (* GEN CASE BRANCH *) precToIntAsc(Postfix(Strength n)) = maxPrecInt + 1 - n
+      | (* GEN CASE BRANCH *) precToIntAsc(Nonfix) = minPrecInt
 
     (* prec (fix) = precedence of fix *)
     fun prec (Infix(p,_)) = p
-      | prec (Prefix(p)) = p
-      | prec (Postfix(p)) = p
-      | prec (Nonfix) = inc (maxPrec)
+      | (* GEN CASE BRANCH *) prec (Prefix(p)) = p
+      | (* GEN CASE BRANCH *) prec (Postfix(p)) = p
+      | (* GEN CASE BRANCH *) prec (Nonfix) = inc (maxPrec)
 
     (* toString (fix) = declaration corresponding to fix *)
     fun toString (Infix(Strength(p),Left)) = "%infix left " ^ Int.toString p
-      | toString (Infix(Strength(p),Right)) = "%infix right " ^ Int.toString p
-      | toString (Infix(Strength(p),None)) = "%infix none " ^ Int.toString p
-      | toString (Prefix(Strength(p))) = "%prefix " ^ Int.toString p
-      | toString (Postfix(Strength(p))) = "%postfix " ^ Int.toString p
-      | toString (Nonfix) = "%nonfix"   (* not legal input *)
+      | (* GEN CASE BRANCH *) toString (Infix(Strength(p),Right)) = "%infix right " ^ Int.toString p
+      | (* GEN CASE BRANCH *) toString (Infix(Strength(p),None)) = "%infix none " ^ Int.toString p
+      | (* GEN CASE BRANCH *) toString (Prefix(Strength(p))) = "%prefix " ^ Int.toString p
+      | (* GEN CASE BRANCH *) toString (Postfix(Strength(p))) = "%postfix " ^ Int.toString p
+      | (* GEN CASE BRANCH *) toString (Nonfix) = "%nonfix"   (* not legal input *)
 
   end  (* structure Fixity *)
 
   (* argNumber (fix) = minimum # of explicit arguments required *)
   (* for operator with fixity fix (0 if there are no requirements) *)
   fun argNumber (Fixity.Nonfix) = 0
-    | argNumber (Fixity.Infix _) = 2
-    | argNumber (Fixity.Prefix _) = 1
-    | argNumber (Fixity.Postfix _) = 1
+    | (* GEN CASE BRANCH *) argNumber (Fixity.Infix _) = 2
+    | (* GEN CASE BRANCH *) argNumber (Fixity.Prefix _) = 1
+    | (* GEN CASE BRANCH *) argNumber (Fixity.Postfix _) = 1
 
   (* checkAtomic (name, V, n) = ()
      if V expects exactly n arguments,
@@ -95,11 +95,11 @@ struct
   fun checkAtomic (name, IntSyn.Pi (D, V), 0) = true
       (* allow extraneous arguments, Sat Oct 23 14:18:27 1999 -fp *)
       (* raise Error ("Constant " ^ name ^ " takes too many explicit arguments for given fixity") *)
-    | checkAtomic (name, IntSyn.Pi (D, V), n) =
+    | (* GEN CASE BRANCH *) checkAtomic (name, IntSyn.Pi (D, V), n) =
         checkAtomic (name, V, n-1)
-    | checkAtomic (_, IntSyn.Uni _, 0) = true
-    | checkAtomic (_, IntSyn.Root _, 0) = true
-    | checkAtomic (name, _, _) = false
+    | (* GEN CASE BRANCH *) checkAtomic (_, IntSyn.Uni _, 0) = true
+    | (* GEN CASE BRANCH *) checkAtomic (_, IntSyn.Root _, 0) = true
+    | (* GEN CASE BRANCH *) checkAtomic (name, _, _) = false
 
   (* checkArgNumber (c, n) = ()
      if constant c expects exactly n explicit arguments,
@@ -107,11 +107,11 @@ struct
   *)
   fun checkArgNumber (IntSyn.ConDec (name, _, i, _, V, L), n) =
         checkAtomic (name, V, i+n)
-    | checkArgNumber (IntSyn.SkoDec (name, _, i, V, L), n) =
+    | (* GEN CASE BRANCH *) checkArgNumber (IntSyn.SkoDec (name, _, i, V, L), n) =
         checkAtomic (name, V, i+n)
-    | checkArgNumber (IntSyn.ConDef (name, _, i, _, V, L, _), n) =
+    | (* GEN CASE BRANCH *) checkArgNumber (IntSyn.ConDef (name, _, i, _, V, L, _), n) =
         checkAtomic (name, V, i+n)
-    | checkArgNumber (IntSyn.AbbrevDef (name, _, i, _, V, L), n) =
+    | (* GEN CASE BRANCH *) checkArgNumber (IntSyn.AbbrevDef (name, _, i, _, V, L), n) =
         checkAtomic (name, V, i+n)
 
   (* checkFixity (name, cidOpt, n) = ()
@@ -120,7 +120,7 @@ struct
      raises Error (msg) otherwise
   *)
   fun checkFixity (name, _, 0) = ()
-    | checkFixity (name, cid, n) =
+    | (* GEN CASE BRANCH *) checkFixity (name, cid, n) =
       if checkArgNumber (IntSyn.sgnLookup (cid), n) then ()
       else raise Error ("Constant " ^ name ^ " takes too few explicit arguments for given fixity")
 
@@ -156,7 +156,7 @@ struct
         List.foldr (fn (id, s) => id ^ "." ^ s) name ids
 
   fun validateQualName nil = NONE
-    | validateQualName (l as id::ids) =
+    | (* GEN CASE BRANCH *) validateQualName (l as id::ids) =
         if List.exists (fn s => s = "") l
           then NONE
         else SOME (Qid (rev ids, id))
@@ -165,7 +165,7 @@ struct
         validateQualName (rev (String.fields (fn c => c = #".") name))
 
   fun unqualified (Qid (nil, id)) = SOME id
-    | unqualified _ = NONE
+    | (* GEN CASE BRANCH *) unqualified _ = NONE
 
   type namespace = IntSyn.mid StringTree.table * IntSyn.cid StringTree.table
 
@@ -318,14 +318,14 @@ struct
 
     fun findStruct (structTable, [id]) =
           StringTree.lookup structTable id
-      | findStruct (structTable, id::ids) =
+      | (* GEN CASE BRANCH *) findStruct (structTable, id::ids) =
         (case StringTree.lookup structTable id
            of NONE => NONE
             | SOME mid => findStruct (structComps mid, ids))
 
     fun findTopStruct [id] =
           HashTable.lookup topStructNamespace id
-      | findTopStruct (id::ids) =
+      | (* GEN CASE BRANCH *) findTopStruct (id::ids) =
         (case HashTable.lookup topStructNamespace id
            of NONE => NONE
             | SOME mid => findStruct (structComps mid, ids))
@@ -334,7 +334,7 @@ struct
         (case StringTree.lookup structTable id
            of NONE => SOME (Qid (rev ids', id))
             | SOME _ => NONE)
-      | findUndefStruct (structTable, id::ids, ids') =
+      | (* GEN CASE BRANCH *) findUndefStruct (structTable, id::ids, ids') =
         (case StringTree.lookup structTable id
            of NONE => SOME (Qid (rev ids', id))
             | SOME mid => findUndefStruct (structComps mid, ids, id::ids'))
@@ -343,21 +343,21 @@ struct
         (case HashTable.lookup topStructNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | findTopUndefStruct (id::ids) =
+      | (* GEN CASE BRANCH *) findTopUndefStruct (id::ids) =
         (case HashTable.lookup topStructNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME mid => findUndefStruct (structComps mid, ids, [id]))
 
     fun constLookupIn ((structTable, constTable), Qid (nil, id)) =
           StringTree.lookup constTable id
-      | constLookupIn ((structTable, constTable), Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) constLookupIn ((structTable, constTable), Qid (ids, id)) =
         (case findStruct (structTable, ids)
            of NONE => NONE
             | SOME mid => StringTree.lookup (constComps mid) id)
 
     fun structLookupIn ((structTable, constTable), Qid (nil, id)) =
           StringTree.lookup structTable id
-      | structLookupIn ((structTable, constTable), Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) structLookupIn ((structTable, constTable), Qid (ids, id)) =
         (case findStruct (structTable, ids)
            of NONE => NONE
             | SOME mid => StringTree.lookup (structComps mid) id)
@@ -366,7 +366,7 @@ struct
         (case StringTree.lookup constTable id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | constUndefIn ((structTable, constTable), Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) constUndefIn ((structTable, constTable), Qid (ids, id)) =
         (case findUndefStruct (structTable, ids, nil)
            of opt as SOME _ => opt
             | NONE =>
@@ -378,7 +378,7 @@ struct
         (case StringTree.lookup structTable id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | structUndefIn ((structTable, constTable), Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) structUndefIn ((structTable, constTable), Qid (ids, id)) =
         (case findUndefStruct (structTable, ids, nil)
            of opt as SOME _ => opt
             | NONE =>
@@ -391,14 +391,14 @@ struct
     *)
     fun constLookup (Qid (nil, id)) =
           HashTable.lookup topNamespace id
-      | constLookup (Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) constLookup (Qid (ids, id)) =
         (case findTopStruct ids
            of NONE => NONE
             | SOME mid => StringTree.lookup (constComps mid) id)
 
     fun structLookup (Qid (nil, id)) =
           HashTable.lookup topStructNamespace id
-      | structLookup (Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) structLookup (Qid (ids, id)) =
         (case findTopStruct ids
            of NONE => NONE
             | SOME mid => StringTree.lookup (structComps mid) id)
@@ -407,7 +407,7 @@ struct
         (case HashTable.lookup topNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | constUndef (Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) constUndef (Qid (ids, id)) =
         (case findTopUndefStruct ids
            of opt as SOME _ => opt
             | NONE =>
@@ -419,7 +419,7 @@ struct
         (case HashTable.lookup topStructNamespace id
            of NONE => SOME (Qid (nil, id))
             | SOME _ => NONE)
-      | structUndef (Qid (ids, id)) =
+      | (* GEN CASE BRANCH *) structUndef (Qid (ids, id)) =
         (case findTopUndefStruct ids
            of opt as SOME _ => opt
             | NONE =>
@@ -438,8 +438,8 @@ struct
         end
 
     fun maybeShadow (qid, false) = qid
-      | maybeShadow (Qid (nil, id), true) = Qid (nil, "%" ^ id ^ "%")
-      | maybeShadow (Qid (id::ids, name), true) = Qid ("%" ^ id ^ "%"::ids, name)
+      | (* GEN CASE BRANCH *) maybeShadow (Qid (nil, id), true) = Qid (nil, "%" ^ id ^ "%")
+      | (* GEN CASE BRANCH *) maybeShadow (Qid (id::ids, name), true) = Qid ("%" ^ id ^ "%"::ids, name)
 
     fun conDecQid condec =
         let
@@ -521,7 +521,7 @@ struct
     *)
     fun installNamePref (cid, (ePref, nil)) =
           installNamePref' (cid, (ePref, [String.map Char.toLower (hd ePref)]))
-      | installNamePref (cid, (ePref, uPref)) =
+      | (* GEN CASE BRANCH *) installNamePref (cid, (ePref, uPref)) =
           installNamePref' (cid, (ePref, uPref))
 
     fun getNamePref cid = Array.sub (namePrefArray, cid)
@@ -539,22 +539,22 @@ struct
     datatype role = Exist | Univ of extent
 
     fun extent (Exist) = Global
-      | extent (Univ (ext)) = ext
+      | (* GEN CASE BRANCH *) extent (Univ (ext)) = ext
 
     fun namePrefOf'' (Exist, NONE) = "X"
-      | namePrefOf'' (Univ _, NONE) = "x"
-      | namePrefOf'' (Exist, SOME(ePref, uPref)) = hd ePref
-      | namePrefOf'' (Univ _, SOME(ePref, uPref)) = hd uPref
+      | (* GEN CASE BRANCH *) namePrefOf'' (Univ _, NONE) = "x"
+      | (* GEN CASE BRANCH *) namePrefOf'' (Exist, SOME(ePref, uPref)) = hd ePref
+      | (* GEN CASE BRANCH *) namePrefOf'' (Univ _, SOME(ePref, uPref)) = hd uPref
 
     fun namePrefOf' (Exist, NONE) = "X"
-      | namePrefOf' (Univ _, NONE) = "x"
-      | namePrefOf' (role, SOME(IntSyn.Const cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
-      | namePrefOf' (role, SOME(IntSyn.Def cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
+      | (* GEN CASE BRANCH *) namePrefOf' (Univ _, NONE) = "x"
+      | (* GEN CASE BRANCH *) namePrefOf' (role, SOME(IntSyn.Const cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
+      | (* GEN CASE BRANCH *) namePrefOf' (role, SOME(IntSyn.Def cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
         (* the following only needed because reconstruction replaces
            undetermined types with FVars *)
-      | namePrefOf' (role, SOME(IntSyn.FVar _)) = namePrefOf'' (role, NONE)
+      | (* GEN CASE BRANCH *) namePrefOf' (role, SOME(IntSyn.FVar _)) = namePrefOf'' (role, NONE)
 
-      | namePrefOf' (role, SOME(IntSyn.NSDef cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
+      | (* GEN CASE BRANCH *) namePrefOf' (role, SOME(IntSyn.NSDef cid)) = namePrefOf'' (role, Array.sub (namePrefArray, cid))
 
     (* namePrefOf (role, V) = name
        where name is the preferred base name for a variable with type V
@@ -631,9 +631,9 @@ struct
     fun evarReset () = (evarList := nil)
     fun evarLookup (X) =
         let fun evlk (r, nil) = NONE
-              | evlk (r, (IntSyn.EVar(r',_,_,_), name)::l) =
+              | (* GEN CASE BRANCH *) evlk (r, (IntSyn.EVar(r',_,_,_), name)::l) =
                 if r = r' then SOME(name) else evlk (r, l)
-              | evlk (r, ((IntSyn.AVar(r'), name)::l)) =
+              | (* GEN CASE BRANCH *) evlk (r, ((IntSyn.AVar(r'), name)::l)) =
                 if r = r' then SOME(name) else evlk (r, l)
         in
           case X of
@@ -648,11 +648,11 @@ struct
     (* return a list of names of EVars that have constraints on them *)
     (* Note that EVars which don't have names, will not be considered! *)
     fun evarCnstr' (nil, acc) = acc
-      | evarCnstr' ((Xn as (IntSyn.EVar(ref(NONE), _, _, cnstrs), name))::l, acc) =
+      | (* GEN CASE BRANCH *) evarCnstr' ((Xn as (IntSyn.EVar(ref(NONE), _, _, cnstrs), name))::l, acc) =
           (case Constraints.simplify (!cnstrs)
              of nil => evarCnstr' (l, acc)
               | (_::_) => evarCnstr' (l, Xn::acc))
-      | evarCnstr' (_::l, acc) = evarCnstr' (l, acc)
+      | (* GEN CASE BRANCH *) evarCnstr' (_::l, acc) = evarCnstr' (l, acc)
     fun evarCnstr () = evarCnstr' (!evarList, nil)
 
     (* The indexTable maps a name to the last integer suffix used for it.
@@ -665,7 +665,7 @@ struct
     fun indexClear () = StringTree.clear indexTable
 
     fun nextIndex' (name, NONE) = (indexInsert (name, 1); 1)
-      | nextIndex' (name, SOME(i)) = (indexInsert (name, i+1); i+1)
+      | (* GEN CASE BRANCH *) nextIndex' (name, SOME(i)) = (indexInsert (name, i+1); i+1)
 
     (* nextIndex (name) = i
        where i is the next available integer suffix for name,
@@ -709,13 +709,13 @@ struct
     (* ctxDefined (G, name) = true iff `name' is declared in context G *)
     fun ctxDefined (G, name) =
         let fun cdfd (IntSyn.Null) = false
-              | cdfd (IntSyn.Decl(G', IntSyn.Dec(SOME(name'),_))) =
+              | (* GEN CASE BRANCH *) cdfd (IntSyn.Decl(G', IntSyn.Dec(SOME(name'),_))) =
                   name = name' orelse cdfd G'
-              | cdfd (IntSyn.Decl(G', IntSyn.BDec(SOME(name'),_))) =
+              | (* GEN CASE BRANCH *) cdfd (IntSyn.Decl(G', IntSyn.BDec(SOME(name'),_))) =
                   name = name' orelse cdfd G'
-              | cdfd (IntSyn.Decl(G', IntSyn.NDec(SOME(name')))) =
+              | (* GEN CASE BRANCH *) cdfd (IntSyn.Decl(G', IntSyn.NDec(SOME(name')))) =
                   name = name' orelse cdfd G'
-              | cdfd (IntSyn.Decl(G', _)) = cdfd G'
+              | (* GEN CASE BRANCH *) cdfd (IntSyn.Decl(G', _)) = cdfd G'
         in
           cdfd G
         end
@@ -744,7 +744,7 @@ struct
         end
 
     fun findName (G, base, Local) = findNameLocal (G, base, 0)
-      | findName (G, base, Global) = tryNextName (G, base)
+      | (* GEN CASE BRANCH *) findName (G, base, Global) = tryNextName (G, base)
 
 
     val takeNonDigits = Substring.takel (not o Char.isDigit)
@@ -766,7 +766,7 @@ struct
           (evarInsert (X, name);
            name)
         end
-      | newEVarName (G, X as IntSyn.AVar(r)) =
+      | (* GEN CASE BRANCH *) newEVarName (G, X as IntSyn.AVar(r)) =
         let
           (* use name preferences below *)
           val name = tryNextName (G, namePrefOf' (Exist, NONE))
@@ -819,44 +819,44 @@ struct
         in
           IntSyn.Dec (SOME(name), V)
         end
-      | decName' role (G, D as IntSyn.Dec (SOME(name), V)) =
+      | (* GEN CASE BRANCH *) decName' role (G, D as IntSyn.Dec (SOME(name), V)) =
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
           then IntSyn.Dec (SOME (tryNextName (G, baseOf name)), V)
         else D
-      | decName' role (G, D as IntSyn.BDec (NONE, b as (cid, t))) =
+      | (* GEN CASE BRANCH *) decName' role (G, D as IntSyn.BDec (NONE, b as (cid, t))) =
         (* use #l as base name preference for label l *)
         let
           val name = findName (G, "#" ^ IntSyn.conDecName (IntSyn.sgnLookup cid), Local)
         in
           IntSyn.BDec (SOME(name), b)
         end
-      | decName' role (G, D as IntSyn.BDec (SOME(name), b as (cid, t))) =
+      | (* GEN CASE BRANCH *) decName' role (G, D as IntSyn.BDec (SOME(name), b as (cid, t))) =
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
           then IntSyn.BDec (SOME (tryNextName (G, baseOf name)), b)
         else D
-      | decName' role (G, IntSyn.ADec (NONE, d)) =
+      | (* GEN CASE BRANCH *) decName' role (G, IntSyn.ADec (NONE, d)) =
         let
           val name = findName (G, namePrefOf' (role, NONE), extent (role))
         in
           IntSyn.ADec (SOME(name), d)
         end
-      | decName' role (G, D as IntSyn.ADec (SOME(name), d)) =
-(*      IntSyn.ADec(SOME(name), d) *)
+      | (* GEN CASE BRANCH *) decName' role (G, D as IntSyn.ADec (SOME(name), d)) =
+      (*      IntSyn.ADec(SOME(name), d) *)
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
           then IntSyn.ADec (SOME (tryNextName (G, baseOf name)), d)
         else D
-      | decName' role (G, D as IntSyn.NDec NONE) =
+      | (* GEN CASE BRANCH *) decName' role (G, D as IntSyn.NDec NONE) =
         let
           val name = findName (G, "@x", Local)
             val _ = print name
-
+      
         in
           IntSyn.NDec (SOME name)
         end
-      | decName' role (G, D as IntSyn.NDec (SOME name)) =
+      | (* GEN CASE BRANCH *) decName' role (G, D as IntSyn.NDec (SOME name)) =
         if varDefined name orelse conDefined name
           orelse ctxDefined (G, name)
           then IntSyn.NDec (SOME (tryNextName (G, baseOf name)))
@@ -874,7 +874,7 @@ struct
         where some Declaration in G' have been named/renamed
     *)
     fun ctxName (IntSyn.Null) = IntSyn.Null
-      | ctxName (IntSyn.Decl (G, D)) =
+      | (* GEN CASE BRANCH *) ctxName (IntSyn.Decl (G, D)) =
         let
           val G' = ctxName G
         in
@@ -885,7 +885,7 @@ struct
        like ctxName, but names assigned are local universal names.
     *)
     fun ctxLUName (IntSyn.Null) = IntSyn.Null
-      | ctxLUName (IntSyn.Decl (G, D)) =
+      | (* GEN CASE BRANCH *) ctxLUName (IntSyn.Decl (G, D)) =
         let
           val G' = ctxLUName G
         in
@@ -897,7 +897,7 @@ struct
        Used for implicit EVar in constant declarations after abstraction.
     *)
     fun pisEName' (G, 0, V) = V
-      | pisEName' (G, i, IntSyn.Pi ((D, IntSyn.Maybe), V)) =
+      | (* GEN CASE BRANCH *) pisEName' (G, i, IntSyn.Pi ((D, IntSyn.Maybe), V)) =
         (* i > 0 *)
         let
           val D' = decEName (G, D)
@@ -916,7 +916,7 @@ struct
        Used for implicit EVar in constant definitions after abstraction.
     *)
     fun defEName' (G, 0, UV) = UV
-      | defEName' (G, i, (IntSyn.Lam (D, U), IntSyn.Pi ((_ (* = D *), P), V))) =
+      | (* GEN CASE BRANCH *) defEName' (G, i, (IntSyn.Lam (D, U), IntSyn.Pi ((_ (* = D *), P), V))) =
         (* i > 0 *)
         let
           val D' = decEName (G, D)
@@ -930,19 +930,19 @@ struct
 
     fun nameConDec' (IntSyn.ConDec (name, parent, imp, status, V, L)) =
           IntSyn.ConDec (name, parent, imp, status, pisEName (imp, V), L)
-      | nameConDec' (IntSyn.ConDef (name, parent, imp, U, V, L, Anc)) =
+      | (* GEN CASE BRANCH *) nameConDec' (IntSyn.ConDef (name, parent, imp, U, V, L, Anc)) =
         let
           val (U', V') = defEName (imp, (U, V))
         in
           IntSyn.ConDef (name, parent, imp, U', V', L, Anc)
         end
-      | nameConDec' (IntSyn.AbbrevDef (name, parent, imp, U, V, L)) =
+      | (* GEN CASE BRANCH *) nameConDec' (IntSyn.AbbrevDef (name, parent, imp, U, V, L)) =
         let
           val (U', V') = defEName (imp, (U, V))
         in
           IntSyn.AbbrevDef (name, parent, imp, U', V', L)
         end
-      | nameConDec' (skodec) = skodec (* fix ??? *)
+      | (* GEN CASE BRANCH *) nameConDec' (skodec) = skodec (* fix ??? *)
 
     (* Assigns names to variables in a constant declaration *)
     (* The varReset (); is necessary so that explicitly named variables keep their name *)

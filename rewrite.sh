@@ -1,6 +1,6 @@
 #!/bin/bash
 shopt -s globstar
-OPTS="--filter lower_type_name --update-all";
+OPTS=$@;
 parse() {
     local file=$1
     # echo "ast-grep scan $OPTS $file"

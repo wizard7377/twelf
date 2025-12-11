@@ -32,7 +32,7 @@ struct
     *)
     fun expand (S.Focus (T.EVar (Psi, r, F, _, TCs, _), W), O) =
         let
-(*        val D = T.PDec (SOME "IH" , F, SOME O, SOME O) *)
+    (*        val D = T.PDec (SOME "IH" , F, SOME O, SOME O) *)
           val I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE)
           val D = T.PDec (x, F, NONE, NONE)
           val X = T.newEVar (I.Decl (Psi, D), T.forSub (F, T.Shift 1))

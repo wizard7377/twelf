@@ -6,7 +6,7 @@ val current_version = "1.7.1"
 val current_version_revision = "1813"
 
 fun maybe true x = x
-  | maybe false x = ""
+  | (* GEN CASE BRANCH *) maybe false x = ""
   
 val official = BuildId.revision = current_version_revision
 val external = BuildId.revision = "exported"

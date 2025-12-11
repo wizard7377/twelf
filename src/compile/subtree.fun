@@ -137,28 +137,28 @@ struct
 
     (* Auxiliary functions *)
     fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+      | (* GEN CASE BRANCH *) cidFromHead (I.Def c) = c
 
     fun dotn (0, s) = s
-      | dotn (i, s) = dotn (i-1, I.dot1 s)
+      | (* GEN CASE BRANCH *) dotn (i, s) = dotn (i-1, I.dot1 s)
 
     fun compose'(IntSyn.Null, G) = G
-      | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
+      | (* GEN CASE BRANCH *) compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
     fun shift (IntSyn.Null, s) = s
-      | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+      | (* GEN CASE BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
 
     fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
+      | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
 
   fun printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
-    | printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(_), s)) = (print ("Exp (_ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Undef, s)) = (print ("Undef . "); printSub s)
+    | (* GEN CASE BRANCH *) printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
+    | (* GEN CASE BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
+    | (* GEN CASE BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
+    | (* GEN CASE BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
+    | (* GEN CASE BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
+    | (* GEN CASE BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(_), s)) = (print ("Exp (_ ). "); printSub s)
+    | (* GEN CASE BRANCH *) printSub (IntSyn.Dot (IntSyn.Undef, s)) = (print ("Undef . "); printSub s)
 
    (*
      Linear normal higher-order patterns
@@ -224,9 +224,9 @@ struct
 
 
    fun eqHeads (I.Const k, I.Const k') =  (k = k')
-     | eqHeads (I.BVar k, I.BVar k') =  (k  = k')
-     | eqHeads (I.Def k, I.Def k') = (k = k')
-     | eqHeads ( _, _) = false
+     | (* GEN CASE BRANCH *) eqHeads (I.BVar k, I.BVar k') =  (k  = k')
+     | (* GEN CASE BRANCH *) eqHeads (I.Def k, I.Def k') = (k = k')
+     | (* GEN CASE BRANCH *) eqHeads ( _, _) = false
 
    (* most specific linear common generalization *)
 
@@ -241,7 +241,7 @@ struct
      let
        fun genExp (label, b, T as I.NVar n, U as I.Root(H, S)) =
            (S.insert rho_u (n, (label, U)); T)
-         | genExp (label, b, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+         | (* GEN CASE BRANCH *) genExp (label, b, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
            if eqHeads(H1, H2)
              then
                I.Root(H1, genSpine(label, b, S1, S2))
@@ -253,37 +253,37 @@ struct
                  | _ => raise Generalization "Should never happen!" )
                          (* = S.existsOpt (fn U' => equalTerm (U, U')) *)
             (* find *i in rho_t and rho_u such that T/*i in rho_t and U/*i in rho_u *)
-         | genExp (label, b, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
+         | (* GEN CASE BRANCH *) genExp (label, b, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
            (* NOTE: by invariant A1 =/= A2 *)
              I.Lam(I.Dec(N, genExp (TypeLabel, Regular, A1, A2)), genExp (label, b, T1,  U2))
-
-         | genExp (label, b, I.Pi(DD1 as (D1,I.No), E1), I.Pi(DD2 as (D2, I.No), E2)) =
+   
+         | (* GEN CASE BRANCH *) genExp (label, b, I.Pi(DD1 as (D1,I.No), E1), I.Pi(DD2 as (D2, I.No), E2)) =
              I.Pi((genDec(TypeLabel, Regular, D1, D2), I.No), genExp(label, b, E1, E2))
-
-         | genExp (label, b, I.Pi(DD1 as (D1,I.Maybe), E1), I.Pi(DD2 as (D2, I.Maybe), E2)) =
+   
+         | (* GEN CASE BRANCH *) genExp (label, b, I.Pi(DD1 as (D1,I.Maybe), E1), I.Pi(DD2 as (D2, I.Maybe), E2)) =
              I.Pi((genDec(TypeLabel, Regular, D1, D2), I.Maybe), genExp(label, b, E1, E2))
-
-         | genExp (label, b, I.Pi(DD1 as (D1,I.Meta), E1), I.Pi(DD2 as (D2, I.Meta), E2)) =
+   
+         | (* GEN CASE BRANCH *) genExp (label, b, I.Pi(DD1 as (D1,I.Meta), E1), I.Pi(DD2 as (D2, I.Meta), E2)) =
              I.Pi((genDec(TypeLabel, Regular, D1, D2), I.Meta), genExp(label, b, E1, E2))
-         | genExp (label, b, T, U) =
+         | (* GEN CASE BRANCH *) genExp (label, b, T, U) =
              raise Generalization "Cases where U= EVar or EClo should never happen!"
-
+   
        and genSpine (label, b, I.Nil, I.Nil) = I.Nil
-         | genSpine (label, b, I.App(T, S1), I.App(U, S2)) =
+         | (* GEN CASE BRANCH *) genSpine (label, b, I.App(T, S1), I.App(U, S2)) =
          I.App(genExp (label, b, T, U), genSpine (label, b, S1, S2))
-
+   
        and genDec (label, b, I.Dec(N, E1), I.Dec(N', E2)) =
                    I.Dec(N, genExp(label, b, E1, E2))
-
+   
        fun genTop (label, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
          if eqHeads(H1, H2)
            then I.Root(H1, genSpine(label, Regular, S1, S2))
          else
            raise Generalization "Top-level function symbol not shared"
-         | genTop (label, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
+         | (* GEN CASE BRANCH *) genTop (label, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
            (* by invariant A1 =/= A2 *)
              I.Lam(I.Dec(N, genExp (label, Regular, A1, A2)), genTop (label, T1,  U2))
-         | genTop (_, _, _) = raise Generalization "Top-level function symbol not shared"
+         | (* GEN CASE BRANCH *) genTop (_, _, _) = raise Generalization "Top-level function symbol not shared"
     in
       SOME(genTop (label, T, U))
       handle Generalization msg => NONE
@@ -337,7 +337,7 @@ struct
                                 (2, Leaf(rho2, G, RC))];
        Node(sg, c)
       end
-    | mkNode (Leaf(_, G1, RC1), sg, rho1, GR as (G2, RC2), rho2) =
+    | (* GEN CASE BRANCH *) mkNode (Leaf(_, G1, RC1), sg, rho1, GR as (G2, RC2), rho2) =
       let
         val c = S.new()
       in
@@ -379,7 +379,7 @@ struct
        NONE => raise Error "Leaf is not compatible substitution r"
      | SOME(sg, rho1, rho2) => mkNode (N, sg, rho1, GR, rho2))
 
-    | insert (N as Node(_, children), nsub_e, GR as (G_clause2, RC)) =
+    | (* GEN CASE BRANCH *) insert (N as Node(_, children), nsub_e, GR as (G_clause2, RC)) =
        if noChildren children
          then
            (* initial *)
@@ -405,16 +405,16 @@ struct
         S.insert csub (n, A);
         A
       end
-    | normalizeNExp (I.Root (H, S), nsub) =
+    | (* GEN CASE BRANCH *) normalizeNExp (I.Root (H, S), nsub) =
          I.Root(H, normalizeNSpine (S, nsub))
-    | normalizeNExp (I.Lam (D, U), nsub) =
+    | (* GEN CASE BRANCH *) normalizeNExp (I.Lam (D, U), nsub) =
          I.Lam (normalizeNDec(D, nsub), normalizeNExp (U, nsub))
-    | normalizeNExp (I.Pi((D, P), U), nsub) =
+    | (* GEN CASE BRANCH *) normalizeNExp (I.Pi((D, P), U), nsub) =
          (* cannot happen -bp *)
          I.Pi ((normalizeNDec(D, nsub), P), normalizeNExp (U, nsub))
 
   and normalizeNSpine (I.Nil, _) = I.Nil
-    | normalizeNSpine (I.App (U, S), nsub) =
+    | (* GEN CASE BRANCH *) normalizeNSpine (I.App (U, S), nsub) =
     I.App(normalizeNExp (U, nsub), normalizeNSpine (S, nsub))
 
   and normalizeNDec (I.Dec(N, E), nsub) = I.Dec(N, normalizeNExp(E, nsub))
@@ -461,12 +461,12 @@ struct
              | (I.FgnConst (_, I.ConDef (_, _, _, W1, _, _,_)), _) => assignExp (nvaronly, depth, Glocal_u1, (W1, s1), U2, cnstr)
              | (_, I.FgnConst (_, I.ConDef (_, _, _, W2, _, _,_))) => assignExp (nvaronly, depth, Glocal_u1, Us1, W2, cnstr)
              | (_, _) => (raise Assignment ("Head mismatch ")))
-
+  
       and assignExpW (nvaronly, depth, Glocal_u1, (I.Uni L1, s1), I.Uni L2, cnstr) = cnstr (* L1 = L2 by invariant *)
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1, I.NVar n, cnstr) =
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1, I.NVar n, cnstr) =
           (S.insert nsub_goal (n, (Glocal_u1, (nvaronly, I.EClo(Us1))));
            cnstr)
-        | assignExpW (Body, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
+        | (* GEN CASE BRANCH *) assignExpW (Body, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
           (case H2
              of I.BVar(k2) =>
                if (k2 > depth)
@@ -482,8 +482,8 @@ struct
                                      else raise Assignment "Bound variable clash"
                   | _ => raise Assignment "Head mismatch")
            | _ => assignHead (Body, depth, Glocal_u1, Us1, U2, cnstr))
-
-        | assignExpW (TypeLabel, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
+  
+        | (* GEN CASE BRANCH *) assignExpW (TypeLabel, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
           (case H2
              of I.BVar(k2) =>
                if (k2 > depth)
@@ -499,7 +499,7 @@ struct
                   | _ => raise Assignment "Head mismatch")
            | _ => assignHead (TypeLabel, depth, Glocal_u1, Us1, U2, cnstr))
             (* here spine associated with k2 might not be Nil ? *)
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.Root(I.BVar k2, S), cnstr) =
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.Root(I.BVar k2, S), cnstr) =
            if (k2 > depth)
              then
                (* BVar(k2) stands for an existential variable *)
@@ -528,7 +528,7 @@ struct
                          (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
                        end))
         (* by invariant Us2 cannot contain any FgnExp *)
-        | assignExpW (nvaronly, depth, Glocal_u1, (I.Lam (D1 as I.Dec(_, A1), U1), s1), I.Lam (D2 as I.Dec(_, A2), U2), cnstr) =
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, (I.Lam (D1 as I.Dec(_, A1), U1), s1), I.Lam (D2 as I.Dec(_, A2), U2), cnstr) =
           (* D1[s1] = D2[s2]  by invariant *)
           let
             val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
@@ -539,7 +539,7 @@ struct
           in
           assignExp (nvaronly, depth+1, I.Decl (Glocal_u1, I.decSub (D1, s1)), (U1, I.dot1 s1), U2, cnstr')
           end
-        | assignExpW (nvaronly, depth, Glocal_u1, (I.Pi ((D1 as I.Dec(_, A1), _), U1), s1), I.Pi ((D2 as I.Dec(_, A2), _), U2), cnstr) =
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, (I.Pi ((D1 as I.Dec(_, A1), _), U1), s1), I.Pi ((D2 as I.Dec(_, A2), _), U2), cnstr) =
           (* D1[s1] = D2[s2]  by invariant *)
           let
             val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
@@ -550,50 +550,50 @@ struct
           in
           assignExp (nvaronly, depth+1, I.Decl (Glocal_u1, I.decSub (D1, s1)), (U1, I.dot1 s1), U2, cnstr')
           end
-
+  
           (* it does matter what we put in Glocal_u1! since D2 will only be approximately the same as D1 at this point! *)
           (* assignExp (nvaronly, depth+1, I.Decl (Glocal_u1, D2), (U1, I.dot1 s1), U2, cnstr) *)
-
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EVar(r, _, V, Cnstr), s), U2, cnstr) =
+  
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EVar(r, _, V, Cnstr), s), U2, cnstr) =
           (* generate cnstr substitution for all nvars occurring in U2 *)
           let
             val U2' = normalizeNExp (U2, csub)
           in
             (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
           end
-
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EClo(U,s'), s), U2, cnstr) =
+  
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EClo(U,s'), s), U2, cnstr) =
           assignExp(nvaronly, depth, Glocal_u1, (U, I.comp(s', s)), U2, cnstr)
-
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.FgnExp (_, ops), _), U2, cnstr) =
+  
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.FgnExp (_, ops), _), U2, cnstr) =
           (* by invariant Us2 cannot contain any FgnExp *)
           let
             val U2' = normalizeNExp (U2, csub)
           in
             (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
           end
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.FgnExp (_, ops), cnstr) =
+        | (* GEN CASE BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.FgnExp (_, ops), cnstr) =
           (Eqn(Glocal_u1, I.EClo(Us1), U2)::cnstr)
-(*      | assignExpW (nvaronly, depth, Glocal_u1, (U1, s1), I.Lam (D2, U2), cnstr) =
+  (*      | assignExpW (nvaronly, depth, Glocal_u1, (U1, s1), I.Lam (D2, U2), cnstr) =
           (* Cannot occur if expressions are eta expanded *)
           raise Assignment "Cannot occur if expressions in clause heads are eta-expanded"*)
-(*      | assignExpW (nvaronly, depth, Glocal_u1, (I.Lam (D1, U1), s1), U2, cnstr) =
+  (*      | assignExpW (nvaronly, depth, Glocal_u1, (I.Lam (D1, U1), s1), U2, cnstr) =
       (* ETA: can't occur if eta expanded *)
             raise Assignment "Cannot occur if expressions in query are eta-expanded"
-*)
+  *)
            (* same reasoning holds as above *)
-
+  
       and assignSpine (nvaronly, depth, Glocal_u1, (I.Nil, _), I.Nil, cnstr) = cnstr
-        | assignSpine (nvaronly, depth, Glocal_u1, (I.SClo (S1, s1'), s1), S, cnstr) =
+        | (* GEN CASE BRANCH *) assignSpine (nvaronly, depth, Glocal_u1, (I.SClo (S1, s1'), s1), S, cnstr) =
         assignSpine (nvaronly, depth, Glocal_u1, (S1, I.comp (s1', s1)), S, cnstr)
-        | assignSpine (nvaronly, depth, Glocal_u1, (I.App (U1, S1), s1), I.App (U2, S2), cnstr) =
+        | (* GEN CASE BRANCH *) assignSpine (nvaronly, depth, Glocal_u1, (I.App (U1, S1), s1), I.App (U2, S2), cnstr) =
         let
           val cnstr' = assignExp (nvaronly, depth, Glocal_u1, (U1, s1), U2, cnstr)
         (* nsub_goal, asub may be destructively updated *)
         in
           assignSpine (nvaronly, depth, Glocal_u1, (S1, s1), S2, cnstr')
         end
-
+  
       and assignExp (nvaronly, depth, Glocal_u1, Us1, U2, cnstr) =
           assignExpW (nvaronly, depth, Glocal_u1, Whnf.whnf Us1, U2, cnstr)
     in
@@ -661,11 +661,11 @@ struct
   (* Unification *)
   fun unifyW (G, (X as I.AVar(r as ref NONE), I.Shift 0), Us2) =
       (r := SOME(I.EClo(Us2)))
-    | unifyW (G, (X as I.AVar(r as ref NONE), s), Us2 as (U, s2)) =
+    | (* GEN CASE BRANCH *) unifyW (G, (X as I.AVar(r as ref NONE), s), Us2 as (U, s2)) =
       (print "unifyW -- not s = Id\n";
        print ("Us2 = " ^ Print.expToString (G, I.EClo(Us2)) ^ "\n");
        r := SOME(I.EClo(Us2)))
-    | unifyW (G, Xs1, Us2) =
+    | (* GEN CASE BRANCH *) unifyW (G, Xs1, Us2) =
     (* Xs1 should not contain any uninstantiated AVar anymore *)
       Unify.unifyW(G, Xs1, Us2)
 
@@ -678,7 +678,7 @@ struct
   (* Convert context G into explicit substitution *)
   (* ctxToEVarSub (i, G, G', asub, s) = s' *)
   fun ctxToExplicitSub (i, Gquery, I.Null, asub) = I.id
-    | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.Dec(_, A)), asub) =
+    | (* GEN CASE BRANCH *) ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.Dec(_, A)), asub) =
       let
         val s = ctxToExplicitSub (i+1, Gquery, Gclause, asub)
         val (U' as I.EVar(X',_,_, _)) = I.newEVar (Gquery, I.EClo(A, s))
@@ -690,7 +690,7 @@ struct
         I.Dot(I.Exp(U'), s)
       end
 
-    | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.ADec(_, d)), asub) =
+    | (* GEN CASE BRANCH *) ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.ADec(_, d)), asub) =
       let
         val (U' as (I.AVar X')) = I.newAVar ()
       in
@@ -703,7 +703,7 @@ struct
       end
 
   fun solveAuxG (C.Trivial, s, Gquery) =  true (* succeed *)
-    | solveAuxG (C.UnifyEq(Glocal,e1, N, eqns), s, Gquery) =
+    | (* GEN CASE BRANCH *) solveAuxG (C.UnifyEq(Glocal,e1, N, eqns), s, Gquery) =
       let
         val G = compose' (Glocal, Gquery)
         val s' = shift (Glocal, s)
@@ -716,7 +716,7 @@ struct
 
 
   fun solveCnstr (Gquery, Gclause, nil, s) = true
-    | solveCnstr (Gquery, Gclause, Eqn(Glocal, U1, U2)::Cnstr, s) =
+    | (* GEN CASE BRANCH *) solveCnstr (Gquery, Gclause, Eqn(Glocal, U1, U2)::Cnstr, s) =
       (Unify.unifiable(compose'(Gquery, Glocal), (U1, I.id), (U2, shift(Glocal, s))) andalso
        solveCnstr (Gquery, Gclause, Cnstr, s))
 
@@ -751,8 +751,8 @@ struct
                    CSManager.trail (fn () => solveResiduals (Gquery, Gclause, Residuals, assignSub, cnstr', sc))
              else
               raise Error "Left-over normal substitutions!"))
-
-        | retrieve (Node(nsub, Children), nsub_query, assignSub, cnstrSub, cnstr) =
+  
+        | (* GEN CASE BRANCH *) retrieve (Node(nsub, Children), nsub_query, assignSub, cnstrSub, cnstr) =
          (case assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr)
           (* destructively updates nsub_query, assignSub,  might fail and initiate backtracking *)
           (* we must undo any changes to assignSub and whatever else is destructively updated,
@@ -791,8 +791,8 @@ struct
                   S.insert candSet (!i, (assignSub, nsub_left', cnstrSub', cnstr', Gclause, Residuals));())
              else
               raise Error "Left-over normal substitutions!"))
-
-        | retrieve (Node(nsub, Children), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
+ 
+        | (* GEN CASE BRANCH *) retrieve (Node(nsub, Children), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
          (case assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr)
           (* destructively updates nsub_query, assignSub,  might fail and initiate backtracking *)
           (* we must undo any changes to assignSub and whatever else is destructively updated,
@@ -858,7 +858,7 @@ struct
       S.insert nsub_goal (1, (Body, E));
       Tree := insert (!Tree, nsub_goal, (G, CGoals(Eqs, cid, R, !n+1)));
       n := !n+1
-
+ 
    end
 
   in

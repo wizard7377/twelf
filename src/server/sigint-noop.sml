@@ -4,7 +4,7 @@ struct
   fun interruptLoop (loop:unit -> unit) =
      let
      in
-	loop ()
+  	loop ()
      end
 
 end;

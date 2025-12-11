@@ -106,16 +106,16 @@ struct
     fun atomicPredToString (G, Less((Us, _), (Us', _))) =
           Print.expToString(G, I.EClo(Us)) ^ " < " ^
           Print.expToString(G, I.EClo(Us'))
-      | atomicPredToString (G, Leq((Us, _), (Us', _))) =
+      | (* GEN CASE BRANCH *) atomicPredToString (G, Leq((Us, _), (Us', _))) =
           Print.expToString(G, I.EClo(Us)) ^ " <= " ^
           Print.expToString(G, I.EClo(Us'))
-      | atomicPredToString (G, Eq((Us, _), (Us', _))) =
+      | (* GEN CASE BRANCH *) atomicPredToString (G, Eq((Us, _), (Us', _))) =
           Print.expToString(G, I.EClo(Us)) ^ " = " ^
           Print.expToString(G, I.EClo(Us'))
 
     fun atomicRCtxToString (G, nil) = " "
-      | atomicRCtxToString (G, O::nil) = atomicPredToString (G, O)
-      | atomicRCtxToString (G, O::D') =
+      | (* GEN CASE BRANCH *) atomicRCtxToString (G, O::nil) = atomicPredToString (G, O)
+      | (* GEN CASE BRANCH *) atomicRCtxToString (G, O::D') =
           atomicRCtxToString (G, D') ^ ", " ^ atomicPredToString (G, O)
 
    (*--------------------------------------------------------------------*)
@@ -130,21 +130,21 @@ struct
 
     fun shiftO (R.Arg ((U, us), (V, vs))) f =
             R.Arg ((U, (f us)), (V, (f vs)))
-      | shiftO (R.Lex L) f = R.Lex (map (fn O => shiftO O f) L)
-      | shiftO (R.Simul L) f = R.Simul (map (fn O => shiftO O f) L)
+      | (* GEN CASE BRANCH *) shiftO (R.Lex L) f = R.Lex (map (fn O => shiftO O f) L)
+      | (* GEN CASE BRANCH *) shiftO (R.Simul L) f = R.Simul (map (fn O => shiftO O f) L)
 
     fun shiftP (Less(O1, O2)) f = Less(shiftO O1 f, shiftO O2 f)
-      | shiftP (Leq(O1, O2)) f = Leq(shiftO O1 f, shiftO O2 f)
-      | shiftP (Eq(O1, O2)) f = Eq(shiftO O1 f, shiftO O2 f)
-      | shiftP (Pi(D as I.Dec(X,V), P)) f = Pi(D, shiftP P f)
+      | (* GEN CASE BRANCH *) shiftP (Leq(O1, O2)) f = Leq(shiftO O1 f, shiftO O2 f)
+      | (* GEN CASE BRANCH *) shiftP (Eq(O1, O2)) f = Eq(shiftO O1 f, shiftO O2 f)
+      | (* GEN CASE BRANCH *) shiftP (Pi(D as I.Dec(X,V), P)) f = Pi(D, shiftP P f)
 
     fun shiftRCtx Rl f = map (fn p => shiftP p f) Rl
 
     fun shiftArg (Less (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
           Less (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
-      | shiftArg (Leq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+      | (* GEN CASE BRANCH *) shiftArg (Leq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
           Leq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
-      | shiftArg (Eq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+      | (* GEN CASE BRANCH *) shiftArg (Eq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
           Eq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
 
     fun shiftACtx Rl f = map (fn p => shiftArg p f) Rl
@@ -156,14 +156,14 @@ struct
         let
           fun fmtOrder' (R.Arg (Us as (U, s), Vs as (V, s'))) =
                 F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
-            | fmtOrder' (R.Lex L) =
+            | (* GEN CASE BRANCH *) fmtOrder' (R.Lex L) =
                 F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"]
-            | fmtOrder' (R.Simul L) =
+            | (* GEN CASE BRANCH *) fmtOrder' (R.Simul L) =
                 F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"]
-
+    
           and fmtOrders [] = []
-            | fmtOrders (O :: []) = fmtOrder' O :: []
-            | fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L
+            | (* GEN CASE BRANCH *) fmtOrders (O :: []) = fmtOrder' O :: []
+            | (* GEN CASE BRANCH *) fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L
         in
           fmtOrder' O
         end
@@ -172,17 +172,17 @@ struct
         F.HOVbox0 1 0 1 [fmtOrder (G, O), F.Break, F.String comp, F.Break, fmtOrder (G, O')]
 
     fun fmtPredicate' (G, Less(O, O')) = fmtComparison (G, O, "<", O')
-      | fmtPredicate' (G, Leq(O, O'))  = fmtComparison (G, O, "<=", O')
-      | fmtPredicate' (G, Eq(O, O'))  = fmtComparison (G, O, "=", O')
-      | fmtPredicate' (G, Pi(D, P))  =  (* F.String "Pi predicate"  *)
+      | (* GEN CASE BRANCH *) fmtPredicate' (G, Leq(O, O'))  = fmtComparison (G, O, "<=", O')
+      | (* GEN CASE BRANCH *) fmtPredicate' (G, Eq(O, O'))  = fmtComparison (G, O, "=", O')
+      | (* GEN CASE BRANCH *) fmtPredicate' (G, Pi(D, P))  =  (* F.String "Pi predicate"  *)
           F.Hbox [F.String "Pi ", fmtPredicate' (I.Decl (G, D), P)]
 
     fun fmtPredicate (G, P) = fmtPredicate' (Names.ctxName G, P)
 
     fun fmtRGCtx' (G, nil) = ""
-      | fmtRGCtx' (G, [P]) =
+      | (* GEN CASE BRANCH *) fmtRGCtx' (G, [P]) =
         F.makestring_fmt(fmtPredicate' (G, P) )
-      | fmtRGCtx' (G, (P :: Rl)) =
+      | (* GEN CASE BRANCH *) fmtRGCtx' (G, (P :: Rl)) =
         F.makestring_fmt(fmtPredicate' (G, P)) ^ " ," ^ fmtRGCtx' (G, Rl)
 
     fun fmtRGCtx (G, Rl) = fmtRGCtx' (Names.ctxName G, Rl)
@@ -205,12 +205,12 @@ struct
 
 
     fun isUniversal (All) = true
-      | isUniversal (Exist) = false
-      | isUniversal (Exist') = false
+      | (* GEN CASE BRANCH *) isUniversal (Exist) = false
+      | (* GEN CASE BRANCH *) isUniversal (Exist') = false
 
     fun isExistential (All) = false
-      | isExistential (Exist) = true
-      | isExistential (Exist') = true
+      | (* GEN CASE BRANCH *) isExistential (Exist) = true
+      | (* GEN CASE BRANCH *) isExistential (Exist') = true
 
     (* isParameter (Q, X) = B
 
@@ -232,8 +232,8 @@ struct
        Invariant: it participated only in matching, not full unification
     *)
     and isFreeEVar (I.EVar (_, _, _,ref []), _) = true   (* constraints must be empty *)
-      | isFreeEVar (I.Lam (D, U), s) = isFreeEVar (Whnf.whnf (U, I.dot1 s))
-      | isFreeEVar _ = false
+      | (* GEN CASE BRANCH *) isFreeEVar (I.Lam (D, U), s) = isFreeEVar (Whnf.whnf (U, I.dot1 s))
+      | (* GEN CASE BRANCH *) isFreeEVar _ = false
 
 
     (* isAtomic (G, X) = true
@@ -246,17 +246,17 @@ struct
 
     and isAtomicW (GQ, (X as I.Root (I.Const c, S), s)) =
           isAtomicS (GQ, (S, s))
-      | isAtomicW (GQ, (X as I.Root (I.Def c, S), s)) =
+      | (* GEN CASE BRANCH *) isAtomicW (GQ, (X as I.Root (I.Def c, S), s)) =
           isAtomicS (GQ, (S, s))
-      | isAtomicW (GQ as (G, Q), (X as I.Root (I.BVar n, S), s)) =
+      | (* GEN CASE BRANCH *) isAtomicW (GQ as (G, Q), (X as I.Root (I.BVar n, S), s)) =
            isExistential(I.ctxLookup (Q, n)) orelse isAtomicS (GQ, (S, s)) (* should disallow orelse ? *)
 (*      | isAtomicW (GQ, (X as (I.EClo _))) = true   (* existential var *) *)
-      | isAtomicW (GQ, _) = false
+      | (* GEN CASE BRANCH *) isAtomicW (GQ, _) = false
 
     and isAtomicS (GQ, (I.Nil, _)) = true
-      | isAtomicS (GQ, (I.SClo (S, s'), s'')) =
+      | (* GEN CASE BRANCH *) isAtomicS (GQ, (I.SClo (S, s'), s'')) =
           isAtomicS (GQ, (S, I.comp(s', s'')))
-      | isAtomicS (GQ, (I.App (U', S'), s1')) = false
+      | (* GEN CASE BRANCH *) isAtomicS (GQ, (I.App (U', S'), s1')) = false
 
 
    (*-----------------------------------------------------------*)
@@ -305,9 +305,9 @@ struct
 
     *)
     fun lookupEq (GQ, nil, UsVs, UsVs', sc) = false
-      | lookupEq (GQ, (Less(_, _) :: D), UsVs, UsVs', sc) =
+      | (* GEN CASE BRANCH *) lookupEq (GQ, (Less(_, _) :: D), UsVs, UsVs', sc) =
           lookupEq (GQ, D, UsVs, UsVs', sc)
-      | lookupEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
+      | (* GEN CASE BRANCH *) lookupEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
           CSManager.trail (fn () =>
                            eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc ())
           orelse
@@ -337,9 +337,9 @@ struct
     *)
 
     fun lookupLt (GQ, nil, UsVs, UsVs', sc) = false
-      | lookupLt (GQ, (Eq(_, _) :: D), UsVs, UsVs', sc) =
+      | (* GEN CASE BRANCH *) lookupLt (GQ, (Eq(_, _) :: D), UsVs, UsVs', sc) =
           lookupLt (GQ, D, UsVs, UsVs', sc)
-      | lookupLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
+      | (* GEN CASE BRANCH *) lookupLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
           CSManager.trail (fn () =>
                            eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc ())
           orelse
@@ -358,7 +358,7 @@ struct
          CSManager.trail (fn () => eq (G, UsVs, UsVs') andalso sc ())
          orelse
          lookupEq (GQ, D', UsVs, UsVs', sc)
-      | eqAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
+      | (* GEN CASE BRANCH *) eqAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
          CSManager.trail (fn () => eq (G, UsVs, UsVs') andalso sc ())
          orelse
          lookupEq (GQ, D, UsVs, UsVs', sc)
@@ -385,7 +385,7 @@ struct
          then D; UsVs1 = UsVs' D' ---> UsVs = UsVs'
    *)
    and transEq (GQ as (G,Q), nil, D, UsVs, UsVs', sc) = false
-     | transEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+     | (* GEN CASE BRANCH *) transEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
          CSManager.trail (fn () =>
                           eq (G, UsVs1', UsVs') andalso sc ()
                           andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic))
@@ -395,7 +395,7 @@ struct
                           andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic))
          orelse
          transEq (GQ, D, (Eq(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc)
-     | transEq (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+     | (* GEN CASE BRANCH *) transEq (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
          transEq (GQ, D, D', UsVs, UsVs', sc)
 
   (* ltAtomic (GQ, D, D', UsVs, UsVs', sc) = B
@@ -418,7 +418,7 @@ struct
     and ltAtomic (GQ as (G, Q), nil, D', UsVs, UsVs', sc) =
          lookupLt (GQ, D', UsVs, UsVs', sc)
 
-      | ltAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
+      | (* GEN CASE BRANCH *) ltAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
          lookupLt (GQ, D, UsVs, UsVs', sc)
          orelse
          lookupLt (GQ, D', UsVs, UsVs', sc)
@@ -444,7 +444,7 @@ struct
    *)
 
    and transLt (GQ as (G,Q), nil, D, UsVs, UsVs', sc) = false
-     | transLt (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+     | (* GEN CASE BRANCH *) transLt (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
          CSManager.trail (fn () =>
                           eq (G, UsVs1', UsVs') andalso sc ()
                           andalso ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic))
@@ -454,7 +454,7 @@ struct
                           andalso ltAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic))
          orelse
          transLt (GQ, D, (Eq(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc)
-     | transLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+     | (* GEN CASE BRANCH *) transLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
          CSManager.trail (fn () =>
                           eq (G, UsVs1', UsVs') andalso sc ()
                            andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic))
@@ -494,7 +494,7 @@ struct
       *)
     and atomic (GQ, D, D', Eq(UsVs, UsVs'), sc) =
          eqAtomic (GQ, D, D', UsVs, UsVs', sc)
-      | atomic (GQ, D, D',Less(UsVs, UsVs'), sc) =
+      | (* GEN CASE BRANCH *) atomic (GQ, D, D',Less(UsVs, UsVs'), sc) =
          ltAtomic (GQ, D, D', UsVs, UsVs', sc)
 
    (*-----------------------------------------------------------*)
@@ -529,11 +529,11 @@ struct
             (* should never happen by invariant *)
              false
 
-      | leftInstantiate (GQ, (Less(UsVs, UsVs') :: D), D', P, sc) =
+      | (* GEN CASE BRANCH *) leftInstantiate (GQ, (Less(UsVs, UsVs') :: D), D', P, sc) =
           ltInstL (GQ, D, D', UsVs, UsVs', P, sc)
-      | leftInstantiate (GQ, (Leq(UsVs, UsVs') :: D), D', P, sc) =
+      | (* GEN CASE BRANCH *) leftInstantiate (GQ, (Leq(UsVs, UsVs') :: D), D', P, sc) =
           leInstL (GQ, D, D', UsVs, UsVs', P, sc)
-      | leftInstantiate (GQ, (Eq(UsVs, UsVs') :: D), D', P, sc) =
+      | (* GEN CASE BRANCH *) leftInstantiate (GQ, (Eq(UsVs, UsVs') :: D), D', P, sc) =
           eqInstL (GQ, D, D', UsVs, UsVs', P, sc)
 
     (* ltInstL ((G, Q), D, D', UsVs, UsVs', P, sc) = B
@@ -583,7 +583,7 @@ struct
                      ((U', s1'), (V', s2')), P', sc)
               end
           else false (* impossible, if additional invariant assumed (see ltW) *)
-      | ltInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
+      | (* GEN CASE BRANCH *) ltInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
             leftInstantiate (GQ, D, (Less(UsVs, UsVs') :: D'), P', sc)
 
 
@@ -636,7 +636,7 @@ struct
                      ((U', s1'), (V', s2')), P', sc)
               end
           else false (* impossible, if additional invariant assumed (see ltW) *)
-      | leInstLW (GQ, D, D', UsVs, UsVs', P, sc) =
+      | (* GEN CASE BRANCH *) leInstLW (GQ, D, D', UsVs, UsVs', P, sc) =
             leftInstantiate (GQ, D, (Less(UsVs, UsVs') :: D'), P, sc)
 
 
@@ -666,7 +666,7 @@ struct
                   ((I.Lam (I.Dec (_, V1'), U'), s1'), (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
                   ((I.Lam (I.Dec (_, V1''), U''), s1''), (I.Pi ((I.Dec (_, V2''), _), V''), s2'')),
                   P', sc) =
-
+    
            let
              val X = I.newEVar (G, I.EClo (V1'', s1''))
                 (* = I.newEVar (I.EClo (V2', s2')) *)
@@ -677,7 +677,7 @@ struct
                       (V'', I.Dot (I.Exp(X), s2''))), P',
                      fn () => (isParameter (Q, X); sc ()))
            end
-       | eqInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
+       | (* GEN CASE BRANCH *) eqInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
           eqIL (GQ, D, D', UsVs, UsVs', P', sc)
 
     (* eqIL ((G, Q), D, D', UsVs, UsVs', P, sc) = B
@@ -712,7 +712,7 @@ struct
             else ();
             true)
 
-     | eqIL (GQ as (G, Q), D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqIL (GQ as (G, Q), D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
             UsVs' as ((I.Root (I.Def c', S'), s'), Vs'), P', sc) =
          if eqCid(c, c')
            then eqSpineIL (GQ, D, D', ((S, s), (I.constType c, I.id)),
@@ -725,7 +725,7 @@ struct
             else ();
             true)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Const c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Const c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us')
            then leftInstantiate (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P', sc)
@@ -737,7 +737,7 @@ struct
             else ();
            true)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Def c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Def c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us')
            then leftInstantiate (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P', sc)
@@ -749,7 +749,7 @@ struct
             else ();
            true)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Def c, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us)
            then leftInstantiate (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P', sc)
@@ -762,7 +762,7 @@ struct
            true)
 
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Const c, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us)
            then leftInstantiate (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P', sc)
@@ -774,7 +774,7 @@ struct
             else ();
            true)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.BVar n', S'), s'), Vs'), P', sc) =
              if (n = n')
                then
@@ -786,7 +786,7 @@ struct
              else
                leftInstantiate (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P', sc)
 
-     | eqIL (GQ as (G, Q), D, D', UsVs, UsVs', P', sc) =
+     | (* GEN CASE BRANCH *) eqIL (GQ as (G, Q), D, D', UsVs, UsVs', P', sc) =
         (* (Us, Vs as (I.Pi _ , _)) and (Us', Vs' as (I.Root _, _))
            or the other way
          *)
@@ -802,11 +802,11 @@ struct
 
    and eqSpineILW (GQ, D, D', ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), P', sc) =
         leftInstantiate (GQ, D, D', P', sc)
-     | eqSpineILW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P', sc) =
+     | (* GEN CASE BRANCH *) eqSpineILW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P', sc) =
          eqSpineIL (GQ, D, D', ((S, I.comp (s', s'')), Vs), SsVs', P', sc)
-     | eqSpineILW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P', sc) =
+     | (* GEN CASE BRANCH *) eqSpineILW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P', sc) =
          eqSpineIL (GQ, D, D', SsVs, ((S', I.comp (s', s'')), Vs'), P', sc)
-     | eqSpineILW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
+     | (* GEN CASE BRANCH *) eqSpineILW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
                  ((I.App (U', S'), s1'), (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), P', sc) =
          let
            val D1 = (Eq(((U,s1), (V1, s2)), ((U',s1'), (V1', s2'))) :: D)
@@ -828,8 +828,8 @@ struct
 
     *)
    and rightDecompose (GQ, D', Less(O,O')) = ordLtR (GQ, D', O, O')
-     | rightDecompose (GQ, D', Leq(O, O')) = ordLeR (GQ, D', O, O')
-     | rightDecompose (GQ, D', Eq(O, O')) = ordEqR(GQ, D', O , O')
+     | (* GEN CASE BRANCH *) rightDecompose (GQ, D', Leq(O, O')) = ordLeR (GQ, D', O, O')
+     | (* GEN CASE BRANCH *) rightDecompose (GQ, D', Eq(O, O')) = ordEqR(GQ, D', O , O')
 
 
   (* ordLtR (GQ, D, O1, O2) = B'
@@ -843,10 +843,10 @@ struct
 
    and ordLtR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
          ltAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate)
-     | ordLtR (GQ, D', R.Lex O, R.Lex O') =
+     | (* GEN CASE BRANCH *) ordLtR (GQ, D', R.Lex O, R.Lex O') =
          ltLexR (GQ, D', O, O')
 
-     | ordLtR (GQ, D', R.Simul O, R.Simul O') =
+     | (* GEN CASE BRANCH *) ordLtR (GQ, D', R.Simul O, R.Simul O') =
          ltSimulR (GQ, D', O, O')
 
   (* ordLeR (GQ, D, O1, O2) = B'
@@ -860,11 +860,11 @@ struct
 
    and ordLeR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
          leAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate)
-     | ordLeR (GQ, D', R.Lex O, R.Lex O') =
+     | (* GEN CASE BRANCH *) ordLeR (GQ, D', R.Lex O, R.Lex O') =
          ltLexR (GQ, D', O, O')
          orelse
          ordEqsR (GQ, D', O, O')
-     | ordLeR (GQ, D', R.Simul O, R.Simul O') =
+     | (* GEN CASE BRANCH *) ordLeR (GQ, D', R.Simul O, R.Simul O') =
          leSimulR (GQ, D', O, O')
 
   (* ordEqR (GQ, D, O1, O2) = B'
@@ -879,9 +879,9 @@ struct
          conv (UsVs, UsVs')
          orelse
          eqAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate)
-     | ordEqR (GQ, D', R.Lex O, R.Lex O') =
+     | (* GEN CASE BRANCH *) ordEqR (GQ, D', R.Lex O, R.Lex O') =
          ordEqsR (GQ, D', O, O')
-     | ordEqR (GQ, D', R.Simul O, R.Simul O') =
+     | (* GEN CASE BRANCH *) ordEqR (GQ, D', R.Simul O, R.Simul O') =
          ordEqsR (GQ, D', O, O')
 
     (* ordEqsR (GQ, D', L1, L2) = B'
@@ -893,7 +893,7 @@ struct
        then B' holds iff D' --> L1 = L2
     *)
    and ordEqsR (GQ, D', nil, nil)  = true
-     | ordEqsR (GQ, D', O :: L, O' :: L') =
+     | (* GEN CASE BRANCH *) ordEqsR (GQ, D', O :: L, O' :: L') =
          ordEqR (GQ, D', O, O')
          andalso ordEqsR (GQ, D', L, L')
 
@@ -906,7 +906,7 @@ struct
        then B' holds iff D' --> L1 is lexically smaller than L2
     *)
    and ltLexR (GQ, D', nil, nil) = false
-     | ltLexR (GQ, D', O :: L, O' :: L') =
+     | (* GEN CASE BRANCH *) ltLexR (GQ, D', O :: L, O' :: L') =
          ordLtR (GQ, D', O, O')
          orelse
          (ordEqR (GQ, D', O, O') andalso ltLexR (GQ, D', L, L'))
@@ -926,7 +926,7 @@ struct
        then B' holds iff D implies that L1 is simultaneously smaller than L2
     *)
     and ltSimulR (GQ, D, nil, nil) = false
-      | ltSimulR (GQ, D, O :: L, O' :: L') =
+      | (* GEN CASE BRANCH *) ltSimulR (GQ, D, O :: L, O' :: L') =
           (ordLtR (GQ, D, O, O') andalso leSimulR (GQ, D, L, L'))
           orelse
           (ordEqR (GQ, D, O, O') andalso ltSimulR (GQ, D, L, L'))
@@ -940,7 +940,7 @@ struct
        then B' holds iff D implies that L1 is simultaneously less than or equal to L2
     *)
     and leSimulR (GQ, D, nil, nil) = true
-      | leSimulR (GQ, D, O :: L, O' :: L') =
+      | (* GEN CASE BRANCH *) leSimulR (GQ, D, O :: L, O' :: L') =
           ordLeR (GQ, D, O, O') andalso leSimulR (GQ, D, L, L')
 
    (*--------------------------------------------------------------*)
@@ -967,7 +967,7 @@ struct
 
    and ltAtomicRW (GQ, D, UsVs as (Us, Vs as (I.Root _, s')), UsVs', sc, k) =
          ltR (GQ, D, UsVs, UsVs', sc, k)
-     | ltAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
+     | (* GEN CASE BRANCH *) ltAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
                    ((U', s1'), (V', s2')), sc, k) =
         let
           val UsVs' = ((U', I.comp (s1', I.shift)), (V', I.comp (s2', I.shift)))
@@ -1001,7 +1001,7 @@ struct
 
    and leAtomicRW (GQ, D, UsVs as (Us, Vs as (I.Root _, s')), UsVs', sc, k) =
          leR (GQ, D, UsVs, UsVs', sc, k)
-     | leAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
+     | (* GEN CASE BRANCH *) leAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
                    ((U', s1'), (V', s2')), sc, k) =
         let
           val D' = shiftACtx D (fn s => I.comp(s, I.shift))
@@ -1040,9 +1040,9 @@ struct
                     shiftACtx D (fn s => I.comp(s, I.shift)),
                     ((U, I.dot1 s1'), (V, I.dot1 s2')),
                     ((U', I.dot1 s1'),(V', I.dot1 s2')), sc, k)
-     | eqAtomicRW (GQ, D, (Us, Vs as (I.Root _, s2)),(Us', Vs' as (I.Root _, s2')), sc, k) =
+     | (* GEN CASE BRANCH *) eqAtomicRW (GQ, D, (Us, Vs as (I.Root _, s2)),(Us', Vs' as (I.Root _, s2')), sc, k) =
          eqR (GQ, D, (Us, Vs),(Us', Vs'), sc, k)
-     | eqAtomicRW (GQ, D, (Us, Vs), (Us', Vs'),sc, k) =
+     | (* GEN CASE BRANCH *) eqAtomicRW (GQ, D, (Us, Vs), (Us', Vs'),sc, k) =
          (* mismatch: not equal *)
          (* Fri Feb 25 21:26:39 2005 -fp !!! *)
          false
@@ -1076,14 +1076,14 @@ struct
         else
           ltSpineR (GQ, D, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, k)
 
-    | ltRW (GQ, D, (Us, Vs), (Us' as (I.Root (I.Def c, S'), s'), Vs'), sc, k) =
+    | (* GEN CASE BRANCH *) ltRW (GQ, D, (Us, Vs), (Us' as (I.Root (I.Def c, S'), s'), Vs'), sc, k) =
         if isAtomic (GQ, Us')
           then k (GQ, D, nil, Less((Us,Vs), (Us', Vs')), sc)
                (* either leftInstantiate D or  atomic reasoning *)
         else
           ltSpineR (GQ, D, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, k)
 
-    | ltRW (GQ as (G, Q), D, (Us, Vs), (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
+    | (* GEN CASE BRANCH *) ltRW (GQ as (G, Q), D, (Us, Vs), (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
         if isAtomic (GQ, Us')
           then k (GQ, D, nil, Less((Us,Vs), (Us', Vs')), sc)
                (* either leftInstantiate D or  atomic reasoning *)
@@ -1094,9 +1094,9 @@ struct
             ltSpineR (GQ, D, (Us, Vs), ((S', s'), (V', I.id)), sc, k)
           end
 
-      | ltRW (GQ, D, _, ((I.EVar _, _), _), _, _) = false
+      | (* GEN CASE BRANCH *) ltRW (GQ, D, _, ((I.EVar _, _), _), _, _) = false
 
-      | ltRW (GQ as (G, Q), D, ((U, s1), (V, s2)),
+      | (* GEN CASE BRANCH *) ltRW (GQ as (G, Q), D, ((U, s1), (V, s2)),
               ((I.Lam (I.Dec (_, V1'), U'), s1'),
                (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, k) =
           if Subordinate.equiv (I.targetFam V, I.targetFam V1')
@@ -1129,9 +1129,9 @@ struct
     and ltSpineRW (GQ, D, (Us, Vs), ((I.Nil, _), _), _, _) =
           (* cannot happen Sat Apr 20 16:08:30 2002 -bp *)
           false
-      | ltSpineRW (GQ, D, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, k) =
+      | (* GEN CASE BRANCH *) ltSpineRW (GQ, D, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, k) =
           ltSpineR (GQ, D, (Us, Vs), ((S, I.comp (s', s'')), Vs'), sc, k)
-      | ltSpineRW (GQ, D, (Us, Vs), ((I.App (U', S'), s1'),
+      | (* GEN CASE BRANCH *) ltSpineRW (GQ, D, (Us, Vs), ((I.App (U', S'), s1'),
                                       (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, k) =
           leAtomicR (GQ, D, (Us, Vs), ((U', s1'), (V1', s2')), sc, k) orelse
           ltSpineR (GQ, D, (Us, Vs),
@@ -1155,7 +1155,7 @@ struct
     *)
 
   and leR (GQ, D, UsVs, UsVs', sc, k) =
-
+  
         leRW (GQ, D, UsVs, Whnf.whnfEta UsVs', sc, k)
    and leRW (GQ as (G, Q), D, ((U, s1), (V, s2)),
              ((I.Lam (I.Dec (_, V1'), U'), s1'),
@@ -1183,7 +1183,7 @@ struct
               end
           else false (* impossible, if additional invariant assumed (see ltW) *)
 
-      | leRW (GQ, D, UsVs, UsVs', sc, k) =
+      | (* GEN CASE BRANCH *) leRW (GQ, D, UsVs, UsVs', sc, k) =
           ltR (GQ, D, UsVs, UsVs', sc, k)
           orelse
           eqR (GQ, D, UsVs, UsVs', sc, k)
@@ -1214,11 +1214,11 @@ struct
    and eqR' (GQ, D,(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
             (Us', Vs' as (I.Root _, s2'')), sc, k) =
         false
-     | eqR' (GQ, D,(Us, Vs as (I.Root _, s2')),
+     | (* GEN CASE BRANCH *) eqR' (GQ, D,(Us, Vs as (I.Root _, s2')),
             (Us', Vs' as (I.Pi ((I.Dec (_, V2''), _), V''), s2'')), sc, k) =
         false
 
-     | eqR' (GQ, D, UsVs as ((I.Root (I.Const c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqR' (GQ, D, UsVs as ((I.Root (I.Const c, S), s), Vs),
             UsVs' as ((I.Root (I.Const c', S'), s'), Vs'), sc, k) =
          if eqCid(c, c')
            then eqSpineR (GQ, D, ((S, s), (I.constType c, I.id)),
@@ -1226,16 +1226,16 @@ struct
          else
            false
 
-     | eqR' (GQ, D, (Us as (I.Root (I.Const c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.Const c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us')
            then k (GQ, D, nil, Eq((Us', Vs'),(Us, Vs)), sc)
                 (* either leftInstantiate D or atomic reasoning *)
-
+     
          else
            false
 
-     | eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Const c, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us)
            then k (GQ, D, nil, Eq((Us, Vs),(Us', Vs')), sc)
@@ -1243,7 +1243,7 @@ struct
          else
            false
 
-     | eqR' (GQ, D, UsVs as ((I.Root (I.Def c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqR' (GQ, D, UsVs as ((I.Root (I.Def c, S), s), Vs),
             UsVs' as ((I.Root (I.Def c', S'), s'), Vs'), sc, k) =
          if eqCid(c, c')
            then eqSpineR (GQ, D, ((S, s), (I.constType c, I.id)),
@@ -1251,16 +1251,16 @@ struct
          else
            false
 
-     | eqR' (GQ, D, (Us as (I.Root (I.Def c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.Def c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us')
            then k (GQ, D, nil, Eq((Us', Vs'),(Us, Vs)), sc)
                 (* either leftInstantiate D or atomic reasoning *)
-
+     
          else
            false
 
-     | eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Def c, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us)
            then k (GQ, D, nil, Eq((Us, Vs),(Us', Vs')), sc)
@@ -1268,7 +1268,7 @@ struct
          else
            false
 
-     | eqR' (GQ as (G, Q), D, (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqR' (GQ as (G, Q), D, (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.BVar n', S'), s'), Vs'), sc, k) =
          if (n = n')
            then
@@ -1282,7 +1282,7 @@ struct
            (* either leftInstantiate D or atomic reasoning *)
 
      (* UsVs = Lam *)
-     | eqR' (GQ, D, UsVs, UsVs', sc, k) =
+     | (* GEN CASE BRANCH *) eqR' (GQ, D, UsVs, UsVs', sc, k) =
            k (GQ, D, nil, Eq(UsVs, UsVs'), sc)
            (* either leftInstantiate D or atomic reasoning *)
 
@@ -1292,17 +1292,17 @@ struct
 
    and eqSpineRW (GQ, D, ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), sc, k) =
         true
-     | eqSpineRW (GQ, D, ((I.SClo(S, s'), s''), Vs), SsVs', sc, k) =
+     | (* GEN CASE BRANCH *) eqSpineRW (GQ, D, ((I.SClo(S, s'), s''), Vs), SsVs', sc, k) =
          eqSpineR (GQ, D, ((S, I.comp (s', s'')), Vs), SsVs', sc, k)
-     | eqSpineRW (GQ, D, SsVs, ((I.SClo(S', s'), s''), Vs'), sc, k) =
+     | (* GEN CASE BRANCH *) eqSpineRW (GQ, D, SsVs, ((I.SClo(S', s'), s''), Vs'), sc, k) =
          eqSpineR (GQ, D, SsVs, ((S', I.comp (s', s'')), Vs'), sc, k)
-     | eqSpineRW (GQ, D, ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
+     | (* GEN CASE BRANCH *) eqSpineRW (GQ, D, ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
                  ((I.App (U', S'), s1'), (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, k) =
            eqAtomicR (GQ, D, ((U, s1), (V1, s2)), ((U',s1'), (V1', s2')), sc, k)
            andalso
            eqSpineR (GQ, D, ((S, s1), (V2, I.Dot (I.Exp (I.EClo (U, s1)), s2))),
                      ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, k)
-     | eqSpineRW (GQ, D, SsVs, SsVs', sc, k) = false
+     | (* GEN CASE BRANCH *) eqSpineRW (GQ, D, SsVs, SsVs', sc, k) = false
 
    (*--------------------------------------------------------------*)
    (* leftDecompose (G, Q, D, D', P) = B
@@ -1335,36 +1335,36 @@ struct
    fun leftDecompose (GQ as (G, Q), nil, D', P) =
          rightDecompose (GQ, D', P)
      (* less *)
-     | leftDecompose (GQ, (Less(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Less(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
           ltAtomicL (GQ, D, D', UsVs, UsVs', P)
 
-     | leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P) =
          ltLexL (GQ, D, D', O, O', P)
 
-     | leftDecompose (GQ, (Less(R.Simul O, R.Simul O') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Less(R.Simul O, R.Simul O') :: D), D', P) =
          ltSimulL (GQ, D, D', O, O', P)
      (* le *)
-     | leftDecompose (GQ, (Leq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Leq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
          leAtomicL (GQ, D, D', UsVs, UsVs', P)
 
-     | leftDecompose (GQ, (Leq(R.Lex O, R.Lex O') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Leq(R.Lex O, R.Lex O') :: D), D', P) =
          leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P)
          andalso
          leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P)
 
-     | leftDecompose (GQ, (Leq(R.Simul O, R.Simul O') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Leq(R.Simul O, R.Simul O') :: D), D', P) =
          leSimulL (GQ, D, D', O, O', P)
      (* eq *)
-     | leftDecompose (GQ, (Eq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Eq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
          eqAtomicL (GQ, D, D', UsVs,  UsVs', P)
 
-     | leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P) =
          eqsL (GQ, D, D', O, O', P)
 
-     | leftDecompose (GQ, (Eq(R.Simul O, R.Simul O') :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ, (Eq(R.Simul O, R.Simul O') :: D), D', P) =
          eqsL (GQ, D, D', O, O', P)
 
-     | leftDecompose (GQ as (G, Q), (Pi(Dec, O) :: D), D', P) =
+     | (* GEN CASE BRANCH *) leftDecompose (GQ as (G, Q), (Pi(Dec, O) :: D), D', P) =
          (* drop assumption Pi D. P *)
          ((if !Global.chatter > 3
                  then (print " Ignoring quantified order ";
@@ -1386,7 +1386,7 @@ struct
         and D, D', O1 = O1', .., O_n-1 = O'_n-1, O_n < O'_n --> P
     *)
    and ltLexL (GQ, D, D', nil, nil, P) = true
-     | ltLexL (GQ, D, D', O :: L, O' :: L', P) =
+     | (* GEN CASE BRANCH *) ltLexL (GQ, D, D', O :: L, O' :: L', P) =
          leftDecompose(GQ, (Less(O, O') :: D), D', P)
          andalso
          ltLexL(GQ, (Eq(O, O') :: D), D', L, L', P)
@@ -1402,7 +1402,7 @@ struct
         and D, D', On = On' --> P
     *)
    and eqsL (GQ, D, D', nil, nil, P) = true
-     | eqsL (GQ, D, D', O :: L, O' :: L', P) =
+     | (* GEN CASE BRANCH *) eqsL (GQ, D, D', O :: L, O' :: L', P) =
          leftDecompose(GQ, (Eq(O, O') :: D), D', P)
          andalso
          eqsL(GQ, D, D', L, L', P)
@@ -1410,14 +1410,14 @@ struct
 
    and ltSimulL (GQ, D, D', nil, nil, P) =
          leftDecompose (GQ, D, D', P)
-     | ltSimulL (GQ, D, D', O :: L, O' ::L', P) =
+     | (* GEN CASE BRANCH *) ltSimulL (GQ, D, D', O :: L, O' ::L', P) =
          leSimulL (GQ, (Less(O, O') :: D), D', L, L', P)
          orelse
          ltSimulL(GQ, (Eq(O, O') :: D), D', L, L', P)
 
    and leSimulL (GQ, D, D', nil, nil, P) =
          leftDecompose (GQ, D, D', P)
-     | leSimulL (GQ, D, D', O :: L, O' :: L', P) =
+     | (* GEN CASE BRANCH *) leSimulL (GQ, D, D', O :: L, O' :: L', P) =
          leSimulL (GQ, (Leq(O, O') :: D), D', L, L', P)
 
    (*--------------------------------------------------------------*)
@@ -1455,7 +1455,7 @@ struct
 
    and ltAtomicLW (GQ as (G,Q), D, D', UsVs, (Us', Vs' as (I.Root _, s')), P) =
          ltL (GQ, D, D', UsVs, (Us', Vs'), P)
-     | ltAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
+     | (* GEN CASE BRANCH *) ltAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
                   ((I.Lam (_, U'), s1'), (I.Pi ((Dec', _), V'), s2')), P) =
         let
           val D1 = shiftRCtx D (fn s => I.comp(s, I.shift))
@@ -1474,7 +1474,7 @@ struct
 
    and leAtomicLW (GQ, D, D', UsVs, (Us', Vs' as (I.Root (H,S), s')), P) =
         leL (GQ, D, D', UsVs, (Us', Vs'), P)
-     | leAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
+     | (* GEN CASE BRANCH *) leAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
                   ((I.Lam (_, U'), s1'), (I.Pi ((Dec', _), V'), s2')), P) =
         let
           val D1 = shiftRCtx D (fn s => I.comp(s, I.shift))
@@ -1494,9 +1494,9 @@ struct
    and eqAtomicLW (GQ, D, D', (Us, Vs as (I.Root _, s)),
                                (Us', Vs' as (I.Root _, s')), P) =
         eqL (GQ, D, D', (Us, Vs), (Us', Vs'), P)
-     | eqAtomicLW (GQ, D, D', (Us, Vs as (I.Root _, s)), (Us', Vs' as (I.Pi _, s')), P) = true
-     | eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Root _, s')), P) = true
-     | eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Pi _, s')), P) =
+     | (* GEN CASE BRANCH *) eqAtomicLW (GQ, D, D', (Us, Vs as (I.Root _, s)), (Us', Vs' as (I.Pi _, s')), P) = true
+     | (* GEN CASE BRANCH *) eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Root _, s')), P) = true
+     | (* GEN CASE BRANCH *) eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Pi _, s')), P) =
         leftDecompose(GQ, D, (Eq((Us,Vs), (Us', Vs')) :: D'), P)
 
 
@@ -1525,19 +1525,19 @@ struct
             in
               ltSpineL (GQ, D, D', UsVs, ((S', s'), (V', I.id)), P)
             end
-      | ltLW (GQ, D, D', UsVs, ((I.Root (I.Const c, S'), s'), Vs'), P) =
+      | (* GEN CASE BRANCH *) ltLW (GQ, D, D', UsVs, ((I.Root (I.Const c, S'), s'), Vs'), P) =
          ltSpineL (GQ, D, D', UsVs, ((S', s'), (I.constType c, I.id)), P)
 
-      | ltLW (GQ, D, D', UsVs, ((I.Root (I.Def c, S'), s'), Vs'), P) =
+      | (* GEN CASE BRANCH *) ltLW (GQ, D, D', UsVs, ((I.Root (I.Def c, S'), s'), Vs'), P) =
          ltSpineL (GQ, D, D', UsVs, ((S', s'), (I.constType c, I.id)), P)
 
     and ltSpineL (GQ, D, D', UsVs, (Ss', Vs'), P) =
           ltSpineLW (GQ, D, D', UsVs, (Ss', Whnf.whnf Vs'), P)
 
     and ltSpineLW (GQ, D, D', UsVs, ((I.Nil, _), _), _) = true
-      | ltSpineLW (GQ, D, D', UsVs, ((I.SClo (S, s'), s''), Vs'), P) =
+      | (* GEN CASE BRANCH *) ltSpineLW (GQ, D, D', UsVs, ((I.SClo (S, s'), s''), Vs'), P) =
           ltSpineL (GQ, D, D', UsVs, ((S, I.comp (s', s'')), Vs'), P)
-      | ltSpineLW (GQ, D, D', UsVs, ((I.App (U', S'), s1'),
+      | (* GEN CASE BRANCH *) ltSpineLW (GQ, D, D', UsVs, ((I.App (U', S'), s1'),
                                    (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), P) =
             leAtomicL (GQ, D, D', UsVs, ((U', s1'), (V1', s2')), P)
             andalso
@@ -1575,13 +1575,13 @@ struct
             (Us', Vs' as (I.Pi ((I.Dec (_, V2''), _), V''), s2'')), P) =
         leftDecompose (GQ, D, (Eq((Us,Vs), (Us', Vs')) :: D'), P)
 
-    | eqLW (GQ, D, D',(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
+    | (* GEN CASE BRANCH *) eqLW (GQ, D, D',(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
             (Us', Vs' as (I.Root _, s2'')), P) =
         true
-    | eqLW (GQ, D, D',(Us, Vs as (I.Root _, s2')),
+    | (* GEN CASE BRANCH *) eqLW (GQ, D, D',(Us, Vs as (I.Root _, s2')),
             (Us', Vs' as (I.Pi ((I.Dec (_, V2''), _), V''), s2'')), P) =
         true
-    | eqLW (GQ, D, D', UsVs as ((I.Root (I.Const c, S), s), Vs),
+    | (* GEN CASE BRANCH *) eqLW (GQ, D, D', UsVs as ((I.Root (I.Const c, S), s), Vs),
             UsVs' as ((I.Root (I.Const c', S'), s'), Vs'), P) =
          if eqCid(c, c')
            then eqSpineL (GQ, D, D', ((S, s), (I.constType c, I.id)),
@@ -1589,21 +1589,21 @@ struct
          else
            true
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.Const c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.Const c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us')
            then leftDecompose (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P)
          else
            true
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Const c, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us)
            then leftDecompose (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P)
          else
            true
 
-    | eqLW (GQ, D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
+    | (* GEN CASE BRANCH *) eqLW (GQ, D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
             UsVs' as ((I.Root (I.Def c', S'), s'), Vs'), P) =
          if eqCid(c, c')
            then eqSpineL (GQ, D, D', ((S, s), (I.constType c, I.id)),
@@ -1611,14 +1611,14 @@ struct
          else
            true
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.Def c, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.Def c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us')
            then leftDecompose (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P)
          else
            true
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Def c, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us)
            then leftDecompose (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P)
@@ -1634,7 +1634,7 @@ struct
            leftDecompose (GQ, D, (Eq(UsVs, UsVs') :: D'), P)
 
 *)
-     | eqLW (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN CASE BRANCH *) eqLW (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.BVar n', S'), s'), Vs'), P) =
          if (n = n')
            then
@@ -1646,7 +1646,7 @@ struct
          else
            leftDecompose (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P)
      (* UsVs = Lam *)
-     | eqLW (GQ, D, D', UsVs, UsVs', P) =
+     | (* GEN CASE BRANCH *) eqLW (GQ, D, D', UsVs, UsVs', P) =
          leftDecompose (GQ, D, (Eq(UsVs, UsVs') :: D'), P)
 
     and eqSpineL (GQ, D, D', (Ss, Vs), (Ss', Vs'), P) =
@@ -1654,11 +1654,11 @@ struct
 
    and eqSpineLW (GQ, D, D', ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), P) =
         leftDecompose (GQ, D, D', P)
-     | eqSpineLW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P) =
+     | (* GEN CASE BRANCH *) eqSpineLW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P) =
          eqSpineL (GQ, D, D', ((S, I.comp (s', s'')), Vs), SsVs', P)
-     | eqSpineLW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P) =
+     | (* GEN CASE BRANCH *) eqSpineLW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P) =
          eqSpineL (GQ, D, D', SsVs, ((S', I.comp (s', s'')), Vs'), P)
-     | eqSpineLW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
+     | (* GEN CASE BRANCH *) eqSpineLW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
                  ((I.App (U', S'), s1'), (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), P) =
          let
            val D1 = (Eq(R.Arg ((U,s1), (V1, s2)), R.Arg ((U',s1'), (V1', s2'))) :: D)

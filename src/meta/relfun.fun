@@ -42,7 +42,7 @@ struct
        and  G' = G [s],  declarationwise defined
     *)
     fun ctxSub (I.Null, s) = (I.Null, s)
-      | ctxSub (I.Decl (G, D), s) =
+      | (* GEN CASE BRANCH *) ctxSub (I.Decl (G, D), s) =
         let
           val (G', s') = ctxSub (G, s)
         in
@@ -58,9 +58,9 @@ struct
         val mS = case ModeTable.modeLookup cid
                    of NONE => raise Error "Mode declaration expected"
                     | SOME mS => mS
-
+    
         (* convertFor' (V, mS, w1, w2, n) = (F', F'')
-
+    
            Invariant:
            If   G |- V = {{G'}} type :kind
            and  G |- w1 : G+
@@ -78,33 +78,33 @@ struct
             in
               (fn F => F.All (F.Prim (Weaken.strengthenDec (D, w1)), F' F), F'')
             end
-          | convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
+          | (* GEN CASE BRANCH *) convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
             let
               val (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
             in
               (F', F.Ex (I.decSub (D, w2), F''))
             end
-          | convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
+          | (* GEN CASE BRANCH *) convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
               (fn F => F, F.True)
-          | convertFor' _ = raise Error "type family must be +/- moded"
-
+          | (* GEN CASE BRANCH *) convertFor' _ = raise Error "type family must be +/- moded"
+    
         (* shiftPlus (mS) = s'
-
+    
          Invariant:
          s' = ^(# of +'s in mS)
          *)
-
+    
         fun shiftPlus mS =
           let
             fun shiftPlus' (M.Mnil, n) = n
-              | shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
+              | (* GEN CASE BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
                   shiftPlus' (mS', n+1)
-              | shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
+              | (* GEN CASE BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
                   shiftPlus' (mS', n)
           in
             shiftPlus' (mS, 0)
           end
-
+    
         val n = shiftPlus mS
         val (F, F') = convertFor' (V, mS, I.id, I.Shift n, n)
       in
@@ -120,8 +120,8 @@ struct
             type family
      *)
     fun convertFor nil = raise Error "Empty theorem"
-      | convertFor [a] = convertOneFor a
-      | convertFor (a :: L) = F.And (convertOneFor a, convertFor L)
+      | (* GEN CASE BRANCH *) convertFor [a] = convertOneFor a
+      | (* GEN CASE BRANCH *) convertFor (a :: L) = F.And (convertOneFor a, convertFor L)
 
 
 
@@ -132,22 +132,22 @@ struct
        then  B iff k occurs in U
     *)
     fun occursInExpN (k, I.Uni _) = false
-      | occursInExpN (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExpN (k+1, V)
-      | occursInExpN (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
-      | occursInExpN (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExpN (k+1, V)
-      | occursInExpN (k, I.FgnExp csfe) =
+      | (* GEN CASE BRANCH *) occursInExpN (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExpN (k+1, V)
+      | (* GEN CASE BRANCH *) occursInExpN (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
+      | (* GEN CASE BRANCH *) occursInExpN (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExpN (k+1, V)
+      | (* GEN CASE BRANCH *) occursInExpN (k, I.FgnExp csfe) =
         I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExpN (k, Whnf.normalize (U, I.id))) false
     (* no case for Redex, EVar, EClo *)
 
 
     and occursInHead (k, I.BVar (k')) = (k = k')
-      | occursInHead (k, I.Const _) = false
-      | occursInHead (k, I.Def _) = false
-      | occursInHead (k, I.FgnConst _) = false
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Const _) = false
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Def _) = false
+      | (* GEN CASE BRANCH *) occursInHead (k, I.FgnConst _) = false
       (* no case for FVar *)
 
     and occursInSpine (_, I.Nil) = false
-      | occursInSpine (k, I.App (U, S)) = occursInExpN (k, U) orelse occursInSpine (k, S)
+      | (* GEN CASE BRANCH *) occursInSpine (k, I.App (U, S)) = occursInExpN (k, U) orelse occursInSpine (k, S)
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExpN (k, V)
@@ -174,13 +174,13 @@ struct
     fun shiftinv (w) = Weaken.strengthenSub (w, I.shift)
 
     fun eqIdx (I.Idx(n), I.Idx(k)) = (n = k)
-      | eqIdx _ = false
+      | (* GEN CASE BRANCH *) eqIdx _ = false
 
     fun peel w =
       if eqIdx(I.bvarSub (1, w), I.Idx 1) then dot1inv w else shiftinv w
 
     fun peeln (0, w) = w
-      | peeln (n, w) = peeln (n-1, peel w)
+      | (* GEN CASE BRANCH *) peeln (n, w) = peeln (n-1, peel w)
 
 
 
@@ -191,9 +191,9 @@ struct
        then n' = |G1|
     *)
     fun domain (G, I.Dot (I.Idx _, s)) = domain (G, s) + 1
-      | domain (I.Null, I.Shift 0) = 0
-      | domain (G as I.Decl _, I.Shift 0) = domain (G, I.Dot (I.Idx 1, I.Shift 1))
-      | domain (I.Decl (G, _), I.Shift n) = domain (G, I.Shift (n-1))
+      | (* GEN CASE BRANCH *) domain (I.Null, I.Shift 0) = 0
+      | (* GEN CASE BRANCH *) domain (G as I.Decl _, I.Shift 0) = domain (G, I.Dot (I.Idx 1, I.Shift 1))
+      | (* GEN CASE BRANCH *) domain (I.Decl (G, _), I.Shift n) = domain (G, I.Shift (n-1))
 
 
     (* strenghten (Psi, (a, S), w, m) = (Psi', w')
@@ -216,9 +216,9 @@ struct
         val mS = case ModeTable.modeLookup a
                    of NONE => raise Error "Mode declaration expected"
                     | SOME mS => mS
-
+    
         fun args (I.Nil, M.Mnil) = nil
-          | args (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) =
+          | (* GEN CASE BRANCH *) args (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) =
               let
                 val L = args (S', mS)
               in
@@ -226,38 +226,38 @@ struct
                    of true => U :: L
                     | false => L)
               end
-
-
+    
+    
         fun strengthenArgs (nil, s) =  nil
-          | strengthenArgs (U :: L, s) =
+          | (* GEN CASE BRANCH *) strengthenArgs (U :: L, s) =
               Weaken.strengthenExp (U, s) :: strengthenArgs (L, s)
-
+    
         fun occursInArgs (n, nil) = false
-          | occursInArgs (n, U :: L) =
+          | (* GEN CASE BRANCH *) occursInArgs (n, U :: L) =
             (occursInExp (n, U) orelse occursInArgs (n, L))
-
+    
         fun occursInPsi (n, (nil, L)) =
               occursInArgs (n, L)
-          | occursInPsi (n, (F.Prim (I.Dec (_, V)) :: Psi1, L)) =
+          | (* GEN CASE BRANCH *) occursInPsi (n, (F.Prim (I.Dec (_, V)) :: Psi1, L)) =
               occursInExp (n, V) orelse occursInPsi (n+1, (Psi1, L))
-          | occursInPsi (n, (F.Block (F.CtxBlock (l, G)) :: Psi1, L)) =
+          | (* GEN CASE BRANCH *) occursInPsi (n, (F.Block (F.CtxBlock (l, G)) :: Psi1, L)) =
               occursInG (n, G, fn n' => occursInPsi (n', (Psi1, L)))
-
+    
         and occursInG (n, I.Null, k) = k n
-          | occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
+          | (* GEN CASE BRANCH *) occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
               occursInG (n, G, fn n' => occursInExp (n', V) orelse k (n'+ 1))
-
+    
         fun occursBlock (G, (Psi2, L)) =
           let
             fun occursBlock (I.Null, n) = false
-              | occursBlock (I.Decl (G, D), n) =
+              | (* GEN CASE BRANCH *) occursBlock (I.Decl (G, D), n) =
                   occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1)
           in
             occursBlock (G, 1)
           end
-
+    
         (* testBlock (G, (bw, w1)) = (bw', w')
-
+    
            Invariant:
            If   |- G ctx
            and  |- G1 ctx
@@ -270,25 +270,25 @@ struct
            and  bw' = bw or (G1 =/= G1')
          *)
         fun inBlock (I.Null, (bw, w1)) = (bw, w1)
-          | inBlock (I.Decl (G, D), (bw, w1)) =
+          | (* GEN CASE BRANCH *) inBlock (I.Decl (G, D), (bw, w1)) =
             if eqIdx(I.bvarSub (1, w1), I.Idx 1) then
               inBlock (G, (true, dot1inv w1))
             else inBlock (G, (bw, Weaken.strengthenSub (w1, I.shift)))
-
-
-
-
+    
+    
+    
+    
         fun blockSub (I.Null, w) = (I.Null, w)
-          | blockSub (I.Decl (G, I.Dec (name, V)), w) =
+          | (* GEN CASE BRANCH *) blockSub (I.Decl (G, I.Dec (name, V)), w) =
             let
               val (G', w') = blockSub (G, w)
               val V' = Weaken.strengthenExp (V, w')
             in
               (I.Decl (G', I.Dec (name, V')), I.dot1 w')
             end
-
+    
         (* strengthen' (Psi1, Psi2, S, w1) =  (Psi', w')
-
+    
            Invariant:
            If   |- Psi1 ctx
            and  Psi1 |- Psi2 ctx      (Psi2 is a list to maintain order)
@@ -302,7 +302,7 @@ struct
                                        position in S)
         *)
         fun strengthen' (I.Null, Psi2, L, w1 (* =  I.id *)) = (I.Null, I.id)
-          | strengthen' (I.Decl (Psi1, LD as F.Prim (I.Dec (name, V))), Psi2, L, w1) =
+          | (* GEN CASE BRANCH *) strengthen' (I.Decl (Psi1, LD as F.Prim (I.Dec (name, V))), Psi2, L, w1) =
             let
               val (bw, w1') = if eqIdx(I.bvarSub (1, w1), I.Idx 1) then (true, dot1inv w1)
                               else (false, Weaken.strengthenSub (w1, I.shift))
@@ -324,7 +324,7 @@ struct
                   (Psi1'', I.comp (w', I.shift))
                 end
             end
-          | strengthen' (I.Decl (Psi1, LD as F.Block (F.CtxBlock (name, G))), Psi2, L, w1) =
+          | (* GEN CASE BRANCH *) strengthen' (I.Decl (Psi1, LD as F.Block (F.CtxBlock (name, G))), Psi2, L, w1) =
             let
               val (bw, w1') = inBlock (G, (false, w1))
             in
@@ -345,8 +345,8 @@ struct
                   strengthen' (Psi1, Psi2', L', w1')
                 end
             end
-
-
+    
+    
       in
         strengthen' (Psi, nil, args (S, mS), w)
       end
@@ -355,9 +355,9 @@ struct
     fun recursion L =
       let
         val F = convertFor L
-
+    
         fun name [a] = I.conDecName (I.sgnLookup a)
-          | name (a :: L) = I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
+          | (* GEN CASE BRANCH *) name (a :: L) = I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
       in
         fn p => F.Rec (F.MDec (SOME (name L), F), p)
       end
@@ -374,7 +374,7 @@ struct
             . ;. |- (P' P) in [[+x1:A1]] .. [[+xn:An]] [[-x1:A1]] .. [[-xn:An]] true
     *)
     fun abstract (a) =
-
+    
       let
         val mS = case ModeTable.modeLookup a
                    of NONE => raise Error "Mode declaration expected"
@@ -382,10 +382,10 @@ struct
         val V = case I.sgnLookup a
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
                     | _ => raise Error "Type Constant declaration expected"
-
-
+    
+    
         (* abstract' ((V, mS), w) = P'
-
+    
            Invariant:
            If  Sigma (a) = {x1:A1} .. {xn:An} type
            and  Psi |- S : m1{x1:A1} .. mn{xn:An} type > type
@@ -394,14 +394,14 @@ struct
            then P' is a Lam abstraction
         *)
         fun abstract' ((_, M.Mnil), w) = (fn p => p)
-          | abstract' ((I.Pi ((D, _), V2), M.Mapp (M.Marg (M.Plus, _), mS)), w) =
+          | (* GEN CASE BRANCH *) abstract' ((I.Pi ((D, _), V2), M.Mapp (M.Marg (M.Plus, _), mS)), w) =
             let
               val D' = Weaken.strengthenDec (D, w)
               val P = abstract' ((V2, mS), I.dot1 w)
             in
               fn p => F.Lam (F.Prim D', P p)
             end
-          | abstract' ((I.Pi (_, V2), M.Mapp (M.Marg (M.Minus, _), mS)), w) =
+          | (* GEN CASE BRANCH *) abstract' ((I.Pi (_, V2), M.Mapp (M.Marg (M.Minus, _), mS)), w) =
               abstract' ((V2, mS), I.comp (w, I.shift))
       in
         abstract' ((V, mS), I.id)
@@ -427,9 +427,9 @@ struct
         val V = case I.sgnLookup a
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
                     | _ => raise Error "Type Constant declaration expected"
-
+    
         (* transformInit' ((S, mS), V, (w, s)) = (w', s')
-
+    
            Invariant:
            If   Psi |- S : V > type
            and  x1:A1...x(j-1):A(j-1) |- V = mj{xj:Aj} .. mn{xn:An} type : kind
@@ -439,9 +439,9 @@ struct
            then x1:A1...xn:An |- w' : +x1:A1... +xn:An
            and  Psi+ |- s' : +x1:A1 .. +xn:An
         *)
-
+    
         fun transformInit' ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) = (w, s)
-          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
+          | (* GEN CASE BRANCH *) transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
                             I.Pi (_, V2), (w, s)) =
             let
               val w' = I.comp (w, I.shift)
@@ -449,7 +449,7 @@ struct
             in
               transformInit' ((S, mS), V2, (w', s'))
             end
-          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
+          | (* GEN CASE BRANCH *) transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
                             I.Pi ((I.Dec (name, V1), _), V2), (w, s)) =
             let
               val V1' = Weaken.strengthenExp (V1, w)
@@ -491,10 +491,10 @@ struct
         val V = case I.sgnLookup a
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
                     | _ => raise Error "Type Constant declaration expected"
-
-
+    
+    
         (* raiseExp (G, U, a) = U'
-
+    
            Invariant:
            If   |- Psi ctx         (for some given Psi)
            and  Psi |- G ctx
@@ -503,9 +503,9 @@ struct
         *)
         fun raiseExp (G, U, a) =
           let
-
+    
             (* raiseExp G = (w', k)
-
+    
                Invariant:
                If   |-  Psi ctx
                and  Psi |- G ctx
@@ -516,7 +516,7 @@ struct
                     Psi |- [[G']] U : {{G'}} V
             *)
             fun raiseExp' I.Null = (I.id, fn x => x)
-              | raiseExp' (I.Decl (G, D as I.Dec (_, V))) =
+              | (* GEN CASE BRANCH *) raiseExp' (I.Decl (G, D as I.Dec (_, V))) =
                 let
                   val (w, k) = raiseExp' G
                 in
@@ -525,15 +525,15 @@ struct
                   else
                     (I.comp (w, I.shift), k)
                 end
-
+    
             val (w, k) = raiseExp' G
           in
             k (Weaken.strengthenExp (U, w))
           end
-
-
+    
+    
         (* raiseType (G, U, a) = U'
-
+    
            Invariant:
            If   |- Psi ctx         (for some given Psi)
            and  Psi |- G ctx
@@ -541,11 +541,11 @@ struct
            then Psi, G |- [[G]] U : {{G}} V     (wrt subordination)
            and  Psi, G, x:{{G}} V |- x G : V
         *)
-
+    
         fun raiseType (G, U, a) =
           let
             (* raiseType (G, n) = (w', k, S')
-
+    
               Invariant:
               If   |-  Psi ctx
               and  Psi |- G, Gv ctx
@@ -559,7 +559,7 @@ struct
                    for all S, s.t. Psi, G, G0,|- ... refine
             *)
             fun raiseType' (I.Null, n) = (I.id, fn x => x, fn S => S)
-              | raiseType' (I.Decl (G, D as I.Dec (_, V)), n) =
+              | (* GEN CASE BRANCH *) raiseType' (I.Decl (G, D as I.Dec (_, V)), n) =
                 let
                   val (w, k, k') = raiseType' (G, n+1)
                 in
@@ -569,15 +569,15 @@ struct
                   else
                     (I.comp (w, I.shift), k, k')
                 end
-
+    
             val (w, k, k') = raiseType' (G, 2)
           in
             (k (Weaken.strengthenExp (U, w)), I.Root (I.BVar 1, k' I.Nil))
           end
-
-
+    
+    
         (* exchangeSub (G0) = s'
-
+    
            Invariant:
            For some Psi, some G, some V:
            Psi, V, G0 |- s' : Psi, G0, V
@@ -586,14 +586,14 @@ struct
           let
             val g0 = I.ctxLength G0
             fun exchangeSub' (0, s) = s
-              | exchangeSub' (k, s) = exchangeSub' (k-1, I.Dot (I.Idx (k), s))
+              | (* GEN CASE BRANCH *) exchangeSub' (k, s) = exchangeSub' (k-1, I.Dot (I.Idx (k), s))
           in
             I.Dot (I.Idx (g0 + 1), exchangeSub' (g0, I.Shift (g0 + 1)))
           end
-
-
+    
+    
         (* transformDec' (d, (S, mS), V, (z1, z2), (w, t)) = (d', w', t', (Ds+, Ds-))
-
+    
            Invariant:
            If   Psi, G0 |- S : V > type
            and  S doesn't contain Skolem constants
@@ -612,7 +612,7 @@ struct
         *)
         fun transformDec' (d, (I.Nil, M.Mnil), I.Uni I.Type, (z1, z2), (w, t)) =
               (w, t, (d, fn (k, Ds) => Ds k, fn _ => F.Empty))
-          | transformDec' (d, (I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
+          | (* GEN CASE BRANCH *) transformDec' (d, (I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
                           I.Pi ((I.Dec (_, V1), DP), V2), (z1, z2), (w, t)) =
               let
                 val g = I.ctxLength G0
@@ -623,7 +623,7 @@ struct
                 val w' = (case DP
                             of I.Maybe => I.dot1 w
                             |  I.No => I.comp (w, I.shift))
-
+              
                 val U0 = raiseExp (G0, U, I.targetFam V1'')
                 val U' = Weaken.strengthenExp (U0, w2)
                 val t' = Whnf.dotEta (I.Exp (U'), t)
@@ -637,7 +637,7 @@ struct
               in
                 (w'', t'', (d', Dplus, fn k => F.Split (k, Dminus 1)))
               end
-          | transformDec' (d, (I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
+          | (* GEN CASE BRANCH *) transformDec' (d, (I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
                           I.Pi ((I.Dec (name, V1), _), V2), (z1, z2), (w, t)) =
             let
               val V1' = Weaken.strengthenExp (V1, w)
@@ -651,14 +651,14 @@ struct
             in
               (w'', t'', (d', fn (k, Ds) => F.App ((k, U'), Dplus (1, Ds)), Dminus))
             end
-
+    
           val (w'', t'', (d', Dplus, Dminus)) =
             transformDec' (d, (S, mS), V, (I.id, I.Shift (domain (Psi, t0) + I.ctxLength G0)),
                            (I.id, t0))
-
-
+    
+    
           (* head Ts (w, t, (d, Dplus, Dminus)) = (d', w', t', P')
-
+    
              Invariant:
              If   a not in Ts  then d'= d+1,  P' makes a lemma call
              If   Ts = [a]     then d'= d     P' used directly the ih.
@@ -669,7 +669,7 @@ struct
           fun varHead Ts (w'', t'', (d', Dplus, Dminus)) =
             let
               fun head' ([a'], d1, k1) = (d1, k1)
-                | head' (a'::Ts', d1, k1) =
+                | (* GEN CASE BRANCH *) head' (a'::Ts', d1, k1) =
                   if a = a' then
                     (d1+1, fn xx => F.Left (xx, (k1 1)))
                   else
@@ -678,13 +678,13 @@ struct
                     in
                       (d2, fn xx => F.Right (xx, (k2 1)))
                     end
-
+    
                 val (d2, k2) = head' (Ts, d', fn xx => Dplus (xx, Dminus))
               in
                 (d2, w'', t'', k2 d)
               end
-
-
+    
+    
           fun lemmaHead (w'', t'', (d', Dplus, Dminus)) =
             let
               val name = I.conDecName (I.sgnLookup a)
@@ -694,7 +694,7 @@ struct
             in
               (d'+1, w'', t'', F.Lemma (l, Dplus (1, Dminus)))
             end
-
+    
       in
         if List.exists (fn x => x = a) Ts
           then varHead Ts (w'', t'', (d', Dplus, Dminus))
@@ -715,12 +715,12 @@ struct
         val mS = case ModeTable.modeLookup a
                    of NONE => raise Error "Mode declaration expected"
                     | SOME mS => mS
-
+    
         fun transformConc' (I.Nil, M.Mnil) =
               F.Unit
-          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) =
+          | (* GEN CASE BRANCH *) transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) =
               transformConc' (S', mS')
-          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) =
+          | (* GEN CASE BRANCH *) transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) =
               F.Inx (Weaken.strengthenExp (U, w), transformConc' (S', mS'))
       in
         transformConc' (S, mS)
@@ -737,9 +737,9 @@ struct
     *)
     fun traverse (Ts, c) =
       let
-
+    
         (* traverseNeg (c'', Psi, (V, v), L) = ([w', d', PQ'], L')    [] means optional
-
+    
            Invariant:
            If   Psi0 |- V : type
            and  Psi0 |- v : Psi
@@ -751,24 +751,24 @@ struct
            and  d' is the length of Delta
            and  PQ'  is a pair, generating the proof term
         *)
-
+    
         fun traverseNeg (c'', Psi, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v), L) =
             (case traverseNeg (c'', I.Decl (Psi, F.Prim
                                      (Weaken.strengthenDec (D, v))),
-(*                                   (Names.decName (F.makectx Psi, Weaken.strengthenDec (D, v)))),
-*)                             (V2, I.dot1 v), L)
+    (*                                   (Names.decName (F.makectx Psi, Weaken.strengthenDec (D, v)))),
+    *)                             (V2, I.dot1 v), L)
                of (SOME (w', d', PQ'), L') => (SOME (peel w', d', PQ'), L')
                 | (NONE, L') => (NONE, L'))
-
-          | traverseNeg (c'', Psi, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), L) =
+    
+          | (* GEN CASE BRANCH *) traverseNeg (c'', Psi, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), L) =
             (case traverseNeg (c'', Psi, (V2, I.comp (v, I.shift)), L)
                of (SOME (w', d', PQ'), L') => traversePos (c'', Psi, I.Null,
                                                            (Weaken.strengthenExp (V1, v), I.id),
                                                            SOME (w', d', PQ'), L')
                 | (NONE, L') => traversePos (c'', Psi, I.Null,
                                              (Weaken.strengthenExp (V1, v), I.id), NONE, L'))
-
-          | traverseNeg (c'', Psi, (V as I.Root (I.Const c', S) , v), L) =
+    
+          | (* GEN CASE BRANCH *) traverseNeg (c'', Psi, (V as I.Root (I.Const c', S) , v), L) =
             if c = c' then
               let (* Clause head found *)
                 val S' = Weaken.strengthenSpine (S, v)
@@ -779,9 +779,9 @@ struct
               end
             else
               (NONE, L)
-
+    
         (* traversePos (c, Psi, G, (V, v), [w', d', PQ'], L) =  ([w'', d'', PQ''], L'')
-
+    
            Invariant:
            If   Psi, G |- V : type
            and  Psi, G |- v : Psi'       (s.t.  Psi' |- V[v^-1] : type exists)
@@ -803,19 +803,19 @@ struct
                                (V2, I.dot1 v),
                                SOME (I.dot1 w, d, PQ), L)
                of (SOME (w', d', PQ'), L') => (SOME  (w', d', PQ'), L'))
-          | traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), SOME (w, d, PQ), L) =
+          | (* GEN CASE BRANCH *) traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), SOME (w, d, PQ), L) =
             (case traversePos (c'', Psi, G, (V2, I.comp (v, I.shift)), SOME (w, d, PQ), L)
                of (SOME (w', d', PQ'), L') =>
                  (case traverseNeg (c'', I.Decl (Psi, F.Block (F.CtxBlock (NONE, G))),
                                     (V1, v), L')
                     of (SOME (w'', d'', (P'', Q'')), L'') => (SOME (w', d', PQ'), (P'' (Q'' w'')) :: L'')
                      | (NONE, L'') => (SOME (w', d', PQ'), L'')))
-
-          | traversePos (c'', Psi, I.Null, (V, v), SOME (w1, d, (P, Q)), L) =
+    
+          | (* GEN CASE BRANCH *) traversePos (c'', Psi, I.Null, (V, v), SOME (w1, d, (P, Q)), L) =
             let (* Lemma calls (no context block) *)
               val I.Root (I.Const a', S) = Whnf.normalize (Weaken.strengthenExp (V, v), I.id)
               val (Psi', w2) = strengthen (Psi, (a', S), w1, M.Minus)
-
+              
               val _ = if !Global.doubleCheck
                         then TypeCheck.typeCheck (F.makectx Psi', (I.Uni I.Type, I.Uni I.Kind))
                       else ()    (* provide typeCheckCtx from typecheck *)
@@ -825,7 +825,7 @@ struct
               (SOME (w2, d4, (fn p => P (F.Let (Ds,
                                        F.Case (F.Opts [(Psi', t4, p)]))), Q)), L)
             end
-          | traversePos (c'', Psi, G, (V, v), SOME (w1, d, (P, Q)), L) =
+          | (* GEN CASE BRANCH *) traversePos (c'', Psi, G, (V, v), SOME (w1, d, (P, Q)), L) =
             let (* Lemma calls (under a context block) *)
               val I.Root (I.Const a', S) = Weaken.strengthenExp (V, v)
               val (dummy as I.Decl (Psi', F.Block (F.CtxBlock (name, G2))), w2) =
@@ -844,23 +844,23 @@ struct
               (SOME (w2', d4, (fn p => P (F.Let (F.New (F.CtxBlock (NONE, G1), Ds),
                                        F.Case (F.Opts [(Psi', t4, p)]))), Q)), L)
             end
-
-          | traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v), NONE, L) =
+    
+          | (* GEN CASE BRANCH *) traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v), NONE, L) =
               traversePos (c'', Psi, I.Decl (G, Weaken.strengthenDec (D, v)),
                                (V2, I.dot1 v),
                                NONE, L)
-
-          | traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), NONE, L) =
+    
+          | (* GEN CASE BRANCH *) traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), NONE, L) =
             (case traversePos (c'', Psi, G, (V2, I.comp (v, I.shift)), NONE, L)
                of (NONE, L') =>
                  (case traverseNeg (c'', I.Decl (Psi, F.Block (F.CtxBlock (NONE, G))),
                                     (V1, v), L')
                     of (SOME (w'', d'', (P'', Q'')), L'') => (NONE, (P'' (Q'' w'')) :: L'')
                      | (NONE, L'') => (NONE, L'')))
-
-          | traversePos (c'', Psi, G, (V, v), NONE, L) =
+    
+          | (* GEN CASE BRANCH *) traversePos (c'', Psi, G, (V, v), NONE, L) =
             (NONE, L)
-
+    
         fun traverseSig' (c'', L) =
           if c'' = #1 (I.sgnSize ()) then L
           else
@@ -894,16 +894,16 @@ struct
             val mS = case ModeTable.modeLookup a
                        of NONE => raise Error "Mode declaration expected"
                         | SOME mS => mS
-
+    
             val P = abstract a
           in
             P (F.Case (F.Opts (traverse (Ts, a))))
           end
-
+    
         fun convertPro' nil = raise Error "Cannot convert Empty program"
-          | convertPro' [a] = convertOnePro a
-          | convertPro' (a :: Ts') = F.Pair (convertOnePro a, convertPro' Ts')
-
+          | (* GEN CASE BRANCH *) convertPro' [a] = convertOnePro a
+          | (* GEN CASE BRANCH *) convertPro' (a :: Ts') = F.Pair (convertOnePro a, convertPro' Ts')
+    
         val R = recursion Ts
       in
         R (convertPro' Ts)

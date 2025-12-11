@@ -45,18 +45,18 @@ struct
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
-      | transformOrder' (G, Order.Lex Os) =
+      | (* GEN CASE BRANCH *) transformOrder' (G, Order.Lex Os) =
           S.Lex (map (fn O => transformOrder' (G, O)) Os)
-      | transformOrder' (G, Order.Simul Os) =
+      | (* GEN CASE BRANCH *) transformOrder' (G, Order.Simul Os) =
           S.Simul (map (fn O => transformOrder' (G, O)) Os)
 
     fun transformOrder (G, F.All (F.Prim D, F), Os) =
           S.All (D, transformOrder (I.Decl (G, D), F, Os))
-      | transformOrder (G, F.And (F1, F2), O :: Os) =
+      | (* GEN CASE BRANCH *) transformOrder (G, F.And (F1, F2), O :: Os) =
           S.And (transformOrder (G, F1, [O]),
                  transformOrder (G, F2, Os))
-      | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
-      | transformOrder (G, F.True, [O]) = transformOrder' (G, O)
+      | (* GEN CASE BRANCH *) transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
+      | (* GEN CASE BRANCH *) transformOrder (G, F.True, [O]) = transformOrder' (G, O)
         (* last case: no existentials---order must be trivial *)
 
     fun select c = (Order.selLookup c handle _ => Order.Lex [])
@@ -78,7 +78,7 @@ struct
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
     fun contains (nil, _) = true
-      | contains (x :: L, L') =
+      | (* GEN CASE BRANCH *) contains (x :: L, L') =
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     (* equiv (L1, L2) = B'
@@ -106,9 +106,9 @@ struct
        then s is a string, listing their names
     *)
     fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
+      | (* GEN CASE BRANCH *) cLToString (c :: nil) =
           (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
+      | (* GEN CASE BRANCH *) cLToString (c :: L) =
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
     (* init (k, cL) = ()
@@ -127,7 +127,7 @@ struct
                     handle Order.Error _ => cL  (* if no termination ordering given! *)
           val F = RelFun.convertFor cL
           val O = transformOrder (I.Null, F, map select cL)
-
+    
         in
           if equiv (cL, cL')
             then List.app (fn S => insertState S) (MTPInit.init (F, O))
@@ -148,7 +148,7 @@ struct
                   | Filling.Error s => error ("Filling Error: " ^ s)
                   | Recursion.Error s => error ("Recursion Error: " ^ s)
                   | Filling.TimeOut =>  error ("A proof could not be found -- Exceeding Time Limit\n")
-
+    
           val _ = openStates := Open
           val _ = solvedStates := (!solvedStates) @ solvedStates'
         in

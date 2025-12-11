@@ -45,30 +45,30 @@ struct
 
     and matchVal (Psi, (T.Unit, _), T.Unit) = ()
 
-      | matchVal (Psi, (T.PairPrg (P1, P1'), t1), T.PairPrg (P2, P2')) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (T.PairPrg (P1, P1'), t1), T.PairPrg (P2, P2')) =
          (matchVal (Psi, (P1, t1), P2);
           matchVal (Psi, (P1', t1), P2'))
 
-      | matchVal (Psi, (T.PairBlock (B1, P1), t1), T.PairBlock (B2, P2)) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (T.PairBlock (B1, P1), t1), T.PairBlock (B2, P2)) =
          (matchVal (Psi, (P1, t1), P2);
           Unify.unifyBlock (T.coerceCtx Psi, I.blockSub (B1, T.coerceSub t1), B2)
           handle Unify.Unify _ => raise NoMatch)
 
-      | matchVal (Psi, (T.PairExp (U1, P1), t1), T.PairExp (U2, P2)) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (T.PairExp (U1, P1), t1), T.PairExp (U2, P2)) =
          (matchVal (Psi, (P1, t1), P2);
           Unify.unify (T.coerceCtx Psi, (U1, T.coerceSub t1), (U2, I.id))
           handle Unify.Unify _ => raise NoMatch)
 
-      | matchVal (Psi, (T.PClo (P, t1'), t1), Pt) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (T.PClo (P, t1'), t1), Pt) =
           matchVal (Psi, (P, T.comp (t1', t1)), Pt)
 
       (* Added by ABP *)
 
-      | matchVal (Psi, (P',t1), T.PClo(T.PClo (P, t2), t3)) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (P',t1), T.PClo(T.PClo (P, t2), t3)) =
          (* ABP -- Do we need this? I added it *)
          matchVal (Psi, (P',t1), T.PClo(P, T.comp (t2, t3)))
 
-      | matchVal (Psi, (P',t1), T.PClo(T.EVar (_, r as ref NONE, _, _, _, _), t2)) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (P',t1), T.PClo(T.EVar (_, r as ref NONE, _, _, _, _), t2)) =
          let
            val iw = T.invertSub t2
          in
@@ -76,18 +76,18 @@ struct
            r := SOME (T.PClo (P', T.comp(t1, iw)))
          end
 
-      | matchVal (Psi, (P', t1), T.EVar (_, r as ref NONE, _, _, _, _)) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (P', t1), T.EVar (_, r as ref NONE, _, _, _, _)) =
          r := SOME (T.PClo (P', t1))
 
-      | matchVal (Psi, (V,t), T.EVar ((D, r as ref (SOME P), F, _, _, _))) =
+      | (* GEN CASE BRANCH *) matchVal (Psi, (V,t), T.EVar ((D, r as ref (SOME P), F, _, _, _))) =
          (* ABP -- this should never occur, since we normalized it to start *)
          matchVal (Psi, (V,t), P)
 
-     | matchVal _ = raise NoMatch
+     | (* GEN CASE BRANCH *) matchVal _ = raise NoMatch
 
 
     fun append (G1, I.Null) = G1
-      | append (G1, I.Decl (G2, D)) = I.Decl (append (G1, G2), D)
+      | (* GEN CASE BRANCH *) append (G1, I.Decl (G2, D)) = I.Decl (append (G1, G2), D)
 
 (* raisePrg is used in handling of NEW construct
    raisePrg (G, P, F) = (P', F'))
@@ -100,25 +100,25 @@ struct
        and  F = raise (G, F')   (using subordination)
 *)
 and raisePrg (Psi, G, T.Unit) = T.Unit
-      | raisePrg (Psi, G, T.PairPrg (P1, P2)) =
+      | (* GEN CASE BRANCH *) raisePrg (Psi, G, T.PairPrg (P1, P2)) =
         let
           val P1' = raisePrg (Psi, G, P1)
           val P2' = raisePrg (Psi, G, P2)
         in
           T.PairPrg (P1', P2')
         end
-      | raisePrg (Psi, G, T.PairExp (U, P)) =
+      | (* GEN CASE BRANCH *) raisePrg (Psi, G, T.PairExp (U, P)) =
         let
           val V = TypeCheck.infer' (append (T.coerceCtx Psi, G), U)
-   (* this is a real time sink, it would be much better if we did not have to
+         (* this is a real time sink, it would be much better if we did not have to
       compute the type information of U,
       more thought is required
-   *)
+         *)
           val w = S.weaken (G, I.targetFam V)
                                                    (* G  |- w  : G'    *)
           val iw = Whnf.invert w                    (* G' |- iw : G     *)
           val G' = Whnf.strengthen (iw, G)        (* Psi0, G' |- B'' ctx *)
-
+      
           val U' = A.raiseTerm (G', I.EClo (U, iw))
           val P' = raisePrg (Psi, G, P)
         in
@@ -139,41 +139,41 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
     *)
     and evalPrg (Psi, (T.Unit, t)) = T.Unit
 
-      | evalPrg (Psi, (T.PairExp (M, P), t))  =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.PairExp (M, P), t))  =
           T.PairExp (I.EClo (M, T.coerceSub t), evalPrg (Psi, (P, t)))
 
-      | evalPrg (Psi, (T.PairBlock (B, P), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.PairBlock (B, P), t)) =
           T.PairBlock (I.blockSub (B, T.coerceSub t), evalPrg (Psi, (P, t)))
 
-      | evalPrg (Psi, (T.PairPrg (P1, P2), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.PairPrg (P1, P2), t)) =
           T.PairPrg (evalPrg (Psi, (P1, t)), evalPrg (Psi, (P2, t)))
 
-      | evalPrg (Psi, (T.Redex (P, S), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Redex (P, S), t)) =
           evalRedex (Psi, evalPrg (Psi, (P, t)), (S, t))
 
-      | evalPrg (Psi, (T.Var k, t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Var k, t)) =
           (case T.varSub (k, t)
             of T.Prg P =>  evalPrg (Psi, (P, T.id)))
 
-      | evalPrg (Psi, (T.Const lemma, t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Const lemma, t)) =
             evalPrg (Psi, (T.lemmaDef lemma, t))
 
-      | evalPrg (Psi, (T.Lam (D as T.UDec (I.BDec _), P), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Lam (D as T.UDec (I.BDec _), P), t)) =
           let
             val D' = T.decSub (D, t)
           in
             T.Lam (D', evalPrg (I.Decl (Psi, D'), (P, T.dot1 t)))
           end
-      | evalPrg (Psi, (T.Lam (D, P), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Lam (D, P), t)) =
           T.Lam (T.decSub (D, t), T.PClo (P, T.dot1 t))
 
-      | evalPrg (Psi, (P' as T.Rec (D, P), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (P' as T.Rec (D, P), t)) =
          evalPrg (Psi, (P, T.Dot (T.Prg (T.PClo (P', t)), t)))
 
-      | evalPrg (Psi, (T.PClo (P, t'), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.PClo (P, t'), t)) =
           evalPrg (Psi, (P, T.comp (t', t)))
 
-      | evalPrg (Psi, (T.Case (T.Cases O), t')) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Case (T.Cases O), t')) =
           (* this is ugly.
            * don't do reverse *)
          (* reverse list O, so it looks at the
@@ -181,10 +181,10 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
            *)
           match (Psi, t', T.Cases (rev O))
 
-      | evalPrg (Psi, (T.EVar (D, r as ref (SOME P), F, _, _, _), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.EVar (D, r as ref (SOME P), F, _, _, _), t)) =
           evalPrg (Psi, (P, t))
 
-      | evalPrg (Psi, (T.Let (D, P1, P2), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Let (D, P1, P2), t)) =
           let
             val V = evalPrg (Psi, (P1, t))
             val V' = evalPrg (Psi, (P2, T.Dot (T.Prg V, t)))
@@ -192,7 +192,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
             V'
           end
 
-      | evalPrg (Psi, (T.New (T.Lam (D, P)), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.New (T.Lam (D, P)), t)) =
            let
              val D' = T.decSub (D, t)
              val T.UDec (D'') = D'
@@ -205,13 +205,13 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
              newP
            end
 
-      | evalPrg (Psi, (T.Box (W, P), t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Box (W, P), t)) =
            evalPrg (Psi, (P, t))
-      | evalPrg (Psi, (T.Choose P, t)) =
+      | (* GEN CASE BRANCH *) evalPrg (Psi, (T.Choose P, t)) =
            let
-
+      
              (* This function was imported from cover.fun   -- cs Thu Mar 20 11:47:06 2003 *)
-
+      
              (* substtospine' (s, G, T) = S @ T
                 If   G' |- s : G
                 then G' |- S : {{G}} a >> a  for arbitrary a
@@ -229,9 +229,9 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
                    in
                      substToSpine' (s, G, T.AppExp (I.EClo Us, T))
                    end
-
-
-
+      
+      
+      
              fun choose (k, I.Null) = raise Abort
                | choose (k, I.Decl (Psi', T.PDec _)) =
                    choose (k+1, Psi')
@@ -244,7 +244,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
                    in
                      evalPrg (Psi, (T.Redex (T.PClo (P, t), S), T.id)) handle Abort => choose (k+1, Psi')
                    end
-
+      
            in
              choose (1, Psi)
            end
@@ -272,7 +272,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
           (* val I.Null = Psi *)
           val t = createVarSub (Psi, Psi') (* Psi |- t : Psi' *)
                                           (* Psi' |- t2 . shift(k) : Psi'' *)
-
+    
           val t' = T.comp (t2, t)
         in
           (* Note that since we are missing the shift(k), it is possible
@@ -281,7 +281,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
            evalPrg (Psi, (P, (*T.normalizeSub*) t)))
           handle NoMatch => match (Psi, t1, T.Cases C)
         end
-      | match (Psi, t1, T.Cases (nil)) = raise Abort
+      | (* GEN CASE BRANCH *) match (Psi, t1, T.Cases (nil)) = raise Abort
 
       (* What do you want to do if it doesn't match anything *)
       (* can't happen when total function - ABP *)
@@ -297,7 +297,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
     *)
     and createVarSub (Psi, I.Null) = T.Shift(I.ctxLength(Psi))
 
-      | createVarSub (Psi, Psi'' as I.Decl (Psi', T.PDec (name, F, NONE, NONE))) =
+      | (* GEN CASE BRANCH *) createVarSub (Psi, Psi'' as I.Decl (Psi', T.PDec (name, F, NONE, NONE))) =
         let
           val t = createVarSub (Psi, Psi')
           val t' = T.Dot (T.Prg (T.newEVarTC (Psi, T.forSub(F,t), NONE, NONE)), t)
@@ -305,15 +305,15 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
           t'
         end
 
-      | createVarSub (Psi, I.Decl (Psi', T.UDec (I.Dec (name, V)))) =
+      | (* GEN CASE BRANCH *) createVarSub (Psi, I.Decl (Psi', T.UDec (I.Dec (name, V)))) =
         let
           val t = createVarSub (Psi, Psi')
         in
-
+      
           T.Dot (T.Exp (I.EVar (ref NONE, T.coerceCtx Psi, I.EClo (V, T.coerceSub t), ref [])), t)
         end
 
-      | createVarSub (Psi, I.Decl (Psi', T.UDec (I.BDec (name, (cid, s))))) =
+      | (* GEN CASE BRANCH *) createVarSub (Psi, I.Decl (Psi', T.UDec (I.BDec (name, (cid, s))))) =
         let
           val t = createVarSub (Psi, Psi')
         in
@@ -333,41 +333,41 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
     *)
 
     and matchSub (Psi, _, T.Shift _) = () (* By Invariant *)
-      | matchSub (Psi, T.Shift n, t as T.Dot _) =  matchSub (Psi, T.Dot (T.Idx (n+1), T.Shift (n+1)), t)
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Shift n, t as T.Dot _) =  matchSub (Psi, T.Dot (T.Idx (n+1), T.Shift (n+1)), t)
 
-      | matchSub (Psi, T.Dot (T.Exp U1, t1), T.Dot (T.Exp U2, t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Exp U1, t1), T.Dot (T.Exp U2, t2)) =
           (matchSub (Psi, t1, t2);
            Unify.unify (T.coerceCtx Psi, (U1, I.id), (U2, I.id)) handle Unify.Unify s => raise NoMatch)
 
-      | matchSub (Psi, T.Dot (T.Exp U1, t1), T.Dot (T.Idx k, t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Exp U1, t1), T.Dot (T.Idx k, t2)) =
           ( matchSub (Psi, t1, t2);
            Unify.unify (T.coerceCtx Psi, (U1, I.id), (I.Root (I.BVar k, I.Nil), I.id)) handle Unify.Unify _ => raise NoMatch)
 
-      | matchSub (Psi, T.Dot (T.Idx k, t1), T.Dot (T.Exp U2, t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Idx k, t1), T.Dot (T.Exp U2, t2)) =
           ( matchSub (Psi, t1, t2);
            Unify.unify (T.coerceCtx Psi, (I.Root (I.BVar k, I.Nil), I.id), (U2, I.id)) handle Unify.Unify _ => raise NoMatch )
 
 
-      | matchSub (Psi, T.Dot (T.Prg P1, t1), T.Dot (T.Prg P2, t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Prg P1, t1), T.Dot (T.Prg P2, t2)) =
           ( matchSub (Psi, t1, t2);
            matchPrg (Psi, P1, P2))
-      | matchSub (Psi, T.Dot (T.Prg P1, t1), T.Dot (T.Idx k, t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Prg P1, t1), T.Dot (T.Idx k, t2)) =
           (matchSub (Psi, t1, t2);
            matchPrg (Psi, P1, T.Var k))
-      | matchSub (Psi, T.Dot (T.Idx k, t1), T.Dot (T.Prg P2, t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Idx k, t1), T.Dot (T.Prg P2, t2)) =
           (matchSub (Psi, t1, t2);
            matchPrg (Psi, T.Var k, P2))
-      | matchSub (Psi, T.Dot (T.Idx k1, t1), T.Dot (T.Idx k2, t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Idx k1, t1), T.Dot (T.Idx k2, t2)) =
           (if k1 = k2 then matchSub (Psi, t1, t2) else raise NoMatch)
 
-      | matchSub (Psi, T.Dot (T.Idx k, t1), T.Dot (T.Block (I.LVar (r, s1, (c,s2))), t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Idx k, t1), T.Dot (T.Block (I.LVar (r, s1, (c,s2))), t2)) =
         let
           val s1' = Whnf.invert s1
           val _ = r := SOME (I.blockSub (I.Bidx k, s1'))
         in
           matchSub (Psi, t1, t2)
         end
-      | matchSub (Psi, T.Dot (T.Block (B), t1), T.Dot (T.Block (I.LVar (r, s1, (c,s2))), t2)) =
+      | (* GEN CASE BRANCH *) matchSub (Psi, T.Dot (T.Block (B), t1), T.Dot (T.Block (I.LVar (r, s1, (c,s2))), t2)) =
         let
           val s1' = Whnf.invert s1
           val _ = r := SOME (I.blockSub (B, s1'))
@@ -389,17 +389,17 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
     *)
 
   and evalRedex (Psi, V, (T.Nil, _)) = V
-    | evalRedex (Psi, V, (T.SClo (S, t1), t2)) =
+    | (* GEN CASE BRANCH *) evalRedex (Psi, V, (T.SClo (S, t1), t2)) =
           evalRedex (Psi, V, (S, T.comp (t1, t2)))
-    | evalRedex (Psi, T.Lam (T.UDec (I.Dec (_, A)), P'), (T.AppExp (U, S), t)) =
+    | (* GEN CASE BRANCH *) evalRedex (Psi, T.Lam (T.UDec (I.Dec (_, A)), P'), (T.AppExp (U, S), t)) =
       let
         val V = evalPrg (Psi, (P', T.Dot (T.Exp (I.EClo (U, T.coerceSub t)), T.id)))
       in
         evalRedex (Psi, V, (S, t))
       end
-    | evalRedex (Psi, T.Lam (T.UDec _, P'), (T.AppBlock (B, S), t)) =
+    | (* GEN CASE BRANCH *) evalRedex (Psi, T.Lam (T.UDec _, P'), (T.AppBlock (B, S), t)) =
           evalRedex (Psi, evalPrg (Psi, (P', T.Dot (T.Block (I.blockSub (B, T.coerceSub t)), T.id))), (S, t))
-    | evalRedex (Psi, T.Lam (T.PDec _, P'), (T.AppPrg (P, S), t)) =
+    | (* GEN CASE BRANCH *) evalRedex (Psi, T.Lam (T.PDec _, P'), (T.AppPrg (P, S), t)) =
           let
             val V = evalPrg (Psi, (P, t))
             val V' = evalPrg (Psi, (P', T.Dot (T.Prg V, T.id)))
@@ -417,14 +417,14 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
     *)
     fun topLevel (Psi, d, (T.Unit, t)) = ()
-      | topLevel (Psi, d, (T.Let (D', P1, T.Case Cs), t)) =
+      | (* GEN CASE BRANCH *) topLevel (Psi, d, (T.Let (D', P1, T.Case Cs), t)) =
         (* lf value definition *)
         let
           (* printLF (G, s, G') k = ()
              Invariant:
              G |- s : G'
           *)
-
+      
           fun printLF (_, _, _) 0 = ()
             | printLF (G, I.Dot (I.Exp U, s'), I.Decl (G', I.Dec (SOME name, V))) k =
               let
@@ -433,7 +433,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
                 print ("def " ^ name ^ " = "  ^ (Print.expToString (G, U))
                        ^ " : " ^ (Print.expToString (G, I.EClo (V, s'))) ^ "\n")
               end
-
+      
           fun match (Psi, t1, T.Cases ((Psi', t2, P) :: C)) =
               let
                 val t = createVarSub (Psi, Psi') (* Psi |- t : Psi' *)
@@ -451,7 +451,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
         in
           V'
         end
-      | topLevel (Psi, d, (T.Let (D,  T.Lam (D' as T.UDec (I.BDec (SOME name, (cid, s))), P1), P2), t)) =
+      | (* GEN CASE BRANCH *) topLevel (Psi, d, (T.Let (D,  T.Lam (D' as T.UDec (I.BDec (SOME name, (cid, s))), P1), P2), t)) =
         (* new declaration *)
         let
           val _ = print ("new " ^ name ^ "\n")
@@ -460,7 +460,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
         in
           ()
         end
-      | topLevel (Psi, d, (T.Let (D, P1, P2), t)) =
+      | (* GEN CASE BRANCH *) topLevel (Psi, d, (T.Let (D, P1, P2), t)) =
         (* function definition *)
         let
           val T.PDec (SOME name, F, _, _) = D

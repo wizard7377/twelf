@@ -37,22 +37,22 @@ struct
          Neither U nor U' needs to be a pattern
          *)
     fun simplify nil = nil
-      | simplify ((ref I.Solved) :: cnstrs) =
+      | (* GEN CASE BRANCH *) simplify ((ref I.Solved) :: cnstrs) =
           simplify cnstrs
-      | simplify ((Eqn as ref (I.Eqn (G, U1, U2))) :: cnstrs) =
+      | (* GEN CASE BRANCH *) simplify ((Eqn as ref (I.Eqn (G, U1, U2))) :: cnstrs) =
         if Conv.conv ((U1, I.id), (U2, I.id))
           then simplify cnstrs
         else Eqn :: (simplify cnstrs)
-      | simplify ((FgnCnstr as ref (I.FgnCnstr csfc)) :: cnstrs) =
+      | (* GEN CASE BRANCH *) simplify ((FgnCnstr as ref (I.FgnCnstr csfc)) :: cnstrs) =
         if I.FgnCnstrStd.Simplify.apply csfc ()
           then simplify cnstrs
         else FgnCnstr :: (simplify cnstrs)
 
     fun namesToString (name::nil) = name ^ "."
-      | namesToString (name::names) = name ^ ", " ^ namesToString names
+      | (* GEN CASE BRANCH *) namesToString (name::names) = name ^ ", " ^ namesToString names
 
     fun warnConstraints (nil) = ()
-      | warnConstraints (names) = print ("Constraints remain on " ^ namesToString names ^ "\n")
+      | (* GEN CASE BRANCH *) warnConstraints (names) = print ("Constraints remain on " ^ namesToString names ^ "\n")
 
   in
     val simplify = simplify

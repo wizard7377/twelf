@@ -21,24 +21,24 @@ struct
   (* Illegal constituents: \ _ $ # *)
   (* { } are also special, but cannot occur in identifiers *)
   fun quoteChar #"\\" = "\\\\"
-    | quoteChar #"_" = "\\_"
-    | quoteChar #"$" = "\\$"
-    | quoteChar #"#" = "\\#"
-    | quoteChar #"'" = "$'$"            (* not in math mode *)
-    | quoteChar #"<" = "$<$"            (* not in math mode *)
-    | quoteChar #">" = "$>$"            (* not in math mode *)
-    | quoteChar #"^" = "\\^{\\ }"
-    | quoteChar #"0" = "$_0$"
-    | quoteChar #"1" = "$_1$"
-    | quoteChar #"2" = "$_2$"
-    | quoteChar #"3" = "$_3$"
-    | quoteChar #"4" = "$_4$"
-    | quoteChar #"5" = "$_5$"
-    | quoteChar #"6" = "$_6$"
-    | quoteChar #"7" = "$_7$"
-    | quoteChar #"8" = "$_8$"
-    | quoteChar #"9" = "$_9$"
-    | quoteChar c = String.str c
+    | (* GEN CASE BRANCH *) quoteChar #"_" = "\\_"
+    | (* GEN CASE BRANCH *) quoteChar #"$" = "\\$"
+    | (* GEN CASE BRANCH *) quoteChar #"#" = "\\#"
+    | (* GEN CASE BRANCH *) quoteChar #"'" = "$'$"            (* not in math mode *)
+    | (* GEN CASE BRANCH *) quoteChar #"<" = "$<$"            (* not in math mode *)
+    | (* GEN CASE BRANCH *) quoteChar #">" = "$>$"            (* not in math mode *)
+    | (* GEN CASE BRANCH *) quoteChar #"^" = "\\^{\\ }"
+    | (* GEN CASE BRANCH *) quoteChar #"0" = "$_0$"
+    | (* GEN CASE BRANCH *) quoteChar #"1" = "$_1$"
+    | (* GEN CASE BRANCH *) quoteChar #"2" = "$_2$"
+    | (* GEN CASE BRANCH *) quoteChar #"3" = "$_3$"
+    | (* GEN CASE BRANCH *) quoteChar #"4" = "$_4$"
+    | (* GEN CASE BRANCH *) quoteChar #"5" = "$_5$"
+    | (* GEN CASE BRANCH *) quoteChar #"6" = "$_6$"
+    | (* GEN CASE BRANCH *) quoteChar #"7" = "$_7$"
+    | (* GEN CASE BRANCH *) quoteChar #"8" = "$_8$"
+    | (* GEN CASE BRANCH *) quoteChar #"9" = "$_9$"
+    | (* GEN CASE BRANCH *) quoteChar c = String.str c
 
   fun quote s = String.translate quoteChar s
 
@@ -73,18 +73,18 @@ struct
   fun fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
 
   fun sym "->" = ("$\\rightarrow$", 1)
-    | sym "<-" = ("$\\leftarrow$", 1)
-    | sym "{" = ("$\\Pi$", 1)
-    | sym "}" = (".", 1)
-    | sym "[" = ("$\\lambda$", 1)
-    | sym "]" = (".", 1)
-    | sym "type" = ("{\\Type}", 4)
-    | sym "kind" = ("{\\Kind}", 4)
-    | sym "_" = ("\\_", 1)
-    | sym "..." = ("$\\ldots$", 3)
-    | sym "%%" = ("%%", 2)              (* itself, for now *)
-    | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
-    | sym s = (s, String.size s)        (* ():.= *)
+    | (* GEN CASE BRANCH *) sym "<-" = ("$\\leftarrow$", 1)
+    | (* GEN CASE BRANCH *) sym "{" = ("$\\Pi$", 1)
+    | (* GEN CASE BRANCH *) sym "}" = (".", 1)
+    | (* GEN CASE BRANCH *) sym "[" = ("$\\lambda$", 1)
+    | (* GEN CASE BRANCH *) sym "]" = (".", 1)
+    | (* GEN CASE BRANCH *) sym "type" = ("{\\Type}", 4)
+    | (* GEN CASE BRANCH *) sym "kind" = ("{\\Kind}", 4)
+    | (* GEN CASE BRANCH *) sym "_" = ("\\_", 1)
+    | (* GEN CASE BRANCH *) sym "..." = ("$\\ldots$", 3)
+    | (* GEN CASE BRANCH *) sym "%%" = ("%%", 2)              (* itself, for now *)
+    | (* GEN CASE BRANCH *) sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
+    | (* GEN CASE BRANCH *) sym s = (s, String.size s)        (* ():.= *)
 
 end;  (* functor SymbolTeX *)
 
@@ -95,21 +95,21 @@ struct
   (* Illegal constituents: \ _ $ # *)
   (* { } are also special, but cannot occur in identifiers *)
   fun quoteChar #"\\" = "\\\\"
-    | quoteChar #"_" = "\\_"
-    | quoteChar #"$" = "\\$"
-    | quoteChar #"#" = "\\#"
-    | quoteChar #"^" = "\\^{\\ }"
-    | quoteChar #"0" = "$_0$"
-    | quoteChar #"1" = "$_1$"
-    | quoteChar #"2" = "$_2$"
-    | quoteChar #"3" = "$_3$"
-    | quoteChar #"4" = "$_4$"
-    | quoteChar #"5" = "$_5$"
-    | quoteChar #"6" = "$_6$"
-    | quoteChar #"7" = "$_7$"
-    | quoteChar #"8" = "$_8$"
-    | quoteChar #"9" = "$_9$"
-    | quoteChar c = String.str c
+    | (* GEN CASE BRANCH *) quoteChar #"_" = "\\_"
+    | (* GEN CASE BRANCH *) quoteChar #"$" = "\\$"
+    | (* GEN CASE BRANCH *) quoteChar #"#" = "\\#"
+    | (* GEN CASE BRANCH *) quoteChar #"^" = "\\^{\\ }"
+    | (* GEN CASE BRANCH *) quoteChar #"0" = "$_0$"
+    | (* GEN CASE BRANCH *) quoteChar #"1" = "$_1$"
+    | (* GEN CASE BRANCH *) quoteChar #"2" = "$_2$"
+    | (* GEN CASE BRANCH *) quoteChar #"3" = "$_3$"
+    | (* GEN CASE BRANCH *) quoteChar #"4" = "$_4$"
+    | (* GEN CASE BRANCH *) quoteChar #"5" = "$_5$"
+    | (* GEN CASE BRANCH *) quoteChar #"6" = "$_6$"
+    | (* GEN CASE BRANCH *) quoteChar #"7" = "$_7$"
+    | (* GEN CASE BRANCH *) quoteChar #"8" = "$_8$"
+    | (* GEN CASE BRANCH *) quoteChar #"9" = "$_9$"
+    | (* GEN CASE BRANCH *) quoteChar c = String.str c
 
   fun quote s = String.translate quoteChar s
 
@@ -144,17 +144,17 @@ struct
   fun fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
 
   fun sym "->" = ("$\\rightarrow$", 1)
-    | sym "<-" = ("$\\leftarrow$", 1)
-    | sym "{" = ("$\\Pi$", 1)
-    | sym "}" = (".", 1)
-    | sym "[" = ("$\\lambda$", 1)
-    | sym "]" = (".", 1)
-    | sym "type" = ("{\\Type}", 4)
-    | sym "kind" = ("{\\Kind}", 4)
-    | sym "_" = ("\\_", 1)
-    | sym "..." = ("$\\ldots$", 3)
-    | sym "%%" = ("%%", 2)              (* itself, for now *)
-    | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
-    | sym s = (s, String.size s)        (* ():.= *)
+    | (* GEN CASE BRANCH *) sym "<-" = ("$\\leftarrow$", 1)
+    | (* GEN CASE BRANCH *) sym "{" = ("$\\Pi$", 1)
+    | (* GEN CASE BRANCH *) sym "}" = (".", 1)
+    | (* GEN CASE BRANCH *) sym "[" = ("$\\lambda$", 1)
+    | (* GEN CASE BRANCH *) sym "]" = (".", 1)
+    | (* GEN CASE BRANCH *) sym "type" = ("{\\Type}", 4)
+    | (* GEN CASE BRANCH *) sym "kind" = ("{\\Kind}", 4)
+    | (* GEN CASE BRANCH *) sym "_" = ("\\_", 1)
+    | (* GEN CASE BRANCH *) sym "..." = ("$\\ldots$", 3)
+    | (* GEN CASE BRANCH *) sym "%%" = ("%%", 2)              (* itself, for now *)
+    | (* GEN CASE BRANCH *) sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
+    | (* GEN CASE BRANCH *) sym s = (s, String.size s)        (* ():.= *)
 
 end;  (* functor SymbolTeXcd *)

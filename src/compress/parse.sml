@@ -29,47 +29,47 @@ struct
   fun PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t)
 
   fun modeToString mMINUS = ""
-    | modeToString mPLUS = "+ "
-    | modeToString mOMIT = "* "
+    | (* GEN CASE BRANCH *) modeToString mPLUS = "+ "
+    | (* GEN CASE BRANCH *) modeToString mOMIT = "* "
 
   fun termToString (Id s) = s
-    | termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
-    | termToString (Lam (vd, t)) = "[" ^ (vardecToString vd) ^ "] " ^ (termToString t)
-    | termToString (Pi (m, vd, t)) = "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t)
-    | termToString (Type) = "type"
-    | termToString (Arrow (t, u)) = "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")"
-    | termToString (PlusArrow (t, u)) = "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")"
-    | termToString (Ascribe (t, u)) = "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")"
-    | termToString (Omit) = "*"
+    | (* GEN CASE BRANCH *) termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
+    | (* GEN CASE BRANCH *) termToString (Lam (vd, t)) = "[" ^ (vardecToString vd) ^ "] " ^ (termToString t)
+    | (* GEN CASE BRANCH *) termToString (Pi (m, vd, t)) = "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t)
+    | (* GEN CASE BRANCH *) termToString (Type) = "type"
+    | (* GEN CASE BRANCH *) termToString (Arrow (t, u)) = "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")"
+    | (* GEN CASE BRANCH *) termToString (PlusArrow (t, u)) = "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")"
+    | (* GEN CASE BRANCH *) termToString (Ascribe (t, u)) = "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")"
+    | (* GEN CASE BRANCH *) termToString (Omit) = "*"
   and vardecToString (v, SOME t) = v ^ ":" ^ (termToString t)
-    | vardecToString (v, NONE) = v
+    | (* GEN CASE BRANCH *) vardecToString (v, NONE) = v
 
   val id = maybe (fn (ID s) => SOME s | _ => NONE)
 
   fun swap(x,y) = (y,x)
 
   fun vardec() = id << `COLON && ($term wth SOME) ||
-		 id wth (fn s => (s, NONE)) 
+  		 id wth (fn s => (s, NONE)) 
   and term() = parsefixityadj (
-	       alt[id wth (Atm o Id),
-		   `LPAREN >> $term << `RPAREN wth Atm,
-		   `LPAREN >> $term << `COLON &&
-			   $term << `RPAREN wth (Atm o Ascribe),
-		   `LBRACKET >> $vardec << `RBRACKET && $term wth (Atm o Lam),
-		   `LBRACE >> `STAR >> $vardec << `RBRACE && $term wth (Atm o PiOmit),
-		   `LBRACE >> `PLUS >> $vardec << `RBRACE && $term wth (Atm o PiPlus),
-		   `LBRACE >> $vardec << `RBRACE && $term wth (Atm o PiMinus),
-		   `TYPE return (Atm Type),
-		   `ARROW return Opr(Infix(Right, 5, Arrow)),
-		   `PLUSARROW return Opr(Infix(Right, 5, PlusArrow)),
-		   `BACKARROW return Opr(Infix(Left, 5, Arrow o swap)),
-		   `STAR return (Atm Omit)
-		  ]) Left App
+  	       alt[id wth (Atm o Id),
+  		   `LPAREN >> $term << `RPAREN wth Atm,
+  		   `LPAREN >> $term << `COLON &&
+  			   $term << `RPAREN wth (Atm o Ascribe),
+  		   `LBRACKET >> $vardec << `RBRACKET && $term wth (Atm o Lam),
+  		   `LBRACE >> `STAR >> $vardec << `RBRACE && $term wth (Atm o PiOmit),
+  		   `LBRACE >> `PLUS >> $vardec << `RBRACE && $term wth (Atm o PiPlus),
+  		   `LBRACE >> $vardec << `RBRACE && $term wth (Atm o PiMinus),
+  		   `TYPE return (Atm Type),
+  		   `ARROW return Opr(Infix(Right, 5, Arrow)),
+  		   `PLUSARROW return Opr(Infix(Right, 5, PlusArrow)),
+  		   `BACKARROW return Opr(Infix(Left, 5, Arrow o swap)),
+  		   `STAR return (Atm Omit)
+  		  ]) Left App
 		   
   val condec = (opt (`MINUS) wth (not o Option.isSome)) && id << `COLON && $term << `DOT
 
 
   fun parseof x =  Stream.toList (Parsing.transform ($term)
-				 (Parsing.transform (!!tok)
-				  (Pos.markstream (StreamUtil.stostream (x ^ "\n%.")))))
+  				 (Parsing.transform (!!tok)
+  				  (Pos.markstream (StreamUtil.stostream (x ^ "\n%.")))))
 end

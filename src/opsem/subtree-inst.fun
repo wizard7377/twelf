@@ -66,7 +66,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
   fun delete (x, L : ctx ) =
     let
       fun del (x, [], L) = NONE
-        | del (x, ((H as (y,E))::L), L') =
+        | (* GEN CASE BRANCH *) del (x, ((H as (y,E))::L), L') =
             if x = y then SOME((y,E), (rev L')@ L) else del(x, L, H::L')
     in
       case del (x, (!L), [])
@@ -77,9 +77,9 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
   fun member (x, L:ctx) =
     let
       fun memb (x, []) = NONE
-        | memb (x, (H as (y,E as IntSyn.Dec(n,U))::L)) =
+        | (* GEN CASE BRANCH *) memb (x, (H as (y,E as IntSyn.Dec(n,U))::L)) =
             if x = y then SOME(y,E) else memb(x, L)
-        | memb (x, (H as (y,E as IntSyn.ADec(n,d))::L)) =
+        | (* GEN CASE BRANCH *) memb (x, (H as (y,E as IntSyn.ADec(n,d))::L)) =
             (if x = y then SOME((y,E)) else memb(x, L))
     in
       memb (x, (!L))
@@ -162,34 +162,34 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     fun expToS (G,U) = (Print.expToString (G, U) handle _ => " <_ >")
 
     fun printSub (G, I.Shift n) = print ("I.Shift " ^ Int.toString n ^ "\n")
-      | printSub (G, I.Dot(I.Idx n, s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot(I.Idx n, s)) =
         (print ("Idx " ^ Int.toString n ^ " . "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EVar (ref(SOME(U)),_ ,  _, _)), s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Exp(X as I.EVar (ref(SOME(U)),_ ,  _, _)), s)) =
         (print ("Exp ( EVar " ^ expToS(G, X) ^ ").")  ; printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EVar (_, _, _, _)), s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Exp(X as I.EVar (_, _, _, _)), s)) =
         (print ("Exp ( EVar  " ^ expToS(G, X) ^ ").")  ; printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(I.AVar (_)), s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Exp(I.AVar (_)), s)) =
         (print ("Exp (AVar _ ). "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(I.EClo (I.AVar (ref (SOME(U))), s')), s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Exp(I.EClo (I.AVar (ref (SOME(U))), s')), s)) =
         (print ("Exp (AVar " ^ expToS (G, I.EClo(U,s'))  ^ ").") ; printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EClo (I.EVar (ref(SOME(U)), _, _, _),s')), s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Exp(X as I.EClo (I.EVar (ref(SOME(U)), _, _, _),s')), s)) =
         (print ("Exp (EVarClo " ^ expToS (G, I.EClo(U,s')) ^ ") "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(X as I.EClo (U, s')), s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Exp(X as I.EClo (U, s')), s)) =
         (print ("Exp (EClo " ^ expToS (G, Whnf.normalize(U,s')) ^ ") "); printSub (G, s))
-      | printSub (G, I.Dot (I.Exp(E), s)) =
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Exp(E), s)) =
         (print ("Exp ( " ^ expToS (G,E) ^ " ). "); printSub (G, s))
-      | printSub (G, I.Dot (I.Undef, s)) = (print ("Undef . "); printSub (G, s))
+      | (* GEN CASE BRANCH *) printSub (G, I.Dot (I.Undef, s)) = (print ("Undef . "); printSub (G, s))
 
   (* auxiliary function  -- needed to dereference AVars -- expensive?*)
     fun normalizeSub (I.Shift n) = I.Shift n
-      | normalizeSub (I.Dot(I.Exp(I.EClo(I.AVar (ref (SOME(U))), s')), s)) =
+      | (* GEN CASE BRANCH *) normalizeSub (I.Dot(I.Exp(I.EClo(I.AVar (ref (SOME(U))), s')), s)) =
       I.Dot(I.Exp(Whnf.normalize (U, s')), normalizeSub s)
-    | normalizeSub (I.Dot (I.Exp(I.EClo(I.EVar(ref(SOME(U)), _, _, _), s')), s)) =
+    | (* GEN CASE BRANCH *) normalizeSub (I.Dot (I.Exp(I.EClo(I.EVar(ref(SOME(U)), _, _, _), s')), s)) =
       I.Dot(I.Exp(Whnf.normalize (U, s')), normalizeSub s)
 
-    | normalizeSub (I.Dot (I.Exp(U), s)) =
+    | (* GEN CASE BRANCH *) normalizeSub (I.Dot (I.Exp(U), s)) =
       I.Dot(I.Exp(Whnf.normalize (U, I.id)), normalizeSub s)
-    | normalizeSub (I.Dot(I.Idx n, s)) =
+    | (* GEN CASE BRANCH *) normalizeSub (I.Dot(I.Idx n, s)) =
       I.Dot (I.Idx n, normalizeSub s)
 
   (* ------------------------------------------------------ *)
@@ -202,27 +202,27 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
    *)
 
   fun etaSpine (I.Nil, n) = (n=0)
-    | etaSpine (I.App(I.Root(I.BVar k, I.Nil), S), n) =
+    | (* GEN CASE BRANCH *) etaSpine (I.App(I.Root(I.BVar k, I.Nil), S), n) =
        (k = n andalso etaSpine(S, n-1))
-    | etaSpine (I.App(A, S), n) = false
+    | (* GEN CASE BRANCH *) etaSpine (I.App(A, S), n) = false
 
 
     fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+      | (* GEN CASE BRANCH *) cidFromHead (I.Def c) = c
 
     fun dotn (0, s) = s
-      | dotn (i, s) = dotn (i-1, I.dot1 s)
+      | (* GEN CASE BRANCH *) dotn (i, s) = dotn (i-1, I.dot1 s)
 
     fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
+      | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
 
     (* compose (Decl(G',D1'), G) =   G. .... D3'. D2'.D1'
        where G' = Dn'....D3'.D2'.D1' *)
     fun compose(IntSyn.Null, G) = G
-      | compose(IntSyn.Decl(G', D), G) = IntSyn.Decl(compose(G', G), D)
+      | (* GEN CASE BRANCH *) compose(IntSyn.Decl(G', D), G) = IntSyn.Decl(compose(G', G), D)
 
     fun shift (IntSyn.Null, s) = s
-      | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+      | (* GEN CASE BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
 
     (* ---------------------------------------------------------------------- *)
     (* ctxToEVarSub D = s
@@ -234,7 +234,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     *)
 
     fun ctxToEVarSub (I.Null, s) = s
-      | ctxToEVarSub (I.Decl(G,I.Dec(_,A)), s) =
+      | (* GEN CASE BRANCH *) ctxToEVarSub (I.Decl(G,I.Dec(_,A)), s) =
       let
         val X = I.newEVar (I.Null, A)
       in
@@ -252,7 +252,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
         in
           (X', I.Lam (D'', U))
         end
-      | lowerEVar' (X, G, Vs') =
+      | (* GEN CASE BRANCH *) lowerEVar' (X, G, Vs') =
         let
           val X' = X
         in
@@ -266,7 +266,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
         in
           I.EVar(ref (SOME(U)), I.Null, V, ref nil)
         end
-      | lowerEVar1 (_, X, _) = X
+      | (* GEN CASE BRANCH *) lowerEVar1 (_, X, _) = X
 
     (* lowerEVar (X) = X'
 
@@ -281,20 +281,20 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     and
       lowerEVar (E, X as I.EVar (r, G, V, ref nil)) =
         lowerEVar1 (E, X, Whnf.whnf (V, I.id))
-      | lowerEVar (E, I.EVar _) =
+      | (* GEN CASE BRANCH *) lowerEVar (E, I.EVar _) =
         (* It is not clear if this case can happen *)
         (* pre-Twelf 1.2 code walk, Fri May  8 11:05:08 1998 *)
         raise Error "abstraction : LowerEVars: Typing ambiguous -- constraint of functional type cannot be simplified"
 
     fun ctxToAVarSub (G', I.Null, s) = s
-      | ctxToAVarSub (G', I.Decl(D,I.Dec(_,A)), s) =
+      | (* GEN CASE BRANCH *) ctxToAVarSub (G', I.Decl(D,I.Dec(_,A)), s) =
       let
         val E as I.EVar (r, _, _, cnstr) = I.newEVar (I.Null, A)
       in
         I.Dot(I.Exp(E), ctxToAVarSub (G', D, s))
       end
 
-      | ctxToAVarSub (G', I.Decl(D,I.ADec(_,d)), s) =
+      | (* GEN CASE BRANCH *) ctxToAVarSub (G', I.Decl(D,I.ADec(_,d)), s) =
       let
         val X = I.newAVar ()
       in
@@ -322,7 +322,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
         S.insert asub (k - d, I.Exp(X))
      end
 
-     | assign ((* total as (t, passed)*) d, Dec1 as I.ADec(n, d'), E1 as I.Root(I.BVar k, S1), U, asub) =
+     | (* GEN CASE BRANCH *) assign ((* total as (t, passed)*) d, Dec1 as I.ADec(n, d'), E1 as I.Root(I.BVar k, S1), U, asub) =
        (* it is an Avar and d = d' (k-d, AVar(SOME(U)) *)
        let
          val A as I.AVar(r) = I.newAVar ()
@@ -363,7 +363,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
           if (c1 = c2)
             then assignSpine (fasub, (ctxTotal, d), (D1, S1), (D2, S2))
           else raise Assignment "Constant clash"
-
+   
       | (I.Def(c1), I.Def(c2)) =>
          (* we do not expand definitions here -- this is very conservative! *)
           if (c1 = c2)
@@ -375,7 +375,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
             in
               assignExp (fasub, (ctxTotal, d), (D1, U1'), (D2, U2'))
             end
-
+   
       | (I.Def(c1), _) =>
          (* we do not expand definitions here -- this is very conservative! *)
             let
@@ -411,19 +411,19 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                      (fn asub => (fasub asub; assign ((* ctxTotal,*) d, Dec, U1, U2, asub)))
                 else raise Assignment "EVars are different -- outside of the allowed fragment" )
               ))
-
+   
       | (I.Skonst(c1), I.Skonst(c2)) =>
            if (c1 = c2) then assignSpine (fasub, (ctxTotal, d), (D1, S1), (D2, S2))
            else raise Assignment "Skolem constant clash"
       (* can this happen ? -- definitions should be already expanded ?*)
       | _ => (raise Assignment ("Head mismatch ")))
 
-     | assignExp (fasub, (ctxTotal, d), (D1, I.Lam (Dec1, U1)), (D2, I.Lam (Dec2, U2))) =
+     | (* GEN CASE BRANCH *) assignExp (fasub, (ctxTotal, d), (D1, I.Lam (Dec1, U1)), (D2, I.Lam (Dec2, U2))) =
         (* type labels are ignored *)
         assignExp (fasub, (ctxTotal, d + 1),  (D1, U1), (D2, U2))
 
 
-     | assignExp (fasub, (ctxTotal, d),
+     | (* GEN CASE BRANCH *) assignExp (fasub, (ctxTotal, d),
                   (D1, I.Pi ((Dec1 as I.Dec (_, V1), _), U1)),
                   (D2, I.Pi ((Dec2 as I.Dec(_, V2), _), U2))) =
         let
@@ -433,14 +433,14 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
           assignExp (fasub', (ctxTotal, d + 1), (D1, U1), (D2, U2))
         end
      (* the closure cases should be unnecessary, if everything is in nf *)
-     | assignExp (fasub, (ctxTotal, d), (D1, I.EClo(U, s' as I.Shift(0))), (D2, U2)) =
+     | (* GEN CASE BRANCH *) assignExp (fasub, (ctxTotal, d), (D1, I.EClo(U, s' as I.Shift(0))), (D2, U2)) =
         assignExp (fasub, (ctxTotal, d), (D1, U), (D2, U2))
-     | assignExp (fasub, (ctxTotal, d), (D1, U1), (D2, I.EClo(U, s as I.Shift(0)))) =
+     | (* GEN CASE BRANCH *) assignExp (fasub, (ctxTotal, d), (D1, U1), (D2, I.EClo(U, s as I.Shift(0)))) =
         assignExp (fasub, (ctxTotal, d), (D1, U1), (D2, U))
 
 
    and assignSpine (fasub, (ctxTotal, d), (D1, I.Nil), (D2, I.Nil)) = fasub
-     | assignSpine (fasub, (ctxTotal, d), (D1, I.App (U1, S1)), (D2, I.App (U2, S2))) =
+     | (* GEN CASE BRANCH *) assignSpine (fasub, (ctxTotal, d), (D1, I.App (U1, S1)), (D2, I.App (U2, S2))) =
      let
        val fasub' = assignExp (fasub, (ctxTotal, d), (D1, U1), (D2, U2))
      in
@@ -463,7 +463,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
          NOTE : [fasub]G = G' Sun Nov 28 18:55:21 2004 -bp
     *)
    fun assignCtx (fasub, ctxTotal, (D1,  I.Null), (D2, I.Null)) = fasub
-     | assignCtx (fasub, (ctxTotal as (r, passed)),
+     | (* GEN CASE BRANCH *) assignCtx (fasub, (ctxTotal as (r, passed)),
                   (D1, I.Decl(G1, I.Dec(_, V1))),
                   (D2, I.Decl(G2, I.Dec(_, V2)))) =
      let
@@ -534,25 +534,25 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
       I.NVar(!nctr))
 
    fun equalDec (I.Dec(_, U), I.Dec(_, U')) = Conv.conv ((U, I.id), (U', I.id))
-     | equalDec (I.ADec(_, d), I.ADec(_, d')) = (d = d')
-     | equalDec (_, _) = false
+     | (* GEN CASE BRANCH *) equalDec (I.ADec(_, d), I.ADec(_, d')) = (d = d')
+     | (* GEN CASE BRANCH *) equalDec (_, _) = false
 
     (* too restrictive if we require order of both eqn must be the same ?
      Sun Sep  8 20:37:48 2002 -bp *)
     (* s = s' = I.id *)
     fun equalCtx (I.Null, s, I.Null, s') = true
-      | equalCtx (I.Decl(G, D as  I.Dec(_, A)), s, I.Decl(G', D' as  I.Dec(_, A')), s') =
+      | (* GEN CASE BRANCH *) equalCtx (I.Decl(G, D as  I.Dec(_, A)), s, I.Decl(G', D' as  I.Dec(_, A')), s') =
           Conv.convDec((D, s), (D', s')) andalso (equalCtx (G, I.dot1 s, G', I.dot1 s'))
-      | equalCtx (_, s, _, s') = false
+      | (* GEN CASE BRANCH *) equalCtx (_, s, _, s') = false
 
 
 
     (* equalEqn (e, e') = (e = e') *)
     fun equalEqn (T.Trivial, T.Trivial) = true
-      | equalEqn (T.Unify(G, X, N, eqn), (T.Unify(G', X', N', eqn'))) =
+      | (* GEN CASE BRANCH *) equalEqn (T.Unify(G, X, N, eqn), (T.Unify(G', X', N', eqn'))) =
         equalCtx (G, I.id, G', I.id) andalso Conv.conv ((X, I.id), (X', I.id))
         andalso Conv.conv ((N, I.id), (N', I.id)) andalso equalEqn(eqn, eqn')
-      | equalEqn (_, _) = false
+      | (* GEN CASE BRANCH *) equalEqn (_, _) = false
 
 
     (* equalEqn' (d, (D, e), (D', e'), asub) = (e = e')
@@ -567,7 +567,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
 
     *)
     fun equalEqn' (d, (D, T.Trivial), (D', T.Trivial), asub) = true
-      | equalEqn' (d, (D, T.Unify(G, X as I.Root(I.BVar k, S), N (* AVar *), eqn)),
+      | (* GEN CASE BRANCH *) equalEqn' (d, (D, T.Unify(G, X as I.Root(I.BVar k, S), N (* AVar *), eqn)),
                      (D', T.Unify(G', X', N' (* AVar *), eqn')), asub) =
       if (equalCtx (G, I.id, G', I.id) andalso
           Conv.conv ((X, I.id), (X', I.id)) andalso
@@ -597,28 +597,28 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
       else
         false
 
-      | equalEqn' (d, _, _, asub) = false
+      | (* GEN CASE BRANCH *) equalEqn' (d, _, _, asub) = false
 
 
     (* equalSub (s, s') = (s=s') *)
     fun equalSub (I.Shift k, I.Shift k') = (k = k')
-      | equalSub (I.Dot(F, S), I.Dot(F', S')) =
+      | (* GEN CASE BRANCH *) equalSub (I.Dot(F, S), I.Dot(F', S')) =
         equalFront (F, F') andalso equalSub (S, S')
-      | equalSub (I.Dot(F,S), I.Shift k) = false
-      | equalSub (I.Shift k, I.Dot(F,S)) = false
+      | (* GEN CASE BRANCH *) equalSub (I.Dot(F,S), I.Shift k) = false
+      | (* GEN CASE BRANCH *) equalSub (I.Shift k, I.Dot(F,S)) = false
 
     (* equalFront (F, F') = (F=F') *)
     and equalFront (I.Idx n, I.Idx n') = (n = n')
-      | equalFront (I.Exp U, I.Exp V) = Conv.conv ((U, I.id), (V, I.id))
-      | equalFront (I.Undef, I.Undef) = true
+      | (* GEN CASE BRANCH *) equalFront (I.Exp U, I.Exp V) = Conv.conv ((U, I.id), (V, I.id))
+      | (* GEN CASE BRANCH *) equalFront (I.Undef, I.Undef) = true
 
     (* equalCtx' (G, G') = (G=G') *)
     fun equalCtx' (I.Null, I.Null) = true
-      | equalCtx' (I.Decl(Dk, I.Dec(_, A)), I.Decl(D1, I.Dec(_, A1))) =
+      | (* GEN CASE BRANCH *) equalCtx' (I.Decl(Dk, I.Dec(_, A)), I.Decl(D1, I.Dec(_, A1))) =
         (Conv.conv ((A, I.id), (A1, I.id)) andalso equalCtx'(Dk, D1))
-      | equalCtx' (I.Decl(Dk, I.ADec(_, d')), I.Decl(D1, I.ADec(_, d))) =
+      | (* GEN CASE BRANCH *) equalCtx' (I.Decl(Dk, I.ADec(_, d')), I.Decl(D1, I.ADec(_, d))) =
         ((d = d') andalso equalCtx'(Dk, D1))
-      | equalCtx' (_, _) = false
+      | (* GEN CASE BRANCH *) equalCtx' (_, _) = false
 
    (* ---------------------------------------------------------------*)
 
@@ -651,20 +651,20 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
      let
        val D' = emptyCtx ()
        fun collectExp (d, D', D, I.Lam(_, U)) = collectExp (d+1, D', D, U)
-         | collectExp (d, D', D, I.Root(I.Const c, S)) = collectSpine (d, D', D, S)
-         | collectExp (d, D', D, I.Root(I.BVar k, S)) =
+         | (* GEN CASE BRANCH *) collectExp (d, D', D, I.Root(I.Const c, S)) = collectSpine (d, D', D, S)
+         | (* GEN CASE BRANCH *) collectExp (d, D', D, I.Root(I.BVar k, S)) =
            (case (member (k-d, D))
              of NONE => collectSpine (d, D', D, S)
            | SOME(x, Dec) => (delete (x-d, D); insertList ((x-d, Dec), D')))
-
-         | collectExp (d, D', D, U as I.Root(I.Def k, S)) =
+   
+         | (* GEN CASE BRANCH *) collectExp (d, D', D, U as I.Root(I.Def k, S)) =
            let
              val U' = Whnf.normalize(Whnf.expandDef(U, I.id))
            in
              collectExp (d, D', D, U')
            end
        and collectSpine (d, D', D, I.Nil) = ()
-         | collectSpine (d, D', D, I.App(U, S)) = (collectExp(d, D', D, U); collectSpine(d, D', D, S))
+         | (* GEN CASE BRANCH *) collectSpine (d, D', D, I.App(U, S)) = (collectExp(d, D', D, U); collectSpine(d, D', D, S))
      in
        S.forall nsub (fn (nv, (du, U)) => collectExp (0, D', D, U));
        (D', D)
@@ -687,7 +687,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     (case (RBSet.lookup asub d) of
        NONE => (case member (d, D) of
                   NONE => IntSyn.Shift (evars + avars (* 0 *))
-
+   
                 | SOME(x, IntSyn.Dec(n,V)) =>
                     (* Found an EVar which is not yet
                      instantiated -- must be instantiated when
@@ -698,7 +698,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                     in
                       I.Dot(I.Exp(I.EClo(E, I.Shift(evars + avars))), s)
                     end
-
+   
                 | SOME(x, IntSyn.ADec(n,V)) =>
                     (* should never happen -- all avars should
                      have been assigned! *)
@@ -725,7 +725,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
              instSpine(depth, S1, S2, ac)
            else
              raise Instance "Constant mismatch\n"
-         | instRoot (depth, T as I.Root(H1 as I.Def k, S1), U as I.Root(I.Def k', S2), ac) =
+         | (* GEN CASE BRANCH *) instRoot (depth, T as I.Root(H1 as I.Def k, S1), U as I.Root(I.Def k', S2), ac) =
            if (k = k') then
              instSpine(depth, S1, S2, ac)
            else
@@ -735,14 +735,14 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
              in
                instExp (depth, T', U', ac)
              end
-
-         | instRoot (depth, T as I.Root(H1 as I.Def k, S1), U as I.Root(H2, S2), ac) =
+   
+         | (* GEN CASE BRANCH *) instRoot (depth, T as I.Root(H1 as I.Def k, S1), U as I.Root(H2, S2), ac) =
              let
                val T' = Whnf.normalize(Whnf.expandDef (T, I.id))
              in
                instExp (depth, T', U, ac)
              end
-         | instRoot (d,  T as I.Root(H1 as I.BVar k, S1), U as I.Root(I.BVar k', S2), ac) =
+         | (* GEN CASE BRANCH *) instRoot (d,  T as I.Root(H1 as I.BVar k, S1), U as I.Root(I.BVar k', S2), ac) =
            if (k > d) andalso (k' > d)
              then (* globally bound variable *)
                let
@@ -776,87 +776,87 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                       (* instance checking only Sun Oct 27 12:16:10 2002 -bp *)
                       (fn asub => (ac asub;
                                    assign ((* ctxTotal,*) d, Dec1, T, U, asub))))
-
+            
                         (* instance checking only Sun Oct 27 12:18:53 2002 -bp *)
                  | (SOME(x, Dec1 as I.ADec(n,d')), NONE) =>
                    (fn asub => (ac asub;
                                 assign ((* ctxTotal,*) d, Dec1, T, U, asub)))
-
+            
                  | (SOME(x, Dec1), NONE) =>
                    (fn asub => (ac asub;
                                 assign ((* ctxTotal,*) d, Dec1, T, U, asub)))
-
+            
                  | (_, _) =>  raise Instance "Impossible\n"
                end
-
+            
            else (* locally bound variables *)
                raise Instance "Bound variable mismatch\n"
-       | instRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Const k', S2), ac) =
+       | (* GEN CASE BRANCH *) instRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Const k', S2), ac) =
          (* this case only should happen during instance checking *)
          (case isExists (d, I.BVar k, D_t)
           of NONE => raise Instance "Impossible\n"
-
+          
           | SOME(x, Dec1 as I.ADec(_,_)) =>
               (fn asub => (ac asub;  assign ((* ctxTotal,*) d, Dec1, T, U, asub)))
-
+          
           | SOME(x, Dec1) =>
               (fn asub => (ac asub;  assign ((* ctxTotal, *) d, Dec1, T, U, asub))))
-
-       | instRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Def k', S2), ac) =
+   
+       | (* GEN CASE BRANCH *) instRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Def k', S2), ac) =
          (* this case only should happen during instance checking *)
          (case isExists (d, I.BVar k, D_t)
           of NONE => raise Instance "Impossible\n"
-
+          
           | SOME(x, Dec1 as I.ADec(_,_)) =>
               (fn asub => (ac asub;  assign ((* ctxTotal,*) d, Dec1, T, U, asub)))
-
+          
           | SOME(x, Dec1) =>
               (fn asub => (ac asub;  assign ((* ctxTotal, *) d, Dec1, T, U, asub))))
-
-         | instRoot (depth, T as I.Root(H1, S1), U as I.Root(I.Def k', S2), ac) =
+   
+         | (* GEN CASE BRANCH *) instRoot (depth, T as I.Root(H1, S1), U as I.Root(I.Def k', S2), ac) =
              let
                val U' = Whnf.normalize(Whnf.expandDef (U, I.id))
              in
                instExp (depth, T, U', ac)
              end
-
-       | instRoot (d, T as I.Root(H1, S1), U as I.Root(H2, S2), ac) =
+   
+       | (* GEN CASE BRANCH *) instRoot (d, T as I.Root(H1, S1), U as I.Root(H2, S2), ac) =
               raise Instance "Other Cases impossible\n"
-
+   
      and instExp (d, T as I.NVar n, U as I.Root(H, S), ac) =
          (S.insert rho_u (n, (d,U)); ac)
-
-       | instExp (d, T as I.Root(H1, S1), U as I.Root(H2, S2), ac) =
+   
+       | (* GEN CASE BRANCH *) instExp (d, T as I.Root(H1, S1), U as I.Root(H2, S2), ac) =
          instRoot(d, I.Root(H1, S1), I.Root(H2, S2), ac)
-
-       | instExp (d, I.Lam(D1 as I.Dec(_,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2), ac) =
+   
+       | (* GEN CASE BRANCH *) instExp (d, I.Lam(D1 as I.Dec(_,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2), ac) =
        (* by invariant A1 = A2 -- actually this invariant may be violated, but we ignore it. *)
              instExp (d+1, T1,  U2, ac)
-
-       | instExp (d, T, U, ac) =
+   
+       | (* GEN CASE BRANCH *) instExp (d, T, U, ac) =
            (* U = EVar, EClo -- can't happen -- Sun Oct 20 13:41:25 2002 -bp *)
        (print "instExp -- falls through?\n";
         raise Instance "Impossible\n")
-
+   
      and instSpine (d, I.Nil, I.Nil, ac) = ac
-       | instSpine (d, I.App(T, S1), I.App(U, S2), ac) =
+       | (* GEN CASE BRANCH *) instSpine (d, I.App(T, S1), I.App(U, S2), ac) =
        let
          val ac' = instExp (d, T, U, ac)
          val ac'' = instSpine (d, S1, S2, ac')
        in
          ac''
        end
-       | instSpine (d, I.Nil, I.App (_ , _), ac) =
+       | (* GEN CASE BRANCH *) instSpine (d, I.Nil, I.App (_ , _), ac) =
           (print ("Spines are not the same -- (first one is Nil) -- cannot happen!\n");
            raise Instance "DifferentSpines\n")
-       | instSpine (d, I.App (_ , _), I.Nil, ac) =
+       | (* GEN CASE BRANCH *) instSpine (d, I.App (_ , _), I.Nil, ac) =
           (print ("Spines are not the same -- second one is Nil -- cannot happen!\n");
            raise Instance "DifferentSpines\n")
-
-       | instSpine (d, I.SClo (_ , _), _, ac) =
+   
+       | (* GEN CASE BRANCH *) instSpine (d, I.SClo (_ , _), _, ac) =
           (print ("Spine Closure!(1) -- cannot happen!\n");
            raise Instance "DifferentSpines\n")
-       | instSpine (d, _ , I.SClo (_ , _), ac) =
+       | (* GEN CASE BRANCH *) instSpine (d, _ , I.SClo (_ , _), ac) =
           (print ("Spine Closure! (2) -- cannot happen!\n");
            raise Instance " DifferentSpines\n")
      in
@@ -870,16 +870,16 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
 
 
    fun compHeads ((D_1, I.Const k), (D_2, I.Const k')) = (k = k')
-     | compHeads ((D_1, I.Def k), (D_2, I.Def k')) = (k = k')
-     | compHeads ((D_1, I.BVar k), (D_2, I.BVar k')) =
+     | (* GEN CASE BRANCH *) compHeads ((D_1, I.Def k), (D_2, I.Def k')) = (k = k')
+     | (* GEN CASE BRANCH *) compHeads ((D_1, I.BVar k), (D_2, I.BVar k')) =
        (case isExists (0, I.BVar k, D_1)
           of NONE => (k = k')
         | SOME(x,Dec) => true)
-     | compHeads ((D_1, I.BVar k), (D_2, H2)) =
+     | (* GEN CASE BRANCH *) compHeads ((D_1, I.BVar k), (D_2, H2)) =
         (case isExists (0, I.BVar k, D_1)
           of NONE => false
         | SOME(x,Dec) => true)
-     | compHeads ((D_1, H1), (D_2, H2)) = false
+     | (* GEN CASE BRANCH *) compHeads ((D_1, H1), (D_2, H2)) = false
 
 
    fun compatible' ((D_t, (dt,T)), (D_u, (du,U)), Ds, rho_t, rho_u) =
@@ -888,7 +888,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
          (S.insert rho_t (!nctr+1, T);
           S.insert rho_u (!nctr+1, U); (* by invariant dt = du *)
           newNVar())
-
+   
        fun genRoot (d, T as I.Root(H1 as I.Const k, S1), U as I.Root(I.Const k', S2)) =
          if (k = k') then
            let
@@ -898,7 +898,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
            end
          else
            genNVar ((rho_t, (d, T)), (rho_u, (d, U)))
-         | genRoot (d, T as I.Root(H1 as I.Def k, S1), U as I.Root(I.Def k', S2)) =
+         | (* GEN CASE BRANCH *) genRoot (d, T as I.Root(H1 as I.Def k, S1), U as I.Root(I.Def k', S2)) =
          if (k = k') then
            let
              val S' = genSpine(d, S1, S2)
@@ -908,9 +908,9 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
          else
            (* could expand definitions here ? -bp*)
            genNVar ((rho_t, (d, T)), (rho_u, (d, U)))
-
-
-         | genRoot (d,  T as I.Root(H1 as I.BVar k, S1), U as I.Root(I.BVar k', S2)) =
+   
+   
+         | (* GEN CASE BRANCH *) genRoot (d,  T as I.Root(H1 as I.BVar k, S1), U as I.Root(I.BVar k', S2)) =
            if (k > d) andalso (k' > d)
              then (* globally bound variable *)
                let
@@ -945,7 +945,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                    else
                      (* variant checking only *)
                      genNVar ((rho_t, (d,T)), (rho_u, (d,U)))
-
+            
                  | (_, _) =>
                      genNVar ((rho_t, (d,T)), (rho_u, (d,U)))
                end
@@ -958,44 +958,44 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                 end) handle DifferentSpines => genNVar ((rho_t, (d,T)), (rho_u, (d,U)))
              else
                genNVar ((rho_t, (d,T)), (rho_u, (d,U)))
-        | genRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Const k', S2)) =
+        | (* GEN CASE BRANCH *) genRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Const k', S2)) =
                genNVar ((rho_t, (d,T)), (rho_u, (d,U)))
-
-        | genRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Def k', S2)) =
+   
+        | (* GEN CASE BRANCH *) genRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Def k', S2)) =
                genNVar ((rho_t, (d,T)), (rho_u, (d,U)))
-
-        | genRoot (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+   
+        | (* GEN CASE BRANCH *) genRoot (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
                genNVar ((rho_t, (d,T)), (rho_u, (d,U)))
-
+   
      and genExp (d, T as I.NVar n, U as I.Root(H, S)) =
          (S.insert rho_u (n, (d,U)); T)
-       | genExp (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+       | (* GEN CASE BRANCH *) genExp (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
          genRoot(d, I.Root(H1, S1), I.Root(H2, S2))
-       | genExp (d, I.Lam(D1 as I.Dec(_,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
+       | (* GEN CASE BRANCH *) genExp (d, I.Lam(D1 as I.Dec(_,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
          (* by invariant A1 = A2 *)
          let
            val E = genExp (d+1, T1,  U2)
          in
            I.Lam(D1, E)
          end
-         | genExp (d, T, U) =
+         | (* GEN CASE BRANCH *) genExp (d, T, U) =
          (* U = EVar, EClo -- can't happen -- Sun Oct 20 13:41:25 2002 -bp *)
          (print "genExp -- falls through?\n";
           genNVar ((rho_t, (d,T)), (rho_u, (d,U))))
-
+   
        and genSpine (d, I.Nil, I.Nil) =  I.Nil
-         | genSpine (d, I.App(T, S1), I.App(U, S2)) =
+         | (* GEN CASE BRANCH *) genSpine (d, I.App(T, S1), I.App(U, S2)) =
          let
            val  E = genExp (d, T, U)
            val  S' = genSpine (d, S1, S2)
          in
            I.App(E, S')
          end
-         | genSpine (d, I.Nil, I.App (_ , _)) = raise DifferentSpines
-         | genSpine (d, I.App (_ , _), I.Nil) = raise DifferentSpines
-
-         | genSpine (d, I.SClo (_ , _), _) =  raise DifferentSpines
-         | genSpine (d, _ , I.SClo (_ , _)) = raise DifferentSpines
+         | (* GEN CASE BRANCH *) genSpine (d, I.Nil, I.App (_ , _)) = raise DifferentSpines
+         | (* GEN CASE BRANCH *) genSpine (d, I.App (_ , _), I.Nil) = raise DifferentSpines
+   
+         | (* GEN CASE BRANCH *) genSpine (d, I.SClo (_ , _), _) =  raise DifferentSpines
+         | (* GEN CASE BRANCH *) genSpine (d, _ , I.SClo (_ , _)) = raise DifferentSpines
      in
        (* by invariant dt = du *)
        Variant(dt, genExp (dt, T, U))
@@ -1008,7 +1008,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
        then
          compatible' ((D_t, T), (D_u, U), Ds, rho_t, rho_u)
      else NotCompatible
-     |compatible ((D_t, T), (D_u, U), Ds, rho_t, rho_u) =
+     |(* GEN CASE BRANCH *) compatible ((D_t, T), (D_u, U), Ds, rho_t, rho_u) =
        compatible' ((D_t, T), (D_u, U), Ds, rho_t, rho_u)
 
   (* compatibleCtx (asub, (Dsq, Gsq, eqn_sq), GR) = option
@@ -1029,7 +1029,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
       NONE
    *)
   fun compatibleCtx (asub, (Dsq, Gsq, eqn_sq), []) = NONE
-    | compatibleCtx (asub, (Dsq, Gsq, eqn_sq),
+    | (* GEN CASE BRANCH *) compatibleCtx (asub, (Dsq, Gsq, eqn_sq),
                      ((_, Delta', G', eqn', answRef', _, status')::GRlist)) =
       if instanceCtx (asub, (Dsq, Gsq), (Delta', G'))
         then
@@ -1082,13 +1082,13 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
   (* [asub]nsub_t = sq  where sq is the query substitution *)
   fun instChild (N as Leaf((D_t, nsub_t), GList), (D_sq, sq), asub) =
         instanceSub ((D_t, nsub_t), (D_sq,  sq), asub)
-    | instChild (N as Node((D_t, nsub_t), Children'), (D_sq, sq), asub) =
+    | (* GEN CASE BRANCH *) instChild (N as Node((D_t, nsub_t), Children'), (D_sq, sq), asub) =
         instanceSub ((D_t, nsub_t), (D_sq, sq), asub)
 
   fun findAllInst (G_r, children, Ds, asub) =
     let
       fun findAllCands (G_r, nil, (Dsq, sub_u), asub, IList) = IList
-        | findAllCands (G_r, (x::L), (Dsq, sub_u), asub, IList) =
+        | (* GEN CASE BRANCH *) findAllCands (G_r, (x::L), (Dsq, sub_u), asub, IList) =
         let
           val asub' = S.copy asub
         in
@@ -1111,7 +1111,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
               false otherwise
  *)
   fun solveEqn ((T.Trivial, s), G) = true
-    | solveEqn ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
+    | (* GEN CASE BRANCH *) solveEqn ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
       let
         val G'' = compose (G', G)
         val s' = shift (G'', s)
@@ -1130,7 +1130,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
               false otherwise
  *)
   fun solveEqn' ((T.Trivial, s), G) = true
-    | solveEqn' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
+    | (* GEN CASE BRANCH *) solveEqn' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
       let
         val G'' = compose (G', G)
         val s' = shift (G', s)
@@ -1185,7 +1185,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
               false otherwise
  *)
   fun solveEqnI' ((T.Trivial, s), G) = true
-    | solveEqnI' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
+    | (* GEN CASE BRANCH *) solveEqnI' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
       let
         val G'' = compose (G', G)
         val s' = shift (G', s)
@@ -1221,7 +1221,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
           val (Dsq, D_G) = collectEVar (Dq, sq)
             (* Dq = (Dsq' u Dg) where Dsq' = evars occurring in sq
                                       D_G = evars occuring in G_sq or only in eqn_sq
-
+   
                and Dsq = D since there exists a path s1 ... sn from the root to the leaf (D,s)
                  s.t. [asub]s1 o s2 o ... sn o s corresponds to original query
              *)
@@ -1242,7 +1242,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                    D1', ...., Dn', D, D' = D*
                    and          G' |- esub' : DAEVars, G'        and       .   |- esub : DAEVars
                         DAEVars, G |- asub' : D*, G'                   DAEVars |- asub : D*
-
+   
                   note: asub' may refer to free variables which denote evars in D*
                         which only occur in eqn' and hence have not yet been instantiated
                         however: all avars in D* have been instantiated!
@@ -1253,19 +1253,19 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                    DAEVars, G' |- eqn  hence we solve : G' |= [esub']eqn *)
                 val _ = if solveEqn' ((eqn, shift(G',esub)), G' (* = G_r *))
                           then () else print " failed to solve eqn_query\n"
-
-(*              val _ = if solveEqn' (eqn, esub)
+   
+   (*              val _ = if solveEqn' (eqn, esub)
                           then () else print " failed to solve eqn_query\n"  *)
                 val easub = normalizeSub(I.comp(asub, esub))
-
+   
                 (* Residual equations in index:
                    D*, G' |- eqn'    where eqn' = AVar1 = E1 .... AVarn = En
                                       and  Ei may contain free variables
                       G'  |= [esub](asub) (eqn')
-
+   
                       solve eqn' from path in index using instance or matching ONLY
                       to instantiate the free variables Ei
-
+   
                    remark: DAEVars, G' |= [asub]eqn'   should work in theory too,
                            if the free variables in asub are created in such a way that they may depend on DAVars.
                            otherwise unification or instance checking will fail or the resulting instantiation
@@ -1273,23 +1273,23 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                    *)
               in
                 if solveEqnI' ((eqn', shift(G',easub)), G')
-(*              if solveEqnI' (eqn', easub) *)
+   (*              if solveEqnI' (eqn', easub) *)
                    (* solve residual equations using higher-order matching Wed Dec 22 2004 -bp *)
                   then T.RepeatedEntry((esub, asub), answRef', status')
                 else raise Instance "Compatible path -- resdidual equ. not solvable\n"
               end
               ))
         end
-
-      | retrieve' (N as Node((D, sub), children), (Dq, sq), asub,
+   
+      | (* GEN CASE BRANCH *) retrieve' (N as Node((D, sub), children), (Dq, sq), asub,
                    GR as (DAEVars, G_r, eqn, stage, status)) =
         let
           val InstCand = findAllInst (G_r, children, (Dq, sq), asub)
-
+         
           fun checkCandidates nil =
              (* no child is compatible with sq *)
              raise Instance "No compatible child\n"
-
+         
             | checkCandidates ((ChildRef, Drho2, asub)::ICands) =
               (* there is an instance  *)
               (retrieve' (!ChildRef, Drho2, asub, GR))
@@ -1297,9 +1297,9 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
         in
           checkCandidates InstCand
         end
-  in
+     in
     (fn () => (), retrieve' (!Nref, (Dq, sq), asub, GR))
-  end
+     end
 
 (*---------------------------------------------------------------------------*)
 (* insert new entry into substitution tree *)
@@ -1340,7 +1340,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                      (S.insert sigma (nv, T');
                      choose := (fn match => (restc match; if match then () else ())))
                      end)
-
+  
           (* here Glocal_t will be only approximately correct! *)
           | NONE => S.insert rho_u (nv, U)))
     in
@@ -1376,7 +1376,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
         Node(Dsigma, [ref (Leaf((D_rho2, rho2), ref [GR'])), ref (Node(Drho1, Children))])
       end
 
-    | mkNode (Leaf(c, GRlist), Dsigma as (Ds, sigma),
+    | (* GEN CASE BRANCH *) mkNode (Leaf(c, GRlist), Dsigma as (Ds, sigma),
               Drho1 as (D1, rho1), GR2 as ((evarl, l), dp, eqn, answRef, stage, status),
               Drho2 as (D2, rho2)) =
        let
@@ -1389,13 +1389,13 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
   (* ---------------------------------------------------------------------- *)
   fun compChild (N as Leaf((D_t, nsub_t), GList), (D_e, nsub_e)) =
         compatibleSub ((D_t, nsub_t), (D_e,  nsub_e))
-    | compChild (N as Node((D_t, nsub_t), Children'), (D_e, nsub_e)) =
+    | (* GEN CASE BRANCH *) compChild (N as Node((D_t, nsub_t), Children'), (D_e, nsub_e)) =
         compatibleSub ((D_t, nsub_t), (D_e, nsub_e))
 
   fun findAllCandidates (G_r, children, Ds) =
     let
       fun findAllCands (G_r, nil, (Dsq, sub_u), VList, SList) = (VList, SList)
-        | findAllCands (G_r, (x::L), (Dsq, sub_u), VList, SList) =
+        | (* GEN CASE BRANCH *) findAllCands (G_r, (x::L), (Dsq, sub_u), VList, SList) =
           case compChild (!x, (Dsq, sub_u))
             of NoCompatibleSub => findAllCands (G_r, L, (Dsq, sub_u), VList, SList)
             | SplitSub (Dsigma, Drho1, Drho2) =>
@@ -1417,9 +1417,9 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     end
 
   fun eqHeads (I.Const k, I.Const k') =  (k = k')
-    | eqHeads (I.BVar k, I.BVar k') =  (k = k')
-    | eqHeads (I.Def k, I.Def k') = (k = k')
-    | eqHeads (_, _) = false
+    | (* GEN CASE BRANCH *) eqHeads (I.BVar k, I.BVar k') =  (k = k')
+    | (* GEN CASE BRANCH *) eqHeads (I.Def k, I.Def k') = (k = k')
+    | (* GEN CASE BRANCH *) eqHeads (_, _) = false
 
  (* eqTerm (t2, (t, rho1)) = bool
     returns true iff t2 = t[rho1]
@@ -1432,16 +1432,16 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
        then eqSpine(S2, (S, rho1))
      else
        false
-   | eqTerm (T2, (I.NVar n, rho1)) =
+   | (* GEN CASE BRANCH *) eqTerm (T2, (I.NVar n, rho1)) =
      (case (S.lookup rho1 n)
         of NONE => false
       | SOME ((dt1, T1)) => eqTerm (T2, (T1, nid())))
-   | eqTerm (I.Lam(D2, T2), (I.Lam(D, T), rho1)) =
+   | (* GEN CASE BRANCH *) eqTerm (I.Lam(D2, T2), (I.Lam(D, T), rho1)) =
      eqTerm (T2, (T, rho1))
-   | eqTerm (_, (_, _)) = false
+   | (* GEN CASE BRANCH *) eqTerm (_, (_, _)) = false
 
  and eqSpine (I.Nil, (I.Nil, rho1)) = true
-  | eqSpine (I.App(T2, S2), (I.App(T, S), rho1)) =
+  | (* GEN CASE BRANCH *) eqSpine (I.App(T2, S2), (I.App(T, S), rho1)) =
     eqTerm (T2, (T, rho1)) andalso eqSpine (S2, (S, rho1))
 
  fun divergingSub ((Ds, sigma), (Dr1, rho1), (Dr2, rho2)) =
@@ -1451,7 +1451,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
  (* Insert via variant checking *)
 
   fun variantCtx ((G, eqn), []) = NONE
-    | variantCtx ((G,eqn), ((l', D_G, G', eqn', answRef', _, status')::GRlist)) =
+    | (* GEN CASE BRANCH *) variantCtx ((G,eqn), ((l', D_G, G', eqn', answRef', _, status')::GRlist)) =
       (if (equalCtx' (G, G') andalso equalEqn(eqn, eqn'))
          then SOME(l', answRef', status')
        else
@@ -1480,9 +1480,9 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                                           this implies: SAME D_G *)
                                 ((fn () => ()), T.RepeatedEntry((I.id, I.id),  answRef', status'))
                                 ))
-
-
-      | insert' (N as Node((D, sub), children), (Dsq, sq),
+ 
+ 
+      | (* GEN CASE BRANCH *) insert' (N as Node((D, sub), children), (Dsq, sq),
                  GR as (l, G_r, eqn, answRef, stage, status)) =
         let
           val (VariantCand, SplitCand) = findAllCandidates (G_r, children, (Dsq, sq))
@@ -1493,7 +1493,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
              (fn () => (Nref := Node((D, sub), (ref (Leaf((D_nsub, sq), ref [GR'])))::children);
                         answList := (answRef :: (!answList))),
                 T.NewEntry(answRef))
-
+       
             | checkCandidates (nil, ((ChildRef, (Dsigma, Drho1, Drho2))::_)) =
               (* split an existing node *)
               if ((!TableParam.divHeuristic) andalso
@@ -1508,11 +1508,11 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                  (fn () => (ChildRef :=  mkNode((!ChildRef), Dsigma, Drho1, GR, Drho2);
                             answList := (answRef :: (!answList))),
                  T.NewEntry(answRef)))
-
+       
             | checkCandidates (((ChildRef, Drho2, asub)::nil),  _) =
               (* unique "perfect" candidate (left) *)
                 insert (ChildRef, Drho2, GR)
-
+       
             | checkCandidates (((ChildRef, Drho2, asub)::L), SCands) =
               (* there are several "perfect" candidates *)
               (case (insert (ChildRef, Drho2, GR))
@@ -1520,7 +1520,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                | (f, T.RepeatedEntry(asub, answRef, status)) =>
                     ((f, T.RepeatedEntry(asub, answRef, status)))
                | (f, T.DivergingEntry(asub, answRef)) => ((f, T.DivergingEntry(asub, answRef))))
-
+       
         in
           checkCandidates (VariantCand, SplitCand)
         end
@@ -1549,14 +1549,14 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     fun answCheckVariant (s', answRef, O) =
       let
         fun member ((D, sk), []) = false
-          | member ((D, sk), (((D1, s1),_)::S)) =
+          | (* GEN CASE BRANCH *) member ((D, sk), (((D1, s1),_)::S)) =
             if equalSub (sk,s1) andalso equalCtx'(D, D1) then
               true
             else
               member ((D, sk), S)
-
+    
         val (DEVars, sk) = A.abstractAnswSub s'
-
+    
       in
         if member ((DEVars, sk), T.solutions answRef) then
           T.repeated
@@ -1584,7 +1584,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     note: G' is destructively updated
     *)
     fun makeCtx (n, I.Null, DEVars : ctx) = ()
-      | makeCtx (n, I.Decl(G, D), DEVars : ctx) =
+      | (* GEN CASE BRANCH *) makeCtx (n, I.Decl(G, D), DEVars : ctx) =
         (insertList ((n, D), DEVars);
          makeCtx (n+1, G, DEVars))
 
@@ -1682,9 +1682,9 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     fun updateTable () =
       let
         fun update [] Flag = Flag
-          | update (answRef::AList) Flag =
+          | (* GEN CASE BRANCH *) update (answRef::AList) Flag =
             (let
-
+              
               val l = length(T.solutions(answRef))
             in
               if (l = T.lookup(answRef)) then
@@ -1728,7 +1728,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     fun memberCtx ((G,V), G') =
       let
         fun instanceCtx' ((G, V), I.Null, n) = NONE
-          | instanceCtx' ((G, V), I.Decl(G', D' as I.Dec(_, V')), n) =
+          | (* GEN CASE BRANCH *) instanceCtx' ((G, V), I.Decl(G', D' as I.Dec(_, V')), n) =
           if Match.instance(G, (V, I.id), (V', I.Shift n))
              then SOME(D')
            else instanceCtx' ((G,V), G',n+1)

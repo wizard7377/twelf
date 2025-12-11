@@ -37,22 +37,22 @@ struct
            | L.NotDigit _ => Parsing.error (r, "Identifier not a natural number")
 
     fun stripRParen (LS.Cons ((L.RPAREN, r), s')) = LS.expose s'
-      | stripRParen (LS.Cons ((t, r), _))  =
+      | (* GEN CASE BRANCH *) stripRParen (LS.Cons ((t, r), _))  =
           Parsing.error (r, "Expected `)', found " ^ L.toString t)
 
     fun decideRBrace (r0, (orders, LS.Cons ((L.RBRACE, r), s'))) =
           (SOME(E.lex (r0, orders)), LS.expose s')
-      | decideRBrace (r0, (order, LS.Cons ((t, r), _)))  =
+      | (* GEN CASE BRANCH *) decideRBrace (r0, (order, LS.Cons ((t, r), _)))  =
           Parsing.error (P.join(r0,r), "Expected `}', found " ^ L.toString t)
 
     fun decideRBracket (r0, (orders, LS.Cons ((L.RBRACKET, r), s'))) =
           (SOME(E.simul (r0, orders)), LS.expose s')
-      | decideRBracket (r0, (order, LS.Cons ((t, r), _)))  =
+      | (* GEN CASE BRANCH *) decideRBracket (r0, (order, LS.Cons ((t, r), _)))  =
           Parsing.error (P.join(r0,r), "Expected `]', found " ^ L.toString t)
 
     fun decideRParen (r0, (ids, LS.Cons ((L.RPAREN, r), s'))) =
           (SOME(E.varg (r,ids)), LS.expose s')
-      | decideRParen (r0, (order, LS.Cons ((t, r), _)))  =
+      | (* GEN CASE BRANCH *) decideRParen (r0, (order, LS.Cons ((t, r), _)))  =
           Parsing.error (P.join(r0,r), "Expected `)', found " ^ L.toString t)
 
     (* parseIds "id ... id" = ["id",...,"id"] *)
@@ -63,9 +63,9 @@ struct
         in
           (id :: ids, f')
         end
-      | parseIds (LS.Cons ((t as L.ID (_, id), r), s')) =
+      | (* GEN CASE BRANCH *) parseIds (LS.Cons ((t as L.ID (_, id), r), s')) =
         Parsing.error (r, "Expecter upper case identifier, found " ^ L.toString t)
-      | parseIds f = (nil, f)
+      | (* GEN CASE BRANCH *) parseIds f = (nil, f)
 
     (* parseArgPat "_id ... _id" = [idOpt,...,idOpt] *)
     (* terminated by token different from underscore or id *)
@@ -75,15 +75,15 @@ struct
         in
           (SOME id :: idOpts, f')
         end
-      | parseArgPat (LS.Cons ((L.ID (_, id), r), s')) =
+      | (* GEN CASE BRANCH *) parseArgPat (LS.Cons ((L.ID (_, id), r), s')) =
         Parsing.error (r, "Expected upper case identifier, found " ^ id)
-      | parseArgPat (LS.Cons ((L.UNDERSCORE, r), s')) =
+      | (* GEN CASE BRANCH *) parseArgPat (LS.Cons ((L.UNDERSCORE, r), s')) =
         let
           val (idOpts, f') = parseArgPat (LS.expose s')
         in
           (NONE :: idOpts, f')
         end
-      | parseArgPat f = (nil, f)
+      | (* GEN CASE BRANCH *) parseArgPat f = (nil, f)
 
     (* parseCallPat "id _id ... _id" = (id, region, [idOpt,...,idOpt]) *)
     fun parseCallPat (LS.Cons ((L.ID (_, id), r), s')) =
@@ -92,7 +92,7 @@ struct
         in
           ((id, idOpts, P.join (r, r')), f')
         end
-      | parseCallPat (LS.Cons ((t, r), s)) =
+      | (* GEN CASE BRANCH *) parseCallPat (LS.Cons ((t, r), s)) =
         Parsing.error (r, "Expected call pattern, found token " ^ L.toString t)
 
     (* parseCallPats "(id _id ... _id)...(id _id ... _id)." *)
@@ -104,9 +104,9 @@ struct
           (cpat::cpats, f'')
         end
       (* Parens around call patterns no longer optional *)
-      | parseCallPats (f as LS.Cons ((L.DOT, r), s')) =
+      | (* GEN CASE BRANCH *) parseCallPats (f as LS.Cons ((L.DOT, r), s')) =
           (nil, f)
-      | parseCallPats (LS.Cons ((t, r), s)) =
+      | (* GEN CASE BRANCH *) parseCallPats (LS.Cons ((t, r), s)) =
         Parsing.error (r, "Expected call patterns, found token " ^ L.toString t)
 
     (* order ::= id | (id ... id)   virtual arguments = subterm ordering
@@ -117,13 +117,13 @@ struct
     (* returns an optional order and front of remaining stream *)
     fun parseOrderOpt (LS.Cons ((L.LPAREN, r), s')) =
           decideRParen (r, parseIds (LS.expose s'))
-      | parseOrderOpt (LS.Cons ((L.LBRACE, r), s')) =
+      | (* GEN CASE BRANCH *) parseOrderOpt (LS.Cons ((L.LBRACE, r), s')) =
           decideRBrace (r, parseOrders (LS.expose s'))
-      | parseOrderOpt (LS.Cons ((L.LBRACKET, r), s')) =
+      | (* GEN CASE BRANCH *) parseOrderOpt (LS.Cons ((L.LBRACKET, r), s')) =
           decideRBracket (r, parseOrders (LS.expose s'))
-      | parseOrderOpt (LS.Cons ((L.ID (L.Upper, id), r), s')) =
+      | (* GEN CASE BRANCH *) parseOrderOpt (LS.Cons ((L.ID (L.Upper, id), r), s')) =
           (SOME (E.varg (r, [id])), LS.expose s')
-      | parseOrderOpt (f as LS.Cons (_, s')) = (NONE, f)
+      | (* GEN CASE BRANCH *) parseOrderOpt (f as LS.Cons (_, s')) = (NONE, f)
 
     (* parseOrders (f) = ([order1,...,ordern], f') *)
     (* returns a sequence of orders and remaining front of stream *)
@@ -134,13 +134,13 @@ struct
         in
           (order::orders, f'')
         end
-      | parseOrders' (NONE, f') = (nil, f')
+      | (* GEN CASE BRANCH *) parseOrders' (NONE, f') = (nil, f')
 
     (* parseOrder (f) = (order, f') *)
     (* returns an order and front of remaining stream *)
     fun parseOrder (f) = parseOrder' (parseOrderOpt f)
     and parseOrder' (SOME(order), f') = (order, f')
-      | parseOrder' (NONE, LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseOrder' (NONE, LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected order, found " ^ L.toString t)
 
     (* parseTDecl "order callPats." *)
@@ -177,7 +177,7 @@ struct
         in
           (E.prove (depth, t'), f')
         end
-      | parsePDecl (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parsePDecl (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseProve' "%prove pdecl." *)
@@ -197,7 +197,7 @@ struct
         in
           (E.establish (depth, t'), f')
         end
-      | parseEDecl (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseEDecl (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseEstablish' "%establish pdecl." *)
@@ -221,7 +221,7 @@ struct
     (* --------------------- *)
 
     fun stripRBrace (LS.Cons ((L.RBRACE, r), s')) = (LS.expose s', r)
-      | stripRBrace (LS.Cons ((t, r), _))  =
+      | (* GEN CASE BRANCH *) stripRBrace (LS.Cons ((t, r), _))  =
           Parsing.error (r, "Expected `}', found " ^ L.toString t)
 
     (* parseDec "{id:term} | {id}" *)
@@ -243,7 +243,7 @@ struct
         in
           parseDecs' (E.decl (Drs, Dr), f')
         end
-      | parseDecs' Drs = Drs
+      | (* GEN CASE BRANCH *) parseDecs' Drs = Drs
 
     (* parseDecs "{id:term}...{id:term}", one ore more, ":term" optional *)
     and parseDecs (LS.Cons (BS as ((L.LBRACE, r), s'))) =
@@ -252,12 +252,12 @@ struct
         in
           parseDecs' (E.decl (E.null, Dr), f')
         end
-      | parseDecs (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseDecs (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `{', found " ^ L.toString t)
 
     fun parsePi (LS.Cons ((L.ID (_, "pi"), r), s')) =
           parseDecs (LS.expose s')
-      | parsePi (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parsePi (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `pi', found " ^ L.toString t)
 
     fun parseSome (gbs, LS.Cons ((L.ID (_, "some"), r), s')) =
@@ -267,27 +267,27 @@ struct
         in
           parseSome' ((g1,g2)::gbs, f'')
         end
-      | parseSome (gbs, f as LS.Cons ((L.ID (_, "pi"), r), s')) =
+      | (* GEN CASE BRANCH *) parseSome (gbs, f as LS.Cons ((L.ID (_, "pi"), r), s')) =
         let
           val (g2, f') = parsePi f
         in
           parseSome' ((E.null, g2)::gbs, f')
         end
-      | parseSome (gbs, f as LS.Cons ((L.RPAREN, r), s')) = (gbs, f)
-      | parseSome (gbs, LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseSome (gbs, f as LS.Cons ((L.RPAREN, r), s')) = (gbs, f)
+      | (* GEN CASE BRANCH *) parseSome (gbs, LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `some' or `pi', found " ^ L.toString t)
 
     and parseSome' (gbs, f as LS.Cons ((L.RPAREN, r), s')) = (gbs, f)
-      | parseSome' (gbs, LS.Cons ((L.ID (_, "|"), r), s')) =
+      | (* GEN CASE BRANCH *) parseSome' (gbs, LS.Cons ((L.ID (_, "|"), r), s')) =
           parseSome (gbs, LS.expose s')
-      | parseSome' (gbs, LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseSome' (gbs, LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `)' or `|', found " ^ L.toString t)
 
     fun stripParen (gbs, LS.Cons ((L.RPAREN, r), s')) = (gbs, LS.expose s')
 
     fun parseGBs (LS.Cons ((L.LPAREN, r), s')) =
           stripParen (parseSome (nil, LS.expose s'))
-      | parseGBs (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseGBs (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `(', found " ^ L.toString t)
 
     fun forallG ((gbs', f'), r) =
@@ -323,58 +323,58 @@ struct
     (* parseTrue "true" *)
     and parseTrue (LS.Cons ((L.ID (_, "true"), r), s')) =
           top (LS.expose s', r)
-      | parseTrue (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseTrue (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `true', found " ^ L.toString t)
 
     (* parseExists "exists decs mform | mform" *)
     and parseExists (LS.Cons ((L.ID (_, "exists"), r), s')) =
           exists (parseDecs (LS.expose s'), r)
-      | parseExists (LS.Cons ((L.ID (_, "true"), r), s')) =
+      | (* GEN CASE BRANCH *) parseExists (LS.Cons ((L.ID (_, "true"), r), s')) =
           top (LS.expose s', r)
-      | parseExists (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseExists (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `exists' or `true', found " ^ L.toString t)
 
     (* parseForall "forall decs mform | mform" *)
     and parseForall (LS.Cons ((L.ID (_, "forall"), r), s')) =
           forall (parseDecs (LS.expose s'), r)
-      | parseForall (LS.Cons ((L.ID (_, "exists"), r), s')) =
+      | (* GEN CASE BRANCH *) parseForall (LS.Cons ((L.ID (_, "exists"), r), s')) =
           exists (parseDecs (LS.expose s'), r)
-      | parseForall (LS.Cons ((L.ID (_, "true"), r), s')) =
+      | (* GEN CASE BRANCH *) parseForall (LS.Cons ((L.ID (_, "true"), r), s')) =
           top (LS.expose s', r)
-      | parseForall (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseForall (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `forall', `exists', or `true', found " ^ L.toString t)
 
     (* parseForallStar "forall* decs mform | mform" *)
     and parseForallStar (LS.Cons ((L.ID (_, "forall*"), r), s')) =
           forallStar (parseDecs (LS.expose s'), r)
-      | parseForallStar (LS.Cons ((L.ID (_, "forall"), r), s')) =
+      | (* GEN CASE BRANCH *) parseForallStar (LS.Cons ((L.ID (_, "forall"), r), s')) =
           forall (parseDecs (LS.expose s'), r)
-      | parseForallStar (LS.Cons ((L.ID (_, "exists"), r), s')) =
+      | (* GEN CASE BRANCH *) parseForallStar (LS.Cons ((L.ID (_, "exists"), r), s')) =
           exists (parseDecs (LS.expose s'), r)
-      | parseForallStar (LS.Cons ((L.ID (_, "true"), r), s')) =
+      | (* GEN CASE BRANCH *) parseForallStar (LS.Cons ((L.ID (_, "true"), r), s')) =
           top (LS.expose s', r)
-      | parseForallStar (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseForallStar (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `forall*', `forall', `exists', or `true', found "
                              ^ L.toString t)
 
     and parseCtxScheme (LS.Cons ((L.ID (_, "forallG"), r), s')) =
            forallG (parseGBs (LS.expose s'), r)
-      | parseCtxScheme (LS.Cons ((L.ID (_, "forall*"), r), s')) =
+      | (* GEN CASE BRANCH *) parseCtxScheme (LS.Cons ((L.ID (_, "forall*"), r), s')) =
            forallStar (parseDecs (LS.expose s'), r)
-      | parseCtxScheme (LS.Cons ((L.ID (_, "forall"), r), s')) =
+      | (* GEN CASE BRANCH *) parseCtxScheme (LS.Cons ((L.ID (_, "forall"), r), s')) =
           forall (parseDecs (LS.expose s'), r)
-      | parseCtxScheme (LS.Cons ((L.ID (_, "exists"), r), s')) =
+      | (* GEN CASE BRANCH *) parseCtxScheme (LS.Cons ((L.ID (_, "exists"), r), s')) =
           exists (parseDecs (LS.expose s'), r)
-      | parseCtxScheme (LS.Cons ((L.ID (_, "true"), r), s')) =
+      | (* GEN CASE BRANCH *) parseCtxScheme (LS.Cons ((L.ID (_, "true"), r), s')) =
           top (LS.expose s', r)
-      | parseCtxScheme (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseCtxScheme (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `forallG', `forall*', `forall', `exists', or `true', found "
                              ^ L.toString t)
 
     (* parseColon ": mform" *)
     fun parseColon (LS.Cons ((L.COLON, r), s')) =
           parseCtxScheme (LS.expose s')
-      | parseColon (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseColon (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `:', found " ^ L.toString t)
 
     (* parseThDec "id : mform" *)
@@ -384,7 +384,7 @@ struct
         in
           (E.dec (id, t'), f')
         end
-      | parseThDec (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parseThDec (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected theorem identifier, found " ^ L.toString t)
 
     (* parseTheoremDec' "%theorem thdec." *)
@@ -397,9 +397,9 @@ struct
     (* parsePredicate f = (pred, f')               *)
     (* parses the reduction predicate, <, <=, =   *)
     fun parsePredicate (LS.Cons ((L.ID(_, "<"), r), s')) = (E.predicate ("LESS", r), (LS.expose s'))
-      | parsePredicate (LS.Cons ((L.ID(_, "<="), r), s')) = (E.predicate ("LEQ", r), (LS.expose s'))
-      | parsePredicate (LS.Cons ((L.EQUAL, r), s')) = (E.predicate ("EQUAL", r), (LS.expose s'))
-      | parsePredicate (LS.Cons ((t, r), s')) =
+      | (* GEN CASE BRANCH *) parsePredicate (LS.Cons ((L.ID(_, "<="), r), s')) = (E.predicate ("LEQ", r), (LS.expose s'))
+      | (* GEN CASE BRANCH *) parsePredicate (LS.Cons ((L.EQUAL, r), s')) = (E.predicate ("EQUAL", r), (LS.expose s'))
+      | (* GEN CASE BRANCH *) parsePredicate (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected reduction predicate <, = or <=, found " ^ L.toString t)
 
 
@@ -444,7 +444,7 @@ struct
 
    fun parseWDecl f =
        let
-(*       val (GBs, f1) = parseGBs f *)
+   (*       val (GBs, f1) = parseGBs f *)
          val (qids, f1) = ParseTerm.parseQualIds' f
          val (callpats,f2) = parseCallPats f1
        in

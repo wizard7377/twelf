@@ -39,7 +39,7 @@ struct
     fun cName (cid) = N.qidToString (N.constQid cid)
 
     fun pName (cid, SOME(x)) = "#" ^ cName cid ^ "_" ^ x
-      | pName (cid, NONE) = "#" ^ cName cid ^ "_?"
+      | (* GEN CASE BRANCH *) pName (cid, NONE) = "#" ^ cName cid ^ "_?"
 
     (*---------------------*)
     (* Auxiliary Functions *)
@@ -57,7 +57,7 @@ struct
         in
           instEVars (G, (V2, (I.Dot (I.Exp (X1), s))))
         end
-      | instEVars (G, Vs as (I.Root _, _)) = Vs
+      | (* GEN CASE BRANCH *) instEVars (G, Vs as (I.Root _, _)) = Vs
 
     (* generalized from ../cover/cover.fun *)
     (* createEVarSub (G, G') = s
@@ -67,7 +67,7 @@ struct
        then G |- s : G' and s instantiates each x:A with an EVar G |- X : A
     *)
     fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
-      | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
+      | (* GEN CASE BRANCH *) createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
         let
           val s = createEVarSub (G, G')
           val V' = I.EClo (V, s)
@@ -88,11 +88,11 @@ struct
        Effect: may instantiate EVars in all inputs
     *)
     fun unifiableSpines (G, (I.Nil, s), (I.Nil, s'), M.Mnil) = true
-      | unifiableSpines (G, (I.App (U1, S2), s), (I.App (U1', S2'), s'),
+      | (* GEN CASE BRANCH *) unifiableSpines (G, (I.App (U1, S2), s), (I.App (U1', S2'), s'),
                          M.Mapp (M.Marg (M.Plus, _), ms2)) =
           unifiable (G, (U1, s), (U1', s'))
           andalso unifiableSpines (G, (S2, s), (S2', s'), ms2)
-      | unifiableSpines (G, (I.App (U1, S2), s), (I.App (U1', S2'), s'),
+      | (* GEN CASE BRANCH *) unifiableSpines (G, (I.App (U1, S2), s), (I.App (U1', S2'), s'),
                          M.Mapp (M.Marg (mode, _), ms2)) =
         (* skip output ( - ) or ignore ( * ) arguments *)
           unifiableSpines (G, (S2, s), (S2', s'), ms2)
@@ -142,7 +142,7 @@ struct
        Effect: raises Error(msg) otherwise
     *)
     fun checkUniqueConstConsts (c, nil, ms) = ()
-      | checkUniqueConstConsts (c, c'::cs', ms) =
+      | (* GEN CASE BRANCH *) checkUniqueConstConsts (c, c'::cs', ms) =
         ( checkDiffConstConst (c, c', ms) ;
           checkUniqueConstConsts (c, cs', ms) )
 
@@ -152,7 +152,7 @@ struct
        Effect: raises Error(msg) otherwise
     *)
     fun checkUniqueConsts (nil, ms) = ()
-      | checkUniqueConsts (c::cs, ms) =
+      | (* GEN CASE BRANCH *) checkUniqueConsts (c::cs, ms) =
         ( checkUniqueConstConsts (c, cs, ms);
           checkUniqueConsts (cs, ms) )
 
@@ -167,7 +167,7 @@ struct
        Invariant: V[s] = a @ S and ms is mode spine for a
     *)
     fun checkDiffBlocksInternal (G, Vs, (t, nil), (a, ms), bx) = ()
-      | checkDiffBlocksInternal (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (b, xOpt)) =
+      | (* GEN CASE BRANCH *) checkDiffBlocksInternal (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (b, xOpt)) =
         let
           val a' = I.targetFam V'
           val _ = if (a = a')
@@ -187,7 +187,7 @@ struct
        Effect: raises Error(msg) otherwise
     *)
     fun checkUniqueBlockInternal' (G, (t, nil), (a, ms), b) = ()
-      | checkUniqueBlockInternal' (G, (t, (D as I.Dec(xOpt, V))::piDecs), (a, ms), b) =
+      | (* GEN CASE BRANCH *) checkUniqueBlockInternal' (G, (t, (D as I.Dec(xOpt, V))::piDecs), (a, ms), b) =
         let
           val a' = I.targetFam V
           val _ = if (a = a')
@@ -219,7 +219,7 @@ struct
        Effect: raises Error(msg) otherwise
     *)
     fun checkUniqueBlockConsts (G, Vs, nil, ms, bx) = ()
-      | checkUniqueBlockConsts (G, Vs, I.Const(cid)::cs, ms, bx) =
+      | (* GEN CASE BRANCH *) checkUniqueBlockConsts (G, Vs, I.Const(cid)::cs, ms, bx) =
         let
           val _ = chatter 6 (fn () => "?- " ^ pName bx ^ " ~ " ^ cName cid ^ "\n")
           val Vs' = instEVars (G, (I.constType cid, I.id))
@@ -240,7 +240,7 @@ struct
        Effect: raises Error(msg) otherwise
     *)
     fun checkUniqueBlockBlock (G, Vs, (t, nil), (a, ms), (bx, b')) = ()
-      | checkUniqueBlockBlock (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (bx, b')) =
+      | (* GEN CASE BRANCH *) checkUniqueBlockBlock (G, (V, s), (t, (D as I.Dec(yOpt, V'))::piDecs), (a, ms), (bx, b')) =
         let
           val a' = I.targetFam V'
           val _ = if (a = a')
@@ -256,7 +256,7 @@ struct
        bx = (b, xOpt) is the block identifier and parameter name is which V[s] occur
     *)
     fun checkUniqueBlockBlocks (G, Vs, nil, (a, ms), bx) = ()
-      | checkUniqueBlockBlocks (G, Vs, b::bs, (a, ms), bx) =
+      | (* GEN CASE BRANCH *) checkUniqueBlockBlocks (G, Vs, b::bs, (a, ms), bx) =
         let
           val (Gsome, piDecs) = I.constBlock b
           val t = createEVarSub (G, Gsome)
@@ -272,7 +272,7 @@ struct
        b is the block identifier in which piDecs occur for error messages
     *)
     fun checkUniqueBlock' (G, (t, nil), bs, cs, (a, ms), b) = ()
-      | checkUniqueBlock' (G, (t, (D as I.Dec(xOpt, V))::piDecs), bs, cs, (a, ms), b) =
+      | (* GEN CASE BRANCH *) checkUniqueBlock' (G, (t, (D as I.Dec(xOpt, V))::piDecs), bs, cs, (a, ms), b) =
         let
           val a' = I.targetFam V
           val _ = if (a = a')
@@ -304,7 +304,7 @@ struct
        Effect: raise Error(msg) otherwise
     *)
     fun checkUniqueWorlds (nil, cs, (a, ms)) = ()
-      | checkUniqueWorlds (b::bs, cs, (a, ms)) =
+      | (* GEN CASE BRANCH *) checkUniqueWorlds (b::bs, cs, (a, ms)) =
         ( checkUniqueBlockInternal (I.constBlock b, (a, ms), b) ;
           checkUniqueBlock (I.constBlock b, b::bs, cs, (a, ms), b) ;
           checkUniqueWorlds (bs, cs, (a, ms)) )
@@ -333,20 +333,20 @@ struct
                   handle Subordinate.Error (msg) =>
                     raise Error ("Coverage checking " ^ cName a ^ ":\n"
                                  ^ msg)
-
-
+    
+    
           val cs = Index.lookup a       (* lookup constants defining a *)
           val T.Worlds (bs) = W.lookup a (* worlds declarations for a *)
                               handle W.Error (msg)
                               => raise Error ("Uniqueness checking " ^ cName a
                                               ^ ":\nMissing world declaration for "
                                               ^ cName a)
-
+    
           val _ = checkUniqueConsts (cs, ms)
                   handle Error (msg) => raise Error ("Uniqueness checking " ^ cName a ^ ":\n" ^ msg)
           val _ = checkUniqueWorlds (bs, cs, (a, ms))
                   handle Error (msg) => raise Error ("Uniqueness checking " ^ cName a ^ ":\n" ^ msg)
-
+    
           val _ = chatter 5 (fn () => "Checking uniqueness modes for family " ^ cName a ^ "\n")
           val _ = UniqueCheck.checkMode (a, ms)
                   handle UniqueCheck.Error (msg) =>

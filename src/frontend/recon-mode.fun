@@ -75,11 +75,11 @@ struct
             val T.JWithCtx (G, T.JOf ((V, _), _, _)) =
                   T.recon (T.jwithctx (g, T.jof (tm, T.typ (r))))
             val _ = T.checkErrors (r)
-
+      
             (* convert term spine to mode spine *)
             (* Each argument must be contractible to variable *)
             fun convertSpine (I.Nil) = M.Mnil
-              | convertSpine (I.App (U, S)) =
+              | (* GEN CASE BRANCH *) convertSpine (I.App (U, S)) =
                 let
                   val k = Whnf.etaContract U
                           handle Whnf.Eta =>
@@ -92,17 +92,17 @@ struct
                 in
                   M.Mapp (M.Marg (mode, name), convertSpine S)
                 end
-
+      
             (* convert root expression to head constant and mode spine *)
             fun convertExp (I.Root (I.Const (a), S)) =
                   (a, convertSpine S)
-              | convertExp (I.Root (I.Def (d), S))  =
+              | (* GEN CASE BRANCH *) convertExp (I.Root (I.Def (d), S))  =
                   (* error is signalled later in ModeDec.checkFull *)
                   (d, convertSpine S)
-              | convertExp _ =
+              | (* GEN CASE BRANCH *) convertExp _ =
                   error (r, "Call pattern not an atomic type")
               (* convertExp (I.Root (I.Skonst _, S)) can't occur *)
-
+      
             val (a, mS) = convertExp (Whnf.normalize (V, I.id))
           in
             (ModeDec.checkFull (a, mS, r);  ((a, mS), r))

@@ -42,7 +42,7 @@ struct
     fun lex (r0, L) =
         let
           fun lex' nil = (nil, r0)
-            | lex' ((O, r) :: L) =
+            | (* GEN CASE BRANCH *) lex' ((O, r) :: L) =
               let
                 val (Os, r') = lex' L
               in
@@ -56,7 +56,7 @@ struct
     fun simul (r0, L) =
         let
           fun simul' nil = (nil, r0)
-            | simul' ((O, r) :: L) =
+            | (* GEN CASE BRANCH *) simul' ((O, r) :: L) =
               let
                 val (Os, r') = simul' L
               in
@@ -70,37 +70,37 @@ struct
     type callpats = (ThmSyn.callpats * Paths.region list)
 
     fun checkArgNumber (0, I.Uni (I.Type), nil, r) = ()
-      | checkArgNumber (0, I.Pi (_, V2), arg::args, r) =
+      | (* GEN CASE BRANCH *) checkArgNumber (0, I.Pi (_, V2), arg::args, r) =
           checkArgNumber (0, V2, args, r)
-      | checkArgNumber (0, I.Pi (_, V2), nil, r) =
+      | (* GEN CASE BRANCH *) checkArgNumber (0, I.Pi (_, V2), nil, r) =
           error (r, "Missing arguments in call pattern")
-      | checkArgNumber (0, I.Uni (I.Type), arg::args, r) =
+      | (* GEN CASE BRANCH *) checkArgNumber (0, I.Uni (I.Type), arg::args, r) =
           error (r, "Extraneous arguments in call pattern")
-      | checkArgNumber (i, I.Pi (_, V2), args, r) =
+      | (* GEN CASE BRANCH *) checkArgNumber (i, I.Pi (_, V2), args, r) =
           checkArgNumber (i-1, V2, args, r)
       (* everything else should be impossible! *)
 
     fun checkCallPat (I.ConDec (_, _, i, I.Normal, V, I.Kind), P, r) =
           checkArgNumber (i, V, P, r)
-      | checkCallPat (I.ConDec (a, _, _, I.Constraint _, _, _), P, r) =
+      | (* GEN CASE BRANCH *) checkCallPat (I.ConDec (a, _, _, I.Constraint _, _, _), P, r) =
           error (r, "Illegal constraint constant " ^ a ^ " in call pattern")
-      | checkCallPat (I.ConDec (a, _, _, I.Foreign _, _, _), P, r) =
+      | (* GEN CASE BRANCH *) checkCallPat (I.ConDec (a, _, _, I.Foreign _, _, _), P, r) =
           error (r, "Illegal foreign constant " ^ a ^ " in call pattern")
-      | checkCallPat (I.ConDec (a, _, _, _, _, I.Type), P, r) =
+      | (* GEN CASE BRANCH *) checkCallPat (I.ConDec (a, _, _, _, _, I.Type), P, r) =
           error (r, "Constant " ^ a ^ " in call pattern not a type family")
-      | checkCallPat (I.ConDef (a, _, _, _, _, _, _), P, r) =
+      | (* GEN CASE BRANCH *) checkCallPat (I.ConDef (a, _, _, _, _, _, _), P, r) =
           error (r, "Illegal defined constant " ^ a ^ " in call pattern")
-      | checkCallPat (I.AbbrevDef (a, _, _, _, _, _), P, r) =
+      | (* GEN CASE BRANCH *) checkCallPat (I.AbbrevDef (a, _, _, _, _, _), P, r) =
           error (r, "Illegal abbreviation " ^ a ^ " in call pattern")
-      | checkCallPat (I.BlockDec (a, _, _, _), P, r) =
+      | (* GEN CASE BRANCH *) checkCallPat (I.BlockDec (a, _, _, _), P, r) =
           error (r, "Illegal block identifier " ^ a ^ " in call pattern")
-      | checkCallPat (I.SkoDec (a, _, _, _, _), P, r) =
+      | (* GEN CASE BRANCH *) checkCallPat (I.SkoDec (a, _, _, _, _), P, r) =
           error (r, "Illegal Skolem constant " ^ a ^ " in call pattern")
 
     fun callpats L =
         let
           fun callpats' nil = (nil, nil)
-            | callpats' ((name, P, r) :: L) =
+            | (* GEN CASE BRANCH *) callpats' ((name, P, r) :: L) =
               let
                 val (cps, rs) = (callpats' L)
                 val qid = Names.Qid (nil, name)
@@ -127,8 +127,8 @@ struct
     (* predicate *)
     type predicate = ThmSyn.predicate * Paths.region
     fun predicate ("LESS", r) = (ThmSyn.Less, r)
-      | predicate ("LEQ", r) =  (ThmSyn.Leq, r)
-      | predicate ("EQUAL", r) = (ThmSyn.Eq, r)
+      | (* GEN CASE BRANCH *) predicate ("LEQ", r) =  (ThmSyn.Leq, r)
+      | (* GEN CASE BRANCH *) predicate ("EQUAL", r) = (ThmSyn.Eq, r)
 
     (* reduces declaration *)
     type rdecl = ThmSyn.r_decl * (Paths.region * Paths.region list)
@@ -202,10 +202,10 @@ struct
     fun dec (name, t) = (name, t)
 
     fun ctxAppend (G, I.Null) = G
-      | ctxAppend (G, I.Decl (G', D)) = I.Decl (ctxAppend (G, G'), D)
+      | (* GEN CASE BRANCH *) ctxAppend (G, I.Decl (G', D)) = I.Decl (ctxAppend (G, G'), D)
 
     fun ctxMap f (I.Null) = I.Null
-      | ctxMap f (I.Decl (G, D)) = I.Decl (ctxMap f G, f D)
+      | (* GEN CASE BRANCH *) ctxMap f (I.Decl (G, D)) = I.Decl (ctxMap f G, f D)
 
     fun ctxBlockToString (G0, (G1, G2)) =
         let
@@ -220,7 +220,7 @@ struct
         end
 
     fun checkFreevars (I.Null, (G1, G2), r) = ()
-      | checkFreevars (G0, (G1, G2), r) =
+      | (* GEN CASE BRANCH *) checkFreevars (G0, (G1, G2), r) =
         let
           val _ = Names.varReset I.Null
           val G0' = Names.ctxName G0

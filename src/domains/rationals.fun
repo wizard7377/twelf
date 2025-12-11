@@ -22,7 +22,7 @@ struct
     exception Div
 
     fun normalize (Fract (0, _, _)) = zero
-      | normalize (Fract (s, n, d)) =
+      | (* GEN CASE BRANCH *) normalize (Fract (s, n, d)) =
           let
             fun gcd (m, n) =
                   if (m = I.fromInt(0)) then n
@@ -56,7 +56,7 @@ struct
           normalize (Fract(Int.*(s1, s2), I.*(n1, n2), I.*(d1, d2)))
 
     fun inverse (Fract (0, _, _)) = raise Div
-      | inverse (Fract (s, n, d)) = (Fract (s, d, n))
+      | (* GEN CASE BRANCH *) inverse (Fract (s, n, d)) = (Fract (s, d, n))
 
     fun sign (Fract (s, n, d)) = s
 
@@ -89,7 +89,7 @@ struct
                   if (c = #"~")
                   then (List.all Char.isDigit chars')
                   else (List.all Char.isDigit chars)
-              | check_numerator nil =
+              | (* GEN CASE BRANCH *) check_numerator nil =
                   false
             fun check_denominator (chars) =
                   (List.all Char.isDigit chars)

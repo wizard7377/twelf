@@ -56,29 +56,29 @@ struct
   *)
 
     fun cidFromHead (I.Const a) = a
-      | cidFromHead (I.Def a) = a
+      | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
 
     fun eqHead (I.Const a, I.Const a') = a = a'
-      | eqHead (I.Def a, I.Def a') = a = a'
-      | eqHead _ = false
+      | (* GEN CASE BRANCH *) eqHead (I.Def a, I.Def a') = a = a'
+      | (* GEN CASE BRANCH *) eqHead _ = false
 
     (* Wed Mar 13 10:27:00 2002 -bp  *)
     (* should probably go to intsyn.fun *)
     fun compose (G, IntSyn.Null) = G
-      | compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
+      | (* GEN CASE BRANCH *) compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
 
     fun shiftSub (IntSyn.Null, s) = s
-      | shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
+      | (* GEN CASE BRANCH *) shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
 
     fun subgoalNum (I.Nil) = 1
-      | subgoalNum (I.App (U, S)) = 1 + subgoalNum S
+      | (* GEN CASE BRANCH *) subgoalNum (I.App (U, S)) = 1 + subgoalNum S
 
     (* currently unused *)
     fun goalToType (C.All (D, g), s) =
           I.Pi ((I.decSub (D,s), I.Maybe), goalToType (g, I.dot1 s))
-      | goalToType (C.Impl (_, A, _, g), s) =
+      | (* GEN CASE BRANCH *) goalToType (C.Impl (_, A, _, g), s) =
           I.Pi ((I.Dec (NONE, I.EClo (A, s)), I.No), goalToType (g, I.dot1 s))
-      | goalToType (C.Atom(p), s) =
+      | (* GEN CASE BRANCH *) goalToType (C.Atom(p), s) =
           I.EClo (p, s)
 
   (* solve' ((g, s), dp, sc) = ()
@@ -93,7 +93,7 @@ struct
               any effect  sc M  might have
   *)
   fun solve' ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) = matchAtom ((p,s), dp, sc)
-    | solve' ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) solve' ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
         val D' as I.Dec(SOME(x),_) = N.decUName (G, I.Dec(NONE, I.EClo(A,s)))
         val _ = T.signal (G, T.IntroHyp (Ha, D'))
@@ -102,7 +102,7 @@ struct
                 (fn M => (T.signal (G, T.DischargeHyp (Ha, D'));
                           sc (I.Lam (D', M)))))
       end
-    | solve' ((C.All(D, g), s), C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) solve' ((C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
         val D' as I.Dec(SOME(x),V) = N.decUName (G, I.decSub (D, s))
         val Ha = I.targetHead V
@@ -137,7 +137,7 @@ struct
                           false))               (* shallow backtracking *)
 
 
-    | rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), HcHa, sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), HcHa, sc) =
       (* Do not signal unification events for optimized clauses *)
       (* Optimized clause heads lead to unprintable substitutions *)
       ((* T.signal (G, T.Unify (HcHa, I.EClo (Q, s), I.EClo ps')); *)
@@ -146,7 +146,7 @@ struct
           | NONE => ((* T.signal (G, T.FailUnify (HcHa, "Assignment failed")); *)
                      false))
 
-    | rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), HcHa, sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
         (* is this EVar redundant? -fp *)
         val X = I.newEVar (G, I.EClo(A, s))
@@ -156,13 +156,13 @@ struct
                  (T.signal (G, T.Subgoal (HcHa, fn () => subgoalNum S));
                   solve' ((g, s), dp, (fn M => sc (I.App (M, S)))))))
       end
-    | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
         val X = I.newEVar (G, I.EClo (A,s))
       in
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, HcHa, (fn S => sc (I.App(X,S))))
       end
-    | rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
         val X = I.newAVar ()
       in
@@ -187,7 +187,7 @@ struct
         else
           ((* T.signal (G, T.FailUnify (HcHa, "Dynamic residual equations failed")); *)
            false)
-    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), HcHa, cnstr, sc) =
+    | (* GEN CASE BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), HcHa, cnstr, sc) =
       let
         val G'' = compose (G, G')
         val s' = shiftSub (G', s)
@@ -216,21 +216,21 @@ struct
       let
         val tag = T.tagGoal ()
         val _ = T.signal (G, T.SolveGoal (tag, Ha, I.EClo ps'))
-
+  
         val deterministic = C.detTableCheck (cidFromHead Ha)
         exception SucceedOnce of I.spine
-
+  
         (* matchSig [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting
            with c1.
-
+  
            #succeeds >= 1 (succeeds at least once)
         *)
-
+  
         fun matchSig nil =
             (T.signal (G, T.FailGoal (tag, Ha, I.EClo ps'));
              ())        (* return on failure *)
-          | matchSig (Hc::sgn') =
+          | (* GEN CASE BRANCH *) matchSig (Hc::sgn') =
             let
               val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -247,17 +247,17 @@ struct
                 ();
               matchSig sgn'
             end
-
+  
         (* matchSigDet [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting
            with c1. -- succeeds exactly once
-
+  
            succeeds exactly once (#succeeds = 1)
         *)
         fun matchSigDet nil =
             (T.signal (G, T.FailGoal (tag, Ha, I.EClo ps'));
              ())        (* return on failure *)
-          | matchSigDet (Hc::sgn') =
+          | (* GEN CASE BRANCH *) matchSigDet (Hc::sgn') =
             let
               val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -276,7 +276,7 @@ struct
               handle SucceedOnce S => (T.signal (G, T.CommitGoal (tag, (Hc, Ha), I.EClo ps'));
                                        sc (I.Root(Hc, S)))
             end
-
+  
         (* matchDProg (dPool, k) = ()
            where k is the index of dPool in global dPool from call to matchAtom.
            Try each local assumption for solving atomic goal ps', starting
@@ -287,7 +287,7 @@ struct
             if deterministic
               then matchSigDet (Index.lookup (cidFromHead Ha))
             else matchSig (Index.lookup (cidFromHead Ha))
-          | matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
+          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
             if eqHead (Ha, Ha')
             then
               (if deterministic
@@ -304,7 +304,7 @@ struct
                       matchDProg (dPool', k+1))
                     handle SucceedOnce S => (T.signal (G, T.CommitGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
                                              sc (I.Root(I.BVar(k), S))))
-
+            
                else (* #succeeds >= 1 -- allows backtracking *)
                  (if
                     CSManager.trail (fn () =>
@@ -319,7 +319,7 @@ struct
                     ();
                     matchDProg (dPool', k+1)))
             else matchDProg (dPool', k+1)
-          | matchDProg (I.Decl (dPool', C.Parameter), k) =
+          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Parameter), k) =
               matchDProg (dPool', k+1)
         fun matchConstraint (cnstrSolve, try) =
               let

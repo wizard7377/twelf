@@ -24,7 +24,7 @@ struct
   fun op* (m, n) = normalize (Int.*(m, n))
 
   fun inverse (0) = raise Div
-    | inverse (n) =
+    | (* GEN CASE BRANCH *) inverse (n) =
         let
           (* alternative: compute n^(p-2) *)
           fun inverse' i =

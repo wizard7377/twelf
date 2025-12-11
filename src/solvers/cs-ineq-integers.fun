@@ -245,7 +245,7 @@ struct
 
     (* return the label at the given position (row or column) *)
     fun label (Row(i)) = rlabel (i)
-      | label (Col(j)) = clabel (j)
+      | (* GEN CASE BRANCH *) label (Col(j)) = clabel (j)
 
     (* return the restriction on the given label *)
     fun restriction (l : label) = !(#restr(l))
@@ -277,16 +277,16 @@ struct
 
     (* return the context of a owner *)
     fun ownerContext (Var (G, mon)) = G
-      | ownerContext (Exp (G, sum)) = G
+      | (* GEN CASE BRANCH *) ownerContext (Exp (G, sum)) = G
 
     (* return the owner as a sum *)
     fun ownerSum (Var (G, mon)) = Sum(zero_int, [mon])
-      | ownerSum (Exp (G, sum)) = sum
+      | (* GEN CASE BRANCH *) ownerSum (Exp (G, sum)) = sum
 
     (* debugging code - REMOVE *)
     fun displayPos (Row(row)) =
           print ("row " ^ Int.toString(row) ^ "\n")
-      | displayPos (Col(col)) =
+      | (* GEN CASE BRANCH *) displayPos (Col(col)) =
           print ("column " ^ Int.toString(col) ^ "\n")
 
     (* debugging code - REMOVE *)
@@ -296,7 +296,7 @@ struct
             print " ? + ";
             displaySum (Sum(m, monL))
           )
-      | displaySum (Sum(m, nil)) =
+      | (* GEN CASE BRANCH *) displaySum (Sum(m, nil)) =
           (
             print (Integers.toString m);
             print " >= 0\n"
@@ -351,7 +351,7 @@ struct
     fun findMon (mon) =
           let
             exception Found of int
-
+    
             fun find (i, l : label) =
                   (case (#owner(l))
                      of (Var (G, mon')) =>
@@ -371,7 +371,7 @@ struct
     fun findTag (t) =
           let
             exception Found of int
-
+    
             fun find (i, l : label) =
                   if (#tag(l) = t)
                   then raise Found i
@@ -397,7 +397,7 @@ struct
     fun isSubsumed (row) =
           let
             val constRow = const (row)
-
+    
             fun isSubsumedByRow () =
                   let
                     (* the candidates are those (active) rows with the same constant
@@ -416,7 +416,7 @@ struct
                        the same coefficient in column j
                     *)
                     fun filter (j, l, nil) = nil
-                      | filter (j, l : label, candidates) =
+                      | (* GEN CASE BRANCH *) filter (j, l : label, candidates) =
                           if not (dead (l))
                           then
                              List.filter
@@ -430,7 +430,7 @@ struct
                        of nil => NONE
                         | (i :: _) => SOME(i))
                   end
-
+    
             fun isSubsumedByCol () =
                   if (constRow = zero)
                   then
@@ -476,10 +476,10 @@ struct
             (* extend Integers.compare to deal with NONE (= infinity) *)
             fun compareScore (SOME(d), SOME(d')) =
                   compare (d, d')
-              | compareScore (SOME(d), NONE) = LESS
-              | compareScore (NONE, SOME(d')) = GREATER
-              | compareScore (NONE, NONE) = EQUAL
-
+              | (* GEN CASE BRANCH *) compareScore (SOME(d), NONE) = LESS
+              | (* GEN CASE BRANCH *) compareScore (NONE, SOME(d')) = GREATER
+              | (* GEN CASE BRANCH *) compareScore (NONE, NONE) = EQUAL
+     
             (* find the best pivot candidates for the given row *)
             fun findPivotCol (j, l : label, result as (score, champs)) =
                   let
@@ -536,17 +536,17 @@ struct
     fun pivot (row, col) =
           let
             val pCoeffInverse = inverse (coeff (row, col))
-
+    
             val pRowVector =
                   Array2.row (#coeffs(tableau), row, (0, nCols ()))
             fun pRow(j) = Vector.sub (pRowVector, j)
-
+    
             val pColVector =
                   Array2.column (#coeffs(tableau), col, (0, nRows ()))
             fun pCol(i) = Vector.sub (pColVector, i)
-
+    
             val pConst = const (row)
-
+    
             val pRLabel = rlabel (row)
             val pCLabel = clabel (col)
           in
@@ -560,7 +560,7 @@ struct
                       (* any other row *)
                       value - (pConst * pCol(i) * pCoeffInverse))
                  (#consts(tableau), 0, nRows());
-
+    
                 Array2.modify Array2.ColMajor
                   (fn (i, j, value) =>
                      (case (i = row, j = col)
@@ -578,7 +578,7 @@ struct
                              value - (pRow(j) * pCol (i) * pCoeffInverse)))
                   {base = (#coeffs(tableau)), row = 0, col = 0,
                    nrows = nRows(), ncols = nCols ()};
-
+    
                Array.update (#rlabels(tableau), row, pCLabel);
                Array.update (#clabels(tableau), col, pRLabel)
             )
@@ -668,7 +668,7 @@ struct
     and insertDecomp (decomp as (d, wposL), owner) =
           let
             val new = incrNRows ()
-
+    
             fun insertWPos (d, pos) =
                   (case pos
                      of Row(row) =>
@@ -768,7 +768,7 @@ struct
                               )
                      end
           end
-      | restrict (pos as Row(row), restr) =
+      | (* GEN CASE BRANCH *) restrict (pos as Row(row), restr) =
           let
             val l = label(pos)
           in
@@ -810,10 +810,10 @@ struct
     and insertEqual (G, pos, sum) =
           let
             val (m, wposL) = decomposeSum (G, sum)
-
+    
             val decomp' = (m, (~one, pos) :: wposL)
             val pos' = insertDecomp (decomp', Exp (G, Sum(zero_int, nil)))
-
+    
             val decomp'' = unaryMinusDecomp (decomp')
             val tag'' = #tag(label (insertDecomp (decomp'', Exp (G, Sum(zero_int, nil)))))
           in
@@ -861,7 +861,7 @@ struct
                         if (m = zero_int) andalso (n = one_int)
                         then SOME(mon)
                         else NONE
-                    | isVar (sum) = NONE
+                    | (* GEN CASE BRANCH *) isVar (sum) = NONE
                 in
                   case isVar (sum)
                     of SOME(mon) =>
@@ -923,7 +923,7 @@ struct
                                  pos :: tried,
                                  closure')
                     end
-              | reachable ((pos as Col(col)) :: candidates, tried, closure) =
+              | (* GEN CASE BRANCH *) reachable ((pos as Col(col)) :: candidates, tried, closure) =
                   if member (pos, tried)
                   then reachable (candidates, tried, closure)
                   else
@@ -943,7 +943,7 @@ struct
                                  pos :: tried,
                                  closure')
                     end
-              | reachable (nil, _, closure) = closure
+              | (* GEN CASE BRANCH *) reachable (nil, _, closure) = closure
             fun restrExp (pos) =
                   let
                     val l = label(pos)
@@ -953,7 +953,7 @@ struct
                   in
                     (G, geq0 (U))
                   end
-
+    
           in
             List.map restrExp (reachable ([pos], nil, nil))
           end
@@ -995,7 +995,7 @@ struct
     and isIntegral () =
           let
             exception Found of int
-
+    
             fun find (i, l : label) =
                   if not (dead (l)) then
                     if (denominator (const (i)) <> one_int)
@@ -1012,7 +1012,7 @@ struct
           let
             val W = newEVar (G, number ())
             val proof = newEVar (G, geq0 (W))
-
+    
             val (d', wPosL) = unaryMinusDecomp (decomp)
             val pos = insertDecomp ((d' + d, wPosL), Var(G, Mon(one_int, [(W, id)])))
           in
@@ -1024,7 +1024,7 @@ struct
           let
             val W = newEVar (G, number ())
             val proof = newEVar (G, geq0 (W))
-
+    
             val (d', wPosL) = decomp
             val pos = insertDecomp ((d' - d, wPosL), Var(G, Mon(one_int, [(W, id)])))
           in
@@ -1042,10 +1042,10 @@ struct
                       val value = const (row)
                       val decomp = (zero, [(one, Row(row))])
                       val G = ownerContext(#owner(label(Row(row))))
-
+    
                       val lower = fromInteger (floor (value))
                       val upper = fromInteger (ceiling (value))
-
+    
                       fun left () =
                             exploreBB (boundLower (G, decomp, lower))
                       fun right () =
@@ -1068,10 +1068,10 @@ struct
                   let
                     val decomp = (zero, [(one, Col(j))])
                     val G = ownerContext(#owner(label(Col(j))))
-
+    
                     val lower = ~one
                     val upper = one
-
+    
                     fun left () =
                           exploreBB (boundLower (G, decomp, lower))
                     fun right () =
@@ -1194,19 +1194,19 @@ struct
             Array.update(#consts(tableau), row, zero);
             decrNRows ()
           )
-      | undo (Insert(Col(col))) =
+      | (* GEN CASE BRANCH *) undo (Insert(Col(col))) =
           (
             #dead(Array.sub (#clabels(tableau), col)) := true;
             clearArray2Col (#coeffs(tableau), col, (0, nRows()));
             decrNCols ()
           )
-      | undo (Pivot(row, col)) =
+      | (* GEN CASE BRANCH *) undo (Pivot(row, col)) =
           pivot(row, col)
-      | undo (Kill(pos)) =
+      | (* GEN CASE BRANCH *) undo (Kill(pos)) =
           #dead(label(pos)) := false
-      | undo (Restrict(pos)) =
+      | (* GEN CASE BRANCH *) undo (Restrict(pos)) =
           #restr(label(pos)) := NONE
-      | undo (UpdateOwner(pos, owner, tag)) =
+      | (* GEN CASE BRANCH *) undo (UpdateOwner(pos, owner, tag)) =
           setOwnership (pos, owner, tag)
 
     (* reset the internal status of the tableau *)
@@ -1243,11 +1243,11 @@ struct
 
     (* fst (S, s) = U1, the first argument in S[s] *)
     fun fst (App (U1, _), s) = (U1, s)
-      | fst (SClo (S, s'), s) = fst (S, comp (s', s))
+      | (* GEN CASE BRANCH *) fst (SClo (S, s'), s) = fst (S, comp (s', s))
 
     (* snd (S, s) = U2, the second argument in S[s] *)
     fun snd (App (U1, S), s) = fst (S, s)
-      | snd (SClo (S, s'), s) = snd (S, comp (s', s))
+      | (* GEN CASE BRANCH *) snd (SClo (S, s'), s) = snd (S, comp (s', s))
 
     (* checks if the given foreign term can be simplified to a constant *)
     fun isConstantExp (U) =
@@ -1278,7 +1278,7 @@ struct
                          in
                            proof
                          end
-
+    
             val U1 = EClo (fst (S, id))
             val U2 = EClo (snd (S, id))
           in
@@ -1294,7 +1294,7 @@ struct
                 end
             ) handle Error => NONE
           end
-      | solveGeq (G, S, n) = NONE
+      | (* GEN CASE BRANCH *) solveGeq (G, S, n) = NONE
 
     (* constructors for higher-order types *)
     fun pi (name, U, V) = Pi ((Dec (SOME(name), U), Maybe), V)
@@ -1319,7 +1319,7 @@ struct
     fun init (cs, installF) =
           (
             myID := cs;
-
+    
             geqID :=
               installF (ConDec (">=", NONE, 0,
                                 Constraint (!myID, solveGeq),
@@ -1327,7 +1327,7 @@ struct
                         SOME(FX.Infix(FX.minPrec, FX.None)),
                         [MS.Mapp(MS.Marg(MS.Star, NONE),
                                 MS.Mapp(MS.Marg(MS.Star, NONE), MS.Mnil))]);
-
+    
             geqAddID :=
               installF (ConDec ("+>=", NONE, 2, Normal,
                                 pi ("X", number(),
@@ -1341,7 +1341,7 @@ struct
                                                               Root (BVar 2, Nil))))))),
                                 Type),
                         NONE, nil);
-
+    
             installFgnCnstrOps ();
             ()
           )

@@ -58,7 +58,7 @@ struct
        and  forall x:A in G'  A subordinate to a
      *)
     fun weaken (I.Null, a) = I.id
-      | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
+      | (* GEN CASE BRANCH *) weaken (I.Decl (G', D as I.Dec (name, V)), a) =
         let
           val w' = weaken (G', a)
         in
@@ -114,20 +114,20 @@ struct
        converts mode spine ms to cover instructions ci for input coverage
     *)
     fun inCoverInst (M.Mnil) = Cnil
-      | inCoverInst (M.Mapp (M.Marg (M.Plus, x), ms')) =
+      | (* GEN CASE BRANCH *) inCoverInst (M.Mapp (M.Marg (M.Plus, x), ms')) =
           Match (inCoverInst ms')
-      | inCoverInst (M.Mapp (M.Marg (M.Minus, x), ms')) =
+      | (* GEN CASE BRANCH *) inCoverInst (M.Mapp (M.Marg (M.Minus, x), ms')) =
           Skip (inCoverInst ms')
-      | inCoverInst (M.Mapp (M.Marg (M.Star, x), ms')) =
+      | (* GEN CASE BRANCH *) inCoverInst (M.Mapp (M.Marg (M.Star, x), ms')) =
           Skip (inCoverInst ms')
 
     (* outCoverInst (ms) = ci
        converts mode spine ms to cover instructions ci for output coverage
     *)
     fun outCoverInst (M.Mnil) = Cnil
-      | outCoverInst (M.Mapp (M.Marg (M.Plus, x), ms')) =
+      | (* GEN CASE BRANCH *) outCoverInst (M.Mapp (M.Marg (M.Plus, x), ms')) =
           Skip (outCoverInst ms')
-      | outCoverInst (M.Mapp (M.Marg (M.Minus, x), ms')) =
+      | (* GEN CASE BRANCH *) outCoverInst (M.Mapp (M.Marg (M.Minus, x), ms')) =
           Match (outCoverInst ms')
       (* this last case should be impossible *)
       (* output coverage only from totality checking, where there can be *)
@@ -147,7 +147,7 @@ struct
       | Child of case_label * int        (* lab.n, n >= 1 *)
 
     fun labToString (Top) = "^"
-      | labToString (Child(lab, n)) = labToString(lab) ^ "." ^ Int.toString(n)
+      | (* GEN CASE BRANCH *) labToString (Child(lab, n)) = labToString(lab) ^ "." ^ Int.toString(n)
 
     fun chatter chlev f =
         if !Global.chatter >= chlev
@@ -155,14 +155,14 @@ struct
         else ()
 
     fun pluralize (1, s) = s
-      | pluralize (n, s) = s ^ "s"
+      | (* GEN CASE BRANCH *) pluralize (n, s) = s ^ "s"
 
     (* we pass in the mode spine specifying coverage, but currently ignore it *)
     fun abbrevCSpine (S, ci) = S
 
     (* fix to identify existential and universal prefixes *)
     fun abbrevCGoal (G, V, 0, ci) = (G, abbrevCGoal' (G, V, ci))
-      | abbrevCGoal (G, I.Pi((D, P), V), p, ci) = (* p > 0 *)
+      | (* GEN CASE BRANCH *) abbrevCGoal (G, I.Pi((D, P), V), p, ci) = (* p > 0 *)
         let
           val D' = N.decEName (G, D)
         in
@@ -174,7 +174,7 @@ struct
         in
           I.Pi ((D', P), abbrevCGoal' (I.Decl (G, D'), V, ci))
         end
-      | abbrevCGoal' (G, I.Root (a, S), ci) =
+      | (* GEN CASE BRANCH *) abbrevCGoal' (G, I.Root (a, S), ci) =
           I.Root (a, abbrevCSpine (S, ci))
       (* other cases are impossible by CGoal invariant *)
 
@@ -188,7 +188,7 @@ struct
         end
 
     fun formatCGoals ((V,p)::nil, ci) = [formatCGoal (V, p, ci)]
-      | formatCGoals ((V,p)::Vs, ci) =
+      | (* GEN CASE BRANCH *) formatCGoals ((V,p)::Vs, ci) =
           formatCGoal (V, p, ci) :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
 
     fun missingToString (Vs, ci) =
@@ -219,7 +219,7 @@ struct
     (* buildSpine n = n; n-1; ...; 1; Nil *)
 
     fun buildSpine 0 = I.Nil
-      | buildSpine n = (* n > 0 *)
+      | (* GEN CASE BRANCH *) buildSpine n = (* n > 0 *)
         (* Eta-long invariant violation -kw *)
         I.App (I.Root (I.BVar(n), I.Nil), buildSpine (n-1))
 
@@ -238,7 +238,7 @@ struct
         in
           (I.Pi ((D', I.Maybe), V'), p)
         end
-      | initCGoal' (a, k, G, I.Uni (I.Type)) =
+      | (* GEN CASE BRANCH *) initCGoal' (a, k, G, I.Uni (I.Type)) =
           (I.Root (a, buildSpine k), k)
 
     (* initCGoal (a) = {x1:V1}...{xn:Vn} a x1...xn
@@ -276,7 +276,7 @@ struct
         end
 
     fun eqnsToString (nil) = ".\n"
-      | eqnsToString (eqn::eqns) =
+      | (* GEN CASE BRANCH *) eqnsToString (eqn::eqns) =
           equationToString (eqn) ^ ",\n"
           ^ eqnsToString (eqns)
 
@@ -290,8 +290,8 @@ struct
       | Fail                            (* coverage fails without candidates *)
 
     fun candsToString (Fail) = "Fail"
-      | candsToString (Cands(ks)) = "Cands [" ^ List.foldl (fn (k,str) => Int.toString k ^ "," ^ str) "]" ks
-      | candsToString (Eqns(eqns)) = "Eqns [\n" ^ eqnsToString eqns ^ "]"
+      | (* GEN CASE BRANCH *) candsToString (Cands(ks)) = "Cands [" ^ List.foldl (fn (k,str) => Int.toString k ^ "," ^ str) "]" ks
+      | (* GEN CASE BRANCH *) candsToString (Eqns(eqns)) = "Eqns [\n" ^ eqnsToString eqns ^ "]"
 
     (* fail () = Fail
        indicate failure without splitting candidates
@@ -304,16 +304,16 @@ struct
        indicate failure, but add k as splitting candidate
     *)
     fun failAdd (k, Eqns _) = Cands (k::nil) (* no longer matches *)
-      | failAdd (k, Cands (ks)) = Cands (k::ks) (* remove duplicates? *)
-      | failAdd (k, Fail) = Fail
+      | (* GEN CASE BRANCH *) failAdd (k, Cands (ks)) = Cands (k::ks) (* remove duplicates? *)
+      | (* GEN CASE BRANCH *) failAdd (k, Fail) = Fail
 
     (* addEqn (e, cands) = cands'
        indicate possible match if equation e can be solved
     *)
     fun addEqn (e, Eqns (es)) = Eqns (e::es) (* still may match: add equation *)
-      | addEqn (e, cands as Cands (ks)) = (* already failed: ignore new constraints *)
+      | (* GEN CASE BRANCH *) addEqn (e, cands as Cands (ks)) = (* already failed: ignore new constraints *)
           cands
-      | addEqn (e, Fail) = Fail         (* already failed without candidates *)
+      | (* GEN CASE BRANCH *) addEqn (e, Fail) = Fail         (* already failed without candidates *)
 
     fun unifiable (G, Us1, Us2) =
           Unify.unifiable (G, Us1, Us2)
@@ -324,7 +324,7 @@ struct
        Effect: instantiate EVars right-hand sides of equations.
     *)
     fun matchEqns (nil) = true
-      | matchEqns (Eqn (G, Us1, Us2 as (U2, s2))::es) =
+      | (* GEN CASE BRANCH *) matchEqns (Eqn (G, Us1, Us2 as (U2, s2))::es) =
         (* For some reason, s2 is sometimes not a patSub when it should be *)
         (* explicitly convert if possible *)
         (* Sat Dec  7 20:59:46 2002 -fp *)
@@ -346,8 +346,8 @@ struct
         (* why is this important? --cs !!! *)
         if matchEqns (List.rev es) then (Eqns (nil))
         else Fail
-      | resolveCands (Cands (ks)) = Cands (ks)
-      | resolveCands (Fail) = Fail
+      | (* GEN CASE BRANCH *) resolveCands (Cands (ks)) = Cands (ks)
+      | (* GEN CASE BRANCH *) resolveCands (Fail) = Fail
 
     (* collectConstraints (Xs) = constrs
        collect all the constraints that may be attached to EVars Xs
@@ -356,9 +356,9 @@ struct
        disabled for now to get a truer approximation to operational semantics
     *)
     fun collectConstraints (nil) = nil
-      | collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
+      | (* GEN CASE BRANCH *) collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
           collectConstraints Xs
-      | collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
+      | (* GEN CASE BRANCH *) collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
           (* constrs <> nil *)
           (* Constraints.simplify constrs @ *) (* at present, do not simplify -fp *)
           constrs @ collectConstraints Xs
@@ -372,8 +372,8 @@ struct
     (* This ignores LVars, because collectEVars does *)
     (* Why is that OK?  Sun Dec 16 09:01:40 2001 -fp !!! *)
     fun checkConstraints (G, Qs, Cands (ks)) = Cands (ks)
-      | checkConstraints (G, Qs, Fail) = Fail
-      | checkConstraints (G, Qs, Eqns _) = (* _ = nil *)
+      | (* GEN CASE BRANCH *) checkConstraints (G, Qs, Fail) = Fail
+      | (* GEN CASE BRANCH *) checkConstraints (G, Qs, Eqns _) = (* _ = nil *)
         let
           val Xs = Abstract.collectEVars (G, Qs, nil)
           val constrs = collectConstraints Xs
@@ -396,8 +396,8 @@ struct
        add new constructor to candidate list
     *)
     fun addKs (ccs as Cands(ks), CandList (klist)) = CandList (ccs::klist)
-      | addKs (ces as Eqns(nil), CandList (klist)) = Covered
-      | addKs (cfl as Fail, CandList (klist)) = CandList (cfl::klist)
+      | (* GEN CASE BRANCH *) addKs (ces as Eqns(nil), CandList (klist)) = Covered
+      | (* GEN CASE BRANCH *) addKs (cfl as Fail, CandList (klist)) = CandList (cfl::klist)
 
     (* matchExp (G, d, (U1, s1), (U2, s2), cands) = cands'
        matches U1[s1] (part of coverage goal)
@@ -479,9 +479,9 @@ struct
             | (I.Proj _, I.BVar _) => fail ("block projection / local variable clash")
             (* no other cases should be possible *)
             )
-      | matchExpW (G, d, (I.Lam (D1, U1), s1), (I.Lam (D2, U2), s2), cands) =
+      | (* GEN CASE BRANCH *) matchExpW (G, d, (I.Lam (D1, U1), s1), (I.Lam (D2, U2), s2), cands) =
            matchExp (I.Decl (G, I.decSub (D1, s1)), d+1, (U1, I.dot1 s1), (U2, I.dot1 s2), cands)
-      | matchExpW (G, d, (I.Lam (D1, U1), s1), (U2, s2), cands) =
+      | (* GEN CASE BRANCH *) matchExpW (G, d, (I.Lam (D1, U1), s1), (U2, s2), cands) =
            (* eta-expand *)
            matchExp (I.Decl (G, I.decSub (D1, s1)), d+1,
                      (U1, I.dot1 s1),
@@ -489,7 +489,7 @@ struct
                                I.App (I.Root (I.BVar (1), I.Nil), I.Nil)),
                       I.dot1 s2),
                      cands)
-      | matchExpW (G, d, (U1, s1), (I.Lam (D2, U2), s2), cands) =
+      | (* GEN CASE BRANCH *) matchExpW (G, d, (U1, s1), (I.Lam (D2, U2), s2), cands) =
            (* eta-expand *)
            matchExp (I.Decl (G, I.decSub (D2, s2)), d+1,
                      (I.Redex (I.EClo (U1, I.shift),
@@ -497,7 +497,7 @@ struct
                       I.dot1 s1),
                      (U2, I.dot1 s2),
                      cands)
-      | matchExpW (G, d, Us1, Us2 as (I.EVar _, s2), cands) =
+      | (* GEN CASE BRANCH *) matchExpW (G, d, Us1, Us2 as (I.EVar _, s2), cands) =
            addEqn (Eqn (G, Us1, Us2), cands)
       (* next 3 cases are only for output coverage *)
       (* not needed since we skip input arguments for output coverage *)
@@ -516,11 +516,11 @@ struct
       (* No I.Uni, I.FgnExp, and no I.Redex by whnf *)
 
     and matchSpine (G, d, (I.Nil, _), (I.Nil, _), cands) = cands
-      | matchSpine (G, d, (I.SClo (S1, s1'), s1), Ss2, cands) =
+      | (* GEN CASE BRANCH *) matchSpine (G, d, (I.SClo (S1, s1'), s1), Ss2, cands) =
           matchSpine (G, d, (S1, I.comp (s1', s1)), Ss2, cands)
-      | matchSpine (G, d, Ss1, (I.SClo (S2, s2'), s2), cands) =
+      | (* GEN CASE BRANCH *) matchSpine (G, d, Ss1, (I.SClo (S2, s2'), s2), cands) =
           matchSpine (G, d, Ss1, (S2, I.comp (s2', s2)), cands)
-      | matchSpine (G, d, (I.App (U1, S1), s1), (I.App (U2, S2), s2), cands) =
+      | (* GEN CASE BRANCH *) matchSpine (G, d, (I.App (U1, S1), s1), (I.App (U2, S2), s2), cands) =
         let
           val cands' = matchExp (G, d, (U1, s1), (U2, s2), cands)
         in
@@ -562,11 +562,11 @@ struct
 
     and matchSub (G, d, I.Shift(n1), I.Shift(n2), cands) = cands
         (* by invariant *)
-      | matchSub (G, d, I.Shift(n), s2 as I.Dot _, cands) =
+      | (* GEN CASE BRANCH *) matchSub (G, d, I.Shift(n), s2 as I.Dot _, cands) =
           matchSub (G, d, I.Dot(I.Idx(n+1), I.Shift(n+1)), s2, cands)
-      | matchSub (G, d, s1 as I.Dot _, I.Shift(m), cands) =
+      | (* GEN CASE BRANCH *) matchSub (G, d, s1 as I.Dot _, I.Shift(m), cands) =
           matchSub (G, d, s1, I.Dot(I.Idx(m+1), I.Shift(m+1)), cands)
-      | matchSub (G, d, I.Dot(Ft1,s1), I.Dot(Ft2,s2), cands) =
+      | (* GEN CASE BRANCH *) matchSub (G, d, I.Dot(Ft1,s1), I.Dot(Ft2,s2), cands) =
         let val cands1 =
            (case (Ft1, Ft2) of
              (I.Idx (n1), I.Idx (n2)) =>
@@ -606,7 +606,7 @@ struct
             (* unify spines, skipping output and ignore arguments in modeSpine *)
             matchTopSpine (G, d, (S1, s1), (S2, s2), ci, cands)
         else fail ("type family clash") (* fails, with no candidates since type families don't match *)
-      | matchTopW (G, d, (I.Pi ((D1,_), V1), s1),
+      | (* GEN CASE BRANCH *) matchTopW (G, d, (I.Pi ((D1,_), V1), s1),
                          (I.Pi ((D2,_), V2), s2), ci, cands) =
         (* this case can only arise in output coverage *)
         (* we do not match D1 and D2, since D1 is always an instance of D2 *)
@@ -614,11 +614,11 @@ struct
         (* Sat Dec 22 23:53:44 2001 -fp !!! *)
           matchTopW (I.Decl (G, D1), d+1, (V1, I.dot1 s1), (V2, I.dot1 s2), ci, cands)
     and matchTopSpine (G, d, (I.Nil, _), (I.Nil, _), Cnil, cands) = cands
-      | matchTopSpine (G, d, (I.SClo (S1, s1'), s1), Ss2, ci, cands) =
+      | (* GEN CASE BRANCH *) matchTopSpine (G, d, (I.SClo (S1, s1'), s1), Ss2, ci, cands) =
           matchTopSpine (G, d, (S1, I.comp (s1', s1)), Ss2, ci, cands)
-      | matchTopSpine (G, d, Ss1, (I.SClo (S2, s2'), s2), ci, cands) =
+      | (* GEN CASE BRANCH *) matchTopSpine (G, d, Ss1, (I.SClo (S2, s2'), s2), ci, cands) =
           matchTopSpine (G, d, Ss1, (S2, I.comp (s2', s2)), ci, cands)
-      | matchTopSpine (G, d, (I.App (U1, S1), s1), (I.App (U2, S2), s2),
+      | (* GEN CASE BRANCH *) matchTopSpine (G, d, (I.App (U1, S1), s1), (I.App (U2, S2), s2),
                        Match (ci'), cands) =
         (* an argument that must be covered (Match) *)
         let
@@ -626,7 +626,7 @@ struct
         in
            matchTopSpine (G, d, (S1, s1), (S2, s2), ci', cands')
         end
-      | matchTopSpine (G, d, (I.App (U1, S1), s1), (I.App (U2, S2), s2),
+      | (* GEN CASE BRANCH *) matchTopSpine (G, d, (I.App (U1, S1), s1), (I.App (U2, S2), s2),
                        Skip (ci'), cands) =
         (* an argument that need not be covered (Skip) *)
            matchTopSpine (G, d, (S1, s1), (S2, s2), ci', cands)
@@ -637,7 +637,7 @@ struct
     *)
     fun matchClause (G, ps', qs as (I.Root (_, _), s), ci) =
           checkConstraints (G, qs, resolveCands (matchTop (G, 0, ps', qs, ci, Eqns (nil))))
-      | matchClause (G, ps', (I.Pi ((I.Dec(_, V1), _), V2), s), ci) =
+      | (* GEN CASE BRANCH *) matchClause (G, ps', (I.Pi ((I.Dec(_, V1), _), V2), s), ci) =
         let
           (* changed to use subordination and strengthening here *)
           (* Sun Dec 16 10:39:34 2001 -fp *)
@@ -662,7 +662,7 @@ struct
        klist <> Covered
     *)
     fun matchSig (G, ps', nil, ci, klist) = klist
-      | matchSig (G, ps', V::ccs', ci, klist) =
+      | (* GEN CASE BRANCH *) matchSig (G, ps', V::ccs', ci, klist) =
         let
           val cands = CSManager.trail
                       (fn () => matchClause (G, ps', (V, I.id), ci))
@@ -674,7 +674,7 @@ struct
        as matchSig, but check if coverage goal {{G}} a @ S[s] is already matched
     *)
     and matchSig' (G, ps', ccs, ci, Covered) = Covered (* already covered: return *)
-      | matchSig' (G, ps', ccs, ci, CandList (klist)) = (* not yet covered: continue to search *)
+      | (* GEN CASE BRANCH *) matchSig' (G, ps', ccs, ci, CandList (klist)) = (* not yet covered: continue to search *)
           matchSig (G, ps', ccs, ci, CandList (klist))
 
     (* matchBlocks (G, s', piDecs, V, k, i, ci, klist) = klist'
@@ -685,7 +685,7 @@ struct
        G_k = (Gsome, D1...D(i-1) piDecs)
      *)
     fun matchBlocks (G, s', nil, V, k, i, ci, klist) = klist
-      | matchBlocks (G, s', I.Dec (_, V')::piDecs, V, k, i, ci, klist) =
+      | (* GEN CASE BRANCH *) matchBlocks (G, s', I.Dec (_, V')::piDecs, V, k, i, ci, klist) =
         let
           val cands = CSManager.trail
                       (fn () => matchClause (G, (V, I.id), (V', s'), ci))
@@ -694,7 +694,7 @@ struct
           matchBlocks' (G, s'', piDecs, V, k, i+1, ci, addKs (cands, klist))
         end
     and matchBlocks' (G, s', piDecs, V, k, i, ci, Covered) = Covered
-      | matchBlocks' (G, s', piDecs, V, k, i, ci, klist) =
+      | (* GEN CASE BRANCH *) matchBlocks' (G, s', piDecs, V, k, i, ci, klist) =
           matchBlocks (G, s', piDecs, V, k, i, ci, klist) (* klist <> Covered *)
 
     (* matchCtx (G, s', G', V, k, ci, klist) = klist'
@@ -706,7 +706,7 @@ struct
        klist <> Covered accumulates mode spines
     *)
     fun matchCtx (G, s', I.Null, V, k, ci, klist) = klist
-      | matchCtx (G, s', I.Decl(G'', I.Dec(_, V')), V, k, ci, klist) =
+      | (* GEN CASE BRANCH *) matchCtx (G, s', I.Decl(G'', I.Dec(_, V')), V, k, ci, klist) =
         (* will always fail for input coverage *)
         let
           (*  G'', V' |- ^ : G''
@@ -719,7 +719,7 @@ struct
         in
           matchCtx' (G, s'', G'', V, k+1, ci, addKs (cands, klist))
         end
-      | matchCtx (G, s', I.Decl(G'', I.BDec(_, (cid, s))), V, k, ci, klist) =
+      | (* GEN CASE BRANCH *) matchCtx (G, s', I.Decl(G'', I.BDec(_, (cid, s))), V, k, ci, klist) =
         let
           val (Gsome, piDecs) = I.constBlock cid
           val s'' = I.comp (I.shift, s')
@@ -734,7 +734,7 @@ struct
         end
 
     and matchCtx' (G, s', G', V, k, ci, Covered) = Covered
-      | matchCtx' (G, s', G', V, k, ci, CandList (klist)) =
+      | (* GEN CASE BRANCH *) matchCtx' (G, s', G', V, k, ci, CandList (klist)) =
           matchCtx (G, s', G', V, k, ci, CandList (klist))
 
     (* as matchClause *)
@@ -746,7 +746,7 @@ struct
         in
           addKs (cands'', CandList (nil))
         end
-      | matchOut (G, V, ci, (V' as I.Pi ((I.Dec(_, V1'), _), V2'), s'), p) = (* p > 0 *)
+      | (* GEN CASE BRANCH *) matchOut (G, V, ci, (V' as I.Pi ((I.Dec(_, V1'), _), V2'), s'), p) = (* p > 0 *)
         let
           val X1 = Whnf.newLoweredEVar (G, (V1', s'))
         (* was val X1 = I.newEVar (G, I.EClo (V1', s')) Mon Feb 28 14:38:21 2011 -cs *)
@@ -766,9 +766,9 @@ struct
     fun match (G, V as I.Root (I.Const (a), S), 0, ci, Input(ccs)) =
           matchCtx' (G, I.id, G, V, 1, ci,
                      matchSig (G, (V, I.id), ccs, ci, CandList (nil)))
-      | match (G, V, 0, ci, Output (V', q)) =
+      | (* GEN CASE BRANCH *) match (G, V, 0, ci, Output (V', q)) =
           matchOut (G, V, ci, (V', I.Shift (I.ctxLength G)), q)
-      | match (G, I.Pi ((D, _), V'), p, ci, ccs) =
+      | (* GEN CASE BRANCH *) match (G, I.Pi ((D, _), V'), p, ci, ccs) =
           match (I.Decl (G, D), V', p-1, ci, ccs)
 
     (************************************)
@@ -779,7 +779,7 @@ struct
        ksn is ordered list of ks (smallest index first) with multiplicities
     *)
     fun insert (k, nil) = ((k, 1)::nil)
-      | insert (k, ksn as (k', n')::ksn') =
+      | (* GEN CASE BRANCH *) insert (k, ksn as (k', n')::ksn') =
         (case Int.compare (k, k')
            of LESS => (k, 1)::ksn
             | EQUAL => (k', n'+1)::ksn'
@@ -789,7 +789,7 @@ struct
        ksn is as in function insert
     *)
     fun join (nil, ksn) = ksn
-      | join (k::ks, ksn) = join (ks, insert (k, ksn))
+      | (* GEN CASE BRANCH *) join (k::ks, ksn) = join (ks, insert (k, ksn))
 
     (* selectCand (klist) = ksnOpt
        where ksOpt is an indication of coverage (NONE)
@@ -799,14 +799,14 @@ struct
        This will never pick an index variable unless necessary.
     *)
     fun selectCand (Covered) = NONE     (* success: case is covered! *)
-      | selectCand (CandList (klist)) = selectCand' (klist, nil)
+      | (* GEN CASE BRANCH *) selectCand (CandList (klist)) = selectCand' (klist, nil)
 
     and selectCand' (nil, ksn) = SOME(ksn) (* failure: case G,V is not covered! *)
-      | selectCand' (Fail::klist, ksn) = (* local failure (clash) and no candidates *)
+      | (* GEN CASE BRANCH *) selectCand' (Fail::klist, ksn) = (* local failure (clash) and no candidates *)
           selectCand' (klist, ksn)
-      | selectCand' (Cands(nil)::klist, ksn) = (* local failure but no candidates *)
+      | (* GEN CASE BRANCH *) selectCand' (Cands(nil)::klist, ksn) = (* local failure but no candidates *)
           selectCand' (klist, ksn)
-      | selectCand' (Cands(ks)::klist, ksn) = (* found candidates ks <> nil *)
+      | (* GEN CASE BRANCH *) selectCand' (Cands(ks)::klist, ksn) = (* found candidates ks <> nil *)
           selectCand' (klist, join (ks, ksn))
 
     (*****************)
@@ -824,7 +824,7 @@ struct
     *)
     fun instEVars (Vs, p, XsRev) = instEVarsW (Whnf.whnf Vs, p, XsRev)
     and instEVarsW (Vs, 0, XsRev) = (Vs, XsRev)
-      | instEVarsW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev) =
+      | (* GEN CASE BRANCH *) instEVarsW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev) =
         let (* p > 0 *)
           val X1 = Whnf.newLoweredEVar (I.Null, (V1, s)) (* all EVars are global *)
           (* was  val X1 = I.newEVar (I.Null, I.EClo (V1, s)) (* all EVars are global *)
@@ -832,7 +832,7 @@ struct
         in
           instEVars ((V2, I.Dot (I.Exp (X1), s)), p-1, SOME(X1)::XsRev)
         end
-      | instEVarsW ((I.Pi ((I.BDec (_, (l, t)), _), V2), s), p, XsRev) =
+      | (* GEN CASE BRANCH *) instEVarsW ((I.Pi ((I.BDec (_, (l, t)), _), V2), s), p, XsRev) =
         (* G0 |- t : Gsome *)
         (* . |- s : G0 *)
         let (* p > 0 *)
@@ -869,7 +869,7 @@ struct
     (* Sun Dec 16 10:36:59 2001 -fp *)
     fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
     and createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
-      | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
+      | (* GEN CASE BRANCH *) createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let (* G |- V1[s] : L *)
           val X = createEVar (G, I.EClo (V1, s))
           val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
@@ -927,7 +927,7 @@ struct
         end
 
     fun constCases (G, Vs, nil, sc) = ()
-      | constCases (G, Vs, I.Const(c)::sgn', sc) =
+      | (* GEN CASE BRANCH *) constCases (G, Vs, I.Const(c)::sgn', sc) =
         let
           val (U, Vs') = createAtomConst (G, I.Const c)
           val _ = CSManager.trail (fn () =>
@@ -939,7 +939,7 @@ struct
         end
 
     fun paramCases (G, Vs, 0, sc) = ()
-      | paramCases (G, Vs, k, sc) =
+      | (* GEN CASE BRANCH *) paramCases (G, Vs, k, sc) =
         let
           val (U, Vs') = createAtomBVar (G, k)
           val _ = CSManager.trail (fn () =>
@@ -959,7 +959,7 @@ struct
        Update: Always use empty context. Sat Dec  8 13:19:58 2001 -fp
     *)
     fun createEVarSub (I.Null) = I.id
-      | createEVarSub (I.Decl(G', D as I.Dec (_, V))) =
+      | (* GEN CASE BRANCH *) createEVarSub (I.Decl(G', D as I.Dec (_, V))) =
         let
           val s = createEVarSub G'
           val X = Whnf.newLoweredEVar (I.Null, (V, s))
@@ -992,7 +992,7 @@ struct
                          G |- sk : .
                          . |- t: Gsome
                          G <> .
-
+    
                          replace t by t' in I.newLVar (sk, (cid, t))
                       --cs Fri Jan  3 11:07:41 2003 *)
           (* G |- t' : Gsome *)
@@ -1000,7 +1000,7 @@ struct
           blockCases' (G, Vs, (lvar, 1), (t', piDecs), sc)
         end
     and blockCases' (G, Vs, (lvar, i), (t, nil), sc) = ()
-      | blockCases' (G, Vs, (lvar, i), (t, I.Dec (_, V')::piDecs), sc) =
+      | (* GEN CASE BRANCH *) blockCases' (G, Vs, (lvar, i), (t, I.Dec (_, V')::piDecs), sc) =
         let
           (* G |- t : G' and G' |- ({_:V'},piDecs) decList *)
           (* so G |- V'[t'] : type *)
@@ -1014,7 +1014,7 @@ struct
         end
 
     fun worldCases (G, Vs, T.Worlds (nil), sc) = ()
-      | worldCases (G, Vs, T.Worlds (cid::cids), sc) =
+      | (* GEN CASE BRANCH *) worldCases (G, Vs, T.Worlds (cid::cids), sc) =
           ( blockCases (G, Vs, cid, I.constBlock cid, sc) ;
             worldCases (G, Vs, T.Worlds (cids), sc) )
 
@@ -1029,7 +1029,7 @@ struct
         in
           ()
         end
-      | lowerSplitW (I.Lam (D, U), W, sc) =
+      | (* GEN CASE BRANCH *) lowerSplitW (I.Lam (D, U), W, sc) =
           lowerSplitW (U, W, sc)
 
     (* splitEVar (X, W, sc) = ()
@@ -1134,20 +1134,20 @@ val _ = pr () *)
     (* Stolen from abstract.fun *)
 
     fun occursInExp (k, I.Uni _) = false
-      | occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
-      | occursInExp (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.FgnExp (cs, ops)) = false
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
+      | (* GEN CASE BRANCH *) occursInExp (k, I.FgnExp (cs, ops)) = false
         (* foreign expression probably should not occur *)
         (* but if they do, variable occurrences don't count *)
         (* occursInExp (k, Whnf.normalize (#toInternal(ops) (), I.id)) *)
       (* no case for Redex, EVar, EClo *)
 
     and occursInHead (k, I.BVar (k')) = (k = k')
-      | occursInHead (k, _) = false
+      | (* GEN CASE BRANCH *) occursInHead (k, _) = false
 
     and occursInSpine (_, I.Nil) = false
-      | occursInSpine (k, I.App (U, S)) = occursInExp (k, U) orelse occursInSpine (k, S)
+      | (* GEN CASE BRANCH *) occursInSpine (k, I.App (U, S)) = occursInExp (k, U) orelse occursInSpine (k, S)
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExp (k, V)
@@ -1159,12 +1159,12 @@ val _ = pr () *)
     *)
     fun occursInMatchPos (k, I.Pi (DP, V), ci) =
           occursInMatchPos (k+1, V, ci)
-      | occursInMatchPos (k, I.Root (H, S), ci) =
+      | (* GEN CASE BRANCH *) occursInMatchPos (k, I.Root (H, S), ci) =
           occursInMatchPosSpine (k, S, ci)
     and occursInMatchPosSpine (k, I.Nil, Cnil) = false
-      | occursInMatchPosSpine (k, I.App(U, S), Match(ci)) =
+      | (* GEN CASE BRANCH *) occursInMatchPosSpine (k, I.App(U, S), Match(ci)) =
           occursInExp (k, U) orelse occursInMatchPosSpine (k, S, ci)
-      | occursInMatchPosSpine (k, I.App(U, S), Skip(ci)) =
+      | (* GEN CASE BRANCH *) occursInMatchPosSpine (k, I.App(U, S), Skip(ci)) =
           occursInMatchPosSpine (k, S, ci)
 
     (* instEVarsSkip ({x1:V1}...{xp:Vp} V, p, nil, ci) = (V[s], [X1,...,Xn])
@@ -1174,7 +1174,7 @@ val _ = pr () *)
     *)
     fun instEVarsSkip (Vs, p, XsRev, ci) = InstEVarsSkipW (Whnf.whnf Vs, p, XsRev, ci)
     and InstEVarsSkipW (Vs, 0, XsRev, ci) = (Vs, XsRev)
-      | InstEVarsSkipW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev, ci) =
+      | (* GEN CASE BRANCH *) InstEVarsSkipW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev, ci) =
         let (* p > 0 *)
           val X1 = Whnf.newLoweredEVar (I.Null, (V1, s)) (* all EVars are global *)
           (* was val X1 = I.newEVar (I.Null, I.EClo (V1, s)) (* all EVars are global *)
@@ -1185,7 +1185,7 @@ val _ = pr () *)
         in
           instEVarsSkip ((V2, I.Dot (I.Exp (X1), s)), p-1, EVarOpt::XsRev, ci)
         end
-      | InstEVarsSkipW ((I.Pi ((I.BDec (_, (l, t)), _), V2), s), p, XsRev, ci) =
+      | (* GEN CASE BRANCH *) InstEVarsSkipW ((I.Pi ((I.BDec (_, (l, t)), _), V2), s), p, XsRev, ci) =
         (* G0 |- t : Gsome *)
         (* . |- s : G0 *)
         let (* p > 0 *)
@@ -1198,7 +1198,7 @@ val _ = pr () *)
 
     fun targetBelowEq (a, I.EVar (ref(NONE), GY, VY, ref nil)) =
           Subordinate.belowEq (a, I.targetFam VY)
-      | targetBelowEq (a, I.EVar (ref(NONE), GY, VY, ref (_::_))) =
+      | (* GEN CASE BRANCH *) targetBelowEq (a, I.EVar (ref(NONE), GY, VY, ref (_::_))) =
           (* if contraints remain, consider recursive and thereby unsplittable *)
           true
 
@@ -1220,7 +1220,7 @@ val _ = pr () *)
         in
           recp
         end
-      | recursive (I.Lam (D, U)) = recursive U
+      | (* GEN CASE BRANCH *) recursive (I.Lam (D, U)) = recursive U
 
     local
       val counter = ref 0
@@ -1262,7 +1262,7 @@ val _ = pr () *)
                                         then raise NotFinitary
                                       else incCount ())) ;
             chatter 7 (fn () => "Finitary with " ^ Int.toString (getCount ()) ^ " candidates.\n");
-
+    
             (k, getCount ())::cands )
            handle NotFinitary => ( chatter 7 (fn () => "Not finitary.\n");
                                    cands )
@@ -1295,10 +1295,10 @@ val _ = pr () *)
        where all ki are finitary with ni possibilities for X(i+k)
     *)
     fun finitarySplits (nil, k, W, f, cands) = cands
-      | finitarySplits (NONE::Xs, k, W, f, cands) =
+      | (* GEN CASE BRANCH *) finitarySplits (NONE::Xs, k, W, f, cands) =
         (* parameter blocks can never be split *)
           finitarySplits (Xs, k+1, W, f, cands)
-      | finitarySplits (SOME(X)::Xs, k, W, f, cands) =
+      | (* GEN CASE BRANCH *) finitarySplits (SOME(X)::Xs, k, W, f, cands) =
           finitarySplits (Xs, k+1, W, f, CSManager.trail (fn () =>  finitary1 (X, k, W, f,cands)))
 
     (* finitary ({{G}} V, p, W) = [(k1,n1),...,(km,nm)]
@@ -1312,7 +1312,7 @@ val _ = pr () *)
           val _ = if !Global.doubleCheck
                     then TypeCheck.typeCheck (I.Null, (V, I.Uni (I.Type)))
                   else ()
-
+    
           val ((V1, s), XsRev) = instEVarsSkip ((V, I.id), p, nil, ci)
         in
           finitarySplits (XsRev, 1, W, fn () => (abstract (V1, s)), nil)
@@ -1342,14 +1342,14 @@ val _ = pr () *)
     *)
     fun eqInpSpine (ms, (I.SClo(S1,s1'),s1), Ss2) =
           eqInpSpine (ms, (S1, I.comp(s1',s1)), Ss2)
-      | eqInpSpine (ms, Ss1, (I.SClo(S2,s2'),s2)) =
+      | (* GEN CASE BRANCH *) eqInpSpine (ms, Ss1, (I.SClo(S2,s2'),s2)) =
           eqInpSpine (ms, Ss1, (S2, I.comp(s2',s2)))
-      | eqInpSpine (M.Mnil, (I.Nil,s), (I.Nil,s')) = true
-      | eqInpSpine (M.Mapp(M.Marg(M.Plus,_), ms'),
+      | (* GEN CASE BRANCH *) eqInpSpine (M.Mnil, (I.Nil,s), (I.Nil,s')) = true
+      | (* GEN CASE BRANCH *) eqInpSpine (M.Mapp(M.Marg(M.Plus,_), ms'),
                   (I.App(U,S),s), (I.App(U',S'),s')) =
           eqExp ((U,s), (U',s'))
           andalso eqInpSpine (ms', (S,s), (S',s'))
-      | eqInpSpine (M.Mapp(_, ms'), (I.App(U,S),s), (I.App(U',S'),s')) =
+      | (* GEN CASE BRANCH *) eqInpSpine (M.Mapp(_, ms'), (I.App(U,S),s), (I.App(U',S'),s')) =
           (* ignore Star, Minus, Minus1 *)
           eqInpSpine (ms', (S,s), (S',s'))
       (* other cases should be impossible since spines must match *)
@@ -1361,16 +1361,16 @@ val _ = pr () *)
        Here G = ...kn:a @ Sn, ..., k1:a @ S1, ...
     *)
     fun eqInp (I.Null, k, a, Ss, ms) = nil
-      | eqInp (I.Decl(G', I.Dec(_, I.Root (I.Const(a'), S'))), k, a, Ss, ms) =
+      | (* GEN CASE BRANCH *) eqInp (I.Decl(G', I.Dec(_, I.Root (I.Const(a'), S'))), k, a, Ss, ms) =
         (* defined type families disallowed here *)
         if a = a' andalso eqInpSpine (ms, (S', I.Shift(k)), Ss)
           then k::eqInp (G', k+1, a, Ss, ms)
         else eqInp (G', k+1, a, Ss, ms)
-      | eqInp (I.Decl(G', I.Dec(_, I.Pi _)), k, a, Ss, ms) =
+      | (* GEN CASE BRANCH *) eqInp (I.Decl(G', I.Dec(_, I.Pi _)), k, a, Ss, ms) =
           eqInp (G', k+1, a, Ss, ms)
-      | eqInp (I.Decl(G', I.NDec _), k, a, Ss, ms) =
+      | (* GEN CASE BRANCH *) eqInp (I.Decl(G', I.NDec _), k, a, Ss, ms) =
           eqInp (G', k+1, a, Ss, ms)
-      | eqInp (I.Decl(G', I.BDec(_, (b, t))), k, a, Ss, ms) =
+      | (* GEN CASE BRANCH *) eqInp (I.Decl(G', I.BDec(_, (b, t))), k, a, Ss, ms) =
           eqInp (G', k+1, a, Ss, ms)
       (* other cases should be impossible *)
 
@@ -1381,7 +1381,7 @@ val _ = pr () *)
        uniqueness mode spine for aj
     *)
     fun contractionCands (I.Null, k) = nil
-      | contractionCands (I.Decl(G', I.Dec(_, I.Root (I.Const(a), S))), k) =
+      | (* GEN CASE BRANCH *) contractionCands (I.Decl(G', I.Dec(_, I.Root (I.Const(a), S))), k) =
         (* defined type families disallowed here *)
         (* using only one uniqueness declaration per type family *)
         (case UniqueTable.modeLookup a
@@ -1390,12 +1390,12 @@ val _ = pr () *)
               case eqInp (G', k+1, a, (S, I.Shift(k)), ms)
                 of nil => contractionCands (G', k+1)
                  | ns => (k::ns)::contractionCands (G', k+1))
-      | contractionCands (I.Decl(G', I.Dec(_, I.Pi _)), k) =
+      | (* GEN CASE BRANCH *) contractionCands (I.Decl(G', I.Dec(_, I.Pi _)), k) =
           (* ignore Pi --- contraction cands unclear *)
           contractionCands (G', k+1)
-      | contractionCands (I.Decl(G', I.NDec _), k) =
+      | (* GEN CASE BRANCH *) contractionCands (I.Decl(G', I.NDec _), k) =
           contractionCands (G', k+1)
-      | contractionCands (I.Decl(G', I.BDec(_, (b, t))), k) =
+      | (* GEN CASE BRANCH *) contractionCands (I.Decl(G', I.BDec(_, (b, t))), k) =
           (* ignore blocks --- contraction cands unclear *)
           contractionCands (G', k+1)
 
@@ -1404,7 +1404,7 @@ val _ = pr () *)
        coverage goal ({{G}}V, p)
     *)
     fun isolateSplittable (G, V, 0) = (G, V)
-      | isolateSplittable (G, I.Pi((D,_), V'), p) =
+      | (* GEN CASE BRANCH *) isolateSplittable (G, I.Pi((D,_), V'), p) =
           isolateSplittable (I.Decl(G, D), V', p-1)
 
     (* unifyUOutSpine (ms, S1[s1], S2[s2]) = true
@@ -1417,13 +1417,13 @@ val _ = pr () *)
     *)
     fun unifyUOutSpine (ms, (I.SClo(S1,s1'),s1), Ss2) =
           unifyUOutSpine (ms, (S1, I.comp(s1', s1)), Ss2)
-      | unifyUOutSpine (ms, Ss1, (I.SClo(S2,s2'),s2)) =
+      | (* GEN CASE BRANCH *) unifyUOutSpine (ms, Ss1, (I.SClo(S2,s2'),s2)) =
           unifyUOutSpine (ms, Ss1, (S2, I.comp(s2',s2)))
-      | unifyUOutSpine (M.Mnil, (I.Nil,s1), (I.Nil,s2)) = true
-      | unifyUOutSpine (M.Mapp(M.Marg(M.Minus1,_),ms'), (I.App(U1,S1),s1), (I.App(U2,S2),s2)) =
+      | (* GEN CASE BRANCH *) unifyUOutSpine (M.Mnil, (I.Nil,s1), (I.Nil,s2)) = true
+      | (* GEN CASE BRANCH *) unifyUOutSpine (M.Mapp(M.Marg(M.Minus1,_),ms'), (I.App(U1,S1),s1), (I.App(U2,S2),s2)) =
           Unify.unifiable (I.Null, (U1,s1), (U2,s2)) (* will have effect! *)
           andalso unifyUOutSpine (ms', (S1,s1), (S2,s2))
-      | unifyUOutSpine (M.Mapp(_,ms'), (I.App(U1,S1),s1), (I.App(U2,S2), s2)) =
+      | (* GEN CASE BRANCH *) unifyUOutSpine (M.Mapp(_,ms'), (I.App(U1,S1),s1), (I.App(U2,S2), s2)) =
           (* if mode = + already equal by invariant; otherwise ignore *)
           unifyUOutSpine (ms', (S1,s1), (S2,s2))
       (* Nil/App or App/Nil cannot occur by invariants *)
@@ -1465,8 +1465,8 @@ val _ = pr () *)
        if X{k1} "==" X{k2} "==" ... "==" X{kn} according to unifyOutEvars
     *)
     fun unifyUOut1 (XsRev, nil) = true
-      | unifyUOut1 (XsRev, k1::nil) = true
-      | unifyUOut1 (XsRev, k1::k2::ks) =
+      | (* GEN CASE BRANCH *) unifyUOut1 (XsRev, k1::nil) = true
+      | (* GEN CASE BRANCH *) unifyUOut1 (XsRev, k1::k2::ks) =
           unifyUOut2 (XsRev, k1, k2)
           andalso unifyUOut1 (XsRev, k2::ks)
 
@@ -1474,7 +1474,7 @@ val _ = pr () *)
        if unifyOut1 ([X1,...,Xp], [kj1,...,kj{nj}]) for each j
     *)
     fun unifyUOut (XsRev, nil) = true
-      | unifyUOut (XsRev, ks::kss) =
+      | (* GEN CASE BRANCH *) unifyUOut (XsRev, ks::kss) =
           unifyUOut1 (XsRev, ks)
           andalso unifyUOut (XsRev, kss)
 
@@ -1538,7 +1538,7 @@ val _ = pr () *)
     *)
     fun findMin ((k,n)::kns) = findMin'((k,n), kns)
     and findMin' ((k0,n0), nil) = (k0,n0)
-      | findMin' ((k0,n0), (k',n')::kns) =
+      | (* GEN CASE BRANCH *) findMin' ((k0,n0), (k',n')::kns) =
         if n' < n0
           then findMin' ((k',n'), kns)
         else findMin' ((k0,n0), kns)
@@ -1566,7 +1566,7 @@ val _ = pr () *)
 
     and cover' (SOME(V, p), wci as (W, ci), ccs, lab, missing) =
           split (V, p, selectCand (match (I.Null, V, p, ci, ccs)), wci, ccs, lab, missing)
-      | cover' (NONE, wci, ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) cover' (NONE, wci, ccs, lab, missing) =
         (* V is covered by unique output inconsistency *)
         ( chatter 6 (fn () => "Covered\n");
           missing )
@@ -1575,11 +1575,11 @@ val _ = pr () *)
         (* V is covered: return missing patterns from other cases *)
         ( chatter 6 (fn () => "Covered\n");
           missing )
-      | split (V, p, SOME(nil), wci as (W, ci), ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) split (V, p, SOME(nil), wci as (W, ci), ccs, lab, missing) =
         (* no strong candidates: check for finitary splitting candidates *)
         ( chatter 6 (fn () => "No strong candidates---calculating weak candidates\n");
           splitWeak (V, p, finitary (V, p, W, ci), wci, ccs, lab, missing) )
-      | split (V, p, SOME((k,_)::ksn), wci as (W, ci), ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) split (V, p, SOME((k,_)::ksn), wci as (W, ci), ccs, lab, missing) =
         (* some candidates: split first candidate, ignoring multiplicities *)
         (* candidates are in reverse order, so non-index candidates are split first *)
         (* splitVar shows splitting as it happens *)
@@ -1591,7 +1591,7 @@ val _ = pr () *)
     and splitWeak (V, p, nil, wci, ccs, lab, missing) =
         ( chatter 6 (fn () => "No weak candidates---case " ^ labToString(lab) ^ " not covered\n");
           (V,p)::missing )
-      | splitWeak (V, p, ksn, wci, ccs, lab, missing) = (* ksn <> nil *)
+      | (* GEN CASE BRANCH *) splitWeak (V, p, ksn, wci, ccs, lab, missing) = (* ksn <> nil *)
         (* commit to the minimal candidate, since no constraints can arise *)
           split (V, p, SOME(findMin ksn::nil), wci, ccs, lab, missing)
 
@@ -1603,7 +1603,7 @@ val _ = pr () *)
     and covers' (nil, n, wci, ccs, lab, missing) =
         ( chatter 6 (fn () => "All subcases of " ^ labToString(lab) ^ " considered\n");
           missing )
-      | covers' ((V,p)::cases', n, wci, ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) covers' ((V,p)::cases', n, wci, ccs, lab, missing) =
           covers' (cases', n+1, wci, ccs, lab, cover (V, p, wci, ccs, Child(lab, n), missing))
 
     (******************)
@@ -1614,8 +1614,8 @@ val _ = pr () *)
        Generates coverage clauses from signature.
     *)
     fun constsToTypes (nil) = nil
-      | constsToTypes (I.Const(c)::cs') = I.constType(c)::constsToTypes(cs')
-      | constsToTypes (I.Def(d)::cs') = I.constType(d)::constsToTypes(cs')
+      | (* GEN CASE BRANCH *) constsToTypes (I.Const(c)::cs') = I.constType(c)::constsToTypes(cs')
+      | (* GEN CASE BRANCH *) constsToTypes (I.Def(d)::cs') = I.constType(d)::constsToTypes(cs')
 
     (*******************)
     (* Output Coverage *)
@@ -1626,7 +1626,7 @@ val _ = pr () *)
     *)
     fun createCoverClause (I.Decl (G, D), V, p) =
           createCoverClause (G, I.Pi ((D, I.Maybe), V), p+1)
-      | createCoverClause (I.Null, V, p) =
+      | (* GEN CASE BRANCH *) createCoverClause (I.Null, V, p) =
           (Whnf.normalize (V, I.id), p)
 
     (* createCoverGoal (., ({{G}} {{GL}} a @ S, s), p, ms) = V' with |G| = p
@@ -1655,18 +1655,18 @@ val _ = pr () *)
         in
           I.Pi ((D1',P1), V2')
         end
-      | createCoverGoalW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s), p, ms) =
+      | (* GEN CASE BRANCH *) createCoverGoalW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s), p, ms) =
         let (* p > 0, G = I.Null *)
           val X = Whnf.newLoweredEVar (G, (V1, s))
           (* was  val X = I.newEVar (G, I.EClo (V1, s))  Mon Feb 28 15:33:52 2011 -cs *)
         in
           createCoverGoal (G, (V2, I.Dot (I.Exp (X), s)), p-1, ms)
         end
-      | createCoverGoalW (G, (I.Root (a as I.Const(cid), S), s), p, ms) = (* s = id, p >= 0 *)
+      | (* GEN CASE BRANCH *) createCoverGoalW (G, (I.Root (a as I.Const(cid), S), s), p, ms) = (* s = id, p >= 0 *)
         I.Root (a, createCoverSpine (G, (S, s), (I.constType (cid), I.id), ms))
 
     and createCoverSpine (G, (I.Nil, s), _, M.Mnil) = I.Nil
-      | createCoverSpine (G, (I.App (U1, S2), s), (I.Pi ((I.Dec (_, V1), _), V2), s'),
+      | (* GEN CASE BRANCH *) createCoverSpine (G, (I.App (U1, S2), s), (I.Pi ((I.Dec (_, V1), _), V2), s'),
                           M.Mapp (M.Marg (M.Minus, x), ms')) =
         (* replace output argument by new variable *)
         let
@@ -1675,12 +1675,12 @@ val _ = pr () *)
         in
           I.App (X, S2')
         end
-      | createCoverSpine (G, (I.App (U1, S2), s), (I.Pi (_, V2), s'), M.Mapp (_, ms')) =
+      | (* GEN CASE BRANCH *) createCoverSpine (G, (I.App (U1, S2), s), (I.Pi (_, V2), s'), M.Mapp (_, ms')) =
         (* leave input ( + ) arguments as they are, ignore ( * ) impossible *)
           I.App (I.EClo (U1, s),
                  createCoverSpine (G, (S2, s), Whnf.whnf (V2, I.Dot (I.Exp (I.EClo (U1, s)), s')),
                                    ms'))
-      | createCoverSpine (G, (I.SClo (S, s'), s), Vs, ms) =
+      | (* GEN CASE BRANCH *) createCoverSpine (G, (I.SClo (S, s'), s), Vs, ms) =
           createCoverSpine (G, (S, I.comp (s', s)), Vs, ms)
 
   in
@@ -1796,7 +1796,7 @@ val _ = pr () *)
                      G |- s : G'
     *)
     fun newEVarSubst (G, I.Null) = I.Shift(I.ctxLength(G))
-      | newEVarSubst (G, I.Decl(G', D as I.Dec (_, V))) =
+      | (* GEN CASE BRANCH *) newEVarSubst (G, I.Decl(G', D as I.Dec (_, V))) =
         let
           val s' = newEVarSubst (G, G')
           val X = Whnf.newLoweredEVar (G, (V, s'))
@@ -1805,19 +1805,19 @@ val _ = pr () *)
         in
           I.Dot (I.Exp (X), s')
         end
-      | newEVarSubst (G, I.Decl(G', D as I.NDec _)) =
+      | (* GEN CASE BRANCH *) newEVarSubst (G, I.Decl(G', D as I.NDec _)) =
         let
           val s' = newEVarSubst (G, G')
         in
           I.Dot (I.Undef, s')
         end
-      | newEVarSubst (G, I.Decl(G', D as I.BDec (_, (b, t)))) =
+      | (* GEN CASE BRANCH *) newEVarSubst (G, I.Decl(G', D as I.BDec (_, (b, t)))) =
         let
           val s' = newEVarSubst (G, G')
           val L1 = I.newLVar (s', (b, t))
           (* was  val L1 = I.newLVar (I.Shift(0), (b, I.comp(t, s')))
              --cs Fri Jul 23 16:39:27 2010 *)
-
+      
           (* -cs Fri Jul 23 16:35:04 2010  FPCHECK *)
           (* L : Delta[t][G'] *)
           (* G |- s : G'  G |- L[s'] : V[s]
@@ -1838,8 +1838,8 @@ val _ = pr () *)
     (* This ignores LVars, because collectEVars does *)
     (* Why is that OK?  Sun Dec 16 09:01:40 2001 -fp !!! *)
     fun checkConstraints (G, (Si, ti), Cands (ks)) = Cands (ks)
-      | checkConstraints (G, (Si, ti), Fail) = Fail
-      | checkConstraints (G, (Si, ti), Eqns _) = (* _ = nil *)
+      | (* GEN CASE BRANCH *) checkConstraints (G, (Si, ti), Fail) = Fail
+      | (* GEN CASE BRANCH *) checkConstraints (G, (Si, ti), Eqns _) = (* _ = nil *)
         let
           val Xs = Abstract.collectEVarsSpine (G, (Si, ti), nil)
           val constrs = collectConstraints Xs
@@ -1866,7 +1866,7 @@ val _ = pr () *)
        as in match, with accumulator argument klist
     *)
     fun matchClauses (cg, nil, klist) = klist
-      | matchClauses (cg as CGoal(G, S), (CClause (Gi, Si)::ccs), klist) =
+      | (* GEN CASE BRANCH *) matchClauses (cg as CGoal(G, S), (CClause (Gi, Si)::ccs), klist) =
         let
           val ti = newEVarSubst (G, Gi) (* G |- ti : Gi *)
           val cands = CSManager.trail (fn () => matchClause (cg, (Si, ti)))
@@ -1874,7 +1874,7 @@ val _ = pr () *)
           matchClauses' (cg, ccs, addKs (cands, klist))
         end
     and matchClauses' (cg, ccs, Covered) = Covered
-      | matchClauses' (cg, ccs, klist as CandList _) =
+      | (* GEN CASE BRANCH *) matchClauses' (cg, ccs, klist as CandList _) =
           matchClauses (cg, ccs, klist)
 
     (* match (cg, ccs) = klist
@@ -1891,7 +1891,7 @@ val _ = pr () *)
     fun abstractSpine (S, s) =
         let
           val (G', S') = Abstract.abstractSpine (S, s)
-
+    
           val namedG' = N.ctxName G' (* for printing purposes *)
           val _ = if !Global.doubleCheck
                     then ( TypeCheck.typeCheckCtx (namedG')
@@ -1907,16 +1907,16 @@ val _ = pr () *)
        Xi are either EVars or to be ignored
     *)
     fun kthSub (I.Dot (I.Exp(X), s), 1) = X
-      | kthSub (I.Dot (_, s), k) = kthSub (s, k-1)
+      | (* GEN CASE BRANCH *) kthSub (I.Dot (_, s), k) = kthSub (s, k-1)
 
     (* subToXsRev (X1...Xn.^0) = [Xiopt,...,Xnopt]
        Invariant: Xi are either EVars (translate to SOME(Xi))
                   or not (translate to NONE)
     *)
     fun subToXsRev (I.Shift(0)) = nil (* n = 0 *)
-      | subToXsRev (I.Dot (I.Exp(X), s)) =
+      | (* GEN CASE BRANCH *) subToXsRev (I.Dot (I.Exp(X), s)) =
           SOME(X)::subToXsRev (s)
-      | subToXsRev (I.Dot (_, s)) =
+      | (* GEN CASE BRANCH *) subToXsRev (I.Dot (_, s)) =
           NONE::subToXsRev (s)
 
     (* caseList is a list of possibilities for a variables
@@ -2032,7 +2032,7 @@ val _ = pr () *)
         let val cands = match (cg, ccs) (* determine splitting candidates *)
             val cand = selectCand cands (* select one candidate *)
         in split (cg, cand, w, ccs, lab, missing) end
-      | cover' (NONE, w, ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) cover' (NONE, w, ccs, lab, missing) =
         (* cg is covered by unique output inconsistency *)
         ( chatter 6 (fn () => "Covered\n");
           missing )
@@ -2040,11 +2040,11 @@ val _ = pr () *)
         (* cg is covered: return missing patterns from other cases *)
         ( chatter 6 (fn () => "Covered\n");
           missing )
-      | split (cg, SOME(nil), w, ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) split (cg, SOME(nil), w, ccs, lab, missing) =
         (* no strong candidates: check for finitary splitting candidates *)
         ( chatter 6 (fn () => "No strong candidates --- calculating weak candidates\n");
           splitWeak (cg, finitary (cg, w), w, ccs, lab, missing) )
-      | split (cg, SOME((k,_)::ksn), w, ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) split (cg, SOME((k,_)::ksn), w, ccs, lab, missing) =
         (* some candidates: split first candidate, ignoring multiplicities *)
         (* candidates are in reverse order, so non-index candidates are split first *)
         (* splitVar shows splitting as it happens *)
@@ -2058,7 +2058,7 @@ val _ = pr () *)
     and splitWeak (cg, nil, w, ccs, lab, missing) =
         ( chatter 6 (fn () => "No weak candidates---case " ^ labToString(lab) ^ " not covered\n");
           cg::missing )
-      | splitWeak (cg, ksn, w, ccs, lab, missing) = (* ksn <> nil *)
+      | (* GEN CASE BRANCH *) splitWeak (cg, ksn, w, ccs, lab, missing) = (* ksn <> nil *)
           split (cg, SOME(findMin ksn::nil), w, ccs, lab, missing)
 
     and covers (cases, w, ccs, lab, missing) =
@@ -2068,7 +2068,7 @@ val _ = pr () *)
     and covers' (nil, n, w, ccs, lab, missing) =
         ( chatter 6 (fn () => "All subcases of " ^ labToString(lab) ^ " considered\n");
           missing )
-      | covers' (cg::cases', n, w, ccs, lab, missing) =
+      | (* GEN CASE BRANCH *) covers' (cg::cases', n, w, ccs, lab, missing) =
         let
           val missing1 = cover (cg, w, ccs, Child(lab, n), missing)
         in
@@ -2081,22 +2081,22 @@ val _ = pr () *)
        {{G}} erases void declarations in G
     *)
     fun substToSpine' (I.Shift(n), I.Null, T) = T
-      | substToSpine' (I.Shift(n), G as I.Decl _, T) =
+      | (* GEN CASE BRANCH *) substToSpine' (I.Shift(n), G as I.Decl _, T) =
           substToSpine' (I.Dot (I.Idx (n+1), I.Shift(n+1)), G, T)
-      | substToSpine' (I.Dot(_, s), I.Decl(G, I.NDec _), T) =
+      | (* GEN CASE BRANCH *) substToSpine' (I.Dot(_, s), I.Decl(G, I.NDec _), T) =
           (* Skip over NDec's; must be either Undef or Idx [from eta-expansion] *)
           (* Unusable meta-decs are eliminated here *)
           substToSpine' (s, G, T)
-      | substToSpine' (I.Dot(I.Exp(U),s), I.Decl(G,V), T) =
+      | (* GEN CASE BRANCH *) substToSpine' (I.Dot(I.Exp(U),s), I.Decl(G,V), T) =
           substToSpine' (s, G, I.App(U, T))
-      | substToSpine' (I.Dot(I.Idx(n),s), I.Decl(G,I.Dec(_,V)), T) =
+      | (* GEN CASE BRANCH *) substToSpine' (I.Dot(I.Idx(n),s), I.Decl(G,I.Dec(_,V)), T) =
           (* Eta-expand *)
         let
           val (Us,_) = Whnf.whnfEta ((I.Root (I.BVar(n), I.Nil), I.id), (V, I.id))
         in
           substToSpine' (s, G, I.App(I.EClo Us, T))
         end
-      | substToSpine' (I.Dot (_, s) , I.Decl (G, I.BDec (_, (L, t))), T) =
+      | (* GEN CASE BRANCH *) substToSpine' (I.Dot (_, s) , I.Decl (G, I.BDec (_, (L, t))), T) =
         (* was: I.Idx in previous line, Sun Jan  5 11:02:19 2003 -fp *)
         (* Treat like I.NDec *)
           (* Attempted fix, didn't work because I don't know how you
@@ -2121,14 +2121,14 @@ val _ = pr () *)
        then  |- G ctx and  G' |- s : G
     *)
     fun purify' (I.Null) = (I.Null, I.id)
-      | purify' (I.Decl (G, I.NDec _)) =
+      | (* GEN CASE BRANCH *) purify' (I.Decl (G, I.NDec _)) =
         let val (G', s) = purify' G
           (* G' |- s : G *)
         in
           (G', I.Dot (I.Undef, s))
           (* G' |- _.s : G,_ *)
         end
-      | purify' (I.Decl (G, D as I.Dec _)) =
+      | (* GEN CASE BRANCH *) purify' (I.Decl (G, D as I.Dec _)) =
         let val (G', s) = purify' G
           (* G' |- s : G *)
           (* G |- D : type *)
@@ -2142,7 +2142,7 @@ val _ = pr () *)
       (* added a new case to throw out blocks
          -cs Sat Jan  4 22:55:12 2003
       *)
-      | purify' (I.Decl (G, D as I.BDec _)) =
+      | (* GEN CASE BRANCH *) purify' (I.Decl (G, D as I.BDec _)) =
         let val (G', s) = purify' G
           (* G' |- s : G *)
         in

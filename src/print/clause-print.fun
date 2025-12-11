@@ -40,30 +40,30 @@ local
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
       end
-    | fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
+    | (* GEN CASE BRANCH *) fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
         val D' = Names.decEName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
       end
-    | fmtDQuants (G, V as I.Pi _) = (* P = I.No *)
+    | (* GEN CASE BRANCH *) fmtDQuants (G, V as I.Pi _) = (* P = I.No *)
         [F.HOVbox (fmtDSubGoals (G, V, nil))]
-    | fmtDQuants (G, V) = (* V = Root _ *)
+    | (* GEN CASE BRANCH *) fmtDQuants (G, V) = (* V = Root _ *)
         [Print.formatExp (G, V)]
   and fmtDSubGoals (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), acc) =
         fmtDSubGoals (I.Decl (G, D), V2,
                       F.Break :: sym "<-" :: F.Space :: fmtGparens (G, V1)
                       :: acc)
-    | fmtDSubGoals (G, V as I.Pi _, acc) = (* acc <> nil *)
+    | (* GEN CASE BRANCH *) fmtDSubGoals (G, V as I.Pi _, acc) = (* acc <> nil *)
         parens (F.HVbox (fmtDQuants (G, V))) :: acc
-    | fmtDSubGoals (G, V, acc) = (* V = Root _ *)
+    | (* GEN CASE BRANCH *) fmtDSubGoals (G, V, acc) = (* V = Root _ *)
         Print.formatExp (G, V) :: acc
   and fmtDparens (G, V as I.Pi _) = parens (F.HVbox (fmtDQuants (G, V)))
-    | fmtDparens (G, V) = (* V = Root _ *)
+    | (* GEN CASE BRANCH *) fmtDparens (G, V) = (* V = Root _ *)
         Print.formatExp (G, V)
   and fmtGparens (G, V as I.Pi _) = parens (F.HVbox (fmtGQuants (G, V)))
-    | fmtGparens (G, V) = (* V = Root _ *)
+    | (* GEN CASE BRANCH *) fmtGparens (G, V) = (* V = Root _ *)
         Print.formatExp (G, V)
   and fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
       let
@@ -72,26 +72,26 @@ local
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtGQuants (I.Decl (G, D'), V2)
       end
-    | fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
+    | (* GEN CASE BRANCH *) fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
         val D' = Names.decLUName (G, D)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtGQuants (I.Decl (G, D'), V2)
       end
-    | fmtGQuants (G, V) = (* P = I.No or V = Root _ *)
+    | (* GEN CASE BRANCH *) fmtGQuants (G, V) = (* P = I.No or V = Root _ *)
         [F.HOVbox (fmtGHyps (G, V))]
   and fmtGHyps (G, I.Pi ((D as I.Dec (_, V1), I.No), V2)) =
         fmtDparens (G, V1) :: F.Break :: sym "->" :: F.Space :: fmtGHyps (I.Decl (G, D), V2)
-    | fmtGHyps (G, V as I.Pi _) = (* P = I.Maybe *)
+    | (* GEN CASE BRANCH *) fmtGHyps (G, V as I.Pi _) = (* P = I.Maybe *)
         [F.HVbox (fmtGQuants (G, V))]
-    | fmtGHyps (G, V) = (* V = Root _ *)
+    | (* GEN CASE BRANCH *) fmtGHyps (G, V) = (* V = Root _ *)
         [Print.formatExp (G, V)]
 
   fun fmtClause (G, V) = F.HVbox (fmtDQuants (G, V))
 
   fun fmtClauseI (0, G, V) = fmtClause (G, V)
-    | fmtClauseI (i, G, I.Pi ((D, _), V)) =
+    | (* GEN CASE BRANCH *) fmtClauseI (i, G, I.Pi ((D, _), V)) =
         fmtClauseI (i-1, I.Decl (G, Names.decEName (G, D)), V)
 
   fun fmtConDec (I.ConDec (id, parent, i, _, V, I.Type)) =
@@ -102,7 +102,7 @@ local
         F.HVbox [Str0 (Symbol.const (id)), F.Space, sym ":", F.Break,
                  Vfmt, sym "."]
       end
-    | fmtConDec (condec) =
+    | (* GEN CASE BRANCH *) fmtConDec (condec) =
       (* type family declaration, definition, or Skolem constant *)
       Print.formatConDec (condec)
 

@@ -76,7 +76,7 @@ struct
       in
         (SOME(cd), SOME(ocd))
       end
-    | condecToConDec (condef(optName, tm1, tm2Opt), Paths.Loc (fileName, r), abbFlag) =
+    | (* GEN CASE BRANCH *) condecToConDec (condef(optName, tm1, tm2Opt), Paths.Loc (fileName, r), abbFlag) =
       let
         val _ = Names.varReset IntSyn.Null
         val _ = ExtSyn.resetErrors fileName
@@ -103,7 +103,7 @@ struct
                        (* (case optName of NONE => () | _ => Strict.checkType ((i, V''), SOME(ocd))); *)
                        (Names.nameConDec (IntSyn.ConDef (name, NONE, i, U'', V'', L,
                                                          IntSyn.ancestor U''))))
-
+    
         val _ = if !Global.chatter >= 3
                   then Msg.message ((Timers.time Timers.printing Print.conDecToString) cd ^ "\n")
                 else ()
@@ -115,7 +115,7 @@ struct
       in
         (optConDec, SOME(ocd))
       end
-    | condecToConDec (blockdec (name, Lsome, Lblock), Paths.Loc (fileName, r), abbFlag) =
+    | (* GEN CASE BRANCH *) condecToConDec (blockdec (name, Lsome, Lblock), Paths.Loc (fileName, r), abbFlag) =
       let
         fun makectx nil = IntSyn.Null
           | makectx (D :: L) = IntSyn.Decl (makectx L, D)
@@ -145,13 +145,13 @@ struct
               error (r, "Free variables in context block after term reconstruction:\n"
                      ^ ctxBlockToString (G0', (G1', G2')))
             end
-
+    
         val (gsome, gblock) = (makectx Lsome, makectx Lblock)
-
+    
         val r' = (case (ExtSyn.ctxRegion gsome, ExtSyn.ctxRegion gblock)
                     of (SOME r1, SOME r2) => Paths.join (r1, r2)
                      | (_, SOME r2) => r2)
-
+    
         val _ = Names.varReset IntSyn.Null
         val _ = ExtSyn.resetErrors fileName
         val j = ExtSyn.jwithctx (gsome,
@@ -170,11 +170,11 @@ struct
         val _ = if !Global.chatter >= 3
                   then Msg.message ((Timers.time Timers.printing Print.conDecToString) bd ^ "\n")
                 else ()
-
+    
       in
         (SOME bd, NONE)
       end
-    | condecToConDec (blockdef (name, W), Paths.Loc (fileName, r), abbFlag) =
+    | (* GEN CASE BRANCH *) condecToConDec (blockdef (name, W), Paths.Loc (fileName, r), abbFlag) =
       let
         val W' = List.map Names.Qid W
         val W'' = (List.map (fn qid => case Names.constLookup qid

@@ -30,7 +30,7 @@ struct
     val empty = T {length = 0, tree = Empty}
         
     fun isEmpty (T {length = 0, ...}) = true
-      | isEmpty _ = false
+      | (* GEN CASE BRANCH *) isEmpty _ = false
         
     fun str s =
         case s of
@@ -205,11 +205,11 @@ struct
     fun tostringex wid l =
         let
             val acc = ref nil : string list ref
-
+    
             fun pr s = acc := s :: !acc
         in
             layout_print {tree = l, lineWidth = wid, print = pr};
-
+    
             String.concat(rev (!acc))
         end
 
@@ -238,7 +238,7 @@ struct
             [] => []
           | t :: ts => t :: (let val s = str s
                                  fun loop [] = []
-                                   | loop (t :: ts) = s :: t:: (loop ts)
+                                   | (* GEN CASE BRANCH *) loop (t :: ts) = s :: t:: (loop ts)
                              in loop ts
                              end)
                 

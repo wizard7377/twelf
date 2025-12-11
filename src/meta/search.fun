@@ -50,19 +50,19 @@ struct
        NONE if V is a kind or object or have variable type.
     *)
     fun isInstantiated (I.Root (I.Const(cid), _)) = true
-      | isInstantiated (I.Pi(_, V)) = isInstantiated V
-      | isInstantiated (I.Root (I.Def(cid), _)) = true
-      | isInstantiated (I.Redex (V, S)) = isInstantiated V
-      | isInstantiated (I.Lam (_, V)) = isInstantiated V
-      | isInstantiated (I.EVar (ref (SOME(V)),_,_,_)) = isInstantiated V
-      | isInstantiated (I.EClo (V, s)) = isInstantiated V
-      | isInstantiated _ = false
+      | (* GEN CASE BRANCH *) isInstantiated (I.Pi(_, V)) = isInstantiated V
+      | (* GEN CASE BRANCH *) isInstantiated (I.Root (I.Def(cid), _)) = true
+      | (* GEN CASE BRANCH *) isInstantiated (I.Redex (V, S)) = isInstantiated V
+      | (* GEN CASE BRANCH *) isInstantiated (I.Lam (_, V)) = isInstantiated V
+      | (* GEN CASE BRANCH *) isInstantiated (I.EVar (ref (SOME(V)),_,_,_)) = isInstantiated V
+      | (* GEN CASE BRANCH *) isInstantiated (I.EClo (V, s)) = isInstantiated V
+      | (* GEN CASE BRANCH *) isInstantiated _ = false
 
     fun compose'(IntSyn.Null, G) = G
-      | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
+      | (* GEN CASE BRANCH *) compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
     fun shift (IntSyn.Null, s) = s
-      | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+      | (* GEN CASE BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
 
 
     (* raiseType (G, V) = {{G}} V
@@ -74,14 +74,14 @@ struct
        All abstractions are potentially dependent.
     *)
     fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+      | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
 
     (* exists P K = B
        where B iff K = K1, Y, K2  s.t. P Y  holds
     *)
     fun exists P K =
         let fun exists' (I.Null) = false
-              | exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
+              | (* GEN CASE BRANCH *) exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
         in
           exists' K
         end
@@ -96,21 +96,21 @@ struct
     fun occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
 
     and occursInExpW (r, (I.Uni _, _)) = false
-      | occursInExpW (r, (I.Pi ((D, _), V), s)) =
+      | (* GEN CASE BRANCH *) occursInExpW (r, (I.Pi ((D, _), V), s)) =
           occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s))
-      | occursInExpW (r, (I.Root (_, S), s)) = occursInSpine (r, (S, s))
-      | occursInExpW (r, (I.Lam (D, V), s)) =
+      | (* GEN CASE BRANCH *) occursInExpW (r, (I.Root (_, S), s)) = occursInSpine (r, (S, s))
+      | (* GEN CASE BRANCH *) occursInExpW (r, (I.Lam (D, V), s)) =
           occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s))
-      | occursInExpW (r, (I.EVar (r' , _, V', _), s)) =
+      | (* GEN CASE BRANCH *) occursInExpW (r, (I.EVar (r' , _, V', _), s)) =
           (r = r') orelse occursInExp (r, (V', s))
-      | occursInExpW (r, (I.FgnExp csfe, s)) =
+      | (* GEN CASE BRANCH *) occursInExpW (r, (I.FgnExp csfe, s)) =
         I.FgnExpStd.fold csfe (fn (U, B) => B orelse occursInExp (r, (U, s))) false
           (* hack - should consult cs  -rv *)
 
     and occursInSpine (_, (I.Nil, _)) = false
-      | occursInSpine (r, (I.SClo (S, s'), s)) =
+      | (* GEN CASE BRANCH *) occursInSpine (r, (I.SClo (S, s'), s)) =
           occursInSpine (r, (S, I.comp (s', s)))
-      | occursInSpine (r, (I.App (U, S), s)) =
+      | (* GEN CASE BRANCH *) occursInSpine (r, (I.App (U, S), s)) =
           occursInExp (r, (U, s)) orelse occursInSpine (r, (S, s))
 
     and occursInDec (r, (I.Dec (_, V), s)) = occursInExp (r, (V, s))
@@ -122,7 +122,7 @@ struct
         r does not occur in any type of EVars in GE
     *)
     fun nonIndex (_, nil) = true
-      | nonIndex (r, I.EVar (_, _, V, _) :: GE) =
+      | (* GEN CASE BRANCH *) nonIndex (r, I.EVar (_, _, V, _) :: GE) =
           (not (occursInExp (r, (V, I.id)))) andalso nonIndex (r, GE)
 
     (* select (GE, (V, s), acc) = acc'
@@ -131,14 +131,14 @@ struct
     *)
     (* Efficiency: repeated whnf for every subterm in Vs!!! *)
     fun selectEVar (nil) = nil
-      | selectEVar ((X as I.EVar (r, _, _, ref nil)) :: GE) =
+      | (* GEN CASE BRANCH *) selectEVar ((X as I.EVar (r, _, _, ref nil)) :: GE) =
         let
           val Xs = selectEVar (GE)
         in
           if nonIndex (r, Xs) then Xs @ [X]
           else Xs
         end
-      | selectEVar ((X as I.EVar (r, _, _, cnstrs)) :: GE) =  (* Constraint case *)
+      | (* GEN CASE BRANCH *) selectEVar ((X as I.EVar (r, _, _, cnstrs)) :: GE) =  (* Constraint case *)
         let
           val Xs = selectEVar (GE)
         in
@@ -156,16 +156,16 @@ struct
        then |- G' = G0 ctx
     *)
     fun pruneCtx (G, 0) = G
-      | pruneCtx (I.Decl (G, _), n) = pruneCtx (G, n-1)
+      | (* GEN CASE BRANCH *) pruneCtx (I.Decl (G, _), n) = pruneCtx (G, n-1)
 
   fun cidFromHead (I.Const a) = a
-    | cidFromHead (I.Def a) = a
-    | cidFromHead (I.Skonst a) = a
+    | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
+    | (* GEN CASE BRANCH *) cidFromHead (I.Skonst a) = a
 
   (* only used for type families of compiled clauses *)
   fun eqHead (I.Const a, I.Const a') = a = a'
-    | eqHead (I.Def a, I.Def a') = a = a'
-    | eqHead _ = false
+    | (* GEN CASE BRANCH *) eqHead (I.Def a, I.Def a') = a = a'
+    | (* GEN CASE BRANCH *) eqHead _ = false
 
   (* solve ((g,s), (G,dPool), sc, (acc, k)) => ()
      Invariants:
@@ -181,7 +181,7 @@ struct
   fun solve (max, depth, (C.Atom p, s), dp as C.DProg(G, dPool), sc) =
       matchAtom (max, depth, (p,s), dp, sc)
 
-    | solve (max, depth, (C.Impl (r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) solve (max, depth, (C.Impl (r, A, Ha, g), s), C.DProg (G, dPool), sc) =
        let
          val D' = I.Dec (NONE, I.EClo (A, s))
        in
@@ -189,7 +189,7 @@ struct
                 C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, Ha))),
                 (fn M => sc (I.Lam (D', M))))
        end
-    | solve (max, depth, (C.All (D, g), s), C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) solve (max, depth, (C.All (D, g), s), C.DProg (G, dPool), sc) =
        let
          val D' = I.decSub (D, s)
        in
@@ -218,13 +218,13 @@ struct
       (* replaced below by above.  -fp Mon Aug 17 10:41:09 1998
         ((Unify.unify (ps', (Q, s)); sc (I.Nil, acck)) handle Unify.Unify _ => acc) *)
 
-    | rSolve (max, depth, ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (max, depth, ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
          (case Assign.assignable (G, ps', (Q, s))
             of SOME(cnstr) =>
                aSolve((eqns, s), dp, cnstr, (fn () => sc I.Nil))
              | NONE => ())
 
-    | rSolve (max, depth, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (max, depth, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
       let
         (* is this EVar redundant? -fp *)
         val X = I.newEVar (G, I.EClo(A, s))
@@ -232,9 +232,9 @@ struct
         rSolve (max, depth, ps', (r, I.Dot(I.Exp(X), s)), dp,
                 (fn S => solve (max, depth, (g, s), dp,
                                 (fn M => sc (I.App (M, S))))))
-
+    
       end
-    | rSolve (max, depth, ps', (C.In (r, A, g), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (max, depth, ps', (C.In (r, A, g), s), dp as C.DProg (G, dPool), sc) =
       let
                                         (* G |- g goal *)
                                         (* G |- A : type *)
@@ -261,14 +261,14 @@ struct
                                  sc (I.App (I.EClo (M, w), S)))
                                 handle Unify.Unify _ => ())))))
       end
-    | rSolve (max, depth, ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (max, depth, ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc) =
         let
           val X = I.newEVar (G, I.EClo (A, s))
         in
           rSolve (max, depth, ps', (r, I.Dot (I.Exp (X), s)), dp,
                   (fn S => sc (I.App (X, S))))
         end
-    | rSolve (max, depth, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (max, depth, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
       let
         val X' = I.newAVar ()
       in
@@ -290,7 +290,7 @@ struct
           sc ()
         else
            ())
-    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
+    | (* GEN CASE BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
       let
         val (G'') = compose'(G', G)
         val s' = shift (G', s)
@@ -311,7 +311,7 @@ struct
      if G |- M :: p[s] then G |- sc :: p[s] => Answer
   *)
   and matchAtom (0, _, _, _, _) = ()
-    | matchAtom (max, depth,
+    | (* GEN CASE BRANCH *) matchAtom (max, depth,
                  ps' as (I.Root (Ha, _), _),
                  dp as C.DProg (G, dPool), sc) =
       let
@@ -326,7 +326,7 @@ struct
             in
               matchSig' sgn'
             end
-
+    
         fun matchDProg (I.Null, _) = matchSig' (Index.lookup (cidFromHead Ha))
           | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n) =
             if eqHead (Ha, Ha') then
@@ -358,7 +358,7 @@ struct
         (* Possible optimization:
            Check if there are still variables left over
         *)
-      | searchEx' max ((X as I.EVar (r, G, V, _)) :: GE, sc) =
+      | (* GEN CASE BRANCH *) searchEx' max ((X as I.EVar (r, G, V, _)) :: GE, sc) =
           solve (max, 0, (Compile.compileGoal (G, V), I.id),
                  Compile.compileCtx false G,
                  (fn U' => (Unify.unify (G, (X, I.id), (U', I.id));

@@ -42,15 +42,15 @@ struct
   fun expose (Stream (d)) = d ()
   fun delay (d) =
       let val memo = ref (fn () => raise Uninitialized)
-	  fun memoFun () =
-	      let
-		  val r = d ()
-	       in
-		  ( memo := (fn () => r) ; r )
-	      end
-	      handle exn => ( memo := (fn () => raise exn) ; raise exn )
+  	  fun memoFun () =
+  	      let
+  		  val r = d ()
+  	       in
+  		  ( memo := (fn () => r) ; r )
+  	      end
+  	      handle exn => ( memo := (fn () => raise exn) ; raise exn )
       in
-	memo := memoFun ; Stream (fn () => !memo ())
+  	memo := memoFun ; Stream (fn () => !memo ())
       end
 
   val empty = Stream (fn () => Empty)
@@ -92,49 +92,49 @@ struct
   (* parallel the functions in the List structure *)
   fun null (s) = null' (expose s)
   and null' (Empty) = true
-    | null' (Cons _) = false
+    | (* GEN CASE BRANCH *) null' (Cons _) = false
 
   fun hd (s) = hd' (expose s)
   and hd' (Empty) = raise EmptyStream
-    | hd' (Cons (x,s)) = x
+    | (* GEN CASE BRANCH *) hd' (Cons (x,s)) = x
 
   fun tl (s) = tl' (expose s)
   and tl' (Empty) = raise EmptyStream
-    | tl' (Cons (x,s)) = s
+    | (* GEN CASE BRANCH *) tl' (Cons (x,s)) = s
 
   fun map f s = delay (fn () => map' f (expose s))
   and map' f (Empty) = Empty
-    | map' f (Cons(x,s)) = Cons (f(x), map f s)
+    | (* GEN CASE BRANCH *) map' f (Cons(x,s)) = Cons (f(x), map f s)
 
   fun filter p s = delay (fn () => filter' p (expose s))
   and filter' p (Empty) = Empty
-    | filter' p (Cons(x,s)) =
+    | (* GEN CASE BRANCH *) filter' p (Cons(x,s)) =
         if p(x) then Cons (x, filter p s)
-	else filter' p (expose s)
+    	else filter' p (expose s)
 
   fun exists p s = exists' p (expose s)
   and exists' p (Empty) = false
-    | exists' p (Cons(x,s)) =
+    | (* GEN CASE BRANCH *) exists' p (Cons(x,s)) =
         p(x) orelse exists p s
 
   fun takePos (s, 0) = nil
-    | takePos (s, n) = take' (expose s, n)
+    | (* GEN CASE BRANCH *) takePos (s, n) = take' (expose s, n)
   and take' (Empty, _) = nil
-    | take' (Cons(x,s), n) = x::takePos(s, n-1)
+    | (* GEN CASE BRANCH *) take' (Cons(x,s), n) = x::takePos(s, n-1)
 
   fun take (s,n) = if n < 0 then raise Subscript else takePos (s,n)
 
   fun fromList (nil) = empty
-    | fromList (x::l) = cons(x,fromList(l))
+    | (* GEN CASE BRANCH *) fromList (x::l) = cons(x,fromList(l))
 
   fun toList (s) = toList' (expose s)
   and toList' (Empty) = nil
-    | toList' (Cons(x,s)) = x::toList(s)
+    | (* GEN CASE BRANCH *) toList' (Cons(x,s)) = x::toList(s)
 
   fun dropPos (s, 0) = s
-    | dropPos (s, n) = drop' (expose s, n)
+    | (* GEN CASE BRANCH *) dropPos (s, n) = drop' (expose s, n)
   and drop' (Empty, _) = empty
-    | drop' (Cons(x,s), n) = dropPos (s, n-1)
+    | (* GEN CASE BRANCH *) drop' (Cons(x,s), n) = dropPos (s, n-1)
 
   fun drop (s,n) = if n < 0 then raise Subscript else dropPos (s,n)
 

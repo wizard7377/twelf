@@ -87,15 +87,15 @@ struct
            then print ("Output coverage: skipping redundant checking of third-order clause\n")
          else ();
          ())
-      | checkDynOrder (G, Vs, n, occ) = (* n > 0 *)
+      | (* GEN CASE BRANCH *) checkDynOrder (G, Vs, n, occ) = (* n > 0 *)
           checkDynOrderW (G, Whnf.whnf Vs, n, occ)
     and checkDynOrderW (G, (I.Root _, s), n, occ) = ()
         (* atomic subgoal *)
-      | checkDynOrderW (G, (I.Pi ((D1 as I.Dec (_, V1), I.No), V2), s), n, occ) =
+      | (* GEN CASE BRANCH *) checkDynOrderW (G, (I.Pi ((D1 as I.Dec (_, V1), I.No), V2), s), n, occ) =
         (* dynamic (= non-dependent) assumption --- calculate dynamic order of V1 *)
           ( checkDynOrder (G, (V1, s), n-1, P.label occ) ;
             checkDynOrder (I.Decl (G, D1), (V2, I.dot1 s), n, P.body occ) )
-      | checkDynOrderW (G, (I.Pi ((D1, I.Maybe), V2), s), n, occ) =
+      | (* GEN CASE BRANCH *) checkDynOrderW (G, (I.Pi ((D1, I.Maybe), V2), s), n, occ) =
         (* static (= dependent) assumption --- consider only body *)
           checkDynOrder (I.Decl (G, D1), (V2, I.dot1 s), n, P.body occ)
 
@@ -115,14 +115,14 @@ struct
         in
           checkClause (I.Decl (G, D1'), (V2, I.dot1 s), P.body occ)
         end
-      | checkClauseW (G, (I.Pi ((D1 as I.Dec (_, V1), I.No), V2), s), occ) =
+      | (* GEN CASE BRANCH *) checkClauseW (G, (I.Pi ((D1 as I.Dec (_, V1), I.No), V2), s), occ) =
         (* subgoal *)
         let
           val _ = checkClause (I.Decl (G, D1), (V2, I.dot1 s), P.body occ)
         in
           checkGoal (G, (V1, s), P.label occ)
         end
-      | checkClauseW (G, (I.Root _, s), occ) =
+      | (* GEN CASE BRANCH *) checkClauseW (G, (I.Root _, s), occ) =
         (* clause head *)
         ()
 
@@ -147,9 +147,9 @@ struct
        Effect: raises Error (msg) otherwise
     *)
     fun checkDefinite (a, M.Mnil) = ()
-      | checkDefinite (a, M.Mapp (M.Marg (M.Plus, _), ms')) = checkDefinite (a, ms')
-      | checkDefinite (a, M.Mapp (M.Marg (M.Minus, _), ms')) = checkDefinite (a, ms')
-      | checkDefinite (a, M.Mapp (M.Marg (M.Star, xOpt), ms')) =
+      | (* GEN CASE BRANCH *) checkDefinite (a, M.Mapp (M.Marg (M.Plus, _), ms')) = checkDefinite (a, ms')
+      | (* GEN CASE BRANCH *) checkDefinite (a, M.Mapp (M.Marg (M.Minus, _), ms')) = checkDefinite (a, ms')
+      | (* GEN CASE BRANCH *) checkDefinite (a, M.Mapp (M.Marg (M.Star, xOpt), ms')) =
         (* Note: filename and location are missing in this error message *)
         (* Fri Apr  5 19:25:54 2002 -fp *)
         error (a, P.top,
@@ -163,7 +163,7 @@ struct
        Effect: raises Error (msg) otherwise, where msg has filename and location.
     *)
     fun checkOutCover nil = ()
-      | checkOutCover (I.Const(c)::cs) =
+      | (* GEN CASE BRANCH *) checkOutCover (I.Const(c)::cs) =
         ( if !Global.chatter >= 4
             then print (N.qidToString (N.constQid c) ^ " ")
           else () ;
@@ -173,7 +173,7 @@ struct
           checkClause (I.Null, (I.constType (c), I.id), P.top)
              handle Error' (occ, msg) => error (c, occ, msg) ;
           checkOutCover cs )
-      | checkOutCover (I.Def(d)::cs) =
+      | (* GEN CASE BRANCH *) checkOutCover (I.Def(d)::cs) =
         ( if !Global.chatter >= 4
             then print (N.qidToString (N.constQid d) ^ " ")
           else () ;
@@ -205,7 +205,7 @@ struct
                      then print ("Terminates: " ^ N.qidToString (N.constQid a) ^ "\n")
                    else ())
                   handle Reduces.Error (msg) => raise Reduces.Error (msg)
-
+    
           (* Checking input coverage *)
           (* by termination invariant, there must be consistent mode for a *)
           val SOME(ms) = ModeTable.modeLookup a (* must be defined and well-moded *)
@@ -215,7 +215,7 @@ struct
                      then print ("Covers (input): " ^ N.qidToString (N.constQid a) ^ "\n")
                    else ())
                   handle Cover.Error (msg) => raise Cover.Error (msg)
-
+    
           (* Checking output coverage *)
           val _ = if !Global.chatter >= 4
                     then print ("Output coverage checking family " ^ N.qidToString (N.constQid a)

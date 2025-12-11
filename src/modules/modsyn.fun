@@ -52,26 +52,26 @@ struct
   fun mapExpConsts f U =
       let
         open IntSyn
-
+  
         fun trExp (Uni L) = Uni L
-          | trExp (Pi ((D, P), V)) = Pi ((trDec D, P), trExp V)
-          | trExp (Root (H, S)) = Root (trHead H, trSpine S)
-          | trExp (Lam (D, U)) = Lam (trDec D, trExp U)
-          | trExp (U as FgnExp csfe) = FgnExpStd.Map.apply csfe trExp
-
+          | (* GEN CASE BRANCH *) trExp (Pi ((D, P), V)) = Pi ((trDec D, P), trExp V)
+          | (* GEN CASE BRANCH *) trExp (Root (H, S)) = Root (trHead H, trSpine S)
+          | (* GEN CASE BRANCH *) trExp (Lam (D, U)) = Lam (trDec D, trExp U)
+          | (* GEN CASE BRANCH *) trExp (U as FgnExp csfe) = FgnExpStd.Map.apply csfe trExp
+  
         and trDec (Dec (name, V)) = Dec (name, trExp V)
-
+  
         and trSpine Nil = Nil
-          | trSpine (App (U, S)) = App (trExp U, trSpine S)
-
+          | (* GEN CASE BRANCH *) trSpine (App (U, S)) = App (trExp U, trSpine S)
+  
         and trHead (BVar n) = BVar n
-          | trHead (Const cid) = trConst cid
-          | trHead (Skonst cid) = trConst cid
-          | trHead (Def cid) = trConst cid
-          | trHead (NSDef cid) = trConst cid
-          | trHead (FgnConst (csid, condec)) =
+          | (* GEN CASE BRANCH *) trHead (Const cid) = trConst cid
+          | (* GEN CASE BRANCH *) trHead (Skonst cid) = trConst cid
+          | (* GEN CASE BRANCH *) trHead (Def cid) = trConst cid
+          | (* GEN CASE BRANCH *) trHead (NSDef cid) = trConst cid
+          | (* GEN CASE BRANCH *) trHead (FgnConst (csid, condec)) =
               FgnConst (csid, mapConDecConsts f condec)
-
+  
         and trConst cid =
             let
               val cid' = f cid
@@ -88,13 +88,13 @@ struct
 
   and mapConDecConsts f (IntSyn.ConDec (name, parent, i, status, V, L)) =
         IntSyn.ConDec (name, parent, i, status, mapExpConsts f V, L)
-    | mapConDecConsts f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
+    | (* GEN CASE BRANCH *) mapConDecConsts f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
         IntSyn.ConDef (name, parent, i, mapExpConsts f U,
                        mapExpConsts f V, L, Anc) (* reconstruct Anc?? -fp *)
-    | mapConDecConsts f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
+    | (* GEN CASE BRANCH *) mapConDecConsts f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
         IntSyn.AbbrevDef (name, parent, i, mapExpConsts f U,
                           mapExpConsts f V, L)
-    | mapConDecConsts f (IntSyn.SkoDec (name, parent, i, V, L)) =
+    | (* GEN CASE BRANCH *) mapConDecConsts f (IntSyn.SkoDec (name, parent, i, V, L)) =
         IntSyn.SkoDec (name, parent, i, mapExpConsts f V, L)
 
   fun mapStrDecParent f (IntSyn.StrDec (name, parent)) =
@@ -102,18 +102,18 @@ struct
 
   fun mapConDecParent f (IntSyn.ConDec (name, parent, i, status, V, L)) =
         IntSyn.ConDec (name, f parent, i, status, V, L)
-    | mapConDecParent f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
+    | (* GEN CASE BRANCH *) mapConDecParent f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
         IntSyn.ConDef (name, f parent, i, U, V, L, Anc) (* reconstruct Anc?? -fp *)
-    | mapConDecParent f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
+    | (* GEN CASE BRANCH *) mapConDecParent f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
         IntSyn.AbbrevDef (name, f parent, i, U, V, L)
-    | mapConDecParent f (IntSyn.SkoDec (name, parent, i, V, L)) =
+    | (* GEN CASE BRANCH *) mapConDecParent f (IntSyn.SkoDec (name, parent, i, V, L)) =
         IntSyn.SkoDec (name, f parent, i, V, L)
 
   fun strictify (condec as IntSyn.AbbrevDef (name, parent, i, U, V, IntSyn.Type)) =
       ((Strict.check ((U, V), NONE);
         IntSyn.ConDef (name, parent, i, U, V, IntSyn.Type, IntSyn.ancestor(U)))
        handle Strict.Error _ => condec)
-    | strictify (condec as IntSyn.AbbrevDef _) = condec
+    | (* GEN CASE BRANCH *) strictify (condec as IntSyn.AbbrevDef _) = condec
 
   fun abbrevify (cid, condec) =
       (case condec
@@ -153,22 +153,22 @@ struct
               IntTree.new (0)
         val constMap : IntSyn.cid IntTree.table =
               IntTree.new (0)
-
+  
         fun mapStruct mid = valOf (IntTree.lookup structMap mid)
-
+  
         fun mapParent NONE = topOpt
-          | mapParent (SOME parent) = SOME (mapStruct parent)
-
+          | (* GEN CASE BRANCH *) mapParent (SOME parent) = SOME (mapStruct parent)
+  
         fun mapConst cid =
             (case IntTree.lookup constMap cid
                of NONE => cid
                 | SOME cid' => cid')
-
+  
         fun doStruct (mid, StructInfo strdec) =
             let
               val strdec' = mapStrDecParent mapParent strdec
               val mid' = IntSyn.sgnStructAdd strdec'
-
+  
               val parent = IntSyn.strDecParent strdec'
               val nsOpt = (case parent
                              of NONE => nsOpt
@@ -179,20 +179,20 @@ struct
               val _ = (case parent
                          of NONE => Names.installStructName mid'
                           | _ => ())
-
+  
               val ns = Names.newNamespace ()
               val _ = Names.installComponents (mid', ns)
             in
               IntTree.insert structMap (mid, mid')
             end
-
+  
         fun doConst (cid, ConstInfo (condec, fixity, namePrefOpt, origin)) =
             let
               val condec1 = mapConDecParent mapParent condec
               val condec2 = mapConDecConsts mapConst condec1
               val condec3 = transformConDec (cid, condec2)
               val cid' = IntSyn.sgnAdd condec3
-
+  
               val parent = IntSyn.conDecParent condec3
               val nsOpt = (case parent
                              of NONE => nsOpt
@@ -203,9 +203,9 @@ struct
               val _ = (case parent
                          of NONE => Names.installConstName cid'
                           | _ => ())
-
+  
               val _ = installAction (cid', origin)
-
+  
               val _ = (case fixity
                          of Names.Fixity.Nonfix => ()
                           | _ => Names.installFixity (cid', fixity))
@@ -254,13 +254,13 @@ struct
               IntTree.new (0)
         val constTable : const_info IntTree.table =
               IntTree.new (0)
-
+  
         val mapParent =
             (case topOpt
                of NONE => (fn parent => parent)
                 | SOME mid => (fn SOME mid' => if mid = mid' then NONE
                                                else SOME mid'))
-
+  
         fun doStruct (_, mid) =
             let
               val strdec = IntSyn.sgnStructLookup mid
@@ -270,7 +270,7 @@ struct
               IntTree.insert structTable (mid, StructInfo strdec');
               doNS ns
             end
-
+  
         and doConst (_, cid) =
             let
               val condec = IntSyn.sgnLookup cid
@@ -281,7 +281,7 @@ struct
             in
               IntTree.insert constTable (cid, ConstInfo (condec', fixity, namePref, origin))
             end
-
+  
         and doNS ns =
             (Names.appStructs doStruct ns;
              Names.appConsts doConst ns)

@@ -46,7 +46,7 @@ struct
        and  G; D |- P' = <X1', <.... <Xn', <>> ..> in F     for some D
     *)
     fun createEVars (G, (F.True, s)) = (nil, F.Unit)
-      | createEVars (G, (F.Ex (I.Dec (_, V), F), s)) =
+      | (* GEN CASE BRANCH *) createEVars (G, (F.Ex (I.Dec (_, V), F), s)) =
         let
           val X = I.newEVar (G, I.EClo (V, s))
           val X' = Whnf.lowerEVar X

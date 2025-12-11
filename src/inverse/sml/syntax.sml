@@ -94,16 +94,16 @@ struct
   val id_sub = Shift 0
 
   fun id (Decl decl) = #id decl
-    | id (Def def) = #id def
-    | id (Abbrev abb) = #id abb
+    | (* GEN CASE BRANCH *) id (Def def) = #id def
+    | (* GEN CASE BRANCH *) id (Abbrev abb) = #id abb
 
   fun name (Decl decl) = #name decl
-    | name (Def def) = #name def
-    | name (Abbrev abb) = #name abb
+    | (* GEN CASE BRANCH *) name (Def def) = #name def
+    | (* GEN CASE BRANCH *) name (Abbrev abb) = #name abb
 
   fun exp (Decl decl) = #exp decl
-    | exp (Def def) = #exp def
-    | exp (Abbrev abb) = #exp abb
+    | (* GEN CASE BRANCH *) exp (Def def) = #exp def
+    | (* GEN CASE BRANCH *) exp (Abbrev abb) = #exp abb
 
   fun is_def c = 
       case Signat.lookup c of
@@ -137,21 +137,21 @@ struct
                 | Arrow of skel * skel
 
   fun card Nil = 0
-    | card (App(M,S)) = 1 + card S
-    | card _ = raise Fail "card: no closures"
+    | (* GEN CASE BRANCH *) card (App(M,S)) = 1 + card S
+    | (* GEN CASE BRANCH *) card _ = raise Fail "card: no closures"
 
   fun num_pi_quants (Pi {body,...}) = 1 + num_pi_quants body
-    | num_pi_quants _ = 0
+    | (* GEN CASE BRANCH *) num_pi_quants _ = 0
 
   fun skel_length Base = 0
-    | skel_length (Arrow(_,tau)) = 1 + skel_length tau
+    | (* GEN CASE BRANCH *) skel_length (Arrow(_,tau)) = 1 + skel_length tau
 
   fun concat (Nil,M) = App(M,Nil)
-    | concat (App(M,S),M') = App(M,concat(S,M'))
-    | concat (SClo _,_) = raise Fail "concat: no closures"
+    | (* GEN CASE BRANCH *) concat (App(M,S),M') = App(M,concat(S,M'))
+    | (* GEN CASE BRANCH *) concat (SClo _,_) = raise Fail "concat: no closures"
 
   fun skeleton (ctx,Uni Type) = Base
-    | skeleton (ctx,Root(Const a,S)) = 
+    | (* GEN CASE BRANCH *) skeleton (ctx,Root(Const a,S)) = 
       let
         val aty = exp(Sig.lookup a)
         val n = num_pi_quants aty
@@ -160,7 +160,7 @@ struct
         if n = n' then Base 
         else raise Fail "skeleton: not eta expanded"
       end
-    | skeleton (ctx,Root(BVar i,S)) = 
+    | (* GEN CASE BRANCH *) skeleton (ctx,Root(BVar i,S)) = 
       let
         val aty = L.ith (i-1) ctx
         val n = skel_length aty
@@ -169,14 +169,14 @@ struct
         if n = n' then Base 
         else raise Fail "skeleton: not eta expanded"
       end
-    | skeleton (ctx,Pi {arg,body,...}) = 
+    | (* GEN CASE BRANCH *) skeleton (ctx,Pi {arg,body,...}) = 
       let
         val tau1 = skeleton(ctx,arg)
         val tau2 = skeleton(ctx,body)
       in
         Arrow(tau1,tau2)
       end
-    | skeleton (_,exp) = raise Fail_exp("skeleton: bad case",exp)
+    | (* GEN CASE BRANCH *) skeleton (_,exp) = raise Fail_exp("skeleton: bad case",exp)
 
   exception Fail_exp_skel of string * exp * skel 
 
@@ -190,30 +190,30 @@ struct
        code to be tangled with the different typechecker versions.
     *)
     fun shift_head (lev,con as Const _) = con
-      | shift_head (lev,var as BVar n) = 
+      | (* GEN CASE BRANCH *) shift_head (lev,var as BVar n) = 
         if n >= lev then BVar (n+1) else var
 
     fun shift_spine (lev,Nil) = Nil
-      | shift_spine (lev,App(M,S)) = App(shift_exp(lev,M),shift_spine(lev,S))
-      | shift_spine (lev,SClo _) = 
+      | (* GEN CASE BRANCH *) shift_spine (lev,App(M,S)) = App(shift_exp(lev,M),shift_spine(lev,S))
+      | (* GEN CASE BRANCH *) shift_spine (lev,SClo _) = 
         raise Fail "shift_spine: shouldn't have closures during eta expansion"
 
     and shift_exp (lev,uni as (Uni _)) = uni
-      | shift_exp (lev,Pi {var,arg,depend,body}) = 
+      | (* GEN CASE BRANCH *) shift_exp (lev,Pi {var,arg,depend,body}) = 
         Pi {var=var,
             arg=shift_exp(lev,arg),
             depend=depend,
             body=shift_exp (lev+1,body)}
-      | shift_exp (lev,Lam {var,body}) =
+      | (* GEN CASE BRANCH *) shift_exp (lev,Lam {var,body}) =
         Lam {var=var,body=shift_exp (lev+1,body)}
-      | shift_exp (lev,Root(H,S)) = Root(shift_head (lev,H),shift_spine(lev,S))
-      | shift_exp _ = 
+      | (* GEN CASE BRANCH *) shift_exp (lev,Root(H,S)) = Root(shift_head (lev,H),shift_spine(lev,S))
+      | (* GEN CASE BRANCH *) shift_exp _ = 
         raise Fail "shift_exp: shouldn't have redexes or closures during eta expansion"
 
     fun shift_spine' exp = shift_spine(0,exp)
 
     fun long_exp (ctx,exp as Uni Type,Base) = exp
-      | long_exp (ctx,Pi {arg,body,depend,var}, Base) =
+      | (* GEN CASE BRANCH *) long_exp (ctx,Pi {arg,body,depend,var}, Base) =
         let
           val arg' = long_exp(ctx,arg,Base) 
           val tau = skeleton(ctx,arg')
@@ -221,58 +221,58 @@ struct
         in
           Pi {arg=arg',body=body',depend=depend,var=var}
         end
-      | long_exp (ctx,Lam {var,body},Arrow(tau1,tau2)) =
+      | (* GEN CASE BRANCH *) long_exp (ctx,Lam {var,body},Arrow(tau1,tau2)) =
         let
           val body' = long_exp (tau1::ctx,body,tau2)
         in
           Lam {var=var,body=body'}
         end
-      | long_exp (ctx,expr as Root(con as Const a,S),Base) =
+      | (* GEN CASE BRANCH *) long_exp (ctx,expr as Root(con as Const a,S),Base) =
         let
           val tau = skeleton (ctx,exp(Sig.lookup a))
         in
           Root(con,long_spine(ctx,S,tau))
         end
-      | long_exp (ctx,exp as Root(var as BVar i,S),Base) =
+      | (* GEN CASE BRANCH *) long_exp (ctx,exp as Root(var as BVar i,S),Base) =
         let
           val tau = L.ith (i-1) ctx (* indices start at 1 *)
         in
           Root(var,long_spine(ctx,S,tau))
         end
-      | long_exp (ctx,Root(con as Const c,S),tau as Arrow(tau1,tau2)) =
+      | (* GEN CASE BRANCH *) long_exp (ctx,Root(con as Const c,S),tau as Arrow(tau1,tau2)) =
         let
           val S' = concat (shift_spine' S,one)
         in
           changed := true;
           long_exp (ctx,Lam {var=NONE,body=Root(con,S')},tau)
         end
-      | long_exp (ctx,Root(BVar i,S),tau as Arrow(tau1,tau2)) =
+      | (* GEN CASE BRANCH *) long_exp (ctx,Root(BVar i,S),tau as Arrow(tau1,tau2)) =
         let
           val S' = concat (shift_spine' S,one)
         in
           changed := true;
           long_exp (ctx,Lam {var=NONE,body=Root(BVar(i+1),S')},tau) 
         end
-      | long_exp (_,exp,skel) = raise Fail_exp_skel("long_exp: bad case",exp,skel)
+      | (* GEN CASE BRANCH *) long_exp (_,exp,skel) = raise Fail_exp_skel("long_exp: bad case",exp,skel)
 
     and long_spine (ctx,Nil,Base) = Nil
-      | long_spine (ctx,App(M,S),Arrow(tau1,tau2)) =
+      | (* GEN CASE BRANCH *) long_spine (ctx,App(M,S),Arrow(tau1,tau2)) =
         let
           val M' = long_exp(ctx,M,tau1) 
           val S' = long_spine(ctx,S,tau2)
         in
           App(M',S')
         end
-      | long_spine _ = raise Fail "long_spine: bad case"
+      | (* GEN CASE BRANCH *) long_spine _ = raise Fail "long_spine: bad case"
 
     fun eta_expand'(e1,Uni Kind) = e1
-      | eta_expand'(e1,e2) = 
+      | (* GEN CASE BRANCH *) eta_expand'(e1,e2) = 
         let
           val () = changed := false
           val skel = skeleton([],e2)
           val e2' = long_exp([],e1,skel)
         in
-(*           if !changed then L.warning "expression is not eta long" else (); *)
+      (*           if !changed then L.warning "expression is not eta long" else (); *)
           e2'
         end
 

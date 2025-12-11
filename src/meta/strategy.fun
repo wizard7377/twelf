@@ -69,7 +69,7 @@ struct
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
     fun findMin nil = NONE
-      | findMin L =
+      | (* GEN CASE BRANCH *) findMin L =
           let
             fun findMin' (nil, result) = result
               | findMin' (O' :: L', NONE) =
@@ -82,7 +82,7 @@ struct
                     of LESS =>  findMin' (L', SOME O')
                      | _ => findMin' (L', SOME O)
                 else findMin' (L', SOME O)
-
+      
           in
             findMin' (L, NONE)
           end
@@ -116,7 +116,7 @@ struct
             end
 
     and fill (nil, os) = os
-      | fill (S :: givenStates, os as (openStates, solvedStates)) =
+      | (* GEN CASE BRANCH *) fill (S :: givenStates, os as (openStates, solvedStates)) =
         (case (Timers.time Timers.recursion MTPFilling.expand) S
           of fillingOp =>
              (let
@@ -150,7 +150,7 @@ struct
         (let
           val _ = printInit ()
           val (openStates, solvedStates) = fill (givenStates, (nil, nil))
-
+    
           val openStates' = map MTPrint.nameState openStates
           val solvedStates' = map MTPrint.nameState solvedStates
           val _ = case openStates

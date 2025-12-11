@@ -41,7 +41,7 @@ struct
     exception MyIntsynRep of sum
 
     fun extractSum (MyIntsynRep sum) = sum
-      | extractSum fe = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) extractSum fe = raise (UnexpectedFgnExp fe)
 
     val myID = ref ~1 : csid ref
 
@@ -56,8 +56,8 @@ struct
     fun falseExp () = Root (Const (!falseID), Nil)
 
     fun solveBool (G, S, 0) = SOME(trueExp ())
-      | solveBool (G, S, 1) = SOME(falseExp ())
-      | solveBool (G, S, k) = NONE
+      | (* GEN CASE BRANCH *) solveBool (G, S, 1) = SOME(falseExp ())
+      | (* GEN CASE BRANCH *) solveBool (G, S, k) = NONE
 
     val notID     = ref ~1 : cid ref
     val xorID     = ref ~1 : cid ref
@@ -112,10 +112,10 @@ struct
           in
             Root(Const (cid), Nil)
           end
-      | toExp (Sum (m, [mon])) =
+      | (* GEN CASE BRANCH *) toExp (Sum (m, [mon])) =
           if (m = false) then toExpMon mon
           else xorExp (toExp (Sum (m, nil)), toExpMon mon)
-      | toExp (Sum (m, monLL as (mon :: monL))) =
+      | (* GEN CASE BRANCH *) toExp (Sum (m, monLL as (mon :: monL))) =
           xorExp (toExp (Sum (m, monL)), toExpMon mon)
 
     (* toExpMon mon = U
@@ -125,7 +125,7 @@ struct
        G |- U : V and U is the Twelf syntax conversion of mon
     *)
     and toExpMon (Mon [Us]) = toExpEClo Us
-      | toExpMon (Mon (Us :: UsL)) =
+      | (* GEN CASE BRANCH *) toExpMon (Mon (Us :: UsL)) =
           andExp (toExpMon (Mon UsL), toExpEClo Us)
 
     (* toExpEClo (U,s) = U
@@ -134,7 +134,7 @@ struct
        G |- U : V and U is the Twelf syntax conversion of Us
     *)
     and toExpEClo (U, Shift (0)) = U
-      | toExpEClo Us = EClo Us
+      | (* GEN CASE BRANCH *) toExpEClo Us = EClo Us
 
     (* compatibleMon (mon1, mon2) = true only if mon1 = mon2 (as monomials) *)
     fun compatibleMon (Mon UsL1, Mon UsL2) =
@@ -155,10 +155,10 @@ struct
            | (FVar (n1,_,_), FVar (n2,_,_)) =>
                (n1 = n2) andalso sameSpine ((S1, s1), (S2, s2))
            | _ => false)
-      | sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
+      | (* GEN CASE BRANCH *) sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
                   Us2 as (U2 as EVar(r2, G2, V2, cnstrs2), s2)) =
          (r1 = r2) andalso sameSub (s1, s2)
-      | sameExpW _ = false
+      | (* GEN CASE BRANCH *) sameExpW _ = false
 
     (* sameExp ((U1,s1), (U2,s2)) = T
 
@@ -177,14 +177,14 @@ struct
        then T only if S1 = S2 (as spines)
     *)
     and sameSpine ((Nil, s1), (Nil, s2)) = true
-      | sameSpine ((SClo (S1, s1'), s1), Ss2) =
+      | (* GEN CASE BRANCH *) sameSpine ((SClo (S1, s1'), s1), Ss2) =
           sameSpine ((S1, comp (s1', s1)), Ss2)
-      | sameSpine (Ss1, (SClo (S2, s2'), s2)) =
+      | (* GEN CASE BRANCH *) sameSpine (Ss1, (SClo (S2, s2'), s2)) =
           sameSpine (Ss1, (S2, comp (s2', s2)))
-      | sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
+      | (* GEN CASE BRANCH *) sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
           sameExp ((U1, s1), (U2, s2))
             andalso sameSpine ((S1, s1), (S2, s2))
-      | sameSpine _ = false
+      | (* GEN CASE BRANCH *) sameSpine _ = false
 
     (* sameSub (s1, s2) = T
 
@@ -194,13 +194,13 @@ struct
        then T only if s1 = s2 (as substitutions)
     *)
     and sameSub (Shift _, Shift _) = true
-      | sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
+      | (* GEN CASE BRANCH *) sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
           (k1 = k2) andalso sameSub (s1, s2)
-      | sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
+      | (* GEN CASE BRANCH *) sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
           sameSub (s1, Dot (Idx (Int.+(k2,1)), Shift (Int.+(k2,1))))
-      | sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
+      | (* GEN CASE BRANCH *) sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
           sameSub (Dot (Idx (Int.+(k1,1)), Shift (Int.+(k1,1))), s2)
-      | sameSub _ = false
+      | (* GEN CASE BRANCH *) sameSub _ = false
 
     (* xorSum (sum1, sum2) = sum3
 
@@ -222,10 +222,10 @@ struct
        and  sum3 = sum1 and sum2
     *)
     fun andSum (sum1 as Sum (false, nil), sum2) = sum1
-      | andSum (sum1, sum2 as Sum (false, nil)) = sum2
-      | andSum (sum1 as Sum (true, nil), sum2) = sum2
-      | andSum (sum1, sum2 as Sum (true, nil)) = sum1
-      | andSum (Sum (m1, mon1 :: monL1), sum2) =
+      | (* GEN CASE BRANCH *) andSum (sum1, sum2 as Sum (false, nil)) = sum2
+      | (* GEN CASE BRANCH *) andSum (sum1 as Sum (true, nil), sum2) = sum2
+      | (* GEN CASE BRANCH *) andSum (sum1, sum2 as Sum (true, nil)) = sum1
+      | (* GEN CASE BRANCH *) andSum (Sum (m1, mon1 :: monL1), sum2) =
           xorSum (andSumMon (sum2, mon1), andSum (Sum (m1, monL1), sum2))
 
     (* andSumMon (sum1, mon2) = sum3
@@ -237,8 +237,8 @@ struct
        and  sum3 = sum1 and mon2
     *)
     and andSumMon (Sum (true, nil), mon) = Sum (false, [mon])
-      | andSumMon (sum1 as Sum (false, nil), mon) = sum1
-      | andSumMon (Sum (m1, (Mon UsL1) :: monL1), mon2 as Mon UsL2) =
+      | (* GEN CASE BRANCH *) andSumMon (sum1 as Sum (false, nil), mon) = sum1
+      | (* GEN CASE BRANCH *) andSumMon (Sum (m1, (Mon UsL1) :: monL1), mon2 as Mon UsL2) =
           let
             val UsL = unionSet sameExp (UsL1, UsL2)
           in
@@ -300,21 +300,21 @@ struct
           if (cs = !myID)
           then normalizeSum (extractSum fe)
           else Sum (false, [Mon [Us]])
-      | fromExpW Us =
+      | (* GEN CASE BRANCH *) fromExpW Us =
           Sum (false, [Mon [Us]])
     and fromExp Us =
           fromExpW (Whnf.whnf Us)
 
     (* normalizeSum sum = sum', where sum' normal and sum' = sum *)
     and normalizeSum (sum as (Sum (m, nil))) = sum
-      | normalizeSum (Sum (m, [mon])) =
+      | (* GEN CASE BRANCH *) normalizeSum (Sum (m, [mon])) =
           xorSum (Sum (m, nil), normalizeMon mon)
-      | normalizeSum (Sum (m, mon :: monL)) =
+      | (* GEN CASE BRANCH *) normalizeSum (Sum (m, mon :: monL)) =
           xorSum (normalizeMon mon, normalizeSum (Sum (m, monL)))
 
     (* normalizeMon mon = mon', where mon' normal and mon' = mon *)
     and normalizeMon (Mon [Us]) = fromExp Us
-      | normalizeMon (Mon (Us :: UsL)) =
+      | (* GEN CASE BRANCH *) normalizeMon (Mon (Us :: UsL)) =
           andSum (fromExp Us, normalizeMon (Mon UsL))
 
     (* mapSum (f, m + M1 + ...) = m + mapMon(f,M1) + ... *)
@@ -340,7 +340,7 @@ struct
     fun findMon f (G, Sum(m, monL)) =
           let
             fun findMon' (nil, monL2) = NONE
-              | findMon' (mon :: monL1, monL2) =
+              | (* GEN CASE BRANCH *) findMon' (mon :: monL1, monL2) =
                   (case (f (G, mon, Sum(m, monL1 @ monL2)))
                      of (result as SOME _) => result
                       | NONE => findMon' (monL1, mon :: monL2))
@@ -370,7 +370,7 @@ struct
                       else NONE
                     end
                   else NONE
-              | invertMon _ = NONE
+              | (* GEN CASE BRANCH *) invertMon _ = NONE
           in
             case xorSum (sum2, sum1)
               of Sum (false, nil) => Succeed nil
@@ -397,7 +397,7 @@ struct
        then U is a foreign expression representing sum.
     *)
     and toFgn (sum as Sum (m, nil)) = toExp (sum)
-      | toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep sum)
+      | (* GEN CASE BRANCH *) toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep sum)
 
     (* toInternal (fe) = U
 
@@ -406,7 +406,7 @@ struct
        then U is the Twelf syntax conversion of sum
     *)
     fun toInternal (MyIntsynRep sum) () = toExp (normalizeSum sum)
-      | toInternal fe () = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) toInternal fe () = raise (UnexpectedFgnExp fe)
 
     (* map (fe) f = U'
 
@@ -421,7 +421,7 @@ struct
          U' is a foreign expression representing sum'
     *)
     fun map (MyIntsynRep sum) f = toFgn (normalizeSum (mapSum (f,sum)))
-      | map fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) map fe _ = raise (UnexpectedFgnExp fe)
 
     (* app (fe) f = ()
 
@@ -434,16 +434,16 @@ struct
          (since sum : normal, each Usij is in whnf)
     *)
     fun app (MyIntsynRep sum) f = appSum (f, sum)
-      | app fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) app fe _ = raise (UnexpectedFgnExp fe)
 
     fun equalTo (MyIntsynRep sum) U2 =
         (case xorSum (normalizeSum (sum), fromExp (U2, id)) (* AK: redundant normalizeSum ? *)
           of Sum(m, nil) => (m = false)
            | _ => false)
-      | equalTo fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) equalTo fe _ = raise (UnexpectedFgnExp fe)
 
     fun unifyWith (MyIntsynRep sum) (G, U2) = unifySum (G, normalizeSum sum, fromExp (U2, id))
-      | unifyWith fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) unifyWith fe _ = raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
         val csid = !myID
@@ -459,20 +459,20 @@ struct
     fun makeFgn (arity, opExp) (S) =
           let
             fun makeParams 0 = Nil
-              | makeParams n =
+              | (* GEN CASE BRANCH *) makeParams n =
                   App (Root(BVar (n), Nil), makeParams (Int.-(n,1)))
             fun makeLam E 0 = E
-              | makeLam E n =
+              | (* GEN CASE BRANCH *) makeLam E n =
                   Lam (Dec (NONE, bool()), makeLam E (Int.-(n,1)))
             fun expand ((Nil, s), arity) =
                   (makeParams arity, arity)
-              | expand ((App (U, S), s), arity) =
+              | (* GEN CASE BRANCH *) expand ((App (U, S), s), arity) =
                   let
                     val (S', arity') = expand ((S, s), (Int.-(arity,1)))
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
-              | expand ((SClo (S, s'), s), arity) =
+              | (* GEN CASE BRANCH *) expand ((SClo (S, s'), s), arity) =
                   expand ((S, comp (s', s)), arity)
             val (S', arity') = expand ((S, id), arity)
           in
@@ -498,27 +498,27 @@ struct
     fun init (cs, installF) =
           (
             myID := cs;
-
+    
             boolID :=
               installF (ConDec ("bool", NONE, 0,
                                 Constraint (!myID, solveBool),
                                 Uni (Type), Kind),
                         NONE, [MS.Mnil]);
-
+    
             trueID :=
               installF (ConDec ("true", NONE, 0,
                                 Foreign (!myID, (fn _ => toFgn (Sum(true, nil)))),
                                 bool (),
                                 Type),
                         NONE, nil);
-
+    
             falseID :=
               installF (ConDec ("false", NONE, 0,
                                 Foreign (!myID, (fn _ => toFgn (Sum(false, nil)))),
                                 bool (),
                                 Type),
                         NONE, nil);
-
+    
             notID :=
               installF (ConDec ("!", NONE, 0,
                                 Foreign (!myID, makeFgnUnary notSum),
@@ -526,7 +526,7 @@ struct
                                 Type),
                         SOME(FX.Prefix (FX.maxPrec)),
                         nil);
-
+    
             xorID :=
               installF (ConDec ("||", NONE, 0,
                                 Foreign (!myID, makeFgnBinary xorSum),
@@ -534,7 +534,7 @@ struct
                                 Type),
                         SOME(FX.Infix (FX.dec FX.maxPrec, FX.Left)),
                         nil);
-
+    
             andID :=
               installF (ConDec ("&", NONE, 0,
                                   Foreign (!myID, makeFgnBinary andSum),
@@ -542,7 +542,7 @@ struct
                                   Type),
                         SOME(FX.Infix (FX.dec FX.maxPrec, FX.Left)),
                         nil);
-
+    
            orID :=
               installF (ConDec ("|", NONE, 0,
                                 Foreign (!myID, makeFgnBinary orSum),
@@ -550,7 +550,7 @@ struct
                                 Type),
                         SOME(FX.Infix (FX.dec FX.maxPrec, FX.Left)),
                         nil);
-
+    
             impliesID :=
               installF (ConDec ("=>", NONE, 0,
                                   Foreign (!myID, makeFgnBinary impliesSum),
@@ -558,7 +558,7 @@ struct
                                   Type),
                         SOME(FX.Infix (FX.dec (FX.dec FX.maxPrec), FX.Left)),
                         nil);
-
+    
             iffID :=
               installF (ConDec ("<=>", NONE, 0,
                                   Foreign (!myID, makeFgnBinary iffSum),
@@ -566,9 +566,9 @@ struct
                                   Type),
                         SOME(FX.Infix (FX.dec (FX.dec FX.maxPrec), FX.Left)),
                         nil);
-
+    
             installFgnExpOps () ;
-
+    
             ()
           )
   in

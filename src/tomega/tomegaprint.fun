@@ -56,9 +56,9 @@ struct
 
     fun evarName n =
       let
-
+    
         fun evarName' nil = raise Error "not found"
-          | evarName' ((Y as T.EVar (_, _, _, _, _, X as I.EVar (_, G, r, _))) :: L) =
+          | (* GEN CASE BRANCH *) evarName' ((Y as T.EVar (_, _, _, _, _, X as I.EVar (_, G, r, _))) :: L) =
             if Names.evarName (G, X) = n then Y else evarName' L
       in
         evarName' (!evarList)
@@ -77,14 +77,14 @@ struct
        and  fmts is a format list of G1[s1]
     *)
     fun formatCtxBlock (G, (I.Null, s)) = (G, s, nil)
-      | formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
+      | (* GEN CASE BRANCH *) formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
         let
           val D' = I.decSub (D, s)
           val fmt = P.formatDec (G, D')
         in
           (I.Decl (G, D'), I.dot1 s, [fmt])
         end
-      | formatCtxBlock (G, (I.Decl (G', D), s)) =
+      | (* GEN CASE BRANCH *) formatCtxBlock (G, (I.Decl (G', D), s)) =
         let
           val (G'', s'', fmts) = formatCtxBlock (G, (G', s))
           val D'' = I.decSub (D, s'')
@@ -98,8 +98,8 @@ struct
     fun constName c = I.conDecName (I.sgnLookup c)
 
     fun formatWorld nil = []
-      | formatWorld [c] = [Fmt.String (constName c)]
-      | formatWorld (c :: cids) = [Fmt.String (constName c), Fmt.String ",", Fmt.Break] @ formatWorld cids
+      | (* GEN CASE BRANCH *) formatWorld [c] = [Fmt.String (constName c)]
+      | (* GEN CASE BRANCH *) formatWorld (c :: cids) = [Fmt.String (constName c), Fmt.String ",", Fmt.Break] @ formatWorld cids
 
     (* formatFor' (G, (F, s)) = fmts'
 
@@ -120,7 +120,7 @@ struct
                 Fmt.String "}", Fmt.Break] @
                formatFor' (I.Decl (Psi, T.UDec D'), F)
              end)
-      | formatFor' (Psi, T.All ((D, T.Implicit), F)) =
+      | (* GEN CASE BRANCH *) formatFor' (Psi, T.All ((D, T.Implicit), F)) =
         (case D
            of T.UDec D =>
              let
@@ -131,7 +131,7 @@ struct
                 Fmt.String "}", Fmt.Break] @
                formatFor' (I.Decl (Psi, T.UDec D'), F)
              end)
-      | formatFor' (Psi, T.Ex ((D, T.Explicit), F)) =
+      | (* GEN CASE BRANCH *) formatFor' (Psi, T.Ex ((D, T.Explicit), F)) =
         let
           val G = T.coerceCtx Psi
           val D' = Names.decName (G, D)
@@ -139,7 +139,7 @@ struct
           [Fmt.String "exists {", P.formatDec (G,  D'), Fmt.String "}", Fmt.Break] @
           formatFor' (I.Decl (Psi, T.UDec D'), F)
         end
-      | formatFor' (Psi, T.Ex ((D, T.Implicit), F)) =
+      | (* GEN CASE BRANCH *) formatFor' (Psi, T.Ex ((D, T.Implicit), F)) =
         let
           val G = T.coerceCtx Psi
           val D' = Names.decName (G, D)
@@ -147,15 +147,15 @@ struct
           [Fmt.String "exists^ {", P.formatDec (G,  D'), Fmt.String "}", Fmt.Break] @
           formatFor' (I.Decl (Psi, T.UDec D'), F)
         end
-      | formatFor' (Psi, T.And (F1, F2)) =
+      | (* GEN CASE BRANCH *) formatFor' (Psi, T.And (F1, F2)) =
           [Fmt.String "(",
            Fmt.HVbox (formatFor' (Psi, F1)),
            Fmt.String ")", Fmt.Break, Fmt.String "/\\", Fmt.Space, Fmt.String "(",
            Fmt.HVbox (formatFor' (Psi, F2)),
            Fmt.String ")"]
-      | formatFor' (Psi, T.True) =
+      | (* GEN CASE BRANCH *) formatFor' (Psi, T.True) =
         [Fmt.String "true"]
-      | formatFor' (Psi, T.World (T.Worlds L, F)) =
+      | (* GEN CASE BRANCH *) formatFor' (Psi, T.World (T.Worlds L, F)) =
           [Fmt.String "world (", Fmt.HVbox (formatWorld L), Fmt.String ")", Fmt.Break] @
           formatFor' (Psi, F)
 
@@ -182,9 +182,9 @@ struct
            then LD' = LD modulo new non-conficting variable names.
         *)
         fun decName (G, T.UDec D) =  T.UDec (Names.decName (G, D))
-          | decName (G, T.PDec (NONE, F, TC1, TC2))= T.PDec (SOME "xx", F, TC1, TC2)
+          | (* GEN CASE BRANCH *) decName (G, T.PDec (NONE, F, TC1, TC2))= T.PDec (SOME "xx", F, TC1, TC2)
                (* needs to be integrated with Names *)
-          | decName (G, D) = D
+          | (* GEN CASE BRANCH *) decName (G, D) = D
 
 
 (*      (* numberOfSplits Ds = n'
@@ -222,49 +222,49 @@ struct
         fun psiName (Psi1, s, Psi2, l) =
           let
             fun nameDec (D as I.Dec (SOME _, _), name) = D
-              | nameDec (I.Dec (NONE, V), name) = I.Dec (SOME name, V)
-
+              | (* GEN CASE BRANCH *) nameDec (I.Dec (NONE, V), name) = I.Dec (SOME name, V)
+        
             fun namePsi (I.Decl (Psi, T.UDec D), 1, name) =
                   I.Decl (Psi, T.UDec (nameDec (D, name)))
-              | namePsi (I.Decl (Psi, LD as T.UDec D), n, name) =
+              | (* GEN CASE BRANCH *) namePsi (I.Decl (Psi, LD as T.UDec D), n, name) =
                   I.Decl (namePsi (Psi, n-1, name), LD)
             and nameG (Psi, I.Null, n, name, k) = (k n, I.Null)
-              | nameG (Psi, I.Decl (G, D), 1, name, k) = (Psi, I.Decl (G, nameDec (D, name)))
-              | nameG (Psi, I.Decl (G, D), n, name, k) =
+              | (* GEN CASE BRANCH *) nameG (Psi, I.Decl (G, D), 1, name, k) = (Psi, I.Decl (G, nameDec (D, name)))
+              | (* GEN CASE BRANCH *) nameG (Psi, I.Decl (G, D), n, name, k) =
                 let
                   val (Psi', G') = nameG (Psi, G, n-1, name, k)
                 in
                   (Psi', I.Decl (G', D))
                 end
-
-
+        
+        
             fun ignore (s, 0) = s
-              | ignore (T.Dot (_, s), k) = ignore (s, k-1)
-              | ignore (T.Shift n, k) =
+              | (* GEN CASE BRANCH *) ignore (T.Dot (_, s), k) = ignore (s, k-1)
+              | (* GEN CASE BRANCH *) ignore (T.Shift n, k) =
                   ignore (T.Dot (T.Idx (n+1), T.Shift (n+1)), k-1)
-
+        
             fun copyNames (T.Shift n, G as I.Decl _) Psi1=
                   copyNames (T.Dot (T.Idx (n+1), T.Shift (n+1)), G) Psi1
-              | copyNames (T.Dot (T.Exp _, s), I.Decl (G, _)) Psi1=
+              | (* GEN CASE BRANCH *) copyNames (T.Dot (T.Exp _, s), I.Decl (G, _)) Psi1=
                   copyNames (s, G) Psi1
-              | copyNames (T.Dot (T.Idx k, s), I.Decl (G, T.UDec (I.Dec (NONE, _)))) Psi1 =
+              | (* GEN CASE BRANCH *) copyNames (T.Dot (T.Idx k, s), I.Decl (G, T.UDec (I.Dec (NONE, _)))) Psi1 =
                   copyNames (s, G) Psi1
-              | copyNames (T.Dot (T.Idx k, s), I.Decl (G, T.UDec (I.Dec (SOME name, _)))) Psi1 =
+              | (* GEN CASE BRANCH *) copyNames (T.Dot (T.Idx k, s), I.Decl (G, T.UDec (I.Dec (SOME name, _)))) Psi1 =
                 let
                   val Psi1' = namePsi (Psi1, k, name)
                 in
                   copyNames (s, G) Psi1'
                 end
-              | copyNames (T.Dot (T.Prg k, s), I.Decl (G, T.PDec (NONE, _, _, _))) Psi1 =
+              | (* GEN CASE BRANCH *) copyNames (T.Dot (T.Prg k, s), I.Decl (G, T.PDec (NONE, _, _, _))) Psi1 =
                   copyNames (s, G) Psi1
-              | copyNames (T.Dot (T.Prg k, s), I.Decl (G, T.PDec (SOME name, _, _, _))) Psi1 =
+              | (* GEN CASE BRANCH *) copyNames (T.Dot (T.Prg k, s), I.Decl (G, T.PDec (SOME name, _, _, _))) Psi1 =
                   copyNames (s, G) Psi1
-
-
-              | copyNames (T.Shift _, I.Null) Psi1 = Psi1
-
+        
+        
+              | (* GEN CASE BRANCH *) copyNames (T.Shift _, I.Null) Psi1 = Psi1
+        
             fun psiName' (I.Null) = I.Null
-              | psiName' (I.Decl (Psi, D)) =
+              | (* GEN CASE BRANCH *) psiName' (I.Decl (Psi, D)) =
                 let
                   val Psi' = psiName' Psi
                 in
@@ -464,16 +464,16 @@ struct
      context G which approximates G', where G' |- S[s] is valid
   *)
   fun fmtSpine callname (Psi,  T.Nil) = []
-    | fmtSpine callname (Psi, T.AppExp (U, S)) =
+    | (* GEN CASE BRANCH *) fmtSpine callname (Psi, T.AppExp (U, S)) =
          (* Print.formatExp (T.coerceCtx Psi, U) *)
          Fmt.HVbox (Print.formatSpine (T.coerceCtx Psi, I.App (U, I.Nil)))
          :: fmtSpine' callname (Psi, S)
-    | fmtSpine callname (Psi, T.AppPrg (P, S)) =
+    | (* GEN CASE BRANCH *) fmtSpine callname (Psi, T.AppPrg (P, S)) =
          formatPrg3 callname  (Psi, P)
          :: fmtSpine' callname (Psi, S)
 
   and fmtSpine' callname (Psi, T.Nil) = []
-    | fmtSpine' callname (Psi, S) =
+    | (* GEN CASE BRANCH *) fmtSpine' callname (Psi, S) =
         Fmt.Break :: fmtSpine callname (Psi, S)
 
 
@@ -508,13 +508,13 @@ struct
            then Fmts is a list of arguments
         *)
         and argsToSpine (s, 0, S) = S
-          | argsToSpine (T.Shift (n), k, S) =
+          | (* GEN CASE BRANCH *) argsToSpine (T.Shift (n), k, S) =
               argsToSpine (T.Dot (T.Idx (n+1), T.Shift (n+1)), k, S)
-          | argsToSpine (T.Dot (T.Idx n, s), k, S) =
+          | (* GEN CASE BRANCH *) argsToSpine (T.Dot (T.Idx n, s), k, S) =
               argsToSpine (s, k-1, T.AppExp (I.Root (I.BVar n, I.Nil), S))
-          | argsToSpine (T.Dot (T.Exp (U), s), k, S) =
+          | (* GEN CASE BRANCH *) argsToSpine (T.Dot (T.Exp (U), s), k, S) =
               argsToSpine (s, k-1, T.AppExp (U, S))
-          | argsToSpine (T.Dot (T.Prg P, s), k, S) =
+          | (* GEN CASE BRANCH *) argsToSpine (T.Dot (T.Prg P, s), k, S) =
               argsToSpine (s, k-1, T.AppPrg (P, S))
 
               (* Idx will always be expanded into Expressions and never into programs
@@ -531,9 +531,9 @@ struct
         and formatTuple (Psi, P) =
           let
             fun formatTuple' (T.Unit) = nil
-              | formatTuple' (T.PairExp (M, T.Unit)) =
+              | (* GEN CASE BRANCH *) formatTuple' (T.PairExp (M, T.Unit)) =
               [Print.formatExp (T.coerceCtx Psi, M)]
-              | formatTuple' (T.PairExp (M, P')) =
+              | (* GEN CASE BRANCH *) formatTuple' (T.PairExp (M, P')) =
               (Print.formatExp (T.coerceCtx Psi, M) ::
                Fmt.String "," :: Fmt.Break :: formatTuple' P')
           in
@@ -553,7 +553,7 @@ struct
               Fmt.Hbox [Fmt.Space,
                         Fmt.HVbox (Fmt.String name :: Fmt.Break  :: Fspine)]
             end
-          | formatRedex callname (Psi, T.Const l, S) =
+          | (* GEN CASE BRANCH *) formatRedex callname (Psi, T.Const l, S) =
             (* lemma application *)
             let
               val T.ValDec (name, _, _) = T.lemmaLookup l
@@ -562,7 +562,7 @@ struct
               Fmt.Hbox [Fmt.Space,
                         Fmt.HVbox (Fmt.String name :: Fmt.Break  :: Fspine)]
             end
-          | formatRedex callname (Psi, (T.Redex (T.Const l, _)), S) =
+          | (* GEN CASE BRANCH *) formatRedex callname (Psi, (T.Redex (T.Const l, _)), S) =
             (* mutual recursion, k is the projection function *)
             let
               (* val T.ValDec (name, _, _) = T.lemmaLookup l *)
@@ -591,7 +591,7 @@ struct
            then fmts' list of pretty print formats of L
         *)
         and formatCases (max, Psi, nil, callname) = nil
-          | formatCases (max, Psi, (Psi', s, P) :: nil, callname) =
+          | (* GEN CASE BRANCH *) formatCases (max, Psi, (Psi', s, P) :: nil, callname) =
             let
               val Psi'' = psiName (Psi', s, Psi, 0)
               val _ = Names.varReset I.Null
@@ -601,7 +601,7 @@ struct
                 Fmt.Space, Fmt.String "=",  Fmt.Break,
                 formatPrg3 callname  (Psi'', P)], Fmt.Break]
             end
-          | formatCases (max, Psi, (Psi', s, P) :: O, callname) =
+          | (* GEN CASE BRANCH *) formatCases (max, Psi, (Psi', s, P) :: O, callname) =
             let
               val
                 Psi'' = psiName (Psi', s, Psi, 0)
@@ -624,44 +624,44 @@ struct
            then fmt is a pretty print of P
         *)
         and formatPrg3 callname  (Psi, T.Unit) = Fmt.String "<>"  (* formatTuple (Psi, P) *)
-          | formatPrg3 callname  (Psi, T.PairExp (U, P)) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, T.PairExp (U, P)) =
               Fmt.HVbox [Fmt.String "<", Print.formatExp (T.coerceCtx Psi, U),
                          Fmt.String ",", Fmt.Break, formatPrg3 callname  (Psi, P), Fmt.String ">"]
 (* formatTuple (Psi, P) *)
-          | formatPrg3 callname  (Psi, P as T.Let _) = formatLet callname (Psi, P, nil)
-          | formatPrg3 callname  (Psi, P as T.LetPairExp (D1, D2, P1, P2)) = formatLet callname (Psi, P, nil)
-          | formatPrg3 callname  (Psi, P as T.LetUnit (P1, P2)) = formatLet callname (Psi, P, nil)
-          | formatPrg3 callname  (Psi, P as T.New (T.Lam (T.UDec (I.BDec (l, (c, s))), _))) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, P as T.Let _) = formatLet callname (Psi, P, nil)
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, P as T.LetPairExp (D1, D2, P1, P2)) = formatLet callname (Psi, P, nil)
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, P as T.LetUnit (P1, P2)) = formatLet callname (Psi, P, nil)
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, P as T.New (T.Lam (T.UDec (I.BDec (l, (c, s))), _))) =
               formatNew callname (Psi, P, nil)
-          | formatPrg3 callname  (Psi, T.Redex (P, S)) =  formatRedex callname (Psi, P, S)
-          | formatPrg3 callname  (Psi, T.Lam (D as T.UDec D', P)) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, T.Redex (P, S)) =  formatRedex callname (Psi, P, S)
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, T.Lam (D as T.UDec D', P)) =
               Fmt.HVbox [Fmt.String "lam", Fmt.Space, Fmt.String "(",
                          Print.formatDec (T.coerceCtx Psi, D'), Fmt.String ")", Fmt.Space,
                          formatPrg3 callname (I.Decl (Psi, D), P)]
-          | formatPrg3 callname  (Psi, T.Rec (D as T.PDec (SOME name, F, NONE, NONE), P)) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, T.Rec (D as T.PDec (SOME name, F, NONE, NONE), P)) =
               Fmt.HVbox [Fmt.String "fix*", Fmt.Space, Fmt.String "(",
                          Fmt.String name, Fmt.String ":", formatFor (Psi, F), Fmt.String ")", Fmt.Space,
                          formatPrg3 callname (I.Decl (Psi, D), P)]
-          | formatPrg3 callname  (Psi, T.Rec (D as T.PDec (SOME name, F, SOME TC1, SOME TC2), P)) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, T.Rec (D as T.PDec (SOME name, F, SOME TC1, SOME TC2), P)) =
               Fmt.HVbox [Fmt.String "fix", Fmt.Space, Fmt.String "(",
                          Fmt.String name, Fmt.String ":", formatFor (Psi, F), Fmt.String ")", Fmt.Space,
                          formatPrg3 callname (I.Decl (Psi, D), P)]
-          | formatPrg3 callname (Psi, T.PClo (P, t)) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname (Psi, T.PClo (P, t)) =
               Fmt.HVbox [formatPrg3 callname (Psi, P), Fmt.String "..."]
-          | formatPrg3 callname (Psi, X as T.EVar (_, ref (SOME P), _, _, _, _)) = formatPrg3 callname (Psi, P)
-          | formatPrg3 callname (Psi, X as T.EVar (_, ref NONE, _, _, _, _)) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname (Psi, X as T.EVar (_, ref (SOME P), _, _, _, _)) = formatPrg3 callname (Psi, P)
+          | (* GEN CASE BRANCH *) formatPrg3 callname (Psi, X as T.EVar (_, ref NONE, _, _, _, _)) =
               Fmt.String (nameEVar X)
-          | formatPrg3 callname (Psi, T.Case (T.Cases Cs)) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname (Psi, T.Case (T.Cases Cs)) =
               Fmt.HVbox (Fmt.String "case" :: Fmt.Break
                          :: formatCases (1, Psi, Cs, callname) @ [Fmt.String "."])
           (* need to fix the first  argument to formatcases Tue Apr 27 10:38:57 2004 --cs *)
-          | formatPrg3 callname  (Psi, T.Var n) =
+          | (* GEN CASE BRANCH *) formatPrg3 callname  (Psi, T.Var n) =
               let
                 val T.PDec (SOME n, _, _, _) = I.ctxLookup (Psi,n)
               in
                 Fmt.String n
               end
-          | formatPrg3 callname  _ = Fmt.String "missing case"
+          | (* GEN CASE BRANCH *) formatPrg3 callname  _ = Fmt.String "missing case"
 
 
         and formatNew callname (Psi, T.New (T.Lam (T.UDec (D as I.BDec (l, (c, s))), P)), fmts) =
@@ -673,7 +673,7 @@ struct
                          Fmt.Break :: Fmt.HVbox [Print.formatDec (G, D')]
                          ::  fmts)
             end
-          | formatNew callname (Psi, P, fmts) =
+          | (* GEN CASE BRANCH *) formatNew callname (Psi, P, fmts) =
               Fmt.Vbox0 0 1 ([Fmt.String "new",
                               Fmt.Vbox0 0 1 (fmts),
                               Fmt.Break,
@@ -697,32 +697,32 @@ struct
             let
               val Psi1' = psiName (Psi1, s1, Psi, 1)
               val F1 = Fmt.HVbox [formatPrg3 callname  (Psi, P1)]
-
+        
               val S = argsToSpine (s1, 1, T.Nil)   (* was I.ctxLength Psi - max  --cs *)
-(*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi1, S) *)
+        (*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi1, S) *)
               val Fspine = fmtSpine callname (Psi1, S)
-
+        
               val Fpattern =  Fmt.HVbox [Fmt.Hbox (Fspine)]
               val Fbody = Fmt.HVbox [F1]
               val fmt = Fmt.HVbox [Fmt.HVbox  [Fmt.String "val", Fmt.Space, Fpattern, Fmt.Space, Fmt.String "="], Fmt.Break, Fbody]
             in
               formatLet callname (Psi1', P2, fmts @ [Fmt.Break, fmt])
             end
-          | formatLet callname (Psi, T.Let (D, P1, T.Case (T.Cases
+          | (* GEN CASE BRANCH *) formatLet callname (Psi, T.Let (D, P1, T.Case (T.Cases
                                 ((Psi1, s1, P2) ::  nil))), fmts) =
             let
               val Psi1' = psiName (Psi1, s1, Psi, 1)
               val F1 = Fmt.HVbox [formatPrg3 callname  (Psi, P1)]
-
+          
               val S = argsToSpine (s1, 1, T.Nil)   (* was I.ctxLength Psi - max  --cs *)
-(*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi1, S) *)
+          (*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi1, S) *)
               val Fspine = fmtSpine callname (Psi1, S)
-
+          
               val Fpattern =  Fmt.HVbox [Fmt.Hbox (Fspine)]
               val Fbody = Fmt.HVbox [F1]
               val fmt = Fmt.HVbox [Fmt.HVbox  [Fmt.String "val", Fmt.Space, Fpattern, Fmt.Space, Fmt.String "="], Fmt.Break, Fbody]
-
-(*            val fmt = (* formatDecs (0, Psi, Ds, (Psi1', s1)) *)
+          
+          (*            val fmt = (* formatDecs (0, Psi, Ds, (Psi1', s1)) *)
                 Fmt.Hbox [Fmt.String " ..." , Fmt.Space, Fmt.String "=",  Fmt.Break, F1] *)
             in
               Fmt.Vbox0 0 1 ([Fmt.String "let",
@@ -737,16 +737,16 @@ struct
 
           (* Added by ABP -- 2/25/03 -- Now a let can have multiple cases *)
 
-          | formatLet callname (Psi, T.Let (D, P1, T.Case (T.Cases L)), nil) =
+          | (* GEN CASE BRANCH *) formatLet callname (Psi, T.Let (D, P1, T.Case (T.Cases L)), nil) =
             let
-
+          
               fun fmtCaseRest [] = []
                 | fmtCaseRest ((Psi1, s1, P2)::L) =
                 let
                   val Psi1' = psiName (Psi1, s1, Psi, 1)
                   val S = argsToSpine (s1, 1, T.Nil)
                   val Fspine = fmtSpine callname (Psi1, S)
-
+          
                   val Fpattern =  Fmt.HVbox [Fmt.Hbox (Fspine)]
                 in
                   [Fmt.HVbox  [Fmt.Space, Fmt.String "|", Fmt.Space, Fpattern, Fmt.Space, Fmt.String "-->"],
@@ -754,13 +754,13 @@ struct
                    Fmt.Break]
                   @ fmtCaseRest(L)
                 end
-
+          
               fun fmtCase ((Psi1, s1, P2)::L) =
                 let
                   val Psi1' = psiName (Psi1, s1, Psi, 1)
                   val S = argsToSpine (s1, 1, T.Nil)
                   val Fspine = fmtSpine callname (Psi1, S)
-
+          
                   val Fpattern =  Fmt.HVbox [Fmt.Hbox (Fspine)]
                 in
                   Fmt.Vbox0 0 1 ([Fmt.HVbox  [Fmt.String "of", Fmt.Space, Fpattern, Fmt.Space, Fmt.String "-->"],
@@ -768,19 +768,19 @@ struct
                                   Fmt.Vbox0 0 1 [formatPrg3 callname (Psi1', P2)], Fmt.Break]
                                  @ fmtCaseRest(L))
                 end
-
-
-
+          
+          
+          
               val F1 = Fmt.HVbox [formatPrg3 callname  (Psi, P1)]
               val Fbody = Fmt.HVbox [F1]
-
+          
               val fmt = fmtCase(L)
             in
               Fmt.Vbox0 0 1 ([Fmt.String "case (", Fbody, Fmt.Space (* need space since there is one before Fbody *),
                              Fmt.String ")", Fmt.Break, fmt])
             end
 
-          | formatLet callname (Psi, R as (T.Let (D, P1, T.Case (T.Cases L))), fmts) =
+          | (* GEN CASE BRANCH *) formatLet callname (Psi, R as (T.Let (D, P1, T.Case (T.Cases L))), fmts) =
               Fmt.Vbox0 0 1 ([Fmt.String "let",
                               Fmt.Vbox0 0 1 (fmts @ [Fmt.Break]),
                               Fmt.Break,
@@ -789,7 +789,7 @@ struct
                               Fmt.Break,
                               Fmt.String "end"])
 
-          | formatLet callname (Psi, R as (T.Let (D as T.PDec (SOME name,F,_,_), P1, P2)), fmts) =
+          | (* GEN CASE BRANCH *) formatLet callname (Psi, R as (T.Let (D as T.PDec (SOME name,F,_,_), P1, P2)), fmts) =
               Fmt.Vbox0 0 1 ([Fmt.String "let", Fmt.Break,
                               Fmt.Vbox0 0 1 ([Fmt.String name , Fmt.Space,
                                               Fmt.String"=",formatPrg3 callname (Psi, P1)]),
@@ -799,7 +799,7 @@ struct
                               Fmt.Break,
                               Fmt.String "end"])
 
-          | formatLet callname (Psi, R as (T.LetPairExp (D1 as I.Dec(SOME n1, _), D2 as T.PDec (SOME n2,F,_,_), P1, P2)), fmts) =
+          | (* GEN CASE BRANCH *) formatLet callname (Psi, R as (T.LetPairExp (D1 as I.Dec(SOME n1, _), D2 as T.PDec (SOME n2,F,_,_), P1, P2)), fmts) =
               Fmt.Vbox0 0 1 ([Fmt.String "let", Fmt.Break, Fmt.Spaces 2,
                               Fmt.Vbox0 0 1 ([Fmt.String "(", Fmt.String n1, Fmt.String ",", Fmt.Space, Fmt.String n2,  Fmt.String ")", Fmt.Space,
                                               Fmt.String "=", Fmt.Space, formatPrg3 callname (Psi, P1)]),
@@ -808,7 +808,7 @@ struct
                               Fmt.Spaces 2, formatPrg3 callname (I.Decl (I.Decl (Psi, T.UDec D1), D2), P2),
                               Fmt.Break,
                               Fmt.String "end"])
-          | formatLet callname (Psi, R as (T.LetUnit (P1, P2)), fmts) =
+          | (* GEN CASE BRANCH *) formatLet callname (Psi, R as (T.LetUnit (P1, P2)), fmts) =
               Fmt.Vbox0 0 1 ([Fmt.String "let", Fmt.Break, Fmt.Spaces 2,
                               Fmt.Vbox0 0 1 ([Fmt.String "()", Fmt.Space,
                                               Fmt.String "=", Fmt.Space, formatPrg3 callname (Psi, P1)]),
@@ -829,9 +829,9 @@ struct
         *)
         and formatHead callname (name, (max, index), Psi', s, Psi) =
             let
-(*            val T.PDec (SOME name, _) = I.ctxLookup (Psi, index) *)
+        (*            val T.PDec (SOME name, _) = I.ctxLookup (Psi, index) *)
               val S = argsToSpine (s, I.ctxLength Psi - max, T.Nil)
-(*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi', S) *)
+        (*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi', S) *)
               val Fspine = fmtSpine callname (Psi', S)
             in
               Fmt.Hbox [Fmt.Space,
@@ -847,7 +847,7 @@ struct
            then fmts' list of pretty print formats of L
         *)
         fun formatPrg2 (name, (max, index), Psi, nil, callname) = nil
-          | formatPrg2 (name, (max, index), Psi, (Psi', s, P) :: nil, callname) =
+          | (* GEN CASE BRANCH *) formatPrg2 (name, (max, index), Psi, (Psi', s, P) :: nil, callname) =
             let
               val Psi'' = psiName (Psi', s, Psi, 0)
               val fhead = if index = I.ctxLength Psi then "fun" else "and"
@@ -857,7 +857,7 @@ struct
                 Fmt.Space, Fmt.String "=",  Fmt.Break,
                 formatPrg3 callname  (Psi'', P)], Fmt.Break]
             end
-          | formatPrg2 (name, (max, index), Psi, (Psi', s, P) :: O, callname) =
+          | (* GEN CASE BRANCH *) formatPrg2 (name, (max, index), Psi, (Psi', s, P) :: O, callname) =
             let
               val
                 Psi'' = psiName (Psi', s, Psi, 0)
@@ -874,7 +874,7 @@ struct
 
         fun formatPrg11 (name, (max, index), Psi, T.Lam (D, P), callname) =
               formatPrg11 (name, (max, index+1), I.Decl (Psi, decName (T.coerceCtx Psi, D)), P, callname)
-          | formatPrg11 (name, (max, index), Psi, T.Case (T.Cases Os), callname) =
+          | (* GEN CASE BRANCH *) formatPrg11 (name, (max, index), Psi, T.Case (T.Cases Os), callname) =
               formatPrg2 (name, (max, index), Psi, Os, callname)
 
 
@@ -889,7 +889,7 @@ struct
         fun formatPrg1 (name::names, (max, index), Psi, T.PairPrg (P1, P2), callname) =
               formatPrg11 (name, (max, index), Psi, P1, callname)
               @ formatPrg1 (names, (max, index-1), Psi, P2, callname)
-          | formatPrg1 ([name], (max, index), Psi, P, callname) =
+          | (* GEN CASE BRANCH *) formatPrg1 ([name], (max, index), Psi, P, callname) =
               formatPrg11 (name, (max, index), Psi, P, callname)
 
         (* formatPrg0 (Psi, P) = fmt'
@@ -911,7 +911,7 @@ struct
 
         fun formatPrg0 ((names, projs), T.Rec (D as T.PDec (SOME _, F, _, _), P)) =
           let
-
+        
             val max = 1 (* number of ih. *)
           in
             Fmt.Vbox0 0 1 (formatPrg1 (names, (max, max), I.Decl (I.Null, D), P, fn lemma => lookup (names, projs) lemma))
@@ -931,22 +931,22 @@ struct
 (*    fun prgToString Args names = "not yet implemented " *)
 
    fun nameCtx I.Null = I.Null
-      | nameCtx (I.Decl (Psi, T.UDec D)) =
+      | (* GEN CASE BRANCH *) nameCtx (I.Decl (Psi, T.UDec D)) =
           I.Decl (nameCtx Psi,
                   T.UDec (Names.decName (T.coerceCtx Psi, D)))
-      | nameCtx (I.Decl (Psi, T.PDec (NONE, F, TC1, TC2))) =
+      | (* GEN CASE BRANCH *) nameCtx (I.Decl (Psi, T.PDec (NONE, F, TC1, TC2))) =
           let
             val Psi' = nameCtx Psi
             val I.NDec x = Names.decName (T.coerceCtx Psi', I.NDec NONE)
           in
             I.Decl (Psi', T.PDec (x, F, TC1, TC2))
           end
-      | nameCtx (I.Decl (Psi, D as T.PDec (SOME n, F, _, _))) =
+      | (* GEN CASE BRANCH *) nameCtx (I.Decl (Psi, D as T.PDec (SOME n, F, _, _))) =
           I.Decl (nameCtx Psi, D)
 
 
    fun flag NONE = ""
-     | flag (SOME _) = "*"
+     | (* GEN CASE BRANCH *) flag (SOME _) = "*"
 
     (* formatCtx (Psi) = fmt'
 
@@ -955,19 +955,19 @@ struct
        then fmt' is a format describing the context Psi
     *)
     fun formatCtx (I.Null) = []
-      | formatCtx (I.Decl (I.Null, T.UDec D)) =
+      | (* GEN CASE BRANCH *) formatCtx (I.Decl (I.Null, T.UDec D)) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Print.formatDec (I.Null, D)])]
         else
           [Print.formatDec (I.Null, D)]
-      | formatCtx (I.Decl (I.Null, T.PDec (SOME s, F, TC1, TC2))) =
+      | (* GEN CASE BRANCH *) formatCtx (I.Decl (I.Null, T.PDec (SOME s, F, TC1, TC2))) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space,
                        Fmt.String ("::" ^ flag TC1), Fmt.Space, formatFor (I.Null, F)])]
         else
           [Fmt.String s, Fmt.Space, Fmt.String ("::" ^ flag TC1), Fmt.Space,
            formatFor (I.Null, F)]
-      | formatCtx (I.Decl (Psi, T.UDec D)) =
+      | (* GEN CASE BRANCH *) formatCtx (I.Decl (Psi, T.UDec D)) =
         let
           val G = T.coerceCtx Psi
         in
@@ -978,7 +978,7 @@ struct
             formatCtx Psi @ [Fmt.String ",",  Fmt.Break] @
             [Fmt.Break, Print.formatDec (G, D)]
         end
-      | formatCtx (I.Decl (Psi, T.PDec (SOME s, F, TC1, TC2))) =
+      | (* GEN CASE BRANCH *) formatCtx (I.Decl (Psi, T.PDec (SOME s, F, TC1, TC2))) =
         if !Global.chatter >= 4 then
           formatCtx Psi @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space, Fmt.String ("::" ^ flag TC1), Fmt.Space, formatFor (Psi, F)])]

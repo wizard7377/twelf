@@ -31,7 +31,7 @@ struct
         else ()
 
      fun normalizeHead (T.Const lemma, t) = T.Const lemma
-      | normalizeHead (T.Var k, t) =
+      | (* GEN CASE BRANCH *) normalizeHead (T.Var k, t) =
         (case T.varSub (k, t)
            of T.Idx (k') => T.Var (k'))
         (* no other cases can occur *)
@@ -61,7 +61,7 @@ struct
     *)
     fun inferSpine (Psi, S, Ft) = inferSpineW (Psi, S, T.whnfFor Ft)
     and inferSpineW (Psi, T.Nil, (F, t)) = (F, t)
-      | inferSpineW (Psi, T.AppExp (M, S), (T.All ((T.UDec (I.Dec (_, A)), _), F), t)) =
+      | (* GEN CASE BRANCH *) inferSpineW (Psi, T.AppExp (M, S), (T.All ((T.UDec (I.Dec (_, A)), _), F), t)) =
         let
           val _ = chatter 4 (fn () => "[appExp")
           val G = T.coerceCtx (Psi)
@@ -70,7 +70,7 @@ struct
         in
           inferSpine (Psi, S, (F, T.Dot(T.Exp(M), t)))
         end
-      | inferSpineW (Psi, T.AppBlock (I.Bidx k, S),
+      | (* GEN CASE BRANCH *) inferSpineW (Psi, T.AppBlock (I.Bidx k, S),
                      (T.All ((T.UDec (I.BDec (_, (cid, s))), _), F2), t2)) =
         let
           val T.UDec (I.BDec(_, (cid', s')))= T.ctxDec(Psi, k)
@@ -81,13 +81,13 @@ struct
         in
             inferSpine (Psi, S, (F2, T.Dot(T.Block(I.Bidx k), t2)))
         end
-      | inferSpineW (Psi, T.AppPrg (P, S), (T.All ((T.PDec (_, F1, _, _), _), F2), t)) =
+      | (* GEN CASE BRANCH *) inferSpineW (Psi, T.AppPrg (P, S), (T.All ((T.PDec (_, F1, _, _), _), F2), t)) =
         let
             val _ = checkPrg (Psi, (P, (F1, t)))
         in
             inferSpine (Psi, S, (F2, T.dot1 t))
         end
-      | inferSpineW (Psi, _, _) = raise Error "applied, but not of function type."
+      | (* GEN CASE BRANCH *) inferSpineW (Psi, _, _) = raise Error "applied, but not of function type."
 
 
     and inferPrg (Psi, T.Lam (D, P)) =
@@ -96,20 +96,20 @@ struct
         in
           T.All ((D, T.Explicit), F)
         end
-      | inferPrg (Psi, T.New P) =
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.New P) =
         let
           val T.All ((T.UDec (D as (I.BDec _)), _), F) = inferPrg (Psi, P)
         in
           TA.raiseF (I.Decl (I.Null, D), (F, I.id))
         end
-      | inferPrg (Psi, T.PairExp (U, P)) =
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.PairExp (U, P)) =
         let
           val V = TypeCheck.infer' (T.coerceCtx Psi, U)
           val F = inferPrg (Psi, P)
         in
           T.Ex ((I.Dec (NONE, V), T.Explicit), F)
         end
-      | inferPrg (Psi, T.PairBlock (I.Bidx k, P)) =
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.PairBlock (I.Bidx k, P)) =
         (* Blocks T.Inst, and T.LVar excluded for now *)
         let
           val D = I.ctxLookup (T.coerceCtx Psi, k)
@@ -117,30 +117,30 @@ struct
         in
           T.Ex ((D, T.Explicit), F)
         end
-      | inferPrg (Psi, T.PairPrg (P1, P2)) =
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.PairPrg (P1, P2)) =
         let
           val F1 = inferPrg (Psi, P1)
           val F2 = inferPrg (Psi, P2)
         in
           T.And (F1, F2)
         end
-      | inferPrg (Psi, T.Unit) = T.True
-      | inferPrg (Psi, T.Var k) = (case T.ctxDec (Psi, k) of T.PDec (_, F', _, _) => F')
-      | inferPrg (Psi, T.Const c) = inferLemma c
-      | inferPrg (Psi, T.Redex (P, S)) =
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.Unit) = T.True
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.Var k) = (case T.ctxDec (Psi, k) of T.PDec (_, F', _, _) => F')
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.Const c) = inferLemma c
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.Redex (P, S)) =
         let
           val F1 = inferPrg (Psi, P)
           val F2 = inferSpine (Psi, S, (F1, T.id))
         in
           T.forSub F2
         end
-      | inferPrg (Psi, T.Rec (D as T.PDec (_, F, _, _), P)) =
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.Rec (D as T.PDec (_, F, _, _), P)) =
         let
           val _ = checkPrg (I.Decl (Psi, D), (P, (F, T.id)))
         in
           F
         end
-      | inferPrg (Psi, T.Let (D as T.PDec (_, F1, _, _), P1, P2)) =
+      | (* GEN CASE BRANCH *) inferPrg (Psi, T.Let (D as T.PDec (_, F1, _, _), P1, P2)) =
         let
           val _ = checkPrg (Psi, (P1, (F1, T.id)))
           val F2 = inferPrg (I.Decl (Psi, D), P2)
@@ -165,11 +165,11 @@ struct
         in
           ()
         end
-      | checkPrgW (Psi, (T.Const lemma, (F, t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Const lemma, (F, t))) =
           convFor (Psi, (inferLemma lemma, T.id), (F, t))
-      | checkPrgW (Psi, (T.Var k, (F, t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Var k, (F, t))) =
           (case T.ctxDec (Psi, k) of T.PDec (_, F', _, _) => convFor (Psi, (F', T.id), (F, t)))
-      | checkPrgW (Psi, (T.Lam (D as T.PDec (x, F1, _, _), P), (T.All ((T.PDec (x', F1', _, _), _), F2), t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Lam (D as T.PDec (x, F1, _, _), P), (T.All ((T.PDec (x', F1', _, _), _), F2), t))) =
         let
           val _ = chatter 4 (fn () => "[lam[p]")
             val _ = convFor (Psi, (F1, T.id), (F1', t))
@@ -177,7 +177,7 @@ struct
         in
             checkPrg (I.Decl (Psi, D), (P, (F2, T.dot1 t)))
         end
-      | checkPrgW (Psi, (T.Lam (T.UDec D, P), (T.All ((T.UDec D', _), F), t2))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Lam (T.UDec D, P), (T.All ((T.UDec D', _), F), t2))) =
         let
           val _ = chatter 4 (fn () => "[lam[u]")
           val _ = Conv.convDec ((D, I.id), (D', T.coerceSub t2))
@@ -185,7 +185,7 @@ struct
         in
             checkPrg (I.Decl (Psi , T.UDec D), (P, (F, T.dot1 t2)))
         end
-      | checkPrgW (Psi, (T.PairExp (M, P), (T.Ex((I.Dec(x, A), _), F2), t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.PairExp (M, P), (T.Ex((I.Dec(x, A), _), F2), t))) =
         let
           val _ = chatter 4 (fn () => "[pair [e]")
           val G = T.coerceCtx Psi
@@ -194,7 +194,7 @@ struct
         in
             checkPrg(Psi, (P, (F2, T.Dot (T.Exp M, t))))
         end
-      | checkPrgW (Psi, (T.PairBlock (I.Bidx k, P), (T.Ex ((I.BDec (_, (cid, s)), _), F2), t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.PairBlock (I.Bidx k, P), (T.Ex ((I.BDec (_, (cid, s)), _), F2), t))) =
         let
           val T.UDec (I.BDec(_, (cid', s'))) = T.ctxDec (Psi, k)
           val (G', _) = I.conDecBlock (I.sgnLookup cid)
@@ -203,7 +203,7 @@ struct
         in
           checkPrg(Psi, (P, (F2, T.Dot(T.Block(I.Bidx k), t))))
         end
-      | checkPrgW (Psi, (T.PairPrg (P1, P2), (T.And( F1, F2), t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.PairPrg (P1, P2), (T.And( F1, F2), t))) =
         let
           val _ = chatter 4 (fn () => "[and")
           val _ = checkPrg (Psi, (P1, (F1, t)))
@@ -213,9 +213,9 @@ struct
         in
           ()
         end
-      | checkPrgW (Psi, (T.Case Omega, Ft)) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Case Omega, Ft)) =
           checkCases (Psi, (Omega, Ft))
-      | checkPrgW (Psi, (T.Rec (D as T.PDec (x, F, _, _), P), (F', t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Rec (D as T.PDec (x, F, _, _), P), (F', t))) =
         let
           val _ = chatter 4 (fn () => "[rec")
           val _ = convFor(Psi, (F, T.id), (F', t))
@@ -223,7 +223,7 @@ struct
         in
             checkPrg (I.Decl(Psi, D), (P, (F', t)))
         end
-      | checkPrgW (Psi, (T.Let (D as T.PDec(_, F1, _, _), P1, P2), (F2, t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Let (D as T.PDec(_, F1, _, _), P1, P2), (F2, t))) =
                                         (* Psi |- let xx :: F1 = P1 in P2 : F2' *)
                                         (* Psi |- t : Psi' *)
                                         (* Psi' |- F2 for *)
@@ -243,7 +243,7 @@ struct
         in
           ()
         end
-      | checkPrgW (Psi, (T.New (P' as T.Lam (T.UDec (D as I.BDec (_, (cid, s))), P)), (F, t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.New (P' as T.Lam (T.UDec (D as I.BDec (_, (cid, s))), P)), (F, t))) =
         let
           val _ = chatter 5 (fn () => "[new1...")
           val T.All ((T.UDec D'', _), F') = inferPrg (Psi, P')   (* D'' == D *)
@@ -253,23 +253,23 @@ struct
           (convFor (Psi, (F'', T.id), (F, t))
           ;chatter 5 (fn () => "]\n"))
         end
-      | checkPrgW (Psi, (T.Redex (P1, S2), (F, t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Redex (P1, S2), (F, t))) =
           let
             val F' = inferPrg (Psi, P1)
           in
            checkSpine (Psi, S2, (F', T.id), (F, t))
           end
-      | checkPrgW (Psi, (T.Box (W, P), (T.World (W', F), t))) =
+      | (* GEN CASE BRANCH *) checkPrgW (Psi, (T.Box (W, P), (T.World (W', F), t))) =
           checkPrgW (Psi, (P, (F, t)))
           (* don't forget to check if the worlds match up --cs Mon Apr 21 01:51:58 2003 *)
 
     and checkSpine (Psi, T.Nil, (F, t), (F', t')) =  convFor (Psi, (F, t), (F', t'))
-      | checkSpine (Psi, T.AppExp (U, S), (T.All ((T.UDec (I.Dec (_, V)), _), F), t), (F', t')) =
+      | (* GEN CASE BRANCH *) checkSpine (Psi, T.AppExp (U, S), (T.All ((T.UDec (I.Dec (_, V)), _), F), t), (F', t')) =
         (TypeCheck.typeCheck (T.coerceCtx Psi, (U, I.EClo (V, T.coerceSub t)));
          checkSpine (Psi, S, (F, T.Dot (T.Exp U, t)), (F', t')))
-      | checkSpine (Psi, T.AppPrg (P, S), (T.All ((T.PDec (_, F1, _, _) , _), F2), t),  (F', t')) =
+      | (* GEN CASE BRANCH *) checkSpine (Psi, T.AppPrg (P, S), (T.All ((T.PDec (_, F1, _, _) , _), F2), t),  (F', t')) =
         (checkPrgW (Psi, (P, (F1, t)));  checkSpine (Psi, S, (F2, T.Dot (T.Undef, t)), (F', t')))
-      | checkSpine (Psi, T.AppExp (U, S), (T.FClo (F, t1) , t), (F', t')) =
+      | (* GEN CASE BRANCH *) checkSpine (Psi, T.AppExp (U, S), (T.FClo (F, t1) , t), (F', t')) =
           checkSpine (Psi, T.AppExp (U, S), (F, T.comp (t1 , t)), (F', t'))
 
 
@@ -280,7 +280,7 @@ struct
        then checkCases returns () iff Psi |- F' == F [t2] formula
     *)
     and checkCases (Psi, (T.Cases nil, (F2, t2))) = ()
-      | checkCases (Psi, (T.Cases ((Psi', t', P) :: Omega), (F2, t2))) =
+      | (* GEN CASE BRANCH *) checkCases (Psi, (T.Cases ((Psi', t', P) :: Omega), (F2, t2))) =
         let
                                         (* Psi' |- t' :: Psi *)
           val _ = chatter 4 (fn () => "[case... ")
@@ -293,7 +293,7 @@ struct
           val _ = chatter 4 (fn () => "]")
           val _ = checkPrg (Psi', (P, (F2, t2')))
           val _ = chatter 4 (fn () => "]\n")
-
+      
           val _ = checkCases (Psi, ((T.Cases Omega), (F2, t2)))
         in
           ()
@@ -315,7 +315,7 @@ struct
 
     and convFor (Psi, Ft1, Ft2) = convForW (Psi, T.whnfFor Ft1, T.whnfFor Ft2)
     and convForW (_, (T.True, _), (T.True, _)) = ()
-      | convForW (Psi,
+      | (* GEN CASE BRANCH *) convForW (Psi,
                   (T.All ((D as T.UDec( I.Dec (_, A1)), _), F1), t1),
                   (T.All ((     T.UDec( I.Dec (_, A2)), _), F2), t2)) =
         let
@@ -330,7 +330,7 @@ struct
         in
           ()
         end
-      | convForW (Psi,
+      | (* GEN CASE BRANCH *) convForW (Psi,
                   (T.All ((D as T.UDec (I.BDec(_, (l1, s1))), _), F1), t1),
                   (T.All((T.UDec (I.BDec(_, (l2, s2))), _), F2), t2)) =
         let
@@ -344,7 +344,7 @@ struct
         in
           ()
         end
-      | convForW (Psi,
+      | (* GEN CASE BRANCH *) convForW (Psi,
                   (T.Ex ((D as I.Dec (_, A1), _), F1), t1),
                   (T.Ex ((     I.Dec (_, A2), _), F2), t2)) =
         let
@@ -359,7 +359,7 @@ struct
         in
           ()
         end
-      | convForW (Psi,
+      | (* GEN CASE BRANCH *) convForW (Psi,
                   (T.Ex ((D as I.BDec(name, (l1, s1)), _), F1), t1),
                   (T.Ex ((     I.BDec(_,    (l2, s2)), _), F2), t2)) =
         let
@@ -374,7 +374,7 @@ struct
         in
           ()
         end
-      | convForW (Psi,
+      | (* GEN CASE BRANCH *) convForW (Psi,
                   (T.And(F1, F1'), t1),
                   (T.And(F2, F2'), t2)) =
         let
@@ -383,7 +383,7 @@ struct
         in
           ()
         end
-      | convForW (Psi,
+      | (* GEN CASE BRANCH *) convForW (Psi,
                   (T.All((D as T.PDec(_, F1, _, _), _), F1'), t1),
                   (T.All((     T.PDec(_, F2, _, _), _), F2'), t2)) =
         let
@@ -393,7 +393,7 @@ struct
         in
           ()
         end
-      | convForW (Psi,
+      | (* GEN CASE BRANCH *) convForW (Psi,
                   (T.World (W1, F1), t1),
                   (T.World (W2, F2), t2)) =
         let
@@ -403,23 +403,23 @@ struct
           ()
         end
 
-      | convForW _ = raise Error "Typecheck error"
+      | (* GEN CASE BRANCH *) convForW _ = raise Error "Typecheck error"
 
     and convSub(G, T.Shift k1, T.Shift k2, G') = if k1=k2 then () else raise Error "Sub not equivalent"
-      | convSub(G, T.Shift k, s2 as T.Dot _, G') = convSub(G, T.Dot(T.Idx(k+1), T.Shift(k+1)), s2, G')
-      | convSub(G, s1 as T.Dot _, T.Shift k, G') = convSub(G, s1, T.Dot(T.Idx(k+1), T.Shift(k+1)), G')
-      | convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', _)) =
+      | (* GEN CASE BRANCH *) convSub(G, T.Shift k, s2 as T.Dot _, G') = convSub(G, T.Dot(T.Idx(k+1), T.Shift(k+1)), s2, G')
+      | (* GEN CASE BRANCH *) convSub(G, s1 as T.Dot _, T.Shift k, G') = convSub(G, s1, T.Dot(T.Idx(k+1), T.Shift(k+1)), G')
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', _)) =
         if k1=k2 (* For s1==s2, the variables in s1 and s2 must refer to the same cell in the context -- Yu Liao *)
         then convSub(G, s1, s2, G')
         else raise Error "Sub not equivalent"
-      | convSub(G, T.Dot(T.Exp M1, s1), T.Dot(T.Exp M2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Exp M1, s1), T.Dot(T.Exp M2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
         let
             val _ = TypeCheck.checkConv (M1, M2) (* checkConv doesn't need context G?? -- Yu Liao *)
             val _ = TypeCheck.typeCheck (T.coerceCtx(G), (M1, A))
         in
             convSub(G, s1, s2, G')
         end
-      | convSub(G, T.Dot(T.Block (I.Bidx v1), s1), T.Dot(T.Block(I.Bidx v2), s2), I.Decl(G', T.UDec (I.BDec (_, (l,s)))))=
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Block (I.Bidx v1), s1), T.Dot(T.Block(I.Bidx v2), s2), I.Decl(G', T.UDec (I.BDec (_, (l,s)))))=
         let
             val T.UDec (I.BDec(_, (l1, s11)))= T.ctxDec(G, v1)
             val T.UDec (I.BDec(_, (l2, s22)))= T.ctxDec(G, v2)
@@ -431,7 +431,7 @@ struct
         in
             convSub(G, s1, s2, G')
         end
-      | convSub(G, T.Dot(T.Prg P1, s1), T.Dot(T.Prg P2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Prg P1, s1), T.Dot(T.Prg P2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
         let
             val _ = isValue P1
             val _ = isValue P2
@@ -439,28 +439,28 @@ struct
         in
             convSub(G, s1, s2, G')
         end
-      | convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Exp M2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Exp M2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
         let
             val _ = TypeCheck.checkConv (I.Root(I.BVar k1, I.Nil), M2)
             val _ = TypeCheck.typeCheck (T.coerceCtx(G), (M2, A))
         in
             convSub(G, s1, s2, G')
         end
-      | convSub(G, T.Dot(T.Exp M1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Exp M1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', T.UDec(I.Dec(_, A)))) =
         let
             val _ = TypeCheck.checkConv (M1, I.Root(I.BVar k2, I.Nil))
             val _ = TypeCheck.typeCheck (T.coerceCtx(G), (M1, A))
         in
             convSub(G, s1, s2, G')
         end
-      | convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Prg P2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Idx k1, s1), T.Dot(T.Prg P2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
         let
             val _ = isValue P2
             val _ = convValue (G, T.Var k1, P2, F)
         in
             convSub(G, s1, s2, G')
         end
-      | convSub(G, T.Dot(T.Prg P1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
+      | (* GEN CASE BRANCH *) convSub(G, T.Dot(T.Prg P1, s1), T.Dot(T.Idx k2, s2), I.Decl(G', T.PDec(_, F, _, _))) =
         let
             val _ = isValue P1
             val _ = convValue (G, P1, T.Var k2, F)
@@ -470,27 +470,27 @@ struct
 
     and convValue (G, P1, P2, F) = ()
     and checkFor (Psi, (T.True, _)) = ()
-      | checkFor (Psi, (T.All ((D as T.PDec (_ ,F1, _, _), _), F2), t)) =
+      | (* GEN CASE BRANCH *) checkFor (Psi, (T.All ((D as T.PDec (_ ,F1, _, _), _), F2), t)) =
           (checkFor (Psi, (F1, t)); checkFor (I.Decl (Psi, D), (F2, T.dot1 t)))
-      | checkFor (Psi, (T.All ((D' as T.UDec D, _), F), t)) =
+      | (* GEN CASE BRANCH *) checkFor (Psi, (T.All ((D' as T.UDec D, _), F), t)) =
           (TypeCheck.checkDec (T.coerceCtx Psi, (D, T.coerceSub t));
            checkFor (I.Decl (Psi, D'), (F, T.dot1 t)))
-      | checkFor (Psi, (T.Ex  ((D, _), F), t)) =
+      | (* GEN CASE BRANCH *) checkFor (Psi, (T.Ex  ((D, _), F), t)) =
           (TypeCheck.checkDec (T.coerceCtx Psi, (D, T.coerceSub t));
            checkFor (I.Decl (Psi, T.UDec D), (F, T.dot1 t)))
-      | checkFor (Psi, (T.And (F1, F2), t)) =
+      | (* GEN CASE BRANCH *) checkFor (Psi, (T.And (F1, F2), t)) =
           (checkFor (Psi, (F1, t)); checkFor (Psi, (F2, t)))
-      | checkFor (Psi, (T.FClo (F, t'), t)) =
+      | (* GEN CASE BRANCH *) checkFor (Psi, (T.FClo (F, t'), t)) =
           checkFor (Psi, (F, T.comp (t', t)))
-      | checkFor (Psi, (T.World (W, F), t)) =
+      | (* GEN CASE BRANCH *) checkFor (Psi, (T.World (W, F), t)) =
           checkFor (Psi, (F, t))
 
 
     and checkCtx (I.Null) = ()
-      | checkCtx (I.Decl (Psi, T.UDec D)) =
+      | (* GEN CASE BRANCH *) checkCtx (I.Decl (Psi, T.UDec D)) =
           (checkCtx (Psi);
            TypeCheck.checkDec (T.coerceCtx Psi, (D, I.id)))
-      | checkCtx (I.Decl (Psi, T.PDec (_, F, _, _))) =
+      | (* GEN CASE BRANCH *) checkCtx (I.Decl (Psi, T.PDec (_, F, _, _))) =
           (checkCtx (Psi);
            checkFor (Psi, (F, T.id)))
 
@@ -503,12 +503,12 @@ struct
     *)
 
     and checkSub (I.Null, T.Shift 0, I.Null) = ()
-      | checkSub (I.Decl (G, D), T.Shift k, I.Null) =
+      | (* GEN CASE BRANCH *) checkSub (I.Decl (G, D), T.Shift k, I.Null) =
         if k > 0
         then checkSub (G, T.Shift (k-1), I.Null)
         else raise Error "Sub is not well typed!"
-      | checkSub (G, T.Shift k, G') = checkSub (G, T.Dot (T.Idx (k+1), T.Shift (k+1)), G')
-      | checkSub (G, T.Dot (T.Idx k, s'), I.Decl (G', (T.UDec (I.Dec (_, A))))) =
+      | (* GEN CASE BRANCH *) checkSub (G, T.Shift k, G') = checkSub (G, T.Dot (T.Idx (k+1), T.Shift (k+1)), G')
+      | (* GEN CASE BRANCH *) checkSub (G, T.Dot (T.Idx k, s'), I.Decl (G', (T.UDec (I.Dec (_, A))))) =
         let
             val _ = checkSub (G, s', G')
             val T.UDec (I.Dec (_, A')) = T.ctxDec (G, k)
@@ -516,7 +516,7 @@ struct
             if Conv.conv ((A', I.id), (A, T.coerceSub(s'))) then ()
             else raise Error "Sub isn't well typed!"
         end
-      | checkSub (G, T.Dot (T.Idx k, s'), I.Decl (G', T.UDec (I.BDec(l, (_, s))))) =
+      | (* GEN CASE BRANCH *) checkSub (G, T.Dot (T.Idx k, s'), I.Decl (G', T.UDec (I.BDec(l, (_, s))))) =
         let
             val _ = checkSub (G, s', G')
             val T.UDec (I.BDec(l1, (_, s1))) = T.ctxDec (G, k)
@@ -527,20 +527,20 @@ struct
                 then ()
                 else raise Error "Sub isn't well typed!"
         end
-      | checkSub (G, T.Dot (T.Idx k, s), I.Decl (G', T.PDec(_, F', _, _))) =
+      | (* GEN CASE BRANCH *) checkSub (G, T.Dot (T.Idx k, s), I.Decl (G', T.PDec(_, F', _, _))) =
         let
             val _ = checkSub (G, s, G')
             val T.PDec(_, F1, _, _) = T.ctxDec (G, k)
         in
             convFor (G, (F1, T.id), (F', s))
         end
-      | checkSub (G, T.Dot (T.Exp M, s), I.Decl(G', T.UDec (I.Dec (_, A)))) =
+      | (* GEN CASE BRANCH *) checkSub (G, T.Dot (T.Exp M, s), I.Decl(G', T.UDec (I.Dec (_, A)))) =
         let
             val _ = checkSub (G, s, G')
         in
             TypeCheck.typeCheck (T.coerceCtx G, (M, I.EClo(A, T.coerceSub(s))))
         end
-      | checkSub (Psi, T.Dot (T.Prg P, t), I.Decl(Psi', T.PDec(_, F', _, _))) =
+      | (* GEN CASE BRANCH *) checkSub (Psi, T.Dot (T.Prg P, t), I.Decl(Psi', T.PDec(_, F', _, _))) =
         let
           val _ = chatter 4 (fn () => "$")
           val _ = checkSub (Psi, t, Psi')
@@ -548,7 +548,7 @@ struct
         in
             checkPrg (Psi, (P, (F', t)))
         end
-      | checkSub (Psi, T.Dot (T.Block B, t), I.Decl(Psi', T.UDec (I.BDec(l2, (c, s2))))) =
+      | (* GEN CASE BRANCH *) checkSub (Psi, T.Dot (T.Block B, t), I.Decl(Psi', T.UDec (I.BDec(l2, (c, s2))))) =
         let
           val _ = chatter 4 (fn () => "$")
           val _ = checkSub (Psi, t, Psi')
@@ -560,7 +560,7 @@ struct
         in
             checkBlock (Psi, (B, (c, I.comp (s2, T.coerceSub t))))
         end
-      | checkSub (Psi, T.Dot _, I.Null) = raise Error "Sub is not well typed"
+      | (* GEN CASE BRANCH *) checkSub (Psi, T.Dot _, I.Null) = raise Error "Sub is not well typed"
 
 
     and checkBlock (Psi, (I.Bidx v, (c2, s2))) =
@@ -571,7 +571,7 @@ struct
           else if Conv.convSub (s2, s1)  then ()
                else raise Error "Sub isn't well typed!"
         end
-      | checkBlock (Psi, (I.Inst UL, (c2, s2))) =
+      | (* GEN CASE BRANCH *) checkBlock (Psi, (I.Inst UL, (c2, s2))) =
         let
           val (G, L) = I.constBlock c2
                                         (* Psi |- s2 : G *)
@@ -588,7 +588,7 @@ struct
       then checkInst returns () otherwise an exception is raised.
    *)
    and checkInst (Psi, nil, (_, nil, _)) = ()
-     | checkInst (Psi, U :: UL, (n, D :: L, s2)) =
+     | (* GEN CASE BRANCH *) checkInst (Psi, U :: UL, (n, D :: L, s2)) =
        let
          val G = T.coerceCtx Psi
          val I.Dec (_ ,V) = I.decSub (D, s2)
@@ -600,17 +600,17 @@ struct
 
 
     and isValue (T.Var _) = ()
-      | isValue (T.PClo (T.Lam _, _)) = ()
-      | isValue (T.PairExp (M, P)) = isValue P
-      | isValue (T.PairBlock _ ) = ()
-      | isValue (T.PairPrg (P1, P2)) = (isValue P1; isValue P2)
-      | isValue T.Unit = ()
-      | isValue (T.Rec _) = ()
-      | isValue (T.Const lemma) =
+      | (* GEN CASE BRANCH *) isValue (T.PClo (T.Lam _, _)) = ()
+      | (* GEN CASE BRANCH *) isValue (T.PairExp (M, P)) = isValue P
+      | (* GEN CASE BRANCH *) isValue (T.PairBlock _ ) = ()
+      | (* GEN CASE BRANCH *) isValue (T.PairPrg (P1, P2)) = (isValue P1; isValue P2)
+      | (* GEN CASE BRANCH *) isValue T.Unit = ()
+      | (* GEN CASE BRANCH *) isValue (T.Rec _) = ()
+      | (* GEN CASE BRANCH *) isValue (T.Const lemma) =
         ( case (T.lemmaLookup lemma) of
               T.ForDec _ => raise Error "Lemma isn't a value"
             | T.ValDec(_,P,_) => isValue P )
-      | isValue _ = raise Error "P isn't Value!"
+      | (* GEN CASE BRANCH *) isValue _ = raise Error "P isn't Value!"
 
 
 

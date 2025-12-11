@@ -45,11 +45,11 @@ struct
   val zero = {usr = Time.zeroTime, sys = Time.zeroTime, gc = Time.zeroTime}
 
   fun minus ({usr = t1, sys = t2, gc = t3},
-	     {usr = s1, sys = s2, gc = s3}) =
+  	     {usr = s1, sys = s2, gc = s3}) =
       {usr = Time.-(t1,s1), sys = Time.-(t2,s2), gc = Time.-(t3,s3)}
 
   fun plus ({usr = t1, sys = t2, gc = t3},
-	    {usr = s1, sys = s2, gc = s3}) =
+  	    {usr = s1, sys = s2, gc = s3}) =
       {usr = Time.+(t1,s1), sys = Time.+(t2,s2), gc = Time.+(t3,s3)}
 
   fun sum ({usr = t1, sys = t2, gc = t3}) = Time.+ (t1, t2)
@@ -73,28 +73,28 @@ struct
        the time for those will be counted twice!
     *)
     fun checkCPUAndGCTimer timer =
-	let
-	    val {usr = usr, sys = sys} = Compat.Timer.checkCPUTimer timer
-	    val gc = Compat.Timer.checkGCTime timer
-	in
+    	let
+    	    val {usr = usr, sys = sys} = Compat.Timer.checkCPUTimer timer
+    	    val gc = Compat.Timer.checkGCTime timer
+    	in
           {usr = usr, sys = sys, gc = gc}
-	end
+    	end
 
     fun time (_, counters) (f:'a -> 'b) (x:'a) =
         let
-	    val realTimer = Timer.startRealTimer ()
-	    val CPUTimer = Timer.startCPUTimer ()
-	    val result = Value (f x) handle exn => Exception (exn)
-	    val evalCPUTime = checkCPUAndGCTimer (CPUTimer)
-	    val evalRealTime = Timer.checkRealTimer (realTimer)
-	    val (CPUTime, realTime) = !counters
-	    val _ = counters := (plus (CPUTime, evalCPUTime),
-				 Time.+ (realTime, evalRealTime))
-	in
-	  case result
-	    of Value (v) => v
-	     | Exception (e) => raise e
-	end
+    	    val realTimer = Timer.startRealTimer ()
+    	    val CPUTimer = Timer.startCPUTimer ()
+    	    val result = Value (f x) handle exn => Exception (exn)
+    	    val evalCPUTime = checkCPUAndGCTimer (CPUTimer)
+    	    val evalRealTime = Timer.checkRealTimer (realTimer)
+    	    val (CPUTime, realTime) = !counters
+    	    val _ = counters := (plus (CPUTime, evalCPUTime),
+    				 Time.+ (realTime, evalRealTime))
+    	in
+    	  case result
+    	    of Value (v) => v
+    	     | Exception (e) => raise e
+    	end
 
     (* sumCenter (name, centers) = sc
        where sc is a new sum which contains the sum of the timings of centers.
@@ -107,22 +107,22 @@ struct
 
     fun timesToString (name, (CPUTime as {usr = t1, sys = t2, gc = t3}, realTime)) =
         name ^ ": "
-	^ "Real = " ^ stdTime (7, realTime) ^ ", "
+    	^ "Real = " ^ stdTime (7, realTime) ^ ", "
         ^ "Run = " ^ stdTime (7, sum CPUTime) ^ " "
-	^ "(" ^ stdTime (7, t1) ^ " usr, "
-	(* ^ stdTime (5, t2) ^ " sys, " ^ *) (* elide sys time *)
-	^ stdTime (6, t3) ^ " gc)"
-	^ "\n"
+    	^ "(" ^ stdTime (7, t1) ^ " usr, "
+    	(* ^ stdTime (5, t2) ^ " sys, " ^ *) (* elide sys time *)
+    	^ stdTime (6, t3) ^ " gc)"
+    	^ "\n"
 
     fun toString (name, ref (CPUTime, realTime)) = timesToString (name, (CPUTime, realTime))
 
     fun sumToString (name, centers) = 
         let fun sumup (nil, (CPUTime, realTime)) = timesToString (name, (CPUTime, realTime))
-	      | sumup ((_, ref (C, R))::centers, (CPUTime, realTime)) =
-	          sumup (centers, (plus (CPUTime, C), Time.+ (realTime, R)))
-	in 
-	  sumup (centers, (zero, Time.zeroTime))
-	end
+    	      | (* GEN CASE BRANCH *) sumup ((_, ref (C, R))::centers, (CPUTime, realTime)) =
+    	          sumup (centers, (plus (CPUTime, C), Time.+ (realTime, R)))
+    	in 
+    	  sumup (centers, (zero, Time.zeroTime))
+    	end
 
   end (* local ... *)
 end;  (* structure Timing *)
@@ -146,9 +146,9 @@ struct
 
   fun time (_, counters) (f:'a -> 'b) (x:'a) =
       let
-	  val _ = counters := !counters + 1
+  	  val _ = counters := !counters + 1
       in
-	f x
+  	f x
       end
 
   fun sumCenter (name, l) = (name, l)
@@ -159,10 +159,10 @@ struct
 
   fun sumToString (name, centers) = 
       let fun sumup (nil, total) = toString' (name, total)
-	    | sumup ((_, ref n)::centers, total) =
-		sumup (centers, total+n)
+  	    | (* GEN CASE BRANCH *) sumup ((_, ref n)::centers, total) =
+  		sumup (centers, total+n)
       in 
-	sumup (centers, 0)
+  	sumup (centers, 0)
       end
 
 end;  (* structure Counting *)

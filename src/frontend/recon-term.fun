@@ -42,7 +42,7 @@ struct
   fun runDelayed () =
       let
         fun run' nil = ()
-          | run' (h::t) = (run' t; h ())
+          | (* GEN CASE BRANCH *) run' (h::t) = (run' t; h ())
       in
         run' (!delayedList)
       end
@@ -54,7 +54,7 @@ struct
 
   val errorThreshold = ref (SOME (20))
   fun exceeds (i, NONE) = false
-    | exceeds (i, SOME(j)) = i > j
+    | (* GEN CASE BRANCH *) exceeds (i, SOME(j)) = i > j
 
   fun resetErrors (fileName) =
       (errorCount := 0;
@@ -107,10 +107,10 @@ struct
   in
 
   fun headConDec (Const c) = sgnLookup c
-    | headConDec (Skonst c) = sgnLookup c
-    | headConDec (Def d) = sgnLookup d
-    | headConDec (NSDef d) = sgnLookup d
-    | headConDec (FgnConst (_, cd)) = cd
+    | (* GEN CASE BRANCH *) headConDec (Skonst c) = sgnLookup c
+    | (* GEN CASE BRANCH *) headConDec (Def d) = sgnLookup d
+    | (* GEN CASE BRANCH *) headConDec (NSDef d) = sgnLookup d
+    | (* GEN CASE BRANCH *) headConDec (FgnConst (_, cd)) = cd
       (* others impossible by invariant *)
 
   (* lowerType (G, (V, s)) = (G', a)
@@ -123,12 +123,12 @@ struct
       in
         lowerType (Decl (G, D'), (V, dot1 s))
       end
-    | lowerTypeW (G, Vs) = (G, EClo Vs)
+    | (* GEN CASE BRANCH *) lowerTypeW (G, Vs) = (G, EClo Vs)
   and lowerType (G, Vs) = lowerTypeW (G, Whnf.whnfExpandDef Vs)
 
   (* raiseType (G, V) = {{G}} V *)
   fun raiseType (Null, V) = V
-    | raiseType (Decl (G, D), V) = raiseType (G, Pi ((D, Maybe), V))
+    | (* GEN CASE BRANCH *) raiseType (Decl (G, D), V) = raiseType (G, Pi ((D, Maybe), V))
 
   end (* open IntSyn *)
 
@@ -256,39 +256,39 @@ struct
     | jof' of term * IntSyn.exp
 
   fun termRegion (internal (U, V, r)) = r
-    | termRegion (constant (H, r)) = r
-    | termRegion (bvar (k, r)) = r
-    | termRegion (evar (name, r)) = r
-    | termRegion (fvar (name, r)) = r
-    | termRegion (typ (r)) = r
-    | termRegion (arrow (tm1, tm2)) =
+    | (* GEN CASE BRANCH *) termRegion (constant (H, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (bvar (k, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (evar (name, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (fvar (name, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (typ (r)) = r
+    | (* GEN CASE BRANCH *) termRegion (arrow (tm1, tm2)) =
         Paths.join (termRegion tm1, termRegion tm2)
-    | termRegion (pi (tm1, tm2)) =
+    | (* GEN CASE BRANCH *) termRegion (pi (tm1, tm2)) =
         Paths.join (decRegion tm1, termRegion tm2)
-    | termRegion (lam (tm1, tm2)) =
+    | (* GEN CASE BRANCH *) termRegion (lam (tm1, tm2)) =
         Paths.join (decRegion tm1, termRegion tm2)
-    | termRegion (app (tm1, tm2)) =
+    | (* GEN CASE BRANCH *) termRegion (app (tm1, tm2)) =
         Paths.join (termRegion tm1, termRegion tm2)
-    | termRegion (hastype (tm1, tm2)) =
+    | (* GEN CASE BRANCH *) termRegion (hastype (tm1, tm2)) =
         Paths.join (termRegion tm1, termRegion tm2)
-    | termRegion (mismatch (tm1, tm2, _, _)) =
+    | (* GEN CASE BRANCH *) termRegion (mismatch (tm1, tm2, _, _)) =
         termRegion tm2
-    | termRegion (omitted (r)) = r
-    | termRegion (lcid (_, _, r)) = r
-    | termRegion (ucid (_, _, r)) = r
-    | termRegion (quid (_, _, r)) = r
-    | termRegion (scon (_, r)) = r
-    | termRegion (omitapx (U, V, L, r)) = r
-    | termRegion (omitexact (U, V, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (omitted (r)) = r
+    | (* GEN CASE BRANCH *) termRegion (lcid (_, _, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (ucid (_, _, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (quid (_, _, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (scon (_, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (omitapx (U, V, L, r)) = r
+    | (* GEN CASE BRANCH *) termRegion (omitexact (U, V, r)) = r
 
   and decRegion (dec (name, tm, r)) = r
 
   fun ctxRegion (IntSyn.Null) = NONE
-    | ctxRegion (IntSyn.Decl (g, tm)) =
+    | (* GEN CASE BRANCH *) ctxRegion (IntSyn.Decl (g, tm)) =
         ctxRegion' (g, decRegion tm)
 
   and ctxRegion' (IntSyn.Null, r) = SOME r
-    | ctxRegion' (IntSyn.Decl (g, tm), r) =
+    | (* GEN CASE BRANCH *) ctxRegion' (IntSyn.Decl (g, tm), r) =
         ctxRegion' (g, Paths.join (r, decRegion tm))
 
   local
@@ -356,11 +356,11 @@ struct
            omitted (r))
 
     fun findBVar' (Null, name, k) = NONE
-      | findBVar' (Decl (G, Dec (NONE, _)), name, k) =
+      | (* GEN CASE BRANCH *) findBVar' (Decl (G, Dec (NONE, _)), name, k) =
           findBVar' (G, name, k+1)
-      | findBVar' (Decl (G, NDec _), name, k) =
+      | (* GEN CASE BRANCH *) findBVar' (Decl (G, NDec _), name, k) =
           findBVar' (G, name, k+1)
-      | findBVar' (Decl (G, Dec (SOME(name'), _)), name, k) =
+      | (* GEN CASE BRANCH *) findBVar' (Decl (G, Dec (SOME(name'), _)), name, k) =
           if name = name' then SOME (k)
           else findBVar' (G, name, k+1)
 
@@ -412,32 +412,32 @@ struct
           (tm, U', V', L')
         end
 
-      | inferApx (G, tm as lcid (ids, name, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as lcid (ids, name, r)) =
         let
           val qid = Names.Qid (ids, name)
         in
           inferApx (G, findLCID (G, qid, r))
         end
-      | inferApx (G, tm as ucid (ids, name, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as ucid (ids, name, r)) =
         let
           val qid = Names.Qid (ids, name)
         in
           inferApx (G, findUCID (G, qid, r))
         end
-      | inferApx (G, tm as quid (ids, name, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as quid (ids, name, r)) =
         let
           val qid = Names.Qid (ids, name)
         in
           inferApx (G, findQUID (G, qid, r))
         end
-      | inferApx (G, tm as scon (name, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as scon (name, r)) =
           (case CSManager.parse name
              of NONE => (error (r, "Strings unsupported in current signature");
                          inferApx (G, omitted (r)))
               | SOME (cs, conDec) =>
                   inferApx (G, constant (IntSyn.FgnConst (cs, conDec), r)))
 
-      | inferApx (G, tm as constant (H, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as constant (H, r)) =
         let
           val cd = headConDec H
           val (U', V', L') = exactToApx (IntSyn.Root (H, IntSyn.Nil),
@@ -448,19 +448,19 @@ struct
         in
           (tm, U', V'', L')
         end
-      | inferApx (G, tm as bvar (k, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as bvar (k, r)) =
         let
           val Dec (_, V) = IntSyn.ctxLookup (G, k)
         in
           (tm, Undefined, V, Type)
         end
-      | inferApx (G, tm as evar (name, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as evar (name, r)) =
           (tm, Undefined, getEVarTypeApx name, Type)
-      | inferApx (G, tm as fvar (name, r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as fvar (name, r)) =
           (tm, Undefined, getFVarTypeApx name, Type)
-      | inferApx (G, tm as typ (r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as typ (r)) =
           (tm, Uni Type, Uni Kind, Hyperkind)
-      | inferApx (G, arrow (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferApx (G, arrow (tm1, tm2)) =
         let
           val L = newLVar ()
           val (tm1', V1) = checkApx (G, tm1, Uni Type, Kind,
@@ -470,7 +470,7 @@ struct
         in
           (arrow (tm1', tm2'), Arrow (V1, V2), Uni L, Next L)
         end
-      | inferApx (G, pi (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferApx (G, pi (tm1, tm2)) =
         let
           val (tm1', D as Dec (_, V1)) = inferApxDec (G, tm1)
           val L = newLVar ()
@@ -479,14 +479,14 @@ struct
         in
           (pi (tm1', tm2'), Arrow (V1, V2), Uni L, Next L)
         end
-      | inferApx (G, tm as lam (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as lam (tm1, tm2)) =
         let
           val (tm1', D as Dec (_, V1)) = inferApxDec (G, tm1)
           val (tm2', U2, V2, L2) = inferApx (Decl (G, D), tm2)
         in
           (lam (tm1', tm2'), U2, Arrow (V1, V2), L2)
         end
-      | inferApx (G, tm as app (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as app (tm1, tm2)) =
         let
           val L = newLVar ()
           val Va = newCVar ()
@@ -499,7 +499,7 @@ struct
         in
           (app (tm1', tm2'), U1, Vr, L)
         end
-      | inferApx (G, tm as hastype (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferApx (G, tm as hastype (tm1, tm2)) =
         let
           val L = newLVar ()
           val (tm2', V2) = checkApx (G, tm2, Uni L, Next L,
@@ -510,7 +510,7 @@ struct
         in
           (hastype (tm1', tm2'), U1, V2, L)
         end
-      | inferApx (G, omitted (r)) =
+      | (* GEN CASE BRANCH *) inferApx (G, omitted (r)) =
         let
           val L = newLVar ()
           val V = newCVar ()
@@ -545,9 +545,9 @@ struct
         end
 
     fun inferApxJob (G, jnothing) = jnothing
-      | inferApxJob (G, jand (j1, j2)) =
+      | (* GEN CASE BRANCH *) inferApxJob (G, jand (j1, j2)) =
           jand (inferApxJob (G, j1), inferApxJob (G, j2))
-      | inferApxJob (G, jwithctx (g, j)) =
+      | (* GEN CASE BRANCH *) inferApxJob (G, jwithctx (g, j)) =
         let
           fun ia (Null) = (G, Null)
             | ia (Decl (g, tm)) =
@@ -563,7 +563,7 @@ struct
         in
           jwithctx (g', inferApxJob (G', j))
         end
-      | inferApxJob (G, jterm (tm)) =
+      | (* GEN CASE BRANCH *) inferApxJob (G, jterm (tm)) =
         let
           val _ = clearDelayed ()
           val (tm', U, V, L) = inferApx (G, tm)
@@ -573,7 +573,7 @@ struct
         in
           jterm (tm')
         end
-      | inferApxJob (G, jclass (tm)) =
+      | (* GEN CASE BRANCH *) inferApxJob (G, jclass (tm)) =
         let
           val _ = clearDelayed ()
           val L = newLVar ()
@@ -585,7 +585,7 @@ struct
         in
           jclass (tm')
         end
-      | inferApxJob (G, jof (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferApxJob (G, jof (tm1, tm2)) =
         let
           val _ = clearDelayed ()
           val L = newLVar ()
@@ -599,7 +599,7 @@ struct
         in
           jof (tm1', tm2')
         end
-      | inferApxJob (G, jof' (tm1, V)) =
+      | (* GEN CASE BRANCH *) inferApxJob (G, jof' (tm1, V)) =
         let
           val _ = clearDelayed ()
           val L = newLVar ()
@@ -614,9 +614,9 @@ struct
         end
 
     fun ctxToApx IntSyn.Null = IntSyn.Null
-      | ctxToApx (IntSyn.Decl (G, IntSyn.NDec x)) =
+      | (* GEN CASE BRANCH *) ctxToApx (IntSyn.Decl (G, IntSyn.NDec x)) =
           IntSyn.Decl (ctxToApx G, NDec x)
-      | ctxToApx (IntSyn.Decl (G, IntSyn.Dec (name, V))) =
+      | (* GEN CASE BRANCH *) ctxToApx (IntSyn.Decl (G, IntSyn.Dec (name, V))) =
           let
             val (V', _) = Apx.classToApx V
           in
@@ -663,9 +663,9 @@ struct
   (* headElim (H) = E
      assumes H not Proj _ *)
   fun headElim (BVar n) = bvarElim n
-    | headElim (FVar fv) = fvarElim fv
-    | headElim (NSDef d) = redexElim (constDef d)
-    | headElim (H) =
+    | (* GEN CASE BRANCH *) headElim (FVar fv) = fvarElim fv
+    | (* GEN CASE BRANCH *) headElim (NSDef d) = redexElim (constDef d)
+    | (* GEN CASE BRANCH *) headElim (H) =
       (case conDecStatus (headConDec H)
          of Foreign (csid, f) => (fn (s, S) => f S)
           | _ => (fn (s, S) => Root (H, S)))
@@ -683,15 +683,15 @@ struct
       in
         Lam (D', etaExpand (elimApp (elimSub (E, shift), U1), (Vr, dot1 s)))
       end
-    | etaExpandW (E, _) = E (id, Nil)
+    | (* GEN CASE BRANCH *) etaExpandW (E, _) = E (id, Nil)
   and etaExpand (E, Vs) = etaExpandW (E, Whnf.whnfExpandDef Vs)
 
   (* preserves redices *)
   fun toElim (Elim E) = E
-    | toElim (Intro U) = redexElim U
+    | (* GEN CASE BRANCH *) toElim (Intro U) = redexElim U
 
   fun toIntro (Elim E, Vs) = etaExpand (E, Vs)
-    | toIntro (Intro U, Vs) = U
+    | (* GEN CASE BRANCH *) toIntro (Intro U, Vs) = U
 
   fun addImplicit1W (G, E, (Pi ((Dec (_, Va), _), Vr), s), i (* >= 1 *)) =
       let
@@ -702,7 +702,7 @@ struct
 
       (* if no implicit arguments, do not expand Vs!!! *)
   and addImplicit (G, E, Vs, 0) = (E, EClo Vs)
-    | addImplicit (G, E, Vs, i) = addImplicit1W (G, E, Whnf.whnfExpandDef Vs, i)
+    | (* GEN CASE BRANCH *) addImplicit (G, E, Vs, i) = addImplicit1W (G, E, Whnf.whnfExpandDef Vs, i)
 
 
   (* Report mismatches after the entire process finishes -- yields better
@@ -840,10 +840,10 @@ struct
       in
         ()
       end
-    | reportInfer' (G, mismatch (tm1, tm2, _, _), U, V) =
+    | (* GEN CASE BRANCH *) reportInfer' (G, mismatch (tm1, tm2, _, _), U, V) =
         reportInfer' (G, tm2, U, V)
-    | reportInfer' (G, hastype _, U, V) = ()
-    | reportInfer' (G, tm, U, V) =
+    | (* GEN CASE BRANCH *) reportInfer' (G, hastype _, U, V) = ()
+    | (* GEN CASE BRANCH *) reportInfer' (G, tm, U, V) =
       let
         val Xs = Abstract.collectEVars (G, (U, id),
                  Abstract.collectEVars (G, (V, id), nil))
@@ -870,20 +870,20 @@ struct
 
     fun inferExactN (G, tm as internal (U, V, r)) =
           (tm, Intro U, V)
-      | inferExactN (G, tm as constant (H, r)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, tm as constant (H, r)) =
         let
           val cd = headConDec (H)
           val (E, V) = addImplicit (G, headElim H, (conDecType cd, id), conDecImp cd)
         in
           (tm, Elim E, V)
         end
-      | inferExactN (G, tm as bvar (k, r)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, tm as bvar (k, r)) =
         let
           val Dec (_, V) = ctxDec (G, k)
         in
           (tm, Elim (bvarElim k), V)
         end
-      | inferExactN (G, tm as evar (name, r)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, tm as evar (name, r)) =
         let
           (* externally EVars are raised elim forms *)
           val (X, V) = getEVar (name, false)
@@ -898,7 +898,7 @@ struct
         in
           (tm, Elim (elimSub (evarElim X, s)), EClo (V, s))
         end
-      | inferExactN (G, tm as fvar (name, r)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, tm as fvar (name, r)) =
         let
           val V = getFVarType (name, false)
                   handle Apx.Ambiguous =>
@@ -912,9 +912,9 @@ struct
         in
           (tm, Elim (fvarElim (name, V, s)), EClo (V, s))
         end
-      | inferExactN (G, tm as typ (r)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, tm as typ (r)) =
           (tm, Intro (Uni Type), Uni Kind)
-      | inferExactN (G, arrow (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, arrow (tm1, tm2)) =
         let
           val (tm1', B1, _ (* Uni Type *)) = inferExact (G, tm1)
           val D = Dec (NONE, toIntro (B1, (Uni Type, id)))
@@ -923,7 +923,7 @@ struct
         in
           (arrow (tm1', tm2'), Intro (Pi ((D, No), EClo (V2, shift))), L)
         end
-      | inferExactN (G, pi (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, pi (tm1, tm2)) =
         let
           val (tm1', D) = inferExactDec (G, tm1)
           val (tm2', B2, L) = inferExact (Decl (G, D), tm2)
@@ -931,7 +931,7 @@ struct
         in
           (pi (tm1', tm2'), Intro (Pi ((D, Maybe), V2)), L)
         end
-      | inferExactN (G, lam (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, lam (tm1, tm2)) =
         let
           val (tm1', D) = inferExactDec (G, tm1)
           val (tm2', B2, V2) = inferExact (Decl (G, D), tm2)
@@ -939,7 +939,7 @@ struct
         in
           (lam (tm1', tm2'), Intro (Lam (D, U2)), Pi ((D, Maybe), V2))
         end
-      | inferExactN (G, app (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, app (tm1, tm2)) =
         let
           val (tm1', B1, V1) = inferExact (G, tm1)
           val E1 = toElim (B1)
@@ -950,7 +950,7 @@ struct
         in
           (app (tm1', tm2'), Elim (elimApp (E1, U2)), EClo (Vr, Whnf.dotEta (Exp U2, s)))
         end
-      | inferExactN (G, hastype (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, hastype (tm1, tm2)) =
         let
           val (tm2', B2, L) = inferExact (G, tm2)
           val V = toIntro (B2, (L, id))
@@ -959,7 +959,7 @@ struct
         in
           (hastype (tm1', tm2'), B1, V)
         end
-      | inferExactN (G, mismatch (tm1, tm2, location_msg, problem_msg)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, mismatch (tm1, tm2, location_msg, problem_msg)) =
         let
           val (tm1', _, V1) = inferExact (G, tm1)
           val (tm2', B, V) = inferExactN (G, tm2)
@@ -968,7 +968,7 @@ struct
         in
           (mismatch (tm1', tm2', location_msg, problem_msg), B, V)
         end
-      | inferExactN (G, omitapx (U, V, L, r)) =
+      | (* GEN CASE BRANCH *) inferExactN (G, omitapx (U, V, L, r)) =
         let
           val V' = Apx.apxToClass (G, V, L, false)
                    handle Apx.Ambiguous =>
@@ -1032,7 +1032,7 @@ struct
         in
           ((lam (dec (name, tm1', r), tm2'), Intro (Lam (D, U2)), Pi ((D, Maybe), V2)), ok2)
         end
-      | checkExact1 (G, hastype (tm1, tm2), Vhs) =
+      | (* GEN CASE BRANCH *) checkExact1 (G, hastype (tm1, tm2), Vhs) =
         let
           val ((tm2', B2, L), ok2) = unifyExact (G, tm2, Vhs)
           val V = toIntro (B2, (L, id))
@@ -1041,7 +1041,7 @@ struct
         in
           ((hastype (tm1', tm2'), B1, V), ok2)
         end
-      | checkExact1 (G, mismatch (tm1, tm2, location_msg, problem_msg), Vhs) =
+      | (* GEN CASE BRANCH *) checkExact1 (G, mismatch (tm1, tm2, location_msg, problem_msg), Vhs) =
         let
           val (tm1', _, V1) = inferExact (G, tm1)
           val ((tm2', B, V), ok2) = checkExact1 (G, tm2, Vhs)
@@ -1049,7 +1049,7 @@ struct
         in
           ((mismatch (tm1', tm2', location_msg, problem_msg), B, V), ok2)
         end
-      | checkExact1 (G, omitapx (U, V (* = Vhs *), L, r), Vhs) =
+      | (* GEN CASE BRANCH *) checkExact1 (G, omitapx (U, V (* = Vhs *), L, r), Vhs) =
         let
           val V' = EClo Vhs
           val U' = Apx.apxToExact (G, U, Vhs, false)
@@ -1066,7 +1066,7 @@ struct
         in
           ((omitexact (U', V', r), Intro U', V'), true)
         end
-      | checkExact1 (G, tm, Vhs) =
+      | (* GEN CASE BRANCH *) checkExact1 (G, tm, Vhs) =
         let
           val (tm', B', V') = inferExact (G, tm)
         in
@@ -1094,7 +1094,7 @@ struct
              (mismatch (tm', tm'', location_msg, problem_msg), B'')
            end)
         end
-
+    
         else
         let
           val (tm', B', V') = inferExact (G, tm)
@@ -1125,7 +1125,7 @@ struct
           ((arrow (tm1', tm2'), Intro (Pi ((D, No), EClo (V2, shift))), L),
            ok1 andalso unifiableIdem (Decl (G, D), (Vr, dot1 s), (V2, shift)))
         end
-      | unifyExact (G, pi (dec (name, tm1, r), tm2), Vhs) =
+      | (* GEN CASE BRANCH *) unifyExact (G, pi (dec (name, tm1, r), tm2), Vhs) =
         let
           val (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef Vhs
           val ((tm1', B1, _ (* Uni Type *)), ok1) = unifyExact (G, tm1, (Va, s))
@@ -1139,7 +1139,7 @@ struct
           ((pi (dec (name, tm1', r), tm2'), Intro (Pi ((D, Maybe), V2)), L), ok2)
         end
         (* lam impossible *)
-      | unifyExact (G, hastype (tm1, tm2), Vhs) =
+      | (* GEN CASE BRANCH *) unifyExact (G, hastype (tm1, tm2), Vhs) =
         let
           (* Vh : L by invariant *)
           val (tm2', _ (* Uni L *), _ (* Uni (Next L) *)) = inferExact (G, tm2)
@@ -1147,7 +1147,7 @@ struct
         in
           ((hastype (tm1', tm2'), B, L), ok1)
         end
-      | unifyExact (G, mismatch (tm1, tm2, location_msg, problem_msg), Vhs) =
+      | (* GEN CASE BRANCH *) unifyExact (G, mismatch (tm1, tm2, location_msg, problem_msg), Vhs) =
         let
           val (tm1', _, L1) = inferExact (G, tm1)
           val ((tm2', B, L), ok2) = unifyExact (G, tm2, Vhs)
@@ -1155,7 +1155,7 @@ struct
         in
           ((mismatch (tm1', tm2', location_msg, problem_msg), B, L), ok2)
         end
-      | unifyExact (G, omitapx (V (* = Vhs *), L, nL (* Next L *), r), Vhs) =
+      | (* GEN CASE BRANCH *) unifyExact (G, omitapx (V (* = Vhs *), L, nL (* Next L *), r), Vhs) =
         let
           (* cannot raise Ambiguous *)
           val L' = Apx.apxToClass (G, L, nL, false)
@@ -1163,7 +1163,7 @@ struct
         in
           ((omitexact (V', L', r), Intro V', L'), true)
         end
-      | unifyExact (G, tm, Vhs) =
+      | (* GEN CASE BRANCH *) unifyExact (G, tm, Vhs) =
         let
           val (tm', B', L') = inferExact (G, tm)
           val V' = toIntro (B', (L', id))
@@ -1179,26 +1179,26 @@ struct
         in
           (Paths.root (r', Paths.leaf r, conDecImp (headConDec H), i, os), r')
         end
-      | occElim (bvar (k, r), os, rs, i) =
+      | (* GEN CASE BRANCH *) occElim (bvar (k, r), os, rs, i) =
         let
           val r' = List.foldr Paths.join r rs
         in
           (Paths.root (r', Paths.leaf r, 0, i, os), r')
         end
-      | occElim (fvar (name, r), os, rs, i) =
+      | (* GEN CASE BRANCH *) occElim (fvar (name, r), os, rs, i) =
         let
           val r' = List.foldr Paths.join r rs
         in
           (Paths.root (r', Paths.leaf r, 0, i, os), r')
         end
-      | occElim (app (tm1, tm2), os, rs, i) =
+      | (* GEN CASE BRANCH *) occElim (app (tm1, tm2), os, rs, i) =
         let
           val (oc2, r2) = occIntro tm2
         in
           occElim (tm1, Paths.app (oc2, os), r2::rs, i+1)
         end
-      | occElim (hastype (tm1, tm2), os, rs, i) = occElim (tm1, os, rs, i)
-      | occElim (tm, os, rs, i) =
+      | (* GEN CASE BRANCH *) occElim (hastype (tm1, tm2), os, rs, i) = occElim (tm1, os, rs, i)
+      | (* GEN CASE BRANCH *) occElim (tm, os, rs, i) =
         (* this is some kind of redex or evar-under-substitution
            also catches simple introduction forms like `type' *)
         let
@@ -1215,7 +1215,7 @@ struct
         in
           (Paths.bind (r', SOME oc1, oc2), r')
         end
-      | occIntro (pi (dec (name, tm1, r), tm2)) =
+      | (* GEN CASE BRANCH *) occIntro (pi (dec (name, tm1, r), tm2)) =
         let
           val (oc1, r1) = occIntro tm1
           val (oc2, r2) = occIntro tm2
@@ -1224,7 +1224,7 @@ struct
           (* not quite consistent with older implementation for dec0 *)
           (Paths.bind (r', SOME oc1, oc2), r')
         end
-      | occIntro (lam (dec (name, tm1, r), tm2)) =
+      | (* GEN CASE BRANCH *) occIntro (lam (dec (name, tm1, r), tm2)) =
         let
           val (oc1, r1) = occIntro tm1
           val (oc2, r2) = occIntro tm2
@@ -1233,8 +1233,8 @@ struct
           (* not quite consistent with older implementation for dec0 *)
           (Paths.bind (r', SOME oc1, oc2), r')
         end
-      | occIntro (hastype (tm1, tm2)) = occIntro tm1
-      | occIntro (tm) =
+      | (* GEN CASE BRANCH *) occIntro (hastype (tm1, tm2)) = occIntro tm1
+      | (* GEN CASE BRANCH *) occIntro (tm) =
         let
           (* still doesn't work quite right for the location -> occurrence map? *)
           val (oc, r) = occElim (tm, Paths.nils, nil, 0)
@@ -1243,9 +1243,9 @@ struct
         end
 
     fun inferExactJob (G, jnothing) = JNothing
-      | inferExactJob (G, jand (j1, j2)) =
+      | (* GEN CASE BRANCH *) inferExactJob (G, jand (j1, j2)) =
           JAnd (inferExactJob (G, j1), inferExactJob (G, j2))
-      | inferExactJob (G, jwithctx (g, j)) =
+      | (* GEN CASE BRANCH *) inferExactJob (G, jwithctx (g, j)) =
         let
           fun ie (Null) = (G, Null)
             | ie (Decl (g, tm)) =
@@ -1259,7 +1259,7 @@ struct
         in
           JWithCtx (Gresult, inferExactJob (G', j))
         end
-      | inferExactJob (G, jterm (tm)) =
+      | (* GEN CASE BRANCH *) inferExactJob (G, jterm (tm)) =
         let
           val (tm', B, V) = inferExact (G, tm)
           val U = toIntro (B, (V, id))
@@ -1274,7 +1274,7 @@ struct
         in
           JTerm ((U, oc), V, iu V)
         end
-      | inferExactJob (G, jclass (tm)) =
+      | (* GEN CASE BRANCH *) inferExactJob (G, jclass (tm)) =
         let
           val (tm', B, L) = inferExact (G, tm)
           val V = toIntro (B, (L, id))
@@ -1283,7 +1283,7 @@ struct
         in
           JClass ((V, oc), L)
         end
-      | inferExactJob (G, jof (tm1, tm2)) =
+      | (* GEN CASE BRANCH *) inferExactJob (G, jof (tm1, tm2)) =
         let
           val (tm2', B2, L2) = inferExact (G, tm2)
           val V2 = toIntro (B2, (L2, id))
@@ -1298,17 +1298,17 @@ struct
           JOf ((U1, oc1), (V2, oc2), L2)
         end
 
-      | inferExactJob (G, jof' (tm1, V2)) =
+      | (* GEN CASE BRANCH *) inferExactJob (G, jof' (tm1, V2)) =
         let
-(*          val (tm2', B2, L2) = inferExact (G, tm2)
+      (*          val (tm2', B2, L2) = inferExact (G, tm2)
           val V2 = toIntro (B2, (L2, id)) *)
           val (tm1', B1) = checkExact (G, tm1, (V2, id),
                                        "Ascription in declaration did not hold\n"
                                        ^ "(Index object(s) did not match)")
           val U1 = toIntro (B1, (V2, id))
-(*          val (oc2, r2) = occIntro tm2' *)
+      (*          val (oc2, r2) = occIntro tm2' *)
           val (oc1, r1) = occIntro tm1'
-(*          val (Uni L2, _) = Whnf.whnf (L2, id) *)
+      (*          val (Uni L2, _) = Whnf.whnf (L2, id) *)
         in
           JOf ((U1, oc1), (V2, oc1), Type)
         end

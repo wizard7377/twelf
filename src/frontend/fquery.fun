@@ -39,7 +39,7 @@ struct
 
 
   fun lower (0, G, V) = (G, V)
-    | lower (n, G, I.Pi ((D, _), V)) = lower (n-1, I.Decl (G, D), V)
+    | (* GEN CASE BRANCH *) lower (n, G, I.Pi ((D, _), V)) = lower (n-1, I.Decl (G, D), V)
 
   fun run (quy, Paths.Loc (fileName, r)) =
       let
@@ -56,7 +56,7 @@ struct
                   then print ((Timers.time Timers.printing expToString)
                               (IntSyn.Null, V) ^ ".\n")
                 else ()
-
+  
         val (k, V1)  = Abstract.abstractDecImp V
         val (G, V2) = lower (k, I.Null, V1)
                                         (* G |- V'' : type *)

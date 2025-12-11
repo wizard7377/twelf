@@ -14,7 +14,7 @@ struct
     structure I = IntSyn
 
     fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+      | (* GEN CASE BRANCH *) cidFromHead (I.Def c) = c
 
     (* Index array
 
@@ -83,7 +83,7 @@ struct
     *)
     fun lookup a =
         let fun lk (l, NONE) = l
-              | lk (l, SOME(q')) =
+              | (* GEN CASE BRANCH *) lk (l, SOME(q')) =
                 (Array.update (indexArray, a, q'); l)
         in
           lk (Queue.toList (Array.sub (indexArray, a)))

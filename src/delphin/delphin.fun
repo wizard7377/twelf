@@ -37,17 +37,17 @@ struct
         val _ = chatter 4 (fn () => "]\n[Translation ...")
         val P = Trans.transDecs EDs
         val _ = chatter 4 (fn () => "]\n[Externalization ...")
-(*      val _ = print "* Type reconstruction done\n" *)
+    (*      val _ = print "* Type reconstruction done\n" *)
         val P' = Trans.externalizePrg P
         val _ = chatter 4 (fn () => "]\n")
         val _ = chatter 4 (fn () => "[Operational Semantics ...")
-(*      val _ = raise What P'
+    (*      val _ = raise What P'
         val _ = print "* Externalization done\n" *)
-(*      val _  = TomegaTypeCheck.checkPrg (IntSyn.Null, (P', Tomega.True))
+    (*      val _  = TomegaTypeCheck.checkPrg (IntSyn.Null, (P', Tomega.True))
         val _ = print "* Typechecking done\n"
-*)      val V  = Opsem.topLevel P'  (* was evalPrg --cs Mon Jun 30 12:09:21 2003*)
+    *)      val V  = Opsem.topLevel P'  (* was evalPrg --cs Mon Jun 30 12:09:21 2003*)
         val _ = chatter 4 (fn () => "]\n")
-(*      val _ = print "* Operational semantics done\n" *)
+    (*      val _ = print "* Operational semantics done\n" *)
         val _ = chatter 1 (fn () => "[Closing file " ^ s2 ^ "]\n")
       in
         V
@@ -59,7 +59,7 @@ struct
       let
          val _ = print prompt
          val (DextSyn.Ast ED) = Parse.sparse ()
-(*         val res = Trans.transDecs ED    *)
+    (*         val res = Trans.transDecs ED    *)
       in
          loop ()
       end
@@ -75,47 +75,47 @@ struct
 
     fun runSimpleTest sourcesFile funcList args  =
       let
-
+    
         fun test (names as [name]) =
           (let
              val La = map (fn x => valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
              val (lemma, projs, sels) = Converter.installPrg La
              val P = Tomega.lemmaDef lemma
-(*           val P = Redundant.convert (Tomega.lemmaDef lemma) *)
+    (*           val P = Redundant.convert (Tomega.lemmaDef lemma) *)
              val F = Converter.convertFor La
              val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F))
              val _ = TextIO.print ("\n" ^ TomegaPrint.funToString ((map (fn (cid) => IntSyn.conDecName (IntSyn.sgnLookup cid)) La,
                                                      projs), P) ^ "\n")
            in (P, F)
            end)
-          | test names =
+          | (* GEN CASE BRANCH *) test names =
           (let
              val La = map (fn x => valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
              val (lemma, projs, sels) = Converter.installPrg La
              (* val P = Tomega.lemmaDef lemma *)
              val P = Redundant.convert (Tomega.lemmaDef lemma)
              val F = Converter.convertFor La
-
+              
              val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F))
              val _ = TextIO.print ("\n" ^ TomegaPrint.funToString ((map (fn (cid) => IntSyn.conDecName (IntSyn.sgnLookup cid)) La,
                                                      projs), P) ^ "\n")
            in (Tomega.lemmaDef (hd sels), F)
            end)
-
+    
         fun checkDec (u, D as T.UDec (I.Dec (_, V))) =  (print "$"; TypeCheck.typeCheck (I.Null, (u, V)))
-(*        | checkDec (u, D as PDec (_, T.All (D, F')))) = ???  *)
-
-
-
+    (*        | checkDec (u, D as PDec (_, T.All (D, F')))) = ???  *)
+    
+    
+    
         fun makeSpine ([], F) = (T.Nil, F)
-          | makeSpine (x :: L, F' as T.And (F1, F2)) =
+          | (* GEN CASE BRANCH *) makeSpine (x :: L, F' as T.And (F1, F2)) =
             let
               val (S', F') =  makeSpine (L, T.forSub (F', T.Dot (T.Exp (I.Root (I.Def x, I.Nil)), T.id)))
             in
               (T.AppExp (I.Root (I.Def x, I.Nil), S'), F')
             end
-
-          | makeSpine (x :: L, T.All ((D, _), F')) =
+    
+          | (* GEN CASE BRANCH *) makeSpine (x :: L, T.All ((D, _), F')) =
             let
               val _ = checkDec(I.Root (I.Def x, I.Nil), D)
               val (S', F') =  makeSpine (L, T.forSub (F', T.Dot (T.Exp (I.Root (I.Def x, I.Nil)), T.id)))
@@ -124,30 +124,30 @@ struct
             end
         val _ = Twelf.make sourcesFile
         val (P, F) = test funcList
-
+    
         val _ = print ((TomegaPrint.forToString (I.Null, F)) ^ "\n")
-(*      val _ = TextIO.print ("\n" ^ TomegaPrint.funToString (([name], []), P) ^ "\n") *)
-
+    (*      val _ = TextIO.print ("\n" ^ TomegaPrint.funToString (([name], []), P) ^ "\n") *)
+    
         val xs = map (fn a => valOf (Names.constLookup (valOf (Names.stringToQid a)))) args
-
+    
         val  (S', F') = makeSpine (xs, F)
         val P' = T.Redex(P, S')
-
+    
         val _ = TomegaTypeCheck.checkPrg (I.Null, (P', F'))
-
-
-(*      val P' = if isDef then (T.Redex(P, T.AppExp (I.Root (I.Def x, I.Nil), T.
-Nil))) else (T.Redex(P, T.AppExp (I.Root (I.Const x, I.Nil), T.Nil)))
-*)
-
+    
+    
+    (*      val P' = if isDef then (T.Redex(P, T.AppExp (I.Root (I.Def x, I.Nil), T.
+    Nil))) else (T.Redex(P, T.AppExp (I.Root (I.Const x, I.Nil), T.Nil)))
+    *)
+    
           (*
         val _ = TextIO.print "\n"
         val _ = TextIO.print (TomegaPrint.prgToString (I.Null, P'))
         val _ = TextIO.print "\n"
            *)
-
-
-(*  T.AppExp (I.Root (I.Def x, I.Nil), T.Nil) *)
+    
+    
+    (*  T.AppExp (I.Root (I.Def x, I.Nil), T.Nil) *)
         val result = Opsem.evalPrg P'
         val _ = TextIO.print "\n\nEOC\n\n"
         val _ = TextIO.print (TomegaPrint.prgToString (I.Null, result))

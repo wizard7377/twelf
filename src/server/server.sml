@@ -21,25 +21,25 @@ struct
   fun readLine () =
       let
         (* val line = TextIO.inputLine (TextIO.stdIn) *)
-	(* Fix for MLton, Fri Dec 20 21:50:22 2002 -sweeks (fp) *)
-	fun getLine () = Compat.inputLine97 (TextIO.stdIn)
-	                 handle OS.SysErr (_, SOME _) => getLine ()
-	val line = getLine ()
+  	(* Fix for MLton, Fri Dec 20 21:50:22 2002 -sweeks (fp) *)
+  	fun getLine () = Compat.inputLine97 (TextIO.stdIn)
+  	                 handle OS.SysErr (_, SOME _) => getLine ()
+  	val line = getLine ()
         fun triml ss = Substring.dropl Char.isSpace ss
         fun trimr ss = Substring.dropr Char.isSpace ss
         val line' = triml (trimr (Compat.Substring.full line))
       in
-	if line = ""
-	  then ("OS.exit", "")
-	else if Substring.size (line') = 0
-	  then readLine ()
+  	if line = ""
+  	  then ("OS.exit", "")
+  	else if Substring.size (line') = 0
+  	  then readLine ()
         else
           let
             val (command', args') = Substring.position " " line'
           in
             (Substring.string command',
              Substring.string (triml args'))
-	  end
+  	  end
       end
   
   (* tokenize (args) = [token1, token2, ..., tokenn]
@@ -56,136 +56,136 @@ struct
 
   (* Print the OK or ABORT messages which are parsed by Emacs *)
   fun issue (Twelf.OK) = print ("%% OK %%\n")
-    | issue (Twelf.ABORT) = print ("%% ABORT %%\n")
+    | (* GEN CASE BRANCH *) issue (Twelf.ABORT) = print ("%% ABORT %%\n")
 
   (* Checking if there are no extraneous arguments *)
   fun checkEmpty ("") = ()
-    | checkEmpty (args) = error "Extraneous arguments"
+    | (* GEN CASE BRANCH *) checkEmpty (args) = error "Extraneous arguments"
 
   (* Command argument types *)
   (* File names, given a default *)
   fun getFile ("", default) = default
-    | getFile (fileName, default) = fileName
+    | (* GEN CASE BRANCH *) getFile (fileName, default) = fileName
 
   (* File names, not defaults *)
   fun getFile' ("") = error "Missing filename"
-    | getFile' (fileName) = fileName
+    | (* GEN CASE BRANCH *) getFile' (fileName) = fileName
 
   (* Identifiers, used as a constant *)
   fun getId (id::nil) = id
-    | getId (nil) = error "Missing identifier"
-    | getId (ts) = error "Extraneous arguments"
+    | (* GEN CASE BRANCH *) getId (nil) = error "Missing identifier"
+    | (* GEN CASE BRANCH *) getId (ts) = error "Extraneous arguments"
 
   (* Identifiers, used as a trace specification *)
   fun getIds (ids) = ids
 
   (* Strategies for %prove, %establish *)
   fun getStrategy ("FRS"::nil) = Twelf.Prover.FRS
-    | getStrategy ("RFS"::nil) = Twelf.Prover.RFS
-    | getStrategy (nil) = error "Missing strategy"
-    | getStrategy (t::nil) = error (quote t ^ " is not a strategy (must be FRS or RFS)")
-    | getStrategy (ts) = error "Extraneous arguments"
+    | (* GEN CASE BRANCH *) getStrategy ("RFS"::nil) = Twelf.Prover.RFS
+    | (* GEN CASE BRANCH *) getStrategy (nil) = error "Missing strategy"
+    | (* GEN CASE BRANCH *) getStrategy (t::nil) = error (quote t ^ " is not a strategy (must be FRS or RFS)")
+    | (* GEN CASE BRANCH *) getStrategy (ts) = error "Extraneous arguments"
 
   fun strategyToString (Twelf.Prover.FRS) = "FRS"
-    | strategyToString (Twelf.Prover.RFS) = "RFS"
+    | (* GEN CASE BRANCH *) strategyToString (Twelf.Prover.RFS) = "RFS"
 
   (* Booleans *)
   fun getBool ("true"::nil) = true
-    | getBool ("false"::nil) = false
-    | getBool (nil) = error "Missing boolean value"
-    | getBool (t::nil) = error (quote t ^ " is not a boolean")
-    | getBool (ts) = error "Extraneous arguments"
+    | (* GEN CASE BRANCH *) getBool ("false"::nil) = false
+    | (* GEN CASE BRANCH *) getBool (nil) = error "Missing boolean value"
+    | (* GEN CASE BRANCH *) getBool (t::nil) = error (quote t ^ " is not a boolean")
+    | (* GEN CASE BRANCH *) getBool (ts) = error "Extraneous arguments"
 
   (* Natural numbers *)
   fun getNat (t::nil) =
         (Lexer.stringToNat t
-	 handle Lexer.NotDigit (char) => error (quote t ^ " is not a natural number"))
-    | getNat (nil) = error "Missing natural number"
-    | getNat (ts) = error "Extraneous arguments"
+  	 handle Lexer.NotDigit (char) => error (quote t ^ " is not a natural number"))
+    | (* GEN CASE BRANCH *) getNat (nil) = error "Missing natural number"
+    | (* GEN CASE BRANCH *) getNat (ts) = error "Extraneous arguments"
 
   (* Limits ( *, or natural number) *)
   fun getLimit ("*"::nil) = NONE
-    | getLimit (t::ts) = SOME (getNat (t::ts))
-    | getLimit (nil) = error "Missing `*' or natural number"
+    | (* GEN CASE BRANCH *) getLimit (t::ts) = SOME (getNat (t::ts))
+    | (* GEN CASE BRANCH *) getLimit (nil) = error "Missing `*' or natural number"
 
   fun limitToString (NONE) = "*"
-    | limitToString (SOME(i)) = Int.toString i
+    | (* GEN CASE BRANCH *) limitToString (SOME(i)) = Int.toString i
 
   (* Tabling strategy *)
   fun getTableStrategy ("Variant"::nil) = Twelf.Table.Variant
-    | getTableStrategy ("Subsumption"::nil) = Twelf.Table.Subsumption
-    | getTableStrategy (nil) = error "Missing tabling strategy"
-    | getTableStrategy (t::nil) = error (quote t ^ " is not a tabling strategy (must be Variant or Subsumption)")
-    | getTableStrategy (ts) = error "Extraneous arguments"
+    | (* GEN CASE BRANCH *) getTableStrategy ("Subsumption"::nil) = Twelf.Table.Subsumption
+    | (* GEN CASE BRANCH *) getTableStrategy (nil) = error "Missing tabling strategy"
+    | (* GEN CASE BRANCH *) getTableStrategy (t::nil) = error (quote t ^ " is not a tabling strategy (must be Variant or Subsumption)")
+    | (* GEN CASE BRANCH *) getTableStrategy (ts) = error "Extraneous arguments"
 
   fun tableStrategyToString (Twelf.Table.Variant) = "Variant"
-    | tableStrategyToString (Twelf.Table.Subsumption) = "Subsumption"
+    | (* GEN CASE BRANCH *) tableStrategyToString (Twelf.Table.Subsumption) = "Subsumption"
 
   (* Tracing mode for term reconstruction *)
   fun getReconTraceMode ("Progressive"::nil) = Twelf.Recon.Progressive
-    | getReconTraceMode ("Omniscient"::nil) = Twelf.Recon.Omniscient
-    | getReconTraceMode (nil) = error "Missing tracing reconstruction mode"
-    | getReconTraceMode (t::nil) = error (quote t ^ " is not a tracing reconstruction mode\n(must be Progressive or Omniscient)")
-    | getReconTraceMode (ts) = error "Extraneous arguments"
+    | (* GEN CASE BRANCH *) getReconTraceMode ("Omniscient"::nil) = Twelf.Recon.Omniscient
+    | (* GEN CASE BRANCH *) getReconTraceMode (nil) = error "Missing tracing reconstruction mode"
+    | (* GEN CASE BRANCH *) getReconTraceMode (t::nil) = error (quote t ^ " is not a tracing reconstruction mode\n(must be Progressive or Omniscient)")
+    | (* GEN CASE BRANCH *) getReconTraceMode (ts) = error "Extraneous arguments"
 
   fun reconTraceModeToString (Twelf.Recon.Progressive) = "Progressive"
-    | reconTraceModeToString (Twelf.Recon.Omniscient) = "Omniscient"
+    | (* GEN CASE BRANCH *) reconTraceModeToString (Twelf.Recon.Omniscient) = "Omniscient"
 
 
   (* Compile options *)
   fun getCompileOpt ("No"::nil) = Twelf.Compile.No
-    | getCompileOpt ("LinearHeads"::nil) = Twelf.Compile.LinearHeads
-    | getCompileOpt ("Indexing"::nil) = Twelf.Compile.Indexing
-    | getCompileOpt (nil) = error "Missing tabling strategy"
-    | getCompileOpt (t::nil) = error (quote t ^ " is not a compile option (must be No, LinearHeads, or Indexing ")
-    | getCompileOpt (ts) = error "Extraneous arguments"
+    | (* GEN CASE BRANCH *) getCompileOpt ("LinearHeads"::nil) = Twelf.Compile.LinearHeads
+    | (* GEN CASE BRANCH *) getCompileOpt ("Indexing"::nil) = Twelf.Compile.Indexing
+    | (* GEN CASE BRANCH *) getCompileOpt (nil) = error "Missing tabling strategy"
+    | (* GEN CASE BRANCH *) getCompileOpt (t::nil) = error (quote t ^ " is not a compile option (must be No, LinearHeads, or Indexing ")
+    | (* GEN CASE BRANCH *) getCompileOpt (ts) = error "Extraneous arguments"
 
   fun compOptToString (Twelf.Compile.No) = "No"
-    | compOptToString (Twelf.Compile.LinearHeads) = "LinearHeads"
-    | compOptToString (Twelf.Compile.Indexing) = "Indexing"
+    | (* GEN CASE BRANCH *) compOptToString (Twelf.Compile.LinearHeads) = "LinearHeads"
+    | (* GEN CASE BRANCH *) compOptToString (Twelf.Compile.Indexing) = "Indexing"
 
   (* Setting Twelf parameters *)
   fun setParm ("chatter"::ts) = Twelf.chatter := getNat ts
-    | setParm ("doubleCheck"::ts) = Twelf.doubleCheck := getBool ts
-    | setParm ("unsafe"::ts) = Twelf.unsafe := getBool ts
-    | setParm ("autoFreeze"::ts) = Twelf.autoFreeze := getBool ts
-    | setParm ("Print.implicit"::ts) = Twelf.Print.implicit := getBool ts
-    | setParm ("Print.depth"::ts) = Twelf.Print.depth := getLimit ts
-    | setParm ("Print.length"::ts) = Twelf.Print.length := getLimit ts
-    | setParm ("Print.indent"::ts) = Twelf.Print.indent := getNat ts
-    | setParm ("Print.width"::ts) = Twelf.Print.width := getNat ts
-    | setParm ("Trace.detail"::ts) = Twelf.Trace.detail := getNat ts
-    | setParm ("Compile.optimize"::ts) = Twelf.Compile.optimize := getCompileOpt ts
-    | setParm ("Recon.trace"::ts) = Twelf.Recon.trace := getBool ts
-    | setParm ("Recon.traceMode"::ts) = Twelf.Recon.traceMode := getReconTraceMode ts
-    | setParm ("Prover.strategy"::ts) = Twelf.Prover.strategy := getStrategy ts
-    | setParm ("Prover.maxSplit"::ts) = Twelf.Prover.maxSplit := getNat ts
-    | setParm ("Prover.maxRecurse"::ts) = Twelf.Prover.maxRecurse := getNat ts
-    | setParm ("Table.strategy"::ts) = Twelf.Table.strategy := getTableStrategy ts
-    | setParm ("Table.strengthen"::ts) = Twelf.Table.strengthen := getBool ts
-    | setParm (t::ts) = error ("Unknown parameter " ^ quote t)
-    | setParm (nil) = error ("Missing parameter")
+    | (* GEN CASE BRANCH *) setParm ("doubleCheck"::ts) = Twelf.doubleCheck := getBool ts
+    | (* GEN CASE BRANCH *) setParm ("unsafe"::ts) = Twelf.unsafe := getBool ts
+    | (* GEN CASE BRANCH *) setParm ("autoFreeze"::ts) = Twelf.autoFreeze := getBool ts
+    | (* GEN CASE BRANCH *) setParm ("Print.implicit"::ts) = Twelf.Print.implicit := getBool ts
+    | (* GEN CASE BRANCH *) setParm ("Print.depth"::ts) = Twelf.Print.depth := getLimit ts
+    | (* GEN CASE BRANCH *) setParm ("Print.length"::ts) = Twelf.Print.length := getLimit ts
+    | (* GEN CASE BRANCH *) setParm ("Print.indent"::ts) = Twelf.Print.indent := getNat ts
+    | (* GEN CASE BRANCH *) setParm ("Print.width"::ts) = Twelf.Print.width := getNat ts
+    | (* GEN CASE BRANCH *) setParm ("Trace.detail"::ts) = Twelf.Trace.detail := getNat ts
+    | (* GEN CASE BRANCH *) setParm ("Compile.optimize"::ts) = Twelf.Compile.optimize := getCompileOpt ts
+    | (* GEN CASE BRANCH *) setParm ("Recon.trace"::ts) = Twelf.Recon.trace := getBool ts
+    | (* GEN CASE BRANCH *) setParm ("Recon.traceMode"::ts) = Twelf.Recon.traceMode := getReconTraceMode ts
+    | (* GEN CASE BRANCH *) setParm ("Prover.strategy"::ts) = Twelf.Prover.strategy := getStrategy ts
+    | (* GEN CASE BRANCH *) setParm ("Prover.maxSplit"::ts) = Twelf.Prover.maxSplit := getNat ts
+    | (* GEN CASE BRANCH *) setParm ("Prover.maxRecurse"::ts) = Twelf.Prover.maxRecurse := getNat ts
+    | (* GEN CASE BRANCH *) setParm ("Table.strategy"::ts) = Twelf.Table.strategy := getTableStrategy ts
+    | (* GEN CASE BRANCH *) setParm ("Table.strengthen"::ts) = Twelf.Table.strengthen := getBool ts
+    | (* GEN CASE BRANCH *) setParm (t::ts) = error ("Unknown parameter " ^ quote t)
+    | (* GEN CASE BRANCH *) setParm (nil) = error ("Missing parameter")
 
   (* Getting Twelf parameter values *)
   fun getParm ("chatter"::ts) = Int.toString (!Twelf.chatter)
-    | getParm ("doubleCheck"::ts) = Bool.toString (!Twelf.doubleCheck)
-    | getParm ("unsafe"::ts) = Bool.toString (!Twelf.unsafe)
-    | getParm ("autoFreeze"::ts) = Bool.toString (!Twelf.autoFreeze)
-    | getParm ("Print.implicit"::ts) = Bool.toString (!Twelf.Print.implicit)
-    | getParm ("Print.depth"::ts) = limitToString (!Twelf.Print.depth)
-    | getParm ("Print.length"::ts) = limitToString (!Twelf.Print.length)
-    | getParm ("Print.indent"::ts) = Int.toString (!Twelf.Print.indent)
-    | getParm ("Print.width"::ts) = Int.toString (!Twelf.Print.width)
-    | getParm ("Trace.detail"::ts) = Int.toString (!Twelf.Trace.detail)
-    | getParm ("Compile.optimize"::ts) = compOptToString (!Twelf.Compile.optimize)
-    | getParm ("Recon.trace"::ts) = Bool.toString (!Twelf.Recon.trace)
-    | getParm ("Recon.traceMode"::ts) = reconTraceModeToString (!Twelf.Recon.traceMode)
-    | getParm ("Prover.strategy"::ts) = strategyToString (!Twelf.Prover.strategy)
-    | getParm ("Prover.maxSplit"::ts) = Int.toString (!Twelf.Prover.maxSplit)
-    | getParm ("Prover.maxRecurse"::ts) = Int.toString (!Twelf.Prover.maxRecurse)
-   | getParm ("Table.strategy"::ts) = tableStrategyToString (!Twelf.Table.strategy) 
-    | getParm (t::ts) = error ("Unknown parameter " ^ quote t)
-    | getParm (nil) = error ("Missing parameter")
+    | (* GEN CASE BRANCH *) getParm ("doubleCheck"::ts) = Bool.toString (!Twelf.doubleCheck)
+    | (* GEN CASE BRANCH *) getParm ("unsafe"::ts) = Bool.toString (!Twelf.unsafe)
+    | (* GEN CASE BRANCH *) getParm ("autoFreeze"::ts) = Bool.toString (!Twelf.autoFreeze)
+    | (* GEN CASE BRANCH *) getParm ("Print.implicit"::ts) = Bool.toString (!Twelf.Print.implicit)
+    | (* GEN CASE BRANCH *) getParm ("Print.depth"::ts) = limitToString (!Twelf.Print.depth)
+    | (* GEN CASE BRANCH *) getParm ("Print.length"::ts) = limitToString (!Twelf.Print.length)
+    | (* GEN CASE BRANCH *) getParm ("Print.indent"::ts) = Int.toString (!Twelf.Print.indent)
+    | (* GEN CASE BRANCH *) getParm ("Print.width"::ts) = Int.toString (!Twelf.Print.width)
+    | (* GEN CASE BRANCH *) getParm ("Trace.detail"::ts) = Int.toString (!Twelf.Trace.detail)
+    | (* GEN CASE BRANCH *) getParm ("Compile.optimize"::ts) = compOptToString (!Twelf.Compile.optimize)
+    | (* GEN CASE BRANCH *) getParm ("Recon.trace"::ts) = Bool.toString (!Twelf.Recon.trace)
+    | (* GEN CASE BRANCH *) getParm ("Recon.traceMode"::ts) = reconTraceModeToString (!Twelf.Recon.traceMode)
+    | (* GEN CASE BRANCH *) getParm ("Prover.strategy"::ts) = strategyToString (!Twelf.Prover.strategy)
+    | (* GEN CASE BRANCH *) getParm ("Prover.maxSplit"::ts) = Int.toString (!Twelf.Prover.maxSplit)
+    | (* GEN CASE BRANCH *) getParm ("Prover.maxRecurse"::ts) = Int.toString (!Twelf.Prover.maxRecurse)
+   | (* GEN CASE BRANCH *) getParm ("Table.strategy"::ts) = tableStrategyToString (!Twelf.Table.strategy) 
+    | (* GEN CASE BRANCH *) getParm (t::ts) = error ("Unknown parameter " ^ quote t)
+    | (* GEN CASE BRANCH *) getParm (nil) = error ("Missing parameter")
 
   (* extracted from doc/guide/twelf.texi *)
   val helpString =
@@ -267,22 +267,22 @@ struct
   *)
   fun serve' ("set", args) =
       (setParm (tokenize args); serve (Twelf.OK))
-    | serve' ("get", args) =
+    | (* GEN CASE BRANCH *) serve' ("get", args) =
       (print (getParm (tokenize args) ^ "\n");
        serve (Twelf.OK))
-    | serve' ("Style.check", args) = 
+    | (* GEN CASE BRANCH *) serve' ("Style.check", args) = 
       (checkEmpty args; StyleCheck.check (); serve (Twelf.OK))
-    | serve' ("Print.sgn", args) =
+    | (* GEN CASE BRANCH *) serve' ("Print.sgn", args) =
       (checkEmpty args; Twelf.Print.sgn (); serve (Twelf.OK))
-    | serve' ("Print.prog", args) =
+    | (* GEN CASE BRANCH *) serve' ("Print.prog", args) =
       (checkEmpty args; Twelf.Print.prog (); serve (Twelf.OK))
-    | serve' ("Print.subord", args) =
+    | (* GEN CASE BRANCH *) serve' ("Print.subord", args) =
       (checkEmpty args; Twelf.Print.subord (); serve (Twelf.OK))
-    | serve' ("Print.domains", args) =
+    | (* GEN CASE BRANCH *) serve' ("Print.domains", args) =
       (checkEmpty args; Twelf.Print.domains (); serve (Twelf.OK))
-    | serve' ("Print.TeX.sgn", args) =
+    | (* GEN CASE BRANCH *) serve' ("Print.TeX.sgn", args) =
       (checkEmpty args; Twelf.Print.TeX.sgn (); serve (Twelf.OK))
-    | serve' ("Print.TeX.prog", args) =
+    | (* GEN CASE BRANCH *) serve' ("Print.TeX.prog", args) =
       (checkEmpty args; Twelf.Print.TeX.prog (); serve (Twelf.OK))
     (*
       serve' ("toc", args) = error "NYI"
@@ -292,115 +292,115 @@ struct
     (* | serve' ("type-at", args) = error "NYI" *)
     (* | serve' ("complete-at", args) = error "NYI" *)
 
-    | serve' ("Trace.trace", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.trace", args) =
       (Twelf.Trace.trace (Twelf.Trace.Some (getIds (tokenize args)));
        serve (Twelf.OK))
-    | serve' ("Trace.traceAll", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.traceAll", args) =
       (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.All);
        serve (Twelf.OK))
-    | serve' ("Trace.untrace", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.untrace", args) =
       (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.None);
        serve (Twelf.OK))
 
-    | serve' ("Trace.break", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.break", args) =
       (Twelf.Trace.break (Twelf.Trace.Some (getIds (tokenize args)));
        serve (Twelf.OK))
-    | serve' ("Trace.breakAll", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.breakAll", args) =
       (checkEmpty args; Twelf.Trace.break (Twelf.Trace.All);
        serve (Twelf.OK))
-    | serve' ("Trace.unbreak", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.unbreak", args) =
       (checkEmpty args; Twelf.Trace.break (Twelf.Trace.None);
        serve (Twelf.OK))
 
-    | serve' ("Trace.show", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.show", args) =
       (checkEmpty args; Twelf.Trace.show ();
        serve (Twelf.OK))
-    | serve' ("Trace.reset", args) =
+    | (* GEN CASE BRANCH *) serve' ("Trace.reset", args) =
       (checkEmpty args; Twelf.Trace.reset ();
        serve (Twelf.OK))
 
-    | serve' ("Timers.show", args) =
+    | (* GEN CASE BRANCH *) serve' ("Timers.show", args) =
       (checkEmpty args; Timers.show (); serve (Twelf.OK))
-    | serve' ("Timers.reset", args) =
+    | (* GEN CASE BRANCH *) serve' ("Timers.reset", args) =
       (checkEmpty args; Timers.reset (); serve (Twelf.OK))
-    | serve' ("Timers.check", args) =
+    | (* GEN CASE BRANCH *) serve' ("Timers.check", args) =
       (checkEmpty args; Timers.reset (); serve (Twelf.OK))
 
-    | serve' ("OS.chDir", args) =
+    | (* GEN CASE BRANCH *) serve' ("OS.chDir", args) =
       (Twelf.OS.chDir (getFile' args); serve (Twelf.OK))
-    | serve' ("OS.getDir", args) =
+    | (* GEN CASE BRANCH *) serve' ("OS.getDir", args) =
       (checkEmpty args; print (Twelf.OS.getDir () ^ "\n"); serve (Twelf.OK))
-    | serve' ("OS.exit", args) =
+    | (* GEN CASE BRANCH *) serve' ("OS.exit", args) =
       (checkEmpty args; ())
 
-    | serve' ("quit", args) = ()		(* quit, as a concession *)
+    | (* GEN CASE BRANCH *) serve' ("quit", args) = ()		(* quit, as a concession *)
 
-    | serve' ("Config.read", args) =
+    | (* GEN CASE BRANCH *) serve' ("Config.read", args) =
       let
-	val fileName = getFile (args, "sources.cfg")
+    	val fileName = getFile (args, "sources.cfg")
       in
-	globalConfig := SOME (Twelf.Config.read fileName);
-	serve (Twelf.OK)
+    	globalConfig := SOME (Twelf.Config.read fileName);
+    	serve (Twelf.OK)
       end
-    | serve' ("Config.load", args) =
+    | (* GEN CASE BRANCH *) serve' ("Config.load", args) =
       (case !globalConfig
-	 of NONE => (globalConfig := SOME (Twelf.Config.read "sources.cfg"))
+    	 of NONE => (globalConfig := SOME (Twelf.Config.read "sources.cfg"))
           | _ => ();
        serve (Twelf.Config.load (valOf (!globalConfig))))
-    | serve' ("Config.append", args) =
+    | (* GEN CASE BRANCH *) serve' ("Config.append", args) =
       (case !globalConfig
-	 of NONE => (globalConfig := SOME (Twelf.Config.read "sources.cfg"))
+    	 of NONE => (globalConfig := SOME (Twelf.Config.read "sources.cfg"))
           | _ => ();
        serve (Twelf.Config.append (valOf (!globalConfig))))
-    | serve' ("make", args) =
+    | (* GEN CASE BRANCH *) serve' ("make", args) =
       let
-	val fileName = getFile (args, "sources.cfg")
+    	val fileName = getFile (args, "sources.cfg")
       in
-	globalConfig := SOME (Twelf.Config.read fileName);
-	serve (Twelf.Config.load (valOf (!globalConfig)))
+    	globalConfig := SOME (Twelf.Config.read fileName);
+    	serve (Twelf.Config.load (valOf (!globalConfig)))
       end
 
-    | serve' ("reset", args) =
+    | (* GEN CASE BRANCH *) serve' ("reset", args) =
       (checkEmpty args; Twelf.reset (); serve (Twelf.OK))
-    | serve' ("loadFile", args) =
+    | (* GEN CASE BRANCH *) serve' ("loadFile", args) =
         serve (Twelf.loadFile (getFile' args))
-    | serve' ("readDecl", args) =
+    | (* GEN CASE BRANCH *) serve' ("readDecl", args) =
       (checkEmpty args; serve (Twelf.readDecl ()))
-    | serve' ("decl", args) =
+    | (* GEN CASE BRANCH *) serve' ("decl", args) =
         serve (Twelf.decl (getId (tokenize args)))
 
-    | serve' ("top", args) =
+    | (* GEN CASE BRANCH *) serve' ("top", args) =
       (checkEmpty args;
        Twelf.top ();
        serve (Twelf.OK))
 
-    | serve' ("Table.top", args) =
+    | (* GEN CASE BRANCH *) serve' ("Table.top", args) =
       (checkEmpty args;
        Twelf.Table.top ();
        serve (Twelf.OK))
 
-    | serve' ("version", args) =
+    | (* GEN CASE BRANCH *) serve' ("version", args) =
       (print (Twelf.version ^ "\n");
        serve (Twelf.OK))
 
-    | serve' ("help", args) =
+    | (* GEN CASE BRANCH *) serve' ("help", args) =
       (print (helpString);
        serve (Twelf.OK))
 
-    | serve' (t, args) =
+    | (* GEN CASE BRANCH *) serve' (t, args) =
          error ("Unrecognized command " ^ quote t)
 
   and serveLine () = serve' (readLine ())
 
   and serve (Twelf.OK) = (issue (Twelf.OK); serveLine ())
-    | serve (Twelf.ABORT) = (issue (Twelf.ABORT); serveLine ())
+    | (* GEN CASE BRANCH *) serve (Twelf.ABORT) = (issue (Twelf.ABORT); serveLine ())
 
   fun serveTop (status) =
       serve (status)
       handle Error (msg) => (print ("Server error: " ^ msg ^ "\n");
-			     serveTop (Twelf.ABORT))
-	   | exn => (print ("Uncaught exception: " ^ exnMessage exn ^ "\n");
-		     serveTop (Twelf.ABORT))
+  			     serveTop (Twelf.ABORT))
+  	   | exn => (print ("Uncaught exception: " ^ exnMessage exn ^ "\n");
+  		     serveTop (Twelf.ABORT))
 
   fun server (name, _) =
       (* ignore server name and arguments *)

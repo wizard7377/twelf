@@ -50,11 +50,11 @@ struct
        where cnstrs collects all constraints attached to EVars in K
     *)
     fun collectConstraints (I.Null) = nil
-      | collectConstraints (I.Decl (G, FV _)) = collectConstraints G
-      | collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref nil)))) = collectConstraints G
-      | collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref cnstrL)))) =
+      | (* GEN CASE BRANCH *) collectConstraints (I.Decl (G, FV _)) = collectConstraints G
+      | (* GEN CASE BRANCH *) collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref nil)))) = collectConstraints G
+      | (* GEN CASE BRANCH *) collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref cnstrL)))) =
         (C.simplify cnstrL) @ collectConstraints G
-      | collectConstraints (I.Decl (G, LV _)) = collectConstraints G
+      | (* GEN CASE BRANCH *) collectConstraints (I.Decl (G, LV _)) = collectConstraints G
 
     (* checkConstraints (K) = ()
        Effect: raises Constraints.Error(C) if K contains unresolved constraints
@@ -84,19 +84,19 @@ struct
        where B iff X and Y represent same variable
     *)
     fun eqEVar (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) = (r1 = r2)
-      | eqEVar _ _ = false
+      | (* GEN CASE BRANCH *) eqEVar _ _ = false
 
     (* eqFVar F Y = B
        where B iff X and Y represent same variable
     *)
     fun eqFVar (I.FVar (n1, _, _)) (FV (n2,  _)) = (n1 = n2)
-      | eqFVar _ _ = false
+      | (* GEN CASE BRANCH *) eqFVar _ _ = false
 
     (* eqLVar L Y = B
        where B iff X and Y represent same variable
     *)
     fun eqLVar (I.LVar ((r1, _, _))) (LV (I.LVar ((r2, _, _)))) = (r1 = r2)
-      | eqLVar _ _ = false
+      | (* GEN CASE BRANCH *) eqLVar _ _ = false
 
 
     (* exists P K = B
@@ -104,7 +104,7 @@ struct
     *)
     fun exists P K =
         let fun exists' (I.Null) = false
-              | exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
+              | (* GEN CASE BRANCH *) exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
         in
           exists' K
         end
@@ -120,10 +120,10 @@ struct
     (* Wed Aug  6 16:37:57 2003 -fp *)
     (* !!! *)
     fun or (I.Maybe, _) = I.Maybe
-      | or (_, I.Maybe) = I.Maybe
-      | or (I.Meta, _) = I.Meta
-      | or (_, I.Meta) = I.Meta
-      | or (I.No, I.No) = I.No
+      | (* GEN CASE BRANCH *) or (_, I.Maybe) = I.Maybe
+      | (* GEN CASE BRANCH *) or (I.Meta, _) = I.Meta
+      | (* GEN CASE BRANCH *) or (_, I.Meta) = I.Meta
+      | (* GEN CASE BRANCH *) or (I.No, I.No) = I.No
 
     (* occursInExp (k, U) = DP,
 
@@ -134,10 +134,10 @@ struct
              DP = Meta    iff k occurs in U and only as arguments to Skonsts
     *)
     fun occursInExp (k, I.Uni _) = I.No
-      | occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V))
-      | occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S))
-      | occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V))
-      | occursInExp (k, I.FgnExp csfe) =
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V))
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S))
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V))
+      | (* GEN CASE BRANCH *) occursInExp (k, I.FgnExp csfe) =
         I.FgnExpStd.fold csfe (fn (U, DP) => or (DP, (occursInExp (k, Whnf.normalize (U, I.id))))) I.No
 
       (* no case for Redex, EVar, EClo *)
@@ -145,17 +145,17 @@ struct
     and occursInHead (k, I.BVar (k'), DP) =
         if (k = k') then I.Maybe
         else DP
-      | occursInHead (k, I.Const _, DP) = DP
-      | occursInHead (k, I.Def _, DP) = DP
-      | occursInHead (k, I.Proj _, DP) = DP
-      | occursInHead (k, I.FgnConst _, DP) = DP
-      | occursInHead (k, I.Skonst _, I.No) = I.No
-      | occursInHead (k, I.Skonst _, I.Meta) = I.Meta
-      | occursInHead (k, I.Skonst _, I.Maybe) = I.Meta
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Const _, DP) = DP
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Def _, DP) = DP
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Proj _, DP) = DP
+      | (* GEN CASE BRANCH *) occursInHead (k, I.FgnConst _, DP) = DP
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Skonst _, I.No) = I.No
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Skonst _, I.Meta) = I.Meta
+      | (* GEN CASE BRANCH *) occursInHead (k, I.Skonst _, I.Maybe) = I.Meta
       (* no case for FVar *)
 
     and occursInSpine (_, I.Nil) = I.No
-      | occursInSpine (k, I.App (U, S)) = or (occursInExp (k, U), occursInSpine (k, S))
+      | (* GEN CASE BRANCH *) occursInSpine (k, I.App (U, S)) = or (occursInExp (k, U), occursInSpine (k, S))
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExp (k, V)
@@ -167,8 +167,8 @@ struct
     (* optimize to have fewer traversals? -cs *)
     (* pre-Twelf 1.2 code walk Fri May  8 11:17:10 1998 *)
     fun piDepend (DPV as ((D, I.No), V)) = I.Pi DPV
-      | piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV
-      | piDepend ((D, I.Maybe), V) =
+      | (* GEN CASE BRANCH *) piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV
+      | (* GEN CASE BRANCH *) piDepend ((D, I.Maybe), V) =
           I.Pi ((D, occursInExp (1, V)), V)
 
     (* raiseType (G, V) = {{G}} V
@@ -180,7 +180,7 @@ struct
        All abstractions are potentially dependent.
     *)
     fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+      | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
 
     (* raiseTerm (G, U) = [[G]] U
 
@@ -191,7 +191,7 @@ struct
        All abstractions are potentially dependent.
     *)
     fun raiseTerm (I.Null, U) = U
-      | raiseTerm (I.Decl (G, D), U) = raiseTerm (G, I.Lam (D, U))
+      | (* GEN CASE BRANCH *) raiseTerm (I.Decl (G, D), U) = raiseTerm (G, I.Lam (D, U))
 
     (* collectExpW (G, (U, s), K) = K'
 
@@ -204,14 +204,14 @@ struct
     *)
     (* Possible optimization: Calculate also the normal form of the term *)
     fun collectExpW (G, (I.Uni L, s), K) = K
-      | collectExpW (G, (I.Pi ((D, _), V), s), K) =
+      | (* GEN CASE BRANCH *) collectExpW (G, (I.Pi ((D, _), V), s), K) =
           collectExp (I.Decl (G, I.decSub (D, s)), (V, I.dot1 s), collectDec (G, (D, s), K))
-      | collectExpW (G, (I.Root (F as I.FVar (name, V, s'), S), s), K) =
+      | (* GEN CASE BRANCH *) collectExpW (G, (I.Root (F as I.FVar (name, V, s'), S), s), K) =
         if exists (eqFVar F) K
           then collectSpine (G, (S, s), K)
         else (* s' = ^|G| *)
           collectSpine (G, (S, s), I.Decl (collectExp (I.Null, (V, I.id), K), FV (name, V)))
-      | collectExpW (G, (I.Root (I.Proj (L as I.LVar (ref NONE, sk, (l, t)), i), S), s), K) =
+      | (* GEN CASE BRANCH *) collectExpW (G, (I.Root (I.Proj (L as I.LVar (ref NONE, sk, (l, t)), i), S), s), K) =
           collectSpine (G, (S, s), collectBlock (G, I.blockSub (L, s), K))
           (* BUG : We forget to deref L.  use collectBlock instead
              FPCHECK
@@ -232,11 +232,11 @@ struct
          *)
             collectSpine (G, (S, s), collectSub (G, I.comp(t,I.comp(sk,s)),
                                                  I.Decl (K, LV L)))
-*)      | collectExpW (G, (I.Root (_ , S), s), K) =
+*)      | (* GEN CASE BRANCH *) collectExpW (G, (I.Root (_ , S), s), K) =
           collectSpine (G, (S, s), K)
-      | collectExpW (G, (I.Lam (D, U), s), K) =
+      | (* GEN CASE BRANCH *) collectExpW (G, (I.Lam (D, U), s), K) =
           collectExp (I.Decl (G, I.decSub (D, s)), (U, I.dot1 s), collectDec (G, (D, s), K))
-      | collectExpW (G, (X as I.EVar (r, GX, V, cnstrs), s), K) =
+      | (* GEN CASE BRANCH *) collectExpW (G, (X as I.EVar (r, GX, V, cnstrs), s), K) =
         if exists (eqEVar X) K
           then collectSub(G, s, K)
         else let
@@ -246,7 +246,7 @@ struct
              in
                collectSub(G, s, I.Decl (K', EV (X)))
              end
-      | collectExpW (G, (I.FgnExp csfe, s), K) =
+      | (* GEN CASE BRANCH *) collectExpW (G, (I.FgnExp csfe, s), K) =
           I.FgnExpStd.fold csfe (fn (U, K) => collectExp (G, (U, s), K)) K
       (* No other cases can occur due to whnf invariant *)
 
@@ -264,9 +264,9 @@ struct
        where K'' contains all EVars and FVars in (S, s)
      *)
     and collectSpine (G, (I.Nil, _), K) = K
-      | collectSpine (G, (I.SClo(S, s'), s), K) =
+      | (* GEN CASE BRANCH *) collectSpine (G, (I.SClo(S, s'), s), K) =
           collectSpine (G, (S, I.comp (s', s)), K)
-      | collectSpine (G, (I.App (U, S), s), K) =
+      | (* GEN CASE BRANCH *) collectSpine (G, (I.App (U, S), s), K) =
           collectSpine (G, (S, s), collectExp (G, (U, s), K))
 
     (* collectDec (G, (x:V, s), K) = K'
@@ -278,12 +278,12 @@ struct
     *)
     and collectDec (G, (I.Dec (_, V), s), K) =
           collectExp (G, (V, s), K)
-      | collectDec (G, (I.BDec (_, (_, t)), s), K) =
+      | (* GEN CASE BRANCH *) collectDec (G, (I.BDec (_, (_, t)), s), K) =
           (* . |- t : Gsome, so do not compose with s *)
           (* Sat Dec  8 13:28:15 2001 -fp *)
           (* was: collectSub (I.Null, t, K) *)
           collectSub (G, I.comp(t,s), K)
-      | collectDec (G, (I.NDec _, s), K) = K
+      | (* GEN CASE BRANCH *) collectDec (G, (I.NDec _, s), K) = K
 
     (* collectSub (G, s, K) = K'
 
@@ -293,10 +293,10 @@ struct
        where K'' contains all EVars and FVars in s
     *)
     and collectSub (G, I.Shift _, K) = K
-      | collectSub (G, I.Dot (I.Idx _, s), K) = collectSub (G, s, K)
-      | collectSub (G, I.Dot (I.Exp (U), s), K) =
+      | (* GEN CASE BRANCH *) collectSub (G, I.Dot (I.Idx _, s), K) = collectSub (G, s, K)
+      | (* GEN CASE BRANCH *) collectSub (G, I.Dot (I.Exp (U), s), K) =
           collectSub (G, s, collectExp (G, (U, I.id), K))
-      | collectSub (G, I.Dot (I.Block B, s), K) =
+      | (* GEN CASE BRANCH *) collectSub (G, I.Dot (I.Block B, s), K) =
           collectSub (G, s, collectBlock (G, B, K))
     (* next case should be impossible *)
     (*
@@ -309,7 +309,7 @@ struct
           collectBlock (G, I.blockSub (B, sk), K)
           (* collectBlock (B, K) *)
           (* correct?? -fp Sun Dec  1 21:15:33 2002 *)
-      | collectBlock (G, L as I.LVar (_, sk, (l, t)), K) =
+      | (* GEN CASE BRANCH *) collectBlock (G, L as I.LVar (_, sk, (l, t)), K) =
         if exists (eqLVar L) K
           then collectSub (G, I.comp(t,sk), K)
         else I.Decl (collectSub (G, I.comp(t,sk), K), LV L)
@@ -325,7 +325,7 @@ struct
        and K' = K, K'' where K'' contains all EVars and FVars in G
     *)
     fun collectCtx (G0, I.Null, K) = (G0, K)
-      | collectCtx (G0, I.Decl (G, D), K) =
+      | (* GEN CASE BRANCH *) collectCtx (G0, I.Decl (G, D), K) =
         let
           val (G0', K') = collectCtx (G0, G, K)
           val K'' = collectDec (G0', (D, I.id), K')
@@ -338,7 +338,7 @@ struct
        and K' = K, K'' where K'' contains all EVars and FVars in G1,...,Gn
     *)
     fun collectCtxs (G0, nil, K) = K
-      | collectCtxs (G0, G::Gs, K) =
+      | (* GEN CASE BRANCH *) collectCtxs (G0, G::Gs, K) =
         let
           val (G0', K') = collectCtx (G0, G, K)
         in
@@ -359,7 +359,7 @@ struct
         else abstractEVar (K', depth+1, X)
 (*      | abstractEVar (I.Decl (K', FV (n', _)), depth, X) =
           abstractEVar (K', depth+1, X) remove later --cs*)
-      | abstractEVar (I.Decl (K', _), depth, X) =
+      | (* GEN CASE BRANCH *) abstractEVar (I.Decl (K', _), depth, X) =
           abstractEVar (K', depth+1, X)
 
     (* abstractFVar (K, depth, F) = C'
@@ -376,7 +376,7 @@ struct
           else abstractFVar (K', depth+1, F)
 (*      | abstractFVar (I.Decl(K', EV _), depth, F) =
           abstractFVar (K', depth+1, F) remove later --cs *)
-      | abstractFVar (I.Decl(K', _), depth, F) =
+      | (* GEN CASE BRANCH *) abstractFVar (I.Decl(K', _), depth, F) =
           abstractFVar (K', depth+1, F)
 
     (* abstractLVar (K, depth, L) = C'
@@ -391,7 +391,7 @@ struct
     fun abstractLVar (I.Decl(K', LV (I.LVar (r', _, _))), depth, L as I.LVar (r, _, _)) =
           if r = r' then I.Bidx (depth+1)
           else abstractLVar (K', depth+1, L)
-      | abstractLVar (I.Decl(K', _), depth, L) =
+      | (* GEN CASE BRANCH *) abstractLVar (I.Decl(K', _), depth, L) =
           abstractLVar (K', depth+1, L)
 
     (* abstractExpW (K, depth, (U, s)) = U'
@@ -407,24 +407,24 @@ struct
        and   U' is in nf
     *)
     fun abstractExpW (K, depth, (U as I.Uni (L), s)) = U
-      | abstractExpW (K, depth, (I.Pi ((D, P), V), s)) =
+      | (* GEN CASE BRANCH *) abstractExpW (K, depth, (I.Pi ((D, P), V), s)) =
           piDepend ((abstractDec (K, depth, (D, s)), P),
                     abstractExp (K, depth + 1, (V, I.dot1 s)))
-      | abstractExpW (K, depth, (I.Root (F as I.FVar _, S), s)) =
+      | (* GEN CASE BRANCH *) abstractExpW (K, depth, (I.Root (F as I.FVar _, S), s)) =
           I.Root (abstractFVar (K, depth, F),
                   abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Root (I.Proj (L as I.LVar _, i), S), s)) =
+      | (* GEN CASE BRANCH *) abstractExpW (K, depth, (I.Root (I.Proj (L as I.LVar _, i), S), s)) =
           I.Root (I.Proj (abstractLVar (K, depth, L), i),
                   abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Root (H, S) ,s)) =
+      | (* GEN CASE BRANCH *) abstractExpW (K, depth, (I.Root (H, S) ,s)) =
           I.Root (H, abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Lam (D, U), s)) =
+      | (* GEN CASE BRANCH *) abstractExpW (K, depth, (I.Lam (D, U), s)) =
           I.Lam (abstractDec (K, depth, (D, s)),
                  abstractExp (K, depth + 1, (U, I.dot1 s)))
-      | abstractExpW (K, depth, (X as I.EVar _, s)) =
+      | (* GEN CASE BRANCH *) abstractExpW (K, depth, (X as I.EVar _, s)) =
           I.Root (abstractEVar (K, depth, X),
                   abstractSub (K, depth, s, I.Nil))
-      | abstractExpW (K, depth, (I.FgnExp csfe, s)) =
+      | (* GEN CASE BRANCH *) abstractExpW (K, depth, (I.FgnExp csfe, s)) =
           I.FgnExpStd.Map.apply csfe (fn U => abstractExp (K, depth, (U, s)))
 
     (* abstractExp (K, depth, (U, s)) = U'
@@ -447,9 +447,9 @@ struct
         if k < depth
           then abstractSub (K, depth, I.Dot (I.Idx (k+1), I.Shift (k+1)), S)
         else (* k = depth *) S
-      | abstractSub (K, depth, I.Dot (I.Idx (k), s), S) =
+      | (* GEN CASE BRANCH *) abstractSub (K, depth, I.Dot (I.Idx (k), s), S) =
           abstractSub (K, depth, s, I.App (I.Root (I.BVar (k), I.Nil), S))
-      | abstractSub (K, depth, I.Dot (I.Exp (U), s), S) =
+      | (* GEN CASE BRANCH *) abstractSub (K, depth, I.Dot (I.Exp (U), s), S) =
           abstractSub (K, depth, s, I.App (abstractExp (K, depth, (U, I.id)), S))
 
     (* abstractSpine (K, depth, (S, s)) = S'
@@ -464,9 +464,9 @@ struct
        and  . ||- S'
     *)
     and abstractSpine (K, depth, (I.Nil, _))  = I.Nil
-      | abstractSpine (K, depth, (I.SClo (S, s'), s)) =
+      | (* GEN CASE BRANCH *) abstractSpine (K, depth, (I.SClo (S, s'), s)) =
           abstractSpine (K, depth, (S, I.comp (s', s)))
-      | abstractSpine (K, depth, (I.App (U, S), s)) =
+      | (* GEN CASE BRANCH *) abstractSpine (K, depth, (I.App (U, S), s)) =
           I.App (abstractExp (K, depth, (U ,s)),
                  abstractSpine (K, depth, (S, s)))
 
@@ -500,13 +500,13 @@ struct
     *)
     fun abstractSOME (K, I.Shift 0) = (* n = 0 by invariant, check for now *)
           I.Shift (I.ctxLength(K))
-      | abstractSOME (K, I.Shift (n)) = (* n > 0 *)
+      | (* GEN CASE BRANCH *) abstractSOME (K, I.Shift (n)) = (* n > 0 *)
           I.Shift (I.ctxLength(K))
-      | abstractSOME (K, I.Dot (I.Idx k, s)) =
+      | (* GEN CASE BRANCH *) abstractSOME (K, I.Dot (I.Idx k, s)) =
           I.Dot (I.Idx k, abstractSOME (K, s))
-      | abstractSOME (K, I.Dot (I.Exp U, s)) =
+      | (* GEN CASE BRANCH *) abstractSOME (K, I.Dot (I.Exp U, s)) =
           I.Dot (I.Exp (abstractExp (K, 0, (U, I.id))), abstractSOME (K, s))
-      | abstractSOME (K, I.Dot (I.Block (L as I.LVar _), s)) =
+      | (* GEN CASE BRANCH *) abstractSOME (K, I.Dot (I.Block (L as I.LVar _), s)) =
           I.Dot (I.Block (abstractLVar (K, 0, L)), abstractSOME (K, s))
       (* I.Block (I.Bidx _) should be impossible as head of substitutions *)
 
@@ -522,7 +522,7 @@ struct
        and |G0,G| = depth'
     *)
     fun abstractCtx (K, depth, I.Null) = (I.Null, depth)
-      | abstractCtx (K, depth, I.Decl (G, D)) =
+      | (* GEN CASE BRANCH *) abstractCtx (K, depth, I.Decl (G, D)) =
         let
           val (G', depth') = abstractCtx (K, depth, G)
           val D' = abstractDec (K, depth', (D, I.id))
@@ -541,7 +541,7 @@ struct
        and . ||- G1',...,Gn'
     *)
     fun abstractCtxlist (K, depth, nil) = nil
-      | abstractCtxlist (K, depth, G::Gs) =
+      | (* GEN CASE BRANCH *) abstractCtxlist (K, depth, G::Gs) =
         let
           val (G', depth') = abstractCtx (K, depth, G)
           val Gs' = abstractCtxlist (K, depth', Gs)
@@ -583,7 +583,7 @@ struct
        and  . ||- V'
     *)
     fun abstractKPi (I.Null, V) = V
-      | abstractKPi (I.Decl (K', EV (I.EVar (_, GX, VX, _))), V) =
+      | (* GEN CASE BRANCH *) abstractKPi (I.Decl (K', EV (I.EVar (_, GX, VX, _))), V) =
         let
           val V' = raiseType (GX, VX)
           val V'' = abstractExp (K', 0, (V', I.id))
@@ -592,7 +592,7 @@ struct
         in
           abstractKPi (K', I.Pi ((I.Dec(NONE, V''), I.Maybe), V))
         end
-      | abstractKPi (I.Decl (K', FV (name,V')), V) =
+      | (* GEN CASE BRANCH *) abstractKPi (I.Decl (K', FV (name,V')), V) =
         let
           val V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
@@ -600,7 +600,7 @@ struct
         in
           abstractKPi (K', I.Pi ((I.Dec(SOME(name), V''), I.Maybe), V))
         end
-      | abstractKPi (I.Decl (K', LV (I.LVar (r, _, (l, t)))), V) =
+      | (* GEN CASE BRANCH *) abstractKPi (I.Decl (K', LV (I.LVar (r, _, (l, t)))), V) =
         let
           val t' = abstractSOME (K', t)
         in
@@ -620,18 +620,18 @@ struct
        and  . ||- U'
     *)
     fun abstractKLam (I.Null, U) = U
-      | abstractKLam (I.Decl (K', EV (I.EVar (_, GX, VX, _))), U) =
+      | (* GEN CASE BRANCH *) abstractKLam (I.Decl (K', EV (I.EVar (_, GX, VX, _))), U) =
         let
           val V' = raiseType (GX, VX)
         in
           abstractKLam (K', I.Lam (I.Dec(NONE, abstractExp (K', 0, (V', I.id))), U))
         end
-      | abstractKLam (I.Decl (K', FV (name,V')), U) =
+      | (* GEN CASE BRANCH *) abstractKLam (I.Decl (K', FV (name,V')), U) =
           abstractKLam (K', I.Lam (I.Dec(SOME(name), abstractExp (K', 0, (V', I.id))), U))
 
 
     fun abstractKCtx (I.Null) = I.Null
-      | abstractKCtx (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
+      | (* GEN CASE BRANCH *) abstractKCtx (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
         let
           val V' = raiseType (GX, VX)
           val V'' = abstractExp (K', 0, (V', I.id))
@@ -640,7 +640,7 @@ struct
         in
           I.Decl (abstractKCtx K', I.Dec (NONE, V''))
         end
-      | abstractKCtx (I.Decl (K', FV (name, V'))) =
+      | (* GEN CASE BRANCH *) abstractKCtx (I.Decl (K', FV (name, V'))) =
         let
           val V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
@@ -648,7 +648,7 @@ struct
         in
           I.Decl (abstractKCtx K', I.Dec (SOME(name), V''))
         end
-      | abstractKCtx (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
+      | (* GEN CASE BRANCH *) abstractKCtx (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
         let
           val t' = abstractSOME (K', t)
         in
@@ -735,8 +735,8 @@ struct
          | _ => false
 
     fun closedSub (G, I.Shift _) = true
-      | closedSub (G, I.Dot (I.Idx _, s)) = closedSub (G, s)
-      | closedSub (G, I.Dot (I.Exp U, s)) =
+      | (* GEN CASE BRANCH *) closedSub (G, I.Dot (I.Idx _, s)) = closedSub (G, s)
+      | (* GEN CASE BRANCH *) closedSub (G, I.Dot (I.Exp U, s)) =
         (case collectExp (G, (U, I.id), I.Null)
            of I.Null => closedSub (G, s)
             | _ => false)
@@ -747,30 +747,30 @@ struct
          | _ => false
 
     fun closedCtx I.Null = true
-      | closedCtx (I.Decl (G, D)) =
+      | (* GEN CASE BRANCH *) closedCtx (I.Decl (G, D)) =
           closedCtx G andalso closedDec (G, (D, I.id))
 
 
     fun closedFor (Psi, T.True) = true
-      | closedFor (Psi, T.All ((D, _), F)) =
+      | (* GEN CASE BRANCH *) closedFor (Psi, T.All ((D, _), F)) =
           closedDEC (Psi, D) andalso closedFor (I.Decl (Psi, D), F)
-      | closedFor (Psi, T.Ex ((D, _), F)) =
+      | (* GEN CASE BRANCH *) closedFor (Psi, T.Ex ((D, _), F)) =
           closedDec (T.coerceCtx Psi, (D, I.id)) andalso closedFor (I.Decl (Psi, T.UDec D), F)
 
     and closedDEC (Psi, T.UDec D) = closedDec (T.coerceCtx Psi, (D, I.id))
-      | closedDEC (Psi, T.PDec (_, F, _, _)) =  closedFor (Psi, F)
+      | (* GEN CASE BRANCH *) closedDEC (Psi, T.PDec (_, F, _, _)) =  closedFor (Psi, F)
 
 
     fun closedCTX I.Null = true
-      | closedCTX (I.Decl (Psi,  D)) =
+      | (* GEN CASE BRANCH *) closedCTX (I.Decl (Psi,  D)) =
           closedCTX Psi andalso closedDEC (Psi, D)
 
     fun evarsToK (nil) = I.Null
-      | evarsToK (X::Xs) = I.Decl (evarsToK (Xs), EV(X))
+      | (* GEN CASE BRANCH *) evarsToK (X::Xs) = I.Decl (evarsToK (Xs), EV(X))
 
     fun KToEVars (I.Null) = nil
-      | KToEVars (I.Decl (K, EV(X))) = X::KToEVars (K)
-      | KToEVars (I.Decl (K, _)) = KToEVars (K)
+      | (* GEN CASE BRANCH *) KToEVars (I.Decl (K, EV(X))) = X::KToEVars (K)
+      | (* GEN CASE BRANCH *) KToEVars (I.Decl (K, _)) = KToEVars (K)
 
     (* collectEVars (G, U[s], Xs) = Xs'
        Invariants:
@@ -790,8 +790,8 @@ struct
     *)
     fun collectPrg (_, P as T.EVar (Psi, r, F, _, _, _), K) =
           I.Decl (K, PV P)
-      | collectPrg (Psi, T.Unit, K) = K
-      | collectPrg (Psi, T.PairExp (U, P), K) =
+      | (* GEN CASE BRANCH *) collectPrg (Psi, T.Unit, K) = K
+      | (* GEN CASE BRANCH *) collectPrg (Psi, T.PairExp (U, P), K) =
           collectPrg (Psi, P, collectExp (T.coerceCtx Psi, (U, I.id), K))
 
 
@@ -807,62 +807,62 @@ struct
     fun abstractPVar (I.Decl(K', PV (T.EVar (_, r', _, _, _, _))), depth, P as T.EVar (_, r, _, _, _, _)) =
           if r = r' then T.Var (depth+1)
           else abstractPVar (K', depth+1, P)
-      | abstractPVar (I.Decl(K', _), depth, P) =
+      | (* GEN CASE BRANCH *) abstractPVar (I.Decl(K', _), depth, P) =
           abstractPVar (K', depth+1, P)
 
     fun abstractPrg (K, depth, X as T.EVar _) =
           abstractPVar (K, depth, X)
-      | abstractPrg (K, depth, T.Unit) = T.Unit
-      | abstractPrg (K, depth, T.PairExp (U, P)) =
+      | (* GEN CASE BRANCH *) abstractPrg (K, depth, T.Unit) = T.Unit
+      | (* GEN CASE BRANCH *) abstractPrg (K, depth, T.PairExp (U, P)) =
            T.PairExp (abstractExp (K, depth, (U, I.id)), abstractPrg (K, depth, P))
 
     fun collectTomegaSub (T.Shift 0) = I.Null
-      | collectTomegaSub (T.Dot (T.Exp U, t)) =
+      | (* GEN CASE BRANCH *) collectTomegaSub (T.Dot (T.Exp U, t)) =
           collectExp (I.Null, (U, I.id), collectTomegaSub t)
-      | collectTomegaSub (T.Dot (T.Block B, t)) =
+      | (* GEN CASE BRANCH *) collectTomegaSub (T.Dot (T.Block B, t)) =
           collectBlock (I.Null, B, collectTomegaSub t)
-      | collectTomegaSub (T.Dot (T.Prg P, t)) =
+      | (* GEN CASE BRANCH *) collectTomegaSub (T.Dot (T.Prg P, t)) =
           collectPrg (I.Null, P, collectTomegaSub t)
 
     fun abstractOrder (K, depth, O.Arg (Us1, Us2)) =
           O.Arg ((abstractExp (K, depth, Us1), I.id),
                  (abstractExp (K, depth, Us2), I.id))
-      | abstractOrder (K, depth, O.Simul (Os)) =
+      | (* GEN CASE BRANCH *) abstractOrder (K, depth, O.Simul (Os)) =
           O.Simul (map (fn O => abstractOrder (K, depth, O)) Os)
-      | abstractOrder (K, depth, O.Lex (Os)) =
+      | (* GEN CASE BRANCH *) abstractOrder (K, depth, O.Lex (Os)) =
           O.Lex (map (fn O => abstractOrder (K, depth, O)) Os)
 
     fun abstractTC (K, depth, T.Abs (D, TC)) =
           T.Abs (abstractDec (K, depth, (D, I.id)),
                  abstractTC (K, depth, TC))
-      | abstractTC (K, depth, T.Conj (TC1, TC2)) =
+      | (* GEN CASE BRANCH *) abstractTC (K, depth, T.Conj (TC1, TC2)) =
           T.Conj (abstractTC (K, depth, TC1),
                   abstractTC (K, depth, TC2))
-      | abstractTC (K, depth, T.Base (O)) =
+      | (* GEN CASE BRANCH *) abstractTC (K, depth, T.Base (O)) =
           T.Base (abstractOrder (K, depth, O))
 
     fun abstractTCOpt (K, depth, NONE) = NONE
-      | abstractTCOpt (K, depth, SOME TC) =
+      | (* GEN CASE BRANCH *) abstractTCOpt (K, depth, SOME TC) =
           SOME (abstractTC (K, depth, TC))
 
     fun abstractMetaDec (K, depth, T.UDec D) = T.UDec (abstractDec (K, depth, (D, I.id)))
-      | abstractMetaDec (K, depth, T.PDec (xx, F, TC1, TC2)) = T.PDec (xx, abstractFor (K, depth, F), TC1, TC2)
+      | (* GEN CASE BRANCH *) abstractMetaDec (K, depth, T.PDec (xx, F, TC1, TC2)) = T.PDec (xx, abstractFor (K, depth, F), TC1, TC2)
          (* TC cannot contain free FVAR's or EVars'
             --cs  Fri Apr 30 13:45:50 2004 *)
 
     (* Argument must be in normal form *)
     and abstractFor (K, depth, T.True) = T.True
-      | abstractFor (K, depth, T.All ((MD, Q), F)) =
+      | (* GEN CASE BRANCH *) abstractFor (K, depth, T.All ((MD, Q), F)) =
           T.All ((abstractMetaDec (K, depth, MD), Q), abstractFor (K, depth, F))
-      | abstractFor (K, depth, T.Ex ((D, Q), F)) =
+      | (* GEN CASE BRANCH *) abstractFor (K, depth, T.Ex ((D, Q), F)) =
           T.Ex ((abstractDec (K, depth, (D, I.id)), Q), abstractFor (K, depth, F))
-      | abstractFor (K, depth, T.And (F1, F2)) =
+      | (* GEN CASE BRANCH *) abstractFor (K, depth, T.And (F1, F2)) =
           T.And (abstractFor (K, depth, F1), abstractFor (K, depth, F2))
-      | abstractFor (K, depth, T.World (W, F)) =
+      | (* GEN CASE BRANCH *) abstractFor (K, depth, T.World (W, F)) =
           T.World (W, abstractFor (K, depth, F))
 
     fun abstractPsi (I.Null) = I.Null
-      | abstractPsi (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
+      | (* GEN CASE BRANCH *) abstractPsi (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
         let
           val V' = raiseType (GX, VX)
           val V'' = abstractExp (K', 0, (V', I.id))
@@ -871,7 +871,7 @@ struct
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (NONE, V'')))
         end
-      | abstractPsi (I.Decl (K', FV (name, V'))) =
+      | (* GEN CASE BRANCH *) abstractPsi (I.Decl (K', FV (name, V'))) =
         let
           val V'' = abstractExp (K', 0, (V', I.id))
           (* enforced by reconstruction -kw
@@ -879,13 +879,13 @@ struct
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (SOME(name), V'')))
         end
-      | abstractPsi (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
+      | (* GEN CASE BRANCH *) abstractPsi (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
         let
           val t' = abstractSOME (K', t)
         in
           I.Decl (abstractPsi K', T.UDec (I.BDec (NONE, (l, t'))))
         end
-      | abstractPsi (I.Decl (K', PV (T.EVar (GX, _, FX, TC1, TC2, _)))) =
+      | (* GEN CASE BRANCH *) abstractPsi (I.Decl (K', PV (T.EVar (GX, _, FX, TC1, TC2, _)))) =
         (* What's happening with GX? *)
         (* What's happening with TCs? *)
         let
@@ -906,13 +906,13 @@ struct
       end
 
     and abstractTomegaSub' (K, depth, T.Shift 0) = T.Shift depth
-      | abstractTomegaSub' (K, depth, T.Dot (T.Exp U, t)) =
+      | (* GEN CASE BRANCH *) abstractTomegaSub' (K, depth, T.Dot (T.Exp U, t)) =
           (T.Dot (T.Exp (abstractExp (K, depth, (U, I.id))),
                   abstractTomegaSub' (K, depth, t)))
-      | abstractTomegaSub' (K, depth, T.Dot (T.Block B, t)) =
+      | (* GEN CASE BRANCH *) abstractTomegaSub' (K, depth, T.Dot (T.Block B, t)) =
           (T.Dot (T.Block (abstractLVar (K, depth, B)),
                   abstractTomegaSub' (K, depth, t)))
-      | abstractTomegaSub' (K, depth, T.Dot (T.Prg P, t)) =
+      | (* GEN CASE BRANCH *) abstractTomegaSub' (K, depth, T.Dot (T.Prg P, t)) =
           (T.Dot (T.Prg (abstractPrg (K, depth, P)),
                   abstractTomegaSub' (K, depth, t)))
 

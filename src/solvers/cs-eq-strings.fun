@@ -82,7 +82,7 @@ struct
     exception MyIntsynRep of concat        (* Internal syntax representation of this module *)
 
     fun extractConcat (MyIntsynRep concat) = concat
-      | extractConcat fe = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) extractConcat fe = raise (UnexpectedFgnExp fe)
 
     (* A concatenation is said to be normal if
          (a) it does not contain empty string atoms
@@ -97,10 +97,10 @@ struct
        G |- U : V and U is the Twelf syntax conversion of concat
     *)
     fun toExp (Concat nil) = stringExp ""
-      | toExp (Concat [String str]) = stringExp str
-      | toExp (Concat [Exp (U, Shift(0))]) = U
-      | toExp (Concat [Exp Us]) = EClo Us
-      | toExp (Concat (A :: AL)) =
+      | (* GEN CASE BRANCH *) toExp (Concat [String str]) = stringExp str
+      | (* GEN CASE BRANCH *) toExp (Concat [Exp (U, Shift(0))]) = U
+      | (* GEN CASE BRANCH *) toExp (Concat [Exp Us]) = EClo Us
+      | (* GEN CASE BRANCH *) toExp (Concat (A :: AL)) =
           concatExp (toExp (Concat [A]), toExp (Concat AL))
 
     (* catConcat (concat1, concat2) = concat3
@@ -112,8 +112,8 @@ struct
        and  concat3 = concat1 ++ concat2
     *)
     fun catConcat (Concat nil, concat2) = concat2
-      | catConcat (concat1, Concat nil) = concat1
-      | catConcat (Concat AL1, Concat AL2) =
+      | (* GEN CASE BRANCH *) catConcat (concat1, Concat nil) = concat1
+      | (* GEN CASE BRANCH *) catConcat (Concat AL1, Concat AL2) =
           (case (List.rev AL1, AL2)
              of ((String str1) :: revAL1', (String str2) :: AL2') =>
                Concat ((List.rev revAL1') @ ((String (str1 ^ str2)) :: AL2'))
@@ -130,13 +130,13 @@ struct
           if (cs = !myID)
           then normalize (extractConcat fe)
           else Concat [Exp Us]
-      | fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
+      | (* GEN CASE BRANCH *) fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
           if (cs = !myID)
           then (case fromString (conDecName (conDec))
                   of SOME(str) => if (str = "") then Concat nil
                                   else Concat [String str])
           else Concat [Exp Us]
-      | fromExpW Us =
+      | (* GEN CASE BRANCH *) fromExpW Us =
           Concat [Exp Us]
 
     (* fromExp (U, s) = concat
@@ -151,18 +151,18 @@ struct
 
     (* normalize concat = concat', where concat' normal and concat' = concat *)
     and normalize (concat as (Concat nil)) = concat
-      | normalize (concat as (Concat [String str])) = concat
-      | normalize (Concat [Exp Us]) = fromExp Us
-      | normalize (Concat (A :: AL)) =
+      | (* GEN CASE BRANCH *) normalize (concat as (Concat [String str])) = concat
+      | (* GEN CASE BRANCH *) normalize (Concat [Exp Us]) = fromExp Us
+      | (* GEN CASE BRANCH *) normalize (Concat (A :: AL)) =
           catConcat (normalize (Concat [A]), normalize(Concat AL))
 
     (* mapSum (f, A1 + ...) = f(A1) ++ ... *)
     fun mapConcat (f, Concat AL) =
           let
             fun mapConcat' nil = nil
-              | mapConcat' ((Exp Us) :: AL) =
+              | (* GEN CASE BRANCH *) mapConcat' ((Exp Us) :: AL) =
                   (Exp (f (EClo Us), id)) :: mapConcat' AL
-              | mapConcat' ((String str) :: AL) =
+              | (* GEN CASE BRANCH *) mapConcat' ((String str) :: AL) =
                   (String str) :: mapConcat' AL
           in
             Concat (mapConcat' AL)
@@ -172,7 +172,7 @@ struct
     fun appConcat (f, Concat AL) =
         let
             fun appAtom (Exp Us) = f (EClo Us)
-              | appAtom (String _) = ()
+              | (* GEN CASE BRANCH *) appAtom (String _) = ()
         in
             List.app appAtom AL
         end
@@ -222,11 +222,11 @@ struct
     fun sameConcat (Concat AL1, Concat AL2) =
           let
             fun sameConcat' (nil, nil) = true
-              | sameConcat' ((String str1) :: AL1, (String str2) :: AL2) =
+              | (* GEN CASE BRANCH *) sameConcat' ((String str1) :: AL1, (String str2) :: AL2) =
                   (str1 = str2) andalso sameConcat' (AL1, AL2)
-              | sameConcat' ((Exp Us1) :: AL1, (Exp Us2) :: AL2) =
+              | (* GEN CASE BRANCH *) sameConcat' ((Exp Us1) :: AL1, (Exp Us2) :: AL2) =
                   sameExp(Us1, Us2) andalso sameConcat' (AL1, AL2)
-              | sameConcat' _ = false
+              | (* GEN CASE BRANCH *) sameConcat' _ = false
           in
             sameConcat' (AL1, AL2)
           end
@@ -245,10 +245,10 @@ struct
            | (FVar (n1,_,_), FVar (n2,_,_)) =>
                (n1 = n2) andalso sameSpine ((S1, s1), (S2, s2))
            | _ => false)
-      | sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
+      | (* GEN CASE BRANCH *) sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
                   Us2 as (U2 as EVar(r2, G2, V2, cnstrs2), s2)) =
          (r1 = r2) andalso sameSub (s1, s2)
-      | sameExpW _ = false
+      | (* GEN CASE BRANCH *) sameExpW _ = false
 
     (* sameExp ((U1,s1), (U2,s2)) = T
 
@@ -267,14 +267,14 @@ struct
        then T only if S1 = S2 (as spines)
     *)
     and sameSpine ((Nil, s1), (Nil, s2)) = true
-      | sameSpine ((SClo (S1, s1'), s1), Ss2) =
+      | (* GEN CASE BRANCH *) sameSpine ((SClo (S1, s1'), s1), Ss2) =
           sameSpine ((S1, comp (s1', s1)), Ss2)
-      | sameSpine (Ss1, (SClo (S2, s2'), s2)) =
+      | (* GEN CASE BRANCH *) sameSpine (Ss1, (SClo (S2, s2'), s2)) =
           sameSpine (Ss1, (S2, comp (s2', s2)))
-      | sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
+      | (* GEN CASE BRANCH *) sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
           sameExp ((U1, s1), (U2, s2))
             andalso sameSpine ((S1, s1), (S2, s2))
-      | sameSpine _ = false
+      | (* GEN CASE BRANCH *) sameSpine _ = false
 
     (* sameSub (s1, s2) = T
 
@@ -284,13 +284,13 @@ struct
        then T only if s1 = s2 (as substitutions)
     *)
     and sameSub (Shift _, Shift _) = true
-      | sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
+      | (* GEN CASE BRANCH *) sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
           (k1 = k2) andalso sameSub (s1, s2)
-      | sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
+      | (* GEN CASE BRANCH *) sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
           sameSub (s1, Dot (Idx (Int.+(k2,1)), Shift (Int.+(k2,1))))
-      | sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
+      | (* GEN CASE BRANCH *) sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
           sameSub (Dot (Idx (Int.+(k1,1)), Shift (Int.+(k1,1))), s2)
-      | sameSub _ = false
+      | (* GEN CASE BRANCH *) sameSub _ = false
 
     (* Unification Result:
        StringUnify ::= {G1 |- X1 := U1[s1], ..., Gn |- Xn := Un[sn]}
@@ -307,9 +307,9 @@ struct
     *)
     fun toFgnUnify (MultAssign L) =
           IntSyn.Succeed (List.map (fn GXUss => Assign GXUss) L)
-      | toFgnUnify (MultDelay (UL, cnstr)) =
+      | (* GEN CASE BRANCH *) toFgnUnify (MultDelay (UL, cnstr)) =
           IntSyn.Succeed (List.map (fn U => Delay (U, cnstr)) UL)
-      | toFgnUnify (Failure) = Fail
+      | (* GEN CASE BRANCH *) toFgnUnify (Failure) = Fail
 
     (* unifyRigid (G, concat1, concat2) = stringUnify
 
@@ -324,11 +324,11 @@ struct
     and unifyRigid (G, Concat AL1, Concat AL2) =
           let
             fun unifyRigid' (nil, nil) = MultAssign nil
-              | unifyRigid' ((String str1) :: AL1, (String str2) :: AL2) =
+              | (* GEN CASE BRANCH *) unifyRigid' ((String str1) :: AL1, (String str2) :: AL2) =
                   if (str1 = str2) then unifyRigid' (AL1, AL2)
                   else Failure
                 (* FIX: the next two cases are wrong -kw *)
-              | unifyRigid' ((Exp (U1 as (EVar (r, _, _, _)), s)) :: AL1,
+              | (* GEN CASE BRANCH *) unifyRigid' ((Exp (U1 as (EVar (r, _, _, _)), s)) :: AL1,
                              (Exp (U2 as (Root (FVar _, _)), _)) :: AL2) =
                   let
                     val ss = Whnf.invert s
@@ -340,7 +340,7 @@ struct
                              | Failure => Failure)
                     else Failure
                   end
-              | unifyRigid' ((Exp (U1 as (Root (FVar _, _)), _)) :: AL1,
+              | (* GEN CASE BRANCH *) unifyRigid' ((Exp (U1 as (Root (FVar _, _)), _)) :: AL1,
                              (Exp (U2 as (EVar (r, _, _, _)), s)) :: AL2) =
                   let
                     val ss = Whnf.invert s
@@ -352,17 +352,17 @@ struct
                              | Failure => Failure)
                     else Failure
                   end
-              | unifyRigid'((Exp (Us1 as (Root (FVar _, _), _))) :: AL1,
+              | (* GEN CASE BRANCH *) unifyRigid'((Exp (Us1 as (Root (FVar _, _), _))) :: AL1,
                             (Exp (Us2 as (Root (FVar _, _), _))) :: AL2) =
                   if (sameExpW (Us1, Us2))
                   then unifyRigid' (AL1, AL2)
                   else Failure
-              | unifyRigid'((Exp (Us1 as (EVar (_, _, _, _), _))) :: AL1,
+              | (* GEN CASE BRANCH *) unifyRigid'((Exp (Us1 as (EVar (_, _, _, _), _))) :: AL1,
                             (Exp (Us2 as (EVar (_, _, _, _), _))) :: AL2) =
                   if (sameExpW (Us1, Us2))
                   then unifyRigid' (AL1, AL2)
                   else Failure
-              | unifyRigid' _ = Failure
+              | (* GEN CASE BRANCH *) unifyRigid' _ = Failure
           in
             unifyRigid' (AL1, AL2)
           end
@@ -388,7 +388,7 @@ struct
               unifyString (G, Concat AL, suffix, cnstr)
             end
           else Failure
-      | unifyString (G, Concat AL, str, cnstr) =
+      | (* GEN CASE BRANCH *) unifyString (G, Concat AL, str, cnstr) =
           let
             fun unifyString' (AL, nil) =
                   (Failure, nil)
@@ -529,8 +529,8 @@ struct
        then U is a foreign expression representing sum.
     *)
     and toFgn (concat as (Concat [String str])) = stringExp (str)
-      | toFgn (concat as (Concat [Exp (U, id)])) = U
-      | toFgn (concat) =
+      | (* GEN CASE BRANCH *) toFgn (concat as (Concat [Exp (U, id)])) = U
+      | (* GEN CASE BRANCH *) toFgn (concat) =
         FgnExp (!myID, MyIntsynRep concat)
 
     (* toInternal (fe) = U
@@ -540,7 +540,7 @@ struct
        then U is the Twelf syntax conversion of concat
     *)
     fun toInternal (MyIntsynRep concat) () = toExp (normalize concat)
-      | toInternal fe () = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) toInternal fe () = raise (UnexpectedFgnExp fe)
 
     (* map (fe) f = U'
 
@@ -554,7 +554,7 @@ struct
          U' is a foreign expression representing concat'
     *)
     fun map (MyIntsynRep concat) f = toFgn (normalize (mapConcat (f,concat)))
-      | map fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) map fe _ = raise (UnexpectedFgnExp fe)
 
     (* app (fe) f = ()
 
@@ -567,17 +567,17 @@ struct
        (since concat : normal, each Usij is in whnf)
     *)
     fun app (MyIntsynRep concat) f = appConcat (f, concat)
-      | app fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) app fe _ = raise (UnexpectedFgnExp fe)
 
     fun equalTo (MyIntsynRep concat) U2 =
         sameConcat (normalize (concat),
                     fromExp (U2, id))
-      | equalTo fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) equalTo fe _ = raise (UnexpectedFgnExp fe)
 
     fun unifyWith (MyIntsynRep concat) (G, U2) =
         toFgnUnify (unifyConcat (G, normalize (concat),
                                  fromExp (U2, id)))
-      | unifyWith fe _ = raise (UnexpectedFgnExp fe)
+      | (* GEN CASE BRANCH *) unifyWith fe _ = raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
         val csid = !myID
@@ -593,20 +593,20 @@ struct
     fun makeFgn (arity, opExp) (S) =
           let
             fun makeParams 0 = Nil
-              | makeParams n =
+              | (* GEN CASE BRANCH *) makeParams n =
                   App (Root(BVar (n), Nil), makeParams (n-1))
             fun makeLam E 0 = E
-              | makeLam E n =
+              | (* GEN CASE BRANCH *) makeLam E n =
                   Lam (Dec (NONE, string()), makeLam E (n-1))
             fun expand ((Nil, s), arity) =
                   (makeParams arity, arity)
-              | expand ((App (U, S), s), arity) =
+              | (* GEN CASE BRANCH *) expand ((App (U, S), s), arity) =
                   let
                     val (S', arity') = expand ((S, s), arity-1)
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
-              | expand ((SClo (S, s'), s), arity) =
+              | (* GEN CASE BRANCH *) expand ((SClo (S, s'), s), arity) =
                   expand ((S, comp (s, s')), arity)
             val (S', arity') = expand ((S, id), arity)
           in
@@ -627,12 +627,12 @@ struct
     fun init (cs, installF) =
           (
             myID := cs;
-
+    
             stringID :=
               installF (ConDec ("string", NONE, 0, Constraint (!myID, solveString),
                                 Uni (Type), Kind),
                         NONE, [MS.Mnil]);
-
+    
             concatID :=
               installF (ConDec ("++", NONE, 0,
                                 Foreign (!myID, makeFgnBinary catConcat),

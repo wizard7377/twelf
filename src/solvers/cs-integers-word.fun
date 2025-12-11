@@ -113,7 +113,7 @@ struct
           let
             fun check (chars as (_ :: _)) =
                  (List.all Char.isDigit chars)
-              | check nil =
+              | (* GEN CASE BRANCH *) check nil =
                   false
           in
             if check (String.explode str)
@@ -251,9 +251,9 @@ struct
                   | NONE => Expr Us))))
             end
           else Expr Us
-      | fromExpW (Us as (Root (Def(d), _), _)) =
+      | (* GEN CASE BRANCH *) fromExpW (Us as (Root (Def(d), _), _)) =
           fromExpW (Whnf.expandDef (Us))
-      | fromExpW Us = Expr Us
+      | (* GEN CASE BRANCH *) fromExpW Us = Expr Us
 
     (* fromExp (U, s) = t
 
@@ -269,28 +269,28 @@ struct
        G |- U : V and U is the Twelf syntax conversion of t
     *)
     fun toExp (Num d) = numberExp d
-      | toExp (PlusPf ds) = plusPfExp ds
-      | toExp (TimesPf ds) = timesPfExp ds
-      | toExp (QuotPf ds) = quotPfExp ds
-      | toExp (Expr Us) = EClo Us
+      | (* GEN CASE BRANCH *) toExp (PlusPf ds) = plusPfExp ds
+      | (* GEN CASE BRANCH *) toExp (TimesPf ds) = timesPfExp ds
+      | (* GEN CASE BRANCH *) toExp (QuotPf ds) = quotPfExp ds
+      | (* GEN CASE BRANCH *) toExp (Expr Us) = EClo Us
 
     fun solveNumber (G, S, k) = SOME(numberExp (W.fromInt k))
 
     (* fst (S, s) = U1, the first argument in S[s] *)
     fun fst (App (U1, _), s) = (U1, s)
-      | fst (SClo (S, s'), s) = fst (S, comp (s', s))
+      | (* GEN CASE BRANCH *) fst (SClo (S, s'), s) = fst (S, comp (s', s))
 
     (* snd (S, s) = U2, the second argument in S[s] *)
     fun snd (App (_, S), s) = fst (S, s)
-      | snd (SClo (S, s'), s) = snd (S, comp (s', s))
+      | (* GEN CASE BRANCH *) snd (SClo (S, s'), s) = snd (S, comp (s', s))
 
     (* trd (S, s) = U1, the third argument in S[s] *)
     fun trd (App (_, S), s) = snd (S, s)
-      | trd (SClo (S, s'), s) = trd (S, comp (s', s))
+      | (* GEN CASE BRANCH *) trd (SClo (S, s'), s) = trd (S, comp (s', s))
 
     (* fth (S, s) = U1, the fourth argument in S[s] *)
     fun fth (App (_, S), s) = trd (S, s)
-      | fth (SClo (S, s'), s) = fth (S, comp (s', s))
+      | (* GEN CASE BRANCH *) fth (SClo (S, s'), s) = fth (S, comp (s', s))
 
     fun toInternalPlus (G, U1, U2, U3) () =
           [(G, plusExp(U1, U2, U3))]
@@ -342,7 +342,7 @@ struct
                          SOME(proof)
                        end)
           end
-      | solvePlus (G, S, n) = NONE
+      | (* GEN CASE BRANCH *) solvePlus (G, S, n) = NONE
 
     and toInternalTimes (G, U1, U2, U3) () =
           [(G, timesExp(U1, U2, U3))]
@@ -406,7 +406,7 @@ struct
                          SOME(proof)
                        end)
           end
-      | solveTimes (G, S, n) = NONE
+      | (* GEN CASE BRANCH *) solveTimes (G, S, n) = NONE
 
     and toInternalQuot (G, U1, U2, U3) () =
           [(G, quotExp(U1, U2, U3))]
@@ -448,7 +448,7 @@ struct
                          SOME(proof)
                        end)
           end
-      | solveQuot (G, S, n) = NONE
+      | (* GEN CASE BRANCH *) solveQuot (G, S, n) = NONE
 
     (* solveProvePlus (G, S, n) tries to find the n-th solution to
          G |- prove+ @ S : type
@@ -536,13 +536,13 @@ struct
     fun init (cs, installF) =
           (
             myID := cs;
-
+    
             wordID :=
               installF (ConDec ("word" ^ Int.toString(wordSize'), NONE, 0,
                                 Constraint (!myID, solveNumber),
                                 Uni (Type), Kind),
                         NONE : FX.fixity option, [MS.Mnil]);
-
+    
             plusID :=
               installF (ConDec ("+", NONE, 0,
                                 Constraint (!myID, solvePlus),
@@ -559,7 +559,7 @@ struct
                          MS.Mapp(MS.Marg(MS.Minus, SOME "X"),
                                  MS.Mapp(MS.Marg(MS.Plus, SOME "Y"),
                                          MS.Mapp(MS.Marg(MS.Plus, SOME "Z"), MS.Mnil)))]);
-
+    
             timesID :=
               installF (ConDec ("*", NONE, 0,
                                 Constraint (!myID, solveTimes),
@@ -576,7 +576,7 @@ struct
                          MS.Mapp(MS.Marg(MS.Minus, SOME "X"),
                                  MS.Mapp(MS.Marg(MS.Plus, SOME "Y"),
                                          MS.Mapp(MS.Marg(MS.Plus, SOME "Z"), MS.Mnil)))]);
-
+    
             quotID :=
               installF (ConDec ("/", NONE, 0,
                                 Constraint (!myID, solveQuot),
@@ -590,7 +590,7 @@ struct
                          MS.Mapp(MS.Marg(MS.Plus, SOME "X"),
                                  MS.Mapp(MS.Marg(MS.Minus, SOME "Y"),
                                          MS.Mapp(MS.Marg(MS.Plus, SOME "Z"), MS.Mnil)))]);
-
+    
             provePlusID :=
               installF (ConDec ("prove+", NONE, 0,
                                 Constraint (!myID, solveProvePlus),
@@ -615,7 +615,7 @@ struct
                                           provePlusExp (bvar 4, bvar 3, bvar 2, bvar 1))))),
                                 Type),
                         NONE, nil);
-
+    
             proveTimesID :=
               installF (ConDec ("prove*", NONE, 0,
                                 Constraint (!myID, solveProveTimes),
@@ -631,7 +631,7 @@ struct
                                          MS.Mapp(MS.Marg(MS.Star, SOME "Z"),
                                                  MS.Mapp(MS.Marg(MS.Star, SOME "P"),
                                                          MS.Mnil))))]);
-
+    
             proofTimesID :=
               installF (ConDec ("proof*", NONE, 0, Normal,
                                 pi ("X", word (),
@@ -641,7 +641,7 @@ struct
                                           proveTimesExp (bvar 4, bvar 3, bvar 2, bvar 1))))),
                                 Type),
                         NONE, nil);
-
+    
             proveQuotID :=
               installF (ConDec ("prove/", NONE, 0,
                                 Constraint (!myID, solveProveQuot),
@@ -657,7 +657,7 @@ struct
                                          MS.Mapp(MS.Marg(MS.Star, SOME "Z"),
                                                  MS.Mapp(MS.Marg(MS.Star, SOME "P"),
                                                          MS.Mnil))))]);
-
+    
             proofQuotID :=
               installF (ConDec ("proof/", NONE, 0, Normal,
                                 pi ("X", word (),
@@ -667,7 +667,7 @@ struct
                                           proveQuotExp (bvar 4, bvar 3, bvar 2, bvar 1))))),
                                 Type),
                         NONE, nil);
-
+    
             installFgnCnstrOps ();
             ()
           )

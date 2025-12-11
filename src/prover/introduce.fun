@@ -28,13 +28,13 @@ struct
 
 
     fun stripTCOpt NONE = NONE
-      | stripTCOpt (SOME TC) = SOME (stripTC TC)
+      | (* GEN CASE BRANCH *) stripTCOpt (SOME TC) = SOME (stripTC TC)
 
     fun stripDec (T.UDec D) = T.UDec D
-      | stripDec (T.PDec (name, F, TC1, TC2)) = T.PDec (name, F, TC1, stripTCOpt TC2)
+      | (* GEN CASE BRANCH *) stripDec (T.PDec (name, F, TC1, TC2)) = T.PDec (name, F, TC1, stripTCOpt TC2)
 
     fun strip I.Null = I.Null
-      | strip (I.Decl (Psi, D)) = I.Decl (strip Psi, stripDec D)
+      | (* GEN CASE BRANCH *) strip (I.Decl (Psi, D)) = I.Decl (strip Psi, stripDec D)
 
 
     (* expand S = S'
@@ -50,19 +50,19 @@ struct
         in
           SOME (R, T.Lam (D', T.newEVar (I.Decl (strip Psi, D'), F)))
         end
-      | expand (S.Focus (R as T.EVar (Psi, r, T.Ex ((D as I.Dec (_, V), _), F), NONE, NONE, _), W)) =
+      | (* GEN CASE BRANCH *) expand (S.Focus (R as T.EVar (Psi, r, T.Ex ((D as I.Dec (_, V), _), F), NONE, NONE, _), W)) =
            let
              val X = I.newEVar (T.coerceCtx (Psi), V)
              val Y = T.newEVar (Psi, T.forSub (F, T.Dot (T.Exp X, T.id)))
            in
              SOME (R, T.PairExp (X, Y))
            end
-      | expand (S.Focus (R as T.EVar (Psi, r, T.True, NONE, NONE, _), W)) =
+      | (* GEN CASE BRANCH *) expand (S.Focus (R as T.EVar (Psi, r, T.True, NONE, NONE, _), W)) =
            (SOME (R, T.Unit))
 
-      | expand (S.Focus (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), W)) =
+      | (* GEN CASE BRANCH *) expand (S.Focus (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), W)) =
            expand (S.Focus (T.EVar (Psi, r, T.forSub (F, s), TC1, TC2, X), W))
-      | expand (S.Focus (T.EVar (Psi, r, _, _, _, _), W)) = NONE
+      | (* GEN CASE BRANCH *) expand (S.Focus (T.EVar (Psi, r, _, _, _, _), W)) = NONE
 
     (* apply O = S
 

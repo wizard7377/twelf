@@ -69,7 +69,7 @@ struct
           Array.update (nameArray, cid, NameInfo("%" ^ name ^ "%"))
 
     fun shadow NONE = ()
-      | shadow (SOME(_,cid)) =
+      | (* GEN CASE BRANCH *) shadow (SOME(_,cid)) =
           override (cid, Array.sub (nameArray, cid))
 
     (* installName (name, cid) = ()

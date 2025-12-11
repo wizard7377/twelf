@@ -46,8 +46,8 @@ struct
     *)
     fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
     and createEVarSpineW (G, Vs as (I.Uni I.Type, s)) = (I.Nil, Vs) (* s = id *)
-      | createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
-      | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
+      | (* GEN CASE BRANCH *) createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
+      | (* GEN CASE BRANCH *) createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let
           val X = I.newEVar (G, I.EClo (V1, s))
           val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))

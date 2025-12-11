@@ -36,21 +36,21 @@ struct
     val globalTrail = Trail.trail () : action Trail.trail
 
     fun copyCnstr [] = []
-      | copyCnstr (refC :: clist) =
+      | (* GEN CASE BRANCH *) copyCnstr (refC :: clist) =
           (BindCnstr (refC, !refC) :: copyCnstr clist)
 
     fun copy (Instantiate refU) =
           (BindExp (refU , !refU))
-      | copy (InstantiateBlock refB) =
+      | (* GEN CASE BRANCH *) copy (InstantiateBlock refB) =
           (BindBlock (refB , !refB))
-      | copy (Add (cnstrs as ref Cnstrs)) =
+      | (* GEN CASE BRANCH *) copy (Add (cnstrs as ref Cnstrs)) =
           (BindAdd (cnstrs , copyCnstr(!cnstrs)))
-      | copy (Solve (cnstr, Cnstr)) =
+      | (* GEN CASE BRANCH *) copy (Solve (cnstr, Cnstr)) =
           (FSolve (cnstr, Cnstr, !cnstr))
 
 
     fun resetCnstr [] = []
-      | resetCnstr (BindCnstr(refC, Cnstr)::L) =
+      | (* GEN CASE BRANCH *) resetCnstr (BindCnstr(refC, Cnstr)::L) =
           (refC := Cnstr;
            (refC::(resetCnstr L)))
 
@@ -58,13 +58,13 @@ struct
     fun reset (BindExp (refU, U)) =
           (refU := U;
            Instantiate refU)
-      | reset (BindBlock (refB, B)) =
+      | (* GEN CASE BRANCH *) reset (BindBlock (refB, B)) =
           (refB := B;
            InstantiateBlock refB)
-      | reset (BindAdd (cnstrs , CActions)) =
+      | (* GEN CASE BRANCH *) reset (BindAdd (cnstrs , CActions)) =
           (cnstrs := resetCnstr CActions;
            Add cnstrs)
-      | reset (FSolve (refCnstr, Cnstr, Cnstr')) =
+      | (* GEN CASE BRANCH *) reset (FSolve (refCnstr, Cnstr, Cnstr')) =
           (refCnstr := Cnstr';
            Solve (refCnstr, Cnstr))
 
@@ -75,11 +75,11 @@ struct
 
     fun undo (Instantiate refU) =
           (refU := NONE)
-      | undo (InstantiateBlock refB) =
+      | (* GEN CASE BRANCH *) undo (InstantiateBlock refB) =
           (refB := NONE)
-      | undo (Add (cnstrs as ref(cnstr :: cnstrL))) =
+      | (* GEN CASE BRANCH *) undo (Add (cnstrs as ref(cnstr :: cnstrL))) =
           (cnstrs := cnstrL)
-      | undo (Solve (cnstr, Cnstr)) =
+      | (* GEN CASE BRANCH *) undo (Solve (cnstr, Cnstr)) =
           (cnstr := Cnstr)
 
     fun reset () = Trail.reset globalTrail
@@ -109,15 +109,15 @@ struct
        the constraint cnstr is added to all the rigid EVar occurrences in U[s]
     *)
     fun delayExpW ((U as Uni(L), s1), _) = ()
-      | delayExpW ((Pi ((D, P), U), s), cnstr) =
+      | (* GEN CASE BRANCH *) delayExpW ((Pi ((D, P), U), s), cnstr) =
           (delayDec ((D, s), cnstr); delayExp ((U, dot1 s), cnstr))
-      | delayExpW ((Root (H, S), s), cnstr) =
+      | (* GEN CASE BRANCH *) delayExpW ((Root (H, S), s), cnstr) =
           (delayHead (H, cnstr); delaySpine ((S, s), cnstr))
-      | delayExpW ((Lam (D, U), s), cnstr) =
+      | (* GEN CASE BRANCH *) delayExpW ((Lam (D, U), s), cnstr) =
           (delayDec ((D, s), cnstr); delayExp ((U, dot1 s), cnstr))
-      | delayExpW ((EVar (G, r, V, cnstrs), s), cnstr) =
+      | (* GEN CASE BRANCH *) delayExpW ((EVar (G, r, V, cnstrs), s), cnstr) =
           addConstraint(cnstrs, cnstr)
-      | delayExpW ((FgnExp csfe, s), cnstr) = (* s = id *)
+      | (* GEN CASE BRANCH *) delayExpW ((FgnExp csfe, s), cnstr) = (* s = id *)
           FgnExpStd.App.apply csfe (fn U => delayExp ((U, s), cnstr))
       (* no other cases by invariant *)
 
@@ -137,7 +137,7 @@ struct
     *)
     and delayHead (FVar (x, V, s'), cnstr) =
           delayExp ((V, id), cnstr)
-      | delayHead (H, _) = ()
+      | (* GEN CASE BRANCH *) delayHead (H, _) = ()
 
     (* delaySpine ((S, s), cnstr) = ()
 
@@ -147,9 +147,9 @@ struct
        the constraint cnstr is added to all the rigid EVar occurrences in S[s]
     *)
     and delaySpine ((Nil, s), cnstr) = ()
-      | delaySpine ((App (U, S), s), cnstr) =
+      | (* GEN CASE BRANCH *) delaySpine ((App (U, S), s), cnstr) =
           (delayExp ((U, s), cnstr); delaySpine ((S, s), cnstr))
-      | delaySpine ((SClo(S, s'), s), cnstr) =
+      | (* GEN CASE BRANCH *) delaySpine ((SClo(S, s'), s), cnstr) =
           delaySpine ((S, comp (s', s)), cnstr)
 
     (* delayDec see delayExp *)
@@ -194,11 +194,11 @@ struct
     fun intersection (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
           if (k1 = k2) then dot1 (intersection (s1, s2))
           else comp (intersection (s1, s2), shift)
-      | intersection (s1 as Dot _, Shift (n2)) =
+      | (* GEN CASE BRANCH *) intersection (s1 as Dot _, Shift (n2)) =
           intersection (s1, Dot (Idx (n2+1), Shift (n2+1)))
-      | intersection (Shift (n1), s2 as Dot _) =
+      | (* GEN CASE BRANCH *) intersection (Shift (n1), s2 as Dot _) =
           intersection (Dot (Idx (n1+1), Shift (n1+1)), s2)
-      | intersection (Shift _ , Shift _) = id
+      | (* GEN CASE BRANCH *) intersection (Shift _ , Shift _) = id
         (* both substitutions are the same number of shifts by invariant *)
       (* all other cases impossible for pattern substitutions *)
 
@@ -218,12 +218,12 @@ struct
         if n < ctxLength G
           then weakenSub (G, Dot (Idx (n+1), Shift (n+1)), ss)
         else id
-      | weakenSub (G, Dot (Idx n, s'), ss) =
+      | (* GEN CASE BRANCH *) weakenSub (G, Dot (Idx n, s'), ss) =
         (case bvarSub (n, ss)
            of Undef => comp (weakenSub (G, s', ss), shift)
             | Idx _ => dot1 (weakenSub (G, s', ss)))
             (* no other cases, ss is strsub *)
-      | weakenSub (G, Dot (Undef, s'), ss) =
+      | (* GEN CASE BRANCH *) weakenSub (G, Dot (Undef, s'), ss) =
            comp (weakenSub (G, s', ss), shift)
 
     (* invert (G, (U, s), ss, rOccur) = U[s][ss]
@@ -238,16 +238,16 @@ struct
     fun invertExp (G, Us, ss, rOccur) =
           invertExpW (G, Whnf.whnf Us, ss, rOccur)
     and invertExpW (G, (U as Uni _, s), _, _) = U
-      | invertExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
           Pi ((invertDec (G, (D, s), ss, rOccur), P),
               invertExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur))
-      | invertExpW (G, (Lam (D, V), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertExpW (G, (Lam (D, V), s), ss, rOccur) =
           Lam (invertDec (G, (D, s), ss, rOccur),
                invertExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur))
-      | invertExpW (G, (Root (H, S), s (* = id *)), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertExpW (G, (Root (H, S), s (* = id *)), ss, rOccur) =
           Root (invertHead (G, H, ss, rOccur),
                 invertSpine (G, (S, s), ss, rOccur))
-      | invertExpW (G, (X as EVar (r, GX, V, cnstrs), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertExpW (G, (X as EVar (r, GX, V, cnstrs), s), ss, rOccur) =
           if (rOccur = r) then raise NotInvertible
           else if Whnf.isPatSub (s) then
                let
@@ -260,29 +260,29 @@ struct
                else (* s not patsub *)
                  (* invertExp may raise NotInvertible *)
                  EClo (X, invertSub (G, s, ss, rOccur))
-      | invertExpW (G, (FgnExp csfe, s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertExpW (G, (FgnExp csfe, s), ss, rOccur) =
           FgnExpStd.Map.apply csfe (fn U => invertExp (G, (U, s), ss, rOccur))
 
       (* other cases impossible since (U,s1) whnf *)
     and invertDec (G, (Dec (name, V), s), ss, rOccur) =
           Dec (name, invertExp (G, (V, s), ss, rOccur))
     and invertSpine (G, (Nil, s), ss, rOccur) = Nil
-      | invertSpine (G, (App (U, S), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertSpine (G, (App (U, S), s), ss, rOccur) =
           App (invertExp (G, (U, s), ss, rOccur),
                invertSpine (G, (S, s), ss, rOccur))
-      | invertSpine (G, (SClo (S, s'), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertSpine (G, (SClo (S, s'), s), ss, rOccur) =
           invertSpine (G, (S, comp (s', s)), ss, rOccur)
     and invertHead (G, BVar k, ss, rOccur) =
         (case (bvarSub (k, ss))
            of Undef => raise NotInvertible
             | Idx k' => BVar k')
-      | invertHead (G, H as Const _, ss, rOccur) = H
-      | invertHead (G, Proj (B as Bidx k, i), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertHead (G, H as Const _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) invertHead (G, Proj (B as Bidx k, i), ss, rOccur) =
         (* blockSub (B, ss) should always be defined *)
         (* Fri Dec 28 10:03:12 2001 -fp !!! *)
         (case blockSub (B, ss)
            of Bidx(k') => Proj (Bidx (k'), i))
-      | invertHead (G, H as Proj (LVar (r, sk, (l, t)), i), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertHead (G, H as Proj (LVar (r, sk, (l, t)), i), ss, rOccur) =
         (* claim: LVar does not need to be pruned since . |- t : Gsome *)
         (* so we perform only the occurs-check here as for FVars *)
         (* Sat Dec  8 13:39:41 2001 -fp !!! *)
@@ -290,14 +290,14 @@ struct
         (* Changed from Null to G Sat Dec  7 21:58:00 2002 -fp *)
            ( invertSub (G, t, id, rOccur) ;
              H )
-      | invertHead (G, H as Skonst _, ss, rOccur) = H
-      | invertHead (G, H as Def _, ss, rOccur) = H
-      | invertHead (G, FVar (x, V, s'), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertHead (G, H as Skonst _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) invertHead (G, H as Def _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) invertHead (G, FVar (x, V, s'), ss, rOccur) =
           (* V does not to be pruned, since . |- V : type and s' = ^k *)
           (* perform occurs-check for r only *)
           (invertExp (G, (V, id), id, rOccur);  (* why G here? -fp !!! *)
            FVar (x, V, comp (s', ss)))
-      | invertHead (G, H as FgnConst _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) invertHead (G, H as FgnConst _, ss, rOccur) = H
     (* pruneSub never allows pruning OUTDATED *)
     (* in the presence of block variables, this invariant
        doesn't hold any more, because substitutions do not
@@ -307,11 +307,11 @@ struct
         if n < ctxLength (G)
           then invertSub (G, Dot (Idx (n+1), Shift (n+1)), ss, rOccur)
         else comp (s, ss)               (* must be defined *)
-      | invertSub (G, Dot (Idx (n), s'), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertSub (G, Dot (Idx (n), s'), ss, rOccur) =
         (case bvarSub (n, ss)
            of Undef => raise NotInvertible
             | Ft => Dot (Ft, invertSub (G, s', ss, rOccur)))
-      | invertSub (G, Dot (Exp (U), s'), ss, rOccur) =
+      | (* GEN CASE BRANCH *) invertSub (G, Dot (Exp (U), s'), ss, rOccur) =
           (* below my raise NotInvertible *)
           Dot (Exp (invertExp (G, (U, id), ss, rOccur)),
                invertSub (G, s', ss, rOccur))
@@ -349,16 +349,16 @@ struct
     fun pruneExp  (G, Us, ss, rOccur) =
           pruneExpW (G, Whnf.whnf Us, ss, rOccur)
     and pruneExpW (G, (U as Uni _, s), _, _) = U
-      | pruneExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
           Pi ((pruneDec (G, (D, s), ss, rOccur), P),
               pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur))
-      | pruneExpW (G, (Lam (D, V), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneExpW (G, (Lam (D, V), s), ss, rOccur) =
           Lam (pruneDec (G, (D, s), ss, rOccur),
                pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur))
-      | pruneExpW (G, (Root (H, S), s (* = id *)), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneExpW (G, (Root (H, S), s (* = id *)), ss, rOccur) =
           Root (pruneHead (G, H, ss, rOccur),
                 pruneSpine (G, (S, s), ss, rOccur))
-      | pruneExpW (G, (X as EVar (r, GX, V, cnstrs), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneExpW (G, (X as EVar (r, GX, V, cnstrs), s), ss, rOccur) =
           if (rOccur = r) then raise Unify "Variable occurrence"
           else if Whnf.isPatSub (s) then
                let
@@ -400,9 +400,9 @@ struct
                      end
                  )
 
-      | pruneExpW (G, (FgnExp csfe, s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneExpW (G, (FgnExp csfe, s), ss, rOccur) =
           FgnExpStd.Map.apply csfe (fn U => pruneExp (G, (U, s), ss, rOccur))
-      | pruneExpW (G, ((X as AVar _), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneExpW (G, ((X as AVar _), s), ss, rOccur) =
         (* this case should never happen! *)
           raise Unify "Left-over AVar"
 
@@ -410,25 +410,25 @@ struct
       (* other cases impossible since (U,s1) whnf *)
     and pruneDec (G, (Dec (name, V), s), ss, rOccur) =
           Dec (name, pruneExp (G, (V, s), ss, rOccur))
-      | pruneDec (G, (NDec x, _), _, _) = NDec x
+      | (* GEN CASE BRANCH *) pruneDec (G, (NDec x, _), _, _) = NDec x
       (* Added for the meta level -cs Tue Aug 17 17:09:27 2004 *)
     and pruneSpine (G, (Nil, s), ss, rOccur) = Nil
-      | pruneSpine (G, (App (U, S), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneSpine (G, (App (U, S), s), ss, rOccur) =
           App (pruneExp (G, (U, s), ss, rOccur),
                pruneSpine (G, (S, s), ss, rOccur))
-      | pruneSpine (G, (SClo (S, s'), s), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneSpine (G, (SClo (S, s'), s), ss, rOccur) =
           pruneSpine (G, (S, comp (s', s)), ss, rOccur)
     and pruneHead (G, BVar k, ss, rOccur) =
         (case (bvarSub (k, ss))
            of Undef => raise Unify "Parameter dependency"
             | Idx k' => BVar k')
-      | pruneHead (G, H as Const _, ss, rOccur) = H
-      | pruneHead (G, Proj (B as Bidx k, i), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneHead (G, H as Const _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) pruneHead (G, Proj (B as Bidx k, i), ss, rOccur) =
         (* blockSub (B, ss) should always be defined *)
         (* Fri Dec 28 10:03:12 2001 -fp !!! *)
         (case blockSub (B, ss)
            of Bidx(k') => Proj (Bidx (k'), i))
-      | pruneHead (G, H as Proj (LVar (r, sk, (l, t)), i), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneHead (G, H as Proj (LVar (r, sk, (l, t)), i), ss, rOccur) =
         (* claim: LVar does not need to be pruned since . |- t : Gsome *)
         (* so we perform only the occurs-check here as for FVars *)
         (* Sat Dec  8 13:39:41 2001 -fp !!! *)
@@ -436,14 +436,14 @@ struct
         (* Changed from Null to G Sat Dec  7 21:58:00 2002 -fp *)
            ( pruneSub (G, t, id, rOccur) ;
              H )
-      | pruneHead (G, H as Skonst _, ss, rOccur) = H
-      | pruneHead (G, H as Def _, ss, rOccur) = H
-      | pruneHead (G, FVar (x, V, s'), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneHead (G, H as Skonst _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) pruneHead (G, H as Def _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) pruneHead (G, FVar (x, V, s'), ss, rOccur) =
           (* V does not to be pruned, since . |- V : type and s' = ^k *)
           (* perform occurs-check for r only *)
           (pruneExp (G, (V, id), id, rOccur);  (* why G here? -fp !!! *)
            FVar (x, V, comp (s', ss)))
-      | pruneHead (G, H as FgnConst _, ss, rOccur) = H
+      | (* GEN CASE BRANCH *) pruneHead (G, H as FgnConst _, ss, rOccur) = H
     (* pruneSub never allows pruning OUTDATED *)
     (* in the presence of block variables, this invariant
        doesn't hold any more, because substitutions do not
@@ -453,11 +453,11 @@ struct
         if n < ctxLength (G)
           then pruneSub (G, Dot (Idx (n+1), Shift (n+1)), ss, rOccur)
         else comp (s, ss)               (* must be defined *)
-      | pruneSub (G, Dot (Idx (n), s'), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneSub (G, Dot (Idx (n), s'), ss, rOccur) =
         (case bvarSub (n, ss)
            of Undef => raise Unify "Not prunable"
             | Ft => Dot (Ft, pruneSub (G, s', ss, rOccur)))
-      | pruneSub (G, Dot (Exp (U), s'), ss, rOccur) =
+      | (* GEN CASE BRANCH *) pruneSub (G, Dot (Exp (U), s'), ss, rOccur) =
           (* below my raise Unify *)
           Dot (Exp (pruneExp (G, (U, id), ss, rOccur)),
                pruneSub (G, s', ss, rOccur))
@@ -465,7 +465,7 @@ struct
       (* By invariant, all EVars X[s] are such that s is defined everywhere *)
       (* Pruning establishes and maintains this invariant *)
     and pruneCtx (Shift n, Null, rOccur) = Null
-      | pruneCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
+      | (* GEN CASE BRANCH *) pruneCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
         let
           val t' = comp (t, invShift)
           val D' = pruneDec (G, (D, id), t', rOccur)
@@ -473,9 +473,9 @@ struct
           Decl (pruneCtx (t', G, rOccur), D')
         end
 
-      | pruneCtx (Dot (Undef, t), Decl (G, d), rOccur) =
+      | (* GEN CASE BRANCH *) pruneCtx (Dot (Undef, t), Decl (G, d), rOccur) =
           pruneCtx (t, G, rOccur)
-      | pruneCtx (Shift n, G, rOccur) =
+      | (* GEN CASE BRANCH *) pruneCtx (Shift n, G, rOccur) =
           pruneCtx (Dot (Idx (n+1), Shift (n+1)), G, rOccur)
 
 
@@ -505,14 +505,14 @@ struct
                           in
                             instantiateEVar (r, W', !cnstrs)
                           end
-                      | execResidual (Delay (U, cnstr)) =
+                      | (* GEN CASE BRANCH *) execResidual (Delay (U, cnstr)) =
                           delayExp ((U, id), cnstr)
                   in
                     List.app execResidual residualL
                   end
               | Fail => raise Unify "Foreign Expression Mismatch")
 
-      | unifyExpW (G, Us1, Us2 as (FgnExp csfe2, _)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1, Us2 as (FgnExp csfe2, _)) =
           (case (FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1))
              of (Succeed opL) =>
                   let
@@ -528,12 +528,12 @@ struct
                   end
               | Fail => raise Unify "Foreign Expression Mismatch")
 
-      | unifyExpW (G, (Uni (L1), _), (Uni(L2), _)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, (Uni (L1), _), (Uni(L2), _)) =
           (* L1 = L2 = type, by invariant *)
           (* unifyUni (L1, L2) - removed Mon Aug 24 12:18:24 1998 -fp *)
           ()
 
-      | unifyExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
           (* s1 = s2 = id by whnf *)
           (* order of calls critical to establish unifySpine invariant *)
           (case (H1, H2) of
@@ -589,34 +589,34 @@ struct
            | _ => raise Unify "Head mismatch")
 
 
-      | unifyExpW (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) =
           (unifyDec (G, (D1, s1), (D2, s2)) ;
            unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2)))
 
-      | unifyExpW (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) =
           unifyExpW (G, Us1, Whnf.expandDef (Us2))
-      | unifyExpW (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) =
           unifyExpW (G, Whnf.expandDef (Us1), Us2)
 
-      | unifyExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
           (* D1[s1] = D2[s2]  by invariant *)
           unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),(U2, dot1 s2))
 
-      | unifyExpW (G, (Lam (D1, U1), s1), (U2, s2)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, (Lam (D1, U1), s1), (U2, s2)) =
           (* ETA: can't occur if eta expanded *)
           unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),
                     (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2))
            (* for rhs:  (U2[s2])[^] 1 = U2 [s2 o ^] 1 = U2 [^ o (1. s2 o ^)] 1
                         = (U2 [^] 1) [1.s2 o ^] *)
 
-      | unifyExpW (G, (U1, s1), (Lam (D2, U2), s2)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, (U1, s1), (Lam (D2, U2), s2)) =
           (* Cannot occur if expressions are eta expanded *)
           unifyExp (Decl (G, decSub (D2, s2)),
                     (Redex (EClo (U1, shift), App (Root (BVar (1), Nil), Nil)), dot1 s1),
                     (U2, dot1 s2))
            (* same reasoning holds as above *)
 
-      | unifyExpW (G, Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
                    Us2 as (U2 as EVar(r2, G2, V2, cnstrs2), s2)) =
           (* postpone, if s1 or s2 are not patsub *)
           if r1 = r2 then
@@ -666,7 +666,7 @@ struct
                 addConstraint (cnstrs1, cnstr)
               end
 
-      | unifyExpW (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) =
         if Whnf.isPatSub(s) then
           let val ss = Whnf.invert s
               val U2' = pruneExp (G, Us2, ss, r)
@@ -678,7 +678,7 @@ struct
         else
           addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))
 
-      | unifyExpW (G, Us1 as (U1,s1), Us2 as (EVar (r, GX, V, cnstrs), s)) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1 as (U1,s1), Us2 as (EVar (r, GX, V, cnstrs), s)) =
         if Whnf.isPatSub(s) then
           let
             val ss = Whnf.invert s
@@ -691,7 +691,7 @@ struct
         else
           addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))
 
-      | unifyExpW (G, Us1, Us2) =
+      | (* GEN CASE BRANCH *) unifyExpW (G, Us1, Us2) =
         raise Unify ("Expression clash")
 
     (* covers most remaining cases *)
@@ -736,9 +736,9 @@ struct
                       constraints may be added for non-patterns
     *)
     and unifySpine (G, (Nil,_), (Nil,_)) = ()
-      | unifySpine (G, (SClo (S1, s1'), s1), Ss) = unifySpine (G, (S1, comp (s1', s1)), Ss)
-      | unifySpine (G, Ss, (SClo (S2, s2'), s2)) = unifySpine (G, Ss, (S2, comp (s2', s2)))
-      | unifySpine (G, (App (U1, S1), s1), (App (U2, S2), s2)) =
+      | (* GEN CASE BRANCH *) unifySpine (G, (SClo (S1, s1'), s1), Ss) = unifySpine (G, (S1, comp (s1', s1)), Ss)
+      | (* GEN CASE BRANCH *) unifySpine (G, Ss, (SClo (S2, s2'), s2)) = unifySpine (G, Ss, (S2, comp (s2', s2)))
+      | (* GEN CASE BRANCH *) unifySpine (G, (App (U1, S1), s1), (App (U2, S2), s2)) =
         (unifyExp (G, (U1, s1), (U2, s2)) ;
          unifySpine (G, (S1, s1), (S2, s2)))
       (* Nil/App or App/Nil cannot occur by typing invariants *)
@@ -761,11 +761,11 @@ struct
     (* Thu Dec  6 21:01:09 2001 -fp *)
     and unifySub (G, Shift (n1), Shift (n2)) = ()
          (* by invariant *)
-      | unifySub (G, Shift(n), s2 as Dot _) =
+      | (* GEN CASE BRANCH *) unifySub (G, Shift(n), s2 as Dot _) =
           unifySub (G, Dot(Idx(n+1), Shift(n+1)), s2)
-      | unifySub (G, s1 as Dot _, Shift(m)) =
+      | (* GEN CASE BRANCH *) unifySub (G, s1 as Dot _, Shift(m)) =
           unifySub (G, s1, Dot(Idx(m+1), Shift(m+1)))
-      | unifySub (G, Dot(Ft1,s1), Dot(Ft2,s2)) =
+      | (* GEN CASE BRANCH *) unifySub (G, Dot(Ft1,s1), Dot(Ft2,s2)) =
           ((case (Ft1, Ft2) of
              (Idx (n1), Idx (n2)) =>
                if n1 <> n2 then raise Error "SOME variables mismatch"
@@ -773,15 +773,15 @@ struct
            | (Exp (U1), Exp (U2)) => unifyExp (G, (U1, id), (U2, id))
            | (Exp (U1), Idx (n2)) => unifyExp (G, (U1, id), (Root (BVar (n2), Nil), id))
            | (Idx (n1), Exp (U2)) => unifyExp (G, (Root (BVar (n1), Nil), id), (U2, id)));
-(*         | (Undef, Undef) =>
+      (*         | (Undef, Undef) =>
            | _ => false *)   (* not possible because of invariant? -cs *)
           unifySub (G, s1, s2))
 
     (* substitutions s1 and s2 were redundant here --- removed *)
     (* Sat Dec  8 11:47:12 2001 -fp !!! *)
     and unifyBlock (G, LVar (ref (SOME(B1)), s, _), B2) = unifyBlock (G, blockSub (B1, s), B2)
-      | unifyBlock (G, B1, LVar (ref (SOME(B2)), s, _)) = unifyBlock (G, B1, blockSub (B2, s))
-      | unifyBlock (G, B1, B2) = unifyBlockW (G, B1, B2)
+      | (* GEN CASE BRANCH *) unifyBlock (G, B1, LVar (ref (SOME(B2)), s, _)) = unifyBlock (G, B1, blockSub (B2, s))
+      | (* GEN CASE BRANCH *) unifyBlock (G, B1, B2) = unifyBlockW (G, B1, B2)
 
     and unifyBlockW (G, LVar (r1, s1 as Shift(k1), (l1, t1)), LVar (r2, s2 as Shift(k2), (l2, t2))) =
         if l1 <> l2 then
@@ -796,10 +796,10 @@ struct
                 else instantiateLVar (r2, LVar(r1, Shift (k1-k2), (l1, t1)))
             )
 
-      | unifyBlockW (G, LVar (r1, s1, (l1, t1)),  B2) =
+      | (* GEN CASE BRANCH *) unifyBlockW (G, LVar (r1, s1, (l1, t1)),  B2) =
             instantiateLVar(r1, blockSub (B2, Whnf.invert s1)) (* -- ABP *)
 
-      | unifyBlockW (G,  B1, LVar (r2, s2, (l2, t2))) =
+      | (* GEN CASE BRANCH *) unifyBlockW (G,  B1, LVar (r2, s2, (l2, t2))) =
             instantiateLVar(r2, blockSub (B1, Whnf.invert s2)) (* -- ABP *)
 
 (*      | unifyBlockW (G, LVar (r1, Shift(k1), (l1, t1)), Bidx i2) =
@@ -810,7 +810,7 @@ struct
 *)
       (* How can the next case arise? *)
       (* Sat Dec  8 11:49:16 2001 -fp !!! *)
-      | unifyBlockW (G, Bidx (n1), (Bidx (n2))) =
+      | (* GEN CASE BRANCH *) unifyBlockW (G, Bidx (n1), (Bidx (n2))) =
          if n1 <> n2
            then raise Unify "Block index clash"
          else ()
@@ -833,11 +833,11 @@ struct
           (unifyExp (G, Us1, Us2); awakeCnstr (nextCnstr ()))
 
     and awakeCnstr (NONE) = ()
-      | awakeCnstr (SOME(ref Solved)) = awakeCnstr (nextCnstr ())
-      | awakeCnstr (SOME(cnstr as ref (Eqn (G, U1, U2)))) =
+      | (* GEN CASE BRANCH *) awakeCnstr (SOME(ref Solved)) = awakeCnstr (nextCnstr ())
+      | (* GEN CASE BRANCH *) awakeCnstr (SOME(cnstr as ref (Eqn (G, U1, U2)))) =
           (solveConstraint cnstr;
            unify1 (G, (U1, id), (U2, id)))
-      | awakeCnstr (SOME(ref (FgnCnstr csfc))) =
+      | (* GEN CASE BRANCH *) awakeCnstr (SOME(ref (FgnCnstr csfc))) =
           if (FgnCnstrStd.Awake.apply csfc ()) then ()
           else raise Unify "Foreign constraint violated"
 

@@ -57,7 +57,7 @@ struct
                                          msg)))
 
     fun concat (G', I.Null) = G'
-      | concat (G', I.Decl(G, D)) = I.Decl(concat(G', G), D)
+      | (* GEN CASE BRANCH *) concat (G', I.Decl(G, D)) = I.Decl(concat(G', G), D)
    (*--------------------------------------------------------------------*)
    (* Printing *)
 
@@ -65,14 +65,14 @@ struct
         let
           fun fmtOrder' (R.Arg (Us as (U, s), Vs as (V, s'))) =
                 F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
-            | fmtOrder' (R.Lex L) =
+            | (* GEN CASE BRANCH *) fmtOrder' (R.Lex L) =
                 F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"]
-            | fmtOrder' (R.Simul L) =
+            | (* GEN CASE BRANCH *) fmtOrder' (R.Simul L) =
                 F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"]
-
+    
           and fmtOrders [] = []
-            | fmtOrders (O :: []) = fmtOrder' O :: []
-            | fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L
+            | (* GEN CASE BRANCH *) fmtOrders (O :: []) = fmtOrder' O :: []
+            | (* GEN CASE BRANCH *) fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L
         in
           fmtOrder' O
         end
@@ -83,16 +83,16 @@ struct
 
 
     fun fmtPredicate (G, C.Less(O, O')) = fmtComparison (G, O, "<", O')
-      | fmtPredicate (G, C.Leq(O, O'))  = fmtComparison (G, O, "<=", O')
-      | fmtPredicate (G, C.Eq(O, O'))  = fmtComparison (G, O, "=", O')
-      | fmtPredicate (G, C.Pi(D, P))  =
+      | (* GEN CASE BRANCH *) fmtPredicate (G, C.Leq(O, O'))  = fmtComparison (G, O, "<=", O')
+      | (* GEN CASE BRANCH *) fmtPredicate (G, C.Eq(O, O'))  = fmtComparison (G, O, "=", O')
+      | (* GEN CASE BRANCH *) fmtPredicate (G, C.Pi(D, P))  =
           F.Hbox [F.String "Pi ",
                   fmtPredicate (I.Decl(G, D), P)]
 
     fun rlistToString' (G, nil) = ""
-      | rlistToString' (G, [P]) =
+      | (* GEN CASE BRANCH *) rlistToString' (G, [P]) =
         F.makestring_fmt(fmtPredicate (G, P) )
-      | rlistToString' (G, (P::Rl)) =
+      | (* GEN CASE BRANCH *) rlistToString' (G, (P::Rl)) =
         F.makestring_fmt(fmtPredicate (G, P)) ^ " ," ^ rlistToString' (G, Rl)
 
     fun rlistToString (G, Rl) = rlistToString' (Names.ctxName G, Rl)
@@ -121,15 +121,15 @@ struct
           and select''W (1, ((I.App (U', S'), s'),
                              (I.Pi ((I.Dec (_, V''), _), _), s''))) =
                 ((U', s'), (V'', s''))
-            | select''W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
+            | (* GEN CASE BRANCH *) select''W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
                 select''W (n, ((S', I.comp (s1', s2')), Vs''))
-            | select''W (n, ((I.App (U', S'), s'),
+            | (* GEN CASE BRANCH *) select''W (n, ((I.App (U', S'), s'),
                              (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
                 select'' (n-1, ((S', s'),
                                 (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
           fun select' (R.Arg n) = R.Arg (select'' (n, ((S, s), Vid)))
-            | select' (R.Lex L) = R.Lex (map select' L)
-            | select' (R.Simul L) = R.Simul (map select' L)
+            | (* GEN CASE BRANCH *) select' (R.Lex L) = R.Lex (map select' L)
+            | (* GEN CASE BRANCH *) select' (R.Simul L) = R.Simul (map select' L)
         in
           select' (R.selLookup c)
         end
@@ -159,19 +159,19 @@ struct
           and select''W (1, ((I.App (U', S'), s'),
                              (I.Pi ((I.Dec (_, V''), _), _), s''))) =
                 ((U', s'), (V'', s''))
-            | select''W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
+            | (* GEN CASE BRANCH *) select''W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
                 select''W (n, ((S', I.comp (s1', s2')), Vs''))
-            | select''W (n, ((I.App (U', S'), s'),
+            | (* GEN CASE BRANCH *) select''W (n, ((I.App (U', S'), s'),
                              (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
                 select'' (n-1, ((S', s'),
                                 (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
           fun select' (R.Arg n) = R.Arg (select'' (n, ((S, s), Vid)))
-            | select' (R.Lex L) = R.Lex (map select' L)
-            | select' (R.Simul L) = R.Simul (map select' L)
-
+            | (* GEN CASE BRANCH *) select' (R.Lex L) = R.Lex (map select' L)
+            | (* GEN CASE BRANCH *) select' (R.Simul L) = R.Simul (map select' L)
+    
           fun selectP (R.Less(O1, O2)) = C.Less(select' O1, select' O2)
-            | selectP (R.Leq(O1, O2)) = C.Leq(select' O1, select' O2)
-            | selectP (R.Eq(O1, O2)) = C.Eq(select' O1, select' O2)
+            | (* GEN CASE BRANCH *) selectP (R.Leq(O1, O2)) = C.Leq(select' O1, select' O2)
+            | (* GEN CASE BRANCH *) selectP (R.Eq(O1, O2)) = C.Eq(select' O1, select' O2)
         in
           SOME(selectP (R.selLookupROrder c)) handle R.Error(s) => NONE
         end
@@ -210,7 +210,7 @@ struct
          in
            O
          end
-      | getROrderW (G, Q, (I.Pi ((D, I.Maybe), V), s), occ) =
+      | (* GEN CASE BRANCH *) getROrderW (G, Q, (I.Pi ((D, I.Maybe), V), s), occ) =
           let
             val O = getROrder (I.Decl (G, N.decLUName (G, I.decSub (D, s))),
                                 I.Decl (Q, C.All), (V, I.dot1 s), P.body occ)
@@ -219,7 +219,7 @@ struct
               of NONE => NONE
                | SOME(O') => SOME(abstractRO(G, I.decSub(D, s), O'))
           end
-      | getROrderW (G, Q, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
+      | (* GEN CASE BRANCH *) getROrderW (G, Q, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
           let
             val O = getROrder (G, Q, (V2, I.comp(I.invShift, s)), P.body occ)
           in
@@ -227,7 +227,7 @@ struct
               of NONE => NONE
                | SOME(O') => SOME(O')
           end
-      | getROrderW (G, Q, Vs as (I.Root (I.Def a, S), s), occ) =
+      | (* GEN CASE BRANCH *) getROrderW (G, Q, Vs as (I.Root (I.Def a, S), s), occ) =
           raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
                         ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
@@ -253,12 +253,12 @@ struct
     and checkGoalW (G0, Q0, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), Vs', occ) =
         (checkClause ((G0, Q0, Rl), I.Null, I.Null, (V1, s), P.label occ);
          checkGoal (G0, Q0, Rl, (V2, I.comp(I.invShift, s)), Vs', P.body occ))
-      | checkGoalW (G0, Q0, Rl, (I.Pi ((D, I.Maybe), V), s), (V', s'), occ) =
+      | (* GEN CASE BRANCH *) checkGoalW (G0, Q0, Rl, (I.Pi ((D, I.Maybe), V), s), (V', s'), occ) =
         checkGoal (I.Decl (G0, N.decLUName (G0, I.decSub (D, s))),
                      I.Decl (Q0, C.All),
                      C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
                      (V, I.dot1 s), (V', I.comp(s', I.shift)), P.body occ)
-      | checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Const a, S), s),
+      | (* GEN CASE BRANCH *) checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Const a, S), s),
                     Vs' as (I.Root (I.Const a', S'), s'), occ) =
         let
           fun lookup (R.Empty, f) = R.Empty
@@ -293,11 +293,11 @@ struct
                                                rlistToString (G0, Rl) ^ " ---> " ^
                                                orderToString (G0, C.Less(P, P')))))
         end
-      | checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Def a, S), s), Vs', occ) =
+      | (* GEN CASE BRANCH *) checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Def a, S), s), Vs', occ) =
         raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
                       ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
-      | checkGoalW (G0, Q0, Rl, Vs, Vs' as (I.Root (I.Def a', S'), s'), occ) =
+      | (* GEN CASE BRANCH *) checkGoalW (G0, Q0, Rl, Vs, Vs' as (I.Root (I.Def a', S'), s'), occ) =
         raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
                         ^ "Illegal use of " ^ N.qidToString (N.constQid a') ^ ".")
 
@@ -328,13 +328,13 @@ struct
           in
             checkSubgoals (G0, Q0, Rl', Vs, n+1, (G, Q))
           end
-      | checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D), I.Decl(Q, C.Exist))) =
+      | (* GEN CASE BRANCH *) checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D), I.Decl(Q, C.Exist))) =
           checkSubgoals (G0, Q0, Rl, Vs, n+1, (G, Q))
 
-      | checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D), I.Decl(Q, C.All))) =
+      | (* GEN CASE BRANCH *) checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D), I.Decl(Q, C.All))) =
           checkSubgoals (G0, Q0, Rl, Vs, n+1, (G, Q))
 
-      | checkSubgoals (G0, Q0, Rl, Vs, n, (I.Null, I.Null)) = ()
+      | (* GEN CASE BRANCH *) checkSubgoals (G0, Q0, Rl, Vs, n, (I.Null, I.Null)) = ()
 
 
     (* checkClause (GQR as (G0, Q0, Rl), G, Q, Vs, occ)
@@ -355,11 +355,11 @@ struct
            checkClause (GQR, I.Decl(G, N.decEName (G, I.decSub (D, s))),
                         I.Decl (Q, C.Exist), (V, I.dot1 s), P.body occ)
 
-      | checkClauseW (GQR, G, Q, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
+      | (* GEN CASE BRANCH *) checkClauseW (GQR, G, Q, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
            checkClause (GQR, I.Decl (G, I.decSub (D, s)), I.Decl (Q, C.And (P.label occ)),
                         (V2, I.dot1 s), P.body occ)
 
-      | checkClauseW (GQR as (G0, Q0, Rl), G, Q, Vs as (I.Root (I.Const a, S), s), occ) =
+      | (* GEN CASE BRANCH *) checkClauseW (GQR as (G0, Q0, Rl), G, Q, Vs as (I.Root (I.Const a, S), s), occ) =
           let
             val n = I.ctxLength G
             val Rl' = C.shiftRCtx Rl (fn s => I.comp(s, I.Shift n))
@@ -367,7 +367,7 @@ struct
             checkSubgoals (concat(G0, G), concat(Q0, Q), Rl', Vs, 0, (G, Q))
           end
 
-      | checkClauseW (GQR, G, Q, (I.Root (I.Def a, S), s), occ) =
+      | (* GEN CASE BRANCH *) checkClauseW (GQR, G, Q, (I.Root (I.Def a, S), s), occ) =
         raise Error' (occ, "Termination checking for defined type families not yet available:\n"
                       ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
@@ -397,18 +397,18 @@ struct
 
      and checkRGoalW (G, Q, Rl, Vs as (I.Root (I.Const a, S), s), occ) = () (* trivial *)
 
-       | checkRGoalW (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) =
+       | (* GEN CASE BRANCH *) checkRGoalW (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) =
            checkRGoal (I.Decl (G, N.decLUName (G, I.decSub (D, s))),
                       I.Decl (Q, C.All),
                       C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
                       (V, I.dot1 s), P.body occ)
 
-       | checkRGoalW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
+       | (* GEN CASE BRANCH *) checkRGoalW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
            (checkRClause (G, Q, Rl, (V1, s), P.label occ);
             checkRGoal (G, Q, Rl, (V2, I.comp(I.invShift, s)), P.body occ))
 
 
-       | checkRGoalW (G, Q, Rl, (I.Root (I.Def a, S), s), occ) =
+       | (* GEN CASE BRANCH *) checkRGoalW (G, Q, Rl, (I.Root (I.Def a, S), s), occ) =
            raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
                          ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
@@ -436,7 +436,7 @@ struct
                      I.Decl (Q, C.Exist),
                      C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
                      (V', I.dot1 s'), (V, I.comp (s, I.shift)), occ)
-      | checkRImpW (G, Q, Rl, (I.Pi ((D' as I.Dec (_, V1), I.No), V2), s'), (V, s), occ) =
+      | (* GEN CASE BRANCH *) checkRImpW (G, Q, Rl, (I.Pi ((D' as I.Dec (_, V1), I.No), V2), s'), (V, s), occ) =
           let
             val Rl' = case getROrder (G, Q, (V1, s'), occ)
                          of NONE => Rl
@@ -446,9 +446,9 @@ struct
                     (V2, I.comp(I.invShift, s')), (V, s), occ)
           end
 
-      | checkRImpW (G, Q, Rl, Vs' as (I.Root (I.Const a, S), s),  Vs, occ) =
+      | (* GEN CASE BRANCH *) checkRImpW (G, Q, Rl, Vs' as (I.Root (I.Const a, S), s),  Vs, occ) =
           checkRGoal (G, Q, Rl, Vs, occ)
-      | checkRImpW (G, Q, Rl, Vs' as (I.Root (I.Def a, S), s), Vs, occ) =
+      | (* GEN CASE BRANCH *) checkRImpW (G, Q, Rl, Vs' as (I.Root (I.Def a, S), s), Vs, occ) =
           raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
                         ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
@@ -472,7 +472,7 @@ struct
                         C.shiftRCtx Rl (fn s => I.comp(s, I.shift)),
                         (V, I.dot1 s), P.body occ)
 
-      | checkRClauseW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
+      | (* GEN CASE BRANCH *) checkRClauseW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
          let
            val G' = I.Decl (G, I.decSub (D, s))  (* N.decEName (G, I.decSub (D, s)) *)
            val Q' = I.Decl (Q, C.Exist) (* will not be used *)
@@ -485,7 +485,7 @@ struct
           checkRImp (G', Q', Rl'', (V2, I.dot1 s), (V1, I.comp(s, I.shift)), P.label occ)
         end
 
-      | checkRClauseW (G, Q, Rl, Vs as (I.Root (I.Const a, S), s), occ) =
+      | (* GEN CASE BRANCH *) checkRClauseW (G, Q, Rl, Vs as (I.Root (I.Const a, S), s), occ) =
         let
           val RO = case selectROrder (a, (S, s))
                      of NONE => raise Error' (occ, "No reduction order assigned for " ^
@@ -503,7 +503,7 @@ struct
                              rlistToString (G, Rl) ^ " ---> " ^  (* rename ctx ??? *)
                              orderToString (G, RO))
         end
-      | checkRClauseW (G, Q, Rl, VS as (I.Root (I.Def a, S), s), occ) =
+      | (* GEN CASE BRANCH *) checkRClauseW (G, Q, Rl, VS as (I.Root (I.Def a, S), s), occ) =
         raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
                       ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
@@ -522,7 +522,7 @@ struct
               (if !Global.chatter > 3
                  then print "\n"
                else () ; ())
-            | checkFam' (I.Const(b)::bs) =
+            | (* GEN CASE BRANCH *) checkFam' (I.Const(b)::bs) =
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid b) ^ " ")
                  else ();
@@ -534,7 +534,7 @@ struct
                     handle Error' (occ, msg) => error (b, occ, msg)
                          | R.Error (msg) => raise Error (msg));
                    checkFam' bs)
-            | checkFam' (I.Def(d)::bs) =
+            | (* GEN CASE BRANCH *) checkFam' (I.Def(d)::bs) =
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid d) ^ " ")
                  else ();
@@ -571,7 +571,7 @@ struct
               (if !Global.chatter > 3
                  then print "\n"
                else () ; ())
-            | checkFam' (I.Const b::bs) =
+            | (* GEN CASE BRANCH *) checkFam' (I.Const b::bs) =
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid b) ^ " ")
                  else ();
@@ -583,7 +583,7 @@ struct
                  handle Error' (occ, msg) => error (b, occ, msg)
                       | Order.Error (msg) => raise Error (msg));
                  checkFam' bs)
-            | checkFam' (I.Def(d)::bs) =
+            | (* GEN CASE BRANCH *) checkFam' (I.Def(d)::bs) =
                 (if (!Global.chatter) > 3 then
                    print (N.qidToString (N.constQid d) ^ " ")
                  else ();

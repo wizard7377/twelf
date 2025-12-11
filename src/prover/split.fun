@@ -51,7 +51,7 @@ struct
        and  forall x:A in G'  A subordinate to a
      *)
     fun weaken (I.Null, a) = I.id
-      | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
+      | (* GEN CASE BRANCH *) weaken (I.Decl (G', D as I.Dec (name, V)), a) =
         let
           val w' = weaken (G', a)
         in
@@ -89,13 +89,13 @@ struct
     *)
     fun instEVars (Vs, p, XsRev) = instEVarsW (Whnf.whnf Vs, p, XsRev)
     and instEVarsW (Vs, 0, XsRev) = (Vs, XsRev)
-      | instEVarsW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev) =
+      | (* GEN CASE BRANCH *) instEVarsW ((I.Pi ((I.Dec (xOpt, V1), _), V2), s), p, XsRev) =
         let (* p > 0 *)
           val X1 = I.newEVar (I.Null, I.EClo (V1, s)) (* all EVars are global *)
         in
           instEVars ((V2, I.Dot (I.Exp (X1), s)), p-1, SOME(X1)::XsRev)
         end
-      | instEVarsW ((I.Pi ((I.BDec (_, (l, t)), _), V2), s), p, XsRev) =
+      | (* GEN CASE BRANCH *) instEVarsW ((I.Pi ((I.BDec (_, (l, t)), _), V2), s), p, XsRev) =
         (* G0 |- t : Gsome *)
         (* . |- s : G0 *)
         let (* p > 0 *)
@@ -128,7 +128,7 @@ struct
     *)
     fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
     and createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
-      | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
+      | (* GEN CASE BRANCH *) createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let (* G |- V1[s] : L *)
           val X = createEVar (G, I.EClo (V1, s))
           val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
@@ -184,7 +184,7 @@ struct
         end
 
     fun constCases (G, Vs, nil, sc) = ()
-      | constCases (G, Vs, I.Const(c)::sgn', sc) =
+      | (* GEN CASE BRANCH *) constCases (G, Vs, I.Const(c)::sgn', sc) =
         let
           val (U, Vs') = createAtomConst (G, I.Const c)
           val _ = CSManager.trail (fn () =>
@@ -196,7 +196,7 @@ struct
         end
 
     fun paramCases (G, Vs, 0, sc) = ()
-      | paramCases (G, Vs, k, sc) =
+      | (* GEN CASE BRANCH *) paramCases (G, Vs, k, sc) =
         let
           val (U, Vs') = createAtomBVar (G, k)
           val _ = CSManager.trail (fn () =>
@@ -216,7 +216,7 @@ struct
        Update: Always use empty context. Sat Dec  8 13:19:58 2001 -fp
     *)
     fun createEVarSub (I.Null) = I.id
-      | createEVarSub (I.Decl(G', D as I.Dec (_, V))) =
+      | (* GEN CASE BRANCH *) createEVarSub (I.Decl(G', D as I.Dec (_, V))) =
         let
           val s = createEVarSub G'
           val V' = I.EClo (V, s)
@@ -248,7 +248,7 @@ struct
           blockCases' (G, Vs, (lvar, 1), (t', piDecs), sc)
         end
     and blockCases' (G, Vs, (lvar, i), (t, nil), sc) = ()
-      | blockCases' (G, Vs, (lvar, i), (t, I.Dec (_, V')::piDecs), sc) =
+      | (* GEN CASE BRANCH *) blockCases' (G, Vs, (lvar, i), (t, I.Dec (_, V')::piDecs), sc) =
         let
           (* G |- t : G' and G' |- ({_:V'},piDecs) decList *)
           (* so G |- V'[t'] : type *)
@@ -262,7 +262,7 @@ struct
         end
 
     fun worldCases (G, Vs, T.Worlds (nil), sc) = ()
-      | worldCases (G, Vs, T.Worlds (cid::cids), sc) =
+      | (* GEN CASE BRANCH *) worldCases (G, Vs, T.Worlds (cid::cids), sc) =
           ( blockCases (G, Vs, cid, I.constBlock cid, sc) ;
             worldCases (G, Vs, T.Worlds (cids), sc) )
 
@@ -303,14 +303,14 @@ struct
        and  . |- s : Psi
     *)
     fun createSub (I.Null) = (T.id)
-      | createSub (I.Decl (Psi, T.UDec (I.Dec (xOpt, V1)))) =
+      | (* GEN CASE BRANCH *) createSub (I.Decl (Psi, T.UDec (I.Dec (xOpt, V1)))) =
         let
           val (t') = createSub Psi
           val X = I.newEVar (I.Null, I.EClo (Whnf.whnf (V1, T.coerceSub t'))) (* all EVars are global and lowered *)
         in
            (T.Dot (T.Exp X, t'))
         end
-      | createSub (I.Decl (Psi, T.UDec (I.BDec (_, (l, s))))) =
+      | (* GEN CASE BRANCH *) createSub (I.Decl (Psi, T.UDec (I.BDec (_, (l, s))))) =
         (* Psi0 |- t : Gsome *)
         (* . |- s : Psi0 *)
         let
@@ -320,7 +320,7 @@ struct
         in
           (T.Dot (T.Block L, t'))
         end
-      | createSub (I.Decl (Psi, T.PDec (_, F, TC1, TC2))) =
+      | (* GEN CASE BRANCH *) createSub (I.Decl (Psi, T.PDec (_, F, TC1, TC2))) =
         let (* p > 0 *)
           val t' = createSub Psi
           val Y = T.newEVarTC (I.Null, T.FClo (F, t'), TC1, TC2)
@@ -341,7 +341,7 @@ struct
     *)
 
     fun mkCases (nil, F) = nil
-      | mkCases ((Psi, t) :: cs, F) =
+      | (* GEN CASE BRANCH *) mkCases ((Psi, t) :: cs, F) =
         let
           val X = T.newEVar (Psi, T.FClo (F, t))
         in
@@ -367,7 +367,7 @@ struct
 
     fun split (S.Focus (T.EVar (Psi, r, F, NONE, NONE, _), W)) =
       let
-
+    
         (* splitXs (G, i) (Xs, F, W, sc) = Os
            Invariant:
            If   Psi is a CONTEXT
@@ -378,14 +378,14 @@ struct
            then Os is a list of splitting operators
         *)
         fun splitXs (G, i) (nil, _, _, _) = nil
-          | splitXs (G, i) (X :: Xs, F, W, sc) =
+          | (* GEN CASE BRANCH *) splitXs (G, i) (X :: Xs, F, W, sc) =
             let
               val _ = if !Global.chatter >= 6
                         then print ("Split " ^ Print.expToString (I.Null, X) ^ ".\n")
                       else ()
               val Os = splitXs (G,i+1) (Xs, F, W, sc)    (* returns a list of operators *)
               val _ = resetCases ()
-(*            val I.Dec (SOME s, _) = I.ctxLookup (G, i) *)
+              (*            val I.Dec (SOME s, _) = I.ctxLookup (G, i) *)
               val s = Print.expToString (G, X)
               val Os' = (splitEVar (X, W, sc);
                          Split (r, T.Case (T.Cases (mkCases (getCases (), F))), s) :: Os)
@@ -397,7 +397,7 @@ struct
             in
               Os'
             end
-
+    
         val t = createSub Psi  (* . |- t :: Psi *)
         val Xs = State.collectLFSub t
         fun init () = (addCase (Abstract.abstractTomegaSub t))

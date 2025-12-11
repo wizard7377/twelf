@@ -24,27 +24,27 @@ struct
 
         (* equality checking *)
 	fun tp_eq (TRoot (n, sp), TRoot(n', sp')) = type_const_head_eq(n, n', sp, sp')
-	  | tp_eq (TPi(m,a,b),TPi(m',a',b')) = m = m' andalso tp_eq (a,a') andalso tp_eq (b,b')
-	  | tp_eq _ = false
+	  | (* GEN CASE BRANCH *) tp_eq (TPi(m,a,b),TPi(m',a',b')) = m = m' andalso tp_eq (a,a') andalso tp_eq (b,b')
+	  | (* GEN CASE BRANCH *) tp_eq _ = false
 	and sp_eq ([],[]) = true
-	  | sp_eq (e::sp, e'::sp') = elt_eq (e,e') andalso sp_eq (sp, sp')
-	  | sp_eq _ = false
+	  | (* GEN CASE BRANCH *) sp_eq (e::sp, e'::sp') = elt_eq (e,e') andalso sp_eq (sp, sp')
+	  | (* GEN CASE BRANCH *) sp_eq _ = false
 	and elt_eq (t, t') = elt_eq' (elt_eroot_elim t, elt_eroot_elim t')
 	and elt_eq' (Elt t, Elt t') = tm_eq (t, t')
-	  | elt_eq' (AElt t, AElt t') = atm_eq (t, t')
-	  | elt_eq' (Ascribe (t, a), Ascribe (t', a')) = ntm_eq (t,t') andalso tp_eq (a,a')
-	  | elt_eq' (Omit, Omit) = true
-	  | elt_eq' _ = false
+	  | (* GEN CASE BRANCH *) elt_eq' (AElt t, AElt t') = atm_eq (t, t')
+	  | (* GEN CASE BRANCH *) elt_eq' (Ascribe (t, a), Ascribe (t', a')) = ntm_eq (t,t') andalso tp_eq (a,a')
+	  | (* GEN CASE BRANCH *) elt_eq' (Omit, Omit) = true
+	  | (* GEN CASE BRANCH *) elt_eq' _ = false
 	and tm_eq (NTerm t, NTerm t') = ntm_eq (t, t')
-	  | tm_eq (ATerm t, ATerm t') = atm_eq (t, t')
-	  | tm_eq _ = false
+	  | (* GEN CASE BRANCH *) tm_eq (ATerm t, ATerm t') = atm_eq (t, t')
+	  | (* GEN CASE BRANCH *) tm_eq _ = false
 	and atm_eq (tm as ARoot(Const n,sp), tm' as ARoot(Const n',sp')) = const_head_eq(n, n', sp, sp', ATerm tm, ATerm tm')
-	  | atm_eq (ARoot(Var n,sp),ARoot(Var n',sp')) = n = n' andalso sp_eq (sp, sp')
-	  | atm_eq _ = false (* ERoots are taken care of at the spine element level *)
+	  | (* GEN CASE BRANCH *) atm_eq (ARoot(Var n,sp),ARoot(Var n',sp')) = n = n' andalso sp_eq (sp, sp')
+	  | (* GEN CASE BRANCH *) atm_eq _ = false (* ERoots are taken care of at the spine element level *)
 	and ntm_eq (t, t') = ntm_eq' (ntm_eroot_elim t, ntm_eroot_elim t')
 	and ntm_eq' (tm as NRoot(Const n,sp), tm' as NRoot(Const n',sp')) = const_head_eq(n, n', sp, sp', NTerm tm, NTerm tm')
-	  | ntm_eq' (Lam t, Lam t') = tm_eq (t, t')
-	  | ntm_eq' _ = false
+	  | (* GEN CASE BRANCH *) ntm_eq' (Lam t, Lam t') = tm_eq (t, t')
+	  | (* GEN CASE BRANCH *) ntm_eq' _ = false
         (* determine whether two roots are equal. n and n' are the cids of the heads, whether the
            roots happen to be nroots or aroots. sp and sp' are the spines, and tm and tm' are the
            entire roots. *)
@@ -84,8 +84,8 @@ struct
 
         (* is an equality constraint satisfied? *)
 	fun eq_c_true (EltC(e,e')) = elt_eq(e, e')
-	  | eq_c_true (SpineC(s,s')) = sp_eq(s, s')
-	  | eq_c_true (TypeC(a,a')) = tp_eq(a, a')
+	  | (* GEN CASE BRANCH *) eq_c_true (SpineC(s,s')) = sp_eq(s, s')
+	  | (* GEN CASE BRANCH *) eq_c_true (TypeC(a,a')) = tp_eq(a, a')
 
         (* The type ppsubst is a compact way of representing a
            class of substitutions that contains all of the pattern
@@ -134,7 +134,7 @@ struct
            Otherwise raises Domain. *)
 	fun pp_normalize s = pp_normalize' s
 	and pp_normalize' Id = ([], 0)
-	  | pp_normalize' (TermDot(t, a, s)) =
+	  | (* GEN CASE BRANCH *) pp_normalize' (TermDot(t, a, s)) =
 	    let 
                  (* if the term being consed on is not an eta-expansion of
                     a variable, forget about it *)
@@ -143,17 +143,17 @@ struct
 	     in
 		 (v::vs, shift)
 	     end
-	  | pp_normalize' (ZeroDotShift s) = 
+	  | (* GEN CASE BRANCH *) pp_normalize' (ZeroDotShift s) = 
 	    let 
 		val (vs, shift) = pp_normalize' s
 	    in
 		(0 :: (map (fn x => x + 1) vs), shift + 1)
 	    end
-	  | pp_normalize' (Shift (n, m)) = 
+	  | (* GEN CASE BRANCH *) pp_normalize' (Shift (n, m)) = 
 	    (* using the fact that Shift (n+1) m = ZeroDotShift (Shift n m) *)
 	    (List.tabulate (n, (fn x => x)), n + m)
-	  | pp_normalize' (EVarDot _) = raise Domain (* XXX: Correct??? *)
-	  | pp_normalize' (VarOptDot (no, s)) = 
+	  | (* GEN CASE BRANCH *) pp_normalize' (EVarDot _) = raise Domain (* XXX: Correct??? *)
+	  | (* GEN CASE BRANCH *) pp_normalize' (VarOptDot (no, s)) = 
 	    let 
 		val (vs, shift) = pp_normalize' s
 	    in
@@ -161,7 +161,7 @@ struct
 		    SOME n => (n :: vs, shift)
 		  | NONE => raise Error "??? I'm not sure this is really wrong"
 	    end
-	  | pp_normalize' (Compose sl) = prepattern (substs_comp sl)
+	  | (* GEN CASE BRANCH *) pp_normalize' (Compose sl) = prepattern (substs_comp sl)
 
 	(* prepattern: convert a subst into a ppsubst *)
         (* raises Domain if it is not a prepattern *)
@@ -169,7 +169,7 @@ struct
 
 	(* pp_ispat: is this ppsubst a pattern substitution? *)
 	fun pp_ispat ([],shift) = true
-	  | pp_ispat (n::s,shift) = let fun isn x = (x = n)
+	  | (* GEN CASE BRANCH *) pp_ispat (n::s,shift) = let fun isn x = (x = n)
 				     fun hasn s = List.exists isn s
 				 in
 				     n < shift andalso
@@ -181,15 +181,15 @@ struct
         produce an actual substitution. This is morally a one-sided
         inverse to pp_normalize *)
 	fun makesubst ([],0) = Id
-	  | makesubst ([],shift) = Shift (0, shift)
-	  | makesubst (v::vs,shift) = VarOptDot (v, makesubst (vs,shift))
+	  | (* GEN CASE BRANCH *) makesubst ([],shift) = Shift (0, shift)
+	  | (* GEN CASE BRANCH *) makesubst (v::vs,shift) = VarOptDot (v, makesubst (vs,shift))
 
         (* take in a ppsubst and return a substitution (which may involve VarOptDots) that is its inverse. *)
 	fun pp_invert (vs,shift) =
 	    let
 		val inds = List.tabulate(shift, (fn x => x))
 		fun search n [] (x : int) = NONE
-		  | search n (h::tl) x = 
+		  | (* GEN CASE BRANCH *) search n (h::tl) x = 
 		    if x = h 
 		    then SOME n
 		    else search (n+1) tl x
@@ -216,7 +216,7 @@ struct
 	    in
 		()
 	    end
-	  | flex_left _ = raise Error "evar invariant violated"
+	  | (* GEN CASE BRANCH *) flex_left _ = raise Error "evar invariant violated"
 
         (* match_one' takes an equation (which by invariant does not
            have an instantiated evar on the left, and is ground on the
@@ -230,33 +230,33 @@ struct
 	and just_one' c = [c]
 	and match_one' (EltC(Elt(NTerm(Lam t)),Elt(NTerm(Lam t')))) =
 	    just_one (EltC(Elt t, Elt t'))
-	  | match_one' (EltC(elt as Elt(NTerm(NRoot(Const n,s))), elt' as Elt(NTerm(NRoot(Const n',s'))))) =
+	  | (* GEN CASE BRANCH *) match_one' (EltC(elt as Elt(NTerm(NRoot(Const n,s))), elt' as Elt(NTerm(NRoot(Const n',s'))))) =
 	    match_const_head(n,n',s,s',elt,elt',"c- head mismatch")
-	  | match_one' (EltC(elt as Elt(ATerm(ARoot(Const n,s))), elt' as Elt(ATerm(ARoot(Const n',s'))))) =
+	  | (* GEN CASE BRANCH *) match_one' (EltC(elt as Elt(ATerm(ARoot(Const n,s))), elt' as Elt(ATerm(ARoot(Const n',s'))))) =
 	    match_const_head(n,n',s,s',elt,elt',"c+ head mismatch")
-	  | match_one' (EltC(Elt(ATerm(ARoot(Var n,s))),Elt(ATerm(ARoot(Var n',s'))))) =
+	  | (* GEN CASE BRANCH *) match_one' (EltC(Elt(ATerm(ARoot(Var n,s))),Elt(ATerm(ARoot(Var n',s'))))) =
 	    if n = n' 
 	    then just_one' (SpineC(s, s'))
 	    else raise Matching "var head mismatch"
-	  | match_one' (EltC(AElt t,AElt t')) =
+	  | (* GEN CASE BRANCH *) match_one' (EltC(AElt t,AElt t')) =
 	    just_one' (EltC(Elt(ATerm t), Elt(ATerm t')))
-	  | match_one' (EltC(Ascribe(m,a),Ascribe(m',a'))) =
+	  | (* GEN CASE BRANCH *) match_one' (EltC(Ascribe(m,a),Ascribe(m',a'))) =
 	    match_two (EltC(Elt(NTerm m), Elt(NTerm m'))) (TypeC(a, a'))
-	  | match_one' (EltC(Omit,Omit)) = []
-	  | match_one' (TypeC(TPi(m,a,b),TPi(m',a',b'))) = 
+	  | (* GEN CASE BRANCH *) match_one' (EltC(Omit,Omit)) = []
+	  | (* GEN CASE BRANCH *) match_one' (TypeC(TPi(m,a,b),TPi(m',a',b'))) = 
 	    if m = MINUS andalso m' = MINUS
 	    then match_two (TypeC(a, a')) (TypeC(b, b'))
 	    else raise Matching "mode mismatch"
-	  | match_one' (TypeC(TRoot(n,s), TRoot(n',s'))) = match_type_const_head (n, n', s, s', "type family mismatch")
-	  | match_one' (SpineC([],[])) = []
-	  | match_one' (SpineC(h::s,h'::s')) = match_two (EltC(h, h'))  (SpineC(s, s'))
-	  | match_one' (EltC(Elt(ATerm(ERoot(ev,s : subst))), elt)) = (flex_left (ev, s, elt); [])
-	  | match_one' x = raise Matching "doesn't match"
+	  | (* GEN CASE BRANCH *) match_one' (TypeC(TRoot(n,s), TRoot(n',s'))) = match_type_const_head (n, n', s, s', "type family mismatch")
+	  | (* GEN CASE BRANCH *) match_one' (SpineC([],[])) = []
+	  | (* GEN CASE BRANCH *) match_one' (SpineC(h::s,h'::s')) = match_two (EltC(h, h'))  (SpineC(s, s'))
+	  | (* GEN CASE BRANCH *) match_one' (EltC(Elt(ATerm(ERoot(ev,s : subst))), elt)) = (flex_left (ev, s, elt); [])
+	  | (* GEN CASE BRANCH *) match_one' x = raise Matching "doesn't match"
 
 	(* PERF: this second elt_eroot_elim on elt' seems like it ought to be unnecessary if
 	     I eliminate all eroots at synth time *)
 	and match_one (EltC(elt,elt')) = match_one' (EltC(elt_eroot_elim elt, elt_eroot_elim elt')) 
-	  | match_one e = match_one' e
+	  | (* GEN CASE BRANCH *) match_one e = match_one' e
 	and match_two e1 e2 = [e1, e2] 
 	and match_const_head (n, n', s, s', elt, elt', err) =
  	    let
@@ -297,7 +297,7 @@ struct
 	    fun matching' (c::p,p') =
 		(let val eqs = match_one c in matching'(eqs @ p, p') end
 		 handle NonPattern => matching'(p, c::p'))
-	      | matching' ([], p') = p'
+	      | (* GEN CASE BRANCH *) matching' ([], p') = p'
 	in
 	    matching' (p,[]) 
 	end
@@ -325,9 +325,9 @@ struct
 	and constraint_gen' G ([], a as TRoot _, CG_CHECK(a' as TRoot _)) = 
 	    ([TypeC(a,a')], [], NONE) (* PERF: we might be able to reject this faster if we knew a and a'
                                          were not defined types and were different *)
-	  | constraint_gen' G ([], TRoot(n,s), CG_SYNTH) = 
+	  | (* GEN CASE BRANCH *) constraint_gen' G ([], TRoot(n,s), CG_SYNTH) = 
 	     ([], [], SOME(TRoot(n, s)))
-	  | constraint_gen' G (Omit::s, TPi(OMIT, a, z), c) =
+	  | (* GEN CASE BRANCH *) constraint_gen' G (Omit::s, TPi(OMIT, a, z), c) =
 	    let 
 		val ev : evar = (ref NONE, a)
 		val z' = subst_tp (EVarDotId ev) z
@@ -335,14 +335,14 @@ struct
 	    in
 		(p, q, aa)
 	    end
-	  | constraint_gen' G ((Elt m)::s, TPi(MINUS, a, z), c) =
+	  | (* GEN CASE BRANCH *) constraint_gen' G ((Elt m)::s, TPi(MINUS, a, z), c) =
 	    let 
 		val z' = subst_tp (TermDot (m, a, Id)) z
 		val (p,q,aa) = constraint_gen' G (s, z', c)
 	    in
 		(p, (m,a)::q, aa)
 	    end
-	  | constraint_gen' G ((AElt m)::s, TPi(PLUS, a, z), c) =
+	  | (* GEN CASE BRANCH *) constraint_gen' G ((AElt m)::s, TPi(PLUS, a, z), c) =
 	    let 
 		val a' = synth(G, m)
 		val z' = subst_tp (TermDot (ATerm m, a, Id)) z
@@ -351,7 +351,7 @@ struct
                 (* Same PERF comment here as above *)
 		((TypeC(a,a'))::p, q, aa)
 	    end
-	  | constraint_gen' G ((Ascribe(m,a'))::s, TPi(PLUS, a, z), c) =
+	  | (* GEN CASE BRANCH *) constraint_gen' G ((Ascribe(m,a'))::s, TPi(PLUS, a, z), c) =
 	    let 
 		val z' = subst_tp (TermDot (NTerm m, a, Id)) z
 		val (p,q,aa) = constraint_gen' G (s, z', c)
@@ -359,11 +359,11 @@ struct
                 (* As well as here *)
 		((TypeC(a,a'))::p, q, aa)
 	    end
-	  | constraint_gen' _ _ = raise Error "spine doesn't match type"
+	  | (* GEN CASE BRANCH *) constraint_gen' _ _ = raise Error "spine doesn't match type"
 
         (* similar to above but we just have a putative type and its kind, and return nothing but constraints *)
 	and tp_constraint_gen G ([], Type) =  ([], [])
-	  | tp_constraint_gen G (Omit::s, KPi(OMIT, a, z)) =
+	  | (* GEN CASE BRANCH *) tp_constraint_gen G (Omit::s, KPi(OMIT, a, z)) =
 	    let 
 		val ev : evar = (ref NONE, a)
 		val z' = subst_knd (EVarDotId ev) z
@@ -371,14 +371,14 @@ struct
 	    in
 		(p, q)
 	    end
-	  | tp_constraint_gen G ((Elt m)::s, KPi(MINUS, a, z)) =
+	  | (* GEN CASE BRANCH *) tp_constraint_gen G ((Elt m)::s, KPi(MINUS, a, z)) =
 	    let 
 		val z' = subst_knd (TermDot (m, a, Id)) z
 		val (p,q) = tp_constraint_gen G (s, z')
 	    in
 		(p, (m,a)::q)
 	    end
-	  | tp_constraint_gen G ((AElt m)::s, KPi(PLUS, a, z)) =
+	  | (* GEN CASE BRANCH *) tp_constraint_gen G ((AElt m)::s, KPi(PLUS, a, z)) =
 	    let 
 		val a' = synth(G, m)
 		val z' = subst_knd (TermDot (ATerm m, a, Id)) z
@@ -386,14 +386,14 @@ struct
 	    in
 		((TypeC(a,a'))::p, q)
 	    end
-	  | tp_constraint_gen G ((Ascribe(m,a'))::s, KPi(PLUS, a, z)) =
+	  | (* GEN CASE BRANCH *) tp_constraint_gen G ((Ascribe(m,a'))::s, KPi(PLUS, a, z)) =
 	    let 
 		val z' = subst_knd (TermDot (NTerm m, a, Id)) z
 		val (p,q) = tp_constraint_gen G (s, z')
 	    in
 		((TypeC(a,a'))::p, q)
 	    end
-	  | tp_constraint_gen _ _ = raise Error "spine doesn't match type"
+	  | (* GEN CASE BRANCH *) tp_constraint_gen _ _ = raise Error "spine doesn't match type"
 
 	and check_equality_constraints p = List.all eq_c_true p
 
@@ -410,13 +410,13 @@ struct
 	    end
 
 	and check_spinelt (G, Elt t, a) = check(G, t, a)
-	  | check_spinelt (G, AElt t, a) = check(G, ATerm t, a)
-	  | check_spinelt (G, Ascribe(t,a), a') = (tp_eq(a, a') andalso check(G, NTerm t, a))
-	  | check_spinelt (G, Omit, _) = raise Error "cannot check omitted arguments"
+	  | (* GEN CASE BRANCH *) check_spinelt (G, AElt t, a) = check(G, ATerm t, a)
+	  | (* GEN CASE BRANCH *) check_spinelt (G, Ascribe(t,a), a') = (tp_eq(a, a') andalso check(G, NTerm t, a))
+	  | (* GEN CASE BRANCH *) check_spinelt (G, Omit, _) = raise Error "cannot check omitted arguments"
 
 	and check (G, NTerm(Lam(t)), TPi(_,a,b)) = check(ctxcons (a, G), t, b)
-	  | check (G, ATerm(t), a) = (tp_eq(synth(G, t), a) handle Error s =>  false)
-	  | check (G, NTerm(NRoot(Const n, s)), a) = 
+	  | (* GEN CASE BRANCH *) check (G, ATerm(t), a) = (tp_eq(synth(G, t), a) handle Error s =>  false)
+	  | (* GEN CASE BRANCH *) check (G, NTerm(NRoot(Const n, s)), a) = 
 	    let
 		 val b = case Sgn.classifier n of 
 			     tclass b => b
@@ -425,12 +425,12 @@ struct
 	     in
 		 matching_succeeds G (p, q)
 	     end
-	  | check _ = false
+	  | (* GEN CASE BRANCH *) check _ = false
 	and check_kind (G, Type) = true
-	  | check_kind (G, KPi(OMIT,a,k)) = check_type CON_LF (G,a) andalso 
+	  | (* GEN CASE BRANCH *) check_kind (G, KPi(OMIT,a,k)) = check_type CON_LF (G,a) andalso 
 					    check_kind(ctxcons (a, G), k) andalso
 					    Strict.check_strict_kind(k)
-	  | check_kind (G, KPi(_,a,k)) = check_type CON_LF (G,a) andalso
+	  | (* GEN CASE BRANCH *) check_kind (G, KPi(_,a,k)) = check_type CON_LF (G,a) andalso
 					 check_kind(ctxcons (a, G), k)
 
 	and check_type _ (G, TRoot(n, s)) = 
@@ -443,7 +443,7 @@ struct
 		matching_succeeds G (p, q)
 	    end
 
-	  | check_type con (G, TPi(OMIT,a,b)) = 
+	  | (* GEN CASE BRANCH *) check_type con (G, TPi(OMIT,a,b)) = 
 	    let 
 		val plusconst = case con of
 		 CON_LF => raise Error "TPi(OMIT) where a pure LF function type expected"
@@ -455,23 +455,23 @@ struct
 			     Strict.check_strict_type plusconst b 
 	    end
  
-	  | check_type con (G, TPi(m,a,b)) = 
+	  | (* GEN CASE BRANCH *) check_type con (G, TPi(m,a,b)) = 
 	    (case (con,m) of
 		 (CON_LF, PLUS) => raise Error "TPi(PLUS) where a pure LF function type expected"
 	       | _ => check_type CON_LF (G,a) andalso 
 		      check_type con (ctxcons (a, G), b))
 (* check a type spine *)
 	and check_type' (G, Type, []) = true
-	  | check_type' (G, KPi(_,a,k), m::s) = 
+	  | (* GEN CASE BRANCH *) check_type' (G, KPi(_,a,k), m::s) = 
 	    let
 		val _ = if check_spinelt(G, m, a) then () else raise Error "argument type mismatch"
 		val k' = subst_knd (TermDot(termof m,a,Id)) k
 	    in
 		check_type'(G,k',s)
 	    end
-	  | check_type' _ = false
+	  | (* GEN CASE BRANCH *) check_type' _ = false
 	and synth (G, ARoot(Var n, s)) = synth'(G, ctxLookup(G, n), s)
-	  | synth (G, ARoot(Const n, s)) = 
+	  | (* GEN CASE BRANCH *) synth (G, ARoot(Const n, s)) = 
 	    let
 		 val b = case Sgn.classifier n of 
 			     tclass b => b
@@ -482,20 +482,20 @@ struct
 	     in
 		 Option.valOf aopt (* by invariant, aopt must be SOME *)
 	     end
-	  | synth (G, t as ERoot _) = elt_synth (G, eroot_elim_plus t)
+	  | (* GEN CASE BRANCH *) synth (G, t as ERoot _) = elt_synth (G, eroot_elim_plus t)
 	and synth' (G, a as TRoot(_,_), []) = a
-	  | synth' (G, TPi(_,a,b), m::s) = 
+	  | (* GEN CASE BRANCH *) synth' (G, TPi(_,a,b), m::s) = 
 	    let
 		val _ = if check_spinelt(G, m, a) then () else raise Error "argument type mismatch"
 		val b' = subst_tp (TermDot(termof m,a,Id)) b
 	    in
 		synth' (G, b', s)
 	    end
-	  | synth' _ = raise Error "applying nonfunction to argument"
+	  | (* GEN CASE BRANCH *) synth' _ = raise Error "applying nonfunction to argument"
 	and elt_synth (G, AElt t) = synth (G, t)
-	  | elt_synth (G, Ascribe(t,a)) = if check(G,NTerm t,a) then a else raise Error "ascription doesn't check"
-	  | elt_synth (G, Elt _) = raise Error "trying to synthesize a merely checkable element"
-	  | elt_synth (G, Omit) = raise Error "trying to synthesize an omitted argument"
+	  | (* GEN CASE BRANCH *) elt_synth (G, Ascribe(t,a)) = if check(G,NTerm t,a) then a else raise Error "ascription doesn't check"
+	  | (* GEN CASE BRANCH *) elt_synth (G, Elt _) = raise Error "trying to synthesize a merely checkable element"
+	  | (* GEN CASE BRANCH *) elt_synth (G, Omit) = raise Error "trying to synthesize an omitted argument"
 
 	fun check_plusconst_type t = check_type CON_PLUS ([], t)
 	fun check_minusconst_type t = check_type CON_MINUS ([], t)
@@ -519,9 +519,9 @@ struct
   to B we should omit and which to force to be synthesizing.
  *)
 	fun check_strictness_type _ (TRoot(n, s)) = true
-	  | check_strictness_type plusconst (TPi(OMIT,_,b)) = 
+	  | (* GEN CASE BRANCH *) check_strictness_type plusconst (TPi(OMIT,_,b)) = 
 	    check_strictness_type plusconst b andalso Strict.check_strict_type plusconst b 
-	  | check_strictness_type plusconst (TPi(_,_,b)) = check_strictness_type plusconst b
+	  | (* GEN CASE BRANCH *) check_strictness_type plusconst (TPi(_,_,b)) = check_strictness_type plusconst b
 							
 	val check_plusconst_strictness = check_strictness_type true
 	val check_minusconst_strictness = check_strictness_type false

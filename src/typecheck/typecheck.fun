@@ -22,16 +22,16 @@ struct
     (* for debugging purposes *)
     fun subToString (G, I.Dot (I.Idx (n), s)) =
           Int.toString (n) ^ "." ^ subToString (G, s)
-      | subToString (G, I.Dot (I.Exp (U), s)) =
+      | (* GEN CASE BRANCH *) subToString (G, I.Dot (I.Exp (U), s)) =
           "(" ^ Print.expToString (G, U) ^ ")." ^ subToString (G, s)
-      | subToString (G, I.Dot (I.Block (L as I.LVar _), s)) =
+      | (* GEN CASE BRANCH *) subToString (G, I.Dot (I.Block (L as I.LVar _), s)) =
           LVarToString (G, L) ^ "." ^ subToString (G, s)
-      | subToString (G, I.Shift(n)) = "^" ^ Int.toString (n)
+      | (* GEN CASE BRANCH *) subToString (G, I.Shift(n)) = "^" ^ Int.toString (n)
 
     and LVarToString (G, I.LVar (ref (SOME B), sk, (l, t))) =
           LVarToString (G, I.blockSub (B, sk))
                                         (* whnf for Blocks ? Sun Dec  1 11:38:17 2002 -cs *)
-      | LVarToString (G, I.LVar (ref NONE, sk, (cid, t))) =
+      | (* GEN CASE BRANCH *) LVarToString (G, I.LVar (ref NONE, sk, (cid, t))) =
           "#" ^ I.conDecName (I.sgnLookup cid) ^ "["
           ^ subToString (G, t) ^ "]"
 
@@ -69,17 +69,17 @@ struct
             else exception Error is raised.
      *)
     and inferExpW (G, (I.Uni (L), _)) = (I.Uni (inferUni L), I.id)
-      | inferExpW (G, (I.Pi ((D, _) , V), s)) =
+      | (* GEN CASE BRANCH *) inferExpW (G, (I.Pi ((D, _) , V), s)) =
           (checkDec (G, (D, s));
            inferExp (I.Decl (G, I.decSub (D, s)), (V, I.dot1 s)))
-      | inferExpW (G, (I.Root (C, S), s)) =
+      | (* GEN CASE BRANCH *) inferExpW (G, (I.Root (C, S), s)) =
           inferSpine (G, (S, s), Whnf.whnf (inferCon (G, C), I.id))
-      | inferExpW (G, (I.Lam (D, U), s)) =
+      | (* GEN CASE BRANCH *) inferExpW (G, (I.Lam (D, U), s)) =
           (checkDec (G, (D, s));
            (I.Pi ((I.decSub (D, s), I.Maybe),
                   I.EClo (inferExp (I.Decl (G, I.decSub (D, s)), (U, I.dot1 s)))), I.id))
       (* no cases for Redex, EVars and EClo's *)
-      | inferExpW (G, (I.FgnExp csfe, s)) =
+      | (* GEN CASE BRANCH *) inferExpW (G, (I.FgnExp csfe, s)) =
           inferExp (G, (I.FgnExpStd.ToInternal.apply csfe (), s))    (* AK: typecheck a representative -- presumably if one rep checks, they all do *)
 
     (* inferExp (G, Us) = (V', s')
@@ -100,9 +100,9 @@ struct
             and  G |- V1'[s1]   = V' [s'] : L
     *)
     and inferSpine (G, (I.Nil, _), Vs) = Vs
-      | inferSpine (G, (I.SClo (S, s'), s), Vs) =
+      | (* GEN CASE BRANCH *) inferSpine (G, (I.SClo (S, s'), s), Vs) =
           inferSpine (G, (S, I.comp (s', s)), Vs)
-      | inferSpine (G, (I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)) =
+      | (* GEN CASE BRANCH *) inferSpine (G, (I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)) =
           (checkExp(G, (U, s1), (V1, s2));
            inferSpine (G, (S, s1), Whnf.whnf (V2, I.Dot (I.Exp (I.EClo (U, s1)), s2))))
           (* G |- Pi (x:V1, V2) [s2] = Pi (x: V1 [s2], V2 [1.s2 o ^1] : L
@@ -115,9 +115,9 @@ struct
              Note that G |- U[s1] : V1 [s2]
              and hence V2 must be under the substitution    U[s1]: V1, s2
           *)
-      | inferSpine (G, Ss as (I.App _, _), Vs as (I.Root (I.Def _, _), _)) =
+      | (* GEN CASE BRANCH *) inferSpine (G, Ss as (I.App _, _), Vs as (I.Root (I.Def _, _), _)) =
           inferSpine (G, Ss, Whnf.expandDef Vs)
-      | inferSpine (G, (I.App (U , S), _), (V, s)) = (* V <> (Pi x:V1. V2, s) *)
+      | (* GEN CASE BRANCH *) inferSpine (G, (I.App (U , S), _), (V, s)) = (* V <> (Pi x:V1. V2, s) *)
           raise  Error ("Expression is applied, but not a function")
 
     (* inferCon (G, C) = V'
@@ -135,19 +135,19 @@ struct
         in
           V
         end
-      | inferCon (G, I.Proj (B,  i)) =
+      | (* GEN CASE BRANCH *) inferCon (G, I.Proj (B,  i)) =
         let
           val I.Dec (_, V) = I.blockDec (G, B, i)
         in
           V
         end
-      | inferCon (G, I.Const(c)) = I.constType (c)
-      | inferCon (G, I.Def(d))  = I.constType (d)
-      | inferCon (G, I.Skonst(c)) = I.constType (c) (* this is just a hack. --cs
+      | (* GEN CASE BRANCH *) inferCon (G, I.Const(c)) = I.constType (c)
+      | (* GEN CASE BRANCH *) inferCon (G, I.Def(d))  = I.constType (d)
+      | (* GEN CASE BRANCH *) inferCon (G, I.Skonst(c)) = I.constType (c) (* this is just a hack. --cs
                                                        must be extended to handle arbitrary
                                                        Skolem constants in the right way *)
       (* no case for FVar *)
-      | inferCon (G, I.FgnConst(cs, conDec)) = I.conDecType(conDec)
+      | (* GEN CASE BRANCH *) inferCon (G, I.FgnConst(cs, conDec)) = I.conDecType(conDec)
 
 
     and typeCheck (G, (U, V)) =
@@ -161,12 +161,12 @@ struct
        iff  G1 |- s : G2
     *)
     and checkSub (I.Null, I.Shift 0, I.Null) = ()
-      | checkSub (I.Decl (G, D), I.Shift k, I.Null) =
+      | (* GEN CASE BRANCH *) checkSub (I.Decl (G, D), I.Shift k, I.Null) =
         if k>0 then checkSub (G, I.Shift (k-1), I.Null)
         else raise Error "Substitution not well-typed"
-      | checkSub (G', I.Shift k, G) =
+      | (* GEN CASE BRANCH *) checkSub (G', I.Shift k, G) =
           checkSub (G', I.Dot (I.Idx (k+1), I.Shift (k+1)), G)
-      | checkSub (G', I.Dot (I.Idx k, s'), I.Decl (G, (I.Dec (_, V2)))) =
+      | (* GEN CASE BRANCH *) checkSub (G', I.Dot (I.Idx k, s'), I.Decl (G, (I.Dec (_, V2)))) =
         (* changed order of subgoals here Sun Dec  2 12:14:27 2001 -fp *)
         let
           val _ = checkSub (G', s', G)
@@ -177,7 +177,7 @@ struct
                             Print.expToString (G', V1) ^ "\n  expected: " ^
                             Print.expToString (G', I.EClo (V2, s')))
         end
-      | checkSub (G', I.Dot (I.Exp (U), s'), I.Decl (G, (I.Dec (_, V2)))) =
+      | (* GEN CASE BRANCH *) checkSub (G', I.Dot (I.Exp (U), s'), I.Decl (G, (I.Dec (_, V2)))) =
         (* changed order of subgoals here Sun Dec  2 12:15:53 2001 -fp *)
         let
           val _ = checkSub (G', s', G)
@@ -185,7 +185,7 @@ struct
         in
           ()
         end
-      | checkSub (G', I.Dot (I.Idx w, t), I.Decl (G, (I.BDec (_, (l, s))))) =
+      | (* GEN CASE BRANCH *) checkSub (G', I.Dot (I.Idx w, t), I.Decl (G, (I.BDec (_, (l, s))))) =
         (* Front of the substitution cannot be a I.Bidx or LVar *)
         (* changed order of subgoals here Sun Dec  2 12:15:53 2001 -fp *)
         let
@@ -202,7 +202,7 @@ struct
               then ()
             else raise Error "Substitution in block declaration not well-typed"
         end
-      | checkSub (G', I.Dot (I.Block (I.Inst I), t), I.Decl (G, (I.BDec (_, (l, s))))) =
+      | (* GEN CASE BRANCH *) checkSub (G', I.Dot (I.Block (I.Inst I), t), I.Decl (G, (I.BDec (_, (l, s))))) =
         let
           val _ = checkSub (G', t, G)
           val (G, L) = I.constBlock l
@@ -210,7 +210,7 @@ struct
         in
           ()
         end
-      | checkSub (G', s as I.Dot (_, _), I.Null) =
+      | (* GEN CASE BRANCH *) checkSub (G', s as I.Dot (_, _), I.Null) =
         raise Error ("Long substitution" ^ "\n" ^ subToString (G', s))
       (*
       | checkSub (G', I.Dot (I.Block (I.Bidx _), t), G) =
@@ -220,7 +220,7 @@ struct
       *)
 
     and checkBlock (G, nil, (_, nil)) = ()
-      | checkBlock (G, U :: I, (t, I.Dec (_, V) :: L)) =
+      | (* GEN CASE BRANCH *) checkBlock (G, U :: I, (t, I.Dec (_, V) :: L)) =
         (checkExp (G, (U, I.id), (V, t)); checkBlock (G, I, (I.Dot (I.Exp U, t), L)))
 
     (* checkDec (G, (x:V, s)) = B
@@ -231,7 +231,7 @@ struct
     *)
     and checkDec (G, (I.Dec (_, V) ,s)) =
           checkExp (G, (V, s), (I.Uni (I.Type), I.id))
-      | checkDec (G, (I.BDec (_, (c, t)), s)) =
+      | (* GEN CASE BRANCH *) checkDec (G, (I.BDec (_, (c, t)), s)) =
           let
             (* G1 |- t : GSOME *)
             (* G  |- s : G1 *)
@@ -239,10 +239,10 @@ struct
           in
             checkSub (G, I.comp (t, s), Gsome)
           end
-      | checkDec (G, (NDec, _)) = ()
+      | (* GEN CASE BRANCH *) checkDec (G, (NDec, _)) = ()
 
     and checkCtx (I.Null) =  ()
-      | checkCtx (I.Decl (G, D)) =
+      | (* GEN CASE BRANCH *) checkCtx (I.Decl (G, D)) =
           (checkCtx G; checkDec (G, (D, I.id)))
 
 

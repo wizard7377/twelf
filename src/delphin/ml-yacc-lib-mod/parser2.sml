@@ -149,8 +149,8 @@ structure LrParser :> LR_PARSER =
 	  val empty = (nil,nil)
 	  exception Empty
 	  fun get(a::x, y) = (a, (x,y))
-	    | get(nil, nil) = raise Empty
-	    | get(nil, y) = get(rev y, nil)
+	    | (* GEN CASE BRANCH *) get(nil, nil) = raise Empty
+	    | (* GEN CASE BRANCH *) get(nil, y) = get(rev y, nil)
  	  fun put(a,(x,y)) = (x,a::y)
         end
 
@@ -192,7 +192,7 @@ structure LrParser :> LR_PARSER =
             | nil => ()
                 
         fun prAction showTerminal
-		 (stack as (state,_) :: _, next as (TOKEN (term,_),_), action) =
+        		 (stack as (state,_) :: _, next as (TOKEN (term,_),_), action) =
              (println "Parse: state stack:";
               printStack(stack, 0);
               print("       state="
@@ -205,8 +205,8 @@ structure LrParser :> LR_PARSER =
                 of SHIFT state => println ("SHIFT " ^ (showState state))
                  | REDUCE i => println ("REDUCE " ^ (Int.toString i))
                  | ERROR => println "ERROR"
-		 | ACCEPT => println "ACCEPT")
-        | prAction _ (_,_,action) = ()
+        		 | ACCEPT => println "ACCEPT")
+        | (* GEN CASE BRANCH *) prAction _ (_,_,action) = ()
      end
 
     (* ssParse: parser which maintains the queue of (state * lexvalues) in a
@@ -254,7 +254,7 @@ structure LrParser :> LR_PARSER =
 				end
 			  | _ => raise (ParseImpossible 202))
 	      end
-	    | parseStep _ = raise (ParseImpossible 204)
+	    | (* GEN CASE BRANCH *) parseStep _ = raise (ParseImpossible 204)
 	in parseStep
 	end
 
@@ -272,7 +272,7 @@ structure LrParser :> LR_PARSER =
 	    val action = LrTable.action table
 	    val goto = LrTable.goto table
 	    fun parseStep(lexPair,stack,queue,0) = (lexPair,stack,queue,0,NONE)
-	      | parseStep(lexPair as (TOKEN (terminal, value as (_,leftPos,_)),
+	      | (* GEN CASE BRANCH *) parseStep(lexPair as (TOKEN (terminal, value as (_,leftPos,_)),
 				      lexer
 				     ),
 			  stack as (state,_) :: _,
@@ -296,7 +296,7 @@ structure LrParser :> LR_PARSER =
 		 | ERROR => (lexPair,stack,queue,distance,SOME nextAction)
 		 | ACCEPT => (lexPair,stack,queue,distance,SOME nextAction)
 	      end
-	   | parseStep _ = raise (ParseImpossible 242)
+	   | (* GEN CASE BRANCH *) parseStep _ = raise (ParseImpossible 242)
 	in parseStep : ('_a,'_b) distance_parse 
 	end
 
@@ -402,7 +402,7 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 	          tryChange{lex=lexPair,stack=stack,
 			    pos=qPos,leftPos=left,rightPos=right,
 			    orig=rev accum, new=[]}
-	      | del(n,accum,left,right,(tok as TOKEN(term,(_,_,r)),lexer)) =
+	      | (* GEN CASE BRANCH *) del(n,accum,left,right,(tok as TOKEN(term,(_,_,r)),lexer)) =
 		   if noShift term then []
 		   else del(n-1,tok::accum,left,r,Streamm.get lexer)
          in del(n,[],l,r,lexPair)
@@ -437,17 +437,17 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 	     lp is what remains of the stream after deletion 
      *)
         fun do_delete(nil,lp as (TOKEN(_,(_,l,_)),_)) = SOME(nil,l,l,lp)
-          | do_delete([t],(tok as TOKEN(t',(_,l,r)),lp')) =
-	       if t=t'
-		   then SOME([tok],l,r,Streamm.get lp')
+          | (* GEN CASE BRANCH *) do_delete([t],(tok as TOKEN(t',(_,l,r)),lp')) =
+          	       if t=t'
+          		   then SOME([tok],l,r,Streamm.get lp')
                    else NONE
-          | do_delete(t::rest,(tok as TOKEN(t',(_,l,r)),lp')) =
-	       if t=t'
-		   then case do_delete(rest,Streamm.get lp')
+          | (* GEN CASE BRANCH *) do_delete(t::rest,(tok as TOKEN(t',(_,l,r)),lp')) =
+          	       if t=t'
+          		   then case do_delete(rest,Streamm.get lp')
                          of SOME(deleted,l',r',lp'') =>
-			       SOME(tok::deleted,l,r',lp'')
-			  | NONE => NONE
-		   else NONE
+          			       SOME(tok::deleted,l,r',lp'')
+          			  | NONE => NONE
+          		   else NONE
 			     
         fun tryPreferred((stack,lexPair),queuePos) =
 	    catList preferred_change (fn (delete,insert) =>
@@ -514,8 +514,8 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 
 		  val findNth = fn n =>
 		      let fun f (h::t,0) = (h,rev t)
-			    | f (h::t,n) = f(t,n-1)
-			    | f (nil,_) = let exception FindNth
+			    | (* GEN CASE BRANCH *) f (h::t,n) = f(t,n-1)
+			    | (* GEN CASE BRANCH *) f (nil,_) = let exception FindNth
 					  in raise FindNth
 					  end
 		      in f (rev stateList,n)
@@ -555,12 +555,12 @@ fun mkFixError({is_keyword,terms,errtermvalue,
 	    val ssParse = ssParse(table,showTerminal,saction,fixError,arg)
 	    fun loop (lexPair,stack,queue,_,SOME ACCEPT) =
 		   ssParse(lexPair,stack,queue)
-	      | loop (lexPair,stack,queue,0,_) = ssParse(lexPair,stack,queue)
-	      | loop (lexPair,stack,queue,distance,SOME ERROR) =
+	      | (* GEN CASE BRANCH *) loop (lexPair,stack,queue,0,_) = ssParse(lexPair,stack,queue)
+	      | (* GEN CASE BRANCH *) loop (lexPair,stack,queue,distance,SOME ERROR) =
 		 let val (lexPair,stack,queue) = fixError(lexPair,stack,queue)
 		 in loop (distanceParse(lexPair,stack,queue,distance))
 		 end
-	      | loop _ = let exception ParseInternal
+	      | (* GEN CASE BRANCH *) loop _ = let exception ParseInternal
 			 in raise ParseInternal
 			 end
 	in loop (distanceParse(lexPair,startStack,startQueue,distance))

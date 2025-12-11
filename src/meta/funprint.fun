@@ -50,14 +50,14 @@ struct
        and  fmts is a format list of G1[s1]
     *)
     fun formatCtxBlock (G, (I.Null, s)) = (G, s, nil)
-      | formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
+      | (* GEN CASE BRANCH *) formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
         let
           val D' = I.decSub (D, s)
           val fmt = P.formatDec (G, D')
         in
           (I.Decl (G, D'), I.dot1 s, [fmt])
         end
-      | formatCtxBlock (G, (I.Decl (G', D), s)) =
+      | (* GEN CASE BRANCH *) formatCtxBlock (G, (I.Decl (G', D), s)) =
         let
           val (G'', s'', fmts) = formatCtxBlock (G, (G', s))
           val D'' = I.decSub (D, s'')
@@ -96,7 +96,7 @@ struct
                 Fmt.String "}", Fmt.Break] @
                formatFor' (G'', (F, s''))
              end)
-      | formatFor' (G, (F.Ex (D, F), s)) =
+      | (* GEN CASE BRANCH *) formatFor' (G, (F.Ex (D, F), s)) =
         let
           val D' = Names.decName (G, D)
         in
@@ -104,7 +104,7 @@ struct
            (G, I.decSub (D', s)), Fmt.String "]]", Fmt.Break] @
           formatFor' (I.Decl (G, D'), (F, I.dot1 s))
         end
-      | formatFor' (G, (F.True, s)) =
+      | (* GEN CASE BRANCH *) formatFor' (G, (F.True, s)) =
         [Fmt.String "True"]
 
 
@@ -119,11 +119,11 @@ struct
     *)
     fun formatFor (Psi, F) names =
       let
-
+    
         fun nameLookup index = List.nth (names, index)
-
+    
         (* formatFor1 (index, G, (F, s)) = fmts'
-
+    
            Invariant:
            If   |- G ctx
            and  G |- s : Psi
@@ -133,11 +133,11 @@ struct
         fun formatFor1 (index, G, (F.And (F1, F2), s)) =
               formatFor1 (index, G, (F1, s)) @ [Fmt.Break] @
               formatFor1 (index+1, G, (F2, s))
-          | formatFor1 (index, G, (F, s)) =
+          | (* GEN CASE BRANCH *) formatFor1 (index, G, (F, s)) =
               [Fmt.String (nameLookup index), Fmt.Space,
                Fmt.String "::",
                Fmt.Space, Fmt.HVbox (formatFor' (G, (F, s)))]
-
+    
         fun formatFor0 Args =
           Fmt.Vbox0 0 1 (formatFor1 Args)
       in
@@ -159,9 +159,9 @@ struct
     fun formatPro Args names =
       let
         fun nameLookup index = List.nth (names, index)
-
+    
         (* blockName (G1, G2) = G2'
-
+    
            Invariant:
            If   G1 |- G2 ctx
            then G2' = G2 modulo new non-conficting variable names.
@@ -169,7 +169,7 @@ struct
         fun blockName (G1, G2) =
           let
             fun blockName' (G1, I.Null) = (G1, I.Null)
-              | blockName' (G1, I.Decl (G2, D)) =
+              | (* GEN CASE BRANCH *) blockName' (G1, I.Decl (G2, D)) =
                 let
                   val (G1', G2') = blockName' (G1, G2)
                   val D' = Names.decName (G1, D)
@@ -180,27 +180,27 @@ struct
           in
             G2'
           end
-
+    
         (* ctxBlockName (G1, CB) = CB'
-
+    
            Invariant:
            If   G1 |- CB ctxblock
            then CB' = CB modulo new non-conficting variable names.
         *)
         fun ctxBlockName (G1, F.CtxBlock (name, G2)) =
           F.CtxBlock (name, blockName (G1, G2))
-
+    
         (* decName (G, LD) = LD'
-
+    
            Invariant:
            If   G1 |- LD lfdec
            then LD' = LD modulo new non-conficting variable names.
         *)
         fun decName (G, F.Prim D) =  F.Prim (Names.decName (G, D))
-          | decName (G, F.Block CB)= F.Block (ctxBlockName (G, CB))
-
+          | (* GEN CASE BRANCH *) decName (G, F.Block CB)= F.Block (ctxBlockName (G, CB))
+    
         (* numberOfSplits Ds = n'
-
+    
            Invariant:
            If   Psi, Delta |- Ds :: Psi', Delta'
            then n'= |Psi'| - |Psi|
@@ -208,18 +208,18 @@ struct
         fun numberOfSplits Ds =
             let
               fun numberOfSplits' (F.Empty, n) = n
-                | numberOfSplits' (F.New (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.App (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Lemma (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Split (_, Ds), n) = numberOfSplits' (Ds, n+1)
-                | numberOfSplits' (F.Left (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Right (_, Ds), n) = numberOfSplits' (Ds, n)
+                | (* GEN CASE BRANCH *) numberOfSplits' (F.New (_, Ds), n) = numberOfSplits' (Ds, n)
+                | (* GEN CASE BRANCH *) numberOfSplits' (F.App (_, Ds), n) = numberOfSplits' (Ds, n)
+                | (* GEN CASE BRANCH *) numberOfSplits' (F.Lemma (_, Ds), n) = numberOfSplits' (Ds, n)
+                | (* GEN CASE BRANCH *) numberOfSplits' (F.Split (_, Ds), n) = numberOfSplits' (Ds, n+1)
+                | (* GEN CASE BRANCH *) numberOfSplits' (F.Left (_, Ds), n) = numberOfSplits' (Ds, n)
+                | (* GEN CASE BRANCH *) numberOfSplits' (F.Right (_, Ds), n) = numberOfSplits' (Ds, n)
             in
               numberOfSplits' (Ds, 0)
             end
-
+    
         (* psiName (Psi1, s, Psi2, l) = Psi1'
-
+    
            Invariant:
            If   |- Psi1 ctx
            and  |- Psi1' ctx
@@ -233,50 +233,50 @@ struct
         fun psiName (Psi1, s, Psi2, l) =
           let
             fun nameDec (D as I.Dec (SOME _, _), name) = D
-              | nameDec (I.Dec (NONE, V), name) = I.Dec (SOME name, V)
-
+              | (* GEN CASE BRANCH *) nameDec (I.Dec (NONE, V), name) = I.Dec (SOME name, V)
+    
             fun namePsi (I.Decl (Psi, F.Prim D), 1, name) =
                   I.Decl (Psi, F.Prim (nameDec (D, name)))
-              | namePsi (I.Decl (Psi, LD as F.Prim D), n, name) =
+              | (* GEN CASE BRANCH *) namePsi (I.Decl (Psi, LD as F.Prim D), n, name) =
                   I.Decl (namePsi (Psi, n-1, name), LD)
-              | namePsi (I.Decl (Psi, F.Block (F.CtxBlock (label, G))), n, name) =
+              | (* GEN CASE BRANCH *) namePsi (I.Decl (Psi, F.Block (F.CtxBlock (label, G))), n, name) =
                 let
                   val (Psi', G') = nameG (Psi, G, n, name, fn n' => namePsi (Psi, n', name))
                 in
                   I.Decl (Psi', F.Block (F.CtxBlock (label, G')))
                 end
-
+    
             and nameG (Psi, I.Null, n, name, k) = (k n, I.Null)
-              | nameG (Psi, I.Decl (G, D), 1, name, k) = (Psi, I.Decl (G, nameDec (D, name)))
-              | nameG (Psi, I.Decl (G, D), n, name, k) =
+              | (* GEN CASE BRANCH *) nameG (Psi, I.Decl (G, D), 1, name, k) = (Psi, I.Decl (G, nameDec (D, name)))
+              | (* GEN CASE BRANCH *) nameG (Psi, I.Decl (G, D), n, name, k) =
                 let
                   val (Psi', G') = nameG (Psi, G, n-1, name, k)
                 in
                   (Psi', I.Decl (G', D))
                 end
-
-
+    
+    
             fun ignore (s, 0) = s
-              | ignore (I.Dot (_, s), k) = ignore (s, k-1)
-              | ignore (I.Shift n, k) =
+              | (* GEN CASE BRANCH *) ignore (I.Dot (_, s), k) = ignore (s, k-1)
+              | (* GEN CASE BRANCH *) ignore (I.Shift n, k) =
                   ignore (I.Dot (I.Idx (n+1), I.Shift (n+1)), k-1)
-
+    
             fun copyNames (I.Shift n, G as I.Decl _) Psi1=
                   copyNames (I.Dot (I.Idx (n+1), I.Shift (n+1)), G) Psi1
-              | copyNames (I.Dot (I.Exp _, s), I.Decl (G, _)) Psi1=
+              | (* GEN CASE BRANCH *) copyNames (I.Dot (I.Exp _, s), I.Decl (G, _)) Psi1=
                   copyNames (s, G) Psi1
-              | copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (NONE, _))) Psi1 =
+              | (* GEN CASE BRANCH *) copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (NONE, _))) Psi1 =
                   copyNames (s, G) Psi1
-              | copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (SOME name, _))) Psi1 =
+              | (* GEN CASE BRANCH *) copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (SOME name, _))) Psi1 =
                 let
                   val Psi1' = namePsi (Psi1, k, name)
                 in
                   copyNames (s, G) Psi1'
                 end
-              | copyNames (I.Shift _, I.Null) Psi1 = Psi1
-
+              | (* GEN CASE BRANCH *) copyNames (I.Shift _, I.Null) Psi1 = Psi1
+    
             fun psiName' (I.Null) = I.Null
-              | psiName' (I.Decl (Psi, D)) =
+              | (* GEN CASE BRANCH *) psiName' (I.Decl (Psi, D)) =
                 let
                   val Psi' = psiName' Psi
                 in
@@ -285,19 +285,19 @@ struct
           in
             psiName' (copyNames (ignore (s, l), F.makectx Psi2) Psi1)
           end
-
-
+    
+    
         (* merge (G1, G2) = G'
-
+    
            Invariant:
            G' = G1, G2
         *)
         fun merge (G1, I.Null) = G1
-          | merge (G1, I.Decl (G2, D)) =
+          | (* GEN CASE BRANCH *) merge (G1, I.Decl (G2, D)) =
               I.Decl (merge (G1, G2), D)
-
+    
         (* formatCtx (Psi, G) = fmt'
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi |- G ctx
@@ -306,12 +306,12 @@ struct
         fun formatCtx (Psi, G) =
           let
             val G0 = F.makectx Psi
-
+    
             fun formatCtx' (I.Null) = nil
-              | formatCtx' (I.Decl (I.Null, I.Dec (SOME name, V))) =
+              | (* GEN CASE BRANCH *) formatCtx' (I.Decl (I.Null, I.Dec (SOME name, V))) =
                   [Fmt.String name, Fmt.String ":",
                    Print.formatExp (G0, V)]
-              | formatCtx' (I.Decl (G, I.Dec (SOME name, V))) =
+              | (* GEN CASE BRANCH *) formatCtx' (I.Decl (G, I.Dec (SOME name, V))) =
                   (formatCtx' G) @
                   [Fmt.String ",", Fmt.Break,
                    Fmt.String name, Fmt.String ":",
@@ -319,9 +319,9 @@ struct
           in
             Fmt.Hbox (Fmt.String "|" :: (formatCtx' G @ [Fmt.String "|"]))
           end
-
+    
         (* formatTuple (Psi, P) = fmt'
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi; Delta |- P = Inx (M1, Inx ... (Mn, Unit))
@@ -330,9 +330,9 @@ struct
         fun formatTuple (Psi, P) =
           let
             fun formatTuple' (F.Unit) = nil
-              | formatTuple' (F.Inx (M, F.Unit)) =
+              | (* GEN CASE BRANCH *) formatTuple' (F.Inx (M, F.Unit)) =
               [Print.formatExp (F.makectx Psi, M)]
-              | formatTuple' (F.Inx (M, P')) =
+              | (* GEN CASE BRANCH *) formatTuple' (F.Inx (M, P')) =
               (Print.formatExp (F.makectx Psi, M) ::
                Fmt.String "," :: Fmt.Break :: formatTuple' P')
           in
@@ -341,9 +341,9 @@ struct
               | _ => Fmt.HVbox0 1 1 1
                 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"]))
           end
-
+    
         (* formatSplitArgs (Psi, L) = fmt'
-
+    
            Invariant:
            If   |- Psi ctx
            and  L = (M1, .., Mn)
@@ -353,9 +353,9 @@ struct
         fun formatSplitArgs (Psi, L) =
           let
             fun formatSplitArgs' (nil) = nil
-              | formatSplitArgs' (M :: nil) =
+              | (* GEN CASE BRANCH *) formatSplitArgs' (M :: nil) =
                   [Print.formatExp (F.makectx Psi, M)]
-              | formatSplitArgs' (M :: L) =
+              | (* GEN CASE BRANCH *) formatSplitArgs' (M :: L) =
                   (Print.formatExp (F.makectx Psi, M) ::
                    Fmt.String "," :: Fmt.Break :: formatSplitArgs' L)
           in
@@ -363,18 +363,18 @@ struct
             else Fmt.HVbox0 1 1 1
               (Fmt.String "(" :: (formatSplitArgs' L @ [Fmt.String ")"]))
           end
-
+    
         (* frontToExp (Ft) = U'
-
+    
            Invariant:
            G |- Ft = U' : V   for a G, V
         *)
         fun frontToExp (I.Idx k) = I.Root (I.BVar k, I.Nil)
-          | frontToExp (I.Exp (U)) = U
-
-
+          | (* GEN CASE BRANCH *) frontToExp (I.Exp (U)) = U
+    
+    
         (* formatDecs1 (Psi, Ds, s, L) = L'
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi; Delta |- Ds : Psi'; Delta'
@@ -391,13 +391,13 @@ struct
         *)
         fun formatDecs1 (Psi, F.Split (xx, Ds), I.Dot (Ft, s1), L) =
               formatDecs1 (Psi, Ds, s1, frontToExp (Ft) :: L)
-          | formatDecs1 (Psi, F.Empty, s1, L) = L
-          | formatDecs1 (Psi, Ds, I.Shift n, L) =
+          | (* GEN CASE BRANCH *) formatDecs1 (Psi, F.Empty, s1, L) = L
+          | (* GEN CASE BRANCH *) formatDecs1 (Psi, Ds, I.Shift n, L) =
               formatDecs1 (Psi, Ds, I.Dot (I.Idx (n+1), I.Shift (n+1)), L)
-
-
+    
+    
         (* formatDecs0 (Psi, Ds) = (Ds', S')
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi ; Delta |- Ds : Psi', Delta'
@@ -413,11 +413,11 @@ struct
             in
               (Ds', I.App (M, S))
             end
-          | formatDecs0 (Psi, Ds) = (Ds, I.Nil)
-
-
+          | (* GEN CASE BRANCH *) formatDecs0 (Psi, Ds) = (Ds, I.Nil)
+    
+    
         (* formatDecs (index, Psi, Ds, (Psi1, s1)) = fmt'
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi; Delta |- Ds : Psi'; Delta'
@@ -435,7 +435,7 @@ struct
                         Fmt.HVbox (Fmt.String name :: Fmt.Break ::
                                    Print.formatSpine (F.makectx Psi, S))]
             end
-          | formatDecs (index, Psi, F.New (B as F.CtxBlock (_, G), Ds),
+          | (* GEN CASE BRANCH *) formatDecs (index, Psi, F.New (B as F.CtxBlock (_, G), Ds),
                         (Psi1, s1)) =
             let
               val B' = ctxBlockName (F.makectx Psi, B)
@@ -444,7 +444,7 @@ struct
             in
               Fmt.Vbox [formatCtx (Psi, G), Fmt.Break, fmt]
             end
-          | formatDecs (index, Psi, F.Lemma (lemma, Ds), (Psi1, s1)) =
+          | (* GEN CASE BRANCH *) formatDecs (index, Psi, F.Lemma (lemma, Ds), (Psi1, s1)) =
             let
               val (Ds', S) = formatDecs0 (Psi, Ds)
               val L' = formatDecs1 (Psi, Ds', s1, nil)
@@ -455,23 +455,23 @@ struct
                         Fmt.HVbox (Fmt.String (List.nth (names, index)) :: Fmt.Break ::
                                    Print.formatSpine (F.makectx Psi, S))]
             end
-          | formatDecs (index, Psi, F.Left (_, Ds), (Psi1, s1)) =
+          | (* GEN CASE BRANCH *) formatDecs (index, Psi, F.Left (_, Ds), (Psi1, s1)) =
             let
               val fmt =
                 formatDecs (index, Psi, Ds, (Psi1, s1))
             in
               fmt
             end
-          | formatDecs (index, Psi, F.Right (_, Ds), (Psi1, s1)) =
+          | (* GEN CASE BRANCH *) formatDecs (index, Psi, F.Right (_, Ds), (Psi1, s1)) =
             let
               val fmt =
                 formatDecs (index+1, Psi, Ds, (Psi1, s1))
             in
               fmt
             end
-
+    
         (* formatLet (Psi, P, fmts) = fmts'
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi; Delta |- P = Let . Case P' :: F
@@ -487,7 +487,7 @@ struct
             in
               formatLet (Psi1', P1, fmts @ [fmt, Fmt.Break])
             end
-          | formatLet (Psi, F.Let (Ds, F.Case (F.Opts
+          | (* GEN CASE BRANCH *) formatLet (Psi, F.Let (Ds, F.Case (F.Opts
                                 ((Psi1, s1, P1) ::  nil))), fmts) =
             let
               val Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds)
@@ -501,10 +501,10 @@ struct
                               Fmt.Break,
                               Fmt.String "end"])
             end
-
-
+    
+    
         (* formatPro3 (Psi, P) = fmt
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi; Delta |- P :: F
@@ -512,11 +512,11 @@ struct
            then fmt is a pretty print of P
         *)
         and formatPro3 (Psi, P as F.Unit) = formatTuple (Psi, P)
-          | formatPro3 (Psi, P as F.Inx _) = formatTuple (Psi, P)
-          | formatPro3 (Psi, P as F.Let _) = formatLet (Psi, P, nil)
-
+          | (* GEN CASE BRANCH *) formatPro3 (Psi, P as F.Inx _) = formatTuple (Psi, P)
+          | (* GEN CASE BRANCH *) formatPro3 (Psi, P as F.Let _) = formatLet (Psi, P, nil)
+    
         (* argsToSpine (Psi1, s, S) = S'
-
+    
            Invariant:
            If   Psi1 |- s = M1 . M2 .. Mn. ^|Psi1|: Psi2
            and  Psi1 |- S : V1 > {Psi2} V2
@@ -526,14 +526,14 @@ struct
            then Fmts is a list of arguments
         *)
         fun argsToSpine (s, I.Null, S) = S
-          | argsToSpine (I.Shift (n), Psi, S) =
+          | (* GEN CASE BRANCH *) argsToSpine (I.Shift (n), Psi, S) =
               argsToSpine (I.Dot (I.Idx (n+1), I.Shift (n+1)), Psi, S)
-          | argsToSpine (I.Dot (Ft, s), I.Decl (Psi, D), S) =
+          | (* GEN CASE BRANCH *) argsToSpine (I.Dot (Ft, s), I.Decl (Psi, D), S) =
               argsToSpine (s, Psi, I.App (frontToExp Ft, S))
-
-
+    
+    
         (* formatHead (index, Psi1, s, Psi2) = fmt'
-
+    
            Invariant:
            If    Psi1 |- s : Psi2
            then  fmt is a format of the entire head
@@ -545,17 +545,17 @@ struct
                         Fmt.HVbox (Fmt.String (nameLookup index) :: Fmt.Break ::
                                    Print.formatSpine (F.makectx Psi',
                                                       argsToSpine (s, Psi, I.Nil)))]
-
-
+    
+    
         (* formatPro2 (index, Psi, L) = fmts'
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi |- L a list of cases
            then fmts' list of pretty print formats of L
         *)
         fun formatPro2 (index, Psi, nil) = nil
-          | formatPro2 (index, Psi, (Psi', s, P) :: nil) =
+          | (* GEN CASE BRANCH *) formatPro2 (index, Psi, (Psi', s, P) :: nil) =
             let
               val Psi'' = psiName (Psi', s, Psi, 0)
               val fhead = if index=0 then "fun" else "and"
@@ -565,7 +565,7 @@ struct
                 Fmt.Space, Fmt.String "=", Fmt.Break,
                 formatPro3 (Psi'', P)], Fmt.Break]
             end
-          | formatPro2 (index, Psi, (Psi', s, P) :: O) =
+          | (* GEN CASE BRANCH *) formatPro2 (index, Psi, (Psi', s, P) :: O) =
             let
               val
                 Psi'' = psiName (Psi', s, Psi, 0)
@@ -576,9 +576,9 @@ struct
                 Fmt.Space, Fmt.String "=", Fmt.Break,
                 formatPro3 (Psi'', P)], Fmt.Break]
             end
-
+    
         (* formatPro1 (index, Psi, P) = fmts'
-
+    
            Invariant:
            If   |- Psi ctx
            and  Psi; . |- P :: F
@@ -587,12 +587,12 @@ struct
         *)
         fun formatPro1 (index, Psi, F.Lam (D, P)) =
               formatPro1 (index, I.Decl (Psi, decName (F.makectx Psi, D)), P)
-          | formatPro1 (index, Psi, F.Case (F.Opts Os)) =
+          | (* GEN CASE BRANCH *) formatPro1 (index, Psi, F.Case (F.Opts Os)) =
               formatPro2 (index, Psi, Os)
-          | formatPro1 (index, Psi, F.Pair (P1, P2)) =
+          | (* GEN CASE BRANCH *) formatPro1 (index, Psi, F.Pair (P1, P2)) =
               formatPro1 (index, Psi, P1) @ formatPro1 (index+1, Psi, P2)
-
-
+    
+    
         (* formatPro0 (Psi, P) = fmt'
            If   |- Psi ctx
            and  Psi; . |- P :: F

@@ -54,22 +54,22 @@ struct
 
 
   fun cidFromHead (I.Const a) = a
-    | cidFromHead (I.Def a) = a
+    | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
 
   fun eqHead (I.Const a, I.Const a') = a = a'
-    | eqHead (I.Def a, I.Def a') = a = a'
-    | eqHead _ = false
+    | (* GEN CASE BRANCH *) eqHead (I.Def a, I.Def a') = a = a'
+    | (* GEN CASE BRANCH *) eqHead _ = false
 
   (* Wed Mar 13 10:27:00 2002 -bp  *)
   (* should probably go to intsyn.fun *)
   fun compose (G, IntSyn.Null) = G
-    | compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
+    | (* GEN CASE BRANCH *) compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
 
   fun shiftSub (IntSyn.Null, s) = s
-    | shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
+    | (* GEN CASE BRANCH *) shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
 
   fun raiseType (I.Null, V) = V
-    | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+    | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
 
   (* solve ((g, s), dp, sc) = ()
      Invariants:
@@ -85,17 +85,17 @@ struct
   fun solve ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
       matchAtom ((p,s), dp, sc)
 
-    | solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
         val D' = I.Dec(NONE, I.EClo(A,s))
       in
         solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
                 (fn M => sc (I.Lam (D', M))))
       end
-    | solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
         val D' = Names.decLUName (G, I.decSub (D, s))
-(*      val D' = I.decSub (D, s) *)
+    (*      val D' = I.decSub (D, s) *)
       in
         solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl(dPool, C.Parameter)),
                 (fn M => sc (I.Lam (D', M))))
@@ -118,13 +118,13 @@ struct
          then sc I.Nil                     (* call success continuation *)
        else ()                             (* fail *)
 
-    | rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
         (case Assign.assignable (G, ps', (Q, s))
            of SOME(cnstr) =>
                 aSolve((eqns, s), dp, cnstr, (fn () => sc I.Nil))
             | NONE => ())
 
-    | rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
       let
         (* is this EVar redundant? -fp *)
         (* same effect as s^-1 *)
@@ -134,13 +134,13 @@ struct
                 (fn S => solve ((g, s), dp, (fn M => sc (I.App (M, S))))))
       end
 
-    | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
       let
         val X  = I.newEVar (G, I.EClo (A,s))
       in
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, (fn S => sc (I.App(X,S))))
       end
-    | rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN CASE BRANCH *) rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), sc) =
       let
         val X' = I.newAVar ()
       in
@@ -160,7 +160,7 @@ struct
       if Assign.solveCnstr cnstr then
         sc ()
       else ()
-    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
+    | (* GEN CASE BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
       let
         val G'' = compose (G, G')
         val s' = shiftSub (G', s)
@@ -191,11 +191,11 @@ struct
         (* matchSig [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting
            with c1.
-
+  
            #succeeds >= 1 (succeeds at least once)
         *)
         fun matchSig nil = ()   (* return unit on failure *)
-          | matchSig (Hc::sgn') =
+          | (* GEN CASE BRANCH *) matchSig (Hc::sgn') =
             let
               val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -205,15 +205,15 @@ struct
                rSolve (ps', (r, I.id), dp, (fn S => sc (I.Root(Hc, S)))));
               matchSig sgn'
             end
-
+  
         (* matchSigDet [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting
            with c1.
-
+  
            succeeds exactly once (#succeeds = 1)
         *)
         fun matchSigDet nil = ()        (* return unit on failure *)
-          | matchSigDet (Hc::sgn') =
+          | (* GEN CASE BRANCH *) matchSigDet (Hc::sgn') =
             let
               val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -223,7 +223,7 @@ struct
                matchSigDet sgn')
               handle SucceedOnce S =>  sc (I.Root(Hc, S))
             end
-
+  
         (* matchDProg (dPool, k) = ()
            where k is the index of dPool in global dPool from call to matchAtom.
            Try each local assumption for solving atomic goal ps', starting
@@ -234,7 +234,7 @@ struct
           if deterministic
             then matchSigDet (Index.lookup (cidFromHead Ha))
           else matchSig (Index.lookup (cidFromHead Ha))
-          | matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
+          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
             if eqHead (Ha, Ha')
             then
               if deterministic
@@ -244,14 +244,14 @@ struct
                                      (fn S => (raise SucceedOnce S))));
                     matchDProg (dPool', k+1))
                    handle SucceedOnce S => sc (I.Root(I.BVar(k), S)))
-
+            
               else (* #succeeds >= 1 -- allows backtracking *)
                 (CSManager.trail (* trail to undo EVar instantiations *)
                  (fn () => rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,
                                    (fn S => sc (I.Root(I.BVar(k), S)))));
                  matchDProg (dPool', k+1))
             else matchDProg (dPool', k+1)
-          | matchDProg (I.Decl (dPool', C.Parameter), k) =
+          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Parameter), k) =
               matchDProg (dPool', k+1)
         fun matchConstraint (cnstrSolve, try) =
               let

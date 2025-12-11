@@ -14,7 +14,7 @@ struct
     structure I = IntSyn
 
     fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+      | (* GEN CASE BRANCH *) cidFromHead (I.Def c) = c
 
     (* Index array
 
@@ -49,7 +49,7 @@ struct
           of (_, I.ConDec (_, _, _, _, A, I.Type)) => update (cidFromHead (I.targetHead A), H)
            | (I.Clause, I.ConDef (_, _, _, _, A, I.Type, _)) => update (cidFromHead (I.targetHead A), I.Def(c))
            | _ => ())
-      | install fromCS (H as I.Skonst c) =
+      | (* GEN CASE BRANCH *) install fromCS (H as I.Skonst c) =
         (case I.sgnLookup (c)
            of I.SkoDec (_, _, _, A, I.Type) => update (cidFromHead (I.targetHead A), H)
             | _ => ())
@@ -90,7 +90,7 @@ struct
     *)
     fun lookup a =
         let fun lk (l, NONE) = l
-              | lk (l, SOME(q')) =
+              | (* GEN CASE BRANCH *) lk (l, SOME(q')) =
                 (Array.update (indexArray, a, q'); l)
         in
           lk (Queue.toList (Array.sub (indexArray, a)))

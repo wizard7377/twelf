@@ -49,31 +49,31 @@ struct
     val all_ps : bool option Array.array = Array.array(sgn_size, NONE)
 
     fun  split (h::tl) 0 = ([], h, tl)
-       | split (h::tl) n = let 
-	     val (pre, thing, post) = split tl (n-1)
-	 in
-	     (h::pre, thing, post)
-	 end
-       | split [] n = split [NONE] n 
+       | (* GEN CASE BRANCH *) split (h::tl) n = let 
+       	     val (pre, thing, post) = split tl (n-1)
+       	 in
+       	     (h::pre, thing, post)
+       	 end
+       | (* GEN CASE BRANCH *) split [] n = split [NONE] n 
 
     fun clear () = let in
-		       Array.modify (fn _ => NONE) sigma;
-		       Array.modify (fn _ => NONE) all_modes;
-		       Array.modify (fn _ => NONE) all_ps
-		   end
+    		       Array.modify (fn _ => NONE) sigma;
+    		       Array.modify (fn _ => NONE) all_modes;
+    		       Array.modify (fn _ => NONE) all_ps
+    		   end
 		       
     fun condec (s, a, oa) = {name = s, classifier = tclass a, o_classifier = tclass oa,
-			     def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
+    			     def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
     fun tycondec (s, k, ok) = {name = s, classifier = kclass k, o_classifier = kclass ok,
-			       def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
+    			       def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
     fun defn (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
-				  def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = false}
+    				  def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = false}
     fun tydefn (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
-				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = false}
+    				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = false}
     fun abbrev (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
-				    def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = true}
+    				    def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = true}
     fun tyabbrev (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
-				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = true}
+    				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = true}
     fun typeOfSigent (e : sigent) = Syntax.typeOf (#classifier e)
 
     fun setter table (n, x) = Array.update (table, n, SOME x)

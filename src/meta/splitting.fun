@@ -75,7 +75,7 @@ struct
 
     fun makeOperator ((S, k), L, S.Splits n, g, I, m, true) =    (* recursive case *)
           Operator ((S, k), L, {sd=n, ind=I, c=List.length L, m=m, r=1, p=g+1})
-      | makeOperator ((S, k), L, S.Splits n, g, I, m, false) =   (* non-recursive case *)
+      | (* GEN CASE BRANCH *) makeOperator ((S, k), L, S.Splits n, g, I, m, false) =   (* non-recursive case *)
           Operator ((S, k), L, {sd=n, ind=I, c=List.length L, m=m, r=0, p=g+1})
 
     (* aux (G, B) = L'
@@ -87,9 +87,9 @@ struct
     *)
 
     fun aux (I.Null, I.Null) = I.Null
-      | aux (I.Decl (G, D), I.Decl (B, S.Lemma _)) =
+      | (* GEN CASE BRANCH *) aux (I.Decl (G, D), I.Decl (B, S.Lemma _)) =
           I.Decl (aux (G, B), F.Prim D)
-      | aux (G as I.Decl (_, D), B as I.Decl (_, S.Parameter (SOME l))) =
+      | (* GEN CASE BRANCH *) aux (G as I.Decl (_, D), B as I.Decl (_, S.Parameter (SOME l))) =
         let
           val F.LabelDec  (name, _, G2) = F.labelLookup l
           val (Psi', G') = aux' (G, B, List.length G2)
@@ -98,7 +98,7 @@ struct
         end
 
     and aux' (G, B, 0) = (aux (G, B), I.Null)
-      | aux' (I.Decl (G, D), I.Decl (B, S.Parameter (SOME _)), n) =
+      | (* GEN CASE BRANCH *) aux' (I.Decl (G, D), I.Decl (B, S.Parameter (SOME _)), n) =
         let
           val (Psi', G') = aux' (G, B, n-1)
         in
@@ -117,7 +117,7 @@ struct
       let
         exception Conv
         fun conv ((I.Null, s), (I.Null, s')) = (s, s')
-          | conv ((I.Decl (G, I.Dec (_, V)), s),
+          | (* GEN CASE BRANCH *) conv ((I.Decl (G, I.Dec (_, V)), s),
                   (I.Decl (G', I.Dec (_, V')), s')) =
             let
               val (s1, s1') = conv ((G, s), (G', s'))
@@ -126,7 +126,7 @@ struct
               if Conv.conv ((V, s1), (V', s1')) then ps
               else raise Conv
             end
-          | conv _ = raise Conv
+          | (* GEN CASE BRANCH *) conv _ = raise Conv
       in
         (conv (Gs, Gs'); true) handle Conv => false
       end
@@ -145,8 +145,8 @@ struct
     *)
     fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
     and createEVarSpineW (G, Vs as (I.Uni I.Type, s)) = (I.Nil, Vs) (* s = id *)
-      | createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
-      | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
+      | (* GEN CASE BRANCH *) createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
+      | (* GEN CASE BRANCH *) createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let
           val X = I.newEVar (G, I.EClo (V1, s))
           val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
@@ -199,7 +199,7 @@ struct
     *)
 
     fun someEVars (G, nil, s) =  s
-      | someEVars (G, I.Dec (_, V) :: L, s) =
+      | (* GEN CASE BRANCH *) someEVars (G, I.Dec (_, V) :: L, s) =
           someEVars(G, L, I.Dot (I.Exp (I.newEVar (G, I.EClo (V, s))), s))
 
 
@@ -227,7 +227,7 @@ struct
           if I.targetFam V1 = a then m+1
           else m
         end
-      | maxNumberLocalParams (I.Root _, a) = 0
+      | (* GEN CASE BRANCH *) maxNumberLocalParams (I.Root _, a) = 0
 
 
 
@@ -246,17 +246,17 @@ struct
     *)
 
     fun ctxSub (nil, s) = nil
-      | ctxSub (D :: G, s) = I.decSub (D, s) :: ctxSub (G, I.dot1 s)
+      | (* GEN CASE BRANCH *) ctxSub (D :: G, s) = I.decSub (D, s) :: ctxSub (G, I.dot1 s)
 
 
 
     fun createTags (0, l) = I.Null
-      | createTags (n, l) =
+      | (* GEN CASE BRANCH *) createTags (n, l) =
            I.Decl (createTags (n-1, l),  S.Parameter (SOME l))
 
 
     fun createLemmaTags (I.Null) = I.Null
-      | createLemmaTags (I.Decl (G, D)) =
+      | (* GEN CASE BRANCH *) createLemmaTags (I.Decl (G, D)) =
            I.Decl (createLemmaTags G,  S.Lemma (S.Splits (!MTPGlobal.maxSplit)))
 
     (* constCases (G, (V, s), I, abstract, ops) = ops'
@@ -270,7 +270,7 @@ struct
          operators from I
     *)
     fun constCases (G, Vs, nil, abstract, ops) = ops
-      | constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
+      | (* GEN CASE BRANCH *) constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
         let
           val (U, Vs') = createAtomConst (G, I.Const c)
         in
@@ -294,7 +294,7 @@ struct
          operators introduced by parameters <= k in G
     *)
     fun paramCases (G, Vs, 0, abstract, ops) = ops
-      | paramCases (G, Vs, k, abstract, ops) =
+      | (* GEN CASE BRANCH *) paramCases (G, Vs, k, abstract, ops) =
         let
           val (U, Vs') = createAtomBVar (G, k)
         in
@@ -315,9 +315,9 @@ struct
     fun metaCases (d, ops0) (c, G, k, Vs, abstract) =
       let
         val g = I.ctxLength G
-
+    
         fun select (0, ops)  = ops
-          | select (d', ops) =
+          | (* GEN CASE BRANCH *) select (d', ops) =
             let
               val n = g-d'+1
               val I.Dec (_, V) = I.ctxDec (G, n)
@@ -352,7 +352,7 @@ struct
     *)
     fun lowerSplitDest (G, k, (V as I.Root (I.Const c, _), s'), abstract, cases) =
           cases (c, G, I.ctxLength G , (V, s'), abstract)
-      | lowerSplitDest (G, k, (I.Pi ((D, P), V), s'), abstract, cases) =
+      | (* GEN CASE BRANCH *) lowerSplitDest (G, k, (I.Pi ((D, P), V), s'), abstract, cases) =
           let
             val D' = I.decSub (D, s')
           in
@@ -405,12 +405,12 @@ struct
                                         (* G' |- U' : V[s'] *)
                                         (* G' |- U'.s' : G, V[s'] *)
                     val ((G'', B''), s'') = MTPAbstract.abstractSub' ((G', B'), I.Dot (I.Exp U', s'), I.Decl (B0, T))
-
+    
                     val _ = if !Global.doubleCheck then
                               let
                                 val Psi'' = aux (G'',B'')
                                 val _ = TypeCheck.typeCheckCtx (F.makectx Psi'')
-
+    
                                 val Psi = aux (I.Decl (G0, D), I.Decl (B0, T))
                                 val _ = TypeCheck.typeCheckCtx (F.makectx Psi)
                               in
@@ -441,9 +441,9 @@ struct
                                         (* G' |- B' tags *)
                                         (* G' |- s : G = G0 *)
                                         (* G0 |- B0 tags *)
-
+    
                 (* abstract' U = S'
-
+    
                    Invariant:
                    If   G' |- U' : V[s']
                    then |- S' state *)
@@ -472,7 +472,7 @@ struct
                     in
                       abstract ((G'', B''), s'')
                     end
-
+    
                 val cases' = lowerSplitDest (G', 0, (V, s'), abstract',
                                            metaCases (length, cases))
               in
@@ -490,21 +490,21 @@ struct
        then  B iff k occurs in U
     *)
     fun occursInExp (k, I.Uni _) = false
-      | occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.Root (C, S)) = occursInCon (k, C) orelse occursInSpine (k, S)
-      | occursInExp (k, I.Lam (D,V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
-      | occursInExp (k, I.FgnExp csfe) =
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Root (C, S)) = occursInCon (k, C) orelse occursInSpine (k, S)
+      | (* GEN CASE BRANCH *) occursInExp (k, I.Lam (D,V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
+      | (* GEN CASE BRANCH *) occursInExp (k, I.FgnExp csfe) =
         I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExp (k, Whnf.normalize (U, I.id))) false
       (* no case for Redex, EVar, EClo *)
 
     and occursInCon (k, I.BVar (k')) = (k = k')
-      | occursInCon (k, I.Const _) = false
-      | occursInCon (k, I.Def _) = false
-      | occursInCon (k, I.Skonst _) = false
+      | (* GEN CASE BRANCH *) occursInCon (k, I.Const _) = false
+      | (* GEN CASE BRANCH *) occursInCon (k, I.Def _) = false
+      | (* GEN CASE BRANCH *) occursInCon (k, I.Skonst _) = false
       (* no case for FVar *)
 
     and occursInSpine (_, I.Nil) = false
-      | occursInSpine (k, I.App (U, S)) = occursInExp (k, U) orelse occursInSpine (k, S)
+      | (* GEN CASE BRANCH *) occursInSpine (k, I.App (U, S)) = occursInExp (k, U) orelse occursInSpine (k, S)
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExp (k, V)
@@ -561,12 +561,12 @@ struct
         in
           if occursInExp (k, U') then SOME (n) else sc (n+1)
         end
-      | occursInOrder (n, S.Lex Os, k, sc) = occursInOrders (n, Os, k, sc)
-      | occursInOrder (n, S.Simul Os, k, sc) = occursInOrders (n, Os, k, sc)
+      | (* GEN CASE BRANCH *) occursInOrder (n, S.Lex Os, k, sc) = occursInOrders (n, Os, k, sc)
+      | (* GEN CASE BRANCH *) occursInOrder (n, S.Simul Os, k, sc) = occursInOrders (n, Os, k, sc)
       (* no other case should be possible by invariant *)
 
     and occursInOrders (n, nil, k, sc) = sc n
-      | occursInOrders (n, O :: Os, k, sc) =
+      | (* GEN CASE BRANCH *) occursInOrders (n, O :: Os, k, sc) =
           occursInOrder (n, O, k, fn n' => occursInOrders (n', Os, k, sc))
 
 
@@ -601,7 +601,7 @@ struct
     fun expand' (GB as (I.Null, I.Null), isIndex,
                  abstract, makeAddress, induction) =
         (fn (Gp, Bp) => ((Gp, Bp), I.Shift (I.ctxLength Gp), GB, false), nil)
-      | expand' (GB as (I.Decl (G, D), I.Decl (B, T as (S.Lemma (K as S.Splits _)))),
+      | (* GEN CASE BRANCH *) expand' (GB as (I.Decl (G, D), I.Decl (B, T as (S.Lemma (K as S.Splits _)))),
                  isIndex, abstract, makeAddress, induction) =
         let
           val (sc, ops) =
@@ -630,7 +630,7 @@ struct
         in
           (sc', ops')
         end
-      | expand' ((I.Decl (G, D), I.Decl (B, T as (S.Lemma (S.RL)))), isIndex,
+      | (* GEN CASE BRANCH *) expand' ((I.Decl (G, D), I.Decl (B, T as (S.Lemma (S.RL)))), isIndex,
                  abstract, makeAddress, induction) =
         let
           val (sc, ops) =
@@ -649,7 +649,7 @@ struct
         in
           (sc', ops)
         end
-      | expand' ((I.Decl (G, D), I.Decl (B, T as (S.Lemma (S.RLdone)))), isIndex,
+      | (* GEN CASE BRANCH *) expand' ((I.Decl (G, D), I.Decl (B, T as (S.Lemma (S.RLdone)))), isIndex,
                  abstract, makeAddress, induction) =
         let
           val (sc, ops) =
@@ -668,7 +668,7 @@ struct
         in
           (sc', ops)
         end
-      | expand' ((I.Decl (G, D), I.Decl (B, T as S.Parameter (SOME _))), isIndex,
+      | (* GEN CASE BRANCH *) expand' ((I.Decl (G, D), I.Decl (B, T as S.Parameter (SOME _))), isIndex,
                  abstract, makeAddress, induction) =
         let
           val (sc, ops) =
@@ -684,7 +684,7 @@ struct
               ((I.Decl (G', Names.decName (G', I.decSub (D, s'))), I.Decl (B', T)),
                I.dot1 s', (I.Decl (G0, D), I.Decl (B0, T)), true)
             end
-
+      
         in
           (sc', ops)
         end
@@ -725,7 +725,7 @@ struct
        B holds iff F is inactive
     *)
     fun isInActive (Active _) = false
-      | isInActive (InActive) = true
+      | (* GEN CASE BRANCH *) isInActive (InActive) = true
 
 
     (* applicable (Op) = B'
@@ -749,7 +749,7 @@ struct
       map (fn (Active S) =>
                (if (!Global.doubleCheck) then FunTypeCheck.isState S else ();
                 S)
-
+    
             | InActive => raise Error "Not applicable: leftover constraints")
       Sl
 
@@ -766,21 +766,21 @@ struct
     fun menu (Op as Operator ((S.State (n, (G, B), (IH, OH), d, O, H, F), i), Sl, I)) =
         let
           fun active (nil, n) = n
-            | active (InActive :: L, n) = active (L, n)
-            | active ((Active _) :: L, n) = active (L, n+1)
-
+            | (* GEN CASE BRANCH *) active (InActive :: L, n) = active (L, n)
+            | (* GEN CASE BRANCH *) active ((Active _) :: L, n) = active (L, n+1)
+    
           fun inactive (nil, n) = n
-            | inactive (InActive :: L, n) = inactive (L, n+1)
-            | inactive ((Active _) :: L, n) = inactive (L, n)
-
+            | (* GEN CASE BRANCH *) inactive (InActive :: L, n) = inactive (L, n+1)
+            | (* GEN CASE BRANCH *) inactive ((Active _) :: L, n) = inactive (L, n)
+    
           fun casesToString 0 = "zero cases"
-            | casesToString 1 = "1 case"
-            | casesToString n = (Int.toString n) ^ " cases"
-
-
-
+            | (* GEN CASE BRANCH *) casesToString 1 = "1 case"
+            | (* GEN CASE BRANCH *) casesToString n = (Int.toString n) ^ " cases"
+    
+    
+    
           fun flagToString (_, 0) = ""
-            | flagToString (n, m) = " [active: " ^(Int.toString n) ^
+            | (* GEN CASE BRANCH *) flagToString (n, m) = " [active: " ^(Int.toString n) ^
                 " inactive: " ^ (Int.toString m) ^ "]"
         in
           "Splitting : " ^ Print.decToString (G, I.ctxDec (G, i)) ^

@@ -14,7 +14,7 @@ struct
                              else ptlc js
             (* first line should start at 0 *)
             (* nil means first "line" was not terminated by <newline> *)
-            | ptlc (nil) = (0, i)
+            | (* GEN CASE BRANCH *) ptlc (nil) = (0, i)
       in
         ptlc (linesInfo)
       end
@@ -71,7 +71,7 @@ struct
       in
         filename ^ ":" ^ regString ^ " " ^ "Error: \n" ^ msg
       end
-    | wrapLoc' (loc, NONE, msg) = wrapLoc0 (loc, msg)
+    | (* GEN CASE BRANCH *) wrapLoc' (loc, NONE, msg) = wrapLoc0 (loc, msg)
 
   fun wrapLoc (loc, msg) =
         wrapLoc' (loc, SOME (getLinesInfo()), msg)
@@ -111,12 +111,12 @@ struct
 
   (* occToPath (occ, p) = p'(p) and occ corresponds to p' *)
   fun occToPath (top, path) = path
-    | occToPath (label(occ), path) = occToPath (occ, Label(path))
-    | occToPath (body(occ), path) = occToPath (occ, Body(path))
-    | occToPath (head(occ), path) =
+    | (* GEN CASE BRANCH *) occToPath (label(occ), path) = occToPath (occ, Label(path))
+    | (* GEN CASE BRANCH *) occToPath (body(occ), path) = occToPath (occ, Body(path))
+    | (* GEN CASE BRANCH *) occToPath (head(occ), path) =
       (* path = Here by invariant *)
         occToPath (occ, Head)
-    | occToPath (arg(n,occ), path) = occToPath (occ, Arg(n,path))
+    | (* GEN CASE BRANCH *) occToPath (arg(n,occ), path) = occToPath (occ, Arg(n,path))
 
   datatype occ_con_dec =                  (* occurrence tree for constant declarations *)
       dec of int * occ_exp               (* (#implicit, v) in c : V *)
@@ -139,18 +139,18 @@ struct
       let
           (* local functions refer to k but not u *)
           fun inside (leaf r) = posInRegion (k, r)
-            | inside (bind (r, _, _)) = posInRegion (k, r)
-            | inside (root (r, _, _, _, _)) = posInRegion (k, r)
-
+            | (* GEN CASE BRANCH *) inside (bind (r, _, _)) = posInRegion (k, r)
+            | (* GEN CASE BRANCH *) inside (root (r, _, _, _, _)) = posInRegion (k, r)
+  
           fun toPath (leaf (Reg (i,j))) = Here (* check? mark? *)
-            | toPath (bind (Reg (i,j), NONE, u)) =
+            | (* GEN CASE BRANCH *) toPath (bind (Reg (i,j), NONE, u)) =
               if inside u then Body (toPath u)
               else Here
-            | toPath (bind (Reg (i,j), SOME(u1), u2)) =
+            | (* GEN CASE BRANCH *) toPath (bind (Reg (i,j), SOME(u1), u2)) =
               if inside u1 then Label (toPath u1)
               else if inside u2 then Body (toPath u2)
                    else Here
-            | toPath (root (Reg (i,j), h, imp, actual, s)) =
+            | (* GEN CASE BRANCH *) toPath (root (Reg (i,j), h, imp, actual, s)) =
               if inside h then Head
               else (case toPathSpine (s, 1)
                       of NONE => Here
@@ -158,7 +158,7 @@ struct
           (* in some situations, whitespace after subexpressions *)
           (* might give a larger term than anticipated *)
           and toPathSpine (nils, n) = NONE
-            | toPathSpine (app(u,s), n) =
+            | (* GEN CASE BRANCH *) toPathSpine (app(u,s), n) =
               if inside u then SOME(n, toPath u)
               else toPathSpine (s, n+1)
       in
@@ -167,34 +167,34 @@ struct
 
   (* toRegion (u) = r, the region associated with the whole occurrence tree u *)
   fun toRegion (leaf r) = r
-    | toRegion (bind (r, _, _)) = r
-    | toRegion (root (r, _, _, _, _)) = r
+    | (* GEN CASE BRANCH *) toRegion (bind (r, _, _)) = r
+    | (* GEN CASE BRANCH *) toRegion (root (r, _, _, _, _)) = r
 
   (* toRegionSpine (s, r) = r', the join of all regions in s and r *)
   fun toRegionSpine (nils, r) = r
-    | toRegionSpine (app (u, s), r) =
+    | (* GEN CASE BRANCH *) toRegionSpine (app (u, s), r) =
         join (toRegion u, toRegionSpine (s, r)) (* order? *)
 
   (* pathToRegion (u, p) = r,
      where r is the region identified by path p in occurrence tree u
   *)
   fun pathToRegion (u, Here) = toRegion u
-    | pathToRegion (bind (r, NONE, u), Label(path)) =
+    | (* GEN CASE BRANCH *) pathToRegion (bind (r, NONE, u), Label(path)) =
       (* addressing implicit type label returns region of binder and its scope *)
       r
-    | pathToRegion (bind (r, SOME(u1), u2), Label(path)) =
+    | (* GEN CASE BRANCH *) pathToRegion (bind (r, SOME(u1), u2), Label(path)) =
         pathToRegion (u1, path)
-    | pathToRegion (bind (r, _, u), Body(path)) =
+    | (* GEN CASE BRANCH *) pathToRegion (bind (r, _, u), Body(path)) =
         pathToRegion (u, path)
-    | pathToRegion (root (r, _, _, _, _), Label(path)) =
+    | (* GEN CASE BRANCH *) pathToRegion (root (r, _, _, _, _), Label(path)) =
         (* addressing binder introduced as the result of eta expansion
            approximate as the eta-expanded root *)
         r
-    | pathToRegion (u as root _, Body(path)) =
+    | (* GEN CASE BRANCH *) pathToRegion (u as root _, Body(path)) =
         (* bypassing binder introduced as the result of eta expansion *)
         pathToRegion (u, path)
-    | pathToRegion (root (r, h, imp, actual, s), Head) = toRegion h
-    | pathToRegion (root (r, h, imp, actual, s), Arg (n, path)) =
+    | (* GEN CASE BRANCH *) pathToRegion (root (r, h, imp, actual, s), Head) = toRegion h
+    | (* GEN CASE BRANCH *) pathToRegion (root (r, h, imp, actual, s), Arg (n, path)) =
       if n <= imp
         then (* addressing implicit argument returns region of head *)
              toRegion h
@@ -203,11 +203,11 @@ struct
                 approximate by the whole root *)
              r
       else pathToRegionSpine (s, n-imp, path)
-    | pathToRegion (leaf (r), _) = r    (* possible if leaf was _ (underscore) *)
+    | (* GEN CASE BRANCH *) pathToRegion (leaf (r), _) = r    (* possible if leaf was _ (underscore) *)
     (* other combinations should be impossible *)
   and pathToRegionSpine (app (u, s), 1, path) =
         pathToRegion (u, path)
-    | pathToRegionSpine (app (u, s), n, path) =
+    | (* GEN CASE BRANCH *) pathToRegionSpine (app (u, s), n, path) =
         pathToRegionSpine (s, n-1, path)
     (* anything else should be impossible *)
 
@@ -217,12 +217,12 @@ struct
   fun occToRegionExp u occ = pathToRegion (u, occToPath (occ, Here))
 
   fun skipImplicit (0, path) = path
-    | skipImplicit (n, Body(path)) =
+    | (* GEN CASE BRANCH *) skipImplicit (n, Body(path)) =
         skipImplicit (n-1, path)
-    | skipImplicit (n, Label(path)) =
+    | (* GEN CASE BRANCH *) skipImplicit (n, Label(path)) =
         (* implicit argument: approximate as best possible *)
         Here
-    | skipImplicit (n, Here) =
+    | (* GEN CASE BRANCH *) skipImplicit (n, Here) =
         (* addressing body including implicit arguments: approximate by body *)
         Here
     (* anything else should be impossible *)
@@ -244,7 +244,7 @@ struct
   *)
   fun occToRegionDef2 (def (n, u, SOME(v))) occ =
       pathToRegion (v, skipImplicit (n, occToPath (occ, Here)))
-    | occToRegionDef2 (def (n, u, NONE)) occ =
+    | (* GEN CASE BRANCH *) occToRegionDef2 (def (n, u, NONE)) occ =
       pathToRegion (u, Here)
 
   (* occToRegionClause d occ = r
@@ -252,7 +252,7 @@ struct
      c : V or c : V = U.
   *)
   fun occToRegionClause (d as dec _) occ = occToRegionDec d occ
-    | occToRegionClause (d as def _) occ = occToRegionDef2 d occ
+    | (* GEN CASE BRANCH *) occToRegionClause (d as def _) occ = occToRegionDef2 d occ
 
 end;  (* functor Paths *)
 

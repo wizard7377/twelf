@@ -11,7 +11,7 @@ local
 	
 
   fun printS nil = ()
-    | printS (condec :: S) =
+    | (* GEN CASE BRANCH *) printS (condec :: S) =
         (TextIO.print ((Print.conDecToString condec) ^ "\n"); printS S)
 in
 
@@ -38,11 +38,11 @@ in
       val _ = TextIO.print "checking ... "
       val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F))
       val _ = TextIO.print "]"
-(*      val _ = (FunTypeCheck.check (P, F); Twelf.OK)   *)
-(*      val LD = F.LemmaDec (names, P, F) *)
-(*      val _ = TextIO.print (FunPrint.lemmaDecToString LD) *)
+  (*      val _ = (FunTypeCheck.check (P, F); Twelf.OK)   *)
+  (*      val LD = F.LemmaDec (names, P, F) *)
+  (*      val _ = TextIO.print (FunPrint.lemmaDecToString LD) *)
     in P
-(*      FunNames.installName (name, F.lemmaAdd LD) *)
+  (*      FunNames.installName (name, F.lemmaAdd LD) *)
     end)
 
        

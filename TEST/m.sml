@@ -13,22 +13,22 @@ local
   (* just for non-inductive types *)
   fun transformOrder' (G, Order.Arg k) = 
       let 
-	val k' = (I.ctxLength G) -k+1
-	val I.Dec (_, V) = I.ctxDec (G, k')
+  	val k' = (I.ctxLength G) -k+1
+  	val I.Dec (_, V) = I.ctxDec (G, k')
       in
-	S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
+  	S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
       end
-    | transformOrder' (G, Order.Lex Os) = 
+    | (* GEN CASE BRANCH *) transformOrder' (G, Order.Lex Os) = 
         S.Lex (map (fn O => transformOrder' (G, O)) Os)
-    | transformOrder' (G, Order.Simul Os) = 
+    | (* GEN CASE BRANCH *) transformOrder' (G, Order.Simul Os) = 
         S.Simul (map (fn O => transformOrder' (G, O)) Os)
 
   fun transformOrder (G, F.All (F.Prim D, F), Os) =
-	S.All (D, transformOrder (I.Decl (G, D), F, Os))
-    | transformOrder (G, F.And (F1, F2), O :: Os) =
-	S.And (transformOrder (G, F1, [O]),
-	       transformOrder (G, F2, Os))
-    | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O) 
+  	S.All (D, transformOrder (I.Decl (G, D), F, Os))
+    | (* GEN CASE BRANCH *) transformOrder (G, F.And (F1, F2), O :: Os) =
+    	S.And (transformOrder (G, F1, [O]),
+    	       transformOrder (G, F2, Os))
+    | (* GEN CASE BRANCH *) transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O) 
 
   fun select c = (Order.selLookup c handle _ => Order.Lex [])
     
@@ -42,7 +42,7 @@ local
       val _ = Twelf.chatter := 5
       val _ = MTPi.reset ()
       val _ = MTPi.init (depth, (F, transformOrder(I.Null, F, Os)))
-val _ = raise Domain
+  val _ = raise Domain
       val _ = MTPi.auto ()
       val _ = Twelf.chatter := 3
     in

@@ -46,7 +46,7 @@ struct
 
     fun checkEOF (LS.Cons ((L.EOF, r), s')) = r (* region information useless
                                                    since it only refers to string --cs *)
-      | checkEOF (LS.Cons ((t, r), _))  =
+      | (* GEN CASE BRANCH *) checkEOF (LS.Cons ((t, r), _))  =
           Parsing.error (r, "Expected `}', found " ^ L.toString t)
          (* Note that this message is inapplicable when we use
             checkEOF in stringToterm --rf *)
@@ -107,7 +107,7 @@ struct
        {G}V = V'
     *)
     fun closure (I.Null, V) = V
-      | closure (I.Decl (G, D), V) =
+      | (* GEN CASE BRANCH *) closure (I.Decl (G, D), V) =
           closure (G, I.Pi ((D, I.Maybe), V))
 
     (* internalizeBlock  (n, G, Vb, S) (L2, s) = ()
@@ -123,7 +123,7 @@ struct
               correspond to the block declarations.
     *)
     fun internalizeBlock _ (nil, _) = ()
-      | internalizeBlock (n, G, Vb, S) (I.Dec (SOME name, V) :: L2, s) =
+      | (* GEN CASE BRANCH *) internalizeBlock (n, G, Vb, S) (I.Dec (SOME name, V) :: L2, s) =
         let
           val name' = "o_" ^ name
           val V1 = I.EClo (V, s)        (* G, B |- V' : type *)
@@ -152,7 +152,7 @@ struct
        and G0 |- S' : V >> type.
     *)
     fun makeSpine (_, I.Null, S) = S
-      | makeSpine (n, I.Decl (G, D), S) =
+      | (* GEN CASE BRANCH *) makeSpine (n, I.Decl (G, D), S) =
           makeSpine (n+1, G, I.App (I.Root (I.BVar (n+1), I.Nil), S))
 
 
@@ -163,9 +163,9 @@ struct
        then all pi declarations are internalized if condec was a blockdec
     *)
     fun internalizeCondec (cid, I.ConDec _) = ()
-      | internalizeCondec (cid, I.ConDef _) = ()
-      | internalizeCondec (cid, I.AbbrevDef _) = ()
-      | internalizeCondec (cid, I.BlockDec (name, _, Gsome, Lpi)) =
+      | (* GEN CASE BRANCH *) internalizeCondec (cid, I.ConDef _) = ()
+      | (* GEN CASE BRANCH *) internalizeCondec (cid, I.AbbrevDef _) = ()
+      | (* GEN CASE BRANCH *) internalizeCondec (cid, I.BlockDec (name, _, Gsome, Lpi)) =
         let
           val V' = closure (Gsome, I.Uni I.Type)
           val C = I.ConDec (name ^ "'", NONE, 0, I.Normal, V', I.Kind)
@@ -178,7 +178,7 @@ struct
         in
           internalizeBlock (1, Gsome, Vb, S') (Lpi, I.shift)
         end
-      | internalizeCondec (cid, I.SkoDec _) = ()
+      | (* GEN CASE BRANCH *) internalizeCondec (cid, I.SkoDec _) = ()
 
 
     (* sigToCtx () = ()
@@ -207,15 +207,15 @@ struct
     (* Externalization *)
 
     fun dropSpine (0, S) = S
-      | dropSpine (n, I.App (_, S)) = dropSpine (n-1, S)
+      | (* GEN CASE BRANCH *) dropSpine (n, I.App (_, S)) = dropSpine (n-1, S)
 
     fun makeSub (I.Nil, s) = s
-      | makeSub (I.App (U, S), s) = makeSub (S, I.Dot (I.Exp U, s))
+      | (* GEN CASE BRANCH *) makeSub (I.App (U, S), s) = makeSub (S, I.Dot (I.Exp U, s))
 
     fun externalizeExp' (U as I.Uni _)  = U
-      | externalizeExp' (I.Pi ((D, DP), U)) = I.Pi ((externalizeDec D, DP), externalizeExp U)
-      | externalizeExp' (I.Root (H as I.BVar _, S)) = I.Root (H, externalizeSpine S)
-      | externalizeExp' (I.Root (H as I.Const c, S)) =
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Pi ((D, DP), U)) = I.Pi ((externalizeDec D, DP), externalizeExp U)
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (H as I.BVar _, S)) = I.Root (H, externalizeSpine S)
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (H as I.Const c, S)) =
         (case I.constUni c
            of I.Kind => I.Root (H, externalizeSpine S)
             | I.Type => let
@@ -224,14 +224,14 @@ struct
                         in
                           I.Root (I.Proj (I.Bidx b, i), externalizeSpine S')
                         end)
-      | externalizeExp' (I.Root (I.Proj _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.Skonst _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.Def _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.NSDef _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.FVar _, _)) = raise Domain
-      | externalizeExp' (I.Root (I.FgnConst _, _)) = raise Domain
-      | externalizeExp' (I.Redex (U, S)) = I.Redex (externalizeExp U, externalizeSpine S)
-      | externalizeExp' (I.Lam (D, U)) = I.Lam (externalizeDec D, externalizeExp U)
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (I.Proj _, _)) = raise Domain
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (I.Skonst _, _)) = raise Domain
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (I.Def _, _)) = raise Domain
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (I.NSDef _, _)) = raise Domain
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (I.FVar _, _)) = raise Domain
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Root (I.FgnConst _, _)) = raise Domain
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Redex (U, S)) = I.Redex (externalizeExp U, externalizeSpine S)
+      | (* GEN CASE BRANCH *) externalizeExp' (I.Lam (D, U)) = I.Lam (externalizeDec D, externalizeExp U)
     and externalizeExp (U) = externalizeExp' (Whnf.normalize (U, I.id))
     (* Check : the translators hould only generate normal forms. Fix during the next pass --cs Thu Apr 17 17:06:24 2003 *)
 
@@ -239,28 +239,28 @@ struct
     and externalizeDec (I.Dec (name, V)) = I.Dec (name, externalizeExp V)
 
     and externalizeSpine I.Nil = I.Nil
-      | externalizeSpine (I.App (U, S)) = I.App (externalizeExp U, externalizeSpine S)
+      | (* GEN CASE BRANCH *) externalizeSpine (I.App (U, S)) = I.App (externalizeExp U, externalizeSpine S)
     and externalizeSub (s as I.Shift n) = s
-      | externalizeSub (I.Dot (F, s)) = I.Dot (externalizeFront F, externalizeSub s)
+      | (* GEN CASE BRANCH *) externalizeSub (I.Dot (F, s)) = I.Dot (externalizeFront F, externalizeSub s)
     and externalizeFront (F as I.Idx _) = F
-      | externalizeFront (I.Exp U) = I.Exp (externalizeExp U)
-      | externalizeFront (I.Block B) = I.Block (externalizeBlock B)
-      | externalizeFront (F as I.Undef) = F
+      | (* GEN CASE BRANCH *) externalizeFront (I.Exp U) = I.Exp (externalizeExp U)
+      | (* GEN CASE BRANCH *) externalizeFront (I.Block B) = I.Block (externalizeBlock B)
+      | (* GEN CASE BRANCH *) externalizeFront (F as I.Undef) = F
 
     fun externalizePrg (n, T.Lam (D, P)) = T.Lam (externalizeMDec (n, D), externalizePrg (n+1, P))
-      | externalizePrg (n, T.New P) = T.New (externalizePrg (n, P))
-      | externalizePrg (n, T.Box (W, P)) = T.Box (W, externalizePrg (n, P))
-      | externalizePrg (n, T.Choose P) = T.Choose (externalizePrg (n, P))
-      | externalizePrg (n, T.PairExp (U, P)) = T.PairExp (externalizeExp U, externalizePrg (n, P))
-      | externalizePrg (n, T.PairPrg (P1, P2)) = T.PairPrg (externalizePrg (n, P1), externalizePrg (n, P2))
-      | externalizePrg (n, T.PairBlock (B, P)) = T.PairBlock (externalizeBlock B, externalizePrg (n, P))
-      | externalizePrg (n, T.Unit) =  T.Unit
-      | externalizePrg (n, T.Var k) = T.Var k
-      | externalizePrg (n, T.Const c) = T.Const c
-      | externalizePrg (n, T.Redex (P, S)) = T.Redex  (externalizePrg (n, P), externalizeMSpine (n, S))
-      | externalizePrg (n, T.Rec (D, P)) = T.Rec (externalizeMDec (n, D), externalizePrg (n+1, P))
-      | externalizePrg (n, T.Case (T.Cases O)) = T.Case (T.Cases (externalizeCases O))
-      | externalizePrg (n, T.Let (D, P1, P2)) = T.Let (externalizeMDec (n, D), externalizePrg (n, P1), externalizePrg (n+1, P2))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.New P) = T.New (externalizePrg (n, P))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Box (W, P)) = T.Box (W, externalizePrg (n, P))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Choose P) = T.Choose (externalizePrg (n, P))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.PairExp (U, P)) = T.PairExp (externalizeExp U, externalizePrg (n, P))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.PairPrg (P1, P2)) = T.PairPrg (externalizePrg (n, P1), externalizePrg (n, P2))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.PairBlock (B, P)) = T.PairBlock (externalizeBlock B, externalizePrg (n, P))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Unit) =  T.Unit
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Var k) = T.Var k
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Const c) = T.Const c
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Redex (P, S)) = T.Redex  (externalizePrg (n, P), externalizeMSpine (n, S))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Rec (D, P)) = T.Rec (externalizeMDec (n, D), externalizePrg (n+1, P))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Case (T.Cases O)) = T.Case (T.Cases (externalizeCases O))
+      | (* GEN CASE BRANCH *) externalizePrg (n, T.Let (D, P1, P2)) = T.Let (externalizeMDec (n, D), externalizePrg (n, P1), externalizePrg (n+1, P2))
       (* PClo should not be possible, since by invariant, parser
          always generates a program in normal form  --cs Thu Apr 17 16:56:07 2003
       *)
@@ -268,22 +268,22 @@ struct
         (case Array.sub (internal, a)
            of Type (a') => T.UDec (I.BDec(name, (a', makeSub (externalizeSpine S, I.Shift n))))
             | _ =>  T.UDec (externalizeDec D))
-      | externalizeMDec (n, T.UDec D) = T.UDec (externalizeDec D)
-      | externalizeMDec (n, T.PDec (s, F)) = T.PDec (s, externalizeFor (n, F))
+      | (* GEN CASE BRANCH *) externalizeMDec (n, T.UDec D) = T.UDec (externalizeDec D)
+      | (* GEN CASE BRANCH *) externalizeMDec (n, T.PDec (s, F)) = T.PDec (s, externalizeFor (n, F))
 
     and externalizeFor (n, T.World (W, F)) = T.World (W, externalizeFor (n, F))
-      | externalizeFor (n, T.All ((D, Q), F)) = T.All ((externalizeMDec (n, D), Q), externalizeFor (n+1, F))
-      | externalizeFor (n, T.Ex ((D, Q), F)) = T.Ex ((externalizeDec D, Q), externalizeFor (n+1, F))
-      | externalizeFor (n, T.True) = T.True
-      | externalizeFor (n, T.And (F1, F2)) = T.And (externalizeFor (n, F1), externalizeFor (n, F2))
+      | (* GEN CASE BRANCH *) externalizeFor (n, T.All ((D, Q), F)) = T.All ((externalizeMDec (n, D), Q), externalizeFor (n+1, F))
+      | (* GEN CASE BRANCH *) externalizeFor (n, T.Ex ((D, Q), F)) = T.Ex ((externalizeDec D, Q), externalizeFor (n+1, F))
+      | (* GEN CASE BRANCH *) externalizeFor (n, T.True) = T.True
+      | (* GEN CASE BRANCH *) externalizeFor (n, T.And (F1, F2)) = T.And (externalizeFor (n, F1), externalizeFor (n, F2))
 
     and externalizeMSpine (n, T.Nil) = T.Nil
-      | externalizeMSpine (n, T.AppExp (U, S)) = T.AppExp (externalizeExp U, externalizeMSpine (n, S))
-      | externalizeMSpine (n, T.AppBlock (B, S)) = T.AppBlock (externalizeBlock B, externalizeMSpine (n, S))
-      | externalizeMSpine (n, T.AppPrg (P, S)) = T.AppPrg (externalizePrg (n, P), externalizeMSpine (n, S))
+      | (* GEN CASE BRANCH *) externalizeMSpine (n, T.AppExp (U, S)) = T.AppExp (externalizeExp U, externalizeMSpine (n, S))
+      | (* GEN CASE BRANCH *) externalizeMSpine (n, T.AppBlock (B, S)) = T.AppBlock (externalizeBlock B, externalizeMSpine (n, S))
+      | (* GEN CASE BRANCH *) externalizeMSpine (n, T.AppPrg (P, S)) = T.AppPrg (externalizePrg (n, P), externalizeMSpine (n, S))
 
     and externalizeCases nil = nil
-      | externalizeCases ((Psi, t, P) :: O) =
+      | (* GEN CASE BRANCH *) externalizeCases ((Psi, t, P) :: O) =
         let
           val n = I.ctxLength Psi
         in
@@ -291,16 +291,16 @@ struct
         end
 
     and externalizeMSub (n, t as (T.Shift _)) = t
-      | externalizeMSub (n, T.Dot (F, t)) = T.Dot (externalizeMFront (n, F), externalizeMSub (n, t))
+      | (* GEN CASE BRANCH *) externalizeMSub (n, T.Dot (F, t)) = T.Dot (externalizeMFront (n, F), externalizeMSub (n, t))
 
     and externalizeMFront (n, F as (T.Idx _)) = F
-      | externalizeMFront (n, T.Prg P) = T.Prg (externalizePrg (n, P))
-      | externalizeMFront (n, T.Exp U) = T.Exp (externalizeExp U)
-      | externalizeMFront (n, T.Block B) = T.Block (externalizeBlock B)
-      | externalizeMFront (n, F as T.Undef) =  F
+      | (* GEN CASE BRANCH *) externalizeMFront (n, T.Prg P) = T.Prg (externalizePrg (n, P))
+      | (* GEN CASE BRANCH *) externalizeMFront (n, T.Exp U) = T.Exp (externalizeExp U)
+      | (* GEN CASE BRANCH *) externalizeMFront (n, T.Block B) = T.Block (externalizeBlock B)
+      | (* GEN CASE BRANCH *) externalizeMFront (n, F as T.Undef) =  F
 
     and externalizeMCtx I.Null = I.Null
-      | externalizeMCtx (I.Decl (Psi, D)) =
+      | (* GEN CASE BRANCH *) externalizeMCtx (I.Decl (Psi, D)) =
          I.Decl (externalizeMCtx Psi, externalizeMDec (I.ctxLength Psi, D))
 
 
@@ -315,15 +315,15 @@ struct
         in
           (s1 ^ " -> " ^ s2, c1 @ c2)
         end
-      | transTerm (D.Ltarrow (t1, t2)) =
+      | (* GEN CASE BRANCH *) transTerm (D.Ltarrow (t1, t2)) =
         let
           val (s1, c1) = transTerm t1
           val (s2, c2) = transTerm t2
         in
           (s1 ^ " <- " ^ s2, c1 @ c2)
         end
-      | transTerm (D.Type) = ("type", nil)
-      | transTerm (D.Id s) =
+      | (* GEN CASE BRANCH *) transTerm (D.Type) = ("type", nil)
+      | (* GEN CASE BRANCH *) transTerm (D.Id s) =
         let
           val qid = Names.Qid (nil, s)
         in
@@ -333,42 +333,42 @@ struct
                               of I.BlockDec _ => (s ^ "'", nil)
                                | _ => (s, nil))
         end
-      | transTerm (D.Pi (D, t)) =
+      | (* GEN CASE BRANCH *) transTerm (D.Pi (D, t)) =
         let
           val (s1, c1) = transDec D
           val (s2, c2) = transTerm t
         in
           ("{" ^ s1 ^ "}" ^ s2, c1 @ c2)
         end
-      | transTerm (D.Fn (D, t)) =
+      | (* GEN CASE BRANCH *) transTerm (D.Fn (D, t)) =
         let
           val (s1, c1) = transDec D
           val (s2, c2) = transTerm t
         in
           ("[" ^ s1 ^ "]" ^ s2, c1 @ c2)
         end
-      | transTerm (D.App (t1, t2)) =
+      | (* GEN CASE BRANCH *) transTerm (D.App (t1, t2)) =
         let
           val (s1, c1) = transTerm t1
           val (s2, c2) = transTerm t2
         in
           (s1 ^ " " ^ s2, c1 @ c2)
         end
-      | transTerm (D.Omit) = ("_", nil)
-      | transTerm (D.Paren (t)) =
+      | (* GEN CASE BRANCH *) transTerm (D.Omit) = ("_", nil)
+      | (* GEN CASE BRANCH *) transTerm (D.Paren (t)) =
         let
           val (s, c) = transTerm t
         in
           ("(" ^  s ^ ")", c)
         end
-      | transTerm (D.Of (t1, t2)) =
+      | (* GEN CASE BRANCH *) transTerm (D.Of (t1, t2)) =
         let
           val (s1, c1) = transTerm t1
           val (s2, c2) = transTerm t2
         in
           (s1 ^ ":" ^ s2, c1 @ c2)
         end
-      | transTerm (D.Dot (t, s2)) =
+      | (* GEN CASE BRANCH *) transTerm (D.Dot (t, s2)) =
         let
           val (s1, c1) = transTerm t
         in
@@ -402,9 +402,9 @@ struct
         in
           [cid]
         end
-      | transWorld (D.Plus (W1, W2)) = transWorld W1 @ transWorld W2
-      | transWorld (D.Concat (W1, W2)) = transWorld W1 @ transWorld W2
-      | transWorld (D.Times W) = transWorld W
+      | (* GEN CASE BRANCH *) transWorld (D.Plus (W1, W2)) = transWorld W1 @ transWorld W2
+      | (* GEN CASE BRANCH *) transWorld (D.Concat (W1, W2)) = transWorld W1 @ transWorld W2
+      | (* GEN CASE BRANCH *) transWorld (D.Times W) = transWorld W
 
     fun transFor' (Psi, D) =
         let
@@ -423,37 +423,37 @@ struct
        and  Psi |- F <= ExtF
     *)
     fun transFor (Psi, D.True) = T.True
-      | transFor (Psi, D.And (EF1, EF2)) =
+      | (* GEN CASE BRANCH *) transFor (Psi, D.And (EF1, EF2)) =
           T.And (transFor (Psi, EF1), transFor (Psi, EF2))
-      | transFor (Psi, D.Forall (D, F)) =
+      | (* GEN CASE BRANCH *) transFor (Psi, D.Forall (D, F)) =
         let
           val (D'', nil) = transDec D
           val D' = transFor' (Psi, stringTodec (D''))
         in
            T.All ((T.UDec D', T.Explicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.Exists (D, F)) =
+      | (* GEN CASE BRANCH *) transFor (Psi, D.Exists (D, F)) =
         let
           val (D'', nil) = transDec D
           val D' = transFor' (Psi, stringTodec (D''))
         in
            T.Ex ((D', T.Explicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.ForallOmitted (D, F)) =
+      | (* GEN CASE BRANCH *) transFor (Psi, D.ForallOmitted (D, F)) =
         let
           val (D'', nil) = transDec D
           val D' = transFor' (Psi, stringTodec (D''))
         in
            T.All ((T.UDec D', T.Implicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.ExistsOmitted (D, F)) =
+      | (* GEN CASE BRANCH *) transFor (Psi, D.ExistsOmitted (D, F)) =
         let
           val (D'', nil) = transDec D
           val D' = transFor' (Psi, stringTodec (D''))
         in
            T.Ex ((D', T.Implicit), transFor (I.Decl (Psi, D'), F))
         end
-      | transFor (Psi, D.World (W, EF)) =
+      | (* GEN CASE BRANCH *) transFor (Psi, D.World (W, EF)) =
            T.World (T.Worlds (transWorld W), transFor (Psi, EF))
 
 
@@ -486,8 +486,8 @@ struct
        n is the name of the function head dH
     *)
     fun head (D.Head s) = s
-      | head (D.AppLF (H, _)) = head H
-      | head (D.AppMeta (H, _)) = head H
+      | (* GEN CASE BRANCH *) head (D.AppLF (H, _)) = head H
+      | (* GEN CASE BRANCH *) head (D.AppMeta (H, _)) = head H
 
     (* lamClosure (F, P) = P'
 
@@ -499,15 +499,15 @@ struct
        then P' = lam D1 ... lam Dn P
     *)
     fun lamClosure (T.All ((D, _), F), P) = T.Lam (D, lamClosure (F, P))
-      | lamClosure (T.World(_, F), P) = lamClosure (F, P)
-      | lamClosure (T.Ex _, P) = P
+      | (* GEN CASE BRANCH *) lamClosure (T.World(_, F), P) = lamClosure (F, P)
+      | (* GEN CASE BRANCH *) lamClosure (T.Ex _, P) = P
 
 
     fun exists (c, []) = raise Error "Current world is not subsumed"
-      | exists (c, c' :: cids) = if c = c' then () else exists (c, cids)
+      | (* GEN CASE BRANCH *) exists (c, c' :: cids) = if c = c' then () else exists (c, cids)
 
     fun subsumed ([], cids') = ()
-      | subsumed (c :: cids, cids') = (exists (c, cids'); subsumed (cids, cids'))
+      | (* GEN CASE BRANCH *) subsumed (c :: cids, cids') = (exists (c, cids'); subsumed (cids, cids'))
 
 
     fun checkForWorld (T.World (W as T.Worlds cids, F), t', T.Worlds cids') =
@@ -517,7 +517,7 @@ struct
         in
           (F, t', W)
         end
-      | checkForWorld FtW = FtW
+      | (* GEN CASE BRANCH *) checkForWorld FtW = FtW
 
 
     (* dotn (t, n) = t'
@@ -528,7 +528,7 @@ struct
        then Psi0, G[t] |- t : Psi, G
     *)
     fun dotn (t, 0) = t
-      | dotn (t, n) = I.dot1 (dotn (t, n-1))
+      | (* GEN CASE BRANCH *) dotn (t, n) = I.dot1 (dotn (t, n-1))
 
     (* append (Psi1, Psi2) = Psi3
 
@@ -538,7 +538,7 @@ struct
        then |- Psi3 = Psi1, Psi2 ctx
     *)
     fun append (Psi, I.Null) = Psi
-      | append (Psi, I.Decl (Psi', D)) =
+      | (* GEN CASE BRANCH *) append (Psi, I.Decl (Psi', D)) =
           I.Decl (append (Psi, Psi'), D)
 
 
@@ -579,25 +579,25 @@ struct
     *)
 
     fun transDecs (Psi, D.Empty, sc, W) = sc (Psi, W)
-      | transDecs (Psi, D.FormDecl (FormD, Ds), sc, W) = (transForDec (Psi, FormD, Ds, sc, W))
-      | transDecs (Psi, D.ValDecl (ValD, Ds), sc, W) = (transValDec (Psi, ValD, Ds, sc, W))
-      | transDecs (Psi, D.NewDecl (D, Ds), sc, W) =
+      | (* GEN CASE BRANCH *) transDecs (Psi, D.FormDecl (FormD, Ds), sc, W) = (transForDec (Psi, FormD, Ds, sc, W))
+      | (* GEN CASE BRANCH *) transDecs (Psi, D.ValDecl (ValD, Ds), sc, W) = (transValDec (Psi, ValD, Ds, sc, W))
+      | (* GEN CASE BRANCH *) transDecs (Psi, D.NewDecl (D, Ds), sc, W) =
           let
             val D' = T.UDec (parseDec (Psi, D))
           in
-(*          T.Let (T.PDec (NONE, T.True), T.Lam (D', transDecs (I.Decl (Psi, D'), Ds, sc, W)), T.Unit) *)
+      (*          T.Let (T.PDec (NONE, T.True), T.Lam (D', transDecs (I.Decl (Psi, D'), Ds, sc, W)), T.Unit) *)
             T.Let (T.PDec (NONE, T.True), T.Lam (D', transDecs (I.Decl (Psi, D'), Ds, sc, W)), T.Var 1)
- (* T.True is not right! -- cs Sat Jun 28 11:43:30 2003  *)
+       (* T.True is not right! -- cs Sat Jun 28 11:43:30 2003  *)
           end
 
-      | transDecs _ = raise Error "Constant declaration must be followed by a constant definition"
+      | (* GEN CASE BRANCH *) transDecs _ = raise Error "Constant declaration must be followed by a constant definition"
 
 
 
     and lookup (I.Null, n, s) = raise Error ("Undeclared constant " ^ s)
-      | lookup (I.Decl (G, T.PDec (NONE, _)), n, s) =  lookup (G, n+1, s)
-      | lookup (I.Decl (G, T.UDec _), n, s) =  lookup (G, n+1, s)
-      | lookup (I.Decl (G, T.PDec (SOME s', F)), n, s) =
+      | (* GEN CASE BRANCH *) lookup (I.Decl (G, T.PDec (NONE, _)), n, s) =  lookup (G, n+1, s)
+      | (* GEN CASE BRANCH *) lookup (I.Decl (G, T.UDec _), n, s) =  lookup (G, n+1, s)
+      | (* GEN CASE BRANCH *) lookup (I.Decl (G, T.PDec (SOME s', F)), n, s) =
         if s = s' then (n, T.forSub (F, T.Shift n))
         else lookup (G, n+1, s)
 
@@ -614,16 +614,16 @@ struct
         in
           transHead' ((F, T.id), I.Nil, args)
         end
-      | transHead (Psi, D.AppLF (h, t), args) = transHead (Psi, h, t::args)
+      | (* GEN CASE BRANCH *) transHead (Psi, D.AppLF (h, t), args) = transHead (Psi, h, t::args)
 
     and transHead' ((T.World (_, F), s), S, args) = transHead' ((F, s), S, args)
-      | transHead' ((T.All ((T.UDec (I.Dec (_, V)), T.Implicit), F'), s), S, args) =
+      | (* GEN CASE BRANCH *) transHead' ((T.All ((T.UDec (I.Dec (_, V)), T.Implicit), F'), s), S, args) =
         let
           val X = I.newEVar (I.Decl(I.Null, I.NDec), I.EClo (V, T.coerceSub s))
         in
           transHead' ((F', T.Dot (T.Exp X, s)), I.App (X, S), args)
         end
-      | transHead' ((T.All ((T.UDec (I.Dec (_, V)), T.Explicit), F'), s), S, t :: args) =
+      | (* GEN CASE BRANCH *) transHead' ((T.All ((T.UDec (I.Dec (_, V)), T.Explicit), F'), s), S, t :: args) =
         let
           val (term', c) = transTerm t
           val term = stringToterm (term')
@@ -632,7 +632,7 @@ struct
         in
           transHead' ((F', T.Dot (T.Exp U, s)), I.App(U, S), args)
         end
-      | transHead' ((F, s), S, nil) = ((F, s), S)
+      | (* GEN CASE BRANCH *) transHead' ((F, s), S, nil) = ((F, s), S)
 
 
     (* spineToSub ((S, t), s) = s'
@@ -645,12 +645,12 @@ struct
     *)
 
     and spineToSub ((I.Nil, _), s') = s'
-      | spineToSub ((I.App (U, S), t), s') =
+      | (* GEN CASE BRANCH *) spineToSub ((I.App (U, S), t), s') =
           T.Dot (T.Exp (I.EClo (U, t)), spineToSub((S, t), s'))
 
     and transPattern (p, (T.Ex ((I.Dec (_, V), T.Implicit), F'), s)) =
           transPattern (p, (F', T.Dot (T.Exp (I.EVar (ref NONE, I.Null, I.EClo (V, T.coerceSub s), ref nil)), s)))
-      | transPattern (D.PatInx (t, p), (T.Ex ((I.Dec (_, V), T.Explicit), F'), s)) =
+      | (* GEN CASE BRANCH *) transPattern (D.PatInx (t, p), (T.Ex ((I.Dec (_, V), T.Explicit), F'), s)) =
         let
           val (term', c) = transTerm t
           val term = stringToterm (term')
@@ -659,7 +659,7 @@ struct
         in
           T.PairExp (U, transPattern (p, (F', T.Dot (T.Exp U, s))))
         end
-      | transPattern (D.PatUnit, (F, s)) = T.Unit
+      | (* GEN CASE BRANCH *) transPattern (D.PatUnit, (F, s)) = T.Unit
                                         (* other cases should be impossible by invariant
                                          F should be F.True
                                          --cs Sun Mar 23 10:38:57 2003 *)
@@ -687,9 +687,9 @@ struct
         in
           transFun2 (Psi, (s, F), D.FunDecl (D.Bar (eH, eP), Ds), sc, fn Cs => T.Case (T.Cases Cs), W)
         end
-      | transFun1 (Psi, (s', F), D.FunDecl (D.FunAnd (eH, eP), Ds), sc, W) =
+      | (* GEN CASE BRANCH *) transFun1 (Psi, (s', F), D.FunDecl (D.FunAnd (eH, eP), Ds), sc, W) =
         raise Error "Mutual recursive functions not yet implemented"
-      | transFun1 _ = raise Error "Function declaration expected"
+      | (* GEN CASE BRANCH *) transFun1 _ = raise Error "Function declaration expected"
 
 
     (* transFun2 ((Psi, env), s, dDs, sc, k, W) = x
@@ -714,7 +714,7 @@ struct
     *)
     and transFun2   (Psi, (s, F), D.FunDecl (D.Bar (eH, eP), Ds), sc, k, W) =
           transFun3 (Psi, (s, F), eH, eP, Ds, sc,  k, W)
-      | transFun2   (Psi, (s, F), Ds, sc, k, W) =
+      | (* GEN CASE BRANCH *) transFun2   (Psi, (s, F), Ds, sc, k, W) =
           let
             val D = T.PDec (SOME s, F)
             val P' = T.Rec (D, lamClosure (F, k nil))
@@ -751,7 +751,7 @@ struct
           val _ = Names.varReset (I.Null)
           val Psi0 = I.Decl (Psi, T.PDec (SOME s, F))
           val ((F', t'), S) = transHead (Psi0, eH, nil)
-(*                val F' = T.forSub (F, t) *)
+    (*                val F' = T.forSub (F, t) *)
           val (Psi', S') = Abstract.abstractSpine (S, I.id)
           val Psi'' = append (Psi0, T.embedCtx Psi')
           val m0 = I.ctxLength Psi0
@@ -759,12 +759,12 @@ struct
                                         (* |Psi''| = m0 + m' *)
           val t0 = dotn (I.Shift m0, m')
                                         (* Psi0, Psi'[^m0] |- t0 : Psi' *)
-(*        val t1 = T.Dot (T.Prg (T.Root (T.Var (m'+1), T.Nil)), T.Shift (m'))   (* BUG !!!! Wed Jun 25 11:23:13 2003 *)
+    (*        val t1 = T.Dot (T.Prg (T.Root (T.Var (m'+1), T.Nil)), T.Shift (m'))   (* BUG !!!! Wed Jun 25 11:23:13 2003 *)
                                         (* Psi0, Psi'[^m0] |- t1 : F[^m0]  *)
-*)        val t'' = spineToSub ((S', t0),  T.Shift m')
-
-(*        val _ = print (TomegaPrint.forToString (Names.ctxName (T.coerceCtx Psi''), myF) ^ "\n") *)
-
+    *)        val t'' = spineToSub ((S', t0),  T.Shift m')
+    
+    (*        val _ = print (TomegaPrint.forToString (Names.ctxName (T.coerceCtx Psi''), myF) ^ "\n") *)
+    
           val P = transProgI (Psi'', eP, (F', t'), W)
         in
           transFun2 (Psi, (s, F), Ds, sc, fn Cs => k ((Psi'', t'', P) :: Cs), W)
@@ -788,11 +788,11 @@ struct
     *)
     and transForDec (Psi, D.Form (s, eF), Ds, sc, W) =
         let
-
+    
           val G = Names.ctxName (T.coerceCtx Psi)
           val F = transFor (G, eF)
           val (F'' as T.World (W, F')) = T.forSub (F, T.id)
-(*        val _ = print s
+    (*        val _ = print s
           val _ = print " :: "
           val _ = print (TomegaPrint.forToString (T.embedCtx G, F'') ^ "\n") *)
           val _ = TomegaTypeCheck.checkFor (Psi, F'')
@@ -829,13 +829,13 @@ struct
                                                in
                                                  (P', (F', T.id))
                                                end)
-
+    
           val F'' = T.forSub (F', t')
           val Pat = transPattern (EPat, (F', t'))
           val D = T.PDec (NONE, F'')
           val (Psi', Pat') = Abstract.abstractTomegaPrg (Pat)
           val m = I.ctxLength Psi'
-(*        val t = T.Dot (T.Prg Pat', T.id)  was --cs Tue Jun 24 13:04:55 2003 *)
+    (*        val t = T.Dot (T.Prg Pat', T.id)  was --cs Tue Jun 24 13:04:55 2003 *)
           val t = T.Dot (T.Prg Pat', T.Shift m)
           val Psi'' = append (Psi, Psi')
           val P'' = transDecs (Psi'', Ds, sc, W)
@@ -858,33 +858,33 @@ struct
           transProgIN (Psi, eP, T.forSub Ft, W)
 
     and transProgIN (Psi, D.Unit, T.True, W) = T.Unit
-      | transProgIN (Psi, P as D.Inx (s, EP), T.Ex ((I.Dec (_, V), T.Explicit), F'), W) =
+      | (* GEN CASE BRANCH *) transProgIN (Psi, P as D.Inx (s, EP), T.Ex ((I.Dec (_, V), T.Explicit), F'), W) =
         let
           val U = parseTerm (Psi, (s, V))
           val P' = transProgI (Psi, EP, (F', T.Dot (T.Exp U, T.id)), W)
         in
           T.PairExp (U, P')
         end
-      | transProgIN (Psi, D.Let (eDs, eP), F, W) =
+      | (* GEN CASE BRANCH *) transProgIN (Psi, D.Let (eDs, eP), F, W) =
           transDecs (Psi, eDs, fn (Psi', W') =>
                      transProgI (Psi', eP, (F, T.Shift (I.ctxLength Psi' - I.ctxLength Psi)),W'), W)
-      | transProgIN (Psi, D.Choose (eD, eP), F, W) =
+      | (* GEN CASE BRANCH *) transProgIN (Psi, D.Choose (eD, eP), F, W) =
           let
             val D' = parseDec (Psi, eD)
             val Psi'' = I.Decl (Psi, T.UDec D')
           in
             T.Choose (T.Lam (T.UDec D', transProgI (Psi'', eP, (F, T.Shift 1), W)))
             end
-      | transProgIN (Psi, D.New (nil, eP), F, W) =
+      | (* GEN CASE BRANCH *) transProgIN (Psi, D.New (nil, eP), F, W) =
           transProgIN (Psi, eP, F, W)
-      | transProgIN (Psi, D.New (eD :: eDs, eP), F, W) =
+      | (* GEN CASE BRANCH *) transProgIN (Psi, D.New (eD :: eDs, eP), F, W) =
           let
             val D' = parseDec (Psi, eD)
             val Psi'' = I.Decl (Psi, T.UDec D')
           in
             T.New (T.Lam (T.UDec D', transProgI (Psi'', D.New (eD :: eDs, eP) , (F, T.Shift 1), W)))
           end
-      | transProgIN (Psi, P as D.AppTerm (EP, s), F, W) =
+      | (* GEN CASE BRANCH *) transProgIN (Psi, P as D.AppTerm (EP, s), F, W) =
         let
           val (P', (F', _)) = transProgS (Psi, P, W, nil)
           val ()  = ()   (* check that F == F' *)
@@ -993,27 +993,27 @@ struct
 *)
    and transProgS (Psi, D.Unit, W, args) =
          (T.Unit, (T.True, T.id))
-     | transProgS (Psi, D.AppTerm (EP, s), W, args) =
+     | (* GEN CASE BRANCH *) transProgS (Psi, D.AppTerm (EP, s), W, args) =
          transProgS (Psi, EP, W, s :: args)
-     | transProgS (Psi, D.Const name, W, args) =
+     | (* GEN CASE BRANCH *) transProgS (Psi, D.Const name, W, args) =
          let
-(*         val lemma = T.lemmaName name
+     (*         val lemma = T.lemmaName name
            val F = T.lemmaFor lemma *)
            val (n, F) = lookup (Psi, 1, name)
            val (S, Fs') = transProgS'  (Psi, (F, T.id), W, args)
          in
            (T.Redex (T.Var n, S), Fs')
          end
-     | transProgS (Psi, D.Choose  (eD, eP), W, args) =
+     | (* GEN CASE BRANCH *) transProgS (Psi, D.Choose  (eD, eP), W, args) =
          let
            val D' = parseDec (Psi, eD)
            val (P, (F, t)) = transProgS (I.Decl (Psi, T.UDec D'), eP, W, args)
          in
            (T.Choose (T.Lam (T.UDec D', P)), (F, t))
          end
-     | transProgS (Psi, D.New (nil, eP), W, args) =
+     | (* GEN CASE BRANCH *) transProgS (Psi, D.New (nil, eP), W, args) =
          transProgS (Psi, eP, W, args)
-     | transProgS (Psi, D.New (eD :: eDs, eP), W, args) =
+     | (* GEN CASE BRANCH *) transProgS (Psi, D.New (eD :: eDs, eP), W, args) =
          let
            val D' = parseDec (Psi, eD)
            val (P, (F, t)) = transProgS (I.Decl (Psi, T.UDec D'), D.New (eDs, eP), W, args)
@@ -1025,24 +1025,24 @@ struct
          end
 
     and transProgS' (Psi, (T.World (_, F), s), W, args) = transProgS' (Psi, (F, s), W, args)
-      | transProgS' (Psi, (T.All ((T.UDec (I.Dec (_, V)), T.Implicit), F'), s), W, args) =
+      | (* GEN CASE BRANCH *) transProgS' (Psi, (T.All ((T.UDec (I.Dec (_, V)), T.Implicit), F'), s), W, args) =
         let
           val G = T.coerceCtx Psi
           val X = I.newEVar (G, I.EClo (V, T.coerceSub s))
-(*        val X = I.EVar (ref NONE, I.Null, I.EClo (V, T.coerceSub s), ref nil) *)
+      (*        val X = I.EVar (ref NONE, I.Null, I.EClo (V, T.coerceSub s), ref nil) *)
           val (S, Fs') = transProgS' (Psi, (F', T.Dot (T.Exp X, s)), W, args)
         in
           (T.AppExp (Whnf.normalize (X, I.id), S), Fs')
         end
-      | transProgS' (Psi, (T.All ((T.UDec (I.Dec (_, V)), T.Explicit), F'), s), W, t :: args) =
+      | (* GEN CASE BRANCH *) transProgS' (Psi, (T.All ((T.UDec (I.Dec (_, V)), T.Explicit), F'), s), W, t :: args) =
         let
           val U = parseTerm (Psi, (t, I.EClo (V, T.coerceSub s)))
           val (S, Fs') = transProgS' (Psi, (F', T.Dot (T.Exp U, s)), W, args)
-(*        val (F'', s'', _) = checkForWorld (F', T.Dot (T.Exp U, s), W) *)
+      (*        val (F'', s'', _) = checkForWorld (F', T.Dot (T.Exp U, s), W) *)
         in
           (T.AppExp (U, S), Fs')
         end
-      | transProgS' (Psi, (F, s), _,nil) = (T.Nil, (F, s))
+      | (* GEN CASE BRANCH *) transProgS' (Psi, (F, s), _,nil) = (T.Nil, (F, s))
 
 
 (*

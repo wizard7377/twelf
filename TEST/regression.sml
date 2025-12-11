@@ -8,30 +8,30 @@ structure RegressionTest = struct
    val _ = Twelf.chatter := 0
    val errors = ref 0
    fun reportError(file) = 
-	 (errors := !errors + 1;
-	  print ("Regression test failed on "^file^"\n"))
+   	 (errors := !errors + 1;
+   	  print ("Regression test failed on "^file^"\n"))
  in
  
  fun test (file) =
      let
-	 val _ = print ("Test:        "^file) 
-	 val stat = Twelf.make file 
-	     handle _ => Twelf.ABORT
+ 	 val _ = print ("Test:        "^file) 
+ 	 val stat = Twelf.make file 
+ 	     handle _ => Twelf.ABORT
      in 
-	 case stat
-	  of Twelf.OK => Twelf.OK
-	   | Twelf.ABORT => (reportError (file); Twelf.ABORT)
+ 	 case stat
+ 	  of Twelf.OK => Twelf.OK
+ 	   | Twelf.ABORT => (reportError (file); Twelf.ABORT)
      end;
      
  fun testUnsafe (file) = 
      let
-	 val _ = print ("Test Unsafe: "^file) 
-	 val _ = Twelf.unsafe := true 
-	 val stat = Twelf.make file 
-	     handle e => Twelf.ABORT
-	 val _ = Twelf.unsafe := false
+ 	 val _ = print ("Test Unsafe: "^file) 
+ 	 val _ = Twelf.unsafe := true 
+ 	 val stat = Twelf.make file 
+ 	     handle e => Twelf.ABORT
+ 	 val _ = Twelf.unsafe := false
      in 
-	 case stat 
+ 	 case stat 
           of Twelf.OK => Twelf.OK
            | Twelf.ABORT => (reportError (file); Twelf.ABORT)
      end;
@@ -50,29 +50,29 @@ structure RegressionTest = struct
 
  fun process (filename) = 
      let 
-	 val file = TextIO.openIn filename
-	 fun runline (str : string) =
-	     if String.isPrefix "#" str 
-	     then NONE
-	     else if String.isPrefix "testUnsafe" str 
-	     then SOME(testUnsafe 
-			   (String.extract(str,11,SOME(String.size str - 12))))
-	     else if String.isPrefix "test" str
-	     then SOME(test(String.extract(str,5,SOME(String.size str - 6))))
-	     else NONE (* Ignore any non-standard line *)
-
+ 	 val file = TextIO.openIn filename
+ 	 fun runline (str : string) =
+ 	     if String.isPrefix "#" str 
+ 	     then NONE
+ 	     else if String.isPrefix "testUnsafe" str 
+ 	     then SOME(testUnsafe 
+ 			   (String.extract(str,11,SOME(String.size str - 12))))
+ 	     else if String.isPrefix "test" str
+ 	     then SOME(test(String.extract(str,5,SOME(String.size str - 6))))
+ 	     else NONE (* Ignore any non-standard line *)
+ 
          exception Aborted
-
-	 fun getstatus (status,msg) = 
-	     case status of 
-		 NONE => ()
-	       | SOME(Twelf.OK) => print ("..."^msg)
-	       | SOME(Twelf.ABORT) => print ("...ABORT!\n"; raise Aborted)
-
-	 fun readfile() = 
-	     case TextIO.inputLine file of
-		 NONE => (TextIO.closeIn file; conclude())
-	       | (SOME s) => 
+ 
+ 	 fun getstatus (status,msg) = 
+ 	     case status of 
+ 		 NONE => ()
+ 	       | SOME(Twelf.OK) => print ("..."^msg)
+ 	       | SOME(Twelf.ABORT) => print ("...ABORT!\n"; raise Aborted)
+ 
+ 	 fun readfile() = 
+ 	     case TextIO.inputLine file of
+ 		 NONE => (TextIO.closeIn file; conclude())
+ 	       | (SOME s) => 
                  let in
                    Twelf.doubleCheck := false;
                    getstatus(runline s, "OK.\n"); 
@@ -81,7 +81,7 @@ structure RegressionTest = struct
                    readfile()
                  end handle Aborted => readfile()
      in
-	 readfile()
+ 	 readfile()
      end		     
           
  end (* local... *)

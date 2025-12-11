@@ -20,24 +20,24 @@ struct
 
     fun suspend (trail, copy) =
       let
-	fun suspend' Nil = Nil
-(*	  | suspend' (Mark trail) = (Mark (suspend' trail))*)
-	  | suspend' (Mark trail) = (suspend' trail)
-	  | suspend' (Cons (action, trail)) =
-	  Cons (copy action,  suspend' trail)
-	val ftrail = suspend' (!trail)
+    	fun suspend' Nil = Nil
+    (*	  | suspend' (Mark trail) = (Mark (suspend' trail))*)
+    	  | (* GEN CASE BRANCH *) suspend' (Mark trail) = (suspend' trail)
+    	  | (* GEN CASE BRANCH *) suspend' (Cons (action, trail)) =
+    	  Cons (copy action,  suspend' trail)
+    	val ftrail = suspend' (!trail)
       in
-	ref ftrail
+    	ref ftrail
       end
 
     fun resume (ftrail, trail, reset) = 
       let
-	fun resume' Nil = Nil
-(*	  | resume' (Mark ftrail) = (Mark (resume' ftrail)) *)
-	  | resume' (Mark ftrail) = resume' ftrail
-	  | resume' (Cons (faction, ftrail)) = 
-	  Cons (reset faction, resume' ftrail)
-	val trail' = resume' (!ftrail)
+    	fun resume' Nil = Nil
+    (*	  | resume' (Mark ftrail) = (Mark (resume' ftrail)) *)
+    	  | (* GEN CASE BRANCH *) resume' (Mark ftrail) = resume' ftrail
+    	  | (* GEN CASE BRANCH *) resume' (Cons (faction, ftrail)) = 
+    	  Cons (reset faction, resume' ftrail)
+    	val trail' = resume' (!ftrail)
       in 
        trail := trail'
       end 
@@ -49,8 +49,8 @@ struct
     fun unwind (trail, undo) =
           let
             fun unwind' Nil = Nil
-              | unwind' (Mark trail) = trail
-              | unwind' (Cons (action, trail)) =
+              | (* GEN CASE BRANCH *) unwind' (Mark trail) = trail
+              | (* GEN CASE BRANCH *) unwind' (Cons (action, trail)) =
                   (undo action ; unwind' trail)
           in
             trail := unwind' (!trail)

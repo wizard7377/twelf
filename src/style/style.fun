@@ -18,7 +18,7 @@ struct
                                            from - incorrect declarations *)
 
     fun toggle Plus = Minus
-      | toggle Minus = Plus
+      | (* GEN CASE BRANCH *) toggle Minus = Plus
 
     (* wrapMsg (c, occ, msg) err = s
 
@@ -42,7 +42,7 @@ struct
        L' = L without digits
     *)
     fun denumber [] = []
-      | denumber (c :: l) =
+      | (* GEN CASE BRANCH *) denumber (c :: l) =
         let
           val x = ord c
           val l' = denumber l
@@ -52,7 +52,7 @@ struct
         end
 
     fun options (n :: nil) = n
-      | options (n :: l) = n ^ ", " ^ (options l)
+      | (* GEN CASE BRANCH *) options (n :: l) = n ^ ", " ^ (options l)
 
 
     fun error c (prefNames, n, occ) err =
@@ -80,7 +80,7 @@ struct
               (case pol
                  of Plus => checkVariablename (n, prefENames)
                   | Minus => checkVariablename (n, prefUNames)))
-      | checkVar (I.Dec (NONE, V), pol) = Correct
+      | (* GEN CASE BRANCH *) checkVar (I.Dec (NONE, V), pol) = Correct
 
     (* implicitHead H = k
 
@@ -88,11 +88,11 @@ struct
        k = # implicit arguments associated with H
     *)
     fun implicitHead (I.BVar k) = 0
-      | implicitHead (I.Const c) = I.constImp c
-      | implicitHead (I.Skonst k) = 0
-      | implicitHead (I.Def d) = I.constImp d
-      | implicitHead (I.NSDef d) = I.constImp d
-      | implicitHead (I.FgnConst _) = 0
+      | (* GEN CASE BRANCH *) implicitHead (I.Const c) = I.constImp c
+      | (* GEN CASE BRANCH *) implicitHead (I.Skonst k) = 0
+      | (* GEN CASE BRANCH *) implicitHead (I.Def d) = I.constImp d
+      | (* GEN CASE BRANCH *) implicitHead (I.NSDef d) = I.constImp d
+      | (* GEN CASE BRANCH *) implicitHead (I.FgnConst _) = 0
 
 
     (* checkExp c ((G, P), U, occ) err = L
@@ -107,13 +107,13 @@ struct
        then  L is a list of strings (error messages) computed from U
     *)
     fun checkExp c ((G, P), I.Uni _, occ) err = []
-      | checkExp c ((G, P), I.Lam (D, U), occ) err =
+      | (* GEN CASE BRANCH *) checkExp c ((G, P), I.Lam (D, U), occ) err =
         (checkDec c ((G, P), D, Minus, occ) err
          (fn ((G', P'), L') => L' @ checkExp c ((G', P'), U, P.body occ) err))
-      | checkExp c ((G, P), I.Root (H, S), occ) err=
+      | (* GEN CASE BRANCH *) checkExp c ((G, P), I.Root (H, S), occ) err=
          checkHead c ((G, P), H, P.head occ) err @
         checkSpine c ((G, P), 1, implicitHead H, S, P.body occ) err
-      | checkExp c ((G, P), I.FgnExp (_, _), occ) err = []
+      | (* GEN CASE BRANCH *) checkExp c ((G, P), I.FgnExp (_, _), occ) err = []
 
     (* checkType c ((G, P), V, pol, occ) err = L
 
@@ -127,16 +127,16 @@ struct
        then  L is a list of strings (error messages) computed from V
     *)
     and checkType c ((G, P), I.Uni _, pol, occ) err = []
-      | checkType c ((G, P), I.Pi ((D, I.Maybe), V), pol, occ) err =
+      | (* GEN CASE BRANCH *) checkType c ((G, P), I.Pi ((D, I.Maybe), V), pol, occ) err =
         (checkDec c ((G, P), D, pol, occ) err
          (fn ((G', P'), L') => L' @ checkType c ((G', P'), V, pol, P.body occ) err))
-      | checkType c ((G, P), I.Pi ((D, I.No), V), pol, occ) err =
+      | (* GEN CASE BRANCH *) checkType c ((G, P), I.Pi ((D, I.No), V), pol, occ) err =
         (checkDec c ((G, P), D,  pol, occ) err
          (fn ((G', P'), L') => L' @ checkType c ((G', P'), V, pol, P.body occ) err))
-      | checkType c ((G, P), I.Root (H, S), pol, occ) err =
+      | (* GEN CASE BRANCH *) checkType c ((G, P), I.Root (H, S), pol, occ) err =
          checkHead c ((G, P), H, P.head occ) err @
         checkSpine c ((G, P), 1, implicitHead H, S, P.body occ) err
-      | checkType c ((G, P), I.FgnExp (_, _), pol, occ) err = []
+      | (* GEN CASE BRANCH *) checkType c ((G, P), I.FgnExp (_, _), pol, occ) err = []
 
     (* checkDecImp c ((G, P), D, pol) k = L
 
@@ -195,11 +195,11 @@ struct
         (case I.ctxLookup (P, k)
            of Correct => []
             | Incorrect (prefNames, n) => error c (prefNames, n, occ) err)
-      | checkHead c ((G, P), I.Const _, occ) err = []
-      | checkHead c ((G, P), I.Skonst k, occ) err = []
-      | checkHead c ((G, P), I.Def d, occ) err = []
-      | checkHead c ((G, P), I.NSDef d, occ) err = []
-      | checkHead c ((G, P), I.FgnConst _, occ) err = []
+      | (* GEN CASE BRANCH *) checkHead c ((G, P), I.Const _, occ) err = []
+      | (* GEN CASE BRANCH *) checkHead c ((G, P), I.Skonst k, occ) err = []
+      | (* GEN CASE BRANCH *) checkHead c ((G, P), I.Def d, occ) err = []
+      | (* GEN CASE BRANCH *) checkHead c ((G, P), I.NSDef d, occ) err = []
+      | (* GEN CASE BRANCH *) checkHead c ((G, P), I.FgnConst _, occ) err = []
 
 
     (* checkSpine c ((G, P), S, n, i, occ) err = L
@@ -215,10 +215,10 @@ struct
        then  L is a list of  strings (error messages) computed from S
     *)
     and checkSpine c ((G, P), n, 0, I.Nil, occ) err = []
-      | checkSpine c ((G, P), n, 0, I.App (U, S), occ) err =
+      | (* GEN CASE BRANCH *) checkSpine c ((G, P), n, 0, I.App (U, S), occ) err =
          (checkExp c ((G, P), U, P.arg (n, occ)) err @
           checkSpine c ((G, P), n+1, 0, S, occ) err)
-      | checkSpine c ((G, P), n, i, I.App (U, S), occ) err =
+      | (* GEN CASE BRANCH *) checkSpine c ((G, P), n, i, I.App (U, S), occ) err =
           checkSpine c ((G, P), n+1, i-1, S, occ) err
 
     (* checkType' c ((G, P), n, V, occ) err = L
@@ -234,7 +234,7 @@ struct
        (omitted arguments generate error message where they are used not declared)
     *)
     fun checkType' c ((G, P), 0, V, occ) err = checkType c ((G, P), V, Plus, occ) err
-      | checkType' c ((G, P), n, I.Pi ((D, I.Maybe), V), occ) err =
+      | (* GEN CASE BRANCH *) checkType' c ((G, P), n, I.Pi ((D, I.Maybe), V), occ) err =
          (checkDecImp ((G, P), D, Plus)
           (fn ((G', P'), L') => L' @
           checkType' c ((G', P'), n-1, V, P.body occ) err))
@@ -254,7 +254,7 @@ struct
          (checkDec c ((G, P), D, Plus, occ) err
           (fn ((G', P'), L') => L' @
           checkExp' c ((G', P'), U, P.body occ) err))
-      | checkExp' c ((G, P), U, occ) err = checkExp c ((G, P), U, occ) err
+      | (* GEN CASE BRANCH *) checkExp' c ((G, P), U, occ) err = checkExp c ((G, P), U, occ) err
 
 
     (* checkDef c ((G, P), n, U, occ) err = L
@@ -270,7 +270,7 @@ struct
        (top level negative occurrences exception.  Treated as pos occurrences)
     *)
     fun checkDef c ((G, P), 0, U,  occ) err = checkExp' c ((G, P), U, occ) err
-      | checkDef c ((G, P), n, I.Lam (D, U),  occ) err =
+      | (* GEN CASE BRANCH *) checkDef c ((G, P), n, I.Lam (D, U),  occ) err =
          (checkDecImp ((G, P), D, Plus)
           (fn ((G', P'), L') => L' @
            checkDef c ((G', P'), n-1, U, P.body occ) err))
@@ -287,21 +287,21 @@ struct
            then print (Names.qidToString (Names.constQid c) ^ " ")
          else ();
            checkType' c ((I.Null, I.Null), implicit, U, P.top) P.occToRegionDec)
-      | checkConDec c (I.ConDef (_, _, implicit, U, V, I.Type, _)) =
+      | (* GEN CASE BRANCH *) checkConDec c (I.ConDef (_, _, implicit, U, V, I.Type, _)) =
            (if !Global.chatter > 3
               then print (Names.qidToString (Names.constQid c) ^ " ")
             else ();
            checkType' c ((I.Null, I.Null), implicit, V, P.top) P.occToRegionDef2 @
            checkDef c ((I.Null, I.Null), implicit, U, P.top) P.occToRegionDef1)
               (* type level definitions ? *)
-      | checkConDec c (I.AbbrevDef (_, _, implicit, U, V, I.Type)) =
+      | (* GEN CASE BRANCH *) checkConDec c (I.AbbrevDef (_, _, implicit, U, V, I.Type)) =
            (if !Global.chatter > 3
               then print (Names.qidToString (Names.constQid c) ^ " ")
             else ();
            checkType' c ((I.Null, I.Null), implicit, V, P.top) P.occToRegionDef2;
            checkDef c ((I.Null, I.Null), implicit, U, P.top) P.occToRegionDef1)
               (* type level abbreviations ? *)
-      | checkConDec c _ = []   (* in all other cases *)
+      | (* GEN CASE BRANCH *) checkConDec c _ = []   (* in all other cases *)
 
 
     (* checkAll (c, n) = L

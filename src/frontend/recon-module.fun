@@ -62,13 +62,13 @@ struct
         val ns1 = Names.getComponents mid1
         val ns2 = Names.getComponents mid2
         fun push eqn = rEqns := eqn::(!rEqns)
-
+  
         fun doConst (name, cid1) =
             case Names.constLookupIn (ns2, Names.Qid (nil, name))
               of NONE => error (r1, "Instantiating structure lacks component " ^
                                 Names.qidToString (Names.Qid (rev ids, name)))
                | SOME cid2 => push (cid1, Internal cid2, r2)
-
+  
         fun doStruct (name, mid1) =
             case Names.structLookupIn (ns2, Names.Qid (nil, name))
               of NONE => error (r1, "Instantiating structure lacks component " ^
@@ -86,7 +86,7 @@ struct
                       of NONE => error (r1, "Undeclared structure "
                                         ^ Names.qidToString (valOf (Names.structUndefIn (ns, qid))))
                        | SOME mid1 => mid1)
-
+  
         val (mid2, r2) = strexp ()
         val rEqns = ref eqns
       in
@@ -152,22 +152,22 @@ struct
   fun applyEqns wherecl namespace =
       let
         val eqns = wherecl namespace
-
+  
         val table : eqn_table = IntTree.new (0)
         fun add (cid, Inst, r) =
             (case IntTree.lookup table cid
                of NONE => IntTree.insert table (cid, ref [(Inst, r)])
                 | SOME rl => rl := (Inst, r)::(!rl))
         val _ = List.app add eqns
-
+  
         fun doInst ((Internal cid, r), condec) =
               (ModSyn.strictify (ExtSyn.internalInst (condec, ModSyn.abbrevify (cid, IntSyn.sgnLookup cid), r))
               handle ExtSyn.Error msg =>
                 raise ExtSyn.Error (msg ^ "\nin instantiation generated for "
                                     ^ Names.qidToString (Names.constQid cid)))
-          | doInst ((External tm, r), condec) =
+          | (* GEN CASE BRANCH *) doInst ((External tm, r), condec) =
               ModSyn.strictify (ExtSyn.externalInst (condec, tm, r))
-
+  
         fun transformConDec (cid, condec) =
             (case IntTree.lookup table cid
                of NONE => condec

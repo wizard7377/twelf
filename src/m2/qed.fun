@@ -16,8 +16,8 @@ struct
     fun subgoal (M.State (name, M.Prefix (G, M, B), V)) =
         let
           fun check I.Null = true
-            | check (I.Decl (M, M.Top)) = check M
-            | check (I.Decl (M, M.Bot)) = false
+            | (* GEN CASE BRANCH *) check (I.Decl (M, M.Top)) = check M
+            | (* GEN CASE BRANCH *) check (I.Decl (M, M.Bot)) = false
         in
           check M
         end
