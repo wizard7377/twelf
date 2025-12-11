@@ -1,0 +1,8 @@
+id: within_type
+language: sml
+rule:
+  any: 
+  - inside: 
+      kind: tycon
+      stopBy: end
+  

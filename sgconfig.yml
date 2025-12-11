@@ -1,0 +1,14 @@
+ruleDirs:
+- ./grep/rules
+testConfigs:
+- testDir: ./grep/rule-tests
+utilDirs:
+- ./grep/utils
+customLanguages:
+  sml:
+      libraryPath: sml-ts.so     # path to dynamic library
+      extensions: [fun,sig,sml]   # file extensions for this language
+      expandoChar: $           # optional char to replace $ in your pattern
+
+languageGlobs:
+  sml: ["*.sml", "*.sig", "*.fun"]

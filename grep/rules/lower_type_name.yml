@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+
+id: lower_type_name
+message: Make this type name lowercase
+severity: warning # error, warning, info, hint
+language: sml
+rule:
+  pattern: $TYPENAME
+  # matches: within_type
+  kind: tycon 
+  
+transform: 
+  TO_LOWER:
+    convert:
+      source: $TYPENAME
+      toCase: snakeCase
+
+fix:
+  $TO_LOWER
+# utils: Extract repeated rule as local utility here.
+# note: Add detailed explanation for the rule.
