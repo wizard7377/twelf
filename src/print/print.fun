@@ -37,7 +37,7 @@ local
   structure T = Tomega
 
   (* Disambiguation of block logic variable names *)
-  val lvars : I.Block option ref list ref
+  val lvars : I.block option ref list ref
             = ref nil
   fun lookuplvar (l) =
       let
@@ -93,10 +93,10 @@ local
       end
 
   (* ArgStatus classifies the number of arguments to an operator *)
-  datatype ArgStatus =
+  datatype arg_status =
       TooFew
-    | Exact of I.Spine
-    | TooMany of I.Spine * I.Spine
+    | Exact of I.spine
+    | TooMany of I.spine * I.spine
 
   fun sclo' (TooFew, s) = TooFew
     | sclo' (Exact(S), s) = Exact (I.SClo(S,s))
@@ -163,8 +163,8 @@ local
      so it can be printed.
   *)
   datatype opargs =
-      OpArgs of FX.fixity * F.format list * I.Spine
-    | EtaLong of I.Exp
+      OpArgs of FX.fixity * F.format list * I.spine
+    | EtaLong of I.exp
 
   val noCtxt = Ctxt (FX.Prefix(FX.dec (FX.dec (FX.dec (FX.dec FX.minPrec)))), [], 0)
                                         (* empty left context *)

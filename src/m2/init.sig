@@ -7,5 +7,5 @@ sig
 
   exception Error of string
 
-  val init : IntSyn.cid list -> MetaSyn.State list
+  val init : IntSyn.cid list -> MetaSyn.state list
 end;  (* signature INIT *)

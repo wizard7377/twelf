@@ -44,7 +44,7 @@ struct
 
   exception Error of string
 
-  type acctype = IntSyn.Exp
+  type acctype = IntSyn.exp
 
   local
     structure I = IntSyn

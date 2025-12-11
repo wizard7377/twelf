@@ -54,16 +54,16 @@ struct
     structure S = StateSyn
     structure Fmt = Formatter
 
-    datatype MenuItem =
+    datatype menu_item =
       Filling of MTPFilling.operator
     | Recursion of MTPRecursion.operator
     | Splitting of MTPSplitting.operator
     | Inference of Inference.operator
 
-    val Open : StateSyn.State Ring.ring ref = ref (Ring.init [])
-    val Solved : StateSyn.State Ring.ring ref = ref (Ring.init [])
-    val History : (StateSyn.State Ring.ring * StateSyn.State Ring.ring) list ref = ref nil
-    val Menu : MenuItem list option ref = ref NONE
+    val Open : StateSyn.state Ring.ring ref = ref (Ring.init [])
+    val Solved : StateSyn.state Ring.ring ref = ref (Ring.init [])
+    val History : (StateSyn.state Ring.ring * StateSyn.state Ring.ring) list ref = ref nil
+    val Menu : menu_item list option ref = ref NONE
 
     fun initOpen () = Open := Ring.init [];
     fun initSolved () = Solved := Ring.init [];

@@ -187,7 +187,7 @@ struct
   and matchAtom (ps' as (I.Root(Ha,S),s), dp as C.DProg (G,dPool), sc) =
       let
         val deterministic = C.detTableCheck (cidFromHead Ha)
-        exception SucceedOnce of I.Spine
+        exception SucceedOnce of I.spine
         (* matchSig [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting
            with c1.

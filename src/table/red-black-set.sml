@@ -33,7 +33,7 @@ struct
 
   exception Error of string
 
-  type 'a ordSet = 'a set ref
+  type 'a ord_set = 'a set ref
 
   fun isEmpty (Set(_, Empty)) = true
     | isEmpty (Set(_,T)) = false

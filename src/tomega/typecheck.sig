@@ -6,9 +6,9 @@ signature TOMEGATYPECHECK =
 sig
   exception Error of string
 
-  val checkCtx : Tomega.Dec IntSyn.Ctx -> unit
-  val checkFor : Tomega.Dec IntSyn.Ctx * Tomega.For -> unit
-  val checkPrg : Tomega.Dec IntSyn.Ctx * (Tomega.Prg * Tomega.For) -> unit    
-  val checkSub : Tomega.Dec IntSyn.Ctx * Tomega.Sub * Tomega.Dec IntSyn.Ctx -> unit
+  val checkCtx : Tomega.dec IntSyn.ctx -> unit
+  val checkFor : Tomega.dec IntSyn.ctx * Tomega.for -> unit
+  val checkPrg : Tomega.dec IntSyn.ctx * (Tomega.prg * Tomega.for) -> unit    
+  val checkSub : Tomega.dec IntSyn.ctx * Tomega.sub * Tomega.dec IntSyn.ctx -> unit
 end (* Signature TOMEGATYPECHECK *)       
 

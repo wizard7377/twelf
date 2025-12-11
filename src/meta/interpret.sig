@@ -5,5 +5,5 @@ signature Interpreter =
 sig
   (*! structure FunSyn : FUNSYN !*)
 
-  val run : FunSyn.Pro -> FunSyn.Pro
+  val run : FunSyn.pro -> FunSyn.pro
 end (* Signature Interpreter *)       

@@ -8,7 +8,7 @@ sig
 
   exception Error of string 
 
-  val nameState : StateSyn.State -> StateSyn.State
-  val formatState : StateSyn.State -> Formatter.format 
-  val stateToString : StateSyn.State -> string
+  val nameState : StateSyn.state -> StateSyn.state
+  val formatState : StateSyn.state -> Formatter.format 
+  val stateToString : StateSyn.state -> string
 end;  (* signature MTPRINT *)

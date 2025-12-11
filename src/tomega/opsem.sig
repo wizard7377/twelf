@@ -8,8 +8,8 @@ sig
 
   exception NoMatch
 
-  val evalPrg : Tomega.Prg -> Tomega.Prg
-  val topLevel : Tomega.Prg -> unit
-  val createVarSub : Tomega.Dec IntSyn.Ctx * Tomega.Dec IntSyn.Ctx -> Tomega.Sub
-  val matchSub : Tomega.Dec IntSyn.Ctx * Tomega.Sub * Tomega.Sub -> unit
+  val evalPrg : Tomega.prg -> Tomega.prg
+  val topLevel : Tomega.prg -> unit
+  val createVarSub : Tomega.dec IntSyn.ctx * Tomega.dec IntSyn.ctx -> Tomega.sub
+  val matchSub : Tomega.dec IntSyn.ctx * Tomega.sub * Tomega.sub -> unit
 end

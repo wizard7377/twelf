@@ -13,7 +13,7 @@ sig
 
 
   exception Error of string
-  val solve     : CompSyn.pskeleton * (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
-                  * (CompSyn.pskeleton * IntSyn.Exp -> unit) -> unit 
+  val solve     : CompSyn.pskeleton * (CompSyn.goal * IntSyn.sub) * CompSyn.d_prog
+                  * (CompSyn.pskeleton * IntSyn.exp -> unit) -> unit 
 
 end;  (* signature PTRECON *)

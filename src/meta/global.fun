@@ -4,7 +4,7 @@
 functor MTPGlobal
   (structure MetaGlobal : METAGLOBAL): MTPGLOBAL =
 struct
-  datatype ProverType = New | Old
+  datatype prover_type = New | Old
 
   val prover = ref New
   val maxFill = MetaGlobal.maxFill

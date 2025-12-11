@@ -6,8 +6,8 @@ sig
   structure IntSyn : INTSYN
   structure Tomega : TOMEGA
 
-  val normalizeFor : (Tomega.For * Tomega.Sub) -> Tomega.For
-  val normalizePrg : (Tomega.Prg * Tomega.Sub) -> Tomega.Prg 
-  val normalizeSpine : (Tomega.Spine * Tomega.Sub) -> Tomega.Spine 
-  val normalizeSub : Tomega.Sub -> Tomega.Sub 
+  val normalizeFor : (Tomega.for * Tomega.sub) -> Tomega.for
+  val normalizePrg : (Tomega.prg * Tomega.sub) -> Tomega.prg 
+  val normalizeSpine : (Tomega.spine * Tomega.sub) -> Tomega.spine 
+  val normalizeSub : Tomega.sub -> Tomega.sub 
 end

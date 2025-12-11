@@ -296,10 +296,10 @@ val it =
 (* -------------------------------------------------------------------------- *)
 
 Twelf.Timers.reset()
-Twelf.Print.depth := SOME 0
-Twelf.Print.length := SOME 0
-Twelf.Print.depth := NONE
-Twelf.Print.length := NONE 
+Twelf.Print.depth := some 0
+Twelf.Print.length := some 0
+Twelf.Print.depth := none
+Twelf.Print.length := none 
 Twelf.Timers.show()
 (Translate.translate_signature();raise Success)
 
@@ -324,11 +324,11 @@ val it =
   : string * SpineLF.spine * SpineLF.exp
 
 
-- val it = (211,"etp") : IntSyn.cid * string
-- val it = (212,"eterm") : IntSyn.cid * string
-- val it = (541,"eterm-eq/i") : IntSyn.cid * string
-- val it = (543,"etp-eq/i") : IntSyn.cid * string
-- val it = (591,"eterm-resp-bind") : IntSyn.cid * string
+ val it = (211,"etp") : IntSyn.cid * string
+ val it = (212,"eterm") : IntSyn.cid * string
+ val it = (541,"eterm-eq/i") : IntSyn.cid * string
+ val it = (543,"etp-eq/i") : IntSyn.cid * string
+ val it = (591,"eterm-resp-bind") : IntSyn.cid * string
 val hsp = (S.check sgn (#exp decl) (S.Uni (#uni decl));raise Success)
   handle S.Fail_spine_exp x => x
 

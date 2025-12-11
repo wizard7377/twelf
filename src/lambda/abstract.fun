@@ -23,11 +23,11 @@ struct
 
     (* Intermediate Data Structure *)
 
-    datatype EFLVar =
-      EV of I.Exp                       (* Y ::= X         for  GX |- X : VX *)
-    | FV of string * I.Exp              (*     | (F, V)        if . |- F : V *)
-    | LV of I.Block                     (*     | L             if . |- L in W *)
-    | PV of T.Prg                       (*     | P                            *)
+    datatype efl_var =
+      EV of I.exp                       (* Y ::= X         for  GX |- X : VX *)
+    | FV of string * I.exp              (*     | (F, V)        if . |- F : V *)
+    | LV of I.block                     (*     | L             if . |- L in W *)
+    | PV of T.prg                       (*     | P                            *)
 
     (*
        We write {{K}} for the context of K, where EVars, FVars, LVars have

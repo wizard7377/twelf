@@ -7,12 +7,12 @@ sig
 
   (*! structure IntSyn : INTSYN !*)
 
-  datatype Mode = Plus | Star | Minus | Minus1
-  datatype ModeSpine = Mnil | Mapp of Marg * ModeSpine
-  and Marg = Marg of Mode * string option
+  datatype mode = Plus | Star | Minus | Minus1
+  datatype mode_spine = Mnil | Mapp of marg * mode_spine
+  and marg = Marg of mode * string option
 
-  val modeEqual : Mode * Mode -> bool
-  val modeToString : Mode -> string
+  val modeEqual : mode * mode -> bool
+  val modeToString : mode -> string
 end;  (* signature MODESYN *)
 
 
@@ -21,9 +21,9 @@ struct
 
   exception Error of string
 
-  datatype Mode = Plus | Star | Minus | Minus1
-  datatype ModeSpine = Mnil | Mapp of Marg * ModeSpine
-  and  Marg = Marg of Mode * string option
+  datatype mode = Plus | Star | Minus | Minus1
+  datatype mode_spine = Mnil | Mapp of marg * mode_spine
+  and  marg = Marg of mode * string option
    
 
   (* modeEqual (M1, M2) = true iff M1 = M2 *)

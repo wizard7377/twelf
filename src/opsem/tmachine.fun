@@ -218,7 +218,7 @@ struct
         val _ = T.signal (G, T.SolveGoal (tag, Ha, I.EClo ps'))
 
         val deterministic = C.detTableCheck (cidFromHead Ha)
-        exception SucceedOnce of I.Spine
+        exception SucceedOnce of I.spine
 
         (* matchSig [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting

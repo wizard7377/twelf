@@ -13,21 +13,21 @@ sig
 
   exception Error of string
 
-  datatype Opt = datatype CompSyn.Opt
+  datatype opt = datatype CompSyn.opt
 
-  val optimize : Opt ref
+  val optimize : opt ref
 
-  val install : IntSyn.ConDecForm -> IntSyn.cid -> unit
+  val install : IntSyn.con_dec_form -> IntSyn.cid -> unit
 
   val sProgReset : unit -> unit
 
 
-  val compileCtx: bool -> (IntSyn.Dec IntSyn.Ctx) -> CompSyn.DProg  
+  val compileCtx: bool -> (IntSyn.dec IntSyn.ctx) -> CompSyn.d_prog  
 
-  val compileGoal: (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp) -> CompSyn.Goal
+  val compileGoal: (IntSyn.dec IntSyn.ctx * IntSyn.exp) -> CompSyn.goal
 
   (* for the meta theorem prover  --cs *)
-  val compilePsi: bool -> (Tomega.Dec IntSyn.Ctx) -> CompSyn.DProg
+  val compilePsi: bool -> (Tomega.dec IntSyn.ctx) -> CompSyn.d_prog
  
 
 end; (* signature COMPILE *)

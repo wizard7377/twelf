@@ -31,7 +31,7 @@ struct
 
        Subordination is transitive, but not necessarily reflexive.
     *)
-    val soGraph : (IntSet.intset) Table.Table = Table.new (32)
+    val soGraph : (IntSet.intset) Table.table = Table.new (32)
     val insert = Table.insert soGraph
     fun adjNodes a = valOf (Table.lookup soGraph a)  (* must be defined! *)
     fun insertNewFam a =
@@ -40,7 +40,7 @@ struct
 
     (* memotable to avoid repeated graph traversal *)
     (* think of hash-table model *)
-    val memoTable : (bool * int) MemoTable.Table = MemoTable.new (2048)
+    val memoTable : (bool * int) MemoTable.table = MemoTable.new (2048)
     val memoInsert = MemoTable.insert memoTable
     val memoLookup = MemoTable.lookup memoTable
     val memoClear = fn () => MemoTable.clear memoTable
@@ -83,7 +83,7 @@ struct
           memoInsert ((b,a), (true, !memoCounter)) ;
           updateFam (b, IntSet.insert(a,adjNodes(b))) )
 
-    val fTable : bool Table.Table = Table.new (32)
+    val fTable : bool Table.table = Table.new (32)
     val fLookup = Table.lookup fTable
     val fInsert = Table.insert fTable
 
@@ -291,7 +291,7 @@ struct
 
        Fri Dec 27 08:37:42 2002 -fp (just before 1.4 alpha)
     *)
-    val defGraph : (IntSet.intset) Table.Table = Table.new (32)
+    val defGraph : (IntSet.intset) Table.table = Table.new (32)
 
     (* occursInDef a = true
        iff there is a b such that a #> b

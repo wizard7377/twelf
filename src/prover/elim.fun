@@ -29,10 +29,10 @@ struct
 
   exception Error of string
 
-  datatype Operator =
-    Local of Tomega.Prg * int
+  datatype operator =
+    Local of Tomega.prg * int
 
-  type operator = Operator
+  type operator = operator
 
   local
     structure S = State

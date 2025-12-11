@@ -33,21 +33,21 @@ struct
 
   exception Error of string
 
-  datatype Operator =
-    FillWithConst of IntSyn.Exp * IntSyn.cid
+  datatype operator =
+    FillWithConst of IntSyn.exp * IntSyn.cid
        (* Representation Invariant:  FillWithConst (X, c) :
            X is an evar GX |- X : VX
            Sigma |- c : W
            and VX and W are unifiable
        *)
-    | FillWithBVar of IntSyn.Exp * int
+    | FillWithBVar of IntSyn.exp * int
        (* Representation Invariant:  FillWithBVar (X, n) :
            X is an evar GX |- X : VX
            GX |- n : W
            and VX and W are unifiable
        *)
 
-  type operator = Operator
+  type operator = operator
 
   local
     structure S = State

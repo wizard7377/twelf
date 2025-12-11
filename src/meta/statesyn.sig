@@ -6,41 +6,41 @@ sig
   (*! structure IntSyn : INTSYN !*)
   (*! structure FunSyn : FUNSYN !*)
 
-  datatype Order =	       	        (* Orders                     *)
-    Arg of (IntSyn.Exp * IntSyn.Sub) * 
-           (IntSyn.Exp * IntSyn.Sub)	(* O ::= U[s] : V[s]          *)
-  | Lex of Order list			(*     | (O1 .. On)           *)
-  | Simul of Order list			(*     | {O1 .. On}           *)
-  | All of IntSyn.Dec * Order  	(*     | {{D}} O              *)
-  | And of Order * Order		(*     | O1 ^ O2              *)
+  datatype order =	       	        (* Orders                     *)
+    Arg of (IntSyn.exp * IntSyn.sub) * 
+           (IntSyn.exp * IntSyn.sub)	(* O ::= U[s] : V[s]          *)
+  | Lex of order list			(*     | (O1 .. On)           *)
+  | Simul of order list			(*     | {O1 .. On}           *)
+  | All of IntSyn.dec * order  	(*     | {{D}} O              *)
+  | And of order * order		(*     | O1 ^ O2              *)
 
 
-  datatype Info =
+  datatype info =
     Splits of int
   | RL 
   | RLdone
     
-  datatype Tag = 
+  datatype tag = 
     Parameter of FunSyn.label option
-  | Lemma of Info
+  | Lemma of info
   | None
 
-  datatype State =			(* S = <n, (G, B), (IH, OH), d, O, H, F> *)
+  datatype state =			(* S = <n, (G, B), (IH, OH), d, O, H, F> *)
     State of int			(* Part of theorem                   *)
 	   * (IntSyn.dctx	(* Context of Hypothesis, in general not named *)
-           * Tag IntSyn.Ctx) (* Status information *)
-           * (FunSyn.For * Order)	(* Induction hypothesis, order       *)
+           * tag IntSyn.ctx) (* Status information *)
+           * (FunSyn.for * order)	(* Induction hypothesis, order       *)
            * int			(* length of meta context            *)
-           * Order			(* Current order *)
-           * (int * FunSyn.For) list	(* History of residual lemmas *)
-           * FunSyn.For			(* Formula *)
+           * order			(* Current order *)
+           * (int * FunSyn.for) list	(* History of residual lemmas *)
+           * FunSyn.for			(* Formula *)
 
-  val orderSub : Order * IntSyn.Sub -> Order  
-  val decrease : Tag -> Tag
-  val splitDepth : Info -> int
+  val orderSub : order * IntSyn.sub -> order  
+  val decrease : tag -> tag
+  val splitDepth : info -> int
 
-  val normalizeOrder : Order -> Order
-  val convOrder : Order * Order -> bool
+  val normalizeOrder : order -> order
+  val convOrder : order * order -> bool
 
-  val normalizeTag : Tag * IntSyn.Sub -> Tag
+  val normalizeTag : tag * IntSyn.sub -> tag
 end; (* signature STATESYN *)

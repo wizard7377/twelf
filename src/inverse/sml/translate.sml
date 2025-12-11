@@ -14,8 +14,8 @@ struct
   (* -------------------------------------------------------------------------- *)
 
   exception Translate of string
-  exception Trans1 of S.const * I.ConDec
-  exception Fail_exp of string * I.Exp
+  exception Trans1 of S.const * I.con_dec
+  exception Fail_exp of string * I.exp
 
   (* -------------------------------------------------------------------------- *)
   (*  Basic Translation                                                         *)

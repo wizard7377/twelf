@@ -150,7 +150,7 @@ struct
      consistent with each other.
   *)
 
-  datatype Qid = Qid of string list * string
+  datatype qid = Qid of string list * string
 
   fun qidToString (Qid (ids, name)) =
         List.foldr (fn (id, s) => id ^ "." ^ s) name ids
@@ -167,7 +167,7 @@ struct
   fun unqualified (Qid (nil, id)) = SOME id
     | unqualified _ = NONE
 
-  type namespace = IntSyn.mid StringTree.Table * IntSyn.cid StringTree.Table
+  type namespace = IntSyn.mid StringTree.table * IntSyn.cid StringTree.table
 
   fun newNamespace () : namespace =
         (StringTree.new (0), StringTree.new (0))
@@ -217,7 +217,7 @@ struct
           Array.array (maxCid+1, NONE)
     fun namePrefClear () = Array.modify (fn _ => NONE) namePrefArray
 
-    val topNamespace : IntSyn.cid HashTable.Table = HashTable.new (4096)
+    val topNamespace : IntSyn.cid HashTable.table = HashTable.new (4096)
     val topInsert = HashTable.insertShadow topNamespace
     val topLookup = HashTable.lookup topNamespace
     val topDelete = HashTable.delete topNamespace
@@ -233,7 +233,7 @@ struct
           Array.array (maxMid+1, dummyNamespace)
     fun componentsClear () = Array.modify (fn _ => dummyNamespace) componentsArray
 
-    val topStructNamespace : IntSyn.mid HashTable.Table =
+    val topStructNamespace : IntSyn.mid HashTable.table =
           HashTable.new (4096)
     val topStructInsert = HashTable.insertShadow topStructNamespace
     val topStructLookup = HashTable.lookup topStructNamespace
@@ -535,8 +535,8 @@ struct
     (* local names are more easily re-used: they don't increment the
        counter associated with a name
     *)
-    datatype Extent = Local | Global
-    datatype Role = Exist | Univ of Extent
+    datatype extent = Local | Global
+    datatype role = Exist | Univ of extent
 
     fun extent (Exist) = Global
       | extent (Univ (ext)) = ext
@@ -607,13 +607,13 @@ struct
      EVars and FVars are local.
   *)
   local
-    datatype varEntry = EVAR of IntSyn.Exp (* X *)
+    datatype var_entry = EVAR of IntSyn.exp (* X *)
       (* remove this datatype? -kw *)
 
     (* varTable mapping identifiers (strings) to EVars and FVars *)
     (* A hashtable is too inefficient, since it is cleared too often; *)
     (* so we use a red/black trees instead *)
-    val varTable : varEntry StringTree.Table = StringTree.new (0) (* initial size hint *)
+    val varTable : var_entry StringTree.table = StringTree.new (0) (* initial size hint *)
     val varInsert = StringTree.insert varTable
     val varLookup = StringTree.lookup varTable
     fun varClear () = StringTree.clear varTable
@@ -626,7 +626,7 @@ struct
     (* the mapping must be implemented as an association list *)
     (* since EVars are identified by reference *)
     (* an alternative becomes possible if time stamps are introduced *)
-    val evarList : (IntSyn.Exp * string) list ref = ref nil
+    val evarList : (IntSyn.exp * string) list ref = ref nil
 
     fun evarReset () = (evarList := nil)
     fun evarLookup (X) =
@@ -659,7 +659,7 @@ struct
        The resulting identifer is not guaranteed to be new, and must be
        checked against the names of constants, FVars, EVars, and BVars.
     *)
-    val indexTable : int StringTree.Table = StringTree.new (0)
+    val indexTable : int StringTree.table = StringTree.new (0)
     val indexInsert = StringTree.insert indexTable
     val indexLookup = StringTree.lookup indexTable
     fun indexClear () = StringTree.clear indexTable

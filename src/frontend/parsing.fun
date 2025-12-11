@@ -9,15 +9,15 @@ struct
   structure Stream = Stream'
   (*! structure Lexer = Lexer' !*)
 
-  type lexResult = Lexer.Token * Paths.region
+  type lex_result = Lexer.token * Paths.region
 
-  type 'a parser = lexResult Stream.front -> 'a * lexResult Stream.front
+  type 'a parser = lex_result Stream.front -> 'a * lex_result Stream.front
 
-  datatype 'a RecParseResult =
+  datatype 'a rec_parse_result =
     Done of 'a
-  | Continuation of 'a RecParseResult parser
+  | Continuation of 'a rec_parse_result parser
 
-  type 'a recparser = 'a RecParseResult parser
+  type 'a recparser = 'a rec_parse_result parser
 
   fun recwith (recparser, func) f =
       (case recparser f

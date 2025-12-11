@@ -20,7 +20,7 @@ struct
   structure I = IntSyn
 
     exception Error = S.Error
-    type operator = (T.Prg option ref * T.Prg)
+    type operator = (T.prg option ref * T.prg)
 
 
     (* expand S = S'

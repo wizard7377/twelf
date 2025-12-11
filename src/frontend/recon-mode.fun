@@ -31,19 +31,19 @@ struct
     structure T = ExtSyn
     structure P = Paths
 
-    type mode = M.Mode * P.region
+    type mode = M.mode * P.region
 
     fun plus r = (M.Plus, r)
     fun star r = (M.Star, r)
     fun minus r = (M.Minus, r)
     fun minus1 r = (M.Minus1, r)
 
-    type modedec = (I.cid * M.ModeSpine) * P.region
+    type modedec = (I.cid * M.mode_spine) * P.region
 
     structure Short =
     struct
-      type mterm = (I.cid * M.ModeSpine) * P.region
-      type mspine = M.ModeSpine * P.region
+      type mterm = (I.cid * M.mode_spine) * P.region
+      type mspine = M.mode_spine * P.region
 
       fun mnil r = (M.Mnil, r)
       fun mapp (((m, r1), name), (mS, r2)) = (M.Mapp (M.Marg (m, name), mS), P.join (r1, r2))
@@ -64,8 +64,8 @@ struct
 
     structure Full =
     struct
-      type mterm = T.dec I.Ctx * M.Mode I.Ctx
-                     -> (I.cid * M.ModeSpine) * P.region
+      type mterm = T.dec I.ctx * M.mode I.ctx
+                     -> (I.cid * M.mode_spine) * P.region
 
       fun mpi ((m, _), d, t) (g, D) =
             t (I.Decl (g, d), I.Decl (D, m))

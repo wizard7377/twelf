@@ -9,8 +9,8 @@ sig
 
   exception Error of string
 
-  type acctype = IntSyn.Exp
+  type acctype = IntSyn.exp
 
-  val searchEx : int * IntSyn.Exp list
+  val searchEx : int * IntSyn.exp list
       * (acctype list -> acctype list) -> acctype list
 end;  (* signature SEARCH *)

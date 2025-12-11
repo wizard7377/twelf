@@ -37,7 +37,7 @@ struct
     structure I = IntSyn
     structure C = CompSyn
 
-    val mSig : ((IntSyn.Exp * IntSyn.Sub) * CompSyn.DProg * (CompSyn.Flatterm list -> unit) -> unit) ref = ref (fn (ps, dp, sc) => ())
+    val mSig : ((IntSyn.exp * IntSyn.sub) * CompSyn.d_prog * (CompSyn.flatterm list -> unit) -> unit) ref = ref (fn (ps, dp, sc) => ())
 
   (* We write
        G |- M : g

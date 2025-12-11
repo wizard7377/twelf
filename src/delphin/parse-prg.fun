@@ -6,7 +6,7 @@ functor Parse  (structure DextSyn  : DEXTSYN
                 structure Parserr : PARSERR
                      sharing type Parserr.arg = Interface.arg
                      sharing type Parserr.pos = Interface.pos
-                     sharing type Parserr.result = DextSyn.Ast
+                     sharing type Parserr.result = DextSyn.ast
                 structure Tokens : Delphin_TOKENS
                      sharing type Tokens.token = Parserr.Token.token
                      sharing type Tokens.svalue = Parserr.svalue) : PARSE =

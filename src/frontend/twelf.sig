@@ -28,13 +28,13 @@ sig
 
   structure Trace :
   sig 
-    datatype 'a Spec =		       (* trace and breakpoint spec *)
+    datatype 'a spec =		       (* trace and breakpoint spec *)
       None			       (* no tracing, default *)
     | Some of 'a list		       (* list of clauses and families *)
     | All			       (* trace all clauses and families *)
 
-    val trace : string Spec -> unit    (* trace clauses and families *)
-    val break : string Spec -> unit    (* break at clauses and families *)
+    val trace : string spec -> unit    (* trace clauses and families *)
+    val break : string spec -> unit    (* break at clauses and families *)
     val detail : int ref	       (* 0 = none, 1 = default, 2 = unify *)
 
     val show : unit -> unit	       (* show trace, break, and detail *)
@@ -43,9 +43,9 @@ sig
 
   structure Table :
   sig
-    datatype Strategy = Variant | Subsumption  (* Variant | Subsumption *)
+    datatype strategy = Variant | Subsumption  (* Variant | Subsumption *)
 
-    val strategy : Strategy ref	      (* strategy used for %querytabled *)
+    val strategy : strategy ref	      (* strategy used for %querytabled *)
     val strengthen : bool ref	      (* strengthenng used %querytabled *)
     val resetGlobalTable : unit -> unit (* reset global table           *)
 
@@ -68,21 +68,21 @@ sig
 
   structure Compile :
   sig
-    datatype Opt = No | LinearHeads | Indexing 
-    val optimize : Opt ref
+    datatype opt = No | LinearHeads | Indexing 
+    val optimize : opt ref
   end
 
   structure Recon :
   sig
-    datatype TraceMode = Progressive | Omniscient
+    datatype trace_mode = Progressive | Omniscient
     val trace : bool ref
-    val traceMode : TraceMode ref
+    val traceMode : trace_mode ref
   end
 
   structure Prover :
   sig
-    datatype Strategy = RFS | FRS      (* F=Filling, R=Recursion, S=Splitting *)
-    val strategy : Strategy ref	       (* FRS, strategy used for %prove *)
+    datatype strategy = RFS | FRS      (* F=Filling, R=Recursion, S=Splitting *)
+    val strategy : strategy ref	       (* FRS, strategy used for %prove *)
     val maxSplit : int ref	       (* 2, bound on splitting  *)
     val maxRecurse : int ref	       (* 10, bound on recursion *)
   end
@@ -93,13 +93,13 @@ sig
   val autoFreeze : bool ref		(* false, freezes families in meta-theorems *)
   val timeLimit : (Time.time option) ref     (* NONEe, allows timeLimit in seconds *)
 
-  datatype Status = OK | ABORT	       (* return status *)
+  datatype status = OK | ABORT	       (* return status *)
 
   val reset : unit -> unit	       (* reset global signature *)
-  val loadFile : string -> Status      (* load file *)
-  val loadString : string -> Status    (* load string *)
-  val readDecl : unit -> Status	       (* read declaration interactively *)
-  val decl : string -> Status	       (* print declaration of constant *)
+  val loadFile : string -> status      (* load file *)
+  val loadString : string -> status    (* load string *)
+  val readDecl : unit -> status	       (* read declaration interactively *)
+  val decl : string -> status	       (* print declaration of constant *)
 
   val top : unit -> unit	       (* top-level for interactive queries *)
 
@@ -110,12 +110,12 @@ sig
     val read : string -> config	       (* read config file *)
     val readWithout : string * config -> config 
                                        (* read config file, minus contents of another *)
-    val load : config -> Status	       (* reset and load configuration *)
-    val append : config -> Status      (* load configuration (w/o reset) *)
+    val load : config -> status	       (* reset and load configuration *)
+    val append : config -> status      (* load configuration (w/o reset) *)
     val define : string list -> config (* explicitly define configuration *)
   end
 
-  val make : string -> Status	       (* read and load configuration *)
+  val make : string -> status	       (* read and load configuration *)
 
   val version : string		       (* Twelf version *)
 

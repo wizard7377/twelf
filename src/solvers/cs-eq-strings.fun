@@ -71,15 +71,15 @@ struct
     *)
     fun solveString (G, S, k) = SOME(stringExp (Int.toString k))
 
-    datatype Concat =
-      Concat of Atom list                  (* Concatenation:             *)
+    datatype concat =
+      Concat of atom list                  (* Concatenation:             *)
                                            (* Concat::= A1 ++ A2 ++ ...  *)
 
-    and Atom =                             (* Atoms:                     *)
+    and atom =                             (* Atoms:                     *)
       String of string                     (* Atom ::= "str"             *)
     | Exp of IntSyn.eclo                   (*        | (U,s)             *)
 
-    exception MyIntsynRep of Concat        (* Internal syntax representation of this module *)
+    exception MyIntsynRep of concat        (* Internal syntax representation of this module *)
 
     fun extractConcat (MyIntsynRep concat) = concat
       | extractConcat fe = raise (UnexpectedFgnExp fe)
@@ -179,11 +179,11 @@ struct
 
     (* Split:                                         *)
     (* Split ::= str1 ++ str2                         *)
-    datatype Split = Split of string * string
+    datatype split = Split of string * string
 
     (* Decomposition:                                 *)
     (* Decomp ::= toParse | [parsed1, ..., parsedn]   *)
-    datatype Decomp = Decomp of string * string list
+    datatype decomp = Decomp of string * string list
 
     (* index (str1, str2) = [idx1, ..., idxn]
        where the idxk are all the positions in str2 where str1 appear.
@@ -297,9 +297,9 @@ struct
                      | {delay U1 on cnstr1, ..., delay Un on cnstrn}
                      | Failure
     *)
-    datatype StringUnify =
-      MultAssign of (Dec Ctx * Exp * Exp * Sub) list
-    | MultDelay of Exp list * Cnstr ref
+    datatype string_unify =
+      MultAssign of (dec ctx * exp * exp * sub) list
+    | MultDelay of exp list * cnstr ref
     | Failure
 
     (* toFgnUnify stringUnify = result

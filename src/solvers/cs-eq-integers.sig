@@ -12,27 +12,27 @@ sig
 
   type 'a mset = 'a list                 (* MultiSet                   *)
 
-  datatype Sum =                         (* Sum :                      *)
-    Sum of Integers.int * Mon mset       (* Sum ::= m + M1 + ...       *)
+  datatype sum =                         (* Sum :                      *)
+    Sum of Integers.int * mon mset       (* Sum ::= m + M1 + ...       *)
 
-  and Mon =                              (* Monomials:                 *)
-    Mon of Integers.int * (IntSyn.Exp * IntSyn.Sub) mset
+  and mon =                              (* Monomials:                 *)
+    Mon of Integers.int * (IntSyn.exp * IntSyn.sub) mset
                                          (* Mon ::= n * U1[s1] * ...   *)
 
-  val fromExp   : IntSyn.eclo -> Sum
-  val toExp     : Sum -> IntSyn.Exp
-  val normalize : Sum -> Sum
+  val fromExp   : IntSyn.eclo -> sum
+  val toExp     : sum -> IntSyn.exp
+  val normalize : sum -> sum
 
-  val compatibleMon : Mon * Mon -> bool
+  val compatibleMon : mon * mon -> bool
 
   (* Internal expressions constructors *)
 
-  val number     : unit -> IntSyn.Exp
+  val number     : unit -> IntSyn.exp
 
-  val unaryMinus : IntSyn.Exp -> IntSyn.Exp
-  val plus       : IntSyn.Exp * IntSyn.Exp -> IntSyn.Exp
-  val minus      : IntSyn.Exp * IntSyn.Exp -> IntSyn.Exp
-  val times      : IntSyn.Exp * IntSyn.Exp -> IntSyn.Exp
+  val unaryMinus : IntSyn.exp -> IntSyn.exp
+  val plus       : IntSyn.exp * IntSyn.exp -> IntSyn.exp
+  val minus      : IntSyn.exp * IntSyn.exp -> IntSyn.exp
+  val times      : IntSyn.exp * IntSyn.exp -> IntSyn.exp
 
-  val constant   : Integers.int -> IntSyn.Exp
+  val constant   : Integers.int -> IntSyn.exp
 end  (* signature CS_EQ_FIELD *)

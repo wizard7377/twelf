@@ -45,7 +45,7 @@ struct
 
   exception Error of string
 
-exception Error' of Tomega.Sub
+exception Error' of Tomega.sub
 
   local
     structure T = Tomega

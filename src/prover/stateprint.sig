@@ -11,7 +11,7 @@ sig
 
   exception Error of string 
 
-  val nameState : State.State -> State.State
-  val formatState : State.State -> Formatter.format 
-  val stateToString : State.State -> string
+  val nameState : State.state -> State.state
+  val formatState : State.state -> Formatter.format 
+  val stateToString : State.state -> string
 end;  (* signature STATEPRINT *)

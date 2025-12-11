@@ -33,10 +33,10 @@ struct
        connect the new prover to Twelf  (see also functor below) *)
 
     (* List of open states *)
-    val openStates : S.State list ref = ref nil
+    val openStates : S.state list ref = ref nil
 
     (* List of solved states *)
-    val solvedStates : S.State list ref = ref nil
+    val solvedStates : S.state list ref = ref nil
 
     fun transformOrder' (G, Order.Arg k) =
         let

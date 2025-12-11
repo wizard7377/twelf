@@ -5,6 +5,6 @@ signature MODEPRINT =
 sig
   (*! structure ModeSyn : MODESYN !*)
 
-  val modeToString : IntSyn.cid * ModeSyn.ModeSpine -> string
-  val modesToString : (IntSyn.cid * ModeSyn.ModeSpine) list -> string
+  val modeToString : IntSyn.cid * ModeSyn.mode_spine -> string
+  val modesToString : (IntSyn.cid * ModeSyn.mode_spine) list -> string
 end;  (* signature MODEPRINT *)

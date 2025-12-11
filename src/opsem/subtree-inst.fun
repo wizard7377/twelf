@@ -40,12 +40,12 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
    *)
   (* property: linear *)
 
-  type normalSubsts  = (int (* local depth *) * IntSyn.Exp) RBSet.ordSet
+  type normal_substs  = (int (* local depth *) * IntSyn.exp) RBSet.ord_set
 
-  type exSubsts  = IntSyn.Front RBSet.ordSet
+  type ex_substs  = IntSyn.front RBSet.ord_set
 
-  val nid : unit -> normalSubsts = RBSet.new
-  val asid : unit -> exSubsts = RBSet.new
+  val nid : unit -> normal_substs = RBSet.new
+  val asid : unit -> ex_substs = RBSet.new
 
   val aid = TableParam.aid
 
@@ -54,7 +54,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
   (* ---------------------------------------------------------------------- *)
   (* Context for existential variable *)
 
-  type ctx = ((int * IntSyn.Dec) list) ref
+  type ctx = ((int * IntSyn.dec) list) ref
 
   (* functions for handling context for existential variables *)
 
@@ -95,28 +95,28 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
      This allows us to maintain invariant, that every occurrence of an evar is
      defined in its evar-ctx
   *)
-  datatype Tree =
-      Leaf of (ctx *  normalSubsts) *
+  datatype tree =
+      Leaf of (ctx *  normal_substs) *
       (((int (* #EVar *) * int (* #G *)) *
         ctx  (* D *) * IntSyn.dctx (* G *) *
-        TableParam.ResEqn * TableParam.answer *
-        int * TableParam.Status) list) ref
-    | Node of (ctx *  normalSubsts) * (Tree ref) list
+        TableParam.res_eqn * TableParam.answer *
+        int * TableParam.status) list) ref
+    | Node of (ctx *  normal_substs) * (tree ref) list
 
   fun makeTree () = ref (Node ((emptyCtx(), nid ()), []))
 
   fun noChildren C = (C=[])
 
-  datatype Retrieval =
-      Variant of (int * IntSyn.Exp)
+  datatype retrieval =
+      Variant of (int * IntSyn.exp)
     | NotCompatible
 
-  datatype CompSub =
-      SplitSub of ((ctx * normalSubsts (* sigma *)) *
-                   (ctx * normalSubsts (* rho1 *)) *
-                   (ctx * normalSubsts (* rho2 *)))
-    | InstanceSub of (exSubsts * (ctx * normalSubsts (* rho2 *)))
-    | VariantSub of  (ctx * normalSubsts (* rho2 *))
+  datatype comp_sub =
+      SplitSub of ((ctx * normal_substs (* sigma *)) *
+                   (ctx * normal_substs (* rho1 *)) *
+                   (ctx * normal_substs (* rho2 *)))
+    | InstanceSub of (ex_substs * (ctx * normal_substs (* rho2 *)))
+    | VariantSub of  (ctx * normal_substs (* rho2 *))
     | NoCompatibleSub
 
   (* Index array
@@ -1060,7 +1060,7 @@ functor MemoTableInst ((*! structure IntSyn' : INTSYN !*)
     let
       val rho_u = nid()
       val D_r2 = copy Dsq
-      val ac = ref (fn (asub :exSubsts) => ())
+      val ac = ref (fn (asub :ex_substs) => ())
      (* by invariant rho_t = empty, since nsub_t <= squery *)
     in
      ((S.forall squery

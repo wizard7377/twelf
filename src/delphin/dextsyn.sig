@@ -6,104 +6,104 @@ sig
 
 (* structure Lexer : LEXER *)
 
-datatype Ast =  Ast of Decs
+datatype ast =  Ast of decs
 
-and Decs 
+and decs 
   = Empty
-  | FunDecl of FunDecl * Decs
-  | FormDecl of FormDecl * Decs
-  | ValDecl of ValDecl * Decs
-  | NewDecl of Dec * Decs
-  | TwelfDecl of Dec * Decs
-  | CreateDecl of CreateDecl * Decs
+  | FunDecl of fun_decl * decs
+  | FormDecl of form_decl * decs
+  | ValDecl of val_decl * decs
+  | NewDecl of dec * decs
+  | TwelfDecl of dec * decs
+  | CreateDecl of create_decl * decs
 
-and CreateDecl
-  = Create of Term * CreateDecl
-  | Decs of Decs
+and create_decl
+  = Create of term * create_decl
+  | Decs of decs
 
-and FormDecl 
-  = Form of string * Form
+and form_decl 
+  = Form of string * form
 
-and FunDecl 
-  = Fun of Head * Prog
-  | Bar of Head * Prog
-  | FunAnd of Head * Prog
+and fun_decl 
+  = Fun of head * prog
+  | Bar of head * prog
+  | FunAnd of head * prog
 
-and ValDecl
-  = Val of Pat * Prog * Form option
+and val_decl
+  = Val of pat * prog * form option
 
-and World = 
+and world = 
     WorldIdent of string
-  | Plus of World * World
-  | Concat of World * World
-  | Times of World
+  | Plus of world * world
+  | Concat of world * world
+  | Times of world
 
-and Form 
+and form 
   = True
-  | Forall of Dec * Form
-  | ForallOmitted of Dec * Form
-  | Exists of Dec * Form
-  | ExistsOmitted of Dec * Form
-  | And of Form * Form
-  | World of World * Form
+  | Forall of dec * form
+  | ForallOmitted of dec * form
+  | Exists of dec * form
+  | ExistsOmitted of dec * form
+  | And of form * form
+  | World of world * form
 (* | Arrow of Form * Form *)
 (* | WldDef of (string list) * Form *)
 
-and Prog 
+and prog 
   = Unit 
-  | Pair of Prog * Prog
-  | AppProg of Prog * Prog
-  | AppTerm of Prog * Term
-  | Inx of Term * Prog 
-  | Lam of Dec * Prog
+  | Pair of prog * prog
+  | AppProg of prog * prog
+  | AppTerm of prog * term
+  | Inx of term * prog 
+  | Lam of dec * prog
   | Const of string
-  | Case of  (Pat list * Prog) list
-  | Let of Decs * Prog 
-  | Par of Prog * Prog
-  | New of Dec list * Prog 
-  | Choose of Dec * Prog 
+  | Case of  (pat list * prog) list
+  | Let of decs * prog 
+  | Par of prog * prog
+  | New of dec list * prog 
+  | Choose of dec * prog 
 (* | Rec of MDec * Prog *)
 
-and Cases 
-  = First of Pat * Prog
-  | Alt of Cases * Pat * Prog
+and cases 
+  = First of pat * prog
+  | Alt of cases * pat * prog
 
-and Head 
+and head 
   = Head of string
-  | AppLF of Head * Term
-  | AppMeta of Head * Pat
+  | AppLF of head * term
+  | AppMeta of head * pat
 
-and Pat 
-  = PatInx of Term * Pat
-  | PatPair of Pat * Pat
-  | PatVar of MDec
+and pat 
+  = PatInx of term * pat
+  | PatPair of pat * pat
+  | PatVar of m_dec
   | PatUnderscore 
   | PatUnit 
 
-and MDec 
-  = MDec of string * (Form option)
+and m_dec 
+  = MDec of string * (form option)
 
-and Block 
+and block 
   = Block of string list
 
 (* and Term 
   = Term of string
 *)
-and Term 
-  = Rtarrow of Term * Term
-  | Ltarrow of Term * Term
+and term 
+  = Rtarrow of term * term
+  | Ltarrow of term * term
   | Type
   | Id of string
-  | Pi of Dec * Term
-  | Fn of Dec * Term
-  | App of Term * Term
-  | Dot of Term * string
-  | Paren of Term
+  | Pi of dec * term
+  | Fn of dec * term
+  | App of term * term
+  | Dot of term * string
+  | Paren of term
   | Omit
-  | Of of Term * Term
+  | Of of term * term
 
-and Dec 
-  = Dec of string * Term
+and dec 
+  = Dec of string * term
 end
 
 

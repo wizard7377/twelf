@@ -18,7 +18,7 @@ struct
     structure I = IntSyn
     structure M = ModeSyn
 
-    val modeSignature : (M.ModeSpine list) Table.Table = Table.new(0);
+    val modeSignature : (M.mode_spine list) Table.table = Table.new(0);
 
     (* reset () = ()
 

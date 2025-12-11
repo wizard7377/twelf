@@ -9,8 +9,8 @@ sig
 
   type operator
     
-  val expand : MetaSyn.State -> operator list 
-  val apply : operator -> MetaSyn.State list
+  val expand : MetaSyn.state -> operator list 
+  val apply : operator -> MetaSyn.state list
 
   val var : operator -> int
   val menu : operator -> string

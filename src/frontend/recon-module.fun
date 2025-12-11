@@ -39,11 +39,11 @@ struct
 
   fun strexpToStrexp (f:strexp) = #1 (f ())
 
-  datatype Inst =
+  datatype inst =
       External of ExtSyn.term
     | Internal of IntSyn.cid
 
-  type eqn = IntSyn.cid * Inst * Paths.region
+  type eqn = IntSyn.cid * inst * Paths.region
 
   type inst = Names.namespace * eqn list -> eqn list
 
@@ -125,11 +125,11 @@ struct
 
   fun sigdefToSigdef (sigdef, moduleOpt) = sigdef moduleOpt
 
-  datatype StructDec =
+  datatype struct_dec =
       StructDec of string option * ModSyn.module * whereclause list
     | StructDef of string option * IntSyn.mid
 
-  type structdec = ModSyn.module option -> StructDec
+  type structdec = ModSyn.module option -> struct_dec
 
   fun structdec (idOpt, sigexp) moduleOpt =
       let
@@ -147,13 +147,13 @@ struct
 
   fun structdecToStructDec (structdec, moduleOpt) = structdec moduleOpt
 
-  type eqnTable = (Inst * Paths.region) list ref IntTree.Table
+  type eqn_table = (inst * Paths.region) list ref IntTree.table
 
   fun applyEqns wherecl namespace =
       let
         val eqns = wherecl namespace
 
-        val table : eqnTable = IntTree.new (0)
+        val table : eqn_table = IntTree.new (0)
         fun add (cid, Inst, r) =
             (case IntTree.lookup table cid
                of NONE => IntTree.insert table (cid, ref [(Inst, r)])

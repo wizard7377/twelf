@@ -26,11 +26,11 @@ struct
 
   exception Error of string
 
-  datatype ConstInfo =
-      ConstInfo of IntSyn.ConDec * Names.Fixity.fixity * (string list * string list) option * (string * Paths.occConDec option)
+  datatype const_info =
+      ConstInfo of IntSyn.con_dec * Names.Fixity.fixity * (string list * string list) option * (string * Paths.occ_con_dec option)
 
-  datatype StructInfo =
-      StructInfo of IntSyn.StrDec
+  datatype struct_info =
+      StructInfo of IntSyn.str_dec
 
   (* A module consists of:
      1. a map from cids to constant entries containing
@@ -43,10 +43,10 @@ struct
      3. the top-level namespace of the module *)
 
   type module =
-      StructInfo IntTree.Table * ConstInfo IntTree.Table * Names.namespace
+      struct_info IntTree.table * const_info IntTree.table * Names.namespace
 
-  type action = IntSyn.cid * (string * Paths.occConDec option) -> unit
-  type transform = IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec
+  type action = IntSyn.cid * (string * Paths.occ_con_dec option) -> unit
+  type transform = IntSyn.cid * IntSyn.con_dec -> IntSyn.con_dec
 
   (* invariant: U in nf, result in nf *)
   fun mapExpConsts f U =
@@ -149,9 +149,9 @@ struct
                      topOpt, nsOpt,
                      installAction, transformConDec) =
       let
-        val structMap : IntSyn.mid IntTree.Table =
+        val structMap : IntSyn.mid IntTree.table =
               IntTree.new (0)
-        val constMap : IntSyn.cid IntTree.Table =
+        val constMap : IntSyn.cid IntTree.table =
               IntTree.new (0)
 
         fun mapStruct mid = valOf (IntTree.lookup structMap mid)
@@ -250,9 +250,9 @@ struct
 
   fun abstractModule (namespace, topOpt) =
       let
-        val structTable : StructInfo IntTree.Table =
+        val structTable : struct_info IntTree.table =
               IntTree.new (0)
-        val constTable : ConstInfo IntTree.Table =
+        val constTable : const_info IntTree.table =
               IntTree.new (0)
 
         val mapParent =
@@ -305,7 +305,7 @@ struct
   local
     val defList : string list ref = ref nil
     val defCount : int ref = ref 0
-    val defs : module HashTable.Table = HashTable.new (4096)
+    val defs : module HashTable.table = HashTable.new (4096)
     fun defsClear () = HashTable.clear defs
     val defsInsert = HashTable.insertShadow defs
     val defsLookup = HashTable.lookup defs

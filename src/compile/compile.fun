@@ -38,12 +38,12 @@ struct
     structure C = CompSyn
   in
 
-    datatype Duplicates = BVAR of int | FGN | DEF of int
+    datatype duplicates = BVAR of int | FGN | DEF of int
 
     fun notCS (I.FromCS) = false
       | notCS _ = true
 
-   datatype Opt = datatype CompSyn.Opt
+   datatype opt = datatype CompSyn.opt
    val optimize  = CompSyn.optimize
 
     fun cidFromHead (I.Const c) = c

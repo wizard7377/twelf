@@ -48,7 +48,7 @@ struct
     structure N = Names
 
     (* totalTable (a) = SOME() iff a is total, otherwise NONE *)
-    val totalTable : unit Table.Table = Table.new(0)
+    val totalTable : unit Table.table = Table.new(0)
 
     fun reset () = Table.clear totalTable
     fun install (cid) = Table.insert totalTable (cid, ())

@@ -105,9 +105,9 @@ struct
        For output coverage, skip input (+), and match output (-).
        Ignore arguments ( * ) should be impossible for output coverage
     *)
-    datatype CoverInst =
-        Match of CoverInst
-      | Skip of CoverInst
+    datatype cover_inst =
+        Match of cover_inst
+      | Skip of cover_inst
       | Cnil
 
     (* inCoverInst (ms) = ci
@@ -142,9 +142,9 @@ struct
     (***************************)
 
     (* labels for cases for tracing coverage checker *)
-    datatype caseLabel =
+    datatype case_label =
         Top                             (* ^ *)
-      | Child of caseLabel * int        (* lab.n, n >= 1 *)
+      | Child of case_label * int        (* lab.n, n >= 1 *)
 
     fun labToString (Top) = "^"
       | labToString (Child(lab, n)) = labToString(lab) ^ "." ^ Int.toString(n)
@@ -250,9 +250,9 @@ struct
     (*** Matching ***)
     (****************)
 
-    datatype CoverClauses =
-        Input of I.Exp list
-      | Output of I.Exp * int (* for now, no factoring --- singleton list *)
+    datatype cover_clauses =
+        Input of I.exp list
+      | Output of I.exp * int (* for now, no factoring --- singleton list *)
 
     (* Equation G |- (U1,s1) = (U2,s2)
        Invariant:
@@ -261,7 +261,7 @@ struct
 
        U1[s1] has no EVars (part of coverage goal)
     *)
-    datatype Equation = Eqn of I.dctx * I.eclo * I.eclo
+    datatype equation = Eqn of I.dctx * I.eclo * I.eclo
 
     fun equationToString (Eqn (G, Us1, Us2)) =
         let val G' = Names.ctxLUName G
@@ -284,8 +284,8 @@ struct
     (* Splitting candidates [k1,...,kl] are indices
        into coverage goal {xn:Vn}...{x1:V1} a M1...Mm, counting right-to-left
     *)
-    datatype Candidates =
-        Eqns of Equation list           (* equations to be solved, everything matches so far *)
+    datatype candidates =
+        Eqns of equation list           (* equations to be solved, everything matches so far *)
       | Cands of int list               (* candidates for splitting, matching fails *)
       | Fail                            (* coverage fails without candidates *)
 
@@ -388,9 +388,9 @@ struct
        Candidate lists record constructors and candidates for each
        constructors or indicate that the coverage goal is matched.
     *)
-    datatype CandList =
+    datatype cand_list =
         Covered                         (* covered---no candidates *)
-      | CandList of Candidates list     (* cands1,..., candsn *)
+      | CandList of candidates list     (* cands1,..., candsn *)
 
     (* addKs (cands, klist) = klist'
        add new constructor to candidate list
@@ -848,7 +848,7 @@ struct
        can be updated in the success continuation.
     *)
     local
-      val caseList : (I.Exp * int) list ref = ref nil
+      val caseList : (I.exp * int) list ref = ref nil
     in
       fun resetCases () = (caseList := nil)
       fun addCase (V, p) = (caseList := (V,p) :: !caseList)
@@ -1756,12 +1756,12 @@ val _ = pr () *)
     (**********************************************)
 
     (* cg = CGoal (G, S)  with G |- S : {{G'}} type *)
-    datatype CoverGoal =
-      CGoal of I.dctx * I.Spine
+    datatype cover_goal =
+      CGoal of I.dctx * I.spine
 
     (* cc = CClause (Gi, Si) with  Gi |- Si : {{G}} type *)
-    datatype CoverClause =
-      CClause of I.dctx * I.Spine
+    datatype cover_clause =
+      CClause of I.dctx * I.spine
 
     fun formatCGoal (CGoal (G, S)) =
         let
@@ -1924,7 +1924,7 @@ val _ = pr () *)
        can be updated in the success continuation.
     *)
     local
-      val caseList : CoverGoal list ref = ref nil
+      val caseList : cover_goal list ref = ref nil
     in
       fun resetCases () = (caseList := nil)
       fun addCase cg = (caseList := cg :: !caseList)

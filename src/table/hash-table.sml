@@ -14,7 +14,7 @@ struct
   (* A hashtable bucket is a linked list of mutable elements *)
   (* A hashtable is an array of buckets containing entries paired with hash values *)
   datatype 'a bucket = Nil | Cons of 'a ref * ('a bucket) ref
-  type 'a Table = ((int * 'a entry) bucket) array * int
+  type 'a table = ((int * 'a entry) bucket) array * int
 
   fun new (n) = (Array.array (n,Nil), n)
 

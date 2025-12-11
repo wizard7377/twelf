@@ -67,10 +67,10 @@ struct
                    current program state
 
     *)
-    datatype SuspType = Loop | Divergence of ((IntSyn.Exp * IntSyn.Sub) * CompSyn.DProg)
+    datatype susp_type = Loop | Divergence of ((IntSyn.exp * IntSyn.sub) * CompSyn.d_prog)
 
-    val SuspGoals : ((SuspType * (IntSyn.dctx * IntSyn.Exp * IntSyn.Sub) *  (CompSyn.pskeleton -> unit) *
-                      Unify.unifTrail * ((IntSyn.Sub * IntSyn.Sub) * T.answer) * int ref)  list) ref  = ref []
+    val SuspGoals : ((susp_type * (IntSyn.dctx * IntSyn.exp * IntSyn.sub) *  (CompSyn.pskeleton -> unit) *
+                      Unify.unif_trail * ((IntSyn.sub * IntSyn.sub) * T.answer) * int ref)  list) ref  = ref []
 
     exception Error of string
 

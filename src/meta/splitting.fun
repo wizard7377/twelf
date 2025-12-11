@@ -60,11 +60,11 @@ struct
   datatype 'a flag =
     Active of 'a | InActive
 
-  datatype Operator =
-    Operator of (StateSyn.State * int) * StateSyn.State flag list
+  datatype operator =
+    Operator of (StateSyn.state * int) * StateSyn.state flag list
                    * Heuristic.index
 
-  type operator = Operator
+  type operator = operator
 
   local
     structure I = IntSyn

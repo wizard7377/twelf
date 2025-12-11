@@ -8,12 +8,12 @@ sig
   structure Stream : STREAM
   (*! structure Paths : PATHS !*)
 
-  datatype IdCase =
+  datatype id_case =
       Upper				(* [A-Z]<id> or _<id> *)
     | Lower				(* any other <id> *)
     | Quoted				(* '<id>', currently unused *)
 
-  datatype Token =
+  datatype token =
       EOF				(* end of file or stream, also `%.' *)
     | DOT				(* `.' *)
     | PATHSEP                           (* `.' between <id>s *)
@@ -24,7 +24,7 @@ sig
     | BACKARROW | ARROW			(* `<-' `->' *)
     | TYPE				(* `type' *)
     | EQUAL				(* `=' *)
-    | ID of IdCase * string		(* identifer *)
+    | ID of id_case * string		(* identifer *)
     | UNDERSCORE			(* `_' *)
     | INFIX | PREFIX | POSTFIX		(* `%infix' `%prefix' `%postfix' *)
     | NAME				(* `%name' *)
@@ -66,10 +66,10 @@ sig
   exception Error of string
 
   (* lexer returns an infinite stream, terminated by EOF token *)
-  val lexStream : TextIO.instream -> (Token * Paths.region) Stream.stream
-  val lexTerminal : string * string -> (Token * Paths.region) Stream.stream
+  val lexStream : TextIO.instream -> (token * Paths.region) Stream.stream
+  val lexTerminal : string * string -> (token * Paths.region) Stream.stream
 
-  val toString : Token -> string
+  val toString : token -> string
 
   (* Utilities *) 
   exception NotDigit of char

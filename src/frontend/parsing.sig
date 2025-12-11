@@ -9,17 +9,17 @@ sig
     sharing Lexer.Stream = Stream
   *)
 
-  type lexResult = Lexer.Token * Paths.region
+  type lex_result = Lexer.token * Paths.region
 
-  type 'a parser = lexResult Stream.front -> 'a * lexResult Stream.front
+  type 'a parser = lex_result Stream.front -> 'a * lex_result Stream.front
 
   (* recursive parser (allows parsing functions that need to parse
      a signature expression to temporarily suspend themselves) *)
-  datatype 'a RecParseResult =
+  datatype 'a rec_parse_result =
     Done of 'a
-  | Continuation of 'a RecParseResult parser
+  | Continuation of 'a rec_parse_result parser
 
-  type 'a recparser = 'a RecParseResult parser
+  type 'a recparser = 'a rec_parse_result parser
 
   (* useful combinator for recursive parsers *)
   val recwith : 'a recparser * ('a -> 'b) -> 'b recparser

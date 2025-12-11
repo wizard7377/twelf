@@ -7,7 +7,7 @@ sig
 
   exception Error of string
 
-  val searchEx : int * IntSyn.Exp list
+  val searchEx : int * IntSyn.exp list
 (*      * (IntSyn.Exp * IntSyn.Sub) *)
       * (int -> unit) -> unit
 end;  (* signature SEARCH *)

@@ -16,24 +16,24 @@ struct
   local
     open IntSyn
 
-    datatype Action =
-      Instantiate of Exp option ref
-    | InstantiateBlock of Block option ref
+    datatype action =
+      Instantiate of exp option ref
+    | InstantiateBlock of block option ref
     | Add of cnstr list ref
-    | Solve of cnstr * Cnstr
+    | Solve of cnstr * cnstr
 
-    datatype CAction =
-      BindCnstr of Cnstr ref * Cnstr
+    datatype c_action =
+      BindCnstr of cnstr ref * cnstr
 
-    datatype FAction =
-      BindExp of Exp option ref * Exp option
-    | BindBlock of Block option ref * Block option
-    | BindAdd of cnstr list ref * CAction list
-    | FSolve of Cnstr ref * Cnstr * Cnstr (* ? *)
+    datatype f_action =
+      BindExp of exp option ref * exp option
+    | BindBlock of block option ref * block option
+    | BindAdd of cnstr list ref * c_action list
+    | FSolve of cnstr ref * cnstr * cnstr (* ? *)
 
-    type unifTrail = FAction Trail.trail
+    type unif_trail = f_action Trail.trail
 
-    val globalTrail = Trail.trail () : Action Trail.trail
+    val globalTrail = Trail.trail () : action Trail.trail
 
     fun copyCnstr [] = []
       | copyCnstr (refC :: clist) =
@@ -848,7 +848,7 @@ struct
           (resetAwakenCnstrs (); unify1 (G, Us1, Us2))
 
   in
-    type unifTrail = unifTrail
+    type unif_trail = unif_trail
 
     val reset = reset
     val mark = mark

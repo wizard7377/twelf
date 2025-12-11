@@ -24,7 +24,7 @@ struct
        where c1,...,cn is a queue consisting of all constants with
        target family a
     *)
-    val indexArray : (IntSyn.Head Queue.queue) Array.array =
+    val indexArray : (IntSyn.head Queue.queue) Array.array =
         Array.array (Global.maxCid + 1, Queue.empty)
 
     (* reset () = ()

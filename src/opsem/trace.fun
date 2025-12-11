@@ -62,13 +62,13 @@ struct
     fun printVarstring (line) =
           printVars (List.tl (String.tokens Char.isSpace line))
 
-    datatype 'a Spec =
+    datatype 'a spec =
         None
       | Some of 'a list
       | All
 
-    val traceSpec : string Spec ref = ref None
-    val breakSpec : string Spec ref = ref None
+    val traceSpec : string spec ref = ref None
+    val breakSpec : string spec ref = ref None
 
     fun trace (None) = traceSpec := None
       | trace (Some (names)) = traceSpec := Some (names)
@@ -86,8 +86,8 @@ struct
           then detail := n
         else print ("Trace warning: detail must be positive\n")
 
-    val traceTSpec : I.cid Spec ref = ref None
-    val breakTSpec : I.cid Spec ref = ref None
+    val traceTSpec : I.cid spec ref = ref None
+    val breakTSpec : I.cid spec ref = ref None
 
     fun toCids (nil) = nil
       | toCids (name::names) =
@@ -124,10 +124,10 @@ struct
 \v X1 ... Xn - variables --- show instantiation of X1 ... Xn\n\
 \? for help"
 
-    val currentGoal : (I.dctx * I.Exp) ref =
+    val currentGoal : (I.dctx * I.exp) ref =
           ref (I.Null, I.Uni (I.Type)) (* dummy initialization *)
 
-    val currentEVarInst : (I.Exp * string) list ref =
+    val currentEVarInst : (I.exp * string) list ref =
           ref nil
 
     fun setEVarInst (Xs) =
@@ -137,15 +137,15 @@ struct
         (currentGoal := (G, V);
          setEVarInst (Abstract.collectEVars (G, (V, I.id), nil)))
 
-    type goalTag = int option
+    type goal_tag = int option
 
-    val tag : goalTag ref = ref NONE
+    val tag : goal_tag ref = ref NONE
     fun tagGoal () =
         case !tag
           of NONE => NONE
            | SOME(n) => (tag := SOME(n+1); !tag)
 
-    val watchForTag : goalTag ref = ref NONE
+    val watchForTag : goal_tag ref = ref NONE
 
     fun initTag () =
         (watchForTag := NONE;
@@ -191,24 +191,24 @@ struct
          initBreak (!breakSpec);
          initTag ())
 
-    datatype Event =
-      IntroHyp of IntSyn.Head * IntSyn.Dec
-    | DischargeHyp of IntSyn.Head * IntSyn.Dec
+    datatype event =
+      IntroHyp of IntSyn.head * IntSyn.dec
+    | DischargeHyp of IntSyn.head * IntSyn.dec
 
-    | IntroParm of IntSyn.Head * IntSyn.Dec
-    | DischargeParm of IntSyn.Head * IntSyn.Dec
+    | IntroParm of IntSyn.head * IntSyn.dec
+    | DischargeParm of IntSyn.head * IntSyn.dec
 
-    | Resolved of IntSyn.Head * IntSyn.Head (* resolved with clause c, fam a *)
-    | Subgoal of (IntSyn.Head * IntSyn.Head) * (unit -> int) (* clause c, fam a, nth subgoal *)
+    | Resolved of IntSyn.head * IntSyn.head (* resolved with clause c, fam a *)
+    | Subgoal of (IntSyn.head * IntSyn.head) * (unit -> int) (* clause c, fam a, nth subgoal *)
 
-    | SolveGoal of goalTag * IntSyn.Head * IntSyn.Exp
-    | SucceedGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-    | CommitGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-    | RetryGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp (* clause c failed, fam a *)
-    | FailGoal of goalTag * IntSyn.Head * IntSyn.Exp
+    | SolveGoal of goal_tag * IntSyn.head * IntSyn.exp
+    | SucceedGoal of goal_tag * (IntSyn.head * IntSyn.head) * IntSyn.exp
+    | CommitGoal of goal_tag * (IntSyn.head * IntSyn.head) * IntSyn.exp
+    | RetryGoal of goal_tag * (IntSyn.head * IntSyn.head) * IntSyn.exp (* clause c failed, fam a *)
+    | FailGoal of goal_tag * IntSyn.head * IntSyn.exp
 
-    | Unify of (IntSyn.Head * IntSyn.Head) * IntSyn.Exp * IntSyn.Exp (* clause head == goal *)
-    | FailUnify of (IntSyn.Head * IntSyn.Head) * string (* failure message *)
+    | Unify of (IntSyn.head * IntSyn.head) * IntSyn.exp * IntSyn.exp (* clause head == goal *)
+    | FailUnify of (IntSyn.head * IntSyn.head) * string (* failure message *)
 
     fun eventToString (G, IntroHyp (_, D)) =
         "% Introducing hypothesis\n" ^ decToString (G, D)

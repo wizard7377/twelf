@@ -9,8 +9,8 @@ sig
 
   val checkOut : (IntSyn.dctx * IntSyn.eclo) -> unit
 
-  val checkCovers : (IntSyn.cid * ModeSyn.ModeSpine) -> unit
+  val checkCovers : (IntSyn.cid * ModeSyn.mode_spine) -> unit
 
-  val coverageCheckCases : Tomega.Worlds * (IntSyn.dctx * IntSyn.Sub) list  * IntSyn.dctx -> unit
+  val coverageCheckCases : Tomega.worlds * (IntSyn.dctx * IntSyn.sub) list  * IntSyn.dctx -> unit
 
 end;  (* signature COVER *)

@@ -9,14 +9,14 @@ sig
 
   exception Error of string
 
-  val formatFor   : Tomega.Dec IntSyn.Ctx * Tomega.For -> Formatter.format
-  val forToString : Tomega.Dec IntSyn.Ctx * Tomega.For -> string
-  val formatFun : (string list * Tomega.lemma list) * Tomega.Prg -> Formatter.format
+  val formatFor   : Tomega.dec IntSyn.ctx * Tomega.for -> Formatter.format
+  val forToString : Tomega.dec IntSyn.ctx * Tomega.for -> string
+  val formatFun : (string list * Tomega.lemma list) * Tomega.prg -> Formatter.format
     
-  val formatPrg : Tomega.Dec IntSyn.Ctx * Tomega.Prg -> Formatter.format
+  val formatPrg : Tomega.dec IntSyn.ctx * Tomega.prg -> Formatter.format
 (*  val formatLemmaDec: FunSyn.LemmaDec -> Formatter.format *)
 
-  val funToString : (string list * Tomega.lemma list) * Tomega.Prg -> string
+  val funToString : (string list * Tomega.lemma list) * Tomega.prg -> string
   (* funToString ((names, projs), P)  = s
      cids is the list of mututal recursive type families.  (could also be names)
      projs are the projection functions used internally,  They must be in the
@@ -24,14 +24,14 @@ sig
   *)
      
   val evarReset : unit -> unit
-  val evarName : string -> Tomega.Prg
-  val nameEVar : Tomega.Prg -> string
+  val evarName : string -> Tomega.prg
+  val nameEVar : Tomega.prg -> string
 
-  val prgToString : Tomega.Dec IntSyn.Ctx * Tomega.Prg -> string
+  val prgToString : Tomega.dec IntSyn.ctx * Tomega.prg -> string
     
-  val nameCtx   : Tomega.Dec IntSyn.Ctx -> Tomega.Dec IntSyn.Ctx
-  val formatCtx : Tomega.Dec IntSyn.Ctx -> Formatter.format
-  val ctxToString : Tomega.Dec IntSyn.Ctx -> string
+  val nameCtx   : Tomega.dec IntSyn.ctx -> Tomega.dec IntSyn.ctx
+  val formatCtx : Tomega.dec IntSyn.ctx -> Formatter.format
+  val ctxToString : Tomega.dec IntSyn.ctx -> string
 
 (*  val lemmaDecToString : FunSyn.LemmaDec -> string *)
 end;  (* signature TOMEGAPRINT *)

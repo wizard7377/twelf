@@ -21,7 +21,7 @@ struct
   structure I = IntSyn
 
     exception Error = S.Error
-    type operator = T.Prg * T.Prg
+    type operator = T.prg * T.prg
 
 (*    fun stripTC (T.Abs (_, TC)) = TC *)
       fun stripTC TC = TC

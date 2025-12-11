@@ -3,9 +3,9 @@
 
 signature METAGLOBAL =
 sig
-  datatype Strategy = RFS | FRS
+  datatype strategy = RFS | FRS
 
-  val strategy : Strategy ref
+  val strategy : strategy ref
   val maxFill : int ref
   val maxSplit : int ref
   val maxRecurse : int ref

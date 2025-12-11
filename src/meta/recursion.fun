@@ -49,7 +49,7 @@ struct
 
   exception Error of string
 
-  type operator = StateSyn.State
+  type operator = StateSyn.state
 
   local
     structure I = IntSyn
@@ -59,8 +59,8 @@ struct
     structure Fmt = Formatter
     structure A = MTPAbstract
 
-    datatype Dec =                      (* Newly created *)
-      Lemma of int * F.For              (* Residual Lemma *)
+    datatype dec =                      (* Newly created *)
+      Lemma of int * F.for              (* Residual Lemma *)
 
 
     fun closedCtx (I.Null) = ()

@@ -10,78 +10,78 @@ struct
   type label = int
   type lemma = int
 
-  datatype Worlds = Worlds of IntSyn.cid list
+  datatype worlds = Worlds of IntSyn.cid list
 
-  datatype Quantifier = Implicit | Explicit
+  datatype quantifier = Implicit | Explicit
 
-  datatype TC   =                       (* Terminiation Condition     *)
-    Abs of IntSyn.Dec * TC              (* T ::= {{D}} O              *)
-  | Conj of TC * TC                     (*     | O1 ^ O2              *)
-  | Base of ((IntSyn.Exp * IntSyn.Sub) *
-             (IntSyn.Exp * IntSyn.Sub)) Order.Order
+  datatype tc   =                       (* Terminiation Condition     *)
+    Abs of IntSyn.dec * tc              (* T ::= {{D}} O              *)
+  | Conj of tc * tc                     (*     | O1 ^ O2              *)
+  | Base of ((IntSyn.exp * IntSyn.sub) *
+             (IntSyn.exp * IntSyn.sub)) Order.order
 
-  datatype For                          (* Formulas                   *)
-  = World of Worlds * For               (* F ::= World l1...ln. F     *)
-  | All of (Dec * Quantifier) * For     (*     | All LD. F            *)
-  | Ex  of (IntSyn.Dec * Quantifier) * For
+  datatype for                          (* Formulas                   *)
+  = World of worlds * for               (* F ::= World l1...ln. F     *)
+  | All of (dec * quantifier) * for     (*     | All LD. F            *)
+  | Ex  of (IntSyn.dec * quantifier) * for
                                         (*     | Ex  D. F             *)
   | True                                (*     | T                    *)
-  | And of For * For                    (*     | F1 ^ F2              *)
-  | FClo of For * Sub                   (*     | F [t]                *)
-  | FVar of (Dec IntSyn.Ctx * For option ref)
+  | And of for * for                    (*     | F1 ^ F2              *)
+  | FClo of for * sub                   (*     | F [t]                *)
+  | FVar of (dec IntSyn.ctx * for option ref)
                                         (*     | F (G)                *)
 
-  and Dec =                             (* Declaration:               *)
-    UDec of IntSyn.Dec                  (* D ::= x:A                  *)
-  | PDec of string option * For * TC option * TC option
+  and dec =                             (* Declaration:               *)
+    UDec of IntSyn.dec                  (* D ::= x:A                  *)
+  | PDec of string option * for * tc option * tc option
                                         (*     | xx :: F              *)
 
-  and Prg =                             (* Programs:                  *)
-    Box of Worlds * Prg                 (*     | box W. P             *)
-  | Lam of Dec * Prg                    (*     | lam LD. P            *)
-  | New of Prg                          (*     | new P                *)
-  | Choose of Prg                       (*     | choose P             *)
-  | PairExp of IntSyn.Exp * Prg         (*     | <M, P>               *)
-  | PairBlock of IntSyn.Block * Prg     (*     | <rho, P>             *)
-  | PairPrg of Prg * Prg                (*     | <P1, P2>             *)
+  and prg =                             (* Programs:                  *)
+    Box of worlds * prg                 (*     | box W. P             *)
+  | Lam of dec * prg                    (*     | lam LD. P            *)
+  | New of prg                          (*     | new P                *)
+  | Choose of prg                       (*     | choose P             *)
+  | PairExp of IntSyn.exp * prg         (*     | <M, P>               *)
+  | PairBlock of IntSyn.block * prg     (*     | <rho, P>             *)
+  | PairPrg of prg * prg                (*     | <P1, P2>             *)
   | Unit                                (*     | <>                   *)
-  | Redex of Prg * Spine
-  | Rec of Dec * Prg                    (*     | mu xx. P             *)
-  | Case of Cases                       (*     | case t of O          *)
-  | PClo of Prg * Sub                   (*     | P [t]                *)
-  | Let of Dec * Prg * Prg              (*     | let D = P1 in P2     *)
-  | EVar of Dec IntSyn.Ctx * Prg option ref * For * TC option * TC option * IntSyn.Exp
+  | Redex of prg * spine
+  | Rec of dec * prg                    (*     | mu xx. P             *)
+  | Case of cases                       (*     | case t of O          *)
+  | PClo of prg * sub                   (*     | P [t]                *)
+  | Let of dec * prg * prg              (*     | let D = P1 in P2     *)
+  | EVar of dec IntSyn.ctx * prg option ref * for * tc option * tc option * IntSyn.exp
                                         (*     | E (G, F, TC)         *)
   | Const of lemma                      (* P ::= cc                   *)
   | Var of int                          (*     | xx                   *)
-  | LetPairExp of IntSyn.Dec * Dec * Prg * Prg
-  | LetUnit of Prg * Prg
+  | LetPairExp of IntSyn.dec * dec * prg * prg
+  | LetUnit of prg * prg
 
-  and Spine =                           (* Spines:                    *)
+  and spine =                           (* Spines:                    *)
     Nil                                 (* S ::= Nil                  *)
-  | AppExp of IntSyn.Exp * Spine        (*     | P U                  *)
-  | AppBlock of IntSyn.Block * Spine    (*     | P rho                *)
-  | AppPrg of Prg * Spine               (*     | P1 P2                *)
-  | SClo of Spine * Sub                 (*     | S [t]                *)
+  | AppExp of IntSyn.exp * spine        (*     | P U                  *)
+  | AppBlock of IntSyn.block * spine    (*     | P rho                *)
+  | AppPrg of prg * spine               (*     | P1 P2                *)
+  | SClo of spine * sub                 (*     | S [t]                *)
 
-  and Sub =                             (* t ::=                      *)
+  and sub =                             (* t ::=                      *)
     Shift of int                        (*       ^n                   *)
-  | Dot of Front * Sub                  (*     | F . t                *)
+  | Dot of front * sub                  (*     | F . t                *)
 
-  and Front =                           (* F ::=                      *)
+  and front =                           (* F ::=                      *)
     Idx of int                          (*     | i                    *)
-  | Prg of Prg                          (*     | p                    *)
-  | Exp of IntSyn.Exp                   (*     | U                    *)
-  | Block of IntSyn.Block               (*     | _x                   *)
+  | Prg of prg                          (*     | p                    *)
+  | Exp of IntSyn.exp                   (*     | U                    *)
+  | Block of IntSyn.block               (*     | _x                   *)
   | Undef                               (*     | _                    *)
 
-  and Cases =                           (* Cases                      *)
-    Cases of (Dec IntSyn.Ctx * Sub * Prg) list
+  and cases =                           (* Cases                      *)
+    Cases of (dec IntSyn.ctx * sub * prg) list
                                         (* C ::= (Psi' |> s |-> P)    *)
 
-  datatype ConDec =                     (* ConDec                     *)
-    ForDec of string * For              (* CD ::= f :: F              *)
-  | ValDec of string * Prg * For        (*      | f == P              *)
+  datatype con_dec =                     (* ConDec                     *)
+    ForDec of string * for              (* CD ::= f :: F              *)
+  | ValDec of string * prg * for        (*      | f == P              *)
 
   exception NoMatch
 
@@ -91,7 +91,7 @@ struct
 
     val maxLemma = Global.maxCid
     val lemmaArray = Array.array (maxLemma+1, ForDec ("", True))
-                   : ConDec Array.array
+                   : con_dec Array.array
     val nextLemma = ref 0
 
     fun lemmaLookup lemma = Array.sub (lemmaArray, lemma)

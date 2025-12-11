@@ -31,9 +31,9 @@ struct
 
   exception Error of string
 
-  datatype ApproxFor =                  (* Approximat formula *)
-    Head of IntSyn.dctx * (FunSyn.For * IntSyn.Sub) * int       (* AF ::= F [s] *)
-  | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.Dec list) * ApproxFor
+  datatype approx_for =                  (* Approximat formula *)
+    Head of IntSyn.dctx * (FunSyn.for * IntSyn.sub) * int       (* AF ::= F [s] *)
+  | Block of (IntSyn.dctx * IntSyn.sub * int * IntSyn.dec list) * approx_for
                                         (*      | (t, G2), AF *)
 
   local
@@ -45,11 +45,11 @@ struct
 
     (* Intermediate Data Structure *)
 
-    datatype EBVar =
-      EV of I.Exp option ref * I.Exp * S.Tag * int
+    datatype eb_var =
+      EV of I.exp option ref * I.exp * S.tag * int
                                         (* y ::= (X , {G2} V)  if {G1, G2 |- X : V
                                           |G1| = d *)
-    | BV of I.Dec * S.Tag
+    | BV of I.dec * S.tag
 
 
 

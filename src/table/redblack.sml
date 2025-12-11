@@ -14,7 +14,7 @@ struct
   | Red of 'a entry * 'a dict * 'a dict
   | Black of 'a entry * 'a dict * 'a dict
 
-  type 'a Table = 'a dict ref
+  type 'a table = 'a dict ref
 
   (* Representation Invariants *)
   (*

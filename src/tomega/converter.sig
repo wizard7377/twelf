@@ -8,11 +8,11 @@ sig
   (*! structure Tomega : TOMEGA !*)
 
   exception Error of string
-  exception Error' of Tomega.Sub
-  val convertFor : IntSyn.cid list -> Tomega.For
-  val convertPrg : IntSyn.cid list -> Tomega.Prg 
+  exception Error' of Tomega.sub
+  val convertFor : IntSyn.cid list -> Tomega.for
+  val convertPrg : IntSyn.cid list -> Tomega.prg 
   val installPrg : IntSyn.cid list -> IntSyn.cid * Tomega.lemma list   (* projections *) * Tomega.lemma list   (* selections *)
-  val convertGoal : Tomega.Dec IntSyn.Ctx * IntSyn.Exp -> Tomega.Prg
+  val convertGoal : Tomega.dec IntSyn.ctx * IntSyn.exp -> Tomega.prg
 end (* Signature CONVERTER *)       
 
 

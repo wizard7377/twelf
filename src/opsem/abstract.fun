@@ -30,11 +30,11 @@ struct
     structure I = IntSyn
     structure C = CompSyn
 
-    datatype Duplicates = AV of (I.Exp * int) | FGN of int
+    datatype duplicates = AV of (I.exp * int) | FGN of int
 
-    datatype seenIn = TypeLabel | Body
+    datatype seen_in = TypeLabel | Body
 
-    datatype ExistVars = EV of I.Exp
+    datatype exist_vars = EV of I.exp
 
     fun lengthSub (I.Shift n) = 0
       | lengthSub (I.Dot(E, s)) = 1 + lengthSub s

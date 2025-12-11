@@ -14,7 +14,7 @@ struct
   (*! structure Paths = Paths' !*)
 
   local
-    val linesInfoTable : Paths.linesInfo Table.Table = Table.new (31)
+    val linesInfoTable : Paths.lines_info Table.table = Table.new (31)
     fun reset () = Table.clear linesInfoTable
     fun install (string, linesInfo) = Table.insert linesInfoTable (string, linesInfo)
     fun lookup (string) = Table.lookup linesInfoTable string
@@ -26,7 +26,7 @@ struct
 
   local
     val originArray = Array.array (Global.maxCid+1, ("", NONE))
-        : (string * Paths.occConDec option) Array.array
+        : (string * Paths.occ_con_dec option) Array.array
   in
     fun installOrigin (cid, fileNameOpt) = Array.update (originArray, cid, fileNameOpt)
     fun originLookup (cid) = Array.sub (originArray, cid)

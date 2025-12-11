@@ -7,13 +7,13 @@ sig
   structure Fixity  : FIXITY
   (*! structure ModeSyn : MODESYN !*)
 
-  type sigEntry = (* global signature entry *)
+  type sig_entry = (* global signature entry *)
     (* constant declaration plus optional precedence and mode information *)
-    IntSyn.ConDec * Fixity.fixity option * ModeSyn.ModeSpine list
+    IntSyn.con_dec * Fixity.fixity option * ModeSyn.mode_spine list
 
-  type fgnConDec = (* foreign constant declaration *)
+  type fgn_con_dec = (* foreign constant declaration *)
     {
-      parse : string -> IntSyn.ConDec option
+      parse : string -> IntSyn.con_dec option
     }
 
   type solver = (* constraint solver *)
@@ -26,9 +26,9 @@ sig
       (* names of other constraint solvers needed *)
       needs : string list,
       (* foreign constants declared (if any) *)
-      fgnConst : fgnConDec option,
+      fgnConst : fgn_con_dec option,
       (* install constants *)
-      init : (int * (sigEntry -> IntSyn.cid)) -> unit,
+      init : (int * (sig_entry -> IntSyn.cid)) -> unit,
       (* reset internal status *)
       reset : unit -> unit,
       (* trailing operations *)
@@ -39,14 +39,14 @@ sig
   exception Error of string
 
   (* solver handling functions *)
-  val setInstallFN : (sigEntry -> IntSyn.cid) -> unit
+  val setInstallFN : (sig_entry -> IntSyn.cid) -> unit
 
   val installSolver : solver -> IntSyn.csid
   val resetSolvers  : unit -> unit
   val useSolver     : string -> unit
 
   (* parsing foreign constatnts *)
-  val parse : string -> (IntSyn.csid * IntSyn.ConDec) option
+  val parse : string -> (IntSyn.csid * IntSyn.con_dec) option
 
   (* trailing operations *)
   val reset : unit -> unit

@@ -4,41 +4,41 @@ sig
   (* Program interface *)
   (*! structure IntSyn : INTSYN !*)
 
-  type goalTag
-  val tagGoal : unit -> goalTag
+  type goal_tag
+  val tagGoal : unit -> goal_tag
 
-  datatype Event =
-    IntroHyp of IntSyn.Head * IntSyn.Dec
-  | DischargeHyp of IntSyn.Head * IntSyn.Dec
+  datatype event =
+    IntroHyp of IntSyn.head * IntSyn.dec
+  | DischargeHyp of IntSyn.head * IntSyn.dec
 
-  | IntroParm of IntSyn.Head * IntSyn.Dec
-  | DischargeParm of IntSyn.Head * IntSyn.Dec
+  | IntroParm of IntSyn.head * IntSyn.dec
+  | DischargeParm of IntSyn.head * IntSyn.dec
 
-  | Resolved of IntSyn.Head * IntSyn.Head (* resolved with clause c, fam a *)
-  | Subgoal of (IntSyn.Head * IntSyn.Head) * (unit -> int) (* clause c, fam a, nth subgoal *)
+  | Resolved of IntSyn.head * IntSyn.head (* resolved with clause c, fam a *)
+  | Subgoal of (IntSyn.head * IntSyn.head) * (unit -> int) (* clause c, fam a, nth subgoal *)
 
-  | SolveGoal of goalTag * IntSyn.Head * IntSyn.Exp
-  | SucceedGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-  | CommitGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-  | RetryGoal of goalTag * (IntSyn.Head * IntSyn.Head) * IntSyn.Exp
-  | FailGoal of goalTag * IntSyn.Head * IntSyn.Exp
+  | SolveGoal of goal_tag * IntSyn.head * IntSyn.exp
+  | SucceedGoal of goal_tag * (IntSyn.head * IntSyn.head) * IntSyn.exp
+  | CommitGoal of goal_tag * (IntSyn.head * IntSyn.head) * IntSyn.exp
+  | RetryGoal of goal_tag * (IntSyn.head * IntSyn.head) * IntSyn.exp
+  | FailGoal of goal_tag * IntSyn.head * IntSyn.exp
 
-  | Unify of (IntSyn.Head * IntSyn.Head) * IntSyn.Exp * IntSyn.Exp (* clause head == goal *)
-  | FailUnify of (IntSyn.Head * IntSyn.Head) * string (* failure message *)
+  | Unify of (IntSyn.head * IntSyn.head) * IntSyn.exp * IntSyn.exp (* clause head == goal *)
+  | FailUnify of (IntSyn.head * IntSyn.head) * string (* failure message *)
 
-  val signal : IntSyn.dctx * Event -> unit
+  val signal : IntSyn.dctx * event -> unit
   val init : unit -> unit		(* initialize trace, break and tag *)
 
   val tracing : unit -> bool            (* currently tracing or using breakpoints *)
 
   (* User interface *)
-  datatype 'a Spec =
+  datatype 'a spec =
     None
   | Some of 'a list
   | All
 
-  val trace : string Spec -> unit
-  val break : string Spec -> unit
+  val trace : string spec -> unit
+  val break : string spec -> unit
   val detail : int ref			(* 0 = none, 1 = default, 2 = unify *)
 
   val show : unit -> unit		(* show trace, break, detail *)

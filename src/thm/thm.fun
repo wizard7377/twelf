@@ -19,7 +19,7 @@ struct
   structure TabledSyn = TabledSyn
 
   (* -bp *)
-  datatype Order = Varg | Lex of Order list | Simul of Order list
+  datatype order = Varg | Lex of order list | Simul of order list
 
   exception Error of string
 

@@ -147,7 +147,7 @@ struct
      query A', where imp is the number of implicitly quantified arguments.
   *)
 
-  exception Solution of IntSyn.Exp
+  exception Solution of IntSyn.exp
   exception SolutionSkel of CompSyn.pskeleton
 
 

@@ -3,5 +3,5 @@
 
 signature TOMEGANAMES = 
   sig
-    val decName : Tomega.Dec IntSyn.Ctx * Tomega.Dec -> Tomega.Dec
+    val decName : Tomega.dec IntSyn.ctx * Tomega.dec -> Tomega.dec
   end

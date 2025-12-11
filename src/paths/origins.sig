@@ -8,10 +8,10 @@ sig
   (*! structure Paths : PATHS !*)
 
   val reset : unit -> unit
-  val installLinesInfo : string * Paths.linesInfo -> unit
-  val linesInfoLookup : string -> Paths.linesInfo option
+  val installLinesInfo : string * Paths.lines_info -> unit
+  val linesInfoLookup : string -> Paths.lines_info option
 
-  val installOrigin : IntSyn.cid * (string * Paths.occConDec option) -> unit
-  val originLookup : IntSyn.cid -> (string * Paths.occConDec option)
+  val installOrigin : IntSyn.cid * (string * Paths.occ_con_dec option) -> unit
+  val originLookup : IntSyn.cid -> (string * Paths.occ_con_dec option)
 
 end;  (* signature ORIGINS *)

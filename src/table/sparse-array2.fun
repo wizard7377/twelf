@@ -5,7 +5,7 @@ functor SparseArray2 (structure IntTable : TABLE where type key = int)
   :> SPARSE_ARRAY2 =
 struct
 
-  type 'a array = {default : 'a, table : 'a IntTable.Table}
+  type 'a array = {default : 'a, table : 'a IntTable.table}
 
   type 'a region = {base : 'a array, row : int, col : int, nrows : int, ncols : int}
 

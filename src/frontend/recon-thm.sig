@@ -28,8 +28,8 @@ sig
   type tableddecl
   val tableddecl :  (string * Paths.region) -> tableddecl
 
-  type keepTabledecl
-  val keepTabledecl :  (string * Paths.region) -> keepTabledecl
+  type keep_tabledecl
+  val keepTabledecl :  (string * Paths.region) -> keep_tabledecl
 
   type prove
   val prove : int * tdecl -> prove
@@ -69,17 +69,17 @@ sig
   include THMEXTSYN
 
   exception Error of string
-  val tdeclTotDecl : tdecl -> (ThmSyn.TDecl * (Paths.region * Paths.region list))
-  val rdeclTorDecl : rdecl -> (ThmSyn.RDecl * (Paths.region * Paths.region list))
+  val tdeclTotDecl : tdecl -> (ThmSyn.t_decl * (Paths.region * Paths.region list))
+  val rdeclTorDecl : rdecl -> (ThmSyn.r_decl * (Paths.region * Paths.region list))
 
-  val tableddeclTotabledDecl : tableddecl -> (ThmSyn.TabledDecl * Paths.region)
-  val keepTabledeclToktDecl : keepTabledecl -> (ThmSyn.KeepTableDecl * Paths.region)
+  val tableddeclTotabledDecl : tableddecl -> (ThmSyn.tabled_decl * Paths.region)
+  val keepTabledeclToktDecl : keep_tabledecl -> (ThmSyn.keep_table_decl * Paths.region)
 
 
-  val theoremToTheorem : theorem -> ThmSyn.ThDecl
-  val theoremDecToTheoremDec : theoremdec -> string * ThmSyn.ThDecl
-  val proveToProve : prove -> (ThmSyn.PDecl * (Paths.region * Paths.region list))
-  val establishToEstablish : establish -> (ThmSyn.PDecl * (Paths.region * Paths.region list))
-  val assertToAssert : assert -> (ThmSyn.Callpats * Paths.region list)
-  val wdeclTowDecl : wdecl -> (ThmSyn.WDecl * Paths.region list)
+  val theoremToTheorem : theorem -> ThmSyn.th_decl
+  val theoremDecToTheoremDec : theoremdec -> string * ThmSyn.th_decl
+  val proveToProve : prove -> (ThmSyn.p_decl * (Paths.region * Paths.region list))
+  val establishToEstablish : establish -> (ThmSyn.p_decl * (Paths.region * Paths.region list))
+  val assertToAssert : assert -> (ThmSyn.callpats * Paths.region list)
+  val wdeclTowDecl : wdecl -> (ThmSyn.w_decl * Paths.region list)
 end;  (* signature RECON_THM *)

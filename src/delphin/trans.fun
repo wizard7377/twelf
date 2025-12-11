@@ -18,14 +18,14 @@ struct
   exception Error of string
   local
 
-    datatype Internal =
+    datatype internal =
       Empty
     | Const of int * int
     | Type of int
 
     val maxCid = Global.maxCid
     val internal = Array.array (maxCid+1, Empty)
-        : Internal Array.array
+        : internal Array.array
     (* Invariant   for each cid which has been internalize out of a block,
        internal(cid) = Const(n, i), where n is the number of some variables and
        i is the projection index

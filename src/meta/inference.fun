@@ -30,7 +30,7 @@ struct
 
   exception Error of string
 
-  type operator = (unit -> StateSyn'.State)
+  type operator = (unit -> StateSyn'.state)
 
   local
     structure S = StateSyn

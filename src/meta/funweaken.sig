@@ -5,8 +5,8 @@ signature FUNWEAKEN =
 sig
   (*! structure FunSyn : FUNSYN !*)
 
-  val strengthenPsi : (FunSyn.lfctx * IntSyn.Sub) 
-                  -> (FunSyn.lfctx * IntSyn.Sub)
-  val strengthenPsi': (FunSyn.LFDec list * IntSyn.Sub) 
-                  -> (FunSyn.LFDec list * IntSyn.Sub) 
+  val strengthenPsi : (FunSyn.lfctx * IntSyn.sub) 
+                  -> (FunSyn.lfctx * IntSyn.sub)
+  val strengthenPsi': (FunSyn.lf_dec list * IntSyn.sub) 
+                  -> (FunSyn.lf_dec list * IntSyn.sub) 
 end (* signature FUNWEAKEN *)

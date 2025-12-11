@@ -8,14 +8,14 @@ struct
   (*! structure Tomega = Tomega' !*)
   structure Formatter = Formatter
 
-  datatype State =
-    State of Tomega.Worlds
-      * Tomega.Dec IntSyn.Ctx * Tomega.Prg * Tomega.For
-  | StateLF of IntSyn.Exp    (* StateLF X, X is always lowered *)
+  datatype state =
+    State of Tomega.worlds
+      * Tomega.dec IntSyn.ctx * Tomega.prg * Tomega.for
+  | StateLF of IntSyn.exp    (* StateLF X, X is always lowered *)
 
-  datatype Focus =
-    Focus of Tomega.Prg * Tomega.Worlds
-  | FocusLF of IntSyn.Exp
+  datatype focus =
+    Focus of Tomega.prg * Tomega.worlds
+  | FocusLF of IntSyn.exp
 
  (* datatype State
     = State of (Tomega.Dec IntSyn.Ctx * Tomega.For) * Tomega.Worlds

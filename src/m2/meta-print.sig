@@ -5,9 +5,9 @@ signature METAPRINT =
 sig
   structure MetaSyn : METASYN
 
-  val stateToString  : MetaSyn.State -> string
-  val sgnToString    : MetaSyn.Sgn -> string
-  val modeToString   : MetaSyn.Mode -> string
-  val conDecToString  : IntSyn.ConDec -> string
+  val stateToString  : MetaSyn.state -> string
+  val sgnToString    : MetaSyn.sgn -> string
+  val modeToString   : MetaSyn.mode -> string
+  val conDecToString  : IntSyn.con_dec -> string
 
 end; (* signature METAPRINT *)

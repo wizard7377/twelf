@@ -50,9 +50,9 @@ struct
        and G0- collects all -variables when traversing P0 in order.
     *)
 
-    datatype Var =                      (* Variable found during collect  *)
-      EV of I.Exp option ref            (* Var ::= EVar <r_, V, St>       *)
-      * I.Exp * MetaSyn.Mode
+    datatype var =                      (* Variable found during collect  *)
+      EV of I.exp option ref            (* Var ::= EVar <r_, V, St>       *)
+      * I.exp * MetaSyn.mode
     | BV                                (*       | BV                     *)
 
     (*--------------------------------------------------------------------*)

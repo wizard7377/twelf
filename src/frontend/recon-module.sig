@@ -40,7 +40,7 @@ sig
 
   type whereclause
 
-  datatype StructDec =
+  datatype struct_dec =
       StructDec of string option * ModSyn.module * whereclause list
     | StructDef of string option * IntSyn.mid
 
@@ -48,7 +48,7 @@ sig
   val sigexpToSigexp : sigexp * ModSyn.module option -> ModSyn.module * whereclause list
   val sigdefToSigdef : sigdef * ModSyn.module option
                          -> string option * ModSyn.module * whereclause list
-  val structdecToStructDec : structdec * ModSyn.module option -> StructDec
+  val structdecToStructDec : structdec * ModSyn.module option -> struct_dec
 
   val moduleWhere : ModSyn.module * whereclause -> ModSyn.module
 

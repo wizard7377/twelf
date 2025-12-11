@@ -7,7 +7,7 @@ sig
   (*! structure Parsing : PARSING !*)
   structure ExtSyn : EXTSYN
 
-  val parseQualId' : (string list * Parsing.lexResult) Parsing.parser
+  val parseQualId' : (string list * Parsing.lex_result) Parsing.parser
   val parseQualIds' : ((string list * string) list) Parsing.parser 
   val parseFreeze' : ((string list * string) list) Parsing.parser
   val parseSubord' : (((string list * string) * (string list * string)) list) Parsing.parser

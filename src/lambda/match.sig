@@ -12,9 +12,9 @@ sig
   val match : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> unit	(* raises Unify *)
   val matchW : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> unit (* raises Unify *)
 
-  val matchBlock : IntSyn.dctx * IntSyn.Block * IntSyn.Block -> unit (* raises Unify *)
+  val matchBlock : IntSyn.dctx * IntSyn.block * IntSyn.block -> unit (* raises Unify *)
 
-  val matchSub : IntSyn.dctx * IntSyn.Sub * IntSyn.Sub -> unit  (* raises Unify *)
+  val matchSub : IntSyn.dctx * IntSyn.sub * IntSyn.sub -> unit  (* raises Unify *)
 
   (* instance (G, Us,Us') will instantiate EVars as an effect 
      checks if Us' is an instance of Us *)

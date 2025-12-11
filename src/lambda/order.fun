@@ -11,16 +11,16 @@ struct
   exception Error of string
 
 
-  datatype 'a Order =                   (* Orders                     *)
+  datatype 'a order =                   (* Orders                     *)
       Arg of 'a                         (* O ::= x                    *)
-    | Lex of 'a Order list              (*     | {O1 .. On}           *)
-    | Simul of 'a Order list            (*     | [O1 .. On]           *)
+    | Lex of 'a order list              (*     | {O1 .. On}           *)
+    | Simul of 'a order list            (*     | [O1 .. On]           *)
 
 
-  datatype Predicate =
-      Less of int Order * int Order
-    | Leq of int Order * int Order
-    | Eq of int Order * int Order
+  datatype predicate =
+      Less of int order * int order
+    | Leq of int order * int order
+    | Eq of int order * int order
 
   (* Mutual dependencies in call patterns:                            *)
   (* A call pattern   (a1 P1) .. (ai Pi) .. (an Pn)   expresses       *)
@@ -30,21 +30,21 @@ struct
   (*   ih a(i+1) .. an as long as the arguments are smaller or equal  *)
   (* then the ones of ai.                                             *)
 
-  datatype Mutual =                     (* Mutual dependencies        *)
+  datatype mutual =                     (* Mutual dependencies        *)
       Empty                             (* C ::= .                    *)
-    | LE of IntSyn.cid * Mutual         (*     |  <= (a) C            *)
-    | LT of IntSyn.cid * Mutual         (*     |  > (a) C             *)
+    | LE of IntSyn.cid * mutual         (*     |  <= (a) C            *)
+    | LT of IntSyn.cid * mutual         (*     |  > (a) C             *)
 
-  datatype TDec =                       (* Termination declaration    *)
-      TDec of int Order * Mutual        (* TDec ::= (O, C)            *)
+  datatype t_dec =                       (* Termination declaration    *)
+      TDec of int order * mutual        (* TDec ::= (O, C)            *)
 
-  datatype RDec =                       (* Reduction declaration      *)
-      RDec of Predicate * Mutual        (* RDec ::= (P, C)            *)
+  datatype r_dec =                       (* Reduction declaration      *)
+      RDec of predicate * mutual        (* RDec ::= (P, C)            *)
 
   local
     structure I = IntSyn
-    val OrderTable : TDec Table.Table = Table.new(0)
-    val RedOrderTable : RDec Table.Table = Table.new(0)
+    val OrderTable : t_dec Table.table = Table.new(0)
+    val RedOrderTable : r_dec Table.table = Table.new(0)
 
     fun reset () = Table.clear OrderTable
     fun resetROrder () = Table.clear RedOrderTable

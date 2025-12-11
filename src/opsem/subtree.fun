@@ -34,21 +34,21 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
     (* normalSubsts: key = int = nvar *)
     (* property: linear *)
 
-    type normalSubsts  = IntSyn.Exp RBSet.ordSet
+    type normal_substs  = IntSyn.exp RBSet.ord_set
 
-    type exSubsts  = IntSyn.Exp RBSet.ordSet
+    type ex_substs  = IntSyn.exp RBSet.ord_set
 
-    val nid : unit -> normalSubsts = RBSet.new
+    val nid : unit -> normal_substs = RBSet.new
 
     val aid = TableParam.aid
 
-    val existId : unit -> normalSubsts = RBSet.new
+    val existId : unit -> normal_substs = RBSet.new
 
 
     fun isId s = RBSet.isEmpty s
 
     (* ---------------------------------------------------------------------- *)
-    type ctx = ((int * IntSyn.Dec) list) ref
+    type ctx = ((int * IntSyn.dec) list) ref
 
     fun emptyCtx () :  ctx = ref []
 
@@ -102,27 +102,27 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
      this allows us to maintain invariant, that every occurrence of an evar is
      defined in its evar-ctx
      *)
-    datatype Tree =
-      Leaf of (ctx *  normalSubsts) *
+    datatype tree =
+      Leaf of (ctx *  normal_substs) *
       (((int (* #EVar *)* int (* #G *)) * IntSyn.dctx * (* G *)
-        TableParam.ResEqn * TableParam.answer *
-        int * TableParam.Status) list) ref
+        TableParam.res_eqn * TableParam.answer *
+        int * TableParam.status) list) ref
 
-      | Node of (ctx *  normalSubsts) * (Tree ref) list
+      | Node of (ctx *  normal_substs) * (tree ref) list
 
     fun makeTree () = ref (Node ((emptyCtx(), nid ()), []))
 
     fun noChildren C = (C=[])
 
-    datatype Retrieval =
-      Variant of IntSyn.Exp
+    datatype retrieval =
+      Variant of IntSyn.exp
       | NotCompatible
 
-    datatype CompSub =
-      SplitSub of ((ctx * normalSubsts (* sigma *)) *
-                   (ctx * normalSubsts (* rho1 *)) *
-                   (ctx * normalSubsts (* rho2 *)))
-      | VariantSub of  ( (* normalSubsts * *) (ctx * normalSubsts (* rho2 *)))
+    datatype comp_sub =
+      SplitSub of ((ctx * normal_substs (* sigma *)) *
+                   (ctx * normal_substs (* rho1 *)) *
+                   (ctx * normal_substs (* rho2 *)))
+      | VariantSub of  ( (* normalSubsts * *) (ctx * normal_substs (* rho2 *)))
       | NoCompatibleSub
 
     (* Index array

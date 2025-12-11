@@ -138,16 +138,16 @@ struct
 
    (* here ends the preliminary stuff *)
 
-    datatype MenuItem
+    datatype menu_item
     = Split     of Split.operator
     | Fill      of Fill.operator
     | Introduce of Introduce.operator
     | Fix       of FixedPoint.operator
     | Elim      of Elim.operator
 
-    val Focus : (S.State list) ref = ref []
+    val Focus : (S.state list) ref = ref []
 
-    val Menu : MenuItem list option ref = ref NONE
+    val Menu : menu_item list option ref = ref NONE
 
 
     fun SplittingToMenu (O, A) = Split O :: A

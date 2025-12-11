@@ -52,37 +52,37 @@ sig
   val resetErrors : string -> unit      (* filename -fp *)
   val checkErrors : Paths.region -> unit
 
-  datatype TraceMode = Progressive | Omniscient
+  datatype trace_mode = Progressive | Omniscient
   val trace : bool ref
-  val traceMode : TraceMode ref
+  val traceMode : trace_mode ref
 
   (* Reconstruction jobs *)
   type job
 
   val jnothing : job
   val jand : job * job -> job
-  val jwithctx : dec IntSyn.Ctx * job -> job
+  val jwithctx : dec IntSyn.ctx * job -> job
   val jterm : term -> job
   val jclass : term -> job
   val jof : term * term -> job
-  val jof' : term * IntSyn.Exp -> job
+  val jof' : term * IntSyn.exp -> job
 
-  datatype Job =
+  datatype job =
       JNothing
-    | JAnd of Job * Job
-    | JWithCtx of IntSyn.Dec IntSyn.Ctx * Job
-    | JTerm of (IntSyn.Exp * Paths.occExp) * IntSyn.Exp * IntSyn.Uni
-    | JClass of (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
-    | JOf of (IntSyn.Exp * Paths.occExp) * (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
+    | JAnd of job * job
+    | JWithCtx of IntSyn.dec IntSyn.ctx * job
+    | JTerm of (IntSyn.exp * Paths.occ_exp) * IntSyn.exp * IntSyn.uni
+    | JClass of (IntSyn.exp * Paths.occ_exp) * IntSyn.uni
+    | JOf of (IntSyn.exp * Paths.occ_exp) * (IntSyn.exp * Paths.occ_exp) * IntSyn.uni
 
-  val recon : job -> Job
-  val reconQuery : job -> Job
-  val reconWithCtx : IntSyn.dctx * job -> Job
-  val reconQueryWithCtx : IntSyn.dctx * job -> Job
+  val recon : job -> job
+  val reconQuery : job -> job
+  val reconWithCtx : IntSyn.dctx * job -> job
+  val reconQueryWithCtx : IntSyn.dctx * job -> job
 
   val termRegion : term -> Paths.region
   val decRegion : dec -> Paths.region
-  val ctxRegion : dec IntSyn.Ctx -> Paths.region option
+  val ctxRegion : dec IntSyn.ctx -> Paths.region option
                   
   (* unimplemented for the moment *)
   val internalInst : 'a -> 'b

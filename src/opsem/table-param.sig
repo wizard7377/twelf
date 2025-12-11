@@ -10,51 +10,51 @@ sig
   exception Error of string
 
   (* Residual equation *)
-  datatype ResEqn =
+  datatype res_eqn =
     Trivial				  (* trivially done *)
-  | Unify of IntSyn.dctx * IntSyn.Exp     (* call unify *)
-    * IntSyn.Exp * ResEqn
+  | Unify of IntSyn.dctx * IntSyn.exp     (* call unify *)
+    * IntSyn.exp * res_eqn
 
-  type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list,
+  type answer = {solutions : ((IntSyn.dctx * IntSyn.sub) * CompSyn.pskeleton) list,
 		 lookup: int} ref
     
-  datatype Status = Complete | Incomplete
+  datatype status = Complete | Incomplete
 
   val globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * 
-		      IntSyn.Exp * ResEqn * answer * Status ) list ref
+		      IntSyn.exp * res_eqn * answer * status ) list ref
 
   val resetGlobalTable : unit -> unit
 
   val emptyAnsw : unit -> answer
 
 (* destructively updates answers *)
- val addSolution : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) * answer 
+ val addSolution : ((IntSyn.dctx * IntSyn.sub) * CompSyn.pskeleton) * answer 
                   -> unit
 
  val updateAnswLookup : int * answer -> unit
 
- val solutions : answer -> ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list
+ val solutions : answer -> ((IntSyn.dctx * IntSyn.sub) * CompSyn.pskeleton) list
  val lookup : answer -> int
  val noAnswers : answer -> bool
 
 (* ---------------------------------------------------------------------- *)
- type asub  = IntSyn.Exp RBSet.ordSet 
+ type asub  = IntSyn.exp RBSet.ord_set 
 
  val aid : unit -> asub
 
- datatype callCheckResult = 
+ datatype call_check_result = 
     NewEntry of answer 
-  | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * Status
-  | DivergingEntry of IntSyn.Sub * answer
+  | RepeatedEntry of (IntSyn.sub * IntSyn.sub) * answer * status
+  | DivergingEntry of IntSyn.sub * answer
 
-  datatype answState = new | repeated
+  datatype answ_state = new | repeated
 
 (* ---------------------------------------------------------------------- *)
 
-  datatype Strategy = Variant | Subsumption
+  datatype strategy = Variant | Subsumption
 
 
-  val strategy  : Strategy ref 
+  val strategy  : strategy ref 
   val stageCtr  : int ref
   val divHeuristic : bool ref;
 

@@ -9,20 +9,20 @@ sig
 
   exception Error of string
 
-  datatype ApproxFor =			(* Approximat formula *)
-    Head of IntSyn.dctx * (FunSyn.For * IntSyn.Sub) * int	(* AF ::= F [s] *)
-  | Block of (IntSyn.dctx * IntSyn.Sub * int * IntSyn.Dec list) * ApproxFor
+  datatype approx_for =			(* Approximat formula *)
+    Head of IntSyn.dctx * (FunSyn.for * IntSyn.sub) * int	(* AF ::= F [s] *)
+  | Block of (IntSyn.dctx * IntSyn.sub * int * IntSyn.dec list) * approx_for
 					(*  | (t, G2), AF *)
 
 
-  val weaken : IntSyn.dctx * IntSyn.cid -> IntSyn.Sub
-  val raiseType : IntSyn.dctx * IntSyn.Exp -> IntSyn.Exp 
+  val weaken : IntSyn.dctx * IntSyn.cid -> IntSyn.sub
+  val raiseType : IntSyn.dctx * IntSyn.exp -> IntSyn.exp 
       
-  val abstractSub : IntSyn.Sub * StateSyn.Tag IntSyn.Ctx * (IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub * StateSyn.Tag IntSyn.Ctx
-        -> ((IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub)
-  val abstractSub' : (IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub * StateSyn.Tag IntSyn.Ctx
-        -> ((IntSyn.dctx * StateSyn.Tag IntSyn.Ctx) * IntSyn.Sub)
+  val abstractSub : IntSyn.sub * StateSyn.tag IntSyn.ctx * (IntSyn.dctx * StateSyn.tag IntSyn.ctx) * IntSyn.sub * StateSyn.tag IntSyn.ctx
+        -> ((IntSyn.dctx * StateSyn.tag IntSyn.ctx) * IntSyn.sub)
+  val abstractSub' : (IntSyn.dctx * StateSyn.tag IntSyn.ctx) * IntSyn.sub * StateSyn.tag IntSyn.ctx
+        -> ((IntSyn.dctx * StateSyn.tag IntSyn.ctx) * IntSyn.sub)
 
 
-  val abstractApproxFor : ApproxFor -> FunSyn.For
+  val abstractApproxFor : approx_for -> FunSyn.for
 end;  (* signature MTPABSTRACT *)

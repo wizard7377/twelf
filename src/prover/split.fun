@@ -40,8 +40,8 @@ struct
     structure I = IntSyn
     structure S = State'
 
-    datatype Operator =
-      Split of T.Prg option ref * T.Prg * string
+    datatype operator =
+      Split of T.prg option ref * T.prg * string
 
     (* weaken (G, a) = w'
 
@@ -109,7 +109,7 @@ struct
        can be updated in the success continuation.
     *)
     local
-      val caseList : (T.Dec I.Ctx * T.Sub) list ref = ref nil
+      val caseList : (T.dec I.ctx * T.sub) list ref = ref nil
     in
       fun resetCases () = (caseList := nil)
       fun addCase (Psi, t) = (caseList := (Psi, t) :: !caseList)
@@ -421,7 +421,7 @@ struct
     fun apply (Split (r, P, s)) = (r := SOME P)    (* trailing required -cs Thu Apr 22 12:05:04 2004 *)
     fun menu (Split (_, _, s)) = "Split " ^ s
   in
-    type operator = Operator
+    type operator = operator
 
     val expand = expand
     val apply = apply

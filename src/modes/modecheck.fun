@@ -27,18 +27,18 @@ struct
     structure M = ModeSyn
     structure P = Paths
 
-    datatype Uniqueness =               (* Uniqueness information *)
+    datatype uniqueness =               (* Uniqueness information *)
         Unique                          (* u ::= Unique           *)
       | Ambig                           (*     | Ambig            *)
 
-    datatype Info =                     (* Groundedness information   *)
+    datatype info =                     (* Groundedness information   *)
         Free                            (* I ::= Free                 *)
       | Unknown                         (*     | Unknown              *)
-      | Ground of Uniqueness            (*     | Ground               *)
+      | Ground of uniqueness            (*     | Ground               *)
 
-    datatype Status =                   (* Variable status             *)
+    datatype status =                   (* Variable status             *)
         Existential of                  (* S ::= Existential (I, xOpt) *)
-          Info * string option
+          info * string option
       | Universal                       (*     | Universal             *)
 
 

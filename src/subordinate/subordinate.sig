@@ -26,11 +26,11 @@ sig
   val equiv : IntSyn.cid * IntSyn.cid -> bool (* mutual dependency *)
 
   val respects : IntSyn.dctx * IntSyn.eclo -> unit (* respects current subordination? *)
-  val respectsN : IntSyn.dctx * IntSyn.Exp -> unit (* respectsN(G, V), V in nf *)
+  val respectsN : IntSyn.dctx * IntSyn.exp -> unit (* respectsN(G, V), V in nf *)
 
   val checkNoDef : IntSyn.cid -> unit  (* not involved in type-level definition? *)
 
-  val weaken : IntSyn.dctx * IntSyn.cid -> IntSyn.Sub
+  val weaken : IntSyn.dctx * IntSyn.cid -> IntSyn.sub
 
   val show : unit -> unit
   val showDef : unit -> unit

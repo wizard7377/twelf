@@ -19,11 +19,11 @@ struct
 
   type 'a mset = 'a list                 (* MultiSet                   *)
 
-  datatype Sum =                         (* Sum :                      *)
-    Sum of Field.number * Mon mset       (* Sum ::= m + M1 + ...       *)
+  datatype sum =                         (* Sum :                      *)
+    Sum of Field.number * mon mset       (* Sum ::= m + M1 + ...       *)
 
-  and Mon =                              (* Monomials:                 *)
-    Mon of Field.number * (IntSyn.Exp * IntSyn.Sub) mset
+  and mon =                              (* Monomials:                 *)
+    Mon of Field.number * (IntSyn.exp * IntSyn.sub) mset
                                          (* Mon ::= n * U1[s1] * ...   *)
 
   (* A monomial (n * U1[s1] * U2[s2] * ...) is said to be normal iff
@@ -41,7 +41,7 @@ struct
     structure FX = CSManager.Fixity
     structure MS = ModeSyn (* CSManager.ModeSyn *)
 
-    exception MyIntsynRep of Sum        (* FgnExp representation for this domain *)
+    exception MyIntsynRep of sum        (* FgnExp representation for this domain *)
 
     fun extractSum (MyIntsynRep sum) = sum
       | extractSum fe = raise (UnexpectedFgnExp fe)

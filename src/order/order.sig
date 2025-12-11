@@ -8,39 +8,39 @@ sig
 
   exception Error of string
 
-  datatype 'a Order =	       	        (* Orders                     *)
+  datatype 'a order =	       	        (* Orders                     *)
       Arg of 'a				(* O ::= x                    *)
-    | Lex of 'a Order list              (*     | {O1 .. On}           *)
-    | Simul of 'a Order list            (*     | [O1 .. On]           *)
+    | Lex of 'a order list              (*     | {O1 .. On}           *)
+    | Simul of 'a order list            (*     | [O1 .. On]           *)
 
-  datatype Predicate =                  (* Reduction Order            *)
-      Less of int Order * int Order     (* O < O'                     *)
-    | Leq of int Order * int Order      (* O <= O'                    *)
-    | Eq of int Order * int Order       (* O = O'                     *)
+  datatype predicate =                  (* Reduction Order            *)
+      Less of int order * int order     (* O < O'                     *)
+    | Leq of int order * int order      (* O <= O'                    *)
+    | Eq of int order * int order       (* O = O'                     *)
 
-  datatype Mutual =			(* Termination ordering       *)
+  datatype mutual =			(* Termination ordering       *)
       Empty				(* O ::= No order specified   *)
-    | LE of IntSyn.cid * Mutual		(*     | mutual dependencies  *)
-    | LT of IntSyn.cid * Mutual		(*     | lex order for  -     *)
+    | LE of IntSyn.cid * mutual		(*     | mutual dependencies  *)
+    | LT of IntSyn.cid * mutual		(*     | lex order for  -     *)
 
-  datatype TDec =			(* Termination declaration *)
-      TDec of int Order * Mutual
+  datatype t_dec =			(* Termination declaration *)
+      TDec of int order * mutual
 
-  datatype RDec =			(* Reduction declaration      *)
-      RDec of Predicate * Mutual
+  datatype r_dec =			(* Reduction declaration      *)
+      RDec of predicate * mutual
 
   val reset : unit -> unit
   val resetROrder : unit -> unit
 
-  val install : IntSyn.cid * TDec -> unit 
+  val install : IntSyn.cid * t_dec -> unit 
   val uninstall : IntSyn.cid -> bool
-  val installROrder : IntSyn.cid * RDec -> unit 
+  val installROrder : IntSyn.cid * r_dec -> unit 
   val uninstallROrder : IntSyn.cid -> bool
 
-  val selLookup : IntSyn.cid -> int Order
-  val selLookupROrder : IntSyn.cid -> Predicate
+  val selLookup : IntSyn.cid -> int order
+  val selLookupROrder : IntSyn.cid -> predicate
   
-  val mutLookup : IntSyn.cid -> Mutual
+  val mutLookup : IntSyn.cid -> mutual
   val closure : IntSyn.cid -> IntSyn.cid list
 
 end;  (* signature ORDER *)

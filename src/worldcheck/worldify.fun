@@ -69,7 +69,7 @@ struct
                              "Block " ^ Names.qidToString (Names.constQid c) ^ ":" ^ msg)))
 
 
-  type dlist = IntSyn.Dec list
+  type dlist = IntSyn.dec list
 
 
   local
@@ -80,14 +80,14 @@ struct
        If R = (D1,...,Dn)[s] then G |- s : G' and G' |- D1,...,Dn ctx
        If R = r* then r = 1 or r does not accept the empty world
     *)
-    datatype Reg                        (* Regular world expressions  *)
+    datatype reg                        (* Regular world expressions  *)
       = Block of I.cid * (I.dctx * dlist)               (* R ::= LD                   *)
-      | Seq of int * dlist * I.Sub      (*     | (Di,...,Dn)[s]       *)
-      | Star of Reg                     (*     | R*                   *)
-      | Plus of Reg * Reg               (*     | R1 + R2              *)
+      | Seq of int * dlist * I.sub      (*     | (Di,...,Dn)[s]       *)
+      | Star of reg                     (*     | R*                   *)
+      | Plus of reg * reg               (*     | R1 + R2              *)
       | One                             (*     | 1                    *)
 
-    exception Success of I.Exp                  (* signals worldcheck success *)
+    exception Success of I.exp                  (* signals worldcheck success *)
 
     (* createEVarSub G G' = s
 
@@ -194,9 +194,9 @@ struct
     sig
       val clause : I.cid -> unit
       val constraintsRemain : unit -> unit
-      val matchBlock : (I.dctx * dlist) * Reg -> unit
+      val matchBlock : (I.dctx * dlist) * reg -> unit
       val unmatched : I.dctx * dlist -> unit
-      val missing : I.dctx * Reg -> unit
+      val missing : I.dctx * reg -> unit
       val mismatch : I.dctx * I.eclo * I.eclo -> unit
       val success : unit -> unit
     end =

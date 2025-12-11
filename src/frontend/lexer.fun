@@ -15,12 +15,12 @@ struct
     structure P = Paths
   in
 
-  datatype IdCase =
+  datatype id_case =
       Upper                             (* [A-Z]<id> or _<id> *)
     | Lower                             (* any other <id> *)
     | Quoted                            (* '<id>', currently unused *)
 
-  datatype Token =
+  datatype token =
       EOF                               (* end of file or stream, also `%.' *)
     | DOT                               (* `.' *)
     | PATHSEP                           (* `.' between <id>s *)
@@ -31,7 +31,7 @@ struct
     | BACKARROW | ARROW                 (* `<-' `->' *)
     | TYPE                              (* `type' *)
     | EQUAL                             (* `=' *)
-    | ID of IdCase * string             (* identifer *)
+    | ID of id_case * string             (* identifer *)
     | UNDERSCORE                        (* `_' *)
     | INFIX | PREFIX | POSTFIX          (* `%infix' `%prefix' `%postfix' *)
     | NAME                              (* `%name' *)

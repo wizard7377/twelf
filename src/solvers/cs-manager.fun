@@ -13,13 +13,13 @@ struct
   structure Fixity  = Fixity
   (* structure ModeSyn = ModeSyn *)
 
-  type sigEntry = (* global signature entry *)
+  type sig_entry = (* global signature entry *)
     (* constant declaration plus optional precedence and mode information *)
-    IntSyn.ConDec * Fixity.fixity option * ModeSyn.ModeSpine list
+    IntSyn.con_dec * Fixity.fixity option * ModeSyn.mode_spine list
 
-  type fgnConDec = (* foreign constant declaration *)
+  type fgn_con_dec = (* foreign constant declaration *)
     {
-      parse : string -> IntSyn.ConDec option
+      parse : string -> IntSyn.con_dec option
     }
 
   type solver = (* constraint solver *)
@@ -32,9 +32,9 @@ struct
       (* names of other constraint solvers needed *)
       needs : string list,
       (* foreign constants declared (if any) *)
-      fgnConst : fgnConDec option,
+      fgnConst : fgn_con_dec option,
       (* install constants *)
-      init : (int * (sigEntry -> IntSyn.cid)) -> unit,
+      init : (int * (sig_entry -> IntSyn.cid)) -> unit,
       (* reset internal status *)
       reset : unit -> unit,
       (* trailing operations *)
@@ -80,15 +80,15 @@ struct
 
     (* List of installed solvers *)
 
-    datatype Solver = Solver of solver * bool ref
+    datatype solver = Solver of solver * bool ref
 
     val maxCS = Global.maxCSid
-    val csArray = Array.array (maxCS+1, Solver (emptySolver, ref false)) : Solver Array.array
+    val csArray = Array.array (maxCS+1, Solver (emptySolver, ref false)) : solver Array.array
     val _ = Array.update (csArray, 0, Solver (unifySolver, ref true))
     val nextCS = ref(1) : int ref
 
     (* Installing function *)
-    val installFN = ref (fn _ => ~1) : (sigEntry -> IntSyn.cid) ref
+    val installFN = ref (fn _ => ~1) : (sig_entry -> IntSyn.cid) ref
     fun setInstallFN f = (installFN := f)
 
     (* install the specified solver *)
@@ -163,7 +163,7 @@ struct
   (* ask each active solver to try and parse the given string *)
   fun parse string =
         let
-          exception Parsed of IntSyn.csid * IntSyn.ConDec
+          exception Parsed of IntSyn.csid * IntSyn.con_dec
           fun parse' (cs, solver : solver) =
                 (case #fgnConst(solver)
                            of NONE => ()

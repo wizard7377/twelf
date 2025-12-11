@@ -9,5 +9,5 @@ sig
 
   exception Error of string 
 
-  val init : FunSyn.For * StateSyn.Order -> unit
+  val init : FunSyn.for * StateSyn.order -> unit
 end;  (* signature MTPROVER *)

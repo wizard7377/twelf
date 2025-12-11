@@ -133,10 +133,10 @@ struct
   end (* open IntSyn *)
 
   local
-    val evarApxTable : Apx.Exp StringTree.Table = StringTree.new (0)
-    val fvarApxTable : Apx.Exp StringTree.Table = StringTree.new (0)
+    val evarApxTable : Apx.exp StringTree.table = StringTree.new (0)
+    val fvarApxTable : Apx.exp StringTree.table = StringTree.new (0)
 
-    val fvarTable : IntSyn.Exp StringTree.Table = StringTree.new (0)
+    val fvarTable : IntSyn.exp StringTree.table = StringTree.new (0)
   in
 
     fun varReset () = (StringTree.clear evarApxTable;
@@ -205,11 +205,11 @@ struct
   (* External syntax of terms *)
 
   datatype term =
-      internal of IntSyn.Exp * IntSyn.Exp * Paths.region (* (U, V, r) *)
+      internal of IntSyn.exp * IntSyn.exp * Paths.region (* (U, V, r) *)
         (* G |- U : V nf where V : L or V == kind *)
         (* not used currently *)
 
-    | constant of IntSyn.Head * Paths.region
+    | constant of IntSyn.head * Paths.region
         (* must be Const/Skonst/Def/NSDef/FgnConst *)
     | bvar of int * Paths.region
     | evar of string * Paths.region
@@ -231,12 +231,12 @@ struct
     | scon of string * Paths.region
 
       (* Phase 2 only *)
-    | omitapx of Apx.Exp * Apx.Exp * Apx.Uni * Paths.region
+    | omitapx of Apx.exp * Apx.exp * Apx.uni * Paths.region
         (* (U, V, L, r) where U ~:~ V ~:~ L *)
         (* U undefined unless L >= kind *)
 
       (* Phase 3 only *)
-    | omitexact of IntSyn.Exp * IntSyn.Exp * Paths.region
+    | omitexact of IntSyn.exp * IntSyn.exp * Paths.region
 
   and dec =
       dec of string option * term * Paths.region
@@ -249,11 +249,11 @@ struct
   datatype job =
       jnothing
     | jand of job * job
-    | jwithctx of dec IntSyn.Ctx * job
+    | jwithctx of dec IntSyn.ctx * job
     | jterm of term
     | jclass of term
     | jof of term * term
-    | jof' of term * IntSyn.Exp
+    | jof' of term * IntSyn.exp
 
   fun termRegion (internal (U, V, r)) = r
     | termRegion (constant (H, r)) = r
@@ -293,8 +293,8 @@ struct
 
   local
     open Apx
-    datatype Ctx = datatype IntSyn.Ctx
-    datatype Dec = Dec of string option * Exp | NDec of string option
+    datatype ctx = datatype IntSyn.ctx
+    datatype dec = Dec of string option * exp | NDec of string option
   in
 
     (* Phase 1:
@@ -634,21 +634,21 @@ struct
 
   (* Final reconstruction job syntax *)
 
-  datatype Job =
+  datatype job =
       JNothing
-    | JAnd of Job * Job
-    | JWithCtx of IntSyn.Dec IntSyn.Ctx * Job
-    | JTerm of (IntSyn.Exp * Paths.occExp) * IntSyn.Exp * IntSyn.Uni
-    | JClass of (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
-    | JOf of (IntSyn.Exp * Paths.occExp) * (IntSyn.Exp * Paths.occExp) * IntSyn.Uni
+    | JAnd of job * job
+    | JWithCtx of IntSyn.dec IntSyn.ctx * job
+    | JTerm of (IntSyn.exp * Paths.occ_exp) * IntSyn.exp * IntSyn.uni
+    | JClass of (IntSyn.exp * Paths.occ_exp) * IntSyn.uni
+    | JOf of (IntSyn.exp * Paths.occ_exp) * (IntSyn.exp * Paths.occ_exp) * IntSyn.uni
 
   (* This little datatype makes it easier to work with eta-expanded terms
      The idea is that Elim E represents a term U if
        E (s, S) = U[s] @ S *)
 
-  datatype Bidi =
-      Elim of IntSyn.Sub * IntSyn.Spine -> IntSyn.Exp
-    | Intro of IntSyn.Exp
+  datatype bidi =
+      Elim of IntSyn.sub * IntSyn.spine -> IntSyn.exp
+    | Intro of IntSyn.exp
 
   fun elimSub (E, s) = (fn (s', S) => E (comp (s, s'), S))
   fun elimApp (E, U) = (fn (s, S) => E (s, App (EClo (U, s), S)))
@@ -776,7 +776,7 @@ struct
 
   (* tracing code *)
 
-  datatype TraceMode = Progressive | Omniscient
+  datatype trace_mode = Progressive | Omniscient
   val trace = ref false
   val traceMode = ref Omniscient
 

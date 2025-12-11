@@ -5,9 +5,9 @@ signature WEAKEN =
 sig
   (*! structure IntSyn : INTSYN !*)
 
-  val strengthenExp : (IntSyn.Exp * IntSyn.Sub) -> IntSyn.Exp
-  val strengthenSpine: (IntSyn.Spine * IntSyn.Sub) -> IntSyn.Spine
-  val strengthenCtx : (IntSyn.dctx * IntSyn.Sub) -> (IntSyn.dctx * IntSyn.Sub)
-  val strengthenDec : (IntSyn.Dec * IntSyn.Sub) -> IntSyn.Dec
-  val strengthenSub : (IntSyn.Sub * IntSyn.Sub) -> IntSyn.Sub
+  val strengthenExp : (IntSyn.exp * IntSyn.sub) -> IntSyn.exp
+  val strengthenSpine: (IntSyn.spine * IntSyn.sub) -> IntSyn.spine
+  val strengthenCtx : (IntSyn.dctx * IntSyn.sub) -> (IntSyn.dctx * IntSyn.sub)
+  val strengthenDec : (IntSyn.dec * IntSyn.sub) -> IntSyn.dec
+  val strengthenSub : (IntSyn.sub * IntSyn.sub) -> IntSyn.sub
 end (* signature PRUNE *)

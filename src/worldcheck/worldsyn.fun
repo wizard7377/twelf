@@ -50,14 +50,14 @@ struct
                              Origins.linesInfoLookup (fileName),
                              "While checking constant " ^ Names.qidToString (Names.constQid c) ^ ":\n" ^ msg)))
 
-  type dlist = IntSyn.Dec list
+  type dlist = IntSyn.dec list
 
 
   local
 
 
 
-    val worldsTable : T.Worlds Table.Table = Table.new (0)
+    val worldsTable : T.worlds Table.table = Table.new (0)
     fun reset () = Table.clear worldsTable
     fun insert (cid, W) = Table.insert worldsTable (cid, W)
     fun getWorlds (b) =
@@ -70,7 +70,7 @@ struct
        contains the subordinate families b whose worlds
        subsume that of a modulo subordination
     *)
-    val subsumedTable : unit Table.Table = Table.new (0)
+    val subsumedTable : unit Table.table = Table.new (0)
     fun subsumedReset () = Table.clear subsumedTable
     fun subsumedInsert (cid) = Table.insert subsumedTable (cid, ())
     fun subsumedLookup (cid) =
@@ -83,11 +83,11 @@ struct
        If R = (D1,...,Dn)[s] then G |- s : G' and G' |- D1,...,Dn ctx
        If R = r* then r = 1 or r does not accept the empty world
     *)
-    datatype Reg                        (* Regular world expressions  *)
+    datatype reg                        (* Regular world expressions  *)
       = Block of I.dctx * dlist         (* R ::= LD                   *)
-      | Seq of dlist * I.Sub            (*     | (D1,...,Dn)[s]       *)
-      | Star of Reg                     (*     | R*                   *)
-      | Plus of Reg * Reg               (*     | R1 + R2              *)
+      | Seq of dlist * I.sub            (*     | (D1,...,Dn)[s]       *)
+      | Star of reg                     (*     | R*                   *)
+      | Plus of reg * reg               (*     | R1 + R2              *)
       | One                             (*     | 1                    *)
 
     exception Success                   (* signals worldcheck success *)
@@ -240,9 +240,9 @@ struct
     sig
       val clause : I.cid -> unit
       val constraintsRemain : unit -> unit
-      val matchBlock : (I.dctx * dlist) * Reg -> unit
+      val matchBlock : (I.dctx * dlist) * reg -> unit
       val unmatched : I.dctx * dlist -> unit
-      val missing : I.dctx * Reg -> unit
+      val missing : I.dctx * reg -> unit
       val mismatch : I.dctx * I.eclo * I.eclo -> unit
       val success : unit -> unit
     end =

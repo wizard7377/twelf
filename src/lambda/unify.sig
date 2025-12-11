@@ -6,11 +6,11 @@ sig
 
   (*! structure IntSyn : INTSYN !*)
 
-  type unifTrail
+  type unif_trail
 
   (* suspending and resuming trailing *)
-  val suspend : unit -> unifTrail
-  val resume : unifTrail  -> unit
+  val suspend : unit -> unif_trail
+  val resume : unif_trail  -> unit
 
   (* trailing of variable instantiation *)
 
@@ -18,8 +18,8 @@ sig
   val mark   : unit -> unit
   val unwind : unit -> unit
 
-  val instantiateEVar : IntSyn.Exp option ref * IntSyn.Exp * IntSyn.cnstr list -> unit
-  val instantiateLVar : IntSyn.Block option ref * IntSyn.Block -> unit
+  val instantiateEVar : IntSyn.exp option ref * IntSyn.exp * IntSyn.cnstr list -> unit
+  val instantiateLVar : IntSyn.block option ref * IntSyn.block -> unit
 
   val resetAwakenCnstrs : unit -> unit
   val nextCnstr : unit -> IntSyn.cnstr option
@@ -30,20 +30,20 @@ sig
 
   (* unification *)
 
-  val intersection : IntSyn.Sub * IntSyn.Sub -> IntSyn.Sub
+  val intersection : IntSyn.sub * IntSyn.sub -> IntSyn.sub
 
   exception Unify of string
 
   val unify : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> unit	(* raises Unify *)
   val unifyW : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> unit (* raises Unify *)
 
-  val unifyBlock : IntSyn.dctx * IntSyn.Block * IntSyn.Block -> unit (* raises Unify *)
+  val unifyBlock : IntSyn.dctx * IntSyn.block * IntSyn.block -> unit (* raises Unify *)
 
-  val unifySub : IntSyn.dctx * IntSyn.Sub * IntSyn.Sub -> unit  (* raises Unify *)
+  val unifySub : IntSyn.dctx * IntSyn.sub * IntSyn.sub -> unit  (* raises Unify *)
 
 
-  val invertible : IntSyn.dctx * IntSyn.eclo * IntSyn.Sub * IntSyn.Exp option ref -> bool
-  val invertSub : IntSyn.dctx * IntSyn.Sub * IntSyn.Sub * IntSyn.Exp option ref -> IntSyn.Sub
+  val invertible : IntSyn.dctx * IntSyn.eclo * IntSyn.sub * IntSyn.exp option ref -> bool
+  val invertSub : IntSyn.dctx * IntSyn.sub * IntSyn.sub * IntSyn.exp option ref -> IntSyn.sub
 
   (* unifiable (G, Us,Us') will instantiate EVars as an effect *)
   val unifiable : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> bool

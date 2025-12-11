@@ -15,22 +15,22 @@ struct
 
    exception Error of string
 
-   datatype Strategy = Variant | Subsumption
+   datatype strategy = Variant | Subsumption
 
-   datatype ResEqn =
+   datatype res_eqn =
      Trivial                              (* trivially done *)
-   | Unify of IntSyn.dctx * IntSyn.Exp    (* call unify *)
-     * IntSyn.Exp * ResEqn
+   | Unify of IntSyn.dctx * IntSyn.exp    (* call unify *)
+     * IntSyn.exp * res_eqn
 
-   type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub)
+   type answer = {solutions : ((IntSyn.dctx * IntSyn.sub)
                                * CompSyn.pskeleton) list,
                   lookup: int} ref
 
-   datatype Status = Complete | Incomplete
+   datatype status = Complete | Incomplete
 
    (* globalTable stores the queries whose solution we want to keep *)
    val globalTable : (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx *
-                       IntSyn.Exp * ResEqn * answer * Status ) list ref
+                       IntSyn.exp * res_eqn * answer * status ) list ref
                       = ref []
 
    fun resetGlobalTable () = (globalTable := [])
@@ -59,16 +59,16 @@ struct
         of [] => true
       | L  => false)
 
-   type asub = IntSyn.Exp RBSet.ordSet
+   type asub = IntSyn.exp RBSet.ord_set
    val aid : unit -> asub = RBSet.new
 
 
-   datatype callCheckResult =
+   datatype call_check_result =
        NewEntry of answer
-     | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * Status
-     | DivergingEntry of (IntSyn.Sub * answer)
+     | RepeatedEntry of (IntSyn.sub * IntSyn.sub) * answer * status
+     | DivergingEntry of (IntSyn.sub * answer)
 
-   datatype answState = new | repeated
+   datatype answ_state = new | repeated
 
 (* ---------------------------------------------------------------------- *)
 (* global search parameters *)

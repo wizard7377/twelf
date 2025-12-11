@@ -8,6 +8,6 @@ sig
 
   exception Error of string
   
-  val check : (IntSyn.Exp * IntSyn.Exp) * Paths.occConDec option -> unit
-  val checkType : (int * IntSyn.Exp) * Paths.occConDec option -> unit
+  val check : (IntSyn.exp * IntSyn.exp) * Paths.occ_con_dec option -> unit
+  val checkType : (int * IntSyn.exp) * Paths.occ_con_dec option -> unit
 end;  (* signature STRICT *)

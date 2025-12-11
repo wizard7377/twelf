@@ -38,16 +38,16 @@ struct
   *)
 
   (* nameInfo carries the print name and fixity for a constant *)
-  datatype nameInfo = NameInfo of string
+  datatype name_info = NameInfo of string
 
   local
     val maxCid = Global.maxCid
     (* nameArray maps constants to print names and fixity *)
     val nameArray = Array.array (maxCid+1, NameInfo "")
-      : nameInfo Array.array
+      : name_info Array.array
 
     (* sgnHashTable maps identifiers (strings) to constants (cids) *)
-    val sgnHashTable : IntSyn.cid HashTable.Table = HashTable.new (4096)
+    val sgnHashTable : IntSyn.cid HashTable.table = HashTable.new (4096)
     val hashInsert = HashTable.insertShadow sgnHashTable (* returns optional shadowed entry *)
     val hashLookup = HashTable.lookup sgnHashTable (* returns optional cid *)
     fun hashClear () = HashTable.clear sgnHashTable

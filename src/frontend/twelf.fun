@@ -128,7 +128,7 @@ functor Twelf
      sharing type ReconThm.tdecl = Parser.ThmExtSyn.tdecl
      sharing type ReconThm.rdecl = Parser.ThmExtSyn.rdecl (* -bp *)
      sharing type ReconThm.tableddecl = Parser.ThmExtSyn.tableddecl (* -bp *)
-     sharing type ReconThm.keepTabledecl = Parser.ThmExtSyn.keepTabledecl (* -bp *)
+     sharing type ReconThm.keep_tabledecl = Parser.ThmExtSyn.keep_tabledecl (* -bp *)
      sharing type ReconThm.wdecl = Parser.ThmExtSyn.wdecl
      sharing type ReconThm.theorem = Parser.ThmExtSyn.theorem
      sharing type ReconThm.theoremdec = Parser.ThmExtSyn.theoremdec
@@ -209,7 +209,7 @@ struct
             | _ => msg ("[Closing file " ^ fileName ^ "]\n"))
 
     (* result of a computation *)
-    datatype 'a Result = Value of 'a | Exception of exn
+    datatype 'a result = Value of 'a | Exception of exn
 
     (* val withOpenIn : string -> (TextIO.instream -> 'a) -> 'a *)
     (* withOpenIn fileName (fn instream => body) = x
@@ -258,7 +258,7 @@ struct
          msg "\\end{bigcode}\n")
 
     (* status ::= OK | ABORT  is the return status of various operations *)
-    datatype Status = OK | ABORT
+    datatype status = OK | ABORT
 
     fun abort chlev (msg) = (chmsg chlev (fn () => msg); ABORT)
     fun abortFileMsg chlev (fileName, msg) = abort chlev (fileName ^ ":" ^ msg ^ "\n")
@@ -287,7 +287,7 @@ struct
        issued if chatter level is greater or equal to chlev.
        Unrecognized exceptions are re-raised.
     *)
-    fun handleExceptions chlev fileName (f:'a -> Status) (x:'a) =
+    fun handleExceptions chlev fileName (f:'a -> status) (x:'a) =
         (f x
          handle ReconTerm.Error (msg) => abortFileMsg chlev (fileName, msg)
               | ReconConDec.Error (msg) => abortFileMsg chlev (fileName, msg)
@@ -1687,13 +1687,13 @@ struct
 
     structure Trace :
     sig
-      datatype 'a Spec =                        (* trace specification *)
+      datatype 'a spec =                        (* trace specification *)
         None                            (* no tracing *)
       | Some of 'a list                 (* list of clauses and families *)
       | All                             (* trace all clauses and families *)
 
-      val trace : string Spec -> unit   (* clauses and families *)
-      val break : string Spec -> unit   (* clauses and families *)
+      val trace : string spec -> unit   (* clauses and families *)
+      val break : string spec -> unit   (* clauses and families *)
       val detail : int ref              (* 0 = none, 1 = default, 2 = unify *)
 
       val show : unit -> unit           (* show trace, break, and detail *)
@@ -1724,51 +1724,51 @@ struct
 
     structure Compile :
     sig
-      datatype Opt = datatype CompSyn.Opt
-      val optimize : Opt ref
+      datatype opt = datatype CompSyn.opt
+      val optimize : opt ref
     end
     =
     struct
-      datatype Opt = datatype CompSyn.Opt
+      datatype opt = datatype CompSyn.opt
       val optimize = CompSyn.optimize
     end
 
     structure Recon :
     sig
-      datatype TraceMode = datatype ReconTerm.TraceMode
+      datatype trace_mode = datatype ReconTerm.trace_mode
       val trace : bool ref
-      val traceMode : TraceMode ref
+      val traceMode : trace_mode ref
     end
     =
     struct
-      datatype TraceMode = datatype ReconTerm.TraceMode
+      datatype trace_mode = datatype ReconTerm.trace_mode
       val trace = ReconTerm.trace
       val traceMode = ReconTerm.traceMode
     end
 
     structure Recon :
     sig
-      datatype TraceMode = datatype ReconTerm.TraceMode
+      datatype trace_mode = datatype ReconTerm.trace_mode
       val trace : bool ref
-      val traceMode : TraceMode ref
+      val traceMode : trace_mode ref
     end
     =
     struct
-      datatype TraceMode = datatype ReconTerm.TraceMode
+      datatype trace_mode = datatype ReconTerm.trace_mode
       val trace = ReconTerm.trace
       val traceMode = ReconTerm.traceMode
     end
 
     structure Prover :
     sig                                 (* F=Filling, R=Recursion, S=Splitting *)
-      datatype Strategy = datatype MetaGlobal.Strategy  (* FRS or RFS *)
-      val strategy : Strategy ref       (* FRS, strategy used for %prove *)
+      datatype strategy = datatype MetaGlobal.strategy  (* FRS or RFS *)
+      val strategy : strategy ref       (* FRS, strategy used for %prove *)
       val maxSplit : int ref            (* 2, bound on splitting  *)
       val maxRecurse : int ref          (* 10, bound on recursion *)
     end
     =
     struct
-      datatype Strategy = datatype MetaGlobal.Strategy  (* FRS or RFS *)
+      datatype strategy = datatype MetaGlobal.strategy  (* FRS or RFS *)
       val strategy = MetaGlobal.strategy
       val maxSplit = MetaGlobal.maxSplit
       val maxRecurse = MetaGlobal.maxRecurse
@@ -1780,7 +1780,7 @@ struct
     val autoFreeze : bool ref = Global.autoFreeze
     val timeLimit : (Time.time option) ref = Global.timeLimit
 
-    datatype Status = datatype Status
+    datatype status = datatype status
     val reset = reset
     val loadFile = loadFile
     val loadString = loadString
@@ -1796,8 +1796,8 @@ struct
         val read : string -> config     (* read configuration from config file *)
         val readWithout : string * config -> config
                                         (* read config file, minus contents of another *)
-        val load : config -> Status     (* reset and load configuration *)
-        val append : config -> Status   (* load configuration (w/o reset) *)
+        val load : config -> status     (* reset and load configuration *)
+        val append : config -> status   (* load configuration (w/o reset) *)
         val define : string list -> config  (* explicitly define configuration *)
       end
     = Config
@@ -1807,15 +1807,15 @@ struct
 
     structure Table :
       sig
-        datatype Strategy = datatype TableParam.Strategy
-        val strategy : Strategy ref
+        datatype strategy = datatype TableParam.strategy
+        val strategy : strategy ref
         val strengthen : bool ref
         val resetGlobalTable : unit -> unit
         val top : unit -> unit
       end
     =
   struct
-    datatype Strategy = datatype TableParam.Strategy
+    datatype strategy = datatype TableParam.strategy
     val strategy = TableParam.strategy
     val strengthen = TableParam.strengthen
 

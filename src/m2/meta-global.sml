@@ -3,7 +3,7 @@
 
 structure MetaGlobal : METAGLOBAL =
 struct
-  datatype Strategy = RFS | FRS
+  datatype strategy = RFS | FRS
 
   val strategy = ref FRS
   val maxFill = ref 6

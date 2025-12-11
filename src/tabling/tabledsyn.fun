@@ -13,7 +13,7 @@ struct
 
   exception Error of string
 
-  datatype Tabled = yes | no
+  datatype tabled = yes | no
 
 (*  datatype ModeSpine = Mnil | Mapp of Marg * ModeSpine
   and  Marg = Marg of Mode * string option
@@ -21,7 +21,7 @@ struct
   local
     structure I = IntSyn
 
-    val tabledSignature : bool Table.Table = Table.new(0);
+    val tabledSignature : bool Table.table = Table.new(0);
 
     (* reset () = ()
 

@@ -8,6 +8,6 @@ sig
 
   exception Error of string
 
-  val coverageCheckPrg : Tomega.Worlds * Tomega.Dec IntSyn.Ctx * Tomega.Prg -> unit
+  val coverageCheckPrg : Tomega.worlds * Tomega.dec IntSyn.ctx * Tomega.prg -> unit
 end (* Signature TOMEGACOVERAGE *)       
 

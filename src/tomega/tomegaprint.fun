@@ -50,7 +50,7 @@ struct
      *)
 
 
-    val evarList : (T.Prg) list ref = ref nil
+    val evarList : (T.prg) list ref = ref nil
 
     fun evarReset () = (evarList := nil)
 

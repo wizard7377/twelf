@@ -21,10 +21,10 @@ struct
     structure FX = CSManager.Fixity
     structure MS = ModeSyn (* CSManager.ModeSyn *)
 
-    exception MyFgnCnstrRepPlus of dctx * Exp * Exp * Exp * Exp
+    exception MyFgnCnstrRepPlus of dctx * exp * exp * exp * exp
                                         (* FgnCnstr Representation: (G, proof, U1, U2, U3) *)
-    exception MyFgnCnstrRepTimes of dctx * Exp * Exp * Exp * Exp
-    exception MyFgnCnstrRepQuot of dctx * Exp * Exp * Exp * Exp
+    exception MyFgnCnstrRepTimes of dctx * exp * exp * exp * exp
+    exception MyFgnCnstrRepQuot of dctx * exp * exp * exp * exp
 
     val wordSize' = Int.min (wordSize, W.wordSize);
 
@@ -218,12 +218,12 @@ struct
              of SOME(conDec) => SOME(conDec)
               | NONE => parseQuotPf (string))))
 
-    datatype FixTerm =                                      (* Term                       *)
+    datatype fix_term =                                      (* Term                       *)
       Num of W.word                                         (* Term ::= n                 *)
     | PlusPf of (W.word * W.word)                           (*        | n1+n2             *)
     | TimesPf of (W.word * W.word)                          (*        | n1*n2             *)
     | QuotPf of (W.word * W.word)                           (*        | n1/n2             *)
-    | Expr of (Exp * Sub)                                   (*        | <Expr>            *)
+    | Expr of (exp * sub)                                   (*        | <Expr>            *)
 
     (* fromExpW (U, s) = t
 

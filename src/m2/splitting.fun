@@ -42,8 +42,8 @@ struct
   datatype 'a flag =
     Active of 'a | InActive
 
-  type operator = (MetaSyn.State * int) *
-                   MetaSyn.State flag list
+  type operator = (MetaSyn.state * int) *
+                   MetaSyn.state flag list
 
   local
     structure M = MetaSyn

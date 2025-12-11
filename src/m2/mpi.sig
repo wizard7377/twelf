@@ -16,7 +16,7 @@ sig
   val lemma  : string -> unit
 
   val reset  : unit -> unit
-  val extract: unit -> MetaSyn.Sgn
+  val extract: unit -> MetaSyn.sgn
   val show   : unit -> unit
   val undo   : unit -> unit 
 end;  (* signature MPI *)

@@ -94,14 +94,14 @@ struct
     val tuples : int ref = ref 0
     val out : BinIO.outstream option ref = ref NONE
 
-    val symTable : W.word Table.Table = Table.new 32
-    val printTable : unit Table.Table = Table.new 32
+    val symTable : W.word Table.table = Table.new 32
+    val printTable : unit Table.table = Table.new 32
 
-    val shadowTable : int SHT.Table = SHT.new 32
-    val depTable : unit IHT.Table IHT.Table = IHT.new 32
-    val recordTable : unit IHT.Table = IHT.new 32
-    val imitatesTable : int IHT.Table = IHT.new 32
-    val replaceTable : string IHT.Table = IHT.new 32
+    val shadowTable : int SHT.table = SHT.new 32
+    val depTable : unit IHT.table IHT.table = IHT.new 32
+    val recordTable : unit IHT.table = IHT.new 32
+    val imitatesTable : int IHT.table = IHT.new 32
+    val replaceTable : string IHT.table = IHT.new 32
 
     fun cname cid = I.conDecName (I.sgnLookup cid)
 

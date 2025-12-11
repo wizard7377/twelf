@@ -24,11 +24,11 @@ sig
 
   exception Error of string
 
-  val condecToConDec : condec * Paths.location * bool -> IntSyn.ConDec option * Paths.occConDec option
+  val condecToConDec : condec * Paths.location * bool -> IntSyn.con_dec option * Paths.occ_con_dec option
                      (* optional ConDec is absent for anonymous definitions *)
                      (* bool = true means that condec is an abbreviation *)
 
-  val internalInst : IntSyn.ConDec * IntSyn.ConDec * Paths.region -> IntSyn.ConDec
+  val internalInst : IntSyn.con_dec * IntSyn.con_dec * Paths.region -> IntSyn.con_dec
 
-  val externalInst : IntSyn.ConDec * ExtSyn.term * Paths.region -> IntSyn.ConDec
+  val externalInst : IntSyn.con_dec * ExtSyn.term * Paths.region -> IntSyn.con_dec
 end (* signature RECON_CONDEC *)

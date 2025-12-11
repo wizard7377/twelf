@@ -5,12 +5,12 @@ structure Trail : TRAIL =
 struct
 
   local
-    datatype 'a  Trail =
-      Cons of 'a * 'a Trail
-    | Mark of 'a Trail
+    datatype 'a  trail =
+      Cons of 'a * 'a trail
+    | Mark of 'a trail
     | Nil
 
-    type 'a trail = 'a Trail ref
+    type 'a trail = 'a trail ref
 
     fun trail () = ref Nil
 

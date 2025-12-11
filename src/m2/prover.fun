@@ -32,10 +32,10 @@ struct
     structure I = IntSyn
 
     (* List of open states *)
-    val openStates : MetaSyn.State list ref = ref nil
+    val openStates : MetaSyn.state list ref = ref nil
 
     (* List of solved states *)
-    val solvedStates : MetaSyn.State list ref = ref nil
+    val solvedStates : MetaSyn.state list ref = ref nil
 
 
 

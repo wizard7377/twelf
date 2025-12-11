@@ -19,11 +19,11 @@ struct
 
   type 'a mset = 'a list                 (* MultiSet                   *)
 
-  datatype Sum =                         (* Sum :                      *)
-    Sum of Integers.int * Mon mset       (* Sum ::= m + M1 + ...       *)
+  datatype sum =                         (* Sum :                      *)
+    Sum of Integers.int * mon mset       (* Sum ::= m + M1 + ...       *)
 
-  and Mon =                              (* Monomials:                 *)
-    Mon of Integers.int * (IntSyn.Exp * IntSyn.Sub) mset
+  and mon =                              (* Monomials:                 *)
+    Mon of Integers.int * (IntSyn.exp * IntSyn.sub) mset
                                          (* Mon ::= n * U1[s1] * ...   *)
 
 
@@ -43,7 +43,7 @@ struct
     structure FX = CSManager.Fixity
     structure MS = ModeSyn (* CSManager.ModeSyn *)
 
-    exception MyIntsynRep of Sum
+    exception MyIntsynRep of sum
 
     fun extractSum (MyIntsynRep sum) = sum
       | extractSum fe = raise (UnexpectedFgnExp fe)

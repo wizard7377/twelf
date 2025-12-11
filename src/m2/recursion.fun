@@ -38,7 +38,7 @@ struct
 
   exception Error of string
 
-  type operator = MetaSyn.State
+  type operator = MetaSyn.state
 
   local
     structure M = MetaSyn
@@ -48,7 +48,7 @@ struct
     structure F = Formatter
 
 
-    datatype Quantifier =                     (* Quantifier to mark parameters *)
+    datatype quantifier =                     (* Quantifier to mark parameters *)
       Universal                               (* Q ::= Uni                     *)
     | Existential                             (*     | Ex                      *)
 

@@ -33,15 +33,15 @@ struct
     structure M = MetaSyn
     structure I = IntSyn
 
-    datatype MenuItem =
+    datatype menu_item =
       Filling of Filling.operator
     | Recursion of Recursion.operator
     | Splitting of Splitting.operator
 
-    val Open : MetaSyn.State Ring.ring ref = ref (Ring.init [])
-    val Solved : MetaSyn.State Ring.ring ref = ref (Ring.init [])
-    val History : (MetaSyn.State Ring.ring * MetaSyn.State Ring.ring) list ref = ref nil
-    val Menu : MenuItem list option ref = ref NONE
+    val Open : MetaSyn.state Ring.ring ref = ref (Ring.init [])
+    val Solved : MetaSyn.state Ring.ring ref = ref (Ring.init [])
+    val History : (MetaSyn.state Ring.ring * MetaSyn.state Ring.ring) list ref = ref nil
+    val Menu : menu_item list option ref = ref NONE
 
     fun initOpen () = Open := Ring.init [];
     fun initSolved () = Solved := Ring.init [];

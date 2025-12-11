@@ -15,7 +15,7 @@ struct
 
     val prompt = "> "
 
-    exception What of Tomega.Prg
+    exception What of Tomega.prg
 
     (* Added by ABP - Temporary to run tests *)
     structure I = IntSyn

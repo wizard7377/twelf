@@ -75,33 +75,33 @@ struct
    indexing and existential variables and nvars will be instantiated
    during assignment
  *)
-  datatype typeLabel = TypeLabel | Body
+  datatype type_label = TypeLabel | Body
 
-  type normalSubsts =  (typeLabel * IntSyn.Exp) RBSet.ordSet  (* key = int = bvar *)
+  type normal_substs =  (type_label * IntSyn.exp) RBSet.ord_set  (* key = int = bvar *)
 
-  datatype AssSub = Assign of (IntSyn.Dec IntSyn.Ctx * IntSyn.Exp)
-  type assSubsts = AssSub RBSet.ordSet          (* key = int = bvar *)
+  datatype ass_sub = Assign of (IntSyn.dec IntSyn.ctx * IntSyn.exp)
+  type ass_substs = ass_sub RBSet.ord_set          (* key = int = bvar *)
 
-  type querySubsts = (IntSyn.Dec IntSyn.Ctx * (typeLabel * IntSyn.Exp)) RBSet.ordSet
+  type query_substs = (IntSyn.dec IntSyn.ctx * (type_label * IntSyn.exp)) RBSet.ord_set
 
-  datatype Cnstr = Eqn of IntSyn.Dec IntSyn.Ctx * IntSyn.Exp * IntSyn.Exp
-  type cnstrSubsts = IntSyn.Exp RBSet.ordSet    (* key = int = bvar *)
+  datatype cnstr = Eqn of IntSyn.dec IntSyn.ctx * IntSyn.exp * IntSyn.exp
+  type cnstr_substs = IntSyn.exp RBSet.ord_set    (* key = int = bvar *)
 
-  datatype CGoal = CGoals of CompSyn.AuxGoal * IntSyn.cid * CompSyn.Conjunction * int (* cid of clause *)
+  datatype c_goal = CGoals of CompSyn.aux_goal * IntSyn.cid * CompSyn.conjunction * int (* cid of clause *)
 
-  datatype genType  = Top | Regular
+  datatype gen_type  = Top | Regular
 
-  datatype Tree =
-    Leaf of normalSubsts  * IntSyn.Dec IntSyn.Ctx * CGoal
-  | Node of normalSubsts  * Tree RBSet.ordSet
+  datatype tree =
+    Leaf of normal_substs  * IntSyn.dec IntSyn.ctx * c_goal
+  | Node of normal_substs  * tree RBSet.ord_set
 
-   type candidate = (assSubsts * normalSubsts * cnstrSubsts * Cnstr * IntSyn.Dec IntSyn.Ctx * CGoal)
+   type candidate = (ass_substs * normal_substs * cnstr_substs * cnstr * IntSyn.dec IntSyn.ctx * c_goal)
 
    (* Initialization of substitutions *)
-   val nid         : unit -> normalSubsts = RBSet.new
-   val assignSubId : unit -> assSubsts = RBSet.new
-   val cnstrSubId  : unit -> cnstrSubsts = RBSet.new
-   val querySubId  : unit -> querySubsts = RBSet.new
+   val nid         : unit -> normal_substs = RBSet.new
+   val assignSubId : unit -> ass_substs = RBSet.new
+   val cnstrSubId  : unit -> cnstr_substs = RBSet.new
+   val querySubId  : unit -> query_substs = RBSet.new
 
    (* Identity substitution *)
    fun isId s = RBSet.isEmpty s

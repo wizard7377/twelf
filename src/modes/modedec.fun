@@ -17,7 +17,7 @@ struct
     structure I = IntSyn
     structure P = Paths
 
-    datatype Arg = Implicit | Explicit | Local
+    datatype arg = Implicit | Explicit | Local
 
     (* Representation invariant:
 

@@ -6,6 +6,6 @@ sig
 
   exception Error of string
 
-  val checkUnique : (IntSyn.cid * ModeSyn.ModeSpine) -> unit  (* raises Error(msg) *)
+  val checkUnique : (IntSyn.cid * ModeSyn.mode_spine) -> unit  (* raises Error(msg) *)
 
 end;  (* signature UNIQUE *)

@@ -7,72 +7,72 @@ sig
 
   (*! structure IntSyn : INTSYN !*)
 
-  datatype Opt = No | LinearHeads | Indexing 
+  datatype opt = No | LinearHeads | Indexing 
 
-  val optimize : Opt ref
+  val optimize : opt ref
 
-  datatype Goal =                       (* Goals                      *)
-    Atom of IntSyn.Exp                  (* g ::= p                    *)
-  | Impl of ResGoal * IntSyn.Exp        (*     | (r,A,a) => g         *)
-            * IntSyn.Head * Goal		
-  | All  of IntSyn.Dec * Goal           (*     | all x:A. g           *)
+  datatype goal =                       (* Goals                      *)
+    Atom of IntSyn.exp                  (* g ::= p                    *)
+  | Impl of res_goal * IntSyn.exp        (*     | (r,A,a) => g         *)
+            * IntSyn.head * goal		
+  | All  of IntSyn.dec * goal           (*     | all x:A. g           *)
 
   (* dynamic clauses *)
-  and ResGoal =                         (* Residual Goals             *)
-    Eq     of IntSyn.Exp                (* r ::= p = ?                *)
-  | Assign of IntSyn.Exp * AuxGoal      (*     | p = ?, where p has   *)
+  and res_goal =                         (* Residual Goals             *)
+    Eq     of IntSyn.exp                (* r ::= p = ?                *)
+  | Assign of IntSyn.exp * aux_goal      (*     | p = ?, where p has   *)
 					(* only new vars,             *)  
                                         (* then unify all the vars    *)
-  | And    of ResGoal                   (*     | r & (A,g)            *)
-              * IntSyn.Exp * Goal       
-  | In   of ResGoal			(*     | r virt& (A,g)        *)
-              * IntSyn.Exp * Goal       
-  | Exists of IntSyn.Dec * ResGoal      (*     | exists x:A. r        *)
-  | Axists of IntSyn.Dec * ResGoal	(*     | exists x:_. r        *)
+  | And    of res_goal                   (*     | r & (A,g)            *)
+              * IntSyn.exp * goal       
+  | In   of res_goal			(*     | r virt& (A,g)        *)
+              * IntSyn.exp * goal       
+  | Exists of IntSyn.dec * res_goal      (*     | exists x:A. r        *)
+  | Axists of IntSyn.dec * res_goal	(*     | exists x:_. r        *)
 
-  and AuxGoal =
+  and aux_goal =
     Trivial				  (* trivially done *)
-  | UnifyEq of IntSyn.dctx * IntSyn.Exp   (* call unify *)
-             * IntSyn.Exp * AuxGoal
+  | UnifyEq of IntSyn.dctx * IntSyn.exp   (* call unify *)
+             * IntSyn.exp * aux_goal
 
 
   (* Static programs -- compiled version for substitution trees *)
 
-  datatype Conjunction = True | Conjunct of Goal * IntSyn.Exp * Conjunction
+  datatype conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
 
-  datatype CompHead = 
-     Head of (IntSyn.Exp * IntSyn.Dec IntSyn.Ctx * AuxGoal * IntSyn.cid)
+  datatype comp_head = 
+     Head of (IntSyn.exp * IntSyn.dec IntSyn.ctx * aux_goal * IntSyn.cid)
 
  (* pskeleton instead of proof term *)
-  datatype Flatterm = 
-    Pc of int | Dc of int | Csolver of IntSyn.Exp
+  datatype flatterm = 
+    Pc of int | Dc of int | Csolver of IntSyn.exp
 
-  type pskeleton = Flatterm list  
+  type pskeleton = flatterm list  
 
   (* The dynamic clause pool --- compiled version of the context *)
   (* type dpool = (ResGoal * IntSyn.Sub * IntSyn.cid) option IntSyn.Ctx *)
 
   (* Compiled Declarations *)
   (* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
-  datatype ComDec
+  datatype com_dec
   = Parameter
-  | Dec of ResGoal * IntSyn.Sub * IntSyn.Head
-  | BDec of (ResGoal * IntSyn.Sub * IntSyn.Head) list
+  | Dec of res_goal * IntSyn.sub * IntSyn.head
+  | BDec of (res_goal * IntSyn.sub * IntSyn.head) list
   | PDec
 
   (* Dynamic programs: context with synchronous clause pool *)
-  datatype DProg = DProg of (IntSyn.dctx * ComDec IntSyn.Ctx)
+  datatype d_prog = DProg of (IntSyn.dctx * com_dec IntSyn.ctx)
 
   (* Programs --- compiled version of the signature (no direct head access) *)
-  datatype ConDec =			      (* Compiled constant declaration *)
-       SClause of ResGoal                     (* c : A  -- static clause (residual goal) *)
+  datatype con_dec =			      (* Compiled constant declaration *)
+       SClause of res_goal                     (* c : A  -- static clause (residual goal) *)
     | Void 		                      (* Other declarations are ignored  *)
 
 
   (* Install Programs (without indexing) *)
-  val sProgInstall : IntSyn.cid * ConDec -> unit  
+  val sProgInstall : IntSyn.cid * con_dec -> unit  
 
-  val sProgLookup: IntSyn.cid -> ConDec
+  val sProgLookup: IntSyn.cid -> con_dec
   val sProgReset : unit -> unit
 
   (* Deterministic flag *)
@@ -81,8 +81,8 @@ sig
   val detTableReset : unit -> unit
 
   (* Explicit Substitutions *)
-  val goalSub   : Goal * IntSyn.Sub -> Goal
-  val resGoalSub: ResGoal * IntSyn.Sub -> ResGoal
+  val goalSub   : goal * IntSyn.sub -> goal
+  val resGoalSub: res_goal * IntSyn.sub -> res_goal
   
   val pskeletonToString: pskeleton -> string
 

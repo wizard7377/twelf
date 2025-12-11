@@ -17,11 +17,11 @@ struct
 
   type 'a set = 'a list                  (* Set                        *)
 
-  datatype Sum =                         (* Sum :                      *)
-    Sum of bool * Mon set                (* Sum ::= m + M1 + ...       *)
+  datatype sum =                         (* Sum :                      *)
+    Sum of bool * mon set                (* Sum ::= m + M1 + ...       *)
 
-  and Mon =                              (* Monomials:                 *)
-    Mon of (IntSyn.Exp * IntSyn.Sub) set
+  and mon =                              (* Monomials:                 *)
+    Mon of (IntSyn.exp * IntSyn.sub) set
                                          (* Mon ::= U1[s1] * ...       *)
 
   (* A monomial (U1[s1] * U2[s2] * ...) is said to be normal iff
@@ -38,7 +38,7 @@ struct
     structure FX = CSManager.Fixity
     structure MS = ModeSyn (* CSManager.ModeSyn *)
 
-    exception MyIntsynRep of Sum
+    exception MyIntsynRep of sum
 
     fun extractSum (MyIntsynRep sum) = sum
       | extractSum fe = raise (UnexpectedFgnExp fe)

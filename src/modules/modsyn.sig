@@ -10,8 +10,8 @@ sig
 
   exception Error of string
 
-  val abbrevify : IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec
-  val strictify : IntSyn.ConDec -> IntSyn.ConDec
+  val abbrevify : IntSyn.cid * IntSyn.con_dec -> IntSyn.con_dec
+  val strictify : IntSyn.con_dec -> IntSyn.con_dec
 
   type module
 
@@ -20,14 +20,14 @@ sig
   type transform = IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec
   *)
 
-  val installStruct : IntSyn.StrDec * module * Names.namespace option
-                        * (IntSyn.cid * (string * Paths.occConDec option) -> unit) (* action *)
+  val installStruct : IntSyn.str_dec * module * Names.namespace option
+                        * (IntSyn.cid * (string * Paths.occ_con_dec option) -> unit) (* action *)
                         * bool -> unit
   val installSig : module * Names.namespace option
-                   * (IntSyn.cid * (string * Paths.occConDec option) -> unit) (* action *)
+                   * (IntSyn.cid * (string * Paths.occ_con_dec option) -> unit) (* action *)
                    * bool -> unit
   val instantiateModule : module *
-                          (Names.namespace -> (IntSyn.cid * IntSyn.ConDec -> IntSyn.ConDec))
+                          (Names.namespace -> (IntSyn.cid * IntSyn.con_dec -> IntSyn.con_dec))
 			  (* Names.namespace -> transform *)
 			  -> module
 

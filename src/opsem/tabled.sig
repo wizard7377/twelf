@@ -7,10 +7,10 @@ sig
   (*! structure IntSyn : INTSYN !*)
   (*! structure CompSyn : COMPSYN !*)
 
-  val solve     : (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
+  val solve     : (CompSyn.goal * IntSyn.sub) * CompSyn.d_prog
                   * (CompSyn.pskeleton -> unit) -> unit
 
-  val updateGlobalTable : (CompSyn.Goal * bool) -> unit
+  val updateGlobalTable : (CompSyn.goal * bool) -> unit
 
   val keepTable : IntSyn.cid -> bool
 

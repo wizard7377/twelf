@@ -1,6 +1,6 @@
 #!/bin/bash
-
-OPTS="--inspect summary --filter lower_type_name";
+shopt -s globstar
+OPTS="--filter lower_type_name --update-all";
 parse() {
     local file=$1
     # echo "ast-grep scan $OPTS $file"
@@ -15,3 +15,9 @@ parseFiles() {
 parseFiles "src/**/*.sig"
 parseFiles "src/**/*.fun"
 parseFiles "src/**/*.sml"
+parseFiles "build/*.sig"
+parseFiles "build/*.fun"
+parseFiles "build/*.sml"
+parseFiles "TEST/*.sig"
+parseFiles "TEST/*.fun"
+parseFiles "TEST/*.sml"

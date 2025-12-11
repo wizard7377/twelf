@@ -19,13 +19,13 @@ struct
 
   exception TimeOut
 
-  type operator = (MetaSyn.State * int) * (unit -> MetaSyn.State list)
+  type operator = (MetaSyn.state * int) * (unit -> MetaSyn.state list)
 
   local
     structure M = MetaSyn
     structure I = IntSyn
 
-    exception Success of M.State
+    exception Success of M.state
 
     fun delay (search, Params) () =
       (search Params

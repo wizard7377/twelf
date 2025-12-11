@@ -9,12 +9,12 @@ sig
 
 
   val reset : unit -> unit
-  val install : IntSyn.cid * Tomega.Worlds -> unit
-  val lookup : IntSyn.cid -> Tomega.Worlds      (* raises Error if undeclared *)
+  val install : IntSyn.cid * Tomega.worlds -> unit
+  val lookup : IntSyn.cid -> Tomega.worlds      (* raises Error if undeclared *)
   val uninstall : IntSyn.cid -> bool	(* true if declared *)
 
-  val worldcheck : Tomega.Worlds -> IntSyn.cid -> unit
-  val ctxToList  : IntSyn.Dec IntSyn.Ctx -> IntSyn.Dec list
-  val isSubsumed : Tomega.Worlds -> IntSyn.cid -> unit
-  val getWorlds  : IntSyn.cid -> Tomega.Worlds
+  val worldcheck : Tomega.worlds -> IntSyn.cid -> unit
+  val ctxToList  : IntSyn.dec IntSyn.ctx -> IntSyn.dec list
+  val isSubsumed : Tomega.worlds -> IntSyn.cid -> unit
+  val getWorlds  : IntSyn.cid -> Tomega.worlds
 end; (* signature WORLDSYN *)

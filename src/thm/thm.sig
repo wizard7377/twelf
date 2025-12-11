@@ -9,19 +9,19 @@ sig
 
   exception  Error of string
 
-  val installTotal : ThmSyn.TDecl * (Paths.region * Paths.region list)
+  val installTotal : ThmSyn.t_decl * (Paths.region * Paths.region list)
                      -> IntSyn.cid list
   val uninstallTotal : IntSyn.cid -> bool
 
-  val installTerminates : ThmSyn.TDecl * (Paths.region * Paths.region list) 
+  val installTerminates : ThmSyn.t_decl * (Paths.region * Paths.region list) 
                           -> IntSyn.cid list
   val uninstallTerminates : IntSyn.cid -> bool (* true: was declared, false not *)
 
-  val installReduces : ThmSyn.RDecl * (Paths.region * Paths.region list) 
+  val installReduces : ThmSyn.r_decl * (Paths.region * Paths.region list) 
                        -> IntSyn.cid list 
   val uninstallReduces : IntSyn.cid -> bool
 
-  val installTabled : ThmSyn.TabledDecl -> unit
-  val installKeepTable : ThmSyn.KeepTableDecl -> unit
+  val installTabled : ThmSyn.tabled_decl -> unit
+  val installKeepTable : ThmSyn.keep_table_decl -> unit
 
 end;  (* signature THM *)

@@ -33,13 +33,13 @@ struct
 
   (* user and system time add up to total CPU time used *)
   (* gc time is a portion of the total CPU time devoted to garbage collection *)
-  type cpuTime = {usr:Time.time, sys:Time.time, gc:Time.time}
-  type realTime = Time.time
+  type cpu_time = {usr:Time.time, sys:Time.time, gc:Time.time}
+  type real_time = Time.time
 
   fun init () = ()
 
   datatype 'a result = Value of 'a | Exception of exn
-  type center = string * (cpuTime * realTime) ref
+  type center = string * (cpu_time * real_time) ref
   type sum = string * center list
 
   val zero = {usr = Time.zeroTime, sys = Time.zeroTime, gc = Time.zeroTime}

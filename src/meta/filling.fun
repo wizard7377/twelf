@@ -25,7 +25,7 @@ struct
   exception Error of string
   exception TimeOut
 
-  type operator = (unit -> int * FunSyn.Pro)
+  type operator = (unit -> int * FunSyn.pro)
 
   local
     structure S = StateSyn

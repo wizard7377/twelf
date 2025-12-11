@@ -10,14 +10,14 @@ sig
 
   type operator
 
-  val expand : MetaSyn.State -> operator list * operator 
+  val expand : MetaSyn.state -> operator list * operator 
 
   (*
     gets a list of operators, which fill in several non index variables
     on one level simultaneously
   *)
 
-  val apply : operator -> MetaSyn.State list
+  val apply : operator -> MetaSyn.state list
 
   (*
     in the case of an induction hypothesis, an operator can transform a

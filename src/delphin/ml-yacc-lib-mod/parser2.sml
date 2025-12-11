@@ -158,7 +158,7 @@ structure LrParser :> LR_PARSER =
       type ('a,'b) stack = ('a,'b) elem list
       type ('a,'b) lexv = ('a,'b) token
       type ('a,'b) lexpair = ('a,'b) lexv * (('a,'b) lexv Streamm.stream)
-      type ('a,'b) distanceParse =
+      type ('a,'b) distance_parse =
 		 ('a,'b) lexpair *
 		 ('a,'b) stack * 
 		 (('a,'b) stack * ('a,'b) lexpair) Fifo.queue *
@@ -169,7 +169,7 @@ structure LrParser :> LR_PARSER =
 		   int *
 		   action option
 
-      type ('a,'b) ecRecord =
+      type ('a,'b) ec_record =
 	 {is_keyword : term -> bool,
           preferred_change : (term list * term list) list,
 	  error : string * 'b * 'b -> unit,
@@ -297,7 +297,7 @@ structure LrParser :> LR_PARSER =
 		 | ACCEPT => (lexPair,stack,queue,distance,SOME nextAction)
 	      end
 	   | parseStep _ = raise (ParseImpossible 242)
-	in parseStep : ('_a,'_b) distanceParse 
+	in parseStep : ('_a,'_b) distance_parse 
 	end
 
 (* mkFixError: function to create fixError function which adjusts parser state
@@ -305,8 +305,8 @@ structure LrParser :> LR_PARSER =
 
 fun mkFixError({is_keyword,terms,errtermvalue,
 	      preferred_change,noShift,
-	      showTerminal,error,...} : ('_a,'_b) ecRecord,
-	     distanceParse : ('_a,'_b) distanceParse,
+	      showTerminal,error,...} : ('_a,'_b) ec_record,
+	     distanceParse : ('_a,'_b) distance_parse,
 	     minAdvance,maxAdvance) 
 
             (lexv as (TOKEN (term,value as (_,leftPos,_)),_),stack,queue) =
@@ -542,7 +542,7 @@ fun mkFixError({is_keyword,terms,errtermvalue,
     end
 
    val parse = fn {arg,table,lexer,saction,void,lookahead,
-		   ec=ec as {showTerminal,...} : ('_a,'_b) ecRecord} =>
+		   ec=ec as {showTerminal,...} : ('_a,'_b) ec_record} =>
 	let val distance = 15   (* defer distance tokens *)
 	    val minAdvance = 1  (* must parse at least 1 token past error *)
 	    val maxAdvance = Int.max(lookahead,0)(* max distance for parse check *)

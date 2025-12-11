@@ -7,11 +7,11 @@ sig
   (*! structure IntSyn : INTSYN !*)
   structure Formatter : FORMATTER
 
-  val formatClause : IntSyn.dctx * IntSyn.Exp -> Formatter.format
-  val formatConDec : IntSyn.ConDec -> Formatter.format
+  val formatClause : IntSyn.dctx * IntSyn.exp -> Formatter.format
+  val formatConDec : IntSyn.con_dec -> Formatter.format
 
-  val clauseToString : IntSyn.dctx * IntSyn.Exp -> string
-  val conDecToString : IntSyn.ConDec -> string
+  val clauseToString : IntSyn.dctx * IntSyn.exp -> string
+  val conDecToString : IntSyn.con_dec -> string
 
   val printSgn : unit -> unit
 

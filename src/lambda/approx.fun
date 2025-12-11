@@ -60,16 +60,16 @@ struct
                                         
   (* The approximate language *)
 
-    datatype Uni =
+    datatype uni =
         Level of int (* 1 = type, 2 = kind, 3 = hyperkind, etc. *)
-      | Next of Uni
-      | LVar of Uni option ref
+      | Next of uni
+      | LVar of uni option ref
     
-    datatype Exp =
-        Uni of Uni
-      | Arrow of Exp * Exp
-      | Const of I.Head (* Const/Def/NSDef *)
-      | CVar of Exp option ref
+    datatype exp =
+        Uni of uni
+      | Arrow of exp * exp
+      | Const of I.head (* Const/Def/NSDef *)
+      | CVar of exp option ref
       | Undefined
 
   (* Because approximate type reconstruction uses the pattern G |- U
@@ -104,8 +104,8 @@ struct
                  
     local
       (* just a little list since these are only for printing errors *)
-      type varEntry = (Exp * Exp * Uni) * string
-      val varList : varEntry list ref = ref nil
+      type var_entry = (exp * exp * uni) * string
+      val varList : var_entry list ref = ref nil
     in
       fun varReset () = (varList := nil)
       fun varLookupRef r = List.find (fn ((CVar r', _, _), _) => r = r') (!varList)

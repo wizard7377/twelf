@@ -50,20 +50,20 @@ struct
    * lookup  : pointer to the i-th element in solution list
    *)
 
-  type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list,
+  type answer = {solutions : ((IntSyn.dctx * IntSyn.sub) * CompSyn.pskeleton) list,
                  lookup: int}
 
   (* entry = (((i, G, D, U), A)) where i is the access counter
    *)
-  type entry = (((int ref * IntSyn.dctx * IntSyn.dctx * IntSyn.Exp) * answer))
+  type entry = (((int ref * IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer))
 
   type entries = entry list
 
   type index = entry list
 
-  datatype answState = New | Repeated
+  datatype answ_state = New | Repeated
 
-  datatype Strategy = Variant | Subsumption
+  datatype strategy = Variant | Subsumption
 
   val added = ref false;
 
@@ -85,7 +85,7 @@ struct
   val strengthen = AbstractTabled.strengthen ;
 
   (* original query *)
-  val query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.Exp * IntSyn.Sub * (CompSyn.pskeleton -> unit))
+  val query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.exp * IntSyn.sub * (CompSyn.pskeleton -> unit))
                 option ref = ref NONE
 
   (* ---------------------------------------------------------------------- *)

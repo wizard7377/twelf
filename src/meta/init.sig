@@ -10,6 +10,6 @@ sig
 
   (* Current restriction to non-mutual inductive theorems ! *)
      
-  val init : (FunSyn.For * StateSyn.Order) -> StateSyn.State list
+  val init : (FunSyn.for * StateSyn.order) -> StateSyn.state list
  
 end;  (* signature MTPINIT *)

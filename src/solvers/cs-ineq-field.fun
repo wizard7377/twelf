@@ -92,31 +92,31 @@ struct
               NONE
           end
 
-    datatype Position =                               (* Position of a tableau entry       *)
+    datatype position =                               (* Position of a tableau entry       *)
       Row of int
     | Col of int
 
-    datatype Owner =                                  (* Owner of an entry:                *)
-      Var of IntSyn.dctx * Mon                        (*   - monomial                      *)
-    | Exp of IntSyn.dctx * Sum                        (*   - sum                           *)
+    datatype owner =                                  (* Owner of an entry:                *)
+      Var of IntSyn.dctx * mon                        (*   - monomial                      *)
+    | Exp of IntSyn.dctx * sum                        (*   - sum                           *)
 
-    datatype Restriction =                            (* Restriction: (proof object)       *)
-      Restr of IntSyn.dctx * IntSyn.Exp * bool        (*   Restr (G, U, strict)            *)
+    datatype restriction =                            (* Restriction: (proof object)       *)
+      Restr of IntSyn.dctx * IntSyn.exp * bool        (*   Restr (G, U, strict)            *)
 
     type label =
-           {owner : Owner,                            (* owner of the row/column (if any)  *)
+           {owner : owner,                            (* owner of the row/column (if any)  *)
             tag   : int ref,                          (* tag: used to keep track of the    *)
                                                       (* position of a tableau entry       *)
-            restr : Restriction option ref,           (* restriction (if any)              *)
+            restr : restriction option ref,           (* restriction (if any)              *)
             dead  : bool ref}                         (* has the row/column already been   *)
                                                       (* solved?                           *)
 
-    datatype Operation =                              (* Undoable operations:              *)
-      Insert of Position                              (* insert a new row/column           *)
+    datatype operation =                              (* Undoable operations:              *)
+      Insert of position                              (* insert a new row/column           *)
     | Pivot of int * int                              (* pivot on (i, j)                   *)
-    | Kill of Position                                (* mark the given position solved    *)
-    | Restrict of Position                            (* restrict the given position       *)
-    | UpdateOwner of Position * Owner * int ref       (* change the owner                  *)
+    | Kill of position                                (* mark the given position solved    *)
+    | Restrict of position                            (* restrict the given position       *)
+    | UpdateOwner of position * owner * int ref       (* change the owner                  *)
 
     type tableau =                                    (* Tableau:                          *)
            {rlabels : label Array.array,              (* row labels                        *)
@@ -124,7 +124,7 @@ struct
             consts : number Array.array,              (* constant terms                    *)
             coeffs : number Array2.array,             (* variables coefficients            *)
             nrows : int ref, ncols : int ref,         (* dimensions                        *)
-            trail : Operation Trail.trail}            (* undo mechanism                    *)
+            trail : operation Trail.trail}            (* undo mechanism                    *)
 
     exception MyFgnCnstrRep of int ref                (* FgnCnstr representation *)
 
@@ -591,7 +591,7 @@ struct
             )
           end
 
-    datatype MaximizeResult =              (* Result of maximization of a row:             *)
+    datatype maximize_result =              (* Result of maximization of a row:             *)
       Positive                             (* manifestly maximized at some value > 0       *)
     | Maximized of number                  (* manifestly maximized at c <= 0               *)
     | Unbounded of int                     (* manifestly unbounded, pivoting on column col *)
@@ -636,7 +636,7 @@ struct
           else raise Error
 
     (* decomposition of an expression as the weighted sum of tableau positions *)
-    type decomp = number * (number * Position) list
+    type decomp = number * (number * position) list
 
     (* change sign to the given decomposition *)
     fun unaryMinusDecomp ((d, wposL)) =

@@ -35,7 +35,7 @@ struct
   structure Order = Order
   (*! structure Paths = Paths !*)
 
-    datatype Quantifier =        (* Quantifier to mark parameters *)
+    datatype quantifier =        (* Quantifier to mark parameters *)
       All                        (* Q ::= All                     *)
     | Exist                      (*     | Exist                   *)
     | And of Paths.occ           (*     | And                     *)
@@ -43,20 +43,20 @@ struct
 
     (* If Q marks all parameters in a context G we write   G : Q               *)
 
-    datatype 'a Predicate =
+    datatype 'a predicate =
       Less of 'a * 'a
     | Leq of 'a * 'a
     | Eq of 'a * 'a
-    | Pi of IntSyn.Dec * 'a Predicate
+    | Pi of IntSyn.dec * 'a predicate
 
    (* Abbreviation *)
-    type order = (IntSyn.eclo * IntSyn.eclo) Order.Order
+    type order = (IntSyn.eclo * IntSyn.eclo) Order.order
 
     (* reduction order assumptions (unordered) *)
-    type rctx = order Predicate list
+    type rctx = order predicate list
 
     (* mixed prefix order contex *)
-    type qctx = Quantifier IntSyn.Ctx
+    type qctx = quantifier IntSyn.ctx
 
   local
     structure I = IntSyn

@@ -13,28 +13,28 @@ sig
   val printLength : int option ref
   val noShadow : bool ref
 
-  val formatDec : IntSyn.dctx * IntSyn.Dec -> Formatter.format
-  val formatDecList : IntSyn.dctx * IntSyn.Dec list -> Formatter.format
-  val formatDecList' : IntSyn.dctx * (IntSyn.Dec list * IntSyn.Sub) -> Formatter.format
-  val formatExp : IntSyn.dctx * IntSyn.Exp -> Formatter.format
-  val formatSpine : IntSyn.dctx * IntSyn.Spine -> Formatter.format list
-  val formatConDec : IntSyn.ConDec -> Formatter.format
-  val formatConDecI : IntSyn.ConDec -> Formatter.format
-  val formatCnstr : IntSyn.Cnstr -> Formatter.format
+  val formatDec : IntSyn.dctx * IntSyn.dec -> Formatter.format
+  val formatDecList : IntSyn.dctx * IntSyn.dec list -> Formatter.format
+  val formatDecList' : IntSyn.dctx * (IntSyn.dec list * IntSyn.sub) -> Formatter.format
+  val formatExp : IntSyn.dctx * IntSyn.exp -> Formatter.format
+  val formatSpine : IntSyn.dctx * IntSyn.spine -> Formatter.format list
+  val formatConDec : IntSyn.con_dec -> Formatter.format
+  val formatConDecI : IntSyn.con_dec -> Formatter.format
+  val formatCnstr : IntSyn.cnstr -> Formatter.format
   val formatCtx : IntSyn.dctx * IntSyn.dctx -> Formatter.format
 
-  val decToString : IntSyn.dctx * IntSyn.Dec -> string
-  val expToString : IntSyn.dctx * IntSyn.Exp -> string
-  val conDecToString : IntSyn.ConDec -> string
-  val cnstrToString : IntSyn.Cnstr -> string
+  val decToString : IntSyn.dctx * IntSyn.dec -> string
+  val expToString : IntSyn.dctx * IntSyn.exp -> string
+  val conDecToString : IntSyn.con_dec -> string
+  val cnstrToString : IntSyn.cnstr -> string
   val cnstrsToString : IntSyn.cnstr list -> string (* assigns names in contexts *)
   val ctxToString : IntSyn.dctx * IntSyn.dctx -> string
 
-  val evarInstToString : (IntSyn.Exp * string) list -> string
-  val evarCnstrsToStringOpt : (IntSyn.Exp * string) list -> string option
+  val evarInstToString : (IntSyn.exp * string) list -> string
+  val evarCnstrsToStringOpt : (IntSyn.exp * string) list -> string option
 
-  val formatWorlds : Tomega.Worlds -> Formatter.format 
-  val worldsToString : Tomega.Worlds -> string
+  val formatWorlds : Tomega.worlds -> Formatter.format 
+  val worldsToString : Tomega.worlds -> string
 
   val printSgn : unit -> unit
 
