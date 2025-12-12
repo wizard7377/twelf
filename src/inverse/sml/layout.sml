@@ -30,7 +30,7 @@ struct
     val empty = T {length = 0, tree = Empty}
         
     fun isEmpty (T {length = 0, ...}) = true
-      | (* GEN CASE BRANCH *) isEmpty _ = false
+      | isEmpty _ = false
         
     fun str s =
         case s of
@@ -238,7 +238,7 @@ struct
             [] => []
           | t :: ts => t :: (let val s = str s
                                  fun loop [] = []
-                                   | (* GEN CASE BRANCH *) loop (t :: ts) = s :: t:: (loop ts)
+                                   | loop (t :: ts) = s :: t:: (loop ts)
                              in loop ts
                              end)
                 

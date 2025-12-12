@@ -26,7 +26,7 @@ struct
       in
         (E.strexp (ids, id, Paths.join (r0, r1)), f')
       end
-    | (* GEN CASE BRANCH *) parseStructExp' (LS.Cons ((t, r), s')) =
+    | parseStructExp' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected structure identifier, found token " ^ L.toString t)
 
   fun parseColonEqual' (LS.Cons ((L.COLON, r1), s')) =
@@ -34,11 +34,11 @@ struct
          of LS.Cons ((L.EQUAL, _), s'') => ((), LS.expose s'')
           | LS.Cons ((t, r2), s'') =>
               Parsing.error (r2, "Expected `=', found token " ^ L.toString t))
-    | (* GEN CASE BRANCH *) parseColonEqual' (LS.Cons ((t, r), s')) =
+    | parseColonEqual' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected `:=', found token " ^ L.toString t)
 
   fun parseDot' (LS.Cons ((L.DOT, r), s')) = (r, LS.expose s')
-    | (* GEN CASE BRANCH *) parseDot' (LS.Cons ((t, r), s')) =
+    | parseDot' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected `.', found token " ^ L.toString t)
 
   fun parseConInst' (f as LS.Cons ((L.ID _, r0), _)) =
@@ -51,7 +51,7 @@ struct
         (E.coninst ((ids, id, Paths.join (r0, r1)), tm, Paths.join (r0, r2)),
          f4)
       end
-    | (* GEN CASE BRANCH *) parseConInst' (LS.Cons ((t, r), s')) =
+    | parseConInst' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected identifier, found token " ^ L.toString t)
 
   fun parseStrInst2' (r0, f as LS.Cons ((L.ID _, r1), _)) =
@@ -65,12 +65,12 @@ struct
                     strexp, Paths.join (r0, r3)),
          f4)
       end
-    | (* GEN CASE BRANCH *) parseStrInst2' (r0, LS.Cons ((t, r), s')) =
+    | parseStrInst2' (r0, LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected structure identifier, found token " ^ L.toString t)
 
   fun parseStrInst' (LS.Cons ((L.STRUCT, r), s')) =
         parseStrInst2' (r, LS.expose s')
-    | (* GEN CASE BRANCH *) parseStrInst' (LS.Cons ((t, r), s')) =
+    | parseStrInst' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected `%struct', found token " ^ L.toString t)
 
   fun parseInsts' (f as LS.Cons ((L.ID _, _), _)) =
@@ -80,21 +80,21 @@ struct
       in
         (inst::insts, f'')
       end
-    | (* GEN CASE BRANCH *) parseInsts' (f as LS.Cons ((L.STRUCT, _), _)) =
+    | parseInsts' (f as LS.Cons ((L.STRUCT, _), _)) =
       let
         val (inst, f') = parseStrInst' (f)
         val (insts, f'') = parseInsts' (f')
       in
         (inst::insts, f'')
       end
-    | (* GEN CASE BRANCH *) parseInsts' (LS.Cons ((L.RBRACE, _), s')) =
+    | parseInsts' (LS.Cons ((L.RBRACE, _), s')) =
         (nil, LS.expose s')
-    | (* GEN CASE BRANCH *) parseInsts' (LS.Cons ((t, r), s')) =
+    | parseInsts' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected identifier or `%struct', found token " ^ L.toString t)
 
   fun parseInstantiate' (f as LS.Cons ((L.LBRACE, _), s')) =
         parseInsts' (LS.expose s')
-    | (* GEN CASE BRANCH *) parseInstantiate' (LS.Cons ((t, r), s')) =
+    | parseInstantiate' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected `{', found token " ^ L.toString t)
 
   fun parseWhereClauses' (f as LS.Cons ((L.WHERE, _), s'), sigexp) =
@@ -103,7 +103,7 @@ struct
       in
         parseWhereClauses' (f', E.wheresig (sigexp, insts))
       end
-    | (* GEN CASE BRANCH *) parseWhereClauses' (f, sigexp) = (sigexp, f)
+    | parseWhereClauses' (f, sigexp) = (sigexp, f)
 
   fun parseSigExp' (LS.Cons ((L.ID (_, id), r), s)) =
       let
@@ -111,28 +111,28 @@ struct
       in
         (Parsing.Done (sigexp), f')
       end
-    | (* GEN CASE BRANCH *) parseSigExp' (f as LS.Cons ((L.LBRACE, r), _)) =
+    | parseSigExp' (f as LS.Cons ((L.LBRACE, r), _)) =
         (Parsing.Continuation (fn f' =>
          let
            val (sigexp, f'') = parseWhereClauses' (f', E.thesig)
          in
            (Parsing.Done (sigexp), f'')
          end), f)
-    | (* GEN CASE BRANCH *) parseSigExp' (LS.Cons ((t, r), _)) =
+    | parseSigExp' (LS.Cons ((t, r), _)) =
         Parsing.error (r, "Expected signature name or expression, found token "
                        ^ L.toString t)
 
   fun parseSgEqual' (idOpt, LS.Cons ((L.EQUAL, r), s')) =
         Parsing.recwith (parseSigExp', fn sigexp => E.sigdef (idOpt, sigexp))
                         (LS.expose s')
-    | (* GEN CASE BRANCH *) parseSgEqual' (idOpt, LS.Cons ((t, r), s')) =
+    | parseSgEqual' (idOpt, LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected `=', found token " ^ L.toString t)
 
   fun parseSgDef' (LS.Cons ((L.ID (_, id), r), s')) =
         parseSgEqual' (SOME (id), LS.expose s')
-    | (* GEN CASE BRANCH *) parseSgDef' (LS.Cons ((L.UNDERSCORE, r), s')) =
+    | parseSgDef' (LS.Cons ((L.UNDERSCORE, r), s')) =
         parseSgEqual' (NONE, LS.expose s')
-    | (* GEN CASE BRANCH *) parseSgDef' (LS.Cons ((t, r), s')) =
+    | parseSgDef' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected signature identifier, found token " ^ L.toString t)
 
   fun parseSigDef' (LS.Cons ((L.SIG, r), s')) =
@@ -141,20 +141,20 @@ struct
   fun parseStrDec2' (idOpt, LS.Cons ((L.COLON, r), s')) =
         Parsing.recwith (parseSigExp', fn sigexp => E.structdec (idOpt, sigexp))
                         (LS.expose s')
-    | (* GEN CASE BRANCH *) parseStrDec2' (idOpt, LS.Cons ((L.EQUAL, r), s')) =
+    | parseStrDec2' (idOpt, LS.Cons ((L.EQUAL, r), s')) =
       let
         val (strexp, f') = parseStructExp' (LS.expose s')
       in
         (Parsing.Done (E.structdef (idOpt, strexp)), f')
       end
-    | (* GEN CASE BRANCH *) parseStrDec2' (idOpt, LS.Cons ((t, r), s')) =
+    | parseStrDec2' (idOpt, LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected `:' or `=', found token " ^ L.toString t)
 
   fun parseStrDec' (LS.Cons ((L.ID (_, id), r), s')) =
         parseStrDec2' (SOME id, LS.expose s')
-    | (* GEN CASE BRANCH *) parseStrDec' (LS.Cons ((L.UNDERSCORE, r), s')) =
+    | parseStrDec' (LS.Cons ((L.UNDERSCORE, r), s')) =
         parseStrDec2' (NONE, LS.expose s')
-    | (* GEN CASE BRANCH *) parseStrDec' (LS.Cons ((t, r), s')) =
+    | parseStrDec' (LS.Cons ((t, r), s')) =
         Parsing.error (r, "Expected structure identifier, found token " ^ L.toString t)
 
   fun parseStructDec' (LS.Cons ((L.STRUCT, r), s')) =

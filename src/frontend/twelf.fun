@@ -266,14 +266,14 @@ struct
     fun abortIO (fileName, {cause = OS.SysErr (m, _), function = f, name = n}) =
         (msg ("IO Error on file " ^ fileName ^ ":\n" ^ m ^ "\n");
          ABORT)
-      | (* GEN CASE BRANCH *) abortIO (fileName, {function = f, ...}) =
+      | abortIO (fileName, {function = f, ...}) =
         (msg ("IO Error on file " ^ fileName ^ " from function "
                        ^ f ^ "\n");
          ABORT)
 
     (* should move to paths, or into the prover module... but not here! -cs *)
     fun joinregion (r, nil) = r
-      | (* GEN CASE BRANCH *) joinregion (r, r' :: rs) =
+      | joinregion (r, r' :: rs) =
           joinregion (Paths.join (r, r'), rs)
 
     fun joinregions (r::rs) = joinregion (r, rs)
@@ -470,14 +470,14 @@ struct
                in
                  ()
                end
-             | (* GEN CASE BRANCH *) icd (SOME (conDec as IntSyn.BlockDef _)) =
+             | icd (SOME (conDec as IntSyn.BlockDef _)) =
                let
                  (* allocate new cid. *)
                  val cid = installBlockDef IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
                in
                  ()
                end
-             | (* GEN CASE BRANCH *) icd (SOME (conDec)) =
+             | icd (SOME (conDec)) =
                let
                  (* names are assigned in ReconConDec *)
                  (* val conDec' = nameConDec (conDec) *)
@@ -487,7 +487,7 @@ struct
                in
                  ()
                end
-             | (* GEN CASE BRANCH *) icd (NONE) = (* anonymous definition for type-checking *)
+             | icd (NONE) = (* anonymous definition for type-checking *)
                  ()
          in
            icd optConDec
@@ -495,7 +495,7 @@ struct
          handle Constraints.Error (eqns) =>
                 raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.AbbrevDec condec, r)) =
+      | install1 (fileName, (Parser.AbbrevDec condec, r)) =
         (* Abbreviations %abbrev c = U and %abbrev c : V = U *)
         (let
           val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), true)
@@ -517,7 +517,7 @@ struct
         handle Constraints.Error (eqns) =>
                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.ClauseDec condec, r)) =
+      | install1 (fileName, (Parser.ClauseDec condec, r)) =
         (* Clauses %clause c = U or %clause c : V = U or %clause c : V *)
         (* these are like definitions, but entered into the program table *)
         (let
@@ -538,7 +538,7 @@ struct
                 raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
       (* Solve declarations %solve c : A *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.Solve (defines, solve), r)) =
+      | install1 (fileName, (Parser.Solve (defines, solve), r)) =
         (let
           val conDecL = Solve.solve (defines, solve, Paths.Loc (fileName, r))
                         handle Solve.AbortQuery (msg) =>
@@ -560,27 +560,27 @@ struct
                 raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
 
       (* %query <expected> <try> A or %query <expected> <try> X : A *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.Query(expected,try,query), r)) =
+      | install1 (fileName, (Parser.Query(expected,try,query), r)) =
         (* Solve.query might raise Solve.AbortQuery (msg) *)
         (Solve.query ((expected, try, query), Paths.Loc (fileName, r))
          handle Solve.AbortQuery (msg)
                 => raise Solve.AbortQuery (Paths.wrap (r, msg)))
       (* %fquery <expected> <try> A or %fquery <expected> <try> X : A *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.FQuery (query), r)) =
+      | install1 (fileName, (Parser.FQuery (query), r)) =
         (* Solve.query might raise Fquery.AbortQuery (msg) *)
         (Fquery.run (query, Paths.Loc (fileName, r))
          handle Fquery.AbortQuery (msg)
                 => raise Fquery.AbortQuery (Paths.wrap (r, msg)))
 
       (* %queryTabled <expected> <try> A or %query <expected> <try> X : A *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.Querytabled(numSol, try,query), r)) =
+      | install1 (fileName, (Parser.Querytabled(numSol, try,query), r)) =
         (* Solve.query might raise Solve.AbortQuery (msg) *)
         (Solve.querytabled ((numSol, try, query), Paths.Loc (fileName, r))
          handle Solve.AbortQuery (msg)
                 => raise Solve.AbortQuery (Paths.wrap (r, msg)))
 
       (* %trustme <decl> *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.TrustMe(dec,r'), r)) =
+      | install1 (fileName, (Parser.TrustMe(dec,r'), r)) =
         let
           val _ = if not (!Global.unsafe)
                     then raise Thm.Error("%trustme not safe: Toggle `unsafe' flag")
@@ -595,7 +595,7 @@ struct
         end
 
       (* %subord (<qid> <qid>) ... *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.SubordDec (qidpairs), r)) =
+      | install1 (fileName, (Parser.SubordDec (qidpairs), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -620,7 +620,7 @@ struct
         end
 
       (* %freeze <qid> ... *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.FreezeDec (qids), r)) =
+      | install1 (fileName, (Parser.FreezeDec (qids), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -646,7 +646,7 @@ struct
         end
 
       (* %thaw <qid> ... *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.ThawDec (qids), r)) =
+      | install1 (fileName, (Parser.ThawDec (qids), r)) =
         let
           val _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%thaw not safe: Toggle `unsafe' flag"
@@ -681,7 +681,7 @@ struct
         end
 
       (* %deterministic <qid> ... *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.DeterministicDec (qids), r)) =
+      | install1 (fileName, (Parser.DeterministicDec (qids), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -704,7 +704,7 @@ struct
         end
 
       (* %compile <qids> *) (* -ABP 4/4/03 *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.Compile (qids), r)) =
+      | install1 (fileName, (Parser.Compile (qids), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -752,7 +752,7 @@ struct
         end
 
       (* Fixity declaration for operator precedence parsing *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.FixDec ((qid,r),fixity), _)) =
+      | install1 (fileName, (Parser.FixDec ((qid,r),fixity), _)) =
         (case Names.constLookup qid
            of NONE => raise Names.Error ("Undeclared identifier "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -766,7 +766,7 @@ struct
          handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg)))
 
       (* Name preference declaration for printing *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.NamePref ((qid,r), namePref), _)) =
+      | install1 (fileName, (Parser.NamePref ((qid,r), namePref), _)) =
         (case Names.constLookup qid
            of NONE => raise Names.Error ("Undeclared identifier "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -775,7 +775,7 @@ struct
          handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg)))
 
       (* Mode declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.ModeDec mterms, r)) =
+      | install1 (fileName, (Parser.ModeDec mterms, r)) =
         let
           val mdecs = List.map ReconMode.modeToMode mterms
           val _ = ReconTerm.checkErrors (r)
@@ -807,7 +807,7 @@ struct
         end
 
       (* Unique declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.UniqueDec mterms, r)) =
+      | install1 (fileName, (Parser.UniqueDec mterms, r)) =
         let
           val mdecs = List.map ReconMode.modeToMode mterms
           val _ = ReconTerm.checkErrors (r)
@@ -833,7 +833,7 @@ struct
         end
 
       (* Coverage declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.CoversDec mterms, r)) =
+      | install1 (fileName, (Parser.CoversDec mterms, r)) =
         let
           val mdecs = List.map ReconMode.modeToMode mterms
           val _ = ReconTerm.checkErrors (r)
@@ -851,7 +851,7 @@ struct
         end
 
       (* Total declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.TotalDec lterm, r)) =
+      | install1 (fileName, (Parser.TotalDec lterm, r)) =
         (* time activities separately in total.fun *)
         let
         (* Mon Dec  2 17:20:18 2002 -fp *)
@@ -924,7 +924,7 @@ struct
         end
 
       (* Termination declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.TerminatesDec lterm, _)) =
+      | install1 (fileName, (Parser.TerminatesDec lterm, _)) =
         let
           val (T, rrs as (r, rs)) = ReconThm.tdeclTotDecl lterm
           val ThmSyn.TDecl (_, ThmSyn.Callpats(callpats)) = T
@@ -952,7 +952,7 @@ struct
 
         (* -bp *)
         (* Reduces declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.ReducesDec lterm, _)) =
+      | install1 (fileName, (Parser.ReducesDec lterm, _)) =
         let
           val (R, rrs as (r, rs)) = ReconThm.rdeclTorDecl lterm
           val ThmSyn.RDecl (_, ThmSyn.Callpats(callpats)) = R
@@ -980,7 +980,7 @@ struct
         end
 
         (* Tabled declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.TabledDec tdecl, _)) =
+      | install1 (fileName, (Parser.TabledDec tdecl, _)) =
         let
           val (T,r) = ReconThm.tableddeclTotabledDecl tdecl
           val La = Thm.installTabled T
@@ -993,7 +993,7 @@ struct
         end
 
       (* %keepTable declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.KeepTableDec tdecl, _)) =
+      | install1 (fileName, (Parser.KeepTableDec tdecl, _)) =
         let
           val (T,r) = ReconThm.keepTabledeclToktDecl tdecl
           val La = Thm.installKeepTable T
@@ -1006,7 +1006,7 @@ struct
 
 
       (* Theorem declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.TheoremDec tdec, r)) =
+      | install1 (fileName, (Parser.TheoremDec tdec, r)) =
         let
           val Tdec = ReconThm.theoremDecToTheoremDec tdec
           val _ = ReconTerm.checkErrors (r)
@@ -1026,7 +1026,7 @@ struct
         end
 
       (* Prove declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.ProveDec lterm, r)) =
+      | install1 (fileName, (Parser.ProveDec lterm, r)) =
         let
           val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.proveToProve lterm
           val La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
@@ -1054,7 +1054,7 @@ struct
         end
 
       (* Establish declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.EstablishDec lterm, r)) =
+      | install1 (fileName, (Parser.EstablishDec lterm, r)) =
         let
           val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.establishToEstablish lterm
           val La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
@@ -1076,7 +1076,7 @@ struct
         end
 
       (* Assert declaration *)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.AssertDec aterm, _)) =
+      | install1 (fileName, (Parser.AssertDec aterm, _)) =
         let
           val _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%assert not safe: Toggle `unsafe' flag"
@@ -1095,7 +1095,7 @@ struct
           Skolem.install La
         end
 
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.WorldDec wdecl, _)) =
+      | install1 (fileName, (Parser.WorldDec wdecl, _)) =
         let
           val (ThmSyn.WDecl (qids, cp as ThmSyn.Callpats cpa), rs) =
                  ReconThm.wdeclTowDecl wdecl
@@ -1136,15 +1136,15 @@ struct
            else  ()  --cs Sat Aug 27 22:04:29 2005 *))
       
         end
-      | (* GEN CASE BRANCH *) install1 (fileName, declr as (Parser.SigDef _, _)) =
+      | install1 (fileName, declr as (Parser.SigDef _, _)) =
           install1WithSig (fileName, NONE, declr)
-      | (* GEN CASE BRANCH *) install1 (fileName, declr as (Parser.StructDec _, _)) =
+      | install1 (fileName, declr as (Parser.StructDec _, _)) =
           install1WithSig (fileName, NONE, declr)
-      | (* GEN CASE BRANCH *) install1 (fileName, declr as (Parser.Include _, _)) =
+      | install1 (fileName, declr as (Parser.Include _, _)) =
           install1WithSig (fileName, NONE, declr)
-      | (* GEN CASE BRANCH *) install1 (fileName, declr as (Parser.Open _, _)) =
+      | install1 (fileName, declr as (Parser.Open _, _)) =
           install1WithSig (fileName, NONE, declr)
-      | (* GEN CASE BRANCH *) install1 (fileName, (Parser.Use name, r)) =
+      | install1 (fileName, (Parser.Use name, r)) =
         (case !context
            of NONE => CSManager.useSolver (name)
             | _ => raise ModSyn.Error (Paths.wrap (r, "%use declaration needs to be at top level")))
@@ -1167,7 +1167,7 @@ struct
         in
           ()
         end
-      | (* GEN CASE BRANCH *) install1WithSig (fileName, moduleOpt, (Parser.StructDec structdec, r)) =
+      | install1WithSig (fileName, moduleOpt, (Parser.StructDec structdec, r)) =
         (* Structure declaration *)
         (case ReconModule.structdecToStructDec (structdec, moduleOpt)
            of ReconModule.StructDec (idOpt, module, wherecls) =>
@@ -1200,7 +1200,7 @@ struct
                 ()
               end)
 
-      | (* GEN CASE BRANCH *) install1WithSig (fileName, moduleOpt, (Parser.Include sigexp, r)) =
+      | install1WithSig (fileName, moduleOpt, (Parser.Include sigexp, r)) =
         (* Include declaration *)
         let
           val (module, wherecls) = ReconModule.sigexpToSigexp (sigexp, moduleOpt)
@@ -1213,7 +1213,7 @@ struct
           ()
         end
 
-      | (* GEN CASE BRANCH *) install1WithSig (fileName, NONE, (Parser.Open strexp, r)) =
+      | install1WithSig (fileName, NONE, (Parser.Open strexp, r)) =
         (* Open declaration *)
         let
           val mid = ReconModule.strexpToStrexp strexp
@@ -1242,8 +1242,8 @@ struct
           fun install s = install' ((Timers.time Timers.parsing S.expose) s)
           and install' (S.Cons ((Parser.BeginSubsig, _), s')) =
                 install (installSubsig (fileName, s'))
-            | (* GEN CASE BRANCH *) install' (S.Cons ((Parser.EndSubsig, _), s')) = s'
-            | (* GEN CASE BRANCH *) install' (S.Cons (declr, s')) =
+            | install' (S.Cons ((Parser.EndSubsig, _), s')) = s'
+            | install' (S.Cons (declr, s')) =
                 (install1 (fileName, declr); install s')
     
           val result =
@@ -1298,9 +1298,9 @@ struct
             and install' (S.Empty) = OK
                 (* Origins.installLinesInfo (fileName, Paths.getLinesInfo ()) *)
                 (* now done in installConDec *)
-              | (* GEN CASE BRANCH *) install' (S.Cons((Parser.BeginSubsig, _), s')) =
+              | install' (S.Cons((Parser.BeginSubsig, _), s')) =
                   install (installSubsig (fileName, s'))
-              | (* GEN CASE BRANCH *) install' (S.Cons(decl, s')) =
+              | install' (S.Cons(decl, s')) =
                 (install1 (fileName, decl); install s')
           in
             install (Parser.parseStream instream)
@@ -1316,9 +1316,9 @@ struct
             let val _ = ReconTerm.resetErrors "string"
                 fun install s = install' ((Timers.time Timers.parsing S.expose) s)
                 and install' (S.Empty) = OK
-                  | (* GEN CASE BRANCH *) install' (S.Cons((Parser.BeginSubsig, _), s')) =
+                  | install' (S.Cons((Parser.BeginSubsig, _), s')) =
                     (installSubsig ("string", s'); install s')
-                  | (* GEN CASE BRANCH *) install' (S.Cons (decl, s')) =
+                  | install' (S.Cons (decl, s')) =
                     (install1 ("string", decl); install s')
             in
                 install (Parser.parseStream (TextIO.openString str))
@@ -1387,9 +1387,9 @@ struct
          let val _ = ReconTerm.resetErrors "stdIn"
              fun install s = install' ((Timers.time Timers.parsing S.expose) s)
              and install' (S.Empty) = ABORT
-               | (* GEN CASE BRANCH *) install' (S.Cons((Parser.BeginSubsig, _), s')) =
+               | install' (S.Cons((Parser.BeginSubsig, _), s')) =
                    (installSubsig ("stdIn", s'); OK)
-               | (* GEN CASE BRANCH *) install' (S.Cons (decl, s')) =
+               | install' (S.Cons (decl, s')) =
                    (install1 ("stdIn", decl); OK)
          in
            install (Parser.parseStream TextIO.stdIn)
@@ -1438,7 +1438,7 @@ struct
       fun editName edit (file, mtime) = (edit file, mtime)
 
       fun modified (_, ref NONE) = true
-        | (* GEN CASE BRANCH *) modified (file, ref (SOME time)) =
+        | modified (file, ref (SOME time)) =
           (case Time.compare (time, OS.FileSys.modTime file)
              of EQUAL => false
               | _     => true)
@@ -1491,7 +1491,7 @@ struct
                           if List.exists (fn y => x = y) l1
                           then appendUniq' l2
                           else x :: appendUniq' (l2)
-                      | (* GEN CASE BRANCH *) appendUniq' nil = List.rev l1
+                      | appendUniq' nil = List.rev l1
                   in
                     List.rev (appendUniq' (List.rev l2))
                   end
@@ -1597,7 +1597,7 @@ struct
                | _  => ();
             status
           end
-        | (* GEN CASE BRANCH *) loadAbort (_, ABORT) = ABORT
+        | loadAbort (_, ABORT) = ABORT
 
       (* load (config) = Status
          resets the global signature and then reads the files in config
@@ -1612,7 +1612,7 @@ struct
       and append (pwdir, sources) =
           let
             fun fromFirstModified nil = nil
-              | (* GEN CASE BRANCH *) fromFirstModified (sources as x::xs) =
+              | fromFirstModified (sources as x::xs) =
                 if ModFile.modified x
                   then sources
                   else fromFirstModified xs

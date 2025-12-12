@@ -45,18 +45,18 @@ struct
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
         end
-      | (* GEN CASE BRANCH *) transformOrder' (G, Order.Lex Os) =
+      | transformOrder' (G, Order.Lex Os) =
           S.Lex (map (fn O => transformOrder' (G, O)) Os)
-      | (* GEN CASE BRANCH *) transformOrder' (G, Order.Simul Os) =
+      | transformOrder' (G, Order.Simul Os) =
           S.Simul (map (fn O => transformOrder' (G, O)) Os)
 
     fun transformOrder (G, F.All (F.Prim D, F), Os) =
           S.All (D, transformOrder (I.Decl (G, D), F, Os))
-      | (* GEN CASE BRANCH *) transformOrder (G, F.And (F1, F2), O :: Os) =
+      | transformOrder (G, F.And (F1, F2), O :: Os) =
           S.And (transformOrder (G, F1, [O]),
                  transformOrder (G, F2, Os))
-      | (* GEN CASE BRANCH *) transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
-      | (* GEN CASE BRANCH *) transformOrder (G, F.True, [O]) = transformOrder' (G, O)
+      | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
+      | transformOrder (G, F.True, [O]) = transformOrder' (G, O)
         (* last case: no existentials---order must be trivial *)
 
     fun select c = (Order.selLookup c handle _ => Order.Lex [])
@@ -78,7 +78,7 @@ struct
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
     fun contains (nil, _) = true
-      | (* GEN CASE BRANCH *) contains (x :: L, L') =
+      | contains (x :: L, L') =
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     (* equiv (L1, L2) = B'
@@ -106,9 +106,9 @@ struct
        then s is a string, listing their names
     *)
     fun cLToString (nil) = ""
-      | (* GEN CASE BRANCH *) cLToString (c :: nil) =
+      | cLToString (c :: nil) =
           (I.conDecName (I.sgnLookup c))
-      | (* GEN CASE BRANCH *) cLToString (c :: L) =
+      | cLToString (c :: L) =
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
     (* init (k, cL) = ()

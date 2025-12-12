@@ -62,7 +62,7 @@ struct
        then Error is raised
     *)
     fun checkName (M.Mnil) = ()
-      | (* GEN CASE BRANCH *) checkName (M.Mapp (M.Marg (_, SOME name), mS)) =
+      | checkName (M.Mapp (M.Marg (_, SOME name), mS)) =
         let
           fun checkName' (M.Mnil) = ()
             | checkName' (M.Mapp (M.Marg (_, SOME name'), mS)) =
@@ -87,12 +87,12 @@ struct
        The entry n specifies that the type
     *)
     fun modeConsistent (M.Star, M.Plus) = false    (* m1 should be M.Plus *)
-      | (* GEN CASE BRANCH *) modeConsistent (M.Star, M.Minus) = false   (* m1 should be M.Minus *)
-      | (* GEN CASE BRANCH *) modeConsistent (M.Star, M.Minus1) = false  (* m1 should be M.Minus1 *)
-      | (* GEN CASE BRANCH *) modeConsistent (M.Minus, M.Plus) = false   (* m1 should be M.Plus *)
-      | (* GEN CASE BRANCH *) modeConsistent (M.Minus, M.Minus1) = false (* m1 should be M.Minus1 *)
-      | (* GEN CASE BRANCH *) modeConsistent (M.Minus1, M.Plus) = false  (* m1 should be M.Plus *)
-      | (* GEN CASE BRANCH *) modeConsistent _ = true
+      | modeConsistent (M.Star, M.Minus) = false   (* m1 should be M.Minus *)
+      | modeConsistent (M.Star, M.Minus1) = false  (* m1 should be M.Minus1 *)
+      | modeConsistent (M.Minus, M.Plus) = false   (* m1 should be M.Plus *)
+      | modeConsistent (M.Minus, M.Minus1) = false (* m1 should be M.Minus1 *)
+      | modeConsistent (M.Minus1, M.Plus) = false  (* m1 should be M.Plus *)
+      | modeConsistent _ = true
 
     (* empty (k, ms, V) = (ms', V')
 
@@ -103,7 +103,7 @@ struct
        and   V' = V1
     *)
     fun empty (0, ms, V) = (ms, V)
-      | (* GEN CASE BRANCH *) empty (k, ms, I.Pi (_, V)) =
+      | empty (k, ms, I.Pi (_, V)) =
           empty (k-1, I.Decl (ms, (M.Marg (M.Star, NONE), Implicit)), V)
 
 
@@ -128,18 +128,18 @@ struct
     *)
     fun inferVar (I.Decl (ms, (M.Marg (M.Star, nameOpt), Implicit)), mode, 1) =
           I.Decl (ms, (M.Marg (mode, nameOpt), Implicit))
-      | (* GEN CASE BRANCH *) inferVar (I.Decl (ms, (M.Marg (_, nameOpt), Implicit)), M.Plus, 1) =
+      | inferVar (I.Decl (ms, (M.Marg (_, nameOpt), Implicit)), M.Plus, 1) =
           I.Decl (ms, (M.Marg (M.Plus, nameOpt), Implicit))
-      | (* GEN CASE BRANCH *) inferVar (I.Decl (ms, (M.Marg (M.Minus, nameOpt), Implicit)), M.Minus1, 1) =
+      | inferVar (I.Decl (ms, (M.Marg (M.Minus, nameOpt), Implicit)), M.Minus1, 1) =
           I.Decl (ms, (M.Marg (M.Minus1, nameOpt), Implicit))
-      | (* GEN CASE BRANCH *) inferVar (ms as I.Decl (_, (_, Implicit)), _, 1) = ms
-      | (* GEN CASE BRANCH *) inferVar (ms as I.Decl (_, (_, Local)), _, 1) = ms
-      | (* GEN CASE BRANCH *) inferVar (ms as I.Decl (_, (M.Marg (mode', SOME name), Explicit)), mode, 1) =
+      | inferVar (ms as I.Decl (_, (_, Implicit)), _, 1) = ms
+      | inferVar (ms as I.Decl (_, (_, Local)), _, 1) = ms
+      | inferVar (ms as I.Decl (_, (M.Marg (mode', SOME name), Explicit)), mode, 1) =
         if modeConsistent (mode', mode)
           then ms
         else raise Error ("Mode declaration for " ^ name ^ " expected to be "
                           ^ M.modeToString mode)
-      | (* GEN CASE BRANCH *) inferVar (I.Decl (ms, md), mode, k) =
+      | inferVar (I.Decl (ms, md), mode, k) =
           I.Decl (inferVar (ms, mode, k-1), md)
 
 
@@ -153,19 +153,19 @@ struct
     *)
     fun inferExp (ms, mode, I.Root (I.BVar (k), S)) =
           inferSpine (inferVar (ms, mode, k), mode, S)
-      | (* GEN CASE BRANCH *) inferExp (ms, mode, I.Root (I.Const (cid), S)) =
+      | inferExp (ms, mode, I.Root (I.Const (cid), S)) =
           inferSpine (ms, mode, S)
-      | (* GEN CASE BRANCH *) inferExp (ms, mode, I.Root (I.Def (cid), S)) =
+      | inferExp (ms, mode, I.Root (I.Def (cid), S)) =
           inferSpine (ms, mode, S)
-      | (* GEN CASE BRANCH *) inferExp (ms, mode, I.Root (I.FgnConst (cs, conDec), S)) =
+      | inferExp (ms, mode, I.Root (I.FgnConst (cs, conDec), S)) =
           inferSpine (ms, mode, S)
-      | (* GEN CASE BRANCH *) inferExp (ms, mode, I.Lam (D as I.Dec (nameOpt, _), U)) =
+      | inferExp (ms, mode, I.Lam (D as I.Dec (nameOpt, _), U)) =
           I.ctxPop (inferExp (I.Decl (inferDec (ms, mode, D),
                                       (M.Marg (mode, nameOpt), Local)), mode, U))
-      | (* GEN CASE BRANCH *) inferExp (ms, mode, I.Pi ((D as I.Dec (nameOpt, _), _), V)) =
+      | inferExp (ms, mode, I.Pi ((D as I.Dec (nameOpt, _), _), V)) =
           I.ctxPop (inferExp (I.Decl (inferDec (ms, mode, D),
                                       (M.Marg (mode, nameOpt), Local)), mode, V)) (* cannot make any assumptions on what is inside a foreign object *)
-      | (* GEN CASE BRANCH *) inferExp (ms, mode, I.FgnExp _) = ms
+      | inferExp (ms, mode, I.FgnExp _) = ms
 
     (* inferSpine (ms, m, S) = ms'
 
@@ -176,7 +176,7 @@ struct
          wrt. to m. (see inferVar)
     *)
     and inferSpine (ms, mode, I.Nil) = ms
-      | (* GEN CASE BRANCH *) inferSpine (ms, mode, I.App (U, S)) =
+      | inferSpine (ms, mode, I.App (U, S)) =
           inferSpine (inferExp (ms, mode, U), mode, S)
 
 
@@ -199,13 +199,13 @@ struct
        then ms' is the mode list for V which is consistent with V.
     *)
     fun inferMode ((ms, I.Uni(I.Type)), M.Mnil) = ms
-      | (* GEN CASE BRANCH *) inferMode ((_, I.Uni(I.Type)), _) = raise Error "Too many modes specified"
-      | (* GEN CASE BRANCH *) inferMode ((ms, I.Pi ((I.Dec (name, V1), _), V2)), M.Mapp (M.Marg (mode, _), mS)) =
+      | inferMode ((_, I.Uni(I.Type)), _) = raise Error "Too many modes specified"
+      | inferMode ((ms, I.Pi ((I.Dec (name, V1), _), V2)), M.Mapp (M.Marg (mode, _), mS)) =
           I.ctxPop (inferMode ((I.Decl (inferExp (ms, mode, V1),
                                         (M.Marg (mode, name), Explicit)), V2), mS))
-      | (* GEN CASE BRANCH *) inferMode ((ms, I.Root _), _) =
+      | inferMode ((ms, I.Root _), _) =
           raise Error "Expected type family, found object constant"
-      | (* GEN CASE BRANCH *) inferMode _ = raise Error "Not enough modes specified"
+      | inferMode _ = raise Error "Not enough modes specified"
 
     (* abstractMode (ms, mS) = mS'
 
@@ -218,7 +218,7 @@ struct
     fun abstractMode (ms, mS) =
         let
           fun abstractMode' (I.Null, mS, _) = mS
-            | (* GEN CASE BRANCH *) abstractMode' (I.Decl (ms, (marg, _)), mS, k) =
+            | abstractMode' (I.Decl (ms, (marg, _)), mS, k) =
                 abstractMode' (ms, M.Mapp (marg, mS), k+1)
         in
           abstractMode' (ms, mS, 1)
@@ -238,7 +238,7 @@ struct
       let
         fun calcImplicit' (I.ConDec (_, _, k, _, V, _))  =
               abstractMode (inferMode (empty (k, I.Null, V), mS), mS)
-          | (* GEN CASE BRANCH *) calcImplicit' (I.ConDef (_, _, k, _, V, _, _)) =
+          | calcImplicit' (I.ConDef (_, _, k, _, V, _, _)) =
             (* ignore definition for defined type family since they are opaque *)
               abstractMode (inferMode (empty (k, I.Null, V), mS), mS)
       in
@@ -270,9 +270,9 @@ struct
        Effect: raises Error(msg) if the modes in mS mention (-1)
     *)
     fun checkPure ((a, M.Mnil), r) = ()
-      | (* GEN CASE BRANCH *) checkPure ((a, M.Mapp (M.Marg (M.Minus1, _), mS)), r) =
+      | checkPure ((a, M.Mapp (M.Marg (M.Minus1, _), mS)), r) =
         error (r, "Uniqueness modes (-1) not permitted in `%mode' declarations (use `%unique')")
-      | (* GEN CASE BRANCH *) checkPure ((a, M.Mapp (_, mS)), r) = checkPure ((a, mS), r)
+      | checkPure ((a, M.Mapp (_, mS)), r) = checkPure ((a, mS), r)
 
   in
     val shortToFull = shortToFull

@@ -29,20 +29,20 @@ struct
   fun PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t)
 
   fun modeToString mMINUS = ""
-    | (* GEN CASE BRANCH *) modeToString mPLUS = "+ "
-    | (* GEN CASE BRANCH *) modeToString mOMIT = "* "
+    | modeToString mPLUS = "+ "
+    | modeToString mOMIT = "* "
 
   fun termToString (Id s) = s
-    | (* GEN CASE BRANCH *) termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
-    | (* GEN CASE BRANCH *) termToString (Lam (vd, t)) = "[" ^ (vardecToString vd) ^ "] " ^ (termToString t)
-    | (* GEN CASE BRANCH *) termToString (Pi (m, vd, t)) = "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t)
-    | (* GEN CASE BRANCH *) termToString (Type) = "type"
-    | (* GEN CASE BRANCH *) termToString (Arrow (t, u)) = "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")"
-    | (* GEN CASE BRANCH *) termToString (PlusArrow (t, u)) = "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")"
-    | (* GEN CASE BRANCH *) termToString (Ascribe (t, u)) = "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")"
-    | (* GEN CASE BRANCH *) termToString (Omit) = "*"
+    | termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
+    | termToString (Lam (vd, t)) = "[" ^ (vardecToString vd) ^ "] " ^ (termToString t)
+    | termToString (Pi (m, vd, t)) = "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t)
+    | termToString (Type) = "type"
+    | termToString (Arrow (t, u)) = "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")"
+    | termToString (PlusArrow (t, u)) = "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")"
+    | termToString (Ascribe (t, u)) = "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")"
+    | termToString (Omit) = "*"
   and vardecToString (v, SOME t) = v ^ ":" ^ (termToString t)
-    | (* GEN CASE BRANCH *) vardecToString (v, NONE) = v
+    | vardecToString (v, NONE) = v
 
   val id = maybe (fn (ID s) => SOME s | _ => NONE)
 

@@ -46,7 +46,7 @@ struct
     exception MyIntsynRep of sum
 
     fun extractSum (MyIntsynRep sum) = sum
-      | (* GEN CASE BRANCH *) extractSum fe = raise (UnexpectedFgnExp fe)
+      | extractSum fe = raise (UnexpectedFgnExp fe)
 
     val zero = fromInt 0
     val one  = fromInt 1
@@ -97,7 +97,7 @@ struct
     fun findMSet eq (x, L) =
           let
             fun findMSet' (tried, nil) = NONE
-              | (* GEN CASE BRANCH *) findMSet' (tried, y :: L) =
+              | findMSet' (tried, y :: L) =
                   if eq(x, y) then SOME(y, tried @ L)
                   else findMSet' (y :: tried, L)
           in
@@ -108,11 +108,11 @@ struct
     fun equalMSet eq =
           let
               fun equalMSet' (nil, nil) = true
-                | (* GEN CASE BRANCH *) equalMSet' (x :: L1', L2) =
+                | equalMSet' (x :: L1', L2) =
                     (case (findMSet eq (x, L2))
                        of SOME (y, L2') => (equalMSet' (L1', L2'))
                         | NONE => false)
-                | (* GEN CASE BRANCH *) equalMSet' _ = false
+                | equalMSet' _ = false
             in
               equalMSet'
             end
@@ -124,10 +124,10 @@ struct
        G |- U : V and U is the Twelf syntax conversion of sum
     *)
     fun toExp (Sum (m, nil)) = numberExp m
-      | (* GEN CASE BRANCH *) toExp (Sum (m, [mon])) =
+      | toExp (Sum (m, [mon])) =
           if (m = zero) then toExpMon mon
           else plusExp (toExp (Sum (m, nil)), toExpMon mon)
-      | (* GEN CASE BRANCH *) toExp (Sum (m, monLL as (mon :: monL))) =
+      | toExp (Sum (m, monLL as (mon :: monL))) =
           plusExp (toExp (Sum (m, monL)), toExpMon mon)
 
     (* toExpMon mon = U
@@ -137,10 +137,10 @@ struct
        G |- U : V and U is the Twelf syntax conversion of mon
     *)
     and toExpMon (Mon (n, nil)) = numberExp n
-      | (* GEN CASE BRANCH *) toExpMon (Mon (n, [Us])) =
+      | toExpMon (Mon (n, [Us])) =
           if (n = one) then toExpEClo Us
           else timesExp (toExpMon (Mon (n, nil)), toExpEClo Us)
-      | (* GEN CASE BRANCH *) toExpMon (Mon (n, Us :: UsL)) =
+      | toExpMon (Mon (n, Us :: UsL)) =
           timesExp (toExpMon (Mon (n, UsL)), toExpEClo Us)
 
     (* toExpEClo (U,s) = U
@@ -149,7 +149,7 @@ struct
        G |- U : V and U is the Twelf syntax conversion of Us
     *)
     and toExpEClo (U, Shift (0)) = U
-      | (* GEN CASE BRANCH *) toExpEClo Us = EClo Us
+      | toExpEClo Us = EClo Us
 
     (* compatibleMon (mon1, mon2) = true only if mon1 = mon2 (as monomials) *)
     fun compatibleMon (Mon (_, UsL1), Mon (_, UsL2)) =
@@ -169,10 +169,10 @@ struct
            | (FVar (n1,_,_), FVar (n2,_,_)) =>
                (n1 = n2) andalso sameSpine ((S1, s1), (S2, s2))
            | _ => false)
-      | (* GEN CASE BRANCH *) sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
+      | sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
                   Us2 as (U2 as EVar(r2, G2, V2, cnstrs2), s2)) =
          (r1 = r2) andalso sameSub (s1, s2)
-      | (* GEN CASE BRANCH *) sameExpW _ = false
+      | sameExpW _ = false
 
     (* sameExp ((U1,s1), (U2,s2)) = T
 
@@ -191,14 +191,14 @@ struct
        then T only if S1 = S2 (as spines)
     *)
     and sameSpine ((Nil, s1), (Nil, s2)) = true
-      | (* GEN CASE BRANCH *) sameSpine ((SClo (S1, s1'), s1), Ss2) =
+      | sameSpine ((SClo (S1, s1'), s1), Ss2) =
           sameSpine ((S1, comp (s1', s1)), Ss2)
-      | (* GEN CASE BRANCH *) sameSpine (Ss1, (SClo (S2, s2'), s2)) =
+      | sameSpine (Ss1, (SClo (S2, s2'), s2)) =
           sameSpine (Ss1, (S2, comp (s2', s2)))
-      | (* GEN CASE BRANCH *) sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
+      | sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
           sameExp ((U1, s1), (U2, s2))
             andalso sameSpine ((S1, s1), (S2, s2))
-      | (* GEN CASE BRANCH *) sameSpine _ = false
+      | sameSpine _ = false
 
     (* sameSub (s1, s2) = T
 
@@ -208,13 +208,13 @@ struct
        then T only if s1 = s2 (as substitutions)
     *)
     and sameSub (Shift _, Shift _) = true
-      | (* GEN CASE BRANCH *) sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
+      | sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
           (k1 = k2) andalso sameSub (s1, s2)
-      | (* GEN CASE BRANCH *) sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
+      | sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
           sameSub (s1, Dot (Idx (Int.+(k2,1)), Shift (Int.+(k2,1))))
-      | (* GEN CASE BRANCH *) sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
+      | sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
           sameSub (Dot (Idx (Int.+(k1,1)), Shift (Int.+(k1,1))), s2)
-      | (* GEN CASE BRANCH *) sameSub (_, _) = false
+      | sameSub (_, _) = false
 
     (* plusSum (sum1, sum2) = sum3
 
@@ -226,9 +226,9 @@ struct
     *)
     fun plusSum (Sum (m1, nil), Sum (m2, monL2)) =
           Sum (m1 + m2, monL2)
-      | (* GEN CASE BRANCH *) plusSum (Sum (m1, monL1), Sum (m2, nil)) =
+      | plusSum (Sum (m1, monL1), Sum (m2, nil)) =
           Sum (m1 + m2, monL1)
-      | (* GEN CASE BRANCH *) plusSum (Sum (m1, mon1 :: monL1), Sum (m2, monL2)) =
+      | plusSum (Sum (m1, mon1 :: monL1), Sum (m2, monL2)) =
           plusSumMon (plusSum (Sum (m1, monL1), Sum (m2, monL2)), mon1)
 
     (* plusSumMon (sum1, mon2) = sum3
@@ -240,7 +240,7 @@ struct
        and  sum3 = sum1 + mon2
     *)
     and plusSumMon (Sum (m, nil), mon) = Sum (m, [mon])
-      | (* GEN CASE BRANCH *) plusSumMon (Sum (m, monL), mon as Mon (n, UsL)) =
+      | plusSumMon (Sum (m, monL), mon as Mon (n, UsL)) =
           (case (findMSet compatibleMon (mon, monL))
              of SOME (Mon (n', _), monL') =>
                   let
@@ -262,9 +262,9 @@ struct
     *)
     fun timesSum (Sum (m1, nil), Sum (m2, nil)) =
           Sum (m1 * m2, nil)
-      | (* GEN CASE BRANCH *) timesSum (Sum (m1, mon1 :: monL1), sum2) =
+      | timesSum (Sum (m1, mon1 :: monL1), sum2) =
           plusSum (timesSumMon (sum2, mon1), timesSum (Sum (m1, monL1), sum2))
-      | (* GEN CASE BRANCH *) timesSum (sum1, Sum (m2, mon2 :: monL2)) =
+      | timesSum (sum1, Sum (m2, mon2 :: monL2)) =
           plusSum (timesSumMon (sum1, mon2), timesSum (sum1, Sum (m2, monL2)))
 
     (* timesSumMon (sum1, mon2) = sum3
@@ -282,7 +282,7 @@ struct
             if (n' = zero) then Sum (n', nil)
             else Sum (zero, [Mon (n', UsL)])
           end
-      | (* GEN CASE BRANCH *) timesSumMon (Sum (m, (Mon (n', UsL')) :: monL), mon as Mon (n, UsL)) =
+      | timesSumMon (Sum (m, (Mon (n', UsL')) :: monL), mon as Mon (n, UsL)) =
           let
             val n'' = n * n'
             val UsL'' = UsL @ UsL'
@@ -323,12 +323,12 @@ struct
           if (cs = !myID)
           then normalizeSum (extractSum fe)
           else Sum (zero, [Mon (one, [Us])])
-      | (* GEN CASE BRANCH *) fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
+      | fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
           if (cs = !myID)
           then (case (fromString (conDecName (conDec)))
                   of SOME(m) => Sum (m, nil))
           else Sum (zero, [Mon (one, [Us])])
-      | (* GEN CASE BRANCH *) fromExpW Us =
+      | fromExpW Us =
           Sum (zero, [Mon (one, [Us])])
 
     (* fromExp (U, s) = sum
@@ -343,16 +343,16 @@ struct
 
     (* normalizeSum sum = sum', where sum' normal and sum' = sum *)
     and normalizeSum (sum as (Sum (m, nil))) = sum
-      | (* GEN CASE BRANCH *) normalizeSum (Sum (m, [mon])) =
+      | normalizeSum (Sum (m, [mon])) =
           plusSum (Sum (m, nil), normalizeMon mon)
-      | (* GEN CASE BRANCH *) normalizeSum (Sum (m, mon :: monL)) =
+      | normalizeSum (Sum (m, mon :: monL)) =
           plusSum (normalizeMon mon, normalizeSum (Sum (m, monL)))
 
     (* normalizeMon mon = mon', where mon' normal and mon' = mon *)
     and normalizeMon (mon as (Mon (n, nil))) = Sum (n, nil)
-      | (* GEN CASE BRANCH *) normalizeMon (Mon (n, [Us])) =
+      | normalizeMon (Mon (n, [Us])) =
           timesSum (Sum (n, nil), fromExp Us)
-      | (* GEN CASE BRANCH *) normalizeMon (mon as (Mon (n, Us :: UsL))) =
+      | normalizeMon (mon as (Mon (n, Us :: UsL))) =
           timesSum (fromExp Us, normalizeMon (Mon (n, UsL)))
 
     (* mapSum (f, m + M1 + ...) = m + mapMon(f,M1) + ... *)
@@ -376,8 +376,8 @@ struct
     fun solvableSum (Sum(m, monL)) =
           let
             fun gcd_list (n1 :: nil) = n1
-              | (* GEN CASE BRANCH *) gcd_list (n1 :: n2 :: nil) = gcd(n1, n2)
-              | (* GEN CASE BRANCH *) gcd_list (n1 :: n2 :: l) = gcd (gcd (n1, n2), gcd_list l)
+              | gcd_list (n1 :: n2 :: nil) = gcd(n1, n2)
+              | gcd_list (n1 :: n2 :: l) = gcd (gcd (n1, n2), gcd_list l)
             val coeffL = List.map (fn Mon(n, _) => n) monL
             val g = gcd_list coeffL
           in
@@ -391,7 +391,7 @@ struct
     fun findMon f (G, Sum(m, monL)) =
           let
             fun findMon' (nil, monL2) = NONE
-              | (* GEN CASE BRANCH *) findMon' (mon :: monL1, monL2) =
+              | findMon' (mon :: monL1, monL2) =
                   (case (f (G, mon, Sum(m, monL1 @ monL2)))
                      of (result as SOME _) => result
                       | NONE => findMon' (monL1, mon :: monL2))
@@ -439,7 +439,7 @@ struct
           if Whnf.isPatSub s
           then [Assign (G, X, numberExp (~(quot(m, n))), Whnf.invert s)]
           else [delaySum (G, sum)]
-      | (* GEN CASE BRANCH *) solveSum (G, sum) =
+      | solveSum (G, sum) =
           let
             fun invertMon (G, mon as Mon (n, [(EVar (r, _, _, _), s)]), sum) =
                   if Whnf.isPatSub s
@@ -519,7 +519,7 @@ struct
        then U is a foreign expression representing sum.
     *)
     and toFgn (sum as Sum (m, nil)) = toExp (sum)
-      | (* GEN CASE BRANCH *) toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep (sum))
+      | toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep (sum))
 
     (* toInternal (fe) = U
        Invariant:
@@ -527,7 +527,7 @@ struct
        then U is the Twelf syntax conversion of sum
     *)
     fun toInternal (MyIntsynRep sum) () = toExp (normalizeSum sum)
-      | (* GEN CASE BRANCH *) toInternal fe () = raise (UnexpectedFgnExp fe)
+      | toInternal fe () = raise (UnexpectedFgnExp fe)
 
     (* map (fe) f = U'
 
@@ -542,7 +542,7 @@ struct
          U' is a foreign expression representing sum'
     *)
     fun map (MyIntsynRep sum) f = toFgn (normalizeSum (mapSum (f,sum)))
-      | (* GEN CASE BRANCH *) map fe _ = raise (UnexpectedFgnExp fe)
+      | map fe _ = raise (UnexpectedFgnExp fe)
 
     (* app (fe) f = ()
 
@@ -555,18 +555,18 @@ struct
          (since sum : normal, each Usij is in whnf)
     *)
     fun app (MyIntsynRep sum) f = appSum (f, sum)
-      | (* GEN CASE BRANCH *) app fe _ = raise (UnexpectedFgnExp fe)
+      | app fe _ = raise (UnexpectedFgnExp fe)
 
     fun equalTo (MyIntsynRep sum) U2 =
         (case minusSum (normalizeSum (sum),
                        (fromExp (U2, id)))
          of Sum(m, nil) => (m = zero)
           | _ => false)
-      | (* GEN CASE BRANCH *) equalTo fe _ = raise (UnexpectedFgnExp fe)
+      | equalTo fe _ = raise (UnexpectedFgnExp fe)
 
     fun unifyWith (MyIntsynRep sum) (G, U2) =
         unifySum (G, normalizeSum sum, (fromExp (U2, id)))
-      | (* GEN CASE BRANCH *) unifyWith fe _ = raise (UnexpectedFgnExp fe)
+      | unifyWith fe _ = raise (UnexpectedFgnExp fe)
 
     fun installFgnExpOps () = let
         val csid = !myID
@@ -582,20 +582,20 @@ struct
     fun makeFgn (arity, opExp) (S) =
           let
             fun makeParams 0 = Nil
-              | (* GEN CASE BRANCH *) makeParams n =
+              | makeParams n =
                   App (Root(BVar (n), Nil), makeParams (Int.-(n,1)))
             fun makeLam E 0 = E
-              | (* GEN CASE BRANCH *) makeLam E n =
+              | makeLam E n =
                   Lam (Dec (NONE, number()), makeLam E (Int.-(n,1)))
             fun expand ((Nil, s), arity) =
                   (makeParams arity, arity)
-              | (* GEN CASE BRANCH *) expand ((App (U, S), s), arity) =
+              | expand ((App (U, S), s), arity) =
                   let
                     val (S', arity') = expand ((S, s), (Int.-(arity,1)))
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
                   end
-              | (* GEN CASE BRANCH *) expand ((SClo (S, s'), s), arity) =
+              | expand ((SClo (S, s'), s), arity) =
                   expand ((S, comp (s', s)), arity)
             val (S', arity') = expand ((S, id), arity)
           in

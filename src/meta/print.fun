@@ -50,14 +50,14 @@ struct
     fun formatOrder (G, S.Arg (Us, Vs)) =
           [Print.formatExp (G, I.EClo Us), Fmt.String ":",
            Print.formatExp (G, I.EClo Vs)]
-      | (* GEN CASE BRANCH *) formatOrder (G, S.Lex Os) =
+      | formatOrder (G, S.Lex Os) =
           [Fmt.String "{", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "}"]
-      | (* GEN CASE BRANCH *) formatOrder (G, S.Simul Os) =
+      | formatOrder (G, S.Simul Os) =
           [Fmt.String "[", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "]"]
 
     and formatOrders (G, nil) = nil
-      | (* GEN CASE BRANCH *) formatOrders (G, O :: nil) = formatOrder (G, O)
-      | (* GEN CASE BRANCH *) formatOrders (G, O :: Os) = formatOrder (G, O) @
+      | formatOrders (G, O :: nil) = formatOrder (G, O)
+      | formatOrders (G, O :: Os) = formatOrder (G, O) @
           [Fmt.String ",", Fmt.Break]  @ formatOrders (G, Os)
 
     (* format T = fmt'
@@ -67,11 +67,11 @@ struct
        then fmt' is a a format descibing the tag T
     *)
     fun formatTag (G, S.Parameter l) = [Fmt.String "<p>"]
-      | (* GEN CASE BRANCH *) formatTag (G, S.Lemma (S.Splits k)) = [Fmt.String "<i",
+      | formatTag (G, S.Lemma (S.Splits k)) = [Fmt.String "<i",
                                                  Fmt.String (Int.toString k),
                                                  Fmt.String ">"]
-      | (* GEN CASE BRANCH *) formatTag (G, S.Lemma (S.RL)) = [Fmt.String "<i >"]
-      | (* GEN CASE BRANCH *) formatTag (G, S.Lemma (S.RLdone)) = [Fmt.String "<i*>"]
+      | formatTag (G, S.Lemma (S.RL)) = [Fmt.String "<i >"]
+      | formatTag (G, S.Lemma (S.RLdone)) = [Fmt.String "<i*>"]
 (*      | formatTag (G, S.Assumption k) = [Fmt.String "<a",
                                          Fmt.String (Int.toString k),
                                          Fmt.String ">"] *)
@@ -85,12 +85,12 @@ struct
        then fmt' is a format describing the context (G, B)
     *)
     fun formatCtx (I.Null, B) = []
-      | (* GEN CASE BRANCH *) formatCtx (I.Decl (I.Null, D), I.Decl (I.Null, T)) =
+      | formatCtx (I.Decl (I.Null, D), I.Decl (I.Null, T)) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox (formatTag (I.Null, T) @ [Fmt.Break, Print.formatDec (I.Null, D)])]
         else
           [Print.formatDec (I.Null, D)]
-      | (* GEN CASE BRANCH *) formatCtx (I.Decl (G, D), I.Decl (B, T)) =
+      | formatCtx (I.Decl (G, D), I.Decl (B, T)) =
         if !Global.chatter >= 4 then
           formatCtx (G, B) @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
           [Fmt.HVbox (formatTag (G, T) @ [Fmt.Break, Print.formatDec (G, D)])]

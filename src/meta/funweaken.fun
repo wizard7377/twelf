@@ -20,13 +20,13 @@ struct
        and  Psi0 |- s' : Psi1, Psi'
     *)
     fun strengthenPsi (I.Null, s) = (I.Null, s)
-      | (* GEN CASE BRANCH *) strengthenPsi (I.Decl (Psi, F.Prim D), s) =
+      | strengthenPsi (I.Decl (Psi, F.Prim D), s) =
         let
           val (Psi', s') = strengthenPsi (Psi, s)
         in
           (I.Decl (Psi', F.Prim (Weaken.strengthenDec (D, s'))), I.dot1 s')
         end
-      | (* GEN CASE BRANCH *) strengthenPsi (I.Decl (Psi, F.Block (F.CtxBlock (l, G))), s) =
+      | strengthenPsi (I.Decl (Psi, F.Block (F.CtxBlock (l, G))), s) =
         let
           val (Psi', s') = strengthenPsi (Psi, s)
           val (G'', s'') = Weaken.strengthenCtx (G, s')
@@ -42,7 +42,7 @@ struct
        and  Psi0 |- s' : Psi1, Psi'  weakening substitution
     *)
     fun strengthenPsi' (nil, s) = (nil, s)
-      | (* GEN CASE BRANCH *) strengthenPsi' (F.Prim D :: Psi, s) =
+      | strengthenPsi' (F.Prim D :: Psi, s) =
         let
           val D' = Weaken.strengthenDec (D, s)
           val s' = I.dot1 s
@@ -50,7 +50,7 @@ struct
         in
           (F.Prim D' :: Psi'', s'')
         end
-      | (* GEN CASE BRANCH *) strengthenPsi' (F.Block (F.CtxBlock (l, G)) :: Psi, s) =
+      | strengthenPsi' (F.Block (F.CtxBlock (l, G)) :: Psi, s) =
         let
           val (G', s') = Weaken.strengthenCtx (G, s)
           val (Psi'', s'') = strengthenPsi' (Psi, s')

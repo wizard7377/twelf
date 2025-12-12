@@ -35,13 +35,13 @@ local
      FVar's are printed with a preceding "`" (backquote) character
   *)
   fun fmtCon (G, I.BVar(n)) = sexp [Str "tw~bvar", F.Break, Integer n]
-    | (* GEN CASE BRANCH *) fmtCon (G, I.Const(cid)) = sexp [Str "tw~const", F.Break, Integer cid]
-    | (* GEN CASE BRANCH *) fmtCon (G, I.Def(cid)) = sexp [Str "tw~def", F.Break, Integer cid]
+    | fmtCon (G, I.Const(cid)) = sexp [Str "tw~const", F.Break, Integer cid]
+    | fmtCon (G, I.Def(cid)) = sexp [Str "tw~def", F.Break, Integer cid]
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
   fun fmtUni (I.Type) = Str "tw*type"
-    | (* GEN CASE BRANCH *) fmtUni (I.Kind) = Str "tw*kind"
+    | fmtUni (I.Kind) = Str "tw*kind"
 
   (* fmtExpW (G, (U, s)) = fmt
 
@@ -54,7 +54,7 @@ local
        (U,s) in whnf
   *)
   fun fmtExpW (G, (I.Uni(L), s)) = sexp [Str "tw~uni", F.Break, fmtUni L]
-    | (* GEN CASE BRANCH *) fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
+    | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
                          val D' = Names.decLUName (G, D) (* could sometimes be EName *)
@@ -69,10 +69,10 @@ local
                       sexp [Str "tw~pi", F.Break, fmtDec (G, (D, s)),
                             F.Break, Str "tw*no", F.Break, fmtExp (G', (V2, I.dot1 s))]
                     end)
-    | (* GEN CASE BRANCH *) fmtExpW (G, (I.Root (H, S), s)) =
+    | fmtExpW (G, (I.Root (H, S), s)) =
          sexp [Str "tw~root", F.Break, fmtCon (G, H),
                F.Break, fmtSpine (G, (S, s))]
-    | (* GEN CASE BRANCH *) fmtExpW (G, (I.Lam(D, U), s)) =
+    | fmtExpW (G, (I.Lam(D, U), s)) =
       let
         val D' = Names.decLUName (G, D)
         val G' = I.Decl (G, D')
@@ -89,15 +89,15 @@ local
      context G which approximates G', where G' |- S[s] is valid
   *)
   and fmtSpine (G, (I.Nil, _)) = Str "tw*empty-spine"
-    | (* GEN CASE BRANCH *) fmtSpine (G, (I.SClo (S, s'), s)) =
+    | fmtSpine (G, (I.SClo (S, s'), s)) =
          fmtSpine (G, (S, I.comp(s',s)))
-    | (* GEN CASE BRANCH *) fmtSpine (G, (I.App(U, S), s)) =
+    | fmtSpine (G, (I.App(U, S), s)) =
          sexp [Str "tw~app", F.Break, fmtExp (G, (U, s)),
                F.Break, fmtSpine (G, (S, s))]
 
   and fmtDec (G, (I.Dec (NONE, V), s)) =
         sexp [Str "tw~decl", F.Break, Str "nil", F.Break, fmtExp (G, (V, s))]
-    | (* GEN CASE BRANCH *) fmtDec (G, (I.Dec (SOME(x), V), s)) =
+    | fmtDec (G, (I.Dec (SOME(x), V), s)) =
         sexp [Str "tw~decl", F.Break, Name x, F.Break, fmtExp (G, (V, s))]
 
   (* fmtConDec (condec) = fmt
@@ -113,9 +113,9 @@ local
               Integer (imp), F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L)]
       end
-    | (* GEN CASE BRANCH *) fmtConDec (I.SkoDec (name, parent, imp, V, L)) =
+    | fmtConDec (I.SkoDec (name, parent, imp, V, L)) =
       Str ("%% Skipping Skolem constant " ^ name ^ " %%")
-    | (* GEN CASE BRANCH *) fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
+    | fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
       let
         val _ = Names.varReset IntSyn.Null
       in
@@ -124,7 +124,7 @@ local
               F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L)]
       end
-    | (* GEN CASE BRANCH *) fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
+    | fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
         val _ = Names.varReset IntSyn.Null
       in

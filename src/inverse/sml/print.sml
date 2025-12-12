@@ -14,23 +14,23 @@
     fun squiggle x = &[$"{",x,$"}"]
     fun indent x = Layout.indent x
     fun uni_to_layout Type = $"type"
-      | (* GEN CASE BRANCH *) uni_to_layout Kind = $"kind"
+      | uni_to_layout Kind = $"kind"
 
     fun const_to_string sgn c = name(Sig.lookup sgn c)
 
     fun spine_to_list Nil = []
-      | (* GEN CASE BRANCH *) spine_to_list (App(E,S)) = E::spine_to_list S
+      | spine_to_list (App(E,S)) = E::spine_to_list S
 
     fun head_to_layout sgn (Const c) = $(const_to_string sgn c)
-      | (* GEN CASE BRANCH *) head_to_layout sgn (BVar n) = $(Int.toString n)
+      | head_to_layout sgn (BVar n) = $(Int.toString n)
 
     fun needs_parens_in_arg_pos (Uni _) = false 
-      | (* GEN CASE BRANCH *) needs_parens_in_arg_pos (Root(_,Nil)) = false
-      | (* GEN CASE BRANCH *) needs_parens_in_arg_pos _ = true
+      | needs_parens_in_arg_pos (Root(_,Nil)) = false
+      | needs_parens_in_arg_pos _ = true
 
     fun needs_sparens_in_arg_pos Nil = false 
-      | (* GEN CASE BRANCH *) needs_sparens_in_arg_pos (App(E,Nil)) = needs_parens_in_arg_pos E
-      | (* GEN CASE BRANCH *) needs_sparens_in_arg_pos _ = true
+      | needs_sparens_in_arg_pos (App(E,Nil)) = needs_parens_in_arg_pos E
+      | needs_sparens_in_arg_pos _ = true
 
     fun maybe_paren E l = if needs_parens_in_arg_pos E then paren l else l
 
@@ -39,23 +39,23 @@
     fun spine_to_layout sgn S = %%(map (exp_to_layout sgn) (spine_to_list S))
         
     and exp_to_layout sgn (Uni lev) = uni_to_layout lev
-      | (* GEN CASE BRANCH *) exp_to_layout sgn (Pi pi) = 
+      | exp_to_layout sgn (Pi pi) = 
         &[$"PI ",%%[(&[maybe_paren (#arg pi) (exp_to_layout sgn (#arg pi)),$". "]),exp_to_layout sgn (#body pi)]]
-      | (* GEN CASE BRANCH *) exp_to_layout sgn (Lam lam) = &[$"LAM. ",exp_to_layout sgn (#body lam)]
-      | (* GEN CASE BRANCH *) exp_to_layout sgn (Root(H,Nil)) = head_to_layout sgn H
-      | (* GEN CASE BRANCH *) exp_to_layout sgn (Root(H,S)) = &[head_to_layout sgn H,$" ^ ",maybe_sparen S (spine_to_layout sgn S)]
+      | exp_to_layout sgn (Lam lam) = &[$"LAM. ",exp_to_layout sgn (#body lam)]
+      | exp_to_layout sgn (Root(H,Nil)) = head_to_layout sgn H
+      | exp_to_layout sgn (Root(H,S)) = &[head_to_layout sgn H,$" ^ ",maybe_sparen S (spine_to_layout sgn S)]
 
     datatype subelem = SubShift of int | SubExp of exp
 
     fun sub_to_list (sub as Shift n) = [SubShift n]
-      | (* GEN CASE BRANCH *) sub_to_list (Dot(M,sub)) = SubExp M::sub_to_list sub
-      | (* GEN CASE BRANCH *) sub_to_list (Comp(s1,s2)) = sub_to_list s1 @ sub_to_list s2
+      | sub_to_list (Dot(M,sub)) = SubExp M::sub_to_list sub
+      | sub_to_list (Comp(s1,s2)) = sub_to_list s1 @ sub_to_list s2
 
     fun sub_to_layout sgn sub = 
         let
           val sub' = sub_to_list sub 
           fun mapfn (SubShift n) = $("^" ^ Int.toString n)
-            | (* GEN CASE BRANCH *) mapfn (SubExp exp) = exp_to_layout sgn exp
+            | mapfn (SubExp exp) = exp_to_layout sgn exp
           val sub'' = map mapfn sub'
         in
           Layout.list sub''

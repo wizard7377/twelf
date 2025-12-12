@@ -26,7 +26,7 @@ struct
 
 
     fun shiftCtx (I.Null, t) = (I.Null, t)
-      | (* GEN CASE BRANCH *) shiftCtx (I.Decl (G, D), t) =
+      | shiftCtx (I.Decl (G, D), t) =
         let
           val (G', t') =  shiftCtx (G, t)
         in
@@ -41,19 +41,19 @@ struct
        then Psi0, G[t] |- t : Psi, G
     *)
     fun dotn (t, 0) = t
-      | (* GEN CASE BRANCH *) dotn (t, n) = I.dot1 (dotn (t, n-1))
+      | dotn (t, n) = I.dot1 (dotn (t, n-1))
 
 
     fun strengthenToSpine (I.Shift _ (* =0 *), 0, (n, S)) = S
-      | (* GEN CASE BRANCH *) strengthenToSpine (I.Dot (I.Idx _ (* = 1 *), t), l, (n, S)) =
+      | strengthenToSpine (I.Dot (I.Idx _ (* = 1 *), t), l, (n, S)) =
         let
           val t' = I.comp (t, I.invShift)
         in
           strengthenToSpine (t', l-1, (n+1, I.App (I.Root (I.BVar n, I.Nil), S)))
         end
-      | (* GEN CASE BRANCH *) strengthenToSpine (I.Dot (I.Undef, t), l, (n, S)) =
+      | strengthenToSpine (I.Dot (I.Undef, t), l, (n, S)) =
           strengthenToSpine (t, l-1, (n+1, S))
-      | (* GEN CASE BRANCH *) strengthenToSpine (I.Shift k, l, (n, S)) =
+      | strengthenToSpine (I.Shift k, l, (n, S)) =
           strengthenToSpine (I.Dot (I.Idx (k+1), I.Shift (k+1)), l, (n, S))
 
 
@@ -67,14 +67,14 @@ struct
        and  F' = raise (B', F[t])   (using subordination)
     *)
     fun raiseFor (B', (T.True, t)) = T.True
-      | (* GEN CASE BRANCH *) raiseFor (B', (T.And (F1, F2), t)) =
+      | raiseFor (B', (T.And (F1, F2), t)) =
         let
           val F1' = raiseFor (B', (F1, t))
           val F2' = raiseFor (B', (F2, t))
         in
           T.And (F1', F2')
         end
-      | (* GEN CASE BRANCH *) raiseFor (B', (T.Ex ((I.Dec (x, V), Q), F), t)) =
+      | raiseFor (B', (T.Ex ((I.Dec (x, V), Q), F), t)) =
                                                     (* Psi, G', B' |- V[t] : type *)
                                                     (* Psi, B, G, x:V |- F for *)
                                                     (* Psi, G' |- B' ctx  *)
@@ -108,7 +108,7 @@ struct
         in
           T.Ex ((I.Dec (x, V'), Q), F')(* Psi, G', x:V', B''' |- t''' :  Psi, B, G, x:V *)
         end
-      | (* GEN CASE BRANCH *) raiseFor (_, (T.All _, _)) = raise Domain
+      | raiseFor (_, (T.All _, _)) = raise Domain
 
 
     (* raisePrg (G, P, F) = (P', F'))
@@ -121,14 +121,14 @@ struct
        and  F = raise (G, F')   (using subordination)
     *)
     fun raisePrg (G, (T.Unit, t), _) = T.Unit
-      | (* GEN CASE BRANCH *) raisePrg (G, (T.PairPrg (P1, P2), t), T.And (F1, F2)) =
+      | raisePrg (G, (T.PairPrg (P1, P2), t), T.And (F1, F2)) =
         let
           val P1' = raisePrg (G, (P1, t), F1)
           val P2' = raisePrg (G, (P2, t), F2)
         in
           T.PairPrg (P1', P2')
         end
-      | (* GEN CASE BRANCH *) raisePrg (G, (T.PairExp (U, P), t), T.Ex ((I.Dec (_, V), _), F)) =
+      | raisePrg (G, (T.PairExp (U, P), t), T.Ex ((I.Dec (_, V), _), F)) =
         let
           val w = S.weaken (G, I.targetFam V)
                                                    (* G  |- w  : G'    *)

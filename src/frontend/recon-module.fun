@@ -165,7 +165,7 @@ struct
               handle ExtSyn.Error msg =>
                 raise ExtSyn.Error (msg ^ "\nin instantiation generated for "
                                     ^ Names.qidToString (Names.constQid cid)))
-          | (* GEN CASE BRANCH *) doInst ((External tm, r), condec) =
+          | doInst ((External tm, r), condec) =
               ModSyn.strictify (ExtSyn.externalInst (condec, tm, r))
   
         fun transformConDec (cid, condec) =

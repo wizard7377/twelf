@@ -55,7 +55,7 @@ struct
           (nil,
            (makeAddress 0, delay (fn Params => (Search.searchEx Params handle Success S => [S]),
                                   (G, GE, Vs, abstractEx))))
-      | (* GEN CASE BRANCH *) operatorsW (G, GE, (I.Pi ((D as I.Dec (_, V1), P), V2), s),
+      | operatorsW (G, GE, (I.Pi ((D as I.Dec (_, V1), P), V2), s),
                     abstractAll, abstractEx,  makeAddress) =
         let
           val (GO', O) = operators (I.Decl (G, I.decSub (D, s)), GE, (V2, I.dot1 s),
@@ -80,14 +80,14 @@ struct
     *)
     fun createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
           (M.Prefix (I.Null, I.Null, I.Null), I.id, nil)
-      | (* GEN CASE BRANCH *) createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
+      | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
         let
           val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s', GE')
         end
-      | (* GEN CASE BRANCH *) createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
+      | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
         let
           val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
           val X = I.newEVar (G', I.EClo (V, s'))
@@ -136,8 +136,8 @@ struct
     fun menu ((M.State (name, M.Prefix (G, M, B), V), k), Sl) =
         let
           fun toString (G, I.Pi ((I.Dec (_, V), _), _), 0) = Print.expToString (G, V)
-            | (* GEN CASE BRANCH *) toString (G, V as  I.Root _, 0) = Print.expToString (G, V)
-            | (* GEN CASE BRANCH *) toString (G, I.Pi ((D, _), V), k) =
+            | toString (G, V as  I.Root _, 0) = Print.expToString (G, V)
+            | toString (G, I.Pi ((D, _), V), k) =
                 toString (I.Decl (G, D), V, k-1)
             (* no cases for
               toSTring (G, I.Root _, k) for k <> 0

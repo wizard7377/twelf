@@ -36,7 +36,7 @@ struct
   type 'a ord_set = 'a set ref
 
   fun isEmpty (Set(_, Empty)) = true
-    | (* GEN CASE BRANCH *) isEmpty (Set(_,T)) = false
+    | isEmpty (Set(_,T)) = false
 
   val empty = Set(0, Empty)
   
@@ -60,8 +60,8 @@ struct
   fun lookup (Set(n, dict)) key =
     let
       fun lk (Empty) = NONE
-  	| (* GEN CASE BRANCH *) lk (Red tree) = lk' tree
-        | (* GEN CASE BRANCH *) lk (Black tree) = lk' tree
+  	| lk (Red tree) = lk' tree
+        | lk (Black tree) = lk' tree
       and lk' ((key1, datum1), left, right) =
   	    (case compare(key,key1)
   	       of EQUAL => SOME(datum1)
@@ -86,29 +86,29 @@ struct
   *)
   fun restore_right (Black(e, Red lt, Red (rt as (_,Red _,_)))) =
          Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
+    | restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
          Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
+    | restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
     	 (* l is black, deep rotate *)
     	 Black(rle, Red(e, l, rll), Red(re, rlr, rr))
-    | (* GEN CASE BRANCH *) restore_right (Black(e, l, Red (re, rl, rr as Red _))) =
+    | restore_right (Black(e, l, Red (re, rl, rr as Red _))) =
     	 (* l is black, shallow rotate *)
     	 Black(re, Red(e, l, rl), rr)
-    | (* GEN CASE BRANCH *) restore_right dict = dict
+    | restore_right dict = dict
 
   (* restore_left is like restore_right, except *)
   (* the color invariant may be violated only at the root of left child *)
   fun restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
   	 Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
+    | restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
     	 Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_left (Black(e, Red(le, ll as Red _, lr), r)) =
+    | restore_left (Black(e, Red(le, ll as Red _, lr), r)) =
     	 (* r is black, shallow rotate *)
     	 Black(le, ll, Red(e, lr, r))
-    | (* GEN CASE BRANCH *) restore_left (Black(e, Red(le, ll, Red(lre, lrl, lrr)), r)) =
+    | restore_left (Black(e, Red(le, ll, Red(lre, lrl, lrr)), r)) =
     	 (* r is black, deep rotate *)
     	 Black(lre, Red(le, ll, lrl), Red(e, lrr, r))
-    | (* GEN CASE BRANCH *) restore_left dict = dict
+    | restore_left dict = dict
 
   fun insert (Set(n, dict), entry as (key, datum)) = 
     let      
@@ -118,14 +118,14 @@ struct
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
       fun ins (Empty) = (nItems := n+1; Red(entry, Empty, Empty))
-  	| (* GEN CASE BRANCH *) ins (Red(entry1 as (key1, datum1), left, right)) =
+  	| ins (Red(entry1 as (key1, datum1), left, right)) =
   	  (case compare(key,key1)
   	     of EQUAL => 
               ((*print ("Found " ^ Int.toString key ^ " already in set -- keep entry--do not overwrite\n");*)
   	       Red(entry1, left, right))
   	      | LESS => Red(entry1, ins left, right)
   	      | GREATER => Red(entry1, left, ins right))
-  	| (* GEN CASE BRANCH *) ins (Black(entry1 as (key1, datum1), left, right)) =
+  	| ins (Black(entry1 as (key1, datum1), left, right)) =
   	  (case compare(key,key1)
   	     of EQUAL => 
   	       ((* print ("Found " ^ Int.toString key ^ " already in set -- keep entry--do not overwrite\n"); *)
@@ -142,7 +142,7 @@ struct
 
 
   fun insertList (S, nil) = S
-    | (* GEN CASE BRANCH *) insertList (S, e::list) = insertList (insert (S, e), list)
+    | insertList (S, e::list) = insertList (insert (S, e), list)
 
 
   fun insertLast (Set(n, dict), datum) = 
@@ -158,13 +158,13 @@ struct
   fun insertShadow (Set(n, dict), entry as (key, datum)) =  
     let val oldEntry = ref NONE (* : 'a entry option ref *)
       fun ins (Empty) = Red(entry, Empty, Empty)
-  	| (* GEN CASE BRANCH *) ins (Red(entry1 as (key1, datum1), left, right)) =
+  	| ins (Red(entry1 as (key1, datum1), left, right)) =
   	(case compare(key,key1)
   	   of EQUAL => (oldEntry := SOME(entry1);
   			Red(entry, left, right))
   	 | LESS => Red(entry1, ins left, right)
   	 | GREATER => Red(entry1, left, ins right))
-  	| (* GEN CASE BRANCH *) ins (Black(entry1 as (key1, datum1), left, right)) =
+  	| ins (Black(entry1 as (key1, datum1), left, right)) =
   	   (case compare(key,key1)
   	      of EQUAL => (oldEntry := SOME(entry1);
   			   Black(entry, left, right))
@@ -194,63 +194,63 @@ struct
     fun delete (Set(nItems, t), k) = 
         let
     	  fun zip (Top, t) = t
-            | (* GEN CASE BRANCH *) zip (LeftRed(x, b, z), a) = zip(z, Red(x, a, b))
-            | (* GEN CASE BRANCH *) zip (LeftBlack(x, b, z), a) = zip(z, Black(x, a, b))
-            | (* GEN CASE BRANCH *) zip (RightRed(a, x, z), b) = zip(z, Red(x, a, b))
-            | (* GEN CASE BRANCH *) zip (RightBlack(a, x, z), b) = zip(z, Black(x, a, b))
+            | zip (LeftRed(x, b, z), a) = zip(z, Red(x, a, b))
+            | zip (LeftBlack(x, b, z), a) = zip(z, Black(x, a, b))
+            | zip (RightRed(a, x, z), b) = zip(z, Red(x, a, b))
+            | zip (RightBlack(a, x, z), b) = zip(z, Black(x, a, b))
     	  (* bbZip propagates a black deficit up the tree until either the top
          * is reached, or the deficit can be covered.  It returns a boolean
          * that is true if there is still a deficit and the zipped tree.
          *)
           fun bbZip (Top, t) = (true, t)
-            | (* GEN CASE BRANCH *) bbZip (LeftBlack(x, Red(y, c, d), z), a) = (* case 1L *)
+            | bbZip (LeftBlack(x, Red(y, c, d), z), a) = (* case 1L *)
                 bbZip (LeftRed(x, c, LeftBlack(y, d, z)), a)
-            | (* GEN CASE BRANCH *) bbZip (LeftRed(x, Red(y, c, d), z), a) = (* case 1L *)
+            | bbZip (LeftRed(x, Red(y, c, d), z), a) = (* case 1L *)
                 bbZip (LeftRed(x, c, LeftBlack(y, d, z)), a)
-            | (* GEN CASE BRANCH *) bbZip (LeftBlack(x, Black(w, Red(y, c, d), e), z), a) = (* case 3L *)
+            | bbZip (LeftBlack(x, Black(w, Red(y, c, d), e), z), a) = (* case 3L *)
                 bbZip (LeftBlack(x, Black(y, c, Red(w, d, e)), z), a)
-            | (* GEN CASE BRANCH *) bbZip (LeftRed(x, Black(w, Red(y, c, d), e), z), a) = (* case 3L *)
+            | bbZip (LeftRed(x, Black(w, Red(y, c, d), e), z), a) = (* case 3L *)
                 bbZip (LeftRed(x, Black(y, c, Red(w, d, e)), z), a)
     
-            | (* GEN CASE BRANCH *) bbZip (LeftBlack(x, Black(y, c, Red(w, d, e)), z), a) = (* case 4L *)
+            | bbZip (LeftBlack(x, Black(y, c, Red(w, d, e)), z), a) = (* case 4L *)
                 (false, zip (z, Black(y, Black(x, a, c), Black(w, d, e))))
     
-            | (* GEN CASE BRANCH *) bbZip (LeftRed(x, Black(y, c, Red(w, d, e)), z), a) = (* case 4L *)
+            | bbZip (LeftRed(x, Black(y, c, Red(w, d, e)), z), a) = (* case 4L *)
                 (false, zip (z, Red(y, Black(x, a, c), Black(w, d, e))))
     
-            | (* GEN CASE BRANCH *) bbZip (LeftRed(x, Black(y, c, d), z), a) = (* case 2L *)
+            | bbZip (LeftRed(x, Black(y, c, d), z), a) = (* case 2L *)
                 (false, zip (z, Black(x, a, Red(y, c, d))))
-            | (* GEN CASE BRANCH *) bbZip (LeftBlack(x, Black(y, c, d), z), a) = (* case 2L *)
+            | bbZip (LeftBlack(x, Black(y, c, d), z), a) = (* case 2L *)
                 bbZip (z, Black(x, a, Red(y, c, d)))
-            | (* GEN CASE BRANCH *) bbZip (RightBlack(Red(y, c, d), x, z), b) = (* case 1R *)
+            | bbZip (RightBlack(Red(y, c, d), x, z), b) = (* case 1R *)
                 bbZip (RightRed(d, x, RightBlack(c, y, z)), b)
-            | (* GEN CASE BRANCH *) bbZip (RightRed(Red(y, c, d), x, z), b) = (* case 1R *)
+            | bbZip (RightRed(Red(y, c, d), x, z), b) = (* case 1R *)
                 bbZip (RightRed(d, x, RightBlack(c, y, z)), b)
-    	    | (* GEN CASE BRANCH *) bbZip (RightBlack(Black(y , Red(w, c, d), e), x, z), b) = (* case 3R *)
+    	    | bbZip (RightBlack(Black(y , Red(w, c, d), e), x, z), b) = (* case 3R *)
                 bbZip (RightBlack(Black(w, c, Red(y, d, e)), x, z), b)
-    	    | (* GEN CASE BRANCH *) bbZip (RightRed(Black(y , Red(w, c, d), e), x, z), b) = (* case 3R *)
+    	    | bbZip (RightRed(Black(y , Red(w, c, d), e), x, z), b) = (* case 3R *)
                 bbZip (RightRed(Black(w, c, Red(y, d, e)), x, z), b)
-            | (* GEN CASE BRANCH *) bbZip (RightBlack(Black(y, c, Red(w, d, e)), x, z), b) = (* case 4R *)
+            | bbZip (RightBlack(Black(y, c, Red(w, d, e)), x, z), b) = (* case 4R *)
                 (false, zip (z, Black(y, c, Black(x, Red(w, d, e), b))))
-            | (* GEN CASE BRANCH *) bbZip (RightRed(Black(y, c, Red(w, d, e)), x, z), b) = (* case 4R *)
+            | bbZip (RightRed(Black(y, c, Red(w, d, e)), x, z), b) = (* case 4R *)
                 (false, zip (z, Red(y, c, Black(x, Red(w, d, e), b))))
     
-            | (* GEN CASE BRANCH *) bbZip (RightRed(Black(y, c, d), x, z), b) = (* case 2R *)
+            | bbZip (RightRed(Black(y, c, d), x, z), b) = (* case 2R *)
                 (false, zip (z, Black(x, Red(y, c,  d), b)))
     
-            | (* GEN CASE BRANCH *) bbZip (RightBlack(Black(y, c, d), x, z), b) = (* case 2R *)
+            | bbZip (RightBlack(Black(y, c, d), x, z), b) = (* case 2R *)
                 bbZip (z, Black(x, Red(y, c, d),  b))
     
-            | (* GEN CASE BRANCH *) bbZip (z, t) = (false, zip(z, t))
+            | bbZip (z, t) = (false, zip(z, t))
     
           fun delMin (Red(y, Empty, b), z) = (y, (false, zip(z, b)))
-            | (* GEN CASE BRANCH *) delMin (Black(y , Empty, b), z) = (y, bbZip(z, b))
-            | (* GEN CASE BRANCH *) delMin (Red(y, a, b), z) = delMin(a, LeftRed(y, b, z))
-            | (* GEN CASE BRANCH *) delMin (Black(y, a, b), z) = delMin(a, LeftBlack(y, b, z))
+            | delMin (Black(y , Empty, b), z) = (y, bbZip(z, b))
+            | delMin (Red(y, a, b), z) = delMin(a, LeftRed(y, b, z))
+            | delMin (Black(y, a, b), z) = delMin(a, LeftBlack(y, b, z))
     
     	  fun joinBlack (a, Empty, z) = #2(bbZip(z, a))       
-    	    | (* GEN CASE BRANCH *) joinBlack (Empty, b, z) = #2(bbZip(z, b))       
-    	    | (* GEN CASE BRANCH *) joinBlack (a, b, z) = let
+    	    | joinBlack (Empty, b, z) = #2(bbZip(z, b))       
+    	    | joinBlack (a, b, z) = let
                 val (x, (needB, b')) = delMin(b, Top)
                 in
                   if needB
@@ -259,7 +259,7 @@ struct
                 end
     
     	  fun joinRed (Empty, Empty, z) = zip(z, Empty)
-            | (* GEN CASE BRANCH *) joinRed (a, b, z) = let
+            | joinRed (a, b, z) = let
                 val (x, (needB, b')) = delMin(b, Top)
                 in
                   if needB
@@ -268,12 +268,12 @@ struct
                 end
     
           fun del (Empty, z) = raise Error "not found\n"
-            | (* GEN CASE BRANCH *) del (Red(y as (k', _), a, b), z) = (case compare(k, k')
+            | del (Red(y as (k', _), a, b), z) = (case compare(k, k')
                  of LESS => del (a, LeftRed(y, b, z))
                   | EQUAL => joinRed (a, b, z)
                   | GREATER => del (b, RightRed(a, y, z))
                 (* end case *))
-            | (* GEN CASE BRANCH *) del (Black(y as (k', _), a, b), z) = (case compare(k, k')
+            | del (Black(y as (k', _), a, b), z) = (case compare(k, k')
                  of LESS => del (a, LeftBlack(y, b, z))
                   | EQUAL => joinBlack (a, b, z)
                   | GREATER => del (b, RightBlack(a, y, z))
@@ -287,8 +287,8 @@ struct
   (* does not apply f to all elements of S in order! *)
   fun app f (Set(n, dict)) =
       let fun ap (Empty) = ()
-  	    | (* GEN CASE BRANCH *) ap (Red tree) = ap' tree
-  	    | (* GEN CASE BRANCH *) ap (Black tree) = ap' tree
+  	    | ap (Red tree) = ap' tree
+  	    | ap (Black tree) = ap' tree
   	  and ap' (entry1 as (_, datum), left, right) =
   	      (ap left; f datum; ap right)
       in
@@ -297,8 +297,8 @@ struct
 
   fun update f (Set(n, dict)) =
       let fun upd (Empty) = Empty
-  	    | (* GEN CASE BRANCH *) upd (Red tree) = Red(upd' tree)
-  	    | (* GEN CASE BRANCH *) upd (Black tree) = Black(upd' tree)
+  	    | upd (Red tree) = Red(upd' tree)
+  	    | upd (Black tree) = Black(upd' tree)
   	  and upd' (entry1 as (k, datum), left, right) =
   	      let
   		 val left' = upd left
@@ -313,8 +313,8 @@ struct
 
   fun forall (Set(n, dict)) f =
       let fun ap (Empty) = ()
-  	    | (* GEN CASE BRANCH *) ap (Red tree) = ap' tree
-  	    | (* GEN CASE BRANCH *) ap (Black tree) = ap' tree
+  	    | ap (Red tree) = ap' tree
+  	    | ap (Black tree) = ap' tree
   	  and ap' (entry, left, right) =
   	      (ap left; f entry; ap right)
       in
@@ -323,8 +323,8 @@ struct
 
   fun existsOpt (Set(n, dict)) f =
       let fun ap (Empty) = NONE
-  	    | (* GEN CASE BRANCH *) ap (Red tree) = ap' tree
-  	    | (* GEN CASE BRANCH *) ap (Black tree) = ap' tree
+  	    | ap (Red tree) = ap' tree
+  	    | ap (Black tree) = ap' tree
   	  and ap' (entry as (k,d), left, right) =
   	      (if (f d) then (print "SUCCESS\n"; SOME(k))
   		 else  (print "FAILED\n"; (case (ap left) of NONE => ap right | SOME(res) => SOME(res))))
@@ -334,8 +334,8 @@ struct
 
   fun exists (Set(n, dict)) f =
       let fun ap (Empty) = false
-  	    | (* GEN CASE BRANCH *) ap (Red tree) = ap' tree
-  	    | (* GEN CASE BRANCH *) ap (Black tree) = ap' tree
+  	    | ap (Red tree) = ap' tree
+  	    | ap (Black tree) = ap' tree
   	  and ap' (entry, left, right) =
   	      if (f entry) 
   		then true
@@ -356,11 +356,11 @@ struct
    * to be visited.
    *)
     fun next ((t as Red( _, _, b))::rest) = (t, left(b, rest))
-      | (* GEN CASE BRANCH *) next ((t as Black( _, _, b))::rest) = (t, left(b, rest))
-      | (* GEN CASE BRANCH *) next _ = (Empty, [])
+      | next ((t as Black( _, _, b))::rest) = (t, left(b, rest))
+      | next _ = (Empty, [])
     and left (Empty, rest) = rest
-      | (* GEN CASE BRANCH *) left (t as Red(_, a, _), rest) = left(a, t::rest)
-      | (* GEN CASE BRANCH *) left (t as Black(_, a, _), rest) = left(a, t::rest)
+      | left (t as Red(_, a, _), rest) = left(a, t::rest)
+      | left (t as Black(_, a, _), rest) = left(a, t::rest)
     fun start m = left(m, [])
 
     datatype 'a digit
@@ -371,8 +371,8 @@ struct
     fun addItem (a, l) = 
       let
     	fun incr (a, t, ZERO) = ONE(a, t, ZERO)
-    	  | (* GEN CASE BRANCH *) incr (a1, t1, ONE(a2, t2, r)) = TWO(a1, t1, a2, t2, r)
-    	  | (* GEN CASE BRANCH *) incr (a1, t1, TWO(a2, t2, a3, t3, r)) =
+    	  | incr (a1, t1, ONE(a2, t2, r)) = TWO(a1, t1, a2, t2, r)
+    	  | incr (a1, t1, TWO(a2, t2, a3, t3, r)) =
     	  ONE(a1, t1, incr(a2, Black (a3, t3, t2), r))
       in
     	incr(a, Empty, l)
@@ -380,24 +380,24 @@ struct
   (* link the digits into a tree *)
     fun linkAll t = let
     	  fun link (t, ZERO) = t
-    	    | (* GEN CASE BRANCH *) link (t1, ONE(a, t2, r)) = link(Black (a, t2, t1), r)
-    	    | (* GEN CASE BRANCH *) link (t, TWO(a1, t1, a2, t2, r)) =
+    	    | link (t1, ONE(a, t2, r)) = link(Black (a, t2, t1), r)
+    	    | link (t, TWO(a1, t1, a2, t2, r)) =
     		link(Black (a1, Red(a2, t2, t1),  t), r)
     	  in
     	    link (Empty, t)
     	  end
 
     fun getEntry (Red (x, _, _)) = x
-      | (* GEN CASE BRANCH *) getEntry (Black (x, _, _)) = x
+      | getEntry (Black (x, _, _)) = x
 
       
   (* return the union of the two sets *)
     fun union (Set (n1, s1), Set (n2, s2)) = 
       let
     	fun ins ((Empty, _), n, result) = (n, result)
-    	  | (* GEN CASE BRANCH *) ins ((Red (x, _, _), r), n, result) =
+    	  | ins ((Red (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result))
-    	  | (* GEN CASE BRANCH *) ins ((Black (x, _, _), r), n, result) =
+    	  | ins ((Black (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result))
     	  fun union' (t1, t2, n, result) = 
     	    (case (next t1, next t2)
@@ -455,9 +455,9 @@ struct
     fun difference (Set(_, s1), Set(_, s2)) = 
       let
     	fun ins ((Empty, _), n, result) = (n, result)
-    	  | (* GEN CASE BRANCH *) ins ((Red (x, _, _), r), n, result) =
+    	  | ins ((Red (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
-    	  | (* GEN CASE BRANCH *) ins ((Black (x, _, _), r), n, result) =
+    	  | ins ((Black (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
     	fun diff (t1, t2, n, result) = 
     	  (case (next t1, next t2)
@@ -485,9 +485,9 @@ struct
     fun difference2 (Set(_, s1), Set(_, s2)) = 
       let
     	fun ins ((Empty, _), n, result) = (n, result)
-    	  | (* GEN CASE BRANCH *) ins ((Red (x, _, _), r), n, result) =
+    	  | ins ((Red (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
-    	  | (* GEN CASE BRANCH *) ins ((Black (x, _, _), r), n, result) =
+    	  | ins ((Black (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
     	fun diff (t1, t2, (n1, result1), (n2, result2)) = 
     	  (case (next t1, next t2)
@@ -519,9 +519,9 @@ struct
     fun diffMod F (Set(_, s1), Set(_, s2)) = 
      let
     	fun ins ((Empty, _), n, result) = (n, result)
-    	  | (* GEN CASE BRANCH *) ins ((Red (x, _, _), r), n, result) =
+    	  | ins ((Red (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
-    	  | (* GEN CASE BRANCH *) ins ((Black (x, _, _), r), n, result) =
+    	  | ins ((Black (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
     	fun diff (t1, t2, (n1, result1), (n2, result2)) = 
     	  (case (next t1, next t2)
@@ -546,9 +546,9 @@ struct
     fun splitSets F (Set(_, s1), Set(_, s2)) = 
      let
     	fun ins ((Empty, _), n, result) = (n, result)
-    	  | (* GEN CASE BRANCH *) ins ((Red (x, _, _), r), n, result) =
+    	  | ins ((Red (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
-    	  | (* GEN CASE BRANCH *) ins ((Black (x, _, _), r), n, result) =
+    	  | ins ((Black (x, _, _), r), n, result) =
     	    ins(next r, n+1, addItem(x, result)) 
     	fun split (t1, t2, nr as (n, result), nr1 as (n1, result1), nr2 as (n2, result2)) = 
     	  (case (next t1, next t2)

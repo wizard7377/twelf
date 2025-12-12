@@ -18,17 +18,17 @@ local
       in
   	S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
       end
-    | (* GEN CASE BRANCH *) transformOrder' (G, Order.Lex Os) = 
+    | transformOrder' (G, Order.Lex Os) = 
         S.Lex (map (fn O => transformOrder' (G, O)) Os)
-    | (* GEN CASE BRANCH *) transformOrder' (G, Order.Simul Os) = 
+    | transformOrder' (G, Order.Simul Os) = 
         S.Simul (map (fn O => transformOrder' (G, O)) Os)
 
   fun transformOrder (G, F.All (F.Prim D, F), Os) =
   	S.All (D, transformOrder (I.Decl (G, D), F, Os))
-    | (* GEN CASE BRANCH *) transformOrder (G, F.And (F1, F2), O :: Os) =
+    | transformOrder (G, F.And (F1, F2), O :: Os) =
     	S.And (transformOrder (G, F1, [O]),
     	       transformOrder (G, F2, Os))
-    | (* GEN CASE BRANCH *) transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O) 
+    | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O) 
 
   fun select c = (Order.selLookup c handle _ => Order.Lex [])
     

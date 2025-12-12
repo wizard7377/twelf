@@ -76,7 +76,7 @@ struct
       in
         (SOME(cd), SOME(ocd))
       end
-    | (* GEN CASE BRANCH *) condecToConDec (condef(optName, tm1, tm2Opt), Paths.Loc (fileName, r), abbFlag) =
+    | condecToConDec (condef(optName, tm1, tm2Opt), Paths.Loc (fileName, r), abbFlag) =
       let
         val _ = Names.varReset IntSyn.Null
         val _ = ExtSyn.resetErrors fileName
@@ -115,7 +115,7 @@ struct
       in
         (optConDec, SOME(ocd))
       end
-    | (* GEN CASE BRANCH *) condecToConDec (blockdec (name, Lsome, Lblock), Paths.Loc (fileName, r), abbFlag) =
+    | condecToConDec (blockdec (name, Lsome, Lblock), Paths.Loc (fileName, r), abbFlag) =
       let
         fun makectx nil = IntSyn.Null
           | makectx (D :: L) = IntSyn.Decl (makectx L, D)
@@ -174,7 +174,7 @@ struct
       in
         (SOME bd, NONE)
       end
-    | (* GEN CASE BRANCH *) condecToConDec (blockdef (name, W), Paths.Loc (fileName, r), abbFlag) =
+    | condecToConDec (blockdef (name, W), Paths.Loc (fileName, r), abbFlag) =
       let
         val W' = List.map Names.Qid W
         val W'' = (List.map (fn qid => case Names.constLookup qid

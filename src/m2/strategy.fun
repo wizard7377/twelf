@@ -67,7 +67,7 @@ struct
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
     fun findMin nil = NONE
-      | (* GEN CASE BRANCH *) findMin (O :: L) =
+      | findMin (O :: L) =
         let
           fun findMin' (nil, k, result) = result
             | findMin' (O' :: L', k ,result)=
@@ -120,7 +120,7 @@ struct
              end
 
     and fill (nil, os) = os
-      | (* GEN CASE BRANCH *) fill (S :: givenStates, os as (openStates, solvedStates)) =
+      | fill (S :: givenStates, os as (openStates, solvedStates)) =
       let
         fun fillOp () =
           case (Timers.time Timers.filling Filling.expand) S
@@ -233,7 +233,7 @@ struct
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
     fun findMin nil = NONE
-      | (* GEN CASE BRANCH *) findMin (O :: L) =
+      | findMin (O :: L) =
           let
             fun findMin' (nil, k, result) = result
               | findMin' (O' :: L', k ,result)=
@@ -273,7 +273,7 @@ struct
             end
 
     and fill (nil, os) = os
-      | (* GEN CASE BRANCH *) fill (S :: givenStates, os as (openStates, solvedStates)) =
+      | fill (S :: givenStates, os as (openStates, solvedStates)) =
         case (Timers.time Timers.filling Filling.expand) S
           of (_, fillingOp) =>
              (let
@@ -288,7 +288,7 @@ struct
                 handle Filling.Error _ => split (S :: givenStates, os))
 
     and recurse (nil, os) = os
-      | (* GEN CASE BRANCH *) recurse (S :: givenStates, os as (openStates, solvedStates)) =
+      | recurse (S :: givenStates, os as (openStates, solvedStates)) =
         case (Timers.time Timers.recursion Recursion.expandEager) S
           of nil => fill (S :: givenStates, os)
            | (recursionOp :: _) =>

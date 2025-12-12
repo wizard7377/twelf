@@ -26,11 +26,11 @@ struct
   (* -------------------------------------------------------------------------- *)
 
   fun is_none NONE = true
-    | (* GEN CASE BRANCH *) is_none (SOME _) = false
+    | is_none (SOME _) = false
   fun is_some NONE = false
-    | (* GEN CASE BRANCH *) is_some (SOME _) = true
+    | is_some (SOME _) = true
   fun the NONE = raise Fail "the"
-    | (* GEN CASE BRANCH *) the (SOME x) = x
+    | the (SOME x) = x
 
   (* ------------------------------------------------------------------------- *)
   (*  Refs                                                                     *)
@@ -57,12 +57,12 @@ struct
   val nat_s = ones_f 0
 
   fun nth_s n SNil = raise Fail "s_nth"
-    | (* GEN CASE BRANCH *) nth_s 0 (SCons f) = fst(f())
-    | (* GEN CASE BRANCH *) nth_s n (SCons f) = let val (_,s') = f() in nth_s (n - 1) s' end
+    | nth_s 0 (SCons f) = fst(f())
+    | nth_s n (SCons f) = let val (_,s') = f() in nth_s (n - 1) s' end
 
   fun listof_s 0 _ = []
-    | (* GEN CASE BRANCH *) listof_s n SNil = raise Fail "listof_s"
-    | (* GEN CASE BRANCH *) listof_s n (SCons f) = let val (v,s) = f() in v::listof_s (n - 1) s end
+    | listof_s n SNil = raise Fail "listof_s"
+    | listof_s n (SCons f) = let val (v,s) = f() in v::listof_s (n - 1) s end
 
   (* ---------------------------------------------------------------------- *)
   (*  Functions                                                             *)
@@ -161,30 +161,30 @@ struct
 
   (* same as foldr *)
   fun itlist f [] b = b
-    | (* GEN CASE BRANCH *) itlist f (h::t) b = f h (itlist f t b)
+    | itlist f (h::t) b = f h (itlist f t b)
 
   fun citlist f l b = itlist (curry f) l b
 
   fun ith i [] = raise Fail "ith: empty"
-    | (* GEN CASE BRANCH *) ith 0 (h::t) = h
-    | (* GEN CASE BRANCH *) ith n (h::t) = ith (n-1) t
+    | ith 0 (h::t) = h
+    | ith n (h::t) = ith (n-1) t
 
   fun map2 f [] [] = []
-    | (* GEN CASE BRANCH *) map2 f (h1::t1) (h2::t2) = 
+    | map2 f (h1::t1) (h2::t2) = 
       f(h1,h2)::map2 f t1 t2
-    | (* GEN CASE BRANCH *) map2 f _ _ = raise Fail "map2: length mismatch"
+    | map2 f _ _ = raise Fail "map2: length mismatch"
 
   fun map3 f [] [] [] = []
-    | (* GEN CASE BRANCH *) map3 f (h1::t1) (h2::t2) (h3::t3) = f(h1,h2,h3)::map3 f t1 t2 t3
-    | (* GEN CASE BRANCH *) map3 f _ _ _= raise Fail "map3: unequal lengths"
+    | map3 f (h1::t1) (h2::t2) (h3::t3) = f(h1,h2,h3)::map3 f t1 t2 t3
+    | map3 f _ _ _= raise Fail "map3: unequal lengths"
 
   fun map4 f [] [] [] [] = []
-    | (* GEN CASE BRANCH *) map4 f (h1::t1) (h2::t2) (h3::t3) (h4::t4) = f(h1,h2,h3,h4)::map4 f t1 t2 t3 t4
-    | (* GEN CASE BRANCH *) map4 f _ _ _ _ = raise Fail "map4: unequal lengths"
+    | map4 f (h1::t1) (h2::t2) (h3::t3) (h4::t4) = f(h1,h2,h3,h4)::map4 f t1 t2 t3 t4
+    | map4 f _ _ _ _ = raise Fail "map4: unequal lengths"
 
   fun map5 f [] [] [] [] [] = []
-    | (* GEN CASE BRANCH *) map5 f (h1::t1) (h2::t2) (h3::t3) (h4::t4) (h5::t5) = f(h1,h2,h3,h4,h5)::map5 f t1 t2 t3 t4 t5
-    | (* GEN CASE BRANCH *) map5 f _ _ _ _ _ = raise Fail "map5: unequal lengths"
+    | map5 f (h1::t1) (h2::t2) (h3::t3) (h4::t4) (h5::t5) = f(h1,h2,h3,h4,h5)::map5 f t1 t2 t3 t4 t5
+    | map5 f _ _ _ _ _ = raise Fail "map5: unequal lengths"
 
   fun zip l1 l2 = map2 id l1 l2
   fun zip3 l1 l2 l3 = map3 id l1 l2 l3
@@ -198,39 +198,39 @@ struct
   fun x ~~ y = zip x y
 
   fun end_itlist f [] = raise Fail "end_itlist"
-    | (* GEN CASE BRANCH *) end_itlist f [x] = x
-    | (* GEN CASE BRANCH *) end_itlist f (h::t) = f h (end_itlist f t)
+    | end_itlist f [x] = x
+    | end_itlist f (h::t) = f h (end_itlist f t)
 
   fun end_citlist f l = end_itlist (curry f) l
 
   fun itlist2 f [] [] b = b
-    | (* GEN CASE BRANCH *) itlist2 f (h1::t1) (h2::t2) b = f h1 h2 (itlist2 f t1 t2 b)
-    | (* GEN CASE BRANCH *) itlist2 _ _ _ _ = raise Fail "itlist2"
+    | itlist2 f (h1::t1) (h2::t2) b = f h1 h2 (itlist2 f t1 t2 b)
+    | itlist2 _ _ _ _ = raise Fail "itlist2"
 
   (* same as foldl *)
   fun rev_itlist f [] b = b
-    | (* GEN CASE BRANCH *) rev_itlist f (h::t) b = rev_itlist f t (f h b)
+    | rev_itlist f (h::t) b = rev_itlist f t (f h b)
 
   fun rev_end_itlist f [] = raise Fail "rev_end_itlist"
-    | (* GEN CASE BRANCH *) rev_end_itlist f [x] = x
-    | (* GEN CASE BRANCH *) rev_end_itlist f (h::t) = f (rev_end_itlist f t) h 
+    | rev_end_itlist f [x] = x
+    | rev_end_itlist f (h::t) = f (rev_end_itlist f t) h 
 
   fun replicate x 0 = []
-    | (* GEN CASE BRANCH *) replicate x n = if n > 0 then x::replicate x (n-1) else []
+    | replicate x n = if n > 0 then x::replicate x (n-1) else []
 
   fun exists f [] = false
-    | (* GEN CASE BRANCH *) exists f (h::t) = f h orelse exists f t
+    | exists f (h::t) = f h orelse exists f t
 
   fun forall f [] = true
-    | (* GEN CASE BRANCH *) forall f (h::t) = f h andalso forall f t
+    | forall f (h::t) = f h andalso forall f t
 
   fun last [] = raise Fail "Last"
-    | (* GEN CASE BRANCH *) last (h::[]) = h
-    | (* GEN CASE BRANCH *) last (h::t) = last t
+    | last (h::[]) = h
+    | last (h::t) = last t
 
   fun butlast [] = raise Fail "Butlast"
-    | (* GEN CASE BRANCH *) butlast (h::[]) = []
-    | (* GEN CASE BRANCH *) butlast (h::t) = h::butlast t
+    | butlast (h::[]) = []
+    | butlast (h::t) = h::butlast t
 
   fun gen_list_eq ord l1 l2 = 
       itlist2 (fn x => fn y => fn z => ord(x,y) = EQUAL andalso z) l1 l2 true 
@@ -238,7 +238,7 @@ struct
   fun list_eq l1 l2 = gen_list_eq eq_ord l1 l2
 
   fun partition p [] = ([],[])
-    | (* GEN CASE BRANCH *) partition p (h::t) = 
+    | partition p (h::t) = 
       let 
         val (l,r) = partition p t 
       in
@@ -248,7 +248,7 @@ struct
   fun filter p l = fst (partition p l)
 
   fun sort ord [] = []
-    | (* GEN CASE BRANCH *) sort ord (piv::rest) =
+    | sort ord (piv::rest) =
       let 
         val (l,r) = partition (fn x => ord(x,piv) = LESS) rest 
       in
@@ -261,13 +261,13 @@ struct
       in
         if ord(x,y) = EQUAL then t' else x::t'
       end
-    | (* GEN CASE BRANCH *) uniq _ l = l
+    | uniq _ l = l
 
   fun uniq_list comp l = length (uniq comp l) = length l
 
   fun split_at _ [] = raise Fail "split_at: splitting empty"
-    | (* GEN CASE BRANCH *) split_at 0 l = ([],l)
-    | (* GEN CASE BRANCH *) split_at n (xs as x::ys) =
+    | split_at 0 l = ([],l)
+    | split_at n (xs as x::ys) =
       if n < 0 then raise Fail "split_at: arg out of range" else
       let val (ps,qs) = split_at (n-1) ys in (x::ps,qs) end
 
@@ -283,13 +283,13 @@ struct
       end
 
   fun shuffle [] l2 = l2
-    | (* GEN CASE BRANCH *) shuffle l1 [] = l1
-    | (* GEN CASE BRANCH *) shuffle (h1::t1) (h2::t2) = h1::h2::shuffle t1 t2
+    | shuffle l1 [] = l1
+    | shuffle (h1::t1) (h2::t2) = h1::h2::shuffle t1 t2
 
   fun find_index p =
       let 
         fun ind n [] = NONE
-          | (* GEN CASE BRANCH *) ind n (h::t) = if p h then SOME n else ind (n + 1) t 
+          | ind n (h::t) = if p h then SOME n else ind (n + 1) t 
       in
         ind 0
       end
@@ -311,7 +311,7 @@ struct
   fun flatten l = itlist (curry op@) l []
 
   fun chop_list 0 l = ([],l)
-    | (* GEN CASE BRANCH *) chop_list n l = 
+    | chop_list n l = 
       let val (l1,l2) = chop_list (n-1) (tl l) in (hd l::l1,l2) end
         handle _ => raise Fail "chop_list"
 
@@ -323,17 +323,17 @@ struct
       end
 
   fun remove p [] = raise Fail "remove"
-    | (* GEN CASE BRANCH *) remove p (h::t) = 
+    | remove p (h::t) = 
       if p h then (h,t) else
       let val (y,n) = remove p t in (y,h::n) end
 
   fun do_list f [] = ()
-    | (* GEN CASE BRANCH *) do_list f (h::t) = (f h; do_list f t)
+    | do_list f (h::t) = (f h; do_list f t)
 
   fun exn_index f l = 
       let
         fun exn_index f [] n = NONE
-          | (* GEN CASE BRANCH *) exn_index f (h::t) n = if can f h then exn_index f t (n + 1) else SOME n
+          | exn_index f (h::t) n = if can f h then exn_index f t (n + 1) else SOME n
       in
         exn_index f l 0
       end
@@ -346,7 +346,7 @@ struct
   fun setify s = gen_setify eq_ord s
 
   fun gen_mem ord x [] = false
-    | (* GEN CASE BRANCH *) gen_mem ord x (h::t) = if ord(x,h) = EQUAL then true else gen_mem ord x t
+    | gen_mem ord x (h::t) = if ord(x,h) = EQUAL then true else gen_mem ord x t
 
   fun mem x l = gen_mem eq_ord x l
 
@@ -357,7 +357,7 @@ struct
   fun disjoint l = gen_disjoint eq_ord l
 
   fun gen_pairwise_disjoint p [] = true
-    | (* GEN CASE BRANCH *) gen_pairwise_disjoint p (h::t) = 
+    | gen_pairwise_disjoint p (h::t) = 
       forall (gen_disjoint p h) t andalso gen_pairwise_disjoint p t
 
   fun pairwise_disjoint t = gen_pairwise_disjoint eq_ord t
@@ -365,7 +365,7 @@ struct
   fun gen_set_eq ord l1 l2 = gen_list_eq ord (gen_setify ord l1) (gen_setify ord l2)
 
   fun diff [] l = []
-    | (* GEN CASE BRANCH *) diff (h::t) l = if mem h l then diff t l else h::diff t l  
+    | diff (h::t) l = if mem h l then diff t l else h::diff t l  
 
   fun union l1 l2 = itlist insert l1 l2
 
@@ -384,7 +384,7 @@ struct
   (* ------------------------------------------------------------------------- *)
 
   fun find p [] = NONE
-    | (* GEN CASE BRANCH *) find p (h::t) = if p h then SOME h else find p t;;
+    | find p (h::t) = if p h then SOME h else find p t;;
 
   fun assoc x l = 
       case find (fn p => fst p = x) l of
@@ -484,26 +484,26 @@ struct
   (* ------------------------------------------------------------------------- *)
 
   fun the (SOME x) = x
-    | (* GEN CASE BRANCH *) the _ = raise Fail "the"
+    | the _ = raise Fail "the"
 
   fun is_some (SOME _) = true
-    | (* GEN CASE BRANCH *) is_some _ = false
+    | is_some _ = false
 
   fun is_none NONE = true
-    | (* GEN CASE BRANCH *) is_none _ = false
+    | is_none _ = false
 
   fun list_of_opt_list [] = []
-    | (* GEN CASE BRANCH *) list_of_opt_list (NONE::t) = list_of_opt_list t
-    | (* GEN CASE BRANCH *) list_of_opt_list (SOME x::t) = x::list_of_opt_list t
+    | list_of_opt_list (NONE::t) = list_of_opt_list t
+    | list_of_opt_list (SOME x::t) = x::list_of_opt_list t
 
   fun get_opt (SOME x) _ = x
-    | (* GEN CASE BRANCH *) get_opt NONE err = raise Fail err
+    | get_opt NONE err = raise Fail err
 
   fun get_list (SOME l) = l
-    | (* GEN CASE BRANCH *) get_list NONE = []
+    | get_list NONE = []
 
   fun conv_opt f (SOME l) = SOME (f l)
-    | (* GEN CASE BRANCH *) conv_opt f NONE = NONE
+    | conv_opt f NONE = NONE
 
   (* ------------------------------------------------------------------------- *)
   (*  Timing                                                                   *)

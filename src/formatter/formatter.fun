@@ -30,10 +30,10 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
 *)
       local
          fun Spaces' 0 s = s
-          |  (* GEN CASE BRANCH *) Spaces' n s = Spaces' (n-1) (s^" ")
+          |  Spaces' n s = Spaces' (n-1) (s^" ")
          fun Spaces n = if n>0 then Spaces' n "" else ""
          fun Newlines' 0 s = s
-          |  (* GEN CASE BRANCH *) Newlines' n s = Newlines' (n-1) (s^"\n")
+          |  Newlines' n s = Newlines' (n-1) (s^"\n")
          fun Newlines n = if n>0 then Newlines' n "" else ""
       in
         val Sp = Spaces (* return a number of spaces *)
@@ -88,15 +88,15 @@ horizontal blanks and {\ml i} is the indent currently in effect.
 These are used to determine the width of breaks and default breaks.
 *)
 fun Width0(m,   b,i, Str(n,_)) = (n,n)
- |  (* GEN CASE BRANCH *) Width0(Hori,b,i, Brk(m,_)) = (m,m)
- |  (* GEN CASE BRANCH *) Width0(Vert,b,i, Brk(_,n)) = (n,n)
- |  (* GEN CASE BRANCH *) Width0(Hori,b,i, Dbk)      = (b,b)
- |  (* GEN CASE BRANCH *) Width0(Vert,b,i, Dbk)      = (i,i)
- |  (* GEN CASE BRANCH *) Width0(m,b,i, Ebk)      = (0,0)
- |  (* GEN CASE BRANCH *) Width0(m,b,i, Vbx((min,max),_,_,_))      = (min,max)
- |  (* GEN CASE BRANCH *) Width0(m,b,i, Hbx((min,max),_,_))        = (min,max)
- |  (* GEN CASE BRANCH *) Width0(m,b,i, Hvx(((min,max),_),_,_,_,_)) = (min,max)
- |  (* GEN CASE BRANCH *) Width0(m,b,i, Hov(((min,max),_),_,_,_,_)) = (min,max)
+ |  Width0(Hori,b,i, Brk(m,_)) = (m,m)
+ |  Width0(Vert,b,i, Brk(_,n)) = (n,n)
+ |  Width0(Hori,b,i, Dbk)      = (b,b)
+ |  Width0(Vert,b,i, Dbk)      = (i,i)
+ |  Width0(m,b,i, Ebk)      = (0,0)
+ |  Width0(m,b,i, Vbx((min,max),_,_,_))      = (min,max)
+ |  Width0(m,b,i, Hbx((min,max),_,_))        = (min,max)
+ |  Width0(m,b,i, Hvx(((min,max),_),_,_,_,_)) = (min,max)
+ |  Width0(m,b,i, Hov(((min,max),_),_,_,_,_)) = (min,max)
 
 fun Width fmt = Width0(Hori,!Blanks,!Indent,fmt)
 
@@ -172,13 +172,13 @@ then simply starts the auxiliary function
 local
    fun vlistWidth'(i,nil,(totmin,totmax),(tmmin,tmmax)) =
                   (Max(totmin,tmmin), Max(totmax,tmmax))
-    |  (* GEN CASE BRANCH *) vlistWidth'(i,Dbk::t, (totmin,totmax), (tmmin,tmmax)) =
+    |  vlistWidth'(i,Dbk::t, (totmin,totmax), (tmmin,tmmax)) =
                     vlistWidth'(i,t, (Max(totmin,tmmin),Max(totmax,tmmax)),
                                 Width0(Vert,Unused,i,Dbk))
-    |  (* GEN CASE BRANCH *) vlistWidth'(i,(b as (Brk(_)))::t, (totmin,totmax), (tmmin,tmmax)) =
+    |  vlistWidth'(i,(b as (Brk(_)))::t, (totmin,totmax), (tmmin,tmmax)) =
                     vlistWidth'(i,t, (Max(totmin,tmmin),Max(totmax,tmmax)),
                                 Width0(Vert,Unused,i,b))
-    |  (* GEN CASE BRANCH *) vlistWidth'(i,x::t, (totmin,totmax), (tmmin,tmmax)) =
+    |  vlistWidth'(i,x::t, (totmin,totmax), (tmmin,tmmax)) =
                     vlistWidth'(i,t,(totmin,totmax),
                                 sumpair((Width0(Vert,Unused,i,x)),
                                          (tmmin,tmmax)))
@@ -361,11 +361,11 @@ For our grouping function we distinguish the following cases:
 *)
 
 fun gh(nil,nil,_) = nil
-  | (* GEN CASE BRANCH *) gh(cg,nil,res) = rev ((summaxwidth cg,cg,Ebk)::res)
-  | (* GEN CASE BRANCH *) gh(cg,(Dbk::t),res) = gh(nil,t,(summaxwidth cg,cg,Dbk)::res)
-  | (* GEN CASE BRANCH *) gh(cg,((b as (Brk(_,_)))::t),res) =
+  | gh(cg,nil,res) = rev ((summaxwidth cg,cg,Ebk)::res)
+  | gh(cg,(Dbk::t),res) = gh(nil,t,(summaxwidth cg,cg,Dbk)::res)
+  | gh(cg,((b as (Brk(_,_)))::t),res) =
                   gh(nil,t,(summaxwidth cg,cg,b)::res)
-  | (* GEN CASE BRANCH *) gh(cg,(h::t),res) = gh(cg@[h],t,res)
+  | gh(cg,(h::t),res) = gh(cg@[h],t,res)
 (*
 Finally here comes the function {\ml pphv} to print a
 horizontal-vertical box. The format is:
@@ -444,7 +444,7 @@ We thus get:
 \end{itemize}
 *)
 fun pphv(mw,li,bl,is,ss,mp,ch,lb,nil,res)= (Max(mp,ch),res)
- |  (* GEN CASE BRANCH *) pphv(mw,li,bl,is,ss,mp,ch,lb,((gpwdth,flist,brk)::t),res) =
+ |  pphv(mw,li,bl,is,ss,mp,ch,lb,((gpwdth,flist,brk)::t),res) =
     let val (ch1,s1,mp) =
         (* horizontal width, string to print, max print width *)
             if (lb=Ebk)
@@ -524,13 +524,13 @@ And this is how the algorithm works:
 *)
 and ppv(mw,li,ci,bl,is,ss,max,gw,nil,res) =
                           (Max(max,gw),res)
-  | (* GEN CASE BRANCH *) ppv(mw,li,ci,bl,is,ss,max,gw, Dbk::t,res) =
+  | ppv(mw,li,ci,bl,is,ss,max,gw, Dbk::t,res) =
         let val (n,s)   = print'p(mw,li,bl,is,ss,Vert,Dbk,res)
         in ppv(mw,li,(li+n),bl,is,ss,Max(max,gw), n,t, s) end
-  |  (* GEN CASE BRANCH *) ppv(mw,li,ci,bl,is,ss,max,gw,(b as (Brk(_,_)))::t,res) =
+  |  ppv(mw,li,ci,bl,is,ss,max,gw,(b as (Brk(_,_)))::t,res) =
         let val (n,s)   = print'p(mw,li,bl,is,ss,Vert,b,res)
         in ppv(mw,li,(li+n),bl,is,ss,Max(max,gw), n,t,s) end
-  |  (* GEN CASE BRANCH *) ppv(mw,li,ci,bl,is,ss,max,gw,h::t,res) =
+  |  ppv(mw,li,ci,bl,is,ss,max,gw,h::t,res) =
           let val (n,s)   = print'p(mw,ci,bl,is,ss,Vert,h,res)
           in ppv(mw,li,(ci+n),bl,is,ss,max,(gw+n),t,s) end
 
@@ -563,7 +563,7 @@ The algorithm:
 \end{itemize}
 *)
 and pph(mw,id,bl,is,ss,nil,nres,sres) = (nres,sres)
-  | (* GEN CASE BRANCH *) pph(mw,id,bl,is,ss, h::t,nres,sres) =
+  | pph(mw,id,bl,is,ss, h::t,nres,sres) =
           let val (n,s)   = print'p(mw,id,bl,is,ss,Hori,h,sres)
           in pph(mw,(id+n),bl,is,ss,t,n+nres,s) end
 (*
@@ -636,28 +636,28 @@ $insert~{\tt mod}~ {\tt Pagewidth} \geq BailoutSpot$
 %with an additional argument.
 *)
 and print'p(mw,id,bl,is,ss,mo,  Str(n,s),res) = (n,s::res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,Hori,Brk(b,i),res) =
+ |  print'p(mw,id,bl,is,ss,Hori,Brk(b,i),res) =
            (b, (if (!Bailout) then Spmod(b) else Sp(b))::res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,Vert, Brk(b,i), res) =
+ |  print'p(mw,id,bl,is,ss,Vert, Brk(b,i), res) =
            (i, (if (!Bailout) then Spmod(id+i) else Sp(id+i))::(Nl(ss))::res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,Hori, Dbk, res) =
+ |  print'p(mw,id,bl,is,ss,Hori, Dbk, res) =
            (bl, (if (!Bailout) then Spmod(bl) else Sp(bl))::res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,Vert, Dbk, res)      =
+ |  print'p(mw,id,bl,is,ss,Vert, Dbk, res)      =
            (is,(if (!Bailout) then Spmod(id+is) else Sp(id+is))::(Nl(ss))::res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,mo,   Ebk,res)      = (0,res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,mo,   Hbx((min,max),blanks,l),res) =
+ |  print'p(mw,id,bl,is,ss,mo,   Ebk,res)      = (0,res)
+ |  print'p(mw,id,bl,is,ss,mo,   Hbx((min,max),blanks,l),res) =
             if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
             then pph(mw+(!Pagewidth),mw + (!BailoutIndent),
                         blanks,is,ss,l,0,(Nl(ss))::res)
             else pph(mw,id,blanks,is,ss,l,0,res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,mo,   Vbx((min,max),indent,skip,l), res) =
+ |  print'p(mw,id,bl,is,ss,mo,   Vbx((min,max),indent,skip,l), res) =
            if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
            then let val id = mw+(!BailoutIndent)
                 in ppv(mw+(!Pagewidth),id,id,bl,indent,skip,0,0,l,(Nl(ss))::res) end
            else ppv(mw,id,id,bl,indent,skip,0,0,l,res)
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,mo,   Hvx(((min,max),(nmode,xmode)),blanks,indent,skip,l), res) =
+ |  print'p(mw,id,bl,is,ss,mo,   Hvx(((min,max),(nmode,xmode)),blanks,indent,skip,l), res) =
             let val gl=gh(nil,l,nil) in
             if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
@@ -665,7 +665,7 @@ and print'p(mw,id,bl,is,ss,mo,  Str(n,s),res) = (n,s::res)
                           blanks,indent,skip,0,0,Ebk,gl,(Nl(ss))::res)
             else pphv(mw,id,blanks,indent,skip,0,0,Ebk,gl,res)
             end
- |  (* GEN CASE BRANCH *) print'p(mw,id,bl,is,ss,mo,   Hov(((min,max),(nmode,xmode)),blanks,indent,skip,l), res) =
+ |  print'p(mw,id,bl,is,ss,mo,   Hov(((min,max),(nmode,xmode)),blanks,indent,skip,l), res) =
              if (max<=(mw-id))
              then if xmode=Hori
                      then pph(mw,id,blanks,is,ss,l,0,res)

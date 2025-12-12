@@ -21,18 +21,18 @@ struct
     fun normalizeFor (T.All (D, F), t) =
           T.All (T.decSub (D, t),
                  normalizeFor (F, T.dot1 t))
-      | (* GEN CASE BRANCH *) normalizeFor (T.Ex (D, F), t) =
+      | normalizeFor (T.Ex (D, F), t) =
           T.Ex (I.decSub (D, T.coerceSub t),
                  normalizeFor (F, T.dot1 t))
-      | (* GEN CASE BRANCH *) normalizeFor (T.And (F1, F2), t) =
+      | normalizeFor (T.And (F1, F2), t) =
           T.And (normalizeFor (F1, t),
                  normalizeFor (F2, t))
-      | (* GEN CASE BRANCH *) normalizeFor (T.FClo (F, t1), t2) =
+      | normalizeFor (T.FClo (F, t1), t2) =
           normalizeFor (F, T.comp (t1, t2))
-      | (* GEN CASE BRANCH *) normalizeFor (T.World (W, F), t) =
+      | normalizeFor (T.World (W, F), t) =
           T.World (W, normalizeFor (F, t))
 (*      | normalizeFor (T.FVar (G, r))   think about it *)
-      | (* GEN CASE BRANCH *) normalizeFor (T.True, _) = T.True
+      | normalizeFor (T.True, _) = T.True
 
 
     (* normalizePrg (P, t) = (P', t')
@@ -51,29 +51,29 @@ struct
     *)
 
     fun normalizePrg (P as (T.Root (T.Const _,_)), t) = P
-      | (* GEN CASE BRANCH *) normalizePrg ((P as (T.Root (T.Var n, _))), t) =
+      | normalizePrg ((P as (T.Root (T.Var n, _))), t) =
            normalizePrg (P, T.Dot (T.varSub (n, t), T.id))
-      | (* GEN CASE BRANCH *) normalizePrg (T.Lam (D, P'), t) = T.Lam (D, normalizePrg (P', T.dot1 t))
-      | (* GEN CASE BRANCH *) normalizePrg (T.PairExp (U, P'), t) =
+      | normalizePrg (T.Lam (D, P'), t) = T.Lam (D, normalizePrg (P', T.dot1 t))
+      | normalizePrg (T.PairExp (U, P'), t) =
           T.PairExp (I.EClo (Whnf.whnf ((U, T.coerceSub t) : I.eclo)), normalizePrg (P', t))
 (*      | normalizePrg (T.PairBlock (B, P'), t) =
           T.PairBlock (B, normalizePrg P') *)
-      | (* GEN CASE BRANCH *) normalizePrg (T.PairPrg (P1, P2), t) =
+      | normalizePrg (T.PairPrg (P1, P2), t) =
           T.PairPrg (normalizePrg (P1, t), normalizePrg (P2, t))
-      | (* GEN CASE BRANCH *) normalizePrg (T.Unit, _) = T.Unit
-      | (* GEN CASE BRANCH *) normalizePrg (T.Redex (P, S), t) =
+      | normalizePrg (T.Unit, _) = T.Unit
+      | normalizePrg (T.Redex (P, S), t) =
           T.Redex (normalizePrg (P, t), normalizeSpine S)
           (* Clearly, the redex should be removed here *)
-      | (* GEN CASE BRANCH *) normalizePrg (T.Rec (D, P), t) = T.Rec (D, normalizePrg (P, t))
-      | (* GEN CASE BRANCH *) normalizePrg (P as T.Case _, t) = P
-      | (* GEN CASE BRANCH *) normalizePrg (P as T.EVar (Psi, ref (SOME P'), _), t) = normalizePrg (P', t)
+      | normalizePrg (T.Rec (D, P), t) = T.Rec (D, normalizePrg (P, t))
+      | normalizePrg (P as T.Case _, t) = P
+      | normalizePrg (P as T.EVar (Psi, ref (SOME P'), _), t) = normalizePrg (P', t)
 
     and normalizeSpine T.Nil = T.Nil
-      | (* GEN CASE BRANCH *) normalizeSpine (T.AppExp (U, S)) =
+      | normalizeSpine (T.AppExp (U, S)) =
           T.AppExp (U, normalizeSpine S)
-     | (* GEN CASE BRANCH *) normalizeSpine (T.AppPrg (P, S)) =
+     | normalizeSpine (T.AppPrg (P, S)) =
           T.AppPrg (normalizePrg (P, T.id), normalizeSpine S)
-      | (* GEN CASE BRANCH *) normalizeSpine (T.AppBlock (B, S)) =
+      | normalizeSpine (T.AppBlock (B, S)) =
           T.AppBlock (B, normalizeSpine S)
 
 (*
@@ -83,9 +83,9 @@ struct
 *)
 
     fun normalizeSub (s as T.Shift n) = s
-      | (* GEN CASE BRANCH *) normalizeSub (T.Dot (T.Prg P, s)) =
+      | normalizeSub (T.Dot (T.Prg P, s)) =
           T.Dot (T.Prg (normalizePrg (P, T.id)), normalizeSub s)
-      | (* GEN CASE BRANCH *) normalizeSub (T.Dot (F, s)) =
+      | normalizeSub (T.Dot (F, s)) =
           T.Dot (F, normalizeSub s)
   in
     val normalizeFor = normalizeFor

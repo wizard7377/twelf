@@ -48,13 +48,13 @@ struct
 
 
     fun stripTCOpt NONE = NONE
-      | (* GEN CASE BRANCH *) stripTCOpt (SOME TC) = SOME (stripTC TC)
+      | stripTCOpt (SOME TC) = SOME (stripTC TC)
 
     fun stripDec (T.UDec D) = T.UDec D
-      | (* GEN CASE BRANCH *) stripDec (T.PDec (name, F, TC1, TC2)) = T.PDec (name, F, TC1, stripTCOpt TC2)
+      | stripDec (T.PDec (name, F, TC1, TC2)) = T.PDec (name, F, TC1, stripTCOpt TC2)
 
     fun strip I.Null = I.Null
-      | (* GEN CASE BRANCH *) strip (I.Decl (Psi, D)) = I.Decl (strip Psi, stripDec D)
+      | strip (I.Decl (Psi, D)) = I.Decl (strip Psi, stripDec D)
 
 
     (* expand' S = op'
@@ -66,9 +66,9 @@ struct
     fun expand (S.Focus (Y as T.EVar (Psi, r, G, V, _, _), W)) =   (* Y is lowered *)
       let
         fun matchCtx (I.Null, _, Fs) = Fs
-          | (* GEN CASE BRANCH *) matchCtx (I.Decl (G, T.PDec (x, F, _, _)), n, Fs) =
+          | matchCtx (I.Decl (G, T.PDec (x, F, _, _)), n, Fs) =
           matchCtx (G, n+1, Local (Y, n) :: Fs)
-          | (* GEN CASE BRANCH *) matchCtx (I.Decl (G, T.UDec _), n, Fs) =
+          | matchCtx (I.Decl (G, T.UDec _), n, Fs) =
           matchCtx (G, n+1, Fs)
     
       in
@@ -116,7 +116,7 @@ struct
                (r := SOME (T.LetUnit (T.Var n, Y)))
              end)
        end
-      | (* GEN CASE BRANCH *) apply (Local (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), n)) =
+      | apply (Local (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), n)) =
            apply (Local (T.EVar (Psi, r, T.forSub (F, s), TC1, TC2, X), n))
 
 

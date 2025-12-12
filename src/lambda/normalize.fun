@@ -21,26 +21,26 @@ struct
     fun normalizeFor (T.All ((D, Q), F), t) =
           T.All ((T.decSub (D, t), Q),
                  normalizeFor (F, T.dot1 t))
-      | (* GEN CASE BRANCH *) normalizeFor (T.Ex ((D, Q), F), t) =
+      | normalizeFor (T.Ex ((D, Q), F), t) =
           T.Ex ((I.decSub (D, T.coerceSub t), Q),
                  normalizeFor (F, T.dot1 t))
-      | (* GEN CASE BRANCH *) normalizeFor (T.And (F1, F2), t) =
+      | normalizeFor (T.And (F1, F2), t) =
           T.And (normalizeFor (F1, t),
                  normalizeFor (F2, t))
-      | (* GEN CASE BRANCH *) normalizeFor (T.FClo (F, t1), t2) =
+      | normalizeFor (T.FClo (F, t1), t2) =
           normalizeFor (F, T.comp (t1, t2))
-      | (* GEN CASE BRANCH *) normalizeFor (T.World (W, F), t) =
+      | normalizeFor (T.World (W, F), t) =
           T.World (W, normalizeFor (F, t))
 (*      | normalizeFor (T.FVar (G, r))   think about it *)
-      | (* GEN CASE BRANCH *) normalizeFor (T.True, _) = T.True
+      | normalizeFor (T.True, _) = T.True
 
     fun whnfFor (Ft as (T.All (D, _), t)) = Ft
-      | (* GEN CASE BRANCH *) whnfFor (Ft as (T.Ex (D, F), t)) = Ft
-      | (* GEN CASE BRANCH *) whnfFor (Ft as (T.And (F1, F2), t)) = Ft
-      | (* GEN CASE BRANCH *) whnfFor (T.FClo (F, t1), t2) =
+      | whnfFor (Ft as (T.Ex (D, F), t)) = Ft
+      | whnfFor (Ft as (T.And (F1, F2), t)) = Ft
+      | whnfFor (T.FClo (F, t1), t2) =
           whnfFor (F, T.comp (t1, t2))
-      | (* GEN CASE BRANCH *) whnfFor (Ft as (T.World (W, F), t)) = Ft
-      | (* GEN CASE BRANCH *) whnfFor (Ft as (T.True, _)) = Ft
+      | whnfFor (Ft as (T.World (W, F), t)) = Ft
+      | whnfFor (Ft as (T.True, _)) = Ft
 
 
     (* normalizePrg (P, t) = (P', t')
@@ -67,30 +67,30 @@ struct
            | (T.Block _) => raise Domain
            | (T.Undef) => raise Domain
              )
-      |  (* GEN CASE BRANCH *) normalizePrg (T.PairExp (U, P'), t) =
+      |  normalizePrg (T.PairExp (U, P'), t) =
           T.PairExp (Whnf.normalize (U, T.coerceSub t), normalizePrg (P', t))
-      | (* GEN CASE BRANCH *) normalizePrg (T.PairBlock (B, P'), t) =
+      | normalizePrg (T.PairBlock (B, P'), t) =
           T.PairBlock (I.blockSub (B, T.coerceSub t), normalizePrg (P', t))
-      | (* GEN CASE BRANCH *) normalizePrg (T.PairPrg (P1, P2), t) =
+      | normalizePrg (T.PairPrg (P1, P2), t) =
           T.PairPrg (normalizePrg (P1, t), normalizePrg (P2, t))
-      | (* GEN CASE BRANCH *) normalizePrg (T.Unit, _) = T.Unit
+      | normalizePrg (T.Unit, _) = T.Unit
 
 
-      | (* GEN CASE BRANCH *) normalizePrg (T.EVar (_, ref (SOME P), _), t) = T.PClo(P, t)
+      | normalizePrg (T.EVar (_, ref (SOME P), _), t) = T.PClo(P, t)
 
       (* ABP *)
-      | (* GEN CASE BRANCH *) normalizePrg (P as T.EVar _, t) = T.PClo(P,t)
+      | normalizePrg (P as T.EVar _, t) = T.PClo(P,t)
 
-      | (* GEN CASE BRANCH *) normalizePrg (T.PClo (P, t), t') = normalizePrg (P, T.comp (t, t'))
+      | normalizePrg (T.PClo (P, t), t') = normalizePrg (P, T.comp (t, t'))
 
     and normalizeSpine (T.Nil, t) = T.Nil
-      | (* GEN CASE BRANCH *) normalizeSpine (T.AppExp (U, S), t) =
+      | normalizeSpine (T.AppExp (U, S), t) =
          T.AppExp (Whnf.normalize (U, T.coerceSub t), normalizeSpine (S, t))
-      | (* GEN CASE BRANCH *) normalizeSpine (T.AppPrg (P, S), t) =
+      | normalizeSpine (T.AppPrg (P, S), t) =
           T.AppPrg (normalizePrg (P, t), normalizeSpine (S, t))
-      | (* GEN CASE BRANCH *) normalizeSpine (T.AppBlock (B, S), t) =
+      | normalizeSpine (T.AppBlock (B, S), t) =
           T.AppBlock (I.blockSub (B, T.coerceSub t), normalizeSpine (S, t))
-      | (* GEN CASE BRANCH *) normalizeSpine (T.SClo (S, t1), t2) =
+      | normalizeSpine (T.SClo (S, t1), t2) =
           normalizeSpine (S, T.comp (t1, t2))
 
 (*
@@ -100,13 +100,13 @@ struct
 *)
 
     fun normalizeSub (s as T.Shift n) = s
-      | (* GEN CASE BRANCH *) normalizeSub (T.Dot (T.Prg P, s)) =
+      | normalizeSub (T.Dot (T.Prg P, s)) =
           T.Dot (T.Prg (normalizePrg (P, T.id)), normalizeSub s)
-      | (* GEN CASE BRANCH *) normalizeSub (T.Dot (T.Exp E, s)) =
+      | normalizeSub (T.Dot (T.Exp E, s)) =
           T.Dot (T.Exp (Whnf.normalize (E, I.id)), normalizeSub s)
-      | (* GEN CASE BRANCH *) normalizeSub (T.Dot (T.Block k, s)) =
+      | normalizeSub (T.Dot (T.Block k, s)) =
           T.Dot (T.Block k, normalizeSub s)
-      | (* GEN CASE BRANCH *) normalizeSub (T.Dot (T.Idx k, s)) =
+      | normalizeSub (T.Dot (T.Idx k, s)) =
           T.Dot (T.Idx k, normalizeSub s)
 
   in

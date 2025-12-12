@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+
+id: untop_fun_case
+message: Add your rule message here....
+severity: warning # error, warning, info, hint
+language: sml
+rule:
+  pattern: $BRANCH
+  # matches: within_type
+  kind: fmrule 
+  follows:
+    pattern: $OBRANCH 
+    kind: fmrule 
+    stopBy: end
+
+fix: (* GEN BEGIN CASE BRANCH *) $BRANCH (* GEN END CASE BRANCH *)
+# utils: Extract repeated rule as local utility here.
+# note: Add detailed explanation for the rule.

@@ -1,0 +1,169 @@
+Parsing ../src/lambda/lambda.sml
+(source_file [0, 0] - [54, 0]
+  (block_comment [0, 0] - [0, 23])
+  (block_comment [1, 0] - [4, 2])
+  (block_comment [6, 0] - [6, 23])
+  (block_comment [7, 0] - [19, 2])
+  (structure_strdec [21, 0] - [23, 30]
+    (strbind [21, 10] - [23, 30]
+      name: (strid [21, 10] - [21, 21])
+      def: (fctapp_strexp [22, 2] - [23, 30]
+        name: (fctid [22, 2] - [22, 13])
+        (block_comment [22, 15] - [22, 49])
+        arg: (structure_strdec [23, 8] - [23, 29]
+          (strbind [23, 18] - [23, 29]
+            name: (strid [23, 18] - [23, 22])
+            def: (strid_strexp [23, 25] - [23, 29]
+              (longstrid [23, 25] - [23, 29]
+                (strid [23, 25] - [23, 29]))))))))
+  (structure_strdec [25, 0] - [28, 28]
+    (strbind [25, 10] - [28, 28]
+      name: (strid [25, 10] - [25, 22])
+      def: (fctapp_strexp [26, 2] - [28, 28]
+        name: (fctid [26, 2] - [26, 7])
+        (block_comment [26, 9] - [26, 43])
+        arg: (structure_strdec [27, 2] - [27, 23]
+          (strbind [27, 12] - [27, 23]
+            name: (strid [27, 12] - [27, 16])
+            def: (strid_strexp [27, 19] - [27, 23]
+              (longstrid [27, 19] - [27, 23]
+                (strid [27, 19] - [27, 23])))))
+        arg: (structure_strdec [28, 2] - [28, 27]
+          (strbind [28, 12] - [28, 27]
+            name: (strid [28, 12] - [28, 17])
+            def: (strid_strexp [28, 20] - [28, 27]
+              (longstrid [28, 20] - [28, 27]
+                (strid [28, 20] - [28, 27]))))))))
+  (structure_strdec [30, 0] - [33, 26]
+    (strbind [30, 10] - [33, 26]
+      name: (strid [30, 10] - [30, 20])
+      def: (fctapp_strexp [31, 2] - [33, 26]
+        name: (fctid [31, 2] - [31, 7])
+        (block_comment [31, 9] - [31, 43])
+        arg: (structure_strdec [32, 2] - [32, 23]
+          (strbind [32, 12] - [32, 23]
+            name: (strid [32, 12] - [32, 16])
+            def: (strid_strexp [32, 19] - [32, 23]
+              (longstrid [32, 19] - [32, 23]
+                (strid [32, 19] - [32, 23])))))
+        arg: (structure_strdec [33, 2] - [33, 25]
+          (strbind [33, 12] - [33, 25]
+            name: (strid [33, 12] - [33, 17])
+            def: (strid_strexp [33, 20] - [33, 25]
+              (longstrid [33, 20] - [33, 25]
+                (strid [33, 20] - [33, 25]))))))))
+  (block_comment [35, 0] - [39, 3])
+  (structure_strdec [41, 0] - [44, 26]
+    (strbind [41, 10] - [44, 26]
+      name: (strid [41, 10] - [41, 15])
+      def: (fctapp_strexp [42, 2] - [44, 26]
+        name: (fctid [42, 2] - [42, 7])
+        arg: (structure_strdec [42, 9] - [42, 30]
+          (strbind [42, 19] - [42, 30]
+            name: (strid [42, 19] - [42, 23])
+            def: (strid_strexp [42, 26] - [42, 30]
+              (longstrid [42, 26] - [42, 30]
+                (strid [42, 26] - [42, 30])))))
+        arg: (structure_strdec [43, 2] - [43, 30]
+          (strbind [43, 12] - [43, 30]
+            name: (strid [43, 12] - [43, 17])
+            def: (strid_strexp [43, 20] - [43, 30]
+              (longstrid [43, 20] - [43, 30]
+                (strid [43, 20] - [43, 30])))))
+        arg: (structure_strdec [44, 2] - [44, 25]
+          (strbind [44, 12] - [44, 25]
+            name: (strid [44, 12] - [44, 17])
+            def: (strid_strexp [44, 20] - [44, 25]
+              (longstrid [44, 20] - [44, 25]
+                (strid [44, 20] - [44, 25]))))))))
+  (structure_strdec [46, 0] - [49, 36]
+    (strbind [46, 10] - [49, 36]
+      name: (strid [46, 10] - [46, 18])
+      def: (fctapp_strexp [47, 2] - [49, 36]
+        name: (fctid [47, 2] - [47, 10])
+        arg: (structure_strdec [47, 12] - [47, 33]
+          (strbind [47, 22] - [47, 33]
+            name: (strid [47, 22] - [47, 26])
+            def: (strid_strexp [47, 29] - [47, 33]
+              (longstrid [47, 29] - [47, 33]
+                (strid [47, 29] - [47, 33])))))
+        arg: (structure_strdec [48, 5] - [48, 40]
+          (strbind [48, 15] - [48, 40]
+            name: (strid [48, 15] - [48, 26])
+            def: (strid_strexp [48, 29] - [48, 40]
+              (longstrid [48, 29] - [48, 40]
+                (strid [48, 29] - [48, 40])))))
+        arg: (structure_strdec [49, 5] - [49, 35]
+          (strbind [49, 15] - [49, 35]
+            name: (strid [49, 15] - [49, 20])
+            def: (strid_strexp [49, 23] - [49, 35]
+              (longstrid [49, 23] - [49, 35]
+                (strid [49, 23] - [49, 35]))))))))
+  (structure_strdec [51, 0] - [53, 32]
+    (strbind [51, 10] - [53, 32]
+      name: (strid [51, 10] - [51, 16])
+      def: (fctapp_strexp [52, 2] - [53, 32]
+        name: (fctid [52, 2] - [52, 8])
+        (block_comment [52, 10] - [52, 44])
+        arg: (structure_strdec [53, 10] - [53, 31]
+          (strbind [53, 20] - [53, 31]
+            name: (strid [53, 20] - [53, 24])
+            def: (strid_strexp [53, 27] - [53, 31]
+              (longstrid [53, 27] - [53, 31]
+                (strid [53, 27] - [53, 31])))))))))
+Parsing ../src/lambda/order.sml
+(source_file [0, 0] - [8, 2]
+  (structure_strdec [0, 0] - [2, 36]
+    (strbind [0, 10] - [2, 36]
+      name: (strid [0, 10] - [0, 15])
+      def: (fctapp_strexp [1, 2] - [2, 36]
+        name: (fctid [1, 2] - [1, 7])
+        (block_comment [1, 9] - [1, 43])
+        arg: (structure_strdec [2, 2] - [2, 35]
+          (strbind [2, 12] - [2, 35]
+            name: (strid [2, 12] - [2, 17])
+            def: (strid_strexp [2, 20] - [2, 35]
+              (longstrid [2, 20] - [2, 35]
+                (strid [2, 20] - [2, 35]))))))))
+  (block_comment [3, 0] - [3, 9])
+  (block_comment [4, 0] - [8, 2]))
+Parsing ../src/lambda/tomega.sml
+(source_file [0, 0] - [11, 0]
+  (structure_strdec [0, 0] - [1, 43]
+    (strbind [0, 10] - [1, 43]
+      name: (strid [0, 10] - [0, 14])
+      def: (fctapp_strexp [1, 2] - [1, 43]
+        name: (fctid [1, 2] - [1, 6])
+        (block_comment [1, 8] - [1, 42]))))
+  (structure_strdec [3, 0] - [5, 23]
+    (strbind [3, 10] - [5, 23]
+      name: (strid [3, 10] - [3, 14])
+      def: (fctapp_strexp [4, 2] - [5, 23]
+        name: (fctid [4, 2] - [4, 6])
+        (block_comment [4, 8] - [4, 42])
+        arg: (structure_strdec [5, 1] - [5, 22]
+          (strbind [5, 11] - [5, 22]
+            name: (strid [5, 11] - [5, 15])
+            def: (strid_strexp [5, 18] - [5, 22]
+              (longstrid [5, 18] - [5, 22]
+                (strid [5, 18] - [5, 22]))))))))
+  (structure_strdec [7, 0] - [10, 26]
+    (strbind [7, 10] - [10, 26]
+      name: (strid [7, 10] - [7, 16])
+      sig: (sigid_sigexp [7, 19] - [7, 25]
+        (sigid [7, 19] - [7, 25]))
+      def: (fctapp_strexp [8, 3] - [10, 26]
+        name: (fctid [8, 3] - [8, 9])
+        (block_comment [8, 11] - [8, 45])
+        arg: (structure_strdec [9, 4] - [9, 25]
+          (strbind [9, 14] - [9, 25]
+            name: (strid [9, 14] - [9, 18])
+            def: (strid_strexp [9, 21] - [9, 25]
+              (longstrid [9, 21] - [9, 25]
+                (strid [9, 21] - [9, 25])))))
+        arg: (structure_strdec [10, 4] - [10, 25]
+          (strbind [10, 14] - [10, 25]
+            name: (strid [10, 14] - [10, 18])
+            def: (strid_strexp [10, 21] - [10, 25]
+              (longstrid [10, 21] - [10, 25]
+                (strid [10, 21] - [10, 25])))))))))

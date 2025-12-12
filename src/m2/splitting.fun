@@ -61,7 +61,7 @@ struct
          cases from I
     *)
     fun constCases (G, Vs, nil, abstract, ops) = ops
-      | (* GEN CASE BRANCH *) constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
+      | constCases (G, Vs, I.Const c::Sgn, abstract, ops) =
         let
           val (U, Vs') = M.createAtomConst (G, I.Const c)
         in
@@ -85,7 +85,7 @@ struct
          cases introduced by parameters <= k in G
     *)
     fun paramCases (G, Vs, 0, abstract, ops) = ops
-      | (* GEN CASE BRANCH *) paramCases (G, Vs, k, abstract, ops) =
+      | paramCases (G, Vs, k, abstract, ops) =
         let
           val (U, Vs') = M.createAtomBVar (G, k)
         in
@@ -109,7 +109,7 @@ struct
     fun lowerSplitDest (G, (V as I.Root (I.Const c, _), s'), abstract) =
           constCases (G, (V, s'), Index.lookup c, abstract,
                       paramCases (G, (V, s'), I.ctxLength G, abstract, nil))
-      | (* GEN CASE BRANCH *) lowerSplitDest (G, (I.Pi ((D, P), V), s'), abstract) =
+      | lowerSplitDest (G, (I.Pi ((D, P), V), s'), abstract) =
           let
             val D' = I.decSub (D, s')
           in
@@ -139,21 +139,21 @@ struct
        then  B iff k occurs in U
     *)
     fun occursInExp (k, I.Uni _) = false
-      | (* GEN CASE BRANCH *) occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
-      | (* GEN CASE BRANCH *) occursInExp (k, I.Root (C, S)) = occursInCon (k, C) orelse occursInSpine (k, S)
-      | (* GEN CASE BRANCH *) occursInExp (k, I.Lam (D,V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
-      | (* GEN CASE BRANCH *) occursInExp (k, I.FgnExp csfe) =
+      | occursInExp (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExp (k+1, V)
+      | occursInExp (k, I.Root (C, S)) = occursInCon (k, C) orelse occursInSpine (k, S)
+      | occursInExp (k, I.Lam (D,V)) = occursInDec (k, D) orelse occursInExp (k+1, V)
+      | occursInExp (k, I.FgnExp csfe) =
         I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExp (k, Whnf.normalize (U, I.id))) false
       (* no case for Redex, EVar, EClo *)
 
     and occursInCon (k, I.BVar (k')) = (k = k')
-      | (* GEN CASE BRANCH *) occursInCon (k, I.Const _) = false
-      | (* GEN CASE BRANCH *) occursInCon (k, I.Def _) = false
-      | (* GEN CASE BRANCH *) occursInCon (k, I.Skonst _) = false
+      | occursInCon (k, I.Const _) = false
+      | occursInCon (k, I.Def _) = false
+      | occursInCon (k, I.Skonst _) = false
       (* no case for FVar *)
 
     and occursInSpine (_, I.Nil) = false
-      | (* GEN CASE BRANCH *) occursInSpine (k, I.App (U, S)) = occursInExp (k, U) orelse occursInSpine (k, S)
+      | occursInSpine (k, I.App (U, S)) = occursInExp (k, U) orelse occursInSpine (k, S)
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExp (k, V)
@@ -173,21 +173,21 @@ struct
     *)
 
     fun checkVar (I.Decl (M, M.Top), 1) = true
-      | (* GEN CASE BRANCH *) checkVar (I.Decl (M, M.Bot), 1) = false
-      | (* GEN CASE BRANCH *) checkVar (I.Decl (M, _), k) = checkVar (M, k-1)
+      | checkVar (I.Decl (M, M.Bot), 1) = false
+      | checkVar (I.Decl (M, _), k) = checkVar (M, k-1)
 
     fun checkExp (M, I.Uni _) = true
-      | (* GEN CASE BRANCH *) checkExp (M, I.Pi ((D, P), V)) =
+      | checkExp (M, I.Pi ((D, P), V)) =
           checkDec (M, D) andalso checkExp (I.Decl (M, M.Top), V)
-      | (* GEN CASE BRANCH *) checkExp (M, I.Lam (D, V)) =
+      | checkExp (M, I.Lam (D, V)) =
           checkDec (M, D) andalso checkExp (I.Decl (M, M.Top), V)
-      | (* GEN CASE BRANCH *) checkExp (M, I.Root (I.BVar k, S)) =
+      | checkExp (M, I.Root (I.BVar k, S)) =
           checkVar (M, k) andalso checkSpine (M, S)
-      | (* GEN CASE BRANCH *) checkExp (M, I.Root (_, S)) =
+      | checkExp (M, I.Root (_, S)) =
           checkSpine (M, S)
 
     and checkSpine (M, I.Nil) = true
-      | (* GEN CASE BRANCH *) checkSpine (M, I.App (U, S)) =
+      | checkSpine (M, I.App (U, S)) =
           checkExp (M, U) andalso checkSpine (M, S)
 
     and checkDec (M, I.Dec (_, V)) = checkExp (M, V)
@@ -202,8 +202,8 @@ struct
        else B' = false
     *)
     fun modeEq (ModeSyn.Marg (ModeSyn.Plus, _), M.Top) = true
-      | (* GEN CASE BRANCH *) modeEq (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) = true
-      | (* GEN CASE BRANCH *) modeEq _ = false
+      | modeEq (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) = true
+      | modeEq _ = false
 
     (*
        The inherit functions below copy the splitting depth attribute
@@ -226,17 +226,17 @@ struct
     fun inheritBelow (b', k', I.Lam (D', U'), Bdd') =
           inheritBelow (b', k'+1, U',
                         inheritBelowDec (b', k', D', Bdd'))
-      | (* GEN CASE BRANCH *) inheritBelow (b', k', I.Pi ((D',_), V'), Bdd') =
+      | inheritBelow (b', k', I.Pi ((D',_), V'), Bdd') =
           inheritBelow (b', k'+1, V',
                         inheritBelowDec (b', k', D', Bdd'))
-      | (* GEN CASE BRANCH *) inheritBelow (b', k', I.Root (I.BVar(n'), S'), (B', d, d')) =
+      | inheritBelow (b', k', I.Root (I.BVar(n'), S'), (B', d, d')) =
         if n' = k'+d' andalso n' > k' (* necessary for d' = 0 *)
           then inheritBelowSpine (b', k', S', (I.Decl (B', b'), d, d'-1))
         else inheritBelowSpine (b', k', S', (B', d, d'))
-      | (* GEN CASE BRANCH *) inheritBelow (b', k', I.Root (C, S'), Bdd') =
+      | inheritBelow (b', k', I.Root (C, S'), Bdd') =
           inheritBelowSpine (b', k', S', Bdd')
     and inheritBelowSpine (b', k', I.Nil, Bdd') = Bdd'
-      | (* GEN CASE BRANCH *) inheritBelowSpine (b', k', I.App (U', S'), Bdd') =
+      | inheritBelowSpine (b', k', I.App (U', S'), Bdd') =
           inheritBelowSpine (b', k', S', inheritBelow (b', k', U', Bdd'))
     and inheritBelowDec (b', k', I.Dec(x, V'), Bdd') =
           inheritBelow (b', k', V', Bdd')
@@ -244,16 +244,16 @@ struct
     (* skip *)
     fun skip (k, I.Lam (D, U), Bdd') =
           skip (k+1, U, skipDec (k, D, Bdd'))
-      | (* GEN CASE BRANCH *) skip (k, I.Pi ((D,_), V), Bdd') =
+      | skip (k, I.Pi ((D,_), V), Bdd') =
           skip (k+1, V, skipDec (k, D, Bdd'))
-      | (* GEN CASE BRANCH *) skip (k, I.Root (I.BVar(n), S), (B', d, d')) =
+      | skip (k, I.Root (I.BVar(n), S), (B', d, d')) =
         if n = k+d andalso n > k (* necessary for d = 0 *)
           then skipSpine (k, S, (B', d-1, d'))
         else skipSpine (k, S, (B', d, d'))
-      | (* GEN CASE BRANCH *) skip (k, I.Root (C, S), Bdd') =
+      | skip (k, I.Root (C, S), Bdd') =
           skipSpine (k, S, Bdd')
     and skipSpine (k, I.Nil, Bdd') = Bdd'
-      | (* GEN CASE BRANCH *) skipSpine (k, I.App (U, S), Bdd') =
+      | skipSpine (k, I.App (U, S), Bdd') =
           skipSpine (k, S, skip (k, U, Bdd'))
     and skipDec (k, I.Dec(x, V), Bdd') =
           skip (k, V, Bdd')
@@ -262,10 +262,10 @@ struct
     fun inheritExp (B, k, I.Lam (D, U), k', I.Lam (D', U'), Bdd') =
            inheritExp (B, k+1, U, k'+1, U',
                        inheritDec (B, k, D, k', D', Bdd'))
-      | (* GEN CASE BRANCH *) inheritExp (B, k, I.Pi ((D, _), V), k', I.Pi ((D', _), V'), Bdd') =
+      | inheritExp (B, k, I.Pi ((D, _), V), k', I.Pi ((D', _), V'), Bdd') =
            inheritExp (B, k+1, V, k'+1, V',
                        inheritDec (B, k, D, k', D', Bdd'))
-      | (* GEN CASE BRANCH *) inheritExp (B, k, V as I.Root (I.BVar (n), S), k', V', (B', d, d')) =
+      | inheritExp (B, k, V as I.Root (I.BVar (n), S), k', V', (B', d, d')) =
         if n = k+d andalso n > k (* new original variable *)
           then (* inheritBelow (I.ctxLookup (B, n-k) - 1, k', V', (B', d-1, d')) *)
             skipSpine (k, S, inheritNewRoot (B, I.ctxLookup (B, n-k), k, V, k', V', (B', d, d')))
@@ -280,7 +280,7 @@ struct
                in
                  inheritSpine (B, k, S, k', S', (B', d, d'))
                end
-      | (* GEN CASE BRANCH *) inheritExp (B, k, I.Root (C, S), k', I.Root (C', S'), Bdd') =
+      | inheritExp (B, k, I.Root (C, S), k', I.Root (C', S'), Bdd') =
           (* C ~ C' *)
           inheritSpine (B, k, S, k', S', Bdd')
 
@@ -291,12 +291,12 @@ struct
           (* n' also new --- same variable: do not decrease *)
           then inheritBelow (b, k', V', (B', d-1, d'))
         else inheritBelow (b-1, k', V', (B', d-1, d'))
-      | (* GEN CASE BRANCH *) inheritNewRoot (B, b, k, V, k', V', (B', d, d')) =
+      | inheritNewRoot (B, b, k, V, k', V', (B', d, d')) =
           (* n' not new --- decrease the splitting depth of all variables in V' *)
           inheritBelow (b-1, k', V', (B', d-1, d'))
 
     and inheritSpine (B, k, I.Nil, k', I.Nil, Bdd') = Bdd'
-      | (* GEN CASE BRANCH *) inheritSpine (B, k, I.App (U, S), k', I.App (U', S'), Bdd') =
+      | inheritSpine (B, k, I.App (U, S), k', I.App (U', S'), Bdd') =
           inheritSpine (B, k, S, k', S', inheritExp (B, k, U, k', U', Bdd'))
 
     and inheritDec (B, k, I.Dec(_, V), k', I.Dec(_, V'), Bdd') =
@@ -307,7 +307,7 @@ struct
                      Bdd') =
           inheritG (B, k, V1, k', V1',
                     inheritDTop (B, k+1, V2, k'+1, V2', Bdd'))
-      | (* GEN CASE BRANCH *) inheritDTop (B, k, V as I.Root (I.Const(cid), S),
+      | inheritDTop (B, k, V as I.Root (I.Const(cid), S),
                      k', V' as I.Root (I.Const(cid'), S'), Bdd') =
         (* cid = cid' *)
         let
@@ -320,7 +320,7 @@ struct
                      k', I.Pi ((I.Dec (_, V1'), I.No), V2'),
                      Bdd') =
           inheritDBot (B, k+1, V2, k'+1, V2', Bdd')
-      | (* GEN CASE BRANCH *) inheritDBot (B, k, I.Root (I.Const(cid), S),
+      | inheritDBot (B, k, I.Root (I.Const(cid), S),
                      k', I.Root (I.Const (cid'), S'), Bdd') =
           (* cid = cid' *)
           let
@@ -340,7 +340,7 @@ struct
         end
 
     and inheritSpineMode (mode, ModeSyn.Mnil, B, k, I.Nil, k', I.Nil, Bdd') = Bdd'
-      | (* GEN CASE BRANCH *) inheritSpineMode (mode, ModeSyn.Mapp (m, mS), B, k, I.App (U, S),
+      | inheritSpineMode (mode, ModeSyn.Mapp (m, mS), B, k, I.App (U, S),
                           k', I.App (U', S'), Bdd') =
           if modeEq (m, mode)
             then inheritSpineMode (mode, mS, B, k, S, k', S',
@@ -421,7 +421,7 @@ struct
     *)
     fun expand' (M.Prefix (I.Null, I.Null, I.Null), isIndex, abstract, makeAddress) =
           (M.Prefix (I.Null, I.Null, I.Null), I.id, nil)
-      | (* GEN CASE BRANCH *) expand' (M.Prefix (I.Decl (G, D), I.Decl (M, mode as M.Top), I.Decl (B, b)),
+      | expand' (M.Prefix (I.Decl (G, D), I.Decl (M, mode as M.Top), I.Decl (B, b)),
                  isIndex, abstract, makeAddress) =
           let
             val (M.Prefix (G', M', B'), s', ops) =
@@ -439,7 +439,7 @@ struct
           in
             (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'), ops')
           end
-      | (* GEN CASE BRANCH *) expand' (M.Prefix (I.Decl (G, D), I.Decl (M, mode as M.Bot), I.Decl (B, b)),
+      | expand' (M.Prefix (I.Decl (G, D), I.Decl (M, mode as M.Bot), I.Decl (B, b)),
                  isIndex, abstract, makeAddress) =
           let
             val (M.Prefix (G', M', B'), s', ops) =
@@ -497,19 +497,19 @@ struct
     fun menu (Op as ((M.State (name, M.Prefix (G, M, B), V), i), Sl)) =
         let
           fun active (nil, n) = n
-            | (* GEN CASE BRANCH *) active (InActive :: L, n) = active (L, n)
-            | (* GEN CASE BRANCH *) active ((Active _) :: L, n) = active (L, n+1)
+            | active (InActive :: L, n) = active (L, n)
+            | active ((Active _) :: L, n) = active (L, n+1)
     
           fun inactive (nil, n) = n
-            | (* GEN CASE BRANCH *) inactive (InActive :: L, n) = inactive (L, n+1)
-            | (* GEN CASE BRANCH *) inactive ((Active _) :: L, n) = inactive (L, n)
+            | inactive (InActive :: L, n) = inactive (L, n+1)
+            | inactive ((Active _) :: L, n) = inactive (L, n)
     
           fun indexToString 0 = "zero cases"
-            | (* GEN CASE BRANCH *) indexToString 1 = "1 case"
-            | (* GEN CASE BRANCH *) indexToString n = (Int.toString n) ^ " cases"
+            | indexToString 1 = "1 case"
+            | indexToString n = (Int.toString n) ^ " cases"
     
           fun flagToString (_, 0) = ""
-            | (* GEN CASE BRANCH *) flagToString (n, m) = " [active: " ^(Int.toString n) ^
+            | flagToString (n, m) = " [active: " ^(Int.toString n) ^
                 " inactive: " ^ (Int.toString m) ^ "]"
         in
           "Splitting : " ^ Print.decToString (G, I.ctxDec (G, i))

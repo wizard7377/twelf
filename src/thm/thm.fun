@@ -51,21 +51,21 @@ struct
     fun unique (((a, P), r), A) =
       let
         fun unique' (I.Uni _, nil, A) = A
-          | (* GEN CASE BRANCH *) unique' (I.Pi (_, V), NONE :: P, A) = unique' (V, P, A)
-          | (* GEN CASE BRANCH *) unique' (I.Pi (_, V), SOME x :: P, A) =
+          | unique' (I.Pi (_, V), NONE :: P, A) = unique' (V, P, A)
+          | unique' (I.Pi (_, V), SOME x :: P, A) =
              (List.app (fn x' => if x = x'
                                    then error (r, "Variable " ^ x ^ " used more than once")
                                  else ()) A;
               unique' (V, P, x :: A))
-          | (* GEN CASE BRANCH *) unique' (I.Uni _, _, _) = error (r, "Too many arguments supplied to type family "
+          | unique' (I.Uni _, _, _) = error (r, "Too many arguments supplied to type family "
                                                 ^ Names.qidToString (Names.constQid a))
-          | (* GEN CASE BRANCH *) unique' (I.Pi (_, V), nil, _) = error (r, "Too few arguments supplied to type family "
+          | unique' (I.Pi (_, V), nil, _) = error (r, "Too few arguments supplied to type family "
                                                    ^ Names.qidToString (Names.constQid a))
-          | (* GEN CASE BRANCH *) unique' (I.Root _, _, _) = error (r, "Constant " ^ Names.qidToString (Names.constQid a) ^
+          | unique' (I.Root _, _, _) = error (r, "Constant " ^ Names.qidToString (Names.constQid a) ^
                                               " is an object, not a type family")
     
         fun skip (0, V, P, A) = unique' (V, P, A)
-          | (* GEN CASE BRANCH *) skip (k, I.Pi (_, V), P, A) = skip (k-1, V, P, A)
+          | skip (k, I.Pi (_, V), P, A) = skip (k-1, V, P, A)
     
       in
         skip (I.constImp a, I.constType a, P, A)
@@ -86,7 +86,7 @@ struct
     fun uniqueCallpats (L, rs) =
         let
           fun uniqueCallpats' ((nil, nil), A) = ()
-            | (* GEN CASE BRANCH *) uniqueCallpats' ((aP :: L, r :: rs), A) =
+            | uniqueCallpats' ((aP :: L, r :: rs), A) =
                 uniqueCallpats' ((L, rs), unique ((aP, r), A))
         in
           uniqueCallpats' ((L, rs), nil)
@@ -106,13 +106,13 @@ struct
     fun wfCallpats (L0, C0, r) =
         let
           fun makestring nil = ""
-            | (* GEN CASE BRANCH *) makestring (s :: nil) = s
-            | (* GEN CASE BRANCH *) makestring (s :: L) = s ^ " " ^ (makestring L)
+            | makestring (s :: nil) = s
+            | makestring (s :: L) = s ^ " " ^ (makestring L)
     
           fun exists' (x, nil, _) = false
-            | (* GEN CASE BRANCH *) exists' (x, NONE :: L, M.Mapp (_, mS)) =
+            | exists' (x, NONE :: L, M.Mapp (_, mS)) =
                 exists' (x, L, mS)
-            | (* GEN CASE BRANCH *) exists' (x, SOME y :: L, M.Mapp (M.Marg (mode, _), mS)) =
+            | exists' (x, SOME y :: L, M.Mapp (M.Marg (mode, _), mS)) =
               if x = y then
                 (case mode
                    of M.Plus => true
@@ -125,18 +125,18 @@ struct
              Effect: raises Error if position of x is not input (+).
           *)
           fun skip (0, x, P, mS) = exists' (x, P, mS)
-            | (* GEN CASE BRANCH *) skip (k, x, P, M.Mapp (_, mS)) = skip (k-1, x, P, mS)
+            | skip (k, x, P, M.Mapp (_, mS)) = skip (k-1, x, P, mS)
     
           fun delete (x, (aP as (a, P)) :: C) =
               if skip (I.constImp a, x, P, valOf (ModeTable.modeLookup a)) (* exists by invariant *)
                 then C
               else aP :: delete (x, C)
-            | (* GEN CASE BRANCH *) delete (x, nil) = error (r, "Variable " ^ x ^ " does not occur as argument")
+            | delete (x, nil) = error (r, "Variable " ^ x ^ " does not occur as argument")
     
           fun wfCallpats' (nil, nil) = ()
-            | (* GEN CASE BRANCH *) wfCallpats' (x :: L, C) =
+            | wfCallpats' (x :: L, C) =
                 wfCallpats' (L, delete (x, C))
-            | (* GEN CASE BRANCH *) wfCallpats' _ =
+            | wfCallpats' _ =
                 error (r, "Mutual argument (" ^ makestring L0
                           ^ ") does not cover all call patterns")
         in
@@ -157,13 +157,13 @@ struct
     fun wf ((O, L.Callpats C), (r, rs)) =
         let
           fun wfOrder (L.Varg L) = wfCallpats (L, C, r)
-            | (* GEN CASE BRANCH *) wfOrder (L.Lex L) = wfOrders L
-            | (* GEN CASE BRANCH *) wfOrder (L.Simul L) = wfOrders L
+            | wfOrder (L.Lex L) = wfOrders L
+            | wfOrder (L.Simul L) = wfOrders L
     
           and wfOrders (nil) = ()
-            | (* GEN CASE BRANCH *) wfOrders (O :: L) = (wfOrder O; wfOrders L)
+            | wfOrders (O :: L) = (wfOrder O; wfOrders L)
           fun allModed (nil) = ()
-            | (* GEN CASE BRANCH *) allModed ((a, P) :: Cs) =
+            | allModed ((a, P) :: Cs) =
               (case ModeTable.modeLookup a
                  of NONE => error (r, "Expected " ^ Names.qidToString (Names.constQid a)
                                       ^ " to be moded")
@@ -183,9 +183,9 @@ struct
        then nOpt describes the optional  position of the occurrence
     *)
     fun argPos (x, nil, n) = NONE
-      | (* GEN CASE BRANCH *) argPos (x, NONE :: L, n) =
+      | argPos (x, NONE :: L, n) =
           argPos (x, L, n+1)
-      | (* GEN CASE BRANCH *) argPos (x, SOME x' :: L, n) =
+      | argPos (x, SOME x' :: L, n) =
           if x = x' then SOME n
           else argPos (x, L, n+1)
 
@@ -216,11 +216,11 @@ struct
 
     *)
     fun argOrder (L.Varg L, P, n) = O.Arg (locate (L, P, n))
-      | (* GEN CASE BRANCH *) argOrder (L.Simul L, P, n) = O.Simul (argOrderL (L, P, n))
-      | (* GEN CASE BRANCH *) argOrder (L.Lex L, P, n) = O.Lex (argOrderL (L, P, n))
+      | argOrder (L.Simul L, P, n) = O.Simul (argOrderL (L, P, n))
+      | argOrder (L.Lex L, P, n) = O.Lex (argOrderL (L, P, n))
 
     and argOrderL (nil, P, n) = nil
-      | (* GEN CASE BRANCH *) argOrderL (O :: L, P, n) = argOrder (O, P, n) :: argOrderL (L, P, n)
+      | argOrderL (O :: L, P, n) = argOrder (O, P, n) :: argOrderL (L, P, n)
 
 
     (*  argOrderMutual (C, k, A) = A'
@@ -234,7 +234,7 @@ struct
              images of C under k.
     *)
     fun argOrderMutual (nil, k, A) = A
-      | (* GEN CASE BRANCH *) argOrderMutual (P :: L, k, A) =
+      | argOrderMutual (P :: L, k, A) =
           argOrderMutual (L, k, k (P, A))
 
     (* installorder (O, LE, LT) = ()
@@ -248,7 +248,7 @@ struct
        Effect: updates table associating argument order with type families.
     *)
     fun installOrder (_, nil, _) = ()
-      | (* GEN CASE BRANCH *) installOrder (O, (aP as (a, P)) :: thmsLE, thmsLT) =
+      | installOrder (O, (aP as (a, P)) :: thmsLE, thmsLT) =
         let
           val M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
                                     argOrderMutual (aP :: thmsLT,
@@ -310,15 +310,15 @@ struct
 
     *)
     fun argROrder (L.Varg L, P, n) = O.Arg (locate (L, P, n))
-      | (* GEN CASE BRANCH *) argROrder (L.Simul L, P, n) = O.Simul (argROrderL (L, P, n))
-      | (* GEN CASE BRANCH *) argROrder (L.Lex L, P, n) = O.Lex (argROrderL (L, P, n))
+      | argROrder (L.Simul L, P, n) = O.Simul (argROrderL (L, P, n))
+      | argROrder (L.Lex L, P, n) = O.Lex (argROrderL (L, P, n))
 
     and argROrderL (nil, P, n) = nil
-      | (* GEN CASE BRANCH *) argROrderL (O :: L, P, n) = argROrder (O, P, n) :: argROrderL (L, P, n)
+      | argROrderL (O :: L, P, n) = argROrder (O, P, n) :: argROrderL (L, P, n)
 
     fun argPredicate (L.Less, O, O') = O.Less (O, O')
-      | (* GEN CASE BRANCH *) argPredicate (L.Leq, O, O') = O.Leq (O, O')
-      | (* GEN CASE BRANCH *) argPredicate (L.Eq, O, O') = O.Eq (O, O')
+      | argPredicate (L.Leq, O, O') = O.Leq (O, O')
+      | argPredicate (L.Eq, O, O') = O.Eq (O, O')
 
     (* installPredicate (name, R, LE, LT) = ()
 
@@ -333,7 +333,7 @@ struct
 
     *)
     fun installPredicate ( _, nil, _) = ()
-      | (* GEN CASE BRANCH *) installPredicate (L.RedOrder(Pred,O1, O2), (aP as (a, P)) :: thmsLE, thmsLT) =
+      | installPredicate (L.RedOrder(Pred,O1, O2), (aP as (a, P)) :: thmsLE, thmsLT) =
         let
           val M' = argOrderMutual (thmsLE, fn ((a, _), L) => O.LE (a, L),
                                    argOrderMutual (aP :: thmsLT,
@@ -373,13 +373,13 @@ struct
     fun wfRCallpats (L0, C0, r) =
         let
           fun makestring nil = ""
-            | (* GEN CASE BRANCH *) makestring (s :: nil) = s
-            | (* GEN CASE BRANCH *) makestring (s :: L) = s ^ " " ^ (makestring L)
+            | makestring (s :: nil) = s
+            | makestring (s :: L) = s ^ " " ^ (makestring L)
     
           fun exists' (x, nil) = false
-            | (* GEN CASE BRANCH *) exists' (x, NONE :: L) =
+            | exists' (x, NONE :: L) =
                 exists' (x, L)
-            | (* GEN CASE BRANCH *) exists' (x, SOME y :: L) =
+            | exists' (x, SOME y :: L) =
               if x = y
                 then true
               else exists' (x, L)
@@ -388,12 +388,12 @@ struct
               (if exists' (x, P)
                  then C
                else aP :: delete (x, C))
-            | (* GEN CASE BRANCH *) delete (x, nil) = error (r, "Variable " ^ x ^ " does not occur as argument")
+            | delete (x, nil) = error (r, "Variable " ^ x ^ " does not occur as argument")
     
           fun wfCallpats' (nil, nil) = ()
-            | (* GEN CASE BRANCH *) wfCallpats' (x :: L, C) =
+            | wfCallpats' (x :: L, C) =
                 wfCallpats' (L, delete (x, C))
-            | (* GEN CASE BRANCH *) wfCallpats' _ =
+            | wfCallpats' _ =
                 error (r, "Mutual argument (" ^ makestring L0
                           ^ ") does not cover all call patterns")
         in
@@ -414,11 +414,11 @@ struct
     fun wfred ((L.RedOrder(Pred,O,O'), L.Callpats C), (r, rs)) =
         let
           fun wfOrder (L.Varg L) = (wfRCallpats (L, C, r) ; Varg)
-            | (* GEN CASE BRANCH *) wfOrder (L.Lex L) = Lex(wfOrders L)
-            | (* GEN CASE BRANCH *) wfOrder (L.Simul L) = Simul(wfOrders L)
+            | wfOrder (L.Lex L) = Lex(wfOrders L)
+            | wfOrder (L.Simul L) = Simul(wfOrders L)
     
           and wfOrders nil = nil
-            | (* GEN CASE BRANCH *) wfOrders (O :: L) = (wfOrder O) :: (wfOrders L)
+            | wfOrders (O :: L) = (wfOrder O) :: (wfOrders L)
         in
           (uniqueCallpats (C, rs);
           if  wfOrder O = wfOrder O' then

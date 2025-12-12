@@ -320,7 +320,7 @@ struct
     fun installConDec (b, I.ConDef (_, _, _, A, K, I.Kind, _)) =
           (* I.targetFam must be defined, but expands definitions! *)
           insertNewDef (b, I.targetFam A)
-      | (* GEN CASE BRANCH *) installConDec _ = ()
+      | installConDec _ = ()
 
     fun installDef c = installConDec (c, I.sgnLookup c)
 
@@ -369,7 +369,7 @@ struct
           (addSubord (I.targetFam V1, a);
            installTypeN (V1);
            installTypeN' (V2, a))
-      | (* GEN CASE BRANCH *) installTypeN' (V as I.Root (I.Def _, _), a) =
+      | installTypeN' (V as I.Root (I.Def _, _), a) =
         (* this looks like blatant overkill ... *)
         (* Sun Nov 10 11:15:47 2002 -fp *)
         let
@@ -377,7 +377,7 @@ struct
         in
           installTypeN' (V', a)
         end
-      | (* GEN CASE BRANCH *) installTypeN' (I.Root _, _) = ()
+      | installTypeN' (I.Root _, _) = ()
     and installTypeN (V) = installTypeN' (V, I.targetFam V)
 
     (* installKindN (V, a) = ()
@@ -386,7 +386,7 @@ struct
     *)
     (* there are no kind-level definitions *)
     fun installKindN (I.Uni(L), a) = ()
-      | (* GEN CASE BRANCH *) installKindN (I.Pi ((I.Dec (_, V1), P), V2), a) =
+      | installKindN (I.Pi ((I.Dec (_, V1), P), V2), a) =
           (addSubord (I.targetFam V1, a);
            installTypeN (V1);
            installKindN (V2, a))
@@ -418,7 +418,7 @@ struct
     fun installDec (I.Dec(_,V)) = installTypeN V
 
     fun installSome (I.Null) = ()
-      | (* GEN CASE BRANCH *) installSome (I.Decl(G, D)) =
+      | installSome (I.Decl(G, D)) =
         ( installSome G; installDec D )
 
     (* b must be block *)
@@ -451,7 +451,7 @@ struct
           (checkBelow (I.targetFam V1, a);
            respectsTypeN (V1);
            respectsTypeN' (V2, a))
-      | (* GEN CASE BRANCH *) respectsTypeN' (V as I.Root (I.Def _, _), a) =
+      | respectsTypeN' (V as I.Root (I.Def _, _), a) =
         (* this looks like blatant overkill ... *)
         (* Sun Nov 10 11:15:47 2002 -fp *)
         let
@@ -459,7 +459,7 @@ struct
         in
           respectsTypeN' (V', a)
         end
-      | (* GEN CASE BRANCH *) respectsTypeN' (I.Root _, _) = ()
+      | respectsTypeN' (I.Root _, _) = ()
     and respectsTypeN (V) = respectsTypeN' (V, I.targetFam V)
 
     fun respects (G, (V, s)) = respectsTypeN (Whnf.normalize (V, s))
@@ -487,7 +487,7 @@ struct
 
     (* weaken (G, a) = (w') *)
     fun weaken (I.Null, a) = I.id
-      | (* GEN CASE BRANCH *) weaken (I.Decl (G', D as I.Dec (name, V)), a) =
+      | weaken (I.Decl (G', D as I.Dec (name, V)), a) =
         let
           val w' = weaken (G', a)
         in
@@ -516,14 +516,14 @@ struct
                       maxHeight := 0)
     in
       fun analyzeAnc (I.Anc (NONE, _, _)) = ( incArray 0 )
-        | (* GEN CASE BRANCH *) analyzeAnc (I.Anc (_, h, _)) = ( incArray h ; max h )
+        | analyzeAnc (I.Anc (_, h, _)) = ( incArray h ; max h )
       fun analyze (I.ConDec (_, _, _, _, _, L)) =
           ( inc declared )
-        | (* GEN CASE BRANCH *) analyze (I.ConDef (_, _, _, _, _, L, ancestors)) =
+        | analyze (I.ConDef (_, _, _, _, _, L, ancestors)) =
           ( inc defined ; analyzeAnc ancestors )
-        | (* GEN CASE BRANCH *) analyze (I.AbbrevDef (_, _, _, _, _, L)) =
+        | analyze (I.AbbrevDef (_, _, _, _, _, L)) =
           ( inc abbrev )
-        | (* GEN CASE BRANCH *) analyze _ = ( inc other )
+        | analyze _ = ( inc other )
       fun showDef () =
           let
             val _ = reset ()

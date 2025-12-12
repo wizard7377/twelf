@@ -32,9 +32,9 @@ struct
     fun print_table () =
           let
             fun print_table' nil = ()
-              | (* GEN CASE BRANCH *) print_table' [(name, addr)] =
+              | print_table' [(name, addr)] =
                   print ("(\"" ^ name ^ "\", " ^ Int.toString addr ^ ")\n")
-              | (* GEN CASE BRANCH *) print_table' ((name, addr) :: pairs) =
+              | print_table' ((name, addr) :: pairs) =
                   (print ("(\"" ^ name ^ "\", " ^ Int.toString addr ^ "),\n");
                    print_table' pairs)
           in
@@ -68,7 +68,7 @@ struct
         val () = if (!Global.chatter >= 3) then print_size () else ()
     
         fun read_table "" = nil
-          | (* GEN CASE BRANCH *) read_table line =
+          | read_table line =
               case (String.tokens Char.isSpace line)
                 of [id, addr] =>
                    (id, valOf (Int.fromString addr)) :: read_table (get_line ())
@@ -178,28 +178,28 @@ struct
 
     fun const true ty =
           tuple (#"c", (true, true, true), W.fromInt 0, ty)
-      | (* GEN CASE BRANCH *) const false _ = W.fromInt 0
+      | const false _ = W.fromInt 0
 
     fun var true ty = tuple (#"v", (false, false, false), W.fromInt 0, ty)
-      | (* GEN CASE BRANCH *) var false _ = W.fromInt 0
+      | var false _ = W.fromInt 0
 
     fun pi true (flags, var, exp) = tuple (#"p", flags, var, exp)
-      | (* GEN CASE BRANCH *) pi false _ = W.fromInt 0
+      | pi false _ = W.fromInt 0
 
     fun lam true (flags, var, exp) = tuple (#"l", flags, var, exp)
-      | (* GEN CASE BRANCH *) lam false _ = W.fromInt 0
+      | lam false _ = W.fromInt 0
 
     fun app true (flags, exp, arg) = tuple (#"a", flags, exp, arg)
-      | (* GEN CASE BRANCH *) app false _ = W.fromInt 0
+      | app false _ = W.fromInt 0
 
     fun annotate true (flags, arg, exp) = tuple(#":", flags, arg, exp)
-      | (* GEN CASE BRANCH *) annotate false _ = W.fromInt 0
+      | annotate false _ = W.fromInt 0
 
     fun scanNumber string =
           let
             fun check (chars as (_ :: _)) =
                  (List.all Char.isDigit chars)
-              | (* GEN CASE BRANCH *) check nil =
+              | check nil =
                   false
           in
             if check (String.explode string)
@@ -248,10 +248,10 @@ struct
              | _ => false
 
     fun headCID (I.Const cid) = SOME cid
-      | (* GEN CASE BRANCH *) headCID (I.Skonst cid) = SOME cid
-      | (* GEN CASE BRANCH *) headCID (I.Def cid) = SOME cid
-      | (* GEN CASE BRANCH *) headCID (I.NSDef cid) = SOME cid
-      | (* GEN CASE BRANCH *) headCID _ = NONE
+      | headCID (I.Skonst cid) = SOME cid
+      | headCID (I.Def cid) = SOME cid
+      | headCID (I.NSDef cid) = SOME cid
+      | headCID _ = NONE
 
     fun isClause cid =
           case (!startClause, I.constUni cid)
@@ -280,10 +280,10 @@ struct
                  end
 
     and compileUni I.Kind = kd ()
-      | (* GEN CASE BRANCH *) compileUni I.Type = ty ()
+      | compileUni I.Type = ty ()
 
     and compileExpN generate (G, I.Uni V, flags) = compileUni V
-      | (* GEN CASE BRANCH *) compileExpN generate (G, I.Pi ((I.Dec (_, U1), _), U2), flags as (cld, _, _)) =
+      | compileExpN generate (G, I.Pi ((I.Dec (_, U1), _), U2), flags as (cld, _, _)) =
           let
             val idxU1 = compileExpN generate (G, U1, (cld, false, false))
             val idxU1var = var generate idxU1
@@ -291,7 +291,7 @@ struct
           in
             pi generate (flags, idxU1var, idxU2)
           end
-      | (* GEN CASE BRANCH *) compileExpN generate (G, I.Lam (D as I.Dec (_, U1), U2), flags as (cld, _, _)) =
+      | compileExpN generate (G, I.Lam (D as I.Dec (_, U1), U2), flags as (cld, _, _)) =
           let
             val idxU1 = compileExpN generate (G, U1, (cld, false, false))
             val idxU1var = var generate idxU1
@@ -299,23 +299,23 @@ struct
           in
             lam generate (flags, idxU1var, idxU2)
           end
-      | (* GEN CASE BRANCH *) compileExpN generate (G, U as I.Root (H, S), flags) =
+      | compileExpN generate (G, U as I.Root (H, S), flags) =
           let
             val idx = compileHead generate (G, H)
           in
             compileSpine generate (G, idx, S, flags)
           end
-      | (* GEN CASE BRANCH *) compileExpN generate (G, I.FgnExp csfe, flags) =
+      | compileExpN generate (G, I.FgnExp csfe, flags) =
           compileExp generate (G, I.FgnExpStd.ToInternal.apply csfe (), flags)
 
     and compileSpine generate (G, idx, I.Nil, flags) = idx
-      | (* GEN CASE BRANCH *) compileSpine generate (G, idx, I.App (U1, I.Nil), flags as (cld, _, _)) =
+      | compileSpine generate (G, idx, I.App (U1, I.Nil), flags as (cld, _, _)) =
           let
             val idxU1 = compileExpN generate (G, U1, (cld, false, false))
           in
             app generate (flags, idx, idxU1)
           end
-      | (* GEN CASE BRANCH *) compileSpine generate (G, idx, I.App (U1, S), flags as (cld, _, _)) =
+      | compileSpine generate (G, idx, I.App (U1, S), flags as (cld, _, _)) =
           let
             val idxU1 = compileExpN generate (G, U1, (cld, false, false))
           in
@@ -323,10 +323,10 @@ struct
           end
 
     and compileHead generate (G, I.BVar k) = I.ctxLookup (G, k)
-      | (* GEN CASE BRANCH *) compileHead generate (G, I.Const cid) = lookup cid
-      | (* GEN CASE BRANCH *) compileHead generate (G, I.Def cid) = lookup cid
-      | (* GEN CASE BRANCH *) compileHead generate (G, I.NSDef cid) = lookup cid
-      | (* GEN CASE BRANCH *) compileHead generate (G, I.FgnConst (cs, conDec)) = compileFgnDec generate (G, conDec)
+      | compileHead generate (G, I.Const cid) = lookup cid
+      | compileHead generate (G, I.Def cid) = lookup cid
+      | compileHead generate (G, I.NSDef cid) = lookup cid
+      | compileHead generate (G, I.FgnConst (cs, conDec)) = compileFgnDec generate (G, conDec)
 
     and compileFgnDec true (G, conDec) =
           let
@@ -346,23 +346,23 @@ struct
                of SOME(n1, n2) => tuple (#"*", flags, n1, n2)
                 | NONE => raise Error ("unknown foreign constant " ^ name)))))
          end
-      | (* GEN CASE BRANCH *) compileFgnDec false _ = W.fromInt 0
+      | compileFgnDec false _ = W.fromInt 0
 
     and compileExp generate (G, U, flags) =
           compileExpN generate (G, Whnf.normalize (U, I.id), flags)
 
     and compileConDec (condec as I.ConDec (_, _, _, _, V, _), (true, cls)) =
           const true (compileExpN true (I.Null, V, (true, true, cls)))
-      | (* GEN CASE BRANCH *) compileConDec (condec as I.ConDec (_, _, _, _, _, _), (pred, cls)) =
+      | compileConDec (condec as I.ConDec (_, _, _, _, _, _), (pred, cls)) =
           raise Error ("attempt to shadow constant " ^ (I.conDecName condec))
-      | (* GEN CASE BRANCH *) compileConDec (condec as I.ConDef (_, _, _, U, V, _, _), (pred, cls)) =
+      | compileConDec (condec as I.ConDef (_, _, _, U, V, _, _), (pred, cls)) =
           let
             val exp = compileExpN true (I.Null, V, (true, false, false))
             val arg = compileExpN true (I.Null, U, (true, pred, cls))
           in
             annotate true ((true, pred, cls), arg, exp)
           end
-      | (* GEN CASE BRANCH *) compileConDec (condec as I.AbbrevDef (_, _, _, U, V, _), (pred, cls)) =
+      | compileConDec (condec as I.AbbrevDef (_, _, _, U, V, _), (pred, cls)) =
           let
             val exp = compileExpN true (I.Null, V, (true, false, false))
             val arg = compileExpN true (I.Null, U, (true, pred, cls))
@@ -489,21 +489,21 @@ struct
          let
              fun split l =
                  let fun s a1 a2 nil = (a1, a2)
-                       | (* GEN CASE BRANCH *) s a1 a2 (h::t) = s a2 (h::a1) t
+                       | s a1 a2 (h::t) = s a2 (h::a1) t
                 in s nil nil l
                 end
              fun merge a nil = a
-               | (* GEN CASE BRANCH *) merge nil b = b
-               | (* GEN CASE BRANCH *) merge (aa as (a::ta)) (bb as (b::tb)) =
+               | merge nil b = b
+               | merge (aa as (a::ta)) (bb as (b::tb)) =
                  case cmp (a, b) of
                      EQUAL => (a :: b :: merge ta tb)
                    | LESS => (a :: merge ta bb)
                    | GREATER => (b :: merge aa tb)
      
              fun ms nil = nil
-               | (* GEN CASE BRANCH *) ms [s] = [s]
-               | (* GEN CASE BRANCH *) ms [a,b] = merge [a] [b]
-               | (* GEN CASE BRANCH *) ms ll =
+               | ms [s] = [s]
+               | ms [a,b] = merge [a] [b]
+               | ms ll =
                  let val (a,b) = split ll
                  in merge (ms a) (ms b)
                  end
@@ -522,7 +522,7 @@ struct
     exception Error of string
 
     fun valOfE e NONE = raise e
-      | (* GEN CASE BRANCH *) valOfE e (SOME x) = x
+      | valOfE e (SOME x) = x
 
     val counter = ref 0
 
@@ -619,13 +619,13 @@ struct
   local open I in
 
   fun etaReduce n (Root(h,sp)) = if (etaReduceSpine n sp) then SOME h else NONE
-    | (* GEN CASE BRANCH *) etaReduce n (Lam(_,t)) = etaReduce (n + 1) t
-    | (* GEN CASE BRANCH *) etaReduce _ _ = NONE
+    | etaReduce n (Lam(_,t)) = etaReduce (n + 1) t
+    | etaReduce _ _ = NONE
   and etaReduceSpine n (App(fst,sp)) = (case (etaReduce 0 fst) of
                                             SOME (BVar n') => n = n' andalso etaReduceSpine (n-1) sp
                                           | _ => false)
-    | (* GEN CASE BRANCH *) etaReduceSpine n Nil = true
-    | (* GEN CASE BRANCH *) etaReduceSpine n _ = false
+    | etaReduceSpine n Nil = true
+    | etaReduceSpine n _ = false
 
   fun checkTrivial cid = (case sgnLookup cid of
                               (AbbrevDef (_,_,_,M,V,_)) =>
@@ -635,21 +635,21 @@ struct
                             | _ => ())
 
   fun travExp cid (Uni _) = ()
-    | (* GEN CASE BRANCH *) travExp cid (Pi ((D,_),B)) = (travDec cid D; travExp cid B)
-    | (* GEN CASE BRANCH *) travExp cid (Root (H, S)) = (travHead cid H; travSpine cid S)
-    | (* GEN CASE BRANCH *) travExp cid (Redex (M, S)) = (travExp cid M; travSpine cid S)
-    | (* GEN CASE BRANCH *) travExp cid (Lam (D, M)) = (travDec cid D; travExp cid M)
-    | (* GEN CASE BRANCH *) travExp cid _ = ()
+    | travExp cid (Pi ((D,_),B)) = (travDec cid D; travExp cid B)
+    | travExp cid (Root (H, S)) = (travHead cid H; travSpine cid S)
+    | travExp cid (Redex (M, S)) = (travExp cid M; travSpine cid S)
+    | travExp cid (Lam (D, M)) = (travDec cid D; travExp cid M)
+    | travExp cid _ = ()
   and travDec cid (Dec (_, A)) = travExp cid A
-    | (* GEN CASE BRANCH *) travDec cid (BDec (_, (c, _))) = (recordDependency (cid, c); traverse c)
+    | travDec cid (BDec (_, (c, _))) = (recordDependency (cid, c); traverse c)
   and travSpine cid Nil = ()
-    | (* GEN CASE BRANCH *) travSpine cid (App (M, S)) = (travExp cid M; travSpine cid S)
-    | (* GEN CASE BRANCH *) travSpine cid _ = ()
+    | travSpine cid (App (M, S)) = (travExp cid M; travSpine cid S)
+    | travSpine cid _ = ()
   and travHead cid h = Option.map (fn n => (recordDependency (cid, n); traverse n)) (headCID h)
   and traverseDescendants' cid (ConDec (_,_,_,_,V,_)) = travExp cid V
-    | (* GEN CASE BRANCH *) traverseDescendants' cid (ConDef (_,_,_,M,V,_,_)) = (travExp cid M; travExp cid V)
-    | (* GEN CASE BRANCH *) traverseDescendants' cid (AbbrevDef (_,_,_,M,V,_)) = (travExp cid M; travExp cid V)
-    | (* GEN CASE BRANCH *) traverseDescendants' cid _ = ()
+    | traverseDescendants' cid (ConDef (_,_,_,M,V,_,_)) = (travExp cid M; travExp cid V)
+    | traverseDescendants' cid (AbbrevDef (_,_,_,M,V,_)) = (travExp cid M; travExp cid V)
+    | traverseDescendants' cid _ = ()
   and traverseDescendants cid = traverseDescendants' cid (I.sgnLookup cid)
   and traverse cid  =
       let

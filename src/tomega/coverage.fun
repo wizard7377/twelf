@@ -52,7 +52,7 @@ struct
        and   Psi' |- s' : Psi1
     *)
     fun purifyFor ((T.Unit, t), (Psi, T.True), s) = (t, Psi, s)
-      | (* GEN CASE BRANCH *) purifyFor ((T.PairExp (U, P), t), (Psi, T.Ex ((D, _), F)), s) =
+      | purifyFor ((T.PairExp (U, P), t), (Psi, T.Ex ((D, _), F)), s) =
           purifyFor ((P, T.Dot (T.Exp U, t)), (I.Decl (Psi, T.UDec D), F), T.comp (s, T.shift))
 (*      | purifyFor ((T.Lam _, _), (_, _), _) = raise Domain
       | purifyFor ((T.New _, _), (_,  _), _) = raise Domain
@@ -76,25 +76,25 @@ struct
        and   Psi' |- s' : Psi
     *)
     fun purifyCtx (t as T.Shift k, Psi) =  (t, Psi, T.id)
-      | (* GEN CASE BRANCH *) purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, T.All _, _, _))) =
+      | purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, T.All _, _, _))) =
         let
           val (t', Psi', s') = purifyCtx (t, Psi)
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
-      | (* GEN CASE BRANCH *) purifyCtx (T.Dot (T.Prg (T.Var _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
+      | purifyCtx (T.Dot (T.Prg (T.Var _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
         let
           val (t', Psi', s') = purifyCtx (t, Psi)
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
-      | (* GEN CASE BRANCH *) purifyCtx (T.Dot (T.Prg (T.Const _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
+      | purifyCtx (T.Dot (T.Prg (T.Const _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
         let
           val (t', Psi', s') = purifyCtx (t, Psi)
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
-      | (* GEN CASE BRANCH *) purifyCtx (T.Dot (T.Prg (T.PairPrg (_, _)), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
+      | purifyCtx (T.Dot (T.Prg (T.PairPrg (_, _)), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
                                         (* Mutual recursive predicates
                                            don't have to be checked.
                                          --cs Fri Jan  3 11:35:09 2003 *)
@@ -103,14 +103,14 @@ struct
         in
           (t', Psi', T.Dot (T.Undef, s'))
         end
-      | (* GEN CASE BRANCH *) purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, F, _, _))) =
+      | purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, F, _, _))) =
         let
           val (t', Psi', s') = purifyCtx (t, Psi)
           val (t'', Psi'', s'') = purifyFor ((P, t'), (Psi', T.forSub (F, s')), s')
         in
           (t'', Psi'', T.Dot (T.Undef, s''))
         end
-      | (* GEN CASE BRANCH *) purifyCtx (T.Dot (F, t), I.Decl (Psi, T.UDec D)) =
+      | purifyCtx (T.Dot (F, t), I.Decl (Psi, T.UDec D)) =
         let
           val (t', Psi', s') = purifyCtx (t, Psi)
         in
@@ -130,36 +130,36 @@ struct
     (* subToSpine (Psi', t, Psi) *)
     fun coverageCheckPrg (W, Psi, T.Lam (D, P)) =
           coverageCheckPrg (W, I.Decl (Psi, D), P)
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.New P) =
+      | coverageCheckPrg (W, Psi, T.New P) =
           coverageCheckPrg (W, Psi, P)
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.PairExp (U, P)) =
+      | coverageCheckPrg (W, Psi, T.PairExp (U, P)) =
           coverageCheckPrg (W, Psi, P)
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.PairBlock (B, P)) =
+      | coverageCheckPrg (W, Psi, T.PairBlock (B, P)) =
           coverageCheckPrg (W, Psi, P)
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.PairPrg (P1, P2)) =
+      | coverageCheckPrg (W, Psi, T.PairPrg (P1, P2)) =
           (coverageCheckPrg (W, Psi, P1); coverageCheckPrg (W, Psi, P2))
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.Unit) = ()
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.Var _) =  ()
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.Const _) =  ()
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.Rec (D, P)) =
+      | coverageCheckPrg (W, Psi, T.Unit) = ()
+      | coverageCheckPrg (W, Psi, T.Var _) =  ()
+      | coverageCheckPrg (W, Psi, T.Const _) =  ()
+      | coverageCheckPrg (W, Psi, T.Rec (D, P)) =
           coverageCheckPrg (W, I.Decl (Psi, D), P)
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.Case (T.Cases Omega)) =
+      | coverageCheckPrg (W, Psi, T.Case (T.Cases Omega)) =
           coverageCheckCases (W, Psi, Omega, nil)
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, P as T.Let (D, P1, P2)) =
+      | coverageCheckPrg (W, Psi, P as T.Let (D, P1, P2)) =
           (coverageCheckPrg (W, Psi, P1);
            (* chatter 5 ("fn () => TomegaPrint.prgToString (Psi, P)); *)
            coverageCheckPrg (W, I.Decl (Psi, D), P2))
-      | (* GEN CASE BRANCH *) coverageCheckPrg (W, Psi, T.Redex (P, S)) =
+      | coverageCheckPrg (W, Psi, T.Redex (P, S)) =
           coverageCheckSpine (W, Psi, S)
 (*    | coverageCheckPrg (Psi, T.EVar) =
           should not occur by invariant  *)
 
     and coverageCheckSpine (W, Psi, T.Nil) = ()
-      | (* GEN CASE BRANCH *) coverageCheckSpine (W, Psi, T.AppExp (U, S)) =
+      | coverageCheckSpine (W, Psi, T.AppExp (U, S)) =
           coverageCheckSpine (W, Psi, S)
-      | (* GEN CASE BRANCH *) coverageCheckSpine (W, Psi, T.AppBlock (B, S)) =
+      | coverageCheckSpine (W, Psi, T.AppBlock (B, S)) =
           coverageCheckSpine (W, Psi, S)
-      | (* GEN CASE BRANCH *) coverageCheckSpine (W, Psi, T.AppPrg (P, S)) =
+      | coverageCheckSpine (W, Psi, T.AppPrg (P, S)) =
           (coverageCheckPrg (W, Psi, P);
            coverageCheckSpine (W, Psi, S))
 (*    | coverageCheckSpine (Psi, T.SClo _) =
@@ -167,7 +167,7 @@ struct
 
 
     and coverageCheckCases (W, Psi, nil, nil) = ()
-      | (* GEN CASE BRANCH *) coverageCheckCases (W, Psi, nil, Cs) =
+      | coverageCheckCases (W, Psi, nil, Cs) =
         let
           val _ = chatter 5 (fn  () => Int.toString (List.length Cs) ^ " cases to be checked\n")
           val (Cs' as (_, _, Psi') :: _) = map purify Cs
@@ -175,7 +175,7 @@ struct
         in
           Cover.coverageCheckCases (W, Cs'', T.coerceCtx Psi')
         end
-      | (* GEN CASE BRANCH *) coverageCheckCases (W, Psi, (Psi', t, P) :: Omega, Cs) =
+      | coverageCheckCases (W, Psi, (Psi', t, P) :: Omega, Cs) =
           (coverageCheckPrg (W, Psi', P);
            coverageCheckCases (W, Psi, Omega,
                                (Psi', t, Psi) :: Cs))

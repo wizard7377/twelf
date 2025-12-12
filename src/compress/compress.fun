@@ -14,22 +14,22 @@ struct
 
 (* xlate_type : IntSyn.Exp -> Syntax.tp *)
   fun xlate_type (I.Pi ((I.Dec(_, e1), _), e2)) = S.TPi(S.MINUS, xlate_type e1, xlate_type e2)
-    | (* GEN CASE BRANCH *) xlate_type (I.Root (I.Const cid, sp)) = S.TRoot(cid, xlate_spine sp)
-    | (* GEN CASE BRANCH *) xlate_type (I.Root (I.Def cid, sp)) = S.TRoot(cid, xlate_spine sp) (* assuming cids of consts and defs to be disjoint *)
-    | (* GEN CASE BRANCH *) xlate_type (I.Root (I.NSDef cid, sp)) = S.TRoot(cid, xlate_spine sp)  (* ditto *)
-    | (* GEN CASE BRANCH *) xlate_type (I.Lam (_, t)) = xlate_type t  (* for type definitions, simply strip off the lambdas and leave
+    | xlate_type (I.Root (I.Const cid, sp)) = S.TRoot(cid, xlate_spine sp)
+    | xlate_type (I.Root (I.Def cid, sp)) = S.TRoot(cid, xlate_spine sp) (* assuming cids of consts and defs to be disjoint *)
+    | xlate_type (I.Root (I.NSDef cid, sp)) = S.TRoot(cid, xlate_spine sp)  (* ditto *)
+    | xlate_type (I.Lam (_, t)) = xlate_type t  (* for type definitions, simply strip off the lambdas and leave
                                                    the variables free*)
   and xlate_spine I.Nil = []
-    | (* GEN CASE BRANCH *) xlate_spine (I.App(e, s)) = xlate_spinelt e :: xlate_spine s
+    | xlate_spine (I.App(e, s)) = xlate_spinelt e :: xlate_spine s
   and xlate_spinelt e  = S.Elt(xlate_term e)
   and xlate_term (I.Root (I.Const cid, sp)) = S.ATerm(S.ARoot(S.Const cid, xlate_spine sp))
-    | (* GEN CASE BRANCH *) xlate_term (I.Root (I.Def cid, sp)) = S.ATerm(S.ARoot(S.Const cid, xlate_spine sp)) (* assuming cids of consts and defs to be disjoint *)
-    | (* GEN CASE BRANCH *) xlate_term (I.Root (I.NSDef cid, sp)) = S.ATerm(S.ARoot(S.Const cid, xlate_spine sp)) (* ditto *)
-    | (* GEN CASE BRANCH *) xlate_term (I.Root (I.BVar vid, sp)) = S.ATerm(S.ARoot(S.Var (vid - 1), xlate_spine sp))
-    | (* GEN CASE BRANCH *) xlate_term (I.Lam (_, e)) = S.NTerm(S.Lam (xlate_term e))
+    | xlate_term (I.Root (I.Def cid, sp)) = S.ATerm(S.ARoot(S.Const cid, xlate_spine sp)) (* assuming cids of consts and defs to be disjoint *)
+    | xlate_term (I.Root (I.NSDef cid, sp)) = S.ATerm(S.ARoot(S.Const cid, xlate_spine sp)) (* ditto *)
+    | xlate_term (I.Root (I.BVar vid, sp)) = S.ATerm(S.ARoot(S.Var (vid - 1), xlate_spine sp))
+    | xlate_term (I.Lam (_, e)) = S.NTerm(S.Lam (xlate_term e))
 (* xlate_kind : IntSyn.Exp -> Syntax.knd *)
   fun xlate_kind (I.Pi ((I.Dec(_, e1), _), e2)) = S.KPi(S.MINUS, xlate_type e1, xlate_kind e2)
-    | (* GEN CASE BRANCH *) xlate_kind (I.Uni(I.Type)) = S.Type
+    | xlate_kind (I.Uni(I.Type)) = S.Type
 
   local open Syntax in
   (* simple skeletal form of types
@@ -37,9 +37,9 @@ struct
   datatype simple_tp = Base | Arrow of simple_tp * simple_tp
 
   fun simplify_tp (TPi (_, t1, t2)) = Arrow(simplify_tp t1, simplify_tp t2)
-    | (* GEN CASE BRANCH *) simplify_tp (TRoot _) = Base
+    | simplify_tp (TRoot _) = Base
   fun simplify_knd (KPi (_, t1, k2)) = Arrow(simplify_tp t1, simplify_knd k2)
-    | (* GEN CASE BRANCH *) simplify_knd (Type) = Base
+    | simplify_knd (Type) = Base
 
   (* hereditarily perform some eta-expansions on
      a (term, type, spine, etc.) in a context
@@ -60,60 +60,60 @@ struct
     we need to reconcile the discrepancy between what twelf
     maintains as an invariant, and full eta-longness. *)
   fun eta_expand_term G (NTerm t) T = NTerm(eta_expand_nterm G t T)
-    | (* GEN CASE BRANCH *) eta_expand_term G (ATerm t) T = ATerm(eta_expand_aterm G t)
+    | eta_expand_term G (ATerm t) T = ATerm(eta_expand_aterm G t)
   and eta_expand_nterm G (Lam t) (Arrow(t1, t2)) = Lam(eta_expand_term (t1::G) t t2)
-    | (* GEN CASE BRANCH *) eta_expand_nterm G (NRoot (h,s)) T = NRoot(h, eta_expand_spine G s T)
-    | (* GEN CASE BRANCH *) eta_expand_nterm G (Lam t) Base = raise Syntax "Lambda occurred where term of base type expected"
+    | eta_expand_nterm G (NRoot (h,s)) T = NRoot(h, eta_expand_spine G s T)
+    | eta_expand_nterm G (Lam t) Base = raise Syntax "Lambda occurred where term of base type expected"
   and eta_expand_aterm G (ARoot (Const n, s)) =
       let
           val stp = simplify_tp(typeOf (Sgn.o_classifier n))
       in
           ARoot(Const n, eta_expand_spine G s stp)
       end
-    | (* GEN CASE BRANCH *) eta_expand_aterm G (ARoot (Var n, s)) =
+    | eta_expand_aterm G (ARoot (Var n, s)) =
       let
           val stp = List.nth(G, n)
       in
           ARoot(Var n, eta_expand_var_spine G s stp)
       end
-    | (* GEN CASE BRANCH *) eta_expand_aterm G (ERoot _) = raise Syntax "invariant violated in eta_expand_aterm"
+    | eta_expand_aterm G (ERoot _) = raise Syntax "invariant violated in eta_expand_aterm"
   and eta_expand_tp G (TRoot(n, s)) =
       let
           val stp = simplify_knd(kindOf (Sgn.o_classifier n))
       in
           TRoot(n, eta_expand_spine G s stp)
       end
-    | (* GEN CASE BRANCH *) eta_expand_tp G (TPi(m,a,b)) = TPi(m,eta_expand_tp G a, eta_expand_tp (simplify_tp a::G) b)
+    | eta_expand_tp G (TPi(m,a,b)) = TPi(m,eta_expand_tp G a, eta_expand_tp (simplify_tp a::G) b)
   and eta_expand_knd G (Type) = Type
-    | (* GEN CASE BRANCH *) eta_expand_knd G (KPi(m,a,b)) = KPi(m,eta_expand_tp G a, eta_expand_knd (simplify_tp a::G) b)
+    | eta_expand_knd G (KPi(m,a,b)) = KPi(m,eta_expand_tp G a, eta_expand_knd (simplify_tp a::G) b)
   and eta_expand_spine G [] Base = [] (* this seems risky, but okay as long as the only eta-shortness we find is in variable-headed pattern spines *)
-    | (* GEN CASE BRANCH *) eta_expand_spine G ((Elt m)::tl) (Arrow(t1, t2)) =
+    | eta_expand_spine G ((Elt m)::tl) (Arrow(t1, t2)) =
       Elt(eta_expand_term G m t1) :: eta_expand_spine G tl t2
-    | (* GEN CASE BRANCH *) eta_expand_spine G ((AElt m)::tl) (Arrow(t1, t2)) =
+    | eta_expand_spine G ((AElt m)::tl) (Arrow(t1, t2)) =
       AElt(eta_expand_aterm G m) :: eta_expand_spine G tl t2
-    | (* GEN CASE BRANCH *) eta_expand_spine G ((Ascribe(m,a))::tl) (Arrow(t1, t2)) =
+    | eta_expand_spine G ((Ascribe(m,a))::tl) (Arrow(t1, t2)) =
       Ascribe(eta_expand_nterm G m t1, eta_expand_tp G a) :: eta_expand_spine G tl t2
-    | (* GEN CASE BRANCH *) eta_expand_spine G (Omit::tl) (Arrow(t1,t2)) =
+    | eta_expand_spine G (Omit::tl) (Arrow(t1,t2)) =
       Omit :: eta_expand_spine G tl t2
-    | (* GEN CASE BRANCH *) eta_expand_spine _ _ _ = raise Syntax "Can't figure out how to eta expand spine"
+    | eta_expand_spine _ _ _ = raise Syntax "Can't figure out how to eta expand spine"
   (* the behavior here is that we are eta-expanding all of the elements of the spine, not the head of *this* spine *)
   and eta_expand_var_spine G [] _ = [] (* in fact this spine may not be eta-long yet *)
-    | (* GEN CASE BRANCH *) eta_expand_var_spine G ((Elt m)::tl) (Arrow(t1, t2)) =
+    | eta_expand_var_spine G ((Elt m)::tl) (Arrow(t1, t2)) =
       Elt(eta_expand_immediate (eta_expand_term G m t1, t1)) :: eta_expand_spine G tl t2
-    | (* GEN CASE BRANCH *) eta_expand_var_spine _ _ _ = raise Syntax "Can't figure out how to eta expand var-headed spine"
+    | eta_expand_var_spine _ _ _ = raise Syntax "Can't figure out how to eta expand var-headed spine"
   (* here's where the actual expansion takes place *)
   and eta_expand_immediate (m, Base) = m
-    | (* GEN CASE BRANCH *) eta_expand_immediate (NTerm(Lam m), Arrow(t1, t2)) =
+    | eta_expand_immediate (NTerm(Lam m), Arrow(t1, t2)) =
       NTerm(Lam(eta_expand_immediate(m, t2)))
-    | (* GEN CASE BRANCH *) eta_expand_immediate (m, Arrow(t1, t2)) =
+    | eta_expand_immediate (m, Arrow(t1, t2)) =
       let
           val variable = eta_expand_immediate(ATerm(ARoot(Var 0, [])), t1)
       in
           NTerm(Lam(eta_expand_immediate(apply_to(shift m, variable), t2)))
       end
   and apply_to (ATerm(ARoot(h, s)), m) = ATerm(ARoot(h, s @ [Elt m]))
-    | (* GEN CASE BRANCH *) apply_to (NTerm(NRoot(h, s)), m) = NTerm(NRoot(h, s @ [Elt m]))
-    | (* GEN CASE BRANCH *) apply_to _ = raise Syntax "Invariant violated in apply_to"
+    | apply_to (NTerm(NRoot(h, s)), m) = NTerm(NRoot(h, s @ [Elt m]))
+    | apply_to _ = raise Syntax "Invariant violated in apply_to"
   end
 
   val typeOf = S.typeOf
@@ -129,16 +129,16 @@ struct
                           (* else  (if !debug = 0 then raise Debug(G, s) else ();
                                 debug := !debug - 1; compress_type' G s) *)
   and compress_type' G (NONE, S.TPi(_, a, b)) = S.TPi(S.MINUS, compress_type G (NONE, a), compress_type (a::G) (NONE, b))
-    | (* GEN CASE BRANCH *) compress_type' G (SOME (m::ms), S.TPi(_, a, b)) = S.TPi(m, compress_type G (NONE, a), compress_type (a::G) (SOME ms, b))
-    | (* GEN CASE BRANCH *) compress_type' G (SOME [], S.TRoot(cid, sp)) = S.TRoot(cid, compress_type_spine G (sp,
+    | compress_type' G (SOME (m::ms), S.TPi(_, a, b)) = S.TPi(m, compress_type G (NONE, a), compress_type (a::G) (SOME ms, b))
+    | compress_type' G (SOME [], S.TRoot(cid, sp)) = S.TRoot(cid, compress_type_spine G (sp,
                                                                                    kindOf(Sgn.o_classifier cid),
                                                                                    kindOf(Sgn.classifier cid)))
-    | (* GEN CASE BRANCH *) compress_type' G (NONE, a as S.TRoot _) = compress_type G (SOME [], a)
-    | (* GEN CASE BRANCH *) compress_type' G (SOME [], a as S.TPi _) = compress_type G (NONE, a) (* XXX sketchy *)
+    | compress_type' G (NONE, a as S.TRoot _) = compress_type G (SOME [], a)
+    | compress_type' G (SOME [], a as S.TPi _) = compress_type G (NONE, a) (* XXX sketchy *)
 
 (* XXX: optimization: don't compute mstar if omit? *)
   and compress_type_spine G ([], w, wstar) = []
-    | (* GEN CASE BRANCH *) compress_type_spine G ((S.Elt m)::sp, S.KPi(_, a, v), S.KPi(mode, astar, vstar)) =
+    | compress_type_spine G ((S.Elt m)::sp, S.KPi(_, a, v), S.KPi(mode, astar, vstar)) =
       let
           val mstar = compress_term G (m, a)
           val sstar = compress_type_spine G (sp,
@@ -152,7 +152,7 @@ struct
             | (S.PLUS, S.NTerm t) => S.Ascribe(t, compress_type G (NONE, a))::sstar
       end
   and compress_spine G ([], w, wstar) = []
-    | (* GEN CASE BRANCH *) compress_spine G ((S.Elt m)::sp, S.TPi(_, a, v), S.TPi(mode, astar, vstar)) =
+    | compress_spine G ((S.Elt m)::sp, S.TPi(_, a, v), S.TPi(mode, astar, vstar)) =
       let
           val mstar = compress_term G (m, a)
           val sstar = compress_spine G (sp,
@@ -172,7 +172,7 @@ struct
       in
           S.ATerm(S.ARoot(S.Var n, compress_spine G (sp, a, astar)))
       end
-    | (* GEN CASE BRANCH *) compress_term G (S.ATerm(S.ARoot(S.Const n, sp)), _) =
+    | compress_term G (S.ATerm(S.ARoot(S.Const n, sp)), _) =
       let
           val a = typeOf (Sgn.o_classifier n)
           val astar = typeOf (Sgn.classifier n)
@@ -182,12 +182,12 @@ struct
       in
           term_former(S.Const n, compress_spine G (sp, a, astar))
       end
-    | (* GEN CASE BRANCH *) compress_term G (S.NTerm(S.Lam t),S.TPi(_, a, b)) = S.NTerm(S.Lam (compress_term (a::G) (t, b)))
+    | compress_term G (S.NTerm(S.Lam t),S.TPi(_, a, b)) = S.NTerm(S.Lam (compress_term (a::G) (t, b)))
 
   fun compress_kind G (NONE, S.KPi(_, a, k)) = S.KPi(S.MINUS, compress_type G (NONE, a), compress_kind (a::G) (NONE, k))
-    | (* GEN CASE BRANCH *) compress_kind G (SOME (m::ms), S.KPi(_, a, k)) = S.KPi(m, compress_type G (NONE, a), compress_kind (a::G) (SOME ms, k))
-    | (* GEN CASE BRANCH *) compress_kind G (SOME [], S.Type) = S.Type
-    | (* GEN CASE BRANCH *) compress_kind G (NONE, S.Type) = S.Type
+    | compress_kind G (SOME (m::ms), S.KPi(_, a, k)) = S.KPi(m, compress_type G (NONE, a), compress_kind (a::G) (SOME ms, k))
+    | compress_kind G (SOME [], S.Type) = S.Type
+    | compress_kind G (NONE, S.Type) = S.Type
 
 
 (* compress : cid * IntSyn.ConDec -> ConDec *)
@@ -199,14 +199,14 @@ struct
       in
           Sgn.condec(name, compress_type [] (modes, x), x)
       end
-    | (* GEN CASE BRANCH *) compress (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, k, IntSyn.Kind)) =
+    | compress (cid, IntSyn.ConDec (name, NONE, _, IntSyn.Normal, k, IntSyn.Kind)) =
       let
           val x = xlate_kind k
           val modes = Sgn.get_modes cid
       in
           Sgn.tycondec(name, compress_kind [] (modes, x), x)
       end
-    | (* GEN CASE BRANCH *) compress (cid, IntSyn.ConDef (name, NONE, _, m, a, IntSyn.Type, _)) =
+    | compress (cid, IntSyn.ConDef (name, NONE, _, m, a, IntSyn.Type, _)) =
       let
           val m = xlate_term m
           val a = xlate_type a
@@ -215,7 +215,7 @@ struct
       in
           Sgn.defn(name, astar, a, mstar, m)
       end
-    | (* GEN CASE BRANCH *) compress (cid, IntSyn.ConDef (name, NONE, _, a, k, IntSyn.Kind, _)) =
+    | compress (cid, IntSyn.ConDef (name, NONE, _, a, k, IntSyn.Kind, _)) =
       let
           val a = xlate_type a
           val k = xlate_kind k
@@ -224,7 +224,7 @@ struct
       in
           Sgn.tydefn(name, kstar, k, astar, a)
       end
-    | (* GEN CASE BRANCH *) compress (cid, IntSyn.AbbrevDef (name, NONE, _, m, a, IntSyn.Type)) =
+    | compress (cid, IntSyn.AbbrevDef (name, NONE, _, m, a, IntSyn.Type)) =
       let
           val m = xlate_term m
           val a = xlate_type a
@@ -233,7 +233,7 @@ struct
       in
           Sgn.abbrev(name, astar, a, mstar, m)
       end
-    | (* GEN CASE BRANCH *) compress (cid, IntSyn.AbbrevDef (name, NONE, _, a, k, IntSyn.Kind)) =
+    | compress (cid, IntSyn.AbbrevDef (name, NONE, _, a, k, IntSyn.Kind)) =
       let
           val a = xlate_type a
           val k = xlate_kind k
@@ -242,7 +242,7 @@ struct
       in
           Sgn.tyabbrev(name, kstar, k, astar, a)
       end
-    | (* GEN CASE BRANCH *) compress _ = raise Unimp
+    | compress _ = raise Unimp
 
   fun sgnLookup (cid) =
       let
@@ -284,7 +284,7 @@ struct
                 | I.AbbrevDef(name, package, o_a, ak, def, uni) => (ak, o_a, uni)
                 | _ => raise NoModes
           fun count_args (I.Pi(_, ak')) = 1 + count_args ak'
-            | (* GEN CASE BRANCH *) count_args _ = 0
+            | count_args _ = 0
           val total_args = count_args ak
   
           fun can_omit ms =
@@ -300,10 +300,10 @@ struct
               end
   
           fun optimize' ms [] = rev ms
-            | (* GEN CASE BRANCH *) optimize' ms (S.PLUS::ms') = if can_omit ((rev ms) @ (S.MINUS ::ms'))
+            | optimize' ms (S.PLUS::ms') = if can_omit ((rev ms) @ (S.MINUS ::ms'))
                                            then optimize' (S.MINUS::ms) ms'
                                            else optimize' (S.PLUS::ms) ms'
-            | (* GEN CASE BRANCH *) optimize' ms (S.MINUS::ms') = if  can_omit ((rev ms) @ (S.OMIT :: ms'))
+            | optimize' ms (S.MINUS::ms') = if  can_omit ((rev ms) @ (S.OMIT :: ms'))
                                            then optimize' (S.OMIT::ms) ms'
                                            else optimize' (S.MINUS::ms) ms'
           fun optimize ms = optimize' [] ms
@@ -326,7 +326,7 @@ struct
                 | I.AbbrevDef(name, package, o_a, ak, def, uni) => (ak, o_a)
                 | _ => raise NoModes
           fun count_args (I.Pi(_, ak')) = 1 + count_args ak'
-            | (* GEN CASE BRANCH *) count_args _ = 0
+            | count_args _ = 0
           val total_args = count_args ak
       in
           List.tabulate (total_args, (fn x => if x < omitted_args then S.OMIT else S.MINUS))

@@ -28,18 +28,18 @@ struct
 
   (* modeEqual (M1, M2) = true iff M1 = M2 *)
   fun modeEqual (Plus, Plus) = true
-    | (* GEN CASE BRANCH *) modeEqual (Star, Star) = true
-    | (* GEN CASE BRANCH *) modeEqual (Minus, Minus) = true
-    | (* GEN CASE BRANCH *) modeEqual (Minus1, Minus1) = true
-    | (* GEN CASE BRANCH *) modeEqual (_, _) = false
+    | modeEqual (Star, Star) = true
+    | modeEqual (Minus, Minus) = true
+    | modeEqual (Minus1, Minus1) = true
+    | modeEqual (_, _) = false
 
   (* modeToString M = string
     
        converts a mode into a string for error messages
   *)
   fun modeToString Plus = "input (+)"
-    | (* GEN CASE BRANCH *) modeToString Star = "unrestricted (*)"
-    | (* GEN CASE BRANCH *) modeToString Minus = "output (-)"
-    | (* GEN CASE BRANCH *) modeToString Minus1 = "unique output (-1)"
+    | modeToString Star = "unrestricted (*)"
+    | modeToString Minus = "output (-)"
+    | modeToString Minus1 = "unique output (-1)"
 
 end;  (* structure ModeSyn *)

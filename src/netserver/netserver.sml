@@ -18,8 +18,8 @@ functor NetServer
 struct
 
 fun join delim [] = ""
-  | (* GEN CASE BRANCH *) join delim [x] = x
-  | (* GEN CASE BRANCH *) join delim (h::tl) = h ^ delim ^ (join delim tl)
+  | join delim [x] = x
+  | join delim (h::tl) = h ^ delim ^ (join delim tl)
 
 type server = { send : string -> unit,
 		exec : string -> unit }
@@ -122,25 +122,25 @@ fun serveExample e =
 fun getNat (t::nil) =
     (Lexer.stringToNat t
      handle Lexer.NotDigit (char) => error (quote t ^ " is not a natural number"))
-  | (* GEN CASE BRANCH *) getNat (nil) = error "Missing natural number"
-  | (* GEN CASE BRANCH *) getNat (ts) = error "Extraneous arguments"
+  | getNat (nil) = error "Missing natural number"
+  | getNat (ts) = error "Extraneous arguments"
 
 (* Example specifiers *)
 fun getExample (t::nil) = t
-  | (* GEN CASE BRANCH *) getExample (nil) = error "Missing example"
-  | (* GEN CASE BRANCH *) getExample (ts) = error "Extraneous arguments"
+  | getExample (nil) = error "Missing example"
+  | getExample (ts) = error "Extraneous arguments"
 
 (* Setting Twelf parameters *)
 fun setParm ("chatter"::ts) = Twelf.chatter := getNat ts
-  | (* GEN CASE BRANCH *) setParm (t::ts) = error ("Unknown parameter " ^ quote t)
-  | (* GEN CASE BRANCH *) setParm (nil) = error ("Missing parameter")
+  | setParm (t::ts) = error ("Unknown parameter " ^ quote t)
+  | setParm (nil) = error ("Missing parameter")
 		    
 fun exec' conn ("quit", args) = (Msg.message "goodbye.\n"; raise Quit)
-  | (* GEN CASE BRANCH *) exec' conn ("set", args) = (setParm (String.tokens Char.isSpace args); Twelf.OK) 
-  | (* GEN CASE BRANCH *) exec' conn ("readDecl", args) = Twelf.loadString args
-  | (* GEN CASE BRANCH *) exec' conn ("decl", args) = Twelf.decl args
-  | (* GEN CASE BRANCH *) exec' conn ("example", args) = serveExample (getExample (String.tokens Char.isSpace args))
-  | (* GEN CASE BRANCH *) exec' conn (t, args) = raise Error ("Unrecognized command " ^ quote t)
+  | exec' conn ("set", args) = (setParm (String.tokens Char.isSpace args); Twelf.OK) 
+  | exec' conn ("readDecl", args) = Twelf.loadString args
+  | exec' conn ("decl", args) = Twelf.decl args
+  | exec' conn ("example", args) = serveExample (getExample (String.tokens Char.isSpace args))
+  | exec' conn (t, args) = raise Error ("Unrecognized command " ^ quote t)
 
 fun exec conn str = (case exec' conn (parseCmd str) 
 			  handle Error s => (Msg.message ("Server Error: " ^ s ^ "\n"); Twelf.ABORT)
@@ -155,7 +155,7 @@ fun flashProto() =
     let 
 	val buf : string ref = ref ""
 	fun isnull #"\000" = true
-	  | (* GEN CASE BRANCH *) isnull _ = false
+	  | isnull _ = false
 	fun recv (u : server) s = 
 	    let
 		val _ = buf := !buf ^ s
@@ -179,8 +179,8 @@ fun humanProto() =
     let 
 	val buf : string ref = ref ""
 	fun isnewl #"\n" = true
-	  | (* GEN CASE BRANCH *) isnewl #"\r" = false
-	  | (* GEN CASE BRANCH *) isnewl _ = false
+	  | isnewl #"\r" = false
+	  | isnewl _ = false
 	fun recv (u : server) s = 
 	    let
 		val _ = buf := !buf ^ s
@@ -210,7 +210,7 @@ fun httpProto dir =
 	val url : string ref = ref ""
 	val headers : string list ref = ref []
 	fun isnewl #"\n" = true
-	  | (* GEN CASE BRANCH *) isnewl _ = false
+	  | isnewl _ = false
 
 	fun handlePostRequest (u : server) =
 	    let
@@ -276,8 +276,8 @@ fun httpProto dir =
 	     end handle Bind => raise EOF)
 		
 	fun interp (u : server) [] = raise Match
-	  | (* GEN CASE BRANCH *) interp u [x] = ibuf := x
-	  | (* GEN CASE BRANCH *) interp u (h::tl) = 
+	  | interp u [x] = ibuf := x
+	  | interp u (h::tl) = 
 	    let
 		val sch = stripcr h
 	    in

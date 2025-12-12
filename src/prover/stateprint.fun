@@ -98,19 +98,19 @@ struct
        then fmt' is a format describing the context Psi
     *)
     fun formatCtx (I.Null) = []
-      | (* GEN CASE BRANCH *) formatCtx (I.Decl (I.Null, T.UDec D)) =
+      | formatCtx (I.Decl (I.Null, T.UDec D)) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Print.formatDec (I.Null, D)])]
         else
           [Print.formatDec (I.Null, D)]
-      | (* GEN CASE BRANCH *) formatCtx (I.Decl (I.Null, T.PDec (SOME s, F, _))) =
+      | formatCtx (I.Decl (I.Null, T.PDec (SOME s, F, _))) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space,
                        Fmt.String "::", Fmt.Space, TomegaPrint.formatFor (I.Null, F)])]
         else
           [Fmt.String s, Fmt.Space, Fmt.String "::", Fmt.Space,
            TomegaPrint.formatFor (I.Null, F)]
-      | (* GEN CASE BRANCH *) formatCtx (I.Decl (Psi, T.UDec D)) =
+      | formatCtx (I.Decl (Psi, T.UDec D)) =
         let
           val G = T.coerceCtx Psi
         in
@@ -121,7 +121,7 @@ struct
             formatCtx Psi @ [Fmt.String ",",  Fmt.Break] @
             [Fmt.Break, Print.formatDec (G, D)]
         end
-      | (* GEN CASE BRANCH *) formatCtx (I.Decl (Psi, T.PDec (SOME s, F, _))) =
+      | formatCtx (I.Decl (Psi, T.PDec (SOME s, F, _))) =
         if !Global.chatter >= 4 then
           formatCtx Psi @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space, Fmt.String "::", Fmt.Space, TomegaPrint.formatFor (Psi, F)])]

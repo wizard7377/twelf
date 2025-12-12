@@ -56,8 +56,8 @@ struct
     *)
     fun orderSub (Arg ((U, s1), (V, s2)), s) =
           Arg ((U,  I.comp (s1, s)), (V, I.comp (s2, s)))
-      | (* GEN CASE BRANCH *) orderSub (Lex Os, s) = Lex (map (fn O => orderSub (O, s)) Os)
-      | (* GEN CASE BRANCH *) orderSub (Simul Os, s) = Simul (map (fn O => orderSub (O, s)) Os)
+      | orderSub (Lex Os, s) = Lex (map (fn O => orderSub (O, s)) Os)
+      | orderSub (Simul Os, s) = Simul (map (fn O => orderSub (O, s)) Os)
       (* by invariant: no case for All and And *)
 
 
@@ -71,8 +71,8 @@ struct
     *)
     fun normalizeOrder (Arg (Us, Vs)) =
           Arg ((Whnf.normalize Us, I.id), (Whnf.normalize Vs, I.id))
-      | (* GEN CASE BRANCH *) normalizeOrder (Lex Os) = Lex (map normalizeOrder Os)
-      | (* GEN CASE BRANCH *) normalizeOrder (Simul Os) = Simul (map normalizeOrder Os)
+      | normalizeOrder (Lex Os) = Lex (map normalizeOrder Os)
+      | normalizeOrder (Simul Os) = Simul (map normalizeOrder Os)
       (* by invariant: no case for All and And *)
 
 
@@ -84,10 +84,10 @@ struct
        then B' holds iff G |- O1 == O2 order
     *)
     fun convOrder (Arg (Us1, _), Arg (Us2, _ )) = Conv.conv (Us1, Us2)
-      | (* GEN CASE BRANCH *) convOrder (Lex Os1, Lex Os2) = convOrders (Os1, Os2)
-      | (* GEN CASE BRANCH *) convOrder (Simul Os1, Simul Os2) = convOrders (Os1, Os2)
+      | convOrder (Lex Os1, Lex Os2) = convOrders (Os1, Os2)
+      | convOrder (Simul Os1, Simul Os2) = convOrders (Os1, Os2)
     and convOrders (nil, nil) = true
-      | (* GEN CASE BRANCH *) convOrders (O1 :: L1, O2 :: L2) =
+      | convOrders (O1 :: L1, O2 :: L2) =
           convOrder (O1, O2) andalso convOrders (L1, L2)
       (* by invariant: no case for All and And *)
 
@@ -98,12 +98,12 @@ struct
        T' = T - 1
     *)
     fun decreaseInfo (Splits k) = Splits (k-1)
-      | (* GEN CASE BRANCH *) decreaseInfo RL = RL
-      | (* GEN CASE BRANCH *) decreaseInfo RLdone = RLdone
+      | decreaseInfo RL = RL
+      | decreaseInfo RLdone = RLdone
 
     fun (* decrease (Assumption k) = Assumption (k-1)
       | *) decrease (Lemma (Sp)) = Lemma (decreaseInfo Sp)
-      | (* GEN CASE BRANCH *) decrease None = None
+      | decrease None = None
 
 
     fun splitDepth (Splits k) = k
@@ -117,7 +117,7 @@ struct
     *)
 
     fun normalizeTag (T as Parameter _, _) = T
-      | (* GEN CASE BRANCH *) normalizeTag (Lemma (K), s) = Lemma (K)
+      | normalizeTag (Lemma (K), s) = Lemma (K)
 
   in
     val orderSub = orderSub

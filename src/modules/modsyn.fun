@@ -54,22 +54,22 @@ struct
         open IntSyn
   
         fun trExp (Uni L) = Uni L
-          | (* GEN CASE BRANCH *) trExp (Pi ((D, P), V)) = Pi ((trDec D, P), trExp V)
-          | (* GEN CASE BRANCH *) trExp (Root (H, S)) = Root (trHead H, trSpine S)
-          | (* GEN CASE BRANCH *) trExp (Lam (D, U)) = Lam (trDec D, trExp U)
-          | (* GEN CASE BRANCH *) trExp (U as FgnExp csfe) = FgnExpStd.Map.apply csfe trExp
+          | trExp (Pi ((D, P), V)) = Pi ((trDec D, P), trExp V)
+          | trExp (Root (H, S)) = Root (trHead H, trSpine S)
+          | trExp (Lam (D, U)) = Lam (trDec D, trExp U)
+          | trExp (U as FgnExp csfe) = FgnExpStd.Map.apply csfe trExp
   
         and trDec (Dec (name, V)) = Dec (name, trExp V)
   
         and trSpine Nil = Nil
-          | (* GEN CASE BRANCH *) trSpine (App (U, S)) = App (trExp U, trSpine S)
+          | trSpine (App (U, S)) = App (trExp U, trSpine S)
   
         and trHead (BVar n) = BVar n
-          | (* GEN CASE BRANCH *) trHead (Const cid) = trConst cid
-          | (* GEN CASE BRANCH *) trHead (Skonst cid) = trConst cid
-          | (* GEN CASE BRANCH *) trHead (Def cid) = trConst cid
-          | (* GEN CASE BRANCH *) trHead (NSDef cid) = trConst cid
-          | (* GEN CASE BRANCH *) trHead (FgnConst (csid, condec)) =
+          | trHead (Const cid) = trConst cid
+          | trHead (Skonst cid) = trConst cid
+          | trHead (Def cid) = trConst cid
+          | trHead (NSDef cid) = trConst cid
+          | trHead (FgnConst (csid, condec)) =
               FgnConst (csid, mapConDecConsts f condec)
   
         and trConst cid =
@@ -88,13 +88,13 @@ struct
 
   and mapConDecConsts f (IntSyn.ConDec (name, parent, i, status, V, L)) =
         IntSyn.ConDec (name, parent, i, status, mapExpConsts f V, L)
-    | (* GEN CASE BRANCH *) mapConDecConsts f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
+    | mapConDecConsts f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
         IntSyn.ConDef (name, parent, i, mapExpConsts f U,
                        mapExpConsts f V, L, Anc) (* reconstruct Anc?? -fp *)
-    | (* GEN CASE BRANCH *) mapConDecConsts f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
+    | mapConDecConsts f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
         IntSyn.AbbrevDef (name, parent, i, mapExpConsts f U,
                           mapExpConsts f V, L)
-    | (* GEN CASE BRANCH *) mapConDecConsts f (IntSyn.SkoDec (name, parent, i, V, L)) =
+    | mapConDecConsts f (IntSyn.SkoDec (name, parent, i, V, L)) =
         IntSyn.SkoDec (name, parent, i, mapExpConsts f V, L)
 
   fun mapStrDecParent f (IntSyn.StrDec (name, parent)) =
@@ -102,18 +102,18 @@ struct
 
   fun mapConDecParent f (IntSyn.ConDec (name, parent, i, status, V, L)) =
         IntSyn.ConDec (name, f parent, i, status, V, L)
-    | (* GEN CASE BRANCH *) mapConDecParent f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
+    | mapConDecParent f (IntSyn.ConDef (name, parent, i, U, V, L, Anc)) =
         IntSyn.ConDef (name, f parent, i, U, V, L, Anc) (* reconstruct Anc?? -fp *)
-    | (* GEN CASE BRANCH *) mapConDecParent f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
+    | mapConDecParent f (IntSyn.AbbrevDef (name, parent, i, U, V, L)) =
         IntSyn.AbbrevDef (name, f parent, i, U, V, L)
-    | (* GEN CASE BRANCH *) mapConDecParent f (IntSyn.SkoDec (name, parent, i, V, L)) =
+    | mapConDecParent f (IntSyn.SkoDec (name, parent, i, V, L)) =
         IntSyn.SkoDec (name, f parent, i, V, L)
 
   fun strictify (condec as IntSyn.AbbrevDef (name, parent, i, U, V, IntSyn.Type)) =
       ((Strict.check ((U, V), NONE);
         IntSyn.ConDef (name, parent, i, U, V, IntSyn.Type, IntSyn.ancestor(U)))
        handle Strict.Error _ => condec)
-    | (* GEN CASE BRANCH *) strictify (condec as IntSyn.AbbrevDef _) = condec
+    | strictify (condec as IntSyn.AbbrevDef _) = condec
 
   fun abbrevify (cid, condec) =
       (case condec
@@ -157,7 +157,7 @@ struct
         fun mapStruct mid = valOf (IntTree.lookup structMap mid)
   
         fun mapParent NONE = topOpt
-          | (* GEN CASE BRANCH *) mapParent (SOME parent) = SOME (mapStruct parent)
+          | mapParent (SOME parent) = SOME (mapStruct parent)
   
         fun mapConst cid =
             (case IntTree.lookup constMap cid

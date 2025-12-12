@@ -82,22 +82,22 @@ struct
 
   (* exceeds : bound * bound -> bool *)
   fun exceeds (SOME(n), SOME(m)) = (n >= m)
-    | (* GEN CASE BRANCH *) exceeds (SOME(n), NONE) = false
-    | (* GEN CASE BRANCH *) exceeds (NONE, _) = true
+    | exceeds (SOME(n), NONE) = false
+    | exceeds (NONE, _) = true
 
   (* boundEq : bound * bound -> bool *)
   fun boundEq (SOME(n), SOME(m)) = (n = m)
-    | (* GEN CASE BRANCH *) boundEq (NONE, NONE) = true
-    | (* GEN CASE BRANCH *) boundEq _ = false
+    | boundEq (NONE, NONE) = true
+    | boundEq _ = false
 
   (* boundToString : bound -> string *)
   fun boundToString (SOME(n)) = Int.toString (n)
-    | (* GEN CASE BRANCH *) boundToString (NONE) = "*"
+    | boundToString (NONE) = "*"
 
   (* boundMin : bound * bound -> bound *)
   fun boundMin (SOME(n), SOME(m)) = SOME(Int.min (n,m))
-    | (* GEN CASE BRANCH *) boundMin (b, NONE) = b
-    | (* GEN CASE BRANCH *) boundMin (NONE, b) = b
+    | boundMin (b, NONE) = b
+    | boundMin (NONE, b) = b
 
   (* checkSolutions : bound * bound * int -> unit *)
   (* raises AbortQuery(msg) if the actual solutions do not match *)
@@ -637,7 +637,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                          Parser.parseTerminalQ ("?- ", "   ")) (* primary, secondary prompt *)
   and qLoops (s) = qLoops' ((Timers.time Timers.parsing S.expose) s)
   and qLoops' (S.Empty) = true          (* normal exit *)
-    | (* GEN CASE BRANCH *) qLoops' (S.Cons (query, s')) =
+    | qLoops' (S.Cons (query, s')) =
       let
         val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))
                                         (* times itself *)
@@ -682,7 +682,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                          Parser.parseTerminalQ ("?- ", "   ")) (* primary, secondary prompt *)
   and qLoopsT (s) = qLoopsT' ((Timers.time Timers.parsing S.expose) s)
   and qLoopsT' (S.Empty) = true         (* normal exit *)
-    | (* GEN CASE BRANCH *) qLoopsT' (S.Cons (query, s')) =
+    | qLoopsT' (S.Cons (query, s')) =
       let
         val solExists = ref false
         val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))

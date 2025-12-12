@@ -64,7 +64,7 @@ struct
        to the empty constraint
     *)
     fun checkEmpty (nil) = ()
-      | (* GEN CASE BRANCH *) checkEmpty (Cnstr) =
+      | checkEmpty (Cnstr) =
         (case C.simplify Cnstr
            of nil => ()
             | _ => raise Error "Unresolved constraints")
@@ -103,8 +103,8 @@ struct
        else B' = false
     *)
     fun modeEq (ModeSyn.Marg (ModeSyn.Plus, _), M.Top) = true
-      | (* GEN CASE BRANCH *) modeEq (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) = true
-      | (* GEN CASE BRANCH *) modeEq _ = false
+      | modeEq (ModeSyn.Marg (ModeSyn.Minus, _), M.Bot) = true
+      | modeEq _ = false
 
     (* atxLookup (atx, r)  = Eopt'
 
@@ -114,8 +114,8 @@ struct
        else Eopt' = NONE
     *)
     fun atxLookup (I.Null, _) = NONE
-      | (* GEN CASE BRANCH *) atxLookup (I.Decl (M, BV), r) = atxLookup (M, r)
-      | (* GEN CASE BRANCH *) atxLookup (I.Decl (M, E as EV (r', _, _)), r) =
+      | atxLookup (I.Decl (M, BV), r) = atxLookup (M, r)
+      | atxLookup (I.Decl (M, E as EV (r', _, _)), r) =
         if (r = r') then SOME E
         else atxLookup (M, r)
 
@@ -130,13 +130,13 @@ struct
        All abstractions are potentially dependent.
     *)
     fun raiseType (0, G, V) = V
-      | (* GEN CASE BRANCH *) raiseType (depth, I.Decl (G, D), V) =
+      | raiseType (depth, I.Decl (G, D), V) =
           raiseType (depth-1, G, I.Pi ((D, I.Maybe), V))
 
     (* weaken (depth,  G, a) = (w')
     *)
     fun weaken (0, G, a) = I.id
-      | (* GEN CASE BRANCH *) weaken (depth, I.Decl (G', D as I.Dec (name, V)), a) =
+      | weaken (depth, I.Decl (G', D as I.Dec (name, V)), a) =
         let
           val w' = weaken (depth-1, G', a)
         in
@@ -154,8 +154,8 @@ struct
     fun countPi V =
         let
           fun countPi' (I.Root _, n) = n
-            | (* GEN CASE BRANCH *) countPi' (I.Pi (_, V), n) = countPi' (V, n+1)
-            | (* GEN CASE BRANCH *) countPi' (I.EClo (V, _), n) = countPi' (V, n)
+            | countPi' (I.Pi (_, V), n) = countPi' (V, n+1)
+            | countPi' (I.EClo (V, _), n) = countPi' (V, n)
         in
           countPi' (V, 0)
         end
@@ -184,13 +184,13 @@ struct
 
     and collectExpW (lG0, G, (I.Uni _, s), mode, Adepth) = (* impossible? *)
           Adepth
-      | (* GEN CASE BRANCH *) collectExpW (lG0, G, (I.Pi ((D, _), V), s), mode, Adepth) =
+      | collectExpW (lG0, G, (I.Pi ((D, _), V), s), mode, Adepth) =
           collectExp (lG0, I.Decl (G, I.decSub (D, s)), (V, I.dot1 s), mode,
                       collectDec (lG0, G, (D, s), mode, Adepth))
-      | (* GEN CASE BRANCH *) collectExpW (lG0, G, (I.Lam (D, U), s), mode, Adepth) =
+      | collectExpW (lG0, G, (I.Lam (D, U), s), mode, Adepth) =
           collectExp (lG0, I.Decl (G, I.decSub (D, s)), (U, I.dot1 s), mode,
                       collectDec (lG0, G, (D, s), mode, Adepth))
-      | (* GEN CASE BRANCH *) collectExpW (lG0, G, Us as (I.Root (I.BVar (k), S), s), mode,
+      | collectExpW (lG0, G, Us as (I.Root (I.BVar (k), S), s), mode,
                      Adepth as (A, depth)) = (* s = id *)
         let
           val l = I.ctxLength G
@@ -206,9 +206,9 @@ struct
           else
             collectSpine (lG0, G, (S, s), mode, Adepth)
         end
-      | (* GEN CASE BRANCH *) collectExpW (lG0, G, (I.Root (C, S), s), mode, Adepth) =
+      | collectExpW (lG0, G, (I.Root (C, S), s), mode, Adepth) =
           collectSpine (lG0, G, (S, s), mode, Adepth)
-      | (* GEN CASE BRANCH *) collectExpW (lG0, G, (I.EVar (r, GX, V, cnstrs), s), mode,
+      | collectExpW (lG0, G, (I.EVar (r, GX, V, cnstrs), s), mode,
                      Adepth as (A, depth)) =
         (case atxLookup (A, r)
            of NONE =>
@@ -234,7 +234,7 @@ struct
               in
                 collectSub (lG0, G, lGp', s, mode, Adepth)
               end)
-       | (* GEN CASE BRANCH *) collectExpW (lGO, G, (I.FgnExp csfe, s), mode, Adepth) =
+       | collectExpW (lGO, G, (I.FgnExp csfe, s), mode, Adepth) =
          I.FgnExpStd.fold csfe (fn (U,Adepth') => collectExp (lGO, G, (U,s), mode, Adepth')) Adepth
            (* hack - should discuss with cs    -rv *)
 
@@ -261,16 +261,16 @@ struct
        and  A'' ||- s   (for the first |G'| elements of s)
     *)
     and collectSub (_, _, 0, _, _, Adepth) = Adepth
-      | (* GEN CASE BRANCH *) collectSub (lG0, G, lG', I.Shift (k), mode, Adepth) =
+      | collectSub (lG0, G, lG', I.Shift (k), mode, Adepth) =
           collectSub (lG0, G, lG', I.Dot (I.Idx (k+1), I.Shift (k+1)),
                       mode, Adepth)
           (* eta expansion *)
-      | (* GEN CASE BRANCH *) collectSub (lG0, G, lG', I.Dot (I.Idx (k), s), mode,
+      | collectSub (lG0, G, lG', I.Dot (I.Idx (k), s), mode,
                     Adepth as (A, depth)) =
           (* typing invariant guarantees that (EV, BV) in k : V already
              collected !! *)
           collectSub (lG0, G, lG'-1, s, mode, Adepth)
-      | (* GEN CASE BRANCH *) collectSub (lG0, G, lG', I.Dot (I.Exp (U), s), mode, Adepth) =
+      | collectSub (lG0, G, lG', I.Dot (I.Exp (U), s), mode, Adepth) =
           (* typing invariant guarantees that (EV, BV) in V already
              collected !! *)
           collectSub (lG0, G, lG'-1, s, mode,
@@ -297,9 +297,9 @@ struct
        and  A'' ||- S
     *)
     and collectSpine (lG0, G, (I.Nil, _), mode, Adepth) = Adepth
-      | (* GEN CASE BRANCH *) collectSpine (lG0, G, (I.SClo (S, s'), s), mode, Adepth) =
+      | collectSpine (lG0, G, (I.SClo (S, s'), s), mode, Adepth) =
           collectSpine (lG0, G, (S, I.comp (s', s)), mode, Adepth)
-      | (* GEN CASE BRANCH *) collectSpine (lG0, G, (I.App (U, S), s), mode, Adepth) =
+      | collectSpine (lG0, G, (I.App (U, S), s), mode, Adepth) =
           collectSpine (lG0, G, (S, s), mode,
                         collectExp (lG0, G, (U, s), mode, Adepth))
 
@@ -351,9 +351,9 @@ struct
           (* s = id *)
           let
             fun collectModeW' (((I.Nil, _), ModeSyn.Mnil), Adepth) = Adepth
-              | (* GEN CASE BRANCH *) collectModeW' (((I.SClo(S, s'), s), M), Adepth) =
+              | collectModeW' (((I.SClo(S, s'), s), M), Adepth) =
                   collectModeW' (((S, I.comp (s', s)), M), Adepth)
-              | (* GEN CASE BRANCH *) collectModeW' (((I.App (U, S), s), ModeSyn.Mapp (m, mS)),
+              | collectModeW' (((I.App (U, S), s), ModeSyn.Mapp (m, mS)),
                                Adepth) =
                   collectModeW' (((S, s), mS),
                                  if modeEq (m, modeIn) then
@@ -363,7 +363,7 @@ struct
           in
             collectModeW' (((S, s), mS), Adepth)
           end
-      | (* GEN CASE BRANCH *) collectModeW (lG0, G, modeIn, modeRec, (I.Pi ((D, P), V), s), Adepth) =
+      | collectModeW (lG0, G, modeIn, modeRec, (I.Pi ((D, P), V), s), Adepth) =
           raise Error ("Implementation restricted to the Horn fragment of the meta logic")
 
 
@@ -427,7 +427,7 @@ struct
           collectG (lG0, G, (V1, s),
                     collectDTop (lG0, I.Decl (G, I.decSub (D, s)),
                                  (V2, I.dot1 s), Adepth))
-      | (* GEN CASE BRANCH *) collectDTopW (lG0, G, Vs as (I.Root _, s), Adepth) =   (* s = id *)
+      | collectDTopW (lG0, G, Vs as (I.Root _, s), Adepth) =   (* s = id *)
           collectModeW (lG0, G, M.Top, M.Top, Vs, Adepth)
 
 
@@ -460,7 +460,7 @@ struct
           collectDBotW (lG0, G, Whnf.whnf Vs, Adepth)
     and collectDBotW (lG0, G, (I.Pi ((D, _), V), s), Adepth) =
           collectDBot (lG0, I.Decl (G, I.decSub (D, s)), (V, I.dot1 s), Adepth)
-      | (* GEN CASE BRANCH *) collectDBotW (lG0, G, Vs as (I.Root _, s), Adepth) =  (* s = id *)
+      | collectDBotW (lG0, G, Vs as (I.Root _, s), Adepth) =  (* s = id *)
           collectModeW (lG0, G, M.Bot, M.Bot, Vs, Adepth)
 
     (* collect ((G,_,_), V) = A'
@@ -505,7 +505,7 @@ struct
         fun lookupEV' (I.Decl (A, EV (r, V, _)), r', k) =
             if (r = r') then (k, V)
             else lookupEV' (A, r', k+1)
-          | (* GEN CASE BRANCH *) lookupEV' (I.Decl (A, BV), r', k) =
+          | lookupEV' (I.Decl (A, BV), r', k) =
               lookupEV' (A, r', k+1)
         (* lookupEV' I.Null cannot occur by invariant *)
       in
@@ -527,8 +527,8 @@ struct
       let
         fun lookupBV' (I.Decl (A, EV (r, V, _)), i, k) =
               lookupBV' (A, i, k+1)
-          | (* GEN CASE BRANCH *) lookupBV' (I.Decl (A, BV), 1, k) = k
-          | (* GEN CASE BRANCH *) lookupBV' (I.Decl (A, BV), i, k) =
+          | lookupBV' (I.Decl (A, BV), 1, k) = k
+          | lookupBV' (I.Decl (A, BV), i, k) =
               lookupBV' (A, i-1, k+1)
         (* lookupBV' I.Null cannot occur by invariant *)
       in
@@ -547,15 +547,15 @@ struct
        and   U' is in nf
     *)
     fun abstractExpW (A, G, depth, (V as I.Uni (L), s)) = V
-      | (* GEN CASE BRANCH *) abstractExpW (A, G, depth, (I.Pi ((D, P), V), s)) =
+      | abstractExpW (A, G, depth, (I.Pi ((D, P), V), s)) =
           Abstract.piDepend ((abstractDec (A, G, depth, (D, s)), P),
                              abstractExp (A, I.Decl (G, I.decSub (D, s)),
                                           depth + 1, (V, I.dot1 s)))
-      | (* GEN CASE BRANCH *) abstractExpW (A, G, depth, (I.Lam (D, U), s)) =
+      | abstractExpW (A, G, depth, (I.Lam (D, U), s)) =
           I.Lam (abstractDec (A, G, depth, (D, s)),
                  abstractExp (A, I.Decl (G, I.decSub (D, s)),
                               depth + 1, (U, I.dot1 s)))
-      | (* GEN CASE BRANCH *) abstractExpW (A, G, depth, (I.Root (C as I.BVar k, S), s)) = (* s = id *)
+      | abstractExpW (A, G, depth, (I.Root (C as I.BVar k, S), s)) = (* s = id *)
           if k > depth then
             let
               val k' = lookupBV (A, k-depth)
@@ -564,9 +564,9 @@ struct
             end
           else
             I.Root (C, abstractSpine (A, G, depth, (S, s)))
-      | (* GEN CASE BRANCH *) abstractExpW (A, G, depth, (I.Root (C, S), s)) =  (* s = id *)
+      | abstractExpW (A, G, depth, (I.Root (C, S), s)) =  (* s = id *)
           I.Root (C, abstractSpine (A, G, depth, (S, s)))
-      | (* GEN CASE BRANCH *) abstractExpW (A, G, depth, (I.EVar (r, _, V, _), s)) =
+      | abstractExpW (A, G, depth, (I.EVar (r, _, V, _), s)) =
           let
             val (k, Vraised) = lookupEV (A, r)
             (* IMPROVE: remove the raised variable, replace by V -cs ?-fp *)
@@ -575,7 +575,7 @@ struct
                     abstractSub (A, G, depth, (Vraised, I.id),
                                  s, I.targetFam V, I.Nil))
           end
-      | (* GEN CASE BRANCH *) abstractExpW (A, G, depth, (I.FgnExp csfe, s)) =
+      | abstractExpW (A, G, depth, (I.FgnExp csfe, s)) =
           I.FgnExpStd.Map.apply csfe (fn U => abstractExp (A, G, depth, (U, s)))
         (* hack - should discuss with cs     -rv *)
 
@@ -594,10 +594,10 @@ struct
        and   . ||- S' and . ||- V1'
     *)
     and abstractSpine (A, G, depth, (I.Nil, _)) = I.Nil
-      | (* GEN CASE BRANCH *) abstractSpine (A, G, depth, (I.App (U, S), s)) =
+      | abstractSpine (A, G, depth, (I.App (U, S), s)) =
           I.App (abstractExp (A, G, depth, (U, s)),
                  abstractSpine (A, G, depth, (S, s)))
-      | (* GEN CASE BRANCH *) abstractSpine (A, G, depth, (I.SClo (S, s'), s)) =
+      | abstractSpine (A, G, depth, (I.SClo (S, s'), s)) =
           abstractSpine (A, G, depth, (S, I.comp (s', s)))
 
     (* abstractSub (A, G, depth, (XV, t), s, b, S) = S'
@@ -614,9 +614,9 @@ struct
     and abstractSub (A, G, depth, XVt, s, b, S) =
           abstractSubW (A, G, depth, Whnf.whnf XVt, s, b, S)
     and abstractSubW (A, G, depth, (I.Root _, _), s, b, S) = S
-      | (* GEN CASE BRANCH *) abstractSubW (A, G, depth, XVt as (I.Pi _, _), I.Shift k, b, S) =
+      | abstractSubW (A, G, depth, XVt as (I.Pi _, _), I.Shift k, b, S) =
           abstractSub (A, G, depth, XVt, I.Dot (I.Idx (k+1), I.Shift (k+1)), b, S)
-      | (* GEN CASE BRANCH *) abstractSubW (A, G, depth, XVt as (I.Pi (_, XV'), t),
+      | abstractSubW (A, G, depth, XVt as (I.Pi (_, XV'), t),
                       I.Dot (I.Idx (k), s), b, S) =
         let
           val I.Dec(x, V) = I.ctxDec (G, k)
@@ -632,7 +632,7 @@ struct
             abstractSub (A, G, depth, (XV', I.dot1 t), s, b,
                          I.App (I.Root (I.BVar (k), I.Nil), S))
         end
-      | (* GEN CASE BRANCH *) abstractSubW (A, G, depth, XVt as (I.Pi (_, XV'), t),
+      | abstractSubW (A, G, depth, XVt as (I.Pi (_, XV'), t),
                       I.Dot (I.Exp (U), s), b, S) =
           abstractSub (A, G, depth, (XV', I.dot1 t), s, b,
                        I.App (abstractExp (A, G, depth, (U, I.id)), S))
@@ -662,7 +662,7 @@ struct
        G'' = G [x] A
     *)
     fun abstractCtx (I.Null, GM as M.Prefix (I.Null, I.Null, I.Null)) = (GM, I.Null)
-      | (* GEN CASE BRANCH *) abstractCtx (I.Decl (A, BV), M.Prefix (I.Decl (G, D), I.Decl (M, marg), I.Decl (B, b))) =
+      | abstractCtx (I.Decl (A, BV), M.Prefix (I.Decl (G, D), I.Decl (M, marg), I.Decl (B, b))) =
           let
             val (M.Prefix (G', M', B'), lG') = abstractCtx (A, M.Prefix (G, M, B))
             val D' = abstractDec (A, G, 0, (D, I.id))
@@ -675,7 +675,7 @@ struct
                         I.Decl (B', b)),
               I.Decl (lG', D'))
           end
-      | (* GEN CASE BRANCH *) abstractCtx (I.Decl (A, EV (r, V, m)), GM) =
+      | abstractCtx (I.Decl (A, EV (r, V, m)), GM) =
           let
             val (M.Prefix (G', M', B'), lG') = abstractCtx (A, GM)
             val V'' = abstractExp (A, lG', 0, (V, I.id))

@@ -85,19 +85,19 @@ struct
          Menu := NONE)
 
     fun cLToString (nil) = ""
-      | (* GEN CASE BRANCH *) cLToString (c :: nil) =
+      | cLToString (c :: nil) =
           (I.conDecName (I.sgnLookup c))
-      | (* GEN CASE BRANCH *) cLToString (c :: L) =
+      | cLToString (c :: L) =
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
     fun SplittingToMenu (nil, A) = A
-      | (* GEN CASE BRANCH *) SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A)
+      | SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A)
 
     fun FillingToMenu (nil, A) = A
-      | (* GEN CASE BRANCH *) FillingToMenu (O :: L, A) = FillingToMenu (L, Filling O :: A)
+      | FillingToMenu (O :: L, A) = FillingToMenu (L, Filling O :: A)
 
     fun RecursionToMenu (nil, A) = A
-      | (* GEN CASE BRANCH *) RecursionToMenu (O :: L, A) = RecursionToMenu (L, Recursion O :: A)
+      | RecursionToMenu (O :: L, A) = RecursionToMenu (L, Recursion O :: A)
 
     fun menu () =
         if empty () then Menu := NONE
@@ -122,11 +122,11 @@ struct
     fun menuToString () =
         let
           fun menuToString' (k, nil) = ""
-            | (* GEN CASE BRANCH *) menuToString' (k, Splitting O :: M) =
+            | menuToString' (k, Splitting O :: M) =
                 (menuToString' (k+1, M)) ^ "\n" ^ (format k) ^ (Splitting.menu O)
-            | (* GEN CASE BRANCH *) menuToString' (k, Filling O :: M) =
+            | menuToString' (k, Filling O :: M) =
                 (menuToString' (k+1, M)) ^ "\n" ^ (format k) ^ (Filling.menu O)
-            | (* GEN CASE BRANCH *) menuToString' (k, Recursion O :: M) =
+            | menuToString' (k, Recursion O :: M) =
                 (menuToString' (k+1, M)) ^ "\n" ^ (format k) ^ (Recursion.menu O)
         in
           case !Menu of
@@ -138,14 +138,14 @@ struct
     fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
           fun makeConDec' (I.Null, V, k) = I.ConDec (name, NONE, k, I.Normal, V, I.Type)
-            | (* GEN CASE BRANCH *) makeConDec' (I.Decl (G, D), V, k) =
+            | makeConDec' (I.Decl (G, D), V, k) =
               makeConDec' (G, I.Pi ((D, I.Maybe), V), k+1)
         in
           (makeConDec' (G, V, 0))
         end
 
     fun makeSignature (nil) = M.SgnEmpty
-      | (* GEN CASE BRANCH *) makeSignature (S :: SL) =
+      | makeSignature (S :: SL) =
           M.ConDec (makeConDec S,
                       makeSignature SL)
     fun extract () =
@@ -170,7 +170,7 @@ struct
 
 
     fun contains (nil, _) = true
-      | (* GEN CASE BRANCH *) contains (x :: L, L') =
+      | contains (x :: L, L') =
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     fun equiv (L1, L2) =
@@ -192,7 +192,7 @@ struct
     fun init (k, nL) =
         let
           fun cids nil = nil
-            | (* GEN CASE BRANCH *) cids (name :: nL) =
+            | cids (name :: nL) =
               (case Names.stringToQid name
                  of NONE => raise Error ("Malformed qualified identifier " ^ name)
                   | SOME qid =>
@@ -210,7 +210,7 @@ struct
     fun select k =
         let
           fun select' (k, nil) = abort ("No such menu item")
-            | (* GEN CASE BRANCH *) select' (1, Splitting O :: _) =
+            | select' (1, Splitting O :: _) =
                 let
                   val S' = (Timers.time Timers.splitting Splitting.apply) O
                   val _ = pushHistory ()
@@ -219,7 +219,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | (* GEN CASE BRANCH *) select' (1, Recursion O :: _) =
+            | select' (1, Recursion O :: _) =
                 let
                   val S' = (Timers.time Timers.recursion Recursion.apply) O
                   val _ = pushHistory ()
@@ -228,7 +228,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | (* GEN CASE BRANCH *) select' (1, Filling O :: _) =
+            | select' (1, Filling O :: _) =
                 let
                   val _ =
                     case (Timers.time Timers.filling Filling.apply) O of
@@ -239,7 +239,7 @@ struct
                 in
                   (menu (); printMenu ())
                 end
-            | (* GEN CASE BRANCH *) select' (k, _ :: M) = select' (k-1, M)
+            | select' (k, _ :: M) = select' (k-1, M)
         in
           (case !Menu of
             NONE => raise Error "No menu defined"

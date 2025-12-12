@@ -33,8 +33,8 @@ struct
   fun lookup dict key =
     let
       fun lk (Empty) = NONE
-  	| (* GEN CASE BRANCH *) lk (Red tree) = lk' tree
-        | (* GEN CASE BRANCH *) lk (Black tree) = lk' tree
+  	| lk (Red tree) = lk' tree
+        | lk (Black tree) = lk' tree
       and lk' ((key1, datum1), left, right) =
   	    (case compare(key,key1)
   	       of EQUAL => SOME(datum1)
@@ -56,29 +56,29 @@ struct
   *)
   fun restore_right (Black(e, Red lt, Red (rt as (_,Red _,_)))) =
          Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
+    | restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
          Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
+    | restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
     	 (* l is black, deep rotate *)
     	 Black(rle, Red(e, l, rll), Red(re, rlr, rr))
-    | (* GEN CASE BRANCH *) restore_right (Black(e, l, Red(re, rl, rr as Red _))) =
+    | restore_right (Black(e, l, Red(re, rl, rr as Red _))) =
     	 (* l is black, shallow rotate *)
     	 Black(re, Red(e, l, rl), rr)
-    | (* GEN CASE BRANCH *) restore_right dict = dict
+    | restore_right dict = dict
 
   (* restore_left is like restore_right, except *)
   (* the color invariant may be violated only at the root of left child *)
   fun restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
   	 Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
+    | restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
     	 Red(e, Black lt, Black rt)	(* re-color *)
-    | (* GEN CASE BRANCH *) restore_left (Black(e, Red(le, ll as Red _, lr), r)) =
+    | restore_left (Black(e, Red(le, ll as Red _, lr), r)) =
     	 (* r is black, shallow rotate *)
     	 Black(le, ll, Red(e, lr, r))
-    | (* GEN CASE BRANCH *) restore_left (Black(e, Red(le, ll, Red(lre, lrl, lrr)), r)) =
+    | restore_left (Black(e, Red(le, ll, Red(lre, lrl, lrr)), r)) =
     	 (* r is black, deep rotate *)
     	 Black(lre, Red(le, ll, lrl), Red(e, lrr, r))
-    | (* GEN CASE BRANCH *) restore_left dict = dict
+    | restore_left dict = dict
 
   fun insert (dict, entry as (key,datum)) =
     let
@@ -87,12 +87,12 @@ struct
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
       fun ins (Empty) = Red(entry, Empty, Empty)
-  	| (* GEN CASE BRANCH *) ins (Red(entry1 as (key1, datum1), left, right)) =
+  	| ins (Red(entry1 as (key1, datum1), left, right)) =
   	  (case compare(key,key1)
   	     of EQUAL => Red(entry, left, right)
   	      | LESS => Red(entry1, ins left, right)
   	      | GREATER => Red(entry1, left, ins right))
-  	| (* GEN CASE BRANCH *) ins (Black(entry1 as (key1, datum1), left, right)) =
+  	| ins (Black(entry1 as (key1, datum1), left, right)) =
   	  (case compare(key,key1)
   	     of EQUAL => Black(entry, left, right)
   	      | LESS => restore_left (Black(entry1, ins left, right))
@@ -108,13 +108,13 @@ struct
   fun insertShadow (dict, entry as (key,datum)) =
       let val oldEntry = ref NONE (* : 'a entry option ref *)
           fun ins (Empty) = Red(entry, Empty, Empty)
-  	    | (* GEN CASE BRANCH *) ins (Red(entry1 as (key1, datum1), left, right)) =
+  	    | ins (Red(entry1 as (key1, datum1), left, right)) =
   	      (case compare(key,key1)
   		 of EQUAL => (oldEntry := SOME(entry1);
   			      Red(entry, left, right))
   	          | LESS => Red(entry1, ins left, right)
   	          | GREATER => Red(entry1, left, ins right))
-  	    | (* GEN CASE BRANCH *) ins (Black(entry1 as (key1, datum1), left, right)) =
+  	    | ins (Black(entry1 as (key1, datum1), left, right)) =
   	      (case compare(key,key1)
   		 of EQUAL => (oldEntry := SOME(entry1);
   			      Black(entry, left, right))
@@ -131,8 +131,8 @@ struct
   
   fun app f dict =
       let fun ap (Empty) = ()
-  	    | (* GEN CASE BRANCH *) ap (Red tree) = ap' tree
-  	    | (* GEN CASE BRANCH *) ap (Black tree) = ap' tree
+  	    | ap (Red tree) = ap' tree
+  	    | ap (Black tree) = ap' tree
   	  and ap' (entry1, left, right) =
   	      (ap left; f entry1; ap right)
       in

@@ -49,12 +49,12 @@ struct
     val all_ps : bool option Array.array = Array.array(sgn_size, NONE)
 
     fun  split (h::tl) 0 = ([], h, tl)
-       | (* GEN CASE BRANCH *) split (h::tl) n = let 
+       | split (h::tl) n = let 
        	     val (pre, thing, post) = split tl (n-1)
        	 in
        	     (h::pre, thing, post)
        	 end
-       | (* GEN CASE BRANCH *) split [] n = split [NONE] n 
+       | split [] n = split [NONE] n 
 
     fun clear () = let in
     		       Array.modify (fn _ => NONE) sigma;

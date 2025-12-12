@@ -16,17 +16,17 @@ struct
 		       end
 
 	fun findn [] (v : string) = raise NotFound v
-	  | (* GEN CASE BRANCH *) findn (v::tl) v' = if v = v' then 0 else 1 + findn tl v'
+	  | findn (v::tl) v' = if v = v' then 0 else 1 + findn tl v'
 	fun findid ctx v = (Var(findn ctx v) handle NotFound _ =>
 							Const(findn (!sigma) v))
 	fun modeconvert Parse.mMINUS = MINUS
-	  | (* GEN CASE BRANCH *) modeconvert Parse.mPLUS = PLUS
-	  | (* GEN CASE BRANCH *) modeconvert Parse.mOMIT = OMIT
+	  | modeconvert Parse.mPLUS = PLUS
+	  | modeconvert Parse.mOMIT = OMIT
 
 	fun modesofclass (kclass(Type)) = []
-	  | (* GEN CASE BRANCH *) modesofclass (kclass(KPi(m,_,k))) = m :: modesofclass(kclass k)
-	  | (* GEN CASE BRANCH *) modesofclass (tclass(TRoot _)) = []
-	  | (* GEN CASE BRANCH *) modesofclass (tclass(TPi(m,_,a))) = m :: modesofclass(tclass a)
+	  | modesofclass (kclass(KPi(m,_,k))) = m :: modesofclass(kclass k)
+	  | modesofclass (tclass(TRoot _)) = []
+	  | modesofclass (tclass(TPi(m,_,a))) = m :: modesofclass(tclass a)
 
 (* given a context and an external expression, returns the internal 'spine form' as a 4-tuple
    (h, mopt, p, s)
@@ -42,9 +42,9 @@ struct
 			     SOME (modesofclass (List.nth (!sigmat, n))),
 			     List.nth (!sigmap, n),
 			     []))
-	  | (* GEN CASE BRANCH *) spine_form (G, Parse.App (t, u)) = let val (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u]) end
-	  | (* GEN CASE BRANCH *) spine_form (G, Parse.Lam _) = raise Convert "illegal redex" 
-	  | (* GEN CASE BRANCH *) spine_form (G, _) = raise Convert "level mismatch" 
+	  | spine_form (G, Parse.App (t, u)) = let val (h, mopt, p, s) = spine_form (G, t) in (h, mopt, p, s @ [u]) end
+	  | spine_form (G, Parse.Lam _) = raise Convert "illegal redex" 
+	  | spine_form (G, _) = raise Convert "level mismatch" 
 
 (* similar to spine_form for a type family applied to a list of arguments *)
 	fun type_spine_form (G, Parse.Id s) = 
@@ -53,9 +53,9 @@ struct
 	    in
 	        (n, modesofclass (List.nth (!sigmat, n)), [])
 	    end
-	  | (* GEN CASE BRANCH *) type_spine_form (G, Parse.App (t, u)) = let val (n, m, s) = type_spine_form (G, t)
+	  | type_spine_form (G, Parse.App (t, u)) = let val (n, m, s) = type_spine_form (G, t)
 					       in (n, m, s @ [u]) end
-	  | (* GEN CASE BRANCH *) type_spine_form (G, _) = raise Convert "level mismatch" 
+	  | type_spine_form (G, _) = raise Convert "level mismatch" 
 
 	fun safezip (l1, l2) = if length l1 = length l2 
 			       then ListPair.zip (l1,l2)
@@ -63,10 +63,10 @@ struct
 
 (* given a context and an external expression and a mode, return a spine element or raise an exception*)
 	fun eltconvert G (t, MINUS) = Elt (convert (G, t))
-	  | (* GEN CASE BRANCH *) eltconvert G (Parse.Ascribe(t, a), PLUS) = Ascribe(nconvert (G, t), typeconvert (G, a))
-	  | (* GEN CASE BRANCH *) eltconvert G (t, PLUS) = AElt (aconvert(G, t))
-	  | (* GEN CASE BRANCH *) eltconvert G (Parse.Omit, OMIT) = Omit
-	  | (* GEN CASE BRANCH *) eltconvert G (_, OMIT) = raise Convert "found term expected to be omitted"
+	  | eltconvert G (Parse.Ascribe(t, a), PLUS) = Ascribe(nconvert (G, t), typeconvert (G, a))
+	  | eltconvert G (t, PLUS) = AElt (aconvert(G, t))
+	  | eltconvert G (Parse.Omit, OMIT) = Omit
+	  | eltconvert G (_, OMIT) = raise Convert "found term expected to be omitted"
 		
 (* given a context and an external expression, return an atomic term or raise an exception*)
 	and aconvert (G, t) = 
@@ -82,7 +82,7 @@ struct
 
 (* given a context and an external expression, return a term or raise an exception *)
 	and convert (G, Parse.Lam ((v,_), t)) = NTerm(Lam(convert(v::G, t)))
-	  | (* GEN CASE BRANCH *) convert (G, t) = 
+	  | convert (G, t) = 
 	    let
 		val (h, mopt, p, s) = spine_form (G, t)
 		val s' = map (eltconvert G) (case mopt of
@@ -101,22 +101,22 @@ struct
 	    in
 		TPi(modeconvert m, ct, ct')
 	    end
-	  | (* GEN CASE BRANCH *) typeconvert (G, Parse.Pi (m, (_,NONE),_)) = raise Convert "can't handle implicit pi"
-	  | (* GEN CASE BRANCH *) typeconvert (G, Parse.Arrow (t, t')) = 
+	  | typeconvert (G, Parse.Pi (m, (_,NONE),_)) = raise Convert "can't handle implicit pi"
+	  | typeconvert (G, Parse.Arrow (t, t')) = 
 	    let
 		val ct = typeconvert(G, t)
 		val ct' = typeconvert(""::G, t')
 	    in
 		TPi(MINUS, ct, ct')
 	    end
-	  | (* GEN CASE BRANCH *) typeconvert (G, Parse.PlusArrow (t, t')) = 
+	  | typeconvert (G, Parse.PlusArrow (t, t')) = 
 	    let
 		val ct = typeconvert(G, t)
 		val ct' = typeconvert(""::G, t')
 	    in
 		TPi(PLUS, ct, ct')
 	    end
-	  | (* GEN CASE BRANCH *) typeconvert (G, a) = 
+	  | typeconvert (G, a) = 
 	    let 
 		val (n, m, s) = type_spine_form (G, a)
 		val s' = map (eltconvert G) (safezip (s,m))
@@ -131,22 +131,22 @@ struct
 	    in
 		KPi(modeconvert m, ct, ct')
 	    end
-	  | (* GEN CASE BRANCH *) kindconvert (G, Parse.Arrow (t, t')) = 
+	  | kindconvert (G, Parse.Arrow (t, t')) = 
 	    let
 		val ct = typeconvert(G, t)
 		val ct' = kindconvert(""::G, t')
 	    in
 		KPi(MINUS, ct, ct')
 	    end
-	  | (* GEN CASE BRANCH *) kindconvert (G, Parse.PlusArrow (t, t')) = 
+	  | kindconvert (G, Parse.PlusArrow (t, t')) = 
 	    let
 		val ct = typeconvert(G, t)
 		val ct' = kindconvert(""::G, t')
 	    in
 		KPi(PLUS, ct, ct')
 	    end
-	  | (* GEN CASE BRANCH *) kindconvert (G, Parse.Pi (m, (_,NONE),_)) = raise Convert "can't handle implicit pi"
-	  | (* GEN CASE BRANCH *) kindconvert (G, Parse.Type) = Type
-	  | (* GEN CASE BRANCH *) kindconvert _ = raise Convert "level mismatch"
+	  | kindconvert (G, Parse.Pi (m, (_,NONE),_)) = raise Convert "can't handle implicit pi"
+	  | kindconvert (G, Parse.Type) = Type
+	  | kindconvert _ = raise Convert "level mismatch"
 
 end

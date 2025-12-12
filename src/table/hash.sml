@@ -28,11 +28,11 @@ struct
   	    else insertBR (br')
   	and insertBR (br as ref(Nil)) =
   	      (br := Cons (ref (hashVal, e), ref Nil); NONE)
-  	  | (* GEN CASE BRANCH *) insertBR (br) = insertB (!br)
+  	  | insertBR (br) = insertB (!br)
   	fun insertA (Nil) =
   	    (Array.update (a, index, Cons (ref (hashVal,e), ref Nil));
   	     NONE)
-  	  | (* GEN CASE BRANCH *) insertA (bucket) = insertB (bucket)
+  	  | insertA (bucket) = insertB (bucket)
       in
   	insertA bucket
       end
@@ -46,7 +46,7 @@ struct
   	    if hashVal = hash1 andalso eq (key, key1)
   	      then SOME(datum1)
   	    else lookup' (!br)
-  	  | (* GEN CASE BRANCH *) lookup' (Nil) = NONE
+  	  | lookup' (Nil) = NONE
   	val bucket = Array.sub (a, hashVal mod n)
       in
   	lookup' bucket
@@ -55,7 +55,7 @@ struct
   fun clear (a,n) = Array.modify (fn _ => Nil) a
 
   fun appBucket f (Nil) = ()
-    | (* GEN CASE BRANCH *) appBucket f (Cons(ref(_, e), br)) =
+    | appBucket f (Cons(ref(_, e), br)) =
         (f e; appBucket f (!br))
 
   fun app f (a,n) = Array.app (appBucket f) a

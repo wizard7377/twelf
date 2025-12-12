@@ -56,7 +56,7 @@ struct
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
     fun contains (nil, _) = true
-      | (* GEN CASE BRANCH *) contains (x :: L, L') =
+      | contains (x :: L, L') =
           (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
     (* equiv (L1, L2) = B'
@@ -85,9 +85,9 @@ struct
        then s is a string, listing their names
     *)
     fun cLToString (nil) = ""
-      | (* GEN CASE BRANCH *) cLToString (c :: nil) =
+      | cLToString (c :: nil) =
           (I.conDecName (I.sgnLookup c))
-      | (* GEN CASE BRANCH *) cLToString (c :: L) =
+      | cLToString (c :: L) =
           (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
     (* init (k, cL) = ()
@@ -145,7 +145,7 @@ struct
     fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
           fun makeConDec' (I.Null, V, k) = I.ConDec (name, NONE, k, I.Normal, V, I.Type)
-            | (* GEN CASE BRANCH *) makeConDec' (I.Decl (G, D), V, k) =
+            | makeConDec' (I.Decl (G, D), V, k) =
               makeConDec' (G, I.Pi ((D, I.Maybe), V), k+1)
         in
           (makeConDec' (G, V, 0))
@@ -158,7 +158,7 @@ struct
        then IS' is the corresponding interface signaure
     *)
     fun makeSignature (nil) = M.SgnEmpty
-      | (* GEN CASE BRANCH *) makeSignature (S :: SL) =
+      | makeSignature (S :: SL) =
           M.ConDec (makeConDec S,
                       makeSignature SL)
 
@@ -170,7 +170,7 @@ struct
     fun install (installConDec) =
         let
           fun install' M.SgnEmpty = ()
-            | (* GEN CASE BRANCH *) install' (M.ConDec (e, S)) =
+            | install' (M.ConDec (e, S)) =
                 (installConDec e;
                  install' S)
           val IS = if (List.length (!openStates)) > 0 then
@@ -193,7 +193,7 @@ struct
     fun printState () =
         let
           fun print' nil = ()
-            | (* GEN CASE BRANCH *) print' (S :: L) =
+            | print' (S :: L) =
                 (print (MetaPrint.stateToString S);
                  print' L)
         in

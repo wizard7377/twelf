@@ -41,17 +41,17 @@ struct
     exception Error of string
 
     fun cidFromHead (I.Const a) = a
-      | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
+      | cidFromHead (I.Def a) = a
 
     fun eqHead (I.Const a, I.Const a') = a = a'
-      | (* GEN CASE BRANCH *) eqHead (I.Def a, I.Def a') = a = a'
-      | (* GEN CASE BRANCH *) eqHead _ = false
+      | eqHead (I.Def a, I.Def a') = a = a'
+      | eqHead _ = false
 
   fun compose'(IntSyn.Null, G) = G
-    | (* GEN CASE BRANCH *) compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
+    | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
 
   fun shift (IntSyn.Null, s) = s
-    | (* GEN CASE BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+    | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
 
   (* We write
        G |- M : g
@@ -84,7 +84,7 @@ struct
   *)
   fun solve' (O, (C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
     matchAtom (O, (p,s), dp, sc)
-    | (* GEN CASE BRANCH *) solve' (O, (C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+    | solve' (O, (C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
         val D' = I.Dec(NONE, I.EClo(A,s))
       in
@@ -106,7 +106,7 @@ struct
     (*      solve' (O, (g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, Ha))),
                (fn (O,M) => sc (O, (I.Lam (D', M)))))*)
       end
-    | (* GEN CASE BRANCH *) solve' (O, (C.All(D, g), s), C.DProg (G, dPool), sc) =
+    | solve' (O, (C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
         val D' = Names.decLUName (G, I.decSub (D, s))
         (* val D' = I.decSub (D, s) *)
@@ -139,7 +139,7 @@ struct
             end)
           (* fail *)
 
-    | (* GEN CASE BRANCH *) rSolve (O, ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
+    | rSolve (O, ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
         (case Assign.assignable (G, ps', (Q, s)) of
           SOME(cnstr) =>
             if aSolve((eqns, s), dp, cnstr)
@@ -147,7 +147,7 @@ struct
             else  print "aSolve cnstr not solvable -- SHOULD NEVER HAPPEN\n"
         | NONE => print "Clause Head not assignable -- SHOULD NEVER HAPPEN\n")
 
-    | (* GEN CASE BRANCH *) rSolve (O, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
+    | rSolve (O, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
       let
         (* is this EVar redundant? -fp *)
         val X = I.newEVar (G, I.EClo(A, s))
@@ -156,7 +156,7 @@ struct
                 (fn (O, S) => solve' (O, (g, s), dp,
                                 (fn (O, M) => sc (O, (I.App (M, S)))))))
       end
-    | (* GEN CASE BRANCH *) rSolve (O, ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
+    | rSolve (O, ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
       let
         val X = I.newEVar (G, I.EClo (A,s))
       in
@@ -164,7 +164,7 @@ struct
                 (fn (O,S) => sc (O, (I.App(X,S)))))
       end
 
-    | (* GEN CASE BRANCH *) rSolve (O, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
+    | rSolve (O, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
       let
         val X' = I.newAVar ()
       in
@@ -183,7 +183,7 @@ struct
 
   and aSolve ((C.Trivial, s), dp, cnstr) =
        Assign.solveCnstr cnstr
-    | (* GEN CASE BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr) =
+    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr) =
       let
         val (G'') = compose'(G', G)
         val s' = shift (G', s)
@@ -215,7 +215,7 @@ struct
         fun matchSig (nil, k) =
              raise Error (" \noracle #Pc does not exist \n")
              (* should not happen *)
-          | (* GEN CASE BRANCH *) matchSig (((Hc as (I.Const c))::sgn'), k) =
+          | matchSig (((Hc as (I.Const c))::sgn'), k) =
             if c = k then
               let
                 val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
@@ -225,7 +225,7 @@ struct
               end
             else
               matchSig (sgn', k)
-          | (* GEN CASE BRANCH *) matchSig (((Hc as (I.Def d))::sgn'), k) =
+          | matchSig (((Hc as (I.Def d))::sgn'), k) =
             if d = k then
               let
                 val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
@@ -244,7 +244,7 @@ struct
         fun matchDProg (I.Null, i, k) =
             (* dynamic program exhausted -- shouldn't happen *)
             raise Error ("\n selected dynamic clause number does not exist in current dynamic clause pool!\n")
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), 1, k) =
+          | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), 1, k) =
             if eqHead (Ha, Ha')
               then
                 rSolve (O, ps', (r, I.comp(s, I.Shift(k))), dp,
@@ -252,7 +252,7 @@ struct
             else (* shouldn't happen *)
               raise Error ("\n selected dynamic clause does not match current goal!\n")
   
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', dc), i ,k) =
+          | matchDProg (I.Decl (dPool', dc), i ,k) =
               matchDProg (dPool', i-1, k)
       in
         (case Ho of

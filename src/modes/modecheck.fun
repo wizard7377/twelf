@@ -90,8 +90,8 @@ struct
 
     (* nameOf S, selects a name for S *)
     fun nameOf (Existential (_, NONE)) = "?"
-      | (* GEN CASE BRANCH *) nameOf (Existential (_, SOME name)) = name
-      | (* GEN CASE BRANCH *) nameOf _ = "?"
+      | nameOf (Existential (_, SOME name)) = name
+      | nameOf _ = "?"
 
     (* unique (k, ks) = B
 
@@ -99,7 +99,7 @@ struct
        B iff k does not occur in ks
     *)
     fun unique (k, nil) = true
-      | (* GEN CASE BRANCH *) unique (k, k'::ks) =
+      | unique (k, k'::ks) =
           (k <> k') andalso unique (k, ks)
 
     (* isUniversal S = B
@@ -108,7 +108,7 @@ struct
        B iff S = Par
     *)
     fun isUniversal Universal = true
-      | (* GEN CASE BRANCH *) isUniversal _ = false
+      | isUniversal _ = false
 
     (* isGround S = B
 
@@ -116,26 +116,26 @@ struct
        B iff S = Ex (T x)
     *)
     fun isGround (Existential (Ground _, _)) = true
-      | (* GEN CASE BRANCH *) isGround _ = false
+      | isGround _ = false
 
     (* uniqueness S = u
        where u is the uniqueness property of status S
     *)
     fun uniqueness (Existential (Ground (u), _)) = u
-      | (* GEN CASE BRANCH *) uniqueness (Universal) = Unique
+      | uniqueness (Universal) = Unique
 
     (* ambiguate (mode) = mode'
        where mode' forgets uniqueness properties
     *)
     fun ambiguate (M.Plus) = M.Plus
-      | (* GEN CASE BRANCH *) ambiguate (M.Minus) = M.Minus
-      | (* GEN CASE BRANCH *) ambiguate (M.Minus1) = M.Minus
+      | ambiguate (M.Minus) = M.Minus
+      | ambiguate (M.Minus1) = M.Minus
 
     (* andUnique (u1, u2) = Unique if u1 = u2 = Unique
        = Ambig otherwise
     *)
     fun andUnique (Unique, Unique) = Unique
-      | (* GEN CASE BRANCH *) andUnique _ = Ambig
+      | andUnique _ = Ambig
 
     (* isFree S = b
 
@@ -143,7 +143,7 @@ struct
        b iff S = Ex (B x)
     *)
     fun isFree (Existential (Free, _)) = true
-      | (* GEN CASE BRANCH *) isFree _ = false
+      | isFree _ = false
 
     exception Eta
 
@@ -159,9 +159,9 @@ struct
         if k > n
           then ( etaSpine (S, n) ; k-n )
         else raise Eta
-      | (* GEN CASE BRANCH *) etaContract (I.Lam (D, U), n) =
+      | etaContract (I.Lam (D, U), n) =
           etaContract (U, n+1)
-      | (* GEN CASE BRANCH *) etaContract _ = raise Eta
+      | etaContract _ = raise Eta
 
     (* etaSpine (S, n) = ()
        if S =eta*=> n ; n-1 ; ... ; 1 ; Nil
@@ -171,7 +171,7 @@ struct
                   S in NF
     *)
     and etaSpine (I.Nil, 0) = ()
-      | (* GEN CASE BRANCH *) etaSpine (I.App (U, S), n) =
+      | etaSpine (I.App (U, S), n) =
         if etaContract (U, 0) = n
           then etaSpine (S, n-1)
         else raise Eta
@@ -185,7 +185,7 @@ struct
          and for all k', k'' in mS: k' <> k''
     *)
     fun checkPattern (D, k, args, I.Nil) = ()
-      | (* GEN CASE BRANCH *) checkPattern (D, k, args, I.App (U, S)) =
+      | checkPattern (D, k, args, I.App (U, S)) =
         (let
            val k' = etaContract (U, 0)
          in
@@ -212,13 +212,13 @@ struct
        then B iff U is strict in p
     *)
     fun strictExpN (D, _, I.Uni _) = false
-      | (* GEN CASE BRANCH *) strictExpN (D, p, I.Lam (_, U)) =
+      | strictExpN (D, p, I.Lam (_, U)) =
           (* checking D in this case should be redundant -fp *)
           (* strictDecN (D, p, D) orelse *)
           strictExpN (I.Decl(D, Universal), p+1, U)
-      | (* GEN CASE BRANCH *) strictExpN (D, p, I.Pi ((D', _), U)) =
+      | strictExpN (D, p, I.Pi ((D', _), U)) =
           strictDecN (D, p, D') orelse strictExpN (I.Decl(D, Universal), p+1, U)
-      | (* GEN CASE BRANCH *) strictExpN (D, p, I.Root (H, S)) =
+      | strictExpN (D, p, I.Root (H, S)) =
           (case H
              of (I.BVar (k')) =>
                 if (k' = p) then isPattern (D, k', S)
@@ -229,7 +229,7 @@ struct
               | (I.Def (d))  => strictSpineN (D, p, S)
               | (I.FgnConst (cs, conDec)) => strictSpineN (D, p, S))
               (* no other cases possible *)
-      | (* GEN CASE BRANCH *) strictExpN (D, p, I.FgnExp (cs, ops)) = false
+      | strictExpN (D, p, I.FgnExp (cs, ops)) = false
           (* this is a hack - until we investigate this further   -rv *)
     (* no other cases possible *)
 
@@ -241,7 +241,7 @@ struct
        then B iff S is strict in k
     *)
     and strictSpineN (_, _, I.Nil) = false
-      | (* GEN CASE BRANCH *) strictSpineN (D, p, I.App (U, S)) =
+      | strictSpineN (D, p, I.App (U, S)) =
           strictExpN (D, p, U) orelse strictSpineN (D, p, S)
 
     and strictDecN (D, p, I.Dec (_, V)) =
@@ -270,15 +270,15 @@ struct
     fun freeExpN (D, d, mode, I.Root (I.BVar k, S), occ, strictFun) =
           (freeVar (D, d, mode, k, P.head occ, strictFun);
            freeSpineN (D, d, mode, S, (1, occ), strictFun))
-      | (* GEN CASE BRANCH *) freeExpN (D, d, mode, I.Root (I.Const _, S), occ, strictFun) =
+      | freeExpN (D, d, mode, I.Root (I.Const _, S), occ, strictFun) =
           freeSpineN (D, d, mode, S, (1, occ), strictFun)
-      | (* GEN CASE BRANCH *) freeExpN (D, d, mode, I.Root (I.Def _, S), occ, strictFun) =
+      | freeExpN (D, d, mode, I.Root (I.Def _, S), occ, strictFun) =
           freeSpineN (D, d, mode, S, (1, occ), strictFun)
-      | (* GEN CASE BRANCH *) freeExpN (D, d, mode, I.Root (I.FgnConst (cs, conDec), S), occ, strictFun) =
+      | freeExpN (D, d, mode, I.Root (I.FgnConst (cs, conDec), S), occ, strictFun) =
           freeSpineN (D, d, mode, S, (1, occ), strictFun)
-      | (* GEN CASE BRANCH *) freeExpN (D, d, mode, I.Lam (_, U), occ, strictFun) =
+      | freeExpN (D, d, mode, I.Lam (_, U), occ, strictFun) =
           freeExpN (I.Decl (D, Universal), d+1, mode, U, P.body occ, strictFun)
-      | (* GEN CASE BRANCH *) freeExpN (D, d, mode, I.FgnExp csfe, occ, strictFun) =
+      | freeExpN (D, d, mode, I.FgnExp csfe, occ, strictFun) =
         I.FgnExpStd.App.apply csfe (fn U => freeExpN (D, d, mode, Whnf.normalize (U, I.id), occ, strictFun))
         (* punting on the occ here  - ak *)
 
@@ -292,7 +292,7 @@ struct
        (occ and mode are used in error messages)
     *)
     and freeSpineN (D, d, mode, I.Nil, _, strictFun) = ()
-      | (* GEN CASE BRANCH *) freeSpineN (D, d, mode, I.App (U, S), (p, occ), strictFun) =
+      | freeSpineN (D, d, mode, I.App (U, S), (p, occ), strictFun) =
           (freeExpN (D, d, mode, U, P.arg (p, occ), strictFun);
            freeSpineN (D, d, mode, S, (p+1, occ), strictFun))
 
@@ -327,15 +327,15 @@ struct
     *)
     fun nonStrictExpN (D, I.Root (I.BVar (k), S)) =
           nonStrictSpineN (nonStrictVarD (D, k), S)
-      | (* GEN CASE BRANCH *) nonStrictExpN (D, I.Root (I.Const c, S)) =
+      | nonStrictExpN (D, I.Root (I.Const c, S)) =
           nonStrictSpineN (D, S)
-      | (* GEN CASE BRANCH *) nonStrictExpN (D, I.Root (I.Def d, S)) =
+      | nonStrictExpN (D, I.Root (I.Def d, S)) =
           nonStrictSpineN (D, S)
-      | (* GEN CASE BRANCH *) nonStrictExpN (D, I.Root (I.FgnConst (cs, conDec), S)) =
+      | nonStrictExpN (D, I.Root (I.FgnConst (cs, conDec), S)) =
           nonStrictSpineN (D, S)
-      | (* GEN CASE BRANCH *) nonStrictExpN (D, I.Lam (_, U)) =
+      | nonStrictExpN (D, I.Lam (_, U)) =
           I.ctxPop (nonStrictExpN (I.Decl (D, Universal), U))
-      | (* GEN CASE BRANCH *) nonStrictExpN (D, I.FgnExp _) =
+      | nonStrictExpN (D, I.FgnExp _) =
           raise Error ("Foreign expressions not permitted when checking freeness")
 
     (* nonStrictSpineN (D, S) = D'
@@ -346,7 +346,7 @@ struct
             in S that are Free in D
     *)
     and nonStrictSpineN (D, I.Nil) = D
-      | (* GEN CASE BRANCH *) nonStrictSpineN (D, I.App (U, S)) =
+      | nonStrictSpineN (D, I.App (U, S)) =
           nonStrictSpineN (nonStrictExpN (D, U), S)
 
     (* nonStrictVarD (D, k) = D'
@@ -358,9 +358,9 @@ struct
     *)
     and nonStrictVarD (I.Decl (D, Existential (Free, name)), 1) =
           I.Decl (D, Existential (Unknown, name))
-      | (* GEN CASE BRANCH *) nonStrictVarD (D, 1) = (* Universal, or already Unknown or Ground - leave unchanged *)
+      | nonStrictVarD (D, 1) = (* Universal, or already Unknown or Ground - leave unchanged *)
           D
-      | (* GEN CASE BRANCH *) nonStrictVarD (I.Decl (D, status), k) =
+      | nonStrictVarD (I.Decl (D, status), k) =
           I.Decl (nonStrictVarD (D, k-1), status)
 
     (* ------------------------------------------- mode context update *)
@@ -386,16 +386,16 @@ struct
             else if !checkFree
                    then nonStrictSpineN (nonStrictVarD (D, k), S)
                  else D
-      | (* GEN CASE BRANCH *) updateExpN (D, I.Root (I.Const c, S), u) =
+      | updateExpN (D, I.Root (I.Const c, S), u) =
           updateSpineN (D, S, u)
-      | (* GEN CASE BRANCH *) updateExpN (D, I.Root (I.Def d, S), u) =
+      | updateExpN (D, I.Root (I.Def d, S), u) =
           updateSpineN (D, S, u)
-      | (* GEN CASE BRANCH *) updateExpN (D, I.Root (I.FgnConst (cs, conDec), S), u) =
+      | updateExpN (D, I.Root (I.FgnConst (cs, conDec), S), u) =
           updateSpineN (D, S, u)
-      | (* GEN CASE BRANCH *) updateExpN (D, I.Lam (_, U), u) =
+      | updateExpN (D, I.Lam (_, U), u) =
           I.ctxPop (updateExpN (I.Decl (D, Universal), U, u))
       (* no occurrence inside a FgnExp is considered strict *)
-      | (* GEN CASE BRANCH *) updateExpN (D, I.FgnExp _, u) = D
+      | updateExpN (D, I.FgnExp _, u) = D
 
     (* updateSpineN (D, S, u) = D'
 
@@ -405,7 +405,7 @@ struct
             with a strict occurrence in S
     *)
     and updateSpineN (D, I.Nil, u) = D
-      | (* GEN CASE BRANCH *) updateSpineN (D, I.App (U, S), u) =
+      | updateSpineN (D, I.App (U, S), u) =
           updateSpineN (updateExpN (D, U, u), S, u)
 
     (* updateVarD (D, k, u) = D'
@@ -417,7 +417,7 @@ struct
     *)
     and updateVarD (I.Decl (D, Existential (_, name)), 1, u) =
           I.Decl (D, Existential (Ground (u), name))
-      | (* GEN CASE BRANCH *) updateVarD (I.Decl (D, status), k, u) =
+      | updateVarD (I.Decl (D, status), k, u) =
           I.Decl (updateVarD (D, k-1, u), status)
 
     (* ----------------------- mode context update by argument modes *)
@@ -439,19 +439,19 @@ struct
        (p,occ) is used in error message if freeness is to be checked
     *)
     fun updateAtom' (D, mode, I.Nil, M.Mnil, _) = D
-      | (* GEN CASE BRANCH *) updateAtom' (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) =
+      | updateAtom' (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) =
           updateAtom' (updateExpN (D, U, Unique), M.Plus, S, mS, (p+1, occ))
-      | (* GEN CASE BRANCH *) updateAtom' (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
+      | updateAtom' (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
           updateAtom' (updateExpN (D, U, Ambig), M.Minus, S, mS, (p+1, occ))
-      | (* GEN CASE BRANCH *) updateAtom' (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
+      | updateAtom' (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
           updateAtom' (updateExpN (D, U, Ambig), M.Minus, S, mS, (p+1, occ))
-      | (* GEN CASE BRANCH *) updateAtom' (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
+      | updateAtom' (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
           updateAtom' (updateExpN (D, U, Ambig), M.Minus1, S, mS, (p+1, occ))
-      | (* GEN CASE BRANCH *) updateAtom' (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
+      | updateAtom' (D, M.Minus1, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
           updateAtom' (updateExpN (D, U, Unique), M.Minus1, S, mS, (p+1, occ))
       (* when checking freeness, all arguments must be input (+) or output (-) *)
       (* therefore, no case for M.Mapp (M.Marg (M.Minus, _), mS) is provided here *)
-      | (* GEN CASE BRANCH *) updateAtom' (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) =
+      | updateAtom' (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) =
           updateAtom' (D, mode, S, mS, (p+1, occ))
 
     (* freeAtom (D, m, S, (V,s), mS, (p, occ)) = ()
@@ -462,12 +462,12 @@ struct
                   mode = (-) or (+); ( * ) or (-1) are excluded
     *)
     fun freeAtom (D, mode, I.Nil, Vs, M.Mnil, _) = ()
-      | (* GEN CASE BRANCH *) freeAtom (D, M.Minus, I.App (U, S), (I.Pi ((I.Dec (_, V1), _), V2), s),
+      | freeAtom (D, M.Minus, I.App (U, S), (I.Pi ((I.Dec (_, V1), _), V2), s),
                   M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
           (freeExpN (D, 0, M.Minus, U, P.arg(p, occ),
                      (fn q => strictExpN (D, q, Whnf.normalize (V1, s))));
            freeAtom (D, M.Minus, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS, (p+1, occ)))
-      | (* GEN CASE BRANCH *) freeAtom (D, mode, I.App (U, S), (I.Pi (_, V2), s), M.Mapp (_, mS), (p, occ)) =
+      | freeAtom (D, mode, I.App (U, S), (I.Pi (_, V2), s), M.Mapp (_, mS), (p, occ)) =
           freeAtom (D, mode, S, Whnf.whnfExpandDef (V2, I.Dot (I.Exp U, s)), mS, (p+1, occ))
 
     (* updateAtom (D, m, S, a, mS, (p, occ))
@@ -502,15 +502,15 @@ struct
     fun groundExpN (D, mode, I.Root (I.BVar k, S), occ) =
           andUnique (groundVar (D, mode, k, P.head occ),
                      groundSpineN (D, mode, S, (1, occ)))
-      | (* GEN CASE BRANCH *) groundExpN (D, mode, I.Root (I.Const c, S), occ) =
+      | groundExpN (D, mode, I.Root (I.Const c, S), occ) =
           groundSpineN (D, mode, S, (1, occ))
-      | (* GEN CASE BRANCH *) groundExpN (D, mode, I.Root (I.Def d, S), occ) =
+      | groundExpN (D, mode, I.Root (I.Def d, S), occ) =
           groundSpineN (D, mode, S, (1, occ))
-      | (* GEN CASE BRANCH *) groundExpN (D, mode, I.Root (I.FgnConst (cs, conDec), S), occ) =
+      | groundExpN (D, mode, I.Root (I.FgnConst (cs, conDec), S), occ) =
           groundSpineN (D, mode, S, (1, occ))
-      | (* GEN CASE BRANCH *) groundExpN (D, mode, I.Lam (_, U), occ) =
+      | groundExpN (D, mode, I.Lam (_, U), occ) =
           groundExpN (I.Decl (D, Universal), mode, U, P.body occ)
-      | (* GEN CASE BRANCH *) groundExpN (D, mode, I.FgnExp csfe, occ) =
+      | groundExpN (D, mode, I.FgnExp csfe, occ) =
         I.FgnExpStd.fold csfe (fn (U,u) => andUnique (groundExpN (D, mode, Whnf.normalize (U, I.id), occ), u)) Unique
         (* punting on occ here  - ak *)
 
@@ -530,7 +530,7 @@ struct
        (occ and mode are used in error messages)
     *)
     and groundSpineN (D, mode, I.Nil, _) = Unique
-      | (* GEN CASE BRANCH *) groundSpineN (D, mode, I.App (U, S), (p, occ)) =
+      | groundSpineN (D, mode, I.App (U, S), (p, occ)) =
           andUnique (groundExpN (D, mode, U, P.arg (p, occ)),
                      groundSpineN (D, mode, S, (p+1, occ)))
 
@@ -560,7 +560,7 @@ struct
                 raise ModeError (occ, "Occurrence of variable " ^ (nameOf s)
                                  ^ " in " ^ (M.modeToString M.Minus1)
                                  ^ " argument not necessarily ground"))
-      | (* GEN CASE BRANCH *) groundVar (D, mode, k, occ) =
+      | groundVar (D, mode, k, occ) =
         let
           val status = I.ctxLookup (D, k)
         in
@@ -590,16 +590,16 @@ struct
        ((p,occ) used in error messages)
     *)
     fun groundAtom (D, _, I.Nil, M.Mnil, _) = Unique
-      | (* GEN CASE BRANCH *) groundAtom (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) =
+      | groundAtom (D, M.Plus, I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS), (p, occ)) =
           andUnique (groundExpN (D, M.Plus, U, P.arg (p, occ)),
                      groundAtom (D, M.Plus, S, mS, (p+1, occ)))
-      | (* GEN CASE BRANCH *) groundAtom (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
+      | groundAtom (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS), (p, occ)) =
           (groundExpN (D, M.Minus, U, P.arg (p, occ)); (* ignore uniqueness result here *)
            groundAtom (D, M.Minus, S, mS, (p+1, occ)))
-      | (* GEN CASE BRANCH *) groundAtom (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
+      | groundAtom (D, M.Minus, I.App (U, S), M.Mapp (M.Marg (M.Minus1, _), mS), (p, occ)) =
           (groundExpN (D, M.Minus1, U, P.arg (p, occ)); (* ignore uniqueness result here *)
            groundAtom (D, M.Minus, S, mS, (p+1, occ)))
-      | (* GEN CASE BRANCH *) groundAtom (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) =
+      | groundAtom (D, mode, I.App (U, S), M.Mapp (_, mS), (p, occ)) =
           groundAtom (D, mode, S, mS, (p+1, occ))
 
 
@@ -636,10 +636,10 @@ struct
     fun checkD1 (D, I.Pi ((I.Dec (name, _), I.Maybe), V), occ, k) =
           checkD1 (I.Decl (D, Existential (Free, name)), V, P.body occ,
                    fn (I.Decl (D', m)) => ctxPush (m, k D'))
-      | (* GEN CASE BRANCH *) checkD1 (D, I.Pi ((I.Dec (name, V1), I.No), V2), occ, k) =
+      | checkD1 (D, I.Pi ((I.Dec (name, V1), I.No), V2), occ, k) =
           checkD1 (I.Decl (D, Existential (Free, name)), V2, P.body occ,
                    fn (I.Decl (D', m)) => ctxPush (m, checkG1 (D', V1, P.label occ, k)))
-      | (* GEN CASE BRANCH *) checkD1 (D, I.Root (I.Const a, S), occ, k) =
+      | checkD1 (D, I.Root (I.Const a, S), occ, k) =
           let
             (* for a declaration, all modes must be satisfied *)
             fun checkAll nil = ()
@@ -664,7 +664,7 @@ struct
           in
             checkAll (lookup (a, occ))
           end
-      | (* GEN CASE BRANCH *) checkD1 (D, I.Root (I.Def d, S), occ, k) =
+      | checkD1 (D, I.Root (I.Def d, S), occ, k) =
           let
             (* for a declaration, all modes must be satisfied *)
             fun checkAll nil = ()
@@ -707,11 +707,11 @@ struct
     and checkG1 (D, I.Pi ((_, I.Maybe), V), occ, k) =
           ctxPop (checkG1 (I.Decl (D, Universal), V, P.body occ,
                            fn (I.Decl (D', m)) => ctxPush (m, k D')))
-      | (* GEN CASE BRANCH *) checkG1 (D, I.Pi ((I.Dec (_, V1) , I.No), V2), occ, k) =
+      | checkG1 (D, I.Pi ((I.Dec (_, V1) , I.No), V2), occ, k) =
           ctxPop (checkD1 (D, V1, P.label occ, fn D' => [D']);
                   checkG1 (I.Decl (D, Universal), V2, P.body occ,
                            fn (I.Decl (D', m)) => ctxPush (m, k D')))
-      | (* GEN CASE BRANCH *) checkG1 (D, I.Root (I.Const a, S), occ, k) =
+      | checkG1 (D, I.Root (I.Const a, S), occ, k) =
           let
             (* for a goal, at least one mode must be satisfied *)
             fun checkList found nil = nil (* found = true *)
@@ -740,7 +740,7 @@ struct
           in
             checkList false (lookup (a, occ))
           end
-      | (* GEN CASE BRANCH *) checkG1 (D, I.Root (I.Def d, S), occ, k) =
+      | checkG1 (D, I.Root (I.Def d, S), occ, k) =
           let
             (* for a goal, at least one mode must be satisfied *)
             fun checkList found nil = nil (* found = true *)
@@ -787,7 +787,7 @@ struct
 
 
     fun cidFromHead (I.Const a) = a
-      | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
+      | cidFromHead (I.Def a) = a
 
     (* checkD (ConDec, occOpt)  = ()
 
@@ -803,8 +803,8 @@ struct
               (case (ModeTable.mmodeLookup (cidFromHead Ha))
                  of nil => false
                   | _ => true)
-            | (* GEN CASE BRANCH *) checkable (I.Uni _) = false
-            | (* GEN CASE BRANCH *) checkable (I.Pi (_, V)) = checkable V
+            | checkable (I.Uni _) = false
+            | checkable (I.Pi (_, V)) = checkable V
           val V = I.conDecType conDec
         in
           if (checkable V)
@@ -818,14 +818,14 @@ struct
         end
 
     fun checkAll (nil) = ()
-      | (* GEN CASE BRANCH *) checkAll (I.Const(c) :: clist) =
+      | checkAll (I.Const(c) :: clist) =
         (if !Global.chatter > 3
            then print (Names.qidToString (Names.constQid c) ^ " ")
          else ();
          checkDlocal (I.Null, I.constType c, P.top)
            handle Error' (occ, msg) => raise Error (wrapMsg (c, occ, msg));
          checkAll clist)
-      | (* GEN CASE BRANCH *) checkAll (I.Def(d) :: clist) =
+      | checkAll (I.Def(d) :: clist) =
         (if !Global.chatter > 3
            then print (Names.qidToString (Names.constQid d) ^ " ")
          else ();

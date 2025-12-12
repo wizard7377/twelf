@@ -53,17 +53,17 @@ struct
                      T.forSub (F1, T.id),
                      T.forSub (F2, T.id))
     and unifyForN (Psi, T.True, T.True) = ()
-      | (* GEN CASE BRANCH *) unifyForN (Psi, T.Ex ((D1, _), F1), T.Ex ((D2, _), F2)) =
+      | unifyForN (Psi, T.Ex ((D1, _), F1), T.Ex ((D2, _), F2)) =
         (unifyDec (Psi, T.UDec D1, (T.UDec D2));
          unifyFor(I.Decl (Psi, T.UDec D1), F1, F2))
-      | (* GEN CASE BRANCH *) unifyForN (Psi, T.All ((D1, _), F1), T.All ((D2, _), F2)) =
+      | unifyForN (Psi, T.All ((D1, _), F1), T.All ((D2, _), F2)) =
         (unifyDec (Psi, D1, D2);
          unifyFor(I.Decl (Psi, D1), F1, F2))
-      | (* GEN CASE BRANCH *) unifyForN (Psi, T.FVar (_, r), F) =
+      | unifyForN (Psi, T.FVar (_, r), F) =
         (r := SOME F)
-      | (* GEN CASE BRANCH *) unifyForN (Psi, F, T.FVar (_, r)) =
+      | unifyForN (Psi, F, T.FVar (_, r)) =
         (r := SOME F)
-      | (* GEN CASE BRANCH *) unifyForN (Psi, _, _) = raise Unify "Formula mismatch"
+      | unifyForN (Psi, _, _) = raise Unify "Formula mismatch"
 
 
     (* unifyDec (Psi, D1, D2) = R
@@ -80,7 +80,7 @@ struct
     and unifyDec (Psi, T.UDec D1, T.UDec D2) =
           if Conv.convDec ((D1, I.id), (D2, I.id)) then ()
           else raise Unify "Declaration mismatch"
-      | (* GEN CASE BRANCH *) unifyDec (Psi, T.PDec (_, F1), T.PDec (_, F2)) =
+      | unifyDec (Psi, T.PDec (_, F1), T.PDec (_, F2)) =
           unifyFor (Psi, F1, F2)
 
 

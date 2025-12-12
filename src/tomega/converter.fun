@@ -57,7 +57,7 @@ exception Error' of Tomega.sub
 
     (* ABP - 4/20/03, determine if Front is (I.Idx 1) *)
     fun isIdx1 (I.Idx 1) = true
-      | (* GEN CASE BRANCH *) isIdx1 _ = false
+      | isIdx1 _ = false
 
     fun modeSpine a =
         case ModeTable.modeLookup a
@@ -102,7 +102,7 @@ exception Error' of Tomega.sub
        then G' |- V' = V[s^-1] : L
     *)
     fun strengthenDec (I.Dec (name, V), s) = I.Dec (name, strengthenExp (V, s))
-      | (* GEN CASE BRANCH *) strengthenDec (I.BDec (name, (L, t)), s) =
+      | strengthenDec (I.BDec (name, (L, t)), s) =
                                         (* G0 |- t : Gsome *)
                                         (* G0  |- s : G' *)
                                         (* to show  G' |- t o s^1 : Gsome *)
@@ -116,7 +116,7 @@ exception Error' of Tomega.sub
        and  G0 |- w' : G1, G'
     *)
     fun strengthenCtx (I.Null, s) = (I.Null, s)
-      | (* GEN CASE BRANCH *) strengthenCtx (I.Decl (G, D), s) =
+      | strengthenCtx (I.Decl (G, D), s) =
         let
           val (G', s') = strengthenCtx (G, s)
         in
@@ -131,11 +131,11 @@ exception Error' of Tomega.sub
        then Psi1 |- F' = F[s^-1] ctx
     *)
     fun strengthenFor (T.True, s) = T.True
-      | (* GEN CASE BRANCH *) strengthenFor (T.And (F1, F2), s) =
+      | strengthenFor (T.And (F1, F2), s) =
           T.And (strengthenFor (F1, s), strengthenFor (F2, s))
-      | (* GEN CASE BRANCH *) strengthenFor (T.All ((T.UDec D, Q), F), s) =
+      | strengthenFor (T.All ((T.UDec D, Q), F), s) =
           T.All ((T.UDec (strengthenDec (D, s)), Q), strengthenFor (F, I.dot1 s))
-      | (* GEN CASE BRANCH *) strengthenFor (T.Ex ((D, Q), F), s) =
+      | strengthenFor (T.Ex ((D, Q), F), s) =
           T.Ex ((strengthenDec (D, s), Q), strengthenFor (F, I.dot1 s))
 
 
@@ -150,9 +150,9 @@ exception Error' of Tomega.sub
     *)
     fun strengthenOrder (Order.Arg((U,s1), (V, s2)), s) =
           Order.Arg ((U, strengthenSub (s1, s)), (V, strengthenSub (s2, s)))
-      | (* GEN CASE BRANCH *) strengthenOrder (Order.Simul Os, s) =
+      | strengthenOrder (Order.Simul Os, s) =
           Order.Simul (map (fn O => strengthenOrder (O, s)) Os)
-      | (* GEN CASE BRANCH *) strengthenOrder (Order.Lex Os, s) =
+      | strengthenOrder (Order.Lex Os, s) =
           Order.Lex (map (fn O => strengthenOrder (O, s)) Os)
 
 
@@ -163,14 +163,14 @@ exception Error' of Tomega.sub
        then Psi1 |- TC' = TC[s^-1] ctx
     *)
     fun strengthenTC (T.Base O, s) = T.Base (strengthenOrder (O, s))
-      | (* GEN CASE BRANCH *) strengthenTC (T.Conj (TC1, TC2), s) =
+      | strengthenTC (T.Conj (TC1, TC2), s) =
           T.Conj (strengthenTC (TC1, s), strengthenTC (TC2, s))
-      | (* GEN CASE BRANCH *) strengthenTC (T.Abs (D, TC), s) =
+      | strengthenTC (T.Abs (D, TC), s) =
           T.Abs (strengthenDec (D, s), strengthenTC (TC, I.dot1 s))
 
 
     fun strengthenSpine (I.Nil, t) = I.Nil
-      | (* GEN CASE BRANCH *) strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
+      | strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
 
 
 
@@ -182,13 +182,13 @@ exception Error' of Tomega.sub
        and  Psi0 |- s' :: Psi1, Psi'
     *)
     fun strengthenPsi (I.Null, s) = (I.Null, s)
-      | (* GEN CASE BRANCH *) strengthenPsi (I.Decl (Psi, T.UDec D), s) =
+      | strengthenPsi (I.Decl (Psi, T.UDec D), s) =
         let
           val (Psi', s') = strengthenPsi (Psi, s)
         in
           (I.Decl (Psi', T.UDec (strengthenDec (D, s'))), I.dot1 s')
         end
-      | (* GEN CASE BRANCH *) strengthenPsi (I.Decl (Psi, T.PDec (name, F, NONE, NONE)), s) =
+      | strengthenPsi (I.Decl (Psi, T.PDec (name, F, NONE, NONE)), s) =
         let
           val (Psi', s') = strengthenPsi (Psi, s)
         in
@@ -204,7 +204,7 @@ exception Error' of Tomega.sub
        and  Psi0 |- s' : Psi1, Psi'  weakening substitution
     *)
     fun strengthenPsi' (nil, s) = (nil, s)
-      | (* GEN CASE BRANCH *) strengthenPsi' (T.UDec D :: Psi, s) =
+      | strengthenPsi' (T.UDec D :: Psi, s) =
         let
           val D' = strengthenDec (D, s)
           val s' = I.dot1 s
@@ -223,7 +223,7 @@ exception Error' of Tomega.sub
        and  G' = G [s],  declarationwise defined
     *)
     fun ctxSub (I.Null, s) = (I.Null, s)
-      | (* GEN CASE BRANCH *) ctxSub (I.Decl (G, D), s) =
+      | ctxSub (I.Decl (G, D), s) =
         let
           val (G', s') = ctxSub (G, s)
         in
@@ -232,15 +232,15 @@ exception Error' of Tomega.sub
 
 
     fun validMode (M.Mnil) = ()
-      | (* GEN CASE BRANCH *) validMode (M.Mapp (M.Marg (M.Plus, _), mS)) =
+      | validMode (M.Mapp (M.Marg (M.Plus, _), mS)) =
           validMode mS
-      | (* GEN CASE BRANCH *) validMode (M.Mapp (M.Marg (M.Minus, _), mS)) =
+      | validMode (M.Mapp (M.Marg (M.Minus, _), mS)) =
           validMode mS
-      | (* GEN CASE BRANCH *) validMode (M.Mapp (M.Marg (M.Star, _), mS)) =
+      | validMode (M.Mapp (M.Marg (M.Star, _), mS)) =
           raise Error "+ or - mode expected, * found"
 
     fun validSig (Psi0, nil) = ()
-      | (* GEN CASE BRANCH *) validSig (Psi0, (G, V) :: Sig) =
+      | validSig (Psi0, (G, V) :: Sig) =
         let
           fun append (G, I.Null) = G
             | append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D)
@@ -281,15 +281,15 @@ exception Error' of Tomega.sub
             in
               (fn F => T.All ((T.UDec (strengthenDec (D, w1)), T.Explicit), F' F), F'')
             end
-          | (* GEN CASE BRANCH *) convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
+          | convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
             let
               val (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
             in
               (F', T.Ex ((I.decSub (D, w2), T.Explicit), F''))
             end
-          | (* GEN CASE BRANCH *) convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
+          | convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
               (fn F => F, T.True)
-          | (* GEN CASE BRANCH *) convertFor' _ = raise Error "type family must be +/- moded"
+          | convertFor' _ = raise Error "type family must be +/- moded"
     
         (* shiftPlus (mS) = s'
     
@@ -300,9 +300,9 @@ exception Error' of Tomega.sub
         fun shiftPlus mS =
           let
             fun shiftPlus' (M.Mnil, n) = n
-              | (* GEN CASE BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
+              | shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
                   shiftPlus' (mS', n+1)
-              | (* GEN CASE BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
+              | shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
                   shiftPlus' (mS', n)
           in
             shiftPlus' (mS, 0)
@@ -327,14 +327,14 @@ exception Error' of Tomega.sub
        and  Psi' |- P' in F'
     *)
     fun createIH nil = raise Error "Empty theorem"
-      | (* GEN CASE BRANCH *) createIH [a] =
+      | createIH [a] =
         let
           val name = I.conDecName (I.sgnLookup a)
           val F = convertOneFor a
         in
           (name, F)
         end
-      | (* GEN CASE BRANCH *) createIH (a :: L) =
+      | createIH (a :: L) =
         let
           val name = I.conDecName (I.sgnLookup a)
           val F = convertOneFor a
@@ -360,26 +360,26 @@ exception Error' of Tomega.sub
        then  B iff k occurs in U
     *)
     fun occursInExpN (k, I.Uni _) = false
-      | (* GEN CASE BRANCH *) occursInExpN (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExpN (k+1, V)
-      | (* GEN CASE BRANCH *) occursInExpN (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
-      | (* GEN CASE BRANCH *) occursInExpN (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExpN (k+1, V)
+      | occursInExpN (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExpN (k+1, V)
+      | occursInExpN (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
+      | occursInExpN (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExpN (k+1, V)
       (* | occursInExpN (k, I.FgnExp (cs, ops)) =
          occursInExpN (k, Whnf.normalize (#toInternal(ops) (), I.id)) MERGE Fri Aug 22 23:09:53 2003 --cs *)
-      | (* GEN CASE BRANCH *) occursInExpN (k, I.FgnExp csfe) =
+      | occursInExpN (k, I.FgnExp csfe) =
         I.FgnExpStd.fold csfe (fn (U, DP) => DP orelse (occursInExp (k, Whnf.normalize (U, I.id)))) false
 
    (* no case for Redex, EVar, EClo *)
 
 
     and occursInHead (k, I.BVar (k')) = (k = k')
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Const _) = false
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Def _) = false
-      | (* GEN CASE BRANCH *) occursInHead (k, I.FgnConst _) = false
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Proj _) = false
+      | occursInHead (k, I.Const _) = false
+      | occursInHead (k, I.Def _) = false
+      | occursInHead (k, I.FgnConst _) = false
+      | occursInHead (k, I.Proj _) = false
       (* no case for FVar *)
 
     and occursInSpine (_, I.Nil) = false
-      | (* GEN CASE BRANCH *) occursInSpine (k, I.App (U, S)) = occursInExpN (k, U) orelse occursInSpine (k, S)
+      | occursInSpine (k, I.App (U, S)) = occursInExpN (k, U) orelse occursInSpine (k, S)
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExpN (k, V)
@@ -410,10 +410,10 @@ exception Error' of Tomega.sub
       if isIdx1(I.bvarSub (1, w)) then dot1inv w else shiftinv w
 
     fun peeln (0, w) = w
-      | (* GEN CASE BRANCH *) peeln (n, w) = peeln (n-1, peel w)
+      | peeln (n, w) = peeln (n-1, peel w)
 
     fun popn (0, Psi) = (Psi, I.Null)
-      | (* GEN CASE BRANCH *) popn (n, I.Decl (Psi, T.UDec D)) =
+      | popn (n, I.Decl (Psi, T.UDec D)) =
         let
           val (Psi', G') = popn (n-1, Psi)
         in
@@ -428,9 +428,9 @@ exception Error' of Tomega.sub
        then n' = |G1|
     *)
     fun domain (G, I.Dot (I.Idx _, s)) = domain (G, s) + 1
-      | (* GEN CASE BRANCH *) domain (I.Null, I.Shift 0) = 0
-      | (* GEN CASE BRANCH *) domain (G as I.Decl _, I.Shift 0) = domain (G, I.Dot (I.Idx 1, I.Shift 1))
-      | (* GEN CASE BRANCH *) domain (I.Decl (G, _), I.Shift n) = domain (G, I.Shift (n-1))
+      | domain (I.Null, I.Shift 0) = 0
+      | domain (G as I.Decl _, I.Shift 0) = domain (G, I.Dot (I.Idx 1, I.Shift 1))
+      | domain (I.Decl (G, _), I.Shift n) = domain (G, I.Shift (n-1))
 
 
     (* strengthen (Psi, (a, S), w, m) = (Psi', w')
@@ -456,7 +456,7 @@ exception Error' of Tomega.sub
         val mS = modeSpine a
     
         fun args (I.Nil, M.Mnil) = nil
-          | (* GEN CASE BRANCH *) args (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) =
+          | args (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) =
               let
                 val L = args (S', mS)
               in
@@ -467,42 +467,42 @@ exception Error' of Tomega.sub
     
     
         fun strengthenArgs (nil, s) =  nil
-          | (* GEN CASE BRANCH *) strengthenArgs (U :: L, s) =
+          | strengthenArgs (U :: L, s) =
               strengthenExp (U, s) :: strengthenArgs (L, s)
     
         fun occursInArgs (n, nil) = false
-          | (* GEN CASE BRANCH *) occursInArgs (n, U :: L) =
+          | occursInArgs (n, U :: L) =
             (occursInExp (n, U) orelse occursInArgs (n, L))
     
         fun occursInPsi (n, (nil, L)) =
               occursInArgs (n, L)
-          | (* GEN CASE BRANCH *) occursInPsi (n, (T.UDec (I.Dec (_, V)) :: Psi1, L)) =
+          | occursInPsi (n, (T.UDec (I.Dec (_, V)) :: Psi1, L)) =
               occursInExp (n, V) orelse occursInPsi (n+1, (Psi1, L))
-          | (* GEN CASE BRANCH *) occursInPsi (n, (T.UDec (I.BDec (_, (cid, s))) :: Psi1, L)) =
+          | occursInPsi (n, (T.UDec (I.BDec (_, (cid, s))) :: Psi1, L)) =
               let
                 val I.BlockDec (_, _, G, _) = I.sgnLookup cid
               in
                 occursInSub (n, s, G) orelse occursInPsi (n+1, (Psi1, L))
               end
         and occursInSub (_, _, I.Null) = false
-          | (* GEN CASE BRANCH *) occursInSub (n, I.Shift k, G) =
+          | occursInSub (n, I.Shift k, G) =
               occursInSub (n, I.Dot (I.Idx (k+1), I.Shift (k+1)), G)
-          | (* GEN CASE BRANCH *) occursInSub (n, I.Dot (I.Idx k, s), I.Decl (G, _)) =
+          | occursInSub (n, I.Dot (I.Idx k, s), I.Decl (G, _)) =
               (n = k) orelse occursInSub (n, s, G)
-          | (* GEN CASE BRANCH *) occursInSub (n, I.Dot (I.Exp U, s), I.Decl (G, _)) =
+          | occursInSub (n, I.Dot (I.Exp U, s), I.Decl (G, _)) =
               occursInExp (n, U) orelse occursInSub (n, s, G)
-          | (* GEN CASE BRANCH *) occursInSub (n, I.Dot (I.Block _, s), I.Decl (G, _)) =
+          | occursInSub (n, I.Dot (I.Block _, s), I.Decl (G, _)) =
               occursInSub (n, s, G)   (* is this ok? -- cs *)
           (* no other cases *)
     
         and occursInG (n, I.Null, k) = k n
-          | (* GEN CASE BRANCH *) occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
+          | occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
               occursInG (n, G, fn n' => occursInExp (n', V) orelse k (n'+ 1))
     
         fun occursBlock (G, (Psi2, L)) =
           let
             fun occursBlock (I.Null, n) = false
-              | (* GEN CASE BRANCH *) occursBlock (I.Decl (G, D), n) =
+              | occursBlock (I.Decl (G, D), n) =
                   occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1)
           in
             occursBlock (G, 1)
@@ -522,13 +522,13 @@ exception Error' of Tomega.sub
            and  bw' = bw or (G1 =/= G1')
          *)
         fun inBlock (I.Null, (bw, w1)) = (bw, w1)
-          | (* GEN CASE BRANCH *) inBlock (I.Decl (G, D), (bw, w1)) =
+          | inBlock (I.Decl (G, D), (bw, w1)) =
             if isIdx1(I.bvarSub (1, w1)) then
               inBlock (G, (true, dot1inv w1))
             else inBlock (G, (bw, strengthenSub (w1, I.shift)))
     
         fun blockSub (I.Null, w) = (I.Null, w)
-          | (* GEN CASE BRANCH *) blockSub (I.Decl (G, I.Dec (name, V)), w) =
+          | blockSub (I.Decl (G, I.Dec (name, V)), w) =
             let
               val (G', w') = blockSub (G, w)
               val V' = strengthenExp (V, w')
@@ -551,7 +551,7 @@ exception Error' of Tomega.sub
                                        position in S)
         *)
         fun strengthen' (I.Null, Psi2, L, w1 (* =  I.id *)) = (I.Null, I.id, I.id)
-          | (* GEN CASE BRANCH *) strengthen' (I.Decl (Psi1, LD as T.UDec (I.Dec (name, V))), Psi2, L, w1) =
+          | strengthen' (I.Decl (Psi1, LD as T.UDec (I.Dec (name, V))), Psi2, L, w1) =
             if isIdx1(I.bvarSub (1, w1)) then
               let
                 val w1' = dot1inv w1
@@ -579,7 +579,7 @@ exception Error' of Tomega.sub
                 in
                   (Psi1'', I.comp (w', I.shift), z')
                 end
-          | (* GEN CASE BRANCH *) strengthen' (I.Decl (Psi1, D as T.PDec (name, F, NONE, NONE)), Psi2, L, w1) =
+          | strengthen' (I.Decl (Psi1, D as T.PDec (name, F, NONE, NONE)), Psi2, L, w1) =
             let
               val w1' = dot1inv w1
               val (Psi1', w', z') = strengthen' (Psi1, D :: Psi2, L, w1')
@@ -587,7 +587,7 @@ exception Error' of Tomega.sub
             in
               (I.Decl (Psi1', T.PDec (name, F', NONE, NONE)), I.dot1 w', I.dot1 z')
             end
-          | (* GEN CASE BRANCH *) strengthen' (I.Decl (Psi1, LD as T.UDec (I.BDec (name, (cid, s)))), Psi2, L, w1) =
+          | strengthen' (I.Decl (Psi1, LD as T.UDec (I.BDec (name, (cid, s)))), Psi2, L, w1) =
             let  (* blocks are always used! *)
               val w1' = dot1inv w1
               val (Psi1', w', z') = strengthen' (Psi1, LD :: Psi2, L, w1')
@@ -657,7 +657,7 @@ exception Error' of Tomega.sub
         *)
     
         fun transformInit' ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) = (w, s)
-          | (* GEN CASE BRANCH *) transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
+          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
                             I.Pi (_, V2), (w, s)) =
             let
               val w' = I.comp (w, I.shift)
@@ -665,7 +665,7 @@ exception Error' of Tomega.sub
             in
               transformInit' ((S, mS), V2, (w', s'))
             end
-          | (* GEN CASE BRANCH *) transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
+          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
                             I.Pi ((I.Dec (name, V1), _), V2), (w, s)) =
             let
               val V1' = strengthenExp (V1, w)
@@ -693,9 +693,9 @@ exception Error' of Tomega.sub
     
         fun transformConc' (I.Nil, M.Mnil) =
               T.Unit
-          | (* GEN CASE BRANCH *) transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) =
+          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) =
               transformConc' (S', mS')
-          | (* GEN CASE BRANCH *) transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) =
+          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) =
               T.PairExp (strengthenExp (U, w), transformConc' (S', mS'))
       in
         transformConc' (S, modeSpine a)
@@ -709,18 +709,18 @@ exception Error' of Tomega.sub
        in U.
     *)
     fun renameExp f (U as I.Uni _) = U
-      | (* GEN CASE BRANCH *) renameExp f (I.Pi ((D, DP), V)) =
+      | renameExp f (I.Pi ((D, DP), V)) =
           I.Pi ((renameDec f D, DP), renameExp f V)
-      | (* GEN CASE BRANCH *) renameExp f (I.Root (H, S)) =
+      | renameExp f (I.Root (H, S)) =
           I.Root (renameHead f H, renameSpine f S)
-      | (* GEN CASE BRANCH *) renameExp f (I.Lam (D, U)) =
+      | renameExp f (I.Lam (D, U)) =
           I.Lam (renameDec f D, renameExp f U)
     and renameDec f (I.Dec (x, V)) =
           I.Dec (x, renameExp f V)
     and renameHead f (I.Proj bi) = f bi
-      | (* GEN CASE BRANCH *) renameHead f H = H
+      | renameHead f H = H
     and renameSpine f I.Nil = I.Nil
-      | (* GEN CASE BRANCH *) renameSpine f (I.App (U, S)) = I.App (renameExp f U, renameSpine f S)
+      | renameSpine f (I.App (U, S)) = I.App (renameExp f U, renameSpine f S)
 
 
     fun rename (I.BDec (_, (c, s)), V) =
@@ -728,7 +728,7 @@ exception Error' of Tomega.sub
           val (G, L) = I.constBlock c
     
           fun makeSubst (n, G, s, nil, f) = (G, f)
-            | (* GEN CASE BRANCH *) makeSubst (n, G, s,( D as I.Dec (x, V')) :: L, f) =
+            | makeSubst (n, G, s,( D as I.Dec (x, V')) :: L, f) =
               if Subordinate.belowEq (I.targetFam V', I.targetFam V) then
                 makeSubst (n+1, I.Decl (G, I.decSub (D, s)), I.dot1 s, L,
                            f)
@@ -742,7 +742,7 @@ exception Error' of Tomega.sub
 
 
         fun append (G, I.Null) = G
-          | (* GEN CASE BRANCH *) append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D)
+          | append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D)
 
 
         (* traverseNeg (L, wmap, projs)  (Psi0, Psi, V) = ([w', PQ'], L')    [] means optional
@@ -758,10 +758,10 @@ exception Error' of Tomega.sub
         fun traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), w) =
             (case traverseNeg (L, wmap, projs)  ((Psi0, I.Decl (Psi, T.UDec D)), V2, I.dot1 w)
                of (SOME (w', PQ')) => SOME (peel w', PQ'))
-          | (* GEN CASE BRANCH *) traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Pi ((D as I.Dec (_, V1), I.No), V2), w) =
+          | traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Pi ((D as I.Dec (_, V1), I.No), V2), w) =
             (case traverseNeg (L, wmap, projs)  ((Psi0, I.Decl (Psi, T.UDec D)), V2, I.comp (w, I.shift))
                of (SOME (w', PQ')) => traversePos (L, wmap, projs)  ((Psi0, Psi, I.Null), V1, SOME (peel w', PQ')))
-          | (* GEN CASE BRANCH *) traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Root (I.Const a, S), w) =
+          | traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Root (I.Const a, S), w) =
                                         (* Psi0, Psi |- w : Psi0, Psi' *)
                                         (* Sigma (a) = Va *)
                                         (* Psi0, Psi |- S : {G} type > type *)
@@ -797,7 +797,7 @@ exception Error' of Tomega.sub
                             I.Decl (G,  (* T.UDec *) (I.BDec (x, (c', s))))),
                            V, SOME (I.dot1 w1, (P, Q)))
             end
-          | (* GEN CASE BRANCH *) traversePos (L, wmap, projs)  ((Psi0, G, B), V as I.Root (I.Const a, S), SOME (w1, (P, Q))) =
+          | traversePos (L, wmap, projs)  ((Psi0, G, B), V as I.Root (I.Const a, S), SOME (w1, (P, Q))) =
                                         (* Psi0 = x1::F1 ... xn::Fn *)
                                         (* |- Psi0 matches L *)
                                         (* Psi0, G, B |- V : type *)
@@ -1018,7 +1018,7 @@ exception Error' of Tomega.sub
     
     
         fun traverseSig' nil = nil
-          | (* GEN CASE BRANCH *) traverseSig' ((G, V) :: Sig) =
+          | traverseSig' ((G, V) :: Sig) =
             (TypeCheck.typeCheck (append (T.coerceCtx Psi0, G), (V, I.Uni I.Type));
              case traverseNeg (L, wmap, projs) ((Psi0, T.embedCtx G), V, I.id)
                of (SOME (wf, (P', Q'))) =>  traverseSig' Sig @ [(P' Q')])
@@ -1051,7 +1051,7 @@ exception Error' of Tomega.sub
              then G0 |- G', L' ctx
           *)
           fun transformList (nil, w) = nil
-            | (* GEN CASE BRANCH *) transformList ((D as I.Dec (x, V)) :: L, w) =
+            | transformList ((D as I.Dec (x, V)) :: L, w) =
               if List.foldr (fn (a, b) => b andalso Subordinate.belowEq (a, I.targetFam V)) true fams then
                 transformList (L,  I.comp (w, I.shift))
               else
@@ -1062,7 +1062,7 @@ exception Error' of Tomega.sub
                 end
     
           fun transformWorlds' (nil) = (nil, fn c => raise Error "World not found")
-            | (* GEN CASE BRANCH *) transformWorlds' (cid :: cids') =
+            | transformWorlds' (cid :: cids') =
               let
                 val I.BlockDec (s, m, G, L) = I.sgnLookup cid
                 (* Design decision: Let's keep all of G *)
@@ -1102,7 +1102,7 @@ exception Error' of Tomega.sub
              then |- G', L' ctx
           *)
           fun findDec (G, _, nil, w, Sig) = Sig
-            | (* GEN CASE BRANCH *) findDec (G, n, D :: L, w, Sig) =
+            | findDec (G, n, D :: L, w, Sig) =
               let
                 val (D' as I.Dec (x, V')) = I.decSub (D, w)
                 val b = I.targetFam V'
@@ -1120,7 +1120,7 @@ exception Error' of Tomega.sub
              and  Psi0, G0 |- s : G
           *)
           fun mediateSub (I.Null) = (I.Null, I.Shift (I.ctxLength Psi0))
-            | (* GEN CASE BRANCH *) mediateSub (I.Decl (G, D)) =
+            | mediateSub (I.Decl (G, D)) =
                 let
                   val (G0, s') = mediateSub G
                   val D' = I.decSub (D, s')
@@ -1130,7 +1130,7 @@ exception Error' of Tomega.sub
     
     
           fun findDecs' (nil, Sig) = Sig
-            | (* GEN CASE BRANCH *) findDecs' (cid :: cids', Sig) =
+            | findDecs' (cid :: cids', Sig) =
               let
                 val I.BlockDec (s, m, G, L) = I.sgnLookup cid
                                         (* G |- L ctx *)
@@ -1157,11 +1157,11 @@ exception Error' of Tomega.sub
        and  . |- Vi : type.
     *)
     fun staticSig (Psi0, nil) = nil
-      | (* GEN CASE BRANCH *) staticSig (Psi0, I.ConDec (name, _, _, _, V, I.Type) :: Sig) =
+      | staticSig (Psi0, I.ConDec (name, _, _, _, V, I.Type) :: Sig) =
           (I.Null, Whnf.normalize (V, I.Shift (I.ctxLength Psi0))) :: staticSig (Psi0, Sig)
 
     fun name [a] = I.conDecName (I.sgnLookup a)
-      | (* GEN CASE BRANCH *) name (a :: L) = I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
+      | name (a :: L) = I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
 
     (* convertPrg L = P'
 
@@ -1184,7 +1184,7 @@ exception Error' of Tomega.sub
             in
               W
             end
-          | (* GEN CASE BRANCH *) convertWorlds (a :: L') =
+          | convertWorlds (a :: L') =
             let
               val W = WorldSyn.lookup a (* W describes the world of a *)
               val W' = convertWorlds L'
@@ -1223,7 +1223,7 @@ exception Error' of Tomega.sub
                 in
                   (F'', fn p => T.Lam (D, P' p))
                 end
-              | (* GEN CASE BRANCH *) init F' = (F', fn p => p)
+              | init F' = (F', fn p => p)
     
             val (F', Pinit) = init F
             val C = traverse (Psi0, L, statSig, wmap, projs)
@@ -1233,8 +1233,8 @@ exception Error' of Tomega.sub
           end
     
         fun convertPrg' (nil, _) = raise Error "Cannot convert Empty program"
-          | (* GEN CASE BRANCH *) convertPrg' ([a], F) = convertOnePrg (a, F)
-          | (* GEN CASE BRANCH *) convertPrg' (a :: L', T.And (F1, F2)) = T.PairPrg (convertOnePrg (a, F1), convertPrg' (L', F2))
+          | convertPrg' ([a], F) = convertOnePrg (a, F)
+          | convertPrg' (a :: L', T.And (F1, F2)) = T.PairPrg (convertOnePrg (a, F1), convertPrg' (L', F2))
     
         val P = Prec (convertPrg' (L, F0))
       in
@@ -1253,13 +1253,13 @@ exception Error' of Tomega.sub
 
     fun depthConj (T.And (F1, F2)) =
         1+ depthConj F2
-      | (* GEN CASE BRANCH *) depthConj F = 1
+      | depthConj F = 1
 
     fun createProjection (Psi, depth, F as T.And (F1, F2), Pattern) =
           createProjection (I.Decl (Psi, T.PDec (NONE, F1, NONE, NONE)), depth+1,
                             T.forSub (F2, T.Shift 1),
                             T.PairPrg (T.Var (depth+2), Pattern))
-      | (* GEN CASE BRANCH *) createProjection (Psi, depth, F,  Pattern) =
+      | createProjection (Psi, depth, F,  Pattern) =
           let
             val Psi' = I.Decl (Psi, T.PDec (NONE, F, NONE, NONE))
             val depth' = depth + 1
@@ -1275,7 +1275,7 @@ exception Error' of Tomega.sub
           end
 
     fun installProjection (nil, _, F, Proj) = nil
-      | (* GEN CASE BRANCH *) installProjection (cid :: cids, n, F, Proj) =
+      | installProjection (cid :: cids, n, F, Proj) =
         let
           val (P', F') = Proj n
           val P = T.Lam (T.PDec (NONE, F, NONE, NONE), P')
@@ -1297,7 +1297,7 @@ exception Error' of Tomega.sub
         in
           [lemma']
         end
-      | (* GEN CASE BRANCH *) installSelection (cid :: cids, lemma :: lemmas, T.And (F1, F2), main) =
+      | installSelection (cid :: cids, lemma :: lemmas, T.And (F1, F2), main) =
         let
           val P = T.Redex (T.Const lemma, T.AppPrg (T.Const main, T.Nil))
           val name = I.conDecName (I.sgnLookup cid)
@@ -1324,7 +1324,7 @@ exception Error' of Tomega.sub
         in
           (lemma, [], [])
         end
-      | (* GEN CASE BRANCH *) installPrg cids =
+      | installPrg cids =
         let
           val F = convertFor cids
           val _ = TomegaTypeCheck.checkFor (I.Null, F)
@@ -1350,7 +1350,7 @@ exception Error' of Tomega.sub
 
 
     fun mkResult 0 = T.Unit
-      | (* GEN CASE BRANCH *) mkResult n = T.PairExp (I.Root (I.BVar n, I.Nil), mkResult (n-1))
+      | mkResult n = T.PairExp (I.Root (I.BVar n, I.Nil), mkResult (n-1))
 
     fun convertGoal (G, V)  =
       let

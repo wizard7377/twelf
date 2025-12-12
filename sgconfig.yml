@@ -7,8 +7,8 @@ utilDirs:
 customLanguages:
   sml:
       libraryPath: sml-ts.so     # path to dynamic library
-      extensions: [fun,sig,sml]   # file extensions for this language
+      extensions: [fun,sig,sml,ml,mli]   # file extensions for this language
       expandoChar: $           # optional char to replace $ in your pattern
 
 languageGlobs:
-  sml: ["*.sml", "*.sig", "*.fun"]
+  sml: ["*.sml", "*.sig", "*.fun", "*.ml", "*.mli"]

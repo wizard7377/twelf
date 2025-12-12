@@ -37,7 +37,7 @@ struct
     datatype exist_vars = EV of I.exp
 
     fun lengthSub (I.Shift n) = 0
-      | (* GEN CASE BRANCH *) lengthSub (I.Dot(E, s)) = 1 + lengthSub s
+      | lengthSub (I.Dot(E, s)) = 1 + lengthSub s
 
     (*
        We write {{K}} for the context of K, where EVars have
@@ -61,34 +61,34 @@ struct
     *)
 
     fun compose'(IntSyn.Null, G) = G
-      | (* GEN CASE BRANCH *) compose'(IntSyn.Decl(G', D), G) = IntSyn.Decl(compose'(G', G), D)
+      | compose'(IntSyn.Decl(G', D), G) = IntSyn.Decl(compose'(G', G), D)
 
     fun isId (I.Shift(n)) = (n = 0)
-      | (* GEN CASE BRANCH *) isId (s as I.Dot(I.Idx n, s')) = isId' (s, 0)
-      | (* GEN CASE BRANCH *) isId (s as I.Dot(I.Undef, s')) = isId' (s, 0)
-      | (* GEN CASE BRANCH *) isId (I.Dot(I.Exp _ , s)) = false
+      | isId (s as I.Dot(I.Idx n, s')) = isId' (s, 0)
+      | isId (s as I.Dot(I.Undef, s')) = isId' (s, 0)
+      | isId (I.Dot(I.Exp _ , s)) = false
 
     and isId' (I.Shift(n), k) = (n = k)
-      | (* GEN CASE BRANCH *) isId' (I.Dot(I.Idx(i), s), k) =
+      | isId' (I.Dot(I.Idx(i), s), k) =
       let
         val k' = k+1
       in
         (i = k') andalso isId' (s, k')
       end
-      | (* GEN CASE BRANCH *) isId' (I.Dot(I.Undef, s), k) = isId' (s, k+1)
+      | isId' (I.Dot(I.Undef, s), k) = isId' (s, k+1)
 
     fun equalCtx (I.Null, s, I.Null, s') = true
-      | (* GEN CASE BRANCH *) equalCtx (I.Decl(G, D), s, I.Decl(G', D'), s') =
+      | equalCtx (I.Decl(G, D), s, I.Decl(G', D'), s') =
       Conv.convDec((D, s), (D', s')) andalso (equalCtx (G, I.dot1 s, G', I.dot1 s'))
-      | (* GEN CASE BRANCH *) equalCtx (I.Decl(G, D), s, I.Null, s') = false
-      | (* GEN CASE BRANCH *) equalCtx (I.Null, s, I.Decl(G', D'), s') = false
+      | equalCtx (I.Decl(G, D), s, I.Null, s') = false
+      | equalCtx (I.Null, s, I.Decl(G', D'), s') = false
 
 
     (* eqEVar X Y = B
      where B iff X and Y represent same variable
      *)
     fun eqEVarW (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) = (r1 = r2)
-      | (* GEN CASE BRANCH *) eqEVarW _ _ = false
+      | eqEVarW _ _ = false
 
     fun eqEVar X1 (EV (X2)) =
       (* Sun Dec  1 14:04:17 2002 -bp  may raise exception
@@ -104,7 +104,7 @@ struct
     (* member P K = B option *)
     fun member' P K =
         let fun exists' (I.Null) = NONE
-              | (* GEN CASE BRANCH *) exists' (I.Decl(K',(l, EV(Y)))) = if P(EV(Y)) then SOME(l) else exists' (K')
+              | exists' (I.Decl(K',(l, EV(Y)))) = if P(EV(Y)) then SOME(l) else exists' (K')
         in
           exists' K
         end
@@ -112,14 +112,14 @@ struct
     (* member P K = B option *)
     fun member P K =
         let fun exists' (I.Null) = NONE
-              | (* GEN CASE BRANCH *) exists' (I.Decl(K',(i, Y))) = if P(Y) then SOME(i) else exists' (K')
+              | exists' (I.Decl(K',(i, Y))) = if P(Y) then SOME(i) else exists' (K')
         in
           exists' K
         end
     fun update' P K =
       let
         fun update' (I.Null) = I.Null
-          | (* GEN CASE BRANCH *) update' (I.Decl(K',((label, Y)))) =
+          | update' (I.Decl(K',((label, Y)))) =
           if (P Y) then
             I.Decl(K', (Body, Y))
           else I.Decl(update' (K'), (label, Y))
@@ -131,7 +131,7 @@ struct
     fun update P K =
       let
         fun update' (I.Null) = I.Null
-          | (* GEN CASE BRANCH *) update' (I.Decl(K',((label, i), Y))) =
+          | update' (I.Decl(K',((label, i), Y))) =
           if (P Y) then
             I.Decl(K', ((Body, i), Y))
           else I.Decl(update' (K'), ((label, i), Y))
@@ -140,10 +140,10 @@ struct
       end
 
     fun or (I.Maybe, _) = I.Maybe
-      | (* GEN CASE BRANCH *) or (_, I.Maybe) = I.Maybe
-      | (* GEN CASE BRANCH *) or (I.Meta, _) = I.Meta
-      | (* GEN CASE BRANCH *) or (_, I.Meta) = I.Meta
-      | (* GEN CASE BRANCH *) or (I.No, I.No) = I.No
+      | or (_, I.Maybe) = I.Maybe
+      | or (I.Meta, _) = I.Meta
+      | or (_, I.Meta) = I.Meta
+      | or (I.No, I.No) = I.No
 
 
     (* occursInExp (k, U) = DP,
@@ -155,26 +155,26 @@ struct
              DP = Meta    iff k occurs in U and only as arguments to Skonsts
     *)
     fun occursInExp (k, I.Uni _) = I.No
-      | (* GEN CASE BRANCH *) occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V))
-      | (* GEN CASE BRANCH *) occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S))
-      | (* GEN CASE BRANCH *) occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V))
-      | (* GEN CASE BRANCH *) occursInExp (k, I.FgnExp csfe) =
+      | occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V))
+      | occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S))
+      | occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V))
+      | occursInExp (k, I.FgnExp csfe) =
         I.FgnExpStd.fold csfe (fn (U, DP) => or (DP, (occursInExp (k, Whnf.normalize (U, I.id))))) I.No
       (* no case for Redex, EVar, EClo *)
 
     and occursInHead (k, I.BVar (k'), DP) =
         if (k = k') then I.Maybe
         else DP
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Const _, DP) = DP
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Def _, DP) = DP
-      | (* GEN CASE BRANCH *) occursInHead (k, I.FgnConst _, DP) = DP
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Skonst _, I.No) = I.No
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Skonst _, I.Meta) = I.Meta
-      | (* GEN CASE BRANCH *) occursInHead (k, I.Skonst _, I.Maybe) = I.Meta
+      | occursInHead (k, I.Const _, DP) = DP
+      | occursInHead (k, I.Def _, DP) = DP
+      | occursInHead (k, I.FgnConst _, DP) = DP
+      | occursInHead (k, I.Skonst _, I.No) = I.No
+      | occursInHead (k, I.Skonst _, I.Meta) = I.Meta
+      | occursInHead (k, I.Skonst _, I.Maybe) = I.Meta
       (* no case for FVar *)
 
     and occursInSpine (_, I.Nil) = I.No
-      | (* GEN CASE BRANCH *) occursInSpine (k, I.App (U, S)) = or (occursInExp (k, U), occursInSpine (k, S))
+      | occursInSpine (k, I.App (U, S)) = or (occursInExp (k, U), occursInSpine (k, S))
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExp (k, V)
@@ -186,8 +186,8 @@ struct
     (* optimize to have fewer traversals? -cs *)
     (* pre-Twelf 1.2 code walk Fri May  8 11:17:10 1998 *)
     fun piDepend (DPV as ((D, I.No), V)) = I.Pi DPV
-      | (* GEN CASE BRANCH *) piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV
-      | (* GEN CASE BRANCH *) piDepend ((D, I.Maybe), V) =
+      | piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV
+      | piDepend ((D, I.Maybe), V) =
           I.Pi ((D, occursInExp (1, V)), V)
 
     (* raiseType (G, V) = {{G}} V
@@ -199,14 +199,14 @@ struct
        All abstractions are potentially dependent.
     *)
     fun raiseType (I.Null, V) = V
-      | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
 
     fun reverseCtx (I.Null, G) = G
-      | (* GEN CASE BRANCH *) reverseCtx (I.Decl(G, D), G') = reverseCtx(G, I.Decl(G', D))
+      | reverseCtx (I.Decl(G, D), G') = reverseCtx(G, I.Decl(G', D))
 
 
     fun ctxToEVarSub (IntSyn.Null, s) = s
-      | (* GEN CASE BRANCH *) ctxToEVarSub (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) =
+      | ctxToEVarSub (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) =
       let
         val s' = ctxToEVarSub (G, s)
         val X = IntSyn.newEVar (IntSyn.Null, I.EClo(A,s'))
@@ -239,26 +239,26 @@ struct
     *)
     (* Possible optimization: Calculate also the normal form of the term *)
     fun collectExpW (Gss, Gl, (I.Uni L, s), K, DupVars, flag, d) = (K, DupVars)
-      | (* GEN CASE BRANCH *) collectExpW (Gss, Gl, (I.Pi ((D, _), V), s), K, DupVars, flag, d) =
+      | collectExpW (Gss, Gl, (I.Pi ((D, _), V), s), K, DupVars, flag, d) =
         let
           val (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
         in
           (* should we apply I.dot1(ss) ? Tue Oct 15 21:55:16 2002 -bp *)
           collectExp (Gss, I.Decl (Gl, I.decSub (D, s)), (V, I.dot1 s), K', DupVars, flag, d)
         end
-      | (* GEN CASE BRANCH *) collectExpW (Gss, Gl, (I.Root (_ , S), s), K, DupVars, flag, d) =
+      | collectExpW (Gss, Gl, (I.Root (_ , S), s), K, DupVars, flag, d) =
           collectSpine (Gss, Gl, (S, s), K, DupVars, flag, d)
 
-      | (* GEN CASE BRANCH *) collectExpW (Gss, Gl, (I.Lam (D, U), s), K, DupVars, flag, d) =
+      | collectExpW (Gss, Gl, (I.Lam (D, U), s), K, DupVars, flag, d) =
           let
             val (K',_) = collectDec (Gss, (D, s), (K, DupVars), d, false)
           in
             collectExp (Gss, I.Decl (Gl, I.decSub (D, s)), (U, I.dot1 s), K', DupVars, flag, d+1)
           end
-      | (* GEN CASE BRANCH *) collectExpW (Gss, Gl, (X as I.EVar (r, GX, V, cnstrs), s), K, DupVars, flag, d) =
+      | collectExpW (Gss, Gl, (X as I.EVar (r, GX, V, cnstrs), s), K, DupVars, flag, d) =
           collectEVar (Gss, Gl, (X, s), K, DupVars, flag, d)
 
-      | (* GEN CASE BRANCH *) collectExpW (Gss, Gl, (I.FgnExp csfe, s), K, DupVars, flag, d) =
+      | collectExpW (Gss, Gl, (I.FgnExp csfe, s), K, DupVars, flag, d) =
         I.FgnExpStd.fold csfe
         (fn (U, KD') =>
          let
@@ -285,9 +285,9 @@ struct
        and DupVars'' contains all duplicates in (S, s)
      *)
     and collectSpine (Gss, Gl, (I.Nil, _), K, DupVars, flag, d) = (K, DupVars)
-      | (* GEN CASE BRANCH *) collectSpine (Gss, Gl, (I.SClo(S, s'), s), K, DupVars, flag, d) =
+      | collectSpine (Gss, Gl, (I.SClo(S, s'), s), K, DupVars, flag, d) =
           collectSpine (Gss, Gl, (S, I.comp (s', s)), K, DupVars, flag, d)
-      | (* GEN CASE BRANCH *) collectSpine (Gss, Gl, (I.App (U, S), s), K, DupVars, flag, d) =
+      | collectSpine (Gss, Gl, (I.App (U, S), s), K, DupVars, flag, d) =
           let
             val  (K', DupVars') =  collectExp (Gss, Gl, (U, s), K, DupVars, flag, d)
           in
@@ -468,9 +468,9 @@ struct
     *)
 
     and collectSub (Gss, Gl, I.Shift _, K, DupVars, flag, d) = (K, DupVars)
-      | (* GEN CASE BRANCH *) collectSub (Gss, Gl, I.Dot (I.Idx _, s), K, DupVars, flag, d) =
+      | collectSub (Gss, Gl, I.Dot (I.Idx _, s), K, DupVars, flag, d) =
         collectSub (Gss, Gl, s, K, DupVars, flag, d)
-      | (* GEN CASE BRANCH *) collectSub (Gss, Gl, I.Dot (I.Exp (X as I.EVar (ref (SOME U), _, _, _)), s), K, DupVars, flag, d) =
+      | collectSub (Gss, Gl, I.Dot (I.Exp (X as I.EVar (ref (SOME U), _, _, _)), s), K, DupVars, flag, d) =
         let
           val U' = Whnf.normalize (U, I.id) (* inefficient? *)
           val (K', DupVars') = collectExp (Gss, Gl, (U', I.id), K, DupVars, flag, d)
@@ -478,14 +478,14 @@ struct
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
 
-      | (* GEN CASE BRANCH *) collectSub (Gss, Gl, I.Dot (I.Exp (U as I.AVar (ref (SOME U'))), s), K, DupVars, flag, d) =
+      | collectSub (Gss, Gl, I.Dot (I.Exp (U as I.AVar (ref (SOME U'))), s), K, DupVars, flag, d) =
         let
           val (K', DupVars') = collectExp (Gss, Gl, (U', I.id), K, DupVars, flag, d)
         in
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
 
-      | (* GEN CASE BRANCH *) collectSub (Gss, Gl, I.Dot (I.Exp (I.EClo(U', s')), s), K, DupVars, flag, d) =
+      | collectSub (Gss, Gl, I.Dot (I.Exp (I.EClo(U', s')), s), K, DupVars, flag, d) =
         let
           val U = Whnf.normalize (U',s') (* inefficient? *)
           val (K', DupVars') = collectExp (Gss, Gl, (U, I.id), K, DupVars, flag, d)
@@ -493,13 +493,13 @@ struct
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
 
-      | (* GEN CASE BRANCH *) collectSub (Gss, Gl, I.Dot (I.Exp (U), s), K, DupVars, flag, d) =
+      | collectSub (Gss, Gl, I.Dot (I.Exp (U), s), K, DupVars, flag, d) =
         let
           val (K', DupVars') = collectExp (Gss, Gl, (U, I.id), K, DupVars, flag, d)
         in
           collectSub (Gss, Gl, s, K', DupVars', flag, d)
         end
-      | (* GEN CASE BRANCH *) collectSub (Gss, Gl, I.Dot (I.Undef, s), K, DupVars, flag, d) =
+      | collectSub (Gss, Gl, I.Dot (I.Undef, s), K, DupVars, flag, d) =
         collectSub (Gss, Gl, s, K, DupVars, flag, d)
 
     (* collectCtx (Gss, G0, G, K) = (K', DupVars)
@@ -510,13 +510,13 @@ struct
     *)
 
     fun collectCtx (Gss,C.DProg(I.Null, I.Null), (K, DupVars), d) =  (K, DupVars)
-      | (* GEN CASE BRANCH *) collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), (K, DupVars), d) =
+      | collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), (K, DupVars), d) =
         let
           val (K',DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
         in
           collectDec (Gss, (D, I.id), (K', DupVars'), d - 1, false)
         end
-      | (* GEN CASE BRANCH *) collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Dec(r,s,Ha))), (K, DupVars), d) =
+      | collectCtx (Gss, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Dec(r,s,Ha))), (K, DupVars), d) =
         let
           val (K', DupVars') = collectCtx (Gss, C.DProg(G, dPool), (K, DupVars), d - 1)
         in
@@ -559,27 +559,27 @@ struct
 
     fun abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (U as I.Uni (L), s), eqn) =
         (posEA, Vars, U, eqn)
-      | (* GEN CASE BRANCH *) abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Pi ((D, P), V), s), eqn) =
+      | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Pi ((D, P), V), s), eqn) =
         let
           val (posEA', Vars', D, _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
           val (posEA'', Vars'', V', eqn2) = abstractExp (flag, Gs, posEA', Vars', Gl, total, depth + 1, (V, I.dot1 s), eqn)
         in
           (posEA'', Vars'', piDepend ((D, P), V'),eqn2)
         end
-      | (* GEN CASE BRANCH *) abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Root (H, S) ,s), eqn) =
+      | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Root (H, S) ,s), eqn) =
         let
           val (posEA', Vars', S, eqn') = abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (S, s), eqn)
         in
           (posEA', Vars', I.Root (H, S), eqn')
         end
-      | (* GEN CASE BRANCH *) abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Lam (D, U), s), eqn) =
+      | abstractExpW (flag, Gs, posEA, Vars, Gl, total, depth, (I.Lam (D, U), s), eqn) =
         let
           val (posEA', Vars', D', _) = abstractDec (Gs, posEA, Vars, Gl, total, depth, (D, s), NONE)
           val (posEA'', Vars'', U', eqn2) = abstractExp (flag, Gs, posEA', Vars', I.Decl(Gl, D'), total, depth + 1, (U, I.dot1 s), eqn)
         in
           (posEA'', Vars'', I.Lam (D',U' ), eqn2)
         end
-      | (* GEN CASE BRANCH *) abstractExpW (flag, Gs as (Gss, ss), posEA as (epos, apos), Vars, Gl, total, depth, (X as I.EVar (_, GX, VX, _), s), eqn) =
+      | abstractExpW (flag, Gs as (Gss, ss), posEA as (epos, apos), Vars, Gl, total, depth, (X as I.EVar (_, GX, VX, _), s), eqn) =
         (* X is possibly strengthened ! *)
         if  isId(I.comp(ss, s))
            then  (* X is fully applied *)
@@ -719,9 +719,9 @@ struct
         if k < depth
           then abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, I.Dot (I.Idx (k+1), I.Shift (k+1)), S, eqn)
         else (* k = depth *) (posEA, Vars, S, eqn)
-      | (* GEN CASE BRANCH *) abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, I.Dot (I.Idx (k), s), S, eqn) =
+      | abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, I.Dot (I.Idx (k), s), S, eqn) =
           abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, s, I.App (I.Root (I.BVar (k), I.Nil), S), eqn)
-      | (* GEN CASE BRANCH *) abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, I.Dot (I.Exp (U), s), S, eqn) =
+      | abstractSub (flag, Gs, posEA, Vars, Gl, total, depth, I.Dot (I.Exp (U), s), S, eqn) =
           let
             val (posEA', Vars', U', eqn') = abstractExp (flag, Gs, posEA, Vars, Gl, total, depth, (U, I.id), eqn)
           in
@@ -743,9 +743,9 @@ struct
 
     and abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (I.Nil, _), eqn)  =
         (posEA, Vars, I.Nil, eqn)
-      | (* GEN CASE BRANCH *) abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (I.SClo (S, s'), s), eqn) =
+      | abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (I.SClo (S, s'), s), eqn) =
           abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (S, I.comp (s', s)), eqn)
-      | (* GEN CASE BRANCH *) abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (I.App (U, S), s), eqn) =
+      | abstractSpine (flag, Gs, posEA, Vars, Gl, total, depth, (I.App (U, S), s), eqn) =
           let
             val (posEA', Vars', U', eqn') = abstractExp (flag, Gs, posEA, Vars, Gl, total, depth, (U ,s), eqn)
             val (posEA'', Vars'', S', eqn'') = abstractSpine (flag, Gs, posEA', Vars', Gl, total, depth, (S, s), eqn')
@@ -771,13 +771,13 @@ struct
             raise Error ("Substitution out of range\n")
         else
           (epos, Vars, I.Shift(k + total))
-      | (* GEN CASE BRANCH *) abstractSub' (flag, Gs, epos, Vars, total, I.Dot (I.Idx (k), s)) =
+      | abstractSub' (flag, Gs, epos, Vars, total, I.Dot (I.Idx (k), s)) =
           let
             val (epos', Vars', s') = abstractSub' (flag, Gs, epos, Vars, total, s)
           in
             (epos', Vars', I.Dot(I.Idx(k),s'))
           end
-      | (* GEN CASE BRANCH *) abstractSub' (flag, Gs, epos, Vars, total, I.Dot (I.Exp (U), s)) =
+      | abstractSub' (flag, Gs, epos, Vars, total, I.Dot (I.Exp (U), s)) =
           let
             val ((ep, _), Vars', U', _) = abstractExp (false, Gs, (epos, 0), Vars, I.Null, total, 0, (U, I.id), TableParam.Trivial)
             val (epos'', Vars'', s') = abstractSub' (flag, Gs, ep, Vars', total, s)
@@ -806,7 +806,7 @@ struct
         (posEA', Vars', I.Dec (x, V'), eqn)
       end
 
-      | (* GEN CASE BRANCH *) abstractDec (Gs, posEA, Vars, Gl, total, depth, (I.Dec (x, V), s), SOME(eqn)) =
+      | abstractDec (Gs, posEA, Vars, Gl, total, depth, (I.Dec (x, V), s), SOME(eqn)) =
       let
       (*      val (posEA', Vars', V', _) = abstractExp (false, Gs, posEA, Vars, Gl, total, depth, (V, s), TableParam.Trivial)*)
       
@@ -830,14 +830,14 @@ struct
     *)
     fun abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Null, I.Null), G', eqn) =
         (epos, Vars, G', eqn)
-      | (* GEN CASE BRANCH *) abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), G', eqn) =
+      | abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, C.Parameter)), G', eqn) =
         let
           val d = IntSyn.ctxLength (G)
           val ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
         in
           abstractCtx' (Gs, epos', Vars', total, depth - 1, C.DProg(G, dPool), I.Decl (G', D'), eqn)
         end
-      | (* GEN CASE BRANCH *) abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, _)), G', eqn) =
+      | abstractCtx' (Gs, epos, Vars, total, depth, C.DProg(I.Decl (G, D), I.Decl(dPool, _)), G', eqn) =
       let
           val d = IntSyn.ctxLength (G)
           val ((epos', _), Vars', D', _) = abstractDec (Gs, (epos, total), Vars, I.Null, total , depth - 1, (D, I.id), NONE)
@@ -857,7 +857,7 @@ struct
 
     (* makeEVarCtx (Gs, Kall, D, K, eqn) = G'  *)
     fun makeEVarCtx (Gs, Vars, DEVars, I.Null, total) = DEVars
-      | (* GEN CASE BRANCH *) makeEVarCtx (Gs, Vars, DEVars, I.Decl (K', (_, EV (E as I.EVar (_, GX, VX, _)))),total) =
+      | makeEVarCtx (Gs, Vars, DEVars, I.Decl (K', (_, EV (E as I.EVar (_, GX, VX, _)))),total) =
         let
           val V' = raiseType (GX, VX)
           val ( _,Vars', V'', _) = abstractExp (false, Gs, (0, 0),  Vars, I.Null, 0,
@@ -871,10 +871,10 @@ struct
     fun makeAVarCtx (Vars, DupVars) =
       let
         fun avarCtx (Vars, I.Null, k) = I.Null
-          | (* GEN CASE BRANCH *) avarCtx (Vars, I.Decl (K', AV (E as I.EVar (ref NONE, GX, VX, _), d)), k) =
+          | avarCtx (Vars, I.Decl (K', AV (E as I.EVar (ref NONE, GX, VX, _), d)), k) =
           I.Decl(avarCtx (Vars, K', k+1),
                  I.ADec (SOME("AVar "^Int.toString k ^ "--" ^ Int.toString d), d))
-          | (* GEN CASE BRANCH *) avarCtx (Vars, I.Decl (K', AV (E as I.EVar (_, GX, VX, _), d)), k) =
+          | avarCtx (Vars, I.Decl (K', AV (E as I.EVar (_, GX, VX, _), d)), k) =
           I.Decl(avarCtx (Vars, K', k+1),
                  I.ADec (SOME("AVar "^Int.toString k ^ "--" ^ Int.toString d), d))
       in
@@ -890,7 +890,7 @@ struct
         in
           (X', I.Lam (D'', U))
         end
-      | (* GEN CASE BRANCH *) lowerEVar' (X, G, Vs') =
+      | lowerEVar' (X, G, Vs') =
         let
           val X' = X
         in
@@ -904,7 +904,7 @@ struct
         in
           I.EVar(ref (SOME(U)), I.Null, V, ref nil)
         end
-      | (* GEN CASE BRANCH *) lowerEVar1 (_, X, _) = X
+      | lowerEVar1 (_, X, _) = X
 
     (* lowerEVar (X) = X'
 
@@ -918,7 +918,7 @@ struct
     *)
     and
       lowerEVar (E, X as I.EVar (r, G, V, ref nil)) = lowerEVar1 (E, X, Whnf.whnf (V, I.id))
-      | (* GEN CASE BRANCH *) lowerEVar (E, I.EVar _) =
+      | lowerEVar (E, I.EVar _) =
         (* It is not clear if this case can happen *)
         (* pre-Twelf 1.2 code walk, Fri May  8 11:05:08 1998 *)
         raise Error "abstraction : LowerEVars: Typing ambiguous -- constraint of functional type cannot be simplified"
@@ -931,7 +931,7 @@ struct
         s = X1 . X2 . ... s'
      *)
     fun evarsToSub (I.Null, s) = s
-      | (* GEN CASE BRANCH *) evarsToSub (I.Decl (K', (_, EV (E as I.EVar (I as (ref NONE), GX, VX, cnstr)))),s) =
+      | evarsToSub (I.Decl (K', (_, EV (E as I.EVar (I as (ref NONE), GX, VX, cnstr)))),s) =
       let
         val V' = raiseType (GX, VX) (* redundant ? *)
         val X = lowerEVar1 (E, I.EVar(I, I.Null, V', cnstr), Whnf.whnf(V', I.id))
@@ -948,7 +948,7 @@ struct
      *)
 
     fun avarsToSub (I.Null, s) = s
-      | (* GEN CASE BRANCH *) avarsToSub (I.Decl (Vars', (AV (E as I.EVar (I, GX, VX, cnstr), d))), s) =
+      | avarsToSub (I.Decl (Vars', (AV (E as I.EVar (I, GX, VX, cnstr), d))), s) =
         let
           val s' = avarsToSub (Vars', s)
           val X' as I.AVar(r) = I.newAVar ()

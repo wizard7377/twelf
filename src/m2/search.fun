@@ -46,13 +46,13 @@ struct
 
 
   fun cidFromHead (I.Const a) = a
-    | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
-    | (* GEN CASE BRANCH *) cidFromHead (I.Skonst a) = a
+    | cidFromHead (I.Def a) = a
+    | cidFromHead (I.Skonst a) = a
 
   (* only used for type families of compiled clauses *)
   fun eqHead (I.Const a, I.Const a') = a = a'
-    | (* GEN CASE BRANCH *) eqHead (I.Def a, I.Def a') = a = a'
-    | (* GEN CASE BRANCH *) eqHead _ = false
+    | eqHead (I.Def a, I.Def a') = a = a'
+    | eqHead _ = false
 
   (* solve ((g,s), (G,dPool), sc, (acc, k)) => ()
      Invariants:
@@ -66,7 +66,7 @@ struct
        if  G |- M :: g[s] then G |- sc :: g[s] => Answer, Answer closed
   *)
   fun solve ((C.Atom p, s), dp, sc, acck) = matchAtom ((p,s), dp, sc, acck)
-    | (* GEN CASE BRANCH *) solve ((C.Impl (r, A, H, g), s), C.DProg(G, dPool), sc, acck) =
+    | solve ((C.Impl (r, A, H, g), s), C.DProg(G, dPool), sc, acck) =
        let
          val D' = I.Dec (NONE, I.EClo (A, s))
        in
@@ -74,7 +74,7 @@ struct
                 C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, H))),
                 (fn (M, acck') => sc (I.Lam (D', M), acck')), acck)
        end
-    | (* GEN CASE BRANCH *) solve ((C.All (D, g), s), C.DProg (G, dPool), sc, acck) =
+    | solve ((C.All (D, g), s), C.DProg (G, dPool), sc, acck) =
        let
          val D' = I.decSub (D, s)
        in
@@ -109,7 +109,7 @@ struct
           handle Unify.Unify _ => acc
                | Assign.Assign _ => acc)
     *)
-    | (* GEN CASE BRANCH *) rSolve (ps', (C.And (r, A, g), s), dp as C.DProg (G, dPool), sc, acck) =
+    | rSolve (ps', (C.And (r, A, g), s), dp as C.DProg (G, dPool), sc, acck) =
       let
         val X = I.newEVar (G, I.EClo(A, s))
       in
@@ -122,7 +122,7 @@ struct
                                                              handle Unify.Unify _ => [])),
                                          acck')), acck)
       end
-    | (* GEN CASE BRANCH *) rSolve (ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acck) =
+    | rSolve (ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acck) =
         let
           val X = I.newEVar (G, I.EClo (A, s))
         in
@@ -162,7 +162,7 @@ struct
         fun matchSig acc' =
             let
               fun matchSig' (nil, acc'') = acc''
-                | (* GEN CASE BRANCH *) matchSig' (Hc ::sgn', acc'') =
+                | matchSig' (Hc ::sgn', acc'') =
                   let
                     val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
                     val acc''' = CSManager.trail
@@ -178,7 +178,7 @@ struct
             end
   
         fun matchDProg (I.Null, _, acc') = matchSig acc'
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') =
+          | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') =
             if eqHead (Ha, Ha') then
               let
                 val acc'' = CSManager.trail (fn () =>
@@ -189,7 +189,7 @@ struct
                 matchDProg (dPool', n+1, acc'')
               end
             else matchDProg (dPool', n+1, acc')
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Parameter), n, acc') =
+          | matchDProg (I.Decl (dPool', C.Parameter), n, acc') =
               matchDProg (dPool', n+1, acc')
       in
         if k < 0 then acc else matchDProg (dPool, 1, acc)
@@ -205,20 +205,20 @@ struct
     fun occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
 
     and occursInExpW (r, (I.Uni _, _)) = false
-      | (* GEN CASE BRANCH *) occursInExpW (r, (I.Pi ((D, _), V), s)) =
+      | occursInExpW (r, (I.Pi ((D, _), V), s)) =
           occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s))
-      | (* GEN CASE BRANCH *) occursInExpW (r, (I.Root (_, S), s)) = occursInSpine (r, (S, s))
-      | (* GEN CASE BRANCH *) occursInExpW (r, (I.Lam (D, V), s)) =
+      | occursInExpW (r, (I.Root (_, S), s)) = occursInSpine (r, (S, s))
+      | occursInExpW (r, (I.Lam (D, V), s)) =
           occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s))
-      | (* GEN CASE BRANCH *) occursInExpW (r, (I.EVar (r' , _, V', _), s)) =
+      | occursInExpW (r, (I.EVar (r' , _, V', _), s)) =
           (r = r') orelse occursInExp (r, (V', s))
-      | (* GEN CASE BRANCH *) occursInExpW (r, (I.FgnExp csfe, s)) =
+      | occursInExpW (r, (I.FgnExp csfe, s)) =
         I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExp (r, (U,s))) false
 
     and occursInSpine (_, (I.Nil, _)) = false
-      | (* GEN CASE BRANCH *) occursInSpine (r, (I.SClo (S, s'), s)) =
+      | occursInSpine (r, (I.SClo (S, s'), s)) =
           occursInSpine (r, (S, I.comp (s', s)))
-      | (* GEN CASE BRANCH *) occursInSpine (r, (I.App (U, S), s)) =
+      | occursInSpine (r, (I.App (U, S), s)) =
           occursInExp (r, (U, s)) orelse occursInSpine (r, (S, s))
 
     and occursInDec (r, (I.Dec (_, V), s)) = occursInExp (r, (V, s))
@@ -230,7 +230,7 @@ struct
         r does not occur in any type of EVars in GE
     *)
     fun nonIndex (_, nil) = true
-      | (* GEN CASE BRANCH *) nonIndex (r, I.EVar (_, _, V, _) :: GE) =
+      | nonIndex (r, I.EVar (_, _, V, _) :: GE) =
           (not (occursInExp (r, (V, I.id)))) andalso nonIndex (r, GE)
 
     (* select (GE, (V, s), acc) = acc'
@@ -246,7 +246,7 @@ struct
     (* Efficiency: repeated whnf for every subterm in Vs!!! *)
 
     fun selectEVar (nil, _, acc) = acc
-      | (* GEN CASE BRANCH *) selectEVar ((X as I.EVar (r, _, _, _)) :: GE, Vs, acc) =
+      | selectEVar ((X as I.EVar (r, _, _, _)) :: GE, Vs, acc) =
           if occursInExp (r, Vs) andalso nonIndex (r, acc) then
             selectEVar (GE, Vs, X :: acc)
           else selectEVar (GE, Vs, acc)
@@ -266,7 +266,7 @@ struct
         (* Possible optimization:
            Check if there are still variables left over
         *)
-      | (* GEN CASE BRANCH *) searchEx' max (I.EVar (r, G, V, _) :: GE, sc) =
+      | searchEx' max (I.EVar (r, G, V, _) :: GE, sc) =
           solve ((Compile.compileGoal (G, V), I.id),
                  Compile.compileCtx false G,
                  (fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);
@@ -321,7 +321,7 @@ struct
     (* Shared contexts of EVars in GE may recompiled many times *)
 
     fun searchAll' (nil, acc, sc) = sc (acc)
-      | (* GEN CASE BRANCH *) searchAll' (I.EVar (r, G, V, _) :: GE, acc, sc) =
+      | searchAll' (I.EVar (r, G, V, _) :: GE, acc, sc) =
           solve ((Compile.compileGoal (G, V), I.id),
                  Compile.compileCtx false G,
                  (fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);

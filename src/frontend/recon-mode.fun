@@ -79,7 +79,7 @@ struct
             (* convert term spine to mode spine *)
             (* Each argument must be contractible to variable *)
             fun convertSpine (I.Nil) = M.Mnil
-              | (* GEN CASE BRANCH *) convertSpine (I.App (U, S)) =
+              | convertSpine (I.App (U, S)) =
                 let
                   val k = Whnf.etaContract U
                           handle Whnf.Eta =>
@@ -96,10 +96,10 @@ struct
             (* convert root expression to head constant and mode spine *)
             fun convertExp (I.Root (I.Const (a), S)) =
                   (a, convertSpine S)
-              | (* GEN CASE BRANCH *) convertExp (I.Root (I.Def (d), S))  =
+              | convertExp (I.Root (I.Def (d), S))  =
                   (* error is signalled later in ModeDec.checkFull *)
                   (d, convertSpine S)
-              | (* GEN CASE BRANCH *) convertExp _ =
+              | convertExp _ =
                   error (r, "Call pattern not an atomic type")
               (* convertExp (I.Root (I.Skonst _, S)) can't occur *)
       

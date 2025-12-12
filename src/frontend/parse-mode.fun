@@ -46,34 +46,34 @@ struct
         if L.isUpper id
           then mId
         else Parsing.error (r, "Expected free uppercase variable, found " ^ id)
-      | (* GEN CASE BRANCH *) validateMArg (r, (_, NONE)) =
+      | validateMArg (r, (_, NONE)) =
           Parsing.error (r, "Missing variable following mode")
 
     fun validateMode (r, (mode, NONE)) = mode
-      | (* GEN CASE BRANCH *) validateMode (r, (_, SOME(id))) =
+      | validateMode (r, (_, SOME(id))) =
            Parsing.error (r, "Expected simple mode, found mode followed by identifier " ^ id)
 
     fun stripRParen (LS.Cons ((L.RPAREN, r), s')) = (LS.expose s', r)
-      | (* GEN CASE BRANCH *) stripRParen (LS.Cons ((t, r), s')) = (* t = `.' or ? *)
+      | stripRParen (LS.Cons ((t, r), s')) = (* t = `.' or ? *)
           Parsing.error (r, "Expected closing `)', found " ^ L.toString t)
 
     fun stripRBrace (LS.Cons ((L.RBRACE, r), s')) = (LS.expose s', r)
-      | (* GEN CASE BRANCH *) stripRBrace (LS.Cons ((t, r), _))  =
+      | stripRBrace (LS.Cons ((t, r), _))  =
           Parsing.error (r, "Expected `}', found " ^ L.toString t)
 
     (* parseShortSpine "modeid ... modeid." *)
     fun parseShortSpine (f as LS.Cons ((L.DOT, r), s')) =
           (E.Short.mnil r, f)
-      | (* GEN CASE BRANCH *) parseShortSpine (f as LS.Cons ((L.RPAREN, r), s')) =
+      | parseShortSpine (f as LS.Cons ((L.RPAREN, r), s')) =
           (E.Short.mnil r, f)
-      | (* GEN CASE BRANCH *) parseShortSpine (LS.Cons ((L.ID (_, id), r), s')) =
+      | parseShortSpine (LS.Cons ((L.ID (_, id), r), s')) =
         let
           val mId = validateMArg (r, splitModeId (r, id))
           val (mS', f') = parseShortSpine (LS.expose s')
         in
           (E.Short.mapp (mId, mS'), f')
         end
-      | (* GEN CASE BRANCH *) parseShortSpine (LS.Cons ((t, r), s')) =
+      | parseShortSpine (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected mode or `.', found " ^ L.toString t)
 
     (* parseFull "mode {id:term} ... mode {x:term} term" *)
@@ -102,7 +102,7 @@ struct
               in
                 (E.Full.mroot (t', P.join (r, r1)), f')
               end)
-      | (* GEN CASE BRANCH *) parseFull (LS.Cons ((L.LPAREN, r0), s'), r1) =
+      | parseFull (LS.Cons ((L.LPAREN, r0), s'), r1) =
         (* Left paren --- parse atomic type *)
         let
           val (t', f') = ParseTerm.parseTerm' (LS.expose s')
@@ -110,7 +110,7 @@ struct
         in
           (E.Full.mroot (t', P.join (r', r1)), f'')
         end
-      | (* GEN CASE BRANCH *) parseFull (LS.Cons ((t, r), s'), _) =
+      | parseFull (LS.Cons ((t, r), s'), _) =
           Parsing.error (r, "Expected mode or identifier, found " ^ L.toString t)
 
     (* parseMode2 switches between full and short mode declarations *)
@@ -121,7 +121,7 @@ struct
         in
           (E.Full.toModedec t', f')
         end
-      | (* GEN CASE BRANCH *) parseMode2 ((L.ID (_, name), r), f, _) =
+      | parseMode2 ((L.ID (_, name), r), f, _) =
         let
           val (mS', f') = parseShortSpine f
         in
@@ -135,19 +135,19 @@ struct
         in
           (E.Short.toModedec (E.Short.mroot (nil, name, P.join (r, r'), mS')), f'')
         end
-      | (* GEN CASE BRANCH *) parseModeParen (LS.Cons ((t, r), s'), _) =
+      | parseModeParen (LS.Cons ((t, r), s'), _) =
           Parsing.error (r, "Expected identifier, found " ^ L.toString t)
 
     (* parseMode1 parses mdecl *)
     fun parseMode1 (LS.Cons (lexid as (L.ID _, r), s')) =
           parseModeNext (parseMode2 (lexid, LS.expose s', r))
-      | (* GEN CASE BRANCH *) parseMode1 (LS.Cons ((L.LPAREN, r), s')) =
+      | parseMode1 (LS.Cons ((L.LPAREN, r), s')) =
           parseModeNext (parseModeParen (LS.expose s', r))
-      | (* GEN CASE BRANCH *) parseMode1 (LS.Cons ((t, r), _)) =
+      | parseMode1 (LS.Cons ((t, r), _)) =
           Parsing.error (r, "Expected identifier or mode, found " ^ L.toString t)
 
     and parseModeNext (modedec, f as LS.Cons ((L.DOT, _), s')) = (modedec::nil, f)
-      | (* GEN CASE BRANCH *) parseModeNext (modedec, f) =
+      | parseModeNext (modedec, f) =
         let
           val (mdecs, f') = parseMode1 f
         in
@@ -158,8 +158,8 @@ struct
        Invariant: exposed input stream starts with MODE
     *)
     fun parseMode' (LS.Cons ((L.MODE, r), s')) = parseMode1 (LS.expose s')
-      | (* GEN CASE BRANCH *) parseMode' (LS.Cons ((L.UNIQUE, r), s')) = parseMode1 (LS.expose s')
-      | (* GEN CASE BRANCH *) parseMode' (LS.Cons ((L.COVERS, r), s')) = parseMode1 (LS.expose s')
+      | parseMode' (LS.Cons ((L.UNIQUE, r), s')) = parseMode1 (LS.expose s')
+      | parseMode' (LS.Cons ((L.COVERS, r), s')) = parseMode1 (LS.expose s')
   in
     val parseMode' = parseMode'
   end  (* local *)

@@ -31,17 +31,17 @@ local
     True)))
    
   fun union (G, I.Null) = G
-    | (* GEN CASE BRANCH *) union (G, I.Decl (G', D)) = I.Decl (union(G, G'), D)
+    | union (G, I.Decl (G', D)) = I.Decl (union(G, G'), D)
     
   fun makectx (I.Null) = I.Null
-    | (* GEN CASE BRANCH *) makectx (I.Decl (G, Prim D)) = I.Decl (makectx G, D)
-    | (* GEN CASE BRANCH *) makectx (I.Decl (G, Block (CtxBlock (l, G')))) = union (makectx G, G')
+    | makectx (I.Decl (G, Prim D)) = I.Decl (makectx G, D)
+    | makectx (I.Decl (G, Block (CtxBlock (l, G')))) = union (makectx G, G')
     
   fun printCtx (I.Null) = ()
-    | (* GEN CASE BRANCH *) printCtx (I.Decl (G, Prim (D))) = 
+    | printCtx (I.Decl (G, Prim (D))) = 
         (printCtx G;
         TextIO.print (Print.decToString (makectx G, D) ^ "\n"))
-    | (* GEN CASE BRANCH *) printCtx (I.Decl (G, _)) = 
+    | printCtx (I.Decl (G, _)) = 
         (printCtx G; TextIO.print ("BLOCK\n"))
 	 
   fun print (Psi, U) = 

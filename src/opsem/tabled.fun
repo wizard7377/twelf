@@ -77,23 +77,23 @@ struct
   (* ---------------------------------------------------------------------- *)
 
    fun cidFromHead (I.Const a) = a
-     | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
+     | cidFromHead (I.Def a) = a
 
    fun eqHead (I.Const a, I.Const a') = a = a'
-     | (* GEN CASE BRANCH *) eqHead (I.Def a, I.Def a') = a = a'
-     | (* GEN CASE BRANCH *) eqHead _ = false
+     | eqHead (I.Def a, I.Def a') = a = a'
+     | eqHead _ = false
 
    fun append(IntSyn.Null, G) = G
-     | (* GEN CASE BRANCH *) append(IntSyn.Decl(G', D), G) = IntSyn.Decl(append(G', G), D)
+     | append(IntSyn.Decl(G', D), G) = IntSyn.Decl(append(G', G), D)
 
    fun shift (IntSyn.Null, s) = s
-     | (* GEN CASE BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+     | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
 
     fun raiseType (I.Null, V) = V
-      | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
+      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
 
     fun compose(IntSyn.Null, G) = G
-      | (* GEN CASE BRANCH *) compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D)
+      | compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D)
 
     (* ---------------------------------------------------------------------- *)
     (* We write
@@ -122,7 +122,7 @@ struct
     *)
 
     fun ctxToEVarSub (I.Null, s) = s
-      | (* GEN CASE BRANCH *) ctxToEVarSub (I.Decl(G,I.Dec(_,A)), s) =
+      | ctxToEVarSub (I.Decl(G,I.Dec(_,A)), s) =
       let
         val X = I.newEVar (I.Null, A)
       in
@@ -130,14 +130,14 @@ struct
       end
 
     fun ctxToAVarSub (I.Null, s) = s
-      | (* GEN CASE BRANCH *) ctxToAVarSub (I.Decl(G,I.Dec(_,A)), s) =
+      | ctxToAVarSub (I.Decl(G,I.Dec(_,A)), s) =
       let
         val X = I.newEVar (I.Null, A)
       in
         I.Dot(I.Exp(X), ctxToAVarSub (G, s))
       end
 
-      | (* GEN CASE BRANCH *) ctxToAVarSub (I.Decl(G,I.ADec(_,d)), s) =
+      | ctxToAVarSub (I.Decl(G,I.ADec(_,d)), s) =
       let
         val X = I.newAVar ()
       in
@@ -156,7 +156,7 @@ struct
               false otherwise
  *)
   fun solveEqn ((T.Trivial, s), G) = true
-    | (* GEN CASE BRANCH *) solveEqn ((T.Unify(G',e1, N, eqns), s), G) =
+    | solveEqn ((T.Unify(G',e1, N, eqns), s), G) =
       (* D, G, G' |- e1 and D, G, G' |- N and D, G |- eqns *)
       (* . |- s : D *)
       let
@@ -177,7 +177,7 @@ struct
 
 
   fun getHypGoal (DProg, (C.Atom p, s)) = (DProg, (p,s))
-    | (* GEN CASE BRANCH *) getHypGoal (C.DProg(G, dPool), (C.Impl(r, A, Ha, g), s)) =
+    | getHypGoal (C.DProg(G, dPool), (C.Impl(r, A, Ha, g), s)) =
     let
       val D' = IntSyn.Dec(NONE, I.EClo(A,s))
     in
@@ -195,7 +195,7 @@ struct
          else
            getHypGoal (C.DProg(I.Decl(G, D'),I.Decl (dPool, C.Dec(r, s, Ha))), (g, I.dot1 s))
        end
-     | (* GEN CASE BRANCH *) getHypGoal (C.DProg(G, dPool), (C.All(D, g), s)) =
+     | getHypGoal (C.DProg(G, dPool), (C.All(D, g), s)) =
        let
          val D' = I.decSub (D, s)
        in
@@ -228,7 +228,7 @@ struct
   fun fillTable () =
     let
       fun insert (nil) = ()
-        | (* GEN CASE BRANCH *) insert ((DAVars, DEVars, G', U', eqn', answRef, status)::T) =
+        | insert ((DAVars, DEVars, G', U', eqn', answRef, status)::T) =
         case MT.insertIntoTree (DAVars, DEVars, G', U', eqn', answRef, status)
           of T.NewEntry(_) => insert T
             | _ => ()
@@ -266,7 +266,7 @@ struct
 
    *)
    fun retrieve' ((G, U, s), asub, [], sc)  = ()
-     | (* GEN CASE BRANCH *) retrieve' ((G, U, s), (esub, asub), (((D', s1), O1)::A), sc) =
+     | retrieve' ((G, U, s), (esub, asub), (((D', s1), O1)::A), sc) =
      let
        val s1' = ctxToEVarSub (D', I.Shift(I.ctxLength(D')) (* I.id *))
        val scomp =  I.comp(s1, s1')
@@ -302,7 +302,7 @@ struct
 
    *)
    fun retrieveV ((G, U, s),  [], sc)  = ()
-     | (* GEN CASE BRANCH *) retrieveV ((G, U, s),  (((DEVars, s1), O1)::A), sc) =
+     | retrieveV ((G, U, s),  (((DEVars, s1), O1)::A), sc) =
      let
        val s1' = ctxToEVarSub (DEVars, I.Shift(I.ctxLength(DEVars)) (* I.id *))
        val scomp =  I.comp(s1, s1')
@@ -434,7 +434,7 @@ struct
      else
          matchAtom ((p, s), dp, sc)
 
-     | (* GEN CASE BRANCH *) solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+     | solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
        let
          val D' = I.Dec(NONE, I.EClo(A,s))
        in
@@ -453,7 +453,7 @@ struct
            solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
                   (fn O => sc O))
        end
-     | (* GEN CASE BRANCH *) solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
+     | solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
        let
          val D' = I.decSub (D, s)
        in
@@ -479,13 +479,13 @@ struct
               sc []                       (* call success continuation *)
           else  ())                       (* fail *)
 
-        | (* GEN CASE BRANCH *) rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
+        | rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
                (case Assign.assignable (G, ps', (Q, s)) of
           SOME(cnstr) =>
             aSolve((eqns, s), dp, cnstr, (fn S => sc S))
         | NONE => ())
 
-     | (* GEN CASE BRANCH *) rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
+     | rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
        let
         (* is this EVar redundant? -fp *)
         val X = I.newEVar(G, I.EClo(A, s))
@@ -493,14 +493,14 @@ struct
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp,
                 (fn S1 => solve ((g, s), dp, (fn S2 => sc (S1@S2)))))
       end
-     | (* GEN CASE BRANCH *) rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
+     | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
        let
          val X = I.newEVar(G, I.EClo(A, s))
        in
          rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, (fn S => sc S))
        end
 
-     | (* GEN CASE BRANCH *) rSolve (ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
+     | rSolve (ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
        let
          val X' = I.newAVar ()
        in
@@ -523,7 +523,7 @@ struct
           (sc [])
         else
            ())
-    | (* GEN CASE BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
+    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
       let
         val (G'') = append(G', G)
         val s' = shift (G', s)
@@ -553,7 +553,7 @@ struct
            with c1.
         *)
         fun matchSig nil = ()   (* return indicates failure *)
-          | (* GEN CASE BRANCH *) matchSig ((Hc as I.Const c)::sgn') =
+          | matchSig ((Hc as I.Const c)::sgn') =
             let
               val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -574,7 +574,7 @@ struct
             (* dynamic program exhausted, try signature *)
             matchSig (Index.lookup (cidFromHead Ha))
   
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl(G, _),
+          | matchDProg (I.Decl(G, _),
                         I.Decl (dPool', C.Dec(r, s, Ha')), k) =
             if eqHead (Ha, Ha')
               then
@@ -585,7 +585,7 @@ struct
                    matchDProg (G, dPool', k+1))
             
             else matchDProg (G, dPool', k+1)
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl(G, _), I.Decl (dPool', C.Parameter), k) =
+          | matchDProg (I.Decl(G, _), I.Decl (dPool', C.Parameter), k) =
               matchDProg (G, dPool', k+1)
   
           fun matchConstraint (solve, try) =
@@ -632,7 +632,7 @@ struct
        *)
       retrieve (n, (G', U', s'), (asub, answRef), sc)
 
-    | (* GEN CASE BRANCH *) retrieval (Divergence ((p,s), dp), (G', U', s'), sc, (asub, answRef), n) =
+    | retrieval (Divergence ((p,s), dp), (G', U', s'), sc, (asub, answRef), n) =
       matchAtom ((p, s), dp,
              (fn pskeleton =>
               case MT.answerCheck (s', answRef, pskeleton)
@@ -651,7 +651,7 @@ struct
   fun nextStage () =
     let
       fun resume [] = ()
-        | (* GEN CASE BRANCH *) resume (((Susp, s, sc, trail, (asub, answRef), k)::Goals)) =
+        | resume (((Susp, s, sc, trail, (asub, answRef), k)::Goals)) =
         (CSManager.trail        (fn () => (Unify.resume trail;
                                            retrieval (Susp, s, sc, (asub, answRef), k)));
          resume (Goals))

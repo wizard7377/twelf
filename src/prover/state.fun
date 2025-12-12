@@ -41,40 +41,40 @@ struct
        then [X1 .. Xn] are all the open subgoals that occur within P
     *)
     fun findPrg (T.Lam (_, P)) = findPrg P
-      | (* GEN CASE BRANCH *) findPrg (T.New P) = findPrg P
-      | (* GEN CASE BRANCH *) findPrg (T.Choose P) = findPrg P
-      | (* GEN CASE BRANCH *) findPrg (T.PairExp (_, P)) = findPrg P
-      | (* GEN CASE BRANCH *) findPrg (T.PairBlock (B, P)) = findPrg P
-      | (* GEN CASE BRANCH *) findPrg (T.PairPrg (P1, P2)) = findPrg P1 @ findPrg P2
-      | (* GEN CASE BRANCH *) findPrg (T.Unit) = []
-      | (* GEN CASE BRANCH *) findPrg (T.Rec (_, P)) = findPrg P
-      | (* GEN CASE BRANCH *) findPrg (T.Case (T.Cases C)) = findCases C
-      | (* GEN CASE BRANCH *) findPrg (T.PClo (P, t)) = findPrg P @ findSub t
-      | (* GEN CASE BRANCH *) findPrg (T.Let (D, P1, P2)) = findPrg P1 @ findPrg P2
-      | (* GEN CASE BRANCH *) findPrg (T.LetPairExp (D1, D2, P1, P2)) = findPrg P1 @ findPrg P2
-      | (* GEN CASE BRANCH *) findPrg (T.LetUnit (P1, P2)) = findPrg P1 @ findPrg P2
-      | (* GEN CASE BRANCH *) findPrg (X as T.EVar (_, ref NONE, _, _, _, _)) = [X]
-      | (* GEN CASE BRANCH *) findPrg (X as T.EVar (_, ref (SOME P), _, _, _, _)) = findPrg P
-      | (* GEN CASE BRANCH *) findPrg (T.Const _) = []
-      | (* GEN CASE BRANCH *) findPrg (T.Var _) = []
-      | (* GEN CASE BRANCH *) findPrg (T.Redex (P, S)) = findPrg P @ findSpine S
+      | findPrg (T.New P) = findPrg P
+      | findPrg (T.Choose P) = findPrg P
+      | findPrg (T.PairExp (_, P)) = findPrg P
+      | findPrg (T.PairBlock (B, P)) = findPrg P
+      | findPrg (T.PairPrg (P1, P2)) = findPrg P1 @ findPrg P2
+      | findPrg (T.Unit) = []
+      | findPrg (T.Rec (_, P)) = findPrg P
+      | findPrg (T.Case (T.Cases C)) = findCases C
+      | findPrg (T.PClo (P, t)) = findPrg P @ findSub t
+      | findPrg (T.Let (D, P1, P2)) = findPrg P1 @ findPrg P2
+      | findPrg (T.LetPairExp (D1, D2, P1, P2)) = findPrg P1 @ findPrg P2
+      | findPrg (T.LetUnit (P1, P2)) = findPrg P1 @ findPrg P2
+      | findPrg (X as T.EVar (_, ref NONE, _, _, _, _)) = [X]
+      | findPrg (X as T.EVar (_, ref (SOME P), _, _, _, _)) = findPrg P
+      | findPrg (T.Const _) = []
+      | findPrg (T.Var _) = []
+      | findPrg (T.Redex (P, S)) = findPrg P @ findSpine S
 
     and findCases nil = []
-      | (* GEN CASE BRANCH *) findCases ((_, _, P) :: C) = findPrg P @ findCases C
+      | findCases ((_, _, P) :: C) = findPrg P @ findCases C
 
     and findSub (T.Shift _) = []
-      | (* GEN CASE BRANCH *) findSub (T.Dot (F, t)) = findFront F @ findSub t
+      | findSub (T.Dot (F, t)) = findFront F @ findSub t
 
     and findFront (T.Idx _) = []
-      | (* GEN CASE BRANCH *) findFront (T.Prg P) = findPrg P
-      | (* GEN CASE BRANCH *) findFront (T.Exp _) = []
-      | (* GEN CASE BRANCH *) findFront (T.Block _) = []
-      | (* GEN CASE BRANCH *) findFront (T.Undef) = []
+      | findFront (T.Prg P) = findPrg P
+      | findFront (T.Exp _) = []
+      | findFront (T.Block _) = []
+      | findFront (T.Undef) = []
 
     and findSpine (T.Nil) = []
-      | (* GEN CASE BRANCH *) findSpine (T.AppPrg (P, S)) = findPrg P @ findSpine S
-      | (* GEN CASE BRANCH *) findSpine (T.AppExp (_, S)) = findSpine S
-      | (* GEN CASE BRANCH *) findSpine (T.AppBlock (_, S)) = findSpine S   (* by invariant: blocks don't contain free evars *)
+      | findSpine (T.AppPrg (P, S)) = findPrg P @ findSpine S
+      | findSpine (T.AppExp (_, S)) = findSpine S
+      | findSpine (T.AppBlock (_, S)) = findSpine S   (* by invariant: blocks don't contain free evars *)
 
     (* find P = [X1 .... Xn]
        Invariant:
@@ -82,48 +82,48 @@ struct
        then [X1 .. Xn] are all the open subgoals that occur within P
     *)
     fun findExp (Psi, T.Lam (D, P)) K = findExp (I.Decl (Psi, D), P) K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.New P) K = findExp (Psi, P) K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Choose P) K = findExp (Psi, P) K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.PairExp (M, P)) K =
+      | findExp (Psi, T.New P) K = findExp (Psi, P) K
+      | findExp (Psi, T.Choose P) K = findExp (Psi, P) K
+      | findExp (Psi, T.PairExp (M, P)) K =
           findExp (Psi, P) (Abstract.collectEVars (T.coerceCtx Psi, (M, I.id), K))
-      | (* GEN CASE BRANCH *) findExp (Psi, T.PairBlock (B, P)) K = findExp (Psi, P) K
+      | findExp (Psi, T.PairBlock (B, P)) K = findExp (Psi, P) K
           (* by invariant: Blocks don't contain free evars. *)
-      | (* GEN CASE BRANCH *) findExp (Psi, T.PairPrg (P1, P2)) K = findExp (Psi, P2) (findExp (Psi, P1) K)
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Unit) K = K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Rec (D, P)) K = findExp (Psi, P) K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Case (T.Cases C)) K = findExpCases (Psi, C) K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.PClo (P, t)) K =
+      | findExp (Psi, T.PairPrg (P1, P2)) K = findExp (Psi, P2) (findExp (Psi, P1) K)
+      | findExp (Psi, T.Unit) K = K
+      | findExp (Psi, T.Rec (D, P)) K = findExp (Psi, P) K
+      | findExp (Psi, T.Case (T.Cases C)) K = findExpCases (Psi, C) K
+      | findExp (Psi, T.PClo (P, t)) K =
           findExpSub (Psi, t) (findExp (Psi, P) K)
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Let (D, P1, P2)) K =
+      | findExp (Psi, T.Let (D, P1, P2)) K =
           findExp (I.Decl (Psi, D), P2) (findExp (Psi, P1) K)
-      | (* GEN CASE BRANCH *) findExp (Psi, T.LetPairExp (D1, D2, P1, P2)) K =
+      | findExp (Psi, T.LetPairExp (D1, D2, P1, P2)) K =
           findExp (I.Decl (I.Decl (Psi, T.UDec D1), D2), P2) (findExp (Psi, P1) K)
-      | (* GEN CASE BRANCH *) findExp (Psi, T.LetUnit (P1, P2)) K =
+      | findExp (Psi, T.LetUnit (P1, P2)) K =
           findExp (Psi, P2) (findExp (Psi, P1) K)
-      | (* GEN CASE BRANCH *) findExp (Psi, X as T.EVar _) K = K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Const _) K = K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Var _) K = K
-      | (* GEN CASE BRANCH *) findExp (Psi, T.Redex (P, S)) K = findExpSpine (Psi, S) K
+      | findExp (Psi, X as T.EVar _) K = K
+      | findExp (Psi, T.Const _) K = K
+      | findExp (Psi, T.Var _) K = K
+      | findExp (Psi, T.Redex (P, S)) K = findExpSpine (Psi, S) K
 
     and findExpSpine (Psi, T.Nil) K = K
-      | (* GEN CASE BRANCH *) findExpSpine (Psi, T.AppPrg (_, S)) K = findExpSpine (Psi, S) K
-      | (* GEN CASE BRANCH *) findExpSpine (Psi, T.AppExp (M, S)) K = findExpSpine (Psi, S) (Abstract.collectEVars (T.coerceCtx Psi, (M, I.id), K))
-      | (* GEN CASE BRANCH *) findExpSpine (Psi, T.AppBlock (_, S)) K = findExpSpine (Psi, S) K
+      | findExpSpine (Psi, T.AppPrg (_, S)) K = findExpSpine (Psi, S) K
+      | findExpSpine (Psi, T.AppExp (M, S)) K = findExpSpine (Psi, S) (Abstract.collectEVars (T.coerceCtx Psi, (M, I.id), K))
+      | findExpSpine (Psi, T.AppBlock (_, S)) K = findExpSpine (Psi, S) K
 
 
     and findExpCases (Psi, nil) K = K
-      | (* GEN CASE BRANCH *) findExpCases (Psi, (_, _, P) :: C) K =
+      | findExpCases (Psi, (_, _, P) :: C) K =
           findExpCases (Psi, C) (findExp (Psi, P) K)
     and findExpSub (Psi, T.Shift _)  K = K
-      | (* GEN CASE BRANCH *) findExpSub (Psi, T.Dot (F, t)) K =
+      | findExpSub (Psi, T.Dot (F, t)) K =
           findExpSub (Psi, t) (findExpFront (Psi, F) K)
 
     and findExpFront (Psi, T.Idx _) K  = K
-      | (* GEN CASE BRANCH *) findExpFront (Psi, T.Prg P) K = findExp (Psi, P) K
-      | (* GEN CASE BRANCH *) findExpFront (Psi, T.Exp M) K =
+      | findExpFront (Psi, T.Prg P) K = findExp (Psi, P) K
+      | findExpFront (Psi, T.Exp M) K =
           Abstract.collectEVars (T.coerceCtx Psi,  (M, I.id), K)
-      | (* GEN CASE BRANCH *) findExpFront (Psi, T.Block _) K = K
-      | (* GEN CASE BRANCH *) findExpFront (Psi, T.Undef) K = K
+      | findExpFront (Psi, T.Block _) K = K
+      | findExpFront (Psi, T.Undef) K = K
 
 
     (* init F = S

@@ -98,7 +98,7 @@ struct
           *)
     
           fun theoremToConDec' (I.Null, V) = V
-            | (* GEN CASE BRANCH *) theoremToConDec' (I.Decl (G, D), V) =
+            | theoremToConDec' (I.Decl (G, D), V) =
                 if Abstract.closedDec (G, (D, I.id))
                   then theoremToConDec' (G, Abstract.piDepend ((Whnf.normalizeDec (D, I.id),
                                                                 I.Maybe), V))
@@ -120,7 +120,7 @@ struct
     fun theoremDecToModeSpine ((name,  ThDecl (GBs, G, MG, i)), r) =
       let
         fun theoremToModeSpine' (I.Null, I.Null, mS) = mS
-          | (* GEN CASE BRANCH *) theoremToModeSpine' (I.Decl (G, I.Dec (x, _)), I.Decl (MG, m), mS) =
+          | theoremToModeSpine' (I.Decl (G, I.Dec (x, _)), I.Decl (MG, m), mS) =
               theoremToModeSpine' (G, MG, M.Mapp (M.Marg (m, x), mS))
       in
         theoremToModeSpine' (G, MG, M.Mnil)

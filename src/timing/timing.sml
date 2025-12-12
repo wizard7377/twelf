@@ -118,7 +118,7 @@ struct
 
     fun sumToString (name, centers) = 
         let fun sumup (nil, (CPUTime, realTime)) = timesToString (name, (CPUTime, realTime))
-    	      | (* GEN CASE BRANCH *) sumup ((_, ref (C, R))::centers, (CPUTime, realTime)) =
+    	      | sumup ((_, ref (C, R))::centers, (CPUTime, realTime)) =
     	          sumup (centers, (plus (CPUTime, C), Time.+ (realTime, R)))
     	in 
     	  sumup (centers, (zero, Time.zeroTime))
@@ -159,7 +159,7 @@ struct
 
   fun sumToString (name, centers) = 
       let fun sumup (nil, total) = toString' (name, total)
-  	    | (* GEN CASE BRANCH *) sumup ((_, ref n)::centers, total) =
+  	    | sumup ((_, ref n)::centers, total) =
   		sumup (centers, total+n)
       in 
   	sumup (centers, 0)

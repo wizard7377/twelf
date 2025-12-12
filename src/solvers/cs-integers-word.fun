@@ -113,7 +113,7 @@ struct
           let
             fun check (chars as (_ :: _)) =
                  (List.all Char.isDigit chars)
-              | (* GEN CASE BRANCH *) check nil =
+              | check nil =
                   false
           in
             if check (String.explode str)
@@ -251,9 +251,9 @@ struct
                   | NONE => Expr Us))))
             end
           else Expr Us
-      | (* GEN CASE BRANCH *) fromExpW (Us as (Root (Def(d), _), _)) =
+      | fromExpW (Us as (Root (Def(d), _), _)) =
           fromExpW (Whnf.expandDef (Us))
-      | (* GEN CASE BRANCH *) fromExpW Us = Expr Us
+      | fromExpW Us = Expr Us
 
     (* fromExp (U, s) = t
 
@@ -269,28 +269,28 @@ struct
        G |- U : V and U is the Twelf syntax conversion of t
     *)
     fun toExp (Num d) = numberExp d
-      | (* GEN CASE BRANCH *) toExp (PlusPf ds) = plusPfExp ds
-      | (* GEN CASE BRANCH *) toExp (TimesPf ds) = timesPfExp ds
-      | (* GEN CASE BRANCH *) toExp (QuotPf ds) = quotPfExp ds
-      | (* GEN CASE BRANCH *) toExp (Expr Us) = EClo Us
+      | toExp (PlusPf ds) = plusPfExp ds
+      | toExp (TimesPf ds) = timesPfExp ds
+      | toExp (QuotPf ds) = quotPfExp ds
+      | toExp (Expr Us) = EClo Us
 
     fun solveNumber (G, S, k) = SOME(numberExp (W.fromInt k))
 
     (* fst (S, s) = U1, the first argument in S[s] *)
     fun fst (App (U1, _), s) = (U1, s)
-      | (* GEN CASE BRANCH *) fst (SClo (S, s'), s) = fst (S, comp (s', s))
+      | fst (SClo (S, s'), s) = fst (S, comp (s', s))
 
     (* snd (S, s) = U2, the second argument in S[s] *)
     fun snd (App (_, S), s) = fst (S, s)
-      | (* GEN CASE BRANCH *) snd (SClo (S, s'), s) = snd (S, comp (s', s))
+      | snd (SClo (S, s'), s) = snd (S, comp (s', s))
 
     (* trd (S, s) = U1, the third argument in S[s] *)
     fun trd (App (_, S), s) = snd (S, s)
-      | (* GEN CASE BRANCH *) trd (SClo (S, s'), s) = trd (S, comp (s', s))
+      | trd (SClo (S, s'), s) = trd (S, comp (s', s))
 
     (* fth (S, s) = U1, the fourth argument in S[s] *)
     fun fth (App (_, S), s) = trd (S, s)
-      | (* GEN CASE BRANCH *) fth (SClo (S, s'), s) = fth (S, comp (s', s))
+      | fth (SClo (S, s'), s) = fth (S, comp (s', s))
 
     fun toInternalPlus (G, U1, U2, U3) () =
           [(G, plusExp(U1, U2, U3))]
@@ -342,7 +342,7 @@ struct
                          SOME(proof)
                        end)
           end
-      | (* GEN CASE BRANCH *) solvePlus (G, S, n) = NONE
+      | solvePlus (G, S, n) = NONE
 
     and toInternalTimes (G, U1, U2, U3) () =
           [(G, timesExp(U1, U2, U3))]
@@ -406,7 +406,7 @@ struct
                          SOME(proof)
                        end)
           end
-      | (* GEN CASE BRANCH *) solveTimes (G, S, n) = NONE
+      | solveTimes (G, S, n) = NONE
 
     and toInternalQuot (G, U1, U2, U3) () =
           [(G, quotExp(U1, U2, U3))]
@@ -448,7 +448,7 @@ struct
                          SOME(proof)
                        end)
           end
-      | (* GEN CASE BRANCH *) solveQuot (G, S, n) = NONE
+      | solveQuot (G, S, n) = NONE
 
     (* solveProvePlus (G, S, n) tries to find the n-th solution to
          G |- prove+ @ S : type

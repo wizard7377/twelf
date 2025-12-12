@@ -253,7 +253,7 @@ struct
 
     (* return the label at the given position (row or column) *)
     fun label (Row(i)) = rlabel (i)
-      | (* GEN CASE BRANCH *) label (Col(j)) = clabel (j)
+      | label (Col(j)) = clabel (j)
 
     (* return the restriction on the given label *)
     fun restriction (l : label) = !(#restr(l))
@@ -285,16 +285,16 @@ struct
 
     (* return the context of a owner *)
     fun ownerContext (Var (G, mon)) = G
-      | (* GEN CASE BRANCH *) ownerContext (Exp (G, sum)) = G
+      | ownerContext (Exp (G, sum)) = G
 
     (* return the owner as a sum *)
     fun ownerSum (Var (G, mon)) = Sum(zero, [mon])
-      | (* GEN CASE BRANCH *) ownerSum (Exp (G, sum)) = sum
+      | ownerSum (Exp (G, sum)) = sum
 
     (* debugging code - REMOVE *)
     fun displayPos (Row(row)) =
           print ("row " ^ Int.toString(row) ^ "\n")
-      | (* GEN CASE BRANCH *) displayPos (Col(col)) =
+      | displayPos (Col(col)) =
           print ("column " ^ Int.toString(col) ^ "\n")
 
     (* debugging code - REMOVE *)
@@ -304,7 +304,7 @@ struct
             print " ? + ";
             displaySum (Sum(m, monL))
           )
-      | (* GEN CASE BRANCH *) displaySum (Sum(m, nil)) =
+      | displaySum (Sum(m, nil)) =
           (
             print (OrderedField.toString m);
             print " >= 0\n"
@@ -424,7 +424,7 @@ struct
                        the same coefficient in column j
                     *)
                     fun filter (j, l, nil) = nil
-                      | (* GEN CASE BRANCH *) filter (j, l : label, candidates) =
+                      | filter (j, l : label, candidates) =
                           if not (dead (l))
                           then
                              List.filter
@@ -483,9 +483,9 @@ struct
             (* extend Field.compare to deal with NONE (= infinity) *)
             fun compareScore (SOME(d), SOME(d')) =
                   compare (d, d')
-              | (* GEN CASE BRANCH *) compareScore (SOME(d), NONE) = LESS
-              | (* GEN CASE BRANCH *) compareScore (NONE, SOME(d')) = GREATER
-              | (* GEN CASE BRANCH *) compareScore (NONE, NONE) = EQUAL
+              | compareScore (SOME(d), NONE) = LESS
+              | compareScore (NONE, SOME(d')) = GREATER
+              | compareScore (NONE, NONE) = EQUAL
      
             (* find the best pivot candidates for the given row *)
             fun findPivotCol (j, l : label, result as (score, champs)) =
@@ -851,7 +851,7 @@ struct
                               )
                      end
           end
-      | (* GEN CASE BRANCH *) restrict (pos as Row(row), restr) =
+      | restrict (pos as Row(row), restr) =
           let
             val l = label(pos)
           in
@@ -952,7 +952,7 @@ struct
                         if (m = zero) andalso (n = one)
                         then SOME(mon)
                         else NONE
-                    | (* GEN CASE BRANCH *) isVar (sum) = NONE
+                    | isVar (sum) = NONE
                 in
                   case isVar (sum)
                     of SOME(mon) =>
@@ -1001,7 +1001,7 @@ struct
                                  pos :: tried,
                                  closure')
                     end
-              | (* GEN CASE BRANCH *) reachable ((pos as Col(col)) :: candidates, tried, closure) =
+              | reachable ((pos as Col(col)) :: candidates, tried, closure) =
                   if member (pos, tried)
                   then reachable (candidates, tried, closure)
                   else
@@ -1021,7 +1021,7 @@ struct
                                  pos :: tried,
                                  closure')
                     end
-              | (* GEN CASE BRANCH *) reachable (nil, _, closure) = closure
+              | reachable (nil, _, closure) = closure
             fun restrExp (pos) =
                   let
                     val l = label(pos)
@@ -1078,19 +1078,19 @@ struct
             Array.update(#consts(tableau), row, zero);
             decrNRows ()
           )
-      | (* GEN CASE BRANCH *) undo (Insert(Col(col))) =
+      | undo (Insert(Col(col))) =
           (
             #dead(Array.sub (#clabels(tableau), col)) := true;
             clearArray2Col (#coeffs(tableau), col, (0, nRows()));
             decrNCols ()
           )
-      | (* GEN CASE BRANCH *) undo (Pivot(row, col)) =
+      | undo (Pivot(row, col)) =
           pivot(row, col)
-      | (* GEN CASE BRANCH *) undo (Kill(pos)) =
+      | undo (Kill(pos)) =
           #dead(label(pos)) := false
-      | (* GEN CASE BRANCH *) undo (Restrict(pos)) =
+      | undo (Restrict(pos)) =
           #restr(label(pos)) := NONE
-      | (* GEN CASE BRANCH *) undo (UpdateOwner(pos, owner, tag)) =
+      | undo (UpdateOwner(pos, owner, tag)) =
           setOwnership (pos, owner, tag)
 
     (* reset the internal status of the tableau *)
@@ -1127,11 +1127,11 @@ struct
 
     (* fst (S, s) = U1, the first argument in S[s] *)
     fun fst (App (U1, _), s) = (U1, s)
-      | (* GEN CASE BRANCH *) fst (SClo (S, s'), s) = fst (S, comp (s', s))
+      | fst (SClo (S, s'), s) = fst (S, comp (s', s))
 
     (* snd (S, s) = U2, the second argument in S[s] *)
     fun snd (App (U1, S), s) = fst (S, s)
-      | (* GEN CASE BRANCH *) snd (SClo (S, s'), s) = snd (S, comp (s', s))
+      | snd (SClo (S, s'), s) = snd (S, comp (s', s))
 
     (* checks if the given foreign term can be simplified to a constant *)
     fun isConstantExp (U) =
@@ -1176,7 +1176,7 @@ struct
                 end
             ) handle Error => NONE
           end
-      | (* GEN CASE BRANCH *) solveGt (G, S, n) = NONE
+      | solveGt (G, S, n) = NONE
 
     (* solveGeq (G, S, n) tries to find the n-th solution to G |- '>=' @ S : type *)
     fun solveGeq (G, S, 0) =
@@ -1209,7 +1209,7 @@ struct
                 end
             ) handle Error => NONE
           end
-      | (* GEN CASE BRANCH *) solveGeq (G, S, n) = NONE
+      | solveGeq (G, S, n) = NONE
 
     (* constructors for higher-order types *)
     fun pi (name, U, V) = Pi ((Dec (SOME(name), U), Maybe), V)

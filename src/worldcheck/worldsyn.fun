@@ -142,7 +142,7 @@ struct
        then G |- s : G'
     *)
     fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
-      | (* GEN CASE BRANCH *) createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
+      | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
         let
           val s = createEVarSub (G, G')
           val V' = I.EClo (V, s)
@@ -158,9 +158,9 @@ struct
        try simplifying away the constraints in case they are "hard"
     *)
     fun collectConstraints (nil) = nil
-      | (* GEN CASE BRANCH *) collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
+      | collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
           collectConstraints Xs
-      | (* GEN CASE BRANCH *) collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
+      | collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
           (* constrs <> nil *)
           Constraints.simplify constrs @ collectConstraints Xs
 
@@ -170,7 +170,7 @@ struct
     *)
     fun collectEVars (G, I.Dot (I.Exp X, s), Xs) =
            collectEVars (G, s, Abstract.collectEVars (G, (X, I.id), Xs))
-      | (* GEN CASE BRANCH *) collectEVars (G, I.Shift _, Xs) = Xs
+      | collectEVars (G, I.Shift _, Xs) = Xs
       (* other cases impossible by invariants since s is EVarSubst *)
 
     (* noConstraints (G, s) = true iff there are no remaining constraints in s
@@ -192,13 +192,13 @@ struct
 
     (* Declaration lists *)
     fun formatDList (G, nil, t) = nil
-      | (* GEN CASE BRANCH *) formatDList (G, D :: nil, t) =
+      | formatDList (G, D :: nil, t) =
         let
           val D' = I.decSub (D, t)
         in
           formatD (G, D') :: nil (* Names.decUName (G, I.decSub(D, t)) *)
         end
-      | (* GEN CASE BRANCH *) formatDList (G, D :: L, t) =
+      | formatDList (G, D :: L, t) =
         let
           val D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
         in
@@ -283,16 +283,16 @@ struct
     (**************************************)
 
     fun subGoalToDList (I.Pi ((D, _), V)) = D::subGoalToDList(V)
-      | (* GEN CASE BRANCH *) subGoalToDList (I.Root _) = nil
+      | subGoalToDList (I.Root _) = nil
 
     (* worldsToReg (Worlds [c1,...,cn]) = R
        W = R, except that R is a regular expression
        with non-empty contextblocks as leaves
     *)
     fun worldsToReg (T.Worlds nil) = One
-      | (* GEN CASE BRANCH *) worldsToReg (T.Worlds cids) = Star (worldsToReg' cids)
+      | worldsToReg (T.Worlds cids) = Star (worldsToReg' cids)
     and worldsToReg' (cid::nil) = Block (I.constBlock cid)
-      | (* GEN CASE BRANCH *) worldsToReg' (cid::cids) =
+      | worldsToReg' (cid::cids) =
           Plus (Block (I.constBlock cid), worldsToReg' cids)
 
     (* init b (G, L) raises Success iff V is empty
@@ -303,7 +303,7 @@ struct
        Invariant: G |- L dlist, L nf
     *)
     fun init b (_, nil) = ( Trace.success () ; raise Success)
-      | (* GEN CASE BRANCH *) init b (G, L as (D1 as I.Dec (_, V1))::L2) =
+      | init b (G, L as (D1 as I.Dec (_, V1))::L2) =
         if Subordinate.belowEq (I.targetFam V1, b)
           then ( Trace.unmatched (G, L) ; () )
         else init b (decUName (G, D1), L2)
@@ -317,7 +317,7 @@ struct
        trails at choice points to undo EVar instantiations during matching
     *)
     fun accR (GL, One, b, k) = k GL
-      | (* GEN CASE BRANCH *) accR (GL as (G, L), Block (someDecs, piDecs), b, k) =
+      | accR (GL as (G, L), Block (someDecs, piDecs), b, k) =
         let
           val t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
           val _ = Trace.matchBlock (GL, Seq (piDecs, t))
@@ -328,7 +328,7 @@ struct
         in
           accR (GL, Seq (piDecs, t), b, k')
         end
-      | (* GEN CASE BRANCH *) accR ((G, L as (D as I.Dec (_, V1))::L2),
+      | accR ((G, L as (D as I.Dec (_, V1))::L2),
               L' as Seq (B' as I.Dec (_, V1')::L2', t), b, k) =
         if Unify.unifiable (G, (V1, I.id), (V1', t))
           then accR ((decUName (G, D), L2), Seq (L2', I.dot1 t), b, k)
@@ -339,14 +339,14 @@ struct
                accR ((decUName (G, D), L2), Seq (B', I.comp(t, I.shift)), b, k)
                (* fixed bug in previous line; was: t instead of t o ^ *)
                (* Mon May 7 2007 -fp *)
-      | (* GEN CASE BRANCH *) accR (GL, Seq (nil, t), b, k) = k GL
-      | (* GEN CASE BRANCH *) accR (GL as (G, nil), R as Seq (L', t), b, k) =
+      | accR (GL, Seq (nil, t), b, k) = k GL
+      | accR (GL as (G, nil), R as Seq (L', t), b, k) =
           ( Trace.missing (G, R); () )  (* L is missing *)
-      | (* GEN CASE BRANCH *) accR (GL, Plus (r1, r2), b, k) =
+      | accR (GL, Plus (r1, r2), b, k) =
           ( CSManager.trail (fn () => accR (GL, r1, b, k)) ;
             accR (GL, r2, b, k) )
-      | (* GEN CASE BRANCH *) accR (GL, Star (One), b, k) = k GL (* only possibility for non-termination in next rule *)
-      | (* GEN CASE BRANCH *) accR (GL, r as Star(r'), b, k) = (* r' does not accept empty declaration list *)
+      | accR (GL, Star (One), b, k) = k GL (* only possibility for non-termination in next rule *)
+      | accR (GL, r as Star(r'), b, k) = (* r' does not accept empty declaration list *)
           ( CSManager.trail (fn () => k GL) ;
             accR (GL, r', b, fn GL' => accR (GL', r, b, k)))
 
@@ -368,7 +368,7 @@ struct
        Invariants: Rb = reg (worlds (b))
     *)
     fun checkSubsumedWorlds (nil, Rb, b) = ()
-      | (* GEN CASE BRANCH *) checkSubsumedWorlds (cid::cids, Rb, b) =
+      | checkSubsumedWorlds (cid::cids, Rb, b) =
         let
           val (someDecs, piDecs) = I.constBlock cid
         in
@@ -411,10 +411,10 @@ struct
        occ is occurrence of V in current clause
      *)
      fun checkClause (G, I.Root (a, S), W, occ) = ()
-       | (* GEN CASE BRANCH *) checkClause (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), W, occ) =
+       | checkClause (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), W, occ) =
          (checkClause (decEName (G, D), V2, W, P.body occ);
           checkGoal (G, V1, W, P.label occ))
-       | (* GEN CASE BRANCH *) checkClause (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), W, occ) =
+       | checkClause (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), W, occ) =
          (checkBlocks W (G, V1, P.label occ);
           checkClause (decEName (G, D), V2, W, P.body occ);
           checkGoal (G, V1, W, P.label occ))
@@ -428,7 +428,7 @@ struct
      (* Question: should dependent Pi's really be checked recursively? *)
      (* Thu Mar 29 09:38:20 2001 -fp *)
      and checkGoal (G, I.Root (a, S), W, occ) = ()
-       | (* GEN CASE BRANCH *) checkGoal (G, I.Pi ((D as I.Dec (_, V1), _), V2), W, occ) =
+       | checkGoal (G, I.Pi ((D as I.Dec (_, V1), _), V2), W, occ) =
          (checkGoal (decUName (G, D), V2, W, P.body occ);
           checkClause (G, V1, W, P.label occ))
 
@@ -443,7 +443,7 @@ struct
                   else ()
           val _ = subsumedReset ()      (* initialize table of subsumed families *)
           fun checkAll nil = ()
-            | (* GEN CASE BRANCH *) checkAll (I.Const(c) :: clist) =
+            | checkAll (I.Const(c) :: clist) =
               (if !Global.chatter = 4
                  then print (Names.qidToString (Names.constQid c) ^ " ")
                else ();
@@ -451,7 +451,7 @@ struct
                checkClause (I.Null, I.constType c, W, P.top)
                  handle Error' (occ, msg) => raise Error (wrapMsg (c, occ, msg));
                checkAll clist)
-            | (* GEN CASE BRANCH *) checkAll (I.Def(d) :: clist) =
+            | checkAll (I.Def(d) :: clist) =
               (if !Global.chatter = 4
                  then print (Names.qidToString (Names.constQid d) ^ " ")
                else ();
@@ -475,7 +475,7 @@ struct
        soundness.
     *)
     fun ctxAppend (G, I.Null) = G
-      | (* GEN CASE BRANCH *) ctxAppend (G, I.Decl(G',D)) =
+      | ctxAppend (G, I.Decl(G',D)) =
           I.Decl (ctxAppend (G, G'), D)
 
     (* checkSubordBlock (G, G', L') = ()
@@ -488,14 +488,14 @@ struct
     and checkSubordBlock' (G, (D as I.Dec(_,V))::L') =
           ( Subordinate.respectsN (G, V); (* is V nf?  Assume here: yes! *)
             checkSubordBlock' (I.Decl (G, D), L') )
-      | (* GEN CASE BRANCH *) checkSubordBlock' (G, nil) = ()
+      | checkSubordBlock' (G, nil) = ()
 
     (* conDecBlock (condec) = (Gsome, Lpi)
        if condec is a block declaration
        raise Error (msg) otherwise
     *)
     fun conDecBlock (I.BlockDec (_, _, Gsome, Lpi)) = (Gsome, Lpi)
-      | (* GEN CASE BRANCH *) conDecBlock condec =
+      | conDecBlock condec =
         raise Error ("Identifier " ^ I.conDecName condec
                      ^ " is not a block label")
 
@@ -510,7 +510,7 @@ struct
                in some context block in W
     *)
     fun checkSubordWorlds (nil) = ()
-      | (* GEN CASE BRANCH *) checkSubordWorlds (cid::cids) =
+      | checkSubordWorlds (cid::cids) =
         let
           val (someDecs, piDecs) = constBlock cid
         in
@@ -544,7 +544,7 @@ struct
     fun ctxToList (Gin) =
         let
           fun ctxToList' (I.Null, G ) = G
-            | (* GEN CASE BRANCH *) ctxToList' (I.Decl (G, D), G') =
+            | ctxToList' (I.Decl (G, D), G') =
             ctxToList' (G, D :: G')
         in
           ctxToList' (Gin, nil)

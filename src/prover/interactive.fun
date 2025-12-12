@@ -91,15 +91,15 @@ struct
             in
               (fn F => T.All ((T.UDec (Weaken.strengthenDec (D, w1)), T.Explicit), F' F), F'')
             end
-          | (* GEN CASE BRANCH *) convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
+          | convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
             let
               val (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
             in
               (F', T.Ex ((I.decSub (D, w2), T.Explicit), F''))
             end
-          | (* GEN CASE BRANCH *) convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
+          | convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
               (fn F => F, T.True)
-          | (* GEN CASE BRANCH *) convertFor' _ = raise Error "type family must be +/- moded"
+          | convertFor' _ = raise Error "type family must be +/- moded"
     
         (* shiftPlus (mS) = s'
     
@@ -110,9 +110,9 @@ struct
         fun shiftPlus mS =
           let
             fun shiftPlus' (M.Mnil, n) = n
-              | (* GEN CASE BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
+              | shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
                   shiftPlus' (mS', n+1)
-              | (* GEN CASE BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
+              | shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
                   shiftPlus' (mS', n)
           in
             shiftPlus' (mS, 0)
@@ -133,8 +133,8 @@ struct
             type family
      *)
     fun convertFor nil = raise Error "Empty theorem"
-      | (* GEN CASE BRANCH *) convertFor [a] = convertOneFor a
-      | (* GEN CASE BRANCH *) convertFor (a :: L) = T.And (convertOneFor a, convertFor L)
+      | convertFor [a] = convertOneFor a
+      | convertFor (a :: L) = T.And (convertOneFor a, convertFor L)
 
    (* here ends the preliminary stuff *)
 
@@ -172,31 +172,31 @@ struct
     fun menuToString () =
         let
           fun menuToString' (k, nil) = ""
-            | (* GEN CASE BRANCH *) menuToString' (k, Split O  :: M) =
+            | menuToString' (k, Split O  :: M) =
               let
                 val s = menuToString' (k+1, M)
               in
                  s ^ "\n  " ^ (format k) ^ (Split.menu O)
               end
-            | (* GEN CASE BRANCH *) menuToString' (k, Introduce O :: M) =
+            | menuToString' (k, Introduce O :: M) =
               let
                 val s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (Introduce.menu O)
               end
-            | (* GEN CASE BRANCH *) menuToString' (k, Fill O :: M) =
+            | menuToString' (k, Fill O :: M) =
               let
                 val s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (Fill.menu O)
               end
-            | (* GEN CASE BRANCH *) menuToString' (k, Fix O :: M) =
+            | menuToString' (k, Fix O :: M) =
               let
                 val s = menuToString' (k+1, M)
               in
                 s ^ "\n  " ^ (format k) ^ (FixedPoint.menu O)
               end
-            | (* GEN CASE BRANCH *) menuToString' (k, Elim O :: M) =
+            | menuToString' (k, Elim O :: M) =
               let
                 val s = menuToString' (k+1, M)
               in
@@ -267,14 +267,14 @@ struct
     
     
                 fun splitMenu [] = []
-                  | (* GEN CASE BRANCH *) splitMenu (operators :: l) = map Split operators @ splitMenu l
+                  | splitMenu (operators :: l) = map Split operators @ splitMenu l
     
                 val _ = Global.doubleCheck := true
     
     
                 fun introMenu [] =  []
-                  | (* GEN CASE BRANCH *) introMenu ((SOME oper) :: l) = (Introduce oper) :: introMenu l
-                  | (* GEN CASE BRANCH *) introMenu (NONE :: l) = introMenu l
+                  | introMenu ((SOME oper) :: l) = (Introduce oper) :: introMenu l
+                  | introMenu (NONE :: l) = introMenu l
     
                 val intro = introMenu (map Introduce.expand F1)
     
@@ -282,7 +282,7 @@ struct
                 val fill = foldr (fn (S, l) => l @ map (fn O => Fill O) (Fill.expand S)) nil F2
     
                 fun elimMenu [] = []
-                  | (* GEN CASE BRANCH *) elimMenu (operators :: l) = map Elim operators @ elimMenu l
+                  | elimMenu (operators :: l) = map Elim operators @ elimMenu l
     
                 val elim = elimMenu (map Elim.expand F1)
     
@@ -303,15 +303,15 @@ struct
     fun select k =
         let
           fun select' (k, nil) = abort ("No such menu item")
-            | (* GEN CASE BRANCH *) select' (1, Split O :: _) =
+            | select' (1, Split O :: _) =
                 (Timers.time Timers.splitting Split.apply) O
-            | (* GEN CASE BRANCH *) select' (1, Introduce O :: _) =
+            | select' (1, Introduce O :: _) =
                 Introduce.apply O    (* no timer yet -- cs *)
-            | (* GEN CASE BRANCH *) select' (1, Elim O :: _) =
+            | select' (1, Elim O :: _) =
                 Elim.apply O    (* no timer yet -- cs *)
-            | (* GEN CASE BRANCH *) select' (1, Fill O :: _) =
+            | select' (1, Fill O :: _) =
                 (Timers.time Timers.filling Fill.apply) O
-            | (* GEN CASE BRANCH *) select' (k, _ :: M) = select' (k-1, M)
+            | select' (k, _ :: M) = select' (k-1, M)
         in
           (case !Menu of
             NONE => raise Error "No menu defined"
@@ -362,7 +362,7 @@ struct
             | (S.State (W, Psi, P, F) :: _) =>
               let
                 fun findIEVar nil = raise Error ("cannot focus on " ^ n)
-                  | (* GEN CASE BRANCH *) findIEVar (Y :: Ys) =
+                  | findIEVar (Y :: Ys) =
                     if Names.evarName (T.coerceCtx Psi, Y) = n then
                        (Focus := (S.StateLF Y :: !Focus);
                         normalize ();
@@ -370,7 +370,7 @@ struct
                         printmenu ())
                     else findIEVar Ys
                 fun findTEVar nil = findIEVar (S.collectLF P)
-                  | (* GEN CASE BRANCH *) findTEVar ((X as T.EVar (Psi, r, F, TC, TCs, Y)) :: Xs) =
+                  | findTEVar ((X as T.EVar (Psi, r, F, TC, TCs, Y)) :: Xs) =
                     if Names.evarName (T.coerceCtx Psi, Y) = n then
                       (Focus := (S.State (W, TomegaPrint.nameCtx Psi, X, F) :: !Focus);
                        normalize ();

@@ -40,11 +40,11 @@ struct
           Postfix (prec, (fn tm1 => ExtSyn.app (tm, tm1)))
 
     fun idToTerm (L.Lower, ids, name, r) = ExtSyn.lcid (ids, name, r)
-      | (* GEN CASE BRANCH *) idToTerm (L.Upper, ids, name, r) = ExtSyn.ucid (ids, name, r)
-      | (* GEN CASE BRANCH *) idToTerm (L.Quoted, ids, name, r) = ExtSyn.quid (ids, name, r)
+      | idToTerm (L.Upper, ids, name, r) = ExtSyn.ucid (ids, name, r)
+      | idToTerm (L.Quoted, ids, name, r) = ExtSyn.quid (ids, name, r)
 
     fun isQuoted (L.Quoted) = true
-      | (* GEN CASE BRANCH *) isQuoted _ = false
+      | isQuoted _ = false
 
     type stack = (ExtSyn.term operator) list
     type opr = ExtSyn.term operator
@@ -77,20 +77,20 @@ struct
       (* val reduce : <pRed> -> <p> *)
       fun reduce (Atom(tm2)::Infix(_,con)::Atom(tm1)::p') =
              Atom(con(tm1,tm2))::p'
-        | (* GEN CASE BRANCH *) reduce (Atom(tm)::Prefix(_,con)::p') = Atom(con(tm))::p'
-        | (* GEN CASE BRANCH *) reduce (Postfix(_,con)::Atom(tm)::p') = Atom(con(tm))::p'
+        | reduce (Atom(tm)::Prefix(_,con)::p') = Atom(con(tm))::p'
+        | reduce (Postfix(_,con)::Atom(tm)::p') = Atom(con(tm))::p'
         (* no other cases should be possible by stack invariant *)
 
       (* val reduceRec : <pStable> -> ExtSyn.term *)
       fun reduceRec (Atom(e)::nil) = e
-        | (* GEN CASE BRANCH *) reduceRec (p) = reduceRec (reduce p)
+        | reduceRec (p) = reduceRec (reduce p)
 
       (* val reduceAll : <p> -> ExtSyn.term *)
       fun reduceAll (r, Atom(e)::nil) = e
-        | (* GEN CASE BRANCH *) reduceAll (r, Infix _::p') = Parsing.error (r, "Incomplete infix expression")
-        | (* GEN CASE BRANCH *) reduceAll (r, Prefix _::p') = Parsing.error (r, "Incomplete prefix expression")
-        | (* GEN CASE BRANCH *) reduceAll (r, nil) = Parsing.error (r, "Empty expression")
-        | (* GEN CASE BRANCH *) reduceAll (r, p) = reduceRec (reduce p)
+        | reduceAll (r, Infix _::p') = Parsing.error (r, "Incomplete infix expression")
+        | reduceAll (r, Prefix _::p') = Parsing.error (r, "Incomplete prefix expression")
+        | reduceAll (r, nil) = Parsing.error (r, "Empty expression")
+        | reduceAll (r, p) = reduceRec (reduce p)
 
       (* val shiftAtom : term * <pStable> -> <p> *)
       (* does not raise Error exception *)
@@ -98,7 +98,7 @@ struct
           (* insert juxOp operator and reduce *)
           (* juxtaposition binds most strongly *)
             reduce (Atom(tm)::juxOp::p)
-        | (* GEN CASE BRANCH *) shiftAtom (tm, p) = Atom(tm)::p
+        | shiftAtom (tm, p) = Atom(tm)::p
 
       (* val shift : Paths.region * opr * <pStable> -> <p> *)
       fun shift (r, opr as Atom _, p as (Atom _::p')) =
@@ -110,28 +110,28 @@ struct
         (* Atom/Postfix cannot arise *)
         (* Atom/Empty: shift *)
         (* Infix/Atom: shift *)
-        | (* GEN CASE BRANCH *) shift (r, Infix _, Infix _::p') =
+        | shift (r, Infix _, Infix _::p') =
             Parsing.error (r, "Consective infix operators")
-        | (* GEN CASE BRANCH *) shift (r, Infix _, Prefix _::p') =
+        | shift (r, Infix _, Prefix _::p') =
             Parsing.error (r, "Infix operator following prefix operator")
         (* Infix/Postfix cannot arise *)
-        | (* GEN CASE BRANCH *) shift (r, Infix _, nil) =
+        | shift (r, Infix _, nil) =
             Parsing.error (r, "Leading infix operator")
-        | (* GEN CASE BRANCH *) shift (r, opr as Prefix _, p as (Atom _::p')) =
+        | shift (r, opr as Prefix _, p as (Atom _::p')) =
            (* insert juxtaposition operator *)
            (* will be reduced later *)
            opr::juxOp::p
         (* Prefix/{Infix,Prefix,Empty}: shift *)
         (* Prefix/Postfix cannot arise *)
         (* Postfix/Atom: shift, reduced immediately *)
-        | (* GEN CASE BRANCH *) shift (r, Postfix _, Infix _::p') =
+        | shift (r, Postfix _, Infix _::p') =
             Parsing.error (r, "Postfix operator following infix operator")
-        | (* GEN CASE BRANCH *) shift (r, Postfix _, Prefix _::p') =
+        | shift (r, Postfix _, Prefix _::p') =
             Parsing.error (r, "Postfix operator following prefix operator")
         (* Postfix/Postfix cannot arise *)
-        | (* GEN CASE BRANCH *) shift (r, Postfix _, nil) =
+        | shift (r, Postfix _, nil) =
             Parsing.error (r, "Leading postfix operator")
-        | (* GEN CASE BRANCH *) shift (r, opr, p) = opr::p
+        | shift (r, opr, p) = opr::p
 
       (* val resolve : Paths.region * opr * <pStable> -> <p> *)
       (* Decides, based on precedence of opr compared to the top of the
@@ -145,7 +145,7 @@ struct
               | (EQUAL, FX.Left, FX.Left) => resolve (r, opr, reduce(p))
               | (EQUAL, FX.Right, FX.Right) => shift(r, opr, p)
               | _ => Parsing.error (r, "Ambiguous: infix following infix of identical precedence"))
-        | (* GEN CASE BRANCH *) resolve (r, opr as Infix ((prec, assoc), _),
+        | resolve (r, opr as Infix ((prec, assoc), _),
                      p as (Atom(_)::Prefix(prec', _)::p')) =
           (case FX.compare(prec,prec')
              of GREATER => shift(r, opr, p)
@@ -156,28 +156,28 @@ struct
         (* infix/atom/<empty>: shift *)
 
         (* always shift prefix *)
-        | (* GEN CASE BRANCH *) resolve (r, opr as Prefix _, p) =
+        | resolve (r, opr as Prefix _, p) =
             shift(r, opr, p)
 
         (* always reduce postfix, possibly after prior reduction *)
-        | (* GEN CASE BRANCH *) resolve (r, opr as Postfix(prec, _),
+        | resolve (r, opr as Postfix(prec, _),
                      p as (Atom _::Prefix(prec', _)::p')) =
             (case FX.compare(prec,prec')
                of GREATER => reduce (shift (r, opr, p))
                 | LESS => resolve (r, opr, reduce (p))
                 | EQUAL => Parsing.error (r, "Ambiguous: postfix following prefix of identical precedence"))
         (* always reduce postfix *)
-        | (* GEN CASE BRANCH *) resolve (r, opr as Postfix(prec, _),
+        | resolve (r, opr as Postfix(prec, _),
                      p as (Atom _::Infix((prec', _), _)::p')) =
             (case FX.compare(prec,prec')
                of GREATER => reduce (shift (r, opr, p))
                 | LESS => resolve (r, opr, reduce (p))
                 | EQUAL => Parsing.error (r, "Ambiguous: postfix following infix of identical precedence"))
-        | (* GEN CASE BRANCH *) resolve (r, opr as Postfix _, p as (Atom _::nil)) =
+        | resolve (r, opr as Postfix _, p as (Atom _::nil)) =
             reduce (shift (r, opr, p))
 
         (* default is shift *)
-        | (* GEN CASE BRANCH *) resolve (r, opr, p) =
+        | resolve (r, opr, p) =
             shift(r, opr, p)
 
     end  (* structure P *)
@@ -198,8 +198,8 @@ struct
 
 
     fun stripBar (LS.Cons ((L.ID (_, "|"), r), s')) = (LS.expose s')
-      | (* GEN CASE BRANCH *) stripBar (f as LS.Cons ((L.RPAREN, r), s')) = f
-      | (* GEN CASE BRANCH *) stripBar (LS.Cons ((t, r), s')) =
+      | stripBar (f as LS.Cons ((L.RPAREN, r), s')) = f
+      | stripBar (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected `|', found token " ^ L.toString t)
 
 
@@ -212,20 +212,20 @@ struct
         in
           parseQualIds1 ((ids, name) :: ls, f'')
         end
-      | (* GEN CASE BRANCH *) parseQualIds1 (ls,  LS.Cons ((L.RPAREN, r), s')) =
+      | parseQualIds1 (ls,  LS.Cons ((L.RPAREN, r), s')) =
          (ls, LS.expose s')
-      | (* GEN CASE BRANCH *) parseQualIds1 (ls, LS.Cons ((t, r), s)) =
+      | parseQualIds1 (ls, LS.Cons ((t, r), s)) =
          Parsing.error (r, "Expected label, found token " ^ L.toString t)
 
     fun parseQualIds' (LS.Cons ((L.LPAREN, r), s')) =
         parseQualIds1 (nil, LS.expose s')
-      | (* GEN CASE BRANCH *) parseQualIds' (LS.Cons ((t, r), s')) =
+      | parseQualIds' (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected list of labels, found token " ^ L.toString t)
 
     (* Copied from parse-mode, should probably try to abstract all
        of the strip* functions into a common location - gaw *)
     fun stripRParen (LS.Cons ((L.RPAREN, r), s')) = LS.expose s'
-      | (* GEN CASE BRANCH *) stripRParen (LS.Cons ((t, r), s')) = (* t = `.' or ? *)
+      | stripRParen (LS.Cons ((t, r), s')) = (* t = `.' or ? *)
           Parsing.error (r, "Expected closing `)', found " ^ L.toString t)
 
     fun parseSubordPair2 (f as LS.Cons ((L.ID _, _), _), qid) =
@@ -234,7 +234,7 @@ struct
         in
           ((qid, (ids, name)), stripRParen f')
         end
-      | (* GEN CASE BRANCH *) parseSubordPair2 (LS.Cons ((t, r), s'), qid) =
+      | parseSubordPair2 (LS.Cons ((t, r), s'), qid) =
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
@@ -244,7 +244,7 @@ struct
         in
           parseSubordPair2(f', (ids, name))
         end
-      | (* GEN CASE BRANCH *) parseSubordPair1 (LS.Cons ((t, r), s')) =
+      | parseSubordPair1 (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
@@ -254,9 +254,9 @@ struct
         in
           parseSubord' (f, qidpair::qidpairs)
         end
-      | (* GEN CASE BRANCH *) parseSubord' (f as LS.Cons ((L.DOT, _), _), qidpairs) =
+      | parseSubord' (f as LS.Cons ((L.DOT, _), _), qidpairs) =
           (List.rev qidpairs, f)
-      | (* GEN CASE BRANCH *) parseSubord' (LS.Cons ((t, r), s'), qidpairs) =
+      | parseSubord' (LS.Cons ((t, r), s'), qidpairs) =
           Parsing.error (r, "Expected a pair of identifiers, found token "
                             ^ L.toString t)
 
@@ -267,9 +267,9 @@ struct
         in
           parseFreeze' (f', (ids, name)::qids)
         end
-      | (* GEN CASE BRANCH *) parseFreeze' (f as LS.Cons ((L.DOT, _), _), qids) =
+      | parseFreeze' (f as LS.Cons ((L.DOT, _), _), qids) =
           (List.rev qids, f)
-      | (* GEN CASE BRANCH *) parseFreeze' (LS.Cons ((t, r), s'), qids) =
+      | parseFreeze' (LS.Cons ((t, r), s'), qids) =
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
@@ -282,9 +282,9 @@ struct
         in
           parseDeterministic' (f', (ids, name)::qids)
         end
-      | (* GEN CASE BRANCH *) parseDeterministic' (f as LS.Cons ((L.DOT, _), _), qids) =
+      | parseDeterministic' (f as LS.Cons ((L.DOT, _), _), qids) =
           (List.rev qids, f)
-      | (* GEN CASE BRANCH *) parseDeterministic' (LS.Cons ((t, r), s'), qids) =
+      | parseDeterministic' (LS.Cons ((t, r), s'), qids) =
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
@@ -295,9 +295,9 @@ struct
         in
           parseCompile' (f', (ids, name)::qids)
         end
-      | (* GEN CASE BRANCH *) parseCompile' (f as LS.Cons ((L.DOT, _), _), qids) =
+      | parseCompile' (f as LS.Cons ((L.DOT, _), _), qids) =
           (List.rev qids, f)
-      | (* GEN CASE BRANCH *) parseCompile' (LS.Cons ((t, r), s'), qids) =
+      | parseCompile' (LS.Cons ((t, r), s'), qids) =
           Parsing.error (r, "Expected identifier, found token "
                             ^ L.toString t)
 
@@ -326,42 +326,42 @@ struct
                   | FX.Postfix (prec) =>
                       parseExp' (f', P.resolve (r, postfixOp (prec, tm), p))
         end
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.UNDERSCORE,r), s), p) =
+      | parseExp' (LS.Cons((L.UNDERSCORE,r), s), p) =
           parseExp (s, P.shiftAtom (ExtSyn.omitted r, p))
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.TYPE,r), s), p) =
+      | parseExp' (LS.Cons((L.TYPE,r), s), p) =
           parseExp (s, P.shiftAtom (ExtSyn.typ r, p))
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.COLON,r), s), p) =
+      | parseExp' (LS.Cons((L.COLON,r), s), p) =
           parseExp (s, P.resolve (r, colonOp, p))
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.BACKARROW,r), s), p) =
+      | parseExp' (LS.Cons((L.BACKARROW,r), s), p) =
           parseExp (s, P.resolve (r, backArrowOp, p))
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.ARROW,r), s), p) =
+      | parseExp' (LS.Cons((L.ARROW,r), s), p) =
           parseExp (s, P.resolve (r, arrowOp, p))
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.LPAREN,r), s), p) =
+      | parseExp' (LS.Cons((L.LPAREN,r), s), p) =
           decideRParen (r, parseExp (s, nil), p)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.RPAREN,r), s), p) =
+      | parseExp' (f as LS.Cons((L.RPAREN,r), s), p) =
           (P.reduceAll (r, p), f)
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.LBRACE,r), s), p) =
+      | parseExp' (LS.Cons((L.LBRACE,r), s), p) =
           decideRBrace (r, parseDec (s), p)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.RBRACE,r), s), p) =
+      | parseExp' (f as LS.Cons((L.RBRACE,r), s), p) =
           (P.reduceAll (r, p), f)
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.LBRACKET,r), s), p) =
+      | parseExp' (LS.Cons((L.LBRACKET,r), s), p) =
           decideRBracket (r, parseDec (s), p)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.RBRACKET,r), s), p) =
+      | parseExp' (f as LS.Cons((L.RBRACKET,r), s), p) =
           (P.reduceAll (r, p), f)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.EQUAL,r), s), p) =
+      | parseExp' (f as LS.Cons((L.EQUAL,r), s), p) =
           (P.reduceAll (r, p), f)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.DOT,r), s), p) =
+      | parseExp' (f as LS.Cons((L.DOT,r), s), p) =
           (P.reduceAll (r, p), f)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.EOF,r), s), p) =
+      | parseExp' (f as LS.Cons((L.EOF,r), s), p) =
           (P.reduceAll (r, p), f)
         (* for some reason, there's no dot after %define decls -kw *)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.SOLVE,r), s), p) =
+      | parseExp' (f as LS.Cons((L.SOLVE,r), s), p) =
           (P.reduceAll (r, p), f)
-      | (* GEN CASE BRANCH *) parseExp' (f as LS.Cons((L.DEFINE,r), s), p) =
+      | parseExp' (f as LS.Cons((L.DEFINE,r), s), p) =
           (P.reduceAll (r, p), f)
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((L.STRING(str),r), s), p) =
+      | parseExp' (LS.Cons((L.STRING(str),r), s), p) =
           parseExp (s, P.shiftAtom (ExtSyn.scon (str,r), p))
-      | (* GEN CASE BRANCH *) parseExp' (LS.Cons((t,r), s), p) =
+      | parseExp' (LS.Cons((t,r), s), p) =
           (* possible error recovery: insert DOT *)
           Parsing.error (r, "Unexpected token " ^ L.toString t
                             ^ " found in expression")
@@ -370,33 +370,33 @@ struct
     and parseDec' (LS.Cons ((L.ID (L.Quoted,name), r), s')) =
           (* cannot happen at present *)
           Parsing.error (r, "Illegal bound quoted identifier " ^ name)
-      | (* GEN CASE BRANCH *) parseDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
+      | parseDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
         (case Names.fixityLookup (Names.Qid (nil, name))
            of FX.Nonfix => parseDec1 (SOME(name), LS.expose s')
             | FX.Infix _ => Parsing.error (r, "Cannot bind infix identifier " ^ name)
             | FX.Prefix _ => Parsing.error (r, "Cannot bind prefix identifier " ^ name)
             | FX.Postfix _ => Parsing.error (r, "Cannot bind postfix identifier " ^ name))
-      | (* GEN CASE BRANCH *) parseDec' (LS.Cons ((L.UNDERSCORE, r), s')) =
+      | parseDec' (LS.Cons ((L.UNDERSCORE, r), s')) =
           parseDec1 (NONE, LS.expose s')
-      | (* GEN CASE BRANCH *) parseDec' (LS.Cons ((L.EOF, r), s')) =
+      | parseDec' (LS.Cons ((L.EOF, r), s')) =
           Parsing.error (r, "Unexpected end of stream in declaration")
-      | (* GEN CASE BRANCH *) parseDec' (LS.Cons ((t, r), s')) =
+      | parseDec' (LS.Cons ((t, r), s')) =
           Parsing.error (r, "Expected variable name, found token " ^ L.toString t)
 
     and parseDec1 (x, LS.Cons((L.COLON, r), s')) =
         let val (tm, f'') = parseExp (s', nil)
         in ((x, SOME tm), f'') end
-      | (* GEN CASE BRANCH *) parseDec1 (x, f as LS.Cons((L.RBRACE, _), _)) =
+      | parseDec1 (x, f as LS.Cons((L.RBRACE, _), _)) =
           ((x, NONE), f)
-      | (* GEN CASE BRANCH *) parseDec1 (x, f as LS.Cons ((L.RBRACKET, _), _)) =
+      | parseDec1 (x, f as LS.Cons ((L.RBRACKET, _), _)) =
           ((x, NONE), f)
-      | (* GEN CASE BRANCH *) parseDec1 (x, LS.Cons ((t,r), s')) =
+      | parseDec1 (x, LS.Cons ((t,r), s')) =
           Parsing.error (r, "Expected optional type declaration, found token "
                             ^ L.toString t)
 
     and decideRParen (r0, (tm, LS.Cons((L.RPAREN,r), s)), p) =
           parseExp (s, P.shiftAtom(tm,p))
-      | (* GEN CASE BRANCH *) decideRParen (r0, (tm, LS.Cons((_, r), s)), p) =
+      | decideRParen (r0, (tm, LS.Cons((_, r), s)), p) =
           Parsing.error (Paths.join(r0, r), "Unmatched open parenthesis")
 
     and decideRBrace (r0, ((x, yOpt), LS.Cons ((L.RBRACE,r), s)), p) =
@@ -408,7 +408,7 @@ struct
           in
             parseExp' (f', P.shiftAtom (ExtSyn.pi (dec, tm), p))
           end
-      | (* GEN CASE BRANCH *) decideRBrace (r0, (_, LS.Cons ((_, r), s)), p) =
+      | decideRBrace (r0, (_, LS.Cons ((_, r), s)), p) =
           Parsing.error (Paths.join(r0, r), "Unmatched open brace")
 
     and decideRBracket (r0, ((x, yOpt), LS.Cons ((L.RBRACKET,r), s)), p) =
@@ -420,13 +420,13 @@ struct
           in
             parseExp' (f', P.shiftAtom (ExtSyn.lam (dec, tm), p))
           end
-      | (* GEN CASE BRANCH *) decideRBracket (r0, (dec, LS.Cons ((_, r), s)), p) =
+      | decideRBracket (r0, (dec, LS.Cons ((_, r), s)), p) =
           Parsing.error (Paths.join(r0, r), "Unmatched open bracket")
 
 
     (* Parses contexts of the form  G ::= {id:term} | G, {id:term} *)
     fun stripRBrace (LS.Cons ((L.RBRACE, r), s')) = (LS.expose s', r)
-      | (* GEN CASE BRANCH *) stripRBrace (LS.Cons ((t, r), _))  =
+      | stripRBrace (LS.Cons ((t, r), _))  =
           Parsing.error (r, "Expected `}', found " ^ L.toString t)
 
     (* parseDec "{id:term} | {id}" *)
@@ -453,7 +453,7 @@ struct
         in
           parseCtx (false,  d :: ds, f')
         end
-      | (* GEN CASE BRANCH *) parseCtx (b, ds, f as LS.Cons ((t, r), s')) =
+      | parseCtx (b, ds, f as LS.Cons ((t, r), s')) =
         if b then Parsing.error (r, "Expected `{', found " ^ L.toString t)
         else (ds, f)
 

@@ -64,7 +64,7 @@ struct
 
 
     fun closedCtx (I.Null) = ()
-      | (* GEN CASE BRANCH *) closedCtx (I.Decl (G, D)) =
+      | closedCtx (I.Decl (G, D)) =
         if Abstract.closedDec (G, (D, I.id)) then raise Domain
         else closedCtx G
 
@@ -75,7 +75,7 @@ struct
         S' = n;..;1;Nil
      *)
     fun spine 0 = I.Nil
-      | (* GEN CASE BRANCH *) spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
+      | spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
 
     (* someEVars (G, G1, s) = s'
 
@@ -85,7 +85,7 @@ struct
        then G |- s' : G, G1
     *)
     fun someEVars (G, nil, s) =  s
-      | (* GEN CASE BRANCH *) someEVars (G, I.Dec (_, V) :: L, s) =
+      | someEVars (G, I.Dec (_, V) :: L, s) =
       someEVars(G, L, I.Dot (I.Exp (I.newEVar (G, I.EClo (V, s))), s))
 
 
@@ -100,7 +100,7 @@ struct
        NOTE, should go into a different module. Code duplication!
     *)
     fun ctxSub (nil, s) = nil
-      | (* GEN CASE BRANCH *) ctxSub (D :: G, s) = I.decSub (D, s) :: ctxSub (G, I.dot1 s)
+      | ctxSub (D :: G, s) = I.decSub (D, s) :: ctxSub (G, I.dot1 s)
 
 
 
@@ -115,7 +115,7 @@ struct
        and  G' |- B' tags
     *)
     fun appendCtx (GB1, T, nil) = GB1
-      | (* GEN CASE BRANCH *) appendCtx ((G1, B1), T, D :: G2) =
+      | appendCtx ((G1, B1), T, D :: G2) =
           appendCtx ((I.Decl (G1, D), I.Decl (B1, T)), T, G2)
 
 
@@ -137,7 +137,7 @@ struct
      *)
     fun createCtx ((G, B), nil, s) =
           ((G, B), s, fn AF => AF)
-      | (* GEN CASE BRANCH *) createCtx ((G, B), n :: ll, s) =
+      | createCtx ((G, B), n :: ll, s) =
         let
           val F.LabelDec (l, G1, G2) = F.labelLookup n
       
@@ -164,7 +164,7 @@ struct
        and  s' = X1 .. Xn where n = |G0|
     *)
     fun createEVars (G, I.Null) = I.Shift (I.ctxLength G)
-      | (* GEN CASE BRANCH *) createEVars (G, I.Decl (G0, I.Dec (_, V))) =
+      | createEVars (G, I.Decl (G0, I.Dec (_, V))) =
         let
           val s = createEVars (G, G0)
         in
@@ -183,7 +183,7 @@ struct
             G1 = V1 .. Vn and G, G1, V1 .. Vi-1 |- Vi unifies with V [s o ^i] : L
     *)
     fun checkCtx (G, nil, (V2, s)) = false
-      | (* GEN CASE BRANCH *) checkCtx (G, (D as I.Dec (_, V1)) :: G2, (V2, s)) =
+      | checkCtx (G, (D as I.Dec (_, V1)) :: G2, (V2, s)) =
           (CSManager.trail (fn () => Unify.unifiable (G, (V1, I.id), (V2, s)))
           orelse checkCtx (I.Decl (G, D), G2, (V2, I.comp (s, I.shift))))
 
@@ -230,7 +230,7 @@ struct
        Ds' = Ds1 @ Ds2, where all duplicates are removed
     *)
     fun appendRL (nil, Ds) = Ds
-      | (* GEN CASE BRANCH *) appendRL ((L as Lemma (n, F)) :: Ds1, Ds2) =
+      | appendRL ((L as Lemma (n, F)) :: Ds1, Ds2) =
         let
           val Ds' = appendRL (Ds1, Ds2)
         in
@@ -315,7 +315,7 @@ struct
            If    G1, D < G
         *)
         fun set_parameter' ((I.Null, I.Null), _, Ds) =  Ds
-          | (* GEN CASE BRANCH *) set_parameter' ((I.Decl (G, D), I.Decl (B, S.Parameter _)), k, Ds) =
+          | set_parameter' ((I.Decl (G, D), I.Decl (B, S.Parameter _)), k, Ds) =
             let
               val D' as I.Dec (_, V') = I.decSub (D, I.Shift (k))
               val Ds' =
@@ -327,7 +327,7 @@ struct
             in
               set_parameter' ((G, B), k+1, Ds')
             end
-          | (* GEN CASE BRANCH *) set_parameter' ((I.Decl (G, D), I.Decl (B, _)), k, Ds) =
+          | set_parameter' ((I.Decl (G, D), I.Decl (B, _)), k, Ds) =
               set_parameter' ((G, B), k+1, Ds)
       in
         set_parameter' (GB, 1, Ds)
@@ -355,7 +355,7 @@ struct
           ltinitW (GB, k, Whnf.whnfEta (Us, Vs), UsVs', sc, ac, Ds)
     and ltinitW (GB, k, (Us, Vs as (I.Root _, _)), UsVs', sc, ac, Ds) =
           lt (GB, k, (Us, Vs), UsVs', sc, ac, Ds)
-      | (* GEN CASE BRANCH *) ltinitW ((G, B), k,
+      | ltinitW ((G, B), k,
                  ((I.Lam (D1, U), s1), (I.Pi (D2, V), s2)),
                  ((U', s1'), (V', s2')),
                  sc, ac, Ds) =
@@ -390,7 +390,7 @@ struct
           ltW (GB, k, (Us, Vs), Whnf.whnfEta (Us', Vs'), sc, ac, Ds)
     and ltW (GB, k, (Us, Vs), ((I.Root (I.Const c, S'), s'), Vs'), sc, ac, Ds) =
           ltSpine (GB, k, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, ac, Ds)
-      | (* GEN CASE BRANCH *) ltW (GB as (G, B), k, (Us, Vs), ((I.Root (I.BVar n, S'), s'), Vs'), sc, ac, Ds) =
+      | ltW (GB as (G, B), k, (Us, Vs), ((I.Root (I.BVar n, S'), s'), Vs'), sc, ac, Ds) =
       (*          if n <= k then  (* n must be a local variable *) *)
       (* k might not be needed any more: Check --cs *)
         (case I.ctxLookup (B, n)
@@ -402,8 +402,8 @@ struct
              end
          | S.Lemma _ => Ds)
       (*            else Ds *)
-      | (* GEN CASE BRANCH *) ltW (GB, _, _, ((I.EVar _, _), _), _, _, Ds) = Ds
-      | (* GEN CASE BRANCH *) ltW (GB as (G, B), k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
+      | ltW (GB, _, _, ((I.EVar _, _), _), _, _, Ds) = Ds
+      | ltW (GB as (G, B), k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
                                                    (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, ac, Ds) =
         let
           val Ds' = Ds (* ctxBlock (GB, I.EClo (V1', s1'), k, sc, ac, Ds) *)
@@ -432,9 +432,9 @@ struct
     and ltSpine (GB, k, (Us, Vs), (Ss', Vs'), sc, ac, Ds) =
           ltSpineW (GB, k, (Us, Vs), (Ss', Whnf.whnf Vs'), sc, ac, Ds)
     and ltSpineW (GB, k, (Us, Vs), ((I.Nil, _), _), _, _, Ds) = Ds
-      | (* GEN CASE BRANCH *) ltSpineW (GB, k, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, ac, Ds) =
+      | ltSpineW (GB, k, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, ac, Ds) =
           ltSpineW (GB, k, (Us, Vs), ((S, I.comp (s', s'')), Vs'), sc, ac, Ds)
-      | (* GEN CASE BRANCH *) ltSpineW (GB, k, (Us, Vs), ((I.App (U', S'), s1'),
+      | ltSpineW (GB, k, (Us, Vs), ((I.App (U', S'), s1'),
                                     (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, ac, Ds) =
         let
           val Ds' = le (GB, k, (Us, Vs), ((U', s1'), (V1', s2')), sc, ac, Ds)
@@ -522,7 +522,7 @@ struct
               end
             else Ds'
         end
-      | (* GEN CASE BRANCH *) leW (GB, k, (Us, Vs), (Us', Vs'), sc, ac, Ds) = lt (GB, k, (Us, Vs), (Us', Vs'), sc, ac, Ds)
+      | leW (GB, k, (Us, Vs), (Us', Vs'), sc, ac, Ds) = lt (GB, k, (Us, Vs), (Us', Vs'), sc, ac, Ds)
 
 
     (* ordlt (GB, O1, O2, sc, ac, Ds) = Ds'
@@ -537,8 +537,8 @@ struct
             lexicographically smaller than O2
     *)
     and ordlt (GB, S.Arg UsVs, S.Arg UsVs', sc, ac, Ds) =  ltinit (GB, 0, UsVs, UsVs', sc, ac, Ds)
-      | (* GEN CASE BRANCH *) ordlt (GB, S.Lex L, S.Lex L', sc, ac, Ds) = ordltLex (GB, L, L', sc, ac, Ds)
-      | (* GEN CASE BRANCH *) ordlt (GB, S.Simul L, S.Simul L', sc, ac, Ds) = ordltSimul (GB, L, L', sc, ac, Ds)
+      | ordlt (GB, S.Lex L, S.Lex L', sc, ac, Ds) = ordltLex (GB, L, L', sc, ac, Ds)
+      | ordlt (GB, S.Simul L, S.Simul L', sc, ac, Ds) = ordltSimul (GB, L, L', sc, ac, Ds)
 
 
     (* ordltLex (GB, L1, L2, sc, ac, Ds) = Ds'
@@ -553,7 +553,7 @@ struct
             lexicographically less then L2
     *)
     and ordltLex (GB, nil, nil, sc, ac, Ds) = Ds
-      | (* GEN CASE BRANCH *) ordltLex (GB, O :: L, O' :: L', sc, ac, Ds) =
+      | ordltLex (GB, O :: L, O' :: L', sc, ac, Ds) =
         let
           val Ds' = CSManager.trail (fn () => ordlt (GB, O, O', sc, ac, Ds))
         in
@@ -572,7 +572,7 @@ struct
             simultaneously smaller than L2
     *)
     and ordltSimul (GB, nil, nil, sc, ac, Ds) = Ds
-      | (* GEN CASE BRANCH *) ordltSimul (GB, O :: L, O' :: L', sc, ac, Ds) =
+      | ordltSimul (GB, O :: L, O' :: L', sc, ac, Ds) =
         let
           val Ds'' = CSManager.trail (fn () => ordlt (GB, O, O',
                                                   fn Ds' => ordleSimul (GB, L, L', sc, ac, Ds'), ac, Ds))
@@ -593,7 +593,7 @@ struct
             simultaneously smaller than or equal to L2
     *)
     and ordleSimul (GB, nil, nil, sc, ac, Ds) = sc Ds
-      | (* GEN CASE BRANCH *) ordleSimul (GB, O :: L, O' :: L', sc, ac, Ds) =
+      | ordleSimul (GB, O :: L, O' :: L', sc, ac, Ds) =
           ordle (GB, O, O', fn Ds' => ordleSimul (GB, L, L', sc, ac, Ds'), ac, Ds)
 
 
@@ -610,8 +610,8 @@ struct
     *)
     and ordeq ((G, B), S.Arg (Us, Vs), S.Arg (Us' ,Vs'), sc, ac, Ds) =
         if Unify.unifiable (G, Vs, Vs') andalso Unify.unifiable (G, Us, Us') then sc Ds else Ds
-      | (* GEN CASE BRANCH *) ordeq (GB, S.Lex L, S.Lex L', sc, ac, Ds) = ordeqs (GB, L, L', sc, ac, Ds)
-      | (* GEN CASE BRANCH *) ordeq (GB, S.Simul L, S.Simul L', sc, ac, Ds) = ordeqs (GB, L, L', sc, ac, Ds)
+      | ordeq (GB, S.Lex L, S.Lex L', sc, ac, Ds) = ordeqs (GB, L, L', sc, ac, Ds)
+      | ordeq (GB, S.Simul L, S.Simul L', sc, ac, Ds) = ordeqs (GB, L, L', sc, ac, Ds)
 
     (* ordlteqs (GB, L1, L2, sc, ac, Ds) = Ds'
 
@@ -625,7 +625,7 @@ struct
             convertible to L2
     *)
     and ordeqs (GB, nil, nil, sc, ac, Ds) = sc Ds
-      | (* GEN CASE BRANCH *) ordeqs (GB, O :: L, O' :: L', sc, ac, Ds) =
+      | ordeqs (GB, O :: L, O' :: L', sc, ac, Ds) =
           ordeq (GB, O, O', fn Ds' => ordeqs (GB, L, L', sc, ac, Ds'), ac, Ds)
 
     (* ordeq (GB, O1, O2, sc, ac, Ds) = Ds'
@@ -666,7 +666,7 @@ struct
     *)
 
     fun skolem ((du, de), GB, w, F.True, sc) = (GB, w)
-      | (* GEN CASE BRANCH *) skolem ((du, de), GB, w, F.All (F.Prim D, F), sc) =
+      | skolem ((du, de), GB, w, F.All (F.Prim D, F), sc) =
           skolem ((du+1, de), GB, w, F,
                   fn (s, de') =>
                                         (* s'  :  GB, Ds |- s : GB   *)
@@ -684,7 +684,7 @@ struct
                                         (* _   : maps (GB, Ds, G'[....], D[?] |- F : for) to  (GB, Ds, |- {{G[....], D[?]}} F : for) *)
                         )
                      end)
-      | (* GEN CASE BRANCH *) skolem ((du, de), (G, B), w, F.Ex (I.Dec (name, V), F), sc) =
+      | skolem ((du, de), (G, B), w, F.Ex (I.Dec (name, V), F), sc) =
                                         (* V   : GB, G |- V type *)
           let
             val (s', V', F') = sc (w, de)
@@ -736,7 +736,7 @@ struct
        G' |- s : G
     *)
     fun updateState (S, (nil, s)) = S
-      | (* GEN CASE BRANCH *) updateState (S as S.State (n, (G, B), (IH, OH), d, O, H, F), (Lemma (n', Frl') :: L, s)) =
+      | updateState (S as S.State (n, (G, B), (IH, OH), d, O, H, F), (Lemma (n', Frl') :: L, s)) =
         let
           val ((G'', B''), s') = skolem ((0, 0), (G, B), I.id, F.forSub (Frl', s),
                                          fn (s', _) => (s', fn V' => V', fn F' => F'))
@@ -760,13 +760,13 @@ struct
     *)
     fun selectFormula (n, (G0, F.All (F.Prim (D as I.Dec (_, V)), F), S.All (_, O)), S) =
           selectFormula (n, (I.Decl (G0, D), F, O), S)
-      | (* GEN CASE BRANCH *) selectFormula (n, (G0, F.And (F1, F2), S.And (O1, O2)), S) =
+      | selectFormula (n, (G0, F.And (F1, F2), S.And (O1, O2)), S) =
         let
           val (n', S') = selectFormula (n, (G0, F1, O1), S)
         in
           selectFormula (n, (G0, F2, O2), S')
         end
-      | (* GEN CASE BRANCH *) selectFormula (nih, (Gall, Fex, Oex), S as S.State (ncurrent, (G0, B0), (_, _), _, Ocurrent, H, F)) =
+      | selectFormula (nih, (Gall, Fex, Oex), S as S.State (ncurrent, (G0, B0), (_, _), _, Ocurrent, H, F)) =
         let
       
           val Ds = recursion ((nih, Gall, Fex, Oex), (ncurrent, (G0, B0), nil, Ocurrent, H, F))

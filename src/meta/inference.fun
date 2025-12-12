@@ -60,7 +60,7 @@ struct
         in
           (X' :: Xs, FVs')
         end
-      | (* GEN CASE BRANCH *) createEVars (G, FVs as (_, s)) = (nil, FVs)
+      | createEVars (G, FVs as (_, s)) = (nil, FVs)
 
 
 
@@ -88,7 +88,7 @@ struct
     
               | [] => NONE) handle UniqueSearch.Error _ => NONE
         end
-      | (* GEN CASE BRANCH *) forward (G, B, V) = NONE
+      | forward (G, B, V) = NONE
 
 
 
@@ -113,7 +113,7 @@ struct
 
     fun expand' ((G0, B0), (I.Null, I.Null), n) =
         ((I.Null, I.Null), fn ((G', B'), w') => ((G', B'), w'))
-      | (* GEN CASE BRANCH *) expand' ((G0, B0), (I.Decl (G, D as I.Dec (_, V)), I.Decl (B, T as S.Lemma (S.RL))), n) =
+      | expand' ((G0, B0), (I.Decl (G, D as I.Dec (_, V)), I.Decl (B, T as S.Lemma (S.RL))), n) =
         let
           val ((G0', B0'), sc') = expand' ((G0, B0), (G, B), n+1)
           val s = I.Shift (n+1)
@@ -134,7 +134,7 @@ struct
                           I.Decl (B', S.Lemma (S.Splits (!MTPGlobal.maxSplit)))), I.comp (w', I.shift))
                   end)
         end
-      | (* GEN CASE BRANCH *) expand' (GB0, (I.Decl (G, D), I.Decl (B, T)), n) =
+      | expand' (GB0, (I.Decl (G, D), I.Decl (B, T)), n) =
         let
           val ((G0', B0'), sc') = expand' (GB0, (G, B), n+1)
         in

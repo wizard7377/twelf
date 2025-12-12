@@ -88,7 +88,7 @@ struct
                                                      projs), P) ^ "\n")
            in (P, F)
            end)
-          | (* GEN CASE BRANCH *) test names =
+          | test names =
           (let
              val La = map (fn x => valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
              val (lemma, projs, sels) = Converter.installPrg La
@@ -108,14 +108,14 @@ struct
     
     
         fun makeSpine ([], F) = (T.Nil, F)
-          | (* GEN CASE BRANCH *) makeSpine (x :: L, F' as T.And (F1, F2)) =
+          | makeSpine (x :: L, F' as T.And (F1, F2)) =
             let
               val (S', F') =  makeSpine (L, T.forSub (F', T.Dot (T.Exp (I.Root (I.Def x, I.Nil)), T.id)))
             in
               (T.AppExp (I.Root (I.Def x, I.Nil), S'), F')
             end
     
-          | (* GEN CASE BRANCH *) makeSpine (x :: L, T.All ((D, _), F')) =
+          | makeSpine (x :: L, T.All ((D, _), F')) =
             let
               val _ = checkDec(I.Root (I.Def x, I.Nil), D)
               val (S', F') =  makeSpine (L, T.forSub (F', T.Dot (T.Exp (I.Root (I.Def x, I.Nil)), T.id)))

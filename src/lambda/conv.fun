@@ -15,8 +15,8 @@ struct
 
     (* eqUni (L1, L2) = B iff L1 = L2 *)
     fun eqUni (Type, Type) = true
-      | (* GEN CASE BRANCH *) eqUni (Kind, Kind) = true
-      | (* GEN CASE BRANCH *) eqUni _ = false
+      | eqUni (Kind, Kind) = true
+      | eqUni _ = false
 
     (* convExpW ((U1, s1), (U2, s2)) = B
 
@@ -31,7 +31,7 @@ struct
     fun convExpW ((Uni(L1), _), (Uni(L2), _)) =
           eqUni (L1, L2)
 
-      | (* GEN CASE BRANCH *) convExpW (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+      | convExpW (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
           (* s1 = s2 = id by whnf invariant *)
           (* order of calls critical to establish convSpine invariant *)
           (case (H1, H2) of
@@ -58,42 +58,42 @@ struct
            | (_, Def(d2)) => convExpW (Us1, Whnf.expandDef Us2)
            | _ => false)
 
-      | (* GEN CASE BRANCH *) convExpW ((Pi (DP1, V1), s1), (Pi (DP2, V2), s2)) =
+      | convExpW ((Pi (DP1, V1), s1), (Pi (DP2, V2), s2)) =
           convDecP ((DP1, s1), (DP2, s2))
           andalso convExp ((V1, dot1 s1), (V2, dot1 s2))
 
-      | (* GEN CASE BRANCH *) convExpW (Us1 as (Pi _, _), Us2 as (Root (Def _, _), _)) =
+      | convExpW (Us1 as (Pi _, _), Us2 as (Root (Def _, _), _)) =
           convExpW (Us1, Whnf.expandDef Us2)
 
-      | (* GEN CASE BRANCH *) convExpW (Us1 as (Root (Def _, _), _), Us2 as (Pi _, _)) =
+      | convExpW (Us1 as (Root (Def _, _), _), Us2 as (Pi _, _)) =
           convExpW (Whnf.expandDef Us1, Us2)
 
-      | (* GEN CASE BRANCH *) convExpW ((Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
+      | convExpW ((Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
         (* G |- D1[s1] = D2[s2] by typing invariant *)
           convExp ((U1, dot1 s1),  (U2, dot1 s2))
 
-      | (* GEN CASE BRANCH *) convExpW ((Lam (D1, U1), s1), (U2, s2)) =
+      | convExpW ((Lam (D1, U1), s1), (U2, s2)) =
           convExp ((U1, dot1 s1),
                    (Redex (EClo (U2, shift),
                            App (Root (BVar (1), Nil), Nil)), dot1 s2))
 
-      | (* GEN CASE BRANCH *) convExpW ((U1,s1), (Lam(D2, U2) ,s2)) =
+      | convExpW ((U1,s1), (Lam(D2, U2) ,s2)) =
           convExp ((Redex (EClo (U1, shift),
                            App (Root (BVar (1), Nil), Nil)), dot1 s1),
                    (U2, dot1 s2))
 
-      | (* GEN CASE BRANCH *) convExpW ((FgnExp csfe1, s1), Us2) = (* s1 = id *)
+      | convExpW ((FgnExp csfe1, s1), Us2) = (* s1 = id *)
           FgnExpStd.EqualTo.apply csfe1 (EClo Us2)
 
-      | (* GEN CASE BRANCH *) convExpW (Us1, (FgnExp csfe2, s2)) = (* s2 = id *)
+      | convExpW (Us1, (FgnExp csfe2, s2)) = (* s2 = id *)
           FgnExpStd.EqualTo.apply csfe2 (EClo Us1)
 
-      | (* GEN CASE BRANCH *) convExpW ((EVar (r1, _, _, _), s1), (EVar(r2, _, _, _), s2)) =
+      | convExpW ((EVar (r1, _, _, _), s1), (EVar(r2, _, _, _), s2)) =
           (r1 = r2) andalso convSub (s1, s2)
 
       (* ABP -- 2/18/03 Added missing case*)
       (* Note that under Head, why is NSDef never used?? *)
-      | (* GEN CASE BRANCH *) convExpW _ = false
+      | convExpW _ = false
         (* Possible are:
            L <> Pi D. V   Pi D. V <> L
            X <> U         U <> X
@@ -119,13 +119,13 @@ struct
        Effects: EVars may be lowered
     *)
     and convSpine ((Nil, _), (Nil, _)) = true
-      | (* GEN CASE BRANCH *) convSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
+      | convSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
           convExp ((U1, s1), (U2, s2)) andalso convSpine ((S1, s1), (S2, s2))
-      | (* GEN CASE BRANCH *) convSpine ((SClo (S1, s1'), s1), Ss2) =
+      | convSpine ((SClo (S1, s1'), s1), Ss2) =
           convSpine ((S1, comp (s1', s1)), Ss2)
-      | (* GEN CASE BRANCH *) convSpine (Ss1, (SClo (S2, s2'), s2)) =
+      | convSpine (Ss1, (SClo (S2, s2'), s2)) =
           convSpine (Ss1, (S2, comp (s2', s2)))
-      | (* GEN CASE BRANCH *) convSpine (_ , _) = false (* bp*)
+      | convSpine (_ , _) = false (* bp*)
     (* no others are possible due to typing invariants *)
 
     (* convSub (s1, s2) = B
@@ -137,11 +137,11 @@ struct
      Effects: EVars may be lowered
     *)
     and convSub (Shift(n), Shift(m)) = true (* n = m by invariants *)
-      | (* GEN CASE BRANCH *) convSub (Shift(n), s2 as Dot _) =
+      | convSub (Shift(n), s2 as Dot _) =
           convSub (Dot(Idx(n+1), Shift(n+1)), s2)
-      | (* GEN CASE BRANCH *) convSub (s1 as Dot _, Shift(m)) =
+      | convSub (s1 as Dot _, Shift(m)) =
           convSub (s1, Dot(Idx(m+1), Shift(m+1)))
-      | (* GEN CASE BRANCH *) convSub (Dot(Ft1,s1), Dot(Ft2,s2)) =
+      | convSub (Dot(Ft1,s1), Dot(Ft2,s2)) =
           (case (Ft1, Ft2) of
              (Idx (n1), Idx (n2)) => (n1 = n2)
            | (Exp (U1), Exp (U2)) => convExp ((U1, id), (U2, id))
@@ -161,7 +161,7 @@ struct
        Effects: EVars may be lowered
     *)
     and convDec ((Dec (_, V1), s1), (Dec (_, V2), s2)) =  convExp ((V1, s1), (V2, s2))
-      | (* GEN CASE BRANCH *) convDec ((BDec(_, (c1, s1)), t1), (BDec (_, (c2, s2)), t2)) =
+      | convDec ((BDec(_, (c1, s1)), t1), (BDec (_, (c2, s2)), t2)) =
           c1 = c2 andalso convSub (comp (s1, t1), comp (s2, t2))
 
     (* convDecP see convDec *)

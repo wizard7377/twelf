@@ -109,12 +109,12 @@ struct
      *
      *)
     fun concat (I.Null, G') = G'
-      | (* GEN CASE BRANCH *) concat (I.Decl(G, D), G') = I.Decl(concat(G,G'), D)
+      | concat (I.Decl(G, D), G') = I.Decl(concat(G,G'), D)
 
 
 
    fun reverse (I.Null, G') = G'
-     | (* GEN CASE BRANCH *) reverse (I.Decl(G, D), G') =
+     | reverse (I.Decl(G, D), G') =
          reverse (G, I.Decl(G', D))
 
     (* ---------------------------------------------------------------------- *)
@@ -124,7 +124,7 @@ struct
     fun printTable () =
       let
         fun proofTerms (G, D, U, []) = print ""
-          | (* GEN CASE BRANCH *) proofTerms (G, D, U, (((D', s'), _)::S)) =
+          | proofTerms (G, D, U, (((D', s'), _)::S)) =
           ((* (print (Print.expToString (I.Null,  *)
               (*              A.raiseType(Names.ctxName(concat(G,D')), I.EClo(U, s')))) *)
               
@@ -136,7 +136,7 @@ struct
            proofTerms (G, D, U, S))
     
         fun printT [] = ()
-          | (* GEN CASE BRANCH *) printT (((k, G, D, U), {solutions =  S, lookup = i})::T) =
+          | printT (((k, G, D, U), {solutions =  S, lookup = i})::T) =
             case S
               of [] => (printT T ;
                         print (Print.expToString (I.Null,
@@ -161,7 +161,7 @@ struct
     fun printTableEntries () =
       let
         fun printT [] = ()
-          | (* GEN CASE BRANCH *) printT (((k, G, D, U), {solutions =  S, lookup = i})::T) =
+          | printT (((k, G, D, U), {solutions =  S, lookup = i})::T) =
           (printT T ;
            print (Print.expToString (I.Null,
                                      A.raiseType(concat(G, D), U)) ^ "\n Access Counter : " ^ (Int.toString (!k)) ^ " \n"))
@@ -178,7 +178,7 @@ struct
     (* Term Abstraction *)
 
     fun lengthSpine (I.Nil) = 0
-      | (* GEN CASE BRANCH *) lengthSpine (I.SClo(S, s')) = 1 + lengthSpine(S)
+      | lengthSpine (I.SClo(S, s')) = 1 + lengthSpine(S)
 
 
     fun exceedsTermDepth (i) =
@@ -201,9 +201,9 @@ struct
       else y
 
     fun oroption (NONE, NONE, NONE) = false
-      | (* GEN CASE BRANCH *) oroption (SOME(k), _ , _) = true
-      | (* GEN CASE BRANCH *) oroption (_ , SOME(n), _) = true
-      | (* GEN CASE BRANCH *) oroption (_ , _, SOME(n)) = true
+      | oroption (SOME(k), _ , _) = true
+      | oroption (_ , SOME(n), _) = true
+      | oroption (_ , _, SOME(n)) = true
 
     fun abstractionSet () =
       oroption(!termDepth, !ctxDepth, !ctxLength)
@@ -228,7 +228,7 @@ struct
            else
              countDecl (ctrType, ctrLength + 1, V)
          end
-      | (* GEN CASE BRANCH *) countDecl(ctrType, ctrLength, U) =
+      | countDecl(ctrType, ctrLength, U) =
          let
            val ctrTerm = count (0, U)
       (*         val _ = print ("\n 1 ctrTerm = " ^ Int.toString ctrTerm)
@@ -242,10 +242,10 @@ struct
          end
 
     and countDec (ctr, I.Dec(_, U)) = count(ctr, U)
-      | (* GEN CASE BRANCH *) countDec (ctr, I.BDec(_,s)) = 0
+      | countDec (ctr, I.BDec(_,s)) = 0
 
     and count (ctr, (U as I.Uni (L))) = ctr
-      | (* GEN CASE BRANCH *) count (ctr, I.Pi((D, _), V)) =
+      | count (ctr, I.Pi((D, _), V)) =
           let
             val ctrTerm = count (ctr, V)
             val ctrType = countDec (ctr, D)
@@ -256,7 +256,7 @@ struct
           in
           max(ctrType,ctrTerm) (* to revise ?*)
           end
-      | (* GEN CASE BRANCH *) count (ctr, I.Root (F, S)) =
+      | count (ctr, I.Root (F, S)) =
          let
            val ctrDepth = countSpine (1, S)
       (*         val _ = print ("\n spineDepth = " ^ Int.toString ctrDepth)
@@ -266,7 +266,7 @@ struct
            (ctrDepth + 1 + ctr)
       (*         (ctrLength + ctr) *)
          end
-      | (* GEN CASE BRANCH *) count (ctr, I.Redex (U, S)) =
+      | count (ctr, I.Redex (U, S)) =
          let
            val ctrDepth = count (0, U)
            val ctrDepth' =  countSpine (ctrDepth, S)
@@ -276,23 +276,23 @@ struct
          in
            (max(ctrDepth',ctrDepth) + ctr)
          end
-      | (* GEN CASE BRANCH *) count (ctr, I.Lam (D, U)) =
+      | count (ctr, I.Lam (D, U)) =
          count (ctr+1, U)
-      | (* GEN CASE BRANCH *) count (ctr, (X as I.EVar _)) =
+      | count (ctr, (X as I.EVar _)) =
          (* shouldn't happen *)
          ctr
-      | (* GEN CASE BRANCH *) count (ctr, I.EClo(E, s)) =
+      | count (ctr, I.EClo(E, s)) =
          count (ctr, E)
-      | (* GEN CASE BRANCH *) count (ctr, (F as I.FgnExp (cs, ops))) =
+      | count (ctr, (F as I.FgnExp (cs, ops))) =
          (* shouldn't happen *)
          (ctr)
 
  (* count max depth of term in S + length of S *)
     and countSpine (ctrDepth, I.Nil)  = ctrDepth
-      | (* GEN CASE BRANCH *) countSpine (ctr, I.SClo (S, s')) =
+      | countSpine (ctr, I.SClo (S, s')) =
          (* ? *)
          countSpine (ctr, S)
-      | (* GEN CASE BRANCH *) countSpine (ctrDepth, I.App (U, S)) =
+      | countSpine (ctrDepth, I.App (U, S)) =
          let
            val ctrDepth' = count (0, U)
          in
@@ -309,7 +309,7 @@ struct
     *)
 
    fun reinstSub (G, I.Null, s) = s
-      | (* GEN CASE BRANCH *) reinstSub (G, I.Decl(D, I.Dec(_,A)), s) =
+      | reinstSub (G, I.Decl(D, I.Dec(_,A)), s) =
       let
         val X = I.newEVar (I.Null, A)
       in
@@ -346,21 +346,21 @@ struct
 
 
     fun equalSub (I.Shift k, I.Shift k') = (k = k')
-      | (* GEN CASE BRANCH *) equalSub (I.Dot(F, S), I.Dot(F', S')) =
+      | equalSub (I.Dot(F, S), I.Dot(F', S')) =
         equalFront (F, F') andalso equalSub (S, S')
-      | (* GEN CASE BRANCH *) equalSub (I.Dot(F,S), I.Shift k) = false
-      | (* GEN CASE BRANCH *) equalSub (I.Shift k, I.Dot(F,S)) = false
+      | equalSub (I.Dot(F,S), I.Shift k) = false
+      | equalSub (I.Shift k, I.Dot(F,S)) = false
 
     and equalFront (I.Idx n, I.Idx n') = (n = n')
-      | (* GEN CASE BRANCH *) equalFront (I.Exp U, I.Exp V) = Conv.conv ((U, I.id), (V, I.id))
-      | (* GEN CASE BRANCH *) equalFront (I.Undef, I.Undef) = true
+      | equalFront (I.Exp U, I.Exp V) = Conv.conv ((U, I.id), (V, I.id))
+      | equalFront (I.Undef, I.Undef) = true
 
     fun equalSub1 (I.Dot(ms, s), I.Dot(ms', s')) =
           equalSub (s, s')
 
 
     fun equalCtx (I.Null, I.Null) = true
-      | (* GEN CASE BRANCH *) equalCtx (I.Decl(Dk, I.Dec(_, A)), I.Decl(D1, I.Dec(_, A1))) =
+      | equalCtx (I.Decl(Dk, I.Dec(_, A)), I.Decl(D1, I.Dec(_, A1))) =
         Conv.conv ((A, I.id), (A1, I.id)) andalso equalCtx(Dk, D1)
 
     (* ---------------------------------------------------------------------- *)
@@ -414,7 +414,7 @@ struct
                    NONE)
               else
                 NONE)
-          | (* GEN CASE BRANCH *) lookup ((G, D, U), ((H as ((k, G', D', U'), answ))::T)) =
+          | lookup ((G, D, U), ((H as ((k, G', D', U'), answ))::T)) =
             if variant ((Upi, I.id), (A.raiseType(concat(G',D'), U'), I.id)) then
               (k := !k+1;
                (if (!Global.chatter) >= 5 then
@@ -459,7 +459,7 @@ struct
                 SOME([]))
               else
                 NONE)
-          | (* GEN CASE BRANCH *) lookup ((G, D, U), (((k, G', D', U'), answ)::T)) =
+          | lookup ((G, D, U), (((k, G', D', U'), answ)::T)) =
             if (subsumes ((G, D, U), (G', D', U'))) then
               ((if (!Global.chatter) >= 5 then
                  print ("call " ^ Print.expToString (I.Null, A.raiseType(concat(G, D), U)) ^ "found in table \n ")
@@ -475,7 +475,7 @@ struct
 
     (* ---------------------------------------------------------------------- *)
     fun member ((Dk, sk), []) = false
-      | (* GEN CASE BRANCH *) member ((Dk, sk), (((D1, s1),_)::S)) =
+      | member ((Dk, sk), (((D1, s1),_)::S)) =
       (* do we really need to compare Gus and Gs1 ?  *)
       if equalSub (sk,s1) andalso equalCtx (Dk, D1) then
         true
@@ -518,7 +518,7 @@ struct
           (print (Print.expToString(I.Null, I.EClo(A.raiseType(G,U),s))
                   ^ " call should always be already in the table !\n") ;
            Repeated)
-          | (* GEN CASE BRANCH *) lookup (G, D, U, s) ((H as ((k, G', D',U'),
+          | lookup (G, D, U, s) ((H as ((k, G', D',U'),
                     {solutions = S, lookup = i}))::T) T' =
           if variant ((Upi, I.id),
                       (A.raiseType(concat(G', D'), U'), I.id))
@@ -567,7 +567,7 @@ struct
    *)
 
     fun memberSubsumes ((G, D, U, s), (G', U', [])) = false
-      | (* GEN CASE BRANCH *) memberSubsumes ((G, D, U, s), (G', U', (((D1, s1), _)::A))) =
+      | memberSubsumes ((G, D, U, s), (G', U', (((D1, s1), _)::A))) =
         let
           val Upi = A.raiseType(G, U)
           val Upi' = A.raiseType(G',U')
@@ -589,7 +589,7 @@ struct
         end
 
   fun shift (0, s) = s
-    | (* GEN CASE BRANCH *) shift (n, s) = shift(n-1, I.dot1 s)
+    | shift (n, s) = shift(n-1, I.dot1 s)
 
 
    fun answCheckSubsumes (G, D, U, s, O) =
@@ -606,7 +606,7 @@ struct
           (print (Print.expToString(concat(G, D), I.EClo(U,s))
                   ^ " call should always be already in the table !\n") ;
            Repeated)
-          | (* GEN CASE BRANCH *) lookup ((G, D, U, s), (((k, G', D', U'), {solutions = A, lookup = i})::T), T') =
+          | lookup ((G, D, U, s), (((k, G', D', U'), {solutions = A, lookup = i})::T), T') =
           if (subsumes ((G, D, U), (G', D', U'))) then
             let
               val (Dk, sk) = A.abstractAnswSub s
@@ -711,7 +711,7 @@ struct
 
 
     fun noAnswers [] = true
-      | (* GEN CASE BRANCH *) noAnswers ((H as ((G', D', U'), answ))::L') =
+      | noAnswers ((H as ((G', D', U'), answ))::L') =
           case (List.take (solutions(answ), lookup(answ)))
             of [] => noAnswers L'
           | L  => false
@@ -732,7 +732,7 @@ struct
     fun updateTable () =
           let
             fun update [] T Flag = (Flag, T)
-              | (* GEN CASE BRANCH *) update (((k, G, D, U), {solutions = S, lookup = i})::T) T' Flag =
+              | update (((k, G, D, U), {solutions = S, lookup = i})::T) T' Flag =
               let
                 val l = length(S)
               in

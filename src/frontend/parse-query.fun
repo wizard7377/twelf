@@ -26,7 +26,7 @@ struct
 
     fun parseQuery1 (name, f, LS.Cons ((L.COLON, r), s')) =
           returnQuery (SOME(name), ParseTerm.parseTerm' (LS.expose s'))
-      | (* GEN CASE BRANCH *) parseQuery1 (name, f, _) = returnQuery (NONE, ParseTerm.parseTerm' f)
+      | parseQuery1 (name, f, _) = returnQuery (NONE, ParseTerm.parseTerm' f)
 
     (* parseQuery' : lexResult front -> ExtQuery.query * lexResult front *)
     (* parseQuery'  "X : A" | "A" *)
@@ -38,7 +38,7 @@ struct
     *)
     fun parseQuery' (f as LS.Cons ((L.ID (L.Upper, name), r), s')) =
           parseQuery1 (name, f, LS.expose s')
-      | (* GEN CASE BRANCH *) parseQuery' (f) =
+      | parseQuery' (f) =
           returnQuery (NONE, ParseTerm.parseTerm' f)
 
     (* parseQuery --- currently not exported *)
@@ -57,25 +57,25 @@ struct
     (* "= U" *)
     fun parseDefine3 (optName, (tm, LS.Cons ((L.EQUAL, r), s'))) =
           parseDefine4 (optName, SOME(tm), s')
-      | (* GEN CASE BRANCH *) parseDefine3 (_, (tm, LS.Cons ((t, r), _))) =
+      | parseDefine3 (_, (tm, LS.Cons ((t, r), _))) =
           Parsing.error (r, "Expected `=', found " ^ L.toString t)
 
     (* parseDefine2 switches between short and long form *)
     (* ": V = U" | "= U" *)
     fun parseDefine2 (optName, LS.Cons ((L.COLON, r), s')) =
           parseDefine3 (optName, ParseTerm.parseTerm' (LS.expose s'))
-      | (* GEN CASE BRANCH *) parseDefine2 (optName, LS.Cons ((L.EQUAL, r), s')) =
+      | parseDefine2 (optName, LS.Cons ((L.EQUAL, r), s')) =
           parseDefine4 (optName, NONE, s')
-      | (* GEN CASE BRANCH *) parseDefine2 (_, LS.Cons ((t, r), _)) =
+      | parseDefine2 (_, LS.Cons ((t, r), _)) =
           Parsing.error (r, "Expected `:' or `=', found " ^ L.toString t)
 
     (* parseDefine1 parses the name of the constant to be defined *)
     (* "c : V = U" | "_ : V = U" | "c = U" | "_ = U" *)
     fun parseDefine1 (LS.Cons ((L.ID (idCase,name), r), s')) =
           parseDefine2 (SOME(name), LS.expose s')
-      | (* GEN CASE BRANCH *) parseDefine1 (LS.Cons ((L.UNDERSCORE, r), s')) =
+      | parseDefine1 (LS.Cons ((L.UNDERSCORE, r), s')) =
           parseDefine2 (NONE, LS.expose s')
-      | (* GEN CASE BRANCH *) parseDefine1 (LS.Cons ((t, r), _)) =
+      | parseDefine1 (LS.Cons ((t, r), _)) =
           Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
 
     fun parseSolve3 (defns, nameOpt, LS.Cons ((L.COLON, r), s'), r0) =
@@ -84,25 +84,25 @@ struct
         in
           ((List.rev defns, ExtQuery.solve (nameOpt, tm, P.join (r0, r))), f')
         end
-      | (* GEN CASE BRANCH *) parseSolve3 (_, _, LS.Cons ((t,r), s'), r0) =
+      | parseSolve3 (_, _, LS.Cons ((t,r), s'), r0) =
           Parsing.error (r, "Expected `:', found " ^ L.toString t)
 
     fun parseSolve2 (defns, LS.Cons ((L.UNDERSCORE, r), s'), r0) =
           parseSolve3 (defns, NONE, LS.expose s', r0)
-      | (* GEN CASE BRANCH *) parseSolve2 (defns, LS.Cons ((L.ID (_, name), r), s'), r0) =
+      | parseSolve2 (defns, LS.Cons ((L.ID (_, name), r), s'), r0) =
           parseSolve3 (defns, SOME name, LS.expose s', r0)
-      | (* GEN CASE BRANCH *) parseSolve2 (_, LS.Cons ((t,r), s'), r0) =
+      | parseSolve2 (_, LS.Cons ((t,r), s'), r0) =
           Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
 
     and parseSolve1 (defns, LS.Cons ((L.SOLVE, r0), s')) =
           parseSolve2 (defns, LS.expose s', r0)
-      | (* GEN CASE BRANCH *) parseSolve1 (defns, LS.Cons ((L.DEFINE, r0), s')) =
+      | parseSolve1 (defns, LS.Cons ((L.DEFINE, r0), s')) =
         let
           val (defn, f') = parseDefine1 (LS.expose s')
         in
           parseSolve1 (defn::defns, f')
         end
-      | (* GEN CASE BRANCH *) parseSolve1 (defns, LS.Cons((t, r), s)) =
+      | parseSolve1 (defns, LS.Cons((t, r), s)) =
           Parsing.error(r, "Expected %define or %solve, found " ^ L.toString t)
 
     and parseSolve' (f) = parseSolve1 (nil, f)

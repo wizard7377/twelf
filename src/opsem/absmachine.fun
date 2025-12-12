@@ -54,22 +54,22 @@ struct
 
 
   fun cidFromHead (I.Const a) = a
-    | (* GEN CASE BRANCH *) cidFromHead (I.Def a) = a
+    | cidFromHead (I.Def a) = a
 
   fun eqHead (I.Const a, I.Const a') = a = a'
-    | (* GEN CASE BRANCH *) eqHead (I.Def a, I.Def a') = a = a'
-    | (* GEN CASE BRANCH *) eqHead _ = false
+    | eqHead (I.Def a, I.Def a') = a = a'
+    | eqHead _ = false
 
   (* Wed Mar 13 10:27:00 2002 -bp  *)
   (* should probably go to intsyn.fun *)
   fun compose (G, IntSyn.Null) = G
-    | (* GEN CASE BRANCH *) compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
+    | compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
 
   fun shiftSub (IntSyn.Null, s) = s
-    | (* GEN CASE BRANCH *) shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
+    | shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
 
   fun raiseType (I.Null, V) = V
-    | (* GEN CASE BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+    | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
 
   (* solve ((g, s), dp, sc) = ()
      Invariants:
@@ -85,14 +85,14 @@ struct
   fun solve ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
       matchAtom ((p,s), dp, sc)
 
-    | (* GEN CASE BRANCH *) solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+    | solve ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
         val D' = I.Dec(NONE, I.EClo(A,s))
       in
         solve ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
                 (fn M => sc (I.Lam (D', M))))
       end
-    | (* GEN CASE BRANCH *) solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
+    | solve ((C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
         val D' = Names.decLUName (G, I.decSub (D, s))
     (*      val D' = I.decSub (D, s) *)
@@ -118,13 +118,13 @@ struct
          then sc I.Nil                     (* call success continuation *)
        else ()                             (* fail *)
 
-    | (* GEN CASE BRANCH *) rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
+    | rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
         (case Assign.assignable (G, ps', (Q, s))
            of SOME(cnstr) =>
                 aSolve((eqns, s), dp, cnstr, (fn () => sc I.Nil))
             | NONE => ())
 
-    | (* GEN CASE BRANCH *) rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
+    | rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
       let
         (* is this EVar redundant? -fp *)
         (* same effect as s^-1 *)
@@ -134,13 +134,13 @@ struct
                 (fn S => solve ((g, s), dp, (fn M => sc (I.App (M, S))))))
       end
 
-    | (* GEN CASE BRANCH *) rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
+    | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
       let
         val X  = I.newEVar (G, I.EClo (A,s))
       in
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, (fn S => sc (I.App(X,S))))
       end
-    | (* GEN CASE BRANCH *) rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), sc) =
+    | rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), sc) =
       let
         val X' = I.newAVar ()
       in
@@ -160,7 +160,7 @@ struct
       if Assign.solveCnstr cnstr then
         sc ()
       else ()
-    | (* GEN CASE BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
+    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr, sc) =
       let
         val G'' = compose (G, G')
         val s' = shiftSub (G', s)
@@ -195,7 +195,7 @@ struct
            #succeeds >= 1 (succeeds at least once)
         *)
         fun matchSig nil = ()   (* return unit on failure *)
-          | (* GEN CASE BRANCH *) matchSig (Hc::sgn') =
+          | matchSig (Hc::sgn') =
             let
               val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -213,7 +213,7 @@ struct
            succeeds exactly once (#succeeds = 1)
         *)
         fun matchSigDet nil = ()        (* return unit on failure *)
-          | (* GEN CASE BRANCH *) matchSigDet (Hc::sgn') =
+          | matchSigDet (Hc::sgn') =
             let
               val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
             in
@@ -234,7 +234,7 @@ struct
           if deterministic
             then matchSigDet (Index.lookup (cidFromHead Ha))
           else matchSig (Index.lookup (cidFromHead Ha))
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
+          | matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
             if eqHead (Ha, Ha')
             then
               if deterministic
@@ -251,7 +251,7 @@ struct
                                    (fn S => sc (I.Root(I.BVar(k), S)))));
                  matchDProg (dPool', k+1))
             else matchDProg (dPool', k+1)
-          | (* GEN CASE BRANCH *) matchDProg (I.Decl (dPool', C.Parameter), k) =
+          | matchDProg (I.Decl (dPool', C.Parameter), k) =
               matchDProg (dPool', k+1)
         fun matchConstraint (cnstrSolve, try) =
               let

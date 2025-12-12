@@ -60,15 +60,15 @@ struct
                             then (etaContract' (S, s, n); k'-n)
                           else raise Eta
             | _ => raise Eta)
-      | (* GEN CASE BRANCH *) etaContract (Lam (D, U), s, n) =
+      | etaContract (Lam (D, U), s, n) =
           etaContract (U, dot1 s, n+1)
-      | (* GEN CASE BRANCH *) etaContract (EClo (U, s'), s, n) =
+      | etaContract (EClo (U, s'), s, n) =
           etaContract (U, comp (s', s), n)
-      | (* GEN CASE BRANCH *) etaContract (EVar (ref (SOME(U)), _, _, _), s, n) =
+      | etaContract (EVar (ref (SOME(U)), _, _, _), s, n) =
           etaContract (U, s, n)
-      | (* GEN CASE BRANCH *) etaContract (AVar (ref (SOME(U))), s, n) =
+      | etaContract (AVar (ref (SOME(U))), s, n) =
           etaContract (U, s, n)
-      | (* GEN CASE BRANCH *) etaContract _ = raise Eta
+      | etaContract _ = raise Eta
         (* Should fail: (c@S), (d@S), (F@S), X *)
         (* Not treated (fails): U@S *)
         (* Could weak head-normalize for more thorough checks *)
@@ -83,13 +83,13 @@ struct
        else Eta is raised
     *)
     and etaContract' (Nil, s, 0) = ()
-      | (* GEN CASE BRANCH *) etaContract' (App(U, S), s, n) =
+      | etaContract' (App(U, S), s, n) =
           if etaContract (U, s, 0) = n
             then etaContract' (S, s, n-1)
           else raise Eta
-      | (* GEN CASE BRANCH *) etaContract' (SClo (S, s'), s, n) =
+      | etaContract' (SClo (S, s'), s, n) =
           etaContract' (S, comp (s', s), n)
-      | (* GEN CASE BRANCH *) etaContract' _ = raise Eta
+      | etaContract' _ = raise Eta
 
     (* dotEta (Ft, s) = s'
 
@@ -100,14 +100,14 @@ struct
        and  G |- s' : G1, V
     *)
     fun dotEta (Ft as Idx _, s) = Dot (Ft, s)
-      | (* GEN CASE BRANCH *) dotEta (Ft as Exp (U), s) =
+      | dotEta (Ft as Exp (U), s) =
         let
           val Ft' = Idx (etaContract (U, id, 0))
                    handle Eta => Ft
         in
           Dot (Ft', s)
         end
-      | (* GEN CASE BRANCH *) dotEta (Ft as Undef, s) = Dot (Ft, s)
+      | dotEta (Ft as Undef, s) = Dot (Ft, s)
 
 
     (* appendSpine ((S1, s1), (S2, s2)) = S'
@@ -119,9 +119,9 @@ struct
        then  G |- S' : V1' [s1] > V2' [s2]
     *)
     fun appendSpine ((Nil, s1), Ss2) = SClo Ss2
-      | (* GEN CASE BRANCH *) appendSpine ((App (U1, S1), s1), Ss2) =
+      | appendSpine ((App (U1, S1), s1), Ss2) =
           App (EClo (U1, s1), appendSpine ((S1, s1), Ss2))
-      | (* GEN CASE BRANCH *) appendSpine ((SClo (S1, s1'), s1), Ss2) =
+      | appendSpine ((SClo (S1, s1'), s1), Ss2) =
           appendSpine ((S1, comp(s1', s1)), Ss2)
 
     (* whnfRedex ((U, s1), (S, s2)) = (U', s')
@@ -139,25 +139,25 @@ struct
     *)
     fun whnfRedex (Us, (SClo (S, s2'), s2)) =
           whnfRedex (Us, (S, comp (s2', s2)))
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (Root R, s1), (Nil, s2)) = Us
-      | (* GEN CASE BRANCH *) whnfRedex ((Root (H1, S1), s1), (S2, s2)) =
+      | whnfRedex (Us as (Root R, s1), (Nil, s2)) = Us
+      | whnfRedex ((Root (H1, S1), s1), (S2, s2)) =
           (* S2 = App _, only possible if term is not eta-expanded *)
           (Root (H1, appendSpine ((S1, s1), (S2, s2))), id)
-      | (* GEN CASE BRANCH *) whnfRedex ((Lam (_, U1), s1), (App (U2, S), s2)) =
+      | whnfRedex ((Lam (_, U1), s1), (App (U2, S), s2)) =
           whnfRedex (whnf (U1, dotEta (frontSub (Exp (U2), s2), s1)), (S, s2))
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (Lam _, s1), _) = Us  (* S2[s2] = Nil *)
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (EVar _, s1), (Nil, s2)) = Us
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (X as EVar _, s1), Ss2) =
+      | whnfRedex (Us as (Lam _, s1), _) = Us  (* S2[s2] = Nil *)
+      | whnfRedex (Us as (EVar _, s1), (Nil, s2)) = Us
+      | whnfRedex (Us as (X as EVar _, s1), Ss2) =
           (* Ss2 must be App, since prior cases do not apply *)
           (* lowerEVar X results in redex, optimize by unfolding call to whnfRedex *)
           (lowerEVar X; whnfRedex (whnf Us, Ss2))
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (AVar(ref (SOME U)), s1), Ss2) =
+      | whnfRedex (Us as (AVar(ref (SOME U)), s1), Ss2) =
           whnfRedex((U,s1), Ss2)
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (AVar(ref NONE), s1), Ss2) = Us
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (FgnExp _, _), _) = Us
+      | whnfRedex (Us as (AVar(ref NONE), s1), Ss2) = Us
+      | whnfRedex (Us as (FgnExp _, _), _) = Us
       (* Uni and Pi can arise after instantiation of EVar X : K *)
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (Uni _, s1), _) = Us   (* S2[s2] = Nil *)
-      | (* GEN CASE BRANCH *) whnfRedex (Us as (Pi _, s1), _) = Us    (* S2[s2] = Nil *)
+      | whnfRedex (Us as (Uni _, s1), _) = Us   (* S2[s2] = Nil *)
+      | whnfRedex (Us as (Pi _, s1), _) = Us    (* S2[s2] = Nil *)
       (* Other cases impossible since (U,s1) whnf *)
 
     (* lowerEVar' (G, V[s]) = (X', U), see lowerEVar *)
@@ -168,7 +168,7 @@ struct
         in
           (X', Lam (D'', U))
         end
-      | (* GEN CASE BRANCH *) lowerEVar' (G, Vs') =
+      | lowerEVar' (G, Vs') =
         let
           val X' = newEVar (G, EClo Vs')
         in
@@ -182,7 +182,7 @@ struct
         in
           X'
         end
-      | (* GEN CASE BRANCH *) lowerEVar1 (X, _) = X
+      | lowerEVar1 (X, _) = X
 
     (* lowerEVar (X) = X'
 
@@ -195,7 +195,7 @@ struct
                otherwise X = X' and no effect occurs.
     *)
     and lowerEVar (X as EVar (r, G, V, ref nil)) = lowerEVar1 (X, whnfExpandDef (V, id))
-      | (* GEN CASE BRANCH *) lowerEVar (EVar _) =
+      | lowerEVar (EVar _) =
         (* It is not clear if this case can happen *)
         (* pre-Twelf 1.2 code walk, Fri May  8 11:05:08 1998 *)
         raise Error "Typing ambiguous -- constraint of functional type cannot be simplified"
@@ -216,7 +216,7 @@ struct
            of Idx (k) => (Root (BVar (k), SClo (S, s)), id)
             | Exp (U) => whnfRedex (whnf (U, id), (S, s)))
       (* Undef should be impossible *)
-      | (* GEN CASE BRANCH *) whnfRoot ((Proj (B as Bidx _, i), S), s) =
+      | whnfRoot ((Proj (B as Bidx _, i), S), s) =
          (* could blockSub (B, s) return instantiated LVar ? *)
          (* Sat Dec  8 13:43:17 2001 -fp !!! *)
          (* yes Thu Dec 13 21:48:10 2001 -fp !!! *)
@@ -225,9 +225,9 @@ struct
            of B' as Bidx (k) => (Root (Proj (B', i), SClo (S, s)), id)
             | B' as LVar _ => whnfRoot ((Proj (B', i), SClo (S, s)), id)
             | Inst L => whnfRedex (whnf (List.nth (L, i-1), id), (S, s)))
-      | (* GEN CASE BRANCH *) whnfRoot ((Proj (LVar (ref (SOME B), sk, (l, t)), i), S), s) =
+      | whnfRoot ((Proj (LVar (ref (SOME B), sk, (l, t)), i), S), s) =
          whnfRoot ((Proj (blockSub (B, comp (sk, s)), i), SClo (S, s)), id)
-      | (* GEN CASE BRANCH *) whnfRoot ((Proj (L as LVar (r, sk, (l, t)), i), S), s) = (* r = ref NONE *)
+      | whnfRoot ((Proj (L as LVar (r, sk, (l, t)), i), S), s) = (* r = ref NONE *)
          (Root (Proj (LVar (r, comp (sk, s), (l, t)), i), SClo (S, s)), id)
          (* scary: why is comp(sk, s) = ^n ?? -fp July 22, 2010, -fp -cs *)
         (* was:
@@ -240,11 +240,11 @@ struct
          (* going back to first version, because globality invariant *)
          (* no longer satisfied Wed Nov 27 09:49:58 2002 -fp *)
       (* Undef and Exp should be impossible by definition of substitution -cs *)
-      | (* GEN CASE BRANCH *) whnfRoot ((FVar (name, V, s'), S), s) =
+      | whnfRoot ((FVar (name, V, s'), S), s) =
          (Root (FVar (name, V, comp (s', s)), SClo (S, s)), id)
-      | (* GEN CASE BRANCH *) whnfRoot ((NSDef (d), S), s) =
+      | whnfRoot ((NSDef (d), S), s) =
           whnfRedex (whnf (IntSyn.constDef d, id), (S, s))
-      | (* GEN CASE BRANCH *) whnfRoot ((H, S), s) =
+      | whnfRoot ((H, S), s) =
          (Root (H, SClo (S, s)), id)
 
     (* whnf (U, s) = (U', s')
@@ -263,31 +263,31 @@ struct
          Advantage: in unify, abstract... the spine needn't be treated under id, but under s
     *)
     and whnf (U as Uni _, s) = (U,s)
-      | (* GEN CASE BRANCH *) whnf (U as Pi _, s) = (U,s)
+      | whnf (U as Pi _, s) = (U,s)
       (* simple optimization (C@S)[id] = C@S[id] *)
       (* applied in Twelf 1.1 *)
       (* Sat Feb 14 20:53:08 1998 -fp *)
 (*      | whnf (Us as (Root _, Shift (0))) = Us*)
       (* commented out, because non-strict definitions slip
          Mon May 24 09:50:22 EDT 1999 -cs  *)
-      | (* GEN CASE BRANCH *) whnf (Root R, s) =  whnfRoot (R, s)
-      | (* GEN CASE BRANCH *) whnf (Redex (U, S), s) =  whnfRedex (whnf (U, s), (S, s))
-      | (* GEN CASE BRANCH *) whnf (Us as (Lam _, s)) = Us
-      | (* GEN CASE BRANCH *) whnf (AVar (ref (SOME U)), s) =  whnf (U, s)
-      | (* GEN CASE BRANCH *) whnf (Us as (AVar _, s)) =  Us
-      | (* GEN CASE BRANCH *) whnf (EVar (ref (SOME U), _, _, _), s) = whnf (U, s)
+      | whnf (Root R, s) =  whnfRoot (R, s)
+      | whnf (Redex (U, S), s) =  whnfRedex (whnf (U, s), (S, s))
+      | whnf (Us as (Lam _, s)) = Us
+      | whnf (AVar (ref (SOME U)), s) =  whnf (U, s)
+      | whnf (Us as (AVar _, s)) =  Us
+      | whnf (EVar (ref (SOME U), _, _, _), s) = whnf (U, s)
       (* | whnf (Us as (EVar _, s)) = Us *)
       (* next two avoid calls to whnf (V, id), where V is type of X *)
-      | (* GEN CASE BRANCH *) whnf (Us as (EVar (r, _, Root _, _), s)) =  Us
-      | (* GEN CASE BRANCH *) whnf (Us as (EVar (r, _, Uni _, _), s)) =  Us
-      | (* GEN CASE BRANCH *) whnf (Us as (X as EVar (r, _, V, _), s)) =
+      | whnf (Us as (EVar (r, _, Root _, _), s)) =  Us
+      | whnf (Us as (EVar (r, _, Uni _, _), s)) =  Us
+      | whnf (Us as (X as EVar (r, _, V, _), s)) =
           (case whnf (V, id)
              of (Pi _, _) => (lowerEVar X; whnf Us)
                              (* possible opt: call lowerEVar1 *)
               | _ => Us)
-      | (* GEN CASE BRANCH *) whnf (EClo (U, s'), s) = whnf (U, comp (s', s))
-      | (* GEN CASE BRANCH *) whnf (Us as (FgnExp _, Shift (0))) = Us
-      | (* GEN CASE BRANCH *) whnf (Us as (FgnExp csfe , s)) =
+      | whnf (EClo (U, s'), s) = whnf (U, comp (s', s))
+      | whnf (Us as (FgnExp _, Shift (0))) = Us
+      | whnf (Us as (FgnExp csfe , s)) =
           (FgnExpStd.Map.apply csfe (fn U => EClo (U, s)), id)
 
     (* expandDef (Root (Def (d), S), s) = (U' ,s')
@@ -307,7 +307,7 @@ struct
           whnfRedex (whnf (constDef (d), id), (S, s))
 
     and whnfExpandDefW (Us as (Root (Def _, _), _)) = whnfExpandDefW (expandDef Us)
-      | (* GEN CASE BRANCH *) whnfExpandDefW Us = Us
+      | whnfExpandDefW Us = Us
     and whnfExpandDef Us = whnfExpandDefW (whnf Us)
 
     fun newLoweredEVarW (G, (Pi ((D, _), V), s)) =
@@ -316,7 +316,7 @@ struct
         in
           Lam (D', newLoweredEVar (Decl (G, D'), (V, dot1 s)))
         end
-      | (* GEN CASE BRANCH *) newLoweredEVarW (G, Vs) = newEVar (G, EClo Vs)
+      | newLoweredEVarW (G, Vs) = newEVar (G, EClo Vs)
 
     and newLoweredEVar (G, Vs) = newLoweredEVarW (G, whnfExpandDef Vs)
 
@@ -326,12 +326,12 @@ struct
         in
           App (X, newSpineVar (G, (Vr, dotEta (Exp (X), s))))
         end
-      | (* GEN CASE BRANCH *) newSpineVarW (G, _) = Nil
+      | newSpineVarW (G, _) = Nil
 
     and newSpineVar (G, Vs) = newSpineVarW (G, whnfExpandDef Vs)
 
     fun spineToSub (Nil, s) = s
-      | (* GEN CASE BRANCH *) spineToSub (App (U, S), s) = spineToSub (S, dotEta (Exp (U), s))
+      | spineToSub (App (U, S), s) = spineToSub (S, dotEta (Exp (U), s))
 
 
     (* inferSpine ((S, s1), (V, s2)) = (V', s')
@@ -344,16 +344,16 @@ struct
     *)
     (* FIX: this is almost certainly mis-design -kw *)
     fun inferSpine ((Nil, _), Vs) = Vs
-      | (* GEN CASE BRANCH *) inferSpine ((SClo (S, s'), s), Vs) =
+      | inferSpine ((SClo (S, s'), s), Vs) =
           inferSpine ((S, comp (s', s)), Vs)
-      | (* GEN CASE BRANCH *) inferSpine ((App (U, S), s1), (Pi (_, V2), s2)) =
+      | inferSpine ((App (U, S), s1), (Pi (_, V2), s2)) =
           inferSpine ((S, s1), whnfExpandDef (V2, Dot (Exp (EClo (U, s1)), s2)))
 
     (* inferCon (C) = V  if C = c or C = d or C = sk and |- C : V *)
     (* FIX: this is almost certainly mis-design -kw *)
     fun inferCon (Const (cid)) = constType (cid)
-      | (* GEN CASE BRANCH *) inferCon (Skonst (cid)) = constType (cid)
-      | (* GEN CASE BRANCH *) inferCon (Def (cid)) = constType (cid)
+      | inferCon (Skonst (cid)) = constType (cid)
+      | inferCon (Def (cid)) = constType (cid)
 
     (* etaExpand' (U, (V,s)) = U'
 
@@ -366,7 +366,7 @@ struct
     (* quite inefficient -cs *)
     (* FIX: this is almost certainly mis-design -kw *)
     fun etaExpand' (U, (Root _, s)) = U
-      | (* GEN CASE BRANCH *) etaExpand' (U, (Pi ((D, _), V), s)) =
+      | etaExpand' (U, (Pi ((D, _), V), s)) =
           Lam (decSub (D, s),
                etaExpand' (Redex (EClo (U, shift),
                                   App (Root (BVar (1), Nil), Nil)), whnfExpandDef (V, dot1 s)))
@@ -403,8 +403,8 @@ struct
     fun whnfEta (Us, Vs) = whnfEtaW (whnf Us, whnf Vs)
 
     and whnfEtaW (UsVs as (_, (Root _, _))) = UsVs
-      | (* GEN CASE BRANCH *) whnfEtaW (UsVs as ((Lam _, _), (Pi _, _))) = UsVs
-      | (* GEN CASE BRANCH *) whnfEtaW ((U, s1), Vs2 as (Pi ((D, P), V), s2)) =
+      | whnfEtaW (UsVs as ((Lam _, _), (Pi _, _))) = UsVs
+      | whnfEtaW ((U, s1), Vs2 as (Pi ((D, P), V), s2)) =
           ((Lam (decSub (D, s2),
                  Redex (EClo (U, comp (s1, shift)),
                         App (Root (BVar (1), Nil), Nil))), id), Vs2)
@@ -422,29 +422,29 @@ struct
     fun normalizeExp Us = normalizeExpW (whnf Us)
 
     and normalizeExpW (U as Uni (L), s) = U
-      | (* GEN CASE BRANCH *) normalizeExpW (Pi (DP, U), s) =
+      | normalizeExpW (Pi (DP, U), s) =
           Pi (normalizeDecP (DP, s), normalizeExp (U, dot1 s))
-      | (* GEN CASE BRANCH *) normalizeExpW (U as Root (H, S), s) = (* s = id *)
+      | normalizeExpW (U as Root (H, S), s) = (* s = id *)
           Root (H, normalizeSpine (S, s))
-      | (* GEN CASE BRANCH *) normalizeExpW (Lam (D, U), s) =
+      | normalizeExpW (Lam (D, U), s) =
           Lam (normalizeDec (D, s), normalizeExp (U, dot1 s))
-      | (* GEN CASE BRANCH *) normalizeExpW (Us as (EVar _, s)) = EClo Us
-      | (* GEN CASE BRANCH *) normalizeExpW (FgnExp csfe , s) =
+      | normalizeExpW (Us as (EVar _, s)) = EClo Us
+      | normalizeExpW (FgnExp csfe , s) =
           FgnExpStd.Map.apply csfe (fn U => normalizeExp (U, s))
-      | (* GEN CASE BRANCH *) normalizeExpW (Us as (AVar(ref (SOME(U))) ,s)) =
+      | normalizeExpW (Us as (AVar(ref (SOME(U))) ,s)) =
           normalizeExpW (U,s)
-      | (* GEN CASE BRANCH *) normalizeExpW (Us as (AVar _  ,s)) = (print "Normalize  AVAR\n"; raise Error "")
+      | normalizeExpW (Us as (AVar _  ,s)) = (print "Normalize  AVAR\n"; raise Error "")
 
 
     and normalizeSpine (Nil, s) =
           Nil
-      | (* GEN CASE BRANCH *) normalizeSpine (App (U, S), s) =
+      | normalizeSpine (App (U, S), s) =
           App (normalizeExp (U, s), normalizeSpine (S, s))
-      | (* GEN CASE BRANCH *) normalizeSpine (SClo (S, s'), s) =
+      | normalizeSpine (SClo (S, s'), s) =
           normalizeSpine (S, comp (s', s))
 
     and normalizeDec (Dec (xOpt, V), s) = Dec (xOpt, normalizeExp (V, s))
-      | (* GEN CASE BRANCH *) normalizeDec (BDec (xOpt, (c, t)), s) =
+      | normalizeDec (BDec (xOpt, (c, t)), s) =
          BDec (xOpt, (c, normalizeSub (comp (t, s))))
     and normalizeDecP ((D, P), s) = (normalizeDec (D, s), P)
 
@@ -452,9 +452,9 @@ struct
     (* pre-Twelf 1.2 code walk Fri May  8 11:37:18 1998 *)
     (* not any more --cs Wed Jun 19 13:59:56 EDT 2002 *)
     and normalizeSub (s as Shift _) = s
-      | (* GEN CASE BRANCH *) normalizeSub (Dot (Ft as Idx _, s)) =
+      | normalizeSub (Dot (Ft as Idx _, s)) =
           Dot (Ft, normalizeSub (s))
-      | (* GEN CASE BRANCH *) normalizeSub (Dot (Exp U, s)) =
+      | normalizeSub (Dot (Exp U, s)) =
           (* changed to obtain pattern substitution if possible *)
           (* Sat Dec  7 16:58:09 2002 -fp *)
           (* Dot (Exp (normalizeExp (U, id)), normalizeSub s) *)
@@ -462,7 +462,7 @@ struct
 
 
     fun normalizeCtx Null = Null
-      | (* GEN CASE BRANCH *) normalizeCtx (Decl (G, D)) =
+      | normalizeCtx (Decl (G, D)) =
           Decl (normalizeCtx G, normalizeDec (D, id))
 
 
@@ -476,19 +476,19 @@ struct
     fun invert s =
       let
         fun lookup (n, Shift _, p) = NONE
-          | (* GEN CASE BRANCH *) lookup (n, Dot (Undef, s'), p) = lookup (n+1, s', p)
-          | (* GEN CASE BRANCH *) lookup (n, Dot (Idx k, s'), p) =
+          | lookup (n, Dot (Undef, s'), p) = lookup (n+1, s', p)
+          | lookup (n, Dot (Idx k, s'), p) =
             if k = p then SOME n
             else lookup (n+1, s', p)
     
         fun invert'' (0, si) = si
-          | (* GEN CASE BRANCH *) invert'' (p, si) =
+          | invert'' (p, si) =
             (case (lookup (1, s, p))
                of SOME k => invert'' (p-1, Dot (Idx k, si))
                 | NONE => invert'' (p-1, Dot (Undef, si)))
     
         fun invert' (n, Shift p) = invert'' (p, Shift n)
-          | (* GEN CASE BRANCH *) invert' (n, Dot (_, s')) = invert' (n+1, s')
+          | invert' (n, Dot (_, s')) = invert' (n+1, s')
       in
         invert' (0, s)
       end
@@ -501,7 +501,7 @@ struct
        then G' |- t : G  and G' subcontext of G
     *)
     fun strengthen (Shift n (* = 0 *), Null) = Null
-      | (* GEN CASE BRANCH *) strengthen (Dot (Idx k (* k = 1 *), t), Decl (G, D)) =
+      | strengthen (Dot (Idx k (* k = 1 *), t), Decl (G, D)) =
         let
           val t' = comp (t, invShift)
         in
@@ -510,9 +510,9 @@ struct
           (* G' |- D[t'] dec *)
           Decl (strengthen (t', G), decSub (D, t'))
         end
-      | (* GEN CASE BRANCH *) strengthen (Dot (Undef, t), Decl (G, D)) =
+      | strengthen (Dot (Undef, t), Decl (G, D)) =
           strengthen (t, G)
-      | (* GEN CASE BRANCH *) strengthen (Shift n, G) =
+      | strengthen (Shift n, G) =
           strengthen (Dot (Idx (n+1), Shift (n+1)), G)
 
 
@@ -524,9 +524,9 @@ struct
             iff s = id, G' = G
     *)
     fun isId' (Shift(k), k') = (k = k')
-      | (* GEN CASE BRANCH *) isId' (Dot (Idx(n), s'), k') =
+      | isId' (Dot (Idx(n), s'), k') =
           n = k' andalso isId' (s', k'+1)
-      | (* GEN CASE BRANCH *) isId' _ = false
+      | isId' _ = false
     fun isId s = isId' (s, 0)
 
     (* cloInv (U, w) = U[w^-1]
@@ -565,7 +565,7 @@ struct
                and  ni <= k or ni = _ for all 1 <= i <= m
     *)
     fun isPatSub (Shift(k)) = true
-      | (* GEN CASE BRANCH *) isPatSub (Dot (Idx (n), s)) =
+      | isPatSub (Dot (Idx (n), s)) =
           let fun checkBVar (Shift(k)) = (n <= k)
                 | checkBVar (Dot (Idx (n'), s)) =
                     n <> n' andalso checkBVar (s)
@@ -575,8 +575,8 @@ struct
           in
             checkBVar s andalso isPatSub s
           end
-      | (* GEN CASE BRANCH *) isPatSub (Dot (Undef, s)) = isPatSub s
-      | (* GEN CASE BRANCH *) isPatSub _ = false
+      | isPatSub (Dot (Undef, s)) = isPatSub s
+      | isPatSub _ = false
         (* Try harder, due to bug somewhere *)
         (* Sat Dec  7 17:05:02 2002 -fp *)
         (* false *)
@@ -600,7 +600,7 @@ struct
                and  ni <= k or ni = _ for all 1 <= i <= m
     *)
     fun mkPatSub (s as Shift(k)) = s
-      | (* GEN CASE BRANCH *) mkPatSub (Dot (Idx (n), s)) =
+      | mkPatSub (Dot (Idx (n), s)) =
         let
           val s' = mkPatSub s
           fun checkBVar (Shift(k)) = (n <= k)
@@ -612,15 +612,15 @@ struct
         in
           Dot (Idx (n), s')
         end
-      | (* GEN CASE BRANCH *) mkPatSub (Dot (Undef, s)) = Dot (Undef, mkPatSub s)
-      | (* GEN CASE BRANCH *) mkPatSub (Dot (Exp (U), s)) =
+      | mkPatSub (Dot (Undef, s)) = Dot (Undef, mkPatSub s)
+      | mkPatSub (Dot (Exp (U), s)) =
         let
           val (U', t') = whnf (U, id)
           val k = (etaContract (U', t', 0)) (* may raise Eta *)
         in
           Dot (Idx (k), mkPatSub s)
         end
-      | (* GEN CASE BRANCH *) mkPatSub _ = raise Eta
+      | mkPatSub _ = raise Eta
 
     fun makePatSub (s) = SOME (mkPatSub (s)) handle Eta => NONE
 

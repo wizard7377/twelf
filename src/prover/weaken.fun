@@ -37,7 +37,7 @@ struct
        and  G0 |- s' : G1, G'
     *)
     fun strengthenCtx (I.Null, s) = (I.Null, s)
-      | (* GEN CASE BRANCH *) strengthenCtx (I.Decl (G, D), s) =
+      | strengthenCtx (I.Decl (G, D), s) =
         let
           val (G', s') = strengthenCtx (G, s)
         in
@@ -47,7 +47,7 @@ struct
     fun strengthenSub (s, t) = Whnf.compInv (s, t)
 
     fun strengthenSpine (I.Nil, t) = I.Nil
-      | (* GEN CASE BRANCH *) strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
+      | strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
 
   in
     val strengthenExp = strengthenExp

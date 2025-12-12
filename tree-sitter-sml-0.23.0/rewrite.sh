@@ -12,5 +12,5 @@ parseFiles() {
         parse $file
     done
 }
-parseFiles "../**/*.sig"
+parseFiles "../src/lambda/*.sml"
 

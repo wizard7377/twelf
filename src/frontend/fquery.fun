@@ -39,7 +39,7 @@ struct
 
 
   fun lower (0, G, V) = (G, V)
-    | (* GEN CASE BRANCH *) lower (n, G, I.Pi ((D, _), V)) = lower (n-1, I.Decl (G, D), V)
+    | lower (n, G, I.Pi ((D, _), V)) = lower (n-1, I.Decl (G, D), V)
 
   fun run (quy, Paths.Loc (fileName, r)) =
       let

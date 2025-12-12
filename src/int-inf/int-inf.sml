@@ -234,9 +234,9 @@ structure IntInf :> INT_INF =
             	  (* end case *))
     
         fun scanWord StringCvt.BIN = finalWord scanBin
-          | (* GEN CASE BRANCH *) scanWord StringCvt.OCT = finalWord scanOct
-          | (* GEN CASE BRANCH *) scanWord StringCvt.DEC = finalWord scanDec
-          | (* GEN CASE BRANCH *) scanWord StringCvt.HEX = finalWord scanHex
+          | scanWord StringCvt.OCT = finalWord scanOct
+          | scanWord StringCvt.DEC = finalWord scanDec
+          | scanWord StringCvt.HEX = finalWord scanHex
     
         fun finalInt scanFn getc cs = (case (scanFn getc cs)
             	   of NONE => NONE
@@ -251,9 +251,9 @@ structure IntInf :> INT_INF =
             	  (* end case *))
     
         fun scanInt StringCvt.BIN = finalInt scanBin
-          | (* GEN CASE BRANCH *) scanInt StringCvt.OCT = finalInt scanOct
-          | (* GEN CASE BRANCH *) scanInt StringCvt.DEC = finalInt scanDec
-          | (* GEN CASE BRANCH *) scanInt StringCvt.HEX = finalInt scanHex
+          | scanInt StringCvt.OCT = finalInt scanOct
+          | scanInt StringCvt.DEC = finalInt scanDec
+          | scanInt StringCvt.HEX = finalInt scanHex
     
       end (* structure NumScan *)
 
@@ -278,8 +278,8 @@ structure IntInf :> INT_INF =
         fun wordToBin w = let
             	  fun mkBit w = if (W.andb(w, 0w1) = 0w0) then #"0" else #"1"
             	  fun f (0w0, n, l) = (I.+(n, 1), #"0" :: l)
-            	    | (* GEN CASE BRANCH *) f (0w1, n, l) = (I.+(n, 1), #"1" :: l)
-            	    | (* GEN CASE BRANCH *) f (w, n, l) = f(W.>>(w, 0w1), I.+(n, 1), (mkBit w) :: l)
+            	    | f (0w1, n, l) = (I.+(n, 1), #"1" :: l)
+            	    | f (w, n, l) = f(W.>>(w, 0w1), I.+(n, 1), (mkBit w) :: l)
             	  in
             	    f (w, 0, [])
             	  end
@@ -309,9 +309,9 @@ structure IntInf :> INT_INF =
             	  end
     
         fun fmtW StringCvt.BIN = #2 o wordToBin
-          | (* GEN CASE BRANCH *) fmtW StringCvt.OCT = #2 o wordToOct
-          | (* GEN CASE BRANCH *) fmtW StringCvt.DEC = #2 o wordToDec
-          | (* GEN CASE BRANCH *) fmtW StringCvt.HEX = #2 o wordToHex
+          | fmtW StringCvt.OCT = #2 o wordToOct
+          | fmtW StringCvt.DEC = #2 o wordToDec
+          | fmtW StringCvt.HEX = #2 o wordToHex
     
         fun fmtWord radix = String.implode o (fmtW radix)
     
@@ -367,7 +367,7 @@ structure IntInf :> INT_INF =
 	val one = [1]
 
 	fun bignat 0 = zero
-	  | (* GEN CASE BRANCH *) bignat i = let
+	  | bignat i = let
 	      val notNbase = Word.notb(itow nbase)
               fun bn 0w0 = []
         	| bn i = let
@@ -384,12 +384,12 @@ structure IntInf :> INT_INF =
               end
 
 	fun int [] = 0
-	  | (* GEN CASE BRANCH *) int [d] = d
-	  | (* GEN CASE BRANCH *) int [d,e] = ~(nbase*e) + d
-	  | (* GEN CASE BRANCH *) int (d::r) = ~(nbase*int r) + d
+	  | int [d] = d
+	  | int [d,e] = ~(nbase*e) + d
+	  | int (d::r) = ~(nbase*int r) + d
 
 	fun consd (0, []) = []
-	  | (* GEN CASE BRANCH *) consd (d, r) = d::r
+	  | consd (d, r) = d::r
 
 	fun hl i = let
 	  val w = itow i
@@ -401,32 +401,32 @@ structure IntInf :> INT_INF =
 	fun sh i = wtoi(Word.<< (itow i, itow lgHBase))
 
 	fun addOne [] = [1]
-	  | (* GEN CASE BRANCH *) addOne (m::rm) = let
+	  | addOne (m::rm) = let
               val c = nbase+m+1
               in
         	if c < 0 then (c-nbase)::rm else c::(addOne rm)
               end
 
 	fun add ([], digits) = digits
-	  | (* GEN CASE BRANCH *) add (digits, []) = digits
-	  | (* GEN CASE BRANCH *) add (dm::rm, dn::rn) = addd (nbase+dm+dn, rm, rn)
+	  | add (digits, []) = digits
+	  | add (dm::rm, dn::rn) = addd (nbase+dm+dn, rm, rn)
 	and addd (s, m, n) = 
               if s < 0 then (s-nbase) :: add (m, n) else (s :: addc (m, n))
 	and addc (m, []) = addOne m
-	  | (* GEN CASE BRANCH *) addc ([], n) = addOne n
-	  | (* GEN CASE BRANCH *) addc (dm::rm, dn::rn) = addd (nbase+dm+dn+1, rm, rn)
+	  | addc ([], n) = addOne n
+	  | addc (dm::rm, dn::rn) = addd (nbase+dm+dn+1, rm, rn)
 
 	fun subtOne (0::mr) = maxDigit::(subtOne mr)
-	  | (* GEN CASE BRANCH *) subtOne [1] = []
-	  | (* GEN CASE BRANCH *) subtOne (n::mr) = (n-1)::mr
-	  | (* GEN CASE BRANCH *) subtOne [] = raise Fail ""
+	  | subtOne [1] = []
+	  | subtOne (n::mr) = (n-1)::mr
+	  | subtOne [] = raise Fail ""
 
 	fun subt (m, []) = m
-	  | (* GEN CASE BRANCH *) subt ([], n) = raise Negative
-	  | (* GEN CASE BRANCH *) subt (dm::rm, dn::rn) = subd(dm-dn,rm,rn)
+	  | subt ([], n) = raise Negative
+	  | subt (dm::rm, dn::rn) = subd(dm-dn,rm,rn)
 	and subb ([], n) = raise Negative
-	  | (* GEN CASE BRANCH *) subb (dm::rm, []) = subd (dm-1, rm, [])
-	  | (* GEN CASE BRANCH *) subb (dm::rm, dn::rn) = subd (dm-dn-1, rm, rn)
+	  | subb (dm::rm, []) = subd (dm-1, rm, [])
+	  | subb (dm::rm, dn::rn) = subd (dm-dn-1, rm, rn)
 	and subd (d, m, n) = 
               if d >= 0 then consd(d, subt (m, n)) else consd(d-nbase, subb (m, n))
 
@@ -443,8 +443,8 @@ structure IntInf :> INT_INF =
 
             (* multiply bigint by digit *)
 	fun muld (m, 0) = []
-	  | (* GEN CASE BRANCH *) muld (m, 1) = m (* speedup *)
-	  | (* GEN CASE BRANCH *) muld (m, i) = let
+	  | muld (m, 1) = m (* speedup *)
+	  | muld (m, i) = let
               fun muldc ([], 0) = []
         	| muldc ([], c) = [c]
         	| muldc (d::r, c) = let
@@ -458,9 +458,9 @@ structure IntInf :> INT_INF =
               in muldc (m, 0) end
 
 	fun mult (m, []) = []
-	  | (* GEN CASE BRANCH *) mult (m, [d]) = muld (m, d) (* speedup *)
-	  | (* GEN CASE BRANCH *) mult (m, 0::r) = consd (0, mult (m, r)) (* speedup *)
-	  | (* GEN CASE BRANCH *) mult (m, n) = let 
+	  | mult (m, [d]) = muld (m, d) (* speedup *)
+	  | mult (m, 0::r) = consd (0, mult (m, r)) (* speedup *)
+	  | mult (m, n) = let 
               fun muln [] = []
         	| muln (d::r) = add (muld (n, d), consd (0, muln r))
               in muln m end
@@ -478,7 +478,7 @@ structure IntInf :> INT_INF =
 
             (* divide bignat by digit>0 *)
 	fun divmodd (m, 1) = (m, 0) (* speedup *)
-	  | (* GEN CASE BRANCH *) divmodd (m, i) = let
+	  | divmodd (m, i) = let
               val scale = scale i
               val i' = i * scale
               val m' = muld (m, scale)
@@ -492,14 +492,14 @@ structure IntInf :> INT_INF =
 
             (* From Knuth Vol II, 4.3.1, but without opt. in step D3 *)
 	fun divmod (m, []) = raise Div
-	  | (* GEN CASE BRANCH *) divmod ([], n) = ([], []) (* speedup *)
-	  | (* GEN CASE BRANCH *) divmod (d::r, 0::s) = let 
+	  | divmod ([], n) = ([], []) (* speedup *)
+	  | divmod (d::r, 0::s) = let 
               val (qt,rm) = divmod (r,s)
               in (qt, consd (d, rm)) end (* speedup *)
-	  | (* GEN CASE BRANCH *) divmod (m, [d]) = let 
+	  | divmod (m, [d]) = let 
               val (qt, rm) = divmodd (m, d)
               in (qt, if rm=0 then [] else [rm]) end
-	  | (* GEN CASE BRANCH *) divmod (m, n) = let
+	  | divmod (m, n) = let
               val ln = length n (* >= 2 *)
               val scale = scale(List.nth (n,ln-1))
               val m' = muld (m, scale)
@@ -525,9 +525,9 @@ structure IntInf :> INT_INF =
               in (qt,rm) end
 
 	fun cmp ([],[]) = EQUAL
-	  | (* GEN CASE BRANCH *) cmp (_,[]) = GREATER
-	  | (* GEN CASE BRANCH *) cmp ([],_) = LESS
-	  | (* GEN CASE BRANCH *) cmp ((i : int)::ri,j::rj) =
+	  | cmp (_,[]) = GREATER
+	  | cmp ([],_) = LESS
+	  | cmp ((i : int)::ri,j::rj) =
               case cmp (ri,rj) of
         	EQUAL => if i = j then EQUAL 
                          else if i < j then LESS 
@@ -535,8 +535,8 @@ structure IntInf :> INT_INF =
               | c => c
 
 	fun exp (_, 0) = one
-	  | (* GEN CASE BRANCH *) exp ([], n) = if n > 0 then zero else raise Div
-	  | (* GEN CASE BRANCH *) exp (m, n) = 
+	  | exp ([], n) = if n > 0 then zero else raise Div
+	  | exp (m, n) = 
               if n < 0 then zero
               else let
         	fun expm 0 = [1]
@@ -554,7 +554,7 @@ structure IntInf :> INT_INF =
           val pow2lgHBase = try 1
         in
         fun log2 [] = raise Domain
-          | (* GEN CASE BRANCH *) log2 (h::t) = let
+          | log2 (h::t) = let
               fun qlog (x,0) = 0
                 | qlog (x,b) = 
           		  if x >= wtoi(Word.<< (0w1, itow b)) then
@@ -590,7 +590,7 @@ structure IntInf :> INT_INF =
 	fun fmt (pow, radpow, puti) n = let 
               val pad = StringCvt.padLeft #"0" pow
               fun ms0 (0,a) = (pad "")::a
-        	| (* GEN CASE BRANCH *) ms0 (i,a) = (pad (puti i))::a
+        	| ms0 (i,a) = (pad (puti i))::a
               fun ml (n,a) =
                     case divmodd (n, radpow) of
                       ([],d) => (puti d)::a
@@ -644,7 +644,7 @@ structure IntInf :> INT_INF =
     fun posi digits = BI{sign=POS, digits=digits}
     fun negi digits = BI{sign=NEG, digits=digits}
     fun zneg [] = zero
-      | (* GEN CASE BRANCH *) zneg digits = BI{sign=NEG, digits=digits}
+      | zneg digits = BI{sign=NEG, digits=digits}
 
     local
     val minNeg = valOf Int.minInt
@@ -653,13 +653,13 @@ structure IntInf :> INT_INF =
     in
 
     fun toInt (BI{digits=[], ...}) = 0
-      | (* GEN CASE BRANCH *) toInt (BI{sign=POS, digits}) = BN.int digits
-      | (* GEN CASE BRANCH *) toInt (BI{sign=NEG, digits}) =
+      | toInt (BI{sign=POS, digits}) = BN.int digits
+      | toInt (BI{sign=NEG, digits}) =
               (~(BN.int digits)) handle _ =>
                 if digits = bigNatMinNeg then minNeg else raise Overflow
 
     fun fromInt 0 = zero
-      | (* GEN CASE BRANCH *) fromInt i =
+      | fromInt i =
           if i < 0
             then if (i = minNeg)
               then bigIntMinNeg
@@ -678,7 +678,7 @@ structure IntInf :> INT_INF =
     val lgBase = Word.fromInt BN.lgBase
     val notNbase = Word32.notb(Word32.fromInt BN.nbase)
     fun largeNat (0 : LargeInt.int) = []
-      | (* GEN CASE BRANCH *) largeNat i = let
+      | largeNat i = let
           fun bn (0w0 : Word32.word) = []
        	    | bn i = let
       	        fun dmbase n = (Word32.>> (n, lgBase), Word32.andb (n, notNbase))
@@ -691,22 +691,22 @@ structure IntInf :> INT_INF =
           end
 
     fun large [] = 0
-      | (* GEN CASE BRANCH *) large [d] = LargeInt.fromInt d
-      | (* GEN CASE BRANCH *) large [d,e] = ~(nbase*(LargeInt.fromInt e)) + (LargeInt.fromInt d)
-      | (* GEN CASE BRANCH *) large (d::r) = ~(nbase*large r) + (LargeInt.fromInt d)
+      | large [d] = LargeInt.fromInt d
+      | large [d,e] = ~(nbase*(LargeInt.fromInt e)) + (LargeInt.fromInt d)
+      | large (d::r) = ~(nbase*large r) + (LargeInt.fromInt d)
 
     val bigNatMinNeg = BN.addOne (largeNat (~(minNeg+1)))
     val bigIntMinNeg = negi bigNatMinNeg
     in
 
     fun toLarge (BI{digits=[], ...}) = 0
-      | (* GEN CASE BRANCH *) toLarge (BI{sign=POS, digits}) = large digits
-      | (* GEN CASE BRANCH *) toLarge (BI{sign=NEG, digits}) =
+      | toLarge (BI{sign=POS, digits}) = large digits
+      | toLarge (BI{sign=NEG, digits}) =
               (~(large digits)) handle _ =>
                 if digits = bigNatMinNeg then minNeg else raise Overflow
 
     fun fromLarge 0 = zero
-      | (* GEN CASE BRANCH *) fromLarge i =
+      | fromLarge i =
           if i < 0
             then if (i = minNeg)
               then bigIntMinNeg
@@ -715,11 +715,11 @@ structure IntInf :> INT_INF =
     end (* local *)
 
     fun negSign POS = NEG
-      | (* GEN CASE BRANCH *) negSign NEG = POS
+      | negSign NEG = POS
 
     fun subtNat (m, []) = {sign=POS, digits=m}
-      | (* GEN CASE BRANCH *) subtNat ([], n) = {sign=NEG, digits=n}
-      | (* GEN CASE BRANCH *) subtNat (m,n) =
+      | subtNat ([], n) = {sign=NEG, digits=n}
+      | subtNat (m,n) =
             ({sign=POS,digits = BN.subt(m,n)})
               handle BN.Negative => ({sign=NEG,digits = BN.subt(n,m)})
 
@@ -728,56 +728,56 @@ structure IntInf :> INT_INF =
     val maxInt = NONE
 
     fun ~ (i as BI{digits=[], ...}) = i
-      | (* GEN CASE BRANCH *) ~ (BI{sign=POS, digits}) = BI{sign=NEG, digits=digits}
-      | (* GEN CASE BRANCH *) ~ (BI{sign=NEG, digits}) = BI{sign=POS, digits=digits}
+      | ~ (BI{sign=POS, digits}) = BI{sign=NEG, digits=digits}
+      | ~ (BI{sign=NEG, digits}) = BI{sign=POS, digits=digits}
 
     fun op * (_,BI{digits=[], ...}) = zero
-      | (* GEN CASE BRANCH *) op * (BI{digits=[], ...},_) = zero
-      | (* GEN CASE BRANCH *) op * (BI{sign=POS, digits=d1}, BI{sign=NEG, digits=d2}) =
+      | op * (BI{digits=[], ...},_) = zero
+      | op * (BI{sign=POS, digits=d1}, BI{sign=NEG, digits=d2}) =
           BI{sign=NEG,digits=BN.mult(d1,d2)}
-      | (* GEN CASE BRANCH *) op * (BI{sign=NEG, digits=d1}, BI{sign=POS, digits=d2}) =
+      | op * (BI{sign=NEG, digits=d1}, BI{sign=POS, digits=d2}) =
           BI{sign=NEG,digits=BN.mult(d1,d2)}
-      | (* GEN CASE BRANCH *) op * (BI{digits=d1,...}, BI{digits=d2,...}) =
+      | op * (BI{digits=d1,...}, BI{digits=d2,...}) =
           BI{sign=POS,digits=BN.mult(d1,d2)}
 
     fun op + (BI{digits=[], ...}, i2) = i2
-      | (* GEN CASE BRANCH *) op + (i1, BI{digits=[], ...}) = i1
-      | (* GEN CASE BRANCH *) op + (BI{sign=POS, digits=d1}, BI{sign=NEG, digits=d2}) =
+      | op + (i1, BI{digits=[], ...}) = i1
+      | op + (BI{sign=POS, digits=d1}, BI{sign=NEG, digits=d2}) =
           BI(subtNat(d1, d2))
-      | (* GEN CASE BRANCH *) op + (BI{sign=NEG, digits=d1}, BI{sign=POS, digits=d2}) =
+      | op + (BI{sign=NEG, digits=d1}, BI{sign=POS, digits=d2}) =
           BI(subtNat(d2, d1))
-      | (* GEN CASE BRANCH *) op + (BI{sign, digits=d1}, BI{digits=d2, ...}) =
+      | op + (BI{sign, digits=d1}, BI{digits=d2, ...}) =
           BI{sign=sign, digits=BN.add(d1, d2)}
 
     fun op - (i1, BI{digits=[], ...}) = i1
-      | (* GEN CASE BRANCH *) op - (BI{digits=[], ...}, BI{sign, digits}) =
+      | op - (BI{digits=[], ...}, BI{sign, digits}) =
           BI{sign=negSign sign, digits=digits}
-      | (* GEN CASE BRANCH *) op - (BI{sign=POS, digits=d1}, BI{sign=POS, digits=d2}) =
+      | op - (BI{sign=POS, digits=d1}, BI{sign=POS, digits=d2}) =
             BI(subtNat(d1, d2))
-      | (* GEN CASE BRANCH *) op - (BI{sign=NEG, digits=d1}, BI{sign=NEG, digits=d2}) =
+      | op - (BI{sign=NEG, digits=d1}, BI{sign=NEG, digits=d2}) =
             BI(subtNat(d2, d1))
-      | (* GEN CASE BRANCH *) op - (BI{sign, digits=d1}, BI{digits=d2, ...}) =
+      | op - (BI{sign, digits=d1}, BI{digits=d2, ...}) =
           BI{sign=sign, digits=BN.add(d1, d2)}
 
     fun quotrem (BI{sign=POS,digits=m},BI{sign=POS,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, posi r))
-      | (* GEN CASE BRANCH *) quotrem (BI{sign=POS,digits=m},BI{sign=NEG,digits=n}) =
+      | quotrem (BI{sign=POS,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (zneg q, posi r))
-      | (* GEN CASE BRANCH *) quotrem (BI{sign=NEG,digits=m},BI{sign=POS,digits=n}) =
+      | quotrem (BI{sign=NEG,digits=m},BI{sign=POS,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (zneg q, zneg r))
-      | (* GEN CASE BRANCH *) quotrem (BI{sign=NEG,digits=m},BI{sign=NEG,digits=n}) =
+      | quotrem (BI{sign=NEG,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, zneg r))
 
     fun divmod (BI{sign=POS,digits=m},BI{sign=POS,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, posi r))
-      | (* GEN CASE BRANCH *) divmod (BI{sign=POS,digits=[]},BI{sign=NEG,digits=n}) = (zero,zero)
-      | (* GEN CASE BRANCH *) divmod (BI{sign=POS,digits=m},BI{sign=NEG,digits=n}) = let
+      | divmod (BI{sign=POS,digits=[]},BI{sign=NEG,digits=n}) = (zero,zero)
+      | divmod (BI{sign=POS,digits=m},BI{sign=NEG,digits=n}) = let
           val (q,r) = BN.divmod (BN.subtOne m, n)
           in (negi(BN.addOne q), zneg(BN.subtOne(BN.subt(n,r)))) end
-      | (* GEN CASE BRANCH *) divmod (BI{sign=NEG,digits=m},BI{sign=POS,digits=n}) = let
+      | divmod (BI{sign=NEG,digits=m},BI{sign=POS,digits=n}) = let
           val (q,r) = BN.divmod (BN.subtOne m, n)
           in (negi(BN.addOne q), posi(BN.subtOne(BN.subt(n,r)))) end
-      | (* GEN CASE BRANCH *) divmod (BI{sign=NEG,digits=m},BI{sign=NEG,digits=n}) =
+      | divmod (BI{sign=NEG,digits=m},BI{sign=NEG,digits=n}) =
           (case BN.divmod (m,n) of (q,r) => (posi q, zneg r))
 
     fun op div arg = #1(divmod arg)
@@ -786,9 +786,9 @@ structure IntInf :> INT_INF =
     fun op rem arg = #2(quotrem arg)
 
     fun compare (BI{sign=NEG,...},BI{sign=POS,...}) = LESS
-      | (* GEN CASE BRANCH *) compare (BI{sign=POS,...},BI{sign=NEG,...}) = GREATER
-      | (* GEN CASE BRANCH *) compare (BI{sign=POS,digits=d},BI{sign=POS,digits=d'}) = BN.cmp (d,d')
-      | (* GEN CASE BRANCH *) compare (BI{sign=NEG,digits=d},BI{sign=NEG,digits=d'}) = BN.cmp (d',d)
+      | compare (BI{sign=POS,...},BI{sign=NEG,...}) = GREATER
+      | compare (BI{sign=POS,digits=d},BI{sign=POS,digits=d'}) = BN.cmp (d,d')
+      | compare (BI{sign=NEG,digits=d},BI{sign=NEG,digits=d'}) = BN.cmp (d',d)
 
     fun op < arg = case compare arg of LESS => true | _ => false
     fun op > arg = case compare arg of GREATER => true | _ => false
@@ -796,14 +796,14 @@ structure IntInf :> INT_INF =
     fun op >= arg = case compare arg of LESS => false | _ => true
 
     fun abs (BI{sign=NEG, digits}) = BI{sign=POS, digits=digits}
-      | (* GEN CASE BRANCH *) abs i = i
+      | abs i = i
 
     fun max arg = case compare arg of GREATER => #1 arg | _ => #2 arg
     fun min arg = case compare arg of LESS => #1 arg | _ => #2 arg
 
     fun sign (BI{sign=NEG,...}) = ~1
-      | (* GEN CASE BRANCH *) sign (BI{digits=[],...}) = 0
-      | (* GEN CASE BRANCH *) sign _ = 1
+      | sign (BI{digits=[],...}) = 0
+      | sign _ = 1
 
     fun sameSign (i,j) = sign i = sign j
 
@@ -815,9 +815,9 @@ structure IntInf :> INT_INF =
             | (BI{sign=POS,digits}) => fmtFn digits
     in
     fun fmt StringCvt.BIN = fmt' (BN.fmt2)
-      | (* GEN CASE BRANCH *) fmt StringCvt.OCT = fmt' (BN.fmt8)
-      | (* GEN CASE BRANCH *) fmt StringCvt.DEC = fmt' (BN.fmt10)
-      | (* GEN CASE BRANCH *) fmt StringCvt.HEX = fmt' (BN.fmt16)
+      | fmt StringCvt.OCT = fmt' (BN.fmt8)
+      | fmt StringCvt.DEC = fmt' (BN.fmt10)
+      | fmt StringCvt.HEX = fmt' (BN.fmt16)
     end
 
     val toString = fmt StringCvt.DEC
@@ -826,7 +826,7 @@ structure IntInf :> INT_INF =
       fun scan' scanFn getc cs = let
             val cs' = NumScan.skipWS getc cs
             fun cvt (NONE,_) = NONE
-              | (* GEN CASE BRANCH *) cvt (SOME(i,cs),wr) = SOME(wr i, cs)
+              | cvt (SOME(i,cs),wr) = SOME(wr i, cs)
             in
               case (getc cs')
                of (SOME(#"~", cs'')) => cvt(scanFn getc cs'',zneg)
@@ -838,22 +838,22 @@ structure IntInf :> INT_INF =
             end
     in
     fun scan StringCvt.BIN = scan' (BN.scan2)
-      | (* GEN CASE BRANCH *) scan StringCvt.OCT = scan' (BN.scan8)
-      | (* GEN CASE BRANCH *) scan StringCvt.DEC = scan' (BN.scan10)
-      | (* GEN CASE BRANCH *) scan StringCvt.HEX = scan' (BN.scan16)
+      | scan StringCvt.OCT = scan' (BN.scan8)
+      | scan StringCvt.DEC = scan' (BN.scan10)
+      | scan StringCvt.HEX = scan' (BN.scan16)
     end
 
     fun fromString s = StringCvt.scanString (scan StringCvt.DEC) s
 
     fun pow (_, 0) = one
-      | (* GEN CASE BRANCH *) pow (BI{sign=POS,digits}, n) = posi(BN.exp(digits,n))
-      | (* GEN CASE BRANCH *) pow (BI{sign=NEG,digits}, n) = 
+      | pow (BI{sign=POS,digits}, n) = posi(BN.exp(digits,n))
+      | pow (BI{sign=NEG,digits}, n) = 
           if Int.mod (n, 2) = 0
             then posi(BN.exp(digits,n))
             else zneg(BN.exp(digits,n))
 
     fun log2 (BI{sign=POS,digits}) = BN.log2 digits
-      | (* GEN CASE BRANCH *) log2 _ = raise Domain
+      | log2 _ = raise Domain
 
   end (* structure IntInf *)
 

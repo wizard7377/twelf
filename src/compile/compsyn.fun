@@ -162,10 +162,10 @@ struct
      and  G  |- g' : A
   *)
   fun goalSub (Atom(p), s) = Atom(IntSyn.EClo(p,s))
-    | (* GEN CASE BRANCH *) goalSub (Impl(d, A, Ha, g), s) =
+    | goalSub (Impl(d, A, Ha, g), s) =
        Impl (resGoalSub (d, s), IntSyn.EClo(A, s), Ha,
              goalSub (g, IntSyn.dot1 s))
-    | (* GEN CASE BRANCH *) goalSub (All(D, g), s) =
+    | goalSub (All(D, g), s) =
        All (IntSyn.decSub(D,s), goalSub (g, IntSyn.dot1 s))
 
   (* resGoalSub (r, s) = r'
@@ -176,20 +176,20 @@ struct
      and  G  |- r' : A [s]
   *)
   and resGoalSub (Eq(q), s) = Eq (IntSyn.EClo (q,s))
-    | (* GEN CASE BRANCH *) resGoalSub (And(r, A, g), s) =
+    | resGoalSub (And(r, A, g), s) =
         And (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s))
-    | (* GEN CASE BRANCH *) resGoalSub (In(r, A, g), s) =
+    | resGoalSub (In(r, A, g), s) =
         In (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s))
-    | (* GEN CASE BRANCH *) resGoalSub (Exists(D, r), s) =
+    | resGoalSub (Exists(D, r), s) =
         Exists (IntSyn.decSub(D, s), resGoalSub (r, IntSyn.dot1 s))
 
 
   fun pskeletonToString [] = " "
-    | (* GEN CASE BRANCH *) pskeletonToString ((Pc i)::O) =
+    | pskeletonToString ((Pc i)::O) =
         Names.qidToString (Names.constQid i) ^ " " ^ (pskeletonToString O)
-    | (* GEN CASE BRANCH *) pskeletonToString ((Dc i)::O) =
+    | pskeletonToString ((Dc i)::O) =
         ("(Dc " ^ (Int.toString i) ^ ") ") ^ (pskeletonToString O)
-    | (* GEN CASE BRANCH *) pskeletonToString (Csolver U ::O) =
+    | pskeletonToString (Csolver U ::O) =
         ("(cs _ ) " ^ (pskeletonToString O))
 
 

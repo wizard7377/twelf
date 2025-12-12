@@ -67,7 +67,7 @@ T.translate_signature
 S.
 
 fun name n = (n,I.conDecName (I.sgnLookup n));
-fun get x (I.ConDec(x',_,_,_,_,_)) = x = x' | (* GEN CASE BRANCH *) get _ _ = false;
+fun get x (I.ConDec(x',_,_,_,_,_)) = x = x' | get _ _ = false;
 val (N,_) = I.sgnSize();
 val cs = map I.sgnLookup (Lib.upto(0,N - 1)); 
 val n = N-2;
@@ -102,7 +102,7 @@ eta_expand sgn (Lam{var=NONE,body=Root(Const 4,App(Root(BVar 1,Nil),Nil))})
           check sgn exp' (Uni uni);
           Sig.insert sgn (id,Decl {id=id,name=name,exp=exp',uni=uni})
         end
-      | (* GEN CASE BRANCH *) insert sgn (Def {id,name,exp,def,height,root,uni}) =
+      | insert sgn (Def {id,name,exp,def,height,root,uni}) =
         let
           val exp' = eta_expand sgn exp 
           val def' = eta_expand sgn def 
@@ -112,7 +112,7 @@ eta_expand sgn (Lam{var=NONE,body=Root(Const 4,App(Root(BVar 1,Nil),Nil))})
           Sig.insert sgn (id,Def {id=id,name=name,exp=exp',def=def',
                                   height=height,root=root,uni=uni})
         end
-      | (* GEN CASE BRANCH *) insert sgn (Abbrev {id,name,exp,def,uni}) =
+      | insert sgn (Abbrev {id,name,exp,def,uni}) =
         let
           val exp' = eta_expand sgn exp 
           val def' = eta_expand sgn def 

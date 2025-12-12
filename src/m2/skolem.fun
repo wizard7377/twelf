@@ -48,7 +48,7 @@ struct
            S' = n; n-1; ... 1; Nil
         *)
         fun spine 0 = I.Nil
-          | (* GEN CASE BRANCH *) spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
+          | spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
     
         (* installSkolem' ((V, mS), s, k) = ()
     
@@ -87,7 +87,7 @@ struct
                   in
                     installSkolem' (d, (V, mS'), I.Dot (I.Exp (I.Root (H, S)), s), k)
                   end)
-          | (* GEN CASE BRANCH *) installSkolem' (_, (I.Uni _, M.Mnil), _, _) = ()
+          | installSkolem' (_, (I.Uni _, M.Mnil), _, _) = ()
     
     
       in
@@ -103,7 +103,7 @@ struct
        Effect: Skolem constants for all theorems are generated, named, and indexed
     *)
     fun install nil = ()
-      | (* GEN CASE BRANCH *) install (a :: aL) =
+      | install (a :: aL) =
         let
           val I.ConDec (name, _, imp, _, V, L) = I.sgnLookup a
           val SOME mS = ModeTable.modeLookup a

@@ -87,17 +87,17 @@ struct
     structure LS = Lexer.Stream
 
     fun stripDot (LS.Cons((L.DOT, r), s)) = s
-      | (* GEN CASE BRANCH *) stripDot (LS.Cons((L.RPAREN, r), s)) =
+      | stripDot (LS.Cons((L.RPAREN, r), s)) =
           Parsing.error (r, "Unexpected right parenthesis")
-      | (* GEN CASE BRANCH *) stripDot (LS.Cons((L.RBRACE, r), s)) =
+      | stripDot (LS.Cons((L.RBRACE, r), s)) =
           Parsing.error (r, "Unexpected right brace")
-      | (* GEN CASE BRANCH *) stripDot (LS.Cons((L.RBRACKET, r), s)) =
+      | stripDot (LS.Cons((L.RBRACKET, r), s)) =
           Parsing.error (r, "Unexpected right bracket")
-      | (* GEN CASE BRANCH *) stripDot (LS.Cons ((L.EOF, r), s)) =
+      | stripDot (LS.Cons ((L.EOF, r), s)) =
           Parsing.error (r, "Unexpected end of file")
-      | (* GEN CASE BRANCH *) stripDot (LS.Cons ((L.EQUAL, r), s)) =
+      | stripDot (LS.Cons ((L.EQUAL, r), s)) =
           Parsing.error (r, "Unexpected `='")
-      | (* GEN CASE BRANCH *) stripDot (LS.Cons ((t, r), s)) =
+      | stripDot (LS.Cons ((t, r), s)) =
           Parsing.error (r, "Expected `.', found " ^ L.toString t)
       (* Everything else should be impossible *)
 
@@ -107,11 +107,11 @@ struct
     *)
 
     fun parseBound' (LS.Cons ((L.ID (_, "*"), r), s')) = (NONE, s')
-      | (* GEN CASE BRANCH *) parseBound' (LS.Cons ((L.ID (_, name), r), s')) =
+      | parseBound' (LS.Cons ((L.ID (_, name), r), s')) =
         ((SOME (L.stringToNat (name)), s')
          handle Overflow => Parsing.error (r, "Bound too large")
               | L.NotDigit _ => Parsing.error (r, "Bound `" ^ name ^ "' neither `*' nor a natural number"))
-      | (* GEN CASE BRANCH *) parseBound' (LS.Cons ((t,r), s')) =
+      | parseBound' (LS.Cons ((t,r), s')) =
           Parsing.error (r, "Expected bound `*' or natural number, found "
                             ^ L.toString t)
 
@@ -126,7 +126,7 @@ struct
               let
                 fun finish (LS.Cons ((L.RBRACE, r2), s'')) =
                       Stream.Cons ((EndSubsig, r2), recParse (s'', k, theSigParser, sc))
-                  | (* GEN CASE BRANCH *) finish (LS.Cons ((t, r), _)) =
+                  | finish (LS.Cons ((t, r), _)) =
                       Parsing.error (r, "Expected `}', found " ^ L.toString t)
               in
                 Stream.Cons ((BeginSubsig, r1), theSigParser (s', finish))
@@ -140,23 +140,23 @@ struct
     (* parseStream' : lexResult front -> fileParseResult front *)
     (* parseStream' switches between various specialized parsers *)
     and parseStream' (f as LS.Cons ((L.ID (idCase,name), r0), s'), sc) = parseConDec' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.ABBREV, r), s'), sc) = parseAbbrev' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.UNDERSCORE, r), s'), sc) = parseConDec' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.INFIX, r), s'), sc) = parseFixity' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.PREFIX, r), s'), sc) = parseFixity' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.POSTFIX, r), s'), sc) = parseFixity' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.NAME, r1), s'), sc) =
+      | parseStream' (f as LS.Cons ((L.ABBREV, r), s'), sc) = parseAbbrev' (f, sc)
+      | parseStream' (f as LS.Cons ((L.UNDERSCORE, r), s'), sc) = parseConDec' (f, sc)
+      | parseStream' (f as LS.Cons ((L.INFIX, r), s'), sc) = parseFixity' (f, sc)
+      | parseStream' (f as LS.Cons ((L.PREFIX, r), s'), sc) = parseFixity' (f, sc)
+      | parseStream' (f as LS.Cons ((L.POSTFIX, r), s'), sc) = parseFixity' (f, sc)
+      | parseStream' (f as LS.Cons ((L.NAME, r1), s'), sc) =
         let
           val (namePref, f' as LS.Cons ((_, r2), _)) = ParseFixity.parseNamePref' f
           val r = Paths.join (r1, r2)
         in
           Stream.Cons ((NamePref namePref, r), parseStream (stripDot f', sc))
         end
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons((L.DEFINE, r), s'), sc) =
+      | parseStream' (f as LS.Cons((L.DEFINE, r), s'), sc) =
           parseSolve' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons((L.SOLVE, r), s'), sc) =
+      | parseStream' (f as LS.Cons((L.SOLVE, r), s'), sc) =
           parseSolve' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (LS.Cons((L.QUERY, r0), s'), sc) =
+      | parseStream' (LS.Cons((L.QUERY, r0), s'), sc) =
         let
           val (expected, s1) = parseBound' (LS.expose s')
           val (try, s2) = parseBound' (LS.expose s1)
@@ -165,7 +165,7 @@ struct
         in
           Stream.Cons ((Query (expected, try, query), r), parseStream (stripDot f3, sc))
         end
-      | (* GEN CASE BRANCH *) parseStream' (LS.Cons((L.FQUERY, r0), s'), sc) =
+      | parseStream' (LS.Cons((L.FQUERY, r0), s'), sc) =
         let
           val (query, f3 as LS.Cons((_,r'),_)) = ParseQuery.parseQuery' (LS.expose s')
           val r = Paths.join (r0, r')
@@ -173,7 +173,7 @@ struct
           Stream.Cons ((FQuery query, r), parseStream (stripDot f3, sc))
         end
 
-      | (* GEN CASE BRANCH *) parseStream' (LS.Cons((L.QUERYTABLED, r0), s'), sc) =
+      | parseStream' (LS.Cons((L.QUERYTABLED, r0), s'), sc) =
         let
           val (numSol, s1) = parseBound' (LS.expose s')
           val (try, s2) = parseBound' (LS.expose s1)
@@ -182,35 +182,35 @@ struct
         in
           Stream.Cons ((Querytabled (numSol, try, query), r), parseStream (stripDot f3, sc))
         end
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.MODE, r), s'), sc) = parseMode' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.UNIQUE, r), s'), sc) = parseUnique' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.COVERS, r), s'), sc) = parseCovers' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.TOTAL, r), s'), sc) = parseTotal' (f, sc) (* -fp *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.TERMINATES, r), s'), sc) = parseTerminates' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.BLOCK, r), s'), sc) = parseConDec' (f, sc) (* -cs *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.WORLDS, r), s'), sc) = parseWorlds' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.REDUCES, r), s'), sc) = parseReduces' (f, sc) (* -bp *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.TABLED, r), s'), sc) = parseTabled' (f, sc) (* -bp *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.KEEPTABLE, r), s'), sc) = parseKeepTable' (f, sc) (* -bp *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.THEOREM, r), s'), sc) = parseTheorem' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.PROVE, r), s'), sc) = parseProve' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.ESTABLISH, r), s'), sc) = parseEstablish' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.ASSERT, r), s'), sc) = parseAssert' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.TRUSTME, r), s'), sc) = parseTrustMe' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.FREEZE, r), s'), sc) = parseFreeze' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.SUBORD, r), s'), sc) = parseSubord' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.THAW, r), s'), sc) = parseThaw' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.DETERMINISTIC, r), s'), sc) = parseDeterministic' (f, sc) (* -rv *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.COMPILE, r), s'), sc) = parseCompile' (f, sc) (* -ABP 4/4/03 *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.CLAUSE, r), s'), sc) = parseClause' (f, sc) (* -fp *)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.SIG, r), s'), sc) = parseSigDef' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.STRUCT, r), s'), sc) = parseStructDec' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.INCLUDE, r), s'), sc) = parseInclude' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.OPEN, r), s'), sc) = parseOpen' (f, sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.USE, r), s'), sc) = parseUse' (LS.expose s', sc)
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.EOF, _), _), sc) = sc f
-      | (* GEN CASE BRANCH *) parseStream' (f as LS.Cons ((L.RBRACE, _), _), sc) = sc f
-      | (* GEN CASE BRANCH *) parseStream' (LS.Cons ((t,r), s'), sc) =
+      | parseStream' (f as LS.Cons ((L.MODE, r), s'), sc) = parseMode' (f, sc)
+      | parseStream' (f as LS.Cons ((L.UNIQUE, r), s'), sc) = parseUnique' (f, sc)
+      | parseStream' (f as LS.Cons ((L.COVERS, r), s'), sc) = parseCovers' (f, sc)
+      | parseStream' (f as LS.Cons ((L.TOTAL, r), s'), sc) = parseTotal' (f, sc) (* -fp *)
+      | parseStream' (f as LS.Cons ((L.TERMINATES, r), s'), sc) = parseTerminates' (f, sc)
+      | parseStream' (f as LS.Cons ((L.BLOCK, r), s'), sc) = parseConDec' (f, sc) (* -cs *)
+      | parseStream' (f as LS.Cons ((L.WORLDS, r), s'), sc) = parseWorlds' (f, sc)
+      | parseStream' (f as LS.Cons ((L.REDUCES, r), s'), sc) = parseReduces' (f, sc) (* -bp *)
+      | parseStream' (f as LS.Cons ((L.TABLED, r), s'), sc) = parseTabled' (f, sc) (* -bp *)
+      | parseStream' (f as LS.Cons ((L.KEEPTABLE, r), s'), sc) = parseKeepTable' (f, sc) (* -bp *)
+      | parseStream' (f as LS.Cons ((L.THEOREM, r), s'), sc) = parseTheorem' (f, sc)
+      | parseStream' (f as LS.Cons ((L.PROVE, r), s'), sc) = parseProve' (f, sc)
+      | parseStream' (f as LS.Cons ((L.ESTABLISH, r), s'), sc) = parseEstablish' (f, sc)
+      | parseStream' (f as LS.Cons ((L.ASSERT, r), s'), sc) = parseAssert' (f, sc)
+      | parseStream' (f as LS.Cons ((L.TRUSTME, r), s'), sc) = parseTrustMe' (f, sc)
+      | parseStream' (f as LS.Cons ((L.FREEZE, r), s'), sc) = parseFreeze' (f, sc)
+      | parseStream' (f as LS.Cons ((L.SUBORD, r), s'), sc) = parseSubord' (f, sc)
+      | parseStream' (f as LS.Cons ((L.THAW, r), s'), sc) = parseThaw' (f, sc)
+      | parseStream' (f as LS.Cons ((L.DETERMINISTIC, r), s'), sc) = parseDeterministic' (f, sc) (* -rv *)
+      | parseStream' (f as LS.Cons ((L.COMPILE, r), s'), sc) = parseCompile' (f, sc) (* -ABP 4/4/03 *)
+      | parseStream' (f as LS.Cons ((L.CLAUSE, r), s'), sc) = parseClause' (f, sc) (* -fp *)
+      | parseStream' (f as LS.Cons ((L.SIG, r), s'), sc) = parseSigDef' (f, sc)
+      | parseStream' (f as LS.Cons ((L.STRUCT, r), s'), sc) = parseStructDec' (f, sc)
+      | parseStream' (f as LS.Cons ((L.INCLUDE, r), s'), sc) = parseInclude' (f, sc)
+      | parseStream' (f as LS.Cons ((L.OPEN, r), s'), sc) = parseOpen' (f, sc)
+      | parseStream' (f as LS.Cons ((L.USE, r), s'), sc) = parseUse' (LS.expose s', sc)
+      | parseStream' (f as LS.Cons ((L.EOF, _), _), sc) = sc f
+      | parseStream' (f as LS.Cons ((L.RBRACE, _), _), sc) = sc f
+      | parseStream' (LS.Cons ((t,r), s'), sc) =
           Parsing.error (r, "Expected constant name or pragma keyword, found "
                             ^ L.toString t)
 
@@ -362,7 +362,7 @@ struct
         let
           fun parseNextDec' (Stream.Cons((dec,r),s')) =
                  Stream.Cons ((TrustMe(dec,r),r0),s')
-            | (* GEN CASE BRANCH *) parseNextDec' (Stream.Empty) =
+            | parseNextDec' (Stream.Empty) =
                  Parsing.error (r0, "No declaration after `%trustme'")
         in
           parseNextDec' (parseStream' (LS.expose s, sc))
@@ -458,7 +458,7 @@ struct
         in
           Stream.Cons ((Use name, r), parseStream (stripDot f, sc))
         end
-      | (* GEN CASE BRANCH *) parseUse' (LS.Cons ((_, r), _), sc) =
+      | parseUse' (LS.Cons ((_, r), _), sc) =
         Parsing.error (r, "Constraint solver name expected")
 
     fun parseQ (s) = Stream.delay (fn () => parseQ' (LS.expose s))
@@ -472,7 +472,7 @@ struct
     fun parseTLStream instream =
         let
           fun finish (LS.Cons ((L.EOF, r), s)) = Stream.Empty
-            | (* GEN CASE BRANCH *) finish (LS.Cons ((L.RBRACE, r), s)) =
+            | finish (LS.Cons ((L.RBRACE, r), s)) =
                 Parsing.error (r, "Unmatched `}'")
         in
           parseStream (L.lexStream instream, finish)

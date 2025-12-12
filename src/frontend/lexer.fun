@@ -97,11 +97,11 @@ struct
      converts special identifiers into tokens, returns ID token otherwise
   *)
   fun stringToToken (Lower, "<-", r) = (BACKARROW, r)
-    | (* GEN CASE BRANCH *) stringToToken (Lower, "->", r) = (ARROW, r)
-    | (* GEN CASE BRANCH *) stringToToken (Upper, "_", r) = (UNDERSCORE, r)
-    | (* GEN CASE BRANCH *) stringToToken (Lower, "=", r) = (EQUAL, r)
-    | (* GEN CASE BRANCH *) stringToToken (Lower, "type", r) = (TYPE, r)
-    | (* GEN CASE BRANCH *) stringToToken (idCase, s, r) = (ID(idCase,s), r)
+    | stringToToken (Lower, "->", r) = (ARROW, r)
+    | stringToToken (Upper, "_", r) = (UNDERSCORE, r)
+    | stringToToken (Lower, "=", r) = (EQUAL, r)
+    | stringToToken (Lower, "type", r) = (TYPE, r)
+    | stringToToken (idCase, s, r) = (ID(idCase,s), r)
 
   (* lex (inputFun) = (token, region) stream
 
@@ -178,19 +178,19 @@ struct
        indicated in comments.
     *)
     fun lexInitial (#":", i) = (COLON, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#".", i) = (DOT, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#"(", i) = (LPAREN, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#")", i) = (RPAREN, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#"[", i) = (LBRACKET, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#"]", i) = (RBRACKET, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#"{", i) = (LBRACE, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#"}", i) = (RBRACE, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#"%", i) = lexPercent (char(i), i+1)
-      | (* GEN CASE BRANCH *) lexInitial (#"_", i) = lexID (Upper, P.Reg (i-1,i))
-      | (* GEN CASE BRANCH *) lexInitial (#"'", i) = lexID (Lower, P.Reg (i-1,i)) (* lexQUID (i-1,i) *)
-      | (* GEN CASE BRANCH *) lexInitial (#"\^D", i) = (EOF, P.Reg (i-1,i-1))
-      | (* GEN CASE BRANCH *) lexInitial (#"\"", i) = lexString (P.Reg(i-1, i))
-      | (* GEN CASE BRANCH *) lexInitial (c, i) =
+      | lexInitial (#".", i) = (DOT, P.Reg (i-1,i))
+      | lexInitial (#"(", i) = (LPAREN, P.Reg (i-1,i))
+      | lexInitial (#")", i) = (RPAREN, P.Reg (i-1,i))
+      | lexInitial (#"[", i) = (LBRACKET, P.Reg (i-1,i))
+      | lexInitial (#"]", i) = (RBRACKET, P.Reg (i-1,i))
+      | lexInitial (#"{", i) = (LBRACE, P.Reg (i-1,i))
+      | lexInitial (#"}", i) = (RBRACE, P.Reg (i-1,i))
+      | lexInitial (#"%", i) = lexPercent (char(i), i+1)
+      | lexInitial (#"_", i) = lexID (Upper, P.Reg (i-1,i))
+      | lexInitial (#"'", i) = lexID (Lower, P.Reg (i-1,i)) (* lexQUID (i-1,i) *)
+      | lexInitial (#"\^D", i) = (EOF, P.Reg (i-1,i-1))
+      | lexInitial (#"\"", i) = lexString (P.Reg(i-1, i))
+      | lexInitial (c, i) =
         if Char.isSpace (c) then lexInitial (char (i),i+1)
         else if Char.isUpper(c) then lexID (Upper, P.Reg (i-1,i))
         else if Char.isDigit(c) then lexID (Lower, P.Reg (i-1,i))
@@ -219,51 +219,51 @@ struct
              else lexQUID (P.Reg (i, j+1))
   
     and lexPercent (#".", i) = (EOF, P.Reg (i-2,i))
-      | (* GEN CASE BRANCH *) lexPercent (#"{", i) = lexPercentBrace (char(i), i+1)
-      | (* GEN CASE BRANCH *) lexPercent (#"%", i) = lexComment (#"%", i)
-      | (* GEN CASE BRANCH *) lexPercent (c, i) =
+      | lexPercent (#"{", i) = lexPercentBrace (char(i), i+1)
+      | lexPercent (#"%", i) = lexComment (#"%", i)
+      | lexPercent (c, i) =
         if isIdChar(c) then lexPragmaKey (lexID (Quoted, P.Reg (i-1, i)))
         else if Char.isSpace(c) then lexComment (c, i)
           else error (P.Reg (i-1, i), "Comment character `%' not followed by white space")
   
     and lexPragmaKey (ID(_, "infix"), r) = (INFIX, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "prefix"), r) = (PREFIX, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "postfix"), r) = (POSTFIX, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "mode"), r) = (MODE, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "unique"), r) = (UNIQUE, r) (* -fp 8/17/03 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "terminates"), r) = (TERMINATES, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "block"), r) = (BLOCK, r) (* -cs 6/3/01 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "worlds"), r) = (WORLDS, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "covers"), r) = (COVERS, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "total"), r) = (TOTAL, r) (* -fp 3/18/01 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "reduces"), r) = (REDUCES, r)         (* -bp 6/5/99 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "tabled"), r) = (TABLED, r)           (* -bp 20/11/01 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "keepTable"), r) = (KEEPTABLE, r)     (* -bp 20/11/04 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "theorem"), r) = (THEOREM, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "prove"), r) = (PROVE, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "establish"), r) = (ESTABLISH, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "assert"), r) = (ASSERT, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "abbrev"), r) = (ABBREV, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "name"), r) = (NAME, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "define"), r) = (DEFINE, r) (* -rv 8/27/01 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "solve"), r) = (SOLVE, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "query"), r) = (QUERY, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "fquery"), r) = (FQUERY, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "compile"), r) = (COMPILE, r) (* -ABP 4/4/03 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "querytabled"), r) = (QUERYTABLED, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "trustme"), r) = (TRUSTME, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "subord"), r) = (SUBORD, r) (* -gaw 07/11/08 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "freeze"), r) = (FREEZE, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "thaw"), r) = (THAW, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "deterministic"), r) = (DETERMINISTIC, r) (* -rv 11/27/01 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "clause"), r) = (CLAUSE, r) (* -fp 08/09/02 *)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "sig"), r) = (SIG, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "struct"), r) = (STRUCT, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "where"), r) = (WHERE, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "include"), r) = (INCLUDE, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "open"), r) = (OPEN, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, "use"), r) = (USE, r)
-      | (* GEN CASE BRANCH *) lexPragmaKey (ID(_, s), r) =
+      | lexPragmaKey (ID(_, "prefix"), r) = (PREFIX, r)
+      | lexPragmaKey (ID(_, "postfix"), r) = (POSTFIX, r)
+      | lexPragmaKey (ID(_, "mode"), r) = (MODE, r)
+      | lexPragmaKey (ID(_, "unique"), r) = (UNIQUE, r) (* -fp 8/17/03 *)
+      | lexPragmaKey (ID(_, "terminates"), r) = (TERMINATES, r)
+      | lexPragmaKey (ID(_, "block"), r) = (BLOCK, r) (* -cs 6/3/01 *)
+      | lexPragmaKey (ID(_, "worlds"), r) = (WORLDS, r)
+      | lexPragmaKey (ID(_, "covers"), r) = (COVERS, r)
+      | lexPragmaKey (ID(_, "total"), r) = (TOTAL, r) (* -fp 3/18/01 *)
+      | lexPragmaKey (ID(_, "reduces"), r) = (REDUCES, r)         (* -bp 6/5/99 *)
+      | lexPragmaKey (ID(_, "tabled"), r) = (TABLED, r)           (* -bp 20/11/01 *)
+      | lexPragmaKey (ID(_, "keepTable"), r) = (KEEPTABLE, r)     (* -bp 20/11/04 *)
+      | lexPragmaKey (ID(_, "theorem"), r) = (THEOREM, r)
+      | lexPragmaKey (ID(_, "prove"), r) = (PROVE, r)
+      | lexPragmaKey (ID(_, "establish"), r) = (ESTABLISH, r)
+      | lexPragmaKey (ID(_, "assert"), r) = (ASSERT, r)
+      | lexPragmaKey (ID(_, "abbrev"), r) = (ABBREV, r)
+      | lexPragmaKey (ID(_, "name"), r) = (NAME, r)
+      | lexPragmaKey (ID(_, "define"), r) = (DEFINE, r) (* -rv 8/27/01 *)
+      | lexPragmaKey (ID(_, "solve"), r) = (SOLVE, r)
+      | lexPragmaKey (ID(_, "query"), r) = (QUERY, r)
+      | lexPragmaKey (ID(_, "fquery"), r) = (FQUERY, r)
+      | lexPragmaKey (ID(_, "compile"), r) = (COMPILE, r) (* -ABP 4/4/03 *)
+      | lexPragmaKey (ID(_, "querytabled"), r) = (QUERYTABLED, r)
+      | lexPragmaKey (ID(_, "trustme"), r) = (TRUSTME, r)
+      | lexPragmaKey (ID(_, "subord"), r) = (SUBORD, r) (* -gaw 07/11/08 *)
+      | lexPragmaKey (ID(_, "freeze"), r) = (FREEZE, r)
+      | lexPragmaKey (ID(_, "thaw"), r) = (THAW, r)
+      | lexPragmaKey (ID(_, "deterministic"), r) = (DETERMINISTIC, r) (* -rv 11/27/01 *)
+      | lexPragmaKey (ID(_, "clause"), r) = (CLAUSE, r) (* -fp 08/09/02 *)
+      | lexPragmaKey (ID(_, "sig"), r) = (SIG, r)
+      | lexPragmaKey (ID(_, "struct"), r) = (STRUCT, r)
+      | lexPragmaKey (ID(_, "where"), r) = (WHERE, r)
+      | lexPragmaKey (ID(_, "include"), r) = (INCLUDE, r)
+      | lexPragmaKey (ID(_, "open"), r) = (OPEN, r)
+      | lexPragmaKey (ID(_, "use"), r) = (USE, r)
+      | lexPragmaKey (ID(_, s), r) =
         error (r, "Unknown keyword %" ^ s ^ " (single line comment starts with `%<whitespace>' or `%%')")
       (* comments are now started by %<whitespace> *)
       (*
@@ -271,35 +271,35 @@ struct
       *)
   
     and lexComment (#"\n", i) = lexInitial (char(i), i+1)
-      | (* GEN CASE BRANCH *) lexComment (#"%", i) = lexCommentPercent (char(i), i+1)
-      | (* GEN CASE BRANCH *) lexComment (#"\^D", i) =
+      | lexComment (#"%", i) = lexCommentPercent (char(i), i+1)
+      | lexComment (#"\^D", i) =
           error (P.Reg (i-1, i-1), "Unclosed single-line comment at end of file")
           (* recover: (EOF, (i-1,i-1)) *)
-      | (* GEN CASE BRANCH *) lexComment (c, i) = lexComment (char(i), i+1)
+      | lexComment (c, i) = lexComment (char(i), i+1)
   
     and lexCommentPercent (#".", i) = (EOF, P.Reg (i-2, i))
-      | (* GEN CASE BRANCH *) lexCommentPercent (c, i) = lexComment (c, i)
+      | lexCommentPercent (c, i) = lexComment (c, i)
   
     and lexPercentBrace (c, i) = lexDComment (c, 1, i)
   
     (* functions lexing delimited comments below take nesting level l *)
     and lexDComment (#"}", l, i) = lexDCommentRBrace (char(i), l, i+1)
-      | (* GEN CASE BRANCH *) lexDComment (#"%", l, i) = lexDCommentPercent (char(i), l, i+1)
-      | (* GEN CASE BRANCH *) lexDComment (#"\^D", l, i) =
+      | lexDComment (#"%", l, i) = lexDCommentPercent (char(i), l, i+1)
+      | lexDComment (#"\^D", l, i) =
           (* pass comment beginning for error message? *)
           error (P.Reg (i-1,i-1), "Unclosed delimited comment at end of file")
           (* recover: (EOF, (i-1,i-1)) *)
-      | (* GEN CASE BRANCH *) lexDComment (c, l, i) = lexDComment (char(i), l, i+1)
+      | lexDComment (c, l, i) = lexDComment (char(i), l, i+1)
   
     and lexDCommentPercent (#"{", l, i) = lexDComment (char(i), l+1, i+1)
-      | (* GEN CASE BRANCH *) lexDCommentPercent (#".", l, i) =
+      | lexDCommentPercent (#".", l, i) =
           error (P.Reg (i-2, i), "Unclosed delimited comment at end of file token `%.'")
           (* recover: (EOF, (i-2,i)) *)
-      | (* GEN CASE BRANCH *) lexDCommentPercent (c, l, i) = lexDComment (c, l, i)
+      | lexDCommentPercent (c, l, i) = lexDComment (c, l, i)
   
     and lexDCommentRBrace (#"%", 1, i) = lexInitial (char(i), i+1)
-      | (* GEN CASE BRANCH *) lexDCommentRBrace (#"%", l, i) = lexDComment (char(i), l-1, i+1)
-      | (* GEN CASE BRANCH *) lexDCommentRBrace (c, l, i) = lexDComment (c, l, i)
+      | lexDCommentRBrace (#"%", l, i) = lexDComment (char(i), l-1, i+1)
+      | lexDCommentRBrace (c, l, i) = lexDComment (c, l, i)
   
     and lexString (P.Reg(i, j)) =
           (case char(j)
@@ -317,7 +317,7 @@ struct
   
     and lexContinue'' (mt as (ID _, P.Reg (i,j))) =
           Stream.Cons (mt, lexContinueQualId (j))
-      | (* GEN CASE BRANCH *) lexContinue'' (mt as (token, P.Reg (i,j))) =
+      | lexContinue'' (mt as (token, P.Reg (i,j))) =
           Stream.Cons (mt, lexContinue (j))
   
     and lexContinueQualId (j) =
@@ -342,61 +342,61 @@ struct
                       Compat.inputLine97 (TextIO.stdIn)))
 
   fun toString' (DOT) = "."
-    | (* GEN CASE BRANCH *) toString' (PATHSEP) = "."
-    | (* GEN CASE BRANCH *) toString' (COLON) = ":"
-    | (* GEN CASE BRANCH *) toString' (LPAREN) = "("
-    | (* GEN CASE BRANCH *) toString' (RPAREN) = ")"
-    | (* GEN CASE BRANCH *) toString' (LBRACKET) = "["
-    | (* GEN CASE BRANCH *) toString' (RBRACKET) = "]"
-    | (* GEN CASE BRANCH *) toString' (LBRACE) = "{"
-    | (* GEN CASE BRANCH *) toString' (RBRACE) = "}"
-    | (* GEN CASE BRANCH *) toString' (BACKARROW) = "<-"
-    | (* GEN CASE BRANCH *) toString' (ARROW) = "->"
-    | (* GEN CASE BRANCH *) toString' (TYPE) = "type"
-    | (* GEN CASE BRANCH *) toString' (EQUAL) = "="
-    | (* GEN CASE BRANCH *) toString' (UNDERSCORE) = "_"
-    | (* GEN CASE BRANCH *) toString' (INFIX) = "%infix"
-    | (* GEN CASE BRANCH *) toString' (PREFIX) = "%prefix"
-    | (* GEN CASE BRANCH *) toString' (POSTFIX) = "%postfix"
-    | (* GEN CASE BRANCH *) toString' (NAME) = "%name"
-    | (* GEN CASE BRANCH *) toString' (DEFINE) = "%define"    (* -rv 8/27/01 *)
-    | (* GEN CASE BRANCH *) toString' (SOLVE) = "%solve"
-    | (* GEN CASE BRANCH *) toString' (QUERY) = "%query"
-    | (* GEN CASE BRANCH *) toString' (FQUERY) = "%fquery"
-    | (* GEN CASE BRANCH *) toString' (COMPILE) = "%compile"  (* -ABP 4/4/03 *)
-    | (* GEN CASE BRANCH *) toString' (QUERYTABLED) = "%querytabled"
-    | (* GEN CASE BRANCH *) toString' (MODE) = "%mode"
-    | (* GEN CASE BRANCH *) toString' (UNIQUE) = "%unique"
-    | (* GEN CASE BRANCH *) toString' (COVERS) = "%covers"
-    | (* GEN CASE BRANCH *) toString' (TOTAL) = "%total"
-    | (* GEN CASE BRANCH *) toString' (TERMINATES) = "%terminates"
-    | (* GEN CASE BRANCH *) toString' (BLOCK) = "%block"      (* -cs 6/3/01. *)
-    | (* GEN CASE BRANCH *) toString' (WORLDS) = "%worlds"
-    | (* GEN CASE BRANCH *) toString' (REDUCES) = "%reduces"              (*  -bp 6/5/99. *)
-    | (* GEN CASE BRANCH *) toString' (TABLED) = "%tabled"                (*  -bp 20/11/01. *)
-    | (* GEN CASE BRANCH *) toString' (KEEPTABLE) = "%keepTable"          (*  -bp 04/11/03. *)
-    | (* GEN CASE BRANCH *) toString' (THEOREM) = "%theorem"
-    | (* GEN CASE BRANCH *) toString' (PROVE) = "%prove"
-    | (* GEN CASE BRANCH *) toString' (ESTABLISH) = "%establish"
-    | (* GEN CASE BRANCH *) toString' (ASSERT) = "%assert"
-    | (* GEN CASE BRANCH *) toString' (ABBREV) = "%abbrev"
-    | (* GEN CASE BRANCH *) toString' (TRUSTME) = "%trustme"
-    | (* GEN CASE BRANCH *) toString' (SUBORD) = "%subord"
-    | (* GEN CASE BRANCH *) toString' (FREEZE) = "%freeze"
-    | (* GEN CASE BRANCH *) toString' (THAW) = "%thaw"
-    | (* GEN CASE BRANCH *) toString' (DETERMINISTIC) = "%deterministic"  (* -rv 11/27/01. *)
-    | (* GEN CASE BRANCH *) toString' (CLAUSE) = "%clause" (* -fp 08/09/02 *)
-    | (* GEN CASE BRANCH *) toString' (SIG) = "%sig"
-    | (* GEN CASE BRANCH *) toString' (STRUCT) = "%struct"
-    | (* GEN CASE BRANCH *) toString' (WHERE) = "%where"
-    | (* GEN CASE BRANCH *) toString' (INCLUDE) = "%include"
-    | (* GEN CASE BRANCH *) toString' (OPEN) = "%open"
-    | (* GEN CASE BRANCH *) toString' (USE) = "%use"
+    | toString' (PATHSEP) = "."
+    | toString' (COLON) = ":"
+    | toString' (LPAREN) = "("
+    | toString' (RPAREN) = ")"
+    | toString' (LBRACKET) = "["
+    | toString' (RBRACKET) = "]"
+    | toString' (LBRACE) = "{"
+    | toString' (RBRACE) = "}"
+    | toString' (BACKARROW) = "<-"
+    | toString' (ARROW) = "->"
+    | toString' (TYPE) = "type"
+    | toString' (EQUAL) = "="
+    | toString' (UNDERSCORE) = "_"
+    | toString' (INFIX) = "%infix"
+    | toString' (PREFIX) = "%prefix"
+    | toString' (POSTFIX) = "%postfix"
+    | toString' (NAME) = "%name"
+    | toString' (DEFINE) = "%define"    (* -rv 8/27/01 *)
+    | toString' (SOLVE) = "%solve"
+    | toString' (QUERY) = "%query"
+    | toString' (FQUERY) = "%fquery"
+    | toString' (COMPILE) = "%compile"  (* -ABP 4/4/03 *)
+    | toString' (QUERYTABLED) = "%querytabled"
+    | toString' (MODE) = "%mode"
+    | toString' (UNIQUE) = "%unique"
+    | toString' (COVERS) = "%covers"
+    | toString' (TOTAL) = "%total"
+    | toString' (TERMINATES) = "%terminates"
+    | toString' (BLOCK) = "%block"      (* -cs 6/3/01. *)
+    | toString' (WORLDS) = "%worlds"
+    | toString' (REDUCES) = "%reduces"              (*  -bp 6/5/99. *)
+    | toString' (TABLED) = "%tabled"                (*  -bp 20/11/01. *)
+    | toString' (KEEPTABLE) = "%keepTable"          (*  -bp 04/11/03. *)
+    | toString' (THEOREM) = "%theorem"
+    | toString' (PROVE) = "%prove"
+    | toString' (ESTABLISH) = "%establish"
+    | toString' (ASSERT) = "%assert"
+    | toString' (ABBREV) = "%abbrev"
+    | toString' (TRUSTME) = "%trustme"
+    | toString' (SUBORD) = "%subord"
+    | toString' (FREEZE) = "%freeze"
+    | toString' (THAW) = "%thaw"
+    | toString' (DETERMINISTIC) = "%deterministic"  (* -rv 11/27/01. *)
+    | toString' (CLAUSE) = "%clause" (* -fp 08/09/02 *)
+    | toString' (SIG) = "%sig"
+    | toString' (STRUCT) = "%struct"
+    | toString' (WHERE) = "%where"
+    | toString' (INCLUDE) = "%include"
+    | toString' (OPEN) = "%open"
+    | toString' (USE) = "%use"
 
  fun toString (ID(_,s)) = "identifier `" ^ s ^ "'"
-   | (* GEN CASE BRANCH *) toString (EOF) = "end of file or `%.'"
-   | (* GEN CASE BRANCH *) toString (STRING(s)) = "constant string " ^ s
-   | (* GEN CASE BRANCH *) toString (token) = "`" ^ toString' token ^ "'"
+   | toString (EOF) = "end of file or `%.'"
+   | toString (STRING(s)) = "constant string " ^ s
+   | toString (token) = "`" ^ toString' token ^ "'"
 
  exception NotDigit of char
 
@@ -425,7 +425,7 @@ struct
      letter or underscore (_).
   *)
   fun isUpper ("") = false
-    | (* GEN CASE BRANCH *) isUpper (s) =
+    | isUpper (s) =
       let val c = String.sub (s, 0)
        in
          Char.isUpper c orelse c = #"_"

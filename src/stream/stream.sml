@@ -92,49 +92,49 @@ struct
   (* parallel the functions in the List structure *)
   fun null (s) = null' (expose s)
   and null' (Empty) = true
-    | (* GEN CASE BRANCH *) null' (Cons _) = false
+    | null' (Cons _) = false
 
   fun hd (s) = hd' (expose s)
   and hd' (Empty) = raise EmptyStream
-    | (* GEN CASE BRANCH *) hd' (Cons (x,s)) = x
+    | hd' (Cons (x,s)) = x
 
   fun tl (s) = tl' (expose s)
   and tl' (Empty) = raise EmptyStream
-    | (* GEN CASE BRANCH *) tl' (Cons (x,s)) = s
+    | tl' (Cons (x,s)) = s
 
   fun map f s = delay (fn () => map' f (expose s))
   and map' f (Empty) = Empty
-    | (* GEN CASE BRANCH *) map' f (Cons(x,s)) = Cons (f(x), map f s)
+    | map' f (Cons(x,s)) = Cons (f(x), map f s)
 
   fun filter p s = delay (fn () => filter' p (expose s))
   and filter' p (Empty) = Empty
-    | (* GEN CASE BRANCH *) filter' p (Cons(x,s)) =
+    | filter' p (Cons(x,s)) =
         if p(x) then Cons (x, filter p s)
     	else filter' p (expose s)
 
   fun exists p s = exists' p (expose s)
   and exists' p (Empty) = false
-    | (* GEN CASE BRANCH *) exists' p (Cons(x,s)) =
+    | exists' p (Cons(x,s)) =
         p(x) orelse exists p s
 
   fun takePos (s, 0) = nil
-    | (* GEN CASE BRANCH *) takePos (s, n) = take' (expose s, n)
+    | takePos (s, n) = take' (expose s, n)
   and take' (Empty, _) = nil
-    | (* GEN CASE BRANCH *) take' (Cons(x,s), n) = x::takePos(s, n-1)
+    | take' (Cons(x,s), n) = x::takePos(s, n-1)
 
   fun take (s,n) = if n < 0 then raise Subscript else takePos (s,n)
 
   fun fromList (nil) = empty
-    | (* GEN CASE BRANCH *) fromList (x::l) = cons(x,fromList(l))
+    | fromList (x::l) = cons(x,fromList(l))
 
   fun toList (s) = toList' (expose s)
   and toList' (Empty) = nil
-    | (* GEN CASE BRANCH *) toList' (Cons(x,s)) = x::toList(s)
+    | toList' (Cons(x,s)) = x::toList(s)
 
   fun dropPos (s, 0) = s
-    | (* GEN CASE BRANCH *) dropPos (s, n) = drop' (expose s, n)
+    | dropPos (s, n) = drop' (expose s, n)
   and drop' (Empty, _) = empty
-    | (* GEN CASE BRANCH *) drop' (Cons(x,s), n) = dropPos (s, n-1)
+    | drop' (Cons(x,s), n) = dropPos (s, n-1)
 
   fun drop (s,n) = if n < 0 then raise Subscript else dropPos (s,n)
 

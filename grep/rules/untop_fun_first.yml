@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+
+id: untop_fun_first
+message: Add generation to first
+severity: warning # error, warning, info, hint
+language: sml
+rule:
+  pattern: $BRANCH
+  # matches: within_type
+  kind: fmrule 
+  precedes:
+    pattern: $OBRANCH 
+    kind: fmrule 
+    stopBy: end
+  not:
+    follows:
+      pattern: $UBRANCH 
+      kind: fmrule 
+      stopBy: end
+    
+
+fix: (* GEN BEGIN CASE FIRST *) $BRANCH (* GEN END CASE FIRST *)
+# utils: Extract repeated rule as local utility here.
+# note: Add detailed explanation for the rule.

@@ -23,18 +23,18 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
         )
 
     fun convert (T.Lam (D, P)) = T.Lam (D, convert P)
-      | (* GEN CASE BRANCH *) convert (T.New P) = T.New (convert P)
-      | (* GEN CASE BRANCH *) convert (T.Choose P) = T.Choose (convert P)
-      | (* GEN CASE BRANCH *) convert (T.PairExp (M, P)) = T.PairExp (M, convert P)
-      | (* GEN CASE BRANCH *) convert (T.PairBlock (rho, P)) = T.PairBlock (rho, convert P)
-      | (* GEN CASE BRANCH *) convert (T.PairPrg (P1, P2)) = T.PairPrg (convert P1, convert P2)
-      | (* GEN CASE BRANCH *) convert (T.Unit) = T.Unit
-      | (* GEN CASE BRANCH *) convert (T.Var x) = T.Var x
-      | (* GEN CASE BRANCH *) convert (T.Const x) = T.Const x
-      | (* GEN CASE BRANCH *) convert (T.Redex (P, S)) = T.Redex (convert P, convertSpine S)
-      | (* GEN CASE BRANCH *) convert (T.Rec (D, P)) = T.Rec (D, convert P)
-      | (* GEN CASE BRANCH *) convert (T.Case (T.Cases O)) = T.Case (T.Cases (convertCases O))
-      | (* GEN CASE BRANCH *) convert (T.Let (D,P1,P2)) = T.Let (D, convert P1, convert P2)
+      | convert (T.New P) = T.New (convert P)
+      | convert (T.Choose P) = T.Choose (convert P)
+      | convert (T.PairExp (M, P)) = T.PairExp (M, convert P)
+      | convert (T.PairBlock (rho, P)) = T.PairBlock (rho, convert P)
+      | convert (T.PairPrg (P1, P2)) = T.PairPrg (convert P1, convert P2)
+      | convert (T.Unit) = T.Unit
+      | convert (T.Var x) = T.Var x
+      | convert (T.Const x) = T.Const x
+      | convert (T.Redex (P, S)) = T.Redex (convert P, convertSpine S)
+      | convert (T.Rec (D, P)) = T.Rec (D, convert P)
+      | convert (T.Case (T.Cases O)) = T.Case (T.Cases (convertCases O))
+      | convert (T.Let (D,P1,P2)) = T.Let (D, convert P1, convert P2)
     (* No EVARs will occur
       | convert (T.PClo (P,t)) = raise Error "No PClo should exist" (* T.PClo (convert P, t) *)
       | convert (T.EVar (D, P as ref NONE, F)) = T.EVar (D, P, F)
@@ -43,10 +43,10 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
 
     and convertSpine (T.Nil) = T.Nil
-      | (* GEN CASE BRANCH *) convertSpine (T.AppExp (I, S)) = (T.AppExp (I, convertSpine S))
-      | (* GEN CASE BRANCH *) convertSpine (T.AppBlock (I, S)) = (T.AppBlock (I, convertSpine S))
-      | (* GEN CASE BRANCH *) convertSpine (T.AppPrg (P, S)) = (T.AppPrg (convert P, convertSpine S))
-      | (* GEN CASE BRANCH *) convertSpine (T.SClo (S, t)) = raise Error "SClo should not exist"
+      | convertSpine (T.AppExp (I, S)) = (T.AppExp (I, convertSpine S))
+      | convertSpine (T.AppBlock (I, S)) = (T.AppBlock (I, convertSpine S))
+      | convertSpine (T.AppPrg (P, S)) = (T.AppPrg (convert P, convertSpine S))
+      | convertSpine (T.SClo (S, t)) = raise Error "SClo should not exist"
                              (* (T.SClo (convertSpine S, t)) *)
 
 
@@ -58,14 +58,14 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
     and blockEqual (I.Bidx x, I.Bidx x') = (x=x')
       (* Should not occur -- ap 2/18/03 *)
-      | (* GEN CASE BRANCH *) blockEqual (I.LVar (r, sub1, (cid, sub2)), I.LVar (r', sub1', (cid', sub2'))) =
+      | blockEqual (I.LVar (r, sub1, (cid, sub2)), I.LVar (r', sub1', (cid', sub2'))) =
           optionRefEqual(r,r',blockEqual) andalso IsubEqual(sub1, sub1') andalso (cid = cid') andalso IsubEqual(sub1', sub2')
-      | (* GEN CASE BRANCH *) blockEqual _ = false
+      | blockEqual _ = false
 
 
     and decEqual ( T.UDec (D1), (T.UDec (D2), t2) ) = Conv.convDec ((D1, I.id),(D2, T.coerceSub(t2)))
-      | (* GEN CASE BRANCH *) decEqual ( T.PDec (_, F1, _, _), (T.PDec (_, F2, _, _), t2) ) = T.convFor ((F1, T.id), (F2, t2))
-      | (* GEN CASE BRANCH *) decEqual _ = false
+      | decEqual ( T.PDec (_, F1, _, _), (T.PDec (_, F2, _, _), t2) ) = T.convFor ((F1, T.id), (F2, t2))
+      | decEqual _ = false
 
     and caseEqual (((Psi1, t1, P1)::O1), (((Psi2, t2, P2)::O2), tAfter)) =
             (* Recall that we (Psi2, t2, P2)[tAfter] = (Psi2, (tAfterInv \circ t2), P2) *)
@@ -89,34 +89,34 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
             end
 
 
-      | (* GEN CASE BRANCH *) caseEqual (nil, (nil, t2)) = true
-      | (* GEN CASE BRANCH *) caseEqual _ = false
+      | caseEqual (nil, (nil, t2)) = true
+      | caseEqual _ = false
 
     and spineEqual ( (T.Nil), (T.Nil, t2) ) = true
-      | (* GEN CASE BRANCH *) spineEqual ( (T.AppExp(E1,S1)), (T.AppExp(E2,S2), t2) ) = (Conv.conv( (E1,I.id), (E2, T.coerceSub(t2)) ) andalso spineEqual(S1,(S2,t2)))
-      | (* GEN CASE BRANCH *) spineEqual ( (T.AppBlock (B1,S1)), (T.AppBlock(B2,S2), t2) ) = (blockEqual( B1, I.blockSub (B2, T.coerceSub t2)) andalso spineEqual(S1,(S2,t2)))
+      | spineEqual ( (T.AppExp(E1,S1)), (T.AppExp(E2,S2), t2) ) = (Conv.conv( (E1,I.id), (E2, T.coerceSub(t2)) ) andalso spineEqual(S1,(S2,t2)))
+      | spineEqual ( (T.AppBlock (B1,S1)), (T.AppBlock(B2,S2), t2) ) = (blockEqual( B1, I.blockSub (B2, T.coerceSub t2)) andalso spineEqual(S1,(S2,t2)))
 
-      | (* GEN CASE BRANCH *) spineEqual ( (T.AppPrg (P1,S1)), (T.AppPrg(P2,S2), t2) ) = (prgEqual(P1, (P2, t2)) andalso spineEqual(S1, (S2,t2)))
+      | spineEqual ( (T.AppPrg (P1,S1)), (T.AppPrg(P2,S2), t2) ) = (prgEqual(P1, (P2, t2)) andalso spineEqual(S1, (S2,t2)))
 
-      | (* GEN CASE BRANCH *) spineEqual ( T.SClo(S,t1), (T.SClo(s,t2a), t2) ) =
+      | spineEqual ( T.SClo(S,t1), (T.SClo(s,t2a), t2) ) =
       (* there are no SClo created in converter *) raise Error "SClo should not exist!"
 
-      | (* GEN CASE BRANCH *) spineEqual _ = false
+      | spineEqual _ = false
 
 
     and prgEqual ((T.Lam (D1, P1)), (T.Lam (D2, P2), t2)) = (decEqual(D1, (D2,t2)) andalso prgEqual(P1, (P2, T.dot1 t2)))
-      | (* GEN CASE BRANCH *) prgEqual ((T.New P1), (T.New P2, t2)) = prgEqual(P1, (P2, t2))
-      | (* GEN CASE BRANCH *) prgEqual ((T.Choose P1), (T.Choose P2, t2)) = prgEqual(P1, (P2, t2))
-      | (* GEN CASE BRANCH *) prgEqual ((T.PairExp (U1, P1)), (T.PairExp (U2, P2), t2)) = (Conv.conv((U1, I.id),(U2,(T.coerceSub t2))) andalso prgEqual((P1), (P2, t2)))
-      | (* GEN CASE BRANCH *) prgEqual ((T.PairBlock (B1, P1)), (T.PairBlock (B2, P2), t2)) = (blockEqual(B1, (I.blockSub(B2, T.coerceSub t2))) andalso prgEqual(P1,(P2,t2)))
+      | prgEqual ((T.New P1), (T.New P2, t2)) = prgEqual(P1, (P2, t2))
+      | prgEqual ((T.Choose P1), (T.Choose P2, t2)) = prgEqual(P1, (P2, t2))
+      | prgEqual ((T.PairExp (U1, P1)), (T.PairExp (U2, P2), t2)) = (Conv.conv((U1, I.id),(U2,(T.coerceSub t2))) andalso prgEqual((P1), (P2, t2)))
+      | prgEqual ((T.PairBlock (B1, P1)), (T.PairBlock (B2, P2), t2)) = (blockEqual(B1, (I.blockSub(B2, T.coerceSub t2))) andalso prgEqual(P1,(P2,t2)))
 
-      | (* GEN CASE BRANCH *) prgEqual ((T.PairPrg (P1a, P1b)), (T.PairPrg (P2a, P2b), t2)) = (prgEqual(P1a, (P2a, t2)) andalso prgEqual(P1b, (P2b, t2)))
+      | prgEqual ((T.PairPrg (P1a, P1b)), (T.PairPrg (P2a, P2b), t2)) = (prgEqual(P1a, (P2a, t2)) andalso prgEqual(P1b, (P2b, t2)))
 
-      | (* GEN CASE BRANCH *) prgEqual ((T.Unit), (T.Unit, t2)) = true
+      | prgEqual ((T.Unit), (T.Unit, t2)) = true
 
-      | (* GEN CASE BRANCH *) prgEqual (T.Const lemma1, (T.Const lemma2, _)) = (lemma1=lemma2)
+      | prgEqual (T.Const lemma1, (T.Const lemma2, _)) = (lemma1=lemma2)
 
-      | (* GEN CASE BRANCH *) prgEqual (T.Var x1, (T.Var x2, t2)) =
+      | prgEqual (T.Var x1, (T.Var x2, t2)) =
                      (case getFrontIndex(T.varSub(x2,t2)) of
                            NONE => false
                          | SOME i => (x1 = i))
@@ -130,19 +130,19 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
                             | SOME i => ((x1 = i) andalso (spineEqual(S1, (S2,t2)))))
                  |  _ => false)
 *)
-      | (* GEN CASE BRANCH *) prgEqual ((T.Redex (P1, S1)), (T.Redex (P2, S2), t2)) = (prgEqual(P1, (P2,t2)) andalso spineEqual(S1, (S2,t2)))
+      | prgEqual ((T.Redex (P1, S1)), (T.Redex (P2, S2), t2)) = (prgEqual(P1, (P2,t2)) andalso spineEqual(S1, (S2,t2)))
 
-      | (* GEN CASE BRANCH *) prgEqual ((T.Rec (D1, P1)), (T.Rec (D2, P2), t2)) = (decEqual(D1, (D2,t2)) andalso prgEqual(P1, (P2,T.dot1 t2)))
+      | prgEqual ((T.Rec (D1, P1)), (T.Rec (D2, P2), t2)) = (decEqual(D1, (D2,t2)) andalso prgEqual(P1, (P2,T.dot1 t2)))
 
-      | (* GEN CASE BRANCH *) prgEqual ((T.Case (T.Cases O1)), (T.Case (T.Cases O2), t2)) = caseEqual(O1, (O2, t2))
+      | prgEqual ((T.Case (T.Cases O1)), (T.Case (T.Cases O2), t2)) = caseEqual(O1, (O2, t2))
 
-      | (* GEN CASE BRANCH *) prgEqual ((T.Let (D1, P1a, P1b)), (T.Let (D2, P2a, P2b), t2)) = (decEqual(D1, (D2, t2)) andalso prgEqual(P1a, (P2a, t2)))
+      | prgEqual ((T.Let (D1, P1a, P1b)), (T.Let (D2, P2a, P2b), t2)) = (decEqual(D1, (D2, t2)) andalso prgEqual(P1a, (P2a, t2)))
 
-      | (* GEN CASE BRANCH *) prgEqual ((T.PClo (P1, t1)), (T.PClo (P2, t2a), t2b)) = (* there are no PClo created in converter *) raise Error "PClo should not exist!"
+      | prgEqual ((T.PClo (P1, t1)), (T.PClo (P2, t2a), t2b)) = (* there are no PClo created in converter *) raise Error "PClo should not exist!"
 
-      | (* GEN CASE BRANCH *) prgEqual ((T.EVar (Psi1, P1optRef, F1, _, _, _)), (T.EVar (Psi2, P2optref, F2, _, _, _), t2)) = raise Error "No EVARs should exist!"
+      | prgEqual ((T.EVar (Psi1, P1optRef, F1, _, _, _)), (T.EVar (Psi2, P2optref, F2, _, _, _), t2)) = raise Error "No EVARs should exist!"
 
-      | (* GEN CASE BRANCH *) prgEqual _ = false
+      | prgEqual _ = false
 
 
     (* convertCases is where the real work comes in *)
@@ -156,12 +156,12 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
         ((Psi,t,convert(P))::convertCases(C'))
       end
 
-      | (* GEN CASE BRANCH *) convertCases C = C (* will be T.Cases nil *)
+      | convertCases C = C (* will be T.Cases nil *)
 
 
     (* Returns a list with C (merged with redundant cases) as the head followed by the rest *)
     and removeRedundancy (C, []) = (C, [])
-      | (* GEN CASE BRANCH *) removeRedundancy ( C, C'::rest) =
+      | removeRedundancy ( C, C'::rest) =
             let
               val (C''::Cs) = mergeIfNecessary(C, C')
               val (C''', rest') = removeRedundancy(C'', rest)
@@ -171,38 +171,38 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
     (* returns NONE if not found *)
     and getFrontIndex (T.Idx k) = SOME(k)
-      | (* GEN CASE BRANCH *) getFrontIndex (T.Prg P) = getPrgIndex(P)
-      | (* GEN CASE BRANCH *) getFrontIndex (T.Exp U) = getExpIndex(U)
-      | (* GEN CASE BRANCH *) getFrontIndex (T.Block B) = getBlockIndex(B)
-      | (* GEN CASE BRANCH *) getFrontIndex (T.Undef) = NONE
+      | getFrontIndex (T.Prg P) = getPrgIndex(P)
+      | getFrontIndex (T.Exp U) = getExpIndex(U)
+      | getFrontIndex (T.Block B) = getBlockIndex(B)
+      | getFrontIndex (T.Undef) = NONE
 
 
     (* getPrgIndex returns NONE if it is not an index *)
     and getPrgIndex (T.Var k) = SOME(k)
-      | (* GEN CASE BRANCH *) getPrgIndex (T.Redex(P, T.Nil) ) = getPrgIndex(P)
+      | getPrgIndex (T.Redex(P, T.Nil) ) = getPrgIndex(P)
 
       (* it is possible in the matchSub that we will get PClo under a sub (usually id) *)
-      | (* GEN CASE BRANCH *) getPrgIndex (T.PClo (P,t)) =
+      | getPrgIndex (T.PClo (P,t)) =
             (case getPrgIndex(P) of
               NONE => NONE
             | SOME i => getFrontIndex (T.varSub (i, t)))
 
-      | (* GEN CASE BRANCH *) getPrgIndex _ = NONE
+      | getPrgIndex _ = NONE
 
     (* getExpIndex returns NONE if it is not an index *)
     and getExpIndex (I.Root (I.BVar k, I.Nil)) = SOME(k)
-      | (* GEN CASE BRANCH *) getExpIndex (I.Redex (U, I.Nil)) = getExpIndex(U)
-      | (* GEN CASE BRANCH *) getExpIndex (I.EClo (U, t)) =
+      | getExpIndex (I.Redex (U, I.Nil)) = getExpIndex(U)
+      | getExpIndex (I.EClo (U, t)) =
             (case getExpIndex(U) of
                NONE => NONE
              | SOME i => getFrontIndex (T.revCoerceFront(I.bvarSub(i, t))))
 
-      | (* GEN CASE BRANCH *) getExpIndex (U as I.Lam (I.Dec (_, U1), U2)) = (SOME ( Whnf.etaContract(U) )  handle Whnf.Eta => NONE)
-      | (* GEN CASE BRANCH *) getExpIndex _ = NONE
+      | getExpIndex (U as I.Lam (I.Dec (_, U1), U2)) = (SOME ( Whnf.etaContract(U) )  handle Whnf.Eta => NONE)
+      | getExpIndex _ = NONE
 
     (* getBlockIndex returns NONE if it is not an index *)
     and getBlockIndex (I.Bidx k) = SOME(k)
-      | (* GEN CASE BRANCH *) getBlockIndex _ = NONE
+      | getBlockIndex _ = NONE
 
 
 
@@ -211,7 +211,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
        think it is a pattern substitution
        *)
     and cleanSub (S as T.Shift _) = S
-      | (* GEN CASE BRANCH *) cleanSub (T.Dot(Ft1,s1)) =
+      | cleanSub (T.Dot(Ft1,s1)) =
          (case getFrontIndex(Ft1) of
             NONE => T.Dot(Ft1, cleanSub(s1))
           | SOME index =>  T.Dot(T.Idx index, cleanSub(s1)))
@@ -219,7 +219,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
     (* determine if t is simply a renaming substitution *)
     and IsSubRenamingOnly (T.Shift(n)) = true
-      | (* GEN CASE BRANCH *) IsSubRenamingOnly (T.Dot(Ft1,s1)) =
+      | IsSubRenamingOnly (T.Dot(Ft1,s1)) =
           (case getFrontIndex(Ft1) of
              NONE => false
            | SOME _ => true)
@@ -229,28 +229,28 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
     (* Note that what we are merging it with will need to go under an extra renaming substitution *)
 
     and mergeSpines ( (T.Nil), (T.Nil, t2) ) = T.Nil
-      | (* GEN CASE BRANCH *) mergeSpines ( (T.AppExp(E1,S1)), (T.AppExp(E2,S2), t2) ) =
+      | mergeSpines ( (T.AppExp(E1,S1)), (T.AppExp(E2,S2), t2) ) =
             if Conv.conv( (E1,I.id), (E2, T.coerceSub(t2)) ) then
               T.AppExp(E1, mergeSpines(S1,(S2,t2)))
             else
               raise Error "Spine not equal (AppExp)"
 
-      | (* GEN CASE BRANCH *) mergeSpines ( (T.AppBlock (B1,S1)), (T.AppBlock(B2,S2), t2) ) =
+      | mergeSpines ( (T.AppBlock (B1,S1)), (T.AppBlock(B2,S2), t2) ) =
             if blockEqual( B1, I.blockSub (B2, T.coerceSub t2))  then
               T.AppBlock(B1, mergeSpines(S1,(S2,t2)))
             else
               raise Error "Spine not equal (AppBlock)"
 
-      | (* GEN CASE BRANCH *) mergeSpines ( (T.AppPrg (P1,S1)), (T.AppPrg(P2,S2), t2) ) =
+      | mergeSpines ( (T.AppPrg (P1,S1)), (T.AppPrg(P2,S2), t2) ) =
                 if (prgEqual(P1, (P2, t2))) then
                   T.AppPrg(P1, mergeSpines(S1, (S2,t2)))
                 else
                   raise Error "Prg (in App) not equal"
 
-      | (* GEN CASE BRANCH *) mergeSpines ( T.SClo(S,t1), (T.SClo(s,t2a), t2) ) =
+      | mergeSpines ( T.SClo(S,t1), (T.SClo(s,t2a), t2) ) =
       (* there are no SClo created in converter *) raise Error "SClo should not exist!"
 
-      | (* GEN CASE BRANCH *) mergeSpines _ = raise Error "Spine are not equivalent"
+      | mergeSpines _ = raise Error "Spine are not equivalent"
 
 
     and mergePrgs ((T.Lam (D1, P1)), (T.Lam (D2, P2), t2)) =
@@ -259,13 +259,13 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
                                 else
                                     raise Error "Lambda don't match"
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.New P1), (T.New P2, t2)) = if (prgEqual(P1, (P2, t2))) then T.New P1 else
+      | mergePrgs ((T.New P1), (T.New P2, t2)) = if (prgEqual(P1, (P2, t2))) then T.New P1 else
                                       raise Error "New don't match"
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.Choose P1), (T.Choose P2, t2)) = if (prgEqual(P1, (P2, t2))) then T.Choose P1 else
+      | mergePrgs ((T.Choose P1), (T.Choose P2, t2)) = if (prgEqual(P1, (P2, t2))) then T.Choose P1 else
                                       raise Error "Choose don't match"
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.PairExp (U1, P1)), (T.PairExp (U2, P2), t2)) =
+      | mergePrgs ((T.PairExp (U1, P1)), (T.PairExp (U2, P2), t2)) =
                         let
                           val t2' = T.coerceSub t2
                         in
@@ -275,7 +275,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
                                 raise Error "cannot merge PairExp"
                         end
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.PairBlock (B1, P1)), (T.PairBlock (B2, P2), t2)) =
+      | mergePrgs ((T.PairBlock (B1, P1)), (T.PairBlock (B2, P2), t2)) =
                         let
                           val B2' = I.blockSub (B2, T.coerceSub t2)
                         in
@@ -286,19 +286,19 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
                         end
 
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.PairPrg (P1a, P1b)), (T.PairPrg (P2a, P2b), t2)) =
+      | mergePrgs ((T.PairPrg (P1a, P1b)), (T.PairPrg (P2a, P2b), t2)) =
                         if (prgEqual(P1a, (P2a, t2))) then
                           T.PairPrg (P1a, (mergePrgs( (P1b),(P2b, t2) )))
                         else
                           raise Error "cannot merge PairPrg"
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.Unit), (T.Unit, t2)) = T.Unit
+      | mergePrgs ((T.Unit), (T.Unit, t2)) = T.Unit
 
-      | (* GEN CASE BRANCH *) mergePrgs (T.Const lemma1, (T.Const lemma2, _)) =
+      | mergePrgs (T.Const lemma1, (T.Const lemma2, _)) =
                    if (lemma1=lemma2) then T.Const lemma1
                    else raise Error "Constants do not match."
 
-      | (* GEN CASE BRANCH *) mergePrgs (T.Var x1, (T.Var x2, t2)) =
+      | mergePrgs (T.Var x1, (T.Var x2, t2)) =
                      (case getFrontIndex(T.varSub(x2,t2)) of
                            NONE => raise Error "Variables do not match."
                          | SOME i =>
@@ -321,7 +321,7 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
                                    raise Error "Root does not match."))
                    |  _ => raise Error "Root does not match.")
 *)
-      | (* GEN CASE BRANCH *) mergePrgs ((T.Redex (P1, S1)), (T.Redex (P2, S2), t2)) =
+      | mergePrgs ((T.Redex (P1, S1)), (T.Redex (P2, S2), t2)) =
         let
           val newS = mergeSpines(S1, (S2, t2))
         in
@@ -331,13 +331,13 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
             raise Error "Redex Prgs don't match"
         end
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.Rec (D1, P1)), (T.Rec (D2, P2), t2)) =
+      | mergePrgs ((T.Rec (D1, P1)), (T.Rec (D2, P2), t2)) =
         if (decEqual(D1, (D2,t2)) andalso prgEqual(P1, (P2,T.dot1 t2)))  then
             T.Rec(D1, P1)
         else
           raise Error "Rec's don't match"
 
-      | (* GEN CASE BRANCH *) mergePrgs ( (T.Case (T.Cases O1)), (T.Case (T.Cases [C]), t2)) =
+      | mergePrgs ( (T.Case (T.Cases O1)), (T.Case (T.Cases [C]), t2)) =
                 (* check the case now *)
                 (* three possible outcomes -
                    (1) We merge the cases together
@@ -349,21 +349,21 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
 
       (* By invariant the second case should be a list of one *)
-      | (* GEN CASE BRANCH *) mergePrgs ((T.Case O1), (T.Case O2, t2)) = raise Error "Invariant Violated"
+      | mergePrgs ((T.Case O1), (T.Case O2, t2)) = raise Error "Invariant Violated"
 
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.PClo (P1, t1)), (T.PClo (P2, t2a), t2b)) = (* there are no PClo created in converter *) raise Error "PClo should not exist!"
+      | mergePrgs ((T.PClo (P1, t1)), (T.PClo (P2, t2a), t2b)) = (* there are no PClo created in converter *) raise Error "PClo should not exist!"
 
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.Let (D1, P1a, P1b)), (T.Let (D2, P2a, P2b), t2)) =
+      | mergePrgs ((T.Let (D1, P1a, P1b)), (T.Let (D2, P2a, P2b), t2)) =
                 if (decEqual(D1, (D2, t2)) andalso prgEqual(P1a, (P2a, t2))) then
                   T.Let(D1, P1a, mergePrgs((P1b), (P2b,T.dot1 t2)))
                 else
                   raise Error "Let don't match"
 
-      | (* GEN CASE BRANCH *) mergePrgs ((T.EVar (Psi1, P1optRef, F1, _, _, _)), (T.EVar (Psi2, P2optref, F2, _, _, _), t2)) = raise Error "No EVARs should exist!"
+      | mergePrgs ((T.EVar (Psi1, P1optRef, F1, _, _, _)), (T.EVar (Psi2, P2optref, F2, _, _, _), t2)) = raise Error "No EVARs should exist!"
 
-      | (* GEN CASE BRANCH *) mergePrgs _ = raise Error "Redundancy in cases could not automatically be removed."
+      | mergePrgs _ = raise Error "Redundancy in cases could not automatically be removed."
 
 (*
     (* For debug purposes *)
@@ -391,20 +391,20 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
     and invertSub s =
       let
         fun lookup (n, T.Shift _, p) = NONE
-          | (* GEN CASE BRANCH *) lookup (n, T.Dot (T.Undef, s'), p) = lookup (n+1, s', p)
-          | (* GEN CASE BRANCH *) lookup (n, T.Dot (Ft, s'), p) =
+          | lookup (n, T.Dot (T.Undef, s'), p) = lookup (n+1, s', p)
+          | lookup (n, T.Dot (Ft, s'), p) =
               (case getFrontIndex(Ft) of
                  NONE => lookup (n+1, s', p)
                | SOME k => if (k=p) then SOME n else lookup (n+1, s', p))
     
         fun invertSub'' (0, si) = si
-          | (* GEN CASE BRANCH *) invertSub'' (p, si) =
+          | invertSub'' (p, si) =
             (case (lookup (1, s, p))
                of SOME k => invertSub'' (p-1, T.Dot (T.Idx k, si))
                 | NONE => invertSub'' (p-1, T.Dot (T.Undef, si)))
     
         fun invertSub' (n, T.Shift p) = invertSub'' (p, T.Shift n)
-          | (* GEN CASE BRANCH *) invertSub' (n, T.Dot (_, s')) = invertSub' (n+1, s')
+          | invertSub' (n, T.Dot (_, s')) = invertSub' (n+1, s')
       in
         invertSub' (0, s)
       end
@@ -413,19 +413,19 @@ functor Redundant (structure Opsem : OPSEM) : REDUNDANT  =
 
 (* debug *)
     and printSub (T.Shift k) = print ("Shift " ^ Int.toString(k) ^ "\n")
-      | (* GEN CASE BRANCH *) printSub (T.Dot (T.Idx k, s)) = (print ("Idx " ^ Int.toString(k) ^ " (DOT) " ) ; printSub(s))
-      | (* GEN CASE BRANCH *) printSub (T.Dot (T.Prg (T.EVar _), s)) = (print ("PRG_EVAR (DOT) " ) ; printSub(s))
-      | (* GEN CASE BRANCH *) printSub (T.Dot (T.Exp (I.EVar _), s)) = (print ("EXP_EVAR (DOT) " ) ; printSub(s))
-      | (* GEN CASE BRANCH *) printSub (T.Dot (T.Prg P, s)) = (print ("PRG (DOT) " ) ; printSub(s))
-      | (* GEN CASE BRANCH *) printSub (T.Dot (T.Exp E, s)) = (print ("EXP (DOT) " ) ; printSub(s))
-      | (* GEN CASE BRANCH *) printSub (T.Dot (T.Block B, s)) = (print ("BLOCK (DOT) " ) ; printSub(s))
-      | (* GEN CASE BRANCH *) printSub (T.Dot (T.Undef, s)) = (print ("UNDEF. (DOT) " ) ; printSub(s))
+      | printSub (T.Dot (T.Idx k, s)) = (print ("Idx " ^ Int.toString(k) ^ " (DOT) " ) ; printSub(s))
+      | printSub (T.Dot (T.Prg (T.EVar _), s)) = (print ("PRG_EVAR (DOT) " ) ; printSub(s))
+      | printSub (T.Dot (T.Exp (I.EVar _), s)) = (print ("EXP_EVAR (DOT) " ) ; printSub(s))
+      | printSub (T.Dot (T.Prg P, s)) = (print ("PRG (DOT) " ) ; printSub(s))
+      | printSub (T.Dot (T.Exp E, s)) = (print ("EXP (DOT) " ) ; printSub(s))
+      | printSub (T.Dot (T.Block B, s)) = (print ("BLOCK (DOT) " ) ; printSub(s))
+      | printSub (T.Dot (T.Undef, s)) = (print ("UNDEF. (DOT) " ) ; printSub(s))
 
 
     (* We need to return it in terms of the context of the first *)
     and mergeCase ( [], C ) = raise Error "Case incompatible, cannot merge"
 
-      | (* GEN CASE BRANCH *) mergeCase (L as (Psi1, t1, P1)::O,  C as ((Psi2, t2, P2), tAfter)) =
+      | mergeCase (L as (Psi1, t1, P1)::O,  C as ((Psi2, t2, P2), tAfter)) =
       let
       
         (*

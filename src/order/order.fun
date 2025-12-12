@@ -94,8 +94,8 @@ struct
     fun mutual a =
         let
           fun mutual' (Empty, a's) = a's
-            | (* GEN CASE BRANCH *) mutual' (LE (a, M), a's) = mutual' (M, a :: a's)
-            | (* GEN CASE BRANCH *) mutual' (LT (a, M), a's) = mutual' (M, a :: a's)
+            | mutual' (LE (a, M), a's) = mutual' (M, a :: a's)
+            | mutual' (LT (a, M), a's) = mutual' (M, a :: a's)
         in
           mutual' (mutLookup a, nil)
         end
@@ -108,7 +108,7 @@ struct
        and include a1s and a2s.
     *)
     fun closure (nil, a2s) = a2s
-      | (* GEN CASE BRANCH *) closure (a :: a1s, a2s) =
+      | closure (a :: a1s, a2s) =
         if List.exists (fn a' => a = a') a2s
           then closure (a1s, a2s)
         else closure (mutual a @ a1s, a :: a2s)

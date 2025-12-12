@@ -19,19 +19,19 @@ struct
     structure P = Print
 
     fun modeToString M.Plus = "+"
-      | (* GEN CASE BRANCH *) modeToString M.Star = "*"
-      | (* GEN CASE BRANCH *) modeToString M.Minus = "-"
-      | (* GEN CASE BRANCH *) modeToString M.Minus1 = "-1"
+      | modeToString M.Star = "*"
+      | modeToString M.Minus = "-"
+      | modeToString M.Minus1 = "-1"
 
     fun argToString (M.Marg (m, _)) = modeToString m
 
     fun nameDec (I.Dec (_, V) , M.Marg (_, name as SOME _)) = I.Dec (name, V)
-      | (* GEN CASE BRANCH *) nameDec (D, M.Marg (_, NONE)) = D
+      | nameDec (D, M.Marg (_, NONE)) = D
 
     fun makeSpine (G) =
         let
           fun makeSpine' (I.Null, _, S) = S
-            | (* GEN CASE BRANCH *) makeSpine' (I.Decl (G, _), k, S) =
+            | makeSpine' (I.Decl (G, _), k, S) =
                 makeSpine' (G, k+1, I.App (I.Root (I.BVar k, I.Nil), S))
         in
           makeSpine' (G, 1, I.Nil)
@@ -44,7 +44,7 @@ struct
                 [F.String "(",
                  P.formatExp (G, I.Root (I.Const (cid), makeSpine G)),
                  F.String ")"]
-            | (* GEN CASE BRANCH *) fmtModeDec' (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) =
+            | fmtModeDec' (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) =
                 let
                   val D' = nameDec (D, marg)
                   val D'' = Names.decEName (G, D')
@@ -57,7 +57,7 @@ struct
         end
 
     fun fmtModeDecs ((cid, mS)::nil) = fmtModeDec (cid, mS)::nil
-      | (* GEN CASE BRANCH *) fmtModeDecs ((cid, mS)::mdecs) =
+      | fmtModeDecs ((cid, mS)::mdecs) =
         fmtModeDec (cid, mS)::F.Break::fmtModeDecs mdecs
 
     fun modeToString cM = F.makestring_fmt (fmtModeDec cM)

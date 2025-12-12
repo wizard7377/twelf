@@ -12,7 +12,7 @@ structure TimeLimit : sig
     exception TimeOut
 
     fun timeLimit NONE f x = f x
-      | (* GEN CASE BRANCH *) timeLimit (SOME t) f x = 
+      | timeLimit (SOME t) f x = 
       let
       	val _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
       	val setitimer = SMLofNJ.IntervalTimer.setIntTimer

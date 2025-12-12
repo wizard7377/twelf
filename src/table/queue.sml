@@ -20,20 +20,20 @@ struct
   fun insert (x, (inp, out)) = (x::inp, out)
 
   fun delete (nil, nil) = NONE
-    | (* GEN CASE BRANCH *) delete (inp, x::out) = SOME (x, (inp, out))
-    | (* GEN CASE BRANCH *) delete (inp, nil) = delete (nil, List.rev inp)
+    | delete (inp, x::out) = SOME (x, (inp, out))
+    | delete (inp, nil) = delete (nil, List.rev inp)
 
   fun insertFront (x, (inp, out)) = (inp, x::out)
 
   fun deleteEnd (nil, nil) = NONE
-    | (* GEN CASE BRANCH *) deleteEnd (x::inp, out) = SOME (x, (inp, out))
-    | (* GEN CASE BRANCH *) deleteEnd (nil, out) = delete (List.rev out, nil)
+    | deleteEnd (x::inp, out) = SOME (x, (inp, out))
+    | deleteEnd (nil, out) = delete (List.rev out, nil)
 
   (* toList q ==> (l, NONE)  means q == l and toList is constant time *)
   (* toList q ==> (l, SOME(q')) means q == l == q' *)
   (* and toList q' is constant time *)
   fun toList (nil, out) = (out, NONE)
-    | (* GEN CASE BRANCH *) toList (inp, out) =
+    | toList (inp, out) =
       let
     	val out' = out @ List.rev(inp)
       in

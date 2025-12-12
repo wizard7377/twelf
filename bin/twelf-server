@@ -1,2 +1,0 @@
-#! /bin/sh
-exec "sml" @SMLload="/home/asherf/gitProj/twelf/bin/.heap/twelf-server" @SMLdebug=/dev/null

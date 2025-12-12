@@ -1,0 +1,7 @@
+(lang dune 3.19)
+(name twelf)
+(sections (lib .) (bin ../../bin) (doc ../../doc/twelf))
+(files
+ (lib (META dune-package opam))
+ (bin (twelf))
+ (doc (HISTORY LICENSE README.md)))

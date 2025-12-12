@@ -43,7 +43,7 @@ val e = _export "execute": (unit -> int) -> unit;
 val _ = e (fn () =>
 				  let
 					 fun codeOfStatus Twelf.OK = 0
-						| (* GEN CASE BRANCH *) codeOfStatus Twelf.ABORT = 1
+						| codeOfStatus Twelf.ABORT = 1
 					 val status = case !bref of
 											NONE => (print "No input buffer allocated"; Twelf.ABORT)
 										 | SOME b => Twelf.loadString (CharArray.vector b)

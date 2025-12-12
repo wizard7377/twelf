@@ -11,7 +11,7 @@ local
 	
 
   fun printS nil = ()
-    | (* GEN CASE BRANCH *) printS (condec :: S) =
+    | printS (condec :: S) =
         (TextIO.print ((Print.conDecToString condec) ^ "\n"); printS S)
 in
 

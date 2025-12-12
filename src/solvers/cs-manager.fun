@@ -202,7 +202,7 @@ struct
   fun unwind targetCount =
     let
       fun unwind' 0 = (markCount := targetCount)
-        | (* GEN CASE BRANCH *) unwind' k =
+        | unwind' k =
           (ArraySlice.appi (fn (_, Solver (solver, active)) =>
                                if !active then #unwind(solver) () else ())
            (ArraySlice.slice (csArray, 0, SOME(!nextCS)));

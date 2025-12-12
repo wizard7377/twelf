@@ -68,13 +68,13 @@ struct
         fun try (Vs as (I.Root _, _), Fs, O) =
           (CSManager.trail (fn () => (Unify.unify (G, Vs, (V, I.id)); O :: Fs))
            handle Unify.Unify _ => Fs)
-          | (* GEN CASE BRANCH *) try ((I.Pi ((I.Dec (_, V1), _), V2), s), Fs, O) =
+          | try ((I.Pi ((I.Dec (_, V1), _), V2), s), Fs, O) =
           let
             val X = I.newEVar (G, I.EClo (V1, s))
           in
             try ((V2, I.Dot (I.Exp X, s)), Fs, O)
           end
-          | (* GEN CASE BRANCH *) try ((I.EClo (V, s'), s), Fs, O) = try ((V, I.comp (s', s)), Fs, O)
+          | try ((I.EClo (V, s'), s), Fs, O) = try ((V, I.comp (s', s)), Fs, O)
     
         (* matchCtx (G, n, Fs) = Fs'
     
@@ -84,13 +84,13 @@ struct
            that satisfy the representation invariant.
         *)
         fun matchCtx (I.Null, _, Fs) = Fs
-          | (* GEN CASE BRANCH *) matchCtx (I.Decl (G, I.Dec (x, V)), n, Fs) =
+          | matchCtx (I.Decl (G, I.Dec (x, V)), n, Fs) =
           matchCtx (G, n+1, try ((V, I.Shift (n+1)), Fs, FillWithBVar (Y, n+1)))
-          | (* GEN CASE BRANCH *) matchCtx (I.Decl (G, I.NDec _), n, Fs) =
+          | matchCtx (I.Decl (G, I.NDec _), n, Fs) =
           matchCtx (G, n+1, Fs)
     
         fun matchSig (nil, Fs) = Fs
-          | (* GEN CASE BRANCH *) matchSig (I.Const (c)::L, Fs) =
+          | matchSig (I.Const (c)::L, Fs) =
           matchSig (L, try ((I.constType (c), I.id), Fs, FillWithConst (Y, c)))
       in
         matchCtx (G, 0, matchSig (Index.lookup (I.targetFam V), nil))
@@ -107,19 +107,19 @@ struct
         (* Invariant : G |- s : G'   G' |- V : type *)
         fun doit (Vs as (I.Root _, _),  k) =
             (Unify.unify (G, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
-          | (* GEN CASE BRANCH *) doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
+          | doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
             let
               val X = I.newEVar (G, I.EClo (V1, s))
             in
               doit ((V2, I.Dot (I.Exp X, s)),  (fn S => k (I.App (X, S))))
             end
-          | (* GEN CASE BRANCH *) doit ((I.EClo (V, t), s), k) = doit ((V, I.comp (t, s)), k)
+          | doit ((I.EClo (V, t), s), k) = doit ((V, I.comp (t, s)), k)
     
         val I.Dec (_, W) = I.ctxDec (G, n)
       in
         doit ((W, I.id),  fn S => Unify.unify (G, (Y, I.id), (I.Root (I.BVar n, S), I.id)))
       end
-    | (* GEN CASE BRANCH *) apply (FillWithConst(Y as I.EVar (r, G0, V, _), c)) =
+    | apply (FillWithConst(Y as I.EVar (r, G0, V, _), c)) =
       let
         fun doit (Vs as (I.Root _, _),  k) =
             (Unify.unify (G0, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
@@ -145,7 +145,7 @@ struct
           of I.Dec (SOME x, _) =>
             ("Fill " ^ Names.evarName (G, X) ^ " with variable " ^ x))
            (* Invariant: Context is named  --cs Fri Mar  3 14:31:08 2006 *)
-      | (* GEN CASE BRANCH *) menu (FillWithConst (X as I.EVar (_, G, _, _), c)) =
+      | menu (FillWithConst (X as I.EVar (_, G, _, _), c)) =
            ("Fill " ^ Names.evarName (G, X) ^ " with constant " ^ IntSyn.conDecName (IntSyn.sgnLookup c))
 
   in
