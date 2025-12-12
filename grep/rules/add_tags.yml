@@ -33,3 +33,13 @@ rule:
     - kind: fun_dec
 
 fix: (* GEN BEGIN TAG INSIDE LET *) $BRANCH (* GEN END TAG INSIDE LET *)
+
+--- 
+id: signature_decl
+message: Add generation to first
+severity: warning # error, warning, info, hint
+language: sml
+rule:
+  pattern: $BRANCH
+  kind: signature_sigdec 
+fix: (* GEN BEGIN SIGNATURE DECLARATION *) $BRANCH (* GEN END SIGNATURE DECLARATION *)

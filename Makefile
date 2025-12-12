@@ -104,8 +104,8 @@ check : twelf-regression
 install:
 	cp bin/twelf-server $(DESTDIR)/bin/twelf-server.new
 	mv $(DESTDIR)/bin/twelf-server.new $(DESTDIR)/bin/twelf-server
-#.PHONY: lib/
-lib/: src/
+.PHONY: lib/
+lib/: src/ 
 	cp --update=all -r src/. lib/ 
 
 RULES_OCAML := $(wildcard grep/rules/*.yml)
@@ -128,8 +128,11 @@ debug_var:
 	
 clean_ocaml: 
 	@rm -rf $(ANY_OCAML)
+	@rm -rf $(OUT_OCAML)
 	@touch lib/
 
-new_ocaml: lib/ $(OUT_OCAML)
-check_ocaml: new_ocaml 
-	dune build
+new_ocaml: clean_ocaml  lib/ $(OUT_OCAML)
+check_ocaml: lib/ new_ocaml 
+	@dune build
+
+all_ocaml: new_ocaml check_ocaml

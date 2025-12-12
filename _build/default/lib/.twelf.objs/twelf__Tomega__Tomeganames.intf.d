@@ -1,0 +1,1 @@
+lib/tomega/tomeganames.mli:

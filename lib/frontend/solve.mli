@@ -1,0 +1,24 @@
+(* Solve and query declarations, interactive top level *)
+(* Author: Frank Pfenning *)
+
+(* GEN BEGIN SIGNATURE DECLARATION *) signature SOLVE =
+sig
+
+  (*! structure IntSyn : INTSYN !*)
+  (*! structure Paths : PATHS !*)
+  structure ExtQuery : EXTQUERY
+
+  exception AbortQuery of string
+
+  val solve : ExtQuery.define list * ExtQuery.solve * Paths.location -> (IntSyn.con_dec * Paths.occ_con_dec option) list
+
+  val query : (int option * int option * ExtQuery.query) * Paths.location -> unit
+					(* may raise AbortQuery(msg) *)
+
+  val querytabled : (int option * int option * ExtQuery.query) * Paths.location -> unit
+					(* may raise AbortQuery(msg) *)
+
+  val qLoop  : unit -> bool		(* true means normal exit *)
+  val qLoopT : unit -> bool		(* true means normal exit *)
+
+end (* GEN END SIGNATURE DECLARATION *);  (* signature SOLVE *)
