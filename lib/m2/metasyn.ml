@@ -45,15 +45,15 @@ struct
        and  G |- S : V [s] >  V' [s']
     *)
     fun createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
-    and createEVarSpineW (G, Vs as (I.Uni I.Type, s)) = (I.Nil, Vs) (* s = id *)
-      | createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs)   (* s = id *)
-      | createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
+    and (* GEN BEGIN FUN FIRST *) createEVarSpineW (G, Vs as (I.Uni I.Type, s)) = (I.Nil, Vs) (* GEN END FUN FIRST *) (* s = id *)
+      | (* GEN BEGIN FUN BRANCH *) createEVarSpineW (G, Vs as (I.Root _, s)) = (I.Nil, Vs) (* GEN END FUN BRANCH *)   (* s = id *)
+      | (* GEN BEGIN FUN BRANCH *) createEVarSpineW (G, (I.Pi ((D as I.Dec (_, V1), _), V2), s)) =
         let
-          val X = I.newEVar (G, I.EClo (V1, s))
-          val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s)))
+          (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1, s)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (S, Vs) = createEVarSpine (G, (V2, I.Dot (I.Exp (X), s))) (* GEN END TAG OUTSIDE LET *)
         in
           (I.App (X, S), Vs)
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* createAtomConst (G, c) = (U', (V', s'))
 
@@ -64,11 +64,11 @@ struct
     *)
     fun createAtomConst (G, H) =
       let
-        val cid = (case H
+        (* GEN BEGIN TAG OUTSIDE LET *) val cid = (case H
                      of (I.Const cid) => cid
-                      | (I.Skonst cid) => cid)
-        val V = I.constType cid
-        val (S, Vs) = createEVarSpine (G, (V, I.id))
+                      | (I.Skonst cid) => cid) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val V = I.constType cid (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (S, Vs) = createEVarSpine (G, (V, I.id)) (* GEN END TAG OUTSIDE LET *)
       in
         (I.Root (H, S), Vs)
       end
@@ -82,15 +82,15 @@ struct
     *)
     fun createAtomBVar (G, k) =
       let
-        val I.Dec (_, V) = I.ctxDec (G, k)
-        val (S, Vs) = createEVarSpine (G, (V, I.id))
+        (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V) = I.ctxDec (G, k) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (S, Vs) = createEVarSpine (G, (V, I.id)) (* GEN END TAG OUTSIDE LET *)
       in
         (I.Root (I.BVar (k), S), Vs)
       end
 
   in
-    val createAtomConst = createAtomConst
-    val createAtomBVar = createAtomBVar
+    (* GEN BEGIN TAG OUTSIDE LET *) val createAtomConst = createAtomConst (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val createAtomBVar = createAtomBVar (* GEN END TAG OUTSIDE LET *)
   end
 
 end (* GEN END FUNCTOR DECL *) (* functor MetaSyn *)

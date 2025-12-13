@@ -1,7 +1,7 @@
 (* Introduce *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Introduce
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Introduce
   ((*! structure IntSyn' : INTSYN !*)
    (*! structure Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
@@ -87,4 +87,4 @@ struct
     val apply = apply
     val menu =menu
   end
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

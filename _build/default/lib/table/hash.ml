@@ -1,7 +1,7 @@
 (* Hash Tables *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) HashTable
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) HashTable
   (type key'
    val hash : key' -> int
    val eq : key' * key' -> bool)
@@ -59,7 +59,7 @@ struct
         (f e; appBucket f (!br))
 
   fun app f (a,n) = Array.app (appBucket f) a
-end (* GEN END FUNCTOR DECL *);  (* functor HashTable *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor HashTable *)
 
 (* GEN BEGIN SIGNATURE DECLARATION *) signature STRING_HASH =
 sig
@@ -68,26 +68,26 @@ end (* GEN END SIGNATURE DECLARATION *);
 
 structure StringHash :> STRING_HASH =
 struct
-  (* GEN BEGIN TAG INSIDE LET *) fun stringHash (s) =
+  fun stringHash (s) =
       (* sample 4 characters from string *)
       let
   	fun num (i) = Char.ord (String.sub (s,i)) mod 128
-  	val n = String.size (s)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val n = String.size (s) (* GEN END TAG OUTSIDE LET *)
       in
   	if n = 0 then 0
   	else let
-  	       val a = n-1
-  	       val b = n div 2
-  	       val c = b div 2
-  	       val d = b + c
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val a = n-1 (* GEN END TAG OUTSIDE LET *)
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val b = n div 2 (* GEN END TAG OUTSIDE LET *)
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val c = b div 2 (* GEN END TAG OUTSIDE LET *)
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val d = b + c (* GEN END TAG OUTSIDE LET *)
   	     in
   	       num(a)+128*(num(b)+128*(num(c)+128*num(d)))
   	     end
-      end (* GEN END TAG INSIDE LET *)
+      end
 end;  (* structure StringHash *)
 
 structure StringHashTable
   :> TABLE where type key = string =
   HashTable (type key' = string
-	     (* GEN BEGIN TAG INSIDE LET *) val hash = StringHash.stringHash (* GEN END TAG INSIDE LET *)
-	     (* GEN BEGIN TAG INSIDE LET *) val eq = (op =) (* GEN END TAG INSIDE LET *));
+	     (* GEN BEGIN TAG OUTSIDE LET *) val hash = StringHash.stringHash (* GEN END TAG OUTSIDE LET *)
+	     (* GEN BEGIN TAG OUTSIDE LET *) val eq = (op =) (* GEN END TAG OUTSIDE LET *));

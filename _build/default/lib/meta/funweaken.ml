@@ -1,7 +1,7 @@
 (* Weakening substitutions for meta substitutions *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) FunWeaken ((*! structure FunSyn' : FUNSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) FunWeaken ((*! structure FunSyn' : FUNSYN !*)
                    structure Weaken : WEAKEN
                    (*! sharing Weaken.IntSyn = FunSyn'.IntSyn !*)
                      ) : FUNWEAKEN =
@@ -61,4 +61,4 @@ struct
     val strengthenPsi = strengthenPsi
     val strengthenPsi' = strengthenPsi'
   end
-end (* GEN END FUNCTOR DECL *) (* functor FunWeaken *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor FunWeaken *)

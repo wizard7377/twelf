@@ -218,11 +218,11 @@ struct
     *)
     fun withOpenIn (fileName) (scope) =
         let
-          val instream = TextIO.openIn fileName
-          val _ = fileOpenMsg (fileName)
-          val result = Value (scope instream) handle exn => Exception (exn)
-          val _ = fileCloseMsg (fileName)
-          val _ = TextIO.closeIn instream
+          (* GEN BEGIN TAG OUTSIDE LET *) val instream = TextIO.openIn fileName (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = fileOpenMsg (fileName) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val result = Value (scope instream) handle exn => Exception (exn) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = fileCloseMsg (fileName) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TextIO.closeIn instream (* GEN END TAG OUTSIDE LET *)
         in
           case result
             of Value (x) => x
@@ -260,21 +260,21 @@ struct
     (* status ::= OK | ABORT  is the return status of various operations *)
     datatype status = OK | ABORT
 
-    fun abort chlev (msg) = (chmsg chlev (fn () => msg); ABORT)
+    fun abort chlev (msg) = (chmsg chlev ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => msg (* GEN END FUNCTION EXPRESSION *)); ABORT)
     fun abortFileMsg chlev (fileName, msg) = abort chlev (fileName ^ ":" ^ msg ^ "\n")
 
-    fun abortIO (fileName, {cause = OS.SysErr (m, _), function = f, name = n}) =
+    fun (* GEN BEGIN FUN FIRST *) abortIO (fileName, {cause = OS.SysErr (m, _), function = f, name = n}) =
         (msg ("IO Error on file " ^ fileName ^ ":\n" ^ m ^ "\n");
-         ABORT)
-      | abortIO (fileName, {function = f, ...}) =
+         ABORT) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abortIO (fileName, {function = f, ...}) =
         (msg ("IO Error on file " ^ fileName ^ " from function "
                        ^ f ^ "\n");
-         ABORT)
+         ABORT) (* GEN END FUN BRANCH *)
 
     (* should move to paths, or into the prover module... but not here! -cs *)
-    fun joinregion (r, nil) = r
-      | joinregion (r, r' :: rs) =
-          joinregion (Paths.join (r, r'), rs)
+    fun (* GEN BEGIN FUN FIRST *) joinregion (r, nil) = r (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) joinregion (r, r' :: rs) =
+          joinregion (Paths.join (r, r'), rs) (* GEN END FUN BRANCH *)
 
     fun joinregions (r::rs) = joinregion (r, rs)
 
@@ -332,16 +332,16 @@ struct
        however, the reference holds NONE (in particular, shadowing is
        allowed).
     *)
-    val context : Names.namespace option ref = ref NONE
+    (* GEN BEGIN TAG OUTSIDE LET *) val context : Names.namespace option ref = ref NONE (* GEN END TAG OUTSIDE LET *)
 
     fun installConst fromCS (cid, fileNameocOpt) =
         let
-          val _ = Origins.installOrigin (cid, fileNameocOpt)
-          val _ = Index.install fromCS (IntSyn.Const cid)
-          val _ = IndexSkolem.install fromCS (IntSyn.Const cid)
-          val _ = (Timers.time Timers.compiling Compile.install) fromCS cid
-          val _ = (Timers.time Timers.subordinate Subordinate.install) cid
-          val _ = (Timers.time Timers.subordinate Subordinate.installDef) cid
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Origins.installOrigin (cid, fileNameocOpt) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Index.install fromCS (IntSyn.Const cid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = IndexSkolem.install fromCS (IntSyn.Const cid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (Timers.time Timers.compiling Compile.install) fromCS cid (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (Timers.time Timers.subordinate Subordinate.install) cid (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (Timers.time Timers.subordinate Subordinate.installDef) cid (* GEN END TAG OUTSIDE LET *)
         in
           ()
         end
@@ -354,53 +354,53 @@ struct
     *)
     fun installConDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
-          val _ = (Timers.time Timers.modes ModeCheck.checkD) (conDec, fileName, ocOpt)
-          val cid = IntSyn.sgnAdd conDec
-          val _ = (case (fromCS, !context)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (Timers.time Timers.modes ModeCheck.checkD) (conDec, fileName, ocOpt) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val cid = IntSyn.sgnAdd conDec (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (case (fromCS, !context)
                      of (IntSyn.Ordinary, SOME namespace) => Names.insertConst (namespace, cid)
                       | (IntSyn.Clause, SOME namespace) => Names.insertConst (namespace, cid)
                       | _ => ())
                   handle Names.Error msg =>
-                    raise Names.Error (Paths.wrap (r, msg))
-          val _ = Names.installConstName cid
-          val _ = installConst fromCS (cid, fileNameocOpt)
-                  handle Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg))
-          val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
-          val _ =  if !Global.style >= 1 then StyleCheck.checkConDec cid else ()
+                    raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.installConstName cid (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = installConst fromCS (cid, fileNameocOpt)
+                  handle Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ()) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ =  if !Global.style >= 1 then StyleCheck.checkConDec cid else () (* GEN END TAG OUTSIDE LET *)
         in
           cid
         end
 
     fun installBlockDec fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
-          val cid = IntSyn.sgnAdd conDec
-          val _ = (case (fromCS, !context)
+          (* GEN BEGIN TAG OUTSIDE LET *) val cid = IntSyn.sgnAdd conDec (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (case (fromCS, !context)
                      of (IntSyn.Ordinary, SOME namespace) => Names.insertConst (namespace, cid)
                         (* (Clause, _) should be impossible *)
                       | _ => ())
                    handle Names.Error msg =>
-                     raise Names.Error (Paths.wrap (r, msg))
-          val _ = Names.installConstName cid
+                     raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.installConstName cid (* GEN END TAG OUTSIDE LET *)
           (* val _ = Origins.installOrigin (cid, fileNameocOpt) *)
-          val _ = (Timers.time Timers.subordinate Subordinate.installBlock) cid
-                  handle Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg))
-          val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (Timers.time Timers.subordinate Subordinate.installBlock) cid
+                  handle Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ()) (* GEN END TAG OUTSIDE LET *)
         in
           cid
         end
 
     fun installBlockDef fromCS (conDec, fileNameocOpt as (fileName, ocOpt), r) =
         let
-          val cid = IntSyn.sgnAdd conDec
-          val _ = (case (fromCS, !context)
+          (* GEN BEGIN TAG OUTSIDE LET *) val cid = IntSyn.sgnAdd conDec (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (case (fromCS, !context)
                      of (IntSyn.Ordinary, SOME namespace) => Names.insertConst (namespace, cid)
                         (* (Clause, _) should be impossible *)
                       | _ => ())
                    handle Names.Error msg =>
-                     raise Names.Error (Paths.wrap (r, msg))
-          val _ = Names.installConstName cid
+                     raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.installConstName cid (* GEN END TAG OUTSIDE LET *)
           (* val _ = Origins.installOrigin (cid, fileNameocOpt) *)
-          val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ())
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Origins.installLinesInfo (fileName, Paths.getLinesInfo ()) (* GEN END TAG OUTSIDE LET *)
         in
           cid
         end
@@ -415,10 +415,10 @@ struct
                else ())
     
     
-          val _ = ModSyn.installStruct (strdec, module, !context,
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ModSyn.installStruct (strdec, module, !context,
                                         installAction, isDef)
                   handle Names.Error msg =>
-                           raise Names.Error (Paths.wrap (r, msg))
+                           raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
         in
           ()
         end
@@ -431,10 +431,10 @@ struct
                  then msg (Print.conDecToString (IntSyn.sgnLookup cid) ^ "\n")
                else ())
     
-          val _ = ModSyn.installSig (module, !context,
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ModSyn.installSig (module, !context,
                                      installAction, isDef)
                   handle Names.Error msg =>
-                           raise Names.Error (Paths.wrap (r, msg))
+                           raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
         in
           ()
         end
@@ -443,13 +443,13 @@ struct
 
     fun invalidate uninstallFun cids msg =
         let
-          val uninstalledCids = List.filter (fn a => uninstallFun a) cids
-          val _ = case uninstalledCids
+          (* GEN BEGIN TAG OUTSIDE LET *) val uninstalledCids = List.filter ((* GEN BEGIN FUNCTION EXPRESSION *) fn a => uninstallFun a (* GEN END FUNCTION EXPRESSION *)) cids (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = case uninstalledCids
                     of nil => ()
                      | _ => chmsg 4
-                            (fn () => "Invalidated " ^ msg ^ " properties of families"
-                             ^ List.foldr (fn (a,s) => " " ^ cidToString a ^ s) "\n"
-                             uninstalledCids)
+                            ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => "Invalidated " ^ msg ^ " properties of families"
+                             ^ List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a,s) => " " ^ cidToString a ^ s (* GEN END FUNCTION EXPRESSION *)) "\n"
+                             uninstalledCids (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           ()
         end
@@ -459,96 +459,96 @@ struct
        Effects: global state
                 may raise standard exceptions
     *)
-    fun install1 (fileName, (Parser.ConDec condec, r)) =
+    fun (* GEN BEGIN FUN FIRST *) install1 (fileName, (Parser.ConDec condec, r)) =
         (* Constant declarations c : V, c : V = U plus variations *)
         (let
-           val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), false)
-           fun icd (SOME (conDec as IntSyn.BlockDec _)) =
+           (* GEN BEGIN TAG OUTSIDE LET *) val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), false) (* GEN END TAG OUTSIDE LET *)
+           fun (* GEN BEGIN FUN FIRST *) icd (SOME (conDec as IntSyn.BlockDec _)) =
                let
                  (* allocate new cid. *)
-                 val cid = installBlockDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val cid = installBlockDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r) (* GEN END TAG OUTSIDE LET *)
                in
                  ()
-               end
-             | icd (SOME (conDec as IntSyn.BlockDef _)) =
+               end (* GEN END FUN FIRST *)
+             | (* GEN BEGIN FUN BRANCH *) icd (SOME (conDec as IntSyn.BlockDef _)) =
                let
                  (* allocate new cid. *)
-                 val cid = installBlockDef IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val cid = installBlockDef IntSyn.Ordinary (conDec, (fileName, ocOpt), r) (* GEN END TAG OUTSIDE LET *)
                in
                  ()
-               end
-             | icd (SOME (conDec)) =
+               end (* GEN END FUN BRANCH *)
+             | (* GEN BEGIN FUN BRANCH *) icd (SOME (conDec)) =
                let
                  (* names are assigned in ReconConDec *)
                  (* val conDec' = nameConDec (conDec) *)
                  (* should print here, not in ReconConDec *)
                  (* allocate new cid after checking modes! *)
-                 val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r) (* GEN END TAG OUTSIDE LET *)
                in
                  ()
-               end
-             | icd (NONE) = (* anonymous definition for type-checking *)
-                 ()
+               end (* GEN END FUN BRANCH *)
+             | (* GEN BEGIN FUN BRANCH *) icd (NONE) = (* anonymous definition for type-checking *)
+                 () (* GEN END FUN BRANCH *)
          in
            icd optConDec
          end
          handle Constraints.Error (eqns) =>
-                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
+                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns))) (* GEN END FUN FIRST *)
 
-      | install1 (fileName, (Parser.AbbrevDec condec, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.AbbrevDec condec, r)) =
         (* Abbreviations %abbrev c = U and %abbrev c : V = U *)
         (let
-          val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), true)
-          fun icd (SOME(conDec)) =
+          (* GEN BEGIN TAG OUTSIDE LET *) val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName,r), true) (* GEN END TAG OUTSIDE LET *)
+          fun (* GEN BEGIN FUN FIRST *) icd (SOME(conDec)) =
               let
                   (* names are assigned in ReconConDec *)
                   (* val conDec' = nameConDec (conDec) *)
                   (* should print here, not in ReconConDec *)
                   (* allocate new cid after checking modes! *)
-                  val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r) (* GEN END TAG OUTSIDE LET *)
               in
                 ()
-              end
-            | icd (NONE) = (* anonymous definition for type-checking *)
-                ()
+              end (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) icd (NONE) = (* anonymous definition for type-checking *)
+                () (* GEN END FUN BRANCH *)
         in
           icd optConDec
         end
         handle Constraints.Error (eqns) =>
-               raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
+               raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns))) (* GEN END FUN BRANCH *)
 
-      | install1 (fileName, (Parser.ClauseDec condec, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.ClauseDec condec, r)) =
         (* Clauses %clause c = U or %clause c : V = U or %clause c : V *)
         (* these are like definitions, but entered into the program table *)
         (let
            (* val _ = print "%clause " *)
-           val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName, r), false)
-           fun icd (SOME (conDec)) =
+           (* GEN BEGIN TAG OUTSIDE LET *) val (optConDec, ocOpt) = ReconConDec.condecToConDec (condec, Paths.Loc (fileName, r), false) (* GEN END TAG OUTSIDE LET *)
+           fun (* GEN BEGIN FUN FIRST *) icd (SOME (conDec)) =
                let
-                 val cid = installConDec IntSyn.Clause (conDec, (fileName, ocOpt), r)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val cid = installConDec IntSyn.Clause (conDec, (fileName, ocOpt), r) (* GEN END TAG OUTSIDE LET *)
                in
                  ()
-               end
-             | icd NONE = (* anonymous definition for type-checking: ignore %clause *)
-               ()
+               end (* GEN END FUN FIRST *)
+             | (* GEN BEGIN FUN BRANCH *) icd NONE = (* anonymous definition for type-checking: ignore %clause *)
+               () (* GEN END FUN BRANCH *)
          in
            icd optConDec
          end
          handle Constraints.Error (eqns) =>
-                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
+                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns))) (* GEN END FUN BRANCH *)
 
       (* Solve declarations %solve c : A *)
-      | install1 (fileName, (Parser.Solve (defines, solve), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.Solve (defines, solve), r)) =
         (let
-          val conDecL = Solve.solve (defines, solve, Paths.Loc (fileName, r))
+          (* GEN BEGIN TAG OUTSIDE LET *) val conDecL = Solve.solve (defines, solve, Paths.Loc (fileName, r))
                         handle Solve.AbortQuery (msg) =>
-                         raise Solve.AbortQuery (Paths.wrap (r, msg))
+                         raise Solve.AbortQuery (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
           fun icd (conDec, ocOpt) =
           (let
              (* should print here, not in ReconQuery *)
              (* allocate new cid after checking modes! *)
              (* allocate cid after strictness has been checked! *)
-             val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r)
+             (* GEN BEGIN TAG OUTSIDE LET *) val cid = installConDec IntSyn.Ordinary (conDec, (fileName, ocOpt), r) (* GEN END TAG OUTSIDE LET *)
       
            in
              ()
@@ -557,45 +557,45 @@ struct
            List.app icd conDecL
          end
          handle Constraints.Error (eqns) =>
-                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns)))
+                raise ReconTerm.Error (Paths.wrap (r, constraintsMsg eqns))) (* GEN END FUN BRANCH *)
 
       (* %query <expected> <try> A or %query <expected> <try> X : A *)
-      | install1 (fileName, (Parser.Query(expected,try,query), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.Query(expected,try,query), r)) =
         (* Solve.query might raise Solve.AbortQuery (msg) *)
         (Solve.query ((expected, try, query), Paths.Loc (fileName, r))
          handle Solve.AbortQuery (msg)
-                => raise Solve.AbortQuery (Paths.wrap (r, msg)))
+                => raise Solve.AbortQuery (Paths.wrap (r, msg))) (* GEN END FUN BRANCH *)
       (* %fquery <expected> <try> A or %fquery <expected> <try> X : A *)
-      | install1 (fileName, (Parser.FQuery (query), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.FQuery (query), r)) =
         (* Solve.query might raise Fquery.AbortQuery (msg) *)
         (Fquery.run (query, Paths.Loc (fileName, r))
          handle Fquery.AbortQuery (msg)
-                => raise Fquery.AbortQuery (Paths.wrap (r, msg)))
+                => raise Fquery.AbortQuery (Paths.wrap (r, msg))) (* GEN END FUN BRANCH *)
 
       (* %queryTabled <expected> <try> A or %query <expected> <try> X : A *)
-      | install1 (fileName, (Parser.Querytabled(numSol, try,query), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.Querytabled(numSol, try,query), r)) =
         (* Solve.query might raise Solve.AbortQuery (msg) *)
         (Solve.querytabled ((numSol, try, query), Paths.Loc (fileName, r))
          handle Solve.AbortQuery (msg)
-                => raise Solve.AbortQuery (Paths.wrap (r, msg)))
+                => raise Solve.AbortQuery (Paths.wrap (r, msg))) (* GEN END FUN BRANCH *)
 
       (* %trustme <decl> *)
-      | install1 (fileName, (Parser.TrustMe(dec,r'), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.TrustMe(dec,r'), r)) =
         let
-          val _ = if not (!Global.unsafe)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if not (!Global.unsafe)
                     then raise Thm.Error("%trustme not safe: Toggle `unsafe' flag")
-                  else ()
-          val _ = chmsg 3 (fn () => "[%trustme ...\n")
-          val _ = case handleExceptions 4 fileName (fn args => (install1 args; OK)) (fileName, (dec, r))
-                   of OK => chmsg 3 (fn () => "trustme subject succeeded\n")
-                    | ABORT => chmsg 3 (fn () => "trustme subject failed; continuing\n")
-          val _ = chmsg 3 (fn () => "%]\n")
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = chmsg 3 ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => "[%trustme ...\n" (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = case handleExceptions 4 fileName ((* GEN BEGIN FUNCTION EXPRESSION *) fn args => (install1 args; OK) (* GEN END FUNCTION EXPRESSION *)) (fileName, (dec, r))
+                   of OK => chmsg 3 ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => "trustme subject succeeded\n" (* GEN END FUNCTION EXPRESSION *))
+                    | ABORT => chmsg 3 ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => "trustme subject failed; continuing\n" (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = chmsg 3 ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => "%]\n" (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* %subord (<qid> <qid>) ... *)
-      | install1 (fileName, (Parser.SubordDec (qidpairs), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.SubordDec (qidpairs), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -603,24 +603,24 @@ struct
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in subord declaration")
                  | SOME cid => cid
-          val cidpairs = List.map (fn (qid1, qid2) => (toCid qid1, toCid qid2)) qidpairs
+          (* GEN BEGIN TAG OUTSIDE LET *) val cidpairs = List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (qid1, qid2) => (toCid qid1, toCid qid2) (* GEN END FUNCTION EXPRESSION *)) qidpairs
                      handle Names.Error (msg) =>
-                       raise Names.Error (Paths.wrap (r, msg))
-          val _ = List.app Subordinate.addSubord cidpairs
+                       raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app Subordinate.addSubord cidpairs
                     handle Subordinate.Error (msg) =>
-                      raise Subordinate.Error (Paths.wrap (r, msg))
+                      raise Subordinate.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
         in
           if !Global.chatter >= 3
           then msg ("%subord"
                       ^ List.foldr
-                            (fn ((a1, a2), s) => " (" ^
+                            ((* GEN BEGIN FUNCTION EXPRESSION *) fn ((a1, a2), s) => " (" ^
                                 Names.qidToString (Names.constQid a1) ^ " " ^
-                                Names.qidToString (Names.constQid a2) ^ ")" ^ s) ".\n" cidpairs)
+                                Names.qidToString (Names.constQid a2) ^ ")" ^ s (* GEN END FUNCTION EXPRESSION *)) ".\n" cidpairs)
           else ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* %freeze <qid> ... *)
-      | install1 (fileName, (Parser.FreezeDec (qids), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.FreezeDec (qids), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -628,60 +628,60 @@ struct
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in freeze declaration")
                  | SOME cid => cid
-          val cids = List.map toCid qids
+          (* GEN BEGIN TAG OUTSIDE LET *) val cids = List.map toCid qids
                      handle Names.Error (msg) =>
-                       raise Names.Error (Paths.wrap (r, msg))
-          val frozen = Subordinate.freeze cids
+                       raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val frozen = Subordinate.freeze cids
                        handle Subordinate.Error (msg) =>
-                         raise Subordinate.Error (Paths.wrap (r, msg))
+                         raise Subordinate.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
         in
           (* Subordinate.installFrozen cids *)
           if !Global.chatter >= 3
           then msg ("%freeze"
-                      ^ List.foldr (fn (a, s) => " " ^ Names.qidToString (Names.constQid a) ^ s) ".\n" cids)
+                      ^ List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, s) => " " ^ Names.qidToString (Names.constQid a) ^ s (* GEN END FUNCTION EXPRESSION *)) ".\n" cids)
           else ();
           if !Global.chatter >= 4
-            then msg ("Frozen:" ^ List.foldr (fn (a,s) => " " ^ Names.qidToString (Names.constQid a) ^ s) "\n" frozen)
+            then msg ("Frozen:" ^ List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a,s) => " " ^ Names.qidToString (Names.constQid a) ^ s (* GEN END FUNCTION EXPRESSION *)) "\n" frozen)
           else ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* %thaw <qid> ... *)
-      | install1 (fileName, (Parser.ThawDec (qids), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.ThawDec (qids), r)) =
         let
-          val _ = if not (!Global.unsafe)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%thaw not safe: Toggle `unsafe' flag"
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
           fun toCid qid =
               case Names.constLookup qid
                 of NONE => raise Names.Error ("Undeclared identifier "
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in thaw declaration")
                  | SOME cid => cid
-          val cids = List.map toCid qids
-                     handle Names.Error (msg) => raise Names.Error (Paths.wrap (r, msg))
-          val thawed = Subordinate.thaw cids
+          (* GEN BEGIN TAG OUTSIDE LET *) val cids = List.map toCid qids
+                     handle Names.Error (msg) => raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val thawed = Subordinate.thaw cids
                         handle Subordinate.Error(msg) =>
-                          raise Subordinate.Error (Paths.wrap (r, msg))
-          val _ = if !Global.chatter >= 3
+                          raise Subordinate.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%thaw"
-                                ^ List.foldr (fn (a, s) => " " ^ cidToString a ^ s) ".\n" cids)
-                  else ()
-          val _ = if !Global.chatter >= 4
-                    then msg ("Thawed" ^ List.foldr (fn (a,s) => " " ^ cidToString a ^ s) "\n" thawed)
-                  else ()
+                                ^ List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, s) => " " ^ cidToString a ^ s (* GEN END FUNCTION EXPRESSION *)) ".\n" cids)
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 4
+                    then msg ("Thawed" ^ List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a,s) => " " ^ cidToString a ^ s (* GEN END FUNCTION EXPRESSION *)) "\n" thawed)
+                  else () (* GEN END TAG OUTSIDE LET *)
           (* invalidate prior meta-theoretic properteis of signatures *)
           (* exempt only %mode [incremental], %covers [not stored] *)
-          val _ = invalidate WorldSyn.uninstall thawed "world"
-          val _ = invalidate Thm.uninstallTerminates thawed "termination"
-          val _ = invalidate Thm.uninstallReduces thawed "reduction"
-          val _ = invalidate UniqueTable.uninstallMode thawed "uniqueness"
-          val _ = invalidate Total.uninstall thawed "totality"
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = invalidate WorldSyn.uninstall thawed "world" (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = invalidate Thm.uninstallTerminates thawed "termination" (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = invalidate Thm.uninstallReduces thawed "reduction" (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = invalidate UniqueTable.uninstallMode thawed "uniqueness" (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = invalidate Total.uninstall thawed "totality" (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* %deterministic <qid> ... *)
-      | install1 (fileName, (Parser.DeterministicDec (qids), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.DeterministicDec (qids), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -691,20 +691,20 @@ struct
                                        ^ " in deterministic declaration")
                  | SOME cid => cid
           fun insertCid cid = CompSyn.detTableInsert (cid, true)
-          val cids = List.map toCid qids
+          (* GEN BEGIN TAG OUTSIDE LET *) val cids = List.map toCid qids
                        handle Names.Error (msg) =>
-                         raise Names.Error (Paths.wrap (r, msg))
+                         raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
         in
           List.map insertCid cids;
           if !Global.chatter >= 3
           then msg ((if !Global.chatter >= 4 then "%" else "")
                       ^ "%deterministic"
-                      ^ List.foldr (fn (a, s) => " " ^ Names.qidToString (Names.constQid a) ^ s) ".\n" cids)
+                      ^ List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, s) => " " ^ Names.qidToString (Names.constQid a) ^ s (* GEN END FUNCTION EXPRESSION *)) ".\n" cids)
           else ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* %compile <qids> *) (* -ABP 4/4/03 *)
-      | install1 (fileName, (Parser.Compile (qids), r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.Compile (qids), r)) =
         let
           fun toCid qid =
               case Names.constLookup qid
@@ -712,47 +712,47 @@ struct
                                               ^ Names.qidToString (valOf (Names.constUndef qid))
                                               ^ " in compile assertion")
                  | SOME cid => cid
-          val cids = List.map toCid qids
-                     handle Names.Error (msg) => raise Names.Error (Paths.wrap (r, msg))
+          (* GEN BEGIN TAG OUTSIDE LET *) val cids = List.map toCid qids
+                     handle Names.Error (msg) => raise Names.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
       
           (* MOVED -- ABP 4/4/03 *)
           (* ******************************************* *)
-          fun checkFreeOut nil = ()
-            | checkFreeOut (a :: La) =
+          fun (* GEN BEGIN FUN FIRST *) checkFreeOut nil = () (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) checkFreeOut (a :: La) =
               let
-                val SOME ms = ModeTable.modeLookup a
-                val _ = ModeCheck.checkFreeOut (a, ms)
+                (* GEN BEGIN TAG OUTSIDE LET *) val SOME ms = ModeTable.modeLookup a (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = ModeCheck.checkFreeOut (a, ms) (* GEN END TAG OUTSIDE LET *)
               in
                 checkFreeOut La
-              end
+              end (* GEN END FUN BRANCH *)
       
-          val _ = checkFreeOut cids
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = checkFreeOut cids (* GEN END TAG OUTSIDE LET *)
           (* ******************************************* *)
       
-          val (lemma, projs, sels) = Converter.installPrg cids
-          val P = Tomega.lemmaDef lemma
-          val F = Converter.convertFor cids
-          val _ = TomegaTypeCheck.checkPrg (IntSyn.Null, (P, F))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (lemma, projs, sels) = Converter.installPrg cids (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val P = Tomega.lemmaDef lemma (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = Converter.convertFor cids (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkPrg (IntSyn.Null, (P, F)) (* GEN END TAG OUTSIDE LET *)
       
           fun f cid = IntSyn.conDecName (IntSyn.sgnLookup cid)
       
-          val _ = if !Global.chatter >= 2
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 2
                     then msg ("\n" ^
                                 TomegaPrint.funToString ((map f cids, projs), P)
                                 ^ "\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
       
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ((if !Global.chatter >= 4 then "%" else "")
                                 ^ "%compile"
-                                ^ List.foldr (fn (a, s) => " " ^ Names.qidToString (Names.constQid a) ^ s) ".\n" cids)
-                  else ()
+                                ^ List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, s) => " " ^ Names.qidToString (Names.constQid a) ^ s (* GEN END FUNCTION EXPRESSION *)) ".\n" cids)
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* Fixity declaration for operator precedence parsing *)
-      | install1 (fileName, (Parser.FixDec ((qid,r),fixity), _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.FixDec ((qid,r),fixity), _)) =
         (case Names.constLookup qid
            of NONE => raise Names.Error ("Undeclared identifier "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
@@ -763,95 +763,95 @@ struct
                                          ^ Names.Fixity.toString fixity ^ " "
                                          ^ Names.qidToString (Names.constQid cid) ^ ".\n")
                            else ())
-         handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg)))
+         handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg))) (* GEN END FUN BRANCH *)
 
       (* Name preference declaration for printing *)
-      | install1 (fileName, (Parser.NamePref ((qid,r), namePref), _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.NamePref ((qid,r), namePref), _)) =
         (case Names.constLookup qid
            of NONE => raise Names.Error ("Undeclared identifier "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
                                          ^ " in name preference")
             | SOME cid => Names.installNamePref (cid, namePref)
-         handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg)))
+         handle Names.Error (msg) => raise Names.Error (Paths.wrap (r,msg))) (* GEN END FUN BRANCH *)
 
       (* Mode declaration *)
-      | install1 (fileName, (Parser.ModeDec mterms, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.ModeDec mterms, r)) =
         let
-          val mdecs = List.map ReconMode.modeToMode mterms
-          val _ = ReconTerm.checkErrors (r)
-          val _ = List.app (fn (mdec as (a, _), r) =>
+          (* GEN BEGIN TAG OUTSIDE LET *) val mdecs = List.map ReconMode.modeToMode mterms (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ReconTerm.checkErrors (r) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec as (a, _), r) =>
                             case ModeTable.modeLookup a
                               of NONE => ()
                                | SOME _ =>
                                  if Subordinate.frozen [a]
                                    then raise ModeTable.Error (Paths.wrap (r, "Cannot redeclare mode for frozen constant " ^ Names.qidToString (Names.constQid a)))
-                                 else ())
-                  mdecs
-          val _ = List.app (fn (mdec as (a, _), r) =>
+                                 else () (* GEN END FUNCTION EXPRESSION *))
+                  mdecs (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec as (a, _), r) =>
                             (case (IntSyn.conDecStatus (IntSyn.sgnLookup a))
                                of IntSyn.Normal => ModeTable.installMode mdec
                                 | _ => raise ModeTable.Error "Cannot declare modes for foreign constants")
-                            handle ModeTable.Error (msg) => raise ModeTable.Error (Paths.wrap (r, msg)))
-                  mdecs
-          val _ = List.app (fn mdec => ModeDec.checkPure mdec) mdecs
-          val _ = List.app (fn (mdec, r) => ModeCheck.checkMode mdec (* exception comes with location *)
-                            handle ModeCheck.Error (msg) => raise ModeCheck.Error (msg))
-                  mdecs
-          val _ = if !Global.chatter >= 3
+                            handle ModeTable.Error (msg) => raise ModeTable.Error (Paths.wrap (r, msg)) (* GEN END FUNCTION EXPRESSION *))
+                  mdecs (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn mdec => ModeDec.checkPure mdec (* GEN END FUNCTION EXPRESSION *)) mdecs (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec, r) => ModeCheck.checkMode mdec (* exception comes with location *)
+                            handle ModeCheck.Error (msg) => raise ModeCheck.Error (msg) (* GEN END FUNCTION EXPRESSION *))
+                  mdecs (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%mode " ^ ModePrint.modesToString
-                                           (List.map (fn (mdec, r) => mdec) mdecs)
+                                           (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec, r) => mdec (* GEN END FUNCTION EXPRESSION *)) mdecs)
                                          ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* Unique declaration *)
-      | install1 (fileName, (Parser.UniqueDec mterms, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.UniqueDec mterms, r)) =
         let
-          val mdecs = List.map ReconMode.modeToMode mterms
-          val _ = ReconTerm.checkErrors (r)
+          (* GEN BEGIN TAG OUTSIDE LET *) val mdecs = List.map ReconMode.modeToMode mterms (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ReconTerm.checkErrors (r) (* GEN END TAG OUTSIDE LET *)
           (* convert all UniqueTable.Error to Unique.Error *)
-          val _ = List.app (fn (mdec as (a, _), r) =>
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec as (a, _), r) =>
                             (case (IntSyn.conDecStatus (IntSyn.sgnLookup a))
                                of IntSyn.Normal => UniqueTable.installMode mdec
                                 | _ => raise UniqueTable.Error "Cannot declare modes for foreign constants")
-                            handle UniqueTable.Error (msg) => raise Unique.Error (Paths.wrap (r, msg)))
-                  mdecs
+                            handle UniqueTable.Error (msg) => raise Unique.Error (Paths.wrap (r, msg)) (* GEN END FUNCTION EXPRESSION *))
+                  mdecs (* GEN END TAG OUTSIDE LET *)
           (* Timing added to coverage --- fix !!! -fp Sun Aug 17 12:17:51 2003 *)
-          val _ = List.app (fn (mdec, r) => (Timers.time Timers.coverage Unique.checkUnique) mdec
-                                handle Unique.Error (msg) => raise Unique.Error (Paths.wrap (r, msg)))
-                  mdecs
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec, r) => (Timers.time Timers.coverage Unique.checkUnique) mdec
+                                handle Unique.Error (msg) => raise Unique.Error (Paths.wrap (r, msg)) (* GEN END FUNCTION EXPRESSION *))
+                  mdecs (* GEN END TAG OUTSIDE LET *)
           (* %unique does not auto-freeze, since family must already be frozen *)
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%unique " ^ ModePrint.modesToString
-                                           (List.map (fn (mdec, r) => mdec) mdecs)
+                                           (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec, r) => mdec (* GEN END FUNCTION EXPRESSION *)) mdecs)
                                          ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* Coverage declaration *)
-      | install1 (fileName, (Parser.CoversDec mterms, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.CoversDec mterms, r)) =
         let
-          val mdecs = List.map ReconMode.modeToMode mterms
-          val _ = ReconTerm.checkErrors (r)
-          val _ = List.app (fn mdec => ModeDec.checkPure mdec) mdecs   (* MERGE Fri Aug 22 13:43:12 2003 -cs *)
-          val _ = List.app (fn (mdec, r) => (Timers.time Timers.coverage Cover.checkCovers) mdec
-                            handle Cover.Error (msg) => raise Cover.Error (Paths.wrap (r, msg)))
-                  mdecs
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val mdecs = List.map ReconMode.modeToMode mterms (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ReconTerm.checkErrors (r) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn mdec => ModeDec.checkPure mdec (* GEN END FUNCTION EXPRESSION *)) mdecs (* GEN END TAG OUTSIDE LET *)   (* MERGE Fri Aug 22 13:43:12 2003 -cs *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec, r) => (Timers.time Timers.coverage Cover.checkCovers) mdec
+                            handle Cover.Error (msg) => raise Cover.Error (Paths.wrap (r, msg)) (* GEN END FUNCTION EXPRESSION *))
+                  mdecs (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%covers " ^ ModePrint.modesToString
-                                             (List.map (fn (mdec, r) => mdec) mdecs)
+                                             (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (mdec, r) => mdec (* GEN END FUNCTION EXPRESSION *)) mdecs)
                                            ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* Total declaration *)
-      | install1 (fileName, (Parser.TotalDec lterm, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.TotalDec lterm, r)) =
         (* time activities separately in total.fun *)
         let
         (* Mon Dec  2 17:20:18 2002 -fp *)
@@ -861,8 +861,8 @@ struct
                     then raise Total.Error (Paths.wrapLoc (Paths.Loc (fileName, r), "%total not safe: Toggle `unsafe' flag"))
                   else ()
           *)
-          val (T, rrs as (r,rs)) = ReconThm.tdeclTotDecl lterm
-          val La = Thm.installTotal (T, rrs)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (T, rrs as (r,rs)) = ReconThm.tdeclTotDecl lterm (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = Thm.installTotal (T, rrs) (* GEN END TAG OUTSIDE LET *)
       
       (* ******************************************* *)
       (*  Temporarily disabled -- cs Thu Oct 30 12:46:44 2003
@@ -904,30 +904,30 @@ struct
       
       7 ******************************************* *)
       
-          val _ = map Total.install La  (* pre-install for recursive checking *)
-          val _ = map Total.checkFam La
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = map Total.install La (* GEN END TAG OUTSIDE LET *)  (* pre-install for recursive checking *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = map Total.checkFam La
                   handle Total.Error (msg) => raise Total.Error (msg) (* include region and file *)
                        | Cover.Error (msg) => raise Cover.Error (Paths.wrap (r, msg))
-      (*                     | Cover.Error (msg) => covererror (result1, msg)  disabled -cs Thu Jan 29 16:35:13 2004 *)
+                (*                     | Cover.Error (msg) => covererror (result1, msg)  disabled -cs Thu Jan 29 16:35:13 2004 *)
                        | Reduces.Error (msg) => raise Reduces.Error (msg) (* includes filename *)
-                       | Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg))
+                       | Subordinate.Error (msg) => raise Subordinate.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
       (*        val _ = case (result1)
                     of NONE => ()
                      | SOME msg => raise Cover.Error (Paths.wrap (r, "Relational coverage succeeds, funcational fails:\n This indicates a bug in the functional checker.\n[Functional] " ^ msg))
       *)
           (* %total does not auto-freeze, since the predicate must already be frozen *)
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%total " ^ ThmPrint.tDeclToString T ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* Termination declaration *)
-      | install1 (fileName, (Parser.TerminatesDec lterm, _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.TerminatesDec lterm, _)) =
         let
-          val (T, rrs as (r, rs)) = ReconThm.tdeclTotDecl lterm
-          val ThmSyn.TDecl (_, ThmSyn.Callpats(callpats)) = T
+          (* GEN BEGIN TAG OUTSIDE LET *) val (T, rrs as (r, rs)) = ReconThm.tdeclTotDecl lterm (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val ThmSyn.TDecl (_, ThmSyn.Callpats(callpats)) = T (* GEN END TAG OUTSIDE LET *)
           (* allow re-declaration since safe? *)
           (* Thu Mar 10 13:45:42 2005 -fp *)
           (*
@@ -940,22 +940,22 @@ struct
                             else ())
                   (callpats, rs)
           *)
-          val La = Thm.installTerminates (T, rrs)
-          val _ = map (Timers.time Timers.terminate Reduces.checkFam) La
-          val _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else ()
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = Thm.installTerminates (T, rrs) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = map (Timers.time Timers.terminate Reduces.checkFam) La (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%terminates " ^ ThmPrint.tDeclToString T ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
         (* -bp *)
         (* Reduces declaration *)
-      | install1 (fileName, (Parser.ReducesDec lterm, _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.ReducesDec lterm, _)) =
         let
-          val (R, rrs as (r, rs)) = ReconThm.rdeclTorDecl lterm
-          val ThmSyn.RDecl (_, ThmSyn.Callpats(callpats)) = R
+          (* GEN BEGIN TAG OUTSIDE LET *) val (R, rrs as (r, rs)) = ReconThm.rdeclTorDecl lterm (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val ThmSyn.RDecl (_, ThmSyn.Callpats(callpats)) = R (* GEN END TAG OUTSIDE LET *)
           (* allow re-declaration since safe? *)
           (* Thu Mar 10 14:06:13 2005 -fp *)
           (*
@@ -968,302 +968,302 @@ struct
                             else ())
                   (callpats, rs)
           *)
-          val La = Thm.installReduces (R, rrs)
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = Thm.installReduces (R, rrs) (* GEN END TAG OUTSIDE LET *)
           (*  -bp6/12/99.   *)
-          val _ = map (Timers.time Timers.terminate Reduces.checkFamReduction) La
-          val _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else ()
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = map (Timers.time Timers.terminate Reduces.checkFamReduction) La (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.autoFreeze then (Subordinate.freeze La; ()) else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%reduces " ^ ThmPrint.rDeclToString R ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
         (* Tabled declaration *)
-      | install1 (fileName, (Parser.TabledDec tdecl, _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.TabledDec tdecl, _)) =
         let
-          val (T,r) = ReconThm.tableddeclTotabledDecl tdecl
-          val La = Thm.installTabled T
+          (* GEN BEGIN TAG OUTSIDE LET *) val (T,r) = ReconThm.tableddeclTotabledDecl tdecl (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = Thm.installTabled T (* GEN END TAG OUTSIDE LET *)
           (*  -bp6/12/99.   *)
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%tabled " ^ ThmPrint.tabledDeclToString T ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* %keepTable declaration *)
-      | install1 (fileName, (Parser.KeepTableDec tdecl, _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.KeepTableDec tdecl, _)) =
         let
-          val (T,r) = ReconThm.keepTabledeclToktDecl tdecl
-          val La = Thm.installKeepTable T
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val (T,r) = ReconThm.keepTabledeclToktDecl tdecl (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = Thm.installKeepTable T (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%keeptabled " ^ ThmPrint.keepTableDeclToString T ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
 
       (* Theorem declaration *)
-      | install1 (fileName, (Parser.TheoremDec tdec, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.TheoremDec tdec, r)) =
         let
-          val Tdec = ReconThm.theoremDecToTheoremDec tdec
-          val _ = ReconTerm.checkErrors (r)
-          val (GBs, E as IntSyn.ConDec (name, _, k, _, V, L)) = ThmSyn.theoremDecToConDec (Tdec, r)
-          val _ = FunSyn.labelReset ()
-          val _ = List.foldr (fn ((G1, G2), k) => FunSyn.labelAdd
-                            (FunSyn.LabelDec (Int.toString k, FunSyn.ctxToList G1, FunSyn.ctxToList G2))) 0 GBs
+          (* GEN BEGIN TAG OUTSIDE LET *) val Tdec = ReconThm.theoremDecToTheoremDec tdec (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ReconTerm.checkErrors (r) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (GBs, E as IntSyn.ConDec (name, _, k, _, V, L)) = ThmSyn.theoremDecToConDec (Tdec, r) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = FunSyn.labelReset () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn ((G1, G2), k) => FunSyn.labelAdd
+                            (FunSyn.LabelDec (Int.toString k, FunSyn.ctxToList G1, FunSyn.ctxToList G2)) (* GEN END FUNCTION EXPRESSION *)) 0 GBs (* GEN END TAG OUTSIDE LET *)
       
-          val cid = installConDec IntSyn.Ordinary (E, (fileName, NONE), r)
-          val MS = ThmSyn.theoremDecToModeSpine (Tdec, r)
-          val _ = ModeTable.installMode (cid, MS)
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val cid = installConDec IntSyn.Ordinary (E, (fileName, NONE), r) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val MS = ThmSyn.theoremDecToModeSpine (Tdec, r) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ModeTable.installMode (cid, MS) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%theorem " ^ Print.conDecToString E ^ "\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* Prove declaration *)
-      | install1 (fileName, (Parser.ProveDec lterm, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.ProveDec lterm, r)) =
         let
-          val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.proveToProve lterm
-          val La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.proveToProve lterm (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = Thm.installTerminates (T, rrs) (* GEN END TAG OUTSIDE LET *)  (* La is the list of type constants *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%prove " ^ (Int.toString depth) ^ " " ^
                                        (ThmPrint.tDeclToString T) ^ ".\n")
-                  else ()
-          val _ = Prover.init (depth, La)
-          val _ = if !Global.chatter >= 3
-                    then map (fn a => msg ("%mode " ^
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Prover.init (depth, La) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
+                    then map ((* GEN BEGIN FUNCTION EXPRESSION *) fn a => msg ("%mode " ^
                                              (ModePrint.modeToString (a, valOf (ModeTable.modeLookup a)))
-                                             ^ ".\n")) La   (* mode must be declared!*)
-                  else [()]
+                                             ^ ".\n") (* GEN END FUNCTION EXPRESSION *)) La   (* mode must be declared!*)
+                  else [()] (* GEN END TAG OUTSIDE LET *)
       
-          val _ = Prover.auto ()
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Prover.auto ()
                   handle Prover.Error msg
-                         => raise Prover.Error (Paths.wrap (joinregion rrs, msg)) (* times itself *)
-          val _ = if !Global.chatter >= 3
+                         => raise Prover.Error (Paths.wrap (joinregion rrs, msg)) (* GEN END TAG OUTSIDE LET *) (* times itself *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%QED\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
       
         in
-          (Prover.install (fn E => installConDec IntSyn.Ordinary (E, (fileName, NONE), r));
+          (Prover.install ((* GEN BEGIN FUNCTION EXPRESSION *) fn E => installConDec IntSyn.Ordinary (E, (fileName, NONE), r) (* GEN END FUNCTION EXPRESSION *));
            Skolem.install La)
-        end
+        end (* GEN END FUN BRANCH *)
 
       (* Establish declaration *)
-      | install1 (fileName, (Parser.EstablishDec lterm, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.EstablishDec lterm, r)) =
         let
-          val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.establishToEstablish lterm
-          val La = Thm.installTerminates (T, rrs)  (* La is the list of type constants *)
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val (ThmSyn.PDecl (depth, T), rrs) = ReconThm.establishToEstablish lterm (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = Thm.installTerminates (T, rrs) (* GEN END TAG OUTSIDE LET *)  (* La is the list of type constants *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%prove " ^ (Int.toString depth) ^ " " ^
                                        (ThmPrint.tDeclToString T) ^ ".\n")
-                  else ()
-          val _ = Prover.init (depth, La)
-          val _ = if !Global.chatter >= 3
-                    then map (fn a => msg ("%mode " ^
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Prover.init (depth, La) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
+                    then map ((* GEN BEGIN FUNCTION EXPRESSION *) fn a => msg ("%mode " ^
                                              (ModePrint.modeToString (a, valOf (ModeTable.modeLookup a)))
-                                             ^ ".\n")) La   (* mode must be declared!*)
-                  else [()]
+                                             ^ ".\n") (* GEN END FUNCTION EXPRESSION *)) La   (* mode must be declared!*)
+                  else [()] (* GEN END TAG OUTSIDE LET *)
       
-          val _ = Prover.auto () handle Prover.Error msg => raise Prover.Error (Paths.wrap (joinregion rrs, msg)) (* times itself *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Prover.auto () handle Prover.Error msg => raise Prover.Error (Paths.wrap (joinregion rrs, msg)) (* GEN END TAG OUTSIDE LET *) (* times itself *)
       
         in
-          Prover.install (fn E => installConDec IntSyn.Ordinary (E, (fileName, NONE), r))
-        end
+          Prover.install ((* GEN BEGIN FUNCTION EXPRESSION *) fn E => installConDec IntSyn.Ordinary (E, (fileName, NONE), r) (* GEN END FUNCTION EXPRESSION *))
+        end (* GEN END FUN BRANCH *)
 
       (* Assert declaration *)
-      | install1 (fileName, (Parser.AssertDec aterm, _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.AssertDec aterm, _)) =
         let
-          val _ = if not (!Global.unsafe)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if not (!Global.unsafe)
                     then raise ThmSyn.Error "%assert not safe: Toggle `unsafe' flag"
-                  else ()
-          val (cp as ThmSyn.Callpats (L), rrs) = ReconThm.assertToAssert aterm
-          val La = map (fn (c, P) => c) L  (* La is the list of type constants *)
-          val _ = if !Global.chatter >= 3
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (cp as ThmSyn.Callpats (L), rrs) = ReconThm.assertToAssert aterm (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val La = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (c, P) => c (* GEN END FUNCTION EXPRESSION *)) L (* GEN END TAG OUTSIDE LET *)  (* La is the list of type constants *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%assert " ^ (ThmPrint.callpatsToString cp) ^ ".\n")
-                  else ()
-          val _ = if !Global.chatter >= 3
-                    then map (fn a => msg ("%mode " ^
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
+                    then map ((* GEN BEGIN FUNCTION EXPRESSION *) fn a => msg ("%mode " ^
                                              (ModePrint.modeToString (a, valOf (ModeTable.modeLookup a)))
-                                             ^ ".\n")) La   (* mode must be declared!*)
-                  else [()]
+                                             ^ ".\n") (* GEN END FUNCTION EXPRESSION *)) La   (* mode must be declared!*)
+                  else [()] (* GEN END TAG OUTSIDE LET *)
         in
           Skolem.install La
-        end
+        end (* GEN END FUN BRANCH *)
 
-      | install1 (fileName, (Parser.WorldDec wdecl, _)) =
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.WorldDec wdecl, _)) =
         let
-          val (ThmSyn.WDecl (qids, cp as ThmSyn.Callpats cpa), rs) =
-                 ReconThm.wdeclTowDecl wdecl
-          val _ = ListPair.app (fn ((a, _), r) =>
+          (* GEN BEGIN TAG OUTSIDE LET *) val (ThmSyn.WDecl (qids, cp as ThmSyn.Callpats cpa), rs) =
+                 ReconThm.wdeclTowDecl wdecl (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ListPair.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn ((a, _), r) =>
                     if Subordinate.frozen [a]
                       then raise WorldSyn.Error (Paths.wrapLoc (Paths.Loc (fileName, r), "Cannot declare worlds for frozen family "
                                                                 ^ Names.qidToString (Names.constQid a)))
-                    else ())
-                 (cpa, rs)
-          fun flatten nil F = F
-            | flatten (cid :: L) F =
+                    else () (* GEN END FUNCTION EXPRESSION *))
+                 (cpa, rs) (* GEN END TAG OUTSIDE LET *)
+          fun (* GEN BEGIN FUN FIRST *) flatten nil F = F (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) flatten (cid :: L) F =
                 (case IntSyn.sgnLookup cid
                   of IntSyn.BlockDec _ => flatten L (cid :: F)
-                   | IntSyn.BlockDef (_, _, L') => flatten (L @ L') F)
+                   | IntSyn.BlockDef (_, _, L') => flatten (L @ L') F) (* GEN END FUN BRANCH *)
       
-          val W = Tomega.Worlds (flatten
-              (List.map (fn qid => case Names.constLookup qid
+          (* GEN BEGIN TAG OUTSIDE LET *) val W = Tomega.Worlds (flatten
+              (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn qid => case Names.constLookup qid
                                     of NONE => raise Names.Error ("Undeclared label "
                                          ^ Names.qidToString (valOf (Names.constUndef qid))
                                          ^ ".")
-                                     | SOME cid => cid)
-              qids) nil)
-          val _ = List.app (fn (a, _) => WorldSyn.install (a, W)) cpa
+                                     | SOME cid => cid (* GEN END FUNCTION EXPRESSION *))
+              qids) nil) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, _) => WorldSyn.install (a, W) (* GEN END FUNCTION EXPRESSION *)) cpa
                   handle WorldSyn.Error (msg)
                          (* error location inaccurate here *)
-                         => raise WorldSyn.Error (Paths.wrapLoc (Paths.Loc (fileName, joinregions rs), msg))
-          val _ = if !Global.autoFreeze
-                    then (Subordinate.freeze (List.map (fn (a, _) => a) cpa) ; ())
-                  else ()
-          val _ = if !Global.chatter >= 3
+                         => raise WorldSyn.Error (Paths.wrapLoc (Paths.Loc (fileName, joinregions rs), msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.autoFreeze
+                    then (Subordinate.freeze (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, _) => a (* GEN END FUNCTION EXPRESSION *)) cpa) ; ())
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%worlds " ^ Print.worldsToString W ^ " "
                                 ^ ThmPrint.callpatsToString cp ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
-          (Timers.time Timers.worlds (map (fn (a, _) => WorldSyn.worldcheck W a)) cpa ; ()
+          (Timers.time Timers.worlds (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, _) => WorldSyn.worldcheck W a (* GEN END FUNCTION EXPRESSION *))) cpa ; ()
            (*if !Global.doubleCheck
              then (map (fn (a,_) => Worldify.worldify a) cpa; ())
            else  ()  --cs Sat Aug 27 22:04:29 2005 *))
       
-        end
-      | install1 (fileName, declr as (Parser.SigDef _, _)) =
-          install1WithSig (fileName, NONE, declr)
-      | install1 (fileName, declr as (Parser.StructDec _, _)) =
-          install1WithSig (fileName, NONE, declr)
-      | install1 (fileName, declr as (Parser.Include _, _)) =
-          install1WithSig (fileName, NONE, declr)
-      | install1 (fileName, declr as (Parser.Open _, _)) =
-          install1WithSig (fileName, NONE, declr)
-      | install1 (fileName, (Parser.Use name, r)) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, declr as (Parser.SigDef _, _)) =
+          install1WithSig (fileName, NONE, declr) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, declr as (Parser.StructDec _, _)) =
+          install1WithSig (fileName, NONE, declr) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, declr as (Parser.Include _, _)) =
+          install1WithSig (fileName, NONE, declr) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, declr as (Parser.Open _, _)) =
+          install1WithSig (fileName, NONE, declr) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) install1 (fileName, (Parser.Use name, r)) =
         (case !context
            of NONE => CSManager.useSolver (name)
-            | _ => raise ModSyn.Error (Paths.wrap (r, "%use declaration needs to be at top level")))
+            | _ => raise ModSyn.Error (Paths.wrap (r, "%use declaration needs to be at top level"))) (* GEN END FUN BRANCH *)
 
-    and install1WithSig (fileName, moduleOpt, (Parser.SigDef sigdef, r)) =
+    and (* GEN BEGIN FUN FIRST *) install1WithSig (fileName, moduleOpt, (Parser.SigDef sigdef, r)) =
         (* Signature declaration *)
         let
           (* FIX: should probably time this -kw *)
-          val (idOpt, module, wherecls) =
-                ReconModule.sigdefToSigdef (sigdef, moduleOpt)
-          val module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
-          val name = (case idOpt
+          (* GEN BEGIN TAG OUTSIDE LET *) val (idOpt, module, wherecls) =
+                ReconModule.sigdefToSigdef (sigdef, moduleOpt) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val module' = foldl ((* GEN BEGIN FUNCTION EXPRESSION *) fn (inst, module) => ReconModule.moduleWhere (module, inst) (* GEN END FUNCTION EXPRESSION *)) module wherecls (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = (case idOpt
                         of SOME id => (ModSyn.installSigDef (id, module');
                                        id)
                          | NONE => "_" (* anonymous *))
-                  handle ModSyn.Error msg => raise ModSyn.Error (Paths.wrap (r, msg))
-          val _ = if !Global.chatter >= 3
+                  handle ModSyn.Error msg => raise ModSyn.Error (Paths.wrap (r, msg)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                     then msg ("%sig " ^ name ^ " = { ... }.\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
-      | install1WithSig (fileName, moduleOpt, (Parser.StructDec structdec, r)) =
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) install1WithSig (fileName, moduleOpt, (Parser.StructDec structdec, r)) =
         (* Structure declaration *)
         (case ReconModule.structdecToStructDec (structdec, moduleOpt)
            of ReconModule.StructDec (idOpt, module, wherecls) =>
               let
-                val module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
-                val name = (case idOpt
+                (* GEN BEGIN TAG OUTSIDE LET *) val module' = foldl ((* GEN BEGIN FUNCTION EXPRESSION *) fn (inst, module) => ReconModule.moduleWhere (module, inst) (* GEN END FUNCTION EXPRESSION *)) module wherecls (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val name = (case idOpt
                               of SOME id =>
                                    (installStrDec (IntSyn.StrDec (id, NONE), module', r, false);
                                     id)
-                               | NONE => "_" (* anonymous *))
-                val _ = if !Global.chatter = 3
+                               | NONE => "_" (* anonymous *)) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter = 3
                           then msg ("%struct " ^ name ^ " : { ... }.\n")
-                        else ()
+                        else () (* GEN END TAG OUTSIDE LET *)
               in
                 ()
               end
             | ReconModule.StructDef (idOpt, mid) =>
               let
-                val ns = Names.getComponents mid
-                val module = ModSyn.abstractModule (ns, SOME mid)
-                val name = (case idOpt
+                (* GEN BEGIN TAG OUTSIDE LET *) val ns = Names.getComponents mid (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val module = ModSyn.abstractModule (ns, SOME mid) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val name = (case idOpt
                               of SOME id =>
                                    (installStrDec (IntSyn.StrDec (id, NONE), module, r, true);
                                     id)
-                               | NONE => "_" (* anonymous *))
-                val _ = if !Global.chatter = 3
+                               | NONE => "_" (* anonymous *)) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter = 3
                           then msg ("%struct " ^ name ^ " = " ^ Names.qidToString (Names.structQid mid) ^ ".\n")
-                        else ()
+                        else () (* GEN END TAG OUTSIDE LET *)
               in
                 ()
-              end)
+              end) (* GEN END FUN BRANCH *)
 
-      | install1WithSig (fileName, moduleOpt, (Parser.Include sigexp, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1WithSig (fileName, moduleOpt, (Parser.Include sigexp, r)) =
         (* Include declaration *)
         let
-          val (module, wherecls) = ReconModule.sigexpToSigexp (sigexp, moduleOpt)
-          val module' = foldl (fn (inst, module) => ReconModule.moduleWhere (module, inst)) module wherecls
-          val _ = includeSig (module', r, false)
-          val _ = if !Global.chatter = 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val (module, wherecls) = ReconModule.sigexpToSigexp (sigexp, moduleOpt) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val module' = foldl ((* GEN BEGIN FUNCTION EXPRESSION *) fn (inst, module) => ReconModule.moduleWhere (module, inst) (* GEN END FUNCTION EXPRESSION *)) module wherecls (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = includeSig (module', r, false) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter = 3
                     then msg ("%include { ... }.\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
-      | install1WithSig (fileName, NONE, (Parser.Open strexp, r)) =
+      | (* GEN BEGIN FUN BRANCH *) install1WithSig (fileName, NONE, (Parser.Open strexp, r)) =
         (* Open declaration *)
         let
-          val mid = ReconModule.strexpToStrexp strexp
-          val ns = Names.getComponents mid
-          val module = ModSyn.abstractModule (ns, SOME mid)
-          val _ = includeSig (module, r, true)
-          val _ = if !Global.chatter = 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val mid = ReconModule.strexpToStrexp strexp (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val ns = Names.getComponents mid (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val module = ModSyn.abstractModule (ns, SOME mid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = includeSig (module, r, true) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter = 3
                     then msg ("%open " ^ Names.qidToString (Names.structQid mid) ^ ".\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
         in
           ()
-        end
+        end (* GEN END FUN BRANCH *)
 
     fun installSubsig (fileName, s) =
         let
-          val namespace = Names.newNamespace ()
+          (* GEN BEGIN TAG OUTSIDE LET *) val namespace = Names.newNamespace () (* GEN END TAG OUTSIDE LET *)
     
-          val (mark, markStruct) = IntSyn.sgnSize ()
-          val markSigDef = ModSyn.sigDefSize ()
-          val oldContext = !context
-          val _ = context := SOME namespace
-          val _ = if !Global.chatter >= 4
+          (* GEN BEGIN TAG OUTSIDE LET *) val (mark, markStruct) = IntSyn.sgnSize () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val markSigDef = ModSyn.sigDefSize () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val oldContext = !context (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = context := SOME namespace (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 4
                     then msg ("\n% begin subsignature\n")
-                  else ()
+                  else () (* GEN END TAG OUTSIDE LET *)
     
           fun install s = install' ((Timers.time Timers.parsing S.expose) s)
-          and install' (S.Cons ((Parser.BeginSubsig, _), s')) =
-                install (installSubsig (fileName, s'))
-            | install' (S.Cons ((Parser.EndSubsig, _), s')) = s'
-            | install' (S.Cons (declr, s')) =
-                (install1 (fileName, declr); install s')
+          and (* GEN BEGIN FUN FIRST *) install' (S.Cons ((Parser.BeginSubsig, _), s')) =
+                install (installSubsig (fileName, s')) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) install' (S.Cons ((Parser.EndSubsig, _), s')) = s' (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) install' (S.Cons (declr, s')) =
+                (install1 (fileName, declr); install s') (* GEN END FUN BRANCH *)
     
-          val result =
+          (* GEN BEGIN TAG OUTSIDE LET *) val result =
               let
-                val s' = install s
-                val module = ModSyn.abstractModule (namespace, NONE)
-                val _ = if !Global.chatter >= 4
+                (* GEN BEGIN TAG OUTSIDE LET *) val s' = install s (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val module = ModSyn.abstractModule (namespace, NONE) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 4
                           then msg ("% end subsignature\n\n")
-                        else ()
+                        else () (* GEN END TAG OUTSIDE LET *)
               in
                 Value (module, s')
               end
-              handle exn => Exception exn
+              handle exn => Exception exn (* GEN END TAG OUTSIDE LET *)
     
-          val _ = context := oldContext
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = context := oldContext (* GEN END TAG OUTSIDE LET *)
     
-          val _ = Names.resetFrom (mark, markStruct)
-          val _ = Index.resetFrom mark
-          val _ = IndexSkolem.resetFrom mark
-          val _ = ModSyn.resetFrom markSigDef
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.resetFrom (mark, markStruct) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Index.resetFrom mark (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = IndexSkolem.resetFrom mark (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ModSyn.resetFrom markSigDef (* GEN END TAG OUTSIDE LET *)
           (* val _ = ModeTable.resetFrom mark *)
           (* val _ = Total.resetFrom mark *)
           (* val _ = Subordinate.resetFrom mark (* ouch! *) *)
@@ -1275,8 +1275,8 @@ struct
           case result
             of Value (module, s') =>
                let
-                 val S.Cons (declr, s'') =
-                       (Timers.time Timers.parsing S.expose) s'
+                 (* GEN BEGIN TAG OUTSIDE LET *) val S.Cons (declr, s'') =
+                       (Timers.time Timers.parsing S.expose) s' (* GEN END TAG OUTSIDE LET *)
                in
                  install1WithSig (fileName, SOME module, declr);
                  s''
@@ -1291,20 +1291,20 @@ struct
     *)
     fun loadFile (fileName) =
         handleExceptions 0 fileName (withOpenIn fileName)
-         (fn instream =>
+         ((* GEN BEGIN FUNCTION EXPRESSION *) fn instream =>
           let
-            val _ = ReconTerm.resetErrors fileName
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = ReconTerm.resetErrors fileName (* GEN END TAG OUTSIDE LET *)
             fun install s = install' ((Timers.time Timers.parsing S.expose) s)
-            and install' (S.Empty) = OK
+            and (* GEN BEGIN FUN FIRST *) install' (S.Empty) = OK (* GEN END FUN FIRST *)
                 (* Origins.installLinesInfo (fileName, Paths.getLinesInfo ()) *)
                 (* now done in installConDec *)
-              | install' (S.Cons((Parser.BeginSubsig, _), s')) =
-                  install (installSubsig (fileName, s'))
-              | install' (S.Cons(decl, s')) =
-                (install1 (fileName, decl); install s')
+              | (* GEN BEGIN FUN BRANCH *) install' (S.Cons((Parser.BeginSubsig, _), s')) =
+                  install (installSubsig (fileName, s')) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) install' (S.Cons(decl, s')) =
+                (install1 (fileName, decl); install s') (* GEN END FUN BRANCH *)
           in
             install (Parser.parseStream instream)
-          end)
+          end (* GEN END FUNCTION EXPRESSION *))
 
     (* loadString (str) = status
        reads and processes declarations from str, issuing
@@ -1312,17 +1312,17 @@ struct
        ABORT).
     *)
     fun loadString str = handleExceptions 0 "string"
-        (fn () =>
-            let val _ = ReconTerm.resetErrors "string"
+        ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
+            let (* GEN BEGIN TAG OUTSIDE LET *) val _ = ReconTerm.resetErrors "string" (* GEN END TAG OUTSIDE LET *)
                 fun install s = install' ((Timers.time Timers.parsing S.expose) s)
-                and install' (S.Empty) = OK
-                  | install' (S.Cons((Parser.BeginSubsig, _), s')) =
-                    (installSubsig ("string", s'); install s')
-                  | install' (S.Cons (decl, s')) =
-                    (install1 ("string", decl); install s')
+                and (* GEN BEGIN FUN FIRST *) install' (S.Empty) = OK (* GEN END FUN FIRST *)
+                  | (* GEN BEGIN FUN BRANCH *) install' (S.Cons((Parser.BeginSubsig, _), s')) =
+                    (installSubsig ("string", s'); install s') (* GEN END FUN BRANCH *)
+                  | (* GEN BEGIN FUN BRANCH *) install' (S.Cons (decl, s')) =
+                    (install1 ("string", decl); install s') (* GEN END FUN BRANCH *)
             in
                 install (Parser.parseStream (TextIO.openString str))
-            end) ()
+            end (* GEN END FUNCTION EXPRESSION *)) ()
 
     (* Interactive Query Top Level *)
 
@@ -1338,13 +1338,13 @@ struct
 
     fun installCSMDec (conDec, optFixity, mdecL) =
         let
-          val _ = ModeCheck.checkD (conDec, "%use", NONE)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = ModeCheck.checkD (conDec, "%use", NONE) (* GEN END TAG OUTSIDE LET *)
           (* put a more reasonable region here? -kw *)
-          val cid = installConDec IntSyn.FromCS (conDec, ("", NONE), Paths.Reg (0,0))
-          val _ = if !Global.chatter >= 3
+          (* GEN BEGIN TAG OUTSIDE LET *) val cid = installConDec IntSyn.FromCS (conDec, ("", NONE), Paths.Reg (0,0)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then msg (Print.conDecToString (conDec) ^ "\n")
-                  else ()
-          val _ = (case optFixity
+                  else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = (case optFixity
                      of SOME(fixity) =>
                           (Names.installFixity (cid, fixity);
                            if !Global.chatter >= 3
@@ -1352,13 +1352,13 @@ struct
                                          ^ Names.Fixity.toString fixity ^ " "
                                          ^ Names.qidToString (Names.constQid cid) ^ ".\n")
                            else ())
-                      | NONE => ())
-          val _ = List.app (fn mdec => ModeTable.installMmode (cid, mdec)) mdecL
+                      | NONE => ()) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn mdec => ModeTable.installMmode (cid, mdec) (* GEN END FUNCTION EXPRESSION *)) mdecL (* GEN END TAG OUTSIDE LET *)
         in
           cid
         end
 
-    val _ = CSManager.setInstallFN (installCSMDec)
+    (* GEN BEGIN TAG OUTSIDE LET *) val _ = CSManager.setInstallFN (installCSMDec) (* GEN END TAG OUTSIDE LET *)
 
     (* reset () = () clears all global tables, including the signature *)
     fun reset () = (IntSyn.sgnReset (); Names.reset (); Origins.reset ();
@@ -1383,17 +1383,17 @@ struct
 
     fun readDecl () =
         handleExceptions 0 "stdIn"
-        (fn () =>
-         let val _ = ReconTerm.resetErrors "stdIn"
+        ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
+         let (* GEN BEGIN TAG OUTSIDE LET *) val _ = ReconTerm.resetErrors "stdIn" (* GEN END TAG OUTSIDE LET *)
              fun install s = install' ((Timers.time Timers.parsing S.expose) s)
-             and install' (S.Empty) = ABORT
-               | install' (S.Cons((Parser.BeginSubsig, _), s')) =
-                   (installSubsig ("stdIn", s'); OK)
-               | install' (S.Cons (decl, s')) =
-                   (install1 ("stdIn", decl); OK)
+             and (* GEN BEGIN FUN FIRST *) install' (S.Empty) = ABORT (* GEN END FUN FIRST *)
+               | (* GEN BEGIN FUN BRANCH *) install' (S.Cons((Parser.BeginSubsig, _), s')) =
+                   (installSubsig ("stdIn", s'); OK) (* GEN END FUN BRANCH *)
+               | (* GEN BEGIN FUN BRANCH *) install' (S.Cons (decl, s')) =
+                   (install1 ("stdIn", decl); OK) (* GEN END FUN BRANCH *)
          in
            install (Parser.parseStream TextIO.stdIn)
-         end) ()
+         end (* GEN END FUNCTION EXPRESSION *)) ()
 
     (* decl (id) = () prints declaration of constant id *)
     fun decl (id) =
@@ -1405,7 +1405,7 @@ struct
             | SOME cid => decl' (cid)))
     and decl' (cid) =
         let
-          val conDec = IntSyn.sgnLookup (cid)
+          (* GEN BEGIN TAG OUTSIDE LET *) val conDec = IntSyn.sgnLookup (cid) (* GEN END TAG OUTSIDE LET *)
           (* val fixity = Names.getFixity (cid) *)
           (* can't get name preference right now *)
           (* val mode = ModeTable.modeLookup (cid) *)
@@ -1437,11 +1437,11 @@ struct
 
       fun editName edit (file, mtime) = (edit file, mtime)
 
-      fun modified (_, ref NONE) = true
-        | modified (file, ref (SOME time)) =
+      fun (* GEN BEGIN FUN FIRST *) modified (_, ref NONE) = true (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) modified (file, ref (SOME time)) =
           (case Time.compare (time, OS.FileSys.modTime file)
              of EQUAL => false
-              | _     => true)
+              | _     => true) (* GEN END FUN BRANCH *)
 
       fun makeModified (_, mtime) =
           mtime := NONE
@@ -1467,7 +1467,7 @@ struct
       type config = string * ModFile.mfile list
 
       (* suffix of configuration files: "cfg" by default *)
-      val suffix = ref "cfg"
+      (* GEN BEGIN TAG OUTSIDE LET *) val suffix = ref "cfg" (* GEN END TAG OUTSIDE LET *)
 
             (* mkRel transforms a relative path into an absolute one
                by adding the specified prefix. If the path is already
@@ -1487,11 +1487,11 @@ struct
             *)
             fun appendUniq (l1, l2) =
                   let
-                    fun appendUniq' (x :: l2) =
-                          if List.exists (fn y => x = y) l1
+                    fun (* GEN BEGIN FUN FIRST *) appendUniq' (x :: l2) =
+                          if List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn y => x = y (* GEN END FUNCTION EXPRESSION *)) l1
                           then appendUniq' l2
-                          else x :: appendUniq' (l2)
-                      | appendUniq' nil = List.rev l1
+                          else x :: appendUniq' (l2) (* GEN END FUN FIRST *)
+                      | (* GEN BEGIN FUN BRANCH *) appendUniq' nil = List.rev l1 (* GEN END FUN BRANCH *)
                   in
                     List.rev (appendUniq' (List.rev l2))
                   end
@@ -1500,8 +1500,8 @@ struct
             *)
             fun isConfig item =
                 let
-                  val suffix_size = (String.size (!suffix)) + 1
-                  val suffix_start = (String.size item) - suffix_size
+                  (* GEN BEGIN TAG OUTSIDE LET *) val suffix_size = (String.size (!suffix)) + 1 (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val suffix_start = (String.size item) - suffix_size (* GEN END TAG OUTSIDE LET *)
                 in
                   (suffix_start >= 0)
                   andalso
@@ -1512,25 +1512,25 @@ struct
             *)
             fun fromUnixPath path =
                 let
-                  val vol = OS.Path.getVolume config
-                  val isAbs = String.isPrefix "/" path
-                  val arcs = String.tokens (fn c => c = #"/") path
+                  (* GEN BEGIN TAG OUTSIDE LET *) val vol = OS.Path.getVolume config (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val isAbs = String.isPrefix "/" path (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val arcs = String.tokens ((* GEN BEGIN FUNCTION EXPRESSION *) fn c => c = #"/" (* GEN END FUNCTION EXPRESSION *)) path (* GEN END TAG OUTSIDE LET *)
                 in
                   OS.Path.toString {isAbs = isAbs, vol=vol, arcs=arcs}
                 end
             fun read' (sources, configs) config =
                 withOpenIn config
-                  (fn instream =>
+                  ((* GEN BEGIN FUNCTION EXPRESSION *) fn instream =>
                       let
-                        val {dir=configDir, file=_} = OS.Path.splitDirFile config
+                        (* GEN BEGIN TAG OUTSIDE LET *) val {dir=configDir, file=_} = OS.Path.splitDirFile config (* GEN END TAG OUTSIDE LET *)
                         fun parseItem (sources, configs) item =
                             if isConfig item
                             then
-                              if List.exists (fn config' => item = config') configs
+                              if List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn config' => item = config' (* GEN END FUNCTION EXPRESSION *)) configs
                               then (sources, configs) (* we have already read this one *)
                               else read' (sources, item :: configs) item
                             else
-                              if List.exists (fn source' => item = source') sources
+                              if List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn source' => item = source' (* GEN END FUNCTION EXPRESSION *)) sources
                               then (sources, configs) (* we have already collected this one *)
                               else (sources @ [item], configs)
                         fun parseLine (sources, configs) line =
@@ -1538,7 +1538,7 @@ struct
                             then (sources, configs)
                             else
                               let
-                                val line' = Substring.dropl Char.isSpace line
+                                (* GEN BEGIN TAG OUTSIDE LET *) val line' = Substring.dropl Char.isSpace line (* GEN END TAG OUTSIDE LET *)
                             in
                               parseLine' (sources, configs) line'
                             end
@@ -1548,22 +1548,22 @@ struct
                             then parseStream (sources, configs)
                             else
                               let
-                                val line' = Substring.string
-                                              (Substring.takel (not o Char.isSpace) line)
-                                val item = mkRel (configDir, fromUnixPath line')
+                                (* GEN BEGIN TAG OUTSIDE LET *) val line' = Substring.string
+                                              (Substring.takel (not o Char.isSpace) line) (* GEN END TAG OUTSIDE LET *)
+                                (* GEN BEGIN TAG OUTSIDE LET *) val item = mkRel (configDir, fromUnixPath line') (* GEN END TAG OUTSIDE LET *)
                               in
                                 parseStream (parseItem (sources, configs) item)
                               end
                         and parseStream (sources, configs) =
                             let
-                              val line = Compat.Substring.full (Compat.inputLine97 instream)
+                              (* GEN BEGIN TAG OUTSIDE LET *) val line = Compat.Substring.full (Compat.inputLine97 instream) (* GEN END TAG OUTSIDE LET *)
                             in
                               parseLine (sources, configs) line
                             end
                       in
                         parseStream (sources, configs)
-                      end)
-            val pwdir = OS.FileSys.getDir ()
+                      end (* GEN END FUNCTION EXPRESSION *))
+            (* GEN BEGIN TAG OUTSIDE LET *) val pwdir = OS.FileSys.getDir () (* GEN END TAG OUTSIDE LET *)
           in
             (pwdir, List.map ModFile.create (#1(read' (nil, [config]) config)))
           (*
@@ -1575,29 +1575,29 @@ struct
          XXX: naive and inefficient implementation *)
       fun readWithout (s, c) =
           let
-              val (d,fs) = read s
-              val (d',fs') = c
-              val fns' = map (fn m => mkRel(d', ModFile.fileName m)) fs'
+              (* GEN BEGIN TAG OUTSIDE LET *) val (d,fs) = read s (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (d',fs') = c (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val fns' = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn m => mkRel(d', ModFile.fileName m) (* GEN END FUNCTION EXPRESSION *)) fs' (* GEN END TAG OUTSIDE LET *)
               fun redundant m =
                   let
-                      val n = mkRel(d, ModFile.fileName m)
+                      (* GEN BEGIN TAG OUTSIDE LET *) val n = mkRel(d, ModFile.fileName m) (* GEN END TAG OUTSIDE LET *)
                   in
-                      List.exists (fn n' => n = n') fns'
+                      List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn n' => n = n' (* GEN END FUNCTION EXPRESSION *)) fns'
                   end
           in
               (d, List.filter (not o redundant) fs)
           end
 
-      fun loadAbort (mfile, OK) =
+      fun (* GEN BEGIN FUN FIRST *) loadAbort (mfile, OK) =
           let
-            val status = loadFile (ModFile.fileName mfile)
+            (* GEN BEGIN TAG OUTSIDE LET *) val status = loadFile (ModFile.fileName mfile) (* GEN END TAG OUTSIDE LET *)
           in
             case status
               of OK => ModFile.makeUnmodified mfile
                | _  => ();
             status
-          end
-        | loadAbort (_, ABORT) = ABORT
+          end (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) loadAbort (_, ABORT) = ABORT (* GEN END FUN BRANCH *)
 
       (* load (config) = Status
          resets the global signature and then reads the files in config
@@ -1611,22 +1611,22 @@ struct
       *)
       and append (pwdir, sources) =
           let
-            fun fromFirstModified nil = nil
-              | fromFirstModified (sources as x::xs) =
+            fun (* GEN BEGIN FUN FIRST *) fromFirstModified nil = nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) fromFirstModified (sources as x::xs) =
                 if ModFile.modified x
                   then sources
-                  else fromFirstModified xs
+                  else fromFirstModified xs (* GEN END FUN BRANCH *)
       
             fun mkAbsolute p =
                 Compat.OS.Path.mkAbsolute {path=p, relativeTo=pwdir}
       
-            val sources' =
+            (* GEN BEGIN TAG OUTSIDE LET *) val sources' =
                 (* allow shorter messages if safe *)
                 if pwdir = OS.FileSys.getDir ()
                   then sources
-                else List.map (ModFile.editName mkAbsolute) sources
+                else List.map (ModFile.editName mkAbsolute) sources (* GEN END TAG OUTSIDE LET *)
       
-            val sources'' = fromFirstModified sources'
+            (* GEN BEGIN TAG OUTSIDE LET *) val sources'' = fromFirstModified sources' (* GEN END TAG OUTSIDE LET *)
           in
             List.foldl loadAbort OK sources''
           end
@@ -1666,13 +1666,13 @@ struct
       end
     =
     struct
-      val implicit = Print.implicit
-      val printInfix = Print.printInfix
-      val depth = Print.printDepth
-      val length = Print.printLength
-      val indent = Print.Formatter.Indent
-      val width = Print.Formatter.Pagewidth
-      val noShadow = Print.noShadow
+      (* GEN BEGIN TAG OUTSIDE LET *) val implicit = Print.implicit (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val printInfix = Print.printInfix (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val depth = Print.printDepth (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val length = Print.printLength (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val indent = Print.Formatter.Indent (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val width = Print.Formatter.Pagewidth (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val noShadow = Print.noShadow (* GEN END TAG OUTSIDE LET *)
       fun sgn () = Print.printSgn ()
       fun prog () = ClausePrint.printSgn ()
       fun subord () = Subordinate.show ()
@@ -1717,8 +1717,8 @@ struct
       end
     =
     struct
-      val chDir = OS.FileSys.chDir
-      val getDir = OS.FileSys.getDir
+      (* GEN BEGIN TAG OUTSIDE LET *) val chDir = OS.FileSys.chDir (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val getDir = OS.FileSys.getDir (* GEN END TAG OUTSIDE LET *)
       fun exit () = OS.Process.exit (OS.Process.success)
     end
 
@@ -1730,7 +1730,7 @@ struct
     =
     struct
       datatype opt = datatype CompSyn.opt
-      val optimize = CompSyn.optimize
+      (* GEN BEGIN TAG OUTSIDE LET *) val optimize = CompSyn.optimize (* GEN END TAG OUTSIDE LET *)
     end
 
     structure Recon :
@@ -1742,8 +1742,8 @@ struct
     =
     struct
       datatype trace_mode = datatype ReconTerm.trace_mode
-      val trace = ReconTerm.trace
-      val traceMode = ReconTerm.traceMode
+      (* GEN BEGIN TAG OUTSIDE LET *) val trace = ReconTerm.trace (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val traceMode = ReconTerm.traceMode (* GEN END TAG OUTSIDE LET *)
     end
 
     structure Recon :
@@ -1755,8 +1755,8 @@ struct
     =
     struct
       datatype trace_mode = datatype ReconTerm.trace_mode
-      val trace = ReconTerm.trace
-      val traceMode = ReconTerm.traceMode
+      (* GEN BEGIN TAG OUTSIDE LET *) val trace = ReconTerm.trace (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val traceMode = ReconTerm.traceMode (* GEN END TAG OUTSIDE LET *)
     end
 
     structure Prover :
@@ -1769,25 +1769,25 @@ struct
     =
     struct
       datatype strategy = datatype MetaGlobal.strategy  (* FRS or RFS *)
-      val strategy = MetaGlobal.strategy
-      val maxSplit = MetaGlobal.maxSplit
-      val maxRecurse = MetaGlobal.maxRecurse
+      (* GEN BEGIN TAG OUTSIDE LET *) val strategy = MetaGlobal.strategy (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val maxSplit = MetaGlobal.maxSplit (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val maxRecurse = MetaGlobal.maxRecurse (* GEN END TAG OUTSIDE LET *)
     end
 
-    val chatter : int ref = Global.chatter
-    val doubleCheck : bool ref = Global.doubleCheck
-    val unsafe : bool ref = Global.unsafe
-    val autoFreeze : bool ref = Global.autoFreeze
-    val timeLimit : (Time.time option) ref = Global.timeLimit
+    (* GEN BEGIN TAG OUTSIDE LET *) val chatter : int ref = Global.chatter (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val doubleCheck : bool ref = Global.doubleCheck (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val unsafe : bool ref = Global.unsafe (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val autoFreeze : bool ref = Global.autoFreeze (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val timeLimit : (Time.time option) ref = Global.timeLimit (* GEN END TAG OUTSIDE LET *)
 
     datatype status = datatype status
-    val reset = reset
-    val loadFile = loadFile
-    val loadString = loadString
-    val readDecl = readDecl
-    val decl = decl
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val loadFile = loadFile (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val loadString = loadString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val readDecl = readDecl (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val decl = decl (* GEN END TAG OUTSIDE LET *)
 
-    val top = top
+    (* GEN BEGIN TAG OUTSIDE LET *) val top = top (* GEN END TAG OUTSIDE LET *)
 
     structure Config :
       sig
@@ -1801,9 +1801,9 @@ struct
         val define : string list -> config  (* explicitly define configuration *)
       end
     = Config
-    val make = make
+    (* GEN BEGIN TAG OUTSIDE LET *) val make = make (* GEN END TAG OUTSIDE LET *)
 
-    val version = Version.version_string
+    (* GEN BEGIN TAG OUTSIDE LET *) val version = Version.version_string (* GEN END TAG OUTSIDE LET *)
 
     structure Table :
       sig
@@ -1816,10 +1816,10 @@ struct
     =
   struct
     datatype strategy = datatype TableParam.strategy
-    val strategy = TableParam.strategy
-    val strengthen = TableParam.strengthen
+    (* GEN BEGIN TAG OUTSIDE LET *) val strategy = TableParam.strategy (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val strengthen = TableParam.strengthen (* GEN END TAG OUTSIDE LET *)
 
-    val resetGlobalTable = TableParam.resetGlobalTable
+    (* GEN BEGIN TAG OUTSIDE LET *) val resetGlobalTable = TableParam.resetGlobalTable (* GEN END TAG OUTSIDE LET *)
 
     (* top () = () starts interactive query loop *)
     fun top () =

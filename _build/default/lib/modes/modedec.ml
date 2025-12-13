@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ModeDec ((*! structure ModeSyn' : MODESYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ModeDec ((*! structure ModeSyn' : MODESYN !*)
                  (*! structure Paths' : PATHS !*)
                    )
   : MODEDEC =
@@ -279,4 +279,4 @@ struct
     val checkFull = checkFull
     val checkPure = checkPure
   end
-end (* GEN END FUNCTOR DECL *);  (* functor ModeDec *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ModeDec *)

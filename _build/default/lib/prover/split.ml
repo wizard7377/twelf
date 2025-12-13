@@ -1,7 +1,7 @@
 (* State definition for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Split
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Split
   (structure Global : GLOBAL
    (*! structure IntSyn' : INTSYN !*)
    (*! structure Tomega' : TOMEGA !*)
@@ -427,4 +427,4 @@ struct
     val apply = apply
     val menu = menu
   end
-end (* GEN END FUNCTOR DECL *) (* functor Split *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor Split *)

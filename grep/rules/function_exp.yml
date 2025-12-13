@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+
+id: function_exp
+message: Add generation to first
+severity: error # error, warning, info, hint
+language: sml
+rule:
+  pattern: $BRANCH
+  kind: fn_exp 
+  matches: not_tagged
+fix: (* GEN BEGIN FUNCTION EXPRESSION *) $BRANCH (* GEN END FUNCTION EXPRESSION *)

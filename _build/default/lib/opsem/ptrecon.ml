@@ -4,7 +4,7 @@
 
 (* Proof term reconstruction from proof skeleton *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) PtRecon ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) PtRecon ((*! structure IntSyn' : INTSYN !*)
                  (*! structure CompSyn' : COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                     structure Unify : UNIFY
@@ -267,4 +267,4 @@ struct
 
   end (* local ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor PtRecon *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor PtRecon *)

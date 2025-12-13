@@ -43,52 +43,52 @@ struct
 		   o_def : def,
 		   abbreviation : bool}
 
-    (* GEN BEGIN TAG INSIDE LET *) val sgn_size = 14000 (* GEN END TAG INSIDE LET *) (* XXX *)
-    (* GEN BEGIN TAG INSIDE LET *) val sigma : sigent option Array.array = Array.array(sgn_size, NONE) (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val all_modes : mode list option Array.array = Array.array(sgn_size, NONE) (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val all_ps : bool option Array.array = Array.array(sgn_size, NONE) (* GEN END TAG INSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sgn_size = 14000 (* GEN END TAG OUTSIDE LET *) (* XXX *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sigma : sigent option Array.array = Array.array(sgn_size, NONE) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val all_modes : mode list option Array.array = Array.array(sgn_size, NONE) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val all_ps : bool option Array.array = Array.array(sgn_size, NONE) (* GEN END TAG OUTSIDE LET *)
 
-    (* GEN BEGIN TAG INSIDE LET *) fun  split (h::tl) 0 = ([], h, tl)
-       | split (h::tl) n = let 
-       	     val (pre, thing, post) = split tl (n-1)
+    fun  (* GEN BEGIN FUN FIRST *) split (h::tl) 0 = ([], h, tl) (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) split (h::tl) n = let 
+       	     (* GEN BEGIN TAG OUTSIDE LET *) val (pre, thing, post) = split tl (n-1) (* GEN END TAG OUTSIDE LET *)
        	 in
        	     (h::pre, thing, post)
-       	 end
-       | split [] n = split [NONE] n (* GEN END TAG INSIDE LET *) 
+       	 end (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) split [] n = split [NONE] n (* GEN END FUN BRANCH *) 
 
-    (* GEN BEGIN TAG INSIDE LET *) fun clear () = let in
-    		       Array.modify (fn _ => NONE) sigma;
-    		       Array.modify (fn _ => NONE) all_modes;
-    		       Array.modify (fn _ => NONE) all_ps
-    		   end (* GEN END TAG INSIDE LET *)
+    fun clear () = let in
+    		       Array.modify ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => NONE (* GEN END FUNCTION EXPRESSION *)) sigma;
+    		       Array.modify ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => NONE (* GEN END FUNCTION EXPRESSION *)) all_modes;
+    		       Array.modify ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => NONE (* GEN END FUNCTION EXPRESSION *)) all_ps
+    		   end
 		       
-    (* GEN BEGIN TAG INSIDE LET *) fun condec (s, a, oa) = {name = s, classifier = tclass a, o_classifier = tclass oa,
-    			     def = DEF_NONE, o_def = DEF_NONE, abbreviation = false} (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun tycondec (s, k, ok) = {name = s, classifier = kclass k, o_classifier = kclass ok,
-    			       def = DEF_NONE, o_def = DEF_NONE, abbreviation = false} (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun defn (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
-    				  def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = false} (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun tydefn (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
-    				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = false} (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun abbrev (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
-    				    def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = true} (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun tyabbrev (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
-    				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = true} (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun typeOfSigent (e : sigent) = Syntax.typeOf (#classifier e) (* GEN END TAG INSIDE LET *)
+    fun condec (s, a, oa) = {name = s, classifier = tclass a, o_classifier = tclass oa,
+    			     def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
+    fun tycondec (s, k, ok) = {name = s, classifier = kclass k, o_classifier = kclass ok,
+    			       def = DEF_NONE, o_def = DEF_NONE, abbreviation = false}
+    fun defn (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
+    				  def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = false}
+    fun tydefn (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
+    				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = false}
+    fun abbrev (s, a, oa, m, om) = {name = s, classifier = tclass a, o_classifier = tclass oa,
+    				    def = DEF_TERM m, o_def = DEF_TERM om, abbreviation = true}
+    fun tyabbrev (s, k, ok, a, oa) = {name = s, classifier = kclass k, o_classifier = kclass ok,
+    				    def = DEF_TYPE a, o_def = DEF_TYPE oa, abbreviation = true}
+    fun typeOfSigent (e : sigent) = Syntax.typeOf (#classifier e)
 
-    (* GEN BEGIN TAG INSIDE LET *) fun setter table (n, x) = Array.update (table, n, SOME x) (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun getter table id = Array.sub (table, id) (* GEN END TAG INSIDE LET *)
+    fun setter table (n, x) = Array.update (table, n, SOME x)
+    fun getter table id = Array.sub (table, id)
 
-    (* GEN BEGIN TAG INSIDE LET *) val set_modes = setter all_modes (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val get_modes = getter all_modes (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val set_p = setter all_ps (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val get_p = getter all_ps (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val update = setter sigma (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val sub = getter sigma (* GEN END TAG INSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val set_modes = setter all_modes (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val get_modes = getter all_modes (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val set_p = setter all_ps (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val get_p = getter all_ps (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val update = setter sigma (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sub = getter sigma (* GEN END TAG OUTSIDE LET *)
 
-    (* GEN BEGIN TAG INSIDE LET *) fun classifier id = (#classifier (Option.valOf(sub id)) handle Option => raise NoSuch id) (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun o_classifier id = (#o_classifier (Option.valOf(sub id)) handle Option => raise NoSuch id) (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun def id = (#def (Option.valOf(sub id)) handle Option => raise NoSuch id) (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun o_def id = (#o_def (Option.valOf(sub id)) handle Option => raise NoSuch id) (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) fun abbreviation id = (#abbreviation (Option.valOf(sub id)) handle Option => raise NoSuch id) (* GEN END TAG INSIDE LET *)
+    fun classifier id = (#classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    fun o_classifier id = (#o_classifier (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    fun def id = (#def (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    fun o_def id = (#o_def (Option.valOf(sub id)) handle Option => raise NoSuch id)
+    fun abbreviation id = (#abbreviation (Option.valOf(sub id)) handle Option => raise NoSuch id)
 end

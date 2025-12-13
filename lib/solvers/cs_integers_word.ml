@@ -26,10 +26,10 @@ struct
     exception MyFgnCnstrRepTimes of dctx * exp * exp * exp * exp
     exception MyFgnCnstrRepQuot of dctx * exp * exp * exp * exp
 
-    val wordSize' = Int.min (wordSize, W.wordSize);
+    (* GEN BEGIN TAG OUTSIDE LET *) val wordSize' = Int.min (wordSize, W.wordSize) (* GEN END TAG OUTSIDE LET *);
 
-    val zero = W.fromInt 0
-    val max = W.>> (W.notb zero, Word.fromInt (W.wordSize - wordSize'))
+    (* GEN BEGIN TAG OUTSIDE LET *) val zero = W.fromInt 0 (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val max = W.>> (W.notb zero, Word.fromInt (W.wordSize - wordSize')) (* GEN END TAG OUTSIDE LET *)
 
     (* numCheck (d) = true iff d <= max *)
     fun numCheck (d) = W.<= (d, max)
@@ -37,7 +37,7 @@ struct
     (* plusCheck (d1, d2) = true iff d1 + d2 <= max *)
     fun plusCheck (d1, d2) =
           let
-            val d3 = W.+ (d1, d2)
+            (* GEN BEGIN TAG OUTSIDE LET *) val d3 = W.+ (d1, d2) (* GEN END TAG OUTSIDE LET *)
           in
             W.>= (d3, d1)
             andalso W.>= (d3, d2)
@@ -47,24 +47,24 @@ struct
     (* timesCheck (d1, d2) = true iff d1 * d2 <= max *)
     fun timesCheck (d1, d2) =
           if(d1 = zero orelse d2 = zero) then true
-          else let val d3 = W.div (W.div (max, d1), d2)
+          else let (* GEN BEGIN TAG OUTSIDE LET *) val d3 = W.div (W.div (max, d1), d2) (* GEN END TAG OUTSIDE LET *)
                in W.> (d3, zero) end
 
     (* quotCheck (d1, d2) = true iff  d2 != zero *)
     fun quotCheck (d1, d2) = W.> (d2, zero)
 
     (* constraint solver ID of this module *)
-    val myID = ref ~1 : csid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val myID = ref ~1 : csid ref (* GEN END TAG OUTSIDE LET *)
 
     (* constant ID of the type family constant "wordXX" *)
-    val wordID = ref ~1 : cid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val wordID = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
 
     fun word () = Root (Const (!wordID), Nil)
 
     (* constant ID's of the operators defined by this module *)
-    val plusID  = ref ~1 : cid ref   (* + : wordXX -> wordXX -> wordXX -> type *)
-    val timesID = ref ~1 : cid ref   (* * : wordXX -> wordXX -> wordXX -> type *)
-    val quotID  = ref ~1 : cid ref   (* / : wordXX -> wordXX -> wordXX -> type *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val plusID  = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)   (* + : wordXX -> wordXX -> wordXX -> type *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val timesID = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)   (* * : wordXX -> wordXX -> wordXX -> type *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val quotID  = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)   (* / : wordXX -> wordXX -> wordXX -> type *)
 
     fun plusExp (U, V, W) = Root (Const (!plusID),
                                   App (U, App (V, App (W , Nil))))
@@ -77,12 +77,12 @@ struct
 
     (* constant ID's of the proof object generators and their proof objects *)
     (* (these are used as workaround for the lack of sigma types in Twelf)  *)
-    val provePlusID  = ref ~1 : cid ref (* prove+ : {U}{V}{W} + U V W -> type *)
-    val proveTimesID = ref ~1 : cid ref (* prove* : {U}{V}{W} * U V W -> type *)
-    val proveQuotID  = ref ~1 : cid ref (* prove/ : {U}{V}{W} / U V W -> type *)
-    val proofPlusID  = ref ~1 : cid ref (* proof* : {U}{V}{W}{P} prove+ U V W P *)
-    val proofTimesID = ref ~1 : cid ref (* proof* : {U}{V}{W}{P} prove* U V W P *)
-    val proofQuotID  = ref ~1 : cid ref (* proof/ : {U}{V}{W}{P} prove/ U V W P *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val provePlusID  = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *) (* prove+ : {U}{V}{W} + U V W -> type *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val proveTimesID = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *) (* prove* : {U}{V}{W} * U V W -> type *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val proveQuotID  = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *) (* prove/ : {U}{V}{W} / U V W -> type *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val proofPlusID  = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *) (* proof* : {U}{V}{W}{P} prove+ U V W P *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val proofTimesID = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *) (* proof* : {U}{V}{W}{P} prove* U V W P *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val proofQuotID  = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *) (* proof/ : {U}{V}{W}{P} prove/ U V W P *)
 
     fun provePlusExp (U, V, W, P) = Root (Const (!provePlusID),
                                           App (U, App (V, App (W, App (P , Nil)))))
@@ -111,10 +111,10 @@ struct
     *)
     fun scanNumber (str) =
           let
-            fun check (chars as (_ :: _)) =
-                 (List.all Char.isDigit chars)
-              | check nil =
-                  false
+            fun (* GEN BEGIN FUN FIRST *) check (chars as (_ :: _)) =
+                 (List.all Char.isDigit chars) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) check nil =
+                  false (* GEN END FUN BRANCH *)
           in
             if check (String.explode str)
             then
@@ -137,7 +137,7 @@ struct
 
     fun plusPfConDec (d1, d2) =
           let
-            val d3 = W.+ (d1, d2)
+            (* GEN BEGIN TAG OUTSIDE LET *) val d3 = W.+ (d1, d2) (* GEN END TAG OUTSIDE LET *)
           in
             ConDec (W.fmt StringCvt.DEC d1
                     ^ "+"
@@ -151,7 +151,7 @@ struct
 
     fun timesPfConDec (d1, d2) =
           let
-            val d3 = W.* (d1, d2)
+            (* GEN BEGIN TAG OUTSIDE LET *) val d3 = W.* (d1, d2) (* GEN END TAG OUTSIDE LET *)
           in
             ConDec (W.fmt StringCvt.DEC d1
                     ^ "*"
@@ -165,7 +165,7 @@ struct
 
     fun quotPfConDec (d1, d2) =
           let
-            val d3 = W.div (d1, d2)
+            (* GEN BEGIN TAG OUTSIDE LET *) val d3 = W.div (d1, d2) (* GEN END TAG OUTSIDE LET *)
           in
             ConDec (W.fmt StringCvt.DEC d1
                     ^ "/"
@@ -179,7 +179,7 @@ struct
 
     fun scanBinopPf oper string =
           let
-            val args = String.tokens (fn c => c = oper) string
+            (* GEN BEGIN TAG OUTSIDE LET *) val args = String.tokens ((* GEN BEGIN FUNCTION EXPRESSION *) fn c => c = oper (* GEN END FUNCTION EXPRESSION *)) string (* GEN END TAG OUTSIDE LET *)
           in
             case args
               of [arg1, arg2] =>
@@ -203,9 +203,9 @@ struct
              | (#"/", SOME(ds)) => SOME(quotPfConDec ds)
              | _ => NONE
 
-    val parsePlusPf = parseBinopPf #"+"
-    val parseTimesPf = parseBinopPf #"*"
-    val parseQuotPf = parseBinopPf #"/"
+    (* GEN BEGIN TAG OUTSIDE LET *) val parsePlusPf = parseBinopPf #"+" (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseTimesPf = parseBinopPf #"*" (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseQuotPf = parseBinopPf #"/" (* GEN END TAG OUTSIDE LET *)
 
     fun parseAll string =
           (case (parseNumber (string))
@@ -231,11 +231,11 @@ struct
        If   G' |- s : G    G |- U : V    (U,s)  in whnf
        then t is the internal representation of U[s] as term
     *)
-    fun fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
+    fun (* GEN BEGIN FUN FIRST *) fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
           if (cs = !myID)
           then
             let
-              val string = conDecName conDec
+              (* GEN BEGIN TAG OUTSIDE LET *) val string = conDecName conDec (* GEN END TAG OUTSIDE LET *)
             in
               (case (scanNumber string)
                  of SOME(d) => Num d
@@ -250,10 +250,10 @@ struct
                  of SOME(ds) => TimesPf ds
                   | NONE => Expr Us))))
             end
-          else Expr Us
-      | fromExpW (Us as (Root (Def(d), _), _)) =
-          fromExpW (Whnf.expandDef (Us))
-      | fromExpW Us = Expr Us
+          else Expr Us (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fromExpW (Us as (Root (Def(d), _), _)) =
+          fromExpW (Whnf.expandDef (Us)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fromExpW Us = Expr Us (* GEN END FUN BRANCH *)
 
     (* fromExp (U, s) = t
 
@@ -268,29 +268,29 @@ struct
        Invariant:
        G |- U : V and U is the Twelf syntax conversion of t
     *)
-    fun toExp (Num d) = numberExp d
-      | toExp (PlusPf ds) = plusPfExp ds
-      | toExp (TimesPf ds) = timesPfExp ds
-      | toExp (QuotPf ds) = quotPfExp ds
-      | toExp (Expr Us) = EClo Us
+    fun (* GEN BEGIN FUN FIRST *) toExp (Num d) = numberExp d (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (PlusPf ds) = plusPfExp ds (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (TimesPf ds) = timesPfExp ds (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (QuotPf ds) = quotPfExp ds (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (Expr Us) = EClo Us (* GEN END FUN BRANCH *)
 
     fun solveNumber (G, S, k) = SOME(numberExp (W.fromInt k))
 
     (* fst (S, s) = U1, the first argument in S[s] *)
-    fun fst (App (U1, _), s) = (U1, s)
-      | fst (SClo (S, s'), s) = fst (S, comp (s', s))
+    fun (* GEN BEGIN FUN FIRST *) fst (App (U1, _), s) = (U1, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fst (SClo (S, s'), s) = fst (S, comp (s', s)) (* GEN END FUN BRANCH *)
 
     (* snd (S, s) = U2, the second argument in S[s] *)
-    fun snd (App (_, S), s) = fst (S, s)
-      | snd (SClo (S, s'), s) = snd (S, comp (s', s))
+    fun (* GEN BEGIN FUN FIRST *) snd (App (_, S), s) = fst (S, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) snd (SClo (S, s'), s) = snd (S, comp (s', s)) (* GEN END FUN BRANCH *)
 
     (* trd (S, s) = U1, the third argument in S[s] *)
-    fun trd (App (_, S), s) = snd (S, s)
-      | trd (SClo (S, s'), s) = trd (S, comp (s', s))
+    fun (* GEN BEGIN FUN FIRST *) trd (App (_, S), s) = snd (S, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) trd (SClo (S, s'), s) = trd (S, comp (s', s)) (* GEN END FUN BRANCH *)
 
     (* fth (S, s) = U1, the fourth argument in S[s] *)
-    fun fth (App (_, S), s) = trd (S, s)
-      | fth (SClo (S, s'), s) = fth (S, comp (s', s))
+    fun (* GEN BEGIN FUN FIRST *) fth (App (_, S), s) = trd (S, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fth (SClo (S, s'), s) = fth (S, comp (s', s)) (* GEN END FUN BRANCH *)
 
     fun toInternalPlus (G, U1, U2, U3) () =
           [(G, plusExp(U1, U2, U3))]
@@ -307,11 +307,11 @@ struct
     (* solvePlus (G, S, n) tries to find the n-th solution to
           G |- '+' @ S : type
     *)
-    and solvePlus (G, S, 0) =
+    and (* GEN BEGIN FUN FIRST *) solvePlus (G, S, 0) =
           let
-            val Us1 = fst (S, id)
-            val Us2 = snd (S, id)
-            val Us3 = trd (S, id)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us1 = fst (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us2 = snd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us3 = trd (S, id) (* GEN END TAG OUTSIDE LET *)
           in
             (case (fromExp (Us1), fromExp (Us2), fromExp (Us3))
                of (Num d1, Num d2, Num d3) =>
@@ -334,15 +334,15 @@ struct
                      then SOME(plusPfExp(d1, d2))
                      else NONE
                 | _ => let
-                         val proof = newEVar (G, plusExp(EClo Us1, EClo Us2, EClo Us3))
-                         val cnstr = makeCnstrPlus (G, proof, EClo Us1, EClo Us2, EClo Us3)
-                         val _ = List.app (fn Us => Unify.delay (Us, ref cnstr))
-                                          [Us1, Us2, Us3]
+                         (* GEN BEGIN TAG OUTSIDE LET *) val proof = newEVar (G, plusExp(EClo Us1, EClo Us2, EClo Us3)) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val cnstr = makeCnstrPlus (G, proof, EClo Us1, EClo Us2, EClo Us3) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn Us => Unify.delay (Us, ref cnstr) (* GEN END FUNCTION EXPRESSION *))
+                                          [Us1, Us2, Us3] (* GEN END TAG OUTSIDE LET *)
                        in
                          SOME(proof)
                        end)
-          end
-      | solvePlus (G, S, n) = NONE
+          end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) solvePlus (G, S, n) = NONE (* GEN END FUN BRANCH *)
 
     and toInternalTimes (G, U1, U2, U3) () =
           [(G, timesExp(U1, U2, U3))]
@@ -358,11 +358,11 @@ struct
     (* solveTimes (G, S, n) tries to find the n-th solution to
          G |- '*' @ S : type
     *)
-    and solveTimes (G, S, 0) =
+    and (* GEN BEGIN FUN FIRST *) solveTimes (G, S, 0) =
           let
-            val Us1 = fst (S, id)
-            val Us2 = snd (S, id)
-            val Us3 = trd (S, id)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us1 = fst (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us2 = snd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us3 = trd (S, id) (* GEN END TAG OUTSIDE LET *)
           in
             (case (fromExp Us1, fromExp Us2, fromExp Us3)
                of (Num d1, Num d2, Num d3) =>
@@ -398,15 +398,15 @@ struct
                      then SOME(timesPfExp (d1, d2))
                      else NONE
                 | _ => let
-                         val proof = newEVar (G, timesExp(EClo Us1, EClo Us2, EClo Us3))
-                         val cnstr = makeCnstrTimes (G, proof, EClo Us1, EClo Us2, EClo Us3)
-                         val _ = List.app (fn Us => Unify.delay (Us, ref cnstr))
-                                          [Us1, Us2, Us3]
+                         (* GEN BEGIN TAG OUTSIDE LET *) val proof = newEVar (G, timesExp(EClo Us1, EClo Us2, EClo Us3)) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val cnstr = makeCnstrTimes (G, proof, EClo Us1, EClo Us2, EClo Us3) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn Us => Unify.delay (Us, ref cnstr) (* GEN END FUNCTION EXPRESSION *))
+                                          [Us1, Us2, Us3] (* GEN END TAG OUTSIDE LET *)
                        in
                          SOME(proof)
                        end)
-          end
-      | solveTimes (G, S, n) = NONE
+          end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) solveTimes (G, S, n) = NONE (* GEN END FUN BRANCH *)
 
     and toInternalQuot (G, U1, U2, U3) () =
           [(G, quotExp(U1, U2, U3))]
@@ -423,11 +423,11 @@ struct
     (* solveQuot (G, S, n) tries to find the n-th solution to
          G |- '/' @ S : type
     *)
-    and solveQuot (G, S, 0) =
+    and (* GEN BEGIN FUN FIRST *) solveQuot (G, S, 0) =
           let
-            val Us1 = fst (S, id)
-            val Us2 = snd (S, id)
-            val Us3 = trd (S, id)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us1 = fst (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us2 = snd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us3 = trd (S, id) (* GEN END TAG OUTSIDE LET *)
           in
             (case (fromExp Us1, fromExp Us2, fromExp Us3)
                of (Num d1, Num d2, Num d3) =>
@@ -440,25 +440,25 @@ struct
                      then SOME(quotPfExp (d1, d2))
                      else NONE
                 | _ => let
-                         val proof = newEVar (G, quotExp (EClo Us1, EClo Us2, EClo Us3))
-                         val cnstr = makeCnstrQuot (G, proof, EClo Us1, EClo Us2, EClo Us3)
-                         val _ = List.app (fn Us => Unify.delay (Us, ref cnstr))
-                                          [Us1, Us2, Us3]
+                         (* GEN BEGIN TAG OUTSIDE LET *) val proof = newEVar (G, quotExp (EClo Us1, EClo Us2, EClo Us3)) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val cnstr = makeCnstrQuot (G, proof, EClo Us1, EClo Us2, EClo Us3) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn Us => Unify.delay (Us, ref cnstr) (* GEN END FUNCTION EXPRESSION *))
+                                          [Us1, Us2, Us3] (* GEN END TAG OUTSIDE LET *)
                        in
                          SOME(proof)
                        end)
-          end
-      | solveQuot (G, S, n) = NONE
+          end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) solveQuot (G, S, n) = NONE (* GEN END FUN BRANCH *)
 
     (* solveProvePlus (G, S, n) tries to find the n-th solution to
          G |- prove+ @ S : type
     *)
     fun solveProvePlus (G, S, k) =
           let
-            val Us1 = fst (S, id)
-            val Us2 = snd (S, id)
-            val Us3 = trd (S, id)
-            val Us4 = fth (S, id)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us1 = fst (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us2 = snd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us3 = trd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us4 = fth (S, id) (* GEN END TAG OUTSIDE LET *)
           in
             case (solvePlus (G, App (EClo Us1, App (EClo Us2, App (EClo Us3, Nil))), k))
               of SOME(U) =>
@@ -473,10 +473,10 @@ struct
     *)
     fun solveProveTimes (G, S, k) =
           let
-            val Us1 = fst (S, id)
-            val Us2 = snd (S, id)
-            val Us3 = trd (S, id)
-            val Us4 = fth (S, id)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us1 = fst (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us2 = snd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us3 = trd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us4 = fth (S, id) (* GEN END TAG OUTSIDE LET *)
           in
             case (solveTimes (G, App (EClo Us1, App (EClo Us2, App (EClo Us3, Nil))), k))
               of SOME(U) =>
@@ -491,10 +491,10 @@ struct
     *)
     fun solveProveQuot (G, S, k) =
           let
-            val Us1 = fst (S, id)
-            val Us2 = snd (S, id)
-            val Us3 = trd (S, id)
-            val Us4 = fth (S, id)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us1 = fst (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us2 = snd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us3 = trd (S, id) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Us4 = fth (S, id) (* GEN END TAG OUTSIDE LET *)
           in
             case (solveQuot (G, App (EClo Us1, App (EClo Us2, App (EClo Us3, Nil))), k))
               of SOME(U) =>
@@ -509,22 +509,22 @@ struct
     fun bvar n = Root (BVar n, Nil)
 
     fun installFgnCnstrOps () = let
-        val csid = !myID
-        val _ = FgnCnstrStd.ToInternal.install (csid,
-                                                (fn (MyFgnCnstrRepPlus (G, _, U1, U2, U3)) => toInternalPlus (G, U1, U2, U3)
+        (* GEN BEGIN TAG OUTSIDE LET *) val csid = !myID (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnCnstrStd.ToInternal.install (csid,
+                                                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (MyFgnCnstrRepPlus (G, _, U1, U2, U3)) => toInternalPlus (G, U1, U2, U3)
                                                   | (MyFgnCnstrRepTimes (G, _, U1, U2, U3)) => toInternalTimes (G, U1, U2, U3)
                                                   | (MyFgnCnstrRepQuot (G, _, U1, U2, U3)) => toInternalQuot (G, U1, U2, U3)
-                                                  | fc => raise (UnexpectedFgnCnstr fc)))
-        val _ = FgnCnstrStd.Awake.install (csid,
-                                           (fn (MyFgnCnstrRepPlus (G, proof, U1, U2, U3)) => awakePlus (G, proof, U1, U2, U3)
+                                                  | fc => raise (UnexpectedFgnCnstr fc) (* GEN END FUNCTION EXPRESSION *))) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnCnstrStd.Awake.install (csid,
+                                           ((* GEN BEGIN FUNCTION EXPRESSION *) fn (MyFgnCnstrRepPlus (G, proof, U1, U2, U3)) => awakePlus (G, proof, U1, U2, U3)
                                              | (MyFgnCnstrRepTimes (G, proof, U1, U2, U3)) => awakeTimes (G, proof, U1, U2, U3)
                                              | (MyFgnCnstrRepQuot (G, proof, U1, U2, U3)) => awakeQuot (G, proof, U1, U2, U3)
-                                             | fc => raise (UnexpectedFgnCnstr fc)))
-        val _ = FgnCnstrStd.Simplify.install (csid,
-                                              (fn (MyFgnCnstrRepPlus _) => (fn () => false)
-                                                | (MyFgnCnstrRepTimes _) => (fn () => false)
-                                                | (MyFgnCnstrRepQuot _) => (fn () => false)
-                                                | fc => raise (UnexpectedFgnCnstr fc)))
+                                             | fc => raise (UnexpectedFgnCnstr fc) (* GEN END FUNCTION EXPRESSION *))) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnCnstrStd.Simplify.install (csid,
+                                              ((* GEN BEGIN FUNCTION EXPRESSION *) fn (MyFgnCnstrRepPlus _) => ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => false (* GEN END FUNCTION EXPRESSION *))
+                                                | (MyFgnCnstrRepTimes _) => ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => false (* GEN END FUNCTION EXPRESSION *))
+                                                | (MyFgnCnstrRepQuot _) => ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => false (* GEN END FUNCTION EXPRESSION *))
+                                                | fc => raise (UnexpectedFgnCnstr fc) (* GEN END FUNCTION EXPRESSION *))) (* GEN END TAG OUTSIDE LET *)
     in
         ()
     end
@@ -672,19 +672,19 @@ struct
             ()
           )
   in
-    val solver =
+    (* GEN BEGIN TAG OUTSIDE LET *) val solver =
           {
             name = "word" ^ Int.toString(wordSize'),
             keywords = "numbers,equality",
             needs = ["Unify"],
-
+    
             fgnConst = SOME({parse = parseAll}),
-
+    
             init = init,
-
-            reset  = (fn () => ()),
-            mark   = (fn () => ()),
-            unwind = (fn () => ())
-          }
+    
+            reset  = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+            mark   = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+            unwind = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *))
+          } (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *)  (* functor CSIntWord *)

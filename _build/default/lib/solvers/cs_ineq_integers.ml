@@ -1,7 +1,7 @@
 (* Solver for linear inequations, based on branch & bound *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CSIneqIntegers (structure Integers : INTEGERS
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CSIneqIntegers (structure Integers : INTEGERS
                         structure Rationals : RATIONALS
                           sharing Rationals.Integers = Integers
                           (*! structure IntSyn : INTSYN !*)
@@ -1361,4 +1361,4 @@ struct
             unwind = unwind
           } : CSManager.solver
   end
-end (* GEN END FUNCTOR DECL *)  (* functor CSIneqIntegers *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor CSIneqIntegers *)

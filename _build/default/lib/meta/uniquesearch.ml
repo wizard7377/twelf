@@ -1,7 +1,7 @@
 (* Search (based on abstract machine ) : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) UniqueSearch (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) UniqueSearch (structure Global : GLOBAL
                       (*! structure IntSyn' : INTSYN !*)
                       (*! structure FunSyn' : FUNSYN !*)
                       (*! sharing FunSyn'.IntSyn = IntSyn' !*)
@@ -401,5 +401,5 @@ struct
     val searchEx = search
   end (* local ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor Search *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Search *)
 

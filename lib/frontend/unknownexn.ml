@@ -4,7 +4,7 @@ functor (* GEN BEGIN FUNCTOR DECL *) UnknownExn (val exnHistory : exn -> string 
 struct
   fun unknownExn exn =
     let
-      val history = rev (exnHistory exn)
+      (* GEN BEGIN TAG OUTSIDE LET *) val history = rev (exnHistory exn) (* GEN END TAG OUTSIDE LET *)
       fun wrap1 x = "  raised at: " ^ x ^ "\n"
       fun wrapn x = "             " ^ x ^ "\n"
     in

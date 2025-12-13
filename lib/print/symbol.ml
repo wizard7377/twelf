@@ -3,15 +3,15 @@ struct
 
   fun idSize s = (s, String.size s)
 
-  val str = idSize
-  val evar = idSize
-  val bvar = idSize
-  val const = idSize
-  val skonst = idSize
-  val label = idSize
-  val def = idSize
+  (* GEN BEGIN TAG OUTSIDE LET *) val str = idSize (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val evar = idSize (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val bvar = idSize (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val const = idSize (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val skonst = idSize (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val label = idSize (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val def = idSize (* GEN END TAG OUTSIDE LET *)
   fun fvar s = idSize ("`" ^ s)
-  val sym = idSize
+  (* GEN BEGIN TAG OUTSIDE LET *) val sym = idSize (* GEN END TAG OUTSIDE LET *)
 
 end (* GEN END FUNCTOR DECL *);  (* functor SymbolAscii *)
 
@@ -20,25 +20,25 @@ struct
 
   (* Illegal constituents: \ _ $ # *)
   (* { } are also special, but cannot occur in identifiers *)
-  fun quoteChar #"\\" = "\\\\"
-    | quoteChar #"_" = "\\_"
-    | quoteChar #"$" = "\\$"
-    | quoteChar #"#" = "\\#"
-    | quoteChar #"'" = "$'$"            (* not in math mode *)
-    | quoteChar #"<" = "$<$"            (* not in math mode *)
-    | quoteChar #">" = "$>$"            (* not in math mode *)
-    | quoteChar #"^" = "\\^{\\ }"
-    | quoteChar #"0" = "$_0$"
-    | quoteChar #"1" = "$_1$"
-    | quoteChar #"2" = "$_2$"
-    | quoteChar #"3" = "$_3$"
-    | quoteChar #"4" = "$_4$"
-    | quoteChar #"5" = "$_5$"
-    | quoteChar #"6" = "$_6$"
-    | quoteChar #"7" = "$_7$"
-    | quoteChar #"8" = "$_8$"
-    | quoteChar #"9" = "$_9$"
-    | quoteChar c = String.str c
+  fun (* GEN BEGIN FUN FIRST *) quoteChar #"\\" = "\\\\" (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"_" = "\\_" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"$" = "\\$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"#" = "\\#" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"'" = "$'$" (* GEN END FUN BRANCH *)            (* not in math mode *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"<" = "$<$" (* GEN END FUN BRANCH *)            (* not in math mode *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #">" = "$>$" (* GEN END FUN BRANCH *)            (* not in math mode *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"^" = "\\^{\\ }" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"0" = "$_0$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"1" = "$_1$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"2" = "$_2$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"3" = "$_3$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"4" = "$_4$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"5" = "$_5$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"6" = "$_6$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"7" = "$_7$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"8" = "$_8$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"9" = "$_9$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar c = String.str c (* GEN END FUN BRANCH *)
 
   fun quote s = String.translate quoteChar s
 
@@ -72,19 +72,19 @@ struct
   fun def s = ("\\Def{" ^ quote s ^ "}", String.size s)
   fun fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
 
-  fun sym "->" = ("$\\rightarrow$", 1)
-    | sym "<-" = ("$\\leftarrow$", 1)
-    | sym "{" = ("$\\Pi$", 1)
-    | sym "}" = (".", 1)
-    | sym "[" = ("$\\lambda$", 1)
-    | sym "]" = (".", 1)
-    | sym "type" = ("{\\Type}", 4)
-    | sym "kind" = ("{\\Kind}", 4)
-    | sym "_" = ("\\_", 1)
-    | sym "..." = ("$\\ldots$", 3)
-    | sym "%%" = ("%%", 2)              (* itself, for now *)
-    | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
-    | sym s = (s, String.size s)        (* ():.= *)
+  fun (* GEN BEGIN FUN FIRST *) sym "->" = ("$\\rightarrow$", 1) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) sym "<-" = ("$\\leftarrow$", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "{" = ("$\\Pi$", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "}" = (".", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "[" = ("$\\lambda$", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "]" = (".", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "type" = ("{\\Type}", 4) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "kind" = ("{\\Kind}", 4) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "_" = ("\\_", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "..." = ("$\\ldots$", 3) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "%%" = ("%%", 2) (* GEN END FUN BRANCH *)              (* itself, for now *)
+    | (* GEN BEGIN FUN BRANCH *) sym "%skolem" = ("%skolem", 7) (* GEN END FUN BRANCH *)    (* itself, for now *)
+    | (* GEN BEGIN FUN BRANCH *) sym s = (s, String.size s) (* GEN END FUN BRANCH *)        (* ():.= *)
 
 end (* GEN END FUNCTOR DECL *);  (* functor SymbolTeX *)
 
@@ -94,22 +94,22 @@ struct
 
   (* Illegal constituents: \ _ $ # *)
   (* { } are also special, but cannot occur in identifiers *)
-  fun quoteChar #"\\" = "\\\\"
-    | quoteChar #"_" = "\\_"
-    | quoteChar #"$" = "\\$"
-    | quoteChar #"#" = "\\#"
-    | quoteChar #"^" = "\\^{\\ }"
-    | quoteChar #"0" = "$_0$"
-    | quoteChar #"1" = "$_1$"
-    | quoteChar #"2" = "$_2$"
-    | quoteChar #"3" = "$_3$"
-    | quoteChar #"4" = "$_4$"
-    | quoteChar #"5" = "$_5$"
-    | quoteChar #"6" = "$_6$"
-    | quoteChar #"7" = "$_7$"
-    | quoteChar #"8" = "$_8$"
-    | quoteChar #"9" = "$_9$"
-    | quoteChar c = String.str c
+  fun (* GEN BEGIN FUN FIRST *) quoteChar #"\\" = "\\\\" (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"_" = "\\_" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"$" = "\\$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"#" = "\\#" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"^" = "\\^{\\ }" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"0" = "$_0$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"1" = "$_1$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"2" = "$_2$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"3" = "$_3$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"4" = "$_4$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"5" = "$_5$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"6" = "$_6$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"7" = "$_7$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"8" = "$_8$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar #"9" = "$_9$" (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) quoteChar c = String.str c (* GEN END FUN BRANCH *)
 
   fun quote s = String.translate quoteChar s
 
@@ -143,18 +143,18 @@ struct
   fun def s = ("\\Def{" ^ quote s ^ "}", String.size s)
   fun fvar s = ("\\FVar{" ^ quote s ^ "}", String.size s)
 
-  fun sym "->" = ("$\\rightarrow$", 1)
-    | sym "<-" = ("$\\leftarrow$", 1)
-    | sym "{" = ("$\\Pi$", 1)
-    | sym "}" = (".", 1)
-    | sym "[" = ("$\\lambda$", 1)
-    | sym "]" = (".", 1)
-    | sym "type" = ("{\\Type}", 4)
-    | sym "kind" = ("{\\Kind}", 4)
-    | sym "_" = ("\\_", 1)
-    | sym "..." = ("$\\ldots$", 3)
-    | sym "%%" = ("%%", 2)              (* itself, for now *)
-    | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
-    | sym s = (s, String.size s)        (* ():.= *)
+  fun (* GEN BEGIN FUN FIRST *) sym "->" = ("$\\rightarrow$", 1) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) sym "<-" = ("$\\leftarrow$", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "{" = ("$\\Pi$", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "}" = (".", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "[" = ("$\\lambda$", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "]" = (".", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "type" = ("{\\Type}", 4) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "kind" = ("{\\Kind}", 4) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "_" = ("\\_", 1) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "..." = ("$\\ldots$", 3) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) sym "%%" = ("%%", 2) (* GEN END FUN BRANCH *)              (* itself, for now *)
+    | (* GEN BEGIN FUN BRANCH *) sym "%skolem" = ("%skolem", 7) (* GEN END FUN BRANCH *)    (* itself, for now *)
+    | (* GEN BEGIN FUN BRANCH *) sym s = (s, String.size s) (* GEN END FUN BRANCH *)        (* ():.= *)
 
 end (* GEN END FUNCTOR DECL *);  (* functor SymbolTeXcd *)

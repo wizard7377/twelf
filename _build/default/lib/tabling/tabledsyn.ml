@@ -1,7 +1,7 @@
 (* Tabled Syntax *)
 (* Author: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) TabledSyn ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) TabledSyn ((*! structure IntSyn' : INTSYN !*)
                  structure Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
                  structure Table : TABLE where type key = int
@@ -78,4 +78,4 @@ struct
     val tabledLookup = tabledLookup
     val keepTable = keepTable
   end
-end (* GEN END FUNCTOR DECL *);  (* functor TabledSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor TabledSyn *)

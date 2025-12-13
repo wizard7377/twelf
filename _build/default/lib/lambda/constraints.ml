@@ -2,7 +2,7 @@
 (* Author: Jeff Polakow, Frank Pfenning *)
 (* Modified: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Constraints
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Constraints
     ((*! structure IntSyn' : INTSYN !*)
      structure Conv : CONV
      (*! sharing Conv.IntSyn = IntSyn' !*)
@@ -60,4 +60,4 @@ struct
     val warnConstraints = warnConstraints
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor Constraints *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Constraints *)

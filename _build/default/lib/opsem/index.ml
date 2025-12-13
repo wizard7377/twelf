@@ -1,7 +1,7 @@
 (* Indexing for table *)
 (* Author: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) TableIndex (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) TableIndex (structure Global : GLOBAL
                     structure Queue : QUEUE
                     (*! structure IntSyn' : INTSYN !*)
                     (*! structure CompSyn': COMPSYN !*)
@@ -777,5 +777,5 @@ struct
 
   end (* local *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor TableIndex *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor TableIndex *)
 

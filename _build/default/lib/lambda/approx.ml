@@ -1,7 +1,7 @@
 (* Approximate language for term reconstruction *)
 (* Author: Kevin Watkins *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Approx ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Approx ((*! structure IntSyn' : INTSYN !*)
                 structure Whnf : WHNF
 		(*! sharing Whnf.IntSyn = IntSyn' !*)
 		  )
@@ -408,4 +408,4 @@ struct
       | makeGroundUni (LVar (r as ref NONE)) = (r := SOME (Level 1);
                                                 true)
 
-end (* GEN END FUNCTOR DECL *) (* structure Apx *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* structure Apx *)

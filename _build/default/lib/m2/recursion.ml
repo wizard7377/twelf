@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Recursion (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Recursion (structure Global : GLOBAL
                    structure MetaSyn' : METASYN
                    structure Whnf : WHNF
                    (*! sharing Whnf.IntSyn = MetaSyn'.IntSyn !*)
@@ -650,4 +650,4 @@ struct
     val apply = apply
     val menu = menu
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Recursion *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Recursion *)

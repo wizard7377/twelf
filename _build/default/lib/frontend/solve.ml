@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Carsten Schuermann, Jeff Polakow, Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Solve
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Solve
   (structure Global : GLOBAL
    (*! structure IntSyn' : INTSYN !*)
    structure Names : NAMES
@@ -736,4 +736,4 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
         qLoopT ()
       end
 
-end (* GEN END FUNCTOR DECL *); (* functor Solve *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Solve *)

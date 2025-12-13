@@ -1,7 +1,7 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann, Adam Poswolsky *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Opsem ( structure Whnf : WHNF
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Opsem ( structure Whnf : WHNF
                structure Abstract : ABSTRACT
                structure Subordinate : SUBORDINATE
                structure TomegaTypeCheck : TOMEGATYPECHECK
@@ -477,7 +477,7 @@ and raisePrg (Psi, G, T.Unit) = T.Unit
 
   (* end -- removed local *)
 
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)
 
 
 

@@ -1,7 +1,7 @@
 (* Solver for a linearly ordered field, based on the simplex method *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CSIneqField (structure OrderedField : ORDERED_FIELD
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CSIneqField (structure OrderedField : ORDERED_FIELD
                      (*! structure IntSyn : INTSYN !*)
                      structure Trail : TRAIL
                      structure Unify : UNIFY
@@ -1316,4 +1316,4 @@ struct
             unwind = unwind
           } : CSManager.solver
   end
-end (* GEN END FUNCTOR DECL *)  (* functor CSIneqField *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor CSIneqField *)

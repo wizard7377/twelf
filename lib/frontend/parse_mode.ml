@@ -42,126 +42,126 @@ struct
            | #"+" => (E.plus r,  extract (id, 1))
            | _ => Parsing.error (r, "Expected mode `+', `-', `*', or `-1'  found " ^ id)
 
-    fun validateMArg (r, mId as (mode, SOME (id))) =
+    fun (* GEN BEGIN FUN FIRST *) validateMArg (r, mId as (mode, SOME (id))) =
         if L.isUpper id
           then mId
-        else Parsing.error (r, "Expected free uppercase variable, found " ^ id)
-      | validateMArg (r, (_, NONE)) =
-          Parsing.error (r, "Missing variable following mode")
+        else Parsing.error (r, "Expected free uppercase variable, found " ^ id) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) validateMArg (r, (_, NONE)) =
+          Parsing.error (r, "Missing variable following mode") (* GEN END FUN BRANCH *)
 
-    fun validateMode (r, (mode, NONE)) = mode
-      | validateMode (r, (_, SOME(id))) =
-           Parsing.error (r, "Expected simple mode, found mode followed by identifier " ^ id)
+    fun (* GEN BEGIN FUN FIRST *) validateMode (r, (mode, NONE)) = mode (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) validateMode (r, (_, SOME(id))) =
+           Parsing.error (r, "Expected simple mode, found mode followed by identifier " ^ id) (* GEN END FUN BRANCH *)
 
-    fun stripRParen (LS.Cons ((L.RPAREN, r), s')) = (LS.expose s', r)
-      | stripRParen (LS.Cons ((t, r), s')) = (* t = `.' or ? *)
-          Parsing.error (r, "Expected closing `)', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) stripRParen (LS.Cons ((L.RPAREN, r), s')) = (LS.expose s', r) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) stripRParen (LS.Cons ((t, r), s')) = (* t = `.' or ? *)
+          Parsing.error (r, "Expected closing `)', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    fun stripRBrace (LS.Cons ((L.RBRACE, r), s')) = (LS.expose s', r)
-      | stripRBrace (LS.Cons ((t, r), _))  =
-          Parsing.error (r, "Expected `}', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) stripRBrace (LS.Cons ((L.RBRACE, r), s')) = (LS.expose s', r) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) stripRBrace (LS.Cons ((t, r), _))  =
+          Parsing.error (r, "Expected `}', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     (* parseShortSpine "modeid ... modeid." *)
-    fun parseShortSpine (f as LS.Cons ((L.DOT, r), s')) =
-          (E.Short.mnil r, f)
-      | parseShortSpine (f as LS.Cons ((L.RPAREN, r), s')) =
-          (E.Short.mnil r, f)
-      | parseShortSpine (LS.Cons ((L.ID (_, id), r), s')) =
+    fun (* GEN BEGIN FUN FIRST *) parseShortSpine (f as LS.Cons ((L.DOT, r), s')) =
+          (E.Short.mnil r, f) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseShortSpine (f as LS.Cons ((L.RPAREN, r), s')) =
+          (E.Short.mnil r, f) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseShortSpine (LS.Cons ((L.ID (_, id), r), s')) =
         let
-          val mId = validateMArg (r, splitModeId (r, id))
-          val (mS', f') = parseShortSpine (LS.expose s')
+          (* GEN BEGIN TAG OUTSIDE LET *) val mId = validateMArg (r, splitModeId (r, id)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (mS', f') = parseShortSpine (LS.expose s') (* GEN END TAG OUTSIDE LET *)
         in
           (E.Short.mapp (mId, mS'), f')
-        end
-      | parseShortSpine (LS.Cons ((t, r), s')) =
-          Parsing.error (r, "Expected mode or `.', found " ^ L.toString t)
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseShortSpine (LS.Cons ((t, r), s')) =
+          Parsing.error (r, "Expected mode or `.', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     (* parseFull "mode {id:term} ... mode {x:term} term" *)
-    fun parseFull (LS.Cons (t0 as (L.ID (c, id), r0), s'), r1) =
+    fun (* GEN BEGIN FUN FIRST *) parseFull (LS.Cons (t0 as (L.ID (c, id), r0), s'), r1) =
         (* Look ahead one token to decide if quantifier follows *)
         (case LS.expose s'
            of LS.Cons ((L.LBRACE, r), s'') =>
               (* found quantifier --- id must be mode *)
               let
-                val mId = splitModeId (r0, id)
-                val m = validateMode (r0, mId)
-                val ((x, yOpt), f') = ParseTerm.parseDec' (LS.expose s'')
-                val (f'', r') = stripRBrace f'
-                val dec = (case yOpt
+                (* GEN BEGIN TAG OUTSIDE LET *) val mId = splitModeId (r0, id) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val m = validateMode (r0, mId) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val ((x, yOpt), f') = ParseTerm.parseDec' (LS.expose s'') (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (f'', r') = stripRBrace f' (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val dec = (case yOpt
                              of NONE => ParseTerm.ExtSyn.dec0 (x, P.join (r, r'))
-                              | SOME y => ParseTerm.ExtSyn.dec (x, y, P.join (r, r')))
-                val (t', f''') = parseFull (f'', r1)
+                              | SOME y => ParseTerm.ExtSyn.dec (x, y, P.join (r, r'))) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (t', f''') = parseFull (f'', r1) (* GEN END TAG OUTSIDE LET *)
               in
                 (E.Full.mpi (m, dec, t'), f''')
               end
             | LS.Cons TS =>
               (* no quantifier --- parse atomic type *)
               let
-                val (t', f' as LS.Cons ((_, r), s')) =
-                    ParseTerm.parseTerm' (LS.Cons (t0, LS.cons TS))
+                (* GEN BEGIN TAG OUTSIDE LET *) val (t', f' as LS.Cons ((_, r), s')) =
+                    ParseTerm.parseTerm' (LS.Cons (t0, LS.cons TS)) (* GEN END TAG OUTSIDE LET *)
               in
                 (E.Full.mroot (t', P.join (r, r1)), f')
-              end)
-      | parseFull (LS.Cons ((L.LPAREN, r0), s'), r1) =
+              end) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseFull (LS.Cons ((L.LPAREN, r0), s'), r1) =
         (* Left paren --- parse atomic type *)
         let
-          val (t', f') = ParseTerm.parseTerm' (LS.expose s')
-          val (f'', r') = stripRParen f'
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', f') = ParseTerm.parseTerm' (LS.expose s') (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (f'', r') = stripRParen f' (* GEN END TAG OUTSIDE LET *)
         in
           (E.Full.mroot (t', P.join (r', r1)), f'')
-        end
-      | parseFull (LS.Cons ((t, r), s'), _) =
-          Parsing.error (r, "Expected mode or identifier, found " ^ L.toString t)
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseFull (LS.Cons ((t, r), s'), _) =
+          Parsing.error (r, "Expected mode or identifier, found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     (* parseMode2 switches between full and short mode declarations *)
     (* lexid could be mode or other identifier *)
-    fun parseMode2 (lexid, LS.Cons (BS as ((L.LBRACE, r), s')), r1) =
+    fun (* GEN BEGIN FUN FIRST *) parseMode2 (lexid, LS.Cons (BS as ((L.LBRACE, r), s')), r1) =
         let
-          val (t', f') = parseFull (LS.Cons (lexid, LS.cons BS), r1)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', f') = parseFull (LS.Cons (lexid, LS.cons BS), r1) (* GEN END TAG OUTSIDE LET *)
         in
           (E.Full.toModedec t', f')
-        end
-      | parseMode2 ((L.ID (_, name), r), f, _) =
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseMode2 ((L.ID (_, name), r), f, _) =
         let
-          val (mS', f') = parseShortSpine f
+          (* GEN BEGIN TAG OUTSIDE LET *) val (mS', f') = parseShortSpine f (* GEN END TAG OUTSIDE LET *)
         in
           (E.Short.toModedec (E.Short.mroot (nil, name, r, mS')), f')
-        end
+        end (* GEN END FUN BRANCH *)
 
-    fun parseModeParen (LS.Cons ((L.ID (_, name), r0), s'), r) =
+    fun (* GEN BEGIN FUN FIRST *) parseModeParen (LS.Cons ((L.ID (_, name), r0), s'), r) =
         let
-          val (mS', f') = parseShortSpine (LS.expose s')
-          val (f'', r') = stripRParen f'
+          (* GEN BEGIN TAG OUTSIDE LET *) val (mS', f') = parseShortSpine (LS.expose s') (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (f'', r') = stripRParen f' (* GEN END TAG OUTSIDE LET *)
         in
           (E.Short.toModedec (E.Short.mroot (nil, name, P.join (r, r'), mS')), f'')
-        end
-      | parseModeParen (LS.Cons ((t, r), s'), _) =
-          Parsing.error (r, "Expected identifier, found " ^ L.toString t)
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseModeParen (LS.Cons ((t, r), s'), _) =
+          Parsing.error (r, "Expected identifier, found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     (* parseMode1 parses mdecl *)
-    fun parseMode1 (LS.Cons (lexid as (L.ID _, r), s')) =
-          parseModeNext (parseMode2 (lexid, LS.expose s', r))
-      | parseMode1 (LS.Cons ((L.LPAREN, r), s')) =
-          parseModeNext (parseModeParen (LS.expose s', r))
-      | parseMode1 (LS.Cons ((t, r), _)) =
-          Parsing.error (r, "Expected identifier or mode, found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseMode1 (LS.Cons (lexid as (L.ID _, r), s')) =
+          parseModeNext (parseMode2 (lexid, LS.expose s', r)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseMode1 (LS.Cons ((L.LPAREN, r), s')) =
+          parseModeNext (parseModeParen (LS.expose s', r)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseMode1 (LS.Cons ((t, r), _)) =
+          Parsing.error (r, "Expected identifier or mode, found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    and parseModeNext (modedec, f as LS.Cons ((L.DOT, _), s')) = (modedec::nil, f)
-      | parseModeNext (modedec, f) =
+    and (* GEN BEGIN FUN FIRST *) parseModeNext (modedec, f as LS.Cons ((L.DOT, _), s')) = (modedec::nil, f) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseModeNext (modedec, f) =
         let
-          val (mdecs, f') = parseMode1 f
+          (* GEN BEGIN TAG OUTSIDE LET *) val (mdecs, f') = parseMode1 f (* GEN END TAG OUTSIDE LET *)
         in
           (modedec::mdecs, f')
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* parseMode' : lexResult front -> modedec * lexResult front
        Invariant: exposed input stream starts with MODE
     *)
-    fun parseMode' (LS.Cons ((L.MODE, r), s')) = parseMode1 (LS.expose s')
-      | parseMode' (LS.Cons ((L.UNIQUE, r), s')) = parseMode1 (LS.expose s')
-      | parseMode' (LS.Cons ((L.COVERS, r), s')) = parseMode1 (LS.expose s')
+    fun (* GEN BEGIN FUN FIRST *) parseMode' (LS.Cons ((L.MODE, r), s')) = parseMode1 (LS.expose s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseMode' (LS.Cons ((L.UNIQUE, r), s')) = parseMode1 (LS.expose s') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseMode' (LS.Cons ((L.COVERS, r), s')) = parseMode1 (LS.expose s') (* GEN END FUN BRANCH *)
   in
-    val parseMode' = parseMode'
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseMode' = parseMode' (* GEN END TAG OUTSIDE LET *)
   end  (* local *)
 
 end (* GEN END FUNCTOR DECL *);  (* functor ParseMode *)

@@ -1,7 +1,7 @@
 (* Splitting : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPSplitting (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPSplitting (structure MTPGlobal : MTPGLOBAL
                       structure Global : GLOBAL
                       (*! structure IntSyn : INTSYN !*)
                       (*! structure FunSyn : FUNSYN !*)
@@ -796,4 +796,4 @@ struct
     val index = index
     val compare = compare
   end (* local *)
-end (* GEN END FUNCTOR DECL *);  (* functor Splitting *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Splitting *)

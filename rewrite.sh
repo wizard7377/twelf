@@ -2,22 +2,9 @@
 shopt -s globstar
 OPTS=$@;
 parse() {
-    local file=$1
-    # echo "ast-grep scan $OPTS $file"
-    ast-grep scan $OPTS $file
+    for i in {1..6}; do
+        ast-grep scan $OPTS
+    done 
 }
-parseFiles() {
-    local files=$1
-    for file in $files; do
-        parse $file
-    done
-}
-parseFiles "src/**/*.sig"
-parseFiles "src/**/*.fun"
-parseFiles "src/**/*.sml"
-parseFiles "build/*.sig"
-parseFiles "build/*.fun"
-parseFiles "build/*.sml"
-parseFiles "TEST/*.sig"
-parseFiles "TEST/*.fun"
-parseFiles "TEST/*.sml"
+
+parse 

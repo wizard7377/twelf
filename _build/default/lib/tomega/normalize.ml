@@ -1,7 +1,7 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Normalize
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Normalize
   (structure IntSyn' : INTSYN
    structure Tomega' : TOMEGA
      sharing Tomega'.IntSyn = IntSyn'
@@ -93,4 +93,4 @@ struct
     val normalizeSpine = normalizeSpine
     val normalizeSub = normalizeSub
   end
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

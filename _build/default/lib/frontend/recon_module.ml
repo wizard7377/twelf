@@ -1,7 +1,7 @@
 (* Elaboration for module expressions *)
 (* Author: Kevin Watkins *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ReconModule
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ReconModule
   (structure Global : GLOBAL
    (*! structure IntSyn : INTSYN !*)
    structure Names : NAMES
@@ -186,4 +186,4 @@ struct
         module'
       end
 
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ModeCheck ((*! structure IntSyn : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ModeCheck ((*! structure IntSyn : INTSYN !*)
                    structure ModeTable : MODETABLE
                    (*! sharing ModeSyn.IntSyn = IntSyn !*)
                    structure Whnf : WHNF
@@ -864,5 +864,5 @@ struct
     val checkMode = checkMode
     val checkFreeOut = checkFreeOut
   end
-end (* GEN END FUNCTOR DECL *);  (* functor ModeCheck *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ModeCheck *)
 

@@ -1,7 +1,7 @@
 (* State definition for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) State
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) State
   (structure Formatter : FORMATTER) : STATE =
 struct
   (*! structure IntSyn = IntSyn' !*)
@@ -157,4 +157,4 @@ struct
     val collectLF = fn P => findExp (I.Null, P) []
     val collectLFSub = fn s => findExpSub (I.Null, s) []
   end
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

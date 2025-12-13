@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Date: Thu Mar 16 13:39:26 2006 *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Elim
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Elim
   (structure Data : DATA
    (*! structure IntSyn' : INTSYN !*)
    (*! structure Tomega' : TOMEGA !*)
@@ -137,4 +137,4 @@ struct
     val apply = apply
     val menu = menu
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor elim *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor elim *)

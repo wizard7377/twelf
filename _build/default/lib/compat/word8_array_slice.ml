@@ -8,6 +8,6 @@ struct
   type array = Word8Array.array
   type slice = Word8Array.array * int * int option
   type vector = Word8Array.vector
-  (* GEN BEGIN TAG INSIDE LET *) fun slice s = s (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) val vector = Word8Array.extract (* GEN END TAG INSIDE LET *)
+  fun slice s = s
+  (* GEN BEGIN TAG OUTSIDE LET *) val vector = Word8Array.extract (* GEN END TAG OUTSIDE LET *)
 end;

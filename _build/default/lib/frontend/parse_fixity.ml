@@ -1,7 +1,7 @@
 (* Parsing Fixity and Name Preference Declarations *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ParseFixity
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ParseFixity
   ((*! structure Parsing' : PARSING !*)
    structure Names' : NAMES)
      : PARSE_FIXITY =
@@ -139,4 +139,4 @@ struct
     val parseNamePref' = parseNamePref'
   end  (* local ... in *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor ParseFixity *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ParseFixity *)

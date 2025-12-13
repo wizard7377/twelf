@@ -4,7 +4,7 @@
 (* Modified: Carsten Schuermann *)
 (* Modified: Florian Rabe *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) PrintOMDoc
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) PrintOMDoc
   ((*! structure IntSyn' : INTSYN !*)
    structure Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -366,4 +366,4 @@ in
 
 end  (* local ... *)
 
-end (* GEN END FUNCTOR DECL *)  (* functor PrintXml *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor PrintXml *)

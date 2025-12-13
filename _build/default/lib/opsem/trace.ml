@@ -1,4 +1,4 @@
-functor (* GEN BEGIN FUNCTOR DECL *) Trace ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Trace ((*! structure IntSyn' : INTSYN !*)
                structure Names : NAMES
                (*! sharing Names.IntSyn = IntSyn' !*)
                structure Whnf : WHNF
@@ -363,4 +363,4 @@ struct
     fun reset () = (trace (None); break (None); detail := 1)
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor Trace *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Trace *)

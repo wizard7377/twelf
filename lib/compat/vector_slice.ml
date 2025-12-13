@@ -4,7 +4,7 @@
 structure VectorSlice :> VECTOR_SLICE =
 struct
   type 'a slice = 'a Vector.vector * int * int option
-  (* GEN BEGIN TAG INSIDE LET *) fun slice s = s (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) val appi = Vector.appi (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) val mapi = Vector.mapi (* GEN END TAG INSIDE LET *)
+  fun slice s = s
+  (* GEN BEGIN TAG OUTSIDE LET *) val appi = Vector.appi (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val mapi = Vector.mapi (* GEN END TAG OUTSIDE LET *)
 end;

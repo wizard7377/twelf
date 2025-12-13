@@ -40,31 +40,31 @@ struct
 
     exception MyIntsynRep of sum
 
-    fun extractSum (MyIntsynRep sum) = sum
-      | extractSum fe = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) extractSum (MyIntsynRep sum) = sum (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) extractSum fe = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
-    val myID = ref ~1 : csid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val myID = ref ~1 : csid ref (* GEN END TAG OUTSIDE LET *)
 
-    val boolID = ref ~1 : cid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val boolID = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
 
     fun bool () = Root (Const (!boolID), Nil)
 
-    val trueID  = ref ~1 : cid ref
-    val falseID = ref ~1 : cid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val trueID  = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val falseID = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
 
     fun trueExp ()  = Root (Const (!trueID), Nil)
     fun falseExp () = Root (Const (!falseID), Nil)
 
-    fun solveBool (G, S, 0) = SOME(trueExp ())
-      | solveBool (G, S, 1) = SOME(falseExp ())
-      | solveBool (G, S, k) = NONE
+    fun (* GEN BEGIN FUN FIRST *) solveBool (G, S, 0) = SOME(trueExp ()) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) solveBool (G, S, 1) = SOME(falseExp ()) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) solveBool (G, S, k) = NONE (* GEN END FUN BRANCH *)
 
-    val notID     = ref ~1 : cid ref
-    val xorID     = ref ~1 : cid ref
-    val andID     = ref ~1 : cid ref
-    val orID      = ref ~1 : cid ref
-    val impliesID = ref ~1 : cid ref
-    val iffID     = ref ~1 : cid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val notID     = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val xorID     = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val andID     = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val orID      = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val impliesID = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val iffID     = ref ~1 : cid ref (* GEN END TAG OUTSIDE LET *)
 
     fun notExp (U)        = Root (Const (!notID), App (U, Nil))
     fun xorExp (U, V)     = Root (Const (!xorID), App (U, App (V, Nil)))
@@ -75,13 +75,13 @@ struct
 
     (* member eq (x, L) = true iff there there is a y in L s.t. eq(y, x) *)
     fun member eq (x, L) =
-          List.exists (fn y => eq(x, y)) L
+          List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn y => eq(x, y) (* GEN END FUNCTION EXPRESSION *)) L
 
     (* differenceSet eq L1 L2 = (L1 \ L2) U (L2 \ L1) *)
     fun differenceSet eq (L1, L2) =
           let
-            val L1' = List.filter (fn x => not (member eq (x, L2))) L1
-            val L2' = List.filter (fn x => not (member eq (x, L1))) L2
+            (* GEN BEGIN TAG OUTSIDE LET *) val L1' = List.filter ((* GEN BEGIN FUNCTION EXPRESSION *) fn x => not (member eq (x, L2)) (* GEN END FUNCTION EXPRESSION *)) L1 (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val L2' = List.filter ((* GEN BEGIN FUNCTION EXPRESSION *) fn x => not (member eq (x, L1)) (* GEN END FUNCTION EXPRESSION *)) L2 (* GEN END TAG OUTSIDE LET *)
           in
             L1' @ L2'
           end
@@ -95,7 +95,7 @@ struct
     (* unionSet eq (L1, L2) = L1 U L2 *)
     fun unionSet eq (L1, L2) =
           let
-            val L2' = List.filter (fn x => not (member eq (x, L1))) L2
+            (* GEN BEGIN TAG OUTSIDE LET *) val L2' = List.filter ((* GEN BEGIN FUNCTION EXPRESSION *) fn x => not (member eq (x, L1)) (* GEN END FUNCTION EXPRESSION *)) L2 (* GEN END TAG OUTSIDE LET *)
           in
             L1 @ L2'
           end
@@ -106,17 +106,17 @@ struct
        If sum is normal
        G |- U : V and U is the Twelf syntax conversion of sum
     *)
-    fun toExp (Sum (m, nil)) =
+    fun (* GEN BEGIN FUN FIRST *) toExp (Sum (m, nil)) =
           let
-            val cid = if m then !trueID else !falseID
+            (* GEN BEGIN TAG OUTSIDE LET *) val cid = if m then !trueID else !falseID (* GEN END TAG OUTSIDE LET *)
           in
             Root(Const (cid), Nil)
-          end
-      | toExp (Sum (m, [mon])) =
+          end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (Sum (m, [mon])) =
           if (m = false) then toExpMon mon
-          else xorExp (toExp (Sum (m, nil)), toExpMon mon)
-      | toExp (Sum (m, monLL as (mon :: monL))) =
-          xorExp (toExp (Sum (m, monL)), toExpMon mon)
+          else xorExp (toExp (Sum (m, nil)), toExpMon mon) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (Sum (m, monLL as (mon :: monL))) =
+          xorExp (toExp (Sum (m, monL)), toExpMon mon) (* GEN END FUN BRANCH *)
 
     (* toExpMon mon = U
 
@@ -124,21 +124,21 @@ struct
        If mon is normal
        G |- U : V and U is the Twelf syntax conversion of mon
     *)
-    and toExpMon (Mon [Us]) = toExpEClo Us
-      | toExpMon (Mon (Us :: UsL)) =
-          andExp (toExpMon (Mon UsL), toExpEClo Us)
+    and (* GEN BEGIN FUN FIRST *) toExpMon (Mon [Us]) = toExpEClo Us (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toExpMon (Mon (Us :: UsL)) =
+          andExp (toExpMon (Mon UsL), toExpEClo Us) (* GEN END FUN BRANCH *)
 
     (* toExpEClo (U,s) = U
 
        Invariant:
        G |- U : V and U is the Twelf syntax conversion of Us
     *)
-    and toExpEClo (U, Shift (0)) = U
-      | toExpEClo Us = EClo Us
+    and (* GEN BEGIN FUN FIRST *) toExpEClo (U, Shift (0)) = U (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toExpEClo Us = EClo Us (* GEN END FUN BRANCH *)
 
     (* compatibleMon (mon1, mon2) = true only if mon1 = mon2 (as monomials) *)
     fun compatibleMon (Mon UsL1, Mon UsL2) =
-          equalSet (fn (Us1, Us2) => sameExp (Us1, Us2))
+          equalSet ((* GEN BEGIN FUNCTION EXPRESSION *) fn (Us1, Us2) => sameExp (Us1, Us2) (* GEN END FUNCTION EXPRESSION *))
                    (UsL1, UsL2)
 
     (* sameExpW ((U1,s1), (U2,s2)) = T
@@ -148,17 +148,17 @@ struct
        and  G |- s2 : G2    G2 |- U2 : V2    (U2,s2)  in whnf
        then T only if U1[s1] = U2[s2] (as expressions)
     *)
-    and sameExpW (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+    and (* GEN BEGIN FUN FIRST *) sameExpW (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
           (case (H1, H2) of
              (BVar(k1), BVar(k2)) =>
                (k1 = k2) andalso sameSpine ((S1, s1), (S2, s2))
            | (FVar (n1,_,_), FVar (n2,_,_)) =>
                (n1 = n2) andalso sameSpine ((S1, s1), (S2, s2))
-           | _ => false)
-      | sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
+           | _ => false) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
                   Us2 as (U2 as EVar(r2, G2, V2, cnstrs2), s2)) =
-         (r1 = r2) andalso sameSub (s1, s2)
-      | sameExpW _ = false
+         (r1 = r2) andalso sameSub (s1, s2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameExpW _ = false (* GEN END FUN BRANCH *)
 
     (* sameExp ((U1,s1), (U2,s2)) = T
 
@@ -176,15 +176,15 @@ struct
        and  G |- S2 : V > W
        then T only if S1 = S2 (as spines)
     *)
-    and sameSpine ((Nil, s1), (Nil, s2)) = true
-      | sameSpine ((SClo (S1, s1'), s1), Ss2) =
-          sameSpine ((S1, comp (s1', s1)), Ss2)
-      | sameSpine (Ss1, (SClo (S2, s2'), s2)) =
-          sameSpine (Ss1, (S2, comp (s2', s2)))
-      | sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
+    and (* GEN BEGIN FUN FIRST *) sameSpine ((Nil, s1), (Nil, s2)) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine ((SClo (S1, s1'), s1), Ss2) =
+          sameSpine ((S1, comp (s1', s1)), Ss2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine (Ss1, (SClo (S2, s2'), s2)) =
+          sameSpine (Ss1, (S2, comp (s2', s2))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
           sameExp ((U1, s1), (U2, s2))
-            andalso sameSpine ((S1, s1), (S2, s2))
-      | sameSpine _ = false
+            andalso sameSpine ((S1, s1), (S2, s2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine _ = false (* GEN END FUN BRANCH *)
 
     (* sameSub (s1, s2) = T
 
@@ -193,14 +193,14 @@ struct
        and  G |- s2 : G'
        then T only if s1 = s2 (as substitutions)
     *)
-    and sameSub (Shift _, Shift _) = true
-      | sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
-          (k1 = k2) andalso sameSub (s1, s2)
-      | sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
-          sameSub (s1, Dot (Idx (Int.+(k2,1)), Shift (Int.+(k2,1))))
-      | sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
-          sameSub (Dot (Idx (Int.+(k1,1)), Shift (Int.+(k1,1))), s2)
-      | sameSub _ = false
+    and (* GEN BEGIN FUN FIRST *) sameSub (Shift _, Shift _) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
+          (k1 = k2) andalso sameSub (s1, s2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
+          sameSub (s1, Dot (Idx (Int.+(k2,1)), Shift (Int.+(k2,1)))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
+          sameSub (Dot (Idx (Int.+(k1,1)), Shift (Int.+(k1,1))), s2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub _ = false (* GEN END FUN BRANCH *)
 
     (* xorSum (sum1, sum2) = sum3
 
@@ -221,12 +221,12 @@ struct
        then sum3 normal
        and  sum3 = sum1 and sum2
     *)
-    fun andSum (sum1 as Sum (false, nil), sum2) = sum1
-      | andSum (sum1, sum2 as Sum (false, nil)) = sum2
-      | andSum (sum1 as Sum (true, nil), sum2) = sum2
-      | andSum (sum1, sum2 as Sum (true, nil)) = sum1
-      | andSum (Sum (m1, mon1 :: monL1), sum2) =
-          xorSum (andSumMon (sum2, mon1), andSum (Sum (m1, monL1), sum2))
+    fun (* GEN BEGIN FUN FIRST *) andSum (sum1 as Sum (false, nil), sum2) = sum1 (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) andSum (sum1, sum2 as Sum (false, nil)) = sum2 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) andSum (sum1 as Sum (true, nil), sum2) = sum2 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) andSum (sum1, sum2 as Sum (true, nil)) = sum1 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) andSum (Sum (m1, mon1 :: monL1), sum2) =
+          xorSum (andSumMon (sum2, mon1), andSum (Sum (m1, monL1), sum2)) (* GEN END FUN BRANCH *)
 
     (* andSumMon (sum1, mon2) = sum3
 
@@ -236,15 +236,15 @@ struct
        then sum3 normal
        and  sum3 = sum1 and mon2
     *)
-    and andSumMon (Sum (true, nil), mon) = Sum (false, [mon])
-      | andSumMon (sum1 as Sum (false, nil), mon) = sum1
-      | andSumMon (Sum (m1, (Mon UsL1) :: monL1), mon2 as Mon UsL2) =
+    and (* GEN BEGIN FUN FIRST *) andSumMon (Sum (true, nil), mon) = Sum (false, [mon]) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) andSumMon (sum1 as Sum (false, nil), mon) = sum1 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) andSumMon (Sum (m1, (Mon UsL1) :: monL1), mon2 as Mon UsL2) =
           let
-            val UsL = unionSet sameExp (UsL1, UsL2)
+            (* GEN BEGIN TAG OUTSIDE LET *) val UsL = unionSet sameExp (UsL1, UsL2) (* GEN END TAG OUTSIDE LET *)
           in
             xorSum (Sum (false, [Mon UsL]),
                     andSumMon (Sum (m1, monL1), mon2))
-          end
+          end (* GEN END FUN BRANCH *)
 
     (* notSum sum = sum'
 
@@ -296,42 +296,42 @@ struct
        then sum is the internal representation of U[s] as sum of monomials
        and sum is normal
     *)
-    fun fromExpW (Us as (FgnExp (cs, fe), _)) =
+    fun (* GEN BEGIN FUN FIRST *) fromExpW (Us as (FgnExp (cs, fe), _)) =
           if (cs = !myID)
           then normalizeSum (extractSum fe)
-          else Sum (false, [Mon [Us]])
-      | fromExpW Us =
-          Sum (false, [Mon [Us]])
+          else Sum (false, [Mon [Us]]) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fromExpW Us =
+          Sum (false, [Mon [Us]]) (* GEN END FUN BRANCH *)
     and fromExp Us =
           fromExpW (Whnf.whnf Us)
 
     (* normalizeSum sum = sum', where sum' normal and sum' = sum *)
-    and normalizeSum (sum as (Sum (m, nil))) = sum
-      | normalizeSum (Sum (m, [mon])) =
-          xorSum (Sum (m, nil), normalizeMon mon)
-      | normalizeSum (Sum (m, mon :: monL)) =
-          xorSum (normalizeMon mon, normalizeSum (Sum (m, monL)))
+    and (* GEN BEGIN FUN FIRST *) normalizeSum (sum as (Sum (m, nil))) = sum (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeSum (Sum (m, [mon])) =
+          xorSum (Sum (m, nil), normalizeMon mon) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeSum (Sum (m, mon :: monL)) =
+          xorSum (normalizeMon mon, normalizeSum (Sum (m, monL))) (* GEN END FUN BRANCH *)
 
     (* normalizeMon mon = mon', where mon' normal and mon' = mon *)
-    and normalizeMon (Mon [Us]) = fromExp Us
-      | normalizeMon (Mon (Us :: UsL)) =
-          andSum (fromExp Us, normalizeMon (Mon UsL))
+    and (* GEN BEGIN FUN FIRST *) normalizeMon (Mon [Us]) = fromExp Us (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeMon (Mon (Us :: UsL)) =
+          andSum (fromExp Us, normalizeMon (Mon UsL)) (* GEN END FUN BRANCH *)
 
     (* mapSum (f, m + M1 + ...) = m + mapMon(f,M1) + ... *)
     and mapSum (f, Sum (m, monL)) =
-          Sum (m, List.map (fn mon => mapMon (f, mon)) monL)
+          Sum (m, List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn mon => mapMon (f, mon) (* GEN END FUNCTION EXPRESSION *)) monL)
 
     (* mapMon (f, n * (U1,s1) + ...) = n * f(U1,s1) * ... *)
     and mapMon (f, Mon UsL) =
-          Mon (List.map (fn Us => Whnf.whnf (f (EClo Us), id)) UsL)
+          Mon (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn Us => Whnf.whnf (f (EClo Us), id) (* GEN END FUNCTION EXPRESSION *)) UsL)
 
     (* appSum (f, m + M1 + ...) = ()     and appMon (f, Mi) for each i *)
     fun appSum (f, Sum (m, monL)) =
-        List.app (fn mon => appMon (f, mon)) monL
+        List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn mon => appMon (f, mon) (* GEN END FUNCTION EXPRESSION *)) monL
 
     (* appMon (f, n * (U1, s1) + ... ) = () and f (Ui[si]) for each i *)
     and appMon (f, Mon UsL) =
-        List.app (fn Us => f (EClo Us)) UsL
+        List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn Us => f (EClo Us) (* GEN END FUNCTION EXPRESSION *)) UsL
 
     (* findMon f (G, sum) =
          SOME(x) if f(M) = SOME(x) for some monomial M in sum
@@ -339,11 +339,11 @@ struct
     *)
     fun findMon f (G, Sum(m, monL)) =
           let
-            fun findMon' (nil, monL2) = NONE
-              | findMon' (mon :: monL1, monL2) =
+            fun (* GEN BEGIN FUN FIRST *) findMon' (nil, monL2) = NONE (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) findMon' (mon :: monL1, monL2) =
                   (case (f (G, mon, Sum(m, monL1 @ monL2)))
                      of (result as SOME _) => result
-                      | NONE => findMon' (monL1, mon :: monL2))
+                      | NONE => findMon' (monL1, mon :: monL2)) (* GEN END FUN BRANCH *)
           in
             findMon' (monL, nil)
           end
@@ -358,19 +358,19 @@ struct
     *)
     fun unifySum (G, sum1, sum2) =
           let
-            fun invertMon (G, Mon [(LHS as EVar (r, _, _, _), s)], sum) =
+            fun (* GEN BEGIN FUN FIRST *) invertMon (G, Mon [(LHS as EVar (r, _, _, _), s)], sum) =
                   if Whnf.isPatSub s
                   then
                     let
-                      val ss = Whnf.invert s
-                      val RHS = toFgn sum
+                      (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert s (* GEN END TAG OUTSIDE LET *)
+                      (* GEN BEGIN TAG OUTSIDE LET *) val RHS = toFgn sum (* GEN END TAG OUTSIDE LET *)
                     in
                       if Unify.invertible (G, (RHS, id), ss, r)
                       then SOME (G, LHS, RHS, ss)
                       else NONE
                     end
-                  else NONE
-              | invertMon _ = NONE
+                  else NONE (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) invertMon _ = NONE (* GEN END FUN BRANCH *)
           in
             case xorSum (sum2, sum1)
               of Sum (false, nil) => Succeed nil
@@ -382,8 +382,8 @@ struct
                            Succeed [Assign assignment]
                        | NONE =>
                            let
-                             val U = toFgn sum
-                             val cnstr = ref (Eqn (G, U, falseExp ()))
+                             (* GEN BEGIN TAG OUTSIDE LET *) val U = toFgn sum (* GEN END TAG OUTSIDE LET *)
+                             (* GEN BEGIN TAG OUTSIDE LET *) val cnstr = ref (Eqn (G, U, falseExp ())) (* GEN END TAG OUTSIDE LET *)
                            in
                              Succeed [Delay (U, cnstr)]
                            end
@@ -396,8 +396,8 @@ struct
        If sum normal
        then U is a foreign expression representing sum.
     *)
-    and toFgn (sum as Sum (m, nil)) = toExp (sum)
-      | toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep sum)
+    and (* GEN BEGIN FUN FIRST *) toFgn (sum as Sum (m, nil)) = toExp (sum) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toFgn (sum as Sum (m, monL)) = FgnExp (!myID, MyIntsynRep sum) (* GEN END FUN BRANCH *)
 
     (* toInternal (fe) = U
 
@@ -405,8 +405,8 @@ struct
        if fe is (MyIntsynRep sum) and sum : normal
        then U is the Twelf syntax conversion of sum
     *)
-    fun toInternal (MyIntsynRep sum) () = toExp (normalizeSum sum)
-      | toInternal fe () = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) toInternal (MyIntsynRep sum) () = toExp (normalizeSum sum) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toInternal fe () = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
     (* map (fe) f = U'
 
@@ -420,8 +420,8 @@ struct
        then
          U' is a foreign expression representing sum'
     *)
-    fun map (MyIntsynRep sum) f = toFgn (normalizeSum (mapSum (f,sum)))
-      | map fe _ = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) map (MyIntsynRep sum) f = toFgn (normalizeSum (mapSum (f,sum))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) map fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
     (* app (fe) f = ()
 
@@ -433,61 +433,61 @@ struct
        then f is applied to each Usij
          (since sum : normal, each Usij is in whnf)
     *)
-    fun app (MyIntsynRep sum) f = appSum (f, sum)
-      | app fe _ = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) app (MyIntsynRep sum) f = appSum (f, sum) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) app fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
-    fun equalTo (MyIntsynRep sum) U2 =
+    fun (* GEN BEGIN FUN FIRST *) equalTo (MyIntsynRep sum) U2 =
         (case xorSum (normalizeSum (sum), fromExp (U2, id)) (* AK: redundant normalizeSum ? *)
           of Sum(m, nil) => (m = false)
-           | _ => false)
-      | equalTo fe _ = raise (UnexpectedFgnExp fe)
+           | _ => false) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) equalTo fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
-    fun unifyWith (MyIntsynRep sum) (G, U2) = unifySum (G, normalizeSum sum, fromExp (U2, id))
-      | unifyWith fe _ = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) unifyWith (MyIntsynRep sum) (G, U2) = unifySum (G, normalizeSum sum, fromExp (U2, id)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) unifyWith fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
     fun installFgnExpOps () = let
-        val csid = !myID
-        val _ = FgnExpStd.ToInternal.install (csid, toInternal)
-        val _ = FgnExpStd.Map.install (csid, map)
-        val _ = FgnExpStd.App.install (csid, app)
-        val _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
-        val _ = FgnExpStd.EqualTo.install (csid, equalTo)
+        (* GEN BEGIN TAG OUTSIDE LET *) val csid = !myID (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.ToInternal.install (csid, toInternal) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.Map.install (csid, map) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.App.install (csid, app) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.UnifyWith.install (csid, unifyWith) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.EqualTo.install (csid, equalTo) (* GEN END TAG OUTSIDE LET *)
     in
         ()
     end
 
     fun makeFgn (arity, opExp) (S) =
           let
-            fun makeParams 0 = Nil
-              | makeParams n =
-                  App (Root(BVar (n), Nil), makeParams (Int.-(n,1)))
-            fun makeLam E 0 = E
-              | makeLam E n =
-                  Lam (Dec (NONE, bool()), makeLam E (Int.-(n,1)))
-            fun expand ((Nil, s), arity) =
-                  (makeParams arity, arity)
-              | expand ((App (U, S), s), arity) =
+            fun (* GEN BEGIN FUN FIRST *) makeParams 0 = Nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) makeParams n =
+                  App (Root(BVar (n), Nil), makeParams (Int.-(n,1))) (* GEN END FUN BRANCH *)
+            fun (* GEN BEGIN FUN FIRST *) makeLam E 0 = E (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) makeLam E n =
+                  Lam (Dec (NONE, bool()), makeLam E (Int.-(n,1))) (* GEN END FUN BRANCH *)
+            fun (* GEN BEGIN FUN FIRST *) expand ((Nil, s), arity) =
+                  (makeParams arity, arity) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) expand ((App (U, S), s), arity) =
                   let
-                    val (S', arity') = expand ((S, s), (Int.-(arity,1)))
+                    (* GEN BEGIN TAG OUTSIDE LET *) val (S', arity') = expand ((S, s), (Int.-(arity,1))) (* GEN END TAG OUTSIDE LET *)
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
-                  end
-              | expand ((SClo (S, s'), s), arity) =
-                  expand ((S, comp (s', s)), arity)
-            val (S', arity') = expand ((S, id), arity)
+                  end (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) expand ((SClo (S, s'), s), arity) =
+                  expand ((S, comp (s', s)), arity) (* GEN END FUN BRANCH *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val (S', arity') = expand ((S, id), arity) (* GEN END TAG OUTSIDE LET *)
           in
             makeLam (toFgn (opExp S')) arity'
           end
 
     fun makeFgnUnary opSum =
           makeFgn (1,
-            fn (App (U, Nil)) =>
-               opSum (fromExp (U, id)))
+            (* GEN BEGIN FUNCTION EXPRESSION *) fn (App (U, Nil)) =>
+               opSum (fromExp (U, id)) (* GEN END FUNCTION EXPRESSION *))
 
     fun makeFgnBinary opSum =
           makeFgn (2,
-            fn (App (U1, App (U2, Nil))) =>
-              opSum (fromExp (U1, id), fromExp (U2, id)))
+            (* GEN BEGIN FUNCTION EXPRESSION *) fn (App (U1, App (U2, Nil))) =>
+              opSum (fromExp (U1, id), fromExp (U2, id)) (* GEN END FUNCTION EXPRESSION *))
 
     fun arrow (U, V) = Pi ((Dec (NONE, U), No), V)
 
@@ -507,14 +507,14 @@ struct
     
             trueID :=
               installF (ConDec ("true", NONE, 0,
-                                Foreign (!myID, (fn _ => toFgn (Sum(true, nil)))),
+                                Foreign (!myID, ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => toFgn (Sum(true, nil)) (* GEN END FUNCTION EXPRESSION *))),
                                 bool (),
                                 Type),
                         NONE, nil);
     
             falseID :=
               installF (ConDec ("false", NONE, 0,
-                                Foreign (!myID, (fn _ => toFgn (Sum(false, nil)))),
+                                Foreign (!myID, ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => toFgn (Sum(false, nil)) (* GEN END FUNCTION EXPRESSION *))),
                                 bool (),
                                 Type),
                         NONE, nil);
@@ -572,19 +572,19 @@ struct
             ()
           )
   in
-    val solver =
+    (* GEN BEGIN TAG OUTSIDE LET *) val solver =
           {
             name = "equality/booleans",
             keywords = "booleans,equality",
             needs = ["Unify"],
-
+    
             fgnConst = NONE,
-
+    
             init = init,
-
-            reset  = (fn () => ()),
-            mark   = (fn () => ()),
-            unwind = (fn () => ())
-          }
+    
+            reset  = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+            mark   = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+            unwind = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *))
+          } (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *)  (* functor CSEqBools *)

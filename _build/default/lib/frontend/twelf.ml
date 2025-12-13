@@ -3,7 +3,7 @@
 (* Modified: Carsten Schuermann, Jeff Polakow *)
 (* Modified: Brigitte Pientka, Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Twelf
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Twelf
   (structure Global : GLOBAL
    structure Timers : TIMERS
    structure Whnf : WHNF
@@ -1837,4 +1837,4 @@ struct
 
 
   end  (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Twelf *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Twelf *)

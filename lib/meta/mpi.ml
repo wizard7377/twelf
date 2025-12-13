@@ -60,10 +60,10 @@ struct
     | Splitting of MTPSplitting.operator
     | Inference of Inference.operator
 
-    val Open : StateSyn.state Ring.ring ref = ref (Ring.init [])
-    val Solved : StateSyn.state Ring.ring ref = ref (Ring.init [])
-    val History : (StateSyn.state Ring.ring * StateSyn.state Ring.ring) list ref = ref nil
-    val Menu : menu_item list option ref = ref NONE
+    (* GEN BEGIN TAG OUTSIDE LET *) val Open : StateSyn.state Ring.ring ref = ref (Ring.init []) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val Solved : StateSyn.state Ring.ring ref = ref (Ring.init []) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val History : (StateSyn.state Ring.ring * StateSyn.state Ring.ring) list ref = ref nil (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val Menu : menu_item list option ref = ref NONE (* GEN END TAG OUTSIDE LET *)
 
     fun initOpen () = Open := Ring.init [];
     fun initSolved () = Solved := Ring.init [];
@@ -100,36 +100,36 @@ struct
          History := nil;
          Menu := NONE)
 
-    fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
-          (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
-          (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
+    fun (* GEN BEGIN FUN FIRST *) cLToString (nil) = "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) cLToString (c :: nil) =
+          (I.conDecName (I.sgnLookup c)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) cLToString (c :: L) =
+          (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L) (* GEN END FUN BRANCH *)
 
 
     fun printFillResult (_, P) =
       let
         fun formatTuple (G, P) =
           let
-            fun formatTuple' (F.Unit) = nil
-              | formatTuple' (F.Inx (M, F.Unit)) =
-              [Print.formatExp (G, M)]
-              | formatTuple' (F.Inx (M, P')) =
+            fun (* GEN BEGIN FUN FIRST *) formatTuple' (F.Unit) = nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) formatTuple' (F.Inx (M, F.Unit)) =
+              [Print.formatExp (G, M)] (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) formatTuple' (F.Inx (M, P')) =
               (Print.formatExp (G, M) ::
-               Fmt.String "," :: Fmt.Break :: formatTuple' P')
+               Fmt.String "," :: Fmt.Break :: formatTuple' P') (* GEN END FUN BRANCH *)
           in
             case P
               of (F.Inx (_, F.Unit)) => Fmt.Hbox (formatTuple' P)
               | _ => Fmt.HVbox0 1 1 1
                 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"]))
           end
-        val S.State (n, (G, B), (IH, OH), d, O, H, F) = current ()
+        (* GEN BEGIN TAG OUTSIDE LET *) val S.State (n, (G, B), (IH, OH), d, O, H, F) = current () (* GEN END TAG OUTSIDE LET *)
       in
         TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n")
       end
 
-    fun SplittingToMenu (nil, A) = A
-      | SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A)
+    fun (* GEN BEGIN FUN FIRST *) SplittingToMenu (nil, A) = A (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) SplittingToMenu (O :: L, A) = SplittingToMenu (L, Splitting O :: A) (* GEN END FUN BRANCH *)
 
     fun FillingToMenu (O, A) = Filling O :: A
 
@@ -141,11 +141,11 @@ struct
         if empty () then Menu := NONE
         else
           let
-            val S = current ()
-            val SplitO = MTPSplitting.expand S
-            val InfO = Inference.expand S
-            val RecO = MTPRecursion.expand S
-            val FillO = MTPFilling.expand S
+            (* GEN BEGIN TAG OUTSIDE LET *) val S = current () (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val SplitO = MTPSplitting.expand S (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val InfO = Inference.expand S (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val RecO = MTPRecursion.expand S (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val FillO = MTPFilling.expand S (* GEN END TAG OUTSIDE LET *)
           in
             Menu := SOME (FillingToMenu (FillO,
                                          RecursionToMenu (RecO,
@@ -160,53 +160,53 @@ struct
 
     fun menuToString () =
         let
-          fun menuToString' (k, nil, (NONE, _)) = (SOME k, "")
-            | menuToString' (k, nil, (kopt' as SOME _, _)) = (kopt', "")
-            | menuToString' (k, Splitting O :: M, kOopt' as (NONE, NONE)) =
+          fun (* GEN BEGIN FUN FIRST *) menuToString' (k, nil, (NONE, _)) = (SOME k, "") (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) menuToString' (k, nil, (kopt' as SOME _, _)) = (kopt', "") (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) menuToString' (k, Splitting O :: M, kOopt' as (NONE, NONE)) =
               let
-                val kOopt'' = if MTPSplitting.applicable O then (SOME k, SOME O)
-                              else kOopt'
-                val (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'')
+                (* GEN BEGIN TAG OUTSIDE LET *) val kOopt'' = if MTPSplitting.applicable O then (SOME k, SOME O)
+                              else kOopt' (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'') (* GEN END TAG OUTSIDE LET *)
               in
                 (kopt, if k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
-              end
-            | menuToString' (k, Splitting O :: M, kOopt' as (SOME k', SOME O')) =
+              end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) menuToString' (k, Splitting O :: M, kOopt' as (SOME k', SOME O')) =
               let
-                val kOopt'' = if MTPSplitting.applicable O then
+                (* GEN BEGIN TAG OUTSIDE LET *) val kOopt'' = if MTPSplitting.applicable O then
                                 case MTPSplitting.compare (O, O')
                                   of LESS => (SOME k, SOME O)
                                    | _ => kOopt'
-                                else  kOopt'
-                val (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'')
+                                else  kOopt' (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (kopt as SOME k'', s) = menuToString' (k+1, M, kOopt'') (* GEN END TAG OUTSIDE LET *)
               in
                 (kopt, if  k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O)
                        else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O))
-              end
-            | menuToString' (k, Filling O :: M, kOopt) =
+              end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) menuToString' (k, Filling O :: M, kOopt) =
               let
-                val (kopt, s) = menuToString' (k+1, M, kOopt)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (kopt, s) = menuToString' (k+1, M, kOopt) (* GEN END TAG OUTSIDE LET *)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPFilling.menu O))
-              end
-            | menuToString' (k, Recursion O :: M,kOopt) =
+              end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) menuToString' (k, Recursion O :: M,kOopt) =
               let
-                val (kopt, s) = menuToString' (k+1, M, kOopt)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (kopt, s) = menuToString' (k+1, M, kOopt) (* GEN END TAG OUTSIDE LET *)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (MTPRecursion.menu O))
-              end
-            | menuToString' (k, Inference O :: M,kOopt) =
+              end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) menuToString' (k, Inference O :: M,kOopt) =
               let
-                val (kopt, s) = menuToString' (k+1, M, kOopt)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (kopt, s) = menuToString' (k+1, M, kOopt) (* GEN END TAG OUTSIDE LET *)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (Inference.menu O))
-              end
+              end (* GEN END FUN BRANCH *)
         in
           case !Menu of
             NONE => raise Error "Menu is empty"
           | SOME M =>
               let
-                val (kopt, s) = menuToString' (1, M, (NONE, NONE))
+                (* GEN BEGIN TAG OUTSIDE LET *) val (kopt, s) = menuToString' (1, M, (NONE, NONE)) (* GEN END TAG OUTSIDE LET *)
               in
                 s
               end
@@ -219,8 +219,8 @@ struct
                                  ^ (Int.toString (!MTPData.maxFill)) ^ "\n"))
         else
           let
-            val S = current ()
-            val _ = if !Global.doubleCheck then FunTypeCheck.isState S else ()
+            (* GEN BEGIN TAG OUTSIDE LET *) val S = current () (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.doubleCheck then FunTypeCheck.isState S else () (* GEN END TAG OUTSIDE LET *)
           in
             (print "\n";
              print (MTPrint.stateToString S);
@@ -230,45 +230,45 @@ struct
           end
 
 
-    fun contains (nil, _) = true
-      | contains (x :: L, L') =
-          (List.exists (fn x' => x = x') L') andalso contains (L, L')
+    fun (* GEN BEGIN FUN FIRST *) contains (nil, _) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) contains (x :: L, L') =
+          (List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn x' => x = x' (* GEN END FUNCTION EXPRESSION *)) L') andalso contains (L, L') (* GEN END FUN BRANCH *)
 
     fun equiv (L1, L2) =
           contains (L1, L2) andalso contains (L2, L1)
 
-    fun transformOrder' (G, Order.Arg k) =
+    fun (* GEN BEGIN FUN FIRST *) transformOrder' (G, Order.Arg k) =
         let
-          val k' = (I.ctxLength G) -k+1
-          val I.Dec (_, V) = I.ctxDec (G, k')
+          (* GEN BEGIN TAG OUTSIDE LET *) val k' = (I.ctxLength G) -k+1 (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V) = I.ctxDec (G, k') (* GEN END TAG OUTSIDE LET *)
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
-        end
-      | transformOrder' (G, Order.Lex Os) =
-          S.Lex (map (fn O => transformOrder' (G, O)) Os)
-      | transformOrder' (G, Order.Simul Os) =
-          S.Simul (map (fn O => transformOrder' (G, O)) Os)
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder' (G, Order.Lex Os) =
+          S.Lex (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => transformOrder' (G, O) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder' (G, Order.Simul Os) =
+          S.Simul (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => transformOrder' (G, O) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
 
-    fun transformOrder (G, F.All (F.Prim D, F), Os) =
-          S.All (D, transformOrder (I.Decl (G, D), F, Os))
-      | transformOrder (G, F.And (F1, F2), O :: Os) =
+    fun (* GEN BEGIN FUN FIRST *) transformOrder (G, F.All (F.Prim D, F), Os) =
+          S.All (D, transformOrder (I.Decl (G, D), F, Os)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder (G, F.And (F1, F2), O :: Os) =
           S.And (transformOrder (G, F1, [O]),
-                 transformOrder (G, F2, Os))
-      | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
+                 transformOrder (G, F2, Os)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O) (* GEN END FUN BRANCH *)
 
     fun select c = (Order.selLookup c handle _ => Order.Lex [])
 
     fun init (k, names) =
         let
-          val cL = map (fn x => valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
-          val _ = MTPGlobal.maxFill := k
-          val _ = reset ();
-          val F = RelFun.convertFor cL
-          val O = transformOrder (I.Null, F, map select cL)
-          val Slist = MTPInit.init (F, O)
-          val _ = if List.length Slist =0 then raise Domain else ()
+          (* GEN BEGIN TAG OUTSIDE LET *) val cL = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn x => valOf (Names.constLookup (valOf (Names.stringToQid x))) (* GEN END FUNCTION EXPRESSION *)) names (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = MTPGlobal.maxFill := k (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = reset () (* GEN END TAG OUTSIDE LET *);
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = RelFun.convertFor cL (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val O = transformOrder (I.Null, F, map select cL) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Slist = MTPInit.init (F, O) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if List.length Slist =0 then raise Domain else () (* GEN END TAG OUTSIDE LET *)
         in
-          ((map (fn S => insert (MTPrint.nameState S)) Slist;
+          ((map ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => insert (MTPrint.nameState S) (* GEN END FUNCTION EXPRESSION *)) Slist;
             menu ();
             printMenu ())
            handle MTPSplitting.Error s => abort ("MTPSplitting. Error: " ^ s)
@@ -280,46 +280,46 @@ struct
 
     fun select k =
         let
-          fun select' (k, nil) = abort ("No such menu item")
-            | select' (1, Splitting O :: _) =
+          fun (* GEN BEGIN FUN FIRST *) select' (k, nil) = abort ("No such menu item") (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) select' (1, Splitting O :: _) =
                 let
-                  val S' = (Timers.time Timers.splitting MTPSplitting.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = map (fn S => insert (MTPrint.nameState S)) S'
+                  (* GEN BEGIN TAG OUTSIDE LET *) val S' = (Timers.time Timers.splitting MTPSplitting.apply) O (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = pushHistory () (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = delete () (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => insert (MTPrint.nameState S) (* GEN END FUNCTION EXPRESSION *)) S' (* GEN END TAG OUTSIDE LET *)
                 in
                   (menu (); printMenu ())
-                end
-            | select' (1, Recursion O :: _) =
+                end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) select' (1, Recursion O :: _) =
                 let
-                  val S' = (Timers.time Timers.recursion MTPRecursion.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = insert (MTPrint.nameState S')
+                  (* GEN BEGIN TAG OUTSIDE LET *) val S' = (Timers.time Timers.recursion MTPRecursion.apply) O (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = pushHistory () (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = delete () (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = insert (MTPrint.nameState S') (* GEN END TAG OUTSIDE LET *)
                 in
                   (menu (); printMenu ())
-                end
-            | select' (1, Inference O :: _) =
+                end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) select' (1, Inference O :: _) =
                 let
-                  val S' = (Timers.time Timers.recursion Inference.apply) O
-                  val _ = pushHistory ()
-                  val _ = delete ()
-                  val _ = insert (MTPrint.nameState S')
+                  (* GEN BEGIN TAG OUTSIDE LET *) val S' = (Timers.time Timers.recursion Inference.apply) O (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = pushHistory () (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = delete () (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = insert (MTPrint.nameState S') (* GEN END TAG OUTSIDE LET *)
                 in
                   (menu (); printMenu ())
-                end
-            | select' (1, Filling O :: _) =
+                end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) select' (1, Filling O :: _) =
                 let
-                  val P = (Timers.time Timers.filling MTPFilling.apply) O
-                    handle MTPFilling.Error _ =>  abort ("Filling unsuccessful: no object found")
-                  val _ = printFillResult P
-                  val _ = delete ()
-                  val _ = print "\n[Subgoal finished]\n"
-                  val _ = print "\n"
+                  (* GEN BEGIN TAG OUTSIDE LET *) val P = (Timers.time Timers.filling MTPFilling.apply) O
+                    handle MTPFilling.Error _ =>  abort ("Filling unsuccessful: no object found") (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = printFillResult P (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = delete () (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "\n[Subgoal finished]\n" (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "\n" (* GEN END TAG OUTSIDE LET *)
                 in
                   (menu (); printMenu ())
-                end
-            | select' (k, _ :: M) = select' (k-1, M)
+                end (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) select' (k, _ :: M) = select' (k-1, M) (* GEN END FUN BRANCH *)
         in
           (case !Menu of
             NONE => raise Error "No menu defined"
@@ -337,17 +337,17 @@ struct
         if empty () then raise Error "Nothing to prove"
         else
           let
-            val S = current ()
-            val (Open', Solved') = MTPStrategy.run [S]
+            (* GEN BEGIN TAG OUTSIDE LET *) val S = current () (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val (Open', Solved') = MTPStrategy.run [S]
               handle MTPSplitting.Error s => abort ("MTPSplitting. Error: " ^ s)
                    | MTPFilling.Error s => abort ("Filling Error: " ^ s)
                    | MTPRecursion.Error s => abort ("Recursion Error: " ^ s)
                    | Inference.Error s => abort ("Inference Errror: " ^ s)
-                   | Error s => abort ("Mpi Error: " ^ s)
-            val _ = pushHistory ()
-            val _ = delete ()
-            val _ = map insertOpen Open'
-            val _ = map insertSolved Solved'
+                   | Error s => abort ("Mpi Error: " ^ s) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = pushHistory () (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = delete () (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = map insertOpen Open' (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = map insertSolved Solved' (* GEN END TAG OUTSIDE LET *)
           in
             (menu (); printMenu ())
           end
@@ -357,7 +357,7 @@ struct
         if empty () then raise Error "Nothing to check"
         else
           let
-            val S = current ()
+            (* GEN BEGIN TAG OUTSIDE LET *) val S = current () (* GEN END TAG OUTSIDE LET *)
           in
             FunTypeCheck.isState S
           end
@@ -365,16 +365,16 @@ struct
 
     fun auto () =
         let
-          val (Open', Solved') = MTPStrategy.run (collectOpen ())
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Open', Solved') = MTPStrategy.run (collectOpen ())
             handle MTPSplitting.Error s => abort ("MTPSplitting. Error: " ^ s)
                  | MTPFilling.Error s => abort ("Filling Error: " ^ s)
                  | MTPRecursion.Error s => abort ("Recursion Error: " ^ s)
                  | Inference.Error s => abort ("Inference Errror: " ^ s)
-                 | Error s => abort ("Mpi Error: " ^ s)
-          val _ = pushHistory ()
-          val _ = initOpen ()
-          val _ = map insertOpen Open'
-          val _ = map insertSolved Solved'
+                 | Error s => abort ("Mpi Error: " ^ s) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = pushHistory () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = initOpen () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = map insertOpen Open' (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = map insertSolved Solved' (* GEN END TAG OUTSIDE LET *)
         in
           (menu (); printMenu ())
         end
@@ -385,14 +385,14 @@ struct
     fun undo () = (popHistory (); menu (); printMenu ())
 
   in
-    val init = init
-    val select = select
-    val print = printMenu
-    val next = next
-    val reset = reset
-    val solve = solve
-    val auto = auto
-    val check = check
-    val undo = undo
+    (* GEN BEGIN TAG OUTSIDE LET *) val init = init (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val select = select (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val print = printMenu (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val next = next (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val solve = solve (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val auto = auto (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val check = check (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val undo = undo (* GEN END TAG OUTSIDE LET *)
  end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor MPI *)

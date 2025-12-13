@@ -1,0 +1,15 @@
+
+id: tag_inside_let 
+message: Add generation to first
+severity: error # error, warning, info, hint
+language: sml
+rule: 
+  pattern: $BRANCH
+  any: 
+    - kind: val_dec
+    # - kind: fun_dec
+  matches: not_tagged
+fix: (* GEN BEGIN TAG OUTSIDE LET *) $BRANCH (* GEN END TAG OUTSIDE LET *)
+
+# utils: Extract repeated rule as local utility here.
+# note: Add detailed explanation for the rule.

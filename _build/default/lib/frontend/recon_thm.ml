@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ReconThm (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ReconThm (structure Global : GLOBAL
                   (* structure IntSyn : INTSYN *)
                   structure Abstract : ABSTRACT
                   (*! sharing Abstract.IntSyn = IntSyn !*)
@@ -359,4 +359,4 @@ struct
     val wdeclTowDecl = wdeclTowDecl
     val wdecl = wdecl
   end (* local *)
-end (* GEN END FUNCTOR DECL *) (* functor ReconThm *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor ReconThm *)

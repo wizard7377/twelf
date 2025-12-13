@@ -1,7 +1,7 @@
 (* Rationals *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Rationals (Integers : INTEGERS) : RATIONALS =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Rationals (Integers : INTEGERS) : RATIONALS =
 struct
 
   structure Integers = Integers
@@ -186,4 +186,4 @@ struct
     val numerator = numerator
     val denominator = denominator
   end
-end (* GEN END FUNCTOR DECL *);  (* structure Rationals *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* structure Rationals *)

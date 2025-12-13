@@ -1,7 +1,7 @@
 (* Initialization *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPInit (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPInit (structure MTPGlobal : MTPGLOBAL
                  structure MTPData : MTPDATA
                  (*! structure IntSyn : INTSYN !*)
                  structure Names : NAMES
@@ -71,4 +71,4 @@ struct
   in
     val init = init
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Init *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Init *)

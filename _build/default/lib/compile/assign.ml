@@ -1,7 +1,7 @@
 (* Assignment *)
 (* Author: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Assign ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Assign ((*! structure IntSyn' : INTSYN !*)
                 structure Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 structure Unify : UNIFY
@@ -228,6 +228,6 @@ struct
     end
 
   end
-end (* GEN END FUNCTOR DECL *); (* functor Assign *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Assign *)
 
 

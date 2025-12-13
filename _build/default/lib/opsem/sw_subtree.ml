@@ -1,4 +1,4 @@
-functor (* GEN BEGIN FUNCTOR DECL *) SwMemoTable ((* structure TableParam : TABLEPARAM *)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) SwMemoTable ((* structure TableParam : TABLEPARAM *)
                      structure MemoTable : MEMOTABLE
                      structure MemoTableInst : MEMOTABLE
                      (*! sharing MemoTableInst.IntSyn = MemoTable.IntSyn !*)
@@ -50,5 +50,5 @@ struct
       TableParam.Subsumption => MemoTableInst.memberCtx args
     | TableParam.Variant => MemoTable.memberCtx args
 
-end (* GEN END FUNCTOR DECL *);  (* functor SwMemoTable *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor SwMemoTable *)
 

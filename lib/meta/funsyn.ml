@@ -72,22 +72,22 @@ struct
 
   local
     structure I = IntSyn
-    val maxLabel = Global.maxCid
-    val maxLemma = Global.maxCid
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxLabel = Global.maxCid (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxLemma = Global.maxCid (* GEN END TAG OUTSIDE LET *)
 
-    val labelArray = Array.array (maxLabel+1,
+    (* GEN BEGIN TAG OUTSIDE LET *) val labelArray = Array.array (maxLabel+1,
                                   LabelDec("", nil, nil))
-                   : label_dec Array.array
-    val nextLabel = ref 0
+                   : label_dec Array.array (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val nextLabel = ref 0 (* GEN END TAG OUTSIDE LET *)
 
-    val lemmaArray = Array.array (maxLemma+1, LemmaDec (nil, Unit, True))
-                   : lemma_dec Array.array
-    val nextLemma = ref 0
+    (* GEN BEGIN TAG OUTSIDE LET *) val lemmaArray = Array.array (maxLemma+1, LemmaDec (nil, Unit, True))
+                   : lemma_dec Array.array (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val nextLemma = ref 0 (* GEN END TAG OUTSIDE LET *)
 
     fun labelLookup label = Array.sub (labelArray, label)
     fun labelAdd (labelDec) =
         let
-          val label = !nextLabel
+          (* GEN BEGIN TAG OUTSIDE LET *) val label = !nextLabel (* GEN END TAG OUTSIDE LET *)
         in
           if label > maxLabel
             then raise Error ("Global signature size " ^ Int.toString (maxLabel+1) ^ " exceeded")
@@ -102,7 +102,7 @@ struct
     fun lemmaLookup lemma = Array.sub (lemmaArray, lemma)
     fun lemmaAdd (lemmaDec) =
         let
-          val lemma = !nextLemma
+          (* GEN BEGIN TAG OUTSIDE LET *) val lemma = !nextLemma (* GEN END TAG OUTSIDE LET *)
         in
           if lemma > maxLemma
             then raise Error ("Global signature size " ^ Int.toString (maxLemma+1) ^ " exceeded")
@@ -115,18 +115,18 @@ struct
 (* hack!!! improve !!!! *)
     fun listToCtx (Gin) =
       let
-        fun listToCtx' (G, nil) = G
-          | listToCtx' (G, D :: Ds) =
-                listToCtx' (I.Decl (G, D), Ds)
+        fun (* GEN BEGIN FUN FIRST *) listToCtx' (G, nil) = G (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) listToCtx' (G, D :: Ds) =
+                listToCtx' (I.Decl (G, D), Ds) (* GEN END FUN BRANCH *)
       in
         listToCtx' (I.Null, Gin)
       end
 
     fun ctxToList (Gin) =
       let
-        fun ctxToList' (I.Null, G ) = G
-          | ctxToList' (I.Decl (G, D), G') =
-          ctxToList' (G, D :: G')
+        fun (* GEN BEGIN FUN FIRST *) ctxToList' (I.Null, G ) = G (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) ctxToList' (I.Decl (G, D), G') =
+          ctxToList' (G, D :: G') (* GEN END FUN BRANCH *)
       in
         ctxToList' (Gin, nil)
       end
@@ -137,22 +137,22 @@ struct
        Invariant:
        G'' = G, G'
     *)
-    fun union (G, I.Null) = G
-      | union (G, I.Decl (G', D)) = I.Decl (union(G, G'), D)
+    fun (* GEN BEGIN FUN FIRST *) union (G, I.Null) = G (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) union (G, I.Decl (G', D)) = I.Decl (union(G, G'), D) (* GEN END FUN BRANCH *)
 
     (* makectx Psi = G
 
        Invariant:
        G is Psi, where the Prim/Block information is discarded.
     *)
-    fun makectx (I.Null) = I.Null
-      | makectx (I.Decl (G, Prim D)) = I.Decl (makectx G, D)
-      | makectx (I.Decl (G, Block (CtxBlock (l, G')))) = union (makectx G, G')
+    fun (* GEN BEGIN FUN FIRST *) makectx (I.Null) = I.Null (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) makectx (I.Decl (G, Prim D)) = I.Decl (makectx G, D) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) makectx (I.Decl (G, Block (CtxBlock (l, G')))) = union (makectx G, G') (* GEN END FUN BRANCH *)
 
-    fun lfctxLength (I.Null) = 0
-      | lfctxLength (I.Decl (Psi, Prim _))= (lfctxLength Psi) + 1
-      | lfctxLength (I.Decl (Psi, Block (CtxBlock (_, G)))) =
-          (lfctxLength Psi) + (I.ctxLength G)
+    fun (* GEN BEGIN FUN FIRST *) lfctxLength (I.Null) = 0 (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) lfctxLength (I.Decl (Psi, Prim _))= (lfctxLength Psi) + 1 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) lfctxLength (I.Decl (Psi, Block (CtxBlock (_, G)))) =
+          (lfctxLength Psi) + (I.ctxLength G) (* GEN END FUN BRANCH *)
 
 
     (* lfctxDec (Psi, k) = (LD', w')
@@ -166,18 +166,18 @@ struct
    *)
     fun lfctxLFDec (Psi, k) =
       let
-        fun lfctxLFDec' (I.Decl (Psi', LD as Prim (I.Dec (x, V'))), 1) =
-              (LD, I.Shift k)
-          | lfctxLFDec' (I.Decl (Psi', Prim _), k') = lfctxLFDec' (Psi', k'-1)
-          | lfctxLFDec' (I.Decl (Psi', LD as Block (CtxBlock (_, G))), k') =
+        fun (* GEN BEGIN FUN FIRST *) lfctxLFDec' (I.Decl (Psi', LD as Prim (I.Dec (x, V'))), 1) =
+              (LD, I.Shift k) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) lfctxLFDec' (I.Decl (Psi', Prim _), k') = lfctxLFDec' (Psi', k'-1) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) lfctxLFDec' (I.Decl (Psi', LD as Block (CtxBlock (_, G))), k') =
             let
-              val l = I.ctxLength G
+              (* GEN BEGIN TAG OUTSIDE LET *) val l = I.ctxLength G (* GEN END TAG OUTSIDE LET *)
             in
               if k' <= l then
                 (LD, I.Shift (k - k' + 1))
               else
                 lfctxLFDec' (Psi', k' - l)
-            end
+            end (* GEN END FUN BRANCH *)
     
          (* lfctxDec' (Null, k')  should not occur by invariant *)
       in
@@ -192,8 +192,8 @@ struct
        where s' = 1.(1.  ...     s) o ^ ) o ^
                         |G|-times
     *)
-    fun dot1n (I.Null, s) = s
-      | dot1n (I.Decl (G, _) , s) = I.dot1 (dot1n (G, s))
+    fun (* GEN BEGIN FUN FIRST *) dot1n (I.Null, s) = s (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) dot1n (I.Decl (G, _) , s) = I.dot1 (dot1n (G, s)) (* GEN END FUN BRANCH *)
 
 
     (* conv ((F1, s1), (F2, s2)) = B
@@ -207,85 +207,85 @@ struct
        then B holds iff G |- F1[s1] = F2[s2] formula
     *)
 
-    fun convFor ((True, _), (True, _)) = true
-      | convFor ((All (Prim D1, F1), s1),
+    fun (* GEN BEGIN FUN FIRST *) convFor ((True, _), (True, _)) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) convFor ((All (Prim D1, F1), s1),
                  (All (Prim D2, F2), s2)) =
           Conv.convDec ((D1, s1), (D2, s2))
-          andalso convFor ((F1, I.dot1 s1), (F2, I.dot1 s2))
-      | convFor ((All (Block (CtxBlock ((* SOME l1 *) _, G1)), F1), s1),
+          andalso convFor ((F1, I.dot1 s1), (F2, I.dot1 s2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) convFor ((All (Block (CtxBlock ((* SOME l1 *) _, G1)), F1), s1),
                  (All (Block (CtxBlock ((* SOME l2 *) _, G2)), F2), s2)) =
-         (* l1 = l2 andalso *) convForBlock ((ctxToList G1, F1, s1), (ctxToList G1, F2, s2))
+         (* l1 = l2 andalso *) convForBlock ((ctxToList G1, F1, s1), (ctxToList G1, F2, s2)) (* GEN END FUN BRANCH *)
          (* omission! check that the block numbers are the same!!!! *)
-      | convFor ((Ex (D1, F1), s1),
+      | (* GEN BEGIN FUN BRANCH *) convFor ((Ex (D1, F1), s1),
                  (Ex (D2, F2), s2)) =
           Conv.convDec ((D1, s1), (D2, s2))
-          andalso convFor ((F1, I.dot1 s1), (F2, I.dot1 s2))
-      | convFor ((And (F1, F1'), s1), (And (F2, F2'), s2)) =
+          andalso convFor ((F1, I.dot1 s1), (F2, I.dot1 s2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) convFor ((And (F1, F1'), s1), (And (F2, F2'), s2)) =
           convFor ((F1, s1), (F2, s2))
-          andalso convFor ((F1', s1), (F2', s2))
-      | convFor _ = false
-    and convForBlock ((nil, F1, s1), (nil, F2, s2)) =
-          convFor ((F1, s1), (F2, s2))
-      | convForBlock ((D1 :: G1, F1, s1), (D2 :: G2, F2, s2)) =
+          andalso convFor ((F1', s1), (F2', s2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) convFor _ = false (* GEN END FUN BRANCH *)
+    and (* GEN BEGIN FUN FIRST *) convForBlock ((nil, F1, s1), (nil, F2, s2)) =
+          convFor ((F1, s1), (F2, s2)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) convForBlock ((D1 :: G1, F1, s1), (D2 :: G2, F2, s2)) =
           Conv.convDec ((D1, s1), (D2, s2))
-          andalso convForBlock ((G1, F1, I.dot1 s1), (G2, F2, I.dot1 s2))
-      | convForBlock _ = false
+          andalso convForBlock ((G1, F1, I.dot1 s1), (G2, F2, I.dot1 s2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) convForBlock _ = false (* GEN END FUN BRANCH *)
 
 
-    fun ctxSub (I.Null, s) = (I.Null, s)
-      | ctxSub (I.Decl (G, D), s) =
+    fun (* GEN BEGIN FUN FIRST *) ctxSub (I.Null, s) = (I.Null, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ctxSub (I.Decl (G, D), s) =
         let
-          val (G', s') = ctxSub (G, s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G', s') = ctxSub (G, s) (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G', I.decSub (D, s')), I.dot1 s)
-        end
+        end (* GEN END FUN BRANCH *)
 
-    fun forSub (All (Prim D, F), s) =
-          All (Prim (I.decSub (D, s)), forSub (F, I.dot1 s))
-      | forSub (All (Block (CtxBlock (name, G)), F), s) =
+    fun (* GEN BEGIN FUN FIRST *) forSub (All (Prim D, F), s) =
+          All (Prim (I.decSub (D, s)), forSub (F, I.dot1 s)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) forSub (All (Block (CtxBlock (name, G)), F), s) =
           let
-            val (G', s') = ctxSub (G, s)
+            (* GEN BEGIN TAG OUTSIDE LET *) val (G', s') = ctxSub (G, s) (* GEN END TAG OUTSIDE LET *)
           in
             All (Block (CtxBlock (name, G')), forSub (F, s'))
-          end
-      | forSub (Ex (D, F), s) =
-          Ex (I.decSub (D, s), forSub (F, I.dot1 s))
-      | forSub (True, s) = True
-      | forSub (And (F1, F2), s) =
-          And (forSub (F1, s), forSub (F2, s))
+          end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) forSub (Ex (D, F), s) =
+          Ex (I.decSub (D, s), forSub (F, I.dot1 s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) forSub (True, s) = True (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) forSub (And (F1, F2), s) =
+          And (forSub (F1, s), forSub (F2, s)) (* GEN END FUN BRANCH *)
 
     fun mdecSub (MDec (name, F), s) = MDec (name, forSub (F, s))
 
 
-    fun normalizeFor (All (Prim D, F), s) =
-          All (Prim (Whnf.normalizeDec (D, s)), normalizeFor (F, I.dot1 s))
-      | normalizeFor (Ex (D, F), s) =
-          Ex (Whnf.normalizeDec (D, s), normalizeFor (F, I.dot1 s))
-      | normalizeFor (And (F1, F2), s) =
-          And (normalizeFor (F1, s), normalizeFor (F2, s))
-      | normalizeFor (True, _) = True
+    fun (* GEN BEGIN FUN FIRST *) normalizeFor (All (Prim D, F), s) =
+          All (Prim (Whnf.normalizeDec (D, s)), normalizeFor (F, I.dot1 s)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeFor (Ex (D, F), s) =
+          Ex (Whnf.normalizeDec (D, s), normalizeFor (F, I.dot1 s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeFor (And (F1, F2), s) =
+          And (normalizeFor (F1, s), normalizeFor (F2, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeFor (True, _) = True (* GEN END FUN BRANCH *)
 
 
 
   in
-    val labelLookup = labelLookup
-    val labelAdd = labelAdd
-    val labelSize = labelSize
-    val labelReset = labelReset
-    val lemmaLookup = lemmaLookup
-    val lemmaAdd = lemmaAdd
-    val lemmaSize = lemmaSize
-    val mdecSub = mdecSub
-    val makectx = makectx
-    val lfctxLength = lfctxLength
-    val lfctxLFDec = lfctxLFDec
-    val dot1n = dot1n
-    val convFor = convFor
-    val forSub = forSub
-    val normalizeFor = normalizeFor
+    (* GEN BEGIN TAG OUTSIDE LET *) val labelLookup = labelLookup (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val labelAdd = labelAdd (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val labelSize = labelSize (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val labelReset = labelReset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lemmaLookup = lemmaLookup (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lemmaAdd = lemmaAdd (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lemmaSize = lemmaSize (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val mdecSub = mdecSub (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val makectx = makectx (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lfctxLength = lfctxLength (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lfctxLFDec = lfctxLFDec (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val dot1n = dot1n (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val convFor = convFor (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val forSub = forSub (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val normalizeFor = normalizeFor (* GEN END TAG OUTSIDE LET *)
 
-    val ctxToList = ctxToList
-    val listToCtx = listToCtx
+    (* GEN BEGIN TAG OUTSIDE LET *) val ctxToList = ctxToList (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val listToCtx = listToCtx (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *);  (* functor FunSyn *)
 

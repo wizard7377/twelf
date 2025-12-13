@@ -1,7 +1,7 @@
 (* Meta syntax *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MetaSyn ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MetaSyn ((*! structure IntSyn' : INTSYN !*)
                  structure Whnf : WHNF
                  (*! sharing Whnf.IntSyn = IntSyn' !*)
                    )
@@ -93,7 +93,7 @@ struct
     val createAtomBVar = createAtomBVar
   end
 
-end (* GEN END FUNCTOR DECL *) (* functor MetaSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor MetaSyn *)
 
 
 

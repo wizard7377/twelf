@@ -33,9 +33,9 @@ struct
     fun expand (S.Focus (T.EVar (Psi, r, F, _, TCs, _), W), O) =
         let
     (*        val D = T.PDec (SOME "IH" , F, SOME O, SOME O) *)
-          val I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE)
-          val D = T.PDec (x, F, NONE, NONE)
-          val X = T.newEVar (I.Decl (Psi, D), T.forSub (F, T.Shift 1))
+          (* GEN BEGIN TAG OUTSIDE LET *) val I.NDec x = Names.decName (T.coerceCtx Psi, I.NDec NONE) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D = T.PDec (x, F, NONE, NONE) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val X = T.newEVar (I.Decl (Psi, D), T.forSub (F, T.Shift 1)) (* GEN END TAG OUTSIDE LET *)
         in
           (r, T.Rec (D, X))
         end
@@ -59,8 +59,8 @@ struct
     exception Error = Error
     type operator = operator
 
-    val expand = expand
-    val apply = apply
-    val menu =menu
+    (* GEN BEGIN TAG OUTSIDE LET *) val expand = expand (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val apply = apply (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val menu =menu (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *)

@@ -26,15 +26,15 @@ fun invoke lexstream =
 
 (* Parse a named input file *)
 fun fparse fname =
-   let val _ = Interface.init_line ()
-       val infile = TextIO.openIn(fname)
-       val lexer = Parserr.makeLexer
-           (fn _ => Compat.inputLine97 infile)
-       val empty = !Interface.line
-       val dummyEOF = Tokens.EOF(empty, empty)
+   let (* GEN BEGIN TAG OUTSIDE LET *) val _ = Interface.init_line () (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val infile = TextIO.openIn(fname) (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val lexer = Parserr.makeLexer
+           ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => Compat.inputLine97 infile (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val empty = !Interface.line (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val dummyEOF = Tokens.EOF(empty, empty) (* GEN END TAG OUTSIDE LET *)
        fun loop lexer =
-           let val (result, lexer) = invoke lexer
-               val (nextToken, lexer) = Parserr.Streamm.get lexer
+           let (* GEN BEGIN TAG OUTSIDE LET *) val (result, lexer) = invoke lexer (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val (nextToken, lexer) = Parserr.Streamm.get lexer (* GEN END TAG OUTSIDE LET *)
            in
               if Parserr.sameToken(nextToken, dummyEOF)
                  then ()
@@ -51,15 +51,15 @@ fun fparse fname =
 
 fun sparse () =
   let
-    val _ = Interface.init_line ()
-    val infile = TextIO.openString (TextIO.input TextIO.stdIn)
-    val lexer = Parserr.makeLexer
-           (fn _ => Compat.inputLine97 infile)
-    val empty = !Interface.line
-    val dummyEOF = Tokens.EOF(empty, empty)
+    (* GEN BEGIN TAG OUTSIDE LET *) val _ = Interface.init_line () (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val infile = TextIO.openString (TextIO.input TextIO.stdIn) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lexer = Parserr.makeLexer
+           ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => Compat.inputLine97 infile (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val empty = !Interface.line (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val dummyEOF = Tokens.EOF(empty, empty) (* GEN END TAG OUTSIDE LET *)
     fun loop lexer =
-      let val (result, lexer) = invoke lexer
-          val (nextToken, lexer) = Parserr.Streamm.get lexer
+      let (* GEN BEGIN TAG OUTSIDE LET *) val (result, lexer) = invoke lexer (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (nextToken, lexer) = Parserr.Streamm.get lexer (* GEN END TAG OUTSIDE LET *)
        in
               if Parserr.sameToken(nextToken, dummyEOF)
                  then (* () *)
@@ -73,15 +73,15 @@ fun sparse () =
 
 
 fun  gparse fname =
-   let val _ = Interface.init_line ()
-       val infile = TextIO.openIn(fname)
-       val lexer = Parserr.makeLexer
-           (fn _ => Compat.inputLine97 infile)
-       val empty = !Interface.line
-       val dummyEOF = Tokens.EOF(empty, empty)
+   let (* GEN BEGIN TAG OUTSIDE LET *) val _ = Interface.init_line () (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val infile = TextIO.openIn(fname) (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val lexer = Parserr.makeLexer
+           ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => Compat.inputLine97 infile (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val empty = !Interface.line (* GEN END TAG OUTSIDE LET *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val dummyEOF = Tokens.EOF(empty, empty) (* GEN END TAG OUTSIDE LET *)
        fun loop lexer =
-           let val (result, lexer) = invoke lexer
-               val (nextToken, lexer) = Parserr.Streamm.get lexer
+           let (* GEN BEGIN TAG OUTSIDE LET *) val (result, lexer) = invoke lexer (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val (nextToken, lexer) = Parserr.Streamm.get lexer (* GEN END TAG OUTSIDE LET *)
            in
               if Parserr.sameToken(nextToken, dummyEOF)
                  then (* () *)

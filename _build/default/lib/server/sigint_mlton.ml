@@ -1,21 +1,21 @@
 structure SigINT :> SIGINT =
 struct
 
-  (* GEN BEGIN TAG INSIDE LET *) fun interruptLoop (loop:unit -> unit) =
+  fun interruptLoop (loop:unit -> unit) =
      let
   	(* open MLton *)
-  	val _ =
+  	(* GEN BEGIN TAG OUTSIDE LET *) val _ =
   	   MLton.Cont.callcc
-  	   (fn k =>
+  	   ((* GEN BEGIN FUNCTION EXPRESSION *) fn k =>
   	    MLton.Signal.setHandler
   	    (Posix.Signal.int,
   	     MLton.Signal.Handler.handler
   		 (fn _ =>
   		     MLton.Thread.prepare
   		     (MLton.Thread.new (fn () => MLton.Cont.throw (k, ())),
-  		      ()))))
+  		      ()))) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
      in
   	loop ()
-     end (* GEN END TAG INSIDE LET *)
+     end
 
 end;

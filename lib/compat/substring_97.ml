@@ -3,5 +3,5 @@
 
 structure CompatSubstring97 :> COMPAT_SUBSTRING =
 struct
-  (* GEN BEGIN TAG INSIDE LET *) val full = Substring.all (* GEN END TAG INSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val full = Substring.all (* GEN END TAG OUTSIDE LET *)
 end;

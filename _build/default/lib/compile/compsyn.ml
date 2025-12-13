@@ -4,7 +4,7 @@
 (* Modified: Frank Pfenning *)
 (* Modified: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CompSyn (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CompSyn (structure Global : GLOBAL
                  (*! structure IntSyn' : INTSYN !*)
                  structure Names : NAMES
                  (*! sharing Names.IntSyn = IntSyn' !*)
@@ -193,7 +193,7 @@ struct
         ("(cs _ ) " ^ (pskeletonToString O))
 
 
-end (* GEN END FUNCTOR DECL *);  (* functor CompSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor CompSyn *)
 
 structure CompSyn =
   CompSyn (structure Global = Global

@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ParseThm
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ParseThm
   ((*! structure Paths : PATHS *)
    (*! structure Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
@@ -469,7 +469,7 @@ struct
     val parseWorlds' = parseWorlds'
   end  (* local ... in *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor Parser *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Parser *)
 
 
 

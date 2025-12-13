@@ -1,0 +1,9 @@
+id: signature_decl
+message: Add generation to first
+severity: error # error, warning, info, hint
+language: sml
+rule:
+  pattern: $BRANCH
+  kind: signature_sigdec 
+  matches: not_tagged
+fix: (* GEN BEGIN SIGNATURE DECLARATION *) $BRANCH (* GEN END SIGNATURE DECLARATION *)

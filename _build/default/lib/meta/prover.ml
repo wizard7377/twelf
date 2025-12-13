@@ -1,7 +1,7 @@
 (* Meta Theorem Prover Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTProver (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTProver (structure MTPGlobal : MTPGLOBAL
                   (*! structure IntSyn' : INTSYN !*)
                   (*! structure FunSyn : FUNSYN !*)
                   (*! sharing FunSyn.IntSyn = IntSyn' !*)
@@ -167,11 +167,11 @@ struct
     val print = print
     val install = install
   end (* local *)
-end (* GEN END FUNCTOR DECL *) (* functor MTProver *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor MTProver *)
 
 
 
-functor (* GEN BEGIN FUNCTOR DECL *) CombiProver (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CombiProver (structure MTPGlobal : MTPGLOBAL
                      (*! structure IntSyn' : INTSYN !*)
                      structure ProverOld : PROVER
                      (*! sharing ProverOld.IntSyn = IntSyn' !*)
@@ -213,4 +213,4 @@ struct
     val print = print
     val install = install
   end (* local *)
-end (* GEN END FUNCTOR DECL *) (* functor CombiProver *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor CombiProver *)

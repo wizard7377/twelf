@@ -7,7 +7,7 @@ struct
 
   type 'a array = {default : 'a, table : 'a IntTable.table}
 
-  val size = 29;
+  (* GEN BEGIN TAG OUTSIDE LET *) val size = 29 (* GEN END TAG OUTSIDE LET *);
 
   fun unsafeSub ({table, default}, i) =
         case (IntTable.lookup table i)
@@ -32,13 +32,13 @@ struct
 
   fun extract (array, i, len) =
         if (i >= 0) andalso (len >= 0)
-        then Vector.tabulate (len, (fn off => unsafeSub (array, i+off)))
+        then Vector.tabulate (len, ((* GEN BEGIN FUNCTION EXPRESSION *) fn off => unsafeSub (array, i+off) (* GEN END FUNCTION EXPRESSION *)))
         else raise General.Subscript
 
   fun copyVec {src, si, len, dst, di} =
         if (di >= 0)
         then
-          VectorSlice.appi (fn (i, v) => unsafeUpdate (dst, i, v))
+          VectorSlice.appi ((* GEN BEGIN FUNCTION EXPRESSION *) fn (i, v) => unsafeUpdate (dst, i, v) (* GEN END FUNCTION EXPRESSION *))
                            (VectorSlice.slice (src, si, len))
         else raise General.Subscript
 
@@ -46,7 +46,7 @@ struct
         if (i >= 0) andalso (len >= 0)
         then
           let
-            val imax = i+len
+            (* GEN BEGIN TAG OUTSIDE LET *) val imax = i+len (* GEN END TAG OUTSIDE LET *)
             fun app' i' =
                   if (i' < imax)
                   then
@@ -77,7 +77,7 @@ struct
         if (i >= 0) andalso (len >= 0)
         then
           let
-            val imax = i+len
+            (* GEN BEGIN TAG OUTSIDE LET *) val imax = i+len (* GEN END TAG OUTSIDE LET *)
             fun foldr' i' =
                   if (i' < imax)
                   then f(i', unsafeSub (array, i'), foldr' (i'+1))
@@ -91,7 +91,7 @@ struct
         if (i >= 0) andalso (len >= 0)
         then
           let
-            val imax = i+len
+            (* GEN BEGIN TAG OUTSIDE LET *) val imax = i+len (* GEN END TAG OUTSIDE LET *)
             fun modify' i' =
                   if (i' < imax)
                   then

@@ -3,20 +3,20 @@
 
 structure StringHash :> STRING_HASH =
 struct
-  (* GEN BEGIN TAG INSIDE LET *) fun stringHash (s) =
+  fun stringHash (s) =
       (* sample 4 characters from string *)
       let
   	fun num (i) = Char.ord (String.sub (s,i)) mod 128
-  	val n = String.size (s)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val n = String.size (s) (* GEN END TAG OUTSIDE LET *)
       in
   	if n = 0 then 0
   	else let
-  	       val a = n-1
-  	       val b = n div 2
-  	       val c = b div 2
-  	       val d = b + c
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val a = n-1 (* GEN END TAG OUTSIDE LET *)
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val b = n div 2 (* GEN END TAG OUTSIDE LET *)
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val c = b div 2 (* GEN END TAG OUTSIDE LET *)
+  	       (* GEN BEGIN TAG OUTSIDE LET *) val d = b + c (* GEN END TAG OUTSIDE LET *)
   	     in
   	       num(a)+128*(num(b)+128*(num(c)+128*num(d)))
   	     end
-      end (* GEN END TAG INSIDE LET *)
+      end
 end;  (* structure StringHash *)

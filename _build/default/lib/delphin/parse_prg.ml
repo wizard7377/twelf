@@ -1,7 +1,7 @@
 (* The Parser *)
 (* Author: Richard Fontana *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Parse  (structure DextSyn  : DEXTSYN
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Parse  (structure DextSyn  : DEXTSYN
                 structure Interface : INTERFACE
                 structure Parserr : PARSERR
                      sharing type Parserr.arg = Interface.arg
@@ -95,6 +95,6 @@ fun  gparse fname =
            end
    in loop lexer
    end
-end (* GEN END FUNCTOR DECL *)  (* functor Parse *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor Parse *)
 
 

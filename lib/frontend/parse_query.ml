@@ -24,9 +24,9 @@ struct
 
     (* parseQuery1 (name, f, f')   ": A" from f' or "V" from f. *)
 
-    fun parseQuery1 (name, f, LS.Cons ((L.COLON, r), s')) =
-          returnQuery (SOME(name), ParseTerm.parseTerm' (LS.expose s'))
-      | parseQuery1 (name, f, _) = returnQuery (NONE, ParseTerm.parseTerm' f)
+    fun (* GEN BEGIN FUN FIRST *) parseQuery1 (name, f, LS.Cons ((L.COLON, r), s')) =
+          returnQuery (SOME(name), ParseTerm.parseTerm' (LS.expose s')) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseQuery1 (name, f, _) = returnQuery (NONE, ParseTerm.parseTerm' f) (* GEN END FUN BRANCH *)
 
     (* parseQuery' : lexResult front -> ExtQuery.query * lexResult front *)
     (* parseQuery'  "X : A" | "A" *)
@@ -36,10 +36,10 @@ struct
        If we find this, we parse a query of the form "X : A".
        Otherwise we parse a query of the form "A".
     *)
-    fun parseQuery' (f as LS.Cons ((L.ID (L.Upper, name), r), s')) =
-          parseQuery1 (name, f, LS.expose s')
-      | parseQuery' (f) =
-          returnQuery (NONE, ParseTerm.parseTerm' f)
+    fun (* GEN BEGIN FUN FIRST *) parseQuery' (f as LS.Cons ((L.ID (L.Upper, name), r), s')) =
+          parseQuery1 (name, f, LS.expose s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseQuery' (f) =
+          returnQuery (NONE, ParseTerm.parseTerm' f) (* GEN END FUN BRANCH *)
 
     (* parseQuery --- currently not exported *)
     fun parseQuery (s) = parseQuery' (LS.expose s)
@@ -48,68 +48,68 @@ struct
     (* "U" *)
     fun parseDefine4 (optName, optT, s) =
         let
-          val (tm', f') = ParseTerm.parseTerm' (LS.expose s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (tm', f') = ParseTerm.parseTerm' (LS.expose s) (* GEN END TAG OUTSIDE LET *)
         in
           (ExtQuery.define (optName, tm', optT), f')
         end
 
     (* parseDefine3 parses the equal sign in a long form define *)
     (* "= U" *)
-    fun parseDefine3 (optName, (tm, LS.Cons ((L.EQUAL, r), s'))) =
-          parseDefine4 (optName, SOME(tm), s')
-      | parseDefine3 (_, (tm, LS.Cons ((t, r), _))) =
-          Parsing.error (r, "Expected `=', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseDefine3 (optName, (tm, LS.Cons ((L.EQUAL, r), s'))) =
+          parseDefine4 (optName, SOME(tm), s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseDefine3 (_, (tm, LS.Cons ((t, r), _))) =
+          Parsing.error (r, "Expected `=', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     (* parseDefine2 switches between short and long form *)
     (* ": V = U" | "= U" *)
-    fun parseDefine2 (optName, LS.Cons ((L.COLON, r), s')) =
-          parseDefine3 (optName, ParseTerm.parseTerm' (LS.expose s'))
-      | parseDefine2 (optName, LS.Cons ((L.EQUAL, r), s')) =
-          parseDefine4 (optName, NONE, s')
-      | parseDefine2 (_, LS.Cons ((t, r), _)) =
-          Parsing.error (r, "Expected `:' or `=', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseDefine2 (optName, LS.Cons ((L.COLON, r), s')) =
+          parseDefine3 (optName, ParseTerm.parseTerm' (LS.expose s')) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseDefine2 (optName, LS.Cons ((L.EQUAL, r), s')) =
+          parseDefine4 (optName, NONE, s') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseDefine2 (_, LS.Cons ((t, r), _)) =
+          Parsing.error (r, "Expected `:' or `=', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     (* parseDefine1 parses the name of the constant to be defined *)
     (* "c : V = U" | "_ : V = U" | "c = U" | "_ = U" *)
-    fun parseDefine1 (LS.Cons ((L.ID (idCase,name), r), s')) =
-          parseDefine2 (SOME(name), LS.expose s')
-      | parseDefine1 (LS.Cons ((L.UNDERSCORE, r), s')) =
-          parseDefine2 (NONE, LS.expose s')
-      | parseDefine1 (LS.Cons ((t, r), _)) =
-          Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseDefine1 (LS.Cons ((L.ID (idCase,name), r), s')) =
+          parseDefine2 (SOME(name), LS.expose s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseDefine1 (LS.Cons ((L.UNDERSCORE, r), s')) =
+          parseDefine2 (NONE, LS.expose s') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseDefine1 (LS.Cons ((t, r), _)) =
+          Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    fun parseSolve3 (defns, nameOpt, LS.Cons ((L.COLON, r), s'), r0) =
+    fun (* GEN BEGIN FUN FIRST *) parseSolve3 (defns, nameOpt, LS.Cons ((L.COLON, r), s'), r0) =
         let
-          val (tm, f' as LS.Cons ((_, r), _)) = ParseTerm.parseTerm' (LS.expose s')
+          (* GEN BEGIN TAG OUTSIDE LET *) val (tm, f' as LS.Cons ((_, r), _)) = ParseTerm.parseTerm' (LS.expose s') (* GEN END TAG OUTSIDE LET *)
         in
           ((List.rev defns, ExtQuery.solve (nameOpt, tm, P.join (r0, r))), f')
-        end
-      | parseSolve3 (_, _, LS.Cons ((t,r), s'), r0) =
-          Parsing.error (r, "Expected `:', found " ^ L.toString t)
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseSolve3 (_, _, LS.Cons ((t,r), s'), r0) =
+          Parsing.error (r, "Expected `:', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    fun parseSolve2 (defns, LS.Cons ((L.UNDERSCORE, r), s'), r0) =
-          parseSolve3 (defns, NONE, LS.expose s', r0)
-      | parseSolve2 (defns, LS.Cons ((L.ID (_, name), r), s'), r0) =
-          parseSolve3 (defns, SOME name, LS.expose s', r0)
-      | parseSolve2 (_, LS.Cons ((t,r), s'), r0) =
-          Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseSolve2 (defns, LS.Cons ((L.UNDERSCORE, r), s'), r0) =
+          parseSolve3 (defns, NONE, LS.expose s', r0) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseSolve2 (defns, LS.Cons ((L.ID (_, name), r), s'), r0) =
+          parseSolve3 (defns, SOME name, LS.expose s', r0) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseSolve2 (_, LS.Cons ((t,r), s'), r0) =
+          Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    and parseSolve1 (defns, LS.Cons ((L.SOLVE, r0), s')) =
-          parseSolve2 (defns, LS.expose s', r0)
-      | parseSolve1 (defns, LS.Cons ((L.DEFINE, r0), s')) =
+    and (* GEN BEGIN FUN FIRST *) parseSolve1 (defns, LS.Cons ((L.SOLVE, r0), s')) =
+          parseSolve2 (defns, LS.expose s', r0) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseSolve1 (defns, LS.Cons ((L.DEFINE, r0), s')) =
         let
-          val (defn, f') = parseDefine1 (LS.expose s')
+          (* GEN BEGIN TAG OUTSIDE LET *) val (defn, f') = parseDefine1 (LS.expose s') (* GEN END TAG OUTSIDE LET *)
         in
           parseSolve1 (defn::defns, f')
-        end
-      | parseSolve1 (defns, LS.Cons((t, r), s)) =
-          Parsing.error(r, "Expected %define or %solve, found " ^ L.toString t)
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseSolve1 (defns, LS.Cons((t, r), s)) =
+          Parsing.error(r, "Expected %define or %solve, found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     and parseSolve' (f) = parseSolve1 (nil, f)
 
   in
-    val parseQuery' = parseQuery'
-    val parseSolve' = parseSolve'
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseQuery' = parseQuery' (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseSolve' = parseSolve' (* GEN END TAG OUTSIDE LET *)
   end  (* local ... in *)
 
 end (* GEN END FUNCTOR DECL *);  (* functor ParseQuery *)

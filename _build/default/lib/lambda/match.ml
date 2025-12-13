@@ -3,7 +3,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Match ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Match ((*! structure IntSyn' : INTSYN !*)
                structure Whnf    : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
                structure Unify : UNIFY
@@ -582,4 +582,4 @@ struct
           (match (G, Us1, Us2); NONE)
           handle Match(msg) => SOME(msg)
   end
-end (* GEN END FUNCTOR DECL *);  (* functor Match *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Match *)

@@ -49,8 +49,8 @@ struct
       fun mapp (((m, r1), name), (mS, r2)) = (M.Mapp (M.Marg (m, name), mS), P.join (r1, r2))
       fun mroot (ids, id, r1, (mS, r2)) =
           let
-            val r = P.join (r1, r2)
-            val qid = Names.Qid (ids, id)
+            (* GEN BEGIN TAG OUTSIDE LET *) val r = P.join (r1, r2) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val qid = Names.Qid (ids, id) (* GEN END TAG OUTSIDE LET *)
           in
             case Names.constLookup qid
               of NONE => error (r, "Undeclared identifier "
@@ -72,46 +72,46 @@ struct
 
       fun mroot (tm, r) (g, D) =
           let
-            val T.JWithCtx (G, T.JOf ((V, _), _, _)) =
-                  T.recon (T.jwithctx (g, T.jof (tm, T.typ (r))))
-            val _ = T.checkErrors (r)
+            (* GEN BEGIN TAG OUTSIDE LET *) val T.JWithCtx (G, T.JOf ((V, _), _, _)) =
+                  T.recon (T.jwithctx (g, T.jof (tm, T.typ (r)))) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = T.checkErrors (r) (* GEN END TAG OUTSIDE LET *)
       
             (* convert term spine to mode spine *)
             (* Each argument must be contractible to variable *)
-            fun convertSpine (I.Nil) = M.Mnil
-              | convertSpine (I.App (U, S)) =
+            fun (* GEN BEGIN FUN FIRST *) convertSpine (I.Nil) = M.Mnil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) convertSpine (I.App (U, S)) =
                 let
-                  val k = Whnf.etaContract U
+                  (* GEN BEGIN TAG OUTSIDE LET *) val k = Whnf.etaContract U
                           handle Whnf.Eta =>
                             error (r, "Argument " ^
                                       (Print.expToString(G, U)) ^
-                                      " not a variable")
+                                      " not a variable") (* GEN END TAG OUTSIDE LET *)
                                       (* print U? -fp *) (* yes, print U. -gaw *)
-                  val I.Dec (name, _) = I.ctxLookup (G, k)
-                  val mode = I.ctxLookup (D, k)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (name, _) = I.ctxLookup (G, k) (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val mode = I.ctxLookup (D, k) (* GEN END TAG OUTSIDE LET *)
                 in
                   M.Mapp (M.Marg (mode, name), convertSpine S)
-                end
+                end (* GEN END FUN BRANCH *)
       
             (* convert root expression to head constant and mode spine *)
-            fun convertExp (I.Root (I.Const (a), S)) =
-                  (a, convertSpine S)
-              | convertExp (I.Root (I.Def (d), S))  =
+            fun (* GEN BEGIN FUN FIRST *) convertExp (I.Root (I.Const (a), S)) =
+                  (a, convertSpine S) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) convertExp (I.Root (I.Def (d), S))  =
                   (* error is signalled later in ModeDec.checkFull *)
-                  (d, convertSpine S)
-              | convertExp _ =
-                  error (r, "Call pattern not an atomic type")
+                  (d, convertSpine S) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) convertExp _ =
+                  error (r, "Call pattern not an atomic type") (* GEN END FUN BRANCH *)
               (* convertExp (I.Root (I.Skonst _, S)) can't occur *)
       
-            val (a, mS) = convertExp (Whnf.normalize (V, I.id))
+            (* GEN BEGIN TAG OUTSIDE LET *) val (a, mS) = convertExp (Whnf.normalize (V, I.id)) (* GEN END TAG OUTSIDE LET *)
           in
             (ModeDec.checkFull (a, mS, r);  ((a, mS), r))
           end
 
       fun toModedec t =
           let
-            val _ = Names.varReset I.Null
-            val t' = t (I.Null, I.Null)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset I.Null (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val t' = t (I.Null, I.Null) (* GEN END TAG OUTSIDE LET *)
           in
             t'
           end
@@ -122,16 +122,16 @@ struct
 
   in
     type mode = mode
-    val plus = plus
-    val star = star
-    val minus = minus
-    val minus1 = minus1
+    (* GEN BEGIN TAG OUTSIDE LET *) val plus = plus (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val star = star (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val minus = minus (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val minus1 = minus1 (* GEN END TAG OUTSIDE LET *)
 
     type modedec = modedec
 
     structure Short = Short
     structure Full = Full
 
-    val modeToMode = modeToMode
+    (* GEN BEGIN TAG OUTSIDE LET *) val modeToMode = modeToMode (* GEN END TAG OUTSIDE LET *)
   end   (* local ... *)
 end (* GEN END FUNCTOR DECL *);  (* functor ReconMode *)

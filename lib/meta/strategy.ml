@@ -68,24 +68,24 @@ struct
        then Sopt = NONE if L = []
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
-    fun findMin nil = NONE
-      | findMin L =
+    fun (* GEN BEGIN FUN FIRST *) findMin nil = NONE (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) findMin L =
           let
-            fun findMin' (nil, result) = result
-              | findMin' (O' :: L', NONE) =
+            fun (* GEN BEGIN FUN FIRST *) findMin' (nil, result) = result (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) findMin' (O' :: L', NONE) =
                 if MTPSplitting.applicable O' then
                    findMin' (L', SOME O')
-                else findMin' (L', NONE)
-              | findMin' (O' :: L', SOME O) =
+                else findMin' (L', NONE) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) findMin' (O' :: L', SOME O) =
                 if MTPSplitting.applicable O' then
                   case MTPSplitting.compare (O', O)
                     of LESS =>  findMin' (L', SOME O')
                      | _ => findMin' (L', SOME O)
-                else findMin' (L', SOME O)
+                else findMin' (L', SOME O) (* GEN END FUN BRANCH *)
       
           in
             findMin' (L, NONE)
-          end
+          end (* GEN END FUN BRANCH *)
 
     (* split   (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
        recurse (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
@@ -104,29 +104,29 @@ struct
           NONE => fill (givenStates, (S :: openStates, solvedStates))
         | SOME splitOp =>
             let
-              val _ = printSplitting splitOp
-              val SL = (Timers.time Timers.splitting MTPSplitting.apply) splitOp
-              val _ = printCloseBracket ()
-              val _ = printRecursion ()
-              val SL' = map (fn S => (Timers.time Timers.recursion MTPRecursion.apply) (MTPRecursion.expand S)) SL
-              val _ = printInference ()
-              val SL'' = map (fn S => (Timers.time Timers.inference Inference.apply) (Inference.expand S)) SL'
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = printSplitting splitOp (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val SL = (Timers.time Timers.splitting MTPSplitting.apply) splitOp (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = printRecursion () (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val SL' = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => (Timers.time Timers.recursion MTPRecursion.apply) (MTPRecursion.expand S) (* GEN END FUNCTION EXPRESSION *)) SL (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = printInference () (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val SL'' = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => (Timers.time Timers.inference Inference.apply) (Inference.expand S) (* GEN END FUNCTION EXPRESSION *)) SL' (* GEN END TAG OUTSIDE LET *)
             in
               fill (SL'' @ givenStates, os)
             end
 
-    and fill (nil, os) = os
-      | fill (S :: givenStates, os as (openStates, solvedStates)) =
+    and (* GEN BEGIN FUN FIRST *) fill (nil, os) = os (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fill (S :: givenStates, os as (openStates, solvedStates)) =
         (case (Timers.time Timers.recursion MTPFilling.expand) S
           of fillingOp =>
              (let
-               val _ = printFilling ()
-               val (max, P) = TimeLimit.timeLimit (!Global.timeLimit)
-                                     (Timers.time Timers.filling MTPFilling.apply) fillingOp
-               val _ = printCloseBracket ()
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printFilling () (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val (max, P) = TimeLimit.timeLimit (!Global.timeLimit)
+                                     (Timers.time Timers.filling MTPFilling.apply) fillingOp (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
               in
                 fill (givenStates, os)
-              end)  handle MTPFilling.Error _ => split (S :: givenStates, os))
+              end)  handle MTPFilling.Error _ => split (S :: givenStates, os)) (* GEN END FUN BRANCH *)
 
            (* Note: calling splitting in case filling fails, may cause the prover to succeed
               if there are no cases to split -- however this may in fact be wrong -bp*)
@@ -148,21 +148,21 @@ struct
      *)
     fun run givenStates =
         (let
-          val _ = printInit ()
-          val (openStates, solvedStates) = fill (givenStates, (nil, nil))
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = printInit () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (openStates, solvedStates) = fill (givenStates, (nil, nil)) (* GEN END TAG OUTSIDE LET *)
     
-          val openStates' = map MTPrint.nameState openStates
-          val solvedStates' = map MTPrint.nameState solvedStates
-          val _ = case openStates
+          (* GEN BEGIN TAG OUTSIDE LET *) val openStates' = map MTPrint.nameState openStates (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val solvedStates' = map MTPrint.nameState solvedStates (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = case openStates
                     of nil => printQed ()
-                     | _ => ()
+                     | _ => () (* GEN END TAG OUTSIDE LET *)
         in
           (openStates', solvedStates')
         end)
 
 
   in
-    val run = run
+    (* GEN BEGIN TAG OUTSIDE LET *) val run = run (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *);  (* functor StrategyFRS *)
 

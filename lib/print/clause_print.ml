@@ -26,85 +26,85 @@ local
   (* some shorthands *)
   structure I = IntSyn
   structure F = Formatter
-  val Str = F.String
+  (* GEN BEGIN TAG OUTSIDE LET *) val Str = F.String (* GEN END TAG OUTSIDE LET *)
   fun Str0 (s, n) = F.String0 n s
   fun sym (s) = Str0 (Symbol.sym s)
 
   fun parens (fmt) = F.Hbox [sym "(", fmt, sym ")"]
 
   (* assumes NF *)
-  fun fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
+  fun (* GEN BEGIN FUN FIRST *) fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
       let
-        val D' = Names.decEName (G, D)
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decEName (G, D) (* GEN END TAG OUTSIDE LET *)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
-      end
-    | fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
-        val D' = Names.decEName (G, D)
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decEName (G, D) (* GEN END TAG OUTSIDE LET *)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtDQuants (I.Decl (G, D'), V2)
-      end
-    | fmtDQuants (G, V as I.Pi _) = (* P = I.No *)
-        [F.HOVbox (fmtDSubGoals (G, V, nil))]
-    | fmtDQuants (G, V) = (* V = Root _ *)
-        [Print.formatExp (G, V)]
-  and fmtDSubGoals (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), acc) =
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtDQuants (G, V as I.Pi _) = (* P = I.No *)
+        [F.HOVbox (fmtDSubGoals (G, V, nil))] (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtDQuants (G, V) = (* V = Root _ *)
+        [Print.formatExp (G, V)] (* GEN END FUN BRANCH *)
+  and (* GEN BEGIN FUN FIRST *) fmtDSubGoals (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), acc) =
         fmtDSubGoals (I.Decl (G, D), V2,
                       F.Break :: sym "<-" :: F.Space :: fmtGparens (G, V1)
-                      :: acc)
-    | fmtDSubGoals (G, V as I.Pi _, acc) = (* acc <> nil *)
-        parens (F.HVbox (fmtDQuants (G, V))) :: acc
-    | fmtDSubGoals (G, V, acc) = (* V = Root _ *)
-        Print.formatExp (G, V) :: acc
-  and fmtDparens (G, V as I.Pi _) = parens (F.HVbox (fmtDQuants (G, V)))
-    | fmtDparens (G, V) = (* V = Root _ *)
-        Print.formatExp (G, V)
-  and fmtGparens (G, V as I.Pi _) = parens (F.HVbox (fmtGQuants (G, V)))
-    | fmtGparens (G, V) = (* V = Root _ *)
-        Print.formatExp (G, V)
-  and fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
+                      :: acc) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtDSubGoals (G, V as I.Pi _, acc) = (* acc <> nil *)
+        parens (F.HVbox (fmtDQuants (G, V))) :: acc (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtDSubGoals (G, V, acc) = (* V = Root _ *)
+        Print.formatExp (G, V) :: acc (* GEN END FUN BRANCH *)
+  and (* GEN BEGIN FUN FIRST *) fmtDparens (G, V as I.Pi _) = parens (F.HVbox (fmtDQuants (G, V))) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtDparens (G, V) = (* V = Root _ *)
+        Print.formatExp (G, V) (* GEN END FUN BRANCH *)
+  and (* GEN BEGIN FUN FIRST *) fmtGparens (G, V as I.Pi _) = parens (F.HVbox (fmtGQuants (G, V))) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtGparens (G, V) = (* V = Root _ *)
+        Print.formatExp (G, V) (* GEN END FUN BRANCH *)
+  and (* GEN BEGIN FUN FIRST *) fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
       let
-        val D' = Names.decLUName (G, D)
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decLUName (G, D) (* GEN END TAG OUTSIDE LET *)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtGQuants (I.Decl (G, D'), V2)
-      end
-    | fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
-        val D' = Names.decLUName (G, D)
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decLUName (G, D) (* GEN END TAG OUTSIDE LET *)
       in
         sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
         :: fmtGQuants (I.Decl (G, D'), V2)
-      end
-    | fmtGQuants (G, V) = (* P = I.No or V = Root _ *)
-        [F.HOVbox (fmtGHyps (G, V))]
-  and fmtGHyps (G, I.Pi ((D as I.Dec (_, V1), I.No), V2)) =
-        fmtDparens (G, V1) :: F.Break :: sym "->" :: F.Space :: fmtGHyps (I.Decl (G, D), V2)
-    | fmtGHyps (G, V as I.Pi _) = (* P = I.Maybe *)
-        [F.HVbox (fmtGQuants (G, V))]
-    | fmtGHyps (G, V) = (* V = Root _ *)
-        [Print.formatExp (G, V)]
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtGQuants (G, V) = (* P = I.No or V = Root _ *)
+        [F.HOVbox (fmtGHyps (G, V))] (* GEN END FUN BRANCH *)
+  and (* GEN BEGIN FUN FIRST *) fmtGHyps (G, I.Pi ((D as I.Dec (_, V1), I.No), V2)) =
+        fmtDparens (G, V1) :: F.Break :: sym "->" :: F.Space :: fmtGHyps (I.Decl (G, D), V2) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtGHyps (G, V as I.Pi _) = (* P = I.Maybe *)
+        [F.HVbox (fmtGQuants (G, V))] (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtGHyps (G, V) = (* V = Root _ *)
+        [Print.formatExp (G, V)] (* GEN END FUN BRANCH *)
 
   fun fmtClause (G, V) = F.HVbox (fmtDQuants (G, V))
 
-  fun fmtClauseI (0, G, V) = fmtClause (G, V)
-    | fmtClauseI (i, G, I.Pi ((D, _), V)) =
-        fmtClauseI (i-1, I.Decl (G, Names.decEName (G, D)), V)
+  fun (* GEN BEGIN FUN FIRST *) fmtClauseI (0, G, V) = fmtClause (G, V) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtClauseI (i, G, I.Pi ((D, _), V)) =
+        fmtClauseI (i-1, I.Decl (G, Names.decEName (G, D)), V) (* GEN END FUN BRANCH *)
 
-  fun fmtConDec (I.ConDec (id, parent, i, _, V, I.Type)) =
+  fun (* GEN BEGIN FUN FIRST *) fmtConDec (I.ConDec (id, parent, i, _, V, I.Type)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val Vfmt = fmtClauseI (i, I.Null, V)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val Vfmt = fmtClauseI (i, I.Null, V) (* GEN END TAG OUTSIDE LET *)
       in
         F.HVbox [Str0 (Symbol.const (id)), F.Space, sym ":", F.Break,
                  Vfmt, sym "."]
-      end
-    | fmtConDec (condec) =
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (condec) =
       (* type family declaration, definition, or Skolem constant *)
-      Print.formatConDec (condec)
+      Print.formatConDec (condec) (* GEN END FUN BRANCH *)
 
 in
 
@@ -115,7 +115,7 @@ in
   fun conDecToString (condec) = F.makestring_fmt (formatConDec (condec))
 
   fun printSgn () =
-      IntSyn.sgnApp (fn (cid) => (print (conDecToString (IntSyn.sgnLookup cid)); print "\n"))
+      IntSyn.sgnApp ((* GEN BEGIN FUNCTION EXPRESSION *) fn (cid) => (print (conDecToString (IntSyn.sgnLookup cid)); print "\n") (* GEN END FUNCTION EXPRESSION *))
 end  (* local ... *)
 
 end (* GEN END FUNCTOR DECL *)  (* functor ClausePrint *)

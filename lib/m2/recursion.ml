@@ -58,15 +58,15 @@ struct
     (* duplicate code? -fp *)
     fun vectorToString (G, O) =
         let
-          fun fmtOrder (Order.Arg (Us, Vs)) =
+          fun (* GEN BEGIN FUN FIRST *) fmtOrder (Order.Arg (Us, Vs)) =
               [F.String (Print.expToString (G, I.EClo Us)), F.String ":",
-               F.String (Print.expToString (G, I.EClo Vs))]
-            | fmtOrder (Order.Lex L) = [F.String "{", F.HVbox (fmtOrders L), F.String "}"]
-            | fmtOrder (Order.Simul L) = [F.String "[", F.HVbox (fmtOrders L), F.String "]"]
+               F.String (Print.expToString (G, I.EClo Vs))] (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrder (Order.Lex L) = [F.String "{", F.HVbox (fmtOrders L), F.String "}"] (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrder (Order.Simul L) = [F.String "[", F.HVbox (fmtOrders L), F.String "]"] (* GEN END FUN BRANCH *)
     
-          and fmtOrders nil = nil
-            | fmtOrders (O :: nil) = fmtOrder O
-            | fmtOrders (O :: L) = fmtOrder O @ (F.String " " :: fmtOrders L)
+          and (* GEN BEGIN FUN FIRST *) fmtOrders nil = nil (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrders (O :: nil) = fmtOrder O (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrders (O :: L) = fmtOrder O @ (F.String " " :: fmtOrders L) (* GEN END FUN BRANCH *)
         in
           F.makestring_fmt (F.HVbox (fmtOrder O))
         end
@@ -86,19 +86,19 @@ struct
     *)
     fun vector (c, (S, s)) =
         let
-          val Vid = (I.constType c, I.id)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Vid = (I.constType c, I.id) (* GEN END TAG OUTSIDE LET *)
           fun select' (n, (Ss', Vs'')) =
                 select'W (n, (Ss', Whnf.whnf Vs''))
-          and select'W (1, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V''), _), _), s''))) =
-                ((U', s'), (V'', s''))
+          and (* GEN BEGIN FUN FIRST *) select'W (1, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V''), _), _), s''))) =
+                ((U', s'), (V'', s'')) (* GEN END FUN FIRST *)
               (* select'W (1, _, (I.Root _, _)) cannot occur by invariant ! *)
-            | select'W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
-                select'W (n, ((S', I.comp (s1', s2')), Vs''))
-            | select'W (n, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
-                select' (n-1, ((S', s'), (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
-          fun select (O.Arg n) = O.Arg (select' (n, ((S, s), Vid)))
-            | select (O.Lex L) = O.Lex (map select L)
-            | select (O.Simul L) = O.Simul (map select L)
+            | (* GEN BEGIN FUN BRANCH *) select'W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
+                select'W (n, ((S', I.comp (s1', s2')), Vs'')) (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) select'W (n, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
+                select' (n-1, ((S', s'), (V2'', I.Dot (I.Exp (I.EClo (U', s')), s'')))) (* GEN END FUN BRANCH *)
+          fun (* GEN BEGIN FUN FIRST *) select (O.Arg n) = O.Arg (select' (n, ((S, s), Vid))) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) select (O.Lex L) = O.Lex (map select L) (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) select (O.Simul L) = O.Simul (map select L) (* GEN END FUN BRANCH *)
         in
           select (O.selLookup c)
         end
@@ -111,19 +111,19 @@ struct
     *)
     fun set_parameter (G, X as I.EVar (r, _, V, _), k, sc, ops) =
         let
-          fun set_parameter' (0, ops') =  ops'
-            | set_parameter' (k', ops') =
+          fun (* GEN BEGIN FUN FIRST *) set_parameter' (0, ops') =  ops' (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) set_parameter' (k', ops') =
                 let
-                  val D' as I.Dec (_, V') = I.ctxDec (G, k')
-                  val ops'' =
-                    CSManager.trail (fn () =>
+                  (* GEN BEGIN TAG OUTSIDE LET *) val D' as I.Dec (_, V') = I.ctxDec (G, k') (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val ops'' =
+                    CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                                  if Unify.unifiable (G, (V, I.id), (V', I.id))
                                    andalso Unify.unifiable (G, (X, I.id), (I.Root (I.BVar k', I.Nil), I.id))
                                    then sc ops'
-                                 else ops')
+                                 else ops' (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
                 in
                   set_parameter' (k'-1, ops'')
-                end
+                end (* GEN END FUN BRANCH *)
         in
           set_parameter' (k, ops)
         end
@@ -146,16 +146,16 @@ struct
     *)
     fun ltinit (G, k, (Us, Vs), UsVs', sc, ops) =
           ltinitW (G, k, Whnf.whnfEta (Us, Vs), UsVs', sc, ops)
-    and ltinitW (G, k, (Us, Vs as (I.Root _, _)), UsVs', sc, ops) =
-          lt (G, k, (Us, Vs), UsVs', sc, ops)
-      | ltinitW (G, k,
+    and (* GEN BEGIN FUN FIRST *) ltinitW (G, k, (Us, Vs as (I.Root _, _)), UsVs', sc, ops) =
+          lt (G, k, (Us, Vs), UsVs', sc, ops) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ltinitW (G, k,
                  ((I.Lam (D1, U), s1), (I.Pi (D2, V), s2)),
                  ((U', s1'), (V', s2')),
                  sc, ops) =
           ltinit (I.Decl (G, I.decSub (D1, s1) (* = I.decSub (D2, s2) *)), k+1,
                   ((U, I.dot1 s1), (V, I.dot1 s2)),
                   ((U', I.comp (s1', I.shift)), (V', I.comp (s2', I.shift))),
-                  sc, ops)
+                  sc, ops) (* GEN END FUN BRANCH *)
 
     (* lt (G, k, ((U, s1), (V, s2)), (U', s'), sc, ops) = ops'
 
@@ -179,23 +179,23 @@ struct
     (* (Us',Vs') may not be eta-expanded!!! *)
     and lt (G, k, (Us, Vs), (Us', Vs'), sc, ops) =
           ltW (G, k, (Us, Vs), Whnf.whnfEta (Us', Vs'), sc, ops)
-    and ltW (G, k, (Us, Vs), ((I.Root (I.Const c, S'), s'), Vs'), sc, ops) =
-          ltSpine (G, k, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, ops)
-      | ltW (G, k, (Us, Vs), ((I.Root (I.BVar n, S'), s'), Vs'), sc, ops) =
+    and (* GEN BEGIN FUN FIRST *) ltW (G, k, (Us, Vs), ((I.Root (I.Const c, S'), s'), Vs'), sc, ops) =
+          ltSpine (G, k, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, ops) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ltW (G, k, (Us, Vs), ((I.Root (I.BVar n, S'), s'), Vs'), sc, ops) =
           if n <= k then  (* n must be a local variable *)
             let
-              val I.Dec (_, V') = I.ctxDec (G, n)
+              (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V') = I.ctxDec (G, n) (* GEN END TAG OUTSIDE LET *)
             in
               ltSpine (G, k, (Us, Vs), ((S', s'), (V', I.id)), sc, ops)
             end
-          else ops
-      | ltW (G, _, _, ((I.EVar _, _), _), _, ops) = ops
-      | ltW (G, k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
+          else ops (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) ltW (G, _, _, ((I.EVar _, _), _), _, ops) = ops (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) ltW (G, k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
                                         (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, ops) =
         if Subordinate.equiv (I.targetFam V, I.targetFam V1') (* == I.targetFam V2' *) then
           let  (* enforce that X gets only bound to parameters *)
-            val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-            val sc' = fn ops' => set_parameter (G, X, k, sc, ops')
+            (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val sc' = (* GEN BEGIN FUNCTION EXPRESSION *) fn ops' => set_parameter (G, X, k, sc, ops') (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
           in
             lt (G, k, ((U, s1), (V, s2)),
                 ((U', I.Dot (I.Exp (X), s1')),
@@ -204,27 +204,27 @@ struct
         else
           if Subordinate.below (I.targetFam V1', I.targetFam V) then
             let
-              val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
             in
               lt (G, k, ((U, s1), (V, s2)),
                   ((U', I.Dot (I.Exp (X), s1')),
                    (V', I.Dot (I.Exp (X), s2'))), sc, ops)
             end
-          else ops
+          else ops (* GEN END FUN BRANCH *)
 
     and ltSpine (G, k, (Us, Vs), (Ss', Vs'), sc, ops) =
           ltSpineW (G, k, (Us, Vs), (Ss', Whnf.whnf Vs'), sc, ops)
-    and ltSpineW (G, k, (Us, Vs), ((I.Nil, _), _), _, ops) = ops
-      | ltSpineW (G, k, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, ops) =
-          ltSpineW (G, k, (Us, Vs), ((S, I.comp (s', s'')), Vs'), sc, ops)
-      | ltSpineW (G, k, (Us, Vs), ((I.App (U', S'), s1'),
+    and (* GEN BEGIN FUN FIRST *) ltSpineW (G, k, (Us, Vs), ((I.Nil, _), _), _, ops) = ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ltSpineW (G, k, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, ops) =
+          ltSpineW (G, k, (Us, Vs), ((S, I.comp (s', s'')), Vs'), sc, ops) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) ltSpineW (G, k, (Us, Vs), ((I.App (U', S'), s1'),
                                    (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, ops) =
         let
-          val ops' = le (G, k, (Us, Vs), ((U', s1'), (V1', s2')), sc, ops)
+          (* GEN BEGIN TAG OUTSIDE LET *) val ops' = le (G, k, (Us, Vs), ((U', s1'), (V1', s2')), sc, ops) (* GEN END TAG OUTSIDE LET *)
         in
           ltSpine (G, k, (Us, Vs), ((S', s1'),
                                  (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, ops')
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* eq (G, ((U, s1), (V, s2)), (U', s'), sc, ops) = ops'
 
@@ -241,11 +241,11 @@ struct
             recursion operators resulting from U[s1] = U'[s']
     *)
     and eq (G, (Us, Vs), (Us', Vs'), sc, ops) =
-        (CSManager.trail (fn () =>
+        (CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                       if Unify.unifiable (G, Vs, Vs')
                         andalso Unify.unifiable (G, Us, Us')
                         then sc ops
-                      else ops))
+                      else ops (* GEN END FUNCTION EXPRESSION *)))
 
 
     (* le (G, k, ((U, s1), (V, s2)), (U', s'), sc, ops) = ops'
@@ -268,17 +268,17 @@ struct
 
     and le (G, k, (Us, Vs), (Us', Vs'), sc, ops) =
         let
-          val ops' = eq (G, (Us, Vs), (Us', Vs'), sc, ops)
+          (* GEN BEGIN TAG OUTSIDE LET *) val ops' = eq (G, (Us, Vs), (Us', Vs'), sc, ops) (* GEN END TAG OUTSIDE LET *)
         in
           leW (G, k, (Us, Vs), Whnf.whnfEta (Us', Vs'), sc, ops')
         end
 
-    and leW (G, k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
+    and (* GEN BEGIN FUN FIRST *) leW (G, k, ((U, s1), (V, s2)), ((I.Lam (D as I.Dec (_, V1'), U'), s1'),
                                         (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, ops) =
         if Subordinate.equiv (I.targetFam V, I.targetFam V1') (* == I.targetFam V2' *) then
           let
-            val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-            val sc' = fn ops' => set_parameter (G, X, k, sc, ops')
+            (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val sc' = (* GEN BEGIN FUNCTION EXPRESSION *) fn ops' => set_parameter (G, X, k, sc, ops') (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
           (* enforces that X can only bound to parameter *)
           in
             le (G, k, ((U, s1), (V, s2)),
@@ -288,14 +288,14 @@ struct
         else
           if Subordinate.below  (I.targetFam V1', I.targetFam V) then
             let
-              val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
             in
               le (G, k, ((U, s1), (V, s2)),
                   ((U', I.Dot (I.Exp (X), s1')),
                    (V', I.Dot (I.Exp (X), s2'))), sc, ops)
             end
-          else ops
-      | leW (G, k, (Us, Vs), (Us', Vs'), sc, ops) = lt (G, k, (Us, Vs), (Us', Vs'), sc, ops)
+          else ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) leW (G, k, (Us, Vs), (Us', Vs'), sc, ops) = lt (G, k, (Us, Vs), (Us', Vs'), sc, ops) (* GEN END FUN BRANCH *)
 
 
     (* ordlt (G, O1, O2, sc, ops) = ops'
@@ -309,9 +309,9 @@ struct
             recursion operators of all instantiations of EVars s.t. O1 is
             lexicographically smaller than O2
     *)
-    fun ordlt (G, O.Arg UsVs, O.Arg UsVs', sc, ops) =  ltinit (G, 0, UsVs, UsVs', sc, ops)
-      | ordlt (G, O.Lex L, O.Lex L', sc, ops) = ordltLex (G, L, L', sc, ops)
-      | ordlt (G, O.Simul L, O.Simul L', sc, ops) = ordltSimul (G, L, L', sc, ops)
+    fun (* GEN BEGIN FUN FIRST *) ordlt (G, O.Arg UsVs, O.Arg UsVs', sc, ops) =  ltinit (G, 0, UsVs, UsVs', sc, ops) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ordlt (G, O.Lex L, O.Lex L', sc, ops) = ordltLex (G, L, L', sc, ops) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) ordlt (G, O.Simul L, O.Simul L', sc, ops) = ordltSimul (G, L, L', sc, ops) (* GEN END FUN BRANCH *)
 
 
     (* ordltLex (G, L1, L2, sc, ops) = ops'
@@ -325,13 +325,13 @@ struct
             recursion operators of all instantiations of EVars s.t. L1 is
             lexicographically less then L2
     *)
-    and ordltLex (G, nil, nil, sc, ops) = ops
-      | ordltLex (G, O :: L, O' :: L', sc, ops) =
+    and (* GEN BEGIN FUN FIRST *) ordltLex (G, nil, nil, sc, ops) = ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ordltLex (G, O :: L, O' :: L', sc, ops) =
         let
-          val ops' = CSManager.trail (fn () => ordlt (G, O, O', sc, ops))
+          (* GEN BEGIN TAG OUTSIDE LET *) val ops' = CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => ordlt (G, O, O', sc, ops) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
-          ordeq (G, O, O', fn ops'' =>  ordltLex (G, L, L', sc, ops''), ops')
-        end
+          ordeq (G, O, O', (* GEN BEGIN FUNCTION EXPRESSION *) fn ops'' =>  ordltLex (G, L, L', sc, ops'') (* GEN END FUNCTION EXPRESSION *), ops')
+        end (* GEN END FUN BRANCH *)
 
     (* ordltSimul (G, L1, L2, sc, ops) = ops'
 
@@ -344,14 +344,14 @@ struct
             recursion operators of all instantiations of EVars s.t. L1 is
             simultaneously smaller than L2
     *)
-    and ordltSimul (G, nil, nil, sc, ops) = ops
-      | ordltSimul (G, O :: L, O' :: L', sc, ops) =
+    and (* GEN BEGIN FUN FIRST *) ordltSimul (G, nil, nil, sc, ops) = ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ordltSimul (G, O :: L, O' :: L', sc, ops) =
         let
-          val ops'' = CSManager.trail (fn () => ordlt (G, O, O',
-                        fn ops' => ordleSimul (G, L, L', sc, ops'), ops))
+          (* GEN BEGIN TAG OUTSIDE LET *) val ops'' = CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => ordlt (G, O, O',
+                        (* GEN BEGIN FUNCTION EXPRESSION *) fn ops' => ordleSimul (G, L, L', sc, ops') (* GEN END FUNCTION EXPRESSION *), ops) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
-          ordeq (G, O, O', fn ops' => ordltSimul (G, L, L', sc, ops'), ops'')
-        end
+          ordeq (G, O, O', (* GEN BEGIN FUNCTION EXPRESSION *) fn ops' => ordltSimul (G, L, L', sc, ops') (* GEN END FUNCTION EXPRESSION *), ops'')
+        end (* GEN END FUN BRANCH *)
 
     (* ordleSimul (G, L1, L2, sc, ops) = ops'
 
@@ -364,9 +364,9 @@ struct
             recursion operators of all instantiations of EVars s.t. L1 is
             simultaneously smaller than or equal to L2
     *)
-    and ordleSimul (G, nil, nil, sc, ops) = sc ops
-      | ordleSimul (G, O :: L, O' :: L', sc, ops) =
-          ordle (G, O, O', fn ops' => ordleSimul (G, L, L', sc, ops'), ops)
+    and (* GEN BEGIN FUN FIRST *) ordleSimul (G, nil, nil, sc, ops) = sc ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ordleSimul (G, O :: L, O' :: L', sc, ops) =
+          ordle (G, O, O', (* GEN BEGIN FUNCTION EXPRESSION *) fn ops' => ordleSimul (G, L, L', sc, ops') (* GEN END FUNCTION EXPRESSION *), ops) (* GEN END FUN BRANCH *)
 
 
     (* ordeq (G, O1, O2, sc, ops) = ops'
@@ -380,10 +380,10 @@ struct
             recursion operators of all instantiations of EVars s.t. O1 is
             convertible to O2
     *)
-    and ordeq (G, O.Arg (Us, Vs), O.Arg (Us' ,Vs'), sc, ops) =
-          if Unify.unifiable (G, Vs, Vs') andalso Unify.unifiable (G, Us, Us') then sc ops else ops
-      | ordeq (G, O.Lex L, O.Lex L', sc, ops) = ordeqs (G, L, L', sc, ops)
-      | ordeq (G, O.Simul L, O.Simul L', sc, ops) = ordeqs (G, L, L', sc, ops)
+    and (* GEN BEGIN FUN FIRST *) ordeq (G, O.Arg (Us, Vs), O.Arg (Us' ,Vs'), sc, ops) =
+          if Unify.unifiable (G, Vs, Vs') andalso Unify.unifiable (G, Us, Us') then sc ops else ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ordeq (G, O.Lex L, O.Lex L', sc, ops) = ordeqs (G, L, L', sc, ops) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) ordeq (G, O.Simul L, O.Simul L', sc, ops) = ordeqs (G, L, L', sc, ops) (* GEN END FUN BRANCH *)
 
     (* ordlteqs (G, L1, L2, sc, ops) = ops'
 
@@ -396,9 +396,9 @@ struct
             recursion operators of all instantiations of EVars s.t. L1 is
             convertible to L2
     *)
-    and ordeqs (G, nil, nil, sc, ops) = sc ops
-      | ordeqs (G, O :: L, O' :: L', sc, ops) =
-          ordeq (G, O, O', fn ops' => ordeqs (G, L, L', sc, ops'), ops)
+    and (* GEN BEGIN FUN FIRST *) ordeqs (G, nil, nil, sc, ops) = sc ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ordeqs (G, O :: L, O' :: L', sc, ops) =
+          ordeq (G, O, O', (* GEN BEGIN FUNCTION EXPRESSION *) fn ops' => ordeqs (G, L, L', sc, ops') (* GEN END FUNCTION EXPRESSION *), ops) (* GEN END FUN BRANCH *)
 
     (* ordeq (G, O1, O2, sc, ops) = ops'
 
@@ -413,7 +413,7 @@ struct
     *)
     and ordle (G, O, O', sc, ops) =
         let
-          val ops' = CSManager.trail (fn () => ordeq (G, O, O', sc, ops))
+          (* GEN BEGIN TAG OUTSIDE LET *) val ops' = CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => ordeq (G, O, O', sc, ops) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           ordlt (G, O, O', sc, ops')
         end
@@ -427,22 +427,22 @@ struct
        and  G' |- M' mtx
        and  G' |- s' : G
     *)
-    fun createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
-          (M.Prefix (I.Null, I.Null, I.Null), I.id)
-      | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
+    fun (* GEN BEGIN FUN FIRST *) createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
+          (M.Prefix (I.Null, I.Null, I.Null), I.id) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
         let
-          val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B)) (* GEN END TAG OUTSIDE LET *)
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s')
-        end
-      | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
         let
-          val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
-          val X  = I.newEVar (G', I.EClo (V, s'))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val X  = I.newEVar (G', I.EClo (V, s')) (* GEN END TAG OUTSIDE LET *)
         in
           (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'))
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* select (G, (V, s)) = (G', (V1', s1'), (V2', s2'))
 
@@ -460,10 +460,10 @@ struct
         let
           fun select' (G, (Vs1, Vs2)) =
               selectW' (G, (Vs1, Whnf.whnf Vs2))
-          and selectW' (G, (Vs1, Vs2 as (I.Root _, _))) = (G, (Vs1, Vs2))
-            | selectW' (G, ((V1, s1), (I.Pi ((D, P), V2'), s2))) =
+          and (* GEN BEGIN FUN FIRST *) selectW' (G, (Vs1, Vs2 as (I.Root _, _))) = (G, (Vs1, Vs2)) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) selectW' (G, ((V1, s1), (I.Pi ((D, P), V2'), s2))) =
                 select' (I.Decl (G, I.decSub (D, s2)), ((V1, I.comp (s1, I.shift)),
-                                                        (V2', I.dot1 s2)))
+                                                        (V2', I.dot1 s2))) (* GEN END FUN BRANCH *)
         in
           select' (I.Decl (G, I.decSub (D, s)) , ((V1, I.comp (s, I.shift)), (V2, I.dot1 s)))
         end
@@ -488,14 +488,14 @@ struct
     *)
     fun lemma (S, t, ops) =
         let
-          val M.State (name, GM, V) = Lemma.apply (S, t)
-          val (M.Prefix (G', M', B'), s') = createEVars GM
-          val (G'', ((I.Root (I.Const a1, S1), s1),
-                     (I.Root (I.Const a2, S2), s2))) = select (G', (V, s'))
+          (* GEN BEGIN TAG OUTSIDE LET *) val M.State (name, GM, V) = Lemma.apply (S, t) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s') = createEVars GM (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G'', ((I.Root (I.Const a1, S1), s1),
+                     (I.Root (I.Const a2, S2), s2))) = select (G', (V, s')) (* GEN END TAG OUTSIDE LET *)
         in
           (G'', vector (a1, (S1, s1)), vector (a2, (S2, s2)),
-           fn ops' => ((MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
-                                                        I.EClo (V, s')))) :: ops'), ops)
+           (* GEN BEGIN FUNCTION EXPRESSION *) fn ops' => ((MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
+                                                        I.EClo (V, s')))) :: ops') (* GEN END FUNCTION EXPRESSION *), ops)
         end
 
     (* expandLazy' (S, L, ops) = ops'
@@ -507,15 +507,15 @@ struct
        then ops' extends ops by all operators
          representing inductive calls to theorems in L
     *)
-    fun expandLazy' (S, O.Empty, ops) = ops
-      | expandLazy' (S, (O.LE (t, L)), ops) = expandLazy' (S, L, ordle (lemma (S, t, ops)))
-      | expandLazy' (S, (O.LT (t, L)), ops) = expandLazy' (S, L, ordlt (lemma (S, t, ops)))
+    fun (* GEN BEGIN FUN FIRST *) expandLazy' (S, O.Empty, ops) = ops (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) expandLazy' (S, (O.LE (t, L)), ops) = expandLazy' (S, L, ordle (lemma (S, t, ops))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) expandLazy' (S, (O.LT (t, L)), ops) = expandLazy' (S, L, ordlt (lemma (S, t, ops))) (* GEN END FUN BRANCH *)
 
 
     fun recursionDepth V =
         let
-          fun recursionDepth' (I.Root _, n) = n
-            | recursionDepth' (I.Pi (_, V), n) = recursionDepth' (V, n+1)
+          fun (* GEN BEGIN FUN FIRST *) recursionDepth' (I.Root _, n) = n (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) recursionDepth' (I.Pi (_, V), n) = recursionDepth' (V, n+1) (* GEN END FUN BRANCH *)
         in
           recursionDepth' (V, 0)
         end
@@ -549,27 +549,27 @@ struct
                                           ((S2, s2), (I.constType c2, I.id)))
           else false
 
-    and inputConvSpine (ModeSyn.Mnil, ((S1, _), _), ((S2, _), _)) = true (* S1 = S2 = Nil *)
-      | inputConvSpine (mS, ((I.SClo (S1, s1'), s1), Vs1), (Ss2, Vs2)) =
-          inputConvSpine (mS, ((S1, I.comp (s1', s1)), Vs1), (Ss2, Vs2))
-      | inputConvSpine (mS, (Ss1, Vs1), ((I.SClo (S2, s2'), s2), Vs2)) =
-          inputConvSpine (mS, (Ss1, Vs1), ((S2, I.comp (s2', s2)), Vs2))
-      | inputConvSpine (ModeSyn.Mapp (ModeSyn.Marg (ModeSyn.Minus, _), mS),
+    and (* GEN BEGIN FUN FIRST *) inputConvSpine (ModeSyn.Mnil, ((S1, _), _), ((S2, _), _)) = true (* GEN END FUN FIRST *) (* S1 = S2 = Nil *)
+      | (* GEN BEGIN FUN BRANCH *) inputConvSpine (mS, ((I.SClo (S1, s1'), s1), Vs1), (Ss2, Vs2)) =
+          inputConvSpine (mS, ((S1, I.comp (s1', s1)), Vs1), (Ss2, Vs2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inputConvSpine (mS, (Ss1, Vs1), ((I.SClo (S2, s2'), s2), Vs2)) =
+          inputConvSpine (mS, (Ss1, Vs1), ((S2, I.comp (s2', s2)), Vs2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inputConvSpine (ModeSyn.Mapp (ModeSyn.Marg (ModeSyn.Minus, _), mS),
                         ((I.App (U1, S1), s1), (I.Pi ((I.Dec (_, V1), _), W1), t1)),
                         ((I.App (U2, S2), s2), (I.Pi ((I.Dec (_, V2), _), W2), t2))) =
           Conv.conv ((V1, t1), (V2, t2)) andalso
           inputConvSpine (mS,
                           ((S1, s1), (W1, I.Dot (I.Exp (I.EClo (U1, s1)), t1))),
-                          ((S2, s2), (W2, I.Dot (I.Exp (I.EClo (U1, s1)), t2))))
+                          ((S2, s2), (W2, I.Dot (I.Exp (I.EClo (U1, s1)), t2)))) (* GEN END FUN BRANCH *)
           (* BUG: use the same variable (U1, s1) to continue comparing! --cs
                   in ((S2, s2), (W2, I.Dot (I.Exp (I.EClo (U2, s2), V2), t2))))
              FIXED: --cs Mon Nov  9 19:38:55 EST 1998 *)
-        | inputConvSpine (ModeSyn.Mapp (ModeSyn.Marg (ModeSyn.Plus, _), mS),
+        | (* GEN BEGIN FUN BRANCH *) inputConvSpine (ModeSyn.Mapp (ModeSyn.Marg (ModeSyn.Plus, _), mS),
                         ((I.App (U1, S1), s1), (I.Pi ((I.Dec (_, V1), _), W1), t1)),
                         ((I.App (U2, S2), s2), (I.Pi ((I.Dec (_, V2), _), W2), t2))) =
            inputConvSpine (mS,
                           ((S1, s1), (W1, I.Dot (I.Exp (I.EClo (U1, s1)), t1))),
-                          ((S2, s2), (W2, I.Dot (I.Exp (I.EClo (U2, s2)), t2))))
+                          ((S2, s2), (W2, I.Dot (I.Exp (I.EClo (U2, s2)), t2)))) (* GEN END FUN BRANCH *)
 
 
     (* removeDuplicates ops = ops'
@@ -586,15 +586,15 @@ struct
                  either ci =/= c0 orelse
                  G, V0 .. Vi |- V0 [^ i] =/=+ Vi (not convertible on + arguments on c0)
     *)
-    fun removeDuplicates nil = nil
-      | removeDuplicates (S' :: ops) =
+    fun (* GEN BEGIN FUN FIRST *) removeDuplicates nil = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) removeDuplicates (S' :: ops) =
         let
           fun compExp (Vs1, Vs2) =
                 compExpW (Whnf.whnf Vs1, Whnf.whnf Vs2)
-          and compExpW (Vs1, (I.Root _, _)) = false
-            | compExpW (Vs1 as (V1, s1), (I.Pi ((D2, _), V2), s2)) =
+          and (* GEN BEGIN FUN FIRST *) compExpW (Vs1, (I.Root _, _)) = false (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) compExpW (Vs1 as (V1, s1), (I.Pi ((D2, _), V2), s2)) =
                 compDec (Vs1, (D2, s2))
-                orelse compExp ((V1, I.comp (s1, I.shift)), (V2, I.dot1 s2))
+                orelse compExp ((V1, I.comp (s1, I.shift)), (V2, I.dot1 s2)) (* GEN END FUN BRANCH *)
       
           and compDec (Vs1, (I.Dec (_, V2), s2)) =
                 inputConv (Vs1, (V2, s2))
@@ -607,7 +607,7 @@ struct
         in
           if check S' then removeDuplicates ops
           else S' :: (removeDuplicates ops)
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* fillOps ops = ops'
 
@@ -616,16 +616,16 @@ struct
        then ops' is a list of recursion operators combined with a filling
          operator to fill non-index variables.
     *)
-    fun fillOps nil = nil
-      | fillOps (S' :: ops) =
+    fun (* GEN BEGIN FUN FIRST *) fillOps nil = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fillOps (S' :: ops) =
         let
-          fun fillOps' nil = nil
-            | fillOps' (O :: _) = (Filling.apply O)
+          fun (* GEN BEGIN FUN FIRST *) fillOps' nil = nil (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) fillOps' (O :: _) = (Filling.apply O) (* GEN END FUN BRANCH *)
       
-          val (fillop, _) = Filling.expand S'
+          (* GEN BEGIN TAG OUTSIDE LET *) val (fillop, _) = Filling.expand S' (* GEN END TAG OUTSIDE LET *)
         in
           (fillOps' fillop) @ (fillOps ops)
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* expandEager S = ops'
 
@@ -645,9 +645,9 @@ struct
         (f P) handle Order.Error s => raise Error s
 
   in
-    val expandLazy = handleExceptions expandLazy
-    val expandEager = handleExceptions expandEager
-    val apply = apply
-    val menu = menu
+    (* GEN BEGIN TAG OUTSIDE LET *) val expandLazy = handleExceptions expandLazy (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val expandEager = handleExceptions expandEager (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val apply = apply (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val menu = menu (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor Recursion *)

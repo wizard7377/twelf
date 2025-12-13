@@ -14,19 +14,19 @@ struct
   (*! structure Paths = Paths' !*)
 
   local
-    val linesInfoTable : Paths.lines_info Table.table = Table.new (31)
+    (* GEN BEGIN TAG OUTSIDE LET *) val linesInfoTable : Paths.lines_info Table.table = Table.new (31) (* GEN END TAG OUTSIDE LET *)
     fun reset () = Table.clear linesInfoTable
     fun install (string, linesInfo) = Table.insert linesInfoTable (string, linesInfo)
     fun lookup (string) = Table.lookup linesInfoTable string
   in
-    val reset = reset
-    val installLinesInfo = install
-    val linesInfoLookup = lookup
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val installLinesInfo = install (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val linesInfoLookup = lookup (* GEN END TAG OUTSIDE LET *)
   end
 
   local
-    val originArray = Array.array (Global.maxCid+1, ("", NONE))
-        : (string * Paths.occ_con_dec option) Array.array
+    (* GEN BEGIN TAG OUTSIDE LET *) val originArray = Array.array (Global.maxCid+1, ("", NONE))
+        : (string * Paths.occ_con_dec option) Array.array (* GEN END TAG OUTSIDE LET *)
   in
     fun installOrigin (cid, fileNameOpt) = Array.update (originArray, cid, fileNameOpt)
     fun originLookup (cid) = Array.sub (originArray, cid)

@@ -7,7 +7,7 @@ struct
   structure Thread =
   struct
     open MLton.Thread
-    (* GEN BEGIN TAG INSIDE LET *) fun prepare (f, x) = f (* GEN END TAG INSIDE LET *)
+    fun prepare (f, x) = f
   end
 
 end

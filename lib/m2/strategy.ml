@@ -66,20 +66,20 @@ struct
        then Sopt = NONE if L = []
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
-    fun findMin nil = NONE
-      | findMin (O :: L) =
+    fun (* GEN BEGIN FUN FIRST *) findMin nil = NONE (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) findMin (O :: L) =
         let
-          fun findMin' (nil, k, result) = result
-            | findMin' (O' :: L', k ,result)=
+          fun (* GEN BEGIN FUN FIRST *) findMin' (nil, k, result) = result (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) findMin' (O' :: L', k ,result)=
                 let
-                  val k' = Splitting.index O'
+                  (* GEN BEGIN TAG OUTSIDE LET *) val k' = Splitting.index O' (* GEN END TAG OUTSIDE LET *)
                 in
                   if Splitting.index O' < k then findMin' (L', k', SOME O')
                   else findMin' (L', k, result)
-                end
+                end (* GEN END FUN BRANCH *)
         in
           findMin' (L, Splitting.index O, SOME O)
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* split   (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
        recurse (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
@@ -98,9 +98,9 @@ struct
           of NONE => fill (givenStates, (S :: openStates, solvedStates))
            | SOME splitOp =>
              let
-               val _ = printSplitting ()
-               val SL = (Timers.time Timers.splitting Splitting.apply) splitOp
-               val _ = printCloseBracket ()
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printSplitting () (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val SL = (Timers.time Timers.splitting Splitting.apply) splitOp (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
              in
                (fill (SL @ givenStates, os)
                 handle Splitting.Error _ => fill (givenStates, (S :: openStates, solvedStates)))
@@ -111,24 +111,24 @@ struct
           of nil => split (S :: givenStates, os)
            | (recursionOp :: _) =>
              let
-               val _ = printRecursion ()
-               val S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
-               val _ = printCloseBracket ()
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printRecursion () (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val S' = (Timers.time Timers.recursion Recursion.apply) recursionOp (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
              in
                (fill (S' :: givenStates, (openStates, solvedStates))
                 handle Recursion.Error _ => split (S :: givenStates, os))
              end
 
-    and fill (nil, os) = os
-      | fill (S :: givenStates, os as (openStates, solvedStates)) =
+    and (* GEN BEGIN FUN FIRST *) fill (nil, os) = os (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fill (S :: givenStates, os as (openStates, solvedStates)) =
       let
         fun fillOp () =
           case (Timers.time Timers.filling Filling.expand) S
             of (_, fillingOp) =>
               (let
-                 val _ = printFilling ()
-                 val [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
-                 val _ = printCloseBracket ()
+                 (* GEN BEGIN TAG OUTSIDE LET *) val _ = printFilling () (* GEN END TAG OUTSIDE LET *)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val [S'] = (Timers.time Timers.filling Filling.apply) fillingOp (* GEN END TAG OUTSIDE LET *)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
                in
                  if Qed.subgoal S'
                    then (printFinish S'; fill (givenStates, (openStates, S' :: solvedStates)))
@@ -140,7 +140,7 @@ struct
         handle TimeLimit.TimeOut =>
           (print "\n----------- TIME OUT ---------------\n" ; raise Filling.TimeOut)
       
-      end
+      end (* GEN END FUN BRANCH *)
 
     (* run givenStates = (openStates', solvedStates')
 
@@ -152,16 +152,16 @@ struct
      *)
     fun run givenStates =
         let
-          val _ = printInit ()
-          val os = fill (givenStates, (nil, nil))
-          val _ = case os
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = printInit () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val os = fill (givenStates, (nil, nil)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = case os
                     of (nil, _) => printQed ()
-                     | _ => ()
+                     | _ => () (* GEN END TAG OUTSIDE LET *)
         in
           os
         end
   in
-    val run = run
+    (* GEN BEGIN TAG OUTSIDE LET *) val run = run (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *);  (* functor StrategyFRS *)
 
@@ -232,20 +232,20 @@ struct
        then Sopt = NONE if L = []
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
-    fun findMin nil = NONE
-      | findMin (O :: L) =
+    fun (* GEN BEGIN FUN FIRST *) findMin nil = NONE (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) findMin (O :: L) =
           let
-            fun findMin' (nil, k, result) = result
-              | findMin' (O' :: L', k ,result)=
+            fun (* GEN BEGIN FUN FIRST *) findMin' (nil, k, result) = result (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) findMin' (O' :: L', k ,result)=
                   let
-                    val k' = Splitting.index O'
+                    (* GEN BEGIN TAG OUTSIDE LET *) val k' = Splitting.index O' (* GEN END TAG OUTSIDE LET *)
                   in
                     if Splitting.index O' < k then findMin' (L', k', SOME O')
                     else findMin' (L', k, result)
-                  end
+                  end (* GEN END FUN BRANCH *)
           in
             findMin' (L, Splitting.index O, SOME O)
-          end
+          end (* GEN END FUN BRANCH *)
 
     (* split   (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
        recurse (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
@@ -264,42 +264,42 @@ struct
           NONE => recurse (givenStates, (S :: openStates, solvedStates))
         | SOME splitOp =>
             let
-              val _ = printSplitting ()
-              val SL = (Timers.time Timers.splitting Splitting.apply) splitOp
-              val _ = printCloseBracket ()
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = printSplitting () (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val SL = (Timers.time Timers.splitting Splitting.apply) splitOp (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
             in
               (recurse (SL @ givenStates, os)
                handle Splitting.Error _ => recurse (givenStates, (S :: openStates, solvedStates)))
             end
 
-    and fill (nil, os) = os
-      | fill (S :: givenStates, os as (openStates, solvedStates)) =
+    and (* GEN BEGIN FUN FIRST *) fill (nil, os) = os (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fill (S :: givenStates, os as (openStates, solvedStates)) =
         case (Timers.time Timers.filling Filling.expand) S
           of (_, fillingOp) =>
              (let
-                val _ = printFilling ()
-                val [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
-                val _ = printCloseBracket ()
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = printFilling () (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val [S'] = (Timers.time Timers.filling Filling.apply) fillingOp (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
               in
                 if Qed.subgoal S' then
                   (printFinish S'; recurse (givenStates, (openStates, S' :: solvedStates)))
                 else fill (S' :: givenStates, os)
               end
-                handle Filling.Error _ => split (S :: givenStates, os))
+                handle Filling.Error _ => split (S :: givenStates, os)) (* GEN END FUN BRANCH *)
 
-    and recurse (nil, os) = os
-      | recurse (S :: givenStates, os as (openStates, solvedStates)) =
+    and (* GEN BEGIN FUN FIRST *) recurse (nil, os) = os (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) recurse (S :: givenStates, os as (openStates, solvedStates)) =
         case (Timers.time Timers.recursion Recursion.expandEager) S
           of nil => fill (S :: givenStates, os)
            | (recursionOp :: _) =>
              let
-               val _ = printRecursion ()
-               val S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
-               val _ = printCloseBracket ()
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printRecursion () (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val S' = (Timers.time Timers.recursion Recursion.apply) recursionOp (* GEN END TAG OUTSIDE LET *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val _ = printCloseBracket () (* GEN END TAG OUTSIDE LET *)
              in
                (recurse (S' :: givenStates, (openStates, solvedStates))
                 handle Recursion.Error _ => fill (S :: givenStates, os))
-             end
+             end (* GEN END FUN BRANCH *)
 
     (* run givenStates = (openStates', solvedStates')
 
@@ -311,16 +311,16 @@ struct
      *)
     fun run givenStates =
         let
-          val _ = printInit ()
-          val os = recurse (givenStates, (nil, nil))
-          val _ = case os
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = printInit () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val os = recurse (givenStates, (nil, nil)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = case os
                     of (nil, _) => printQed ()
-                     | _ => ()
+                     | _ => () (* GEN END TAG OUTSIDE LET *)
         in
           os
         end
   in
-    val run = run
+    (* GEN BEGIN TAG OUTSIDE LET *) val run = run (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *);  (* functor StrategyRFS *)
 

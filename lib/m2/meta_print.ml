@@ -20,26 +20,26 @@ struct
     structure I = IntSyn
     structure F = Formatter
 
-    fun modeToString M.Top = "+"
-      | modeToString M.Bot = "-"
+    fun (* GEN BEGIN FUN FIRST *) modeToString M.Top = "+" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) modeToString M.Bot = "-" (* GEN END FUN BRANCH *)
 
     (* depthToString is used to format splitting depth *)
     fun depthToString (b) = if b <= 0 then "" else Int.toString b
 
     fun fmtPrefix (GM) =
         let
-          fun fmtPrefix' (M.Prefix (I.Null, I.Null, I.Null), Fmt) = Fmt
-            | fmtPrefix' (M.Prefix (I.Decl (I.Null, D), I.Decl (I.Null, mode),
+          fun (* GEN BEGIN FUN FIRST *) fmtPrefix' (M.Prefix (I.Null, I.Null, I.Null), Fmt) = Fmt (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) fmtPrefix' (M.Prefix (I.Decl (I.Null, D), I.Decl (I.Null, mode),
                                     I.Decl (I.Null, b)), Fmt) =
                 [F.String (depthToString b),
                  F.String (modeToString mode),
-                 Print.formatDec (I.Null, D)] @ Fmt
-            | fmtPrefix' (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), Fmt) =
+                 Print.formatDec (I.Null, D)] @ Fmt (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) fmtPrefix' (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), Fmt) =
                 fmtPrefix' (M.Prefix (G, M, B),
                             [F.String ",", F.Space, F.Break,
                              F.String (depthToString b),
                              F.String (modeToString mode),
-                             Print.formatDec (G, D)] @ Fmt)
+                             Print.formatDec (G, D)] @ Fmt) (* GEN END FUN BRANCH *)
         in
           F.HVbox (fmtPrefix' (GM, []))
         end
@@ -51,8 +51,8 @@ struct
           ^ prefixToString GM ^ "\n--------------\n"
           ^ ClausePrint.clauseToString (G, V) ^ "\n\n"
 
-    fun sgnToString (M.SgnEmpty) = ""
-      | sgnToString (M.ConDec (e, S)) =
+    fun (* GEN BEGIN FUN FIRST *) sgnToString (M.SgnEmpty) = "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) sgnToString (M.ConDec (e, S)) =
         (if !Global.chatter >= 4
            (* use explicitly quantified form *)
            then Print.conDecToString e ^ "\n"
@@ -61,13 +61,13 @@ struct
              (* use form without quantifiers, which is reparsable *)
              then ClausePrint.conDecToString e ^ "\n"
            else "")
-        ^ sgnToString S
+        ^ sgnToString S (* GEN END FUN BRANCH *)
   in
 
-    val modeToString = modeToString
-    val sgnToString = sgnToString
-    val stateToString = stateToString
-    val conDecToString = ClausePrint.conDecToString
+    (* GEN BEGIN TAG OUTSIDE LET *) val modeToString = modeToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sgnToString = sgnToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val stateToString = stateToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val conDecToString = ClausePrint.conDecToString (* GEN END TAG OUTSIDE LET *)
 
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor MetaPrint *)

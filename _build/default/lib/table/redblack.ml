@@ -1,7 +1,7 @@
 (* Red/Black Trees *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) RedBlackTree
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) RedBlackTree
   (type key'
    val compare : key' * key' -> order)
   :> TABLE where type key = key' =
@@ -154,12 +154,12 @@ struct
     val app = (fn f => fn table => app f (!table))
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor RedBlackTree *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor RedBlackTree *)
 
 structure StringRedBlackTree =
   RedBlackTree (type key' = string
-		(* GEN BEGIN TAG INSIDE LET *) val compare = String.compare (* GEN END TAG INSIDE LET *)) 
+		(* GEN BEGIN TAG OUTSIDE LET *) val compare = String.compare (* GEN END TAG OUTSIDE LET *)) 
 
 structure IntRedBlackTree =
   RedBlackTree (type key' = int
-		(* GEN BEGIN TAG INSIDE LET *) val compare = Int.compare (* GEN END TAG INSIDE LET *)) 
+		(* GEN BEGIN TAG OUTSIDE LET *) val compare = Int.compare (* GEN END TAG OUTSIDE LET *)) 

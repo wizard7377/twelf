@@ -26,16 +26,16 @@ struct
      Invariant: 1 <= k <= |G|, where |G| is length of G
   *)
 
-  fun ctxLookup (Decl (G', D), 1) = D
-    | ctxLookup (Decl (G', _), k') = ctxLookup (G', k'-1)
+  fun (* GEN BEGIN FUN FIRST *) ctxLookup (Decl (G', D), 1) = D (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) ctxLookup (Decl (G', _), k') = ctxLookup (G', k'-1) (* GEN END FUN BRANCH *)
 (*    | ctxLookup (Null, k') = (print ("Looking up k' = " ^ Int.toString k' ^ "\n"); raise Error "Out of Bounce\n")*)
     (* ctxLookup (Null, k')  should not occur by invariant *)
 
   (* ctxLength G = |G|, the number of declarations in G *)
   fun ctxLength G =
       let
-        fun ctxLength' (Null, n) = n
-          | ctxLength' (Decl(G, _), n)= ctxLength' (G, n+1)
+        fun (* GEN BEGIN FUN FIRST *) ctxLength' (Null, n) = n (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) ctxLength' (Decl(G, _), n)= ctxLength' (G, n+1) (* GEN END FUN BRANCH *)
       in
         ctxLength' (G, 0)
       end
@@ -205,7 +205,7 @@ struct
 
 
     fun fold csfe f b = let
-        val r = ref b
+        (* GEN BEGIN TAG OUTSIDE LET *) val r = ref b (* GEN END TAG OUTSIDE LET *)
         fun g U = r := f (U,!r)
     in
         App.apply csfe g ; !r
@@ -226,19 +226,19 @@ struct
 
   end
 
-  fun conDecName (ConDec (name, _, _, _, _, _)) = name
-    | conDecName (ConDef (name, _, _, _, _, _, _)) = name
-    | conDecName (AbbrevDef (name, _, _, _, _, _)) = name
-    | conDecName (SkoDec (name, _, _, _, _)) = name
-    | conDecName (BlockDec (name, _, _, _)) = name
-    | conDecName (BlockDef (name, _, _)) = name
+  fun (* GEN BEGIN FUN FIRST *) conDecName (ConDec (name, _, _, _, _, _)) = name (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) conDecName (ConDef (name, _, _, _, _, _, _)) = name (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecName (AbbrevDef (name, _, _, _, _, _)) = name (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecName (SkoDec (name, _, _, _, _)) = name (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecName (BlockDec (name, _, _, _)) = name (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecName (BlockDef (name, _, _)) = name (* GEN END FUN BRANCH *)
 
-  fun conDecParent (ConDec (_, parent, _, _, _, _)) = parent
-    | conDecParent (ConDef (_, parent, _, _, _, _, _)) = parent
-    | conDecParent (AbbrevDef (_, parent, _, _, _, _)) = parent
-    | conDecParent (SkoDec (_, parent, _, _, _)) = parent
-    | conDecParent (BlockDec (_, parent, _, _)) = parent
-    | conDecParent (BlockDef (_, parent, _)) = parent
+  fun (* GEN BEGIN FUN FIRST *) conDecParent (ConDec (_, parent, _, _, _, _)) = parent (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) conDecParent (ConDef (_, parent, _, _, _, _, _)) = parent (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecParent (AbbrevDef (_, parent, _, _, _, _)) = parent (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecParent (SkoDec (_, parent, _, _, _)) = parent (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecParent (BlockDec (_, parent, _, _)) = parent (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecParent (BlockDef (_, parent, _)) = parent (* GEN END FUN BRANCH *)
 
 
   (* conDecImp (CD) = k
@@ -248,14 +248,14 @@ struct
           a Skolem constant
      then k stands for the number of implicit elements.
   *)
-  fun conDecImp (ConDec (_, _, i, _, _, _)) = i
-    | conDecImp (ConDef (_, _, i, _, _, _, _)) = i
-    | conDecImp (AbbrevDef (_, _, i, _, _, _)) = i
-    | conDecImp (SkoDec (_, _, i, _, _)) = i
-    | conDecImp (BlockDec (_, _,  _, _)) = 0   (* watch out -- carsten *)
+  fun (* GEN BEGIN FUN FIRST *) conDecImp (ConDec (_, _, i, _, _, _)) = i (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) conDecImp (ConDef (_, _, i, _, _, _, _)) = i (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecImp (AbbrevDef (_, _, i, _, _, _)) = i (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecImp (SkoDec (_, _, i, _, _)) = i (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecImp (BlockDec (_, _,  _, _)) = 0 (* GEN END FUN BRANCH *)   (* watch out -- carsten *)
 
-  fun conDecStatus (ConDec (_, _, _, status, _, _)) = status
-    | conDecStatus _ = Normal
+  fun (* GEN BEGIN FUN FIRST *) conDecStatus (ConDec (_, _, _, status, _, _)) = status (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) conDecStatus _ = Normal (* GEN END FUN BRANCH *)
 
   (* conDecType (CD) =  V
 
@@ -264,10 +264,10 @@ struct
           a Skolem constant
      then V is the respective type
   *)
-  fun conDecType (ConDec (_, _, _, _, V, _)) = V
-    | conDecType (ConDef (_, _, _, _, V, _, _)) = V
-    | conDecType (AbbrevDef (_, _, _, _, V, _)) = V
-    | conDecType (SkoDec (_, _, _, V, _)) = V
+  fun (* GEN BEGIN FUN FIRST *) conDecType (ConDec (_, _, _, _, V, _)) = V (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) conDecType (ConDef (_, _, _, _, V, _, _)) = V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecType (AbbrevDef (_, _, _, _, V, _)) = V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecType (SkoDec (_, _, _, V, _)) = V (* GEN END FUN BRANCH *)
 
 
   (* conDecBlock (CD) =  (Gsome, Lpi)
@@ -286,10 +286,10 @@ struct
           a Skolem constant
      then L is the respective universe
   *)
-  fun conDecUni (ConDec (_, _, _, _, _, L)) = L
-    | conDecUni (ConDef (_, _, _, _, _, L, _)) = L
-    | conDecUni (AbbrevDef (_, _, _, _, _, L)) = L
-    | conDecUni (SkoDec (_, _, _, _, L)) = L
+  fun (* GEN BEGIN FUN FIRST *) conDecUni (ConDec (_, _, _, _, _, L)) = L (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) conDecUni (ConDef (_, _, _, _, _, L, _)) = L (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecUni (AbbrevDef (_, _, _, _, _, L)) = L (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) conDecUni (SkoDec (_, _, _, _, L)) = L (* GEN END FUN BRANCH *)
 
 
   fun strDecName (StrDec (name, _)) = name
@@ -297,16 +297,16 @@ struct
   fun strDecParent (StrDec (_, parent)) = parent
 
   local
-    val maxCid = Global.maxCid
-    val dummyEntry = ConDec("", NONE, 0, Normal, Uni (Kind), Kind)
-    val sgnArray = Array.array (maxCid+1, dummyEntry)
-      : con_dec Array.array
-    val nextCid  = ref(0)
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxCid = Global.maxCid (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val dummyEntry = ConDec("", NONE, 0, Normal, Uni (Kind), Kind) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sgnArray = Array.array (maxCid+1, dummyEntry)
+      : con_dec Array.array (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val nextCid  = ref(0) (* GEN END TAG OUTSIDE LET *)
 
-    val maxMid = Global.maxMid
-    val sgnStructArray = Array.array (maxMid+1, StrDec("", NONE))
-      : str_dec Array.array
-    val nextMid = ref (0)
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxMid = Global.maxMid (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sgnStructArray = Array.array (maxMid+1, StrDec("", NONE))
+      : str_dec Array.array (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val nextMid = ref (0) (* GEN END TAG OUTSIDE LET *)
 
   in
     (* Invariants *)
@@ -328,7 +328,7 @@ struct
 
     fun sgnAdd (conDec) =
         let
-          val cid = !nextCid
+          (* GEN BEGIN TAG OUTSIDE LET *) val cid = !nextCid (* GEN END TAG OUTSIDE LET *)
         in
           if cid > maxCid
             then raise Error ("Global signature size " ^ Int.toString (maxCid+1) ^ " exceeded")
@@ -350,7 +350,7 @@ struct
 
     fun sgnStructAdd (strDec) =
         let
-          val mid = !nextMid
+          (* GEN BEGIN TAG OUTSIDE LET *) val mid = !nextMid (* GEN END TAG OUTSIDE LET *)
         in
           if mid > maxMid
             then raise Error ("Global signature size " ^ Int.toString (maxMid+1) ^ " exceeded")
@@ -365,12 +365,12 @@ struct
     (* A hack used in Flit - jcreed 6/05 *)
     fun rename (cid, new) =
         let
-            val newConDec = case sgnLookup cid of
+            (* GEN BEGIN TAG OUTSIDE LET *) val newConDec = case sgnLookup cid of
                 ConDec (n,m,i,s,e,u) => ConDec(new,m,i,s,e,u)
               | ConDef (n,m,i,e,e',u,a) => ConDef(new,m,i,e,e',u,a)
               | AbbrevDef (n,m,i,e,e',u) => AbbrevDef (new,m,i,e,e',u)
               | BlockDec (n,m,d,d') => BlockDec (new,m,d,d')
-              | SkoDec (n,m,i,e,u) => SkoDec (new,m,i,e,u)
+              | SkoDec (n,m,i,e,u) => SkoDec (new,m,i,e,u) (* GEN END TAG OUTSIDE LET *)
         in
             Array.update (sgnArray, cid, newConDec)
         end
@@ -400,20 +400,20 @@ struct
      Invariant:
      G |- id : G        id is patsub
   *)
-  val id = Shift(0)
+  (* GEN BEGIN TAG OUTSIDE LET *) val id = Shift(0) (* GEN END TAG OUTSIDE LET *)
 
   (* shift = ^1
 
      Invariant:
      G, V |- ^ : G       ^ is patsub
   *)
-  val shift = Shift(1)
+  (* GEN BEGIN TAG OUTSIDE LET *) val shift = Shift(1) (* GEN END TAG OUTSIDE LET *)
 
   (* invShift = ^-1 = _.^0
      Invariant:
      G |- ^-1 : G, V     ^-1 is patsub
   *)
-  val invShift = Dot(Undef, id)
+  (* GEN BEGIN TAG OUTSIDE LET *) val invShift = Dot(Undef, id) (* GEN END TAG OUTSIDE LET *)
 
 
   (* comp (s1, s2) = s'
@@ -427,14 +427,14 @@ struct
      If  s1, s2 patsub
      then s' patsub
    *)
-  fun comp (Shift (0), s) = s
+  fun (* GEN BEGIN FUN FIRST *) comp (Shift (0), s) = s (* GEN END FUN FIRST *)
     (* next line is an optimization *)
     (* roughly 15% on standard suite for Twelf 1.1 *)
     (* Sat Feb 14 10:15:16 1998 -fp *)
-    | comp (s, Shift (0)) = s
-    | comp (Shift (n), Dot (Ft, s)) = comp (Shift (n-1), s)
-    | comp (Shift (n), Shift (m)) = Shift (n+m)
-    | comp (Dot (Ft, s), s') = Dot (frontSub (Ft, s'), comp (s, s'))
+    | (* GEN BEGIN FUN BRANCH *) comp (s, Shift (0)) = s (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) comp (Shift (n), Dot (Ft, s)) = comp (Shift (n-1), s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) comp (Shift (n), Shift (m)) = Shift (n+m) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) comp (Dot (Ft, s), s') = Dot (frontSub (Ft, s'), comp (s, s')) (* GEN END FUN BRANCH *)
 
   (* bvarSub (n, s) = Ft'
 
@@ -444,9 +444,9 @@ struct
        or  Ft' = ^(n+k)     if  s = Ft1 .. Ftm ^k   and m<n
      and   G |- Ft' : V [s]
   *)
-  and bvarSub (1, Dot(Ft, s)) = Ft
-    | bvarSub (n, Dot(Ft, s)) = bvarSub (n-1, s)
-    | bvarSub (n, Shift(k))  = Idx (n+k)
+  and (* GEN BEGIN FUN FIRST *) bvarSub (1, Dot(Ft, s)) = Ft (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) bvarSub (n, Dot(Ft, s)) = bvarSub (n-1, s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) bvarSub (n, Shift(k))  = Idx (n+k) (* GEN END FUN BRANCH *)
 
   (* blockSub (B, s) = B'
 
@@ -458,25 +458,25 @@ struct
   *)
   (* in front of substitutions, first case is irrelevant *)
   (* Sun Dec  2 11:56:41 2001 -fp *)
-  and blockSub (Bidx k, s) =
+  and (* GEN BEGIN FUN FIRST *) blockSub (Bidx k, s) =
       (case bvarSub (k, s)
          of Idx k' => Bidx k'
-          | Block B => B)
-    | blockSub (LVar (ref (SOME B), sk, _), s) =
-        blockSub (B, comp (sk, s))
+          | Block B => B) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) blockSub (LVar (ref (SOME B), sk, _), s) =
+        blockSub (B, comp (sk, s)) (* GEN END FUN BRANCH *)
     (* -fp Sun Dec  1 21:18:30 2002 *)
     (* --cs Sun Dec  1 11:25:41 2002 *)
     (* Since always . |- t : Gsome, discard s *)
     (* where is this needed? *)
     (* Thu Dec  6 20:30:26 2001 -fp !!! *)
-    | blockSub (LVar (r as ref NONE, sk, (l, t)), s) =
-        LVar(r, comp(sk, s), (l, t))
+    | (* GEN BEGIN FUN BRANCH *) blockSub (LVar (r as ref NONE, sk, (l, t)), s) =
+        LVar(r, comp(sk, s), (l, t)) (* GEN END FUN BRANCH *)
       (* was:
         LVar (r, comp(sk, s), (l, comp (t, s)))
         July 22, 2010 -fp -cs
        *)
         (* comp(^k, s) = ^k' for some k' by invariant *)
-    | blockSub (L as Inst ULs, s') = Inst (map (fn U => EClo (U, s')) ULs)
+    | (* GEN BEGIN FUN BRANCH *) blockSub (L as Inst ULs, s') = Inst (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn U => EClo (U, s') (* GEN END FUNCTION EXPRESSION *)) ULs) (* GEN END FUN BRANCH *)
     (* this should be right but somebody should verify *)
 
   (* frontSub (Ft, s) = Ft'
@@ -490,10 +490,10 @@ struct
      computed eagerly, we must introduce an "Undefined" exception,
      raise it in whnf and handle it here so Exp (EClo (U, s)) => Undef
   *)
-  and frontSub (Idx (n), s) = bvarSub (n, s)
-    | frontSub (Exp (U), s) = Exp (EClo (U, s))
-    | frontSub (Undef, s) = Undef
-    | frontSub (Block (B), s) = Block (blockSub (B, s))
+  and (* GEN BEGIN FUN FIRST *) frontSub (Idx (n), s) = bvarSub (n, s) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) frontSub (Exp (U), s) = Exp (EClo (U, s)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) frontSub (Undef, s) = Undef (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) frontSub (Block (B), s) = Block (blockSub (B, s)) (* GEN END FUN BRANCH *)
 
   (* decSub (x:V, s) = D'
 
@@ -511,9 +511,9 @@ struct
   fun decSub (D, Shift(0)) = D
     | decSub (Dec (x, V), s) = Dec (x, EClo (V, s))
   *)
-  fun decSub (Dec (x, V), s) = Dec (x, EClo (V, s))
-    | decSub (NDec x, s) = NDec x
-    | decSub (BDec (n, (l, t)), s) = BDec (n, (l, comp (t, s)))
+  fun (* GEN BEGIN FUN FIRST *) decSub (Dec (x, V), s) = Dec (x, EClo (V, s)) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) decSub (NDec x, s) = NDec x (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) decSub (BDec (n, (l, t)), s) = BDec (n, (l, comp (t, s))) (* GEN END FUN BRANCH *)
 
   (* dot1 (s) = s'
 
@@ -528,8 +528,8 @@ struct
   (* first line is an optimization *)
   (* roughly 15% on standard suite for Twelf 1.1 *)
   (* Sat Feb 14 10:16:16 1998 -fp *)
-  fun dot1 (s as Shift (0)) = s
-    | dot1 s = Dot (Idx(1), comp(s, shift))
+  fun (* GEN BEGIN FUN FIRST *) dot1 (s as Shift (0)) = s (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) dot1 s = Dot (Idx(1), comp(s, shift)) (* GEN END FUN BRANCH *)
 
   (* invDot1 (s) = s'
      invDot1 (1. s' o ^) = s'
@@ -553,9 +553,9 @@ struct
       let (* ctxDec' (G'', k') = x:V
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)
-        fun ctxDec' (Decl (G', Dec (x, V')), 1) = Dec (x, EClo (V', Shift (k)))
-          | ctxDec' (Decl (G', BDec (n, (l, s))), 1) = BDec (n, (l, comp (s, Shift (k))))
-          | ctxDec' (Decl (G', _), k') = ctxDec' (G', k'-1)
+        fun (* GEN BEGIN FUN FIRST *) ctxDec' (Decl (G', Dec (x, V')), 1) = Dec (x, EClo (V', Shift (k))) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) ctxDec' (Decl (G', BDec (n, (l, s))), 1) = BDec (n, (l, comp (s, Shift (k)))) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) ctxDec' (Decl (G', _), k') = ctxDec' (G', k'-1) (* GEN END FUN BRANCH *)
          (* ctxDec' (Null, k')  should not occur by invariant *)
       in
         ctxDec' (G, k)
@@ -572,13 +572,13 @@ struct
 
   fun blockDec (G, v as (Bidx k), i) =
     let
-      val BDec (_, (l, s)) = ctxDec (G, k)
+      (* GEN BEGIN TAG OUTSIDE LET *) val BDec (_, (l, s)) = ctxDec (G, k) (* GEN END TAG OUTSIDE LET *)
       (* G |- s : Gsome *)
-      val (Gsome, Lblock) = conDecBlock (sgnLookup l)
-      fun blockDec' (t, D :: L, 1, j) = decSub (D, t)
-        | blockDec' (t, _ :: L, n, j) =
+      (* GEN BEGIN TAG OUTSIDE LET *) val (Gsome, Lblock) = conDecBlock (sgnLookup l) (* GEN END TAG OUTSIDE LET *)
+      fun (* GEN BEGIN FUN FIRST *) blockDec' (t, D :: L, 1, j) = decSub (D, t) (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) blockDec' (t, _ :: L, n, j) =
             blockDec' (Dot (Exp (Root (Proj (v, j), Nil)), t),
-                          L, n-1, j+1)
+                          L, n-1, j+1) (* GEN END FUN BRANCH *)
     in
       blockDec' (s, Lblock, i, 1)
     end
@@ -603,18 +603,18 @@ struct
 
   (* Definition related functions *)
   (* headOpt (U) = SOME(H) or NONE, U should be strict, normal *)
-  fun headOpt (Root (H, _)) = SOME(H)
-    | headOpt (Lam (_, U)) = headOpt U
-    | headOpt _ = NONE
+  fun (* GEN BEGIN FUN FIRST *) headOpt (Root (H, _)) = SOME(H) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) headOpt (Lam (_, U)) = headOpt U (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) headOpt _ = NONE (* GEN END FUN BRANCH *)
 
-  fun ancestor' (NONE) = Anc(NONE, 0, NONE)
-    | ancestor' (SOME(Const(c))) = Anc(SOME(c), 1, SOME(c))
-    | ancestor' (SOME(Def(d))) =
+  fun (* GEN BEGIN FUN FIRST *) ancestor' (NONE) = Anc(NONE, 0, NONE) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) ancestor' (SOME(Const(c))) = Anc(SOME(c), 1, SOME(c)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) ancestor' (SOME(Def(d))) =
       (case sgnLookup(d)
          of ConDef(_, _, _, _, _, _, Anc(_, height, cOpt))
-            => Anc(SOME(d), height+1, cOpt))
-    | ancestor' (SOME _) = (* FgnConst possible, BVar impossible by strictness *)
-      Anc(NONE, 0, NONE)
+            => Anc(SOME(d), height+1, cOpt)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) ancestor' (SOME _) = (* FgnConst possible, BVar impossible by strictness *)
+      Anc(NONE, 0, NONE) (* GEN END FUN BRANCH *)
   (* ancestor(U) = ancestor info for d = U *)
   fun ancestor (U) = ancestor' (headOpt U)
 
@@ -631,13 +631,13 @@ struct
      Does not expand type definitions.
   *)
   (* should there possibly be a FgnConst case? also targetFamOpt -kw *)
-  fun targetHeadOpt (Root (H, _)) = SOME(H)
-    | targetHeadOpt (Pi(_, V)) = targetHeadOpt V
-    | targetHeadOpt (Redex (V, S)) = targetHeadOpt V
-    | targetHeadOpt (Lam (_, V)) = targetHeadOpt V
-    | targetHeadOpt (EVar (ref (SOME(V)),_,_,_)) = targetHeadOpt V
-    | targetHeadOpt (EClo (V, s)) = targetHeadOpt V
-    | targetHeadOpt _ = NONE
+  fun (* GEN BEGIN FUN FIRST *) targetHeadOpt (Root (H, _)) = SOME(H) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) targetHeadOpt (Pi(_, V)) = targetHeadOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetHeadOpt (Redex (V, S)) = targetHeadOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetHeadOpt (Lam (_, V)) = targetHeadOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetHeadOpt (EVar (ref (SOME(V)),_,_,_)) = targetHeadOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetHeadOpt (EClo (V, s)) = targetHeadOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetHeadOpt _ = NONE (* GEN END FUN BRANCH *)
       (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
       *)
@@ -652,14 +652,14 @@ struct
      NONE if V is a kind or object or have variable type.
      Does expand type definitions.
   *)
-  fun targetFamOpt (Root (Const(cid), _)) = SOME(cid)
-    | targetFamOpt (Pi(_, V)) = targetFamOpt V
-    | targetFamOpt (Root (Def(cid), _)) = targetFamOpt (constDef cid)
-    | targetFamOpt (Redex (V, S)) = targetFamOpt V
-    | targetFamOpt (Lam (_, V)) = targetFamOpt V
-    | targetFamOpt (EVar (ref (SOME(V)),_,_,_)) = targetFamOpt V
-    | targetFamOpt (EClo (V, s)) = targetFamOpt V
-    | targetFamOpt _ = NONE
+  fun (* GEN BEGIN FUN FIRST *) targetFamOpt (Root (Const(cid), _)) = SOME(cid) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) targetFamOpt (Pi(_, V)) = targetFamOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetFamOpt (Root (Def(cid), _)) = targetFamOpt (constDef cid) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetFamOpt (Redex (V, S)) = targetFamOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetFamOpt (Lam (_, V)) = targetFamOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetFamOpt (EVar (ref (SOME(V)),_,_,_)) = targetFamOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetFamOpt (EClo (V, s)) = targetFamOpt V (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) targetFamOpt _ = NONE (* GEN END FUN BRANCH *)
       (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
       *)

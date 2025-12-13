@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ThmSyn ((*! structure IntSyn : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ThmSyn ((*! structure IntSyn : INTSYN !*)
                 (*! structure ModeSyn' : MODESYN !*)
                 (*! sharing ModeSyn'.IntSyn = IntSyn !*)
                 structure Abstract : ABSTRACT
@@ -131,4 +131,4 @@ struct
     val theoremDecToModeSpine = theoremDecToModeSpine
   end (* local *)
 
-end (* GEN END FUNCTOR DECL *); (* functor ThmSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor ThmSyn *)

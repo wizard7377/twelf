@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) AbstractTabled ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) AbstractTabled ((*! structure IntSyn' : INTSYN !*)
                   structure Whnf    : WHNF
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
                   structure Unify   : UNIFY
@@ -1054,7 +1054,7 @@ struct
                        raiseType (G, U))
 
   end
-end (* GEN END FUNCTOR DECL *);  (* functor AbstractTabled *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor AbstractTabled *)
 
 
 

@@ -12,64 +12,64 @@ struct
 
     type 'a trail = 'a trail ref
 
-    (* GEN BEGIN TAG INSIDE LET *) fun trail () = ref Nil (* GEN END TAG INSIDE LET *)
+    fun trail () = ref Nil
 
-    (* GEN BEGIN TAG INSIDE LET *) fun reset trail =
-          trail := Nil (* GEN END TAG INSIDE LET *)
+    fun reset trail =
+          trail := Nil
 
 
-    (* GEN BEGIN TAG INSIDE LET *) fun suspend (trail, copy) =
+    fun suspend (trail, copy) =
       let
-    	fun suspend' Nil = Nil
+    	fun (* GEN BEGIN FUN FIRST *) suspend' Nil = Nil (* GEN END FUN FIRST *)
     (*	  | suspend' (Mark trail) = (Mark (suspend' trail))*)
-    	  | suspend' (Mark trail) = (suspend' trail)
-    	  | suspend' (Cons (action, trail)) =
-    	  Cons (copy action,  suspend' trail)
-    	val ftrail = suspend' (!trail)
+    	  | (* GEN BEGIN FUN BRANCH *) suspend' (Mark trail) = (suspend' trail) (* GEN END FUN BRANCH *)
+    	  | (* GEN BEGIN FUN BRANCH *) suspend' (Cons (action, trail)) =
+    	  Cons (copy action,  suspend' trail) (* GEN END FUN BRANCH *)
+    	(* GEN BEGIN TAG OUTSIDE LET *) val ftrail = suspend' (!trail) (* GEN END TAG OUTSIDE LET *)
       in
     	ref ftrail
-      end (* GEN END TAG INSIDE LET *)
+      end
 
-    (* GEN BEGIN TAG INSIDE LET *) fun resume (ftrail, trail, reset) = 
+    fun resume (ftrail, trail, reset) = 
       let
-    	fun resume' Nil = Nil
+    	fun (* GEN BEGIN FUN FIRST *) resume' Nil = Nil (* GEN END FUN FIRST *)
     (*	  | resume' (Mark ftrail) = (Mark (resume' ftrail)) *)
-    	  | resume' (Mark ftrail) = resume' ftrail
-    	  | resume' (Cons (faction, ftrail)) = 
-    	  Cons (reset faction, resume' ftrail)
-    	val trail' = resume' (!ftrail)
+    	  | (* GEN BEGIN FUN BRANCH *) resume' (Mark ftrail) = resume' ftrail (* GEN END FUN BRANCH *)
+    	  | (* GEN BEGIN FUN BRANCH *) resume' (Cons (faction, ftrail)) = 
+    	  Cons (reset faction, resume' ftrail) (* GEN END FUN BRANCH *)
+    	(* GEN BEGIN TAG OUTSIDE LET *) val trail' = resume' (!ftrail) (* GEN END TAG OUTSIDE LET *)
       in 
        trail := trail'
-      end (* GEN END TAG INSIDE LET *) 
+      end 
 
 
-    (* GEN BEGIN TAG INSIDE LET *) fun mark trail =
-          trail := Mark (!trail) (* GEN END TAG INSIDE LET *)
+    fun mark trail =
+          trail := Mark (!trail)
 
-    (* GEN BEGIN TAG INSIDE LET *) fun unwind (trail, undo) =
+    fun unwind (trail, undo) =
           let
-            fun unwind' Nil = Nil
-              | unwind' (Mark trail) = trail
-              | unwind' (Cons (action, trail)) =
-                  (undo action ; unwind' trail)
+            fun (* GEN BEGIN FUN FIRST *) unwind' Nil = Nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) unwind' (Mark trail) = trail (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unwind' (Cons (action, trail)) =
+                  (undo action ; unwind' trail) (* GEN END FUN BRANCH *)
           in
             trail := unwind' (!trail)
-          end (* GEN END TAG INSIDE LET *)
+          end
 
-    (* GEN BEGIN TAG INSIDE LET *) fun log (trail, action) =
-          trail := Cons (action, !trail) (* GEN END TAG INSIDE LET *)
+    fun log (trail, action) =
+          trail := Cons (action, !trail)
 
   in
     type 'a trail = 'a trail
 
-    (* GEN BEGIN TAG INSIDE LET *) val trail = trail (* GEN END TAG INSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val trail = trail (* GEN END TAG OUTSIDE LET *)
 
-    (* GEN BEGIN TAG INSIDE LET *) val suspend = suspend (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val resume = resume (* GEN END TAG INSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val suspend = suspend (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val resume = resume (* GEN END TAG OUTSIDE LET *)
 
-    (* GEN BEGIN TAG INSIDE LET *) val reset = reset (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val mark = mark (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val unwind = unwind (* GEN END TAG INSIDE LET *)
-    (* GEN BEGIN TAG INSIDE LET *) val log = log (* GEN END TAG INSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val mark = mark (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val unwind = unwind (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val log = log (* GEN END TAG OUTSIDE LET *)
   end (* local ... *)
 end; (* structure Trail *)

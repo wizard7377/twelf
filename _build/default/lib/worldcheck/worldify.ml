@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Worldify
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Worldify
   (structure Global : GLOBAL
    (*! structure IntSyn : INTSYN !*)
    (*! structure Tomega : TOMEGA !*)
@@ -630,4 +630,4 @@ struct
     val worldifyGoal = fn (G,V) => worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top)
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor Worldify *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Worldify *)

@@ -2,7 +2,7 @@
 (* Author: Brigitte Pientka *)
 (* Based on abstract machine in absmachine.fun *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Tabled ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Tabled ((*! structure IntSyn' : INTSYN !*)
                 (*! structure CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                 structure Unify : UNIFY
@@ -679,7 +679,7 @@ struct
 
  val solve = solveQuery
 
-end (* GEN END FUNCTOR DECL *); (* functor Tabled *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Tabled *)
 
 
 

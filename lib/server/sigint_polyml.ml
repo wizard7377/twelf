@@ -1,12 +1,12 @@
 structure SigINT :> SIGINT =
 struct
 
-  (* GEN BEGIN TAG INSIDE LET *) fun interruptLoop (loop:unit -> unit) =
+  fun interruptLoop (loop:unit -> unit) =
       let
-  	val origIntHandler =
+  	(* GEN BEGIN TAG OUTSIDE LET *) val origIntHandler =
   	    Signal.signal (Posix.Signal.int,
-  			   Signal.SIG_HANDLE (fn n => (print "\ninterrupt\n";
-  						       Process.interruptConsoleProcesses ())))
+  			   Signal.SIG_HANDLE ((* GEN BEGIN FUNCTION EXPRESSION *) fn n => (print "\ninterrupt\n";
+  						       Process.interruptConsoleProcesses ()) (* GEN END FUNCTION EXPRESSION *))) (* GEN END TAG OUTSIDE LET *)
   	(*
   	val _ = print
   "Upon interrupt at prompt => type\n\
@@ -16,6 +16,6 @@ struct
         *)
       in
   	loop ()
-      end (* GEN END TAG INSIDE LET *)
+      end
 
 end;  (* structure SigINT *)

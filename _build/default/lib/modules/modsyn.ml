@@ -1,7 +1,7 @@
 (* Syntax for elaborated modules *)
 (* Author: Kevin Watkins *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ModSyn
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ModSyn
   (structure Global : GLOBAL
    (*! structure IntSyn' : INTSYN !*)
    structure Names' : NAMES
@@ -345,4 +345,4 @@ struct
 
   end
 
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

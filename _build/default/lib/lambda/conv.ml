@@ -1,7 +1,7 @@
 (* Convertibility Modulo Beta and Eta *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Conv
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Conv
   ((*! structure IntSyn' : INTSYN !*)
    structure Whnf   : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -172,4 +172,4 @@ struct
     val convDec = convDec
     val convSub = convSub
   end (* local *)
-end (* GEN END FUNCTOR DECL *);  (* functor Conv *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Conv *)

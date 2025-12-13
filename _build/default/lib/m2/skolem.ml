@@ -1,7 +1,7 @@
 (* Skolem constant administration *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Skolem (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Skolem (structure Global : GLOBAL
                 (*! structure IntSyn' : INTSYN !*)
                 structure Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -116,4 +116,4 @@ struct
   in
     val install = install
   end (* local *)
-end (* GEN END FUNCTOR DECL *) (* functor Skolem *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor Skolem *)

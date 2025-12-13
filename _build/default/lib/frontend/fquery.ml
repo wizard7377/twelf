@@ -1,7 +1,7 @@
 (* fquery: Executing logic programs via functional interpretation *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Fquery
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Fquery
   (structure Global : GLOBAL
    structure Names : NAMES
    structure ReconQuery : RECON_QUERY
@@ -70,4 +70,4 @@ struct
         print ("Delphin: " ^ TomegaPrint.prgToString (I.Null, V) ^ "\n")
       end
 
-end (* GEN END FUNCTOR DECL *); (* functor Solve *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Solve *)

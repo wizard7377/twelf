@@ -1,7 +1,7 @@
 (* Meta Theorem Prover abstraction : Version 1.3 *)
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPAbstract ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPAbstract ((*! structure IntSyn' : INTSYN !*)
                      (*! structure FunSyn' : FUNSYN !*)
                      (*! sharing FunSyn'.IntSyn = IntSyn' !*)
                      structure StateSyn' : STATESYN
@@ -873,4 +873,4 @@ struct
     val abstractApproxFor = abstractApproxFor
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor MTPAbstract *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor MTPAbstract *)

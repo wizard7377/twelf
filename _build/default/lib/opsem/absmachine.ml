@@ -2,7 +2,7 @@
 (* Author: Iliano Cervesato *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) AbsMachine ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) AbsMachine ((*! structure IntSyn' : INTSYN !*)
                     (*! structure CompSyn' : COMPSYN !*)
                     (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                     structure Unify : UNIFY
@@ -275,4 +275,4 @@ struct
    val solve = solve
   end (* local ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor AbsMachine *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor AbsMachine *)

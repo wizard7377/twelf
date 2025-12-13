@@ -1,6 +1,6 @@
 (* Print an informative message on receipt of an unhandled exception. *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) UnknownExn (val exnHistory : exn -> string list) : UNKNOWN_EXN =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) UnknownExn (val exnHistory : exn -> string list) : UNKNOWN_EXN =
 struct
   fun unknownExn exn =
     let
@@ -17,4 +17,4 @@ struct
                | x::xs => (wrap1 x :: map wrapn xs))
       )
     end
-end (* GEN END FUNCTOR DECL *);
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);

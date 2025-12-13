@@ -20,20 +20,20 @@ struct
 
   fun insertShadow (a,n) (e as (key, datum)) =
       let
-  	val hashVal = hash key
-  	val index = hashVal mod n
-  	val bucket = Array.sub (a, index)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val hashVal = hash key (* GEN END TAG OUTSIDE LET *)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val index = hashVal mod n (* GEN END TAG OUTSIDE LET *)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val bucket = Array.sub (a, index) (* GEN END TAG OUTSIDE LET *)
   	fun insertB (Cons(r' as ref(hash', e' as (key', datum')), br')) =
   	    if hashVal = hash' andalso eq (key, key')
   	       then (r' := (hashVal, e); SOME (e'))
   	    else insertBR (br')
-  	and insertBR (br as ref(Nil)) =
-  	      (br := Cons (ref (hashVal, e), ref Nil); NONE)
-  	  | insertBR (br) = insertB (!br)
-  	fun insertA (Nil) =
+  	and (* GEN BEGIN FUN FIRST *) insertBR (br as ref(Nil)) =
+  	      (br := Cons (ref (hashVal, e), ref Nil); NONE) (* GEN END FUN FIRST *)
+  	  | (* GEN BEGIN FUN BRANCH *) insertBR (br) = insertB (!br) (* GEN END FUN BRANCH *)
+  	fun (* GEN BEGIN FUN FIRST *) insertA (Nil) =
   	    (Array.update (a, index, Cons (ref (hashVal,e), ref Nil));
-  	     NONE)
-  	  | insertA (bucket) = insertB (bucket)
+  	     NONE) (* GEN END FUN FIRST *)
+  	  | (* GEN BEGIN FUN BRANCH *) insertA (bucket) = insertB (bucket) (* GEN END FUN BRANCH *)
       in
   	insertA bucket
       end
@@ -42,42 +42,42 @@ struct
 
   fun lookup (a,n) key =
       let
-  	val hashVal = hash key
-  	fun lookup' (Cons(ref(hash1, (key1, datum1)), br)) =
+  	(* GEN BEGIN TAG OUTSIDE LET *) val hashVal = hash key (* GEN END TAG OUTSIDE LET *)
+  	fun (* GEN BEGIN FUN FIRST *) lookup' (Cons(ref(hash1, (key1, datum1)), br)) =
   	    if hashVal = hash1 andalso eq (key, key1)
   	      then SOME(datum1)
-  	    else lookup' (!br)
-  	  | lookup' (Nil) = NONE
-  	val bucket = Array.sub (a, hashVal mod n)
+  	    else lookup' (!br) (* GEN END FUN FIRST *)
+  	  | (* GEN BEGIN FUN BRANCH *) lookup' (Nil) = NONE (* GEN END FUN BRANCH *)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val bucket = Array.sub (a, hashVal mod n) (* GEN END TAG OUTSIDE LET *)
       in
   	lookup' bucket
       end
 
   fun delete (a,n) key =
       let
-  	val hashVal = hash key
-  	val index = hashVal mod n
-  	val bucket = Array.sub (a, index)
-  	fun deleteBR (br as ref(Cons (ref (hash1, (key1, _)), br1))) =
+  	(* GEN BEGIN TAG OUTSIDE LET *) val hashVal = hash key (* GEN END TAG OUTSIDE LET *)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val index = hashVal mod n (* GEN END TAG OUTSIDE LET *)
+  	(* GEN BEGIN TAG OUTSIDE LET *) val bucket = Array.sub (a, index) (* GEN END TAG OUTSIDE LET *)
+  	fun (* GEN BEGIN FUN FIRST *) deleteBR (br as ref(Cons (ref (hash1, (key1, _)), br1))) =
   	      if hashVal = hash1 andalso eq (key, key1)
                 then br := !br1
-              else deleteBR br1
-  	  | deleteBR (br) = ()
-  	fun deleteA (Nil) = ()
-          | deleteA (Cons (ref (hash1, (key1, _)), br1)) =
+              else deleteBR br1 (* GEN END FUN FIRST *)
+  	  | (* GEN BEGIN FUN BRANCH *) deleteBR (br) = () (* GEN END FUN BRANCH *)
+  	fun (* GEN BEGIN FUN FIRST *) deleteA (Nil) = () (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) deleteA (Cons (ref (hash1, (key1, _)), br1)) =
             	      if hashVal = hash1 andalso eq (key, key1)
               then
                 Array.update (a, index, !br1)
-              else deleteBR br1
+              else deleteBR br1 (* GEN END FUN BRANCH *)
       in
   	deleteA bucket
       end
 
-  fun clear (a,n) = Array.modify (fn _ => Nil) a
+  fun clear (a,n) = Array.modify ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => Nil (* GEN END FUNCTION EXPRESSION *)) a
 
-  fun appBucket f (Nil) = ()
-    | appBucket f (Cons(ref(_, e), br)) =
-        (f e; appBucket f (!br))
+  fun (* GEN BEGIN FUN FIRST *) appBucket f (Nil) = () (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) appBucket f (Cons(ref(_, e), br)) =
+        (f e; appBucket f (!br)) (* GEN END FUN BRANCH *)
 
   fun app f (a,n) = Array.app (appBucket f) a
 end (* GEN END FUNCTOR DECL *);  (* functor HashTable *)

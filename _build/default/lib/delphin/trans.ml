@@ -2,7 +2,7 @@
 (* Author:  Carsten Schuermann *)
 
 
-functor (* GEN BEGIN FUNCTOR DECL *) Trans (structure DextSyn' : DEXTSYN) (* : TRANS *) =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Trans (structure DextSyn' : DEXTSYN) (* : TRANS *) =
 
 struct
 
@@ -1157,4 +1157,4 @@ struct
 (*    val transDecs = fn Ds => transDecs ((I.Null, []), NONE, Ds, fn (Psi,  W) => T.Unit, T.Worlds [])
 *)
   end
-end (* GEN END FUNCTOR DECL *) (* functor Trans *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor Trans *)

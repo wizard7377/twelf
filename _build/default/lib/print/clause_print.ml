@@ -5,7 +5,7 @@
    printed with backward arrows `<-'
 *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ClausePrint
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ClausePrint
   ((*! structure IntSyn' : INTSYN !*)
    structure Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -118,4 +118,4 @@ in
       IntSyn.sgnApp (fn (cid) => (print (conDecToString (IntSyn.sgnLookup cid)); print "\n"))
 end  (* local ... *)
 
-end (* GEN END FUNCTOR DECL *)  (* functor ClausePrint *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor ClausePrint *)

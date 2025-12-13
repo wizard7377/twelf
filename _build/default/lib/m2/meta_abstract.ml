@@ -1,7 +1,7 @@
 (* Meta Abstraction *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MetaAbstract (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MetaAbstract (structure Global : GLOBAL
                       structure MetaSyn' : METASYN
                       structure MetaGlobal : METAGLOBAL
                       structure Abstract : ABSTRACT
@@ -710,4 +710,4 @@ struct
   in
     val abstract = abstract
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor MetaAbstract *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor MetaAbstract *)

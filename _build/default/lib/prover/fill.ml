@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Date: Thu Mar 16 13:08:33 2006 *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Fill
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Fill
   (structure Data : DATA
    (*! structure IntSyn' : INTSYN !*)
    (*! structure Tomega' : TOMEGA !*)
@@ -153,4 +153,4 @@ struct
     val apply = apply
     val menu = menu
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Filling *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Filling *)

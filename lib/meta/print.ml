@@ -40,25 +40,25 @@ struct
     *)
     fun nameState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
         let
-          val _ = Names.varReset I.Null
-          val G' = Names.ctxName G
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset I.Null (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val G' = Names.ctxName G (* GEN END TAG OUTSIDE LET *)
         in
           S.State (n, (G', B), (IH, OH), d, O, H, F)
         end
 
 
-    fun formatOrder (G, S.Arg (Us, Vs)) =
+    fun (* GEN BEGIN FUN FIRST *) formatOrder (G, S.Arg (Us, Vs)) =
           [Print.formatExp (G, I.EClo Us), Fmt.String ":",
-           Print.formatExp (G, I.EClo Vs)]
-      | formatOrder (G, S.Lex Os) =
-          [Fmt.String "{", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "}"]
-      | formatOrder (G, S.Simul Os) =
-          [Fmt.String "[", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "]"]
+           Print.formatExp (G, I.EClo Vs)] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatOrder (G, S.Lex Os) =
+          [Fmt.String "{", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "}"] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatOrder (G, S.Simul Os) =
+          [Fmt.String "[", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "]"] (* GEN END FUN BRANCH *)
 
-    and formatOrders (G, nil) = nil
-      | formatOrders (G, O :: nil) = formatOrder (G, O)
-      | formatOrders (G, O :: Os) = formatOrder (G, O) @
-          [Fmt.String ",", Fmt.Break]  @ formatOrders (G, Os)
+    and (* GEN BEGIN FUN FIRST *) formatOrders (G, nil) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatOrders (G, O :: nil) = formatOrder (G, O) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatOrders (G, O :: Os) = formatOrder (G, O) @
+          [Fmt.String ",", Fmt.Break]  @ formatOrders (G, Os) (* GEN END FUN BRANCH *)
 
     (* format T = fmt'
 
@@ -66,12 +66,12 @@ struct
        If   T is a tag
        then fmt' is a a format descibing the tag T
     *)
-    fun formatTag (G, S.Parameter l) = [Fmt.String "<p>"]
-      | formatTag (G, S.Lemma (S.Splits k)) = [Fmt.String "<i",
+    fun (* GEN BEGIN FUN FIRST *) formatTag (G, S.Parameter l) = [Fmt.String "<p>"] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatTag (G, S.Lemma (S.Splits k)) = [Fmt.String "<i",
                                                  Fmt.String (Int.toString k),
-                                                 Fmt.String ">"]
-      | formatTag (G, S.Lemma (S.RL)) = [Fmt.String "<i >"]
-      | formatTag (G, S.Lemma (S.RLdone)) = [Fmt.String "<i*>"]
+                                                 Fmt.String ">"] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatTag (G, S.Lemma (S.RL)) = [Fmt.String "<i >"] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatTag (G, S.Lemma (S.RLdone)) = [Fmt.String "<i*>"] (* GEN END FUN BRANCH *)
 (*      | formatTag (G, S.Assumption k) = [Fmt.String "<a",
                                          Fmt.String (Int.toString k),
                                          Fmt.String ">"] *)
@@ -84,19 +84,19 @@ struct
        and  |- B : G tags
        then fmt' is a format describing the context (G, B)
     *)
-    fun formatCtx (I.Null, B) = []
-      | formatCtx (I.Decl (I.Null, D), I.Decl (I.Null, T)) =
+    fun (* GEN BEGIN FUN FIRST *) formatCtx (I.Null, B) = [] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtx (I.Decl (I.Null, D), I.Decl (I.Null, T)) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox (formatTag (I.Null, T) @ [Fmt.Break, Print.formatDec (I.Null, D)])]
         else
-          [Print.formatDec (I.Null, D)]
-      | formatCtx (I.Decl (G, D), I.Decl (B, T)) =
+          [Print.formatDec (I.Null, D)] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtx (I.Decl (G, D), I.Decl (B, T)) =
         if !Global.chatter >= 4 then
           formatCtx (G, B) @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
           [Fmt.HVbox (formatTag (G, T) @ [Fmt.Break, Print.formatDec (G, D)])]
         else
           formatCtx (G, B) @ [Fmt.String ",",  Fmt.Break] @
-         [Fmt.Break, Print.formatDec (G, D)]
+         [Fmt.Break, Print.formatDec (G, D)] (* GEN END FUN BRANCH *)
 
 
     (* formatState S = fmt'
@@ -125,8 +125,8 @@ struct
 
 
   in
-    val nameState = nameState
-    val formatState = formatState
-    val stateToString = stateToString
+    (* GEN BEGIN TAG OUTSIDE LET *) val nameState = nameState (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val formatState = formatState (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val stateToString = stateToString (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *) (* functor MTPrint *)

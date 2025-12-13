@@ -1,7 +1,7 @@
 (* Parsing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ParseMode
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ParseMode
    ((*! structure Paths : PATHS !*)
    (*! structure Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
@@ -164,4 +164,4 @@ struct
     val parseMode' = parseMode'
   end  (* local *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor ParseMode *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ParseMode *)

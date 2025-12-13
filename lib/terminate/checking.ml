@@ -103,20 +103,20 @@ struct
    (*--------------------------------------------------------------------*)
    (* Printing atomic orders *)
 
-    fun atomicPredToString (G, Less((Us, _), (Us', _))) =
+    fun (* GEN BEGIN FUN FIRST *) atomicPredToString (G, Less((Us, _), (Us', _))) =
           Print.expToString(G, I.EClo(Us)) ^ " < " ^
-          Print.expToString(G, I.EClo(Us'))
-      | atomicPredToString (G, Leq((Us, _), (Us', _))) =
+          Print.expToString(G, I.EClo(Us')) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) atomicPredToString (G, Leq((Us, _), (Us', _))) =
           Print.expToString(G, I.EClo(Us)) ^ " <= " ^
-          Print.expToString(G, I.EClo(Us'))
-      | atomicPredToString (G, Eq((Us, _), (Us', _))) =
+          Print.expToString(G, I.EClo(Us')) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) atomicPredToString (G, Eq((Us, _), (Us', _))) =
           Print.expToString(G, I.EClo(Us)) ^ " = " ^
-          Print.expToString(G, I.EClo(Us'))
+          Print.expToString(G, I.EClo(Us')) (* GEN END FUN BRANCH *)
 
-    fun atomicRCtxToString (G, nil) = " "
-      | atomicRCtxToString (G, O::nil) = atomicPredToString (G, O)
-      | atomicRCtxToString (G, O::D') =
-          atomicRCtxToString (G, D') ^ ", " ^ atomicPredToString (G, O)
+    fun (* GEN BEGIN FUN FIRST *) atomicRCtxToString (G, nil) = " " (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) atomicRCtxToString (G, O::nil) = atomicPredToString (G, O) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) atomicRCtxToString (G, O::D') =
+          atomicRCtxToString (G, D') ^ ", " ^ atomicPredToString (G, O) (* GEN END FUN BRANCH *)
 
    (*--------------------------------------------------------------------*)
    (* shifting substitutions *)
@@ -128,42 +128,42 @@ struct
          with its terms by applying f to it
     *)
 
-    fun shiftO (R.Arg ((U, us), (V, vs))) f =
-            R.Arg ((U, (f us)), (V, (f vs)))
-      | shiftO (R.Lex L) f = R.Lex (map (fn O => shiftO O f) L)
-      | shiftO (R.Simul L) f = R.Simul (map (fn O => shiftO O f) L)
+    fun (* GEN BEGIN FUN FIRST *) shiftO (R.Arg ((U, us), (V, vs))) f =
+            R.Arg ((U, (f us)), (V, (f vs))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) shiftO (R.Lex L) f = R.Lex (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => shiftO O f (* GEN END FUNCTION EXPRESSION *)) L) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) shiftO (R.Simul L) f = R.Simul (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => shiftO O f (* GEN END FUNCTION EXPRESSION *)) L) (* GEN END FUN BRANCH *)
 
-    fun shiftP (Less(O1, O2)) f = Less(shiftO O1 f, shiftO O2 f)
-      | shiftP (Leq(O1, O2)) f = Leq(shiftO O1 f, shiftO O2 f)
-      | shiftP (Eq(O1, O2)) f = Eq(shiftO O1 f, shiftO O2 f)
-      | shiftP (Pi(D as I.Dec(X,V), P)) f = Pi(D, shiftP P f)
+    fun (* GEN BEGIN FUN FIRST *) shiftP (Less(O1, O2)) f = Less(shiftO O1 f, shiftO O2 f) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) shiftP (Leq(O1, O2)) f = Leq(shiftO O1 f, shiftO O2 f) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) shiftP (Eq(O1, O2)) f = Eq(shiftO O1 f, shiftO O2 f) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) shiftP (Pi(D as I.Dec(X,V), P)) f = Pi(D, shiftP P f) (* GEN END FUN BRANCH *)
 
-    fun shiftRCtx Rl f = map (fn p => shiftP p f) Rl
+    fun shiftRCtx Rl f = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn p => shiftP p f (* GEN END FUNCTION EXPRESSION *)) Rl
 
-    fun shiftArg (Less (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
-          Less (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
-      | shiftArg (Leq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
-          Leq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
-      | shiftArg (Eq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
-          Eq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2')))))
+    fun (* GEN BEGIN FUN FIRST *) shiftArg (Less (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+          Less (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2'))))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) shiftArg (Leq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+          Leq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2'))))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) shiftArg (Eq (((U1, s1), (V1, s1')), ((U2, s2), (V2, s2')))) f =
+          Eq (((U1, (f s1)), (V1, (f s1'))), (((U2, (f s2)), (V2, (f s2'))))) (* GEN END FUN BRANCH *)
 
-    fun shiftACtx Rl f = map (fn p => shiftArg p f) Rl
+    fun shiftACtx Rl f = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn p => shiftArg p f (* GEN END FUNCTION EXPRESSION *)) Rl
 
    (*--------------------------------------------------------------------*)
    (* Printing *)
 
     fun fmtOrder (G, O) =
         let
-          fun fmtOrder' (R.Arg (Us as (U, s), Vs as (V, s'))) =
-                F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
-            | fmtOrder' (R.Lex L) =
-                F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"]
-            | fmtOrder' (R.Simul L) =
-                F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"]
+          fun (* GEN BEGIN FUN FIRST *) fmtOrder' (R.Arg (Us as (U, s), Vs as (V, s'))) =
+                F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"] (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrder' (R.Lex L) =
+                F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"] (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrder' (R.Simul L) =
+                F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"] (* GEN END FUN BRANCH *)
     
-          and fmtOrders [] = []
-            | fmtOrders (O :: []) = fmtOrder' O :: []
-            | fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L
+          and (* GEN BEGIN FUN FIRST *) fmtOrders [] = [] (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrders (O :: []) = fmtOrder' O :: [] (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L (* GEN END FUN BRANCH *)
         in
           fmtOrder' O
         end
@@ -171,19 +171,19 @@ struct
     fun fmtComparison (G, O, comp, O') =
         F.HOVbox0 1 0 1 [fmtOrder (G, O), F.Break, F.String comp, F.Break, fmtOrder (G, O')]
 
-    fun fmtPredicate' (G, Less(O, O')) = fmtComparison (G, O, "<", O')
-      | fmtPredicate' (G, Leq(O, O'))  = fmtComparison (G, O, "<=", O')
-      | fmtPredicate' (G, Eq(O, O'))  = fmtComparison (G, O, "=", O')
-      | fmtPredicate' (G, Pi(D, P))  =  (* F.String "Pi predicate"  *)
-          F.Hbox [F.String "Pi ", fmtPredicate' (I.Decl (G, D), P)]
+    fun (* GEN BEGIN FUN FIRST *) fmtPredicate' (G, Less(O, O')) = fmtComparison (G, O, "<", O') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtPredicate' (G, Leq(O, O'))  = fmtComparison (G, O, "<=", O') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtPredicate' (G, Eq(O, O'))  = fmtComparison (G, O, "=", O') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtPredicate' (G, Pi(D, P))  =  (* F.String "Pi predicate"  *)
+          F.Hbox [F.String "Pi ", fmtPredicate' (I.Decl (G, D), P)] (* GEN END FUN BRANCH *)
 
     fun fmtPredicate (G, P) = fmtPredicate' (Names.ctxName G, P)
 
-    fun fmtRGCtx' (G, nil) = ""
-      | fmtRGCtx' (G, [P]) =
-        F.makestring_fmt(fmtPredicate' (G, P) )
-      | fmtRGCtx' (G, (P :: Rl)) =
-        F.makestring_fmt(fmtPredicate' (G, P)) ^ " ," ^ fmtRGCtx' (G, Rl)
+    fun (* GEN BEGIN FUN FIRST *) fmtRGCtx' (G, nil) = "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtRGCtx' (G, [P]) =
+        F.makestring_fmt(fmtPredicate' (G, P) ) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtRGCtx' (G, (P :: Rl)) =
+        F.makestring_fmt(fmtPredicate' (G, P)) ^ " ," ^ fmtRGCtx' (G, Rl) (* GEN END FUN BRANCH *)
 
     fun fmtRGCtx (G, Rl) = fmtRGCtx' (Names.ctxName G, Rl)
 
@@ -204,13 +204,13 @@ struct
         Conv.conv (Us, Us')
 
 
-    fun isUniversal (All) = true
-      | isUniversal (Exist) = false
-      | isUniversal (Exist') = false
+    fun (* GEN BEGIN FUN FIRST *) isUniversal (All) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) isUniversal (Exist) = false (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) isUniversal (Exist') = false (* GEN END FUN BRANCH *)
 
-    fun isExistential (All) = false
-      | isExistential (Exist) = true
-      | isExistential (Exist') = true
+    fun (* GEN BEGIN FUN FIRST *) isExistential (All) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) isExistential (Exist) = true (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) isExistential (Exist') = true (* GEN END FUN BRANCH *)
 
     (* isParameter (Q, X) = B
 
@@ -231,9 +231,9 @@ struct
 
        Invariant: it participated only in matching, not full unification
     *)
-    and isFreeEVar (I.EVar (_, _, _,ref []), _) = true   (* constraints must be empty *)
-      | isFreeEVar (I.Lam (D, U), s) = isFreeEVar (Whnf.whnf (U, I.dot1 s))
-      | isFreeEVar _ = false
+    and (* GEN BEGIN FUN FIRST *) isFreeEVar (I.EVar (_, _, _,ref []), _) = true (* GEN END FUN FIRST *)   (* constraints must be empty *)
+      | (* GEN BEGIN FUN BRANCH *) isFreeEVar (I.Lam (D, U), s) = isFreeEVar (Whnf.whnf (U, I.dot1 s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) isFreeEVar _ = false (* GEN END FUN BRANCH *)
 
 
     (* isAtomic (G, X) = true
@@ -244,19 +244,19 @@ struct
      *)
     fun isAtomic (GQ, Us) = isAtomicW (GQ, Whnf.whnf Us)
 
-    and isAtomicW (GQ, (X as I.Root (I.Const c, S), s)) =
-          isAtomicS (GQ, (S, s))
-      | isAtomicW (GQ, (X as I.Root (I.Def c, S), s)) =
-          isAtomicS (GQ, (S, s))
-      | isAtomicW (GQ as (G, Q), (X as I.Root (I.BVar n, S), s)) =
-           isExistential(I.ctxLookup (Q, n)) orelse isAtomicS (GQ, (S, s)) (* should disallow orelse ? *)
+    and (* GEN BEGIN FUN FIRST *) isAtomicW (GQ, (X as I.Root (I.Const c, S), s)) =
+          isAtomicS (GQ, (S, s)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) isAtomicW (GQ, (X as I.Root (I.Def c, S), s)) =
+          isAtomicS (GQ, (S, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) isAtomicW (GQ as (G, Q), (X as I.Root (I.BVar n, S), s)) =
+           isExistential(I.ctxLookup (Q, n)) orelse isAtomicS (GQ, (S, s)) (* GEN END FUN BRANCH *) (* should disallow orelse ? *)
 (*      | isAtomicW (GQ, (X as (I.EClo _))) = true   (* existential var *) *)
-      | isAtomicW (GQ, _) = false
+      | (* GEN BEGIN FUN BRANCH *) isAtomicW (GQ, _) = false (* GEN END FUN BRANCH *)
 
-    and isAtomicS (GQ, (I.Nil, _)) = true
-      | isAtomicS (GQ, (I.SClo (S, s'), s'')) =
-          isAtomicS (GQ, (S, I.comp(s', s'')))
-      | isAtomicS (GQ, (I.App (U', S'), s1')) = false
+    and (* GEN BEGIN FUN FIRST *) isAtomicS (GQ, (I.Nil, _)) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) isAtomicS (GQ, (I.SClo (S, s'), s'')) =
+          isAtomicS (GQ, (S, I.comp(s', s''))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) isAtomicS (GQ, (I.App (U', S'), s1')) = false (* GEN END FUN BRANCH *)
 
 
    (*-----------------------------------------------------------*)
@@ -304,17 +304,17 @@ struct
 
 
     *)
-    fun lookupEq (GQ, nil, UsVs, UsVs', sc) = false
-      | lookupEq (GQ, (Less(_, _) :: D), UsVs, UsVs', sc) =
-          lookupEq (GQ, D, UsVs, UsVs', sc)
-      | lookupEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
-          CSManager.trail (fn () =>
-                           eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc ())
+    fun (* GEN BEGIN FUN FIRST *) lookupEq (GQ, nil, UsVs, UsVs', sc) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) lookupEq (GQ, (Less(_, _) :: D), UsVs, UsVs', sc) =
+          lookupEq (GQ, D, UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) lookupEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
+          CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
+                           eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc () (* GEN END FUNCTION EXPRESSION *))
           orelse
-          CSManager.trail (fn () =>
-                           eq (G, UsVs1, UsVs') andalso eq (G, UsVs1', UsVs) andalso sc ())
+          CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
+                           eq (G, UsVs1, UsVs') andalso eq (G, UsVs1', UsVs) andalso sc () (* GEN END FUNCTION EXPRESSION *))
           orelse
-          lookupEq (GQ, D, UsVs, UsVs', sc)
+          lookupEq (GQ, D, UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
 
 
     (* lookupLt (GQ, D, UsVs, UsVs', sc) = B
@@ -336,14 +336,14 @@ struct
              all restrictions in sc are satisfied
     *)
 
-    fun lookupLt (GQ, nil, UsVs, UsVs', sc) = false
-      | lookupLt (GQ, (Eq(_, _) :: D), UsVs, UsVs', sc) =
-          lookupLt (GQ, D, UsVs, UsVs', sc)
-      | lookupLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
-          CSManager.trail (fn () =>
-                           eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc ())
+    fun (* GEN BEGIN FUN FIRST *) lookupLt (GQ, nil, UsVs, UsVs', sc) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) lookupLt (GQ, (Eq(_, _) :: D), UsVs, UsVs', sc) =
+          lookupLt (GQ, D, UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) lookupLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), UsVs, UsVs', sc) =
+          CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
+                           eq (G, UsVs1, UsVs) andalso eq (G, UsVs1', UsVs') andalso sc () (* GEN END FUNCTION EXPRESSION *))
           orelse
-          lookupLt (GQ, D, UsVs, UsVs', sc)
+          lookupLt (GQ, D, UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
 
     (*  eqAtomic (GQ, D, D', UsVs, UsVs', sc) = B
 
@@ -354,18 +354,18 @@ struct
         or  D, D' ---> UsVs = UsVs' by transitivity
 
      *)
-    fun eqAtomic (GQ as (G, Q), nil, D', UsVs, UsVs', sc) =
-         CSManager.trail (fn () => eq (G, UsVs, UsVs') andalso sc ())
+    fun (* GEN BEGIN FUN FIRST *) eqAtomic (GQ as (G, Q), nil, D', UsVs, UsVs', sc) =
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => eq (G, UsVs, UsVs') andalso sc () (* GEN END FUNCTION EXPRESSION *))
          orelse
-         lookupEq (GQ, D', UsVs, UsVs', sc)
-      | eqAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
-         CSManager.trail (fn () => eq (G, UsVs, UsVs') andalso sc ())
+         lookupEq (GQ, D', UsVs, UsVs', sc) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) eqAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => eq (G, UsVs, UsVs') andalso sc () (* GEN END FUNCTION EXPRESSION *))
          orelse
          lookupEq (GQ, D, UsVs, UsVs', sc)
          orelse
          lookupEq (GQ, D', UsVs, UsVs', sc)
          orelse
-         transEq (GQ, D, D', UsVs, UsVs', sc)
+         transEq (GQ, D, D', UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
 
 
   (* transEq (GQ, D, D', UsVs, UsVs', sc) = B
@@ -384,19 +384,19 @@ struct
        if D, UsVs1 = UsVs'; D' ---> UsVs = UsVs'
          then D; UsVs1 = UsVs' D' ---> UsVs = UsVs'
    *)
-   and transEq (GQ as (G,Q), nil, D, UsVs, UsVs', sc) = false
-     | transEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
-         CSManager.trail (fn () =>
+   and (* GEN BEGIN FUN FIRST *) transEq (GQ as (G,Q), nil, D, UsVs, UsVs', sc) = false (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) transEq (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                           eq (G, UsVs1', UsVs') andalso sc ()
-                          andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic))
+                          andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic) (* GEN END FUNCTION EXPRESSION *))
          orelse
-         CSManager.trail (fn () =>
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                           eq (G, UsVs1, UsVs') andalso sc ()
-                          andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic))
+                          andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic) (* GEN END FUNCTION EXPRESSION *))
          orelse
-         transEq (GQ, D, (Eq(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc)
-     | transEq (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
-         transEq (GQ, D, D', UsVs, UsVs', sc)
+         transEq (GQ, D, (Eq(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) transEq (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+         transEq (GQ, D, D', UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
 
   (* ltAtomic (GQ, D, D', UsVs, UsVs', sc) = B
 
@@ -415,15 +415,15 @@ struct
    *)
 
 
-    and ltAtomic (GQ as (G, Q), nil, D', UsVs, UsVs', sc) =
-         lookupLt (GQ, D', UsVs, UsVs', sc)
+    and (* GEN BEGIN FUN FIRST *) ltAtomic (GQ as (G, Q), nil, D', UsVs, UsVs', sc) =
+         lookupLt (GQ, D', UsVs, UsVs', sc) (* GEN END FUN FIRST *)
 
-      | ltAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
+      | (* GEN BEGIN FUN BRANCH *) ltAtomic (GQ as (G, Q), D, D', UsVs, UsVs', sc) =
          lookupLt (GQ, D, UsVs, UsVs', sc)
          orelse
          lookupLt (GQ, D', UsVs, UsVs', sc)
          orelse
-         transLt (GQ, D, D', UsVs, UsVs', sc)
+         transLt (GQ, D, D', UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
 
 
   (* transLt (GQ, D, D', UsVs, UsVs', sc) = B
@@ -443,28 +443,28 @@ struct
          then D; UsVs1 = UsVs' D' ---> UsVs = UsVs'
    *)
 
-   and transLt (GQ as (G,Q), nil, D, UsVs, UsVs', sc) = false
-     | transLt (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
-         CSManager.trail (fn () =>
+   and (* GEN BEGIN FUN FIRST *) transLt (GQ as (G,Q), nil, D, UsVs, UsVs', sc) = false (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) transLt (GQ as (G,Q), (Eq(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                           eq (G, UsVs1', UsVs') andalso sc ()
-                          andalso ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic))
+                          andalso ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic) (* GEN END FUNCTION EXPRESSION *))
          orelse
-         CSManager.trail (fn () =>
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                           eq (G, UsVs1, UsVs') andalso sc ()
-                          andalso ltAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic))
+                          andalso ltAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic) (* GEN END FUNCTION EXPRESSION *))
          orelse
-         transLt (GQ, D, (Eq(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc)
-     | transLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
-         CSManager.trail (fn () =>
+         transLt (GQ, D, (Eq(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) transLt (GQ as (G,Q), (Less(UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) =
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                           eq (G, UsVs1', UsVs') andalso sc ()
-                           andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic))
+                           andalso eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic) (* GEN END FUNCTION EXPRESSION *))
          orelse
-         CSManager.trail (fn () =>
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                           eq (G, UsVs1', UsVs') andalso sc ()
                           andalso
-                          ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic))
+                          ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic) (* GEN END FUNCTION EXPRESSION *))
          orelse
-         transLt (GQ, D, (Less(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc)
+         transLt (GQ, D, (Less(UsVs1, UsVs1') :: D'), UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
 
 
     (* atomic (GQ, D, P) = B
@@ -492,10 +492,10 @@ struct
       and D --> P
 
       *)
-    and atomic (GQ, D, D', Eq(UsVs, UsVs'), sc) =
-         eqAtomic (GQ, D, D', UsVs, UsVs', sc)
-      | atomic (GQ, D, D',Less(UsVs, UsVs'), sc) =
-         ltAtomic (GQ, D, D', UsVs, UsVs', sc)
+    and (* GEN BEGIN FUN FIRST *) atomic (GQ, D, D', Eq(UsVs, UsVs'), sc) =
+         eqAtomic (GQ, D, D', UsVs, UsVs', sc) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) atomic (GQ, D, D',Less(UsVs, UsVs'), sc) =
+         ltAtomic (GQ, D, D', UsVs, UsVs', sc) (* GEN END FUN BRANCH *)
 
    (*-----------------------------------------------------------*)
 
@@ -517,7 +517,7 @@ struct
 
     D' accumulates all orders
     *)
-    and leftInstantiate (GQ as (G, Q), nil, D', P, sc) =
+    and (* GEN BEGIN FUN FIRST *) leftInstantiate (GQ as (G, Q), nil, D', P, sc) =
           if atomic(GQ, D', nil, P, sc)
             then
               (if !Global.chatter > 4
@@ -527,14 +527,14 @@ struct
                else (); true)
           else
             (* should never happen by invariant *)
-             false
+             false (* GEN END FUN FIRST *)
 
-      | leftInstantiate (GQ, (Less(UsVs, UsVs') :: D), D', P, sc) =
-          ltInstL (GQ, D, D', UsVs, UsVs', P, sc)
-      | leftInstantiate (GQ, (Leq(UsVs, UsVs') :: D), D', P, sc) =
-          leInstL (GQ, D, D', UsVs, UsVs', P, sc)
-      | leftInstantiate (GQ, (Eq(UsVs, UsVs') :: D), D', P, sc) =
-          eqInstL (GQ, D, D', UsVs, UsVs', P, sc)
+      | (* GEN BEGIN FUN BRANCH *) leftInstantiate (GQ, (Less(UsVs, UsVs') :: D), D', P, sc) =
+          ltInstL (GQ, D, D', UsVs, UsVs', P, sc) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) leftInstantiate (GQ, (Leq(UsVs, UsVs') :: D), D', P, sc) =
+          leInstL (GQ, D, D', UsVs, UsVs', P, sc) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) leftInstantiate (GQ, (Eq(UsVs, UsVs') :: D), D', P, sc) =
+          eqInstL (GQ, D, D', UsVs, UsVs', P, sc) (* GEN END FUN BRANCH *)
 
     (* ltInstL ((G, Q), D, D', UsVs, UsVs', P, sc) = B
      Invariant:
@@ -556,15 +556,15 @@ struct
     and ltInstL (GQ, D, D', UsVs, UsVs', P', sc) =
           ltInstLW (GQ, D, D', Whnf.whnfEta UsVs, UsVs', P', sc)
 
-    and ltInstLW (GQ as (G, Q), D, D', ((I.Lam (Dec as I.Dec (_, V1), U), s1),
+    and (* GEN BEGIN FUN FIRST *) ltInstLW (GQ as (G, Q), D, D', ((I.Lam (Dec as I.Dec (_, V1), U), s1),
                (I.Pi ((I.Dec (_, V2), _), V), s2)), ((U', s1'), (V', s2')), P', sc) =
         if Subordinate.equiv (I.targetFam V', I.targetFam V1) (* == I.targetFam V2' *)
           then
             let
-              val X = I.newEVar (G, I.EClo (V1, s1))
+              (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1, s1)) (* GEN END TAG OUTSIDE LET *)
               (* = I.newEVar (I.EClo (V2', s2')) *)
               (* enforces that X can only bound to parameter or remain uninstantiated *)
-              val sc' = fn () => (isParameter (Q, X) andalso sc ())
+              (* GEN BEGIN TAG OUTSIDE LET *) val sc' = (* GEN BEGIN FUNCTION EXPRESSION *) fn () => (isParameter (Q, X) andalso sc ()) (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
             in
               ltInstL ((G, Q), D, D',
                   ((U, I.Dot (I.Exp (X), s1)), (V, I.Dot (I.Exp (X), s2))),
@@ -574,7 +574,7 @@ struct
           if Subordinate.below  (I.targetFam V1, I.targetFam V')
             then
               let
-                val X = I.newEVar (G, I.EClo (V1, s1))
+                (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1, s1)) (* GEN END TAG OUTSIDE LET *)
                    (* = I.newEVar (I.EClo (V2', s2')) *)
               in
                 ltInstL ((G, Q), D, D',
@@ -582,9 +582,9 @@ struct
                      (V, I.Dot (I.Exp (X), s2))),
                      ((U', s1'), (V', s2')), P', sc)
               end
-          else false (* impossible, if additional invariant assumed (see ltW) *)
-      | ltInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
-            leftInstantiate (GQ, D, (Less(UsVs, UsVs') :: D'), P', sc)
+          else false (* GEN END FUN FIRST *) (* impossible, if additional invariant assumed (see ltW) *)
+      | (* GEN BEGIN FUN BRANCH *) ltInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
+            leftInstantiate (GQ, D, (Less(UsVs, UsVs') :: D'), P', sc) (* GEN END FUN BRANCH *)
 
 
     (* leInstL ((G, Q), D, D', UsVs, UsVs', P', sc) = B
@@ -609,15 +609,15 @@ struct
           leInstLW (GQ, D, D', Whnf.whnfEta UsVs, UsVs', P', sc)
 
 
-    and leInstLW (GQ as (G, Q), D, D', ((I.Lam (I.Dec (_, V1), U), s1),
+    and (* GEN BEGIN FUN FIRST *) leInstLW (GQ as (G, Q), D, D', ((I.Lam (I.Dec (_, V1), U), s1),
                (I.Pi ((I.Dec (_, V2), _), V), s2)), ((U', s1'), (V', s2')), P', sc) =
         if Subordinate.equiv (I.targetFam V', I.targetFam V1) (* == I.targetFam V2' *)
           then
             let
-              val X = I.newEVar (G, I.EClo (V1, s1))
+              (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1, s1)) (* GEN END TAG OUTSIDE LET *)
               (* = I.newEVar (I.EClo (V2', s2')) *)
               (* enforces that X can only bound to parameter or remain uninstantiated *)
-              val sc' = fn () => (isParameter (Q, X) andalso sc ())
+              (* GEN BEGIN TAG OUTSIDE LET *) val sc' = (* GEN BEGIN FUNCTION EXPRESSION *) fn () => (isParameter (Q, X) andalso sc ()) (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
             in
               leInstL ((G, Q), D, D',
                   ((U, I.Dot (I.Exp (X), s1)), (V, I.Dot (I.Exp (X), s2))),
@@ -627,7 +627,7 @@ struct
           if Subordinate.below  (I.targetFam V1, I.targetFam V')
             then
               let
-                val X = I.newEVar (G, I.EClo (V1, s1))
+                (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1, s1)) (* GEN END TAG OUTSIDE LET *)
                    (* = I.newEVar (I.EClo (V2', s2')) *)
               in
                 leInstL ((G, Q), D, D',
@@ -635,9 +635,9 @@ struct
                      (V, I.Dot (I.Exp (X), s2))),
                      ((U', s1'), (V', s2')), P', sc)
               end
-          else false (* impossible, if additional invariant assumed (see ltW) *)
-      | leInstLW (GQ, D, D', UsVs, UsVs', P, sc) =
-            leftInstantiate (GQ, D, (Less(UsVs, UsVs') :: D'), P, sc)
+          else false (* GEN END FUN FIRST *) (* impossible, if additional invariant assumed (see ltW) *)
+      | (* GEN BEGIN FUN BRANCH *) leInstLW (GQ, D, D', UsVs, UsVs', P, sc) =
+            leftInstantiate (GQ, D, (Less(UsVs, UsVs') :: D'), P, sc) (* GEN END FUN BRANCH *)
 
 
 
@@ -662,23 +662,23 @@ struct
     and eqInstL (GQ, D, D', UsVs, UsVs', P', sc) =
           eqInstLW (GQ, D, D', Whnf.whnfEta UsVs, Whnf.whnfEta UsVs', P', sc)
 
-    and eqInstLW (GQ as (G,Q), D, D',
+    and (* GEN BEGIN FUN FIRST *) eqInstLW (GQ as (G,Q), D, D',
                   ((I.Lam (I.Dec (_, V1'), U'), s1'), (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
                   ((I.Lam (I.Dec (_, V1''), U''), s1''), (I.Pi ((I.Dec (_, V2''), _), V''), s2'')),
                   P', sc) =
     
            let
-             val X = I.newEVar (G, I.EClo (V1'', s1''))
+             (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1'', s1'')) (* GEN END TAG OUTSIDE LET *)
                 (* = I.newEVar (I.EClo (V2', s2')) *)
            in
             eqInstL (GQ, D, D',
                      ((U', I.Dot (I.Exp(X), s1')),  (V', I.Dot(I.Exp(X), s2'))),
                      ((U'', I.Dot (I.Exp(X), s1'')),
                       (V'', I.Dot (I.Exp(X), s2''))), P',
-                     fn () => (isParameter (Q, X); sc ()))
-           end
-       | eqInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
-          eqIL (GQ, D, D', UsVs, UsVs', P', sc)
+                     (* GEN BEGIN FUNCTION EXPRESSION *) fn () => (isParameter (Q, X); sc ()) (* GEN END FUNCTION EXPRESSION *))
+           end (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) eqInstLW (GQ, D, D', UsVs, UsVs', P', sc) =
+          eqIL (GQ, D, D', UsVs, UsVs', P', sc) (* GEN END FUN BRANCH *)
 
     (* eqIL ((G, Q), D, D', UsVs, UsVs', P, sc) = B
 
@@ -699,7 +699,7 @@ struct
        and U, U' will be maximally unfolded
     *)
 
-   and eqIL (GQ as (G, Q), D, D', UsVs as ((I.Root (I.Const c, S), s), Vs),
+   and (* GEN BEGIN FUN FIRST *) eqIL (GQ as (G, Q), D, D', UsVs as ((I.Root (I.Const c, S), s), Vs),
             UsVs' as ((I.Root (I.Const c', S'), s'), Vs'), P', sc) =
          if eqCid(c, c')
            then eqSpineIL (GQ, D, D', ((S, s), (I.constType c, I.id)),
@@ -710,9 +710,9 @@ struct
                           ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P')
                           ^ "\n")
             else ();
-            true)
+            true) (* GEN END FUN FIRST *)
 
-     | eqIL (GQ as (G, Q), D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqIL (GQ as (G, Q), D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
             UsVs' as ((I.Root (I.Def c', S'), s'), Vs'), P', sc) =
          if eqCid(c, c')
            then eqSpineIL (GQ, D, D', ((S, s), (I.constType c, I.id)),
@@ -723,9 +723,9 @@ struct
                           ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P')
                           ^ "\n")
             else ();
-            true)
+            true) (* GEN END FUN BRANCH *)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Const c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Const c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us')
            then leftInstantiate (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P', sc)
@@ -735,9 +735,9 @@ struct
                           ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P')
                           ^ "\n")
             else ();
-           true)
+           true) (* GEN END FUN BRANCH *)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Def c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.Def c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us')
            then leftInstantiate (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P', sc)
@@ -747,9 +747,9 @@ struct
                           ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P')
                           ^ "\n")
             else ();
-           true)
+           true) (* GEN END FUN BRANCH *)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Def c, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us)
            then leftInstantiate (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P', sc)
@@ -759,10 +759,10 @@ struct
                           ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P')
                           ^ "\n")
             else ();
-           true)
+           true) (* GEN END FUN BRANCH *)
 
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Const c, S'), s'), Vs'), P', sc) =
          if isAtomic (GQ, Us)
            then leftInstantiate (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P', sc)
@@ -772,21 +772,21 @@ struct
                           ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P')
                           ^ "\n")
             else ();
-           true)
+           true) (* GEN END FUN BRANCH *)
 
-     | eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqIL (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.BVar n', S'), s'), Vs'), P', sc) =
              if (n = n')
                then
                  let
-                   val I.Dec (_, V') = I.ctxDec (G, n)
+                   (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V') = I.ctxDec (G, n) (* GEN END TAG OUTSIDE LET *)
                  in
                    eqSpineIL (GQ, D, D', ((S, s), (V', I.id)), ((S', s'), (V', I.id)), P', sc)
                  end
              else
-               leftInstantiate (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P', sc)
+               leftInstantiate (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P', sc) (* GEN END FUN BRANCH *)
 
-     | eqIL (GQ as (G, Q), D, D', UsVs, UsVs', P', sc) =
+     | (* GEN BEGIN FUN BRANCH *) eqIL (GQ as (G, Q), D, D', UsVs, UsVs', P', sc) =
         (* (Us, Vs as (I.Pi _ , _)) and (Us', Vs' as (I.Root _, _))
            or the other way
          *)
@@ -795,25 +795,25 @@ struct
                       ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P')
                       ^ "\n")
         else ();
-          true)
+          true) (* GEN END FUN BRANCH *)
 
     and eqSpineIL (GQ, D, D', (Ss, Vs), (Ss', Vs'), P', sc) =
          eqSpineILW (GQ, D, D', (Ss, Whnf.whnf Vs), (Ss', Whnf.whnf Vs'), P', sc)
 
-   and eqSpineILW (GQ, D, D', ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), P', sc) =
-        leftInstantiate (GQ, D, D', P', sc)
-     | eqSpineILW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P', sc) =
-         eqSpineIL (GQ, D, D', ((S, I.comp (s', s'')), Vs), SsVs', P', sc)
-     | eqSpineILW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P', sc) =
-         eqSpineIL (GQ, D, D', SsVs, ((S', I.comp (s', s'')), Vs'), P', sc)
-     | eqSpineILW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
+   and (* GEN BEGIN FUN FIRST *) eqSpineILW (GQ, D, D', ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), P', sc) =
+        leftInstantiate (GQ, D, D', P', sc) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineILW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P', sc) =
+         eqSpineIL (GQ, D, D', ((S, I.comp (s', s'')), Vs), SsVs', P', sc) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineILW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P', sc) =
+         eqSpineIL (GQ, D, D', SsVs, ((S', I.comp (s', s'')), Vs'), P', sc) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineILW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
                  ((I.App (U', S'), s1'), (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), P', sc) =
          let
-           val D1 = (Eq(((U,s1), (V1, s2)), ((U',s1'), (V1', s2'))) :: D)
+           (* GEN BEGIN TAG OUTSIDE LET *) val D1 = (Eq(((U,s1), (V1, s2)), ((U',s1'), (V1', s2'))) :: D) (* GEN END TAG OUTSIDE LET *)
          in
            eqSpineIL (GQ, D1, D', ((S, s1), (V2, I.Dot (I.Exp (I.EClo (U, s1)), s2))),
                      ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), P', sc)
-         end
+         end (* GEN END FUN BRANCH *)
 
    (*--------------------------------------------------------------*)
 
@@ -827,9 +827,9 @@ struct
     and D --> P
 
     *)
-   and rightDecompose (GQ, D', Less(O,O')) = ordLtR (GQ, D', O, O')
-     | rightDecompose (GQ, D', Leq(O, O')) = ordLeR (GQ, D', O, O')
-     | rightDecompose (GQ, D', Eq(O, O')) = ordEqR(GQ, D', O , O')
+   and (* GEN BEGIN FUN FIRST *) rightDecompose (GQ, D', Less(O,O')) = ordLtR (GQ, D', O, O') (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) rightDecompose (GQ, D', Leq(O, O')) = ordLeR (GQ, D', O, O') (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) rightDecompose (GQ, D', Eq(O, O')) = ordEqR(GQ, D', O , O') (* GEN END FUN BRANCH *)
 
 
   (* ordLtR (GQ, D, O1, O2) = B'
@@ -841,13 +841,13 @@ struct
        then B' holds iff D --> O1 < O2
     *)
 
-   and ordLtR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
-         ltAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate)
-     | ordLtR (GQ, D', R.Lex O, R.Lex O') =
-         ltLexR (GQ, D', O, O')
+   and (* GEN BEGIN FUN FIRST *) ordLtR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
+         ltAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ordLtR (GQ, D', R.Lex O, R.Lex O') =
+         ltLexR (GQ, D', O, O') (* GEN END FUN BRANCH *)
 
-     | ordLtR (GQ, D', R.Simul O, R.Simul O') =
-         ltSimulR (GQ, D', O, O')
+     | (* GEN BEGIN FUN BRANCH *) ordLtR (GQ, D', R.Simul O, R.Simul O') =
+         ltSimulR (GQ, D', O, O') (* GEN END FUN BRANCH *)
 
   (* ordLeR (GQ, D, O1, O2) = B'
 
@@ -858,14 +858,14 @@ struct
        then B' holds iff D --> O1 <= O2
     *)
 
-   and ordLeR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
-         leAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate)
-     | ordLeR (GQ, D', R.Lex O, R.Lex O') =
+   and (* GEN BEGIN FUN FIRST *) ordLeR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
+         leAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ordLeR (GQ, D', R.Lex O, R.Lex O') =
          ltLexR (GQ, D', O, O')
          orelse
-         ordEqsR (GQ, D', O, O')
-     | ordLeR (GQ, D', R.Simul O, R.Simul O') =
-         leSimulR (GQ, D', O, O')
+         ordEqsR (GQ, D', O, O') (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) ordLeR (GQ, D', R.Simul O, R.Simul O') =
+         leSimulR (GQ, D', O, O') (* GEN END FUN BRANCH *)
 
   (* ordEqR (GQ, D, O1, O2) = B'
 
@@ -875,14 +875,14 @@ struct
        and  G |- O2 augmented subterm not containing any EVars
        then B' holds iff D --> O1 = O2
     *)
-   and ordEqR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
+   and (* GEN BEGIN FUN FIRST *) ordEqR (GQ, D', R.Arg UsVs, R.Arg UsVs') =
          conv (UsVs, UsVs')
          orelse
-         eqAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate)
-     | ordEqR (GQ, D', R.Lex O, R.Lex O') =
-         ordEqsR (GQ, D', O, O')
-     | ordEqR (GQ, D', R.Simul O, R.Simul O') =
-         ordEqsR (GQ, D', O, O')
+         eqAtomicR (GQ, D', UsVs, UsVs', init, leftInstantiate) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ordEqR (GQ, D', R.Lex O, R.Lex O') =
+         ordEqsR (GQ, D', O, O') (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) ordEqR (GQ, D', R.Simul O, R.Simul O') =
+         ordEqsR (GQ, D', O, O') (* GEN END FUN BRANCH *)
 
     (* ordEqsR (GQ, D', L1, L2) = B'
 
@@ -892,10 +892,10 @@ struct
        and  G |- L2 list of augmented subterms not containing any EVars
        then B' holds iff D' --> L1 = L2
     *)
-   and ordEqsR (GQ, D', nil, nil)  = true
-     | ordEqsR (GQ, D', O :: L, O' :: L') =
+   and (* GEN BEGIN FUN FIRST *) ordEqsR (GQ, D', nil, nil)  = true (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ordEqsR (GQ, D', O :: L, O' :: L') =
          ordEqR (GQ, D', O, O')
-         andalso ordEqsR (GQ, D', L, L')
+         andalso ordEqsR (GQ, D', L, L') (* GEN END FUN BRANCH *)
 
    (* ltLexR (GQ, D', L1, L2) = B'
 
@@ -905,11 +905,11 @@ struct
        and  G |- L2 list of augmented subterms not contianing any EVars
        then B' holds iff D' --> L1 is lexically smaller than L2
     *)
-   and ltLexR (GQ, D', nil, nil) = false
-     | ltLexR (GQ, D', O :: L, O' :: L') =
+   and (* GEN BEGIN FUN FIRST *) ltLexR (GQ, D', nil, nil) = false (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ltLexR (GQ, D', O :: L, O' :: L') =
          ordLtR (GQ, D', O, O')
          orelse
-         (ordEqR (GQ, D', O, O') andalso ltLexR (GQ, D', L, L'))
+         (ordEqR (GQ, D', O, O') andalso ltLexR (GQ, D', L, L')) (* GEN END FUN BRANCH *)
 
 
    and leLexR (GQ, D', L, L') =
@@ -925,11 +925,11 @@ struct
        and  G |- L2 list of augmented subterms not contianing any EVars
        then B' holds iff D implies that L1 is simultaneously smaller than L2
     *)
-    and ltSimulR (GQ, D, nil, nil) = false
-      | ltSimulR (GQ, D, O :: L, O' :: L') =
+    and (* GEN BEGIN FUN FIRST *) ltSimulR (GQ, D, nil, nil) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ltSimulR (GQ, D, O :: L, O' :: L') =
           (ordLtR (GQ, D, O, O') andalso leSimulR (GQ, D, L, L'))
           orelse
-          (ordEqR (GQ, D, O, O') andalso ltSimulR (GQ, D, L, L'))
+          (ordEqR (GQ, D, O, O') andalso ltSimulR (GQ, D, L, L')) (* GEN END FUN BRANCH *)
 
     (* leSimulR (G, Q, L1, L2) = B'
 
@@ -939,9 +939,9 @@ struct
        and  G |- L2 list of augmented subterms not containing any EVars
        then B' holds iff D implies that L1 is simultaneously less than or equal to L2
     *)
-    and leSimulR (GQ, D, nil, nil) = true
-      | leSimulR (GQ, D, O :: L, O' :: L') =
-          ordLeR (GQ, D, O, O') andalso leSimulR (GQ, D, L, L')
+    and (* GEN BEGIN FUN FIRST *) leSimulR (GQ, D, nil, nil) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) leSimulR (GQ, D, O :: L, O' :: L') =
+          ordLeR (GQ, D, O, O') andalso leSimulR (GQ, D, L, L') (* GEN END FUN BRANCH *)
 
    (*--------------------------------------------------------------*)
    (* Atomic Orders (Right) *)
@@ -965,18 +965,18 @@ struct
    and ltAtomicR (GQ, D, UsVs, UsVs', sc, k) =
          ltAtomicRW (GQ, D, Whnf.whnfEta UsVs, UsVs', sc, k)
 
-   and ltAtomicRW (GQ, D, UsVs as (Us, Vs as (I.Root _, s')), UsVs', sc, k) =
-         ltR (GQ, D, UsVs, UsVs', sc, k)
-     | ltAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
+   and (* GEN BEGIN FUN FIRST *) ltAtomicRW (GQ, D, UsVs as (Us, Vs as (I.Root _, s')), UsVs', sc, k) =
+         ltR (GQ, D, UsVs, UsVs', sc, k) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ltAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
                    ((U', s1'), (V', s2')), sc, k) =
         let
-          val UsVs' = ((U', I.comp (s1', I.shift)), (V', I.comp (s2', I.shift)))
-          val UsVs = ((U, I.dot1 s1), (V, I.dot1 s2))
-          val D' = shiftACtx D (fn s => I.comp(s, I.shift))
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs' = ((U', I.comp (s1', I.shift)), (V', I.comp (s2', I.shift))) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs = ((U, I.dot1 s1), (V, I.dot1 s2)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = shiftACtx D ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           ltAtomicR ((I.Decl (G, N.decLUName (G, I.decSub (Dec, s2))),
                       I.Decl (Q, All)), D', UsVs, UsVs', sc, k)
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* leAtomicR (GQ, D, UsVs, UsVs', sc, k) = B
@@ -999,18 +999,18 @@ struct
    and leAtomicR (GQ, D, UsVs, UsVs', sc, k) =
          leAtomicRW (GQ, D, Whnf.whnfEta UsVs, UsVs', sc, k)
 
-   and leAtomicRW (GQ, D, UsVs as (Us, Vs as (I.Root _, s')), UsVs', sc, k) =
-         leR (GQ, D, UsVs, UsVs', sc, k)
-     | leAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
+   and (* GEN BEGIN FUN FIRST *) leAtomicRW (GQ, D, UsVs as (Us, Vs as (I.Root _, s')), UsVs', sc, k) =
+         leR (GQ, D, UsVs, UsVs', sc, k) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) leAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
                    ((U', s1'), (V', s2')), sc, k) =
         let
-          val D' = shiftACtx D (fn s => I.comp(s, I.shift))
-          val UsVs' = ((U', I.comp (s1', I.shift)), (V', I.comp (s2', I.shift)))
-          val UsVs = ((U, I.dot1 s1), (V, I.dot1 s2))
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = shiftACtx D ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs' = ((U', I.comp (s1', I.shift)), (V', I.comp (s2', I.shift))) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs = ((U, I.dot1 s1), (V, I.dot1 s2)) (* GEN END TAG OUTSIDE LET *)
         in
           leAtomicR ((I.Decl (G, N.decLUName (G, I.decSub (Dec, s2))),
                       I.Decl (Q, All)), D', UsVs, UsVs', sc, k)
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* eqAtomicR (GQ, D, UsVs, UsVs', sc, k) = B
@@ -1033,19 +1033,19 @@ struct
    and eqAtomicR (GQ as (G, Q), D, UsVs, UsVs', sc, k) =
         eqAtomicRW (GQ, D, Whnf.whnfEta UsVs, Whnf.whnfEta UsVs', sc, k)
 
-   and eqAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
+   and (* GEN BEGIN FUN FIRST *) eqAtomicRW (GQ as (G, Q), D, ((I.Lam (_, U), s1), (I.Pi ((Dec, _), V), s2)),
                    ((I.Lam (_, U'), s1'), (I.Pi ((Dec', _), V'), s2')), sc, k) =
        (* Dec = Dec' *)
          eqAtomicR ((I.Decl (G, N.decLUName (G, I.decSub (Dec, s2))), I.Decl (Q, All)),
-                    shiftACtx D (fn s => I.comp(s, I.shift)),
+                    shiftACtx D ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)),
                     ((U, I.dot1 s1'), (V, I.dot1 s2')),
-                    ((U', I.dot1 s1'),(V', I.dot1 s2')), sc, k)
-     | eqAtomicRW (GQ, D, (Us, Vs as (I.Root _, s2)),(Us', Vs' as (I.Root _, s2')), sc, k) =
-         eqR (GQ, D, (Us, Vs),(Us', Vs'), sc, k)
-     | eqAtomicRW (GQ, D, (Us, Vs), (Us', Vs'),sc, k) =
+                    ((U', I.dot1 s1'),(V', I.dot1 s2')), sc, k) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqAtomicRW (GQ, D, (Us, Vs as (I.Root _, s2)),(Us', Vs' as (I.Root _, s2')), sc, k) =
+         eqR (GQ, D, (Us, Vs),(Us', Vs'), sc, k) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqAtomicRW (GQ, D, (Us, Vs), (Us', Vs'),sc, k) =
          (* mismatch: not equal *)
          (* Fri Feb 25 21:26:39 2005 -fp !!! *)
-         false
+         false (* GEN END FUN BRANCH *)
 
    (* ltR (GQ, D, UsVs, UsVs', sc, k) = B
 
@@ -1069,42 +1069,42 @@ struct
   and ltR (GQ as (G, Q), D, UsVs, UsVs', sc, k) =
         ltRW (GQ, D, UsVs, Whnf.whnfEta UsVs', sc, k)
 
-  and ltRW (GQ, D, (Us, Vs), (Us' as (I.Root (I.Const c, S'), s'), Vs'), sc, k) =
+  and (* GEN BEGIN FUN FIRST *) ltRW (GQ, D, (Us, Vs), (Us' as (I.Root (I.Const c, S'), s'), Vs'), sc, k) =
         if isAtomic (GQ, Us')
           then k (GQ, D, nil, Less((Us,Vs), (Us', Vs')), sc)
                (* either leftInstantiate D or  atomic reasoning *)
         else
-          ltSpineR (GQ, D, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, k)
+          ltSpineR (GQ, D, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, k) (* GEN END FUN FIRST *)
 
-    | ltRW (GQ, D, (Us, Vs), (Us' as (I.Root (I.Def c, S'), s'), Vs'), sc, k) =
+    | (* GEN BEGIN FUN BRANCH *) ltRW (GQ, D, (Us, Vs), (Us' as (I.Root (I.Def c, S'), s'), Vs'), sc, k) =
         if isAtomic (GQ, Us')
           then k (GQ, D, nil, Less((Us,Vs), (Us', Vs')), sc)
                (* either leftInstantiate D or  atomic reasoning *)
         else
-          ltSpineR (GQ, D, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, k)
+          ltSpineR (GQ, D, (Us, Vs), ((S', s'), (I.constType c, I.id)), sc, k) (* GEN END FUN BRANCH *)
 
-    | ltRW (GQ as (G, Q), D, (Us, Vs), (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
+    | (* GEN BEGIN FUN BRANCH *) ltRW (GQ as (G, Q), D, (Us, Vs), (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
         if isAtomic (GQ, Us')
           then k (GQ, D, nil, Less((Us,Vs), (Us', Vs')), sc)
                (* either leftInstantiate D or  atomic reasoning *)
         else
           let
-            val I.Dec (_, V') = I.ctxDec (G, n)
+            (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V') = I.ctxDec (G, n) (* GEN END TAG OUTSIDE LET *)
           in
             ltSpineR (GQ, D, (Us, Vs), ((S', s'), (V', I.id)), sc, k)
-          end
+          end (* GEN END FUN BRANCH *)
 
-      | ltRW (GQ, D, _, ((I.EVar _, _), _), _, _) = false
+      | (* GEN BEGIN FUN BRANCH *) ltRW (GQ, D, _, ((I.EVar _, _), _), _, _) = false (* GEN END FUN BRANCH *)
 
-      | ltRW (GQ as (G, Q), D, ((U, s1), (V, s2)),
+      | (* GEN BEGIN FUN BRANCH *) ltRW (GQ as (G, Q), D, ((U, s1), (V, s2)),
               ((I.Lam (I.Dec (_, V1'), U'), s1'),
                (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, k) =
           if Subordinate.equiv (I.targetFam V, I.targetFam V1')
             (* == I.targetFam V2' *)
             then
               let  (* enforce that X is only instantiated to parameters *)
-                val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
-                val sc' = fn () => (isParameter (Q, X); sc ())
+                (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val sc' = (* GEN BEGIN FUNCTION EXPRESSION *) fn () => (isParameter (Q, X); sc ()) (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
               in
                 ltR (GQ, D, ((U, s1), (V, s2)),
                      ((U', I.Dot (I.Exp (X), s1')),
@@ -1114,28 +1114,28 @@ struct
             if Subordinate.below (I.targetFam V1', I.targetFam V)
               then
                 let
-                  val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
                 in
                   ltR (GQ, D, ((U, s1), (V, s2)),
                        ((U', I.Dot (I.Exp (X), s1')),
                         (V', I.Dot (I.Exp (X), s2'))), sc, k)
                 end
-            else false  (* possibly redundant if lhs always subordinate to rhs *)
+            else false (* GEN END FUN BRANCH *)  (* possibly redundant if lhs always subordinate to rhs *)
 
 
     and ltSpineR (GQ, D, (Us, Vs), (Ss', Vs'), sc, k) =
           ltSpineRW (GQ, D, (Us, Vs), (Ss', Whnf.whnf Vs'), sc, k)
 
-    and ltSpineRW (GQ, D, (Us, Vs), ((I.Nil, _), _), _, _) =
+    and (* GEN BEGIN FUN FIRST *) ltSpineRW (GQ, D, (Us, Vs), ((I.Nil, _), _), _, _) =
           (* cannot happen Sat Apr 20 16:08:30 2002 -bp *)
-          false
-      | ltSpineRW (GQ, D, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, k) =
-          ltSpineR (GQ, D, (Us, Vs), ((S, I.comp (s', s'')), Vs'), sc, k)
-      | ltSpineRW (GQ, D, (Us, Vs), ((I.App (U', S'), s1'),
+          false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ltSpineRW (GQ, D, (Us, Vs), ((I.SClo (S, s'), s''), Vs'), sc, k) =
+          ltSpineR (GQ, D, (Us, Vs), ((S, I.comp (s', s'')), Vs'), sc, k) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) ltSpineRW (GQ, D, (Us, Vs), ((I.App (U', S'), s1'),
                                       (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, k) =
           leAtomicR (GQ, D, (Us, Vs), ((U', s1'), (V1', s2')), sc, k) orelse
           ltSpineR (GQ, D, (Us, Vs),
-                    ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, k)
+                    ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, k) (* GEN END FUN BRANCH *)
 
    (* leR (GQ, D, UsVs, UsVs', sc, k) = B
 
@@ -1157,15 +1157,15 @@ struct
   and leR (GQ, D, UsVs, UsVs', sc, k) =
   
         leRW (GQ, D, UsVs, Whnf.whnfEta UsVs', sc, k)
-   and leRW (GQ as (G, Q), D, ((U, s1), (V, s2)),
+   and (* GEN BEGIN FUN FIRST *) leRW (GQ as (G, Q), D, ((U, s1), (V, s2)),
              ((I.Lam (I.Dec (_, V1'), U'), s1'),
               (I.Pi ((I.Dec (_, V2'), _), V'), s2')), sc, k) =
         if Subordinate.equiv (I.targetFam V, I.targetFam V1') (* == I.targetFam V2' *)
           then
             let
-              val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
               (* enforces that X can only bound to parameter or remain uninstantiated *)
-              val sc' = fn () => (isParameter (Q, X) andalso sc ())
+              (* GEN BEGIN TAG OUTSIDE LET *) val sc' = (* GEN BEGIN FUNCTION EXPRESSION *) fn () => (isParameter (Q, X) andalso sc ()) (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
             in
               leR (GQ, D, ((U, s1), (V, s2)),
                   ((U', I.Dot (I.Exp (X), s1')),
@@ -1175,18 +1175,18 @@ struct
           if Subordinate.below  (I.targetFam V1', I.targetFam V)
             then
               let
-                val X = I.newEVar (G, I.EClo (V1', s1')) (* = I.newEVar (I.EClo (V2', s2')) *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1', s1')) (* GEN END TAG OUTSIDE LET *) (* = I.newEVar (I.EClo (V2', s2')) *)
               in
                 leR (GQ, D, ((U, s1), (V, s2)),
                     ((U', I.Dot (I.Exp (X), s1')),
                      (V', I.Dot (I.Exp (X), s2'))), sc, k)
               end
-          else false (* impossible, if additional invariant assumed (see ltW) *)
+          else false (* GEN END FUN FIRST *) (* impossible, if additional invariant assumed (see ltW) *)
 
-      | leRW (GQ, D, UsVs, UsVs', sc, k) =
+      | (* GEN BEGIN FUN BRANCH *) leRW (GQ, D, UsVs, UsVs', sc, k) =
           ltR (GQ, D, UsVs, UsVs', sc, k)
           orelse
-          eqR (GQ, D, UsVs, UsVs', sc, k)
+          eqR (GQ, D, UsVs, UsVs', sc, k) (* GEN END FUN BRANCH *)
 
 
    (* eqR (GQ, D, UsVs, UsVs', sc, k) = B
@@ -1206,103 +1206,103 @@ struct
        and U'[s'] will be maximally unfolded
     *)
   and eqR (GQ as (G, Q), D, UsVs, UsVs', sc, k) =
-         CSManager.trail (fn () => eq (G, UsVs, UsVs') andalso sc ())
+         CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => eq (G, UsVs, UsVs') andalso sc () (* GEN END FUNCTION EXPRESSION *))
          orelse
          eqR' (GQ, D, UsVs, UsVs', sc, k)
 
 
-   and eqR' (GQ, D,(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
+   and (* GEN BEGIN FUN FIRST *) eqR' (GQ, D,(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
             (Us', Vs' as (I.Root _, s2'')), sc, k) =
-        false
-     | eqR' (GQ, D,(Us, Vs as (I.Root _, s2')),
+        false (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D,(Us, Vs as (I.Root _, s2')),
             (Us', Vs' as (I.Pi ((I.Dec (_, V2''), _), V''), s2'')), sc, k) =
-        false
+        false (* GEN END FUN BRANCH *)
 
-     | eqR' (GQ, D, UsVs as ((I.Root (I.Const c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D, UsVs as ((I.Root (I.Const c, S), s), Vs),
             UsVs' as ((I.Root (I.Const c', S'), s'), Vs'), sc, k) =
          if eqCid(c, c')
            then eqSpineR (GQ, D, ((S, s), (I.constType c, I.id)),
                          ((S', s'), (I.constType c', I.id)), sc, k)
          else
-           false
+           false (* GEN END FUN BRANCH *)
 
-     | eqR' (GQ, D, (Us as (I.Root (I.Const c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.Const c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us')
            then k (GQ, D, nil, Eq((Us', Vs'),(Us, Vs)), sc)
                 (* either leftInstantiate D or atomic reasoning *)
      
          else
-           false
+           false (* GEN END FUN BRANCH *)
 
-     | eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Const c, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us)
            then k (GQ, D, nil, Eq((Us, Vs),(Us', Vs')), sc)
                 (* either leftInstantiate D or atomic reasoning *)
          else
-           false
+           false (* GEN END FUN BRANCH *)
 
-     | eqR' (GQ, D, UsVs as ((I.Root (I.Def c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D, UsVs as ((I.Root (I.Def c, S), s), Vs),
             UsVs' as ((I.Root (I.Def c', S'), s'), Vs'), sc, k) =
          if eqCid(c, c')
            then eqSpineR (GQ, D, ((S, s), (I.constType c, I.id)),
                          ((S', s'), (I.constType c', I.id)), sc, k)
          else
-           false
+           false (* GEN END FUN BRANCH *)
 
-     | eqR' (GQ, D, (Us as (I.Root (I.Def c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.Def c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us')
            then k (GQ, D, nil, Eq((Us', Vs'),(Us, Vs)), sc)
                 (* either leftInstantiate D or atomic reasoning *)
      
          else
-           false
+           false (* GEN END FUN BRANCH *)
 
-     | eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D, (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Def c, S'), s'), Vs'), sc, k) =
          if isAtomic (GQ, Us)
            then k (GQ, D, nil, Eq((Us, Vs),(Us', Vs')), sc)
                 (* either leftInstantiate D or atomic reasoning *)
          else
-           false
+           false (* GEN END FUN BRANCH *)
 
-     | eqR' (GQ as (G, Q), D, (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ as (G, Q), D, (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.BVar n', S'), s'), Vs'), sc, k) =
          if (n = n')
            then
              let
-               val I.Dec (_, V') = I.ctxDec (G, n)
+               (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V') = I.ctxDec (G, n) (* GEN END TAG OUTSIDE LET *)
              in
                eqSpineR (GQ, D, ((S, s), (V', I.id)), ((S', s'), (V', I.id)), sc, k)
              end
          else
-           k (GQ, D, nil, Eq((Us, Vs), (Us', Vs')), sc)
+           k (GQ, D, nil, Eq((Us, Vs), (Us', Vs')), sc) (* GEN END FUN BRANCH *)
            (* either leftInstantiate D or atomic reasoning *)
 
      (* UsVs = Lam *)
-     | eqR' (GQ, D, UsVs, UsVs', sc, k) =
-           k (GQ, D, nil, Eq(UsVs, UsVs'), sc)
+     | (* GEN BEGIN FUN BRANCH *) eqR' (GQ, D, UsVs, UsVs', sc, k) =
+           k (GQ, D, nil, Eq(UsVs, UsVs'), sc) (* GEN END FUN BRANCH *)
            (* either leftInstantiate D or atomic reasoning *)
 
 
    and eqSpineR (GQ, D, (Ss, Vs), (Ss', Vs'), sc, k) =
          eqSpineRW (GQ, D, (Ss, (Whnf.whnf Vs)), (Ss', (Whnf.whnf Vs')), sc, k)
 
-   and eqSpineRW (GQ, D, ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), sc, k) =
-        true
-     | eqSpineRW (GQ, D, ((I.SClo(S, s'), s''), Vs), SsVs', sc, k) =
-         eqSpineR (GQ, D, ((S, I.comp (s', s'')), Vs), SsVs', sc, k)
-     | eqSpineRW (GQ, D, SsVs, ((I.SClo(S', s'), s''), Vs'), sc, k) =
-         eqSpineR (GQ, D, SsVs, ((S', I.comp (s', s'')), Vs'), sc, k)
-     | eqSpineRW (GQ, D, ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
+   and (* GEN BEGIN FUN FIRST *) eqSpineRW (GQ, D, ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), sc, k) =
+        true (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineRW (GQ, D, ((I.SClo(S, s'), s''), Vs), SsVs', sc, k) =
+         eqSpineR (GQ, D, ((S, I.comp (s', s'')), Vs), SsVs', sc, k) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineRW (GQ, D, SsVs, ((I.SClo(S', s'), s''), Vs'), sc, k) =
+         eqSpineR (GQ, D, SsVs, ((S', I.comp (s', s'')), Vs'), sc, k) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineRW (GQ, D, ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
                  ((I.App (U', S'), s1'), (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), sc, k) =
            eqAtomicR (GQ, D, ((U, s1), (V1, s2)), ((U',s1'), (V1', s2')), sc, k)
            andalso
            eqSpineR (GQ, D, ((S, s1), (V2, I.Dot (I.Exp (I.EClo (U, s1)), s2))),
-                     ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, k)
-     | eqSpineRW (GQ, D, SsVs, SsVs', sc, k) = false
+                     ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), sc, k) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineRW (GQ, D, SsVs, SsVs', sc, k) = false (* GEN END FUN BRANCH *)
 
    (*--------------------------------------------------------------*)
    (* leftDecompose (G, Q, D, D', P) = B
@@ -1332,45 +1332,45 @@ struct
 
     *)
 
-   fun leftDecompose (GQ as (G, Q), nil, D', P) =
-         rightDecompose (GQ, D', P)
+   fun (* GEN BEGIN FUN FIRST *) leftDecompose (GQ as (G, Q), nil, D', P) =
+         rightDecompose (GQ, D', P) (* GEN END FUN FIRST *)
      (* less *)
-     | leftDecompose (GQ, (Less(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
-          ltAtomicL (GQ, D, D', UsVs, UsVs', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Less(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+          ltAtomicL (GQ, D, D', UsVs, UsVs', P) (* GEN END FUN BRANCH *)
 
-     | leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P) =
-         ltLexL (GQ, D, D', O, O', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P) =
+         ltLexL (GQ, D, D', O, O', P) (* GEN END FUN BRANCH *)
 
-     | leftDecompose (GQ, (Less(R.Simul O, R.Simul O') :: D), D', P) =
-         ltSimulL (GQ, D, D', O, O', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Less(R.Simul O, R.Simul O') :: D), D', P) =
+         ltSimulL (GQ, D, D', O, O', P) (* GEN END FUN BRANCH *)
      (* le *)
-     | leftDecompose (GQ, (Leq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
-         leAtomicL (GQ, D, D', UsVs, UsVs', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Leq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+         leAtomicL (GQ, D, D', UsVs, UsVs', P) (* GEN END FUN BRANCH *)
 
-     | leftDecompose (GQ, (Leq(R.Lex O, R.Lex O') :: D), D', P) =
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Leq(R.Lex O, R.Lex O') :: D), D', P) =
          leftDecompose (GQ, (Less(R.Lex O, R.Lex O') :: D), D', P)
          andalso
-         leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P)
+         leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P) (* GEN END FUN BRANCH *)
 
-     | leftDecompose (GQ, (Leq(R.Simul O, R.Simul O') :: D), D', P) =
-         leSimulL (GQ, D, D', O, O', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Leq(R.Simul O, R.Simul O') :: D), D', P) =
+         leSimulL (GQ, D, D', O, O', P) (* GEN END FUN BRANCH *)
      (* eq *)
-     | leftDecompose (GQ, (Eq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
-         eqAtomicL (GQ, D, D', UsVs,  UsVs', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Eq(R.Arg UsVs, R.Arg UsVs') :: D), D', P) =
+         eqAtomicL (GQ, D, D', UsVs,  UsVs', P) (* GEN END FUN BRANCH *)
 
-     | leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P) =
-         eqsL (GQ, D, D', O, O', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Eq(R.Lex O, R.Lex O') :: D), D', P) =
+         eqsL (GQ, D, D', O, O', P) (* GEN END FUN BRANCH *)
 
-     | leftDecompose (GQ, (Eq(R.Simul O, R.Simul O') :: D), D', P) =
-         eqsL (GQ, D, D', O, O', P)
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ, (Eq(R.Simul O, R.Simul O') :: D), D', P) =
+         eqsL (GQ, D, D', O, O', P) (* GEN END FUN BRANCH *)
 
-     | leftDecompose (GQ as (G, Q), (Pi(Dec, O) :: D), D', P) =
+     | (* GEN BEGIN FUN BRANCH *) leftDecompose (GQ as (G, Q), (Pi(Dec, O) :: D), D', P) =
          (* drop assumption Pi D. P *)
          ((if !Global.chatter > 3
                  then (print " Ignoring quantified order ";
                       print (F.makestring_fmt(fmtPredicate (G, Pi(Dec, O)))))
           else ());
-         leftDecompose (GQ, D, D', P))
+         leftDecompose (GQ, D, D', P)) (* GEN END FUN BRANCH *)
 
 
    (*--------------------------------------------------------------*)
@@ -1385,11 +1385,11 @@ struct
         ...
         and D, D', O1 = O1', .., O_n-1 = O'_n-1, O_n < O'_n --> P
     *)
-   and ltLexL (GQ, D, D', nil, nil, P) = true
-     | ltLexL (GQ, D, D', O :: L, O' :: L', P) =
+   and (* GEN BEGIN FUN FIRST *) ltLexL (GQ, D, D', nil, nil, P) = true (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ltLexL (GQ, D, D', O :: L, O' :: L', P) =
          leftDecompose(GQ, (Less(O, O') :: D), D', P)
          andalso
-         ltLexL(GQ, (Eq(O, O') :: D), D', L, L', P)
+         ltLexL(GQ, (Eq(O, O') :: D), D', L, L', P) (* GEN END FUN BRANCH *)
 
 
    (* If D, D', Lex O1, ....On = Lex O'1, ....O'n --> P
@@ -1401,24 +1401,24 @@ struct
         ...
         and D, D', On = On' --> P
     *)
-   and eqsL (GQ, D, D', nil, nil, P) = true
-     | eqsL (GQ, D, D', O :: L, O' :: L', P) =
+   and (* GEN BEGIN FUN FIRST *) eqsL (GQ, D, D', nil, nil, P) = true (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqsL (GQ, D, D', O :: L, O' :: L', P) =
          leftDecompose(GQ, (Eq(O, O') :: D), D', P)
          andalso
-         eqsL(GQ, D, D', L, L', P)
+         eqsL(GQ, D, D', L, L', P) (* GEN END FUN BRANCH *)
 
 
-   and ltSimulL (GQ, D, D', nil, nil, P) =
-         leftDecompose (GQ, D, D', P)
-     | ltSimulL (GQ, D, D', O :: L, O' ::L', P) =
+   and (* GEN BEGIN FUN FIRST *) ltSimulL (GQ, D, D', nil, nil, P) =
+         leftDecompose (GQ, D, D', P) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ltSimulL (GQ, D, D', O :: L, O' ::L', P) =
          leSimulL (GQ, (Less(O, O') :: D), D', L, L', P)
          orelse
-         ltSimulL(GQ, (Eq(O, O') :: D), D', L, L', P)
+         ltSimulL(GQ, (Eq(O, O') :: D), D', L, L', P) (* GEN END FUN BRANCH *)
 
-   and leSimulL (GQ, D, D', nil, nil, P) =
-         leftDecompose (GQ, D, D', P)
-     | leSimulL (GQ, D, D', O :: L, O' :: L', P) =
-         leSimulL (GQ, (Leq(O, O') :: D), D', L, L', P)
+   and (* GEN BEGIN FUN FIRST *) leSimulL (GQ, D, D', nil, nil, P) =
+         leftDecompose (GQ, D, D', P) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) leSimulL (GQ, D, D', O :: L, O' :: L', P) =
+         leSimulL (GQ, (Leq(O, O') :: D), D', L, L', P) (* GEN END FUN BRANCH *)
 
    (*--------------------------------------------------------------*)
    (* Atomic Orders (left) *)
@@ -1453,51 +1453,51 @@ struct
    and ltAtomicL (GQ, D, D', UsVs, UsVs', P) =
          ltAtomicLW (GQ, D, D', UsVs, Whnf.whnfEta UsVs', P)
 
-   and ltAtomicLW (GQ as (G,Q), D, D', UsVs, (Us', Vs' as (I.Root _, s')), P) =
-         ltL (GQ, D, D', UsVs, (Us', Vs'), P)
-     | ltAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
+   and (* GEN BEGIN FUN FIRST *) ltAtomicLW (GQ as (G,Q), D, D', UsVs, (Us', Vs' as (I.Root _, s')), P) =
+         ltL (GQ, D, D', UsVs, (Us', Vs'), P) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) ltAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
                   ((I.Lam (_, U'), s1'), (I.Pi ((Dec', _), V'), s2')), P) =
         let
-          val D1 = shiftRCtx D (fn s => I.comp(s, I.shift))
-          val D1' = shiftACtx D' (fn s => I.comp(s, I.shift))
-          val UsVs = ((U, I.comp (s1, I.shift)), (V, I.comp (s2, I.shift)))
-          val UsVs' = ((U', I.dot1 s1'), (V', I.dot1 s2'))
-          val P' = shiftP P (fn s => I.comp(s, I.shift))
+          (* GEN BEGIN TAG OUTSIDE LET *) val D1 = shiftRCtx D ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D1' = shiftACtx D' ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs = ((U, I.comp (s1, I.shift)), (V, I.comp (s2, I.shift))) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs' = ((U', I.dot1 s1'), (V', I.dot1 s2')) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val P' = shiftP P ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           ltAtomicL ((I.Decl (G, N.decLUName (G, I.decSub (Dec', s2'))), I.Decl (Q, All)),
                      D1, D1', UsVs, UsVs' ,  P')
-        end
+        end (* GEN END FUN BRANCH *)
 
    (* see invariant for ltAtomic *)
    and leAtomicL (GQ, D, D', UsVs, UsVs', P) =
          leAtomicLW (GQ, D, D', UsVs, Whnf.whnfEta UsVs', P)
 
-   and leAtomicLW (GQ, D, D', UsVs, (Us', Vs' as (I.Root (H,S), s')), P) =
-        leL (GQ, D, D', UsVs, (Us', Vs'), P)
-     | leAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
+   and (* GEN BEGIN FUN FIRST *) leAtomicLW (GQ, D, D', UsVs, (Us', Vs' as (I.Root (H,S), s')), P) =
+        leL (GQ, D, D', UsVs, (Us', Vs'), P) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) leAtomicLW (GQ as (G, Q), D, D', ((U, s1), (V, s2)),
                   ((I.Lam (_, U'), s1'), (I.Pi ((Dec', _), V'), s2')), P) =
         let
-          val D1 = shiftRCtx D (fn s => I.comp(s, I.shift))
-          val D1' = shiftACtx D' (fn s => I.comp(s, I.shift))
-          val UsVs = ((U, I.comp (s1, I.shift)), (V, I.comp (s2, I.shift)))
-          val UsVs' = ((U', I.dot1 s1'), (V', I.dot1 s2'))
-          val P' = shiftP P (fn s => I.comp(s, I.shift))
+          (* GEN BEGIN TAG OUTSIDE LET *) val D1 = shiftRCtx D ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D1' = shiftACtx D' ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs = ((U, I.comp (s1, I.shift)), (V, I.comp (s2, I.shift))) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val UsVs' = ((U', I.dot1 s1'), (V', I.dot1 s2')) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val P' = shiftP P ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => I.comp(s, I.shift) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           leAtomicL ((I.Decl (G, N.decLUName (G, I.decSub (Dec', s2'))), I.Decl (Q, All)),
                      D1, D1', UsVs, UsVs' , P')
-        end
+        end (* GEN END FUN BRANCH *)
 
    (*  *)
    and eqAtomicL (GQ, D, D', UsVs, UsVs', P) =
          eqAtomicLW (GQ, D, D', Whnf.whnfEta UsVs, Whnf.whnfEta UsVs', P)
 
-   and eqAtomicLW (GQ, D, D', (Us, Vs as (I.Root _, s)),
+   and (* GEN BEGIN FUN FIRST *) eqAtomicLW (GQ, D, D', (Us, Vs as (I.Root _, s)),
                                (Us', Vs' as (I.Root _, s')), P) =
-        eqL (GQ, D, D', (Us, Vs), (Us', Vs'), P)
-     | eqAtomicLW (GQ, D, D', (Us, Vs as (I.Root _, s)), (Us', Vs' as (I.Pi _, s')), P) = true
-     | eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Root _, s')), P) = true
-     | eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Pi _, s')), P) =
-        leftDecompose(GQ, D, (Eq((Us,Vs), (Us', Vs')) :: D'), P)
+        eqL (GQ, D, D', (Us, Vs), (Us', Vs'), P) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqAtomicLW (GQ, D, D', (Us, Vs as (I.Root _, s)), (Us', Vs' as (I.Pi _, s')), P) = true (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Root _, s')), P) = true (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqAtomicLW (GQ, D, D', (Us, Vs as (I.Pi _, s)), (Us', Vs' as (I.Pi _, s')), P) =
+        leftDecompose(GQ, D, (Eq((Us,Vs), (Us', Vs')) :: D'), P) (* GEN END FUN BRANCH *)
 
 
    (*--------------------------------------------------------------*)
@@ -1516,33 +1516,33 @@ struct
    and ltL (GQ, D, D', UsVs, (Us', Vs'), P) =
         ltLW (GQ, D, D', UsVs, (Whnf.whnf Us', Vs'), P)
 
-   and  ltLW (GQ as (G, Q), D, D', UsVs, (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P) =
+   and  (* GEN BEGIN FUN FIRST *) ltLW (GQ as (G, Q), D, D', UsVs, (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P) =
          if isAtomic(GQ, Us')
             then leftDecompose (GQ, D, (Less(UsVs, (Us',Vs')) :: D'), P)
           else
             let
-              val I.Dec (_, V') = I.ctxDec (G, n)
+              (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V') = I.ctxDec (G, n) (* GEN END TAG OUTSIDE LET *)
             in
               ltSpineL (GQ, D, D', UsVs, ((S', s'), (V', I.id)), P)
-            end
-      | ltLW (GQ, D, D', UsVs, ((I.Root (I.Const c, S'), s'), Vs'), P) =
-         ltSpineL (GQ, D, D', UsVs, ((S', s'), (I.constType c, I.id)), P)
+            end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ltLW (GQ, D, D', UsVs, ((I.Root (I.Const c, S'), s'), Vs'), P) =
+         ltSpineL (GQ, D, D', UsVs, ((S', s'), (I.constType c, I.id)), P) (* GEN END FUN BRANCH *)
 
-      | ltLW (GQ, D, D', UsVs, ((I.Root (I.Def c, S'), s'), Vs'), P) =
-         ltSpineL (GQ, D, D', UsVs, ((S', s'), (I.constType c, I.id)), P)
+      | (* GEN BEGIN FUN BRANCH *) ltLW (GQ, D, D', UsVs, ((I.Root (I.Def c, S'), s'), Vs'), P) =
+         ltSpineL (GQ, D, D', UsVs, ((S', s'), (I.constType c, I.id)), P) (* GEN END FUN BRANCH *)
 
     and ltSpineL (GQ, D, D', UsVs, (Ss', Vs'), P) =
           ltSpineLW (GQ, D, D', UsVs, (Ss', Whnf.whnf Vs'), P)
 
-    and ltSpineLW (GQ, D, D', UsVs, ((I.Nil, _), _), _) = true
-      | ltSpineLW (GQ, D, D', UsVs, ((I.SClo (S, s'), s''), Vs'), P) =
-          ltSpineL (GQ, D, D', UsVs, ((S, I.comp (s', s'')), Vs'), P)
-      | ltSpineLW (GQ, D, D', UsVs, ((I.App (U', S'), s1'),
+    and (* GEN BEGIN FUN FIRST *) ltSpineLW (GQ, D, D', UsVs, ((I.Nil, _), _), _) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ltSpineLW (GQ, D, D', UsVs, ((I.SClo (S, s'), s''), Vs'), P) =
+          ltSpineL (GQ, D, D', UsVs, ((S, I.comp (s', s'')), Vs'), P) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) ltSpineLW (GQ, D, D', UsVs, ((I.App (U', S'), s1'),
                                    (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), P) =
             leAtomicL (GQ, D, D', UsVs, ((U', s1'), (V1', s2')), P)
             andalso
             ltSpineL (GQ, D, D', UsVs,
-                      ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), P)
+                      ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), P) (* GEN END FUN BRANCH *)
 
   (*  eqL (GQ, D, D', UsVs, UsVs', P) = B
 
@@ -1571,59 +1571,59 @@ struct
   and eqL (GQ, D, D', UsVs, UsVs', P) =
        eqLW (GQ, D, D', Whnf.whnfEta UsVs, Whnf.whnfEta UsVs', P)
 
-  and eqLW (GQ, D, D',(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
+  and (* GEN BEGIN FUN FIRST *) eqLW (GQ, D, D',(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
             (Us', Vs' as (I.Pi ((I.Dec (_, V2''), _), V''), s2'')), P) =
-        leftDecompose (GQ, D, (Eq((Us,Vs), (Us', Vs')) :: D'), P)
+        leftDecompose (GQ, D, (Eq((Us,Vs), (Us', Vs')) :: D'), P) (* GEN END FUN FIRST *)
 
-    | eqLW (GQ, D, D',(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
+    | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D',(Us, Vs as (I.Pi ((I.Dec (_, V2'), _), V'), s2')),
             (Us', Vs' as (I.Root _, s2'')), P) =
-        true
-    | eqLW (GQ, D, D',(Us, Vs as (I.Root _, s2')),
+        true (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D',(Us, Vs as (I.Root _, s2')),
             (Us', Vs' as (I.Pi ((I.Dec (_, V2''), _), V''), s2'')), P) =
-        true
-    | eqLW (GQ, D, D', UsVs as ((I.Root (I.Const c, S), s), Vs),
+        true (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D', UsVs as ((I.Root (I.Const c, S), s), Vs),
             UsVs' as ((I.Root (I.Const c', S'), s'), Vs'), P) =
          if eqCid(c, c')
            then eqSpineL (GQ, D, D', ((S, s), (I.constType c, I.id)),
                          ((S', s'), (I.constType c', I.id)), P)
          else
-           true
+           true (* GEN END FUN BRANCH *)
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.Const c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.Const c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us')
            then leftDecompose (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P)
          else
-           true
+           true (* GEN END FUN BRANCH *)
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Const c, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us)
            then leftDecompose (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P)
          else
-           true
+           true (* GEN END FUN BRANCH *)
 
-    | eqLW (GQ, D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
+    | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D', UsVs as ((I.Root (I.Def c, S), s), Vs),
             UsVs' as ((I.Root (I.Def c', S'), s'), Vs'), P) =
          if eqCid(c, c')
            then eqSpineL (GQ, D, D', ((S, s), (I.constType c, I.id)),
                          ((S', s'), (I.constType c', I.id)), P)
          else
-           true
+           true (* GEN END FUN BRANCH *)
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.Def c, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.Def c, S), s), Vs),
             (Us' as (I.Root (I.BVar n, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us')
            then leftDecompose (GQ, D, (Eq((Us', Vs'),(Us, Vs)) :: D'), P)
          else
-           true
+           true (* GEN END FUN BRANCH *)
 
-     | eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.Def c, S'), s'), Vs'), P) =
          if isAtomic (GQ, Us)
            then leftDecompose (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P)
          else
-           true
+           true (* GEN END FUN BRANCH *)
 
 (*
      | eqLW (GQ, D, D', UsVs as ((I.Root (I.BVar n, I.Nil), s), Vs),
@@ -1634,38 +1634,38 @@ struct
            leftDecompose (GQ, D, (Eq(UsVs, UsVs') :: D'), P)
 
 *)
-     | eqLW (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
+     | (* GEN BEGIN FUN BRANCH *) eqLW (GQ as (G, Q), D, D', (Us as (I.Root (I.BVar n, S), s), Vs),
             (Us' as (I.Root (I.BVar n', S'), s'), Vs'), P) =
          if (n = n')
            then
              let
-               val I.Dec (_, V') = I.ctxDec (G, n)
+               (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V') = I.ctxDec (G, n) (* GEN END TAG OUTSIDE LET *)
              in
                eqSpineL (GQ, D, D', ((S, s), (V', I.id)), ((S', s'), (V', I.id)), P)
              end
          else
-           leftDecompose (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P)
+           leftDecompose (GQ, D, (Eq((Us, Vs), (Us', Vs')) :: D'), P) (* GEN END FUN BRANCH *)
      (* UsVs = Lam *)
-     | eqLW (GQ, D, D', UsVs, UsVs', P) =
-         leftDecompose (GQ, D, (Eq(UsVs, UsVs') :: D'), P)
+     | (* GEN BEGIN FUN BRANCH *) eqLW (GQ, D, D', UsVs, UsVs', P) =
+         leftDecompose (GQ, D, (Eq(UsVs, UsVs') :: D'), P) (* GEN END FUN BRANCH *)
 
     and eqSpineL (GQ, D, D', (Ss, Vs), (Ss', Vs'), P) =
          eqSpineLW (GQ, D, D', (Ss, Whnf.whnf Vs), (Ss', Whnf.whnf Vs'), P)
 
-   and eqSpineLW (GQ, D, D', ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), P) =
-        leftDecompose (GQ, D, D', P)
-     | eqSpineLW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P) =
-         eqSpineL (GQ, D, D', ((S, I.comp (s', s'')), Vs), SsVs', P)
-     | eqSpineLW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P) =
-         eqSpineL (GQ, D, D', SsVs, ((S', I.comp (s', s'')), Vs'), P)
-     | eqSpineLW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
+   and (* GEN BEGIN FUN FIRST *) eqSpineLW (GQ, D, D', ((I.Nil, s), Vs), ((I.Nil, s'), Vs'), P) =
+        leftDecompose (GQ, D, D', P) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineLW (GQ, D, D', ((I.SClo(S, s'), s''), Vs), SsVs', P) =
+         eqSpineL (GQ, D, D', ((S, I.comp (s', s'')), Vs), SsVs', P) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineLW (GQ, D, D', SsVs, ((I.SClo(S', s'), s''), Vs'), P) =
+         eqSpineL (GQ, D, D', SsVs, ((S', I.comp (s', s'')), Vs'), P) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqSpineLW (GQ, D, D', ((I.App (U, S), s1), (I.Pi ((I.Dec (_, V1), _), V2), s2)),
                  ((I.App (U', S'), s1'), (I.Pi ((I.Dec (_, V1'), _), V2'), s2')), P) =
          let
-           val D1 = (Eq(R.Arg ((U,s1), (V1, s2)), R.Arg ((U',s1'), (V1', s2'))) :: D)
+           (* GEN BEGIN TAG OUTSIDE LET *) val D1 = (Eq(R.Arg ((U,s1), (V1, s2)), R.Arg ((U',s1'), (V1', s2'))) :: D) (* GEN END TAG OUTSIDE LET *)
          in
            eqSpineL (GQ, D1, D', ((S, s1), (V2, I.Dot (I.Exp (I.EClo (U, s1)), s2))),
                      ((S', s1'), (V2', I.Dot (I.Exp (I.EClo (U', s1')), s2'))), P)
-         end
+         end (* GEN END FUN BRANCH *)
 
    (*--------------------------------------------------------------*)
    (* Infer: D --> P *)
@@ -1680,8 +1680,8 @@ struct
     *)
     fun deduce (G, Q, D, P) = leftDecompose((G, Q), D, nil, P)
   in
-    val deduce = deduce
-    val shiftRCtx = shiftRCtx
-    val shiftPred = shiftP
+    (* GEN BEGIN TAG OUTSIDE LET *) val deduce = deduce (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val shiftRCtx = shiftRCtx (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val shiftPred = shiftP (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor checking  *)

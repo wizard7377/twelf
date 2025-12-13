@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Lexer (structure Stream' : STREAM
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Lexer (structure Stream' : STREAM
                (*! structure Paths' : PATHS !*)
                  )
   : LEXER =
@@ -433,7 +433,7 @@ struct
 
   end  (* local ... *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor Lexer *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Lexer *)
 
 structure Lexer =
   Lexer (structure Stream' = Stream

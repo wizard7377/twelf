@@ -36,23 +36,23 @@ struct
   type cpu_time = {usr:Time.time, sys:Time.time, gc:Time.time}
   type real_time = Time.time
 
-  (* GEN BEGIN TAG INSIDE LET *) fun init () = () (* GEN END TAG INSIDE LET *)
+  fun init () = ()
 
   datatype 'a result = Value of 'a | Exception of exn
   type center = string * (cpu_time * real_time) ref
   type sum = string * center list
 
-  (* GEN BEGIN TAG INSIDE LET *) val zero = {usr = Time.zeroTime, sys = Time.zeroTime, gc = Time.zeroTime} (* GEN END TAG INSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val zero = {usr = Time.zeroTime, sys = Time.zeroTime, gc = Time.zeroTime} (* GEN END TAG OUTSIDE LET *)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun minus ({usr = t1, sys = t2, gc = t3},
+  fun minus ({usr = t1, sys = t2, gc = t3},
   	     {usr = s1, sys = s2, gc = s3}) =
-      {usr = Time.-(t1,s1), sys = Time.-(t2,s2), gc = Time.-(t3,s3)} (* GEN END TAG INSIDE LET *)
+      {usr = Time.-(t1,s1), sys = Time.-(t2,s2), gc = Time.-(t3,s3)}
 
-  (* GEN BEGIN TAG INSIDE LET *) fun plus ({usr = t1, sys = t2, gc = t3},
+  fun plus ({usr = t1, sys = t2, gc = t3},
   	    {usr = s1, sys = s2, gc = s3}) =
-      {usr = Time.+(t1,s1), sys = Time.+(t2,s2), gc = Time.+(t3,s3)} (* GEN END TAG INSIDE LET *)
+      {usr = Time.+(t1,s1), sys = Time.+(t2,s2), gc = Time.+(t3,s3)}
 
-  (* GEN BEGIN TAG INSIDE LET *) fun sum ({usr = t1, sys = t2, gc = t3}) = Time.+ (t1, t2) (* GEN END TAG INSIDE LET *)
+  fun sum ({usr = t1, sys = t2, gc = t3}) = Time.+ (t1, t2)
 
   local
     (* We use only one global timer each for CPU time and real time *)
@@ -60,10 +60,10 @@ struct
     (* val realTimer = Timer.startRealTimer () *)
   in
     (* newCenter (name) = new center, initialized to 0 *)
-    (* GEN BEGIN TAG INSIDE LET *) fun newCenter (name) = (name, ref (zero, Time.zeroTime)) (* GEN END TAG INSIDE LET *)
+    fun newCenter (name) = (name, ref (zero, Time.zeroTime))
 
     (* reset (center) = (), reset center to 0 as effect *)
-    (* GEN BEGIN TAG INSIDE LET *) fun reset (_, counters) = (counters := (zero, Time.zeroTime)) (* GEN END TAG INSIDE LET *)
+    fun reset (_, counters) = (counters := (zero, Time.zeroTime))
 
     (* time center f x = y
        runs f on x and adds its time to center.
@@ -72,57 +72,57 @@ struct
        Warning: if the execution of f uses its own centers,
        the time for those will be counted twice!
     *)
-    (* GEN BEGIN TAG INSIDE LET *) fun checkCPUAndGCTimer timer =
+    fun checkCPUAndGCTimer timer =
     	let
-    	    val {usr = usr, sys = sys} = Compat.Timer.checkCPUTimer timer
-    	    val gc = Compat.Timer.checkGCTime timer
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val {usr = usr, sys = sys} = Compat.Timer.checkCPUTimer timer (* GEN END TAG OUTSIDE LET *)
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val gc = Compat.Timer.checkGCTime timer (* GEN END TAG OUTSIDE LET *)
     	in
           {usr = usr, sys = sys, gc = gc}
-    	end (* GEN END TAG INSIDE LET *)
+    	end
 
-    (* GEN BEGIN TAG INSIDE LET *) fun time (_, counters) (f:'a -> 'b) (x:'a) =
+    fun time (_, counters) (f:'a -> 'b) (x:'a) =
         let
-    	    val realTimer = Timer.startRealTimer ()
-    	    val CPUTimer = Timer.startCPUTimer ()
-    	    val result = Value (f x) handle exn => Exception (exn)
-    	    val evalCPUTime = checkCPUAndGCTimer (CPUTimer)
-    	    val evalRealTime = Timer.checkRealTimer (realTimer)
-    	    val (CPUTime, realTime) = !counters
-    	    val _ = counters := (plus (CPUTime, evalCPUTime),
-    				 Time.+ (realTime, evalRealTime))
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val realTimer = Timer.startRealTimer () (* GEN END TAG OUTSIDE LET *)
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val CPUTimer = Timer.startCPUTimer () (* GEN END TAG OUTSIDE LET *)
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val result = Value (f x) handle exn => Exception (exn) (* GEN END TAG OUTSIDE LET *)
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val evalCPUTime = checkCPUAndGCTimer (CPUTimer) (* GEN END TAG OUTSIDE LET *)
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val evalRealTime = Timer.checkRealTimer (realTimer) (* GEN END TAG OUTSIDE LET *)
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val (CPUTime, realTime) = !counters (* GEN END TAG OUTSIDE LET *)
+    	    (* GEN BEGIN TAG OUTSIDE LET *) val _ = counters := (plus (CPUTime, evalCPUTime),
+    				 Time.+ (realTime, evalRealTime)) (* GEN END TAG OUTSIDE LET *)
     	in
     	  case result
     	    of Value (v) => v
     	     | Exception (e) => raise e
-    	end (* GEN END TAG INSIDE LET *)
+    	end
 
     (* sumCenter (name, centers) = sc
        where sc is a new sum which contains the sum of the timings of centers.
 
        Warning: the centers should not overlap!
     *)
-    (* GEN BEGIN TAG INSIDE LET *) fun sumCenter (name, l) = (name, l) (* GEN END TAG INSIDE LET *)
+    fun sumCenter (name, l) = (name, l)
 
-    (* GEN BEGIN TAG INSIDE LET *) fun stdTime (n, time) = StringCvt.padLeft #" " n (Time.toString time) (* GEN END TAG INSIDE LET *)
+    fun stdTime (n, time) = StringCvt.padLeft #" " n (Time.toString time)
 
-    (* GEN BEGIN TAG INSIDE LET *) fun timesToString (name, (CPUTime as {usr = t1, sys = t2, gc = t3}, realTime)) =
+    fun timesToString (name, (CPUTime as {usr = t1, sys = t2, gc = t3}, realTime)) =
         name ^ ": "
     	^ "Real = " ^ stdTime (7, realTime) ^ ", "
         ^ "Run = " ^ stdTime (7, sum CPUTime) ^ " "
     	^ "(" ^ stdTime (7, t1) ^ " usr, "
     	(* ^ stdTime (5, t2) ^ " sys, " ^ *) (* elide sys time *)
     	^ stdTime (6, t3) ^ " gc)"
-    	^ "\n" (* GEN END TAG INSIDE LET *)
+    	^ "\n"
 
-    (* GEN BEGIN TAG INSIDE LET *) fun toString (name, ref (CPUTime, realTime)) = timesToString (name, (CPUTime, realTime)) (* GEN END TAG INSIDE LET *)
+    fun toString (name, ref (CPUTime, realTime)) = timesToString (name, (CPUTime, realTime))
 
-    (* GEN BEGIN TAG INSIDE LET *) fun sumToString (name, centers) = 
-        let fun sumup (nil, (CPUTime, realTime)) = timesToString (name, (CPUTime, realTime))
-    	      | sumup ((_, ref (C, R))::centers, (CPUTime, realTime)) =
-    	          sumup (centers, (plus (CPUTime, C), Time.+ (realTime, R)))
+    fun sumToString (name, centers) = 
+        let fun (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) sumup (nil, (CPUTime, realTime)) = timesToString (name, (CPUTime, realTime)) (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+    	      | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) sumup ((_, ref (C, R))::centers, (CPUTime, realTime)) =
+    	          sumup (centers, (plus (CPUTime, C), Time.+ (realTime, R))) (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
     	in 
     	  sumup (centers, (zero, Time.zeroTime))
-    	end (* GEN END TAG INSIDE LET *)
+    	end
 
   end (* local ... *)
 end;  (* structure Timing *)
@@ -138,31 +138,31 @@ struct
   type center = string * int ref
   type sum = string * center list
 
-  (* GEN BEGIN TAG INSIDE LET *) fun init () = () (* GEN END TAG INSIDE LET *)
+  fun init () = ()
 
-  (* GEN BEGIN TAG INSIDE LET *) fun newCenter (name) = (name, ref 0) (* GEN END TAG INSIDE LET *)
+  fun newCenter (name) = (name, ref 0)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun reset (_, counters) = (counters := 0) (* GEN END TAG INSIDE LET *)
+  fun reset (_, counters) = (counters := 0)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun time (_, counters) (f:'a -> 'b) (x:'a) =
+  fun time (_, counters) (f:'a -> 'b) (x:'a) =
       let
-  	  val _ = counters := !counters + 1
+  	  (* GEN BEGIN TAG OUTSIDE LET *) val _ = counters := !counters + 1 (* GEN END TAG OUTSIDE LET *)
       in
   	f x
-      end (* GEN END TAG INSIDE LET *)
+      end
 
-  (* GEN BEGIN TAG INSIDE LET *) fun sumCenter (name, l) = (name, l) (* GEN END TAG INSIDE LET *)
+  fun sumCenter (name, l) = (name, l)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun toString' (name, n) = name ^ ": " ^ Int.toString n ^ "\n" (* GEN END TAG INSIDE LET *)
+  fun toString' (name, n) = name ^ ": " ^ Int.toString n ^ "\n"
 
-  (* GEN BEGIN TAG INSIDE LET *) fun toString (name, ref n) = toString' (name, n) (* GEN END TAG INSIDE LET *)
+  fun toString (name, ref n) = toString' (name, n)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun sumToString (name, centers) = 
-      let fun sumup (nil, total) = toString' (name, total)
-  	    | sumup ((_, ref n)::centers, total) =
-  		sumup (centers, total+n)
+  fun sumToString (name, centers) = 
+      let fun (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) sumup (nil, total) = toString' (name, total) (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+  	    | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) sumup ((_, ref n)::centers, total) =
+  		sumup (centers, total+n) (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
       in 
   	sumup (centers, 0)
-      end (* GEN END TAG INSIDE LET *)
+      end
 
 end;  (* structure Counting *)

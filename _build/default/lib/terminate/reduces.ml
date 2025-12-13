@@ -5,7 +5,7 @@
    tech report CMU-CS-01-115
  *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Reduces   (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Reduces   (structure Global : GLOBAL
                    (*! structure IntSyn' : INTSYN !*)
                    structure Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -610,4 +610,4 @@ struct
     val checkFamReduction = checkFamReduction
     val checkFam = checkFam
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Reduces  *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Reduces  *)

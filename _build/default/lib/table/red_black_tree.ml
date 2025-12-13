@@ -1,7 +1,7 @@
 (* Red/Black Trees *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) RedBlackTree
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) RedBlackTree
   (type key'
    val compare : key' * key' -> order)
   :> TABLE where type key = key' =
@@ -250,4 +250,4 @@ struct
     val app = (fn f => fn table => app f (!table))
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor RedBlackTree *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor RedBlackTree *)

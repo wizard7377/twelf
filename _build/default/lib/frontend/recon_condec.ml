@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga, Jeff Polakow *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ReconConDec (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ReconConDec (structure Global : GLOBAL
                      (*! structure IntSyn' : INTSYN !*)
                      structure Names : NAMES
                      (*! sharing Names.IntSyn = IntSyn' !*)
@@ -194,4 +194,4 @@ struct
   fun internalInst _ = raise Match
   fun externalInst _ = raise Match
 
-end (* GEN END FUNCTOR DECL *) (* functor ReconConDec *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor ReconConDec *)

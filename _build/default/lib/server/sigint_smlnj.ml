@@ -1,11 +1,11 @@
 structure SigINT :> SIGINT =
 struct
 
-  (* GEN BEGIN TAG INSIDE LET *) fun interruptLoop (loop:unit -> unit) =
+  fun interruptLoop (loop:unit -> unit) =
       (SMLofNJ.Cont.callcc
-       (fn k => (Signals.setHandler (Signals.sigINT,
-  				     Signals.HANDLER (fn _ => (print "\ninterrupt\n"; k)));
-  		 ()));
-       loop ()) (* GEN END TAG INSIDE LET *)
+       ((* GEN BEGIN FUNCTION EXPRESSION *) (* GEN BEGIN FUNCTION EXPRESSION *) fn k => (Signals.setHandler (Signals.sigINT,
+         				     Signals.HANDLER (fn _ => (print "\ninterrupt\n"; k)));
+         		 ()) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *));
+       loop ())
 
 end;  (* structure SigINT *)

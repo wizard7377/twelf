@@ -33,30 +33,30 @@ struct
        connect the new prover to Twelf  (see also functor below) *)
 
     (* List of open states *)
-    val openStates : S.state list ref = ref nil
+    (* GEN BEGIN TAG OUTSIDE LET *) val openStates : S.state list ref = ref nil (* GEN END TAG OUTSIDE LET *)
 
     (* List of solved states *)
-    val solvedStates : S.state list ref = ref nil
+    (* GEN BEGIN TAG OUTSIDE LET *) val solvedStates : S.state list ref = ref nil (* GEN END TAG OUTSIDE LET *)
 
-    fun transformOrder' (G, Order.Arg k) =
+    fun (* GEN BEGIN FUN FIRST *) transformOrder' (G, Order.Arg k) =
         let
-          val k' = (I.ctxLength G) -k+1
-          val I.Dec (_, V) = I.ctxDec (G, k')
+          (* GEN BEGIN TAG OUTSIDE LET *) val k' = (I.ctxLength G) -k+1 (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V) = I.ctxDec (G, k') (* GEN END TAG OUTSIDE LET *)
         in
           S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
-        end
-      | transformOrder' (G, Order.Lex Os) =
-          S.Lex (map (fn O => transformOrder' (G, O)) Os)
-      | transformOrder' (G, Order.Simul Os) =
-          S.Simul (map (fn O => transformOrder' (G, O)) Os)
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder' (G, Order.Lex Os) =
+          S.Lex (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => transformOrder' (G, O) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder' (G, Order.Simul Os) =
+          S.Simul (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => transformOrder' (G, O) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
 
-    fun transformOrder (G, F.All (F.Prim D, F), Os) =
-          S.All (D, transformOrder (I.Decl (G, D), F, Os))
-      | transformOrder (G, F.And (F1, F2), O :: Os) =
+    fun (* GEN BEGIN FUN FIRST *) transformOrder (G, F.All (F.Prim D, F), Os) =
+          S.All (D, transformOrder (I.Decl (G, D), F, Os)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder (G, F.And (F1, F2), O :: Os) =
           S.And (transformOrder (G, F1, [O]),
-                 transformOrder (G, F2, Os))
-      | transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O)
-      | transformOrder (G, F.True, [O]) = transformOrder' (G, O)
+                 transformOrder (G, F2, Os)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder (G, F.Ex _, [O]) = transformOrder' (G, O) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) transformOrder (G, F.True, [O]) = transformOrder' (G, O) (* GEN END FUN BRANCH *)
         (* last case: no existentials---order must be trivial *)
 
     fun select c = (Order.selLookup c handle _ => Order.Lex [])
@@ -77,9 +77,9 @@ struct
        Invariant:
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
-    fun contains (nil, _) = true
-      | contains (x :: L, L') =
-          (List.exists (fn x' => x = x') L') andalso contains (L, L')
+    fun (* GEN BEGIN FUN FIRST *) contains (nil, _) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) contains (x :: L, L') =
+          (List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn x' => x = x' (* GEN END FUNCTION EXPRESSION *)) L') andalso contains (L, L') (* GEN END FUN BRANCH *)
 
     (* equiv (L1, L2) = B'
 
@@ -105,11 +105,11 @@ struct
        If   L is a list of cid,
        then s is a string, listing their names
     *)
-    fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
-          (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
-          (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
+    fun (* GEN BEGIN FUN FIRST *) cLToString (nil) = "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) cLToString (c :: nil) =
+          (I.conDecName (I.sgnLookup c)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) cLToString (c :: L) =
+          (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L) (* GEN END FUN BRANCH *)
 
     (* init (k, cL) = ()
 
@@ -121,16 +121,16 @@ struct
     *)
     fun init (k, cL as (c :: _)) =
         let
-          val _ = MTPGlobal.maxFill := k
-          val _ = reset ();
-          val cL' = Order.closure c
-                    handle Order.Error _ => cL  (* if no termination ordering given! *)
-          val F = RelFun.convertFor cL
-          val O = transformOrder (I.Null, F, map select cL)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = MTPGlobal.maxFill := k (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = reset () (* GEN END TAG OUTSIDE LET *);
+          (* GEN BEGIN TAG OUTSIDE LET *) val cL' = Order.closure c
+                    handle Order.Error _ => cL (* GEN END TAG OUTSIDE LET *)  (* if no termination ordering given! *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = RelFun.convertFor cL (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val O = transformOrder (I.Null, F, map select cL) (* GEN END TAG OUTSIDE LET *)
     
         in
           if equiv (cL, cL')
-            then List.app (fn S => insertState S) (MTPInit.init (F, O))
+            then List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => insertState S (* GEN END FUNCTION EXPRESSION *)) (MTPInit.init (F, O))
           else raise Error ("Theorem by simultaneous induction not correctly stated:"
                              ^ "\n            expected: " ^ (cLToString cL'))
         end
@@ -143,14 +143,14 @@ struct
     *)
     fun auto () =
         let
-          val (Open, solvedStates') = MTPStrategy.run (!openStates)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Open, solvedStates') = MTPStrategy.run (!openStates)
              handle Splitting.Error s => error ("Splitting Error: " ^ s)
                   | Filling.Error s => error ("Filling Error: " ^ s)
                   | Recursion.Error s => error ("Recursion Error: " ^ s)
-                  | Filling.TimeOut =>  error ("A proof could not be found -- Exceeding Time Limit\n")
+                  | Filling.TimeOut =>  error ("A proof could not be found -- Exceeding Time Limit\n") (* GEN END TAG OUTSIDE LET *)
     
-          val _ = openStates := Open
-          val _ = solvedStates := (!solvedStates) @ solvedStates'
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = openStates := Open (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = solvedStates := (!solvedStates) @ solvedStates' (* GEN END TAG OUTSIDE LET *)
         in
           if (List.length (!openStates)) > 0 then
             raise Error ("A proof could not be found")
@@ -162,10 +162,10 @@ struct
     fun install _ = ()
 
   in
-    val init = init
-    val auto = auto
-    val print = print
-    val install = install
+    (* GEN BEGIN TAG OUTSIDE LET *) val init = init (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val auto = auto (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val print = print (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val install = install (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *) (* functor MTProver *)
 
@@ -189,28 +189,28 @@ struct
 
   local
     fun init Args =
-      he (fn () => case !(MTPGlobal.prover)
+      he ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => case !(MTPGlobal.prover)
                      of MTPGlobal.New => ProverNew.init Args
-                      | MTPGlobal.Old => ProverOld.init Args)
+                      | MTPGlobal.Old => ProverOld.init Args (* GEN END FUNCTION EXPRESSION *))
 
     fun auto Args =
-      he (fn () => case !(MTPGlobal.prover)
+      he ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => case !(MTPGlobal.prover)
                         of MTPGlobal.New => ProverNew.auto Args
-                         | MTPGlobal.Old => ProverOld.auto Args)
+                         | MTPGlobal.Old => ProverOld.auto Args (* GEN END FUNCTION EXPRESSION *))
 
     fun print Args =
-      he (fn () => case !(MTPGlobal.prover)
+      he ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => case !(MTPGlobal.prover)
                         of MTPGlobal.New => ProverNew.print Args
-                         | MTPGlobal.Old => ProverOld.print Args)
+                         | MTPGlobal.Old => ProverOld.print Args (* GEN END FUNCTION EXPRESSION *))
 
     fun install Args =
-      he (fn () => case !(MTPGlobal.prover)
+      he ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => case !(MTPGlobal.prover)
                         of MTPGlobal.New => ProverNew.install Args
-                         | MTPGlobal.Old => ProverOld.install Args)
+                         | MTPGlobal.Old => ProverOld.install Args (* GEN END FUNCTION EXPRESSION *))
   in
-    val init = init
-    val auto = auto
-    val print = print
-    val install = install
+    (* GEN BEGIN TAG OUTSIDE LET *) val init = init (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val auto = auto (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val print = print (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val install = install (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *) (* functor CombiProver *)

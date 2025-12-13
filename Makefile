@@ -104,35 +104,30 @@ check : twelf-regression
 install:
 	cp bin/twelf-server $(DESTDIR)/bin/twelf-server.new
 	mv $(DESTDIR)/bin/twelf-server.new $(DESTDIR)/bin/twelf-server
-.PHONY: lib/
+
 lib/: src/ 
-	cp --update=all -r src/. lib/ 
+	cp -r src/. lib 
 
-RULES_OCAML := $(wildcard grep/rules/*.yml)
-%.ml: %.sml $(RULES_OCAML) lib/
-	@ast-grep scan --update-all $<
-	@mv $< $@
+AST_GREP_CMD = ./rewrite.sh --update-all
+#%.ml: %.sml 
+#	$(AST_GREP_CMD) $<
+#	@mv $< $@
+#	cat $@ | perl grep/rewrite.pl
 
-%.ml: %.fun $(RULES_OCAML) lib/
-	@ast-grep scan --update-all $<
+%.ml: %.fun 
+	$(AST_GREP_CMD) $<
+	mv $< $@
+	cat $@ | perl grep/rewrite.pl 
+%.fun: %.sml 
+#	$(AST_GREP_CMD) $<
 	@mv $< $@
+	
 
-%.mli: %.sig $(RULES_OCAML) lib/
-	@ast-grep scan --update-all $<
-	@mv $< $@
+%.mli: %.sig 
+	$(AST_GREP_CMD) $<
+	mv $< $@
+	cat $@ | perl grep/rewrite.pl
 
 OUT_OCAML := $(addsuffix .mli, $(basename $(wildcard lib/**/*.sig))) $(addsuffix .ml, $(basename $(wildcard lib/**/*.fun))) $(addsuffix .ml, $(basename $(wildcard lib/**/*.sml)))
-ANY_OCAML := $(wildcard lib/**/*)
-debug_var:
-	@echo $(OUT_OCAML)
-	
-clean_ocaml: 
-	@rm -rf $(ANY_OCAML)
-	@rm -rf $(OUT_OCAML)
-	@touch lib/
 
-new_ocaml: clean_ocaml  lib/ $(OUT_OCAML)
-check_ocaml: lib/ new_ocaml 
-	@dune build
-
-all_ocaml: new_ocaml check_ocaml
+edit_ocaml: $(OUT_OCAML) 

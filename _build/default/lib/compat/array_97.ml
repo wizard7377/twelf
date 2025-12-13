@@ -3,5 +3,5 @@
 
 structure CompatArray97 :> COMPAT_ARRAY =
 struct
-  (* GEN BEGIN TAG INSIDE LET *) fun appi f arr = Array.appi f (arr, 0 , NONE) (* GEN END TAG INSIDE LET *)
+  fun appi f arr = Array.appi f (arr, 0 , NONE)
 end;

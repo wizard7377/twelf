@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) PrintTwega
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) PrintTwega
   ((*! structure IntSyn' : INTSYN !*)
    structure Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -182,4 +182,4 @@ in
 
 end  (* local ... *)
 
-end (* GEN END FUNCTOR DECL *)  (* functor Print *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor Print *)

@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Unify ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Unify ((*! structure IntSyn' : INTSYN !*)
                structure Whnf    : WHNF
                (*! sharing Whnf.IntSyn = IntSyn' !*)
                structure Trail   : TRAIL)
@@ -889,4 +889,4 @@ struct
           (unify (G, Us1, Us2); NONE)
           handle Unify(msg) => SOME(msg)
   end
-end (* GEN END FUNCTOR DECL *);  (* functor Unify *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Unify *)

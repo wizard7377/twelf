@@ -1,4 +1,4 @@
-functor (* GEN BEGIN FUNCTOR DECL *) Traverse
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Traverse
   ((*! structure IntSyn' : INTSYN !*)
    structure Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -154,4 +154,4 @@ in
 
 end  (* local ... *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor Traverse *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Traverse *)

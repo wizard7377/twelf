@@ -1,7 +1,7 @@
 (* Parsing Signature Entries *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ParseConDec
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ParseConDec
   ((*! structure Parsing' : PARSING !*)
    structure ExtConDec' : EXTCONDEC
    structure ParseTerm : PARSE_TERM
@@ -104,4 +104,4 @@ struct
     val parseClause' = parseClause'
   end  (* local ... in *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor ParseConDec *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ParseConDec *)

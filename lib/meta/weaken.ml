@@ -36,24 +36,24 @@ struct
        then G1 |- G' = G[s^-1] ctx
        and  G0 |- s' : G1, G'
     *)
-    fun strengthenCtx (I.Null, s) = (I.Null, s)
-      | strengthenCtx (I.Decl (G, D), s) =
+    fun (* GEN BEGIN FUN FIRST *) strengthenCtx (I.Null, s) = (I.Null, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenCtx (I.Decl (G, D), s) =
         let
-          val (G', s') = strengthenCtx (G, s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G', s') = strengthenCtx (G, s) (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G', strengthenDec (D, s')), I.dot1 s')
-        end
+        end (* GEN END FUN BRANCH *)
 
     fun strengthenSub (s, t) = Whnf.compInv (s, t)
 
-    fun strengthenSpine (I.Nil, t) = I.Nil
-      | strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
+    fun (* GEN BEGIN FUN FIRST *) strengthenSpine (I.Nil, t) = I.Nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t)) (* GEN END FUN BRANCH *)
 
   in
-    val strengthenExp = strengthenExp
-    val strengthenSpine = strengthenSpine
-    val strengthenDec = strengthenDec
-    val strengthenCtx = strengthenCtx
-    val strengthenSub = strengthenSub
+    (* GEN BEGIN TAG OUTSIDE LET *) val strengthenExp = strengthenExp (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val strengthenSpine = strengthenSpine (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val strengthenDec = strengthenDec (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val strengthenCtx = strengthenCtx (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val strengthenSub = strengthenSub (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *) (* functor Weaken *)

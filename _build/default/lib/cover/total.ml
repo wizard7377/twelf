@@ -1,7 +1,7 @@
 (* Total Declarations *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Total
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Total
   (structure Global : GLOBAL
    structure Table : TABLE where type key = int
 
@@ -236,4 +236,4 @@ struct
         end
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor Total *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Total *)

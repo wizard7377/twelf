@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) WorldSyn
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) WorldSyn
   (structure Global : GLOBAL
    structure Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn !*)
@@ -580,4 +580,4 @@ struct
     val getWorlds = getWorlds
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor WorldSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor WorldSyn *)

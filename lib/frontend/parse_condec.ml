@@ -19,78 +19,78 @@ struct
     (* parseConDec3  "U" *)
     fun parseConDec3 (optName, optTm, s) =
         let
-          val (tm', f') = ParseTerm.parseTerm' (LS.expose s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (tm', f') = ParseTerm.parseTerm' (LS.expose s) (* GEN END TAG OUTSIDE LET *)
         in
           (ExtConDec.condef (optName, tm', optTm), f')
         end
 
     (* parseConDec2  "= U" | "" *)
-    fun parseConDec2 (optName, (tm, LS.Cons((L.EQUAL, r), s'))) =
-          parseConDec3 (optName, SOME(tm), s')
-      | parseConDec2 (SOME(name), (tm, f)) =
-          (ExtConDec.condec (name, tm), f)
-      | parseConDec2 (NONE, (tm, LS.Cons((t,r),s'))) =
-          Parsing.error (r, "Illegal anonymous declared constant")
+    fun (* GEN BEGIN FUN FIRST *) parseConDec2 (optName, (tm, LS.Cons((L.EQUAL, r), s'))) =
+          parseConDec3 (optName, SOME(tm), s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseConDec2 (SOME(name), (tm, f)) =
+          (ExtConDec.condec (name, tm), f) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseConDec2 (NONE, (tm, LS.Cons((t,r),s'))) =
+          Parsing.error (r, "Illegal anonymous declared constant") (* GEN END FUN BRANCH *)
 
     (* parseConDec1  ": V = U" | "= U" *)
-    fun parseConDec1 (optName, LS.Cons ((L.COLON, r), s')) =
-          parseConDec2 (optName, ParseTerm.parseTerm' (LS.expose s'))
-      | parseConDec1 (optName, LS.Cons ((L.EQUAL, r), s')) =
-          parseConDec3 (optName, NONE, s')
-      | parseConDec1 (optName, LS.Cons ((t,r), s')) =
-          Parsing.error (r, "Expected `:' or `=', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseConDec1 (optName, LS.Cons ((L.COLON, r), s')) =
+          parseConDec2 (optName, ParseTerm.parseTerm' (LS.expose s')) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseConDec1 (optName, LS.Cons ((L.EQUAL, r), s')) =
+          parseConDec3 (optName, NONE, s') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseConDec1 (optName, LS.Cons ((t,r), s')) =
+          Parsing.error (r, "Expected `:' or `=', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
 
    (* BlockDec parser *)
 
 
-    fun parseBlock (LS.Cons ((L.ID (_, "block"), r), s')) =
-          ParseTerm.parseCtx' (LS.expose s')
-      | parseBlock (LS.Cons ((t, r), s')) =
-          Parsing.error (r, "Expected `block', found " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseBlock (LS.Cons ((L.ID (_, "block"), r), s')) =
+          ParseTerm.parseCtx' (LS.expose s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseBlock (LS.Cons ((t, r), s')) =
+          Parsing.error (r, "Expected `block', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    fun parseSome (name, LS.Cons ((L.ID (_, "some"), r), s')) =
+    fun (* GEN BEGIN FUN FIRST *) parseSome (name, LS.Cons ((L.ID (_, "some"), r), s')) =
         let
-          val (g1, f') = ParseTerm.parseCtx' (LS.expose s')
-          val (g2, f'') = parseBlock f'
+          (* GEN BEGIN TAG OUTSIDE LET *) val (g1, f') = ParseTerm.parseCtx' (LS.expose s') (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (g2, f'') = parseBlock f' (* GEN END TAG OUTSIDE LET *)
         in
           (ExtConDec.blockdec (name, g1, g2), f'')
-        end
-      | parseSome (name, f as LS.Cons ((L.ID (_, "block"), r), s')) =
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseSome (name, f as LS.Cons ((L.ID (_, "block"), r), s')) =
         let
-          val (g2, f') = parseBlock f
+          (* GEN BEGIN TAG OUTSIDE LET *) val (g2, f') = parseBlock f (* GEN END TAG OUTSIDE LET *)
         in
           (ExtConDec.blockdec (name, nil, g2), f')
-        end
-      | parseSome (name, LS.Cons ((t, r), s')) =
-          Parsing.error (r, "Expected `some' or `block', found " ^ L.toString t)
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseSome (name, LS.Cons ((t, r), s')) =
+          Parsing.error (r, "Expected `some' or `block', found " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    fun parseBlockDec1 (name, LS.Cons ((L.COLON, r), s')) =
-          parseSome (name, LS.expose s')
-      | parseBlockDec1 (name, LS.Cons ((L.EQUAL, r), s')) =
-          let val (g, f) = ParseTerm.parseQualIds' (LS.expose s')
+    fun (* GEN BEGIN FUN FIRST *) parseBlockDec1 (name, LS.Cons ((L.COLON, r), s')) =
+          parseSome (name, LS.expose s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseBlockDec1 (name, LS.Cons ((L.EQUAL, r), s')) =
+          let (* GEN BEGIN TAG OUTSIDE LET *) val (g, f) = ParseTerm.parseQualIds' (LS.expose s') (* GEN END TAG OUTSIDE LET *)
           in (ExtConDec.blockdef (name, g), f)
-          end
-      | parseBlockDec1 (name, LS.Cons ((t, r), s')) =
+          end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseBlockDec1 (name, LS.Cons ((t, r), s')) =
       (* added as a feature request by Carl  -- Wed Mar 16 16:11:44 2011  cs *)
-          Parsing.error (r, "`:' expected, found token " ^ L.toString t)
+          Parsing.error (r, "`:' expected, found token " ^ L.toString t) (* GEN END FUN BRANCH *)
 
-    fun parseBlockDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
-          parseBlockDec1 (name, LS.expose s')
-      | parseBlockDec' (LS.Cons ((t, r), s')) =
-          Parsing.error (r, "Label identifier expected, found token " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseBlockDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
+          parseBlockDec1 (name, LS.expose s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseBlockDec' (LS.Cons ((t, r), s')) =
+          Parsing.error (r, "Label identifier expected, found token " ^ L.toString t) (* GEN END FUN BRANCH *)
 
     (* parseConDec' : lexResult front -> ExtConDec.ConDec * lexResult front
        Invariant: first token in exposed input stream is an identifier or underscore
     *)
-    fun parseConDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
-          parseConDec1 (SOME(name), LS.expose s')
-      | parseConDec' (LS.Cons ((L.UNDERSCORE, r), s')) =
-          parseConDec1 (NONE, LS.expose s')
-      | parseConDec' (LS.Cons ((L.BLOCK, r), s')) =
-          parseBlockDec' (LS.expose s')
-      | parseConDec' (LS.Cons ((t, r), s')) =
-          Parsing.error (r, "Constant or block declaration expected, found token " ^ L.toString t)
+    fun (* GEN BEGIN FUN FIRST *) parseConDec' (LS.Cons ((L.ID (idCase,name), r), s')) =
+          parseConDec1 (SOME(name), LS.expose s') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) parseConDec' (LS.Cons ((L.UNDERSCORE, r), s')) =
+          parseConDec1 (NONE, LS.expose s') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseConDec' (LS.Cons ((L.BLOCK, r), s')) =
+          parseBlockDec' (LS.expose s') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) parseConDec' (LS.Cons ((t, r), s')) =
+          Parsing.error (r, "Constant or block declaration expected, found token " ^ L.toString t) (* GEN END FUN BRANCH *)
 
 
     (* parseConDec --- currently not exported *)
@@ -99,9 +99,9 @@ struct
     fun parseClause' (LS.Cons ((L.CLAUSE, r), s)) = parseConDec (s) (* -fp *)
 
   in
-    val parseConDec' = parseConDec'
-    val parseAbbrev' = parseAbbrev'
-    val parseClause' = parseClause'
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseConDec' = parseConDec' (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseAbbrev' = parseAbbrev' (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val parseClause' = parseClause' (* GEN END TAG OUTSIDE LET *)
   end  (* local ... in *)
 
 end (* GEN END FUNCTOR DECL *);  (* functor ParseConDec *)

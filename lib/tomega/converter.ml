@@ -56,8 +56,8 @@ exception Error' of Tomega.sub
     structure TA = TomegaAbstract
 
     (* ABP - 4/20/03, determine if Front is (I.Idx 1) *)
-    fun isIdx1 (I.Idx 1) = true
-      | isIdx1 _ = false
+    fun (* GEN BEGIN FUN FIRST *) isIdx1 (I.Idx 1) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) isIdx1 _ = false (* GEN END FUN BRANCH *)
 
     fun modeSpine a =
         case ModeTable.modeLookup a
@@ -101,12 +101,12 @@ exception Error' of Tomega.sub
        and  G |- V : L
        then G' |- V' = V[s^-1] : L
     *)
-    fun strengthenDec (I.Dec (name, V), s) = I.Dec (name, strengthenExp (V, s))
-      | strengthenDec (I.BDec (name, (L, t)), s) =
+    fun (* GEN BEGIN FUN FIRST *) strengthenDec (I.Dec (name, V), s) = I.Dec (name, strengthenExp (V, s)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenDec (I.BDec (name, (L, t)), s) =
                                         (* G0 |- t : Gsome *)
                                         (* G0  |- s : G' *)
                                         (* to show  G' |- t o s^1 : Gsome *)
-          I.BDec (name, (L, strengthenSub (t, s)))
+          I.BDec (name, (L, strengthenSub (t, s))) (* GEN END FUN BRANCH *)
 
     (* strengthenCtx (G, s) = (G', s')
 
@@ -115,13 +115,13 @@ exception Error' of Tomega.sub
        then G1 |- G' = G[w^-1] ctx
        and  G0 |- w' : G1, G'
     *)
-    fun strengthenCtx (I.Null, s) = (I.Null, s)
-      | strengthenCtx (I.Decl (G, D), s) =
+    fun (* GEN BEGIN FUN FIRST *) strengthenCtx (I.Null, s) = (I.Null, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenCtx (I.Decl (G, D), s) =
         let
-          val (G', s') = strengthenCtx (G, s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G', s') = strengthenCtx (G, s) (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G', strengthenDec (D, s')), I.dot1 s')
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* strengthenFor (F, s) = F'
@@ -130,13 +130,13 @@ exception Error' of Tomega.sub
        and  Psi0 |- s :: Psi1
        then Psi1 |- F' = F[s^-1] ctx
     *)
-    fun strengthenFor (T.True, s) = T.True
-      | strengthenFor (T.And (F1, F2), s) =
-          T.And (strengthenFor (F1, s), strengthenFor (F2, s))
-      | strengthenFor (T.All ((T.UDec D, Q), F), s) =
-          T.All ((T.UDec (strengthenDec (D, s)), Q), strengthenFor (F, I.dot1 s))
-      | strengthenFor (T.Ex ((D, Q), F), s) =
-          T.Ex ((strengthenDec (D, s), Q), strengthenFor (F, I.dot1 s))
+    fun (* GEN BEGIN FUN FIRST *) strengthenFor (T.True, s) = T.True (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenFor (T.And (F1, F2), s) =
+          T.And (strengthenFor (F1, s), strengthenFor (F2, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenFor (T.All ((T.UDec D, Q), F), s) =
+          T.All ((T.UDec (strengthenDec (D, s)), Q), strengthenFor (F, I.dot1 s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenFor (T.Ex ((D, Q), F), s) =
+          T.Ex ((strengthenDec (D, s), Q), strengthenFor (F, I.dot1 s)) (* GEN END FUN BRANCH *)
 
 
 
@@ -148,12 +148,12 @@ exception Error' of Tomega.sub
        and  Psi0 |- s :: Psi1
        then Psi1 |- O' = O[s^-1] ctx
     *)
-    fun strengthenOrder (Order.Arg((U,s1), (V, s2)), s) =
-          Order.Arg ((U, strengthenSub (s1, s)), (V, strengthenSub (s2, s)))
-      | strengthenOrder (Order.Simul Os, s) =
-          Order.Simul (map (fn O => strengthenOrder (O, s)) Os)
-      | strengthenOrder (Order.Lex Os, s) =
-          Order.Lex (map (fn O => strengthenOrder (O, s)) Os)
+    fun (* GEN BEGIN FUN FIRST *) strengthenOrder (Order.Arg((U,s1), (V, s2)), s) =
+          Order.Arg ((U, strengthenSub (s1, s)), (V, strengthenSub (s2, s))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenOrder (Order.Simul Os, s) =
+          Order.Simul (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => strengthenOrder (O, s) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenOrder (Order.Lex Os, s) =
+          Order.Lex (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => strengthenOrder (O, s) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
 
 
     (* strengthenTC (TC, s) = TC'
@@ -162,15 +162,15 @@ exception Error' of Tomega.sub
        and  Psi0 |- s :: Psi1
        then Psi1 |- TC' = TC[s^-1] ctx
     *)
-    fun strengthenTC (T.Base O, s) = T.Base (strengthenOrder (O, s))
-      | strengthenTC (T.Conj (TC1, TC2), s) =
-          T.Conj (strengthenTC (TC1, s), strengthenTC (TC2, s))
-      | strengthenTC (T.Abs (D, TC), s) =
-          T.Abs (strengthenDec (D, s), strengthenTC (TC, I.dot1 s))
+    fun (* GEN BEGIN FUN FIRST *) strengthenTC (T.Base O, s) = T.Base (strengthenOrder (O, s)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenTC (T.Conj (TC1, TC2), s) =
+          T.Conj (strengthenTC (TC1, s), strengthenTC (TC2, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenTC (T.Abs (D, TC), s) =
+          T.Abs (strengthenDec (D, s), strengthenTC (TC, I.dot1 s)) (* GEN END FUN BRANCH *)
 
 
-    fun strengthenSpine (I.Nil, t) = I.Nil
-      | strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t))
+    fun (* GEN BEGIN FUN FIRST *) strengthenSpine (I.Nil, t) = I.Nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenSpine (I.App (U, S), t) = I.App (strengthenExp (U, t), strengthenSpine (S, t)) (* GEN END FUN BRANCH *)
 
 
 
@@ -181,19 +181,19 @@ exception Error' of Tomega.sub
        then Psi1 |- Psi' = Psi[s^-1] ctx
        and  Psi0 |- s' :: Psi1, Psi'
     *)
-    fun strengthenPsi (I.Null, s) = (I.Null, s)
-      | strengthenPsi (I.Decl (Psi, T.UDec D), s) =
+    fun (* GEN BEGIN FUN FIRST *) strengthenPsi (I.Null, s) = (I.Null, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenPsi (I.Decl (Psi, T.UDec D), s) =
         let
-          val (Psi', s') = strengthenPsi (Psi, s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Psi', s') = strengthenPsi (Psi, s) (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (Psi', T.UDec (strengthenDec (D, s'))), I.dot1 s')
-        end
-      | strengthenPsi (I.Decl (Psi, T.PDec (name, F, NONE, NONE)), s) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenPsi (I.Decl (Psi, T.PDec (name, F, NONE, NONE)), s) =
         let
-          val (Psi', s') = strengthenPsi (Psi, s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Psi', s') = strengthenPsi (Psi, s) (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (Psi', T.PDec (name, strengthenFor (F, s'), NONE, NONE)), I.dot1 s')
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* strengthenPsi' (Psi, s) = (Psi', s')
@@ -203,15 +203,15 @@ exception Error' of Tomega.sub
        then Psi1 |- Psi' = Psi[s^-1] ctx
        and  Psi0 |- s' : Psi1, Psi'  weakening substitution
     *)
-    fun strengthenPsi' (nil, s) = (nil, s)
-      | strengthenPsi' (T.UDec D :: Psi, s) =
+    fun (* GEN BEGIN FUN FIRST *) strengthenPsi' (nil, s) = (nil, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strengthenPsi' (T.UDec D :: Psi, s) =
         let
-          val D' = strengthenDec (D, s)
-          val s' = I.dot1 s
-          val (Psi'', s'') = strengthenPsi' (Psi, s')
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = strengthenDec (D, s) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val s' = I.dot1 s (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Psi'', s'') = strengthenPsi' (Psi, s') (* GEN END TAG OUTSIDE LET *)
         in
           (T.UDec D' :: Psi'', s'')
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* ctxSub (G, s) = (G', s')
 
@@ -222,45 +222,45 @@ exception Error' of Tomega.sub
        and  Psi', G' |- s' : G
        and  G' = G [s],  declarationwise defined
     *)
-    fun ctxSub (I.Null, s) = (I.Null, s)
-      | ctxSub (I.Decl (G, D), s) =
+    fun (* GEN BEGIN FUN FIRST *) ctxSub (I.Null, s) = (I.Null, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ctxSub (I.Decl (G, D), s) =
         let
-          val (G', s') = ctxSub (G, s)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G', s') = ctxSub (G, s) (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G', I.decSub (D, s')), I.dot1 s)
-        end
+        end (* GEN END FUN BRANCH *)
 
 
-    fun validMode (M.Mnil) = ()
-      | validMode (M.Mapp (M.Marg (M.Plus, _), mS)) =
-          validMode mS
-      | validMode (M.Mapp (M.Marg (M.Minus, _), mS)) =
-          validMode mS
-      | validMode (M.Mapp (M.Marg (M.Star, _), mS)) =
-          raise Error "+ or - mode expected, * found"
+    fun (* GEN BEGIN FUN FIRST *) validMode (M.Mnil) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) validMode (M.Mapp (M.Marg (M.Plus, _), mS)) =
+          validMode mS (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) validMode (M.Mapp (M.Marg (M.Minus, _), mS)) =
+          validMode mS (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) validMode (M.Mapp (M.Marg (M.Star, _), mS)) =
+          raise Error "+ or - mode expected, * found" (* GEN END FUN BRANCH *)
 
-    fun validSig (Psi0, nil) = ()
-      | validSig (Psi0, (G, V) :: Sig) =
+    fun (* GEN BEGIN FUN FIRST *) validSig (Psi0, nil) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) validSig (Psi0, (G, V) :: Sig) =
         let
-          fun append (G, I.Null) = G
-            | append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D)
+          fun (* GEN BEGIN FUN FIRST *) append (G, I.Null) = G (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D) (* GEN END FUN BRANCH *)
       
         in
           (TypeCheck.typeCheck (T.coerceCtx (append (Psi0, T.embedCtx G)),
                                 (V, I.Uni I.Type)); validSig (Psi0, Sig))
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     fun convertOneFor cid =
       let
-        val V  = case I.sgnLookup cid
+        (* GEN BEGIN TAG OUTSIDE LET *) val V  = case I.sgnLookup cid
                    of I.ConDec (name, _, _, _, V, I.Kind) => V
-                    | _ => raise Error "Type Constant declaration expected"
-        val mS = case ModeTable.modeLookup cid
+                    | _ => raise Error "Type Constant declaration expected" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val mS = case ModeTable.modeLookup cid
                    of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
+                    | SOME mS => mS (* GEN END TAG OUTSIDE LET *)
     
-        val _ = validMode mS
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = validMode mS (* GEN END TAG OUTSIDE LET *)
     
         (* convertFor' (V, mS, w1, w2, n) = (F', F'')
     
@@ -275,21 +275,21 @@ exception Error' of Tomega.sub
                 then . |- F' F formula
            and  G+, G'+ |- F'' formula
         *)
-        fun convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) =
+        fun (* GEN BEGIN FUN FIRST *) convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) =
             let
-              val (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1) (* GEN END TAG OUTSIDE LET *)
             in
-              (fn F => T.All ((T.UDec (strengthenDec (D, w1)), T.Explicit), F' F), F'')
-            end
-          | convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
+              ((* GEN BEGIN FUNCTION EXPRESSION *) fn F => T.All ((T.UDec (strengthenDec (D, w1)), T.Explicit), F' F) (* GEN END FUNCTION EXPRESSION *), F'')
+            end (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) convertFor' (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) =
             let
-              val (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1) (* GEN END TAG OUTSIDE LET *)
             in
               (F', T.Ex ((I.decSub (D, w2), T.Explicit), F''))
-            end
-          | convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
-              (fn F => F, T.True)
-          | convertFor' _ = raise Error "type family must be +/- moded"
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) convertFor' (I.Uni I.Type, M.Mnil, _, _, _) =
+              ((* GEN BEGIN FUNCTION EXPRESSION *) fn F => F (* GEN END FUNCTION EXPRESSION *), T.True) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) convertFor' _ = raise Error "type family must be +/- moded" (* GEN END FUN BRANCH *)
     
         (* shiftPlus (mS) = s'
     
@@ -299,17 +299,17 @@ exception Error' of Tomega.sub
     
         fun shiftPlus mS =
           let
-            fun shiftPlus' (M.Mnil, n) = n
-              | shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
-                  shiftPlus' (mS', n+1)
-              | shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
-                  shiftPlus' (mS', n)
+            fun (* GEN BEGIN FUN FIRST *) shiftPlus' (M.Mnil, n) = n (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Plus, _), mS'), n) =
+                  shiftPlus' (mS', n+1) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) shiftPlus' (M.Mapp (M.Marg (M.Minus, _), mS'), n) =
+                  shiftPlus' (mS', n) (* GEN END FUN BRANCH *)
           in
             shiftPlus' (mS, 0)
           end
     
-        val n = shiftPlus mS
-        val (F, F') = convertFor' (V, mS, I.id, I.Shift n, n)
+        (* GEN BEGIN TAG OUTSIDE LET *) val n = shiftPlus mS (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (F, F') = convertFor' (V, mS, I.id, I.Shift n, n) (* GEN END TAG OUTSIDE LET *)
       in
         F F'
       end
@@ -326,29 +326,29 @@ exception Error' of Tomega.sub
             that corresponds to each type family in L
        and  Psi' |- P' in F'
     *)
-    fun createIH nil = raise Error "Empty theorem"
-      | createIH [a] =
+    fun (* GEN BEGIN FUN FIRST *) createIH nil = raise Error "Empty theorem" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) createIH [a] =
         let
-          val name = I.conDecName (I.sgnLookup a)
-          val F = convertOneFor a
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup a) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = convertOneFor a (* GEN END TAG OUTSIDE LET *)
         in
           (name, F)
-        end
-      | createIH (a :: L) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) createIH (a :: L) =
         let
-          val name = I.conDecName (I.sgnLookup a)
-          val F = convertOneFor a
-          val (name', F') = createIH  L
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup a) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = convertOneFor a (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (name', F') = createIH  L (* GEN END TAG OUTSIDE LET *)
         in
           (name ^ "/" ^ name', T.And (F, F'))
-        end
+        end (* GEN END FUN BRANCH *)
 
 
 
 
     fun convertFor L =
       let
-        val (_, F') = createIH L
+        (* GEN BEGIN TAG OUTSIDE LET *) val (_, F') = createIH L (* GEN END TAG OUTSIDE LET *)
       in
         F'
       end
@@ -359,27 +359,27 @@ exception Error' of Tomega.sub
        If    U in nf
        then  B iff k occurs in U
     *)
-    fun occursInExpN (k, I.Uni _) = false
-      | occursInExpN (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExpN (k+1, V)
-      | occursInExpN (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S)
-      | occursInExpN (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExpN (k+1, V)
+    fun (* GEN BEGIN FUN FIRST *) occursInExpN (k, I.Uni _) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpN (k, I.Pi (DP, V)) = occursInDecP (k, DP) orelse occursInExpN (k+1, V) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpN (k, I.Root (H, S)) = occursInHead (k, H) orelse occursInSpine (k, S) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpN (k, I.Lam (D, V)) = occursInDec (k, D) orelse occursInExpN (k+1, V) (* GEN END FUN BRANCH *)
       (* | occursInExpN (k, I.FgnExp (cs, ops)) =
          occursInExpN (k, Whnf.normalize (#toInternal(ops) (), I.id)) MERGE Fri Aug 22 23:09:53 2003 --cs *)
-      | occursInExpN (k, I.FgnExp csfe) =
-        I.FgnExpStd.fold csfe (fn (U, DP) => DP orelse (occursInExp (k, Whnf.normalize (U, I.id)))) false
+      | (* GEN BEGIN FUN BRANCH *) occursInExpN (k, I.FgnExp csfe) =
+        I.FgnExpStd.fold csfe ((* GEN BEGIN FUNCTION EXPRESSION *) fn (U, DP) => DP orelse (occursInExp (k, Whnf.normalize (U, I.id))) (* GEN END FUNCTION EXPRESSION *)) false (* GEN END FUN BRANCH *)
 
    (* no case for Redex, EVar, EClo *)
 
 
-    and occursInHead (k, I.BVar (k')) = (k = k')
-      | occursInHead (k, I.Const _) = false
-      | occursInHead (k, I.Def _) = false
-      | occursInHead (k, I.FgnConst _) = false
-      | occursInHead (k, I.Proj _) = false
+    and (* GEN BEGIN FUN FIRST *) occursInHead (k, I.BVar (k')) = (k = k') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Const _) = false (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Def _) = false (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.FgnConst _) = false (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Proj _) = false (* GEN END FUN BRANCH *)
       (* no case for FVar *)
 
-    and occursInSpine (_, I.Nil) = false
-      | occursInSpine (k, I.App (U, S)) = occursInExpN (k, U) orelse occursInSpine (k, S)
+    and (* GEN BEGIN FUN FIRST *) occursInSpine (_, I.Nil) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInSpine (k, I.App (U, S)) = occursInExpN (k, U) orelse occursInSpine (k, S) (* GEN END FUN BRANCH *)
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExpN (k, V)
@@ -409,16 +409,16 @@ exception Error' of Tomega.sub
     fun peel w =
       if isIdx1(I.bvarSub (1, w)) then dot1inv w else shiftinv w
 
-    fun peeln (0, w) = w
-      | peeln (n, w) = peeln (n-1, peel w)
+    fun (* GEN BEGIN FUN FIRST *) peeln (0, w) = w (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) peeln (n, w) = peeln (n-1, peel w) (* GEN END FUN BRANCH *)
 
-    fun popn (0, Psi) = (Psi, I.Null)
-      | popn (n, I.Decl (Psi, T.UDec D)) =
+    fun (* GEN BEGIN FUN FIRST *) popn (0, Psi) = (Psi, I.Null) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) popn (n, I.Decl (Psi, T.UDec D)) =
         let
-          val (Psi', G') = popn (n-1, Psi)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Psi', G') = popn (n-1, Psi) (* GEN END TAG OUTSIDE LET *)
         in
           (Psi', I.Decl (G', D))
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* domain (G2, w) = n'
@@ -427,10 +427,10 @@ exception Error' of Tomega.sub
        If   G2 |- w: G1   and w weakening substitution
        then n' = |G1|
     *)
-    fun domain (G, I.Dot (I.Idx _, s)) = domain (G, s) + 1
-      | domain (I.Null, I.Shift 0) = 0
-      | domain (G as I.Decl _, I.Shift 0) = domain (G, I.Dot (I.Idx 1, I.Shift 1))
-      | domain (I.Decl (G, _), I.Shift n) = domain (G, I.Shift (n-1))
+    fun (* GEN BEGIN FUN FIRST *) domain (G, I.Dot (I.Idx _, s)) = domain (G, s) + 1 (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) domain (I.Null, I.Shift 0) = 0 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) domain (G as I.Decl _, I.Shift 0) = domain (G, I.Dot (I.Idx 1, I.Shift 1)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) domain (I.Decl (G, _), I.Shift n) = domain (G, I.Shift (n-1)) (* GEN END FUN BRANCH *)
 
 
     (* strengthen (Psi, (a, S), w, m) = (Psi', w')
@@ -453,57 +453,57 @@ exception Error' of Tomega.sub
 
     fun strengthen (Psi, (a, S), w, m) =
       let
-        val mS = modeSpine a
+        (* GEN BEGIN TAG OUTSIDE LET *) val mS = modeSpine a (* GEN END TAG OUTSIDE LET *)
     
-        fun args (I.Nil, M.Mnil) = nil
-          | args (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) =
+        fun (* GEN BEGIN FUN FIRST *) args (I.Nil, M.Mnil) = nil (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) args (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) =
               let
-                val L = args (S', mS)
+                (* GEN BEGIN TAG OUTSIDE LET *) val L = args (S', mS) (* GEN END TAG OUTSIDE LET *)
               in
                 (case M.modeEqual (m, m')
                    of true => U :: L
                     | false => L)
-              end
+              end (* GEN END FUN BRANCH *)
     
     
-        fun strengthenArgs (nil, s) =  nil
-          | strengthenArgs (U :: L, s) =
-              strengthenExp (U, s) :: strengthenArgs (L, s)
+        fun (* GEN BEGIN FUN FIRST *) strengthenArgs (nil, s) =  nil (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) strengthenArgs (U :: L, s) =
+              strengthenExp (U, s) :: strengthenArgs (L, s) (* GEN END FUN BRANCH *)
     
-        fun occursInArgs (n, nil) = false
-          | occursInArgs (n, U :: L) =
-            (occursInExp (n, U) orelse occursInArgs (n, L))
+        fun (* GEN BEGIN FUN FIRST *) occursInArgs (n, nil) = false (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) occursInArgs (n, U :: L) =
+            (occursInExp (n, U) orelse occursInArgs (n, L)) (* GEN END FUN BRANCH *)
     
-        fun occursInPsi (n, (nil, L)) =
-              occursInArgs (n, L)
-          | occursInPsi (n, (T.UDec (I.Dec (_, V)) :: Psi1, L)) =
-              occursInExp (n, V) orelse occursInPsi (n+1, (Psi1, L))
-          | occursInPsi (n, (T.UDec (I.BDec (_, (cid, s))) :: Psi1, L)) =
+        fun (* GEN BEGIN FUN FIRST *) occursInPsi (n, (nil, L)) =
+              occursInArgs (n, L) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) occursInPsi (n, (T.UDec (I.Dec (_, V)) :: Psi1, L)) =
+              occursInExp (n, V) orelse occursInPsi (n+1, (Psi1, L)) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) occursInPsi (n, (T.UDec (I.BDec (_, (cid, s))) :: Psi1, L)) =
               let
-                val I.BlockDec (_, _, G, _) = I.sgnLookup cid
+                (* GEN BEGIN TAG OUTSIDE LET *) val I.BlockDec (_, _, G, _) = I.sgnLookup cid (* GEN END TAG OUTSIDE LET *)
               in
                 occursInSub (n, s, G) orelse occursInPsi (n+1, (Psi1, L))
-              end
-        and occursInSub (_, _, I.Null) = false
-          | occursInSub (n, I.Shift k, G) =
-              occursInSub (n, I.Dot (I.Idx (k+1), I.Shift (k+1)), G)
-          | occursInSub (n, I.Dot (I.Idx k, s), I.Decl (G, _)) =
-              (n = k) orelse occursInSub (n, s, G)
-          | occursInSub (n, I.Dot (I.Exp U, s), I.Decl (G, _)) =
-              occursInExp (n, U) orelse occursInSub (n, s, G)
-          | occursInSub (n, I.Dot (I.Block _, s), I.Decl (G, _)) =
-              occursInSub (n, s, G)   (* is this ok? -- cs *)
+              end (* GEN END FUN BRANCH *)
+        and (* GEN BEGIN FUN FIRST *) occursInSub (_, _, I.Null) = false (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) occursInSub (n, I.Shift k, G) =
+              occursInSub (n, I.Dot (I.Idx (k+1), I.Shift (k+1)), G) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) occursInSub (n, I.Dot (I.Idx k, s), I.Decl (G, _)) =
+              (n = k) orelse occursInSub (n, s, G) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) occursInSub (n, I.Dot (I.Exp U, s), I.Decl (G, _)) =
+              occursInExp (n, U) orelse occursInSub (n, s, G) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) occursInSub (n, I.Dot (I.Block _, s), I.Decl (G, _)) =
+              occursInSub (n, s, G) (* GEN END FUN BRANCH *)   (* is this ok? -- cs *)
           (* no other cases *)
     
-        and occursInG (n, I.Null, k) = k n
-          | occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
-              occursInG (n, G, fn n' => occursInExp (n', V) orelse k (n'+ 1))
+        and (* GEN BEGIN FUN FIRST *) occursInG (n, I.Null, k) = k n (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
+              occursInG (n, G, (* GEN BEGIN FUNCTION EXPRESSION *) fn n' => occursInExp (n', V) orelse k (n'+ 1) (* GEN END FUNCTION EXPRESSION *)) (* GEN END FUN BRANCH *)
     
         fun occursBlock (G, (Psi2, L)) =
           let
-            fun occursBlock (I.Null, n) = false
-              | occursBlock (I.Decl (G, D), n) =
-                  occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1)
+            fun (* GEN BEGIN FUN FIRST *) occursBlock (I.Null, n) = false (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) occursBlock (I.Decl (G, D), n) =
+                  occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1) (* GEN END FUN BRANCH *)
           in
             occursBlock (G, 1)
           end
@@ -521,20 +521,20 @@ exception Error' of Tomega.sub
            and  G1' |- w' : G2
            and  bw' = bw or (G1 =/= G1')
          *)
-        fun inBlock (I.Null, (bw, w1)) = (bw, w1)
-          | inBlock (I.Decl (G, D), (bw, w1)) =
+        fun (* GEN BEGIN FUN FIRST *) inBlock (I.Null, (bw, w1)) = (bw, w1) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) inBlock (I.Decl (G, D), (bw, w1)) =
             if isIdx1(I.bvarSub (1, w1)) then
               inBlock (G, (true, dot1inv w1))
-            else inBlock (G, (bw, strengthenSub (w1, I.shift)))
+            else inBlock (G, (bw, strengthenSub (w1, I.shift))) (* GEN END FUN BRANCH *)
     
-        fun blockSub (I.Null, w) = (I.Null, w)
-          | blockSub (I.Decl (G, I.Dec (name, V)), w) =
+        fun (* GEN BEGIN FUN FIRST *) blockSub (I.Null, w) = (I.Null, w) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) blockSub (I.Decl (G, I.Dec (name, V)), w) =
             let
-              val (G', w') = blockSub (G, w)
-              val V' = strengthenExp (V, w')
+              (* GEN BEGIN TAG OUTSIDE LET *) val (G', w') = blockSub (G, w) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val V' = strengthenExp (V, w') (* GEN END TAG OUTSIDE LET *)
             in
               (I.Decl (G', I.Dec (name, V')), I.dot1 w')
-            end
+            end (* GEN END FUN BRANCH *)
     
         (* strengthen' (Psi1, Psi2, S, w1) =  (Psi', w')
     
@@ -550,51 +550,51 @@ exception Error' of Tomega.sub
                                        and all variables occuring in m
                                        position in S)
         *)
-        fun strengthen' (I.Null, Psi2, L, w1 (* =  I.id *)) = (I.Null, I.id, I.id)
-          | strengthen' (I.Decl (Psi1, LD as T.UDec (I.Dec (name, V))), Psi2, L, w1) =
+        fun (* GEN BEGIN FUN FIRST *) strengthen' (I.Null, Psi2, L, w1 (* =  I.id *)) = (I.Null, I.id, I.id) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) strengthen' (I.Decl (Psi1, LD as T.UDec (I.Dec (name, V))), Psi2, L, w1) =
             if isIdx1(I.bvarSub (1, w1)) then
               let
-                val w1' = dot1inv w1
-                val (Psi1', w', z') = strengthen' (Psi1, LD :: Psi2, L, w1')
-                val V' = strengthenExp (V, w')
+                (* GEN BEGIN TAG OUTSIDE LET *) val w1' = dot1inv w1 (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (Psi1', w', z') = strengthen' (Psi1, LD :: Psi2, L, w1') (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val V' = strengthenExp (V, w') (* GEN END TAG OUTSIDE LET *)
               in
                 (I.Decl (Psi1', T.UDec (I.Dec (name, V'))), I.dot1 w', I.dot1 z')
               end
             else
               if occursInPsi (1, (Psi2, L)) then
                 let
-                  val w1' = strengthenSub (w1, I.shift)
-                  val (Psi1', w', z') = strengthen' (Psi1, LD :: Psi2, L, w1')
-                  val V' = strengthenExp (V, w')
+                  (* GEN BEGIN TAG OUTSIDE LET *) val w1' = strengthenSub (w1, I.shift) (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (Psi1', w', z') = strengthen' (Psi1, LD :: Psi2, L, w1') (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val V' = strengthenExp (V, w') (* GEN END TAG OUTSIDE LET *)
                 in
                   (I.Decl (Psi1', T.UDec (I.Dec (name, V'))), I.dot1 w', I.comp (z', I.shift))
                 end
               else
                 let
-                  val w1' = strengthenSub (w1, I.shift)
-                  val w2 = I.shift
-                  val (Psi2', w2') = strengthenPsi' (Psi2, w2)
-                  val L' = strengthenArgs (L, w2')
-                  val (Psi1'', w', z') = strengthen' (Psi1, Psi2', L', w1')
+                  (* GEN BEGIN TAG OUTSIDE LET *) val w1' = strengthenSub (w1, I.shift) (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val w2 = I.shift (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (Psi2', w2') = strengthenPsi' (Psi2, w2) (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val L' = strengthenArgs (L, w2') (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (Psi1'', w', z') = strengthen' (Psi1, Psi2', L', w1') (* GEN END TAG OUTSIDE LET *)
                 in
                   (Psi1'', I.comp (w', I.shift), z')
-                end
-          | strengthen' (I.Decl (Psi1, D as T.PDec (name, F, NONE, NONE)), Psi2, L, w1) =
+                end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) strengthen' (I.Decl (Psi1, D as T.PDec (name, F, NONE, NONE)), Psi2, L, w1) =
             let
-              val w1' = dot1inv w1
-              val (Psi1', w', z') = strengthen' (Psi1, D :: Psi2, L, w1')
-              val F' = strengthenFor (F, w')
+              (* GEN BEGIN TAG OUTSIDE LET *) val w1' = dot1inv w1 (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Psi1', w', z') = strengthen' (Psi1, D :: Psi2, L, w1') (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val F' = strengthenFor (F, w') (* GEN END TAG OUTSIDE LET *)
             in
               (I.Decl (Psi1', T.PDec (name, F', NONE, NONE)), I.dot1 w', I.dot1 z')
-            end
-          | strengthen' (I.Decl (Psi1, LD as T.UDec (I.BDec (name, (cid, s)))), Psi2, L, w1) =
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) strengthen' (I.Decl (Psi1, LD as T.UDec (I.BDec (name, (cid, s)))), Psi2, L, w1) =
             let  (* blocks are always used! *)
-              val w1' = dot1inv w1
-              val (Psi1', w', z') = strengthen' (Psi1, LD :: Psi2, L, w1')
-              val s' = strengthenSub (s, w')
+              (* GEN BEGIN TAG OUTSIDE LET *) val w1' = dot1inv w1 (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Psi1', w', z') = strengthen' (Psi1, LD :: Psi2, L, w1') (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val s' = strengthenSub (s, w') (* GEN END TAG OUTSIDE LET *)
             in
               (I.Decl (Psi1', T.UDec (I.BDec (name, (cid, s')))), I.dot1 w', I.dot1 z')
-            end
+            end (* GEN END FUN BRANCH *)
       in
         strengthen' (Psi, nil, args (S, mS), w)
       end
@@ -641,8 +641,8 @@ exception Error' of Tomega.sub
     *)
     fun transformInit (Psi, L, (a, S), w1) =
       let
-        val mS = modeSpine a
-        val V = typeOf a
+        (* GEN BEGIN TAG OUTSIDE LET *) val mS = modeSpine a (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val V = typeOf a (* GEN END TAG OUTSIDE LET *)
     
         (* transformInit' ((S, mS), V, (w, s)) = (w', s')
     
@@ -656,25 +656,25 @@ exception Error' of Tomega.sub
            and  Psi+ |- s' : +x1:A1 .. +xn:An
         *)
     
-        fun transformInit' ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) = (w, s)
-          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
+        fun (* GEN BEGIN FUN FIRST *) transformInit' ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) = (w, s) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
                             I.Pi (_, V2), (w, s)) =
             let
-              val w' = I.comp (w, I.shift)
-              val s' = s
+              (* GEN BEGIN TAG OUTSIDE LET *) val w' = I.comp (w, I.shift) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val s' = s (* GEN END TAG OUTSIDE LET *)
             in
               transformInit' ((S, mS), V2, (w', s'))
-            end
-          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
                             I.Pi ((I.Dec (name, V1), _), V2), (w, s)) =
             let
-              val V1' = strengthenExp (V1, w)
-              val w' = I.dot1 w
-              val U' = strengthenExp (U, w1)
-              val s' = T.dotEta (T.Exp U', s)
+              (* GEN BEGIN TAG OUTSIDE LET *) val V1' = strengthenExp (V1, w) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val w' = I.dot1 w (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val U' = strengthenExp (U, w1) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val s' = T.dotEta (T.Exp U', s) (* GEN END TAG OUTSIDE LET *)
             in
               transformInit' ((S, mS), V2, (w', s'))
-            end
+            end (* GEN END FUN BRANCH *)
       in
         transformInit' ((S, mS), V, (I.id, createIHSub (Psi, L)))
       end
@@ -691,12 +691,12 @@ exception Error' of Tomega.sub
     fun transformConc ((a, S), w) =
       let
     
-        fun transformConc' (I.Nil, M.Mnil) =
-              T.Unit
-          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) =
-              transformConc' (S', mS')
-          | transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) =
-              T.PairExp (strengthenExp (U, w), transformConc' (S', mS'))
+        fun (* GEN BEGIN FUN FIRST *) transformConc' (I.Nil, M.Mnil) =
+              T.Unit (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) =
+              transformConc' (S', mS') (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) transformConc' (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) =
+              T.PairExp (strengthenExp (U, w), transformConc' (S', mS')) (* GEN END FUN BRANCH *)
       in
         transformConc' (S, modeSpine a)
       end
@@ -708,41 +708,41 @@ exception Error' of Tomega.sub
        U' = U module application of f to any projectoin contained
        in U.
     *)
-    fun renameExp f (U as I.Uni _) = U
-      | renameExp f (I.Pi ((D, DP), V)) =
-          I.Pi ((renameDec f D, DP), renameExp f V)
-      | renameExp f (I.Root (H, S)) =
-          I.Root (renameHead f H, renameSpine f S)
-      | renameExp f (I.Lam (D, U)) =
-          I.Lam (renameDec f D, renameExp f U)
+    fun (* GEN BEGIN FUN FIRST *) renameExp f (U as I.Uni _) = U (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) renameExp f (I.Pi ((D, DP), V)) =
+          I.Pi ((renameDec f D, DP), renameExp f V) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) renameExp f (I.Root (H, S)) =
+          I.Root (renameHead f H, renameSpine f S) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) renameExp f (I.Lam (D, U)) =
+          I.Lam (renameDec f D, renameExp f U) (* GEN END FUN BRANCH *)
     and renameDec f (I.Dec (x, V)) =
           I.Dec (x, renameExp f V)
-    and renameHead f (I.Proj bi) = f bi
-      | renameHead f H = H
-    and renameSpine f I.Nil = I.Nil
-      | renameSpine f (I.App (U, S)) = I.App (renameExp f U, renameSpine f S)
+    and (* GEN BEGIN FUN FIRST *) renameHead f (I.Proj bi) = f bi (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) renameHead f H = H (* GEN END FUN BRANCH *)
+    and (* GEN BEGIN FUN FIRST *) renameSpine f I.Nil = I.Nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) renameSpine f (I.App (U, S)) = I.App (renameExp f U, renameSpine f S) (* GEN END FUN BRANCH *)
 
 
     fun rename (I.BDec (_, (c, s)), V) =
         let
-          val (G, L) = I.constBlock c
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G, L) = I.constBlock c (* GEN END TAG OUTSIDE LET *)
     
-          fun makeSubst (n, G, s, nil, f) = (G, f)
-            | makeSubst (n, G, s,( D as I.Dec (x, V')) :: L, f) =
+          fun (* GEN BEGIN FUN FIRST *) makeSubst (n, G, s, nil, f) = (G, f) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) makeSubst (n, G, s,( D as I.Dec (x, V')) :: L, f) =
               if Subordinate.belowEq (I.targetFam V', I.targetFam V) then
                 makeSubst (n+1, I.Decl (G, I.decSub (D, s)), I.dot1 s, L,
                            f)
               else
-                makeSubst (n, G, I.comp (s, I.shift), L, f)
+                makeSubst (n, G, I.comp (s, I.shift), L, f) (* GEN END FUN BRANCH *)
     
-          val (G', f) = makeSubst (1, G, s, L, fn x => I.Proj x)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G', f) = makeSubst (1, G, s, L, (* GEN BEGIN FUNCTION EXPRESSION *) fn x => I.Proj x (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           (G, renameExp f V)
         end
 
 
-        fun append (G, I.Null) = G
-          | append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D)
+        fun (* GEN BEGIN FUN FIRST *) append (G, I.Null) = G (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) append (G, I.Decl (G', D)) = I.Decl (append (G, G'), D) (* GEN END FUN BRANCH *)
 
 
         (* traverseNeg (L, wmap, projs)  (Psi0, Psi, V) = ([w', PQ'], L')    [] means optional
@@ -755,102 +755,102 @@ exception Error' of Tomega.sub
            and  Psi0, Psi |- w' : Psi0, Psi'
            and  PQ'  is a pair that can generate a proof term
         *)
-        fun traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), w) =
+        fun (* GEN BEGIN FUN FIRST *) traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), w) =
             (case traverseNeg (L, wmap, projs)  ((Psi0, I.Decl (Psi, T.UDec D)), V2, I.dot1 w)
-               of (SOME (w', PQ')) => SOME (peel w', PQ'))
-          | traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Pi ((D as I.Dec (_, V1), I.No), V2), w) =
+               of (SOME (w', PQ')) => SOME (peel w', PQ')) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Pi ((D as I.Dec (_, V1), I.No), V2), w) =
             (case traverseNeg (L, wmap, projs)  ((Psi0, I.Decl (Psi, T.UDec D)), V2, I.comp (w, I.shift))
-               of (SOME (w', PQ')) => traversePos (L, wmap, projs)  ((Psi0, Psi, I.Null), V1, SOME (peel w', PQ')))
-          | traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Root (I.Const a, S), w) =
+               of (SOME (w', PQ')) => traversePos (L, wmap, projs)  ((Psi0, Psi, I.Null), V1, SOME (peel w', PQ'))) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) traverseNeg (L, wmap, projs)  ((Psi0, Psi), I.Root (I.Const a, S), w) =
                                         (* Psi0, Psi |- w : Psi0, Psi' *)
                                         (* Sigma (a) = Va *)
                                         (* Psi0, Psi |- S : {G} type > type *)
             let
-              val Psi1 = append (Psi0, Psi)
+              (* GEN BEGIN TAG OUTSIDE LET *) val Psi1 = append (Psi0, Psi) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi1 = Psi0, Psi *)
-              val w0 = I.Shift (I.ctxLength Psi)
+              (* GEN BEGIN TAG OUTSIDE LET *) val w0 = I.Shift (I.ctxLength Psi) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi1 |- w0 : Psi0 *)
-              val (Psi', w', _) = strengthen (Psi1, (a, S), w0, M.Plus)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Psi', w', _) = strengthen (Psi1, (a, S), w0, M.Plus) (* GEN END TAG OUTSIDE LET *)
                                         (* |- Psi' ctx *)
                                         (* Psi1 |- w' : Psi' *)
-              val (w'', s'') = transformInit (Psi', L, (a, S), w')
+              (* GEN BEGIN TAG OUTSIDE LET *) val (w'', s'') = transformInit (Psi', L, (a, S), w') (* GEN END TAG OUTSIDE LET *)
                                         (* Psi' |- s'' : G+ *)
                                         (* G |- w'' : G+ *)
-              val _ = TomegaTypeCheck.checkCtx Psi'
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkCtx Psi' (* GEN END TAG OUTSIDE LET *)
             in
-              (SOME (w', (fn P => (Psi', s'', P), transformConc ((a, S), w))))
-            end
+              (SOME (w', ((* GEN BEGIN FUNCTION EXPRESSION *) fn P => (Psi', s'', P) (* GEN END FUNCTION EXPRESSION *), transformConc ((a, S), w))))
+            end (* GEN END FUN BRANCH *)
 
-        and traversePos (L, wmap, projs)  ((Psi0, Psi, G), I.Pi ((D as I.BDec (x, (c, s)), _), V), SOME (w1, (P, Q))) =
+        and (* GEN BEGIN FUN FIRST *) traversePos (L, wmap, projs)  ((Psi0, Psi, G), I.Pi ((D as I.BDec (x, (c, s)), _), V), SOME (w1, (P, Q))) =
             let
-              val c' = wmap c
-              val n = I.ctxLength Psi0 + I.ctxLength G
+              (* GEN BEGIN TAG OUTSIDE LET *) val c' = wmap c (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val n = I.ctxLength Psi0 + I.ctxLength G (* GEN END TAG OUTSIDE LET *)
         
-              val (Gsome, Lpi) = I.constBlock c
-              val _ = TypeCheck.typeCheckCtx (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G)))
-              val _ = TypeCheck.typeCheckSub (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G)), s, Gsome)
-              val (Gsome', Lpi') = I.constBlock c'
-              val _ = TypeCheck.typeCheckCtx (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G)))
-              val _ = TypeCheck.typeCheckSub (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G)), s, Gsome')
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Gsome, Lpi) = I.constBlock c (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TypeCheck.typeCheckCtx (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G))) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TypeCheck.typeCheckSub (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G)), s, Gsome) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Gsome', Lpi') = I.constBlock c' (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TypeCheck.typeCheckCtx (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G))) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TypeCheck.typeCheckSub (T.coerceCtx (append(append(Psi0, Psi), T.embedCtx G)), s, Gsome') (* GEN END TAG OUTSIDE LET *)
             in
               traversePos (L, wmap, projs)  ((Psi0, Psi,
                             I.Decl (G,  (* T.UDec *) (I.BDec (x, (c', s))))),
                            V, SOME (I.dot1 w1, (P, Q)))
-            end
-          | traversePos (L, wmap, projs)  ((Psi0, G, B), V as I.Root (I.Const a, S), SOME (w1, (P, Q))) =
+            end (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) traversePos (L, wmap, projs)  ((Psi0, G, B), V as I.Root (I.Const a, S), SOME (w1, (P, Q))) =
                                         (* Psi0 = x1::F1 ... xn::Fn *)
                                         (* |- Psi0 matches L *)
                                         (* Psi0, G, B |- V : type *)
                                         (* Psi0, G, B |- w1 : Psi0, G', B' *)
             let
-              val Psi1 = append (Psi0, append (G, T.embedCtx B))
+              (* GEN BEGIN TAG OUTSIDE LET *) val Psi1 = append (Psi0, append (G, T.embedCtx B)) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi1 = Psi0, G, B *)
-              val _ = TomegaTypeCheck.checkCtx (append(append(Psi0, G), T.embedCtx B))
-              val n = domain (Psi1, w1) (* n = |Psi0, G', B'| *)
-              val m = I.ctxLength Psi0  (* m = |Psi0| *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkCtx (append(append(Psi0, G), T.embedCtx B)) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val n = domain (Psi1, w1) (* GEN END TAG OUTSIDE LET *) (* n = |Psi0, G', B'| *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val m = I.ctxLength Psi0 (* GEN END TAG OUTSIDE LET *)  (* m = |Psi0| *)
           
               fun lookupbase a =
                   let
-                    val s = I.conDecName (I.sgnLookup a)
-                    val l = T.lemmaName s
-                    val T.ValDec (_, P, F) = T.lemmaLookup l
+                    (* GEN BEGIN TAG OUTSIDE LET *) val s = I.conDecName (I.sgnLookup a) (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val l = T.lemmaName s (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val T.ValDec (_, P, F) = T.lemmaLookup l (* GEN END TAG OUTSIDE LET *)
                   in
                     (T.Const l, F)
                   end
           
-              fun lookup (([b], NONE, F), a) =
+              fun (* GEN BEGIN FUN FIRST *) lookup (([b], NONE, F), a) =
                   if a=b then
                     let
-                      val P = T.Var n
+                      (* GEN BEGIN TAG OUTSIDE LET *) val P = T.Var n (* GEN END TAG OUTSIDE LET *)
                     in
                       (P, F)
                     end
-                  else lookupbase a
-                | lookup (([b], SOME [lemma], F), a) =
+                  else lookupbase a (* GEN END FUN FIRST *)
+                | (* GEN BEGIN FUN BRANCH *) lookup (([b], SOME [lemma], F), a) =
                   if a = b then
                     let
-                      val P = T.Redex (T.Const lemma, T.AppPrg (T.Var n, T.Nil))
+                      (* GEN BEGIN TAG OUTSIDE LET *) val P = T.Redex (T.Const lemma, T.AppPrg (T.Var n, T.Nil)) (* GEN END TAG OUTSIDE LET *)
                     in
                       (P, F)
                     end
-                  else lookupbase a
-                | lookup ((b :: L, SOME (lemma :: lemmas), T.And (F1, F2)), a) =
+                  else lookupbase a (* GEN END FUN BRANCH *)
+                | (* GEN BEGIN FUN BRANCH *) lookup ((b :: L, SOME (lemma :: lemmas), T.And (F1, F2)), a) =
                   if a = b then
                     let
-                      val P = T.Redex (T.Const lemma, T.AppPrg (T.Var n, T.Nil))
+                      (* GEN BEGIN TAG OUTSIDE LET *) val P = T.Redex (T.Const lemma, T.AppPrg (T.Var n, T.Nil)) (* GEN END TAG OUTSIDE LET *)
                     in
                       (P, F1)
                     end
-                  else lookup ((L, SOME lemmas, F2), a)
+                  else lookup ((L, SOME lemmas, F2), a) (* GEN END FUN BRANCH *)
           
               (* strengthened invariant Psi0 might be empty --cs Fri Apr 11 15:25:32 2003 *)
-              val (HP, F) = if I.ctxLength Psi0 > 0 then
+              (* GEN BEGIN TAG OUTSIDE LET *) val (HP, F) = if I.ctxLength Psi0 > 0 then
                               let
-                                val T.PDec(_, F0, _, _) =  I.ctxLookup (Psi0, 1)
+                                (* GEN BEGIN TAG OUTSIDE LET *) val T.PDec(_, F0, _, _) =  I.ctxLookup (Psi0, 1) (* GEN END TAG OUTSIDE LET *)
                               in
                                 lookup ((L, projs, F0), a)
                               end
-                            else lookupbase a
+                            else lookupbase a (* GEN END TAG OUTSIDE LET *)
           
           
               (* apply ((S, mS), F')= (S'', F'')
@@ -864,66 +864,66 @@ exception Error' of Tomega.sub
               *)
           
               fun apply ((S, mS), Ft) = applyW ((S, mS), T.whnfFor (Ft))
-              and applyW ((I.Nil, M.Mnil), Ft') = (T.Nil, T.forSub Ft')
-                | applyW ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
+              and (* GEN BEGIN FUN FIRST *) applyW ((I.Nil, M.Mnil), Ft') = (T.Nil, T.forSub Ft') (* GEN END FUN FIRST *)
+                | (* GEN BEGIN FUN BRANCH *) applyW ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
                          (T.All (D, F'), t')) =
                                         (* Psi0, G', B' |- D = x:V' : type *)
                                         (* Psi0, G', B', x:V' |- F' :: for *)
                   let
-                    val U' = strengthenExp (U, w1)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val U' = strengthenExp (U, w1) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G', B' |- U' : V' *)
-                    val (S'', F'') = apply ((S, mS), (F', T.Dot (T.Exp U', t')))
+                    (* GEN BEGIN TAG OUTSIDE LET *) val (S'', F'') = apply ((S, mS), (F', T.Dot (T.Exp U', t'))) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G', B' |- F'' :: for *)
                                         (* Psi0, G', B' |- S'' : F' [t'] >> F'' *)
                   in
                    (T.AppExp (U', S''), F'')
                                         (* Psi0, G', B' |- U' ; S''
                                                        : all {x:V'} F' >> F'' *)
-                  end
-                | applyW ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)), Ft) =
-                    applyW ((S, mS), Ft)
+                  end (* GEN END FUN BRANCH *)
+                | (* GEN BEGIN FUN BRANCH *) applyW ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)), Ft) =
+                    applyW ((S, mS), Ft) (* GEN END FUN BRANCH *)
           
-              val (S'', F'') = apply ((S, modeSpine a), (F, T.id))
+              (* GEN BEGIN TAG OUTSIDE LET *) val (S'', F'') = apply ((S, modeSpine a), (F, T.id)) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G', B' |- F'' :: for *)
                                         (* Psi0, G', B' |- S'' :: F' >> F'' *)
-              val _ = TomegaTypeCheck.checkFor (append (append (Psi0, G), T.embedCtx B),
-                                                (T.forSub(F'', T.embedSub w1)))
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkFor (append (append (Psi0, G), T.embedCtx B),
+                                                (T.forSub(F'', T.embedSub w1))) (* GEN END TAG OUTSIDE LET *)
           
           
           
-              val P'' = T.Redex (HP (*T.Var k' *) , S'')  (* was T.Root  -cs Sun Jan  5 23:15:06 2003 *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val P'' = T.Redex (HP (*T.Var k' *) , S'') (* GEN END TAG OUTSIDE LET *)  (* was T.Root  -cs Sun Jan  5 23:15:06 2003 *)
                                         (* Psi0, G', B' |- P'' :: F'' *)
           
-              val b = I.ctxLength B     (* b = |B| = |B'| *)
-              val w1' = peeln (b, w1)   (* Psi0, G |- w1' : Psi0, G' *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val b = I.ctxLength B (* GEN END TAG OUTSIDE LET *)     (* b = |B| = |B'| *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val w1' = peeln (b, w1) (* GEN END TAG OUTSIDE LET *)   (* Psi0, G |- w1' : Psi0, G' *)
           
           
-              val (B', _) = strengthenCtx (B, w1')
+              (* GEN BEGIN TAG OUTSIDE LET *) val (B', _) = strengthenCtx (B, w1') (* GEN END TAG OUTSIDE LET *)
                                         (* |- Psi0, G', B' ctx *)
           
-              val n' = n - I.ctxLength B'   (* n' = |Psi0, G'| *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val n' = n - I.ctxLength B' (* GEN END TAG OUTSIDE LET *)   (* n' = |Psi0, G'| *)
           
           
-              fun subCtx (I.Null, s) = (I.Null, s)
-                | subCtx (I.Decl (G, D), s) =
-                  let val (G', s') = subCtx (G, s)
+              fun (* GEN BEGIN FUN FIRST *) subCtx (I.Null, s) = (I.Null, s) (* GEN END FUN FIRST *)
+                | (* GEN BEGIN FUN BRANCH *) subCtx (I.Decl (G, D), s) =
+                  let (* GEN BEGIN TAG OUTSIDE LET *) val (G', s') = subCtx (G, s) (* GEN END TAG OUTSIDE LET *)
                   in (I.Decl (G', I.decSub (D, s')), I.dot1 s')
-                  end
+                  end (* GEN END FUN BRANCH *)
           
-              val (B'', _) = subCtx (B', w1')
-              val _ = TomegaTypeCheck.checkCtx (append (append (Psi0, G), T.embedCtx B''))
+              (* GEN BEGIN TAG OUTSIDE LET *) val (B'', _) = subCtx (B', w1') (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkCtx (append (append (Psi0, G), T.embedCtx B'')) (* GEN END TAG OUTSIDE LET *)
           
-              val (GB', iota) = T.deblockify  B'    (* Psi0, G' |- GB' ctx *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (GB', iota) = T.deblockify  B' (* GEN END TAG OUTSIDE LET *)    (* Psi0, G' |- GB' ctx *)
           
-              val _ = TypeCheck.typeCheckSub (GB', T.coerceSub iota, B')
-                         handle TypeCheck.Error _ => raise Error' iota
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TypeCheck.typeCheckSub (GB', T.coerceSub iota, B')
+                         handle TypeCheck.Error _ => raise Error' iota (* GEN END TAG OUTSIDE LET *)
           
-              val RR = T.forSub (F'', iota)
+              (* GEN BEGIN TAG OUTSIDE LET *) val RR = T.forSub (F'', iota) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G, B |- w1 : Psi0, G', B' *)
                                         (* Psi0, G', GB'  |- s' : Psi0, G', B' *)
                                         (* Psi0, G', GB' |- RR for *)
           
-              val F''' = TA.raiseFor (GB', (RR, I.id))
+              (* GEN BEGIN TAG OUTSIDE LET *) val F''' = TA.raiseFor (GB', (RR, I.id)) (* GEN END TAG OUTSIDE LET *)
                                           (* Psi0, G |- w1' : Psi0, G' *)
                                           (* Psi0, G' |- F''' for *)
           
@@ -936,63 +936,63 @@ exception Error' of Tomega.sub
                  and  P' =  (lam B. P)
                  and  F' = raiseFor (B, F)
               *)
-              fun lift (I.Null, P) = P
-                | lift (I.Decl (G, D), P) =
+              fun (* GEN BEGIN FUN FIRST *) lift (I.Null, P) = P (* GEN END FUN FIRST *)
+                | (* GEN BEGIN FUN BRANCH *) lift (I.Decl (G, D), P) =
                   let
-                    val (Bint, _) = T.deblockify (I.Decl (I.Null, D))
+                    (* GEN BEGIN TAG OUTSIDE LET *) val (Bint, _) = T.deblockify (I.Decl (I.Null, D)) (* GEN END TAG OUTSIDE LET *)
                   in
                     lift (G, T.New (T.Lam (T.UDec D, P)))
-                  end
+                  end (* GEN END FUN BRANCH *)
           
-              val P''' = lift (B', P'') (* Psi0, G' |- P''' :: F''' *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val P''' = lift (B', P'') (* GEN END TAG OUTSIDE LET *) (* Psi0, G' |- P''' :: F''' *)
           
           
-              val _ = TomegaTypeCheck.checkCtx (append (Psi0, G))
-              val _ = TomegaTypeCheck.checkFor (append (Psi0, G),
-                                                (T.forSub(F''', T.embedSub w1')))
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkCtx (append (Psi0, G)) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkFor (append (Psi0, G),
+                                                (T.forSub(F''', T.embedSub w1'))) (* GEN END TAG OUTSIDE LET *)
           
-              val (Psi1'', w2, z2) = strengthen (Psi1, (a, S), w1, M.Minus)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Psi1'', w2, z2) = strengthen (Psi1, (a, S), w1, M.Minus) (* GEN END TAG OUTSIDE LET *)
                                         (* |- Psi0, Psi1'' ctx *)
                                         (* Psi0, G, B |- w2 : Psi1'' *)
                                         (* Psi1'' = Psi0, G3, B3' *)
                                         (* |B| = |GB'| *)
                                         (* Psi'' |-  z2 : Psi0, G', B' *)
                                         (* Psi0, G, B |- w2 : Psi0, G3, B3' *)
-              val w3 = peeln (b, w2)    (* Psi0, G |- w3 : Psi0, G3 *)
-              val z3 = peeln (b, z2)    (* Psi0, G3 |-  z3 : Psi0, G' *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val w3 = peeln (b, w2) (* GEN END TAG OUTSIDE LET *)    (* Psi0, G |- w3 : Psi0, G3 *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val z3 = peeln (b, z2) (* GEN END TAG OUTSIDE LET *)    (* Psi0, G3 |-  z3 : Psi0, G' *)
           
           
-              val (Psi2, B3') = popn (b, Psi1'')
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Psi2, B3') = popn (b, Psi1'') (* GEN END TAG OUTSIDE LET *)
                                         (* Psi2 = Psi0, G3 *)
           
-              val Pat' = transformConc ((a, S), w2)
+              (* GEN BEGIN TAG OUTSIDE LET *) val Pat' = transformConc ((a, S), w2) (* GEN END TAG OUTSIDE LET *)
           
                                         (* Psi0, G3, B3' |- Pat' :: For *)
-              val F4 = T.forSub (F''', T.embedSub z3)
+              (* GEN BEGIN TAG OUTSIDE LET *) val F4 = T.forSub (F''', T.embedSub z3) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G3 |- F4 for *)
-              val _ = TomegaTypeCheck.checkCtx (Psi1'')
-              val _ = TomegaTypeCheck.checkCtx (append (Psi2, T.embedCtx B3'))
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkCtx (Psi1'') (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkCtx (append (Psi2, T.embedCtx B3')) (* GEN END TAG OUTSIDE LET *)
           
-              val _ = TomegaTypeCheck.checkFor (Psi2, F4)
-                handle _ => raise Error ""(* ' F4 *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkFor (Psi2, F4)
+                handle _ => raise Error "" (* GEN END TAG OUTSIDE LET *)(* ' F4 *)
           
-              val (B3, sigma3) = T.deblockify  B3'
+              (* GEN BEGIN TAG OUTSIDE LET *) val (B3, sigma3) = T.deblockify  B3' (* GEN END TAG OUTSIDE LET *)
           
-              val Pat'' = T.normalizePrg (Pat', sigma3)
-              val Pat = TA.raisePrg (B3, Pat'', F4)
+              (* GEN BEGIN TAG OUTSIDE LET *) val Pat'' = T.normalizePrg (Pat', sigma3) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val Pat = TA.raisePrg (B3, Pat'', F4) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G3 |- Pat :: F4  *)
                                         (* Here's a commutative diagram
                                            at work which one has to prove
                                            correct
                                         *)
-              val _ = TomegaTypeCheck.checkPrg (Psi2, (Pat, F4))
-              val t = T.Dot (T.Prg Pat, T.embedSub z3)
+              (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkPrg (Psi2, (Pat, F4)) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val t = T.Dot (T.Prg Pat, T.embedSub z3) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G3 |- t :: Psi0, G', x :: F4  *)
             in
               (SOME (w3,
-                     (fn p => P (T.Let (T.PDec (NONE, F''', NONE, NONE), P''',
-                                        T.Case (T.Cases [(Psi2, t, p)]))), Q)))
-            end
+                     ((* GEN BEGIN FUNCTION EXPRESSION *) fn p => P (T.Let (T.PDec (NONE, F''', NONE, NONE), P''',
+                                        T.Case (T.Cases [(Psi2, t, p)]))) (* GEN END FUNCTION EXPRESSION *), Q)))
+            end (* GEN END FUN BRANCH *)
 
 
 
@@ -1017,11 +1017,11 @@ exception Error' of Tomega.sub
       let
     
     
-        fun traverseSig' nil = nil
-          | traverseSig' ((G, V) :: Sig) =
+        fun (* GEN BEGIN FUN FIRST *) traverseSig' nil = nil (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) traverseSig' ((G, V) :: Sig) =
             (TypeCheck.typeCheck (append (T.coerceCtx Psi0, G), (V, I.Uni I.Type));
              case traverseNeg (L, wmap, projs) ((Psi0, T.embedCtx G), V, I.id)
-               of (SOME (wf, (P', Q'))) =>  traverseSig' Sig @ [(P' Q')])
+               of (SOME (wf, (P', Q'))) =>  traverseSig' Sig @ [(P' Q')]) (* GEN END FUN BRANCH *)
       in
         traverseSig' Sig
       end
@@ -1050,30 +1050,30 @@ exception Error' of Tomega.sub
              and  G0, G |- w : G0, G'
              then G0 |- G', L' ctx
           *)
-          fun transformList (nil, w) = nil
-            | transformList ((D as I.Dec (x, V)) :: L, w) =
-              if List.foldr (fn (a, b) => b andalso Subordinate.belowEq (a, I.targetFam V)) true fams then
+          fun (* GEN BEGIN FUN FIRST *) transformList (nil, w) = nil (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) transformList ((D as I.Dec (x, V)) :: L, w) =
+              if List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (a, b) => b andalso Subordinate.belowEq (a, I.targetFam V) (* GEN END FUNCTION EXPRESSION *)) true fams then
                 transformList (L,  I.comp (w, I.shift))
               else
                 let
-                  val  L' = transformList (L, I.dot1 w)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val  L' = transformList (L, I.dot1 w) (* GEN END TAG OUTSIDE LET *)
                 in
                   (I.Dec (x, strengthenExp (V, w))) :: L'
-                end
+                end (* GEN END FUN BRANCH *)
     
-          fun transformWorlds' (nil) = (nil, fn c => raise Error "World not found")
-            | transformWorlds' (cid :: cids') =
+          fun (* GEN BEGIN FUN FIRST *) transformWorlds' (nil) = (nil, (* GEN BEGIN FUNCTION EXPRESSION *) fn c => raise Error "World not found" (* GEN END FUNCTION EXPRESSION *)) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) transformWorlds' (cid :: cids') =
               let
-                val I.BlockDec (s, m, G, L) = I.sgnLookup cid
+                (* GEN BEGIN TAG OUTSIDE LET *) val I.BlockDec (s, m, G, L) = I.sgnLookup cid (* GEN END TAG OUTSIDE LET *)
                 (* Design decision: Let's keep all of G *)
-                val L' = transformList (L, I.id)
-                val (cids'', wmap) = transformWorlds' (cids')
-                val cid' = I.sgnAdd (I.BlockDec (s, m, G, L'))
+                (* GEN BEGIN TAG OUTSIDE LET *) val L' = transformList (L, I.id) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (cids'', wmap) = transformWorlds' (cids') (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val cid' = I.sgnAdd (I.BlockDec (s, m, G, L')) (* GEN END TAG OUTSIDE LET *)
               in
-                (cid' :: cids'', fn c => if c = cid then cid' else wmap c)
-              end
+                (cid' :: cids'', (* GEN BEGIN FUNCTION EXPRESSION *) fn c => if c = cid then cid' else wmap c (* GEN END FUNCTION EXPRESSION *))
+              end (* GEN END FUN BRANCH *)
     
-          val (cids', wmap) = transformWorlds' (cids)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (cids', wmap) = transformWorlds' (cids) (* GEN END TAG OUTSIDE LET *)
     
         in
           (T.Worlds cids', wmap)
@@ -1101,16 +1101,16 @@ exception Error' of Tomega.sub
              and  G |- w: G'
              then |- G', L' ctx
           *)
-          fun findDec (G, _, nil, w, Sig) = Sig
-            | findDec (G, n, D :: L, w, Sig) =
+          fun (* GEN BEGIN FUN FIRST *) findDec (G, _, nil, w, Sig) = Sig (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) findDec (G, n, D :: L, w, Sig) =
               let
-                val (D' as I.Dec (x, V')) = I.decSub (D, w)
-                val b = I.targetFam V'
-                val Sig' = if b = a then  (G, Whnf.normalize (V',I.id)) :: Sig
-                           else Sig
+                (* GEN BEGIN TAG OUTSIDE LET *) val (D' as I.Dec (x, V')) = I.decSub (D, w) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val b = I.targetFam V' (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val Sig' = if b = a then  (G, Whnf.normalize (V',I.id)) :: Sig
+                           else Sig (* GEN END TAG OUTSIDE LET *)
               in
                 findDec (G, n+1, L, I.Dot (I.Exp (I.Root (I.Proj (I.Bidx 1, n), I.Nil)), w), Sig')
-              end
+              end (* GEN END FUN BRANCH *)
     
           (* mediateSub G = (G0, s)
     
@@ -1119,32 +1119,32 @@ exception Error' of Tomega.sub
              then Psi0 |- G0 ctx
              and  Psi0, G0 |- s : G
           *)
-          fun mediateSub (I.Null) = (I.Null, I.Shift (I.ctxLength Psi0))
-            | mediateSub (I.Decl (G, D)) =
+          fun (* GEN BEGIN FUN FIRST *) mediateSub (I.Null) = (I.Null, I.Shift (I.ctxLength Psi0)) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) mediateSub (I.Decl (G, D)) =
                 let
-                  val (G0, s') = mediateSub G
-                  val D' = I.decSub (D, s')
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (G0, s') = mediateSub G (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val D' = I.decSub (D, s') (* GEN END TAG OUTSIDE LET *)
                 in
                   (I.Decl (G0, D'), I.dot1 s')
-                end
+                end (* GEN END FUN BRANCH *)
     
     
-          fun findDecs' (nil, Sig) = Sig
-            | findDecs' (cid :: cids', Sig) =
+          fun (* GEN BEGIN FUN FIRST *) findDecs' (nil, Sig) = Sig (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) findDecs' (cid :: cids', Sig) =
               let
-                val I.BlockDec (s, m, G, L) = I.sgnLookup cid
+                (* GEN BEGIN TAG OUTSIDE LET *) val I.BlockDec (s, m, G, L) = I.sgnLookup cid (* GEN END TAG OUTSIDE LET *)
                                         (* G |- L ctx *)
-                val (G0, s') = mediateSub G
+                (* GEN BEGIN TAG OUTSIDE LET *) val (G0, s') = mediateSub G (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G0 |- s'' : G *)
-                val D' = Names.decName (G0, I.BDec (NONE, (cid, s')))
+                (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decName (G0, I.BDec (NONE, (cid, s'))) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G0 |- D : dec *)
-                val s'' = I.comp (s', I.shift)
+                (* GEN BEGIN TAG OUTSIDE LET *) val s'' = I.comp (s', I.shift) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, G0, D' |- s'' : G *)
                 
-                val Sig' = findDec (I.Decl (G0, D'), 1, L, s'', Sig)
+                (* GEN BEGIN TAG OUTSIDE LET *) val Sig' = findDec (I.Decl (G0, D'), 1, L, s'', Sig) (* GEN END TAG OUTSIDE LET *)
               in
                 findDecs' (cids', Sig')
-              end
+              end (* GEN END FUN BRANCH *)
         in
           findDecs' (cids, nil)
         end
@@ -1156,12 +1156,12 @@ exception Error' of Tomega.sub
        then Sig' = (c1:V1) ... (cn:Vn)
        and  . |- Vi : type.
     *)
-    fun staticSig (Psi0, nil) = nil
-      | staticSig (Psi0, I.ConDec (name, _, _, _, V, I.Type) :: Sig) =
-          (I.Null, Whnf.normalize (V, I.Shift (I.ctxLength Psi0))) :: staticSig (Psi0, Sig)
+    fun (* GEN BEGIN FUN FIRST *) staticSig (Psi0, nil) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) staticSig (Psi0, I.ConDec (name, _, _, _, V, I.Type) :: Sig) =
+          (I.Null, Whnf.normalize (V, I.Shift (I.ctxLength Psi0))) :: staticSig (Psi0, Sig) (* GEN END FUN BRANCH *)
 
-    fun name [a] = I.conDecName (I.sgnLookup a)
-      | name (a :: L) = I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
+    fun (* GEN BEGIN FUN FIRST *) name [a] = I.conDecName (I.sgnLookup a) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) name (a :: L) = I.conDecName (I.sgnLookup a) ^ "/" ^ (name L) (* GEN END FUN BRANCH *)
 
     (* convertPrg L = P'
 
@@ -1174,41 +1174,41 @@ exception Error' of Tomega.sub
 
     fun convertPrg (L, projs) =
       let
-        val (name, F0) = createIH L
-        val D0 = T.PDec (SOME name, F0, NONE, NONE)
-        val Psi0 = I.Decl (I.Null, D0)
-        val Prec = fn p => T.Rec (D0, p)
-        fun convertWorlds [a] =
+        (* GEN BEGIN TAG OUTSIDE LET *) val (name, F0) = createIH L (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val D0 = T.PDec (SOME name, F0, NONE, NONE) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val Psi0 = I.Decl (I.Null, D0) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val Prec = (* GEN BEGIN FUNCTION EXPRESSION *) fn p => T.Rec (D0, p) (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
+        fun (* GEN BEGIN FUN FIRST *) convertWorlds [a] =
             let
-              val W = WorldSyn.lookup a (* W describes the world of a *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val W = WorldSyn.lookup a (* GEN END TAG OUTSIDE LET *) (* W describes the world of a *)
             in
               W
-            end
-          | convertWorlds (a :: L') =
+            end (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) convertWorlds (a :: L') =
             let
-              val W = WorldSyn.lookup a (* W describes the world of a *)
-              val W' = convertWorlds L'
+              (* GEN BEGIN TAG OUTSIDE LET *) val W = WorldSyn.lookup a (* GEN END TAG OUTSIDE LET *) (* W describes the world of a *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val W' = convertWorlds L' (* GEN END TAG OUTSIDE LET *)
             in
               if T.eqWorlds (W, W') then W' else raise Error "Type families different in different worlds"
-            end
+            end (* GEN END FUN BRANCH *)
     
-        val W = convertWorlds L
-        val (W', wmap) = transformWorlds (L, W)
+        (* GEN BEGIN TAG OUTSIDE LET *) val W = convertWorlds L (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (W', wmap) = transformWorlds (L, W) (* GEN END TAG OUTSIDE LET *)
     
         fun convertOnePrg (a, F) =
           let
-            val name = nameOf a
-            val V = typeOf a            (* Psi0 |- {x1:V1} ... {xn:Vn} type *)
-            val mS = modeSpine a        (* |- mS : {x1:V1} ... {xn:Vn} > type *)
-            val Sig = Worldify.worldify a
+            (* GEN BEGIN TAG OUTSIDE LET *) val name = nameOf a (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val V = typeOf a (* GEN END TAG OUTSIDE LET *)            (* Psi0 |- {x1:V1} ... {xn:Vn} type *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val mS = modeSpine a (* GEN END TAG OUTSIDE LET *)        (* |- mS : {x1:V1} ... {xn:Vn} > type *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val Sig = Worldify.worldify a (* GEN END TAG OUTSIDE LET *)
                                         (* Sig in LF(reg)   *)
-            val dynSig = dynamicSig (Psi0, a, W)
-            val statSig = staticSig (Psi0, Sig)
-            val _ = map (fn (I.ConDec (_, _,_,_,U,V)) => TypeCheck.check (U, I.Uni  V)) Sig
-            val _ = validSig (Psi0, statSig)
-            val _ = validSig (Psi0, dynSig)
+            (* GEN BEGIN TAG OUTSIDE LET *) val dynSig = dynamicSig (Psi0, a, W) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val statSig = staticSig (Psi0, Sig) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (I.ConDec (_, _,_,_,U,V)) => TypeCheck.check (U, I.Uni  V) (* GEN END FUNCTION EXPRESSION *)) Sig (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = validSig (Psi0, statSig) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = validSig (Psi0, dynSig) (* GEN END TAG OUTSIDE LET *)
     
-            val C0 = traverse (Psi0, L, dynSig, wmap, projs)
+            (* GEN BEGIN TAG OUTSIDE LET *) val C0 = traverse (Psi0, L, dynSig, wmap, projs) (* GEN END TAG OUTSIDE LET *)
             (* init' F = P'
     
                Invariant:
@@ -1217,161 +1217,161 @@ exception Error' of Tomega.sub
                then P' P'' = Lam x1:A1. ... Lam xn:An P''
                     for any P''
             *)
-            fun init (T.All ((D, _), F')) =
+            fun (* GEN BEGIN FUN FIRST *) init (T.All ((D, _), F')) =
                 let
-                  val (F'', P') = init F'
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (F'', P') = init F' (* GEN END TAG OUTSIDE LET *)
                 in
-                  (F'', fn p => T.Lam (D, P' p))
-                end
-              | init F' = (F', fn p => p)
+                  (F'', (* GEN BEGIN FUNCTION EXPRESSION *) fn p => T.Lam (D, P' p) (* GEN END FUNCTION EXPRESSION *))
+                end (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) init F' = (F', (* GEN BEGIN FUNCTION EXPRESSION *) fn p => p (* GEN END FUNCTION EXPRESSION *)) (* GEN END FUN BRANCH *)
     
-            val (F', Pinit) = init F
-            val C = traverse (Psi0, L, statSig, wmap, projs)
+            (* GEN BEGIN TAG OUTSIDE LET *) val (F', Pinit) = init F (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val C = traverse (Psi0, L, statSig, wmap, projs) (* GEN END TAG OUTSIDE LET *)
                                         (* Psi0, x1:V1, ..., xn:Vn |- C :: F *)
           in
             Pinit (T.Case ((* F', *) T.Cases (C0 @ C)))
           end
     
-        fun convertPrg' (nil, _) = raise Error "Cannot convert Empty program"
-          | convertPrg' ([a], F) = convertOnePrg (a, F)
-          | convertPrg' (a :: L', T.And (F1, F2)) = T.PairPrg (convertOnePrg (a, F1), convertPrg' (L', F2))
+        fun (* GEN BEGIN FUN FIRST *) convertPrg' (nil, _) = raise Error "Cannot convert Empty program" (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) convertPrg' ([a], F) = convertOnePrg (a, F) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) convertPrg' (a :: L', T.And (F1, F2)) = T.PairPrg (convertOnePrg (a, F1), convertPrg' (L', F2)) (* GEN END FUN BRANCH *)
     
-        val P = Prec (convertPrg' (L, F0))
+        (* GEN BEGIN TAG OUTSIDE LET *) val P = Prec (convertPrg' (L, F0)) (* GEN END TAG OUTSIDE LET *)
       in
         P
       end
 
     fun installFor [cid] =
         let
-          val F = convertFor [cid]
-          val name = I.conDecName (I.sgnLookup cid)
-          val _ = T.lemmaAdd (T.ForDec (name, F))
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = convertFor [cid] (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = T.lemmaAdd (T.ForDec (name, F)) (* GEN END TAG OUTSIDE LET *)
         in
           ()
         end
 
 
-    fun depthConj (T.And (F1, F2)) =
-        1+ depthConj F2
-      | depthConj F = 1
+    fun (* GEN BEGIN FUN FIRST *) depthConj (T.And (F1, F2)) =
+        1+ depthConj F2 (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) depthConj F = 1 (* GEN END FUN BRANCH *)
 
-    fun createProjection (Psi, depth, F as T.And (F1, F2), Pattern) =
+    fun (* GEN BEGIN FUN FIRST *) createProjection (Psi, depth, F as T.And (F1, F2), Pattern) =
           createProjection (I.Decl (Psi, T.PDec (NONE, F1, NONE, NONE)), depth+1,
                             T.forSub (F2, T.Shift 1),
-                            T.PairPrg (T.Var (depth+2), Pattern))
-      | createProjection (Psi, depth, F,  Pattern) =
+                            T.PairPrg (T.Var (depth+2), Pattern)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) createProjection (Psi, depth, F,  Pattern) =
           let
-            val Psi' = I.Decl (Psi, T.PDec (NONE, F, NONE, NONE))
-            val depth' = depth + 1
+            (* GEN BEGIN TAG OUTSIDE LET *) val Psi' = I.Decl (Psi, T.PDec (NONE, F, NONE, NONE)) (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val depth' = depth + 1 (* GEN END TAG OUTSIDE LET *)
           in
-            fn k => let
-                      val T.PDec (_, F', _, _) = T.ctxDec (Psi', k)
+            (* GEN BEGIN FUNCTION EXPRESSION *) fn k => let
+                      (* GEN BEGIN TAG OUTSIDE LET *) val T.PDec (_, F', _, _) = T.ctxDec (Psi', k) (* GEN END TAG OUTSIDE LET *)
                     in
                       (T.Case (T.Cases [(Psi',
                                        T.Dot (T.Prg (Pattern),
                                               T.Shift (depth')),
                                        T.Var k)]), F')
-                    end
-          end
+                    end (* GEN END FUNCTION EXPRESSION *)
+          end (* GEN END FUN BRANCH *)
 
-    fun installProjection (nil, _, F, Proj) = nil
-      | installProjection (cid :: cids, n, F, Proj) =
+    fun (* GEN BEGIN FUN FIRST *) installProjection (nil, _, F, Proj) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) installProjection (cid :: cids, n, F, Proj) =
         let
-          val (P', F') = Proj n
-          val P = T.Lam (T.PDec (NONE, F, NONE, NONE), P')
-          val F'' = T.All ((T.PDec (NONE, F, NONE, NONE), T.Explicit), F')
-          val name = I.conDecName (I.sgnLookup cid)
-          val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F''))
-          val lemma = T.lemmaAdd (T.ValDec ("#" ^ name, P, F''))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (P', F') = Proj n (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val P = T.Lam (T.PDec (NONE, F, NONE, NONE), P') (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val F'' = T.All ((T.PDec (NONE, F, NONE, NONE), T.Explicit), F') (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F'')) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val lemma = T.lemmaAdd (T.ValDec ("#" ^ name, P, F'')) (* GEN END TAG OUTSIDE LET *)
         in
           lemma :: installProjection (cids, n-1, F, Proj)
-        end
+        end (* GEN END FUN BRANCH *)
 
 
-    fun installSelection ([cid], [lemma], F1, main) =
+    fun (* GEN BEGIN FUN FIRST *) installSelection ([cid], [lemma], F1, main) =
         let
-          val P = T.Redex (T.Const lemma, T.AppPrg (T.Const main, T.Nil))
-          val name = I.conDecName (I.sgnLookup cid)
-          val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F1))
-          val lemma' = T.lemmaAdd (T.ValDec (name, P, F1))
+          (* GEN BEGIN TAG OUTSIDE LET *) val P = T.Redex (T.Const lemma, T.AppPrg (T.Const main, T.Nil)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F1)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val lemma' = T.lemmaAdd (T.ValDec (name, P, F1)) (* GEN END TAG OUTSIDE LET *)
         in
           [lemma']
-        end
-      | installSelection (cid :: cids, lemma :: lemmas, T.And (F1, F2), main) =
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) installSelection (cid :: cids, lemma :: lemmas, T.And (F1, F2), main) =
         let
-          val P = T.Redex (T.Const lemma, T.AppPrg (T.Const main, T.Nil))
-          val name = I.conDecName (I.sgnLookup cid)
-          val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F1))
-          val lemma' = T.lemmaAdd (T.ValDec (name, P, F1))
+          (* GEN BEGIN TAG OUTSIDE LET *) val P = T.Redex (T.Const lemma, T.AppPrg (T.Const main, T.Nil)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F1)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val lemma' = T.lemmaAdd (T.ValDec (name, P, F1)) (* GEN END TAG OUTSIDE LET *)
         in
           lemma' :: installSelection (cids, lemmas, F2, main)
-        end
+        end (* GEN END FUN BRANCH *)
 
 
-    fun installPrg [cid] =
+    fun (* GEN BEGIN FUN FIRST *) installPrg [cid] =
         let
-          val F = convertFor [cid]
-          val P = convertPrg ([cid], NONE)
-          val name = I.conDecName (I.sgnLookup cid)
-          val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F))
-          val _ = if (!Global.chatter >= 4) then print ("[Redundancy Checker (factoring) ...") else ()
-          val factP = Redundant.convert P
-          val _ = if (!Global.chatter >= 4) then print ("done]\n") else ()
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = convertFor [cid] (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val P = convertPrg ([cid], NONE) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if (!Global.chatter >= 4) then print ("[Redundancy Checker (factoring) ...") else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val factP = Redundant.convert P (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if (!Global.chatter >= 4) then print ("done]\n") else () (* GEN END TAG OUTSIDE LET *)
     
-          val lemma = T.lemmaAdd (T.ValDec (name, factP, F))
+          (* GEN BEGIN TAG OUTSIDE LET *) val lemma = T.lemmaAdd (T.ValDec (name, factP, F)) (* GEN END TAG OUTSIDE LET *)
     
     
         in
           (lemma, [], [])
-        end
-      | installPrg cids =
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) installPrg cids =
         let
-          val F = convertFor cids
-          val _ = TomegaTypeCheck.checkFor (I.Null, F)
+          (* GEN BEGIN TAG OUTSIDE LET *) val F = convertFor cids (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkFor (I.Null, F) (* GEN END TAG OUTSIDE LET *)
       
-          val Proj = createProjection (I.Null, 0, F, T.Var 1)
-          val projs = installProjection (cids, depthConj F, F, Proj)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Proj = createProjection (I.Null, 0, F, T.Var 1) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val projs = installProjection (cids, depthConj F, F, Proj) (* GEN END TAG OUTSIDE LET *)
       
-          val P = convertPrg (cids, SOME projs)
-          val s = name cids
-          val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F))
-          val _ = if (!Global.chatter >= 4) then print ("[Redundancy Checker (factoring) ...") else ()
-          val factP = Redundant.convert P
-          val _ = if (!Global.chatter >= 4) then print ("done]\n") else ()
+          (* GEN BEGIN TAG OUTSIDE LET *) val P = convertPrg (cids, SOME projs) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val s = name cids (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkPrg (I.Null, (P, F)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if (!Global.chatter >= 4) then print ("[Redundancy Checker (factoring) ...") else () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val factP = Redundant.convert P (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = if (!Global.chatter >= 4) then print ("done]\n") else () (* GEN END TAG OUTSIDE LET *)
       
-          val lemma = T.lemmaAdd (T.ValDec (s, factP, F))
+          (* GEN BEGIN TAG OUTSIDE LET *) val lemma = T.lemmaAdd (T.ValDec (s, factP, F)) (* GEN END TAG OUTSIDE LET *)
       
-          val sels = installSelection (cids, projs, F, lemma)
+          (* GEN BEGIN TAG OUTSIDE LET *) val sels = installSelection (cids, projs, F, lemma) (* GEN END TAG OUTSIDE LET *)
       
         in
           (lemma, projs, sels)
-        end
+        end (* GEN END FUN BRANCH *)
 
 
 
-    fun mkResult 0 = T.Unit
-      | mkResult n = T.PairExp (I.Root (I.BVar n, I.Nil), mkResult (n-1))
+    fun (* GEN BEGIN FUN FIRST *) mkResult 0 = T.Unit (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) mkResult n = T.PairExp (I.Root (I.BVar n, I.Nil), mkResult (n-1)) (* GEN END FUN BRANCH *)
 
     fun convertGoal (G, V)  =
       let
-        val a = I.targetFam V
-        val W = WorldSyn.lookup a
-        val (W', wmap) = transformWorlds ([a], W)
-        val SOME (_, (P', Q')) = traversePos ([], wmap, NONE)
+        (* GEN BEGIN TAG OUTSIDE LET *) val a = I.targetFam V (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val W = WorldSyn.lookup a (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (W', wmap) = transformWorlds ([a], W) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val SOME (_, (P', Q')) = traversePos ([], wmap, NONE)
                                   ((I.Null, G, I.Null), V,
                                    SOME (I.Shift (I.ctxLength G),
-                                         (fn P => (I.Null, T.id, P),  mkResult (I.ctxLength G))))
-        val (_, _, P'') = P' Q'
+                                         ((* GEN BEGIN FUNCTION EXPRESSION *) fn P => (I.Null, T.id, P) (* GEN END FUNCTION EXPRESSION *),  mkResult (I.ctxLength G)))) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (_, _, P'') = P' Q' (* GEN END TAG OUTSIDE LET *)
       in
         P''
       end
 
   in
-    val convertFor = convertFor
-    val convertPrg = fn L => convertPrg (L, NONE)
-    val installFor = installFor
-    val installPrg = installPrg
-    val traverse = traverse
-    val convertGoal = convertGoal
+    (* GEN BEGIN TAG OUTSIDE LET *) val convertFor = convertFor (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val convertPrg = (* GEN BEGIN FUNCTION EXPRESSION *) fn L => convertPrg (L, NONE) (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val installFor = installFor (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val installPrg = installPrg (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val traverse = traverse (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val convertGoal = convertGoal (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *) (* functor FunSyn *)

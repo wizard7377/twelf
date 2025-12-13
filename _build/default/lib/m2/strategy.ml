@@ -1,7 +1,7 @@
 (* Strategy *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) StrategyFRS (structure MetaGlobal : METAGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) StrategyFRS (structure MetaGlobal : METAGLOBAL
                      structure MetaSyn' : METASYN
                      structure Filling : FILLING
                      sharing Filling.MetaSyn = MetaSyn'
@@ -163,11 +163,11 @@ struct
   in
     val run = run
   end (* local *)
-end (* GEN END FUNCTOR DECL *);  (* functor StrategyFRS *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor StrategyFRS *)
 
 
 
-functor (* GEN BEGIN FUNCTOR DECL *) StrategyRFS (structure MetaGlobal : METAGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) StrategyRFS (structure MetaGlobal : METAGLOBAL
                      structure MetaSyn' : METASYN
                      structure Filling : FILLING
                      sharing Filling.MetaSyn = MetaSyn'
@@ -322,11 +322,11 @@ struct
   in
     val run = run
   end (* local *)
-end (* GEN END FUNCTOR DECL *);  (* functor StrategyRFS *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor StrategyRFS *)
 
 
 
-functor (* GEN BEGIN FUNCTOR DECL *) Strategy (structure MetaGlobal : METAGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Strategy (structure MetaGlobal : METAGLOBAL
                   structure MetaSyn' : METASYN
                   structure StrategyFRS : STRATEGY
                   sharing StrategyFRS.MetaSyn = MetaSyn'
@@ -342,4 +342,4 @@ struct
         of MetaGlobal.RFS => StrategyRFS.run SL
          | MetaGlobal.FRS => StrategyFRS.run SL
 
-end (* GEN END FUNCTOR DECL *); (* functor Strategy *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Strategy *)

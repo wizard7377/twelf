@@ -4,6 +4,6 @@
 structure ArraySlice :> ARRAY_SLICE =
 struct
   type 'a slice = 'a Array.array * int * int option
-  (* GEN BEGIN TAG INSIDE LET *) fun slice s = s (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) val appi = Array.appi (* GEN END TAG INSIDE LET *)
+  fun slice s = s
+  (* GEN BEGIN TAG OUTSIDE LET *) val appi = Array.appi (* GEN END TAG OUTSIDE LET *)
 end;

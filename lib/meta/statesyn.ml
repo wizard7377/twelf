@@ -54,10 +54,10 @@ struct
        then G |- O' order
        and  G |- O' == O[s] order
     *)
-    fun orderSub (Arg ((U, s1), (V, s2)), s) =
-          Arg ((U,  I.comp (s1, s)), (V, I.comp (s2, s)))
-      | orderSub (Lex Os, s) = Lex (map (fn O => orderSub (O, s)) Os)
-      | orderSub (Simul Os, s) = Simul (map (fn O => orderSub (O, s)) Os)
+    fun (* GEN BEGIN FUN FIRST *) orderSub (Arg ((U, s1), (V, s2)), s) =
+          Arg ((U,  I.comp (s1, s)), (V, I.comp (s2, s))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) orderSub (Lex Os, s) = Lex (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => orderSub (O, s) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) orderSub (Simul Os, s) = Simul (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => orderSub (O, s) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
       (* by invariant: no case for All and And *)
 
 
@@ -69,10 +69,10 @@ struct
        and  G |- O = O' order
        and  each sub term of O' is in normal form.
     *)
-    fun normalizeOrder (Arg (Us, Vs)) =
-          Arg ((Whnf.normalize Us, I.id), (Whnf.normalize Vs, I.id))
-      | normalizeOrder (Lex Os) = Lex (map normalizeOrder Os)
-      | normalizeOrder (Simul Os) = Simul (map normalizeOrder Os)
+    fun (* GEN BEGIN FUN FIRST *) normalizeOrder (Arg (Us, Vs)) =
+          Arg ((Whnf.normalize Us, I.id), (Whnf.normalize Vs, I.id)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeOrder (Lex Os) = Lex (map normalizeOrder Os) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeOrder (Simul Os) = Simul (map normalizeOrder Os) (* GEN END FUN BRANCH *)
       (* by invariant: no case for All and And *)
 
 
@@ -83,12 +83,12 @@ struct
        and  G |- O2 order
        then B' holds iff G |- O1 == O2 order
     *)
-    fun convOrder (Arg (Us1, _), Arg (Us2, _ )) = Conv.conv (Us1, Us2)
-      | convOrder (Lex Os1, Lex Os2) = convOrders (Os1, Os2)
-      | convOrder (Simul Os1, Simul Os2) = convOrders (Os1, Os2)
-    and convOrders (nil, nil) = true
-      | convOrders (O1 :: L1, O2 :: L2) =
-          convOrder (O1, O2) andalso convOrders (L1, L2)
+    fun (* GEN BEGIN FUN FIRST *) convOrder (Arg (Us1, _), Arg (Us2, _ )) = Conv.conv (Us1, Us2) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) convOrder (Lex Os1, Lex Os2) = convOrders (Os1, Os2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) convOrder (Simul Os1, Simul Os2) = convOrders (Os1, Os2) (* GEN END FUN BRANCH *)
+    and (* GEN BEGIN FUN FIRST *) convOrders (nil, nil) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) convOrders (O1 :: L1, O2 :: L2) =
+          convOrder (O1, O2) andalso convOrders (L1, L2) (* GEN END FUN BRANCH *)
       (* by invariant: no case for All and And *)
 
     (* decrease T = T'
@@ -97,13 +97,13 @@ struct
        T is either an Assumption or Induction tag
        T' = T - 1
     *)
-    fun decreaseInfo (Splits k) = Splits (k-1)
-      | decreaseInfo RL = RL
-      | decreaseInfo RLdone = RLdone
+    fun (* GEN BEGIN FUN FIRST *) decreaseInfo (Splits k) = Splits (k-1) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) decreaseInfo RL = RL (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) decreaseInfo RLdone = RLdone (* GEN END FUN BRANCH *)
 
     fun (* decrease (Assumption k) = Assumption (k-1)
-      | *) decrease (Lemma (Sp)) = Lemma (decreaseInfo Sp)
-      | decrease None = None
+      | *) (* GEN BEGIN FUN FIRST *) decrease (Lemma (Sp)) = Lemma (decreaseInfo Sp) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) decrease None = None (* GEN END FUN BRANCH *)
 
 
     fun splitDepth (Splits k) = k
@@ -116,15 +116,15 @@ struct
        then G' |- T' = T[s] tag
     *)
 
-    fun normalizeTag (T as Parameter _, _) = T
-      | normalizeTag (Lemma (K), s) = Lemma (K)
+    fun (* GEN BEGIN FUN FIRST *) normalizeTag (T as Parameter _, _) = T (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) normalizeTag (Lemma (K), s) = Lemma (K) (* GEN END FUN BRANCH *)
 
   in
-    val orderSub = orderSub
-    val decrease = decrease
-    val splitDepth = splitDepth
-    val normalizeOrder = normalizeOrder
-    val convOrder = convOrder
-    val normalizeTag = normalizeTag
+    (* GEN BEGIN TAG OUTSIDE LET *) val orderSub = orderSub (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val decrease = decrease (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val splitDepth = splitDepth (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val normalizeOrder = normalizeOrder (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val convOrder = convOrder (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val normalizeTag = normalizeTag (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* signature STATESYN *)

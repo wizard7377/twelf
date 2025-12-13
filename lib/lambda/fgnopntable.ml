@@ -14,13 +14,13 @@ functor (* GEN BEGIN FUNCTOR DECL *) FgnOpnTable (type arg ; type result) :>
 
   fun initializeTable tbl = let
     exception CSfunNotInstalled of csid
-    val maxCSid = (*Global.maxCSid*) 50
-    fun unimplemented csid = fn _ => raise (CSfunNotInstalled csid)
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxCSid = (*Global.maxCSid*) 50 (* GEN END TAG OUTSIDE LET *)
+    fun unimplemented csid = (* GEN BEGIN FUNCTION EXPRESSION *) fn _ => raise (CSfunNotInstalled csid) (* GEN END FUNCTION EXPRESSION *)
   in
       Array.tabulate (maxCSid +1 , unimplemented)
   end
 
-  val table : table = initializeTable ()
+  (* GEN BEGIN TAG OUTSIDE LET *) val table : table = initializeTable () (* GEN END TAG OUTSIDE LET *)
 
   fun install (csid, f) = Array.update (table, csid, f)
 

@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Abstract ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Abstract ((*! structure IntSyn' : INTSYN !*)
                   structure Whnf    : WHNF
                   (*! sharing Whnf.IntSyn = IntSyn' !*)
                   structure Unify   : UNIFY
@@ -954,4 +954,4 @@ struct
     val closedCtx = closedCtx
     val closedCTX = closedCTX
   end
-end (* GEN END FUNCTOR DECL *);  (* functor Abstract *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Abstract *)

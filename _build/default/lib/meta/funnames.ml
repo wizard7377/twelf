@@ -1,7 +1,7 @@
 (* Names of Constants and Variables *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) FunNames (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) FunNames (structure Global : GLOBAL
                   (*! structure FunSyn' : FUNSYN !*)
                   structure HashTable : TABLE where type key = string)
   : FUNNAMES =
@@ -97,4 +97,4 @@ struct
            of (NameInfo (name)) => name)
 
   end  (* local ... *)
-end (* GEN END FUNCTOR DECL *);  (* functor Names *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Names *)

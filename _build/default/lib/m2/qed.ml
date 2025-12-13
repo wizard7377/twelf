@@ -1,7 +1,7 @@
 (* QED *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Qed (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Qed (structure Global : GLOBAL
              structure MetaSyn' : METASYN)
   : QED =
 struct
@@ -25,4 +25,4 @@ struct
   in
     val subgoal = subgoal
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Qed *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Qed *)

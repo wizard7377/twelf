@@ -1,7 +1,7 @@
 (* Parsing Queries *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ParseQuery
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ParseQuery
 
   ((*! structure Parsing' : PARSING !*)
    structure ExtQuery' : EXTQUERY
@@ -112,4 +112,4 @@ struct
     val parseSolve' = parseSolve'
   end  (* local ... in *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor ParseQuery *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ParseQuery *)

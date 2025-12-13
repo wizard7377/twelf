@@ -41,15 +41,15 @@ struct
   datatype name_info = NameInfo of string
 
   local
-    val maxCid = Global.maxCid
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxCid = Global.maxCid (* GEN END TAG OUTSIDE LET *)
     (* nameArray maps constants to print names and fixity *)
-    val nameArray = Array.array (maxCid+1, NameInfo "")
-      : name_info Array.array
+    (* GEN BEGIN TAG OUTSIDE LET *) val nameArray = Array.array (maxCid+1, NameInfo "")
+      : name_info Array.array (* GEN END TAG OUTSIDE LET *)
 
     (* sgnHashTable maps identifiers (strings) to constants (cids) *)
-    val sgnHashTable : IntSyn.cid HashTable.table = HashTable.new (4096)
-    val hashInsert = HashTable.insertShadow sgnHashTable (* returns optional shadowed entry *)
-    val hashLookup = HashTable.lookup sgnHashTable (* returns optional cid *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sgnHashTable : IntSyn.cid HashTable.table = HashTable.new (4096) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val hashInsert = HashTable.insertShadow sgnHashTable (* GEN END TAG OUTSIDE LET *) (* returns optional shadowed entry *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val hashLookup = HashTable.lookup sgnHashTable (* GEN END TAG OUTSIDE LET *) (* returns optional cid *)
     fun hashClear () = HashTable.clear sgnHashTable
 
   in
@@ -68,9 +68,9 @@ struct
         (* should shadowed identifiers keep their fixity? *)
           Array.update (nameArray, cid, NameInfo("%" ^ name ^ "%"))
 
-    fun shadow NONE = ()
-      | shadow (SOME(_,cid)) =
-          override (cid, Array.sub (nameArray, cid))
+    fun (* GEN BEGIN FUN FIRST *) shadow NONE = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) shadow (SOME(_,cid)) =
+          override (cid, Array.sub (nameArray, cid)) (* GEN END FUN BRANCH *)
 
     (* installName (name, cid) = ()
        Effect: update mappings from constants to print names and identifiers
@@ -78,7 +78,7 @@ struct
     *)
     fun installName (name, lemma) =
         let
-          val shadowed = hashInsert (name, lemma)       (* returns optional shadowed entry *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val shadowed = hashInsert (name, lemma) (* GEN END TAG OUTSIDE LET *)       (* returns optional shadowed entry *)
         in
           (Array.update (nameArray, lemma, NameInfo (name));
            shadow shadowed)

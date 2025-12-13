@@ -1,7 +1,7 @@
 (* Parsing modules *)
 (* Author: Kevin Watkins *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ParseModule
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ParseModule
   ((*! structure Paths : PATHS !*)
    (*! structure Parsing' : PARSING !*)
    (*! sharing Parsing'.Lexer.Paths = Paths !*)
@@ -166,4 +166,4 @@ struct
   fun parseOpen' (LS.Cons ((L.OPEN, r), s')) =
         parseStructExp' (LS.expose s')
 
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

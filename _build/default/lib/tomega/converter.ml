@@ -2,7 +2,7 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Converter
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Converter
   (structure Global : GLOBAL
    (*! structure IntSyn' : INTSYN !*)
    (*! structure Tomega' : TOMEGA !*)
@@ -1374,4 +1374,4 @@ exception Error' of Tomega.sub
     val traverse = traverse
     val convertGoal = convertGoal
   end
-end (* GEN END FUNCTOR DECL *) (* functor FunSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor FunSyn *)

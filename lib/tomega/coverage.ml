@@ -51,9 +51,9 @@ struct
        then  Psi0 |- t' : Psi'
        and   Psi' |- s' : Psi1
     *)
-    fun purifyFor ((T.Unit, t), (Psi, T.True), s) = (t, Psi, s)
-      | purifyFor ((T.PairExp (U, P), t), (Psi, T.Ex ((D, _), F)), s) =
-          purifyFor ((P, T.Dot (T.Exp U, t)), (I.Decl (Psi, T.UDec D), F), T.comp (s, T.shift))
+    fun (* GEN BEGIN FUN FIRST *) purifyFor ((T.Unit, t), (Psi, T.True), s) = (t, Psi, s) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) purifyFor ((T.PairExp (U, P), t), (Psi, T.Ex ((D, _), F)), s) =
+          purifyFor ((P, T.Dot (T.Exp U, t)), (I.Decl (Psi, T.UDec D), F), T.comp (s, T.shift)) (* GEN END FUN BRANCH *)
 (*      | purifyFor ((T.Lam _, _), (_, _), _) = raise Domain
       | purifyFor ((T.New _, _), (_,  _), _) = raise Domain
       | purifyFor ((T.PairBlock _, _), (_,  _), _) = raise Domain
@@ -75,111 +75,111 @@ struct
        then  Psi0 |- t' : Psi'
        and   Psi' |- s' : Psi
     *)
-    fun purifyCtx (t as T.Shift k, Psi) =  (t, Psi, T.id)
-      | purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, T.All _, _, _))) =
+    fun (* GEN BEGIN FUN FIRST *) purifyCtx (t as T.Shift k, Psi) =  (t, Psi, T.id) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, T.All _, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', Psi', s') = purifyCtx (t, Psi) (* GEN END TAG OUTSIDE LET *)
         in
           (t', Psi', T.Dot (T.Undef, s'))
-        end
-      | purifyCtx (T.Dot (T.Prg (T.Var _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) purifyCtx (T.Dot (T.Prg (T.Var _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', Psi', s') = purifyCtx (t, Psi) (* GEN END TAG OUTSIDE LET *)
         in
           (t', Psi', T.Dot (T.Undef, s'))
-        end
-      | purifyCtx (T.Dot (T.Prg (T.Const _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) purifyCtx (T.Dot (T.Prg (T.Const _), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', Psi', s') = purifyCtx (t, Psi) (* GEN END TAG OUTSIDE LET *)
         in
           (t', Psi', T.Dot (T.Undef, s'))
-        end
-      | purifyCtx (T.Dot (T.Prg (T.PairPrg (_, _)), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) purifyCtx (T.Dot (T.Prg (T.PairPrg (_, _)), t), I.Decl (Psi, T.PDec (_, _, _, _))) =
                                         (* Mutual recursive predicates
                                            don't have to be checked.
                                          --cs Fri Jan  3 11:35:09 2003 *)
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', Psi', s') = purifyCtx (t, Psi) (* GEN END TAG OUTSIDE LET *)
         in
           (t', Psi', T.Dot (T.Undef, s'))
-        end
-      | purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, F, _, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) purifyCtx (T.Dot (T.Prg P, t), I.Decl (Psi, T.PDec (_, F, _, _))) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
-          val (t'', Psi'', s'') = purifyFor ((P, t'), (Psi', T.forSub (F, s')), s')
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', Psi', s') = purifyCtx (t, Psi) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t'', Psi'', s'') = purifyFor ((P, t'), (Psi', T.forSub (F, s')), s') (* GEN END TAG OUTSIDE LET *)
         in
           (t'', Psi'', T.Dot (T.Undef, s''))
-        end
-      | purifyCtx (T.Dot (F, t), I.Decl (Psi, T.UDec D)) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) purifyCtx (T.Dot (F, t), I.Decl (Psi, T.UDec D)) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', Psi', s') = purifyCtx (t, Psi) (* GEN END TAG OUTSIDE LET *)
         in
           (T.Dot (F, t'), I.Decl (Psi', T.UDec (I.decSub (D, T.coerceSub s'))), T.dot1 s')
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     fun purify (Psi0, t, Psi) =
         let
-          val (t', Psi', s') = purifyCtx (t, Psi)
-          val _ = TomegaTypeCheck.checkSub (Psi0, t', Psi')
+          (* GEN BEGIN TAG OUTSIDE LET *) val (t', Psi', s') = purifyCtx (t, Psi) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = TomegaTypeCheck.checkSub (Psi0, t', Psi') (* GEN END TAG OUTSIDE LET *)
         in
           (Psi0, t', Psi')
         end
 
 
     (* subToSpine (Psi', t, Psi) *)
-    fun coverageCheckPrg (W, Psi, T.Lam (D, P)) =
-          coverageCheckPrg (W, I.Decl (Psi, D), P)
-      | coverageCheckPrg (W, Psi, T.New P) =
-          coverageCheckPrg (W, Psi, P)
-      | coverageCheckPrg (W, Psi, T.PairExp (U, P)) =
-          coverageCheckPrg (W, Psi, P)
-      | coverageCheckPrg (W, Psi, T.PairBlock (B, P)) =
-          coverageCheckPrg (W, Psi, P)
-      | coverageCheckPrg (W, Psi, T.PairPrg (P1, P2)) =
-          (coverageCheckPrg (W, Psi, P1); coverageCheckPrg (W, Psi, P2))
-      | coverageCheckPrg (W, Psi, T.Unit) = ()
-      | coverageCheckPrg (W, Psi, T.Var _) =  ()
-      | coverageCheckPrg (W, Psi, T.Const _) =  ()
-      | coverageCheckPrg (W, Psi, T.Rec (D, P)) =
-          coverageCheckPrg (W, I.Decl (Psi, D), P)
-      | coverageCheckPrg (W, Psi, T.Case (T.Cases Omega)) =
-          coverageCheckCases (W, Psi, Omega, nil)
-      | coverageCheckPrg (W, Psi, P as T.Let (D, P1, P2)) =
+    fun (* GEN BEGIN FUN FIRST *) coverageCheckPrg (W, Psi, T.Lam (D, P)) =
+          coverageCheckPrg (W, I.Decl (Psi, D), P) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.New P) =
+          coverageCheckPrg (W, Psi, P) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.PairExp (U, P)) =
+          coverageCheckPrg (W, Psi, P) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.PairBlock (B, P)) =
+          coverageCheckPrg (W, Psi, P) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.PairPrg (P1, P2)) =
+          (coverageCheckPrg (W, Psi, P1); coverageCheckPrg (W, Psi, P2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.Unit) = () (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.Var _) =  () (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.Const _) =  () (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.Rec (D, P)) =
+          coverageCheckPrg (W, I.Decl (Psi, D), P) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.Case (T.Cases Omega)) =
+          coverageCheckCases (W, Psi, Omega, nil) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, P as T.Let (D, P1, P2)) =
           (coverageCheckPrg (W, Psi, P1);
            (* chatter 5 ("fn () => TomegaPrint.prgToString (Psi, P)); *)
-           coverageCheckPrg (W, I.Decl (Psi, D), P2))
-      | coverageCheckPrg (W, Psi, T.Redex (P, S)) =
-          coverageCheckSpine (W, Psi, S)
+           coverageCheckPrg (W, I.Decl (Psi, D), P2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckPrg (W, Psi, T.Redex (P, S)) =
+          coverageCheckSpine (W, Psi, S) (* GEN END FUN BRANCH *)
 (*    | coverageCheckPrg (Psi, T.EVar) =
           should not occur by invariant  *)
 
-    and coverageCheckSpine (W, Psi, T.Nil) = ()
-      | coverageCheckSpine (W, Psi, T.AppExp (U, S)) =
-          coverageCheckSpine (W, Psi, S)
-      | coverageCheckSpine (W, Psi, T.AppBlock (B, S)) =
-          coverageCheckSpine (W, Psi, S)
-      | coverageCheckSpine (W, Psi, T.AppPrg (P, S)) =
+    and (* GEN BEGIN FUN FIRST *) coverageCheckSpine (W, Psi, T.Nil) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckSpine (W, Psi, T.AppExp (U, S)) =
+          coverageCheckSpine (W, Psi, S) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckSpine (W, Psi, T.AppBlock (B, S)) =
+          coverageCheckSpine (W, Psi, S) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckSpine (W, Psi, T.AppPrg (P, S)) =
           (coverageCheckPrg (W, Psi, P);
-           coverageCheckSpine (W, Psi, S))
+           coverageCheckSpine (W, Psi, S)) (* GEN END FUN BRANCH *)
 (*    | coverageCheckSpine (Psi, T.SClo _) =
           should not occur by invariant  *)
 
 
-    and coverageCheckCases (W, Psi, nil, nil) = ()
-      | coverageCheckCases (W, Psi, nil, Cs) =
+    and (* GEN BEGIN FUN FIRST *) coverageCheckCases (W, Psi, nil, nil) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckCases (W, Psi, nil, Cs) =
         let
-          val _ = chatter 5 (fn  () => Int.toString (List.length Cs) ^ " cases to be checked\n")
-          val (Cs' as (_, _, Psi') :: _) = map purify Cs
-          val Cs'' = map (fn (Psi0, t, _) => (T.coerceCtx Psi0, T.coerceSub t)) Cs'
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = chatter 5 ((* GEN BEGIN FUNCTION EXPRESSION *) fn  () => Int.toString (List.length Cs) ^ " cases to be checked\n" (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Cs' as (_, _, Psi') :: _) = map purify Cs (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Cs'' = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (Psi0, t, _) => (T.coerceCtx Psi0, T.coerceSub t) (* GEN END FUNCTION EXPRESSION *)) Cs' (* GEN END TAG OUTSIDE LET *)
         in
           Cover.coverageCheckCases (W, Cs'', T.coerceCtx Psi')
-        end
-      | coverageCheckCases (W, Psi, (Psi', t, P) :: Omega, Cs) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) coverageCheckCases (W, Psi, (Psi', t, P) :: Omega, Cs) =
           (coverageCheckPrg (W, Psi', P);
            coverageCheckCases (W, Psi, Omega,
-                               (Psi', t, Psi) :: Cs))
+                               (Psi', t, Psi) :: Cs)) (* GEN END FUN BRANCH *)
   in
-    val coverageCheckPrg = coverageCheckPrg
+    (* GEN BEGIN TAG OUTSIDE LET *) val coverageCheckPrg = coverageCheckPrg (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *)

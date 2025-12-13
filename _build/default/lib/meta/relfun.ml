@@ -2,7 +2,7 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) RelFun (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) RelFun (structure Global : GLOBAL
                 (*! structure FunSyn' : FUNSYN !*)
                 structure ModeTable : MODETABLE
                 (*! sharing ModeSyn.IntSyn = FunSyn'.IntSyn !*)
@@ -916,4 +916,4 @@ struct
     val convertPro = convertPro
     val traverse = traverse
   end
-end (* GEN END FUNCTOR DECL *) (* functor FunSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor FunSyn *)

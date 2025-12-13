@@ -7,7 +7,7 @@ functor (* GEN BEGIN FUNCTOR DECL *) Interface  () : INTERFACE =
 struct
 
   type pos = int
-  val line = ref 0
+  (* GEN BEGIN TAG OUTSIDE LET *) val line = ref 0 (* GEN END TAG OUTSIDE LET *)
   fun init_line () = (line := 1)
   fun next_line () = (line := !line + 1)
 
@@ -17,7 +17,7 @@ struct
 
   type arg = unit
 
-  val nothing = ()
+  (* GEN BEGIN TAG OUTSIDE LET *) val nothing = () (* GEN END TAG OUTSIDE LET *)
 
 end (* GEN END FUNCTOR DECL *)   (* functor INTERFACE  *)
 

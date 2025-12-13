@@ -1,4 +1,4 @@
-functor (* GEN BEGIN FUNCTOR DECL *) Parsing
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Parsing
   (structure Stream' : STREAM
    (*! structure Lexer' : LEXER !*)
    (*! sharing Lexer'.Stream = Stream' !*)
@@ -27,7 +27,7 @@ struct
   exception Error of string
   fun error (r, msg) = raise Error (Paths.wrap (r, msg))
 
-end (* GEN END FUNCTOR DECL *);  (* functor Parsing *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Parsing *)
 
 structure Parsing =
   Parsing (structure Stream' = Stream

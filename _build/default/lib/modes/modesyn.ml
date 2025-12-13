@@ -27,19 +27,19 @@ struct
    
 
   (* modeEqual (M1, M2) = true iff M1 = M2 *)
-  (* GEN BEGIN TAG INSIDE LET *) fun modeEqual (Plus, Plus) = true
-    | modeEqual (Star, Star) = true
-    | modeEqual (Minus, Minus) = true
-    | modeEqual (Minus1, Minus1) = true
-    | modeEqual (_, _) = false (* GEN END TAG INSIDE LET *)
+  fun (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) modeEqual (Plus, Plus) = true (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+    | (* GEN BEGIN CASE BRANCH *) modeEqual (Star, Star) = true (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) modeEqual (Minus, Minus) = true (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) modeEqual (Minus1, Minus1) = true (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) modeEqual (_, _) = false (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
 
   (* modeToString M = string
     
        converts a mode into a string for error messages
   *)
-  (* GEN BEGIN TAG INSIDE LET *) fun modeToString Plus = "input (+)"
-    | modeToString Star = "unrestricted (*)"
-    | modeToString Minus = "output (-)"
-    | modeToString Minus1 = "unique output (-1)" (* GEN END TAG INSIDE LET *)
+  fun (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) modeToString Plus = "input (+)" (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+    | (* GEN BEGIN CASE BRANCH *) modeToString Star = "unrestricted (*)" (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) modeToString Minus = "output (-)" (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) modeToString Minus1 = "unique output (-1)" (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
 
 end;  (* structure ModeSyn *)

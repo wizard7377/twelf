@@ -1,7 +1,7 @@
 (* Search (based on abstract machine ) *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) OLDSearch ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) OLDSearch ((*! structure IntSyn' : INTSYN !*)
                 structure MetaGlobal : METAGLOBAL
                 structure MetaSyn' : METASYN
                 (*! sharing MetaSyn'.IntSyn = IntSyn' !*)
@@ -347,5 +347,5 @@ struct
     val searchAll = searchAll
   end (* local ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor Search *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Search *)
 

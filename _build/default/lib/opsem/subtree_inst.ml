@@ -4,7 +4,7 @@
 (* Instance Checking *)
 (* Author: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MemoTableInst ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MemoTableInst ((*! structure IntSyn' : INTSYN !*)
                        (*! structure CompSyn' : COMPSYN !*)
                        (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                        structure Conv: CONV
@@ -1737,6 +1737,6 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTableInst ((*! structure IntSyn' : INTS
       end
 
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor MemoTable *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor MemoTable *)
 
 

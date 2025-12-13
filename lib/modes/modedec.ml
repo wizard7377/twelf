@@ -61,17 +61,17 @@ struct
        If mS contains two entries with the same name
        then Error is raised
     *)
-    fun checkName (M.Mnil) = ()
-      | checkName (M.Mapp (M.Marg (_, SOME name), mS)) =
+    fun (* GEN BEGIN FUN FIRST *) checkName (M.Mnil) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) checkName (M.Mapp (M.Marg (_, SOME name), mS)) =
         let
-          fun checkName' (M.Mnil) = ()
-            | checkName' (M.Mapp (M.Marg (_, SOME name'), mS)) =
+          fun (* GEN BEGIN FUN FIRST *) checkName' (M.Mnil) = () (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) checkName' (M.Mapp (M.Marg (_, SOME name'), mS)) =
               if name = name' then
                 raise Error ("Variable name clash: " ^ name ^ " is not unique")
-              else checkName' mS
+              else checkName' mS (* GEN END FUN BRANCH *)
         in
           checkName' mS
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* modeConsistent (m1, m2) = true
        iff it is consistent for a variable x with mode m1
@@ -86,13 +86,13 @@ struct
        The entries y,n constitute a bug fix, Wed Aug 20 11:50:27 2003 -fp
        The entry n specifies that the type
     *)
-    fun modeConsistent (M.Star, M.Plus) = false    (* m1 should be M.Plus *)
-      | modeConsistent (M.Star, M.Minus) = false   (* m1 should be M.Minus *)
-      | modeConsistent (M.Star, M.Minus1) = false  (* m1 should be M.Minus1 *)
-      | modeConsistent (M.Minus, M.Plus) = false   (* m1 should be M.Plus *)
-      | modeConsistent (M.Minus, M.Minus1) = false (* m1 should be M.Minus1 *)
-      | modeConsistent (M.Minus1, M.Plus) = false  (* m1 should be M.Plus *)
-      | modeConsistent _ = true
+    fun (* GEN BEGIN FUN FIRST *) modeConsistent (M.Star, M.Plus) = false (* GEN END FUN FIRST *)    (* m1 should be M.Plus *)
+      | (* GEN BEGIN FUN BRANCH *) modeConsistent (M.Star, M.Minus) = false (* GEN END FUN BRANCH *)   (* m1 should be M.Minus *)
+      | (* GEN BEGIN FUN BRANCH *) modeConsistent (M.Star, M.Minus1) = false (* GEN END FUN BRANCH *)  (* m1 should be M.Minus1 *)
+      | (* GEN BEGIN FUN BRANCH *) modeConsistent (M.Minus, M.Plus) = false (* GEN END FUN BRANCH *)   (* m1 should be M.Plus *)
+      | (* GEN BEGIN FUN BRANCH *) modeConsistent (M.Minus, M.Minus1) = false (* GEN END FUN BRANCH *) (* m1 should be M.Minus1 *)
+      | (* GEN BEGIN FUN BRANCH *) modeConsistent (M.Minus1, M.Plus) = false (* GEN END FUN BRANCH *)  (* m1 should be M.Plus *)
+      | (* GEN BEGIN FUN BRANCH *) modeConsistent _ = true (* GEN END FUN BRANCH *)
 
     (* empty (k, ms, V) = (ms', V')
 
@@ -102,9 +102,9 @@ struct
        then  ms' = ms, <( *, NONE), Implicit>  ... <( *, NONE), Implicit>   (k times)
        and   V' = V1
     *)
-    fun empty (0, ms, V) = (ms, V)
-      | empty (k, ms, I.Pi (_, V)) =
-          empty (k-1, I.Decl (ms, (M.Marg (M.Star, NONE), Implicit)), V)
+    fun (* GEN BEGIN FUN FIRST *) empty (0, ms, V) = (ms, V) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) empty (k, ms, I.Pi (_, V)) =
+          empty (k-1, I.Decl (ms, (M.Marg (M.Star, NONE), Implicit)), V) (* GEN END FUN BRANCH *)
 
 
     (* inferVar (ms, m, k) = ms'
@@ -126,21 +126,21 @@ struct
         Effect: if the mode mk for k was explicitly declared and inconsistent
                 with m o mk, an error is raised
     *)
-    fun inferVar (I.Decl (ms, (M.Marg (M.Star, nameOpt), Implicit)), mode, 1) =
-          I.Decl (ms, (M.Marg (mode, nameOpt), Implicit))
-      | inferVar (I.Decl (ms, (M.Marg (_, nameOpt), Implicit)), M.Plus, 1) =
-          I.Decl (ms, (M.Marg (M.Plus, nameOpt), Implicit))
-      | inferVar (I.Decl (ms, (M.Marg (M.Minus, nameOpt), Implicit)), M.Minus1, 1) =
-          I.Decl (ms, (M.Marg (M.Minus1, nameOpt), Implicit))
-      | inferVar (ms as I.Decl (_, (_, Implicit)), _, 1) = ms
-      | inferVar (ms as I.Decl (_, (_, Local)), _, 1) = ms
-      | inferVar (ms as I.Decl (_, (M.Marg (mode', SOME name), Explicit)), mode, 1) =
+    fun (* GEN BEGIN FUN FIRST *) inferVar (I.Decl (ms, (M.Marg (M.Star, nameOpt), Implicit)), mode, 1) =
+          I.Decl (ms, (M.Marg (mode, nameOpt), Implicit)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) inferVar (I.Decl (ms, (M.Marg (_, nameOpt), Implicit)), M.Plus, 1) =
+          I.Decl (ms, (M.Marg (M.Plus, nameOpt), Implicit)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferVar (I.Decl (ms, (M.Marg (M.Minus, nameOpt), Implicit)), M.Minus1, 1) =
+          I.Decl (ms, (M.Marg (M.Minus1, nameOpt), Implicit)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferVar (ms as I.Decl (_, (_, Implicit)), _, 1) = ms (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferVar (ms as I.Decl (_, (_, Local)), _, 1) = ms (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferVar (ms as I.Decl (_, (M.Marg (mode', SOME name), Explicit)), mode, 1) =
         if modeConsistent (mode', mode)
           then ms
         else raise Error ("Mode declaration for " ^ name ^ " expected to be "
-                          ^ M.modeToString mode)
-      | inferVar (I.Decl (ms, md), mode, k) =
-          I.Decl (inferVar (ms, mode, k-1), md)
+                          ^ M.modeToString mode) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferVar (I.Decl (ms, md), mode, k) =
+          I.Decl (inferVar (ms, mode, k-1), md) (* GEN END FUN BRANCH *)
 
 
     (* inferExp (ms, m, U) = ms'
@@ -151,21 +151,21 @@ struct
        then ms' is the mode list consistently updated for all parameters occurring in U,
          wrt. to m. (see inferVar)
     *)
-    fun inferExp (ms, mode, I.Root (I.BVar (k), S)) =
-          inferSpine (inferVar (ms, mode, k), mode, S)
-      | inferExp (ms, mode, I.Root (I.Const (cid), S)) =
-          inferSpine (ms, mode, S)
-      | inferExp (ms, mode, I.Root (I.Def (cid), S)) =
-          inferSpine (ms, mode, S)
-      | inferExp (ms, mode, I.Root (I.FgnConst (cs, conDec), S)) =
-          inferSpine (ms, mode, S)
-      | inferExp (ms, mode, I.Lam (D as I.Dec (nameOpt, _), U)) =
+    fun (* GEN BEGIN FUN FIRST *) inferExp (ms, mode, I.Root (I.BVar (k), S)) =
+          inferSpine (inferVar (ms, mode, k), mode, S) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) inferExp (ms, mode, I.Root (I.Const (cid), S)) =
+          inferSpine (ms, mode, S) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferExp (ms, mode, I.Root (I.Def (cid), S)) =
+          inferSpine (ms, mode, S) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferExp (ms, mode, I.Root (I.FgnConst (cs, conDec), S)) =
+          inferSpine (ms, mode, S) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferExp (ms, mode, I.Lam (D as I.Dec (nameOpt, _), U)) =
           I.ctxPop (inferExp (I.Decl (inferDec (ms, mode, D),
-                                      (M.Marg (mode, nameOpt), Local)), mode, U))
-      | inferExp (ms, mode, I.Pi ((D as I.Dec (nameOpt, _), _), V)) =
+                                      (M.Marg (mode, nameOpt), Local)), mode, U)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferExp (ms, mode, I.Pi ((D as I.Dec (nameOpt, _), _), V)) =
           I.ctxPop (inferExp (I.Decl (inferDec (ms, mode, D),
-                                      (M.Marg (mode, nameOpt), Local)), mode, V)) (* cannot make any assumptions on what is inside a foreign object *)
-      | inferExp (ms, mode, I.FgnExp _) = ms
+                                      (M.Marg (mode, nameOpt), Local)), mode, V)) (* GEN END FUN BRANCH *) (* cannot make any assumptions on what is inside a foreign object *)
+      | (* GEN BEGIN FUN BRANCH *) inferExp (ms, mode, I.FgnExp _) = ms (* GEN END FUN BRANCH *)
 
     (* inferSpine (ms, m, S) = ms'
 
@@ -175,9 +175,9 @@ struct
        then ms' is the mode list consistently updated for all parameters occurring in S,
          wrt. to m. (see inferVar)
     *)
-    and inferSpine (ms, mode, I.Nil) = ms
-      | inferSpine (ms, mode, I.App (U, S)) =
-          inferSpine (inferExp (ms, mode, U), mode, S)
+    and (* GEN BEGIN FUN FIRST *) inferSpine (ms, mode, I.Nil) = ms (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) inferSpine (ms, mode, I.App (U, S)) =
+          inferSpine (inferExp (ms, mode, U), mode, S) (* GEN END FUN BRANCH *)
 
 
     (* inferDec (ms, m, x:V) = ms'
@@ -198,14 +198,14 @@ struct
        and mS is a mode spine,
        then ms' is the mode list for V which is consistent with V.
     *)
-    fun inferMode ((ms, I.Uni(I.Type)), M.Mnil) = ms
-      | inferMode ((_, I.Uni(I.Type)), _) = raise Error "Too many modes specified"
-      | inferMode ((ms, I.Pi ((I.Dec (name, V1), _), V2)), M.Mapp (M.Marg (mode, _), mS)) =
+    fun (* GEN BEGIN FUN FIRST *) inferMode ((ms, I.Uni(I.Type)), M.Mnil) = ms (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) inferMode ((_, I.Uni(I.Type)), _) = raise Error "Too many modes specified" (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferMode ((ms, I.Pi ((I.Dec (name, V1), _), V2)), M.Mapp (M.Marg (mode, _), mS)) =
           I.ctxPop (inferMode ((I.Decl (inferExp (ms, mode, V1),
-                                        (M.Marg (mode, name), Explicit)), V2), mS))
-      | inferMode ((ms, I.Root _), _) =
-          raise Error "Expected type family, found object constant"
-      | inferMode _ = raise Error "Not enough modes specified"
+                                        (M.Marg (mode, name), Explicit)), V2), mS)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferMode ((ms, I.Root _), _) =
+          raise Error "Expected type family, found object constant" (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) inferMode _ = raise Error "Not enough modes specified" (* GEN END FUN BRANCH *)
 
     (* abstractMode (ms, mS) = mS'
 
@@ -217,9 +217,9 @@ struct
     *)
     fun abstractMode (ms, mS) =
         let
-          fun abstractMode' (I.Null, mS, _) = mS
-            | abstractMode' (I.Decl (ms, (marg, _)), mS, k) =
-                abstractMode' (ms, M.Mapp (marg, mS), k+1)
+          fun (* GEN BEGIN FUN FIRST *) abstractMode' (I.Null, mS, _) = mS (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) abstractMode' (I.Decl (ms, (marg, _)), mS, k) =
+                abstractMode' (ms, M.Mapp (marg, mS), k+1) (* GEN END FUN BRANCH *)
         in
           abstractMode' (ms, mS, 1)
         end
@@ -236,11 +236,11 @@ struct
     *)
     fun shortToFull (a, mS, r) =
       let
-        fun calcImplicit' (I.ConDec (_, _, k, _, V, _))  =
-              abstractMode (inferMode (empty (k, I.Null, V), mS), mS)
-          | calcImplicit' (I.ConDef (_, _, k, _, V, _, _)) =
+        fun (* GEN BEGIN FUN FIRST *) calcImplicit' (I.ConDec (_, _, k, _, V, _))  =
+              abstractMode (inferMode (empty (k, I.Null, V), mS), mS) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) calcImplicit' (I.ConDef (_, _, k, _, V, _, _)) =
             (* ignore definition for defined type family since they are opaque *)
-              abstractMode (inferMode (empty (k, I.Null, V), mS), mS)
+              abstractMode (inferMode (empty (k, I.Null, V), mS), mS) (* GEN END FUN BRANCH *)
       in
         (checkName mS; calcImplicit' (I.sgnLookup a))
         handle Error (msg) => error (r, msg)  (* re-raise Error with location *)
@@ -269,14 +269,14 @@ struct
     (* checkPure (a, mS, r) = ()
        Effect: raises Error(msg) if the modes in mS mention (-1)
     *)
-    fun checkPure ((a, M.Mnil), r) = ()
-      | checkPure ((a, M.Mapp (M.Marg (M.Minus1, _), mS)), r) =
-        error (r, "Uniqueness modes (-1) not permitted in `%mode' declarations (use `%unique')")
-      | checkPure ((a, M.Mapp (_, mS)), r) = checkPure ((a, mS), r)
+    fun (* GEN BEGIN FUN FIRST *) checkPure ((a, M.Mnil), r) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) checkPure ((a, M.Mapp (M.Marg (M.Minus1, _), mS)), r) =
+        error (r, "Uniqueness modes (-1) not permitted in `%mode' declarations (use `%unique')") (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) checkPure ((a, M.Mapp (_, mS)), r) = checkPure ((a, mS), r) (* GEN END FUN BRANCH *)
 
   in
-    val shortToFull = shortToFull
-    val checkFull = checkFull
-    val checkPure = checkPure
+    (* GEN BEGIN TAG OUTSIDE LET *) val shortToFull = shortToFull (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val checkFull = checkFull (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val checkPure = checkPure (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *);  (* functor ModeDec *)

@@ -39,9 +39,9 @@ struct
      G |- s1 : G1    G1 |- U1 : V1   (U1, s1) in whnf
      G |- s2 : G2    G2 |- U2 : V2   (U2, s2) is template
   *)
-    fun assignExpW (G, (Uni L1, _), (Uni L2, _), cnstr) = (* L1 = L2 by invariant *)
-          cnstr
-      | assignExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2), cnstr) =
+    fun (* GEN BEGIN FUN FIRST *) assignExpW (G, (Uni L1, _), (Uni L2, _), cnstr) = (* L1 = L2 by invariant *)
+          cnstr (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2), cnstr) =
          (case (H1, H2) of
             (Const(c1), Const(c2)) =>
                 if (c1 = c2) then assignSpine (G, (S1, s1), (S2, s2), cnstr)
@@ -84,113 +84,113 @@ struct
            | (_, FgnConst (_, ConDef (_, _, _, W2, _, _, _))) =>
                assignExp (G, Us1, (W2, s2), cnstr)
       
-          | _ => (raise Assignment ("Head mismatch ")))
+          | _ => (raise Assignment ("Head mismatch "))) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2), cnstr) =
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2), cnstr) =
           (* D1[s1] = D2[s2]  by invariant *)
-          assignExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2), cnstr)
+          assignExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2), cnstr) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, (U1, s1), (Lam (D2, U2), s2), cnstr) =
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, (U1, s1), (Lam (D2, U2), s2), cnstr) =
           (* Cannot occur if expressions are eta expanded *)
           assignExp (Decl (G, decSub (D2, s2)),
                     (Redex (EClo (U1, shift), App (Root (BVar (1), Nil), Nil)), dot1 s1),
-                    (U2, dot1 s2), cnstr)
+                    (U2, dot1 s2), cnstr) (* GEN END FUN BRANCH *)
            (* same reasoning holds as above *)
 
-      | assignExpW (G, (Pi ((D1 as Dec (_, V1), _), U1), s1), (Pi ((D2 as Dec(_, V2), _), U2), s2), cnstr) =
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, (Pi ((D1 as Dec (_, V1), _), U1), s1), (Pi ((D2 as Dec(_, V2), _), U2), s2), cnstr) =
           let
-            val cnstr' = assignExp (G, (V1, s1), (V2, s2), cnstr)
+            (* GEN BEGIN TAG OUTSIDE LET *) val cnstr' = assignExp (G, (V1, s1), (V2, s2), cnstr) (* GEN END TAG OUTSIDE LET *)
           in
             assignExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2), cnstr')
-          end
+          end (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, Us1 as (U, s1),
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1 as (U, s1),
                     Us2 as (EVar(r2, _, _, _), s2), cnstr) =
             (* s2 = id *)
             (* don't trail, because EVar has been created since most recent choice point *)
             (* Tue Apr  2 10:23:19 2002 -bp -fp *)
             (r2 := SOME (EClo(Us1));
-             cnstr)
+             cnstr) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, Us1 as (U, s1),
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1 as (U, s1),
                     Us2 as (AVar(r2), s2), cnstr) =
             (* s2 = id *)
             (* don't trail, because AVars never survive local scope *)
             (r2 := SOME(EClo Us1);
-             cnstr)
+             cnstr) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, (Lam (D1, U1), s1), (U2, s2), cnstr) =
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, (Lam (D1, U1), s1), (U2, s2), cnstr) =
           (* ETA: can't occur if eta expanded *)
           assignExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),
-                    (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2), cnstr)
+                    (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2), cnstr) (* GEN END FUN BRANCH *)
            (* for rhs:  (U2[s2])[^] 1 = U2 [s2 o ^] 1 = U2 [^ o (1. s2 o ^)] 1
                         = (U2 [^] 1) [1.s2 o ^] *)
 
-      | assignExpW (G, Us1, Us2 as (EClo(U,s'), s), cnstr) =
-          assignExp(G, Us1, (U, comp(s', s)), cnstr)
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1, Us2 as (EClo(U,s'), s), cnstr) =
+          assignExp(G, Us1, (U, comp(s', s)), cnstr) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, Us1 as (EVar(r, _, V, Cnstr), s), Us2, cnstr) =
-           (Eqn(G, EClo(Us1), EClo(Us2))::cnstr)
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1 as (EVar(r, _, V, Cnstr), s), Us2, cnstr) =
+           (Eqn(G, EClo(Us1), EClo(Us2))::cnstr) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, Us1 as (EClo(U,s'), s), Us2, cnstr) =
-          assignExp(G, (U, comp(s', s)), Us2, cnstr)
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1 as (EClo(U,s'), s), Us2, cnstr) =
+          assignExp(G, (U, comp(s', s)), Us2, cnstr) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, Us1 as (FgnExp (_, fe), _), Us2, cnstr) =
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1 as (FgnExp (_, fe), _), Us2, cnstr) =
           (* by invariant Us2 cannot contain any FgnExp *)
-          (Eqn(G, EClo(Us1), EClo(Us2))::cnstr)
+          (Eqn(G, EClo(Us1), EClo(Us2))::cnstr) (* GEN END FUN BRANCH *)
 
-      | assignExpW (G, Us1, Us2 as (FgnExp (_, fe), _), cnstr) =
-            (Eqn(G, EClo(Us1), EClo(Us2))::cnstr)
+      | (* GEN BEGIN FUN BRANCH *) assignExpW (G, Us1, Us2 as (FgnExp (_, fe), _), cnstr) =
+            (Eqn(G, EClo(Us1), EClo(Us2))::cnstr) (* GEN END FUN BRANCH *)
 
-    and assignSpine (G, (Nil, _), (Nil, _), cnstr) = cnstr
-      | assignSpine (G, (SClo (S1, s1'), s1), Ss, cnstr) =
-         assignSpine (G, (S1, comp (s1', s1)), Ss, cnstr)
-      | assignSpine (G, Ss, (SClo (S2, s2'), s2), cnstr) =
-         assignSpine (G, Ss, (S2, comp (s2', s2)), cnstr)
-      | assignSpine (G, (App (U1, S1), s1), (App (U2, S2), s2), cnstr) =
+    and (* GEN BEGIN FUN FIRST *) assignSpine (G, (Nil, _), (Nil, _), cnstr) = cnstr (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) assignSpine (G, (SClo (S1, s1'), s1), Ss, cnstr) =
+         assignSpine (G, (S1, comp (s1', s1)), Ss, cnstr) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) assignSpine (G, Ss, (SClo (S2, s2'), s2), cnstr) =
+         assignSpine (G, Ss, (S2, comp (s2', s2)), cnstr) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) assignSpine (G, (App (U1, S1), s1), (App (U2, S2), s2), cnstr) =
          let
-           val cnstr' = assignExp (G, (U1, s1), (U2, s2), cnstr)
+           (* GEN BEGIN TAG OUTSIDE LET *) val cnstr' = assignExp (G, (U1, s1), (U2, s2), cnstr) (* GEN END TAG OUTSIDE LET *)
          in
            assignSpine (G, (S1, s1), (S2, s2), cnstr')
-         end
+         end (* GEN END FUN BRANCH *)
 
     and assignExp (G, Us1, Us2 as (U2, s2), cnstr) =
          assignExpW (G, Whnf.whnf Us1, Whnf.whnf Us2, cnstr)
 
-    fun solveCnstr nil = true
-      | solveCnstr (Eqn(G, U1, U2)::Cnstr) =
-        (Unify.unifiable(G, (U1, id), (U2, id)) andalso solveCnstr Cnstr)
+    fun (* GEN BEGIN FUN FIRST *) solveCnstr nil = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) solveCnstr (Eqn(G, U1, U2)::Cnstr) =
+        (Unify.unifiable(G, (U1, id), (U2, id)) andalso solveCnstr Cnstr) (* GEN END FUN BRANCH *)
 
-  fun printSub (Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
-    | printSub (Dot(Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
-    | printSub (Dot (Exp(EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
-    | printSub (Dot (Exp(AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (Dot (Exp(EClo (AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (Dot (Exp(EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
-    | printSub (Dot (Exp(_), s)) = (print ("Exp (_ ). "); printSub s)
-    | printSub (Dot (Undef, s)) = (print ("Undef . "); printSub s)
+  fun (* GEN BEGIN FUN FIRST *) printSub (Shift n) = print ("Shift " ^ Int.toString n ^ "\n") (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (Dot(Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (Dot (Exp(EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (Dot (Exp(AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (Dot (Exp(EClo (AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (Dot (Exp(EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (Dot (Exp(_), s)) = (print ("Exp (_ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (Dot (Undef, s)) = (print ("Undef . "); printSub s) (* GEN END FUN BRANCH *)
 
 
-    fun unifyW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
+    fun (* GEN BEGIN FUN FIRST *) unifyW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
       (* s = id *)
-      r := SOME(EClo(Us2))
-      | unifyW (G, Xs1, Us2) =
+      r := SOME(EClo(Us2)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) unifyW (G, Xs1, Us2) =
       (* Xs1 should not contain any uninstantiated AVar anymore *)
-      Unify.unifyW(G, Xs1, Us2)
+      Unify.unifyW(G, Xs1, Us2) (* GEN END FUN BRANCH *)
 
     fun unify(G, Xs1, Us2) = unifyW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
-    fun matchW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
+    fun (* GEN BEGIN FUN FIRST *) matchW (G, (Xs1 as AVar(r as ref NONE), s), Us2) =
       (* s = id *)
-      r := SOME(EClo(Us2))
-      | matchW (G, Xs1, Us2) =
+      r := SOME(EClo(Us2)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) matchW (G, Xs1, Us2) =
       (* Xs1 should not contain any uninstantiated AVar anymore *)
-      Match.matchW(G, Xs1, Us2)
+      Match.matchW(G, Xs1, Us2) (* GEN END FUN BRANCH *)
 
     fun match(G, Xs1, Us2) = matchW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
   in
-    val solveCnstr = solveCnstr
+    (* GEN BEGIN TAG OUTSIDE LET *) val solveCnstr = solveCnstr (* GEN END TAG OUTSIDE LET *)
 
     fun unifiable (G, Us1, Us2) =
         (unify (G, Us1, Us2); true)
@@ -210,19 +210,19 @@ struct
 
   fun firstConstArg (A as IntSyn.Root(h as IntSyn.Const c, S), s) =
     let
-      val i = IntSyn.conDecImp(IntSyn.sgnLookup(c)) (* #implicit arguments to predicate *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val i = IntSyn.conDecImp(IntSyn.sgnLookup(c)) (* GEN END TAG OUTSIDE LET *) (* #implicit arguments to predicate *)
   
       fun constExp (U, s) = constExpW (Whnf.whnf (U,s))
-      and constExpW (IntSyn.Lam (D, U), s) = constExp (U, s)
-        | constExpW (IntSyn.Root (H as IntSyn.Const cid, S), s) =
-           SOME(cid)
-        | constExpW (_, _) = NONE
+      and (* GEN BEGIN FUN FIRST *) constExpW (IntSyn.Lam (D, U), s) = constExp (U, s) (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) constExpW (IntSyn.Root (H as IntSyn.Const cid, S), s) =
+           SOME(cid) (* GEN END FUN BRANCH *)
+        | (* GEN BEGIN FUN BRANCH *) constExpW (_, _) = NONE (* GEN END FUN BRANCH *)
         (* other cases cannot occur during compilation *)
   
-      fun ithElem (k, (IntSyn.App(U, S), s)) =
+      fun (* GEN BEGIN FUN FIRST *) ithElem (k, (IntSyn.App(U, S), s)) =
             if (k = i) then constExp (U, s)
-            else ithElem(k+1, (S, s))
-        | ithElem (k, (IntSyn.Nil, s)) = NONE
+            else ithElem(k+1, (S, s)) (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) ithElem (k, (IntSyn.Nil, s)) = NONE (* GEN END FUN BRANCH *)
     in
       ithElem (0, (S, s))
     end

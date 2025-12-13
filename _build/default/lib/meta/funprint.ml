@@ -1,7 +1,7 @@
 (* Printing of functional proof terms *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) FunPrint ((*! structure FunSyn' : FUNSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) FunPrint ((*! structure FunSyn' : FUNSYN !*)
                   structure Formatter : FORMATTER
                   structure Names : NAMES
                   (*! sharing Names.IntSyn = FunSyn'.IntSyn !*)
@@ -622,5 +622,5 @@ struct
     val proToString = proToString
     val lemmaDecToString = lemmaDecToString
   end
-end (* GEN END FUNCTOR DECL *);  (* signature FUNPRINT *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* signature FUNPRINT *)
 

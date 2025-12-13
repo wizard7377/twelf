@@ -2,7 +2,7 @@
 
 id: untop_fun_first
 message: Add generation to first
-severity: warning # error, warning, info, hint
+severity: error # error, warning, info, hint
 language: sml
 rule:
   pattern: $BRANCH
@@ -16,9 +16,9 @@ rule:
     follows:
       pattern: $UBRANCH 
       kind: fmrule 
-      stopBy: end
-    
+  matches: not_tagged
 
-fix: (* GEN BEGIN CASE FIRST *) $BRANCH (* GEN END CASE FIRST *)
+
+fix: (* GEN BEGIN FUN FIRST *) $BRANCH (* GEN END FUN FIRST *)
 # utils: Extract repeated rule as local utility here.
 # note: Add detailed explanation for the rule.

@@ -3,12 +3,12 @@
 
 structure CompatTextIO97 :> COMPAT_TEXT_IO =
 struct
-  (* GEN BEGIN TAG INSIDE LET *) fun inputLine instream =
+  fun inputLine instream =
       let
-  	val line = TextIO.inputLine instream
+  	(* GEN BEGIN TAG OUTSIDE LET *) val line = TextIO.inputLine instream (* GEN END TAG OUTSIDE LET *)
       in
   	case line of
   	    ""  => NONE
   	  | str => SOME str
-      end (* GEN END TAG INSIDE LET *)
+      end
 end;

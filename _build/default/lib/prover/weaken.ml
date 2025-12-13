@@ -1,7 +1,7 @@
 (* Weakening substitutions *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Weaken ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Weaken ((*! structure IntSyn' : INTSYN !*)
                 structure Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                   ) : WEAKEN =
@@ -56,4 +56,4 @@ struct
     val strengthenCtx = strengthenCtx
     val strengthenSub = strengthenSub
   end
-end (* GEN END FUNCTOR DECL *) (* functor Weaken *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor Weaken *)

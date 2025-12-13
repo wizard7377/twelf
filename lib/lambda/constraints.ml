@@ -36,28 +36,28 @@ struct
          of the form U = U' where G |- U == U' : V (mod beta/eta)
          Neither U nor U' needs to be a pattern
          *)
-    fun simplify nil = nil
-      | simplify ((ref I.Solved) :: cnstrs) =
-          simplify cnstrs
-      | simplify ((Eqn as ref (I.Eqn (G, U1, U2))) :: cnstrs) =
+    fun (* GEN BEGIN FUN FIRST *) simplify nil = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) simplify ((ref I.Solved) :: cnstrs) =
+          simplify cnstrs (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) simplify ((Eqn as ref (I.Eqn (G, U1, U2))) :: cnstrs) =
         if Conv.conv ((U1, I.id), (U2, I.id))
           then simplify cnstrs
-        else Eqn :: (simplify cnstrs)
-      | simplify ((FgnCnstr as ref (I.FgnCnstr csfc)) :: cnstrs) =
+        else Eqn :: (simplify cnstrs) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) simplify ((FgnCnstr as ref (I.FgnCnstr csfc)) :: cnstrs) =
         if I.FgnCnstrStd.Simplify.apply csfc ()
           then simplify cnstrs
-        else FgnCnstr :: (simplify cnstrs)
+        else FgnCnstr :: (simplify cnstrs) (* GEN END FUN BRANCH *)
 
-    fun namesToString (name::nil) = name ^ "."
-      | namesToString (name::names) = name ^ ", " ^ namesToString names
+    fun (* GEN BEGIN FUN FIRST *) namesToString (name::nil) = name ^ "." (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) namesToString (name::names) = name ^ ", " ^ namesToString names (* GEN END FUN BRANCH *)
 
-    fun warnConstraints (nil) = ()
-      | warnConstraints (names) = print ("Constraints remain on " ^ namesToString names ^ "\n")
+    fun (* GEN BEGIN FUN FIRST *) warnConstraints (nil) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) warnConstraints (names) = print ("Constraints remain on " ^ namesToString names ^ "\n") (* GEN END FUN BRANCH *)
 
   in
-    val simplify = simplify
-    val namesToString = namesToString
-    val warnConstraints = warnConstraints
+    (* GEN BEGIN TAG OUTSIDE LET *) val simplify = simplify (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val namesToString = namesToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val warnConstraints = warnConstraints (* GEN END TAG OUTSIDE LET *)
   end
 
 end (* GEN END FUNCTOR DECL *);  (* functor Constraints *)

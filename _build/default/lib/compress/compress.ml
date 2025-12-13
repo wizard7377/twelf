@@ -1,4 +1,4 @@
-functor (* GEN BEGIN FUNCTOR DECL *) Compress (structure Global : GLOBAL) =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Compress (structure Global : GLOBAL) =
 struct
 
   structure I = IntSyn
@@ -368,7 +368,7 @@ struct
 
   val check = Reductio.check
 
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)
 
 (*
 c : ((o -> o) -> o -> o) -> o

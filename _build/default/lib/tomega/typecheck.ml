@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Yu Liao *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) TomegaTypeCheck
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) TomegaTypeCheck
   (structure Abstract : ABSTRACT
    structure TypeCheck : TYPECHECK
    structure Conv : CONV
@@ -644,4 +644,4 @@ struct
   val checkFor = fn (Psi, F) => checkFor (Psi, (F, T.id))
   val checkCtx = checkCtx
   end
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

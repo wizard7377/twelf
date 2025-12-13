@@ -4,7 +4,7 @@
 (* Variant Checking *)
 (* Author: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !*)
                    (*! structure CompSyn' : COMPSYN !*)
                    (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                    structure Conv: CONV
@@ -895,5 +895,5 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
 
 
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor MemoTable *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor MemoTable *)
 

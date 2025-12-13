@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) IndexSkolem (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) IndexSkolem (structure Global : GLOBAL
                      structure Queue : QUEUE
                      (*! structure IntSyn' : INTSYN !*)
                        )
@@ -105,4 +105,4 @@ struct
 
   end (* local *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor Index *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Index *)

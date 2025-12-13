@@ -32,9 +32,9 @@ struct
 
   fun lookup dict key =
     let
-      fun lk (Empty) = NONE
-  	| lk (Red tree) = lk' tree
-        | lk (Black tree) = lk' tree
+      fun (* GEN BEGIN FUN FIRST *) lk (Empty) = NONE (* GEN END FUN FIRST *)
+  	| (* GEN BEGIN FUN BRANCH *) lk (Red tree) = lk' tree (* GEN END FUN BRANCH *)
+        | (* GEN BEGIN FUN BRANCH *) lk (Black tree) = lk' tree (* GEN END FUN BRANCH *)
       and lk' ((key1, datum1), left, right) =
   	    (case compare(key,key1)
   	       of EQUAL => SOME(datum1)
@@ -54,31 +54,31 @@ struct
      and dict is a re-balanced red/black tree (satisfying all invariants)
      and same black height n.
   *)
-  fun restore_right (Black(e, Red lt, Red (rt as (_,Red _,_)))) =
-         Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
-         Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
+  fun (* GEN BEGIN FUN FIRST *) restore_right (Black(e, Red lt, Red (rt as (_,Red _,_)))) =
+         Red(e, Black lt, Black rt) (* GEN END FUN FIRST *)	(* re-color *)
+    | (* GEN BEGIN FUN BRANCH *) restore_right (Black(e, Red lt, Red (rt as (_,_,Red _)))) =
+         Red(e, Black lt, Black rt) (* GEN END FUN BRANCH *)	(* re-color *)
+    | (* GEN BEGIN FUN BRANCH *) restore_right (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) =
     	 (* l is black, deep rotate *)
-    	 Black(rle, Red(e, l, rll), Red(re, rlr, rr))
-    | restore_right (Black(e, l, Red(re, rl, rr as Red _))) =
+    	 Black(rle, Red(e, l, rll), Red(re, rlr, rr)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) restore_right (Black(e, l, Red(re, rl, rr as Red _))) =
     	 (* l is black, shallow rotate *)
-    	 Black(re, Red(e, l, rl), rr)
-    | restore_right dict = dict
+    	 Black(re, Red(e, l, rl), rr) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) restore_right dict = dict (* GEN END FUN BRANCH *)
 
   (* restore_left is like restore_right, except *)
   (* the color invariant may be violated only at the root of left child *)
-  fun restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
-  	 Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
-    	 Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_left (Black(e, Red(le, ll as Red _, lr), r)) =
+  fun (* GEN BEGIN FUN FIRST *) restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
+  	 Red(e, Black lt, Black rt) (* GEN END FUN FIRST *)	(* re-color *)
+    | (* GEN BEGIN FUN BRANCH *) restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
+    	 Red(e, Black lt, Black rt) (* GEN END FUN BRANCH *)	(* re-color *)
+    | (* GEN BEGIN FUN BRANCH *) restore_left (Black(e, Red(le, ll as Red _, lr), r)) =
     	 (* r is black, shallow rotate *)
-    	 Black(le, ll, Red(e, lr, r))
-    | restore_left (Black(e, Red(le, ll, Red(lre, lrl, lrr)), r)) =
+    	 Black(le, ll, Red(e, lr, r)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) restore_left (Black(e, Red(le, ll, Red(lre, lrl, lrr)), r)) =
     	 (* r is black, deep rotate *)
-    	 Black(lre, Red(le, ll, lrl), Red(e, lrr, r))
-    | restore_left dict = dict
+    	 Black(lre, Red(le, ll, lrl), Red(e, lrr, r)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) restore_left dict = dict (* GEN END FUN BRANCH *)
 
   fun insert (dict, entry as (key,datum)) =
     let
@@ -86,17 +86,17 @@ struct
       (* ins (Red _) may violate color invariant at root *)
       (* ins (Black _) or ins (Empty) will be red/black tree *)
       (* ins preserves black height *)
-      fun ins (Empty) = Red(entry, Empty, Empty)
-  	| ins (Red(entry1 as (key1, datum1), left, right)) =
+      fun (* GEN BEGIN FUN FIRST *) ins (Empty) = Red(entry, Empty, Empty) (* GEN END FUN FIRST *)
+  	| (* GEN BEGIN FUN BRANCH *) ins (Red(entry1 as (key1, datum1), left, right)) =
   	  (case compare(key,key1)
   	     of EQUAL => Red(entry, left, right)
   	      | LESS => Red(entry1, ins left, right)
-  	      | GREATER => Red(entry1, left, ins right))
-  	| ins (Black(entry1 as (key1, datum1), left, right)) =
+  	      | GREATER => Red(entry1, left, ins right)) (* GEN END FUN BRANCH *)
+  	| (* GEN BEGIN FUN BRANCH *) ins (Black(entry1 as (key1, datum1), left, right)) =
   	  (case compare(key,key1)
   	     of EQUAL => Black(entry, left, right)
   	      | LESS => restore_left (Black(entry1, ins left, right))
-  	      | GREATER => restore_right (Black(entry1, left, ins right)))
+  	      | GREATER => restore_right (Black(entry1, left, ins right))) (* GEN END FUN BRANCH *)
     in
       case ins dict
   	of Red (t as (_, Red _, _)) => Black t (* re-color *)
@@ -106,20 +106,20 @@ struct
 
   (* use non-imperative version? *)
   fun insertShadow (dict, entry as (key,datum)) =
-      let val oldEntry = ref NONE (* : 'a entry option ref *)
-          fun ins (Empty) = Red(entry, Empty, Empty)
-  	    | ins (Red(entry1 as (key1, datum1), left, right)) =
+      let (* GEN BEGIN TAG OUTSIDE LET *) val oldEntry = ref NONE (* GEN END TAG OUTSIDE LET *) (* : 'a entry option ref *)
+          fun (* GEN BEGIN FUN FIRST *) ins (Empty) = Red(entry, Empty, Empty) (* GEN END FUN FIRST *)
+  	    | (* GEN BEGIN FUN BRANCH *) ins (Red(entry1 as (key1, datum1), left, right)) =
   	      (case compare(key,key1)
   		 of EQUAL => (oldEntry := SOME(entry1);
   			      Red(entry, left, right))
   	          | LESS => Red(entry1, ins left, right)
-  	          | GREATER => Red(entry1, left, ins right))
-  	    | ins (Black(entry1 as (key1, datum1), left, right)) =
+  	          | GREATER => Red(entry1, left, ins right)) (* GEN END FUN BRANCH *)
+  	    | (* GEN BEGIN FUN BRANCH *) ins (Black(entry1 as (key1, datum1), left, right)) =
   	      (case compare(key,key1)
   		 of EQUAL => (oldEntry := SOME(entry1);
   			      Black(entry, left, right))
   	          | LESS => restore_left (Black(entry1, ins left, right))
-  	          | GREATER => restore_right (Black(entry1, left, ins right)))
+  	          | GREATER => restore_right (Black(entry1, left, ins right))) (* GEN END FUN BRANCH *)
       in
   	(oldEntry := NONE;
   	 ((case ins dict
@@ -130,9 +130,9 @@ struct
       end
   
   fun app f dict =
-      let fun ap (Empty) = ()
-  	    | ap (Red tree) = ap' tree
-  	    | ap (Black tree) = ap' tree
+      let fun (* GEN BEGIN FUN FIRST *) ap (Empty) = () (* GEN END FUN FIRST *)
+  	    | (* GEN BEGIN FUN BRANCH *) ap (Red tree) = ap' tree (* GEN END FUN BRANCH *)
+  	    | (* GEN BEGIN FUN BRANCH *) ap (Black tree) = ap' tree (* GEN END FUN BRANCH *)
   	  and ap' (entry1, left, right) =
   	      (ap left; f entry1; ap right)
       in
@@ -141,25 +141,25 @@ struct
 
   in
     fun new (n) = ref (Empty) (* ignore size hint *)
-    val insert = (fn table => fn entry => (table := insert (!table, entry)))
-    val insertShadow =
-        (fn table => fn entry => 
-	 let
-	   val (dict, oldEntry) = insertShadow (!table, entry)
-	 in
-	   (table := dict; oldEntry)
-	 end)
-    val lookup = (fn table => fn key => lookup (!table) key)
-    val clear = (fn table => (table := Empty))
-    val app = (fn f => fn table => app f (!table))
+    (* GEN BEGIN TAG OUTSIDE LET *) val insert = ((* GEN BEGIN FUNCTION EXPRESSION *) fn table => (* GEN BEGIN FUNCTION EXPRESSION *) fn entry => (table := insert (!table, entry)) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val insertShadow =
+        ((* GEN BEGIN FUNCTION EXPRESSION *) fn table => (* GEN BEGIN FUNCTION EXPRESSION *) fn entry => 
+            	 let
+            	   (* GEN BEGIN TAG OUTSIDE LET *) val (dict, oldEntry) = insertShadow (!table, entry) (* GEN END TAG OUTSIDE LET *)
+            	 in
+            	   (table := dict; oldEntry)
+            	 end (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lookup = ((* GEN BEGIN FUNCTION EXPRESSION *) fn table => (* GEN BEGIN FUNCTION EXPRESSION *) fn key => lookup (!table) key (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val clear = ((* GEN BEGIN FUNCTION EXPRESSION *) fn table => (table := Empty) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val app = ((* GEN BEGIN FUNCTION EXPRESSION *) fn f => (* GEN BEGIN FUNCTION EXPRESSION *) fn table => app f (!table) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
   end
 
 end (* GEN END FUNCTOR DECL *);  (* functor RedBlackTree *)
 
 structure StringRedBlackTree =
   RedBlackTree (type key' = string
-		(* GEN BEGIN TAG INSIDE LET *) val compare = String.compare (* GEN END TAG INSIDE LET *)) 
+		(* GEN BEGIN TAG OUTSIDE LET *) val compare = String.compare (* GEN END TAG OUTSIDE LET *)) 
 
 structure IntRedBlackTree =
   RedBlackTree (type key' = int
-		(* GEN BEGIN TAG INSIDE LET *) val compare = Int.compare (* GEN END TAG INSIDE LET *)) 
+		(* GEN BEGIN TAG OUTSIDE LET *) val compare = Int.compare (* GEN END TAG OUTSIDE LET *)) 

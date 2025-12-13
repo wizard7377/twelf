@@ -8,7 +8,7 @@ struct
   infix  2 -- ##
   infix  2 wth suchthat return guard when
   infixr 1 ||
-  (* GEN BEGIN TAG INSIDE LET *) val ` = literal (* GEN END TAG INSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val ` = literal (* GEN END TAG OUTSIDE LET *)
 
   datatype mode = mMINUS
 		| mPLUS
@@ -24,32 +24,32 @@ struct
 		| Ascribe of term * term
 		| Omit
 
-  (* GEN BEGIN TAG INSIDE LET *) fun PiMinus ((s, to), t) = Pi (mMINUS, (s, to), t) (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) fun PiPlus ((s, to), t) = Pi (mPLUS, (s, to), t) (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) fun PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t) (* GEN END TAG INSIDE LET *)
+  fun PiMinus ((s, to), t) = Pi (mMINUS, (s, to), t)
+  fun PiPlus ((s, to), t) = Pi (mPLUS, (s, to), t)
+  fun PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun modeToString mMINUS = ""
-    | modeToString mPLUS = "+ "
-    | modeToString mOMIT = "* " (* GEN END TAG INSIDE LET *)
+  fun (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) modeToString mMINUS = "" (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+    | (* GEN BEGIN CASE BRANCH *) modeToString mPLUS = "+ " (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) modeToString mOMIT = "* " (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun termToString (Id s) = s
-    | termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
-    | termToString (Lam (vd, t)) = "[" ^ (vardecToString vd) ^ "] " ^ (termToString t)
-    | termToString (Pi (m, vd, t)) = "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t)
-    | termToString (Type) = "type"
-    | termToString (Arrow (t, u)) = "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")"
-    | termToString (PlusArrow (t, u)) = "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")"
-    | termToString (Ascribe (t, u)) = "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")"
-    | termToString (Omit) = "*"
-  and vardecToString (v, SOME t) = v ^ ":" ^ (termToString t)
-    | vardecToString (v, NONE) = v (* GEN END TAG INSIDE LET *)
+  fun (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) termToString (Id s) = s (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+    | (* GEN BEGIN CASE BRANCH *) termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")" (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) termToString (Lam (vd, t)) = "[" ^ (vardecToString vd) ^ "] " ^ (termToString t) (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) termToString (Pi (m, vd, t)) = "{" ^ (modeToString m) ^ (vardecToString vd) ^ "} " ^ (termToString t) (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) termToString (Type) = "type" (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) termToString (Arrow (t, u)) = "(" ^ (termToString t) ^ " -> " ^ (termToString u) ^ ")" (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) termToString (PlusArrow (t, u)) = "(" ^ (termToString t) ^ " +> " ^ (termToString u) ^ ")" (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) termToString (Ascribe (t, u)) = "(" ^ (termToString t) ^ " : " ^ (termToString u) ^ ")" (* GEN END CASE BRANCH *)
+    | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) termToString (Omit) = "*" (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
+  and (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) vardecToString (v, SOME t) = v ^ ":" ^ (termToString t) (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+    | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) vardecToString (v, NONE) = v (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
 
-  (* GEN BEGIN TAG INSIDE LET *) val id = maybe (fn (ID s) => SOME s | _ => NONE) (* GEN END TAG INSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val id = maybe ((* GEN BEGIN FUNCTION EXPRESSION *) fn (ID s) => SOME s | _ => NONE (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun swap(x,y) = (y,x) (* GEN END TAG INSIDE LET *)
+  fun swap(x,y) = (y,x)
 
-  (* GEN BEGIN TAG INSIDE LET *) fun vardec() = id << `COLON && ($term wth SOME) ||
-  		 id wth (fn s => (s, NONE)) 
+  fun vardec() = id << `COLON && ($term wth SOME) ||
+  		 id wth ((* GEN BEGIN FUNCTION EXPRESSION *) (* GEN BEGIN FUNCTION EXPRESSION *) fn s => (s, NONE) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) 
   and term() = parsefixityadj (
   	       alt[id wth (Atm o Id),
   		   `LPAREN >> $term << `RPAREN wth Atm,
@@ -64,12 +64,12 @@ struct
   		   `PLUSARROW return Opr(Infix(Right, 5, PlusArrow)),
   		   `BACKARROW return Opr(Infix(Left, 5, Arrow o swap)),
   		   `STAR return (Atm Omit)
-  		  ]) Left App (* GEN END TAG INSIDE LET *)
+  		  ]) Left App
 		   
-  (* GEN BEGIN TAG INSIDE LET *) val condec = (opt (`MINUS) wth (not o Option.isSome)) && id << `COLON && $term << `DOT (* GEN END TAG INSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val condec = (opt (`MINUS) wth (not o Option.isSome)) && id << `COLON && $term << `DOT (* GEN END TAG OUTSIDE LET *)
 
 
-  (* GEN BEGIN TAG INSIDE LET *) fun parseof x =  Stream.toList (Parsing.transform ($term)
+  fun parseof x =  Stream.toList (Parsing.transform ($term)
   				 (Parsing.transform (!!tok)
-  				  (Pos.markstream (StreamUtil.stostream (x ^ "\n%."))))) (* GEN END TAG INSIDE LET *)
+  				  (Pos.markstream (StreamUtil.stostream (x ^ "\n%.")))))
 end

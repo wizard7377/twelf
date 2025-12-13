@@ -1,0 +1,5 @@
+id: signature_decl
+valid:
+- "valid code"
+invalid:
+- "invalid code"

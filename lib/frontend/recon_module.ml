@@ -29,7 +29,7 @@ struct
 
   fun strexp (ids, id, r) () =
       let
-        val qid = Names.Qid (ids, id)
+        (* GEN BEGIN TAG OUTSIDE LET *) val qid = Names.Qid (ids, id) (* GEN END TAG OUTSIDE LET *)
       in
         case Names.structLookup qid
           of NONE => error (r, "Undeclared structure " ^
@@ -49,7 +49,7 @@ struct
 
   fun coninst ((ids, id, r1), tm, r2) (ns, eqns) =
       let
-        val qid = Names.Qid (ids, id)
+        (* GEN BEGIN TAG OUTSIDE LET *) val qid = Names.Qid (ids, id) (* GEN END TAG OUTSIDE LET *)
       in
         case Names.constLookupIn (ns, qid)
           of NONE => error (r1, "Undeclared identifier "
@@ -59,8 +59,8 @@ struct
 
   fun addStructEqn (rEqns, r1, r2, ids, mid1, mid2) =
       let
-        val ns1 = Names.getComponents mid1
-        val ns2 = Names.getComponents mid2
+        (* GEN BEGIN TAG OUTSIDE LET *) val ns1 = Names.getComponents mid1 (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val ns2 = Names.getComponents mid2 (* GEN END TAG OUTSIDE LET *)
         fun push eqn = rEqns := eqn::(!rEqns)
   
         fun doConst (name, cid1) =
@@ -81,14 +81,14 @@ struct
 
   fun strinst ((ids, id, r1), strexp, r3) (ns, eqns) =
       let
-        val qid = Names.Qid (ids, id)
-        val mid1 = (case Names.structLookupIn (ns, qid)
+        (* GEN BEGIN TAG OUTSIDE LET *) val qid = Names.Qid (ids, id) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val mid1 = (case Names.structLookupIn (ns, qid)
                       of NONE => error (r1, "Undeclared structure "
                                         ^ Names.qidToString (valOf (Names.structUndefIn (ns, qid))))
-                       | SOME mid1 => mid1)
+                       | SOME mid1 => mid1) (* GEN END TAG OUTSIDE LET *)
   
-        val (mid2, r2) = strexp ()
-        val rEqns = ref eqns
+        (* GEN BEGIN TAG OUTSIDE LET *) val (mid2, r2) = strexp () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val rEqns = ref eqns (* GEN END TAG OUTSIDE LET *)
       in
         addStructEqn (rEqns, r2, r3, nil, mid1, mid2);
         !rEqns
@@ -106,8 +106,8 @@ struct
 
   fun wheresig (sigexp, instList) moduleOpt =
       let
-        val (module, wherecls) = sigexp moduleOpt
-        fun wherecl ns = foldr (fn (inst, eqns) => inst (ns, eqns)) nil instList
+        (* GEN BEGIN TAG OUTSIDE LET *) val (module, wherecls) = sigexp moduleOpt (* GEN END TAG OUTSIDE LET *)
+        fun wherecl ns = foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (inst, eqns) => inst (ns, eqns) (* GEN END FUNCTION EXPRESSION *)) nil instList
       in
         (module, wherecls @ [wherecl])
       end
@@ -118,7 +118,7 @@ struct
 
   fun sigdef (idOpt, sigexp) moduleOpt =
       let
-        val (module, wherecls) = sigexp moduleOpt
+        (* GEN BEGIN TAG OUTSIDE LET *) val (module, wherecls) = sigexp moduleOpt (* GEN END TAG OUTSIDE LET *)
       in
         (idOpt, module, wherecls)
       end
@@ -133,14 +133,14 @@ struct
 
   fun structdec (idOpt, sigexp) moduleOpt =
       let
-        val (module, inst) = sigexp moduleOpt
+        (* GEN BEGIN TAG OUTSIDE LET *) val (module, inst) = sigexp moduleOpt (* GEN END TAG OUTSIDE LET *)
       in
         StructDec (idOpt, module, inst)
       end
 
   fun structdef (idOpt, strexp) NONE =
       let
-        val mid = strexpToStrexp strexp
+        (* GEN BEGIN TAG OUTSIDE LET *) val mid = strexpToStrexp strexp (* GEN END TAG OUTSIDE LET *)
       in
         StructDef (idOpt, mid)
       end
@@ -151,22 +151,22 @@ struct
 
   fun applyEqns wherecl namespace =
       let
-        val eqns = wherecl namespace
+        (* GEN BEGIN TAG OUTSIDE LET *) val eqns = wherecl namespace (* GEN END TAG OUTSIDE LET *)
   
-        val table : eqn_table = IntTree.new (0)
+        (* GEN BEGIN TAG OUTSIDE LET *) val table : eqn_table = IntTree.new (0) (* GEN END TAG OUTSIDE LET *)
         fun add (cid, Inst, r) =
             (case IntTree.lookup table cid
                of NONE => IntTree.insert table (cid, ref [(Inst, r)])
                 | SOME rl => rl := (Inst, r)::(!rl))
-        val _ = List.app add eqns
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app add eqns (* GEN END TAG OUTSIDE LET *)
   
-        fun doInst ((Internal cid, r), condec) =
+        fun (* GEN BEGIN FUN FIRST *) doInst ((Internal cid, r), condec) =
               (ModSyn.strictify (ExtSyn.internalInst (condec, ModSyn.abbrevify (cid, IntSyn.sgnLookup cid), r))
               handle ExtSyn.Error msg =>
                 raise ExtSyn.Error (msg ^ "\nin instantiation generated for "
-                                    ^ Names.qidToString (Names.constQid cid)))
-          | doInst ((External tm, r), condec) =
-              ModSyn.strictify (ExtSyn.externalInst (condec, tm, r))
+                                    ^ Names.qidToString (Names.constQid cid))) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) doInst ((External tm, r), condec) =
+              ModSyn.strictify (ExtSyn.externalInst (condec, tm, r)) (* GEN END FUN BRANCH *)
   
         fun transformConDec (cid, condec) =
             (case IntTree.lookup table cid
@@ -178,9 +178,9 @@ struct
 
   fun moduleWhere (module, wherecl) =
       let
-        val (mark, markStruct) = IntSyn.sgnSize ()
-        val module' = ModSyn.instantiateModule (module, applyEqns wherecl)
-        val _ = Names.resetFrom (mark, markStruct)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (mark, markStruct) = IntSyn.sgnSize () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val module' = ModSyn.instantiateModule (module, applyEqns wherecl) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.resetFrom (mark, markStruct) (* GEN END TAG OUTSIDE LET *)
         (* val _ = IntSyn.resetFrom (mark, markStruct) *)
       in
         module'

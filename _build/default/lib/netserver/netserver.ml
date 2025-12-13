@@ -10,7 +10,7 @@ sig
     val setExamplesDir : string -> unit (* filesystem directory where twelf examples are kept *)
 end (* GEN END SIGNATURE DECLARATION *)  (* signature SERVER *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) NetServer
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) NetServer
 	    (structure Timing : TIMING
 	     structure Twelf : TWELF
 	     structure Msg : MSG)
@@ -336,7 +336,7 @@ fun flashServer port = protoServer (flashProto()) port
 fun humanServer port = protoServer (humanProto()) port
 fun httpServer port dir = protoServer (httpProto dir) port
 
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)
 
 structure NetServer =
 NetServer (structure Timing = Timing

@@ -1,7 +1,7 @@
 (* Filling *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Filling (structure MetaSyn' : METASYN
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Filling (structure MetaSyn' : METASYN
                  structure MetaAbstract : METAABSTRACT
                  sharing MetaAbstract.MetaSyn = MetaSyn'
                  structure Search   : OLDSEARCH
@@ -151,4 +151,4 @@ struct
     val apply = apply
     val menu = menu
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Filling *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Filling *)

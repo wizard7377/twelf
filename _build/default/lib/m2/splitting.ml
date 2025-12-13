@@ -1,7 +1,7 @@
 (* Splitting *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Splitting (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Splitting (structure Global : GLOBAL
                    structure MetaSyn' : METASYN
                    structure MetaAbstract : METAABSTRACT
                    structure MetaPrint : METAPRINT
@@ -527,4 +527,4 @@ struct
     val index = index
     val menu = menu
   end (* local *)
-end (* GEN END FUNCTOR DECL *);  (* functor Splitting *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Splitting *)

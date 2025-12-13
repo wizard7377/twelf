@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Whnf ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Whnf ((*! structure IntSyn' : INTSYN !*)
                )
   : WHNF =
 struct
@@ -654,4 +654,4 @@ struct
     val cloInv = cloInv
     val compInv = compInv
   end
-end (* GEN END FUNCTOR DECL *);  (* functor Whnf *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Whnf *)

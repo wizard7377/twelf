@@ -22,9 +22,9 @@ struct
 
     (* Printing Utilities *)
 
-    fun headToString (G, I.Const (c)) = N.qidToString (N.constQid c)
-      | headToString (G, I.Def (d)) = N.qidToString (N.constQid d)
-      | headToString (G, I.BVar(k)) = N.bvarName (G, k)
+    fun (* GEN BEGIN FUN FIRST *) headToString (G, I.Const (c)) = N.qidToString (N.constQid c) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) headToString (G, I.Def (d)) = N.qidToString (N.constQid d) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) headToString (G, I.BVar(k)) = N.bvarName (G, k) (* GEN END FUN BRANCH *)
     fun expToString (GU) = P.expToString (GU) ^ ". "
     fun decToString (GD) = P.decToString (GD) ^ ". "
     fun eqnToString (G, U1, U2) =
@@ -32,30 +32,30 @@ struct
 
     fun newline () = print "\n"
 
-    fun printCtx (I.Null) = print "No hypotheses or parameters. "
-      | printCtx (I.Decl(I.Null, D)) =
-          print (decToString (I.Null, D))
-      | printCtx (I.Decl(G, D)) =
+    fun (* GEN BEGIN FUN FIRST *) printCtx (I.Null) = print "No hypotheses or parameters. " (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) printCtx (I.Decl(I.Null, D)) =
+          print (decToString (I.Null, D)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) printCtx (I.Decl(G, D)) =
           (printCtx (G);
            newline ();
-           print (decToString (G, D)))
+           print (decToString (G, D))) (* GEN END FUN BRANCH *)
 
     fun evarsToString (Xnames) =
         let
-          val inst = P.evarInstToString (Xnames)
-          val constrOpt = P.evarCnstrsToStringOpt (Xnames)
+          (* GEN BEGIN TAG OUTSIDE LET *) val inst = P.evarInstToString (Xnames) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val constrOpt = P.evarCnstrsToStringOpt (Xnames) (* GEN END TAG OUTSIDE LET *)
         in
           case constrOpt
             of NONE => inst
              | SOME(constr) => inst ^ "\nConstraints:\n" ^ constr
         end
 
-    fun varsToEVarInst (nil) = nil
-      | varsToEVarInst (name::names) =
+    fun (* GEN BEGIN FUN FIRST *) varsToEVarInst (nil) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) varsToEVarInst (name::names) =
         case N.getEVarOpt name
           of NONE => (print ("Trace warning: ignoring unknown variable " ^ name ^ "\n");
                       varsToEVarInst (names))
-           | SOME(X) => (X,name)::varsToEVarInst (names)
+           | SOME(X) => (X,name)::varsToEVarInst (names) (* GEN END FUN BRANCH *)
 
     fun printVars (names) = print (evarsToString (varsToEVarInst names))
 
@@ -67,30 +67,30 @@ struct
       | Some of 'a list
       | All
 
-    val traceSpec : string spec ref = ref None
-    val breakSpec : string spec ref = ref None
+    (* GEN BEGIN TAG OUTSIDE LET *) val traceSpec : string spec ref = ref None (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val breakSpec : string spec ref = ref None (* GEN END TAG OUTSIDE LET *)
 
-    fun trace (None) = traceSpec := None
-      | trace (Some (names)) = traceSpec := Some (names)
-      | trace (All) = traceSpec := All
+    fun (* GEN BEGIN FUN FIRST *) trace (None) = traceSpec := None (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) trace (Some (names)) = traceSpec := Some (names) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) trace (All) = traceSpec := All (* GEN END FUN BRANCH *)
 
-    fun break (None) = breakSpec := None
-      | break (Some (names)) = breakSpec := Some (names)
-      | break (All) = breakSpec := All
+    fun (* GEN BEGIN FUN FIRST *) break (None) = breakSpec := None (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) break (Some (names)) = breakSpec := Some (names) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) break (All) = breakSpec := All (* GEN END FUN BRANCH *)
 
-    val detail = ref 1
+    (* GEN BEGIN TAG OUTSIDE LET *) val detail = ref 1 (* GEN END TAG OUTSIDE LET *)
 
-    fun setDetail (NONE) = print ("Trace warning: detail is not a valid integer\n")
-      | setDetail (SOME(n)) =
+    fun (* GEN BEGIN FUN FIRST *) setDetail (NONE) = print ("Trace warning: detail is not a valid integer\n") (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) setDetail (SOME(n)) =
         if 0 <= n (* andalso n <= 2 *)
           then detail := n
-        else print ("Trace warning: detail must be positive\n")
+        else print ("Trace warning: detail must be positive\n") (* GEN END FUN BRANCH *)
 
-    val traceTSpec : I.cid spec ref = ref None
-    val breakTSpec : I.cid spec ref = ref None
+    (* GEN BEGIN TAG OUTSIDE LET *) val traceTSpec : I.cid spec ref = ref None (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val breakTSpec : I.cid spec ref = ref None (* GEN END TAG OUTSIDE LET *)
 
-    fun toCids (nil) = nil
-      | toCids (name::names) =
+    fun (* GEN BEGIN FUN FIRST *) toCids (nil) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toCids (name::names) =
         (case N.stringToQid name
            of NONE => (print ("Trace warning: ignoring malformed qualified identifier " ^ name ^ "\n");
                        toCids names)
@@ -98,15 +98,15 @@ struct
         (case N.constLookup qid
            of NONE => (print ("Trace warning: ignoring undeclared constant " ^ N.qidToString qid ^ "\n");
                        toCids names)
-            | SOME cid => cid::toCids names))
+            | SOME cid => cid::toCids names)) (* GEN END FUN BRANCH *)
 
-    fun initTrace (None) = traceTSpec := None
-      | initTrace (Some (names)) = traceTSpec := Some (toCids names)
-      | initTrace (All) = traceTSpec := All
+    fun (* GEN BEGIN FUN FIRST *) initTrace (None) = traceTSpec := None (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) initTrace (Some (names)) = traceTSpec := Some (toCids names) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) initTrace (All) = traceTSpec := All (* GEN END FUN BRANCH *)
 
-    fun initBreak (None) = breakTSpec := None
-      | initBreak (Some (names)) = breakTSpec := Some (toCids names)
-      | initBreak (All) = breakTSpec := All
+    fun (* GEN BEGIN FUN FIRST *) initBreak (None) = breakTSpec := None (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) initBreak (Some (names)) = breakTSpec := Some (toCids names) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) initBreak (All) = breakTSpec := All (* GEN END FUN BRANCH *)
 
     fun printHelp () =
         print
@@ -124,14 +124,14 @@ struct
     \v X1 ... Xn - variables --- show instantiation of X1 ... Xn\n\
     \? for help"
 
-    val currentGoal : (I.dctx * I.exp) ref =
-          ref (I.Null, I.Uni (I.Type)) (* dummy initialization *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val currentGoal : (I.dctx * I.exp) ref =
+          ref (I.Null, I.Uni (I.Type)) (* GEN END TAG OUTSIDE LET *) (* dummy initialization *)
 
-    val currentEVarInst : (I.exp * string) list ref =
-          ref nil
+    (* GEN BEGIN TAG OUTSIDE LET *) val currentEVarInst : (I.exp * string) list ref =
+          ref nil (* GEN END TAG OUTSIDE LET *)
 
     fun setEVarInst (Xs) =
-        currentEVarInst := List.map (fn X => (X, N.evarName (I.Null, X))) Xs
+        currentEVarInst := List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn X => (X, N.evarName (I.Null, X)) (* GEN END FUNCTION EXPRESSION *)) Xs
 
     fun setGoal (G, V) =
         (currentGoal := (G, V);
@@ -139,13 +139,13 @@ struct
 
     type goal_tag = int option
 
-    val tag : goal_tag ref = ref NONE
+    (* GEN BEGIN TAG OUTSIDE LET *) val tag : goal_tag ref = ref NONE (* GEN END TAG OUTSIDE LET *)
     fun tagGoal () =
         case !tag
           of NONE => NONE
            | SOME(n) => (tag := SOME(n+1); !tag)
 
-    val watchForTag : goal_tag ref = ref NONE
+    (* GEN BEGIN TAG OUTSIDE LET *) val watchForTag : goal_tag ref = ref NONE (* GEN END TAG OUTSIDE LET *)
 
     fun initTag () =
         (watchForTag := NONE;
@@ -153,13 +153,13 @@ struct
            of (None, None) => tag := NONE
             | _ => tag := SOME(0))
 
-    fun setWatchForTag (NONE) = (watchForTag := !tag)
-      | setWatchForTag (SOME(n)) = (watchForTag := SOME(n))
+    fun (* GEN BEGIN FUN FIRST *) setWatchForTag (NONE) = (watchForTag := !tag) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) setWatchForTag (SOME(n)) = (watchForTag := SOME(n)) (* GEN END FUN BRANCH *)
 
     fun breakAction (G) =
         let
-          val _ = print " "
-          val line = Compat.inputLine97 (TextIO.stdIn)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = print " " (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val line = Compat.inputLine97 (TextIO.stdIn) (* GEN END TAG OUTSIDE LET *)
         in
           case String.sub (line, 0)
             of #"\n" => ()
@@ -210,111 +210,111 @@ struct
     | Unify of (IntSyn.head * IntSyn.head) * IntSyn.exp * IntSyn.exp (* clause head == goal *)
     | FailUnify of (IntSyn.head * IntSyn.head) * string (* failure message *)
 
-    fun eventToString (G, IntroHyp (_, D)) =
-        "% Introducing hypothesis\n" ^ decToString (G, D)
-      | eventToString (G, DischargeHyp (_, I.Dec (SOME(x), _))) =
-        "% Discharging hypothesis " ^ x
-      | eventToString (G, IntroParm (_, D)) =
-        "% Introducing parameter\n" ^ decToString (G, D)
-      | eventToString (G, DischargeParm (_, I.Dec (SOME(x), _))) =
-        "% Discharging parameter " ^ x
+    fun (* GEN BEGIN FUN FIRST *) eventToString (G, IntroHyp (_, D)) =
+        "% Introducing hypothesis\n" ^ decToString (G, D) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, DischargeHyp (_, I.Dec (SOME(x), _))) =
+        "% Discharging hypothesis " ^ x (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, IntroParm (_, D)) =
+        "% Introducing parameter\n" ^ decToString (G, D) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, DischargeParm (_, I.Dec (SOME(x), _))) =
+        "% Discharging parameter " ^ x (* GEN END FUN BRANCH *)
 
-      | eventToString (G, Resolved (Hc, Ha)) =
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, Resolved (Hc, Ha)) =
         "% Resolved with clause " ^ headToString (G, Hc) ^ "\n"
-        ^ evarsToString (List.rev (!currentEVarInst))
-      | eventToString (G, Subgoal ((Hc, Ha), msg)) =
+        ^ evarsToString (List.rev (!currentEVarInst)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, Subgoal ((Hc, Ha), msg)) =
         "% Solving subgoal (" ^ Int.toString (msg ()) ^ ") of clause "
-        ^ headToString (G, Hc)
+        ^ headToString (G, Hc) (* GEN END FUN BRANCH *)
 
-      | eventToString (G, SolveGoal (SOME(tag), _, V)) =
-        "% Goal " ^ Int.toString tag ^ ":\n" ^ expToString (G, V)
-      | eventToString (G, SucceedGoal (SOME(tag), _, V)) =
-        "% Goal " ^ Int.toString tag ^ " succeeded"
-      | eventToString (G, CommitGoal (SOME(tag), _, V)) =
-        "% Goal " ^ Int.toString tag ^ " committed to first solution"
-      | eventToString (G, RetryGoal (SOME(tag), (Hc, Ha), V)) =
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, SolveGoal (SOME(tag), _, V)) =
+        "% Goal " ^ Int.toString tag ^ ":\n" ^ expToString (G, V) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, SucceedGoal (SOME(tag), _, V)) =
+        "% Goal " ^ Int.toString tag ^ " succeeded" (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, CommitGoal (SOME(tag), _, V)) =
+        "% Goal " ^ Int.toString tag ^ " committed to first solution" (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, RetryGoal (SOME(tag), (Hc, Ha), V)) =
         "% Backtracking from clause " ^ headToString (G, Hc) ^ "\n"
-        ^ "% Retrying goal " ^ Int.toString tag ^ ":\n" ^ expToString (G, V)
-      | eventToString (G, FailGoal (SOME(tag), _, V)) =
-        "% Failed goal " ^ Int.toString tag
+        ^ "% Retrying goal " ^ Int.toString tag ^ ":\n" ^ expToString (G, V) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, FailGoal (SOME(tag), _, V)) =
+        "% Failed goal " ^ Int.toString tag (* GEN END FUN BRANCH *)
 
-      | eventToString (G, Unify ((Hc, Ha), Q, P)) =
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, Unify ((Hc, Ha), Q, P)) =
         "% Trying clause " ^ headToString (G, Hc) ^ "\n"
-        ^ eqnToString (G, Q, P)
-      | eventToString (G, FailUnify ((Hc, Ha), msg)) =
+        ^ eqnToString (G, Q, P) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eventToString (G, FailUnify ((Hc, Ha), msg)) =
         "% Unification failed with clause " ^ headToString (G, Hc) ^ ":\n"
-        ^ msg
+        ^ msg (* GEN END FUN BRANCH *)
 
     fun traceEvent (G, e) = print (eventToString (G, e))
 
-    fun monitorHead (cids, I.Const(c)) = List.exists (fn c' => c = c') cids
-      | monitorHead (cids, I.Def(d)) = List.exists (fn c' => d = c') cids
-      | monitorHead (cids, I.BVar(k)) = false
+    fun (* GEN BEGIN FUN FIRST *) monitorHead (cids, I.Const(c)) = List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn c' => c = c' (* GEN END FUNCTION EXPRESSION *)) cids (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) monitorHead (cids, I.Def(d)) = List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn c' => d = c' (* GEN END FUNCTION EXPRESSION *)) cids (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorHead (cids, I.BVar(k)) = false (* GEN END FUN BRANCH *)
 
     fun monitorHeads (cids, (Hc, Ha)) =
           monitorHead (cids, Hc) orelse monitorHead (cids, Ha)
 
-    fun monitorEvent (cids, IntroHyp (H, _)) =
-          monitorHead (cids, H)
-      | monitorEvent (cids, DischargeHyp (H, _)) =
-          monitorHead (cids, H)
-      | monitorEvent (cids, IntroParm (H, _)) =
-          monitorHead (cids, H)
-      | monitorEvent (cids, DischargeParm (H, _)) =
-          monitorHead (cids, H)
+    fun (* GEN BEGIN FUN FIRST *) monitorEvent (cids, IntroHyp (H, _)) =
+          monitorHead (cids, H) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, DischargeHyp (H, _)) =
+          monitorHead (cids, H) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, IntroParm (H, _)) =
+          monitorHead (cids, H) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, DischargeParm (H, _)) =
+          monitorHead (cids, H) (* GEN END FUN BRANCH *)
 
-      | monitorEvent (cids, SolveGoal (_, H, V)) =
-          monitorHead (cids, H)
-      | monitorEvent (cids, SucceedGoal (_, (Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, CommitGoal (_, (Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, RetryGoal (_, (Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, FailGoal (_, H, _)) =
-          monitorHead (cids, H)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, SolveGoal (_, H, V)) =
+          monitorHead (cids, H) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, SucceedGoal (_, (Hc, Ha), _)) =
+          monitorHeads (cids, (Hc, Ha)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, CommitGoal (_, (Hc, Ha), _)) =
+          monitorHeads (cids, (Hc, Ha)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, RetryGoal (_, (Hc, Ha), _)) =
+          monitorHeads (cids, (Hc, Ha)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, FailGoal (_, H, _)) =
+          monitorHead (cids, H) (* GEN END FUN BRANCH *)
 
-      | monitorEvent (cids, Resolved (Hc, Ha)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, Subgoal ((Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, Resolved (Hc, Ha)) =
+          monitorHeads (cids, (Hc, Ha)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, Subgoal ((Hc, Ha), _)) =
+          monitorHeads (cids, (Hc, Ha)) (* GEN END FUN BRANCH *)
 
-      | monitorEvent (cids, Unify ((Hc, Ha), _, _)) =
-          monitorHeads (cids, (Hc, Ha))
-      | monitorEvent (cids, FailUnify ((Hc, Ha), _)) =
-          monitorHeads (cids, (Hc, Ha))
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, Unify ((Hc, Ha), _, _)) =
+          monitorHeads (cids, (Hc, Ha)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorEvent (cids, FailUnify ((Hc, Ha), _)) =
+          monitorHeads (cids, (Hc, Ha)) (* GEN END FUN BRANCH *)
 
-    fun monitorDetail (Unify _) = !detail >= 2
-      | monitorDetail (FailUnify _) = !detail >= 2
-      | monitorDetail _ = !detail >= 1
+    fun (* GEN BEGIN FUN FIRST *) monitorDetail (Unify _) = !detail >= 2 (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) monitorDetail (FailUnify _) = !detail >= 2 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorDetail _ = !detail >= 1 (* GEN END FUN BRANCH *)
 
     (* expensive if tracing Unify! *)
     (* but: maintain only if break or trace is on *)
     (* may not be sufficient for some information *)
-    fun maintain (G, SolveGoal (_, _, V)) = setGoal (G, V)
-      | maintain (G, RetryGoal (_, _, V)) = setGoal (G, V)
-      | maintain (G, FailGoal (_, _, V)) = setGoal (G, V)
-      | maintain (G, Unify (_, Q, P)) =
+    fun (* GEN BEGIN FUN FIRST *) maintain (G, SolveGoal (_, _, V)) = setGoal (G, V) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) maintain (G, RetryGoal (_, _, V)) = setGoal (G, V) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) maintain (G, FailGoal (_, _, V)) = setGoal (G, V) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) maintain (G, Unify (_, Q, P)) =
         (* show substitution for variables in clause head if tracing unification *)
         setEVarInst (Abstract.collectEVars (G, (P, I.id),
-                                            Abstract.collectEVars (G, (Q, I.id), nil)))
-      | maintain _ = ()
+                                            Abstract.collectEVars (G, (Q, I.id), nil))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) maintain _ = () (* GEN END FUN BRANCH *)
 
-    fun monitorBreak (None, G, e) = false
-      | monitorBreak (Some (cids), G, e) =
+    fun (* GEN BEGIN FUN FIRST *) monitorBreak (None, G, e) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) monitorBreak (Some (cids), G, e) =
         if monitorEvent (cids, e)
           then (maintain (G, e); traceEvent (G, e); breakAction (G); true)
-        else false
-      | monitorBreak (All, G, e) =
-          (maintain (G, e); traceEvent (G, e); breakAction (G); true)
+        else false (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorBreak (All, G, e) =
+          (maintain (G, e); traceEvent (G, e); breakAction (G); true) (* GEN END FUN BRANCH *)
 
-    fun monitorTrace (None, G, e) = false
-      | monitorTrace (Some (cids), G, e) =
+    fun (* GEN BEGIN FUN FIRST *) monitorTrace (None, G, e) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) monitorTrace (Some (cids), G, e) =
         if monitorEvent (cids, e)
           then (maintain (G, e); traceEvent (G, e); newline (); true)
-        else false
-      | monitorTrace (All, G, e) =
-          (maintain (G, e); traceEvent (G, e); newline (); true)
+        else false (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) monitorTrace (All, G, e) =
+          (maintain (G, e); traceEvent (G, e); newline (); true) (* GEN END FUN BRANCH *)
 
     fun watchFor (e) =
         case !watchForTag
@@ -343,12 +343,12 @@ struct
                     else (monitorTrace (!traceTSpec, G, e); ()) (* prints trace, continues *)
         else ()
 
-    fun showSpec (msg, None) = print (msg ^ " = None\n")
-      | showSpec (msg, Some(names)) =
+    fun (* GEN BEGIN FUN FIRST *) showSpec (msg, None) = print (msg ^ " = None\n") (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) showSpec (msg, Some(names)) =
         (print (msg ^ " = Some [");
-         List.app (fn name => print (" " ^ name)) names;
-         print "]\n")
-      | showSpec (msg, All) = print (msg ^ " = All\n")
+         List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn name => print (" " ^ name) (* GEN END FUNCTION EXPRESSION *)) names;
+         print "]\n") (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) showSpec (msg, All) = print (msg ^ " = All\n") (* GEN END FUN BRANCH *)
 
     fun tracing () =
         (case (!traceSpec, !breakSpec)

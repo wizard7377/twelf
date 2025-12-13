@@ -47,8 +47,8 @@ struct
            Invariant:
            S' = n; n-1; ... 1; Nil
         *)
-        fun spine 0 = I.Nil
-          | spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1))
+        fun (* GEN BEGIN FUN FIRST *) spine 0 = I.Nil (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) spine n = I.App (I.Root (I.BVar n, I.Nil),  spine (n-1)) (* GEN END FUN BRANCH *)
     
         (* installSkolem' ((V, mS), s, k) = ()
     
@@ -62,36 +62,36 @@ struct
            Effects: New Skolem constants are generated, named, and indexed
         *)
     
-        fun installSkolem' (d, (I.Pi ((D, DP), V), mS), s, k) =
+        fun (* GEN BEGIN FUN FIRST *) installSkolem' (d, (I.Pi ((D, DP), V), mS), s, k) =
             (case mS
                of M.Mapp (M.Marg (M.Plus, _), mS') =>
                     installSkolem' (d+1, (V, mS'), I.dot1 s,
-                                    fn V => k (Abstract.piDepend ((Whnf.normalizeDec (D, s), I.Meta), V)))
-    (*                                  fn V => k (I.Pi ((Whnf.normalizeDec (D, s), DP), V))) *)
+                                    (* GEN BEGIN FUNCTION EXPRESSION *) fn V => k (Abstract.piDepend ((Whnf.normalizeDec (D, s), I.Meta), V)) (* GEN END FUNCTION EXPRESSION *))
+            (*                                  fn V => k (I.Pi ((Whnf.normalizeDec (D, s), DP), V))) *)
                 | M.Mapp (M.Marg (M.Minus, _), mS') =>
                   let
-                    val I.Dec (_, V') = D
-                    val V'' = k (Whnf.normalize (V', s))
-                    val name' = Names.skonstName (name ^ "#")
-                    val SD = I.SkoDec (name', NONE, imp, V'', L)
-                    val sk = I.sgnAdd SD
-                    val H = I.Skonst sk
-                    val _ = IndexSkolem.install I.Ordinary H
-                    val _ = Names.installConstName sk
-                    val _ = (Timers.time Timers.compiling Compile.install) I.Ordinary sk
-    (*                  val CompSyn.SClause r = CompSyn.sProgLookup sk *)
-                    val S = spine d
-                    val _ = if !Global.chatter >= 3
+                    (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, V') = D (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val V'' = k (Whnf.normalize (V', s)) (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val name' = Names.skonstName (name ^ "#") (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val SD = I.SkoDec (name', NONE, imp, V'', L) (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val sk = I.sgnAdd SD (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val H = I.Skonst sk (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val _ = IndexSkolem.install I.Ordinary H (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.installConstName sk (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val _ = (Timers.time Timers.compiling Compile.install) I.Ordinary sk (* GEN END TAG OUTSIDE LET *)
+            (*                  val CompSyn.SClause r = CompSyn.sProgLookup sk *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val S = spine d (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                               then TextIO.print (Print.conDecToString SD ^ "\n")
-                            else ()
+                            else () (* GEN END TAG OUTSIDE LET *)
                   in
                     installSkolem' (d, (V, mS'), I.Dot (I.Exp (I.Root (H, S)), s), k)
-                  end)
-          | installSkolem' (_, (I.Uni _, M.Mnil), _, _) = ()
+                  end) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) installSkolem' (_, (I.Uni _, M.Mnil), _, _) = () (* GEN END FUN BRANCH *)
     
     
       in
-        installSkolem' (0, (V, mS), I.id, fn V => V)
+        installSkolem' (0, (V, mS), I.id, (* GEN BEGIN FUNCTION EXPRESSION *) fn V => V (* GEN END FUNCTION EXPRESSION *))
       end
 
     (* install L = ()
@@ -102,18 +102,18 @@ struct
 
        Effect: Skolem constants for all theorems are generated, named, and indexed
     *)
-    fun install nil = ()
-      | install (a :: aL) =
+    fun (* GEN BEGIN FUN FIRST *) install nil = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) install (a :: aL) =
         let
-          val I.ConDec (name, _, imp, _, V, L) = I.sgnLookup a
-          val SOME mS = ModeTable.modeLookup a
-          val _ = installSkolem (name, imp, (V, mS), I.Type)
+          (* GEN BEGIN TAG OUTSIDE LET *) val I.ConDec (name, _, imp, _, V, L) = I.sgnLookup a (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val SOME mS = ModeTable.modeLookup a (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = installSkolem (name, imp, (V, mS), I.Type) (* GEN END TAG OUTSIDE LET *)
         in
           install aL
-        end
+        end (* GEN END FUN BRANCH *)
 
 
   in
-    val install = install
+    (* GEN BEGIN TAG OUTSIDE LET *) val install = install (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *) (* functor Skolem *)

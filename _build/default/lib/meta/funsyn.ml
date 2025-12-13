@@ -1,7 +1,7 @@
 (* Internal syntax for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) FunSyn ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) FunSyn ((*! structure IntSyn' : INTSYN !*)
                 structure Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 structure Conv : CONV
@@ -287,7 +287,7 @@ struct
     val ctxToList = ctxToList
     val listToCtx = listToCtx
   end
-end (* GEN END FUNCTOR DECL *);  (* functor FunSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor FunSyn *)
 
 structure FunSyn =
   FunSyn ((*! structure IntSyn' = IntSyn !*)

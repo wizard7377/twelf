@@ -3,7 +3,7 @@
 (* Modified: Jeff Polakow *)
 (* Modified: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) PrintXML
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) PrintXML
   ((*! structure IntSyn' : INTSYN !*)
    structure Whnf : WHNF
    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -207,4 +207,4 @@ in
 
 end  (* local ... *)
 
-end (* GEN END FUNCTOR DECL *)  (* functor PrintXml *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor PrintXml *)

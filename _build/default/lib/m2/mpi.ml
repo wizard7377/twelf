@@ -1,7 +1,7 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Mpi (structure MetaGlobal : METAGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Mpi (structure MetaGlobal : METAGLOBAL
              structure MetaSyn' : METASYN
              structure Init : INIT
              sharing Init.MetaSyn = MetaSyn'
@@ -318,4 +318,4 @@ struct
     val show = show
     val undo = undo
  end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor MPI *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor MPI *)

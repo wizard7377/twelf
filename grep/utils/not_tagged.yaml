@@ -1,0 +1,11 @@
+id: not_tagged
+language: sml
+rule:
+  all:
+  - not: 
+      precedes:
+        regex: \s*\(\* GEN END .+? \*\)\s*
+  - not:
+      follows: 
+        regex: \(\* GEN BEGIN .+? \*\)\s*
+  

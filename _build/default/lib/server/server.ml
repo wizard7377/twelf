@@ -5,7 +5,7 @@ sig
 
 end (* GEN END SIGNATURE DECLARATION *)  (* signature SERVER *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Server
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Server
   (structure SigINT : SIGINT
    structure Timing : TIMING
    structure Lexer : LEXER
@@ -409,7 +409,7 @@ struct
        SigINT.interruptLoop (fn () => serveTop (Twelf.OK));
        OS.Process.success)
 
-end (* GEN END FUNCTOR DECL *);  (* functor Server *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Server *)
 
 structure Server =
   Server (structure SigINT = SigINT

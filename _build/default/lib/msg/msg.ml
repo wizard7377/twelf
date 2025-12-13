@@ -6,8 +6,8 @@ end (* GEN END SIGNATURE DECLARATION *)
 
 structure Msg :> MSG =
 struct
- (* GEN BEGIN TAG INSIDE LET *) val default = print (* GEN END TAG INSIDE LET *) 
- (* GEN BEGIN TAG INSIDE LET *) val messageFunc = ref (default) (* GEN END TAG INSIDE LET *)
- (* GEN BEGIN TAG INSIDE LET *) fun setMessageFunc f = (messageFunc := f) (* GEN END TAG INSIDE LET *)
- (* GEN BEGIN TAG INSIDE LET *) fun message s = ((!messageFunc) s) (* GEN END TAG INSIDE LET *)
+ (* GEN BEGIN TAG OUTSIDE LET *) val default = print (* GEN END TAG OUTSIDE LET *) 
+ (* GEN BEGIN TAG OUTSIDE LET *) val messageFunc = ref (default) (* GEN END TAG OUTSIDE LET *)
+ fun setMessageFunc f = (messageFunc := f)
+ fun message s = ((!messageFunc) s)
 end

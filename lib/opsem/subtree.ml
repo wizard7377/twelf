@@ -38,11 +38,11 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
 
     type ex_substs  = IntSyn.exp RBSet.ord_set
 
-    val nid : unit -> normal_substs = RBSet.new
+    (* GEN BEGIN TAG OUTSIDE LET *) val nid : unit -> normal_substs = RBSet.new (* GEN END TAG OUTSIDE LET *)
 
-    val aid = TableParam.aid
+    (* GEN BEGIN TAG OUTSIDE LET *) val aid = TableParam.aid (* GEN END TAG OUTSIDE LET *)
 
-    val existId : unit -> normal_substs = RBSet.new
+    (* GEN BEGIN TAG OUTSIDE LET *) val existId : unit -> normal_substs = RBSet.new (* GEN END TAG OUTSIDE LET *)
 
 
     fun isId s = RBSet.isEmpty s
@@ -57,10 +57,10 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
     (* destructively updates L *)
     fun delete (x, L : ctx ) =
       let
-        fun del (x, [], L) = NONE
-          | del (x, ((H as (y,E))::L), L') =
+        fun (* GEN BEGIN FUN FIRST *) del (x, [], L) = NONE (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) del (x, ((H as (y,E))::L), L') =
             if x = y then SOME((y,E), (rev L')@ L)
-            else del(x, L, H::L')
+            else del(x, L, H::L') (* GEN END FUN BRANCH *)
       in
         case del (x, (!L), [])
           of NONE => NONE
@@ -69,9 +69,9 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
 
     fun member (x, L:ctx) =
       let
-        fun memb (x, []) = NONE
-          | memb (x, (H as (y,E)::L)) =
-            if x = y then SOME((y,E)) else memb(x, L)
+        fun (* GEN BEGIN FUN FIRST *) memb (x, []) = NONE (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) memb (x, (H as (y,E)::L)) =
+            if x = y then SOME((y,E)) else memb(x, L) (* GEN END FUN BRANCH *)
       in
         memb (x, (!L))
       end
@@ -86,14 +86,14 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
 
     *)
 
-    fun ctxToEVarSub (IntSyn.Null, s) = s
-      | ctxToEVarSub (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) =
+    fun (* GEN BEGIN FUN FIRST *) ctxToEVarSub (IntSyn.Null, s) = s (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ctxToEVarSub (IntSyn.Decl(G,IntSyn.Dec(_,A)), s) =
       let
-        val s' = ctxToEVarSub (G, s)
-        val X = IntSyn.newEVar (IntSyn.Null, IntSyn.EClo(A,s'))
+        (* GEN BEGIN TAG OUTSIDE LET *) val s' = ctxToEVarSub (G, s) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = IntSyn.newEVar (IntSyn.Null, IntSyn.EClo(A,s')) (* GEN END TAG OUTSIDE LET *)
       in
         IntSyn.Dot(IntSyn.Exp(X), s')
-      end
+      end (* GEN END FUN BRANCH *)
 
     (* ---------------------------------------------------------------------- *)
     (* Substitution Tree *)
@@ -131,7 +131,7 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
      are stored in an array [a1,...,an]   where ai is a substitution tree for type family ai
      *)
 
-    val indexArray = Array.tabulate (Global.maxCid, (fn i => (ref 0, makeTree ())));
+    (* GEN BEGIN TAG OUTSIDE LET *) val indexArray = Array.tabulate (Global.maxCid, ((* GEN BEGIN FUNCTION EXPRESSION *) fn i => (ref 0, makeTree ()) (* GEN END FUNCTION EXPRESSION *))) (* GEN END TAG OUTSIDE LET *);
 
     exception Error of string
 
@@ -152,9 +152,9 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
       fun emptyAnswer () = T.emptyAnsw ()
 
 
-      val answList : (TableParam.answer list) ref = ref [];
+      (* GEN BEGIN TAG OUTSIDE LET *) val answList : (TableParam.answer list) ref = ref [] (* GEN END TAG OUTSIDE LET *);
 
-      val added = ref false;
+      (* GEN BEGIN TAG OUTSIDE LET *) val added = ref false (* GEN END TAG OUTSIDE LET *);
 
       type nvar = int      (* index for normal variables *)
       type bvar = int      (* index for bound variables *)
@@ -164,37 +164,37 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
       (* ------------------------------------------------------ *)
       (* Auxiliary functions *)
 
-      fun cidFromHead (I.Const c) = c
-        | cidFromHead (I.Def c) = c
+      fun (* GEN BEGIN FUN FIRST *) cidFromHead (I.Const c) = c (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) cidFromHead (I.Def c) = c (* GEN END FUN BRANCH *)
 
-      fun dotn (0, s) = s
-        | dotn (i, s) = dotn (i-1, I.dot1 s)
+      fun (* GEN BEGIN FUN FIRST *) dotn (0, s) = s (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) dotn (i, s) = dotn (i-1, I.dot1 s) (* GEN END FUN BRANCH *)
 
-      fun compose(IntSyn.Null, G) = G
-        | compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D)
+      fun (* GEN BEGIN FUN FIRST *) compose(IntSyn.Null, G) = G (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D) (* GEN END FUN BRANCH *)
 
-      fun shift (IntSyn.Null, s) = s
-        | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+      fun (* GEN BEGIN FUN FIRST *) shift (IntSyn.Null, s) = s (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s)) (* GEN END FUN BRANCH *)
 
-      fun raiseType (I.Null, U) = U
-        | raiseType (I.Decl(G, D), U) = raiseType (G, I.Lam(D, U))
+      fun (* GEN BEGIN FUN FIRST *) raiseType (I.Null, U) = U (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) raiseType (I.Decl(G, D), U) = raiseType (G, I.Lam(D, U)) (* GEN END FUN BRANCH *)
 
 
 
-    fun ctxToAVarSub (G', I.Null, s) = s
-      | ctxToAVarSub (G', I.Decl(D,I.Dec(_,A)), s) =
+    fun (* GEN BEGIN FUN FIRST *) ctxToAVarSub (G', I.Null, s) = s (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) ctxToAVarSub (G', I.Decl(D,I.Dec(_,A)), s) =
       let
-        val E as I.EVar (r, _, _, cnstr) = I.newEVar (I.Null, A)
+        (* GEN BEGIN TAG OUTSIDE LET *) val E as I.EVar (r, _, _, cnstr) = I.newEVar (I.Null, A) (* GEN END TAG OUTSIDE LET *)
       in
         I.Dot(I.Exp(E), ctxToAVarSub (G', D, s))
-      end
+      end (* GEN END FUN BRANCH *)
 
-      | ctxToAVarSub (G', I.Decl(D,I.ADec(_,d)), s) =
+      | (* GEN BEGIN FUN BRANCH *) ctxToAVarSub (G', I.Decl(D,I.ADec(_,d)), s) =
       let
-        val X = I.newAVar ()
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newAVar () (* GEN END TAG OUTSIDE LET *)
       in
         I.Dot(I.Exp(I.EClo(X, I.Shift(~d))), ctxToAVarSub (G', D, s))
-      end
+      end (* GEN END FUN BRANCH *)
 
     (* solveEqn' ((VarDef, s), G) = bool
 
@@ -204,15 +204,15 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
       return true, if VarDefs are solvable
       false otherwise
       *)
-    fun solveEqn' ((T.Trivial, s), G) = true
-      | solveEqn' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
+    fun (* GEN BEGIN FUN FIRST *) solveEqn' ((T.Trivial, s), G) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) solveEqn' ((T.Unify(G',e1, N (* evar *), eqns), s), G) =
       let
-        val G'' = compose (G', G)
-        val s' = shift (G', s)
+        (* GEN BEGIN TAG OUTSIDE LET *) val G'' = compose (G', G) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val s' = shift (G', s) (* GEN END TAG OUTSIDE LET *)
       in
         Assign.unifiable (G'', (N, s'),(e1, s'))
         andalso solveEqn' ((eqns, s), G)
-      end
+      end (* GEN END FUN BRANCH *)
 
     (* ------------------------------------------------------ *)
 
@@ -268,49 +268,49 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
   (* ---------------------------------------------------------------*)
 
   (* nctr = |D| =  #index variables *)
-   val nctr = ref 1
+   (* GEN BEGIN TAG OUTSIDE LET *) val nctr = ref 1 (* GEN END TAG OUTSIDE LET *)
 
    fun newNVar () =
      (nctr := !nctr + 1;
       I.NVar(!nctr))
 
-   fun equalDec (I.Dec(_, U), I.Dec(_, U')) = Conv.conv ((U, I.id), (U', I.id))
-     | equalDec (I.ADec(_, d), I.ADec(_, d')) = (d = d')
-     | equalDec (_,_ ) = false
+   fun (* GEN BEGIN FUN FIRST *) equalDec (I.Dec(_, U), I.Dec(_, U')) = Conv.conv ((U, I.id), (U', I.id)) (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) equalDec (I.ADec(_, d), I.ADec(_, d')) = (d = d') (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) equalDec (_,_ ) = false (* GEN END FUN BRANCH *)
 
     (* We require order of both eqn must be the same Sun Sep  8 20:37:48 2002 -bp *)
     (* s = s' = I.id *)
-    fun equalCtx (I.Null, s, I.Null, s') = true
-      | equalCtx (I.Decl(G, D), s, I.Decl(G', D'), s') =
-        Conv.convDec((D, s), (D', s')) andalso (equalCtx (G, I.dot1 s, G', I.dot1 s'))
-      | equalCtx (_, _, _, _) = false
+    fun (* GEN BEGIN FUN FIRST *) equalCtx (I.Null, s, I.Null, s') = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) equalCtx (I.Decl(G, D), s, I.Decl(G', D'), s') =
+        Conv.convDec((D, s), (D', s')) andalso (equalCtx (G, I.dot1 s, G', I.dot1 s')) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) equalCtx (_, _, _, _) = false (* GEN END FUN BRANCH *)
 
     (* in general, we need to carry around and build up a substitution *)
-    fun equalEqn (T.Trivial, T.Trivial) = true
-      | equalEqn (T.Unify(G, X, N, eqn), (T.Unify(G', X', N', eqn'))) =
+    fun (* GEN BEGIN FUN FIRST *) equalEqn (T.Trivial, T.Trivial) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) equalEqn (T.Unify(G, X, N, eqn), (T.Unify(G', X', N', eqn'))) =
         equalCtx (G, I.id, G', I.id) andalso Conv.conv ((X, I.id), (X', I.id))
-        andalso Conv.conv ((N, I.id), (N', I.id)) andalso equalEqn(eqn, eqn')
-      | equalEqn (_, _) = false
+        andalso Conv.conv ((N, I.id), (N', I.id)) andalso equalEqn(eqn, eqn') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) equalEqn (_, _) = false (* GEN END FUN BRANCH *)
 
-    fun equalSub (I.Shift k, I.Shift k') = (k = k')
-      | equalSub (I.Dot(F, S), I.Dot(F', S')) =
-        equalFront (F, F') andalso equalSub (S, S')
-      | equalSub (I.Dot(F,S), I.Shift k) = false
-      | equalSub (I.Shift k, I.Dot(F,S)) = false
+    fun (* GEN BEGIN FUN FIRST *) equalSub (I.Shift k, I.Shift k') = (k = k') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) equalSub (I.Dot(F, S), I.Dot(F', S')) =
+        equalFront (F, F') andalso equalSub (S, S') (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) equalSub (I.Dot(F,S), I.Shift k) = false (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) equalSub (I.Shift k, I.Dot(F,S)) = false (* GEN END FUN BRANCH *)
 
-    and equalFront (I.Idx n, I.Idx n') = (n = n')
-      | equalFront (I.Exp U, I.Exp V) = Conv.conv ((U, I.id), (V, I.id))
-      | equalFront (I.Undef, I.Undef) = true
+    and (* GEN BEGIN FUN FIRST *) equalFront (I.Idx n, I.Idx n') = (n = n') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) equalFront (I.Exp U, I.Exp V) = Conv.conv ((U, I.id), (V, I.id)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) equalFront (I.Undef, I.Undef) = true (* GEN END FUN BRANCH *)
 
     fun equalSub1 (I.Dot(ms, s), I.Dot(ms', s')) =
           equalSub (s, s')
 
-    fun equalCtx' (I.Null, I.Null) = true
-      | equalCtx' (I.Decl(Dk, I.Dec(_, A)), I.Decl(D1, I.Dec(_, A1))) =
-      (Conv.conv ((A, I.id), (A1, I.id)) andalso equalCtx'(Dk, D1))
-      | equalCtx' (I.Decl(Dk, I.ADec(_, d')), I.Decl(D1, I.ADec(_, d))) =
-        ((d = d') andalso equalCtx'(Dk, D1))
-      | equalCtx' (_, _) = false
+    fun (* GEN BEGIN FUN FIRST *) equalCtx' (I.Null, I.Null) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) equalCtx' (I.Decl(Dk, I.Dec(_, A)), I.Decl(D1, I.Dec(_, A1))) =
+      (Conv.conv ((A, I.id), (A1, I.id)) andalso equalCtx'(Dk, D1)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) equalCtx' (I.Decl(Dk, I.ADec(_, d')), I.Decl(D1, I.ADec(_, d))) =
+        ((d = d') andalso equalCtx'(Dk, D1)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) equalCtx' (_, _) = false (* GEN END FUN BRANCH *)
 
 
    (* ---------------------------------------------------------------*)
@@ -330,17 +330,17 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
 
    fun isExists (d, I.BVar k, D) = member (k-d, D)
 
-   fun compHeads ((D_1, I.Const k), (D_2, I.Const k')) = (k = k')
-     | compHeads ((D_1, I.Def k), (D_2, I.Def k')) = (k = k')
-     | compHeads ((D_1, I.BVar k), (D_2, I.BVar k')) =
+   fun (* GEN BEGIN FUN FIRST *) compHeads ((D_1, I.Const k), (D_2, I.Const k')) = (k = k') (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) compHeads ((D_1, I.Def k), (D_2, I.Def k')) = (k = k') (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) compHeads ((D_1, I.BVar k), (D_2, I.BVar k')) =
        (case isExists (0, I.BVar k, D_1)
           of NONE => (k = k')
-        | SOME(x,Dec) => true)
-     | compHeads ((D_1, I.BVar k), (D_2, H2)) =
+        | SOME(x,Dec) => true) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) compHeads ((D_1, I.BVar k), (D_2, H2)) =
         (case isExists (0, I.BVar k, D_1)
           of NONE => false
-        | SOME(x,Dec) => true)
-     | compHeads ((D_1, H1), (D_2, H2)) = false
+        | SOME(x,Dec) => true) (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) compHeads ((D_1, H1), (D_2, H2)) = false (* GEN END FUN BRANCH *)
 
 
    fun compatible' ((D_t, T), (D_u, U), Ds, rho_t, rho_u) =
@@ -350,38 +350,38 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
           S.insert rho_u (!nctr+1, U);
           newNVar())
    
-       fun genRoot (depth, T as I.Root(H1 as I.Const k, S1), U as I.Root(I.Const k', S2)) =
+       fun (* GEN BEGIN FUN FIRST *) genRoot (depth, T as I.Root(H1 as I.Const k, S1), U as I.Root(I.Const k', S2)) =
          if (k = k') then
            let
-             val S' = genSpine(depth, S1, S2)
+             (* GEN BEGIN TAG OUTSIDE LET *) val S' = genSpine(depth, S1, S2) (* GEN END TAG OUTSIDE LET *)
            in
              I.Root(H1, S')
            end
          else
-           genNVar ((rho_t, T), (rho_u, U))
-         | genRoot (depth, T as I.Root(H1 as I.Def k, S1), U as I.Root(I.Def k', S2)) =
+           genNVar ((rho_t, T), (rho_u, U)) (* GEN END FUN FIRST *)
+         | (* GEN BEGIN FUN BRANCH *) genRoot (depth, T as I.Root(H1 as I.Def k, S1), U as I.Root(I.Def k', S2)) =
          if (k = k') then
            let
-             val S' = genSpine(depth, S1, S2)
+             (* GEN BEGIN TAG OUTSIDE LET *) val S' = genSpine(depth, S1, S2) (* GEN END TAG OUTSIDE LET *)
            in
              I.Root(H1, S')
            end
          else
             
-           genNVar ((rho_t, T), (rho_u, U))
-         | genRoot (d,  T as I.Root(H1 as I.BVar k, S1), U as I.Root(I.BVar k', S2)) =
+           genNVar ((rho_t, T), (rho_u, U)) (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genRoot (d,  T as I.Root(H1 as I.BVar k, S1), U as I.Root(I.BVar k', S2)) =
            if (k > d) andalso (k' > d)
              then (* globally bound variable *)
                let
-                 val k1 = (k - d)
-                 val k2 = (k' - d)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val k1 = (k - d) (* GEN END TAG OUTSIDE LET *)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val k2 = (k' - d) (* GEN END TAG OUTSIDE LET *)
                in
                  case (member (k1, D_t), member(k2, D_u))
                    of (NONE, NONE) =>
                      if (k1 = k2)
                        then
                          (let
-                            val S' = genSpine(d, S1, S2)
+                            (* GEN BEGIN TAG OUTSIDE LET *) val S' = genSpine(d, S1, S2) (* GEN END TAG OUTSIDE LET *)
                           in
                             I.Root(H1, S')
                           end)  handle DifferentSpine => genNVar ((rho_t, T), (rho_u, U))
@@ -394,7 +394,7 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
                            let
                              (* this is unecessary -- since existential variables have the same type
                                 and need to be fully applied in order, S1 = S2 *)
-                             val S' = genSpine(d, S1, S2)
+                             (* GEN BEGIN TAG OUTSIDE LET *) val S' = genSpine(d, S1, S2) (* GEN END TAG OUTSIDE LET *)
                            in
                              (delete (x, D_t) ;
                               delete (x', D_u);
@@ -411,61 +411,61 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
            else (* locally bound variables *)
              if (k = k') then
                (let
-                  val S' = genSpine(d, S1, S2)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val S' = genSpine(d, S1, S2) (* GEN END TAG OUTSIDE LET *)
                 in
                   I.Root(H1, S')
                 end) handle DifferentSpines => genNVar ((rho_t, T), (rho_u, U))
              else
-               genNVar ((rho_t, T), (rho_u, U))
-          | genRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Const k', S2)) =
-               genNVar ((rho_t, T), (rho_u, U))
+               genNVar ((rho_t, T), (rho_u, U)) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) genRoot (d, T as I.Root (H1 as I.BVar k, S1), U as I.Root(I.Const k', S2)) =
+               genNVar ((rho_t, T), (rho_u, U)) (* GEN END FUN BRANCH *)
    
-          | genRoot (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
-               genNVar ((rho_t, T), (rho_u, U))
+          | (* GEN BEGIN FUN BRANCH *) genRoot (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+               genNVar ((rho_t, T), (rho_u, U)) (* GEN END FUN BRANCH *)
    
-       and genExp (d, T as I.NVar n, U as I.Root(H, S)) =
-         (S.insert rho_u (n, U); T)
-         | genExp (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
-         genRoot(d, I.Root(H1, S1), I.Root(H2, S2))
-         | genExp (d, I.Lam(D1 as I.Dec(_,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
+       and (* GEN BEGIN FUN FIRST *) genExp (d, T as I.NVar n, U as I.Root(H, S)) =
+         (S.insert rho_u (n, U); T) (* GEN END FUN FIRST *)
+         | (* GEN BEGIN FUN BRANCH *) genExp (d, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+         genRoot(d, I.Root(H1, S1), I.Root(H2, S2)) (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genExp (d, I.Lam(D1 as I.Dec(_,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
          (* by invariant A1 = A2 *)
          let
-           val E = genExp (d+1, T1,  U2)
+           (* GEN BEGIN TAG OUTSIDE LET *) val E = genExp (d+1, T1,  U2) (* GEN END TAG OUTSIDE LET *)
          in
            I.Lam(D1, E)
-         end
-         | genExp (d, T, U) =
+         end (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genExp (d, T, U) =
          (* U = EVar, EClo -- can't happen -- Sun Oct 20 13:41:25 2002 -bp *)
          (print "genExp -- falls through?\n";
-          genNVar ((rho_t, T), (rho_u, U)))
+          genNVar ((rho_t, T), (rho_u, U))) (* GEN END FUN BRANCH *)
    
-       and genSpine (d, I.Nil, I.Nil) =  I.Nil
-         | genSpine (d, I.App(T, S1), I.App(U, S2)) =
+       and (* GEN BEGIN FUN FIRST *) genSpine (d, I.Nil, I.Nil) =  I.Nil (* GEN END FUN FIRST *)
+         | (* GEN BEGIN FUN BRANCH *) genSpine (d, I.App(T, S1), I.App(U, S2)) =
          let
-           val  E = genExp (d, T, U)
-           val  S' = genSpine (d, S1, S2)
+           (* GEN BEGIN TAG OUTSIDE LET *) val  E = genExp (d, T, U) (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val  S' = genSpine (d, S1, S2) (* GEN END TAG OUTSIDE LET *)
          in
            I.App(E, S')
-         end
-         | genSpine (d, I.Nil, I.App (_ , _)) = raise DifferentSpines
-         | genSpine (d, I.App (_ , _), I.Nil) = raise DifferentSpines
+         end (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genSpine (d, I.Nil, I.App (_ , _)) = raise DifferentSpines (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genSpine (d, I.App (_ , _), I.Nil) = raise DifferentSpines (* GEN END FUN BRANCH *)
    
-         | genSpine (d, I.SClo (_ , _), _) =  raise DifferentSpines
-         | genSpine (d, _ , I.SClo (_ , _)) = raise DifferentSpines
-       val E = genExp (0, T, U)
+         | (* GEN BEGIN FUN BRANCH *) genSpine (d, I.SClo (_ , _), _) =  raise DifferentSpines (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genSpine (d, _ , I.SClo (_ , _)) = raise DifferentSpines (* GEN END FUN BRANCH *)
+       (* GEN BEGIN TAG OUTSIDE LET *) val E = genExp (0, T, U) (* GEN END TAG OUTSIDE LET *)
      in
        Variant E
      end
 
 
-   fun compatible ((D_t, T as I.Root(H1, S1)),
+   fun (* GEN BEGIN FUN FIRST *) compatible ((D_t, T as I.Root(H1, S1)),
                    (D_u, U as I.Root (H2, S2)), Ds, rho_t, rho_u) =
      if compHeads ((D_t, H1), (D_u, H2))
        then
          compatible' ((D_t, T), (D_u, U), Ds, rho_t, rho_u)
-     else NotCompatible
-     |compatible ((D_t, T), (D_u, U), Ds, rho_t, rho_u) =
-       compatible' ((D_t, T), (D_u, U), Ds, rho_t, rho_u)
+     else NotCompatible (* GEN END FUN FIRST *)
+     |(* GEN BEGIN FUN BRANCH *) compatible ((D_t, T), (D_u, U), Ds, rho_t, rho_u) =
+       compatible' ((D_t, T), (D_u, U), Ds, rho_t, rho_u) (* GEN END FUN BRANCH *)
 
  (* ---------------------------------------------------------------*)
  (* compatibleSub(nsub_t, nsub_u) = (sigma, rho_t, rho_u) opt
@@ -484,14 +484,14 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
    *)
   fun compatibleSub ((D_t, nsub_t), (D_u, nsub_u)) =
     let
-      val (sigma, rho_t, rho_u) = (nid(), nid (), nid ())
-      val Dsigma = emptyCtx ()
-      val D_r1 = copy D_t
-      val D_r2 = copy D_u
-      val choose = ref (fn match : bool => ())
+      (* GEN BEGIN TAG OUTSIDE LET *) val (sigma, rho_t, rho_u) = (nid(), nid (), nid ()) (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val Dsigma = emptyCtx () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val D_r1 = copy D_t (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val D_r2 = copy D_u (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val choose = ref ((* GEN BEGIN FUNCTION EXPRESSION *) fn match : bool => () (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
      (* by invariant rho_t = empty, since nsub_t <= nsub_u *)
-      val _ =  S.forall nsub_u
-        (fn (nv, U) =>
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ =  S.forall nsub_u
+        ((* GEN BEGIN FUNCTION EXPRESSION *) fn (nv, U) =>
          (case (S.lookup nsub_t nv)
             of SOME (T) =>     (* note by invariant Glocal_e ~ Glocal_t *)
               (case compatible ((D_r1, T), (D_r2, U), Dsigma, rho_t, rho_u)
@@ -499,14 +499,14 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
                                       S.insert rho_u (nv, U))
                   | Variant(T') =>
                    let
-                     val restc = (!choose)
+                     (* GEN BEGIN TAG OUTSIDE LET *) val restc = (!choose) (* GEN END TAG OUTSIDE LET *)
                    in
                      (S.insert sigma (nv, T');
-                     choose := (fn match => (restc match; if match then () else ())))
+                     choose := ((* GEN BEGIN FUNCTION EXPRESSION *) fn match => (restc match; if match then () else ()) (* GEN END FUNCTION EXPRESSION *)))
                      end)
-  
+        
           (* here Glocal_t will be only approximately correct! *)
-          | NONE => S.insert rho_u (nv, U)))
+          | NONE => S.insert rho_u (nv, U)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
     in
       if isId (rho_t)
         then
@@ -529,39 +529,39 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
 
   fun mkLeaf (Ds, GR, n) = Leaf (Ds, GR)
 
-  fun mkNode (Node(_, Children), Dsigma, Drho1, GR, Drho2) =
+  fun (* GEN BEGIN FUN FIRST *) mkNode (Node(_, Children), Dsigma, Drho1, GR, Drho2) =
        Node(Dsigma, [ref (Leaf(Drho2, ref [GR])),
-                     ref (Node(Drho1, Children))])
+                     ref (Node(Drho1, Children))]) (* GEN END FUN FIRST *)
 
-    | mkNode (Leaf(c, GRlist), Dsigma, Drho1, GR2, Drho2) =
-       Node(Dsigma,[ref(Leaf(Drho2, ref [GR2])), ref(Leaf(Drho1, GRlist))])
+    | (* GEN BEGIN FUN BRANCH *) mkNode (Leaf(c, GRlist), Dsigma, Drho1, GR2, Drho2) =
+       Node(Dsigma,[ref(Leaf(Drho2, ref [GR2])), ref(Leaf(Drho1, GRlist))]) (* GEN END FUN BRANCH *)
 
   (* ---------------------------------------------------------------------- *)
 
-  fun compatibleCtx ((G, eqn), []) = NONE
-    | compatibleCtx ((G,eqn), ((l', G', eqn', answRef', _, status')::GRlist)) =
+  fun (* GEN BEGIN FUN FIRST *) compatibleCtx ((G, eqn), []) = NONE (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) compatibleCtx ((G,eqn), ((l', G', eqn', answRef', _, status')::GRlist)) =
        (* we may not need to check that the DAVars are the same *)
       (if (equalCtx' (G, G') andalso equalEqn(eqn, eqn'))
          then SOME(l', answRef', status')
        else
-         compatibleCtx ((G, eqn), GRlist))
+         compatibleCtx ((G, eqn), GRlist)) (* GEN END FUN BRANCH *)
 
-  fun compChild (N as Leaf((D_t, nsub_t), GList), (D_e, nsub_e)) =
-        compatibleSub ((D_t, nsub_t), (D_e,  nsub_e))
-    | compChild (N as Node((D_t, nsub_t), Children'), (D_e, nsub_e)) =
-        compatibleSub ((D_t, nsub_t), (D_e, nsub_e))
+  fun (* GEN BEGIN FUN FIRST *) compChild (N as Leaf((D_t, nsub_t), GList), (D_e, nsub_e)) =
+        compatibleSub ((D_t, nsub_t), (D_e,  nsub_e)) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) compChild (N as Node((D_t, nsub_t), Children'), (D_e, nsub_e)) =
+        compatibleSub ((D_t, nsub_t), (D_e, nsub_e)) (* GEN END FUN BRANCH *)
 
   fun findAllCandidates (G_r, children, Ds) =
     let
-      fun findAllCands (G_r, nil, (D_u, sub_u), VList, SList) = (VList, SList)
-        | findAllCands (G_r, (x::L), (D_u, sub_u), VList, SList) =
+      fun (* GEN BEGIN FUN FIRST *) findAllCands (G_r, nil, (D_u, sub_u), VList, SList) = (VList, SList) (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) findAllCands (G_r, (x::L), (D_u, sub_u), VList, SList) =
           case compChild (!x, (D_u, sub_u))
             of NoCompatibleSub => findAllCands (G_r, L, (D_u, sub_u), VList, SList)
             | SplitSub (Dsigma, Drho1, Drho2) =>
               findAllCands (G_r, L, (D_u, sub_u),VList,
                             ((x, (Dsigma, Drho1, Drho2))::SList))
             | VariantSub (Drho2 as (D_r2, rho2)) =>
-              findAllCands (G_r, L, (D_u, sub_u), ((x, Drho2,I.id)::VList), SList)
+              findAllCands (G_r, L, (D_u, sub_u), ((x, Drho2,I.id)::VList), SList) (* GEN END FUN BRANCH *)
   
     in
       findAllCands (G_r, children, Ds, nil,  nil)
@@ -569,16 +569,16 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
  (* ---------------------------------------------------------------------- *)
   fun divergingCtx (stage, G, GRlistRef) =
     let
-      val l = I.ctxLength(G)
+      (* GEN BEGIN TAG OUTSIDE LET *) val l = I.ctxLength(G) (* GEN END TAG OUTSIDE LET *)
     in
-    List.exists (fn ((evar, l), G', _, _, stage', _) => (stage = stage' andalso (l > (I.ctxLength(G')))))
+    List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn ((evar, l), G', _, _, stage', _) => (stage = stage' andalso (l > (I.ctxLength(G')))) (* GEN END FUNCTION EXPRESSION *))
     (!GRlistRef)
     end
 
-  fun eqHeads (I.Const k, I.Const k') =  (k = k')
-    | eqHeads (I.BVar k, I.BVar k') =  (k = k')
-    | eqHeads (I.Def k, I.Def k') = (k = k')
-    | eqHeads (_, _) = false
+  fun (* GEN BEGIN FUN FIRST *) eqHeads (I.Const k, I.Const k') =  (k = k') (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) eqHeads (I.BVar k, I.BVar k') =  (k = k') (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) eqHeads (I.Def k, I.Def k') = (k = k') (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) eqHeads (_, _) = false (* GEN END FUN BRANCH *)
 
  (* eqTerm (t2, (t, rho1)) = bool
     returns true iff t2 = t[rho1]
@@ -586,26 +586,26 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
   t may contain nvars
  *)
 
- fun eqTerm (I.Root(H2, S2), (t as I.Root(H, S), rho1)) =
+ fun (* GEN BEGIN FUN FIRST *) eqTerm (I.Root(H2, S2), (t as I.Root(H, S), rho1)) =
      if eqHeads (H2, H)
        then eqSpine(S2, (S, rho1))
      else
-       false
-   | eqTerm (T2, (I.NVar n, rho1)) =
+       false (* GEN END FUN FIRST *)
+   | (* GEN BEGIN FUN BRANCH *) eqTerm (T2, (I.NVar n, rho1)) =
      (case (S.lookup rho1 n)
         of NONE => false
-      | SOME (T1) => eqTerm (T2, (T1, nid())))
-   | eqTerm (I.Lam(D2, T2), (I.Lam(D, T), rho1)) =
-     eqTerm (T2, (T, rho1))
-   | eqTerm (_, (_, _)) = false
+      | SOME (T1) => eqTerm (T2, (T1, nid()))) (* GEN END FUN BRANCH *)
+   | (* GEN BEGIN FUN BRANCH *) eqTerm (I.Lam(D2, T2), (I.Lam(D, T), rho1)) =
+     eqTerm (T2, (T, rho1)) (* GEN END FUN BRANCH *)
+   | (* GEN BEGIN FUN BRANCH *) eqTerm (_, (_, _)) = false (* GEN END FUN BRANCH *)
 
- and eqSpine (I.Nil, (I.Nil, rho1)) = true
-  | eqSpine (I.App(T2, S2), (I.App(T, S), rho1)) =
-    eqTerm (T2, (T, rho1)) andalso eqSpine (S2, (S, rho1))
-   | eqSpine (_, _) = false
+ and (* GEN BEGIN FUN FIRST *) eqSpine (I.Nil, (I.Nil, rho1)) = true (* GEN END FUN FIRST *)
+  | (* GEN BEGIN FUN BRANCH *) eqSpine (I.App(T2, S2), (I.App(T, S), rho1)) =
+    eqTerm (T2, (T, rho1)) andalso eqSpine (S2, (S, rho1)) (* GEN END FUN BRANCH *)
+   | (* GEN BEGIN FUN BRANCH *) eqSpine (_, _) = false (* GEN END FUN BRANCH *)
 
  fun divergingSub ((Ds, sigma), (Dr1, rho1), (Dr2, rho2)) =
-    S.exists rho2 (fn (n2, t2) => S.exists sigma (fn (_,t) => eqTerm (t2, (t, rho1))))
+    S.exists rho2 ((* GEN BEGIN FUNCTION EXPRESSION *) fn (n2, t2) => S.exists sigma ((* GEN BEGIN FUNCTION EXPRESSION *) fn (_,t) => eqTerm (t2, (t, rho1)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END FUNCTION EXPRESSION *))
 
   (* ---------------------------------------------------------------------- *)
   (* Insert via variant checking *)
@@ -631,7 +631,7 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
   *)
   fun insert (Nref, (D_u, nsub_u), GR) =
     let
-      fun insert' (N as Leaf ((D,  _), GRlistRef),
+      fun (* GEN BEGIN FUN FIRST *) insert' (N as Leaf ((D,  _), GRlistRef),
                    (D_u, nsub_u), GR as ((evarl,l), G_r, eqn, answRef, stage, status)) =
         (* need to compare D and D_u *)
         (case compatibleCtx ((G_r, eqn), (!GRlistRef))
@@ -639,63 +639,63 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
                        if ((!TableParam.divHeuristic) andalso divergingCtx (stage, G_r, GRlistRef))
                          then
                            ((* ctx are diverging --- force suspension *)
-                            (fn () => (GRlistRef := (GR::(!GRlistRef));
-                                answList := (answRef :: (!answList))),
+                            ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => (GRlistRef := (GR::(!GRlistRef));
+                                answList := (answRef :: (!answList))) (* GEN END FUNCTION EXPRESSION *),
                             T.DivergingEntry(I.id, answRef)))
                        else
                          (* compatible path (variant) -- ctx are different *)
-                          (fn () => (GRlistRef := (GR::(!GRlistRef));
-                                     answList := (answRef :: (!answList))),
+                          ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => (GRlistRef := (GR::(!GRlistRef));
+                                     answList := (answRef :: (!answList))) (* GEN END FUNCTION EXPRESSION *),
                           T.NewEntry(answRef))
                           )
          | SOME((evarl', Glength), answRef', status') =>
              ((* compatible path -- SAME ctx *)
-              ((fn () => ()), T.RepeatedEntry((I.id,I.id), answRef', status'))
-              ))
+              (((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)), T.RepeatedEntry((I.id,I.id), answRef', status'))
+              )) (* GEN END FUN FIRST *)
   
   
-      | insert' (N as Node((D, sub), children), (D_u, nsub_u),
+      | (* GEN BEGIN FUN BRANCH *) insert' (N as Node((D, sub), children), (D_u, nsub_u),
                  GR as (l, G_r, eqn, answRef, stage, status)) =
         let
-          val (VariantCand, SplitCand) = findAllCandidates (G_r, children, (D_u, nsub_u))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (VariantCand, SplitCand) = findAllCandidates (G_r, children, (D_u, nsub_u)) (* GEN END TAG OUTSIDE LET *)
         
-          fun checkCandidates (nil, nil) =
+          fun (* GEN BEGIN FUN FIRST *) checkCandidates (nil, nil) =
             ((* no child is compatible with nsub_u *)
-             (fn () => (Nref := Node((D, sub), (ref (Leaf((D_u, nsub_u), ref [GR])))::children);
-                        answList := (answRef :: (!answList))),
-              T.NewEntry(answRef)))
+             ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => (Nref := Node((D, sub), (ref (Leaf((D_u, nsub_u), ref [GR])))::children);
+                        answList := (answRef :: (!answList))) (* GEN END FUNCTION EXPRESSION *),
+              T.NewEntry(answRef))) (* GEN END FUN FIRST *)
         
-            | checkCandidates (nil, ((ChildRef, (Dsigma, Drho1, Drho2))::_)) =
+            | (* GEN BEGIN FUN BRANCH *) checkCandidates (nil, ((ChildRef, (Dsigma, Drho1, Drho2))::_)) =
               (* split an existing node *)
               if ((!TableParam.divHeuristic) andalso
                   divergingSub (Dsigma, Drho1, Drho2))
                then
                  ((* substree divering -- splitting node *)
-                  (fn () => (ChildRef :=  mkNode((!ChildRef), Dsigma, Drho1, GR, Drho2);
-                             answList := (answRef :: (!answList))),
+                  ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => (ChildRef :=  mkNode((!ChildRef), Dsigma, Drho1, GR, Drho2);
+                             answList := (answRef :: (!answList))) (* GEN END FUNCTION EXPRESSION *),
                    T.DivergingEntry(I.id, answRef)))
              else
                 ((* split existing node *)
-                 (fn () => (ChildRef :=  mkNode((!ChildRef), Dsigma, Drho1, GR, Drho2);
-                            answList := (answRef :: (!answList))),
-                 T.NewEntry(answRef)))
+                 ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => (ChildRef :=  mkNode((!ChildRef), Dsigma, Drho1, GR, Drho2);
+                            answList := (answRef :: (!answList))) (* GEN END FUNCTION EXPRESSION *),
+                 T.NewEntry(answRef))) (* GEN END FUN BRANCH *)
         
-            | checkCandidates (((ChildRef, Drho2, asub)::nil),  _) =
+            | (* GEN BEGIN FUN BRANCH *) checkCandidates (((ChildRef, Drho2, asub)::nil),  _) =
               (* unique "perfect" candidate (left) *)
-                insert (ChildRef, Drho2, GR)
+                insert (ChildRef, Drho2, GR) (* GEN END FUN BRANCH *)
         
-            | checkCandidates (((ChildRef, Drho2, asub)::L), SCands) =
+            | (* GEN BEGIN FUN BRANCH *) checkCandidates (((ChildRef, Drho2, asub)::L), SCands) =
               (* there are several "perfect" candidates *)
               (case (insert (ChildRef, Drho2, GR))
                  of (_, T.NewEntry(answRef)) =>  checkCandidates (L, SCands)
                | (f, T.RepeatedEntry(asub, answRef, status)) =>
                    ((f, T.RepeatedEntry(asub, answRef, status)))
                | (f, T.DivergingEntry(asub, answRef)) =>
-                   ((f, T.DivergingEntry(asub, answRef))))
+                   ((f, T.DivergingEntry(asub, answRef)))) (* GEN END FUN BRANCH *)
         
         in
           checkCandidates (VariantCand, SplitCand)
-        end
+        end (* GEN END FUN BRANCH *)
   in
     insert' (!Nref, (D_u, nsub_u), GR)
   end
@@ -720,14 +720,14 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
      *)
     fun answCheckVariant (s', answRef, O) =
       let
-        fun member ((D, sk), []) = false
-          | member ((D, sk), (((D1, s1),_)::S)) =
+        fun (* GEN BEGIN FUN FIRST *) member ((D, sk), []) = false (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) member ((D, sk), (((D1, s1),_)::S)) =
             if equalSub (sk,s1) andalso equalCtx'(D, D1) then
               true
             else
-              member ((D, sk), S)
+              member ((D, sk), S) (* GEN END FUN BRANCH *)
     
-        val (DEVars, sk) = A.abstractAnswSub s'
+        (* GEN BEGIN TAG OUTSIDE LET *) val (DEVars, sk) = A.abstractAnswSub s' (* GEN END TAG OUTSIDE LET *)
       in
         if member ((DEVars, sk), T.solutions answRef) then
           T.repeated
@@ -739,16 +739,16 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
     (* ---------------------------------------------------------------------- *)
     fun reset () =
       (nctr := 1;
-       Array.modify (fn (n, Tree) => (n := 0;
+       Array.modify ((* GEN BEGIN FUNCTION EXPRESSION *) fn (n, Tree) => (n := 0;
                                       Tree := !(makeTree ());
                                       answList := [];
                                       added := false;
-                                      (n, Tree))) indexArray)
+                                      (n, Tree)) (* GEN END FUNCTION EXPRESSION *)) indexArray)
 
-    fun makeCtx (n, I.Null, DEVars : ctx) = n
-      | makeCtx (n, I.Decl(G, D), DEVars : ctx) =
+    fun (* GEN BEGIN FUN FIRST *) makeCtx (n, I.Null, DEVars : ctx) = n (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) makeCtx (n, I.Decl(G, D), DEVars : ctx) =
         (insertList ((n, D), DEVars);
-         makeCtx (n+1, G, DEVars))
+         makeCtx (n+1, G, DEVars)) (* GEN END FUN BRANCH *)
 
 
     (* callCheck (a, DA, DE, G, U eqn) = callCheckResult
@@ -764,19 +764,19 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
      *)
     fun callCheck (a, DAVars, DEVars, G,  U, eqn, status) =
       let
-        val (n, Tree) = Array.sub (indexArray, a)
-        val nsub_goal = S.new()
-        val DAEVars = compose (DEVars, DAVars)
-        val D = emptyCtx()
-        val n = I.ctxLength(G)
-        val _ = makeCtx (n+1, DAEVars, D:ctx)
-        val l = I.ctxLength(DAEVars)
-        val _ = S.insert nsub_goal (1, U)
-        val result =  insert (Tree, (D, nsub_goal),
-                              ((l, n+1), G, eqn, emptyAnswer(), !TableParam.stageCtr, status))
-        val esub = ctxToAVarSub (G, DAEVars, I.Shift(0))
-        val _ = if solveEqn' ((eqn, shift(G,esub)), G)
-                  then () else print " failed to solve eqn_query\n"
+        (* GEN BEGIN TAG OUTSIDE LET *) val (n, Tree) = Array.sub (indexArray, a) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val nsub_goal = S.new() (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val DAEVars = compose (DEVars, DAVars) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val D = emptyCtx() (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val n = I.ctxLength(G) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = makeCtx (n+1, DAEVars, D:ctx) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val l = I.ctxLength(DAEVars) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = S.insert nsub_goal (1, U) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val result =  insert (Tree, (D, nsub_goal),
+                              ((l, n+1), G, eqn, emptyAnswer(), !TableParam.stageCtr, status)) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val esub = ctxToAVarSub (G, DAEVars, I.Shift(0)) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if solveEqn' ((eqn, shift(G,esub)), G)
+                  then () else print " failed to solve eqn_query\n" (* GEN END TAG OUTSIDE LET *)
       in
         case result
           of (sf, T.NewEntry(answRef)) =>
@@ -807,16 +807,16 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
      *)
     fun insertIntoTree (a, DAVars, DEVars, G,  U, eqn, answRef, status) =
       let
-        val (n, Tree) = Array.sub (indexArray, a)
-        val nsub_goal = S.new()
-        val DAEVars = compose (DEVars, DAVars)
-        val D = emptyCtx()
-        val n = I.ctxLength(G)
-        val _ = makeCtx (n+1, DAEVars, D:ctx)
-        val l = I.ctxLength(DAEVars)
-        val _ = S.insert nsub_goal (1, U)
-        val result =  insert (Tree, (D, nsub_goal),
-                              ((l, n+1), G, eqn, answRef, !TableParam.stageCtr, status))
+        (* GEN BEGIN TAG OUTSIDE LET *) val (n, Tree) = Array.sub (indexArray, a) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val nsub_goal = S.new() (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val DAEVars = compose (DEVars, DAVars) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val D = emptyCtx() (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val n = I.ctxLength(G) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = makeCtx (n+1, DAEVars, D:ctx) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val l = I.ctxLength(DAEVars) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = S.insert nsub_goal (1, U) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val result =  insert (Tree, (D, nsub_goal),
+                              ((l, n+1), G, eqn, answRef, !TableParam.stageCtr, status)) (* GEN END TAG OUTSIDE LET *)
       in
         case result
           of (sf, T.NewEntry(answRef)) =>
@@ -838,10 +838,10 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
 
     fun updateTable () =
       let
-        fun update [] Flag = Flag
-          | update (answRef::AList) Flag =
+        fun (* GEN BEGIN FUN FIRST *) update [] Flag = Flag (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) update (answRef::AList) Flag =
             (let
-               val l = length(T.solutions(answRef))
+               (* GEN BEGIN TAG OUTSIDE LET *) val l = length(T.solutions(answRef)) (* GEN END TAG OUTSIDE LET *)
              in
                if (l = T.lookup(answRef)) then
                  (* no new solutions were added in the previous stage *)
@@ -850,28 +850,28 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
                 (* new solutions were added *)
                 (T.updateAnswLookup (l, answRef);
                  update AList true)
-            end)
-        val Flag = update (!answList) false
-        val r = (Flag orelse (!added))
+            end) (* GEN END FUN BRANCH *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val Flag = update (!answList) false (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val r = (Flag orelse (!added)) (* GEN END TAG OUTSIDE LET *)
       in
         added := false;
         r
       end
 
   in
-    val reset = reset
-    val callCheck = (fn (DAVars, DEVars, G, U, eqn, status) =>
-                        callCheck(cidFromHead(I.targetHead U), DAVars, DEVars, G, U, eqn, status))
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val callCheck = ((* GEN BEGIN FUNCTION EXPRESSION *) fn (DAVars, DEVars, G, U, eqn, status) =>
+                        callCheck(cidFromHead(I.targetHead U), DAVars, DEVars, G, U, eqn, status) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
 
 
-    val insertIntoTree = (fn (DAVars, DEVars, G, U, eqn, answRef, status) =>
+    (* GEN BEGIN TAG OUTSIDE LET *) val insertIntoTree = ((* GEN BEGIN FUNCTION EXPRESSION *) fn (DAVars, DEVars, G, U, eqn, answRef, status) =>
                           insertIntoTree(cidFromHead(I.targetHead U), DAVars, DEVars,
-                                         G, U, eqn, answRef, status))
+                                         G, U, eqn, answRef, status) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
 
-    val answerCheck = answCheck
-    val updateTable = updateTable
+    (* GEN BEGIN TAG OUTSIDE LET *) val answerCheck = answCheck (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val updateTable = updateTable (* GEN END TAG OUTSIDE LET *)
 
-    val tableSize = (fn () => (length(!answList)))
+    (* GEN BEGIN TAG OUTSIDE LET *) val tableSize = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => (length(!answList)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
 
     (* memberCtx ((G,V), G', n) = bool
 
@@ -882,13 +882,13 @@ functor (* GEN BEGIN FUNCTOR DECL *) MemoTable ((*! structure IntSyn' : INTSYN !
      *)
     fun memberCtx ((G,V), G') =
       let
-        fun memberCtx' ((G, V), I.Null, n) = NONE
-          | memberCtx' ((G, V), I.Decl(G', D' as I.Dec(_, V')), n) =
+        fun (* GEN BEGIN FUN FIRST *) memberCtx' ((G, V), I.Null, n) = NONE (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) memberCtx' ((G, V), I.Decl(G', D' as I.Dec(_, V')), n) =
            if Conv.conv ((V, I.id), (V', I.Shift n))
              then
                SOME(D')
            else
-             memberCtx' ((G,V), G',n+1)
+             memberCtx' ((G,V), G',n+1) (* GEN END FUN BRANCH *)
       in
         memberCtx' ((G,V), G', 1)
       end

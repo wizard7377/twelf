@@ -1,7 +1,7 @@
 (* Origins of Declarations *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Origins
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Origins
   (structure Global : GLOBAL
    structure Table : TABLE where type key = string
    (*! structure IntSyn' : INTSYN !*)
@@ -32,4 +32,4 @@ struct
     fun originLookup (cid) = Array.sub (originArray, cid)
   end
 
-end (* GEN END FUNCTOR DECL *);  (* functor Origins *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Origins *)

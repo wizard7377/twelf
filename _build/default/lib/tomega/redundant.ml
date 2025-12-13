@@ -1,7 +1,7 @@
 (* Redundancy remover (factoring) *)
 (* Author: Adam Poswolsky (ABP) *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Redundant (structure Opsem : OPSEM) : REDUNDANT  =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Redundant (structure Opsem : OPSEM) : REDUNDANT  =
   struct
     exception Error of string
 
@@ -554,4 +554,4 @@ functor (* GEN BEGIN FUNCTOR DECL *) Redundant (structure Opsem : OPSEM) : REDUN
       end
 
 
-  end (* GEN END FUNCTOR DECL *)
+  end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

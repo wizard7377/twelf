@@ -49,22 +49,22 @@ struct
     (* collectConstraints K = cnstrs
        where cnstrs collects all constraints attached to EVars in K
     *)
-    fun collectConstraints (I.Null) = nil
-      | collectConstraints (I.Decl (G, FV _)) = collectConstraints G
-      | collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref nil)))) = collectConstraints G
-      | collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref cnstrL)))) =
-        (C.simplify cnstrL) @ collectConstraints G
-      | collectConstraints (I.Decl (G, LV _)) = collectConstraints G
+    fun (* GEN BEGIN FUN FIRST *) collectConstraints (I.Null) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectConstraints (I.Decl (G, FV _)) = collectConstraints G (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref nil)))) = collectConstraints G (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectConstraints (I.Decl (G, EV (I.EVar (_, _, _, ref cnstrL)))) =
+        (C.simplify cnstrL) @ collectConstraints G (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectConstraints (I.Decl (G, LV _)) = collectConstraints G (* GEN END FUN BRANCH *)
 
     (* checkConstraints (K) = ()
        Effect: raises Constraints.Error(C) if K contains unresolved constraints
     *)
     fun checkConstraints (K) =
         let
-          val constraints = collectConstraints K
-          val _ = case constraints
+          (* GEN BEGIN TAG OUTSIDE LET *) val constraints = collectConstraints K (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = case constraints
                     of nil => ()
-                     | _ => raise C.Error (constraints)
+                     | _ => raise C.Error (constraints) (* GEN END TAG OUTSIDE LET *)
         in
           ()
         end
@@ -83,28 +83,28 @@ struct
     (* eqEVar X Y = B
        where B iff X and Y represent same variable
     *)
-    fun eqEVar (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) = (r1 = r2)
-      | eqEVar _ _ = false
+    fun (* GEN BEGIN FUN FIRST *) eqEVar (I.EVar (r1, _, _, _)) (EV (I.EVar (r2, _, _, _))) = (r1 = r2) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) eqEVar _ _ = false (* GEN END FUN BRANCH *)
 
     (* eqFVar F Y = B
        where B iff X and Y represent same variable
     *)
-    fun eqFVar (I.FVar (n1, _, _)) (FV (n2,  _)) = (n1 = n2)
-      | eqFVar _ _ = false
+    fun (* GEN BEGIN FUN FIRST *) eqFVar (I.FVar (n1, _, _)) (FV (n2,  _)) = (n1 = n2) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) eqFVar _ _ = false (* GEN END FUN BRANCH *)
 
     (* eqLVar L Y = B
        where B iff X and Y represent same variable
     *)
-    fun eqLVar (I.LVar ((r1, _, _))) (LV (I.LVar ((r2, _, _)))) = (r1 = r2)
-      | eqLVar _ _ = false
+    fun (* GEN BEGIN FUN FIRST *) eqLVar (I.LVar ((r1, _, _))) (LV (I.LVar ((r2, _, _)))) = (r1 = r2) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) eqLVar _ _ = false (* GEN END FUN BRANCH *)
 
 
     (* exists P K = B
        where B iff K = K1, Y, K2  s.t. P Y  holds
     *)
     fun exists P K =
-        let fun exists' (I.Null) = false
-              | exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K')
+        let fun (* GEN BEGIN FUN FIRST *) exists' (I.Null) = false (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) exists' (I.Decl(K',Y)) = P(Y) orelse exists' (K') (* GEN END FUN BRANCH *)
         in
           exists' K
         end
@@ -119,11 +119,11 @@ struct
     *)
     (* Wed Aug  6 16:37:57 2003 -fp *)
     (* !!! *)
-    fun or (I.Maybe, _) = I.Maybe
-      | or (_, I.Maybe) = I.Maybe
-      | or (I.Meta, _) = I.Meta
-      | or (_, I.Meta) = I.Meta
-      | or (I.No, I.No) = I.No
+    fun (* GEN BEGIN FUN FIRST *) or (I.Maybe, _) = I.Maybe (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) or (_, I.Maybe) = I.Maybe (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) or (I.Meta, _) = I.Meta (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) or (_, I.Meta) = I.Meta (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) or (I.No, I.No) = I.No (* GEN END FUN BRANCH *)
 
     (* occursInExp (k, U) = DP,
 
@@ -133,29 +133,29 @@ struct
              DP = Maybe   iff k occurs in U some place not as an argument to a Skonst
              DP = Meta    iff k occurs in U and only as arguments to Skonsts
     *)
-    fun occursInExp (k, I.Uni _) = I.No
-      | occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V))
-      | occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S))
-      | occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V))
-      | occursInExp (k, I.FgnExp csfe) =
-        I.FgnExpStd.fold csfe (fn (U, DP) => or (DP, (occursInExp (k, Whnf.normalize (U, I.id))))) I.No
+    fun (* GEN BEGIN FUN FIRST *) occursInExp (k, I.Uni _) = I.No (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExp (k, I.Pi (DP, V)) = or (occursInDecP (k, DP), occursInExp (k+1, V)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExp (k, I.Root (H, S)) = occursInHead (k, H, occursInSpine (k, S)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExp (k, I.Lam (D, V)) = or (occursInDec (k, D), occursInExp (k+1, V)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExp (k, I.FgnExp csfe) =
+        I.FgnExpStd.fold csfe ((* GEN BEGIN FUNCTION EXPRESSION *) fn (U, DP) => or (DP, (occursInExp (k, Whnf.normalize (U, I.id)))) (* GEN END FUNCTION EXPRESSION *)) I.No (* GEN END FUN BRANCH *)
 
       (* no case for Redex, EVar, EClo *)
 
-    and occursInHead (k, I.BVar (k'), DP) =
+    and (* GEN BEGIN FUN FIRST *) occursInHead (k, I.BVar (k'), DP) =
         if (k = k') then I.Maybe
-        else DP
-      | occursInHead (k, I.Const _, DP) = DP
-      | occursInHead (k, I.Def _, DP) = DP
-      | occursInHead (k, I.Proj _, DP) = DP
-      | occursInHead (k, I.FgnConst _, DP) = DP
-      | occursInHead (k, I.Skonst _, I.No) = I.No
-      | occursInHead (k, I.Skonst _, I.Meta) = I.Meta
-      | occursInHead (k, I.Skonst _, I.Maybe) = I.Meta
+        else DP (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Const _, DP) = DP (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Def _, DP) = DP (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Proj _, DP) = DP (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.FgnConst _, DP) = DP (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Skonst _, I.No) = I.No (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Skonst _, I.Meta) = I.Meta (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInHead (k, I.Skonst _, I.Maybe) = I.Meta (* GEN END FUN BRANCH *)
       (* no case for FVar *)
 
-    and occursInSpine (_, I.Nil) = I.No
-      | occursInSpine (k, I.App (U, S)) = or (occursInExp (k, U), occursInSpine (k, S))
+    and (* GEN BEGIN FUN FIRST *) occursInSpine (_, I.Nil) = I.No (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInSpine (k, I.App (U, S)) = or (occursInExp (k, U), occursInSpine (k, S)) (* GEN END FUN BRANCH *)
       (* no case for SClo *)
 
     and occursInDec (k, I.Dec (_, V)) = occursInExp (k, V)
@@ -166,10 +166,10 @@ struct
     *)
     (* optimize to have fewer traversals? -cs *)
     (* pre-Twelf 1.2 code walk Fri May  8 11:17:10 1998 *)
-    fun piDepend (DPV as ((D, I.No), V)) = I.Pi DPV
-      | piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV
-      | piDepend ((D, I.Maybe), V) =
-          I.Pi ((D, occursInExp (1, V)), V)
+    fun (* GEN BEGIN FUN FIRST *) piDepend (DPV as ((D, I.No), V)) = I.Pi DPV (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) piDepend (DPV as ((D, I.Meta), V)) = I.Pi DPV (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) piDepend ((D, I.Maybe), V) =
+          I.Pi ((D, occursInExp (1, V)), V) (* GEN END FUN BRANCH *)
 
     (* raiseType (G, V) = {{G}} V
 
@@ -179,8 +179,8 @@ struct
 
        All abstractions are potentially dependent.
     *)
-    fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V))
+    fun (* GEN BEGIN FUN FIRST *) raiseType (I.Null, V) = V (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Pi ((D, I.Maybe), V)) (* GEN END FUN BRANCH *)
 
     (* raiseTerm (G, U) = [[G]] U
 
@@ -190,8 +190,8 @@ struct
 
        All abstractions are potentially dependent.
     *)
-    fun raiseTerm (I.Null, U) = U
-      | raiseTerm (I.Decl (G, D), U) = raiseTerm (G, I.Lam (D, U))
+    fun (* GEN BEGIN FUN FIRST *) raiseTerm (I.Null, U) = U (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) raiseTerm (I.Decl (G, D), U) = raiseTerm (G, I.Lam (D, U)) (* GEN END FUN BRANCH *)
 
     (* collectExpW (G, (U, s), K) = K'
 
@@ -203,16 +203,16 @@ struct
              where K'' contains all EVars and FVars in (U,s)
     *)
     (* Possible optimization: Calculate also the normal form of the term *)
-    fun collectExpW (G, (I.Uni L, s), K) = K
-      | collectExpW (G, (I.Pi ((D, _), V), s), K) =
-          collectExp (I.Decl (G, I.decSub (D, s)), (V, I.dot1 s), collectDec (G, (D, s), K))
-      | collectExpW (G, (I.Root (F as I.FVar (name, V, s'), S), s), K) =
+    fun (* GEN BEGIN FUN FIRST *) collectExpW (G, (I.Uni L, s), K) = K (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectExpW (G, (I.Pi ((D, _), V), s), K) =
+          collectExp (I.Decl (G, I.decSub (D, s)), (V, I.dot1 s), collectDec (G, (D, s), K)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectExpW (G, (I.Root (F as I.FVar (name, V, s'), S), s), K) =
         if exists (eqFVar F) K
           then collectSpine (G, (S, s), K)
         else (* s' = ^|G| *)
-          collectSpine (G, (S, s), I.Decl (collectExp (I.Null, (V, I.id), K), FV (name, V)))
-      | collectExpW (G, (I.Root (I.Proj (L as I.LVar (ref NONE, sk, (l, t)), i), S), s), K) =
-          collectSpine (G, (S, s), collectBlock (G, I.blockSub (L, s), K))
+          collectSpine (G, (S, s), I.Decl (collectExp (I.Null, (V, I.id), K), FV (name, V))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectExpW (G, (I.Root (I.Proj (L as I.LVar (ref NONE, sk, (l, t)), i), S), s), K) =
+          collectSpine (G, (S, s), collectBlock (G, I.blockSub (L, s), K)) (* GEN END FUN BRANCH *)
           (* BUG : We forget to deref L.  use collectBlock instead
              FPCHECK
              -cs Sat Jul 24 18:48:59 2010
@@ -232,22 +232,22 @@ struct
          *)
             collectSpine (G, (S, s), collectSub (G, I.comp(t,I.comp(sk,s)),
                                                  I.Decl (K, LV L)))
-*)      | collectExpW (G, (I.Root (_ , S), s), K) =
-          collectSpine (G, (S, s), K)
-      | collectExpW (G, (I.Lam (D, U), s), K) =
-          collectExp (I.Decl (G, I.decSub (D, s)), (U, I.dot1 s), collectDec (G, (D, s), K))
-      | collectExpW (G, (X as I.EVar (r, GX, V, cnstrs), s), K) =
+*)      | (* GEN BEGIN FUN BRANCH *) collectExpW (G, (I.Root (_ , S), s), K) =
+          collectSpine (G, (S, s), K) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectExpW (G, (I.Lam (D, U), s), K) =
+          collectExp (I.Decl (G, I.decSub (D, s)), (U, I.dot1 s), collectDec (G, (D, s), K)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectExpW (G, (X as I.EVar (r, GX, V, cnstrs), s), K) =
         if exists (eqEVar X) K
           then collectSub(G, s, K)
         else let
                (* val _ = checkEmpty !cnstrs *)
-               val V' = raiseType (GX, V) (* inefficient *)
-               val K' = collectExp (I.Null, (V', I.id), K)
+               (* GEN BEGIN TAG OUTSIDE LET *) val V' = raiseType (GX, V) (* GEN END TAG OUTSIDE LET *) (* inefficient *)
+               (* GEN BEGIN TAG OUTSIDE LET *) val K' = collectExp (I.Null, (V', I.id), K) (* GEN END TAG OUTSIDE LET *)
              in
                collectSub(G, s, I.Decl (K', EV (X)))
-             end
-      | collectExpW (G, (I.FgnExp csfe, s), K) =
-          I.FgnExpStd.fold csfe (fn (U, K) => collectExp (G, (U, s), K)) K
+             end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectExpW (G, (I.FgnExp csfe, s), K) =
+          I.FgnExpStd.fold csfe ((* GEN BEGIN FUNCTION EXPRESSION *) fn (U, K) => collectExp (G, (U, s), K) (* GEN END FUNCTION EXPRESSION *)) K (* GEN END FUN BRANCH *)
       (* No other cases can occur due to whnf invariant *)
 
     (* collectExp (G, (U, s), K) = K'
@@ -263,11 +263,11 @@ struct
        then  K' = K, K''
        where K'' contains all EVars and FVars in (S, s)
      *)
-    and collectSpine (G, (I.Nil, _), K) = K
-      | collectSpine (G, (I.SClo(S, s'), s), K) =
-          collectSpine (G, (S, I.comp (s', s)), K)
-      | collectSpine (G, (I.App (U, S), s), K) =
-          collectSpine (G, (S, s), collectExp (G, (U, s), K))
+    and (* GEN BEGIN FUN FIRST *) collectSpine (G, (I.Nil, _), K) = K (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectSpine (G, (I.SClo(S, s'), s), K) =
+          collectSpine (G, (S, I.comp (s', s)), K) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectSpine (G, (I.App (U, S), s), K) =
+          collectSpine (G, (S, s), collectExp (G, (U, s), K)) (* GEN END FUN BRANCH *)
 
     (* collectDec (G, (x:V, s), K) = K'
 
@@ -276,14 +276,14 @@ struct
        then  K' = K, K''
        where K'' contains all EVars and FVars in (V, s)
     *)
-    and collectDec (G, (I.Dec (_, V), s), K) =
-          collectExp (G, (V, s), K)
-      | collectDec (G, (I.BDec (_, (_, t)), s), K) =
+    and (* GEN BEGIN FUN FIRST *) collectDec (G, (I.Dec (_, V), s), K) =
+          collectExp (G, (V, s), K) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectDec (G, (I.BDec (_, (_, t)), s), K) =
           (* . |- t : Gsome, so do not compose with s *)
           (* Sat Dec  8 13:28:15 2001 -fp *)
           (* was: collectSub (I.Null, t, K) *)
-          collectSub (G, I.comp(t,s), K)
-      | collectDec (G, (I.NDec _, s), K) = K
+          collectSub (G, I.comp(t,s), K) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectDec (G, (I.NDec _, s), K) = K (* GEN END FUN BRANCH *)
 
     (* collectSub (G, s, K) = K'
 
@@ -292,12 +292,12 @@ struct
        then  K' = K, K''
        where K'' contains all EVars and FVars in s
     *)
-    and collectSub (G, I.Shift _, K) = K
-      | collectSub (G, I.Dot (I.Idx _, s), K) = collectSub (G, s, K)
-      | collectSub (G, I.Dot (I.Exp (U), s), K) =
-          collectSub (G, s, collectExp (G, (U, I.id), K))
-      | collectSub (G, I.Dot (I.Block B, s), K) =
-          collectSub (G, s, collectBlock (G, B, K))
+    and (* GEN BEGIN FUN FIRST *) collectSub (G, I.Shift _, K) = K (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectSub (G, I.Dot (I.Idx _, s), K) = collectSub (G, s, K) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectSub (G, I.Dot (I.Exp (U), s), K) =
+          collectSub (G, s, collectExp (G, (U, I.id), K)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectSub (G, I.Dot (I.Block B, s), K) =
+          collectSub (G, s, collectBlock (G, B, K)) (* GEN END FUN BRANCH *)
     (* next case should be impossible *)
     (*
       | collectSub (G, I.Dot (I.Undef, s), K) =
@@ -305,14 +305,14 @@ struct
     *)
 
     (* collectBlock (G, B, K) where G |- B block *)
-    and collectBlock (G, I.LVar (ref (SOME B), sk , _), K) =
-          collectBlock (G, I.blockSub (B, sk), K)
+    and (* GEN BEGIN FUN FIRST *) collectBlock (G, I.LVar (ref (SOME B), sk , _), K) =
+          collectBlock (G, I.blockSub (B, sk), K) (* GEN END FUN FIRST *)
           (* collectBlock (B, K) *)
           (* correct?? -fp Sun Dec  1 21:15:33 2002 *)
-      | collectBlock (G, L as I.LVar (_, sk, (l, t)), K) =
+      | (* GEN BEGIN FUN BRANCH *) collectBlock (G, L as I.LVar (_, sk, (l, t)), K) =
         if exists (eqLVar L) K
           then collectSub (G, I.comp(t,sk), K)
-        else I.Decl (collectSub (G, I.comp(t,sk), K), LV L)
+        else I.Decl (collectSub (G, I.comp(t,sk), K), LV L) (* GEN END FUN BRANCH *)
     (* was: t in the two lines above, July 22, 2010, -fp -cs *)
     (* | collectBlock (G, I.Bidx _, K) = K *)
     (* should be impossible: Fronts of substitutions are never Bidx *)
@@ -324,26 +324,26 @@ struct
        then G0' = G0,G
        and K' = K, K'' where K'' contains all EVars and FVars in G
     *)
-    fun collectCtx (G0, I.Null, K) = (G0, K)
-      | collectCtx (G0, I.Decl (G, D), K) =
+    fun (* GEN BEGIN FUN FIRST *) collectCtx (G0, I.Null, K) = (G0, K) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectCtx (G0, I.Decl (G, D), K) =
         let
-          val (G0', K') = collectCtx (G0, G, K)
-          val K'' = collectDec (G0', (D, I.id), K')
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G0', K') = collectCtx (G0, G, K) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val K'' = collectDec (G0', (D, I.id), K') (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G0, D), K'')
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* collectCtxs (G0, Gs, K) = K'
        Invariant: G0 |- G1,...,Gn ctx where Gs = [G1,...,Gn]
        and K' = K, K'' where K'' contains all EVars and FVars in G1,...,Gn
     *)
-    fun collectCtxs (G0, nil, K) = K
-      | collectCtxs (G0, G::Gs, K) =
+    fun (* GEN BEGIN FUN FIRST *) collectCtxs (G0, nil, K) = K (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectCtxs (G0, G::Gs, K) =
         let
-          val (G0', K') = collectCtx (G0, G, K)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G0', K') = collectCtx (G0, G, K) (* GEN END TAG OUTSIDE LET *)
         in
           collectCtxs (G0', Gs, K')
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* abstractEVar (K, depth, X) = C'
 
@@ -354,13 +354,13 @@ struct
        then C' = BVar (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractEVar (I.Decl (K', EV (I.EVar(r',_,_,_))), depth, X as I.EVar (r, _, _, _)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractEVar (I.Decl (K', EV (I.EVar(r',_,_,_))), depth, X as I.EVar (r, _, _, _)) =
         if r = r' then I.BVar (depth+1)
-        else abstractEVar (K', depth+1, X)
+        else abstractEVar (K', depth+1, X) (* GEN END FUN FIRST *)
 (*      | abstractEVar (I.Decl (K', FV (n', _)), depth, X) =
           abstractEVar (K', depth+1, X) remove later --cs*)
-      | abstractEVar (I.Decl (K', _), depth, X) =
-          abstractEVar (K', depth+1, X)
+      | (* GEN BEGIN FUN BRANCH *) abstractEVar (I.Decl (K', _), depth, X) =
+          abstractEVar (K', depth+1, X) (* GEN END FUN BRANCH *)
 
     (* abstractFVar (K, depth, F) = C'
 
@@ -371,13 +371,13 @@ struct
        then C' = BVar (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractFVar (I.Decl(K', FV (n', _)), depth, F as I.FVar (n, _, _)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractFVar (I.Decl(K', FV (n', _)), depth, F as I.FVar (n, _, _)) =
           if n = n' then I.BVar (depth+1)
-          else abstractFVar (K', depth+1, F)
+          else abstractFVar (K', depth+1, F) (* GEN END FUN FIRST *)
 (*      | abstractFVar (I.Decl(K', EV _), depth, F) =
           abstractFVar (K', depth+1, F) remove later --cs *)
-      | abstractFVar (I.Decl(K', _), depth, F) =
-          abstractFVar (K', depth+1, F)
+      | (* GEN BEGIN FUN BRANCH *) abstractFVar (I.Decl(K', _), depth, F) =
+          abstractFVar (K', depth+1, F) (* GEN END FUN BRANCH *)
 
     (* abstractLVar (K, depth, L) = C'
 
@@ -388,11 +388,11 @@ struct
        then C' = Bidx (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractLVar (I.Decl(K', LV (I.LVar (r', _, _))), depth, L as I.LVar (r, _, _)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractLVar (I.Decl(K', LV (I.LVar (r', _, _))), depth, L as I.LVar (r, _, _)) =
           if r = r' then I.Bidx (depth+1)
-          else abstractLVar (K', depth+1, L)
-      | abstractLVar (I.Decl(K', _), depth, L) =
-          abstractLVar (K', depth+1, L)
+          else abstractLVar (K', depth+1, L) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractLVar (I.Decl(K', _), depth, L) =
+          abstractLVar (K', depth+1, L) (* GEN END FUN BRANCH *)
 
     (* abstractExpW (K, depth, (U, s)) = U'
        U' = {{U[s]}}_K
@@ -406,26 +406,26 @@ struct
        and   . ||- U' and . ||- V'
        and   U' is in nf
     *)
-    fun abstractExpW (K, depth, (U as I.Uni (L), s)) = U
-      | abstractExpW (K, depth, (I.Pi ((D, P), V), s)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractExpW (K, depth, (U as I.Uni (L), s)) = U (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractExpW (K, depth, (I.Pi ((D, P), V), s)) =
           piDepend ((abstractDec (K, depth, (D, s)), P),
-                    abstractExp (K, depth + 1, (V, I.dot1 s)))
-      | abstractExpW (K, depth, (I.Root (F as I.FVar _, S), s)) =
+                    abstractExp (K, depth + 1, (V, I.dot1 s))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractExpW (K, depth, (I.Root (F as I.FVar _, S), s)) =
           I.Root (abstractFVar (K, depth, F),
-                  abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Root (I.Proj (L as I.LVar _, i), S), s)) =
+                  abstractSpine (K, depth, (S, s))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractExpW (K, depth, (I.Root (I.Proj (L as I.LVar _, i), S), s)) =
           I.Root (I.Proj (abstractLVar (K, depth, L), i),
-                  abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Root (H, S) ,s)) =
-          I.Root (H, abstractSpine (K, depth, (S, s)))
-      | abstractExpW (K, depth, (I.Lam (D, U), s)) =
+                  abstractSpine (K, depth, (S, s))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractExpW (K, depth, (I.Root (H, S) ,s)) =
+          I.Root (H, abstractSpine (K, depth, (S, s))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractExpW (K, depth, (I.Lam (D, U), s)) =
           I.Lam (abstractDec (K, depth, (D, s)),
-                 abstractExp (K, depth + 1, (U, I.dot1 s)))
-      | abstractExpW (K, depth, (X as I.EVar _, s)) =
+                 abstractExp (K, depth + 1, (U, I.dot1 s))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractExpW (K, depth, (X as I.EVar _, s)) =
           I.Root (abstractEVar (K, depth, X),
-                  abstractSub (K, depth, s, I.Nil))
-      | abstractExpW (K, depth, (I.FgnExp csfe, s)) =
-          I.FgnExpStd.Map.apply csfe (fn U => abstractExp (K, depth, (U, s)))
+                  abstractSub (K, depth, s, I.Nil)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractExpW (K, depth, (I.FgnExp csfe, s)) =
+          I.FgnExpStd.Map.apply csfe ((* GEN BEGIN FUNCTION EXPRESSION *) fn U => abstractExp (K, depth, (U, s)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END FUN BRANCH *)
 
     (* abstractExp (K, depth, (U, s)) = U'
 
@@ -443,14 +443,14 @@ struct
        then {{K}}, G |- S' : {G1}.W > W   (for some W)
        and  . ||- S'
     *)
-    and abstractSub (K, depth, I.Shift (k), S) =
+    and (* GEN BEGIN FUN FIRST *) abstractSub (K, depth, I.Shift (k), S) =
         if k < depth
           then abstractSub (K, depth, I.Dot (I.Idx (k+1), I.Shift (k+1)), S)
-        else (* k = depth *) S
-      | abstractSub (K, depth, I.Dot (I.Idx (k), s), S) =
-          abstractSub (K, depth, s, I.App (I.Root (I.BVar (k), I.Nil), S))
-      | abstractSub (K, depth, I.Dot (I.Exp (U), s), S) =
-          abstractSub (K, depth, s, I.App (abstractExp (K, depth, (U, I.id)), S))
+        else (* k = depth *) S (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSub (K, depth, I.Dot (I.Idx (k), s), S) =
+          abstractSub (K, depth, s, I.App (I.Root (I.BVar (k), I.Nil), S)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSub (K, depth, I.Dot (I.Exp (U), s), S) =
+          abstractSub (K, depth, s, I.App (abstractExp (K, depth, (U, I.id)), S)) (* GEN END FUN BRANCH *)
 
     (* abstractSpine (K, depth, (S, s)) = S'
        where S' = {{S[s]}}_K
@@ -463,12 +463,12 @@ struct
        then {{K}}, G |- S' : V' > P'
        and  . ||- S'
     *)
-    and abstractSpine (K, depth, (I.Nil, _))  = I.Nil
-      | abstractSpine (K, depth, (I.SClo (S, s'), s)) =
-          abstractSpine (K, depth, (S, I.comp (s', s)))
-      | abstractSpine (K, depth, (I.App (U, S), s)) =
+    and (* GEN BEGIN FUN FIRST *) abstractSpine (K, depth, (I.Nil, _))  = I.Nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSpine (K, depth, (I.SClo (S, s'), s)) =
+          abstractSpine (K, depth, (S, I.comp (s', s))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSpine (K, depth, (I.App (U, S), s)) =
           I.App (abstractExp (K, depth, (U ,s)),
-                 abstractSpine (K, depth, (S, s)))
+                 abstractSpine (K, depth, (S, s))) (* GEN END FUN BRANCH *)
 
     (* abstractDec (K, depth, (x:V, s)) = x:V'
        where V = {{V[s]}}_K
@@ -498,16 +498,16 @@ struct
        Above is now incorrect
        Sun Dec  1 22:36:50 2002 -fp
     *)
-    fun abstractSOME (K, I.Shift 0) = (* n = 0 by invariant, check for now *)
-          I.Shift (I.ctxLength(K))
-      | abstractSOME (K, I.Shift (n)) = (* n > 0 *)
-          I.Shift (I.ctxLength(K))
-      | abstractSOME (K, I.Dot (I.Idx k, s)) =
-          I.Dot (I.Idx k, abstractSOME (K, s))
-      | abstractSOME (K, I.Dot (I.Exp U, s)) =
-          I.Dot (I.Exp (abstractExp (K, 0, (U, I.id))), abstractSOME (K, s))
-      | abstractSOME (K, I.Dot (I.Block (L as I.LVar _), s)) =
-          I.Dot (I.Block (abstractLVar (K, 0, L)), abstractSOME (K, s))
+    fun (* GEN BEGIN FUN FIRST *) abstractSOME (K, I.Shift 0) = (* n = 0 by invariant, check for now *)
+          I.Shift (I.ctxLength(K)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSOME (K, I.Shift (n)) = (* n > 0 *)
+          I.Shift (I.ctxLength(K)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSOME (K, I.Dot (I.Idx k, s)) =
+          I.Dot (I.Idx k, abstractSOME (K, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSOME (K, I.Dot (I.Exp U, s)) =
+          I.Dot (I.Exp (abstractExp (K, 0, (U, I.id))), abstractSOME (K, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractSOME (K, I.Dot (I.Block (L as I.LVar _), s)) =
+          I.Dot (I.Block (abstractLVar (K, 0, L)), abstractSOME (K, s)) (* GEN END FUN BRANCH *)
       (* I.Block (I.Bidx _) should be impossible as head of substitutions *)
 
     (* abstractCtx (K, depth, G) = (G', depth')
@@ -521,14 +521,14 @@ struct
        and . ||- G'
        and |G0,G| = depth'
     *)
-    fun abstractCtx (K, depth, I.Null) = (I.Null, depth)
-      | abstractCtx (K, depth, I.Decl (G, D)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractCtx (K, depth, I.Null) = (I.Null, depth) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractCtx (K, depth, I.Decl (G, D)) =
         let
-          val (G', depth') = abstractCtx (K, depth, G)
-          val D' = abstractDec (K, depth', (D, I.id))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G', depth') = abstractCtx (K, depth, G) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = abstractDec (K, depth', (D, I.id)) (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G', D'), depth'+1)
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* abstractCtxlist (K, depth, [G1,...,Gn]) = [G1',...,Gn']
        where Gi' = {{Gi}}_K
@@ -540,14 +540,14 @@ struct
        then {{K}}, G0 |- G1',...,Gn' ctx
        and . ||- G1',...,Gn'
     *)
-    fun abstractCtxlist (K, depth, nil) = nil
-      | abstractCtxlist (K, depth, G::Gs) =
+    fun (* GEN BEGIN FUN FIRST *) abstractCtxlist (K, depth, nil) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractCtxlist (K, depth, G::Gs) =
         let
-          val (G', depth') = abstractCtx (K, depth, G)
-          val Gs' = abstractCtxlist (K, depth', Gs)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G', depth') = abstractCtx (K, depth, G) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Gs' = abstractCtxlist (K, depth', Gs) (* GEN END TAG OUTSIDE LET *)
         in
           G'::Gs'
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* dead code under new reconstruction -kw
     (* getlevel (V) = L if G |- V : L
@@ -582,30 +582,30 @@ struct
        and  . |- V' : L
        and  . ||- V'
     *)
-    fun abstractKPi (I.Null, V) = V
-      | abstractKPi (I.Decl (K', EV (I.EVar (_, GX, VX, _))), V) =
+    fun (* GEN BEGIN FUN FIRST *) abstractKPi (I.Null, V) = V (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKPi (I.Decl (K', EV (I.EVar (_, GX, VX, _))), V) =
         let
-          val V' = raiseType (GX, VX)
-          val V'' = abstractExp (K', 0, (V', I.id))
+          (* GEN BEGIN TAG OUTSIDE LET *) val V' = raiseType (GX, VX) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val V'' = abstractExp (K', 0, (V', I.id)) (* GEN END TAG OUTSIDE LET *)
           (* enforced by reconstruction -kw
           val _ = checkType V'' *)
         in
           abstractKPi (K', I.Pi ((I.Dec(NONE, V''), I.Maybe), V))
-        end
-      | abstractKPi (I.Decl (K', FV (name,V')), V) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKPi (I.Decl (K', FV (name,V')), V) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
+          (* GEN BEGIN TAG OUTSIDE LET *) val V'' = abstractExp (K', 0, (V', I.id)) (* GEN END TAG OUTSIDE LET *)
           (* enforced by reconstruction -kw
           val _ = checkType V'' *)
         in
           abstractKPi (K', I.Pi ((I.Dec(SOME(name), V''), I.Maybe), V))
-        end
-      | abstractKPi (I.Decl (K', LV (I.LVar (r, _, (l, t)))), V) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKPi (I.Decl (K', LV (I.LVar (r, _, (l, t)))), V) =
         let
-          val t' = abstractSOME (K', t)
+          (* GEN BEGIN TAG OUTSIDE LET *) val t' = abstractSOME (K', t) (* GEN END TAG OUTSIDE LET *)
         in
           abstractKPi (K', I.Pi ((I.BDec (NONE, (l, t')), I.Maybe), V))
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* abstractKLam (K, U) = U'
        where U' = [[K]] U
@@ -619,41 +619,41 @@ struct
        and  . |- U' : {{K}} V
        and  . ||- U'
     *)
-    fun abstractKLam (I.Null, U) = U
-      | abstractKLam (I.Decl (K', EV (I.EVar (_, GX, VX, _))), U) =
+    fun (* GEN BEGIN FUN FIRST *) abstractKLam (I.Null, U) = U (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKLam (I.Decl (K', EV (I.EVar (_, GX, VX, _))), U) =
         let
-          val V' = raiseType (GX, VX)
+          (* GEN BEGIN TAG OUTSIDE LET *) val V' = raiseType (GX, VX) (* GEN END TAG OUTSIDE LET *)
         in
           abstractKLam (K', I.Lam (I.Dec(NONE, abstractExp (K', 0, (V', I.id))), U))
-        end
-      | abstractKLam (I.Decl (K', FV (name,V')), U) =
-          abstractKLam (K', I.Lam (I.Dec(SOME(name), abstractExp (K', 0, (V', I.id))), U))
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKLam (I.Decl (K', FV (name,V')), U) =
+          abstractKLam (K', I.Lam (I.Dec(SOME(name), abstractExp (K', 0, (V', I.id))), U)) (* GEN END FUN BRANCH *)
 
 
-    fun abstractKCtx (I.Null) = I.Null
-      | abstractKCtx (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
+    fun (* GEN BEGIN FUN FIRST *) abstractKCtx (I.Null) = I.Null (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKCtx (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
         let
-          val V' = raiseType (GX, VX)
-          val V'' = abstractExp (K', 0, (V', I.id))
+          (* GEN BEGIN TAG OUTSIDE LET *) val V' = raiseType (GX, VX) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val V'' = abstractExp (K', 0, (V', I.id)) (* GEN END TAG OUTSIDE LET *)
           (* enforced by reconstruction -kw
           val _ = checkType V'' *)
         in
           I.Decl (abstractKCtx K', I.Dec (NONE, V''))
-        end
-      | abstractKCtx (I.Decl (K', FV (name, V'))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKCtx (I.Decl (K', FV (name, V'))) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
+          (* GEN BEGIN TAG OUTSIDE LET *) val V'' = abstractExp (K', 0, (V', I.id)) (* GEN END TAG OUTSIDE LET *)
           (* enforced by reconstruction -kw
           val _ = checkType V'' *)
         in
           I.Decl (abstractKCtx K', I.Dec (SOME(name), V''))
-        end
-      | abstractKCtx (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractKCtx (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
         let
-          val t' = abstractSOME (K', t)
+          (* GEN BEGIN TAG OUTSIDE LET *) val t' = abstractSOME (K', t) (* GEN END TAG OUTSIDE LET *)
         in
           I.Decl (abstractKCtx K', I.BDec (NONE, (l, t')))
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* abstractDecImp V = (k', V')   (* rename --cs  (see above) *)
@@ -669,8 +669,8 @@ struct
     *)
     fun abstractDecImp V =
         let
-          val K = collectExp (I.Null, (V, I.id), I.Null)
-          val _ = checkConstraints (K)
+          (* GEN BEGIN TAG OUTSIDE LET *) val K = collectExp (I.Null, (V, I.id), I.Null) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = checkConstraints (K) (* GEN END TAG OUTSIDE LET *)
         in
           (I.ctxLength K, abstractKPi (K, abstractExp (K, 0, (V, I.id))))
         end
@@ -694,8 +694,8 @@ struct
     *)
     fun abstractDef (U, V) =
         let
-          val K = collectExp (I.Null, (U, I.id), collectExp (I.Null, (V, I.id), I.Null))
-          val _ = checkConstraints K
+          (* GEN BEGIN TAG OUTSIDE LET *) val K = collectExp (I.Null, (U, I.id), collectExp (I.Null, (V, I.id), I.Null)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = checkConstraints K (* GEN END TAG OUTSIDE LET *)
         in
           (I.ctxLength K, (abstractKLam (K, abstractExp (K, 0, (U, I.id))),
                            abstractKPi  (K, abstractExp (K, 0, (V, I.id)))))
@@ -704,10 +704,10 @@ struct
 
     fun abstractSpineExt (S, s) =
         let
-          val K = collectSpine (I.Null, (S, s), I.Null)
-          val _ = checkConstraints (K)
-          val G = abstractKCtx (K)
-          val S = abstractSpine (K, 0, (S, s))
+          (* GEN BEGIN TAG OUTSIDE LET *) val K = collectSpine (I.Null, (S, s), I.Null) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = checkConstraints (K) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val G = abstractKCtx (K) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val S = abstractSpine (K, 0, (S, s)) (* GEN END TAG OUTSIDE LET *)
         in
           (G, S)
         end
@@ -722,8 +722,8 @@ struct
     *)
     fun abstractCtxs (Gs) =
         let
-          val K = collectCtxs (I.Null, Gs, I.Null)
-          val _ = checkConstraints K
+          (* GEN BEGIN TAG OUTSIDE LET *) val K = collectCtxs (I.Null, Gs, I.Null) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = checkConstraints K (* GEN END TAG OUTSIDE LET *)
         in
           (abstractKCtx (K), abstractCtxlist (K, 0, Gs))
         end
@@ -734,43 +734,43 @@ struct
         of I.Null => true
          | _ => false
 
-    fun closedSub (G, I.Shift _) = true
-      | closedSub (G, I.Dot (I.Idx _, s)) = closedSub (G, s)
-      | closedSub (G, I.Dot (I.Exp U, s)) =
+    fun (* GEN BEGIN FUN FIRST *) closedSub (G, I.Shift _) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) closedSub (G, I.Dot (I.Idx _, s)) = closedSub (G, s) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) closedSub (G, I.Dot (I.Exp U, s)) =
         (case collectExp (G, (U, I.id), I.Null)
            of I.Null => closedSub (G, s)
-            | _ => false)
+            | _ => false) (* GEN END FUN BRANCH *)
 
     fun closedExp (G, (U, s)) =
       case collectExp (G, (U, I.id), I.Null)
         of I.Null => true
          | _ => false
 
-    fun closedCtx I.Null = true
-      | closedCtx (I.Decl (G, D)) =
-          closedCtx G andalso closedDec (G, (D, I.id))
+    fun (* GEN BEGIN FUN FIRST *) closedCtx I.Null = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) closedCtx (I.Decl (G, D)) =
+          closedCtx G andalso closedDec (G, (D, I.id)) (* GEN END FUN BRANCH *)
 
 
-    fun closedFor (Psi, T.True) = true
-      | closedFor (Psi, T.All ((D, _), F)) =
-          closedDEC (Psi, D) andalso closedFor (I.Decl (Psi, D), F)
-      | closedFor (Psi, T.Ex ((D, _), F)) =
-          closedDec (T.coerceCtx Psi, (D, I.id)) andalso closedFor (I.Decl (Psi, T.UDec D), F)
+    fun (* GEN BEGIN FUN FIRST *) closedFor (Psi, T.True) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) closedFor (Psi, T.All ((D, _), F)) =
+          closedDEC (Psi, D) andalso closedFor (I.Decl (Psi, D), F) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) closedFor (Psi, T.Ex ((D, _), F)) =
+          closedDec (T.coerceCtx Psi, (D, I.id)) andalso closedFor (I.Decl (Psi, T.UDec D), F) (* GEN END FUN BRANCH *)
 
-    and closedDEC (Psi, T.UDec D) = closedDec (T.coerceCtx Psi, (D, I.id))
-      | closedDEC (Psi, T.PDec (_, F, _, _)) =  closedFor (Psi, F)
+    and (* GEN BEGIN FUN FIRST *) closedDEC (Psi, T.UDec D) = closedDec (T.coerceCtx Psi, (D, I.id)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) closedDEC (Psi, T.PDec (_, F, _, _)) =  closedFor (Psi, F) (* GEN END FUN BRANCH *)
 
 
-    fun closedCTX I.Null = true
-      | closedCTX (I.Decl (Psi,  D)) =
-          closedCTX Psi andalso closedDEC (Psi, D)
+    fun (* GEN BEGIN FUN FIRST *) closedCTX I.Null = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) closedCTX (I.Decl (Psi,  D)) =
+          closedCTX Psi andalso closedDEC (Psi, D) (* GEN END FUN BRANCH *)
 
-    fun evarsToK (nil) = I.Null
-      | evarsToK (X::Xs) = I.Decl (evarsToK (Xs), EV(X))
+    fun (* GEN BEGIN FUN FIRST *) evarsToK (nil) = I.Null (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) evarsToK (X::Xs) = I.Decl (evarsToK (Xs), EV(X)) (* GEN END FUN BRANCH *)
 
-    fun KToEVars (I.Null) = nil
-      | KToEVars (I.Decl (K, EV(X))) = X::KToEVars (K)
-      | KToEVars (I.Decl (K, _)) = KToEVars (K)
+    fun (* GEN BEGIN FUN FIRST *) KToEVars (I.Null) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) KToEVars (I.Decl (K, EV(X))) = X::KToEVars (K) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) KToEVars (I.Decl (K, _)) = KToEVars (K) (* GEN END FUN BRANCH *)
 
     (* collectEVars (G, U[s], Xs) = Xs'
        Invariants:
@@ -788,11 +788,11 @@ struct
        collect and abstract in subsitutions  including residual lemmas
        pending approval of Frank.
     *)
-    fun collectPrg (_, P as T.EVar (Psi, r, F, _, _, _), K) =
-          I.Decl (K, PV P)
-      | collectPrg (Psi, T.Unit, K) = K
-      | collectPrg (Psi, T.PairExp (U, P), K) =
-          collectPrg (Psi, P, collectExp (T.coerceCtx Psi, (U, I.id), K))
+    fun (* GEN BEGIN FUN FIRST *) collectPrg (_, P as T.EVar (Psi, r, F, _, _, _), K) =
+          I.Decl (K, PV P) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectPrg (Psi, T.Unit, K) = K (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectPrg (Psi, T.PairExp (U, P), K) =
+          collectPrg (Psi, P, collectExp (T.coerceCtx Psi, (U, I.id), K)) (* GEN END FUN BRANCH *)
 
 
     (* abstractPVar (K, depth, L) = C'
@@ -804,123 +804,123 @@ struct
        then C' = Bidx (depth + k)
        and  {{K}}, G |- C' : V
     *)
-    fun abstractPVar (I.Decl(K', PV (T.EVar (_, r', _, _, _, _))), depth, P as T.EVar (_, r, _, _, _, _)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractPVar (I.Decl(K', PV (T.EVar (_, r', _, _, _, _))), depth, P as T.EVar (_, r, _, _, _, _)) =
           if r = r' then T.Var (depth+1)
-          else abstractPVar (K', depth+1, P)
-      | abstractPVar (I.Decl(K', _), depth, P) =
-          abstractPVar (K', depth+1, P)
+          else abstractPVar (K', depth+1, P) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractPVar (I.Decl(K', _), depth, P) =
+          abstractPVar (K', depth+1, P) (* GEN END FUN BRANCH *)
 
-    fun abstractPrg (K, depth, X as T.EVar _) =
-          abstractPVar (K, depth, X)
-      | abstractPrg (K, depth, T.Unit) = T.Unit
-      | abstractPrg (K, depth, T.PairExp (U, P)) =
-           T.PairExp (abstractExp (K, depth, (U, I.id)), abstractPrg (K, depth, P))
+    fun (* GEN BEGIN FUN FIRST *) abstractPrg (K, depth, X as T.EVar _) =
+          abstractPVar (K, depth, X) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractPrg (K, depth, T.Unit) = T.Unit (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractPrg (K, depth, T.PairExp (U, P)) =
+           T.PairExp (abstractExp (K, depth, (U, I.id)), abstractPrg (K, depth, P)) (* GEN END FUN BRANCH *)
 
-    fun collectTomegaSub (T.Shift 0) = I.Null
-      | collectTomegaSub (T.Dot (T.Exp U, t)) =
-          collectExp (I.Null, (U, I.id), collectTomegaSub t)
-      | collectTomegaSub (T.Dot (T.Block B, t)) =
-          collectBlock (I.Null, B, collectTomegaSub t)
-      | collectTomegaSub (T.Dot (T.Prg P, t)) =
-          collectPrg (I.Null, P, collectTomegaSub t)
+    fun (* GEN BEGIN FUN FIRST *) collectTomegaSub (T.Shift 0) = I.Null (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectTomegaSub (T.Dot (T.Exp U, t)) =
+          collectExp (I.Null, (U, I.id), collectTomegaSub t) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectTomegaSub (T.Dot (T.Block B, t)) =
+          collectBlock (I.Null, B, collectTomegaSub t) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectTomegaSub (T.Dot (T.Prg P, t)) =
+          collectPrg (I.Null, P, collectTomegaSub t) (* GEN END FUN BRANCH *)
 
-    fun abstractOrder (K, depth, O.Arg (Us1, Us2)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractOrder (K, depth, O.Arg (Us1, Us2)) =
           O.Arg ((abstractExp (K, depth, Us1), I.id),
-                 (abstractExp (K, depth, Us2), I.id))
-      | abstractOrder (K, depth, O.Simul (Os)) =
-          O.Simul (map (fn O => abstractOrder (K, depth, O)) Os)
-      | abstractOrder (K, depth, O.Lex (Os)) =
-          O.Lex (map (fn O => abstractOrder (K, depth, O)) Os)
+                 (abstractExp (K, depth, Us2), I.id)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractOrder (K, depth, O.Simul (Os)) =
+          O.Simul (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => abstractOrder (K, depth, O) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractOrder (K, depth, O.Lex (Os)) =
+          O.Lex (map ((* GEN BEGIN FUNCTION EXPRESSION *) fn O => abstractOrder (K, depth, O) (* GEN END FUNCTION EXPRESSION *)) Os) (* GEN END FUN BRANCH *)
 
-    fun abstractTC (K, depth, T.Abs (D, TC)) =
+    fun (* GEN BEGIN FUN FIRST *) abstractTC (K, depth, T.Abs (D, TC)) =
           T.Abs (abstractDec (K, depth, (D, I.id)),
-                 abstractTC (K, depth, TC))
-      | abstractTC (K, depth, T.Conj (TC1, TC2)) =
+                 abstractTC (K, depth, TC)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractTC (K, depth, T.Conj (TC1, TC2)) =
           T.Conj (abstractTC (K, depth, TC1),
-                  abstractTC (K, depth, TC2))
-      | abstractTC (K, depth, T.Base (O)) =
-          T.Base (abstractOrder (K, depth, O))
+                  abstractTC (K, depth, TC2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractTC (K, depth, T.Base (O)) =
+          T.Base (abstractOrder (K, depth, O)) (* GEN END FUN BRANCH *)
 
-    fun abstractTCOpt (K, depth, NONE) = NONE
-      | abstractTCOpt (K, depth, SOME TC) =
-          SOME (abstractTC (K, depth, TC))
+    fun (* GEN BEGIN FUN FIRST *) abstractTCOpt (K, depth, NONE) = NONE (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractTCOpt (K, depth, SOME TC) =
+          SOME (abstractTC (K, depth, TC)) (* GEN END FUN BRANCH *)
 
-    fun abstractMetaDec (K, depth, T.UDec D) = T.UDec (abstractDec (K, depth, (D, I.id)))
-      | abstractMetaDec (K, depth, T.PDec (xx, F, TC1, TC2)) = T.PDec (xx, abstractFor (K, depth, F), TC1, TC2)
+    fun (* GEN BEGIN FUN FIRST *) abstractMetaDec (K, depth, T.UDec D) = T.UDec (abstractDec (K, depth, (D, I.id))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractMetaDec (K, depth, T.PDec (xx, F, TC1, TC2)) = T.PDec (xx, abstractFor (K, depth, F), TC1, TC2) (* GEN END FUN BRANCH *)
          (* TC cannot contain free FVAR's or EVars'
             --cs  Fri Apr 30 13:45:50 2004 *)
 
     (* Argument must be in normal form *)
-    and abstractFor (K, depth, T.True) = T.True
-      | abstractFor (K, depth, T.All ((MD, Q), F)) =
-          T.All ((abstractMetaDec (K, depth, MD), Q), abstractFor (K, depth, F))
-      | abstractFor (K, depth, T.Ex ((D, Q), F)) =
-          T.Ex ((abstractDec (K, depth, (D, I.id)), Q), abstractFor (K, depth, F))
-      | abstractFor (K, depth, T.And (F1, F2)) =
-          T.And (abstractFor (K, depth, F1), abstractFor (K, depth, F2))
-      | abstractFor (K, depth, T.World (W, F)) =
-          T.World (W, abstractFor (K, depth, F))
+    and (* GEN BEGIN FUN FIRST *) abstractFor (K, depth, T.True) = T.True (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractFor (K, depth, T.All ((MD, Q), F)) =
+          T.All ((abstractMetaDec (K, depth, MD), Q), abstractFor (K, depth, F)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractFor (K, depth, T.Ex ((D, Q), F)) =
+          T.Ex ((abstractDec (K, depth, (D, I.id)), Q), abstractFor (K, depth, F)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractFor (K, depth, T.And (F1, F2)) =
+          T.And (abstractFor (K, depth, F1), abstractFor (K, depth, F2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractFor (K, depth, T.World (W, F)) =
+          T.World (W, abstractFor (K, depth, F)) (* GEN END FUN BRANCH *)
 
-    fun abstractPsi (I.Null) = I.Null
-      | abstractPsi (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
+    fun (* GEN BEGIN FUN FIRST *) abstractPsi (I.Null) = I.Null (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractPsi (I.Decl (K', EV (I.EVar (_, GX, VX, _)))) =
         let
-          val V' = raiseType (GX, VX)
-          val V'' = abstractExp (K', 0, (V', I.id))
+          (* GEN BEGIN TAG OUTSIDE LET *) val V' = raiseType (GX, VX) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val V'' = abstractExp (K', 0, (V', I.id)) (* GEN END TAG OUTSIDE LET *)
           (* enforced by reconstruction -kw
           val _ = checkType V'' *)
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (NONE, V'')))
-        end
-      | abstractPsi (I.Decl (K', FV (name, V'))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractPsi (I.Decl (K', FV (name, V'))) =
         let
-          val V'' = abstractExp (K', 0, (V', I.id))
+          (* GEN BEGIN TAG OUTSIDE LET *) val V'' = abstractExp (K', 0, (V', I.id)) (* GEN END TAG OUTSIDE LET *)
           (* enforced by reconstruction -kw
           val _ = checkType V'' *)
         in
           I.Decl (abstractPsi K', T.UDec (I.Dec (SOME(name), V'')))
-        end
-      | abstractPsi (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractPsi (I.Decl (K', LV (I.LVar (r, _, (l, t))))) =
         let
-          val t' = abstractSOME (K', t)
+          (* GEN BEGIN TAG OUTSIDE LET *) val t' = abstractSOME (K', t) (* GEN END TAG OUTSIDE LET *)
         in
           I.Decl (abstractPsi K', T.UDec (I.BDec (NONE, (l, t'))))
-        end
-      | abstractPsi (I.Decl (K', PV (T.EVar (GX, _, FX, TC1, TC2, _)))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractPsi (I.Decl (K', PV (T.EVar (GX, _, FX, TC1, TC2, _)))) =
         (* What's happening with GX? *)
         (* What's happening with TCs? *)
         let
-          val F' = abstractFor (K', 0, T.forSub (FX, T.id))
-          val TC1' = abstractTCOpt (K', 0, TC1)
-          val TC2' = abstractTCOpt (K', 0, TC2)
+          (* GEN BEGIN TAG OUTSIDE LET *) val F' = abstractFor (K', 0, T.forSub (FX, T.id)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val TC1' = abstractTCOpt (K', 0, TC1) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val TC2' = abstractTCOpt (K', 0, TC2) (* GEN END TAG OUTSIDE LET *)
         in
           I.Decl (abstractPsi K', T.PDec (NONE, F', TC1, TC2))
-        end
+        end (* GEN END FUN BRANCH *)
 
     fun abstractTomegaSub t =
       let
-        val K = collectTomegaSub t
-        val t' = abstractTomegaSub' (K, 0, t)
-        val Psi = abstractPsi K
+        (* GEN BEGIN TAG OUTSIDE LET *) val K = collectTomegaSub t (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val t' = abstractTomegaSub' (K, 0, t) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val Psi = abstractPsi K (* GEN END TAG OUTSIDE LET *)
       in
         (Psi, t')
       end
 
-    and abstractTomegaSub' (K, depth, T.Shift 0) = T.Shift depth
-      | abstractTomegaSub' (K, depth, T.Dot (T.Exp U, t)) =
+    and (* GEN BEGIN FUN FIRST *) abstractTomegaSub' (K, depth, T.Shift 0) = T.Shift depth (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) abstractTomegaSub' (K, depth, T.Dot (T.Exp U, t)) =
           (T.Dot (T.Exp (abstractExp (K, depth, (U, I.id))),
-                  abstractTomegaSub' (K, depth, t)))
-      | abstractTomegaSub' (K, depth, T.Dot (T.Block B, t)) =
+                  abstractTomegaSub' (K, depth, t))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractTomegaSub' (K, depth, T.Dot (T.Block B, t)) =
           (T.Dot (T.Block (abstractLVar (K, depth, B)),
-                  abstractTomegaSub' (K, depth, t)))
-      | abstractTomegaSub' (K, depth, T.Dot (T.Prg P, t)) =
+                  abstractTomegaSub' (K, depth, t))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) abstractTomegaSub' (K, depth, T.Dot (T.Prg P, t)) =
           (T.Dot (T.Prg (abstractPrg (K, depth, P)),
-                  abstractTomegaSub' (K, depth, t)))
+                  abstractTomegaSub' (K, depth, t))) (* GEN END FUN BRANCH *)
 
     fun abstractTomegaPrg P =
       let
-        val K = collectPrg (I.Null, P, I.Null)
-        val P' = abstractPrg (K, 0, P)
-        val Psi = abstractPsi K
+        (* GEN BEGIN TAG OUTSIDE LET *) val K = collectPrg (I.Null, P, I.Null) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val P' = abstractPrg (K, 0, P) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val Psi = abstractPsi K (* GEN END TAG OUTSIDE LET *)
       in
         (Psi, P')
       end
@@ -933,25 +933,25 @@ struct
 
 
   in
-    val raiseType = raiseType
-    val raiseTerm = raiseTerm
+    (* GEN BEGIN TAG OUTSIDE LET *) val raiseType = raiseType (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val raiseTerm = raiseTerm (* GEN END TAG OUTSIDE LET *)
 
-    val piDepend = piDepend
-    val closedDec = closedDec
-    val closedSub = closedSub
-    val closedExp = closedExp
+    (* GEN BEGIN TAG OUTSIDE LET *) val piDepend = piDepend (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val closedDec = closedDec (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val closedSub = closedSub (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val closedExp = closedExp (* GEN END TAG OUTSIDE LET *)
 
-    val abstractDecImp = abstractDecImp
-    val abstractDef = abstractDef
-    val abstractCtxs = abstractCtxs
-    val abstractTomegaSub = abstractTomegaSub
-    val abstractTomegaPrg = abstractTomegaPrg
-    val abstractSpine = abstractSpineExt
+    (* GEN BEGIN TAG OUTSIDE LET *) val abstractDecImp = abstractDecImp (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val abstractDef = abstractDef (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val abstractCtxs = abstractCtxs (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val abstractTomegaSub = abstractTomegaSub (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val abstractTomegaPrg = abstractTomegaPrg (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val abstractSpine = abstractSpineExt (* GEN END TAG OUTSIDE LET *)
 
-    val collectEVars = collectEVars
-    val collectEVarsSpine = collectEVarsSpine
+    (* GEN BEGIN TAG OUTSIDE LET *) val collectEVars = collectEVars (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val collectEVarsSpine = collectEVarsSpine (* GEN END TAG OUTSIDE LET *)
 
-    val closedCtx = closedCtx
-    val closedCTX = closedCTX
+    (* GEN BEGIN TAG OUTSIDE LET *) val closedCtx = closedCtx (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val closedCTX = closedCTX (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *);  (* functor Abstract *)

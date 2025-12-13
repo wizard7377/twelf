@@ -2,7 +2,7 @@
    representation of proof terms *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) TomegaAbstract
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) TomegaAbstract
   (structure Global : GLOBAL
    structure Abstract : ABSTRACT
    structure Whnf : WHNF
@@ -168,4 +168,4 @@ struct
     val raiseFor = raiseFor
     val raiseF = raiseF
   end
-end (* GEN END FUNCTOR DECL *) (* functor TomegaAbstract *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor TomegaAbstract *)

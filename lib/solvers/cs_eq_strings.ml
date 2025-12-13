@@ -19,13 +19,13 @@ struct
     structure FX = CSManager.Fixity
     structure MS = ModeSyn (* CSManager.ModeSyn *)
 
-    val myID = ref ~1 : IntSyn.csid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val myID = ref ~1 : IntSyn.csid ref (* GEN END TAG OUTSIDE LET *)
 
-    val stringID = ref ~1 : IntSyn.cid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val stringID = ref ~1 : IntSyn.cid ref (* GEN END TAG OUTSIDE LET *)
 
     fun string () = Root (Const (!stringID), Nil)
 
-    val concatID = ref ~1 : IntSyn.cid ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val concatID = ref ~1 : IntSyn.cid ref (* GEN END TAG OUTSIDE LET *)
 
     fun concatExp (U, V) = Root (Const (!concatID), App (U, App (V, Nil)))
 
@@ -42,7 +42,7 @@ struct
     *)
     fun fromString string =
           let
-            val len = String.size string
+            (* GEN BEGIN TAG OUTSIDE LET *) val len = String.size string (* GEN END TAG OUTSIDE LET *)
           in
             if (String.sub (string, 0) = #"\"")
               andalso (String.sub (string, len-1) = #"\"")
@@ -81,8 +81,8 @@ struct
 
     exception MyIntsynRep of concat        (* Internal syntax representation of this module *)
 
-    fun extractConcat (MyIntsynRep concat) = concat
-      | extractConcat fe = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) extractConcat (MyIntsynRep concat) = concat (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) extractConcat fe = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
     (* A concatenation is said to be normal if
          (a) it does not contain empty string atoms
@@ -96,12 +96,12 @@ struct
        If concat is normal
        G |- U : V and U is the Twelf syntax conversion of concat
     *)
-    fun toExp (Concat nil) = stringExp ""
-      | toExp (Concat [String str]) = stringExp str
-      | toExp (Concat [Exp (U, Shift(0))]) = U
-      | toExp (Concat [Exp Us]) = EClo Us
-      | toExp (Concat (A :: AL)) =
-          concatExp (toExp (Concat [A]), toExp (Concat AL))
+    fun (* GEN BEGIN FUN FIRST *) toExp (Concat nil) = stringExp "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (Concat [String str]) = stringExp str (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (Concat [Exp (U, Shift(0))]) = U (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (Concat [Exp Us]) = EClo Us (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toExp (Concat (A :: AL)) =
+          concatExp (toExp (Concat [A]), toExp (Concat AL)) (* GEN END FUN BRANCH *)
 
     (* catConcat (concat1, concat2) = concat3
 
@@ -111,13 +111,13 @@ struct
        then concat3 normal
        and  concat3 = concat1 ++ concat2
     *)
-    fun catConcat (Concat nil, concat2) = concat2
-      | catConcat (concat1, Concat nil) = concat1
-      | catConcat (Concat AL1, Concat AL2) =
+    fun (* GEN BEGIN FUN FIRST *) catConcat (Concat nil, concat2) = concat2 (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) catConcat (concat1, Concat nil) = concat1 (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) catConcat (Concat AL1, Concat AL2) =
           (case (List.rev AL1, AL2)
              of ((String str1) :: revAL1', (String str2) :: AL2') =>
                Concat ((List.rev revAL1') @ ((String (str1 ^ str2)) :: AL2'))
-              | (_, _) => Concat (AL1 @ AL2))
+              | (_, _) => Concat (AL1 @ AL2)) (* GEN END FUN BRANCH *)
 
     (* fromExpW (U, s) = concat
 
@@ -126,18 +126,18 @@ struct
        then concat is the representation of U[s] as concatenation of atoms
        and  concat is normal
     *)
-    fun fromExpW (Us as (FgnExp (cs, fe), _)) =
+    fun (* GEN BEGIN FUN FIRST *) fromExpW (Us as (FgnExp (cs, fe), _)) =
           if (cs = !myID)
           then normalize (extractConcat fe)
-          else Concat [Exp Us]
-      | fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
+          else Concat [Exp Us] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fromExpW (Us as (Root (FgnConst (cs, conDec), _), _)) =
           if (cs = !myID)
           then (case fromString (conDecName (conDec))
                   of SOME(str) => if (str = "") then Concat nil
                                   else Concat [String str])
-          else Concat [Exp Us]
-      | fromExpW Us =
-          Concat [Exp Us]
+          else Concat [Exp Us] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fromExpW Us =
+          Concat [Exp Us] (* GEN END FUN BRANCH *)
 
     (* fromExp (U, s) = concat
 
@@ -150,20 +150,20 @@ struct
           fromExpW (Whnf.whnf Us)
 
     (* normalize concat = concat', where concat' normal and concat' = concat *)
-    and normalize (concat as (Concat nil)) = concat
-      | normalize (concat as (Concat [String str])) = concat
-      | normalize (Concat [Exp Us]) = fromExp Us
-      | normalize (Concat (A :: AL)) =
-          catConcat (normalize (Concat [A]), normalize(Concat AL))
+    and (* GEN BEGIN FUN FIRST *) normalize (concat as (Concat nil)) = concat (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) normalize (concat as (Concat [String str])) = concat (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) normalize (Concat [Exp Us]) = fromExp Us (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) normalize (Concat (A :: AL)) =
+          catConcat (normalize (Concat [A]), normalize(Concat AL)) (* GEN END FUN BRANCH *)
 
     (* mapSum (f, A1 + ...) = f(A1) ++ ... *)
     fun mapConcat (f, Concat AL) =
           let
-            fun mapConcat' nil = nil
-              | mapConcat' ((Exp Us) :: AL) =
-                  (Exp (f (EClo Us), id)) :: mapConcat' AL
-              | mapConcat' ((String str) :: AL) =
-                  (String str) :: mapConcat' AL
+            fun (* GEN BEGIN FUN FIRST *) mapConcat' nil = nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) mapConcat' ((Exp Us) :: AL) =
+                  (Exp (f (EClo Us), id)) :: mapConcat' AL (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) mapConcat' ((String str) :: AL) =
+                  (String str) :: mapConcat' AL (* GEN END FUN BRANCH *)
           in
             Concat (mapConcat' AL)
           end
@@ -171,8 +171,8 @@ struct
     (* appConcat (f, A1 + ... ) = ()  and f(Ui) for Ai = Exp Ui *)
     fun appConcat (f, Concat AL) =
         let
-            fun appAtom (Exp Us) = f (EClo Us)
-              | appAtom (String _) = ()
+            fun (* GEN BEGIN FUN FIRST *) appAtom (Exp Us) = f (EClo Us) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) appAtom (String _) = () (* GEN END FUN BRANCH *)
         in
             List.app appAtom AL
         end
@@ -190,7 +190,7 @@ struct
     *)
     fun index (str1, str2) =
           let
-            val max = (String.size str2) - (String.size str1)
+            (* GEN BEGIN TAG OUTSIDE LET *) val max = (String.size str2) - (String.size str1) (* GEN END TAG OUTSIDE LET *)
             fun index' i =
                   if (i <= max)
                   then
@@ -208,7 +208,7 @@ struct
     *)
     fun split (str1, str2) =
           let
-            val len = String.size str1
+            (* GEN BEGIN TAG OUTSIDE LET *) val len = String.size str1 (* GEN END TAG OUTSIDE LET *)
             fun split' i =
                   Split (String.extract (str2, 0, SOME(i)),
                          String.extract (str2, i+len, NONE))
@@ -221,12 +221,12 @@ struct
     *)
     fun sameConcat (Concat AL1, Concat AL2) =
           let
-            fun sameConcat' (nil, nil) = true
-              | sameConcat' ((String str1) :: AL1, (String str2) :: AL2) =
-                  (str1 = str2) andalso sameConcat' (AL1, AL2)
-              | sameConcat' ((Exp Us1) :: AL1, (Exp Us2) :: AL2) =
-                  sameExp(Us1, Us2) andalso sameConcat' (AL1, AL2)
-              | sameConcat' _ = false
+            fun (* GEN BEGIN FUN FIRST *) sameConcat' (nil, nil) = true (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) sameConcat' ((String str1) :: AL1, (String str2) :: AL2) =
+                  (str1 = str2) andalso sameConcat' (AL1, AL2) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) sameConcat' ((Exp Us1) :: AL1, (Exp Us2) :: AL2) =
+                  sameExp(Us1, Us2) andalso sameConcat' (AL1, AL2) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) sameConcat' _ = false (* GEN END FUN BRANCH *)
           in
             sameConcat' (AL1, AL2)
           end
@@ -238,17 +238,17 @@ struct
        and  G |- s2 : G2    G2 |- U2 : V2    (U2,s2)  in whnf
        then T only if U1[s1] = U2[s2] (as expressions)
     *)
-    and sameExpW (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+    and (* GEN BEGIN FUN FIRST *) sameExpW (Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
           (case (H1, H2) of
              (BVar(k1), BVar(k2)) =>
                (k1 = k2) andalso sameSpine ((S1, s1), (S2, s2))
            | (FVar (n1,_,_), FVar (n2,_,_)) =>
                (n1 = n2) andalso sameSpine ((S1, s1), (S2, s2))
-           | _ => false)
-      | sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
+           | _ => false) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) sameExpW (Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
                   Us2 as (U2 as EVar(r2, G2, V2, cnstrs2), s2)) =
-         (r1 = r2) andalso sameSub (s1, s2)
-      | sameExpW _ = false
+         (r1 = r2) andalso sameSub (s1, s2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameExpW _ = false (* GEN END FUN BRANCH *)
 
     (* sameExp ((U1,s1), (U2,s2)) = T
 
@@ -266,15 +266,15 @@ struct
        and  G |- S2 : V > W
        then T only if S1 = S2 (as spines)
     *)
-    and sameSpine ((Nil, s1), (Nil, s2)) = true
-      | sameSpine ((SClo (S1, s1'), s1), Ss2) =
-          sameSpine ((S1, comp (s1', s1)), Ss2)
-      | sameSpine (Ss1, (SClo (S2, s2'), s2)) =
-          sameSpine (Ss1, (S2, comp (s2', s2)))
-      | sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
+    and (* GEN BEGIN FUN FIRST *) sameSpine ((Nil, s1), (Nil, s2)) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine ((SClo (S1, s1'), s1), Ss2) =
+          sameSpine ((S1, comp (s1', s1)), Ss2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine (Ss1, (SClo (S2, s2'), s2)) =
+          sameSpine (Ss1, (S2, comp (s2', s2))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine ((App (U1, S1), s1), (App (U2, S2), s2)) =
           sameExp ((U1, s1), (U2, s2))
-            andalso sameSpine ((S1, s1), (S2, s2))
-      | sameSpine _ = false
+            andalso sameSpine ((S1, s1), (S2, s2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSpine _ = false (* GEN END FUN BRANCH *)
 
     (* sameSub (s1, s2) = T
 
@@ -283,14 +283,14 @@ struct
        and  G |- s2 : G'
        then T only if s1 = s2 (as substitutions)
     *)
-    and sameSub (Shift _, Shift _) = true
-      | sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
-          (k1 = k2) andalso sameSub (s1, s2)
-      | sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
-          sameSub (s1, Dot (Idx (Int.+(k2,1)), Shift (Int.+(k2,1))))
-      | sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
-          sameSub (Dot (Idx (Int.+(k1,1)), Shift (Int.+(k1,1))), s2)
-      | sameSub _ = false
+    and (* GEN BEGIN FUN FIRST *) sameSub (Shift _, Shift _) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) =
+          (k1 = k2) andalso sameSub (s1, s2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub (s1 as Dot (Idx _, _), Shift (k2)) =
+          sameSub (s1, Dot (Idx (Int.+(k2,1)), Shift (Int.+(k2,1)))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub (Shift (k1), s2 as Dot (Idx _, _)) =
+          sameSub (Dot (Idx (Int.+(k1,1)), Shift (Int.+(k1,1))), s2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) sameSub _ = false (* GEN END FUN BRANCH *)
 
     (* Unification Result:
        StringUnify ::= {G1 |- X1 := U1[s1], ..., Gn |- Xn := Un[sn]}
@@ -305,11 +305,11 @@ struct
     (* toFgnUnify stringUnify = result
        where result is obtained translating stringUnify.
     *)
-    fun toFgnUnify (MultAssign L) =
-          IntSyn.Succeed (List.map (fn GXUss => Assign GXUss) L)
-      | toFgnUnify (MultDelay (UL, cnstr)) =
-          IntSyn.Succeed (List.map (fn U => Delay (U, cnstr)) UL)
-      | toFgnUnify (Failure) = Fail
+    fun (* GEN BEGIN FUN FIRST *) toFgnUnify (MultAssign L) =
+          IntSyn.Succeed (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn GXUss => Assign GXUss (* GEN END FUNCTION EXPRESSION *)) L) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toFgnUnify (MultDelay (UL, cnstr)) =
+          IntSyn.Succeed (List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn U => Delay (U, cnstr) (* GEN END FUNCTION EXPRESSION *)) UL) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toFgnUnify (Failure) = Fail (* GEN END FUN BRANCH *)
 
     (* unifyRigid (G, concat1, concat2) = stringUnify
 
@@ -323,15 +323,15 @@ struct
     *)
     and unifyRigid (G, Concat AL1, Concat AL2) =
           let
-            fun unifyRigid' (nil, nil) = MultAssign nil
-              | unifyRigid' ((String str1) :: AL1, (String str2) :: AL2) =
+            fun (* GEN BEGIN FUN FIRST *) unifyRigid' (nil, nil) = MultAssign nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) unifyRigid' ((String str1) :: AL1, (String str2) :: AL2) =
                   if (str1 = str2) then unifyRigid' (AL1, AL2)
-                  else Failure
+                  else Failure (* GEN END FUN BRANCH *)
                 (* FIX: the next two cases are wrong -kw *)
-              | unifyRigid' ((Exp (U1 as (EVar (r, _, _, _)), s)) :: AL1,
+              | (* GEN BEGIN FUN BRANCH *) unifyRigid' ((Exp (U1 as (EVar (r, _, _, _)), s)) :: AL1,
                              (Exp (U2 as (Root (FVar _, _)), _)) :: AL2) =
                   let
-                    val ss = Whnf.invert s
+                    (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert s (* GEN END TAG OUTSIDE LET *)
                   in
                     if Unify.invertible (G, (U2, id), ss, r)
                     then (case (unifyRigid' (AL1, AL2))
@@ -339,11 +339,11 @@ struct
                                  MultAssign ((G, U1, U2, ss) :: l)
                              | Failure => Failure)
                     else Failure
-                  end
-              | unifyRigid' ((Exp (U1 as (Root (FVar _, _)), _)) :: AL1,
+                  end (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyRigid' ((Exp (U1 as (Root (FVar _, _)), _)) :: AL1,
                              (Exp (U2 as (EVar (r, _, _, _)), s)) :: AL2) =
                   let
-                    val ss = Whnf.invert s
+                    (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert s (* GEN END TAG OUTSIDE LET *)
                   in
                     if Unify.invertible (G, (U1, id), ss, r)
                     then (case (unifyRigid' (AL1, AL2))
@@ -351,18 +351,18 @@ struct
                                  MultAssign ((G, U2, U1, ss) :: l)
                              | Failure => Failure)
                     else Failure
-                  end
-              | unifyRigid'((Exp (Us1 as (Root (FVar _, _), _))) :: AL1,
+                  end (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyRigid'((Exp (Us1 as (Root (FVar _, _), _))) :: AL1,
                             (Exp (Us2 as (Root (FVar _, _), _))) :: AL2) =
                   if (sameExpW (Us1, Us2))
                   then unifyRigid' (AL1, AL2)
-                  else Failure
-              | unifyRigid'((Exp (Us1 as (EVar (_, _, _, _), _))) :: AL1,
+                  else Failure (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyRigid'((Exp (Us1 as (EVar (_, _, _, _), _))) :: AL1,
                             (Exp (Us2 as (EVar (_, _, _, _), _))) :: AL2) =
                   if (sameExpW (Us1, Us2))
                   then unifyRigid' (AL1, AL2)
-                  else Failure
-              | unifyRigid' _ = Failure
+                  else Failure (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyRigid' _ = Failure (* GEN END FUN BRANCH *)
           in
             unifyRigid' (AL1, AL2)
           end
@@ -379,43 +379,43 @@ struct
             else stringUnify = MultDelay [U1, ..., Un] cnstr
                    where U1, ..., Un are expression to be delayed on cnstr
     *)
-    fun unifyString (G, Concat (String prefix :: AL), str, cnstr) =
+    fun (* GEN BEGIN FUN FIRST *) unifyString (G, Concat (String prefix :: AL), str, cnstr) =
           if (String.isPrefix prefix str)
           then
             let
-              val suffix = String.extract (str, String.size prefix, NONE)
+              (* GEN BEGIN TAG OUTSIDE LET *) val suffix = String.extract (str, String.size prefix, NONE) (* GEN END TAG OUTSIDE LET *)
             in
               unifyString (G, Concat AL, suffix, cnstr)
             end
-          else Failure
-      | unifyString (G, Concat AL, str, cnstr) =
+          else Failure (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) unifyString (G, Concat AL, str, cnstr) =
           let
-            fun unifyString' (AL, nil) =
-                  (Failure, nil)
-              | unifyString' (nil, [Decomp (parse, parsedL)]) =
-                  (MultAssign nil, parse :: parsedL)
-              | unifyString' (nil, candidates) =
-                  (MultDelay (nil, cnstr), nil)
-             | unifyString' ((Exp Us1) :: (Exp Us2) :: AL, _) =
-                  (MultDelay ([EClo Us1, EClo Us2], cnstr), nil)
-              | unifyString' ((Exp (U as (EVar (r, _, _, _)), s)) :: AL, candidates) =
+            fun (* GEN BEGIN FUN FIRST *) unifyString' (AL, nil) =
+                  (Failure, nil) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) unifyString' (nil, [Decomp (parse, parsedL)]) =
+                  (MultAssign nil, parse :: parsedL) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyString' (nil, candidates) =
+                  (MultDelay (nil, cnstr), nil) (* GEN END FUN BRANCH *)
+             | (* GEN BEGIN FUN BRANCH *) unifyString' ((Exp Us1) :: (Exp Us2) :: AL, _) =
+                  (MultDelay ([EClo Us1, EClo Us2], cnstr), nil) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyString' ((Exp (U as (EVar (r, _, _, _)), s)) :: AL, candidates) =
                   if (Whnf.isPatSub s)
                   then
                     let
-                      fun assign r nil = NONE
-                        | assign r ((_, EVar (r', _, _, _),
+                      fun (* GEN BEGIN FUN FIRST *) assign r nil = NONE (* GEN END FUN FIRST *)
+                        | (* GEN BEGIN FUN BRANCH *) assign r ((_, EVar (r', _, _, _),
                                         Root (FgnConst (cs, conDec), Nil), _) :: L) =
                             if (r = r') then fromString (conDecName (conDec))
-                            else assign r L
-                        | assign r (_ :: L) = assign r L
+                            else assign r L (* GEN END FUN BRANCH *)
+                        | (* GEN BEGIN FUN BRANCH *) assign r (_ :: L) = assign r L (* GEN END FUN BRANCH *)
                     in
                       (case unifyString' (AL, candidates)
                          of (MultAssign L, parsed :: parsedL) =>
                                (case (assign r L)
                                   of NONE =>
                                        let
-                                         val ss = Whnf.invert s
-                                         val W = stringExp(parsed)
+                                         (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert s (* GEN END TAG OUTSIDE LET *)
+                                         (* GEN BEGIN TAG OUTSIDE LET *) val W = stringExp(parsed) (* GEN END TAG OUTSIDE LET *)
                                        in
                                          (MultAssign ((G, U, W, ss) :: L), parsedL)
                                        end
@@ -427,38 +427,38 @@ struct
                                (MultDelay ((EClo (U, s)) :: UL, cnstr), nil)
                           | (Failure, _) => (Failure, nil))
                     end
-                  else (MultDelay ([EClo (U, s)], cnstr), nil)
-              | unifyString' ((Exp Us) :: AL, _) =
-                  (MultDelay ([EClo Us], cnstr), nil)
-              | unifyString' ([String str], candidates) =
+                  else (MultDelay ([EClo (U, s)], cnstr), nil) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyString' ((Exp Us) :: AL, _) =
+                  (MultDelay ([EClo Us], cnstr), nil) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyString' ([String str], candidates) =
                   let
                     fun successors (Decomp (parse, parsedL)) =
-                          List.mapPartial (fn (Split (prefix, "")) =>
+                          List.mapPartial ((* GEN BEGIN FUNCTION EXPRESSION *) fn (Split (prefix, "")) =>
                                                  SOME (Decomp (prefix, parsedL))
-                                            | (Split (prefix, suffix)) => NONE)
+                                            | (Split (prefix, suffix)) => NONE (* GEN END FUNCTION EXPRESSION *))
                                           (split (str, parse))
-                    val candidates' =
-                          List.foldr op@ nil (List.map successors candidates)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val candidates' =
+                          List.foldr op@ nil (List.map successors candidates) (* GEN END TAG OUTSIDE LET *)
                   in
                     unifyString' (nil, candidates')
-                  end
-              | unifyString' ((String str) :: AL, candidates) =
+                  end (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) unifyString' ((String str) :: AL, candidates) =
                   let
                     fun successors (Decomp (parse, parsedL)) =
-                          List.map (fn (Split (prefix, suffix)) =>
-                                          Decomp (suffix, prefix :: parsedL))
+                          List.map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (Split (prefix, suffix)) =>
+                                          Decomp (suffix, prefix :: parsedL) (* GEN END FUNCTION EXPRESSION *))
                                    (split (str, parse))
-                    val candidates' =
-                          List.foldr op@ nil (List.map successors candidates)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val candidates' =
+                          List.foldr op@ nil (List.map successors candidates) (* GEN END TAG OUTSIDE LET *)
                   in
                     unifyString' (AL, candidates')
-                  end
+                  end (* GEN END FUN BRANCH *)
           in
             (case unifyString' (AL, [Decomp(str, nil)])
                of (result, nil) => result
                 | (result, [""]) => result
                 | (result, parsedL) => Failure)
-          end
+          end (* GEN END FUN BRANCH *)
 
     (* unifyConcat (G, concat1, concat2) = stringUnify
 
@@ -475,9 +475,9 @@ struct
     *)
     fun unifyConcat (G, concat1 as (Concat AL1), concat2 as (Concat AL2)) =
           let
-            val U1 = toFgn concat1
-            val U2 = toFgn concat2
-            val cnstr = ref (Eqn (G, U1, U2))
+            (* GEN BEGIN TAG OUTSIDE LET *) val U1 = toFgn concat1 (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val U2 = toFgn concat2 (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val cnstr = ref (Eqn (G, U1, U2)) (* GEN END TAG OUTSIDE LET *)
           in
             case (AL1, AL2)
               of (nil, nil) => MultAssign nil
@@ -490,7 +490,7 @@ struct
                    if (Whnf.isPatSub s)
                    then
                      let
-                       val ss = Whnf.invert s
+                       (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert s (* GEN END TAG OUTSIDE LET *)
                      in
                        if Unify.invertible (G, (U2, id), ss, r)
                        then (MultAssign [(G, U, U2, ss)])
@@ -502,7 +502,7 @@ struct
                    if (Whnf.isPatSub s)
                    then
                      let
-                       val ss = Whnf.invert s
+                       (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert s (* GEN END TAG OUTSIDE LET *)
                      in
                        if Unify.invertible (G, (U1, id), ss, r)
                        then (MultAssign [(G, U, U1, ss)])
@@ -528,10 +528,10 @@ struct
        If sum normal
        then U is a foreign expression representing sum.
     *)
-    and toFgn (concat as (Concat [String str])) = stringExp (str)
-      | toFgn (concat as (Concat [Exp (U, id)])) = U
-      | toFgn (concat) =
-        FgnExp (!myID, MyIntsynRep concat)
+    and (* GEN BEGIN FUN FIRST *) toFgn (concat as (Concat [String str])) = stringExp (str) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toFgn (concat as (Concat [Exp (U, id)])) = U (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) toFgn (concat) =
+        FgnExp (!myID, MyIntsynRep concat) (* GEN END FUN BRANCH *)
 
     (* toInternal (fe) = U
 
@@ -539,8 +539,8 @@ struct
        if fe is (MyIntsynRep concat) and concat : normal
        then U is the Twelf syntax conversion of concat
     *)
-    fun toInternal (MyIntsynRep concat) () = toExp (normalize concat)
-      | toInternal fe () = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) toInternal (MyIntsynRep concat) () = toExp (normalize concat) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) toInternal fe () = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
     (* map (fe) f = U'
 
@@ -553,8 +553,8 @@ struct
        then
          U' is a foreign expression representing concat'
     *)
-    fun map (MyIntsynRep concat) f = toFgn (normalize (mapConcat (f,concat)))
-      | map fe _ = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) map (MyIntsynRep concat) f = toFgn (normalize (mapConcat (f,concat))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) map fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
     (* app (fe) f = ()
 
@@ -566,57 +566,57 @@ struct
        then f is applied to each Usi
        (since concat : normal, each Usij is in whnf)
     *)
-    fun app (MyIntsynRep concat) f = appConcat (f, concat)
-      | app fe _ = raise (UnexpectedFgnExp fe)
+    fun (* GEN BEGIN FUN FIRST *) app (MyIntsynRep concat) f = appConcat (f, concat) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) app fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
-    fun equalTo (MyIntsynRep concat) U2 =
+    fun (* GEN BEGIN FUN FIRST *) equalTo (MyIntsynRep concat) U2 =
         sameConcat (normalize (concat),
-                    fromExp (U2, id))
-      | equalTo fe _ = raise (UnexpectedFgnExp fe)
+                    fromExp (U2, id)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) equalTo fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
-    fun unifyWith (MyIntsynRep concat) (G, U2) =
+    fun (* GEN BEGIN FUN FIRST *) unifyWith (MyIntsynRep concat) (G, U2) =
         toFgnUnify (unifyConcat (G, normalize (concat),
-                                 fromExp (U2, id)))
-      | unifyWith fe _ = raise (UnexpectedFgnExp fe)
+                                 fromExp (U2, id))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) unifyWith fe _ = raise (UnexpectedFgnExp fe) (* GEN END FUN BRANCH *)
 
     fun installFgnExpOps () = let
-        val csid = !myID
-        val _ = FgnExpStd.ToInternal.install (csid, toInternal)
-        val _ = FgnExpStd.Map.install (csid, map)
-        val _ = FgnExpStd.App.install (csid, app)
-        val _ = FgnExpStd.UnifyWith.install (csid, unifyWith)
-        val _ = FgnExpStd.EqualTo.install (csid, equalTo)
+        (* GEN BEGIN TAG OUTSIDE LET *) val csid = !myID (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.ToInternal.install (csid, toInternal) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.Map.install (csid, map) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.App.install (csid, app) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.UnifyWith.install (csid, unifyWith) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = FgnExpStd.EqualTo.install (csid, equalTo) (* GEN END TAG OUTSIDE LET *)
     in
         ()
     end
 
     fun makeFgn (arity, opExp) (S) =
           let
-            fun makeParams 0 = Nil
-              | makeParams n =
-                  App (Root(BVar (n), Nil), makeParams (n-1))
-            fun makeLam E 0 = E
-              | makeLam E n =
-                  Lam (Dec (NONE, string()), makeLam E (n-1))
-            fun expand ((Nil, s), arity) =
-                  (makeParams arity, arity)
-              | expand ((App (U, S), s), arity) =
+            fun (* GEN BEGIN FUN FIRST *) makeParams 0 = Nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) makeParams n =
+                  App (Root(BVar (n), Nil), makeParams (n-1)) (* GEN END FUN BRANCH *)
+            fun (* GEN BEGIN FUN FIRST *) makeLam E 0 = E (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) makeLam E n =
+                  Lam (Dec (NONE, string()), makeLam E (n-1)) (* GEN END FUN BRANCH *)
+            fun (* GEN BEGIN FUN FIRST *) expand ((Nil, s), arity) =
+                  (makeParams arity, arity) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) expand ((App (U, S), s), arity) =
                   let
-                    val (S', arity') = expand ((S, s), arity-1)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val (S', arity') = expand ((S, s), arity-1) (* GEN END TAG OUTSIDE LET *)
                   in
                     (App (EClo (U, comp (s, Shift (arity'))), S'), arity')
-                  end
-              | expand ((SClo (S, s'), s), arity) =
-                  expand ((S, comp (s, s')), arity)
-            val (S', arity') = expand ((S, id), arity)
+                  end (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) expand ((SClo (S, s'), s), arity) =
+                  expand ((S, comp (s, s')), arity) (* GEN END FUN BRANCH *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val (S', arity') = expand ((S, id), arity) (* GEN END TAG OUTSIDE LET *)
           in
             makeLam (toFgn (opExp S')) arity'
           end
 
     fun makeFgnBinary opConcat =
           makeFgn (2,
-            fn (App (U1, App (U2, Nil))) =>
-              opConcat (fromExp (U1, id), fromExp (U2, id)))
+            (* GEN BEGIN FUNCTION EXPRESSION *) fn (App (U1, App (U2, Nil))) =>
+              opConcat (fromExp (U1, id), fromExp (U2, id)) (* GEN END FUNCTION EXPRESSION *))
 
     fun arrow (U, V) = Pi ((Dec (NONE, U), No), V)
 
@@ -643,20 +643,20 @@ struct
             ()
           )
   in
-    val solver =
+    (* GEN BEGIN TAG OUTSIDE LET *) val solver =
           {
             name = "equality/strings",
             keywords = "strings,equality",
             needs = ["Unify"],
-
+    
             fgnConst = SOME({parse = parseString}),
-
+    
             init = init,
-
-            reset  = (fn () => ()),
-            mark   = (fn () => ()),
-            unwind = (fn () => ())
-          } : CSManager.solver
+    
+            reset  = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+            mark   = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+            unwind = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *))
+          } : CSManager.solver (* GEN END TAG OUTSIDE LET *)
 
   end
 end (* GEN END FUNCTOR DECL *)  (* functor CSEqStrings *)

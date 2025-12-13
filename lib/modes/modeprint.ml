@@ -18,53 +18,53 @@ struct
     structure F = Formatter
     structure P = Print
 
-    fun modeToString M.Plus = "+"
-      | modeToString M.Star = "*"
-      | modeToString M.Minus = "-"
-      | modeToString M.Minus1 = "-1"
+    fun (* GEN BEGIN FUN FIRST *) modeToString M.Plus = "+" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) modeToString M.Star = "*" (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) modeToString M.Minus = "-" (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) modeToString M.Minus1 = "-1" (* GEN END FUN BRANCH *)
 
     fun argToString (M.Marg (m, _)) = modeToString m
 
-    fun nameDec (I.Dec (_, V) , M.Marg (_, name as SOME _)) = I.Dec (name, V)
-      | nameDec (D, M.Marg (_, NONE)) = D
+    fun (* GEN BEGIN FUN FIRST *) nameDec (I.Dec (_, V) , M.Marg (_, name as SOME _)) = I.Dec (name, V) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) nameDec (D, M.Marg (_, NONE)) = D (* GEN END FUN BRANCH *)
 
     fun makeSpine (G) =
         let
-          fun makeSpine' (I.Null, _, S) = S
-            | makeSpine' (I.Decl (G, _), k, S) =
-                makeSpine' (G, k+1, I.App (I.Root (I.BVar k, I.Nil), S))
+          fun (* GEN BEGIN FUN FIRST *) makeSpine' (I.Null, _, S) = S (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) makeSpine' (I.Decl (G, _), k, S) =
+                makeSpine' (G, k+1, I.App (I.Root (I.BVar k, I.Nil), S)) (* GEN END FUN BRANCH *)
         in
           makeSpine' (G, 1, I.Nil)
         end
 
     fun fmtModeDec (cid, mS) =
         let
-          val V = I.constType cid
-          fun fmtModeDec' (G, _, M.Mnil) =
+          (* GEN BEGIN TAG OUTSIDE LET *) val V = I.constType cid (* GEN END TAG OUTSIDE LET *)
+          fun (* GEN BEGIN FUN FIRST *) fmtModeDec' (G, _, M.Mnil) =
                 [F.String "(",
                  P.formatExp (G, I.Root (I.Const (cid), makeSpine G)),
-                 F.String ")"]
-            | fmtModeDec' (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) =
+                 F.String ")"] (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) fmtModeDec' (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) =
                 let
-                  val D' = nameDec (D, marg)
-                  val D'' = Names.decEName (G, D')
+                  (* GEN BEGIN TAG OUTSIDE LET *) val D' = nameDec (D, marg) (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val D'' = Names.decEName (G, D') (* GEN END TAG OUTSIDE LET *)
                 in
                   [F.String (argToString marg), F.String "{", P.formatDec (G, D''),
                    F.String "}", F.Break] @ (fmtModeDec' (I.Decl (G, D''), V', S))
-                end
+                end (* GEN END FUN BRANCH *)
         in
           F.HVbox (fmtModeDec' (I.Null, V, mS))
         end
 
-    fun fmtModeDecs ((cid, mS)::nil) = fmtModeDec (cid, mS)::nil
-      | fmtModeDecs ((cid, mS)::mdecs) =
-        fmtModeDec (cid, mS)::F.Break::fmtModeDecs mdecs
+    fun (* GEN BEGIN FUN FIRST *) fmtModeDecs ((cid, mS)::nil) = fmtModeDec (cid, mS)::nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtModeDecs ((cid, mS)::mdecs) =
+        fmtModeDec (cid, mS)::F.Break::fmtModeDecs mdecs (* GEN END FUN BRANCH *)
 
     fun modeToString cM = F.makestring_fmt (fmtModeDec cM)
     fun modesToString mdecs = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
   in
-    val modeToString = modeToString
-    val modesToString = modesToString
+    (* GEN BEGIN TAG OUTSIDE LET *) val modeToString = modeToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val modesToString = modesToString (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 
 end (* GEN END FUNCTOR DECL *); (* functor ModePrint *)

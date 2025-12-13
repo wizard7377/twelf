@@ -1,7 +1,7 @@
 (* MTP Strategy: Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPStrategy (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPStrategy (structure MTPGlobal : MTPGLOBAL
                      structure StateSyn' : STATESYN
                      structure MTPFilling : MTPFILLING
                        sharing MTPFilling.StateSyn = StateSyn'
@@ -164,6 +164,6 @@ struct
   in
     val run = run
   end (* local *)
-end (* GEN END FUNCTOR DECL *);  (* functor StrategyFRS *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor StrategyFRS *)
 
 

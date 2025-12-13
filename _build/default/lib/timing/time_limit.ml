@@ -11,8 +11,8 @@ structure TimeLimit : sig
 
     exception TimeOut
 
-    (* GEN BEGIN TAG INSIDE LET *) fun timeLimit NONE f x = f x
-      | timeLimit (SOME t) f x = 
+    fun (* GEN BEGIN CASE FIRST *) (* GEN BEGIN CASE FIRST *) timeLimit NONE f x = f x (* GEN END CASE FIRST *) (* GEN END CASE FIRST *)
+      | (* GEN BEGIN CASE BRANCH *) (* GEN BEGIN CASE BRANCH *) timeLimit (SOME t) f x = 
       let
       	val _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
       	val setitimer = SMLofNJ.IntervalTimer.setIntTimer
@@ -33,6 +33,6 @@ structure TimeLimit : sig
       	timerOn(); 
       	((f x) handle ex => (timerOff(); raise ex))
       	  before timerOff()
-      end (* GEN END TAG INSIDE LET *)
+      end (* GEN END CASE BRANCH *) (* GEN END CASE BRANCH *)
 
   end; (* TimeLimit *)

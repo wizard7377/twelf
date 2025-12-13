@@ -40,18 +40,18 @@ struct
 
     exception Error of string
 
-    fun cidFromHead (I.Const a) = a
-      | cidFromHead (I.Def a) = a
+    fun (* GEN BEGIN FUN FIRST *) cidFromHead (I.Const a) = a (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) cidFromHead (I.Def a) = a (* GEN END FUN BRANCH *)
 
-    fun eqHead (I.Const a, I.Const a') = a = a'
-      | eqHead (I.Def a, I.Def a') = a = a'
-      | eqHead _ = false
+    fun (* GEN BEGIN FUN FIRST *) eqHead (I.Const a, I.Const a') = a = a' (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) eqHead (I.Def a, I.Def a') = a = a' (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eqHead _ = false (* GEN END FUN BRANCH *)
 
-  fun compose'(IntSyn.Null, G) = G
-    | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
+  fun (* GEN BEGIN FUN FIRST *) compose'(IntSyn.Null, G) = G (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D) (* GEN END FUN BRANCH *)
 
-  fun shift (IntSyn.Null, s) = s
-    | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+  fun (* GEN BEGIN FUN FIRST *) shift (IntSyn.Null, s) = s (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s)) (* GEN END FUN BRANCH *)
 
   (* We write
        G |- M : g
@@ -82,38 +82,38 @@ struct
      Effects: instantiation of EVars in g, s, and dp
               any effect  sc M  might have
   *)
-  fun solve' (O, (C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
-    matchAtom (O, (p,s), dp, sc)
-    | solve' (O, (C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+  fun (* GEN BEGIN FUN FIRST *) solve' (O, (C.Atom(p), s), dp as C.DProg (G, dPool), sc) =
+    matchAtom (O, (p,s), dp, sc) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) solve' (O, (C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' = I.Dec(NONE, I.EClo(A,s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' = I.Dec(NONE, I.EClo(A,s)) (* GEN END TAG OUTSIDE LET *)
       in
          if (!TableParam.strengthen)
            then
              (case MT.memberCtx ((G,I.EClo(A,s)), G) of
                 SOME(D) =>
                   let
-                     val X = I.newEVar(G, I.EClo(A, s))
+                     (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar(G, I.EClo(A, s)) (* GEN END TAG OUTSIDE LET *)
                    in
                      (* need to reuse label for this assumption .... *)
-                     solve' (O, (g, I.Dot(I.Exp(X),s)), C.DProg (G, dPool), (fn (O,M) => sc (O, I.Lam(D',M))))
+                     solve' (O, (g, I.Dot(I.Exp(X),s)), C.DProg (G, dPool), ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O,M) => sc (O, I.Lam(D',M)) (* GEN END FUNCTION EXPRESSION *)))
                    end
                  | NONE => solve' (O, (g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
-                                  (fn (O,M) => sc (O,I.Lam (D', M)))))
+                                  ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O,M) => sc (O,I.Lam (D', M)) (* GEN END FUNCTION EXPRESSION *))))
          else
            solve' (O, (g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
-                  (fn (O,M) => sc (O, (I.Lam (D', M)))))
+                  ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O,M) => sc (O, (I.Lam (D', M))) (* GEN END FUNCTION EXPRESSION *)))
     (*      solve' (O, (g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, Ha))),
                (fn (O,M) => sc (O, (I.Lam (D', M)))))*)
-      end
-    | solve' (O, (C.All(D, g), s), C.DProg (G, dPool), sc) =
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) solve' (O, (C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' = Names.decLUName (G, I.decSub (D, s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decLUName (G, I.decSub (D, s)) (* GEN END TAG OUTSIDE LET *)
         (* val D' = I.decSub (D, s) *)
       in
         solve' (O, (g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl(dPool, C.Parameter)),
-               (fn (O, M) => sc (O, (I.Lam (D', M)))))
-      end
+               ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O, M) => sc (O, (I.Lam (D', M))) (* GEN END FUNCTION EXPRESSION *)))
+      end (* GEN END FUN BRANCH *)
 
   (* rsolve (O, (p,s'), (r,s), dp, sc) = ()
      Invariants:
@@ -128,49 +128,49 @@ struct
      Effects: instantiation of EVars in p[s'], r[s], and dp
               any effect  sc S  might have
   *)
-  and rSolve (O, ps', (C.Eq(Q), s), C.DProg (G, dPool), sc) =
+  and (* GEN BEGIN FUN FIRST *) rSolve (O, ps', (C.Eq(Q), s), C.DProg (G, dPool), sc) =
       if Unify.unifiable (G, (Q, s), ps') (* effect: instantiate EVars *)
         then sc (O, I.Nil)                (* call success continuation *)
-      else (let val _ = (print "Unification Failed -- SHOULD NEVER HAPPEN!\n";
+      else (let (* GEN BEGIN TAG OUTSIDE LET *) val _ = (print "Unification Failed -- SHOULD NEVER HAPPEN!\n";
                          print (Print.expToString (G, I.EClo(ps')) ^ " unify ");
-                         print (Print.expToString (G, I.EClo(Q, s)) ^ "\n"))
+                         print (Print.expToString (G, I.EClo(Q, s)) ^ "\n")) (* GEN END TAG OUTSIDE LET *)
             in
               ()
-            end)
+            end) (* GEN END FUN FIRST *)
           (* fail *)
 
-    | rSolve (O, ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
+    | (* GEN BEGIN FUN BRANCH *) rSolve (O, ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), sc) =
         (case Assign.assignable (G, ps', (Q, s)) of
           SOME(cnstr) =>
             if aSolve((eqns, s), dp, cnstr)
               then sc (O, I.Nil)
             else  print "aSolve cnstr not solvable -- SHOULD NEVER HAPPEN\n"
-        | NONE => print "Clause Head not assignable -- SHOULD NEVER HAPPEN\n")
+        | NONE => print "Clause Head not assignable -- SHOULD NEVER HAPPEN\n") (* GEN END FUN BRANCH *)
 
-    | rSolve (O, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN BEGIN FUN BRANCH *) rSolve (O, ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), sc) =
       let
         (* is this EVar redundant? -fp *)
-        val X = I.newEVar (G, I.EClo(A, s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo(A, s)) (* GEN END TAG OUTSIDE LET *)
       in
         rSolve (O, ps', (r, I.Dot(I.Exp(X), s)), dp,
-                (fn (O, S) => solve' (O, (g, s), dp,
-                                (fn (O, M) => sc (O, (I.App (M, S)))))))
-      end
-    | rSolve (O, ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O, S) => solve' (O, (g, s), dp,
+                                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O, M) => sc (O, (I.App (M, S))) (* GEN END FUNCTION EXPRESSION *))) (* GEN END FUNCTION EXPRESSION *)))
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) rSolve (O, ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), sc) =
       let
-        val X = I.newEVar (G, I.EClo (A,s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (A,s)) (* GEN END TAG OUTSIDE LET *)
       in
         rSolve (O, ps', (r, I.Dot(I.Exp(X), s)), dp,
-                (fn (O,S) => sc (O, (I.App(X,S)))))
-      end
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O,S) => sc (O, (I.App(X,S))) (* GEN END FUNCTION EXPRESSION *)))
+      end (* GEN END FUN BRANCH *)
 
-    | rSolve (O, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
+    | (* GEN BEGIN FUN BRANCH *) rSolve (O, ps', (C.Axists(I.ADec(SOME(X), d), r), s), dp as C.DProg (G, dPool), sc) =
       let
-        val X' = I.newAVar ()
+        (* GEN BEGIN TAG OUTSIDE LET *) val X' = I.newAVar () (* GEN END TAG OUTSIDE LET *)
       in
         rSolve (O, ps', (r, I.Dot(I.Exp(I.EClo(X', I.Shift(~d))), s)), dp, sc)
         (* we don't increase the proof term here! *)
-      end
+      end (* GEN END FUN BRANCH *)
 
   (* aSolve ((ag, s), dp, sc) = res
      Invariants:
@@ -181,16 +181,16 @@ struct
        else res = Fail
      Effects: instantiation of EVars in ag[s], dp and sc () *)
 
-  and aSolve ((C.Trivial, s), dp, cnstr) =
-       Assign.solveCnstr cnstr
-    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr) =
+  and (* GEN BEGIN FUN FIRST *) aSolve ((C.Trivial, s), dp, cnstr) =
+       Assign.solveCnstr cnstr (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), cnstr) =
       let
-        val (G'') = compose'(G', G)
-        val s' = shift (G', s)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (G'') = compose'(G', G) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val s' = shift (G', s) (* GEN END TAG OUTSIDE LET *)
       in
          Assign.unifiable (G'', (N, s'), (e1, s')) andalso
               aSolve ((eqns, s), dp, cnstr)
-     end
+     end (* GEN END FUN BRANCH *)
 
 
   (* matchatom (O, (p, s), dp, sc) => ()
@@ -212,48 +212,48 @@ struct
            try each constant ci in turn for solving atomic goal ps', starting
            with c1.
         *)
-        fun matchSig (nil, k) =
-             raise Error (" \noracle #Pc does not exist \n")
+        fun (* GEN BEGIN FUN FIRST *) matchSig (nil, k) =
+             raise Error (" \noracle #Pc does not exist \n") (* GEN END FUN FIRST *)
              (* should not happen *)
-          | matchSig (((Hc as (I.Const c))::sgn'), k) =
+          | (* GEN BEGIN FUN BRANCH *) matchSig (((Hc as (I.Const c))::sgn'), k) =
             if c = k then
               let
-                val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+                (* GEN BEGIN TAG OUTSIDE LET *) val C.SClause(r) = C.sProgLookup (cidFromHead Hc) (* GEN END TAG OUTSIDE LET *)
               in
                 rSolve (O, ps', (r, I.id), dp,
-                        (fn (O,S) => sc (O, (I.Root(Hc, S)))))
+                        ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O,S) => sc (O, (I.Root(Hc, S))) (* GEN END FUNCTION EXPRESSION *)))
               end
             else
-              matchSig (sgn', k)
-          | matchSig (((Hc as (I.Def d))::sgn'), k) =
+              matchSig (sgn', k) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) matchSig (((Hc as (I.Def d))::sgn'), k) =
             if d = k then
               let
-                val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+                (* GEN BEGIN TAG OUTSIDE LET *) val C.SClause(r) = C.sProgLookup (cidFromHead Hc) (* GEN END TAG OUTSIDE LET *)
               in
                 rSolve (O, ps', (r, I.id), dp,
-                        (fn (O,S) => sc (O, (I.Root(Hc, S)))))
+                        ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O,S) => sc (O, (I.Root(Hc, S))) (* GEN END FUNCTION EXPRESSION *)))
               end
             else
-              matchSig (sgn', k)
+              matchSig (sgn', k) (* GEN END FUN BRANCH *)
   
         (* matchDProg (dPool, k) = ()
            where k is the index of dPool in global dPool from call to matchAtom.
            Try each local assumption for solving atomic goal ps', starting
            with the most recent one.
         *)
-        fun matchDProg (I.Null, i, k) =
+        fun (* GEN BEGIN FUN FIRST *) matchDProg (I.Null, i, k) =
             (* dynamic program exhausted -- shouldn't happen *)
-            raise Error ("\n selected dynamic clause number does not exist in current dynamic clause pool!\n")
-          | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), 1, k) =
+            raise Error ("\n selected dynamic clause number does not exist in current dynamic clause pool!\n") (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), 1, k) =
             if eqHead (Ha, Ha')
               then
                 rSolve (O, ps', (r, I.comp(s, I.Shift(k))), dp,
-                        (fn (O,S) => sc (O, (I.Root(I.BVar(k), S)))))
+                        ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O,S) => sc (O, (I.Root(I.BVar(k), S))) (* GEN END FUNCTION EXPRESSION *)))
             else (* shouldn't happen *)
-              raise Error ("\n selected dynamic clause does not match current goal!\n")
+              raise Error ("\n selected dynamic clause does not match current goal!\n") (* GEN END FUN BRANCH *)
   
-          | matchDProg (I.Decl (dPool', dc), i ,k) =
-              matchDProg (dPool', i-1, k)
+          | (* GEN BEGIN FUN BRANCH *) matchDProg (I.Decl (dPool', dc), i ,k) =
+              matchDProg (dPool', i-1, k) (* GEN END FUN BRANCH *)
       in
         (case Ho of
            C.Pc i => matchSig (Index.lookup (cidFromHead Ha), i)

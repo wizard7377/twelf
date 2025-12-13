@@ -18,7 +18,7 @@ struct
   local
     open IntSyn
 
-    val delayExp = Unify.delay
+    (* GEN BEGIN TAG OUTSIDE LET *) val delayExp = Unify.delay (* GEN END TAG OUTSIDE LET *)
 
     (* weakenSub (G1, s, ss) = w'
 
@@ -31,17 +31,17 @@ struct
        and   G1' is maximal such
     *)
 
-    fun weakenSub (G, Shift n, ss) =
+    fun (* GEN BEGIN FUN FIRST *) weakenSub (G, Shift n, ss) =
         if n < ctxLength G
           then weakenSub (G, Dot (Idx (n+1), Shift (n+1)), ss)
-        else id
-      | weakenSub (G, Dot (Idx n, s'), ss) =
+        else id (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) weakenSub (G, Dot (Idx n, s'), ss) =
         (case bvarSub (n, ss)
            of Undef => comp (weakenSub (G, s', ss), shift)
-            | Idx _ => dot1 (weakenSub (G, s', ss)))
+            | Idx _ => dot1 (weakenSub (G, s', ss))) (* GEN END FUN BRANCH *)
             (* no other cases, ss is strsub *)
-      | weakenSub (G, Dot (Undef, s'), ss) =
-           comp (weakenSub (G, s', ss), shift)
+      | (* GEN BEGIN FUN BRANCH *) weakenSub (G, Dot (Undef, s'), ss) =
+           comp (weakenSub (G, s', ss), shift) (* GEN END FUN BRANCH *)
 
     (* prune (G, (U, s), ss, rOccur) = U[s][ss]
 
@@ -58,21 +58,21 @@ struct
     *)
     fun pruneExp  (G, Us, ss, rOccur) =
           pruneExpW (G, Whnf.whnf Us, ss, rOccur)
-    and pruneExpW (G, (U as Uni _, s), _, _) = U
-      | pruneExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
+    and (* GEN BEGIN FUN FIRST *) pruneExpW (G, (U as Uni _, s), _, _) = U (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) pruneExpW (G, (Pi ((D, P), V), s), ss, rOccur) =
           Pi ((pruneDec (G, (D, s), ss, rOccur), P),
-              pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur))
-      | pruneExpW (G, (Lam (D, V), s), ss, rOccur) =
+              pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneExpW (G, (Lam (D, V), s), ss, rOccur) =
           Lam (pruneDec (G, (D, s), ss, rOccur),
-               pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur))
-      | pruneExpW (G, (Root (H, S), s (* = id *)), ss, rOccur) =
+               pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneExpW (G, (Root (H, S), s (* = id *)), ss, rOccur) =
           Root (pruneHead (G, H, ss, rOccur),
-                pruneSpine (G, (S, s), ss, rOccur))
-      | pruneExpW (G, (X as EVar (r, GX, V, cnstrs), s), ss, rOccur) =
+                pruneSpine (G, (S, s), ss, rOccur)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneExpW (G, (X as EVar (r, GX, V, cnstrs), s), ss, rOccur) =
           if (rOccur = r) then raise Match "Variable occurrence"
           else if Whnf.isPatSub (s) then
                let
-                 val w = weakenSub (G, s, ss)
+                 (* GEN BEGIN TAG OUTSIDE LET *) val w = weakenSub (G, s, ss) (* GEN END TAG OUTSIDE LET *)
                in
                  if Whnf.isId w
                    then EClo (X, comp (s, ss))
@@ -100,94 +100,94 @@ struct
                      let
                          (* val GY = Whnf.strengthen (ss, G) *)
                          (* shortcuts possible by invariants on G? *)
-                         val GY = pruneCtx (ss, G, rOccur) (* prune or invert??? *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val GY = pruneCtx (ss, G, rOccur) (* GEN END TAG OUTSIDE LET *) (* prune or invert??? *)
                          (* val V' = EClo (V, comp (s, ss)) *)
-                         val V' = pruneExp (G, (V, s), ss, rOccur) (* prune or invert??? *)
-                         val Y = newEVar (GY, V')
-                         val _ = Unify.addConstraint (cnstrs, ref (Eqn (G, EClo (X, s),
-                                                                        EClo (Y, Whnf.invert ss))))
+                         (* GEN BEGIN TAG OUTSIDE LET *) val V' = pruneExp (G, (V, s), ss, rOccur) (* GEN END TAG OUTSIDE LET *) (* prune or invert??? *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val Y = newEVar (GY, V') (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val _ = Unify.addConstraint (cnstrs, ref (Eqn (G, EClo (X, s),
+                                                                        EClo (Y, Whnf.invert ss)))) (* GEN END TAG OUTSIDE LET *)
                      in
                        Y
                      end
-                 )
+                 ) (* GEN END FUN BRANCH *)
 
-      | pruneExpW (G, (FgnExp csfe, s), ss, rOccur) =
-          FgnExpStd.Map.apply csfe (fn U => pruneExp (G, (U, s), ss, rOccur))
-      | pruneExpW (G, ((X as AVar _), s), ss, rOccur) =
+      | (* GEN BEGIN FUN BRANCH *) pruneExpW (G, (FgnExp csfe, s), ss, rOccur) =
+          FgnExpStd.Map.apply csfe ((* GEN BEGIN FUNCTION EXPRESSION *) fn U => pruneExp (G, (U, s), ss, rOccur) (* GEN END FUNCTION EXPRESSION *)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneExpW (G, ((X as AVar _), s), ss, rOccur) =
         (* this case should never happen! *)
-          raise Match "Left-over AVar"
+          raise Match "Left-over AVar" (* GEN END FUN BRANCH *)
 
 
       (* other cases impossible since (U,s1) whnf *)
-    and pruneDec (G, (Dec (name, V), s), ss, rOccur) =
-          Dec (name, pruneExp (G, (V, s), ss, rOccur))
-      | pruneDec (G, (NDec x, _), _, _) = NDec x
+    and (* GEN BEGIN FUN FIRST *) pruneDec (G, (Dec (name, V), s), ss, rOccur) =
+          Dec (name, pruneExp (G, (V, s), ss, rOccur)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) pruneDec (G, (NDec x, _), _, _) = NDec x (* GEN END FUN BRANCH *)
       (* Added for the meta level -cs Tue Aug 17 17:09:27 2004 *)
-    and pruneSpine (G, (Nil, s), ss, rOccur) = Nil
-      | pruneSpine (G, (App (U, S), s), ss, rOccur) =
+    and (* GEN BEGIN FUN FIRST *) pruneSpine (G, (Nil, s), ss, rOccur) = Nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) pruneSpine (G, (App (U, S), s), ss, rOccur) =
           App (pruneExp (G, (U, s), ss, rOccur),
-               pruneSpine (G, (S, s), ss, rOccur))
-      | pruneSpine (G, (SClo (S, s'), s), ss, rOccur) =
-          pruneSpine (G, (S, comp (s', s)), ss, rOccur)
-    and pruneHead (G, BVar k, ss, rOccur) =
+               pruneSpine (G, (S, s), ss, rOccur)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneSpine (G, (SClo (S, s'), s), ss, rOccur) =
+          pruneSpine (G, (S, comp (s', s)), ss, rOccur) (* GEN END FUN BRANCH *)
+    and (* GEN BEGIN FUN FIRST *) pruneHead (G, BVar k, ss, rOccur) =
         (case (bvarSub (k, ss))
            of Undef => raise Match "Parameter dependency"
-            | Idx k' => BVar k')
-      | pruneHead (G, H as Const _, ss, rOccur) = H
-      | pruneHead (G, Proj (B as Bidx k, i), ss, rOccur) =
+            | Idx k' => BVar k') (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) pruneHead (G, H as Const _, ss, rOccur) = H (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneHead (G, Proj (B as Bidx k, i), ss, rOccur) =
         (* blockSub (B, ss) should always be defined *)
         (* Fri Dec 28 10:03:12 2001 -fp !!! *)
         (case blockSub (B, ss)
-           of Bidx(k') => Proj (Bidx (k'), i))
-      | pruneHead (G, H as Proj (LVar (r, sk, (l, t)), i), ss, rOccur) =
+           of Bidx(k') => Proj (Bidx (k'), i)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneHead (G, H as Proj (LVar (r, sk, (l, t)), i), ss, rOccur) =
         (* claim: LVar does not need to be pruned since . |- t : Gsome *)
         (* so we perform only the occurs-check here as for FVars *)
         (* Sat Dec  8 13:39:41 2001 -fp !!! *)
         (* this is not true any more, Sun Dec  1 11:28:47 2002 -cs  *)
         (* Changed from Null to G Sat Dec  7 21:58:00 2002 -fp *)
            ( pruneSub (G, t, id, rOccur) ;
-             H )
-      | pruneHead (G, H as Skonst _, ss, rOccur) = H
-      | pruneHead (G, H as Def _, ss, rOccur) = H
-      | pruneHead (G, FVar (x, V, s'), ss, rOccur) =
+             H ) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneHead (G, H as Skonst _, ss, rOccur) = H (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneHead (G, H as Def _, ss, rOccur) = H (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneHead (G, FVar (x, V, s'), ss, rOccur) =
           (* V does not to be pruned, since . |- V : type and s' = ^k *)
           (* perform occurs-check for r only *)
           (pruneExp (G, (V, id), id, rOccur);  (* why G here? -fp !!! *)
-           FVar (x, V, comp (s', ss)))
-      | pruneHead (G, H as FgnConst _, ss, rOccur) = H
+           FVar (x, V, comp (s', ss))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneHead (G, H as FgnConst _, ss, rOccur) = H (* GEN END FUN BRANCH *)
     (* pruneSub never allows pruning OUTDATED *)
     (* in the presence of block variables, this invariant
        doesn't hold any more, because substitutions do not
        only occur in EVars any more but also in LVars!
        and there pruning is allowed!   Tue May 29 21:50:17 EDT 2001 -cs *)
-    and pruneSub (G, s as Shift (n), ss, rOccur) =
+    and (* GEN BEGIN FUN FIRST *) pruneSub (G, s as Shift (n), ss, rOccur) =
         if n < ctxLength (G)
           then pruneSub (G, Dot (Idx (n+1), Shift (n+1)), ss, rOccur)
-        else comp (s, ss)               (* must be defined *)
-      | pruneSub (G, Dot (Idx (n), s'), ss, rOccur) =
+        else comp (s, ss) (* GEN END FUN FIRST *)               (* must be defined *)
+      | (* GEN BEGIN FUN BRANCH *) pruneSub (G, Dot (Idx (n), s'), ss, rOccur) =
         (case bvarSub (n, ss)
            of Undef => raise Match "Not prunable"
-            | Ft => Dot (Ft, pruneSub (G, s', ss, rOccur)))
-      | pruneSub (G, Dot (Exp (U), s'), ss, rOccur) =
+            | Ft => Dot (Ft, pruneSub (G, s', ss, rOccur))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneSub (G, Dot (Exp (U), s'), ss, rOccur) =
           (* below my raise Match *)
           Dot (Exp (pruneExp (G, (U, id), ss, rOccur)),
-               pruneSub (G, s', ss, rOccur))
+               pruneSub (G, s', ss, rOccur)) (* GEN END FUN BRANCH *)
       (* pruneSub (G, Dot (Undef, s), ss, rOccur) is impossible *)
       (* By invariant, all EVars X[s] are such that s is defined everywhere *)
       (* Pruning establishes and maintains this invariant *)
-    and pruneCtx (Shift n, Null, rOccur) = Null
-      | pruneCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
+    and (* GEN BEGIN FUN FIRST *) pruneCtx (Shift n, Null, rOccur) = Null (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) pruneCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
         let
-          val t' = comp (t, invShift)
-          val D' = pruneDec (G, (D, id), t', rOccur)
+          (* GEN BEGIN TAG OUTSIDE LET *) val t' = comp (t, invShift) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = pruneDec (G, (D, id), t', rOccur) (* GEN END TAG OUTSIDE LET *)
         in
           Decl (pruneCtx (t', G, rOccur), D')
-        end
+        end (* GEN END FUN BRANCH *)
 
-      | pruneCtx (Dot (Undef, t), Decl (G, d), rOccur) =
-          pruneCtx (t, G, rOccur)
-      | pruneCtx (Shift n, G, rOccur) =
-          pruneCtx (Dot (Idx (n+1), Shift (n+1)), G, rOccur)
+      | (* GEN BEGIN FUN BRANCH *) pruneCtx (Dot (Undef, t), Decl (G, d), rOccur) =
+          pruneCtx (t, G, rOccur) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) pruneCtx (Shift n, G, rOccur) =
+          pruneCtx (Dot (Idx (n+1), Shift (n+1)), G, rOccur) (* GEN END FUN BRANCH *)
 
 
     (* matchExpW (G, (U1, s1), (U2, s2)) = ()
@@ -206,45 +206,45 @@ struct
        Other effects: EVars may be lowered
                       constraints may be added for non-patterns
     *)
-    fun matchExpW (G, Us1 as (FgnExp csfe1, _), Us2) =
+    fun (* GEN BEGIN FUN FIRST *) matchExpW (G, Us1 as (FgnExp csfe1, _), Us2) =
           (case (FgnExpStd.UnifyWith.apply csfe1 (G, EClo Us2))
              of (Succeed residualL) =>
                   let
-                    fun execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
+                    fun (* GEN BEGIN FUN FIRST *) execResidual (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
-                            val W' = pruneExp (G, (W, id), ss, r)
+                            (* GEN BEGIN TAG OUTSIDE LET *) val W' = pruneExp (G, (W, id), ss, r) (* GEN END TAG OUTSIDE LET *)
                           in
                             Unify.instantiateEVar (r, W', !cnstrs)
-                          end
-                      | execResidual (Delay (U, cnstr)) =
-                          delayExp ((U, id), cnstr)
+                          end (* GEN END FUN FIRST *)
+                      | (* GEN BEGIN FUN BRANCH *) execResidual (Delay (U, cnstr)) =
+                          delayExp ((U, id), cnstr) (* GEN END FUN BRANCH *)
                   in
                     List.app execResidual residualL
                   end
-              | Fail => raise Match "Foreign Expression Mismatch")
+              | Fail => raise Match "Foreign Expression Mismatch") (* GEN END FUN FIRST *)
 
-      | matchExpW (G, Us1, Us2 as (FgnExp csfe2, _)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, Us1, Us2 as (FgnExp csfe2, _)) =
           (case (FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1))
              of (Succeed opL) =>
                   let
-                    fun execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
+                    fun (* GEN BEGIN FUN FIRST *) execOp (Assign (G, EVar(r, _, _, cnstrs), W, ss)) =
                           let
-                            val W' = pruneExp (G, (W, id), ss, r)
+                            (* GEN BEGIN TAG OUTSIDE LET *) val W' = pruneExp (G, (W, id), ss, r) (* GEN END TAG OUTSIDE LET *)
                           in
                             Unify.instantiateEVar (r, W', !cnstrs)
-                          end
-                      | execOp (Delay (U, cnstr)) = delayExp ((U, id), cnstr)
+                          end (* GEN END FUN FIRST *)
+                      | (* GEN BEGIN FUN BRANCH *) execOp (Delay (U, cnstr)) = delayExp ((U, id), cnstr) (* GEN END FUN BRANCH *)
                   in
                     List.app execOp opL
                   end
-              | Fail => raise Match "Foreign Expression Mismatch")
+              | Fail => raise Match "Foreign Expression Mismatch") (* GEN END FUN BRANCH *)
 
-      | matchExpW (G, (Uni (L1), _), (Uni(L2), _)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, (Uni (L1), _), (Uni(L2), _)) =
           (* L1 = L2 = type, by invariant *)
           (* matchUni (L1, L2) - removed Mon Aug 24 12:18:24 1998 -fp *)
-          ()
+          () (* GEN END FUN BRANCH *)
 
-      | matchExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, Us1 as (Root (H1, S1), s1), Us2 as (Root (H2, S2), s2)) =
           (* s1 = s2 = id by whnf *)
           (* order of calls critical to establish matchSpine invariant *)
           (case (H1, H2) of
@@ -297,34 +297,34 @@ struct
                matchExp (G, (W1, s1), Us2)
            | (_, FgnConst (_, ConDef (_, _, _, W2, _, _, _))) =>
                matchExp (G, Us1, (W2, s2))
-           | _ => raise Match "Head mismatch")
+           | _ => raise Match "Head mismatch") (* GEN END FUN BRANCH *)
 
 
-      | matchExpW (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) =
           (matchDec (G, (D1, s1), (D2, s2)) ;
-           matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2)))
+           matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2))) (* GEN END FUN BRANCH *)
 
-      | matchExpW (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) =
-          matchExpW (G, Us1, Whnf.expandDef (Us2))
-      | matchExpW (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) =
-          matchExpW (G, Whnf.expandDef (Us1), Us2)
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, Us1 as (Pi (_, _), _), Us2 as (Root (Def _, _), _)) =
+          matchExpW (G, Us1, Whnf.expandDef (Us2)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, Us1 as  (Root (Def _, _), _), Us2 as (Pi (_, _), _)) =
+          matchExpW (G, Whnf.expandDef (Us1), Us2) (* GEN END FUN BRANCH *)
 
-      | matchExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) =
           (* D1[s1] = D2[s2]  by invariant *)
-          matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),(U2, dot1 s2))
+          matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),(U2, dot1 s2)) (* GEN END FUN BRANCH *)
 
-      | matchExpW (G, (Lam (D1, U1), s1), (U2, s2)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, (Lam (D1, U1), s1), (U2, s2)) =
           (* ETA: can't occur if eta expanded *)
           matchExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1),
-                    (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2))
+                    (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2)) (* GEN END FUN BRANCH *)
            (* for rhs:  (U2[s2])[^] 1 = U2 [s2 o ^] 1 = U2 [^ o (1. s2 o ^)] 1
                         = (U2 [^] 1) [1.s2 o ^] *)
 
-      | matchExpW (G, (U1, s1), (Lam (D2, U2), s2)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, (U1, s1), (Lam (D2, U2), s2)) =
           (* Cannot occur if expressions are eta expanded *)
           matchExp (Decl (G, decSub (D2, s2)),
                     (Redex (EClo (U1, shift), App (Root (BVar (1), Nil), Nil)), dot1 s1),
-                    (U2, dot1 s2))
+                    (U2, dot1 s2)) (* GEN END FUN BRANCH *)
            (* same reasoning holds as above *)
 
 (*      | matchExpW (G, Us1 as (U1 as EVar(r1, G1, V1, cnstrs1), s1),
@@ -377,17 +377,17 @@ struct
                 Unify.addConstraint (cnstrs1, cnstr)
               end
 *)
-      | matchExpW (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) =
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, Us1 as (EVar(r, GX, V, cnstrs), s), Us2 as (U2,s2)) =
         if Whnf.isPatSub(s) then
-          let val ss = Whnf.invert s
-              val U2' = pruneExp (G, Us2, ss, r)
+          let (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert s (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val U2' = pruneExp (G, Us2, ss, r) (* GEN END TAG OUTSIDE LET *)
           in
             (* instantiateEVar (r, EClo (U2, comp(s2, ss)), !cnstrs) *)
             (* invertExpW (Us2, s, r) *)
             Unify.instantiateEVar (r, U2', !cnstrs)
           end
         else
-          Unify.addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))
+          Unify.addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2))) (* GEN END FUN BRANCH *)
 
 (*      | matchExpW (G, Us1 as (U1,s1), Us2 as (EVar (r, GX, V, cnstrs), s)) =
         if Whnf.isPatSub(s) then
@@ -402,8 +402,8 @@ struct
         else
         Unify.addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))*)
 
-      | matchExpW (G, Us1, Us2) =
-        raise Match ("Expression clash")
+      | (* GEN BEGIN FUN BRANCH *) matchExpW (G, Us1, Us2) =
+        raise Match ("Expression clash") (* GEN END FUN BRANCH *)
 
     (* covers most remaining cases *)
     (* the cases for EClo or Redex should not occur because of whnf invariant *)
@@ -417,14 +417,14 @@ struct
     and matchDefDefW (G, Us1 as (Root (Def (d1), S1), s1), Us2 as (Root (Def (d2), S2), s2)) =
         (*  matchExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) *)
         let
-          val Anc (_, h1, c1Opt) = defAncestor d1
-          val Anc (_, h2, c2Opt) = defAncestor d2
-          val _ = case (c1Opt,c2Opt)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Anc (_, h1, c1Opt) = defAncestor d1 (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Anc (_, h2, c2Opt) = defAncestor d2 (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = case (c1Opt,c2Opt)
                     of (SOME(c1), SOME(c2)) =>
                        if c1 <> c2
                          then raise Match ("Irreconcilable defined constant clash")
                        else ()
-                     | _ => () (* conservative *)
+                     | _ => () (* GEN END TAG OUTSIDE LET *) (* conservative *)
         in
           case Int.compare (h1, h2)
             of EQUAL => matchExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2))
@@ -446,12 +446,12 @@ struct
        Other effects: EVars may be lowered,
                       constraints may be added for non-patterns
     *)
-    and matchSpine (G, (Nil,_), (Nil,_)) = ()
-      | matchSpine (G, (SClo (S1, s1'), s1), Ss) = matchSpine (G, (S1, comp (s1', s1)), Ss)
-      | matchSpine (G, Ss, (SClo (S2, s2'), s2)) = matchSpine (G, Ss, (S2, comp (s2', s2)))
-      | matchSpine (G, (App (U1, S1), s1), (App (U2, S2), s2)) =
+    and (* GEN BEGIN FUN FIRST *) matchSpine (G, (Nil,_), (Nil,_)) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) matchSpine (G, (SClo (S1, s1'), s1), Ss) = matchSpine (G, (S1, comp (s1', s1)), Ss) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) matchSpine (G, Ss, (SClo (S2, s2'), s2)) = matchSpine (G, Ss, (S2, comp (s2', s2))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) matchSpine (G, (App (U1, S1), s1), (App (U2, S2), s2)) =
         (matchExp (G, (U1, s1), (U2, s2)) ;
-         matchSpine (G, (S1, s1), (S2, s2)))
+         matchSpine (G, (S1, s1), (S2, s2))) (* GEN END FUN BRANCH *)
       (* Nil/App or App/Nil cannot occur by typing invariants *)
 
     and matchDec (G, (Dec(_, V1), s1), (Dec (_, V2), s2)) =
@@ -470,13 +470,13 @@ struct
     *)
     (* conjecture: G == Null at all times *)
     (* Thu Dec  6 21:01:09 2001 -fp *)
-    and matchSub (G, Shift (n1), Shift (n2)) = ()
+    and (* GEN BEGIN FUN FIRST *) matchSub (G, Shift (n1), Shift (n2)) = () (* GEN END FUN FIRST *)
          (* by invariant *)
-      | matchSub (G, Shift(n), s2 as Dot _) =
-          matchSub (G, Dot(Idx(n+1), Shift(n+1)), s2)
-      | matchSub (G, s1 as Dot _, Shift(m)) =
-          matchSub (G, s1, Dot(Idx(m+1), Shift(m+1)))
-      | matchSub (G, Dot(Ft1,s1), Dot(Ft2,s2)) =
+      | (* GEN BEGIN FUN BRANCH *) matchSub (G, Shift(n), s2 as Dot _) =
+          matchSub (G, Dot(Idx(n+1), Shift(n+1)), s2) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) matchSub (G, s1 as Dot _, Shift(m)) =
+          matchSub (G, s1, Dot(Idx(m+1), Shift(m+1))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) matchSub (G, Dot(Ft1,s1), Dot(Ft2,s2)) =
           ((case (Ft1, Ft2) of
              (Idx (n1), Idx (n2)) =>
                if n1 <> n2 then raise Error "SOME variables mismatch"
@@ -486,15 +486,15 @@ struct
            | (Idx (n1), Exp (U2)) => matchExp (G, (Root (BVar (n1), Nil), id), (U2, id)));
       (*         | (Undef, Undef) =>
            | _ => false *)   (* not possible because of invariant? -cs *)
-          matchSub (G, s1, s2))
+          matchSub (G, s1, s2)) (* GEN END FUN BRANCH *)
 
     (* substitutions s1 and s2 were redundant here --- removed *)
     (* Sat Dec  8 11:47:12 2001 -fp !!! *)
-    and matchBlock (G, LVar (ref (SOME(B1)), s, _), B2) = matchBlock (G, blockSub (B1, s), B2)
-      | matchBlock (G, B1, LVar (ref (SOME(B2)), s, _)) = matchBlock (G, B1, blockSub (B2, s))
-      | matchBlock (G, B1, B2) = matchBlockW (G, B1, B2)
+    and (* GEN BEGIN FUN FIRST *) matchBlock (G, LVar (ref (SOME(B1)), s, _), B2) = matchBlock (G, blockSub (B1, s), B2) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) matchBlock (G, B1, LVar (ref (SOME(B2)), s, _)) = matchBlock (G, B1, blockSub (B2, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) matchBlock (G, B1, B2) = matchBlockW (G, B1, B2) (* GEN END FUN BRANCH *)
 
-    and matchBlockW (G, LVar (r1, Shift(k1), (l1, t1)), LVar (r2, Shift(k2), (l2, t2))) =
+    and (* GEN BEGIN FUN FIRST *) matchBlockW (G, LVar (r1, Shift(k1), (l1, t1)), LVar (r2, Shift(k2), (l2, t2))) =
         if l1 <> l2 then
           raise Match "Label clash"
         else
@@ -510,17 +510,17 @@ struct
                 else Unify.instantiateLVar (r2, LVar(r1, Shift (k1-k2), (l1, t1)))
               *)
               let
-                val ss = Whnf.invert (Shift(k1))
-                val t2' = pruneSub (G, t2, ss, ref NONE) (* hack! *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val ss = Whnf.invert (Shift(k1)) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val t2' = pruneSub (G, t2, ss, ref NONE) (* GEN END TAG OUTSIDE LET *) (* hack! *)
               in
                 Unify.instantiateLVar (r1, LVar(r2, Shift(0), (l2, t2'))) (* 0 = k2-k1 *)
-              end )
+              end ) (* GEN END FUN FIRST *)
 
-      | matchBlockW (G, LVar (r1, s1, (l1, t1)),  B2) =
-            (r1 := SOME (blockSub (B2, Whnf.invert s1)) ; ()) (* -- ABP *)
+      | (* GEN BEGIN FUN BRANCH *) matchBlockW (G, LVar (r1, s1, (l1, t1)),  B2) =
+            (r1 := SOME (blockSub (B2, Whnf.invert s1)) ; ()) (* GEN END FUN BRANCH *) (* -- ABP *)
 
-      | matchBlockW (G,  B1, LVar (r2, s2, (l2, t2))) =
-            (r2 := SOME (blockSub (B1, Whnf.invert s2)) ; ()) (* -- ABP *)
+      | (* GEN BEGIN FUN BRANCH *) matchBlockW (G,  B1, LVar (r2, s2, (l2, t2))) =
+            (r2 := SOME (blockSub (B1, Whnf.invert s2)) ; ()) (* GEN END FUN BRANCH *) (* -- ABP *)
 
 (*      | matchBlockW (G, LVar (r1, Shift(k1), (l1, t1)), Bidx i2) =
             (r1 := SOME (Bidx (i2 -k1)) ; ()) (* -- ABP *)
@@ -530,10 +530,10 @@ struct
 *)
       (* How can the next case arise? *)
       (* Sat Dec  8 11:49:16 2001 -fp !!! *)
-      | matchBlockW (G, Bidx (n1), (Bidx (n2))) =
+      | (* GEN BEGIN FUN BRANCH *) matchBlockW (G, Bidx (n1), (Bidx (n2))) =
          if n1 <> n2
            then raise Match "Block index clash"
-         else ()
+         else () (* GEN END FUN BRANCH *)
 
 
 (*
@@ -552,14 +552,14 @@ struct
     and match1 (G, Us1, Us2) =
           (matchExp (G, Us1, Us2); awakeCnstr (Unify.nextCnstr ()))
 
-    and awakeCnstr (NONE) = ()
-      | awakeCnstr (SOME(ref Solved)) = awakeCnstr (Unify.nextCnstr ())
-      | awakeCnstr (SOME(cnstr as ref (Eqn (G, U1, U2)))) =
+    and (* GEN BEGIN FUN FIRST *) awakeCnstr (NONE) = () (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) awakeCnstr (SOME(ref Solved)) = awakeCnstr (Unify.nextCnstr ()) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) awakeCnstr (SOME(cnstr as ref (Eqn (G, U1, U2)))) =
           (Unify.solveConstraint cnstr;
-           match1 (G, (U1, id), (U2, id)))
-      | awakeCnstr (SOME(ref (FgnCnstr csfc))) =
+           match1 (G, (U1, id), (U2, id))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) awakeCnstr (SOME(ref (FgnCnstr csfc))) =
           if (FgnCnstrStd.Awake.apply csfc ()) then ()
-          else raise Match "Foreign constraint violated"
+          else raise Match "Foreign constraint violated" (* GEN END FUN BRANCH *)
 
     fun matchW (G, Us1, Us2) =
           (Unify.resetAwakenCnstrs (); match1W (G, Us1, Us2))
@@ -568,10 +568,10 @@ struct
           (Unify.resetAwakenCnstrs (); match1 (G, Us1, Us2))
 
   in
-    val matchW = matchW
-    val match = match
-    val matchSub = matchSub
-    val matchBlock = matchBlock
+    (* GEN BEGIN TAG OUTSIDE LET *) val matchW = matchW (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val match = match (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val matchSub = matchSub (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val matchBlock = matchBlock (* GEN END TAG OUTSIDE LET *)
 
     fun instance (G, Us1, Us2) =
           (match (G, Us1, Us2);

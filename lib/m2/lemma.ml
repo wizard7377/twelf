@@ -23,22 +23,22 @@ struct
        and  . |- s' : G
        M and B are mode and bound contexts matching G, and similarly for M' and B'.
     *)
-    fun createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
-          (M.Prefix (I.Null, I.Null, I.Null), I.id)
-      | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
+    fun (* GEN BEGIN FUN FIRST *) createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
+          (M.Prefix (I.Null, I.Null, I.Null), I.id) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
         let
-          val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B)) (* GEN END TAG OUTSIDE LET *)
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s')
-        end
-      | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
         let
-          val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B))
-          val X  = I.newEVar (G', I.EClo (V, s'))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s') = createEVars (M.Prefix (G, M, B)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val X  = I.newEVar (G', I.EClo (V, s')) (* GEN END TAG OUTSIDE LET *)
         in
           (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'))
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* apply (((G, M), V), a) = ((G', M'), V')
 
@@ -55,14 +55,14 @@ struct
     *)
     fun apply (M.State (name, GM, V), a) =
         let
-          val (GM' as M.Prefix (G', M', B'), s') = createEVars GM
-          val (U', Vs') = M.createAtomConst (G', I.Const a)  (* Vs' = type *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (GM' as M.Prefix (G', M', B'), s') = createEVars GM (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (U', Vs') = M.createAtomConst (G', I.Const a) (* GEN END TAG OUTSIDE LET *)  (* Vs' = type *)
         in
           A.abstract (M.State (name, GM', I.Pi ((I.Dec (NONE, U'), I.No),
                                                 I.EClo (V, I.comp (s',I.shift)))))
         end
 
   in
-    val apply = apply
+    (* GEN BEGIN TAG OUTSIDE LET *) val apply = apply (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor lemma *)

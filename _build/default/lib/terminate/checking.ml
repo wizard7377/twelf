@@ -2,7 +2,7 @@
 (* Author: Brigitte Pientka *)
 (* for reasoning about orders see [Pientka IJCAR'01] *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Checking  (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Checking  (structure Global : GLOBAL
                    (*! structure IntSyn' : INTSYN !*)
                    structure Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn' !*)
@@ -1684,4 +1684,4 @@ struct
     val shiftRCtx = shiftRCtx
     val shiftPred = shiftP
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor checking  *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor checking  *)

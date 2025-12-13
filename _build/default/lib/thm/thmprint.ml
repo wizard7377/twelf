@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Brigitte Pientka *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ThmPrint (structure ThmSyn' : THMSYN
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ThmPrint (structure ThmSyn' : THMSYN
                     structure Formatter : FORMATTER)
   : THMPRINT =
 struct
@@ -77,4 +77,4 @@ struct
     val keepTableDeclToString = keepTableDeclToString
   end (* local *)
 
-end (* GEN END FUNCTOR DECL *); (* functor ThmPrint *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor ThmPrint *)

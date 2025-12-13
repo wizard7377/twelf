@@ -65,16 +65,16 @@ struct
     *)
     fun expand (S.FocusLF (Y as I.EVar (r, G, V, _))) =   (* Y is lowered *)
       let
-        fun try (Vs as (I.Root _, _), Fs, O) =
-          (CSManager.trail (fn () => (Unify.unify (G, Vs, (V, I.id)); O :: Fs))
-           handle Unify.Unify _ => Fs)
-          | try ((I.Pi ((I.Dec (_, V1), _), V2), s), Fs, O) =
+        fun (* GEN BEGIN FUN FIRST *) try (Vs as (I.Root _, _), Fs, O) =
+          (CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => (Unify.unify (G, Vs, (V, I.id)); O :: Fs) (* GEN END FUNCTION EXPRESSION *))
+           handle Unify.Unify _ => Fs) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) try ((I.Pi ((I.Dec (_, V1), _), V2), s), Fs, O) =
           let
-            val X = I.newEVar (G, I.EClo (V1, s))
+            (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1, s)) (* GEN END TAG OUTSIDE LET *)
           in
             try ((V2, I.Dot (I.Exp X, s)), Fs, O)
-          end
-          | try ((I.EClo (V, s'), s), Fs, O) = try ((V, I.comp (s', s)), Fs, O)
+          end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) try ((I.EClo (V, s'), s), Fs, O) = try ((V, I.comp (s', s)), Fs, O) (* GEN END FUN BRANCH *)
     
         (* matchCtx (G, n, Fs) = Fs'
     
@@ -83,15 +83,15 @@ struct
            satisfy the representation invariant, then Fs' is a list of filling operators
            that satisfy the representation invariant.
         *)
-        fun matchCtx (I.Null, _, Fs) = Fs
-          | matchCtx (I.Decl (G, I.Dec (x, V)), n, Fs) =
-          matchCtx (G, n+1, try ((V, I.Shift (n+1)), Fs, FillWithBVar (Y, n+1)))
-          | matchCtx (I.Decl (G, I.NDec _), n, Fs) =
-          matchCtx (G, n+1, Fs)
+        fun (* GEN BEGIN FUN FIRST *) matchCtx (I.Null, _, Fs) = Fs (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) matchCtx (I.Decl (G, I.Dec (x, V)), n, Fs) =
+          matchCtx (G, n+1, try ((V, I.Shift (n+1)), Fs, FillWithBVar (Y, n+1))) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) matchCtx (I.Decl (G, I.NDec _), n, Fs) =
+          matchCtx (G, n+1, Fs) (* GEN END FUN BRANCH *)
     
-        fun matchSig (nil, Fs) = Fs
-          | matchSig (I.Const (c)::L, Fs) =
-          matchSig (L, try ((I.constType (c), I.id), Fs, FillWithConst (Y, c)))
+        fun (* GEN BEGIN FUN FIRST *) matchSig (nil, Fs) = Fs (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) matchSig (I.Const (c)::L, Fs) =
+          matchSig (L, try ((I.constType (c), I.id), Fs, FillWithConst (Y, c))) (* GEN END FUN BRANCH *)
       in
         matchCtx (G, 0, matchSig (Index.lookup (I.targetFam V), nil))
       end
@@ -102,37 +102,37 @@ struct
        If op is a filling operator that satisfies the representation invariant.
        The apply operation is guaranteed to always succeed.
     *)
-    fun apply (FillWithBVar(Y as I.EVar (r, G, V, _), n)) = (* Y is lowered *)
+    fun (* GEN BEGIN FUN FIRST *) apply (FillWithBVar(Y as I.EVar (r, G, V, _), n)) = (* Y is lowered *)
       let
         (* Invariant : G |- s : G'   G' |- V : type *)
-        fun doit (Vs as (I.Root _, _),  k) =
-            (Unify.unify (G, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
-          | doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
+        fun (* GEN BEGIN FUN FIRST *) doit (Vs as (I.Root _, _),  k) =
+            (Unify.unify (G, Vs, (V, I.id)); (k I.Nil)) (* GEN END FUN FIRST *)  (* Unify must succeed *)
+          | (* GEN BEGIN FUN BRANCH *) doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
             let
-              val X = I.newEVar (G, I.EClo (V1, s))
+              (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (V1, s)) (* GEN END TAG OUTSIDE LET *)
             in
-              doit ((V2, I.Dot (I.Exp X, s)),  (fn S => k (I.App (X, S))))
-            end
-          | doit ((I.EClo (V, t), s), k) = doit ((V, I.comp (t, s)), k)
+              doit ((V2, I.Dot (I.Exp X, s)),  ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => k (I.App (X, S)) (* GEN END FUNCTION EXPRESSION *)))
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) doit ((I.EClo (V, t), s), k) = doit ((V, I.comp (t, s)), k) (* GEN END FUN BRANCH *)
     
-        val I.Dec (_, W) = I.ctxDec (G, n)
+        (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (_, W) = I.ctxDec (G, n) (* GEN END TAG OUTSIDE LET *)
       in
-        doit ((W, I.id),  fn S => Unify.unify (G, (Y, I.id), (I.Root (I.BVar n, S), I.id)))
-      end
-    | apply (FillWithConst(Y as I.EVar (r, G0, V, _), c)) =
+        doit ((W, I.id),  (* GEN BEGIN FUNCTION EXPRESSION *) fn S => Unify.unify (G, (Y, I.id), (I.Root (I.BVar n, S), I.id)) (* GEN END FUNCTION EXPRESSION *))
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) apply (FillWithConst(Y as I.EVar (r, G0, V, _), c)) =
       let
-        fun doit (Vs as (I.Root _, _),  k) =
-            (Unify.unify (G0, Vs, (V, I.id)); (k I.Nil))  (* Unify must succeed *)
-          | doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
+        fun (* GEN BEGIN FUN FIRST *) doit (Vs as (I.Root _, _),  k) =
+            (Unify.unify (G0, Vs, (V, I.id)); (k I.Nil)) (* GEN END FUN FIRST *)  (* Unify must succeed *)
+          | (* GEN BEGIN FUN BRANCH *) doit ((I.Pi ((I.Dec (_, V1), _), V2), s), k) =
             let
-              val X = I.newEVar (G0, I.EClo (V1, s))
+              (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G0, I.EClo (V1, s)) (* GEN END TAG OUTSIDE LET *)
             in
-              doit ((V2, I.Dot (I.Exp X, s)),  (fn S => k (I.App (X, S))))
-            end
-        val W = I.constType c
+              doit ((V2, I.Dot (I.Exp X, s)),  ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => k (I.App (X, S)) (* GEN END FUNCTION EXPRESSION *)))
+            end (* GEN END FUN BRANCH *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val W = I.constType c (* GEN END TAG OUTSIDE LET *)
       in
-        doit ((W, I.id),  fn S => Unify.unify (G0, (Y, I.id), (I.Root (I.Const c, S), I.id)))
-      end
+        doit ((W, I.id),  (* GEN BEGIN FUNCTION EXPRESSION *) fn S => Unify.unify (G0, (Y, I.id), (I.Root (I.Const c, S), I.id)) (* GEN END FUNCTION EXPRESSION *))
+      end (* GEN END FUN BRANCH *)
 
     (* menu op = s'
 
@@ -140,17 +140,17 @@ struct
        If op is a filling operator
        then s' is a string describing the operation in plain text
     *)
-    fun menu (FillWithBVar (X as I.EVar (_, G, _, _), n)) =
+    fun (* GEN BEGIN FUN FIRST *) menu (FillWithBVar (X as I.EVar (_, G, _, _), n)) =
         (case (I.ctxLookup (Names.ctxName G, n))
           of I.Dec (SOME x, _) =>
-            ("Fill " ^ Names.evarName (G, X) ^ " with variable " ^ x))
+            ("Fill " ^ Names.evarName (G, X) ^ " with variable " ^ x)) (* GEN END FUN FIRST *)
            (* Invariant: Context is named  --cs Fri Mar  3 14:31:08 2006 *)
-      | menu (FillWithConst (X as I.EVar (_, G, _, _), c)) =
-           ("Fill " ^ Names.evarName (G, X) ^ " with constant " ^ IntSyn.conDecName (IntSyn.sgnLookup c))
+      | (* GEN BEGIN FUN BRANCH *) menu (FillWithConst (X as I.EVar (_, G, _, _), c)) =
+           ("Fill " ^ Names.evarName (G, X) ^ " with constant " ^ IntSyn.conDecName (IntSyn.sgnLookup c)) (* GEN END FUN BRANCH *)
 
   in
-    val expand = expand
-    val apply = apply
-    val menu = menu
+    (* GEN BEGIN TAG OUTSIDE LET *) val expand = expand (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val apply = apply (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val menu = menu (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor Filling *)

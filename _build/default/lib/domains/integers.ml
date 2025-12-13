@@ -1,7 +1,7 @@
 (* Rationals *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Integers(Integer : INTEGER) : INTEGERS =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Integers(Integer : INTEGER) : INTEGERS =
 struct
 
   open Integer
@@ -57,4 +57,4 @@ struct
           else NONE
         end
 
-end (* GEN END FUNCTOR DECL *);  (* structure Integers *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* structure Integers *)

@@ -1,7 +1,7 @@
 (* Top-Level Parser *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Parser ((*! structure Parsing' : PARSING !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Parser ((*! structure Parsing' : PARSING !*)
                 structure Stream' : STREAM (* result stream *)
                 structure ExtSyn' : EXTSYN
                 (*! sharing ExtSyn'.Paths = Parsing'.Lexer.Paths !*)
@@ -486,4 +486,4 @@ struct
 
   end  (* local ... in *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor Parser *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Parser *)

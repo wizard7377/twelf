@@ -23,7 +23,7 @@ local
   (* Shorthands *)
   structure I = IntSyn
   structure F = Formatter
-  val Str = F.String
+  (* GEN BEGIN TAG OUTSIDE LET *) val Str = F.String (* GEN END TAG OUTSIDE LET *)
   fun Str0 (s, n) = F.String0 n s
   fun Name (x) = F.String ("\"" ^ x ^ "\"")
   fun Integer (n) = F.String (Int.toString n)
@@ -34,14 +34,14 @@ local
      maintained in the names module.
      FVar's are printed with a preceding "`" (backquote) character
   *)
-  fun fmtCon (G, I.BVar(n)) = sexp [Str "tw~bvar", F.Break, Integer n]
-    | fmtCon (G, I.Const(cid)) = sexp [Str "tw~const", F.Break, Integer cid]
-    | fmtCon (G, I.Def(cid)) = sexp [Str "tw~def", F.Break, Integer cid]
+  fun (* GEN BEGIN FUN FIRST *) fmtCon (G, I.BVar(n)) = sexp [Str "tw~bvar", F.Break, Integer n] (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtCon (G, I.Const(cid)) = sexp [Str "tw~const", F.Break, Integer cid] (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtCon (G, I.Def(cid)) = sexp [Str "tw~def", F.Break, Integer cid] (* GEN END FUN BRANCH *)
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
-  fun fmtUni (I.Type) = Str "tw*type"
-    | fmtUni (I.Kind) = Str "tw*kind"
+  fun (* GEN BEGIN FUN FIRST *) fmtUni (I.Type) = Str "tw*type" (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtUni (I.Kind) = Str "tw*kind" (* GEN END FUN BRANCH *)
 
   (* fmtExpW (G, (U, s)) = fmt
 
@@ -53,33 +53,33 @@ local
        G'' |- U : V   G' |- s : G''  (so  G' |- U[s] : V[s])
        (U,s) in whnf
   *)
-  fun fmtExpW (G, (I.Uni(L), s)) = sexp [Str "tw~uni", F.Break, fmtUni L]
-    | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
+  fun (* GEN BEGIN FUN FIRST *) fmtExpW (G, (I.Uni(L), s)) = sexp [Str "tw~uni", F.Break, fmtUni L] (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
-                         val D' = Names.decLUName (G, D) (* could sometimes be EName *)
-                         val G' = I.Decl (G, D')
+                         (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decLUName (G, D) (* GEN END TAG OUTSIDE LET *) (* could sometimes be EName *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val G' = I.Decl (G, D') (* GEN END TAG OUTSIDE LET *)
                        in
                          sexp [Str "tw~pi", F.Break, fmtDec (G, (D', s)),
                                F.Break, Str "tw*maybe", F.Break, fmtExp (G', (V2, I.dot1 s))]
                        end
           | I.No => let
-                       val G' = I.Decl (G, D)
+                       (* GEN BEGIN TAG OUTSIDE LET *) val G' = I.Decl (G, D) (* GEN END TAG OUTSIDE LET *)
                     in
                       sexp [Str "tw~pi", F.Break, fmtDec (G, (D, s)),
                             F.Break, Str "tw*no", F.Break, fmtExp (G', (V2, I.dot1 s))]
-                    end)
-    | fmtExpW (G, (I.Root (H, S), s)) =
+                    end) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtExpW (G, (I.Root (H, S), s)) =
          sexp [Str "tw~root", F.Break, fmtCon (G, H),
-               F.Break, fmtSpine (G, (S, s))]
-    | fmtExpW (G, (I.Lam(D, U), s)) =
+               F.Break, fmtSpine (G, (S, s))] (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtExpW (G, (I.Lam(D, U), s)) =
       let
-        val D' = Names.decLUName (G, D)
-        val G' = I.Decl (G, D')
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decLUName (G, D) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val G' = I.Decl (G, D') (* GEN END TAG OUTSIDE LET *)
       in
         sexp [Str "tw~lam", F.Break, fmtDec (G, (D', s)),
               F.Break, fmtExp (G', (U, I.dot1 s))]
-      end
+      end (* GEN END FUN BRANCH *)
     (* I.EClo, I.Redex, I.EVar not possible *)
 
   and fmtExp (G, (U, s)) = fmtExpW (G, Whnf.whnf (U, s))
@@ -88,51 +88,51 @@ local
      format spine S[s] at printing depth d, printing length l, in printing
      context G which approximates G', where G' |- S[s] is valid
   *)
-  and fmtSpine (G, (I.Nil, _)) = Str "tw*empty-spine"
-    | fmtSpine (G, (I.SClo (S, s'), s)) =
-         fmtSpine (G, (S, I.comp(s',s)))
-    | fmtSpine (G, (I.App(U, S), s)) =
+  and (* GEN BEGIN FUN FIRST *) fmtSpine (G, (I.Nil, _)) = Str "tw*empty-spine" (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtSpine (G, (I.SClo (S, s'), s)) =
+         fmtSpine (G, (S, I.comp(s',s))) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtSpine (G, (I.App(U, S), s)) =
          sexp [Str "tw~app", F.Break, fmtExp (G, (U, s)),
-               F.Break, fmtSpine (G, (S, s))]
+               F.Break, fmtSpine (G, (S, s))] (* GEN END FUN BRANCH *)
 
-  and fmtDec (G, (I.Dec (NONE, V), s)) =
-        sexp [Str "tw~decl", F.Break, Str "nil", F.Break, fmtExp (G, (V, s))]
-    | fmtDec (G, (I.Dec (SOME(x), V), s)) =
-        sexp [Str "tw~decl", F.Break, Name x, F.Break, fmtExp (G, (V, s))]
+  and (* GEN BEGIN FUN FIRST *) fmtDec (G, (I.Dec (NONE, V), s)) =
+        sexp [Str "tw~decl", F.Break, Str "nil", F.Break, fmtExp (G, (V, s))] (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtDec (G, (I.Dec (SOME(x), V), s)) =
+        sexp [Str "tw~decl", F.Break, Name x, F.Break, fmtExp (G, (V, s))] (* GEN END FUN BRANCH *)
 
   (* fmtConDec (condec) = fmt
      formats a constant declaration (which must be closed and in normal form)
 
      This function prints the quantifiers and abstractions only if hide = false.
   *)
-  fun fmtConDec (I.ConDec (name, parent, imp, _, V, L)) =
+  fun (* GEN BEGIN FUN FIRST *) fmtConDec (I.ConDec (name, parent, imp, _, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
       in
         sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
               Integer (imp), F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L)]
-      end
-    | fmtConDec (I.SkoDec (name, parent, imp, V, L)) =
-      Str ("%% Skipping Skolem constant " ^ name ^ " %%")
-    | fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (I.SkoDec (name, parent, imp, V, L)) =
+      Str ("%% Skipping Skolem constant " ^ name ^ " %%") (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (I.ConDef (name, parent, imp, U, V, L, _)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
       in
         sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
               Integer (imp), F.Break, fmtExp (I.Null, (U, I.id)),
               F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L)]
-      end
-    | fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
       in
         sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
               Integer (imp), F.Break, fmtExp (I.Null, (U, I.id)),
               F.Break, fmtExp (I.Null, (V, I.id)),
               F.Break, fmtUni (L)]
-      end
+      end (* GEN END FUN BRANCH *)
 
   (* fmtEqn assumes that G is a valid printing context *)
   fun fmtEqn (I.Eqn (G, U1, U2)) = (* print context?? *)
@@ -164,17 +164,17 @@ in
   fun eqnToString (E) = F.makestring_fmt (formatEqn E)
 
   fun printSgn () =
-      IntSyn.sgnApp (fn (cid) => (print (F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
-                                  print "\n"))
+      IntSyn.sgnApp ((* GEN BEGIN FUNCTION EXPRESSION *) fn (cid) => (print (F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
+                                  print "\n") (* GEN END FUNCTION EXPRESSION *))
 
 
   fun printSgnToFile filename =
       let
-        val file = TextIO.openOut filename
+        (* GEN BEGIN TAG OUTSIDE LET *) val file = TextIO.openOut filename (* GEN END TAG OUTSIDE LET *)
   
-        val _ =       IntSyn.sgnApp (fn (cid) => (TextIO.output (file, F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
-                                  TextIO.output (file, "\n")))
-        val _ = TextIO.closeOut file
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ =       IntSyn.sgnApp ((* GEN BEGIN FUNCTION EXPRESSION *) fn (cid) => (TextIO.output (file, F.makestring_fmt (formatConDec (IntSyn.sgnLookup cid)));
+                                  TextIO.output (file, "\n")) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = TextIO.closeOut file (* GEN END TAG OUTSIDE LET *)
   
       in
         ()

@@ -1,7 +1,7 @@
 (* Constraint Solver Manager *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CSManager (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CSManager (structure Global : GLOBAL
                    (*! structure IntSyn : INTSYN !*)
                    structure Unify : UNIFY
                    (*! sharing Unify.IntSyn = IntSyn !*)
@@ -234,7 +234,7 @@ struct
     val reset = reset
     val trail = trail
   end
-end (* GEN END FUNCTOR DECL *)  (* functor CSManager *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor CSManager *)
 
 structure CSManager = CSManager (structure Global = Global
                                  (*! structure IntSyn = IntSyn !*)

@@ -2,7 +2,7 @@
 
 id: lower_type_name
 message: Make this type name lowercase
-severity: warning # error, warning, info, hint
+severity: error # error, warning, info, hint
 language: sml
 rule:
   pattern: $TYPENAME

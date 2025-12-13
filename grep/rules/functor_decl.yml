@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/rule.json
+
+id: functor_decl
+message: Add generation to first
+severity: error # error, warning, info, hint
+language: sml
+rule:
+  pattern: $BRANCH
+  kind: fctbind 
+  matches: not_tagged
+fix: (* GEN BEGIN FUNCTOR DECL *) $BRANCH (* GEN END FUNCTOR DECL *)
+
+# utils: Extract repeated rule as local utility here.
+# note: Add detailed explanation for the rule.

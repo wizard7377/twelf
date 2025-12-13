@@ -21,11 +21,11 @@ struct
   datatype 'a stream = Stream of unit -> 'a front
   and 'a front = Empty | Cons of 'a * 'a stream
 
-  (* GEN BEGIN TAG INSIDE LET *) fun delay (d) = Stream(d) (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) fun expose (Stream(d)) = d () (* GEN END TAG INSIDE LET *)
+  fun delay (d) = Stream(d)
+  fun expose (Stream(d)) = d ()
 
-  (* GEN BEGIN TAG INSIDE LET *) val empty = Stream (fn () => Empty) (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) fun cons (x, s) = Stream (fn () => Cons (x, s)) (* GEN END TAG INSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val empty = Stream ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => Empty (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+  fun cons (x, s) = Stream ((* GEN BEGIN FUNCTION EXPRESSION *) (* GEN BEGIN FUNCTION EXPRESSION *) fn () => Cons (x, s) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *))
 end;
 
 (* Note that this implementation is NOT semantically *)
@@ -39,22 +39,22 @@ struct
 
   exception Uninitialized
 
-  (* GEN BEGIN TAG INSIDE LET *) fun expose (Stream (d)) = d () (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) fun delay (d) =
-      let val memo = ref (fn () => raise Uninitialized)
+  fun expose (Stream (d)) = d ()
+  fun delay (d) =
+      let (* GEN BEGIN TAG OUTSIDE LET *) val memo = ref ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => raise Uninitialized (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
   	  fun memoFun () =
   	      let
-  		  val r = d ()
+  		  (* GEN BEGIN TAG OUTSIDE LET *) val r = d () (* GEN END TAG OUTSIDE LET *)
   	       in
-  		  ( memo := (fn () => r) ; r )
+  		  ( memo := ((* GEN BEGIN FUNCTION EXPRESSION *) (* GEN BEGIN FUNCTION EXPRESSION *) fn () => r (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) ; r )
   	      end
-  	      handle exn => ( memo := (fn () => raise exn) ; raise exn )
+  	      handle exn => ( memo := ((* GEN BEGIN FUNCTION EXPRESSION *) (* GEN BEGIN FUNCTION EXPRESSION *) fn () => raise exn (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) ; raise exn )
       in
-  	memo := memoFun ; Stream (fn () => !memo ())
-      end (* GEN END TAG INSIDE LET *)
+  	memo := memoFun ; Stream ((* GEN BEGIN FUNCTION EXPRESSION *) (* GEN BEGIN FUNCTION EXPRESSION *) fn () => !memo () (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *))
+      end
 
-  (* GEN BEGIN TAG INSIDE LET *) val empty = Stream (fn () => Empty) (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) fun cons (x, s) = Stream (fn () => Cons (x, s)) (* GEN END TAG INSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val empty = Stream ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => Empty (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+  fun cons (x, s) = Stream ((* GEN BEGIN FUNCTION EXPRESSION *) (* GEN BEGIN FUNCTION EXPRESSION *) fn () => Cons (x, s) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *))
 end;
 
 (* STREAM extends BASIC_STREAMS by operations *)
@@ -81,7 +81,7 @@ sig
   val tabulate : (int -> 'a) -> 'a stream
 end (* GEN END SIGNATURE DECLARATION *);
 
-functor (* GEN BEGIN FUNCTOR DECL *) Stream
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Stream
   (structure BasicStream : BASIC_STREAM) :> STREAM =
 struct
   open BasicStream
@@ -141,7 +141,7 @@ struct
   fun tabulate f = delay (fn () => tabulate' f)
   and tabulate' f = Cons (f(0), tabulate (fn i => f(i+1)))
 
-end (* GEN END FUNCTOR DECL *);
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);
 
 (* structure Stream :> STREAM --- non-memoizing *)
 structure Stream :> STREAM =

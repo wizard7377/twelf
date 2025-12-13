@@ -1,7 +1,7 @@
 (* Meta printer for proof states *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MetaPrint (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MetaPrint (structure Global : GLOBAL
                    structure MetaSyn' : METASYN
                    structure Formatter : FORMATTER
                    structure Print : PRINT
@@ -70,4 +70,4 @@ struct
     val conDecToString = ClausePrint.conDecToString
 
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor MetaPrint *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor MetaPrint *)

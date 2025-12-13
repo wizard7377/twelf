@@ -11,20 +11,20 @@ structure TimeLimit : sig
 
     exception TimeOut
 
-    (* GEN BEGIN TAG INSIDE LET *) fun timeLimit NONE f x = f x
-      | timeLimit (SOME t) f x = 
+    fun (* GEN BEGIN FUN FIRST *) timeLimit NONE f x = f x (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) timeLimit (SOME t) f x = 
       let
-      	val _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
-      	val setitimer = SMLofNJ.IntervalTimer.setIntTimer
+      	(* GEN BEGIN TAG OUTSIDE LET *) val _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n") (* GEN END TAG OUTSIDE LET *)
+      	(* GEN BEGIN TAG OUTSIDE LET *) val setitimer = SMLofNJ.IntervalTimer.setIntTimer (* GEN END TAG OUTSIDE LET *)
       
       	fun timerOn () = ignore(setitimer (SOME t))
       
       	fun timerOff () = ignore(setitimer NONE)
       
-      	val escapeCont = SMLofNJ.Cont.callcc (fn k => (
-      		SMLofNJ.Cont.callcc (fn k' => (SMLofNJ.Cont.throw k k'));
+      	(* GEN BEGIN TAG OUTSIDE LET *) val escapeCont = SMLofNJ.Cont.callcc ((* GEN BEGIN FUNCTION EXPRESSION *) fn k => (
+      		SMLofNJ.Cont.callcc ((* GEN BEGIN FUNCTION EXPRESSION *) fn k' => (SMLofNJ.Cont.throw k k') (* GEN END FUNCTION EXPRESSION *));
       		timerOff();
-      		raise TimeOut))
+      		raise TimeOut) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
       
       	fun handler _ = escapeCont
       
@@ -33,6 +33,6 @@ structure TimeLimit : sig
       	timerOn(); 
       	((f x) handle ex => (timerOff(); raise ex))
       	  before timerOff()
-      end (* GEN END TAG INSIDE LET *)
+      end (* GEN END FUN BRANCH *)
 
   end; (* TimeLimit *)

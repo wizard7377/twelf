@@ -1,4 +1,4 @@
-functor (* GEN BEGIN FUNCTOR DECL *) SwMachine (structure Trace : TRACE
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) SwMachine (structure Trace : TRACE
                    structure AbsMachine : ABSMACHINE
                    structure TMachine : ABSMACHINE
                    (*! sharing TMachine.IntSyn = AbsMachine.IntSyn !*)
@@ -14,5 +14,5 @@ struct
       then TMachine.solve args
     else  AbsMachine.solve args
 
-end (* GEN END FUNCTOR DECL *);  (* functor SwMachine *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor SwMachine *)
 

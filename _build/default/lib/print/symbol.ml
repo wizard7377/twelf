@@ -1,4 +1,4 @@
-functor (* GEN BEGIN FUNCTOR DECL *) SymbolAscii () :> SYMBOL =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) SymbolAscii () :> SYMBOL =
 struct
 
   fun idSize s = (s, String.size s)
@@ -13,9 +13,9 @@ struct
   fun fvar s = idSize ("`" ^ s)
   val sym = idSize
 
-end (* GEN END FUNCTOR DECL *);  (* functor SymbolAscii *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor SymbolAscii *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) SymbolTeXfp () :> SYMBOL =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) SymbolTeXfp () :> SYMBOL =
 struct
 
   (* Illegal constituents: \ _ $ # *)
@@ -86,10 +86,10 @@ struct
     | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
     | sym s = (s, String.size s)        (* ():.= *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor SymbolTeX *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor SymbolTeX *)
 
 
-functor (* GEN BEGIN FUNCTOR DECL *) SymbolTeX () :> SYMBOL =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) SymbolTeX () :> SYMBOL =
 struct
 
   (* Illegal constituents: \ _ $ # *)
@@ -157,4 +157,4 @@ struct
     | sym "%skolem" = ("%skolem", 7)    (* itself, for now *)
     | sym s = (s, String.size s)        (* ():.= *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor SymbolTeXcd *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor SymbolTeXcd *)

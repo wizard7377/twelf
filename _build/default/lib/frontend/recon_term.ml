@@ -7,7 +7,7 @@
 (* Type Reconstruction *)
 (* ------------------- *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ReconTerm ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ReconTerm ((*! structure IntSyn' : INTSYN !*)
                    structure Names : NAMES
                    (*! sharing Names.IntSyn = IntSyn' !*)
                    (*! structure Paths' : PATHS !*)
@@ -1364,4 +1364,4 @@ struct
 
   end (* open IntSyn *)
 
-end (* GEN END FUNCTOR DECL *); (* functor ReconTerm *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor ReconTerm *)

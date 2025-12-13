@@ -1,7 +1,7 @@
 (* Search (based on abstract machine ) : Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPSearch (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPSearch (structure Global : GLOBAL
                    (*! structure IntSyn' : INTSYN !*)
                    structure Abstract : ABSTRACT
                    (*! sharing Abstract.IntSyn = IntSyn' !*)
@@ -429,5 +429,5 @@ struct
     val searchEx = search
   end (* local ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor Search *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Search *)
 

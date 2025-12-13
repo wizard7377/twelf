@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ModeTable
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ModeTable
   ((*! structure IntSyn' : INTSYN !*)
    (* structure Names : NAMES *)
    (*! sharing Names.IntSyn = IntSyn' !*)
@@ -86,4 +86,4 @@ struct
     val installMmode = installMmode
     val mmodeLookup = mmodeLookup
   end
-end (* GEN END FUNCTOR DECL *);  (* functor ModeTable *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ModeTable *)

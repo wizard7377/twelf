@@ -1,7 +1,7 @@
 (* Reconstructing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ReconMode (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ReconMode (structure Global : GLOBAL
                    (*! structure ModeSyn' : MODESYN !*)
                    structure Whnf : WHNF
                    (*! sharing Whnf.IntSyn = ModeSyn'.IntSyn !*)
@@ -134,4 +134,4 @@ struct
 
     val modeToMode = modeToMode
   end   (* local ... *)
-end (* GEN END FUNCTOR DECL *);  (* functor ReconMode *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ReconMode *)

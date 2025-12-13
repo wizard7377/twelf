@@ -3,17 +3,17 @@
 
 structure CompatTimer97 :> COMPAT_TIMER =
 struct
-  (* GEN BEGIN TAG INSIDE LET *) fun checkCPUTimer timer =
+  fun checkCPUTimer timer =
       let
-  	val {usr = usr, sys = sys, gc = gc} = Timer.checkCPUTimer timer
+  	(* GEN BEGIN TAG OUTSIDE LET *) val {usr = usr, sys = sys, gc = gc} = Timer.checkCPUTimer timer (* GEN END TAG OUTSIDE LET *)
       in
   	{usr = usr, sys = sys}
-      end (* GEN END TAG INSIDE LET *)
+      end
       
-  (* GEN BEGIN TAG INSIDE LET *) fun checkGCTime timer =
+  fun checkGCTime timer =
       let
-  	val {gc = gc, ...} = Timer.checkCPUTimer timer
+  	(* GEN BEGIN TAG OUTSIDE LET *) val {gc = gc, ...} = Timer.checkCPUTimer timer (* GEN END TAG OUTSIDE LET *)
       in
   	gc
-      end (* GEN END TAG INSIDE LET *)
+      end
 end;

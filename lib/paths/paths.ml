@@ -1,11 +1,259 @@
-(* Now in paths.fun *)
-(*
-structure Paths = Paths ();
-*)
+(* Paths, Occurrences, and Error Locations *)
+(* Author: Frank Pfenning *)
 
-structure Origins =
-  Origins (structure Global = Global
-	   structure Table = StringHashTable
-	   (*! structure IntSyn' = IntSyn !*)
-	   (*! structure Paths' = Paths !*)
-	     );
+functor (* GEN BEGIN FUNCTOR DECL *) Paths () :> PATHS =
+struct
+
+  type pos = int                        (* characters, starting at 0 *)
+  datatype region = Reg of pos * pos    (* r ::= (i,j) is interval [i,j) *)
+  datatype location = Loc of string * region (* loc ::= (filename, region) *)
+
+  type lines_info = pos list
+  fun posToLineCol' (linesInfo, i) =
+      let fun (* GEN BEGIN FUN FIRST *) ptlc (j::js) = if i >= j then (List.length js, i-j)
+                             else ptlc js (* GEN END FUN FIRST *)
+            (* first line should start at 0 *)
+            (* nil means first "line" was not terminated by <newline> *)
+            | (* GEN BEGIN FUN BRANCH *) ptlc (nil) = (0, i) (* GEN END FUN BRANCH *)
+      in
+        ptlc (linesInfo)
+      end
+
+  local
+    (* !linePosList is a list of starting character positions for each input line *)
+    (* used to convert character positions into line.column format *)
+    (* maintained with state *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val linePosList = ref nil : pos list ref (* GEN END TAG OUTSIDE LET *)
+  in
+    fun resetLines () = linePosList := nil
+    fun newLine (i) = linePosList := i::(!linePosList)
+    fun getLinesInfo () = !linePosList
+    (* posToLineCol (i) = (line,column) for character position i *)
+    fun posToLineCol (i) = posToLineCol' (!linePosList, i)
+  end
+
+  (* join (r1, r2) = r
+     where r is the  smallest region containing both r1 and r2
+  *)
+  fun join (Reg (i1, j1), Reg (i2, j2)) = Reg (Int.min (i1, i2), Int.max (j1, j2))
+
+  (* The right endpoint of the interval counts IN RANGE *)
+  fun posInRegion (k, Reg (i,j)) = i <= k andalso k <= j
+
+  fun lineColToString (line,col) =
+      Int.toString (line+1) ^ "." ^ Int.toString (col+1)
+
+  (* toString r = "line1.col1-line2.col2", a format parsable by Emacs *)
+  fun toString (Reg (i,j)) =
+        lineColToString (posToLineCol i) ^ "-"
+        ^ lineColToString (posToLineCol j)
+
+  (* wrap (r, msg) = msg' which contains region *)
+  fun wrap (r, msg) = (toString r ^ " Error: \n" ^ msg)
+
+  (* wrapLoc ((loc, r), msg) = msg' which contains region and filename
+     This should be used for locations retrieved from origins, where
+     the region is given in character positions, rather than lines and columns
+  *)
+  fun wrapLoc0 (Loc (filename, Reg (i,j)), msg) =
+         filename ^ ":" ^ Int.toString (i+1) ^ "-" ^ Int.toString (j+1)
+         ^ " " ^ "Error: \n" ^ msg
+
+  (* wrapLoc' ((loc, r), linesInfo, msg) = msg'
+     like wrapLoc, but converts character positions to line.col format based
+     on linesInfo, if possible
+  *)
+  fun (* GEN BEGIN FUN FIRST *) wrapLoc' (Loc (filename, Reg (i,j)), SOME(linesInfo), msg) =
+      let
+        (* GEN BEGIN TAG OUTSIDE LET *) val lcfrom = posToLineCol' (linesInfo, i) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val lcto = posToLineCol' (linesInfo, j) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val regString = lineColToString (lcfrom) ^ "-" ^ lineColToString (lcto) (* GEN END TAG OUTSIDE LET *)
+      in
+        filename ^ ":" ^ regString ^ " " ^ "Error: \n" ^ msg
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) wrapLoc' (loc, NONE, msg) = wrapLoc0 (loc, msg) (* GEN END FUN BRANCH *)
+
+  fun wrapLoc (loc, msg) =
+        wrapLoc' (loc, SOME (getLinesInfo()), msg)
+
+  (* Paths, occurrences and occurrence trees only work well for normal forms *)
+  (* In the general case, regions only approximate true source location *)
+
+  (* Follow path through a term to obtain subterm *)
+
+  datatype path =
+     Label of path                      (* [x:#] U or {x:#} V *)
+   | Body of path                       (* [x:V] # or {x:V} # *)
+   | Head                               (* # @ S, term in normal form *)
+   | Arg of int * path                  (* C @ S1; ...; #; ...; Sn; Nil *)
+   | Here                               (* #, covers Uni, EVar, Redex(?) *)
+
+  (* Occurrences: paths in reverse order *)
+  (* could also be: type occ = path -> path *)
+  datatype occ =
+      top
+    | label of occ
+    | body of occ
+    | head of occ
+    | arg of int * occ
+
+  (* Occurrence trees for expressions and spines *)
+  (* Maps occurrences to regions *)
+  (* Simple-minded implementation *)
+  (* A region in an intermediate node encloses the whole expression *)
+  datatype occ_exp =                     (* occurrences in expressions *)
+      leaf of region                    (* _ or identifier *)
+    | bind of region * occ_exp option * occ_exp (* [x:vOpt] u or {x:vOpt} v' *)
+    | root of region * occ_exp * int * int * occ_spine (* h @ s, # of implicit arguments, # of arguments actually input (as opposed to generated by eta-expansion) *)
+  and occ_spine =                        (* occurrences in spines *)
+      app of occ_exp * occ_spine          (* u;s *)
+    | nils                              (* nil *)
+
+  (* occToPath (occ, p) = p'(p) and occ corresponds to p' *)
+  fun (* GEN BEGIN FUN FIRST *) occToPath (top, path) = path (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) occToPath (label(occ), path) = occToPath (occ, Label(path)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) occToPath (body(occ), path) = occToPath (occ, Body(path)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) occToPath (head(occ), path) =
+      (* path = Here by invariant *)
+        occToPath (occ, Head) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) occToPath (arg(n,occ), path) = occToPath (occ, Arg(n,path)) (* GEN END FUN BRANCH *)
+
+  datatype occ_con_dec =                  (* occurrence tree for constant declarations *)
+      dec of int * occ_exp               (* (#implicit, v) in c : V *)
+    | def of int * occ_exp * occ_exp option
+                                        (* (#implicit, u, v) in c : V = U *)
+
+  (* val posToPath : occExp -> pos -> Path *)
+  (* posToPath (u, k) = p
+     where p is the path to the innermost expression in u enclosing position i.
+
+     This includes the position immediately at the end of a region [i,j).
+     For example, in "f (g x) y",
+     0,1 => "f"
+     2   => "(g x)"
+     3,4 => "g"
+     5,6 => "x"
+     8,9 => "y"
+  *)
+  fun posToPath u k =
+      let
+          (* local functions refer to k but not u *)
+          fun (* GEN BEGIN FUN FIRST *) inside (leaf r) = posInRegion (k, r) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) inside (bind (r, _, _)) = posInRegion (k, r) (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) inside (root (r, _, _, _, _)) = posInRegion (k, r) (* GEN END FUN BRANCH *)
+  
+          fun (* GEN BEGIN FUN FIRST *) toPath (leaf (Reg (i,j))) = Here (* GEN END FUN FIRST *) (* check? mark? *)
+            | (* GEN BEGIN FUN BRANCH *) toPath (bind (Reg (i,j), NONE, u)) =
+              if inside u then Body (toPath u)
+              else Here (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) toPath (bind (Reg (i,j), SOME(u1), u2)) =
+              if inside u1 then Label (toPath u1)
+              else if inside u2 then Body (toPath u2)
+                   else Here (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) toPath (root (Reg (i,j), h, imp, actual, s)) =
+              if inside h then Head
+              else (case toPathSpine (s, 1)
+                      of NONE => Here
+                       | SOME(n, path) => Arg (n+imp, path)) (* GEN END FUN BRANCH *)
+          (* in some situations, whitespace after subexpressions *)
+          (* might give a larger term than anticipated *)
+          and (* GEN BEGIN FUN FIRST *) toPathSpine (nils, n) = NONE (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) toPathSpine (app(u,s), n) =
+              if inside u then SOME(n, toPath u)
+              else toPathSpine (s, n+1) (* GEN END FUN BRANCH *)
+      in
+        toPath u
+      end
+
+  (* toRegion (u) = r, the region associated with the whole occurrence tree u *)
+  fun (* GEN BEGIN FUN FIRST *) toRegion (leaf r) = r (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) toRegion (bind (r, _, _)) = r (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) toRegion (root (r, _, _, _, _)) = r (* GEN END FUN BRANCH *)
+
+  (* toRegionSpine (s, r) = r', the join of all regions in s and r *)
+  fun (* GEN BEGIN FUN FIRST *) toRegionSpine (nils, r) = r (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) toRegionSpine (app (u, s), r) =
+        join (toRegion u, toRegionSpine (s, r)) (* GEN END FUN BRANCH *) (* order? *)
+
+  (* pathToRegion (u, p) = r,
+     where r is the region identified by path p in occurrence tree u
+  *)
+  fun (* GEN BEGIN FUN FIRST *) pathToRegion (u, Here) = toRegion u (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (bind (r, NONE, u), Label(path)) =
+      (* addressing implicit type label returns region of binder and its scope *)
+      r (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (bind (r, SOME(u1), u2), Label(path)) =
+        pathToRegion (u1, path) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (bind (r, _, u), Body(path)) =
+        pathToRegion (u, path) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (root (r, _, _, _, _), Label(path)) =
+        (* addressing binder introduced as the result of eta expansion
+           approximate as the eta-expanded root *)
+        r (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (u as root _, Body(path)) =
+        (* bypassing binder introduced as the result of eta expansion *)
+        pathToRegion (u, path) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (root (r, h, imp, actual, s), Head) = toRegion h (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (root (r, h, imp, actual, s), Arg (n, path)) =
+      if n <= imp
+        then (* addressing implicit argument returns region of head *)
+             toRegion h
+      else if n-imp > actual
+        then (* addressing argument created by eta expansion
+                approximate by the whole root *)
+             r
+      else pathToRegionSpine (s, n-imp, path) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegion (leaf (r), _) = r (* GEN END FUN BRANCH *)    (* possible if leaf was _ (underscore) *)
+    (* other combinations should be impossible *)
+  and (* GEN BEGIN FUN FIRST *) pathToRegionSpine (app (u, s), 1, path) =
+        pathToRegion (u, path) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) pathToRegionSpine (app (u, s), n, path) =
+        pathToRegionSpine (s, n-1, path) (* GEN END FUN BRANCH *)
+    (* anything else should be impossible *)
+
+  (* occToRegionExp u occ = r,
+     where r is the closest region including occ in occurrence tree u
+  *)
+  fun occToRegionExp u occ = pathToRegion (u, occToPath (occ, Here))
+
+  fun (* GEN BEGIN FUN FIRST *) skipImplicit (0, path) = path (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) skipImplicit (n, Body(path)) =
+        skipImplicit (n-1, path) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) skipImplicit (n, Label(path)) =
+        (* implicit argument: approximate as best possible *)
+        Here (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) skipImplicit (n, Here) =
+        (* addressing body including implicit arguments: approximate by body *)
+        Here (* GEN END FUN BRANCH *)
+    (* anything else should be impossible *)
+
+  (* occToRegionDec d occ = r
+     where r is the closest region in v including occ for declaration c : V
+  *)
+  fun occToRegionDec (dec (n, v)) occ =
+      pathToRegion (v, skipImplicit (n, occToPath (occ, Here)))
+
+  (* occToRegionDef1 d occ = r
+     where r is the closest region in u including occ for declaration c : V = U
+  *)
+  fun occToRegionDef1 (def (n, u, vOpt)) occ =
+      pathToRegion (u, skipImplicit (n, occToPath (occ, Here)))
+
+  (* occToRegionDef2 d occ = r
+     where r is the closest region in V including occ for declaration c : V = U
+  *)
+  fun (* GEN BEGIN FUN FIRST *) occToRegionDef2 (def (n, u, SOME(v))) occ =
+      pathToRegion (v, skipImplicit (n, occToPath (occ, Here))) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) occToRegionDef2 (def (n, u, NONE)) occ =
+      pathToRegion (u, Here) (* GEN END FUN BRANCH *)
+
+  (* occToRegionClause d occ = r
+     where r is the closest region in V including occ for declaration
+     c : V or c : V = U.
+  *)
+  fun (* GEN BEGIN FUN FIRST *) occToRegionClause (d as dec _) occ = occToRegionDec d occ (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) occToRegionClause (d as def _) occ = occToRegionDef2 d occ (* GEN END FUN BRANCH *)
+
+end (* GEN END FUNCTOR DECL *);  (* functor Paths *)
+
+structure Paths = Paths ();

@@ -1,6 +1,6 @@
 (* Substitution Tree indexing *)
 (* Author: Brigitte Pientka *)
-functor (* GEN BEGIN FUNCTOR DECL *) SubTree ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) SubTree ((*! structure IntSyn' : INTSYN !*)
                  (*!structure CompSyn' : COMPSYN !*)
                  (*!  sharing CompSyn'.IntSyn = IntSyn' !*)
                  structure Whnf : WHNF
@@ -866,7 +866,7 @@ struct
     val sProgInstall = sProgInstall
     val matchSig = matchSigIt
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor SubTree *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor SubTree *)
 
 
 

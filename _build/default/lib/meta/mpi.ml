@@ -1,7 +1,7 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPi (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPi (structure MTPGlobal : MTPGLOBAL
               (*! structure IntSyn : INTSYN !*)
               (*! structure FunSyn' : FUNSYN !*)
               (*! sharing FunSyn'.IntSyn = IntSyn !*)
@@ -395,4 +395,4 @@ struct
     val check = check
     val undo = undo
  end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor MPI *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor MPI *)

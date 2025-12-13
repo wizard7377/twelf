@@ -45,14 +45,14 @@ struct
     structure C = CompSyn
 
 
-  fun cidFromHead (I.Const a) = a
-    | cidFromHead (I.Def a) = a
-    | cidFromHead (I.Skonst a) = a
+  fun (* GEN BEGIN FUN FIRST *) cidFromHead (I.Const a) = a (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) cidFromHead (I.Def a) = a (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) cidFromHead (I.Skonst a) = a (* GEN END FUN BRANCH *)
 
   (* only used for type families of compiled clauses *)
-  fun eqHead (I.Const a, I.Const a') = a = a'
-    | eqHead (I.Def a, I.Def a') = a = a'
-    | eqHead _ = false
+  fun (* GEN BEGIN FUN FIRST *) eqHead (I.Const a, I.Const a') = a = a' (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) eqHead (I.Def a, I.Def a') = a = a' (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) eqHead _ = false (* GEN END FUN BRANCH *)
 
   (* solve ((g,s), (G,dPool), sc, (acc, k)) => ()
      Invariants:
@@ -65,23 +65,23 @@ struct
             used in the universal case for max search depth)
        if  G |- M :: g[s] then G |- sc :: g[s] => Answer, Answer closed
   *)
-  fun solve ((C.Atom p, s), dp, sc, acck) = matchAtom ((p,s), dp, sc, acck)
-    | solve ((C.Impl (r, A, H, g), s), C.DProg(G, dPool), sc, acck) =
+  fun (* GEN BEGIN FUN FIRST *) solve ((C.Atom p, s), dp, sc, acck) = matchAtom ((p,s), dp, sc, acck) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) solve ((C.Impl (r, A, H, g), s), C.DProg(G, dPool), sc, acck) =
        let
-         val D' = I.Dec (NONE, I.EClo (A, s))
+         (* GEN BEGIN TAG OUTSIDE LET *) val D' = I.Dec (NONE, I.EClo (A, s)) (* GEN END TAG OUTSIDE LET *)
        in
          solve ((g, I.dot1 s),
                 C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, H))),
-                (fn (M, acck') => sc (I.Lam (D', M), acck')), acck)
-       end
-    | solve ((C.All (D, g), s), C.DProg (G, dPool), sc, acck) =
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (M, acck') => sc (I.Lam (D', M), acck') (* GEN END FUNCTION EXPRESSION *)), acck)
+       end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) solve ((C.All (D, g), s), C.DProg (G, dPool), sc, acck) =
        let
-         val D' = I.decSub (D, s)
+         (* GEN BEGIN TAG OUTSIDE LET *) val D' = I.decSub (D, s) (* GEN END TAG OUTSIDE LET *)
        in
          solve ((g, I.dot1 s),
                 C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Parameter)),
-                (fn (M, acck') => sc (I.Lam (D', M), acck')), acck)
-       end
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (M, acck') => sc (I.Lam (D', M), acck') (* GEN END FUNCTION EXPRESSION *)), acck)
+       end (* GEN END FUN BRANCH *)
 
   (* rsolve ((p,s'), (r,s), (G,dPool), sc, (acc, k)) = ()
      Invariants:
@@ -96,10 +96,10 @@ struct
             used in the universal case for max search depth)
        if G |- S :: r[s] then G |- sc : (r >> p[s']) => Answer
   *)
-  and rSolve (ps', (C.Eq Q, s), C.DProg (G, dPool), sc, acck as (acc, k)) =
+  and (* GEN BEGIN FUN FIRST *) rSolve (ps', (C.Eq Q, s), C.DProg (G, dPool), sc, acck as (acc, k)) =
       if Unify.unifiable (G, ps', (Q, s))
         then sc (I.Nil, acck)
-      else acc
+      else acc (* GEN END FUN FIRST *)
       (* replaced below by above.  -fp Mon Aug 17 10:41:09 1998
         ((Unify.unify (ps', (Q, s)); sc (I.Nil, acck)) handle Unify.Unify _ => acc) *)
     (*
@@ -109,26 +109,26 @@ struct
           handle Unify.Unify _ => acc
                | Assign.Assign _ => acc)
     *)
-    | rSolve (ps', (C.And (r, A, g), s), dp as C.DProg (G, dPool), sc, acck) =
+    | (* GEN BEGIN FUN BRANCH *) rSolve (ps', (C.And (r, A, g), s), dp as C.DProg (G, dPool), sc, acck) =
       let
-        val X = I.newEVar (G, I.EClo(A, s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo(A, s)) (* GEN END TAG OUTSIDE LET *)
       in
         rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp,
-                (fn (S, acck') => solve ((g, s), dp,
-                                         (fn (M, acck'') => ((Unify.unify (G, (X, I.id), (M, I.id));
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (S, acck') => solve ((g, s), dp,
+                                         ((* GEN BEGIN FUNCTION EXPRESSION *) fn (M, acck'') => ((Unify.unify (G, (X, I.id), (M, I.id));
                                                              (* why doesn't it always succeed?
                                                                 --cs *)
                                                              sc (I.App (M, S), acck''))
-                                                             handle Unify.Unify _ => [])),
-                                         acck')), acck)
-      end
-    | rSolve (ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acck) =
+                                                             handle Unify.Unify _ => []) (* GEN END FUNCTION EXPRESSION *)),
+                                         acck') (* GEN END FUNCTION EXPRESSION *)), acck)
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) rSolve (ps', (C.Exists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acck) =
         let
-          val X = I.newEVar (G, I.EClo (A, s))
+          (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (A, s)) (* GEN END TAG OUTSIDE LET *)
         in
           rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp,
-                  (fn (S, acck') => sc (I.App (X, S), acck')), acck)
-        end
+                  ((* GEN BEGIN FUNCTION EXPRESSION *) fn (S, acck') => sc (I.App (X, S), acck') (* GEN END FUNCTION EXPRESSION *)), acck)
+        end (* GEN END FUN BRANCH *)
 (*    | rSolve (ps', (C.Axists (I.Dec (_, A), r), s), dp as C.DProg (G, dPool), sc, acck) =
         let
           val X = I.newEVar (G, I.EClo (A, s))
@@ -161,36 +161,36 @@ struct
       let
         fun matchSig acc' =
             let
-              fun matchSig' (nil, acc'') = acc''
-                | matchSig' (Hc ::sgn', acc'') =
+              fun (* GEN BEGIN FUN FIRST *) matchSig' (nil, acc'') = acc'' (* GEN END FUN FIRST *)
+                | (* GEN BEGIN FUN BRANCH *) matchSig' (Hc ::sgn', acc'') =
                   let
-                    val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
-                    val acc''' = CSManager.trail
-                                 (fn () =>
+                    (* GEN BEGIN TAG OUTSIDE LET *) val C.SClause(r) = C.sProgLookup (cidFromHead Hc) (* GEN END TAG OUTSIDE LET *)
+                    (* GEN BEGIN TAG OUTSIDE LET *) val acc''' = CSManager.trail
+                                 ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                                     rSolve (ps', (r, I.id), dp,
-                                            (fn (S, acck') => sc (I.Root (Hc, S),
-                                                                  acck')), (acc'', k-1)))
+                                            ((* GEN BEGIN FUNCTION EXPRESSION *) fn (S, acck') => sc (I.Root (Hc, S),
+                                                                  acck') (* GEN END FUNCTION EXPRESSION *)), (acc'', k-1)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
                   in
                     matchSig' (sgn', acc''')
-                  end
+                  end (* GEN END FUN BRANCH *)
             in
               matchSig' (Index.lookup (cidFromHead Ha), acc')
             end
   
-        fun matchDProg (I.Null, _, acc') = matchSig acc'
-          | matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') =
+        fun (* GEN BEGIN FUN FIRST *) matchDProg (I.Null, _, acc') = matchSig acc' (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) matchDProg (I.Decl (dPool', C.Dec (r, s, Ha')), n, acc') =
             if eqHead (Ha, Ha') then
               let
-                val acc'' = CSManager.trail (fn () =>
+                (* GEN BEGIN TAG OUTSIDE LET *) val acc'' = CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                             rSolve (ps', (r, I.comp (s, I.Shift n)), dp,
-                                    (fn (S, acck') => sc (I.Root (I.BVar n, S),
-                                                          acck')), (acc', k-1)))
+                                    ((* GEN BEGIN FUNCTION EXPRESSION *) fn (S, acck') => sc (I.Root (I.BVar n, S),
+                                                          acck') (* GEN END FUNCTION EXPRESSION *)), (acc', k-1)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
               in
                 matchDProg (dPool', n+1, acc'')
               end
-            else matchDProg (dPool', n+1, acc')
-          | matchDProg (I.Decl (dPool', C.Parameter), n, acc') =
-              matchDProg (dPool', n+1, acc')
+            else matchDProg (dPool', n+1, acc') (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) matchDProg (I.Decl (dPool', C.Parameter), n, acc') =
+              matchDProg (dPool', n+1, acc') (* GEN END FUN BRANCH *)
       in
         if k < 0 then acc else matchDProg (dPool, 1, acc)
       end
@@ -204,22 +204,22 @@ struct
     *)
     fun occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
 
-    and occursInExpW (r, (I.Uni _, _)) = false
-      | occursInExpW (r, (I.Pi ((D, _), V), s)) =
-          occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s))
-      | occursInExpW (r, (I.Root (_, S), s)) = occursInSpine (r, (S, s))
-      | occursInExpW (r, (I.Lam (D, V), s)) =
-          occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s))
-      | occursInExpW (r, (I.EVar (r' , _, V', _), s)) =
-          (r = r') orelse occursInExp (r, (V', s))
-      | occursInExpW (r, (I.FgnExp csfe, s)) =
-        I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExp (r, (U,s))) false
+    and (* GEN BEGIN FUN FIRST *) occursInExpW (r, (I.Uni _, _)) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpW (r, (I.Pi ((D, _), V), s)) =
+          occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpW (r, (I.Root (_, S), s)) = occursInSpine (r, (S, s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpW (r, (I.Lam (D, V), s)) =
+          occursInDec (r, (D, s)) orelse occursInExp (r, (V, I.dot1 s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpW (r, (I.EVar (r' , _, V', _), s)) =
+          (r = r') orelse occursInExp (r, (V', s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInExpW (r, (I.FgnExp csfe, s)) =
+        I.FgnExpStd.fold csfe ((* GEN BEGIN FUNCTION EXPRESSION *) fn (U,B) => B orelse occursInExp (r, (U,s)) (* GEN END FUNCTION EXPRESSION *)) false (* GEN END FUN BRANCH *)
 
-    and occursInSpine (_, (I.Nil, _)) = false
-      | occursInSpine (r, (I.SClo (S, s'), s)) =
-          occursInSpine (r, (S, I.comp (s', s)))
-      | occursInSpine (r, (I.App (U, S), s)) =
-          occursInExp (r, (U, s)) orelse occursInSpine (r, (S, s))
+    and (* GEN BEGIN FUN FIRST *) occursInSpine (_, (I.Nil, _)) = false (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) occursInSpine (r, (I.SClo (S, s'), s)) =
+          occursInSpine (r, (S, I.comp (s', s))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) occursInSpine (r, (I.App (U, S), s)) =
+          occursInExp (r, (U, s)) orelse occursInSpine (r, (S, s)) (* GEN END FUN BRANCH *)
 
     and occursInDec (r, (I.Dec (_, V), s)) = occursInExp (r, (V, s))
 
@@ -229,9 +229,9 @@ struct
        B hold iff
         r does not occur in any type of EVars in GE
     *)
-    fun nonIndex (_, nil) = true
-      | nonIndex (r, I.EVar (_, _, V, _) :: GE) =
-          (not (occursInExp (r, (V, I.id)))) andalso nonIndex (r, GE)
+    fun (* GEN BEGIN FUN FIRST *) nonIndex (_, nil) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) nonIndex (r, I.EVar (_, _, V, _) :: GE) =
+          (not (occursInExp (r, (V, I.id)))) andalso nonIndex (r, GE) (* GEN END FUN BRANCH *)
 
     (* select (GE, (V, s), acc) = acc'
 
@@ -245,11 +245,11 @@ struct
     *)
     (* Efficiency: repeated whnf for every subterm in Vs!!! *)
 
-    fun selectEVar (nil, _, acc) = acc
-      | selectEVar ((X as I.EVar (r, _, _, _)) :: GE, Vs, acc) =
+    fun (* GEN BEGIN FUN FIRST *) selectEVar (nil, _, acc) = acc (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) selectEVar ((X as I.EVar (r, _, _, _)) :: GE, Vs, acc) =
           if occursInExp (r, Vs) andalso nonIndex (r, acc) then
             selectEVar (GE, Vs, X :: acc)
-          else selectEVar (GE, Vs, acc)
+          else selectEVar (GE, Vs, acc) (* GEN END FUN BRANCH *)
 
 
 
@@ -262,16 +262,16 @@ struct
             otherwise searchEx' terminates with []
     *)
     (* contexts of EVars are recompiled for each search depth *)
-    fun searchEx' max (nil, sc) = [sc ()]
+    fun (* GEN BEGIN FUN FIRST *) searchEx' max (nil, sc) = [sc ()] (* GEN END FUN FIRST *)
         (* Possible optimization:
            Check if there are still variables left over
         *)
-      | searchEx' max (I.EVar (r, G, V, _) :: GE, sc) =
+      | (* GEN BEGIN FUN BRANCH *) searchEx' max (I.EVar (r, G, V, _) :: GE, sc) =
           solve ((Compile.compileGoal (G, V), I.id),
                  Compile.compileCtx false G,
-                 (fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);
-                                         searchEx' max (GE, sc))),
-                 (nil, max))
+                 ((* GEN BEGIN FUNCTION EXPRESSION *) fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);
+                                         searchEx' max (GE, sc)) (* GEN END FUNCTION EXPRESSION *)),
+                 (nil, max)) (* GEN END FUN BRANCH *)
 
     (* deepen (f, P) = R'
 
@@ -304,9 +304,9 @@ struct
     fun searchEx (G, GE, Vs, sc) =
       (if !Global.chatter > 5 then print "[Search: " else ();
          deepen searchEx' (selectEVar (GE, Vs, nil),
-                           fn Params => (if !Global.chatter > 5 then
+                           (* GEN BEGIN FUNCTION EXPRESSION *) fn Params => (if !Global.chatter > 5 then
                                             print "OK]\n" else ();
-                                          sc Params));
+                                          sc Params) (* GEN END FUNCTION EXPRESSION *));
          if !Global.chatter > 5 then print "FAIL]\n" else ();
            raise Error "No object found")
 
@@ -320,13 +320,13 @@ struct
     *)
     (* Shared contexts of EVars in GE may recompiled many times *)
 
-    fun searchAll' (nil, acc, sc) = sc (acc)
-      | searchAll' (I.EVar (r, G, V, _) :: GE, acc, sc) =
+    fun (* GEN BEGIN FUN FIRST *) searchAll' (nil, acc, sc) = sc (acc) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) searchAll' (I.EVar (r, G, V, _) :: GE, acc, sc) =
           solve ((Compile.compileGoal (G, V), I.id),
                  Compile.compileCtx false G,
-                 (fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);
-                                         searchAll' (GE, acc', sc))),
-                 (acc, !MetaGlobal.maxFill))
+                 ((* GEN BEGIN FUNCTION EXPRESSION *) fn (U', (acc', _)) => (Unify.instantiateEVar (r, U', nil);
+                                         searchAll' (GE, acc', sc)) (* GEN END FUNCTION EXPRESSION *)),
+                 (acc, !MetaGlobal.maxFill)) (* GEN END FUN BRANCH *)
 
     (* searchAll (G, GE, (V, s), sc) = acc'
 
@@ -343,8 +343,8 @@ struct
 
 
   in
-    val searchEx = searchEx
-    val searchAll = searchAll
+    (* GEN BEGIN TAG OUTSIDE LET *) val searchEx = searchEx (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val searchAll = searchAll (* GEN END TAG OUTSIDE LET *)
   end (* local ... *)
 
 end (* GEN END FUNCTOR DECL *); (* functor Search *)

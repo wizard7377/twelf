@@ -3,4 +3,4 @@
 *)
 
 structure UnknownExn =
-  UnknownExn ((* GEN BEGIN TAG INSIDE LET *) val exnHistory = SMLofNJ.exnHistory (* GEN END TAG INSIDE LET *));
+  UnknownExn ((* GEN BEGIN TAG OUTSIDE LET *) val exnHistory = SMLofNJ.exnHistory (* GEN END TAG OUTSIDE LET *));

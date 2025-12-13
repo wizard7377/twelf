@@ -1,7 +1,7 @@
 (* Printing of functional proof terms *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) TomegaPrint
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) TomegaPrint
   ((*! structure IntSyn' : INTSYN !*)
    (*! structure Tomega' : TOMEGA !*)
    (*! sharing Tomega'.IntSyn = IntSyn' !*)
@@ -1007,5 +1007,5 @@ struct
     val ctxToString = ctxToString
 (*    val lemmaDecToString = lemmaDecToString *)
   end
-end (* GEN END FUNCTOR DECL *);  (* signature FUNPRINT *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* signature FUNPRINT *)
 

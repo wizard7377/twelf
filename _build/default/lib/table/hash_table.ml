@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) HashTable
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) HashTable
   (type key'
    val hash : key' -> int
    val eq : key' * key' -> bool)
@@ -80,4 +80,4 @@ struct
         (f e; appBucket f (!br))
 
   fun app f (a,n) = Array.app (appBucket f) a
-end (* GEN END FUNCTOR DECL *);  (* functor HashTable *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor HashTable *)

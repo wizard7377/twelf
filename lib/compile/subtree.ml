@@ -98,10 +98,10 @@ struct
    type candidate = (ass_substs * normal_substs * cnstr_substs * cnstr * IntSyn.dec IntSyn.ctx * c_goal)
 
    (* Initialization of substitutions *)
-   val nid         : unit -> normal_substs = RBSet.new
-   val assignSubId : unit -> ass_substs = RBSet.new
-   val cnstrSubId  : unit -> cnstr_substs = RBSet.new
-   val querySubId  : unit -> query_substs = RBSet.new
+   (* GEN BEGIN TAG OUTSIDE LET *) val nid         : unit -> normal_substs = RBSet.new (* GEN END TAG OUTSIDE LET *)
+   (* GEN BEGIN TAG OUTSIDE LET *) val assignSubId : unit -> ass_substs = RBSet.new (* GEN END TAG OUTSIDE LET *)
+   (* GEN BEGIN TAG OUTSIDE LET *) val cnstrSubId  : unit -> cnstr_substs = RBSet.new (* GEN END TAG OUTSIDE LET *)
+   (* GEN BEGIN TAG OUTSIDE LET *) val querySubId  : unit -> query_substs = RBSet.new (* GEN END TAG OUTSIDE LET *)
 
    (* Identity substitution *)
    fun isId s = RBSet.isEmpty s
@@ -121,7 +121,7 @@ struct
    for target family ai
 
    *)
-  val indexArray = Array.tabulate (Global.maxCid, (fn i => (ref 0, makeTree ())));
+  (* GEN BEGIN TAG OUTSIDE LET *) val indexArray = Array.tabulate (Global.maxCid, ((* GEN BEGIN FUNCTION EXPRESSION *) fn i => (ref 0, makeTree ()) (* GEN END FUNCTION EXPRESSION *))) (* GEN END TAG OUTSIDE LET *);
 
   local
 
@@ -136,29 +136,29 @@ struct
     exception Generalization of string
 
     (* Auxiliary functions *)
-    fun cidFromHead (I.Const c) = c
-      | cidFromHead (I.Def c) = c
+    fun (* GEN BEGIN FUN FIRST *) cidFromHead (I.Const c) = c (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) cidFromHead (I.Def c) = c (* GEN END FUN BRANCH *)
 
-    fun dotn (0, s) = s
-      | dotn (i, s) = dotn (i-1, I.dot1 s)
+    fun (* GEN BEGIN FUN FIRST *) dotn (0, s) = s (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) dotn (i, s) = dotn (i-1, I.dot1 s) (* GEN END FUN BRANCH *)
 
-    fun compose'(IntSyn.Null, G) = G
-      | compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D)
+    fun (* GEN BEGIN FUN FIRST *) compose'(IntSyn.Null, G) = G (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) compose'(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose'(G, G'), D) (* GEN END FUN BRANCH *)
 
-    fun shift (IntSyn.Null, s) = s
-      | shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s))
+    fun (* GEN BEGIN FUN FIRST *) shift (IntSyn.Null, s) = s (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) shift (IntSyn.Decl(G, D), s) = I.dot1 (shift(G, s)) (* GEN END FUN BRANCH *)
 
-    fun raiseType (I.Null, V) = V
-      | raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V))
+    fun (* GEN BEGIN FUN FIRST *) raiseType (I.Null, V) = V (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) raiseType (I.Decl (G, D), V) = raiseType (G, I.Lam (D, V)) (* GEN END FUN BRANCH *)
 
-  fun printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n")
-    | printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Exp(_), s)) = (print ("Exp (_ ). "); printSub s)
-    | printSub (IntSyn.Dot (IntSyn.Undef, s)) = (print ("Undef . "); printSub s)
+  fun (* GEN BEGIN FUN FIRST *) printSub (IntSyn.Shift n) = print ("Shift " ^ Int.toString n ^ "\n") (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (IntSyn.Dot(IntSyn.Idx n, s)) = (print ("Idx " ^ Int.toString n ^ " . "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EVar (_, _, _, _)), s)) = (print ("Exp (EVar _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.AVar (_)), s)) = (print ("Exp (AVar _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (IntSyn.AVar (_), _)), s)) = (print ("Exp (AVar _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(IntSyn.EClo (_, _)), s)) = (print ("Exp (EClo _ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (IntSyn.Dot (IntSyn.Exp(_), s)) = (print ("Exp (_ ). "); printSub s) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) printSub (IntSyn.Dot (IntSyn.Undef, s)) = (print ("Undef . "); printSub s) (* GEN END FUN BRANCH *)
 
    (*
      Linear normal higher-order patterns
@@ -215,7 +215,7 @@ struct
   (* ---------------------------------------------------------------*)
 
   (* nctr = |D| =  #normal variables *)
-   val nctr = ref 1
+   (* GEN BEGIN TAG OUTSIDE LET *) val nctr = ref 1 (* GEN END TAG OUTSIDE LET *)
 
    fun newNVar () =
      (nctr := !nctr + 1;
@@ -223,10 +223,10 @@ struct
 
 
 
-   fun eqHeads (I.Const k, I.Const k') =  (k = k')
-     | eqHeads (I.BVar k, I.BVar k') =  (k  = k')
-     | eqHeads (I.Def k, I.Def k') = (k = k')
-     | eqHeads ( _, _) = false
+   fun (* GEN BEGIN FUN FIRST *) eqHeads (I.Const k, I.Const k') =  (k = k') (* GEN END FUN FIRST *)
+     | (* GEN BEGIN FUN BRANCH *) eqHeads (I.BVar k, I.BVar k') =  (k  = k') (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqHeads (I.Def k, I.Def k') = (k = k') (* GEN END FUN BRANCH *)
+     | (* GEN BEGIN FUN BRANCH *) eqHeads ( _, _) = false (* GEN END FUN BRANCH *)
 
    (* most specific linear common generalization *)
 
@@ -239,9 +239,9 @@ struct
    *)
    fun compatible (label, T, U, rho_t, rho_u) =
      let
-       fun genExp (label, b, T as I.NVar n, U as I.Root(H, S)) =
-           (S.insert rho_u (n, (label, U)); T)
-         | genExp (label, b, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+       fun (* GEN BEGIN FUN FIRST *) genExp (label, b, T as I.NVar n, U as I.Root(H, S)) =
+           (S.insert rho_u (n, (label, U)); T) (* GEN END FUN FIRST *)
+         | (* GEN BEGIN FUN BRANCH *) genExp (label, b, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
            if eqHeads(H1, H2)
              then
                I.Root(H1, genSpine(label, b, S1, S2))
@@ -250,40 +250,40 @@ struct
                 of Regular => (S.insert rho_t (!nctr+1,  (label, T));
                                S.insert rho_u (!nctr+1, (label, U));
                                newNVar())
-                 | _ => raise Generalization "Should never happen!" )
+                 | _ => raise Generalization "Should never happen!" ) (* GEN END FUN BRANCH *)
                          (* = S.existsOpt (fn U' => equalTerm (U, U')) *)
             (* find *i in rho_t and rho_u such that T/*i in rho_t and U/*i in rho_u *)
-         | genExp (label, b, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
+         | (* GEN BEGIN FUN BRANCH *) genExp (label, b, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
            (* NOTE: by invariant A1 =/= A2 *)
-             I.Lam(I.Dec(N, genExp (TypeLabel, Regular, A1, A2)), genExp (label, b, T1,  U2))
+             I.Lam(I.Dec(N, genExp (TypeLabel, Regular, A1, A2)), genExp (label, b, T1,  U2)) (* GEN END FUN BRANCH *)
    
-         | genExp (label, b, I.Pi(DD1 as (D1,I.No), E1), I.Pi(DD2 as (D2, I.No), E2)) =
-             I.Pi((genDec(TypeLabel, Regular, D1, D2), I.No), genExp(label, b, E1, E2))
+         | (* GEN BEGIN FUN BRANCH *) genExp (label, b, I.Pi(DD1 as (D1,I.No), E1), I.Pi(DD2 as (D2, I.No), E2)) =
+             I.Pi((genDec(TypeLabel, Regular, D1, D2), I.No), genExp(label, b, E1, E2)) (* GEN END FUN BRANCH *)
    
-         | genExp (label, b, I.Pi(DD1 as (D1,I.Maybe), E1), I.Pi(DD2 as (D2, I.Maybe), E2)) =
-             I.Pi((genDec(TypeLabel, Regular, D1, D2), I.Maybe), genExp(label, b, E1, E2))
+         | (* GEN BEGIN FUN BRANCH *) genExp (label, b, I.Pi(DD1 as (D1,I.Maybe), E1), I.Pi(DD2 as (D2, I.Maybe), E2)) =
+             I.Pi((genDec(TypeLabel, Regular, D1, D2), I.Maybe), genExp(label, b, E1, E2)) (* GEN END FUN BRANCH *)
    
-         | genExp (label, b, I.Pi(DD1 as (D1,I.Meta), E1), I.Pi(DD2 as (D2, I.Meta), E2)) =
-             I.Pi((genDec(TypeLabel, Regular, D1, D2), I.Meta), genExp(label, b, E1, E2))
-         | genExp (label, b, T, U) =
-             raise Generalization "Cases where U= EVar or EClo should never happen!"
+         | (* GEN BEGIN FUN BRANCH *) genExp (label, b, I.Pi(DD1 as (D1,I.Meta), E1), I.Pi(DD2 as (D2, I.Meta), E2)) =
+             I.Pi((genDec(TypeLabel, Regular, D1, D2), I.Meta), genExp(label, b, E1, E2)) (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genExp (label, b, T, U) =
+             raise Generalization "Cases where U= EVar or EClo should never happen!" (* GEN END FUN BRANCH *)
    
-       and genSpine (label, b, I.Nil, I.Nil) = I.Nil
-         | genSpine (label, b, I.App(T, S1), I.App(U, S2)) =
-         I.App(genExp (label, b, T, U), genSpine (label, b, S1, S2))
+       and (* GEN BEGIN FUN FIRST *) genSpine (label, b, I.Nil, I.Nil) = I.Nil (* GEN END FUN FIRST *)
+         | (* GEN BEGIN FUN BRANCH *) genSpine (label, b, I.App(T, S1), I.App(U, S2)) =
+         I.App(genExp (label, b, T, U), genSpine (label, b, S1, S2)) (* GEN END FUN BRANCH *)
    
        and genDec (label, b, I.Dec(N, E1), I.Dec(N', E2)) =
                    I.Dec(N, genExp(label, b, E1, E2))
    
-       fun genTop (label, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
+       fun (* GEN BEGIN FUN FIRST *) genTop (label, T as I.Root(H1, S1), U as I.Root(H2, S2)) =
          if eqHeads(H1, H2)
            then I.Root(H1, genSpine(label, Regular, S1, S2))
          else
-           raise Generalization "Top-level function symbol not shared"
-         | genTop (label, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
+           raise Generalization "Top-level function symbol not shared" (* GEN END FUN FIRST *)
+         | (* GEN BEGIN FUN BRANCH *) genTop (label, I.Lam(D1 as I.Dec(N,A1), T1), I.Lam(D2 as I.Dec(_, A2), U2)) =
            (* by invariant A1 =/= A2 *)
-             I.Lam(I.Dec(N, genExp (label, Regular, A1, A2)), genTop (label, T1,  U2))
-         | genTop (_, _, _) = raise Generalization "Top-level function symbol not shared"
+             I.Lam(I.Dec(N, genExp (label, Regular, A1, A2)), genTop (label, T1,  U2)) (* GEN END FUN BRANCH *)
+         | (* GEN BEGIN FUN BRANCH *) genTop (_, _, _) = raise Generalization "Top-level function symbol not shared" (* GEN END FUN BRANCH *)
     in
       SOME(genTop (label, T, U))
       handle Generalization msg => NONE
@@ -307,10 +307,10 @@ struct
    *)
   fun compatibleSub (nsub_t, nsub_e) =
     let
-      val (sg, rho_t, rho_e) = (nid(), nid (), nid ())
+      (* GEN BEGIN TAG OUTSIDE LET *) val (sg, rho_t, rho_e) = (nid(), nid (), nid ()) (* GEN END TAG OUTSIDE LET *)
      (* by invariant rho_t = empty, since nsub_t <= nsub_e *)
-      val _ =  S.forall nsub_e
-        (fn (nv, (l',E)) =>
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ =  S.forall nsub_e
+        ((* GEN BEGIN FUNCTION EXPRESSION *) fn (nv, (l',E)) =>
          (case (S.lookup nsub_t nv)
             of SOME (l,T) =>     (* by invariant d = d'
                                      therefore T and E have the same approximate type A *)
@@ -320,7 +320,7 @@ struct
                              S.insert rho_e (nv, (l, E)))
                | SOME(T') => S.insert sg (nv, (l,  T')))
                else raise Generalization "Labels don't agree\n")
-          | NONE => S.insert rho_e (nv, (l', E))))
+          | NONE => S.insert rho_e (nv, (l', E))) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
     in
       if isId(sg)
         then NONE
@@ -329,22 +329,22 @@ struct
     end
 
   (* mkNode (N, sg, r1, (G, RC), r2) = N'    *)
-  fun mkNode (Node(_, Children), sg, rho1, GR as (G, RC), rho2) =
+  fun (* GEN BEGIN FUN FIRST *) mkNode (Node(_, Children), sg, rho1, GR as (G, RC), rho2) =
       let
-        val c = S.new()
+        (* GEN BEGIN TAG OUTSIDE LET *) val c = S.new() (* GEN END TAG OUTSIDE LET *)
       in
         S.insertList c [(1, Node(rho1, Children)),
                                 (2, Leaf(rho2, G, RC))];
        Node(sg, c)
-      end
-    | mkNode (Leaf(_, G1, RC1), sg, rho1, GR as (G2, RC2), rho2) =
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) mkNode (Leaf(_, G1, RC1), sg, rho1, GR as (G2, RC2), rho2) =
       let
-        val c = S.new()
+        (* GEN BEGIN TAG OUTSIDE LET *) val c = S.new() (* GEN END TAG OUTSIDE LET *)
       in
         S.insertList c [(1, Leaf(rho1, G1, RC1)),
                         (2, Leaf(rho2, G2, RC2))];
         Node(sg, c)
-      end
+      end (* GEN END FUN BRANCH *)
 
 
   (* Insertion *)
@@ -374,12 +374,12 @@ struct
      N' contains a path n_1 .... n_n s.t.
      [n_n] ...[n_1] s = nsub_e
   *)
-  and insert (N as Leaf (nsub_t, G_clause1, R1), nsub_e, GR as (G_clause2, R2)) =
+  and (* GEN BEGIN FUN FIRST *) insert (N as Leaf (nsub_t, G_clause1, R1), nsub_e, GR as (G_clause2, R2)) =
     (case compatibleSub(nsub_t, nsub_e) of
        NONE => raise Error "Leaf is not compatible substitution r"
-     | SOME(sg, rho1, rho2) => mkNode (N, sg, rho1, GR, rho2))
+     | SOME(sg, rho1, rho2) => mkNode (N, sg, rho1, GR, rho2)) (* GEN END FUN FIRST *)
 
-    | insert (N as Node(_, children), nsub_e, GR as (G_clause2, RC)) =
+    | (* GEN BEGIN FUN BRANCH *) insert (N as Node(_, children), nsub_e, GR as (G_clause2, RC)) =
        if noChildren children
          then
            (* initial *)
@@ -389,7 +389,7 @@ struct
             of (n, child as Node(nsub_t, children')) =>
               (compareChild (children, (n, child), nsub_t, nsub_e, GR); N)
           | (n, child as Leaf(nsub_t, G1, RC1)) =>
-              (compareChild (children, (n, child), nsub_t,  nsub_e, GR); N))
+              (compareChild (children, (n, child), nsub_t,  nsub_e, GR); N)) (* GEN END FUN BRANCH *)
 
 
   (* retrieval (U,s)
@@ -398,24 +398,24 @@ struct
      backtracking implemented via SML failure continuation
 
    *)
-  fun normalizeNExp (I.NVar n, csub) =
+  fun (* GEN BEGIN FUN FIRST *) normalizeNExp (I.NVar n, csub) =
       let
-        val A = I.newAVar ()
+        (* GEN BEGIN TAG OUTSIDE LET *) val A = I.newAVar () (* GEN END TAG OUTSIDE LET *)
       in
         S.insert csub (n, A);
         A
-      end
-    | normalizeNExp (I.Root (H, S), nsub) =
-         I.Root(H, normalizeNSpine (S, nsub))
-    | normalizeNExp (I.Lam (D, U), nsub) =
-         I.Lam (normalizeNDec(D, nsub), normalizeNExp (U, nsub))
-    | normalizeNExp (I.Pi((D, P), U), nsub) =
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) normalizeNExp (I.Root (H, S), nsub) =
+         I.Root(H, normalizeNSpine (S, nsub)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) normalizeNExp (I.Lam (D, U), nsub) =
+         I.Lam (normalizeNDec(D, nsub), normalizeNExp (U, nsub)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) normalizeNExp (I.Pi((D, P), U), nsub) =
          (* cannot happen -bp *)
-         I.Pi ((normalizeNDec(D, nsub), P), normalizeNExp (U, nsub))
+         I.Pi ((normalizeNDec(D, nsub), P), normalizeNExp (U, nsub)) (* GEN END FUN BRANCH *)
 
-  and normalizeNSpine (I.Nil, _) = I.Nil
-    | normalizeNSpine (I.App (U, S), nsub) =
-    I.App(normalizeNExp (U, nsub), normalizeNSpine (S, nsub))
+  and (* GEN BEGIN FUN FIRST *) normalizeNSpine (I.Nil, _) = I.Nil (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) normalizeNSpine (I.App (U, S), nsub) =
+    I.App(normalizeNExp (U, nsub), normalizeNSpine (S, nsub)) (* GEN END FUN BRANCH *)
 
   and normalizeNDec (I.Dec(N, E), nsub) = I.Dec(N, normalizeNExp(E, nsub))
 
@@ -439,7 +439,7 @@ struct
 
   fun assign (nvaronly, Glocal_u1, Us1, U2, nsub_goal, asub, csub, cnstr) =
     let
-      val depth = I.ctxLength Glocal_u1
+      (* GEN BEGIN TAG OUTSIDE LET *) val depth = I.ctxLength Glocal_u1 (* GEN END TAG OUTSIDE LET *)
       fun assignHead (nvaronly, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
           (case (H1, H2)
              of (I.Const(c1), I.Const(c2)) =>
@@ -462,11 +462,11 @@ struct
              | (_, I.FgnConst (_, I.ConDef (_, _, _, W2, _, _,_))) => assignExp (nvaronly, depth, Glocal_u1, Us1, W2, cnstr)
              | (_, _) => (raise Assignment ("Head mismatch ")))
   
-      and assignExpW (nvaronly, depth, Glocal_u1, (I.Uni L1, s1), I.Uni L2, cnstr) = cnstr (* L1 = L2 by invariant *)
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1, I.NVar n, cnstr) =
+      and (* GEN BEGIN FUN FIRST *) assignExpW (nvaronly, depth, Glocal_u1, (I.Uni L1, s1), I.Uni L2, cnstr) = cnstr (* GEN END FUN FIRST *) (* L1 = L2 by invariant *)
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1, I.NVar n, cnstr) =
           (S.insert nsub_goal (n, (Glocal_u1, (nvaronly, I.EClo(Us1))));
-           cnstr)
-        | assignExpW (Body, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
+           cnstr) (* GEN END FUN BRANCH *)
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (Body, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
           (case H2
              of I.BVar(k2) =>
                if (k2 > depth)
@@ -481,9 +481,9 @@ struct
                                        then assignSpine (Body, depth, Glocal_u1, (S1, s1), S2, cnstr)
                                      else raise Assignment "Bound variable clash"
                   | _ => raise Assignment "Head mismatch")
-           | _ => assignHead (Body, depth, Glocal_u1, Us1, U2, cnstr))
+           | _ => assignHead (Body, depth, Glocal_u1, Us1, U2, cnstr)) (* GEN END FUN BRANCH *)
   
-        | assignExpW (TypeLabel, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (TypeLabel, depth, Glocal_u1, Us1 as (I.Root (H1, S1), s1), U2 as I.Root (H2, S2), cnstr) =
           (case H2
              of I.BVar(k2) =>
                if (k2 > depth)
@@ -497,9 +497,9 @@ struct
                                        then assignSpine (TypeLabel, depth, Glocal_u1, (S1, s1), S2, cnstr)
                                      else raise Assignment "Bound variable clash"
                   | _ => raise Assignment "Head mismatch")
-           | _ => assignHead (TypeLabel, depth, Glocal_u1, Us1, U2, cnstr))
+           | _ => assignHead (TypeLabel, depth, Glocal_u1, Us1, U2, cnstr)) (* GEN END FUN BRANCH *)
             (* here spine associated with k2 might not be Nil ? *)
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.Root(I.BVar k2, S), cnstr) =
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.Root(I.BVar k2, S), cnstr) =
            if (k2 > depth)
              then
                (* BVar(k2) stands for an existential variable *)
@@ -516,64 +516,64 @@ struct
                   (case Us1
                      of (I.EVar(r, _, V, Cnstr), s) =>
                        let
-                         val U2' = normalizeNExp (U2, csub)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val U2' = normalizeNExp (U2, csub) (* GEN END TAG OUTSIDE LET *)
                        in
                          (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
                        end
                    | (I.EClo(U,s'), s) => assignExp(Body, depth, Glocal_u1, (U, I.comp(s', s)), U2, cnstr)
                    | (I.FgnExp (_, ops), _) =>
                        let
-                         val U2' = normalizeNExp (U2, csub)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val U2' = normalizeNExp (U2, csub) (* GEN END TAG OUTSIDE LET *)
                        in
                          (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
-                       end))
+                       end)) (* GEN END FUN BRANCH *)
         (* by invariant Us2 cannot contain any FgnExp *)
-        | assignExpW (nvaronly, depth, Glocal_u1, (I.Lam (D1 as I.Dec(_, A1), U1), s1), I.Lam (D2 as I.Dec(_, A2), U2), cnstr) =
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, (I.Lam (D1 as I.Dec(_, A1), U1), s1), I.Lam (D2 as I.Dec(_, A2), U2), cnstr) =
           (* D1[s1] = D2[s2]  by invariant *)
           let
-            val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
+            (* GEN BEGIN TAG OUTSIDE LET *) val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr) (* GEN END TAG OUTSIDE LET *)
             (* nsub_goal may be destructively updated,
                asub does not change (i.e. existential variables are not instantiated,
                by invariant they must have been already instantiated
              *)
           in
           assignExp (nvaronly, depth+1, I.Decl (Glocal_u1, I.decSub (D1, s1)), (U1, I.dot1 s1), U2, cnstr')
-          end
-        | assignExpW (nvaronly, depth, Glocal_u1, (I.Pi ((D1 as I.Dec(_, A1), _), U1), s1), I.Pi ((D2 as I.Dec(_, A2), _), U2), cnstr) =
+          end (* GEN END FUN BRANCH *)
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, (I.Pi ((D1 as I.Dec(_, A1), _), U1), s1), I.Pi ((D2 as I.Dec(_, A2), _), U2), cnstr) =
           (* D1[s1] = D2[s2]  by invariant *)
           let
-            val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr)
+            (* GEN BEGIN TAG OUTSIDE LET *) val cnstr' = assignExp (TypeLabel, depth, Glocal_u1, (A1, s1), A2, cnstr) (* GEN END TAG OUTSIDE LET *)
             (* nsub_goal may be destructively updated,
                asub does not change (i.e. existential variables are not instantiated,
                by invariant they must have been already instantiated
             *)
           in
           assignExp (nvaronly, depth+1, I.Decl (Glocal_u1, I.decSub (D1, s1)), (U1, I.dot1 s1), U2, cnstr')
-          end
+          end (* GEN END FUN BRANCH *)
   
           (* it does matter what we put in Glocal_u1! since D2 will only be approximately the same as D1 at this point! *)
           (* assignExp (nvaronly, depth+1, I.Decl (Glocal_u1, D2), (U1, I.dot1 s1), U2, cnstr) *)
   
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EVar(r, _, V, Cnstr), s), U2, cnstr) =
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EVar(r, _, V, Cnstr), s), U2, cnstr) =
           (* generate cnstr substitution for all nvars occurring in U2 *)
           let
-            val U2' = normalizeNExp (U2, csub)
+            (* GEN BEGIN TAG OUTSIDE LET *) val U2' = normalizeNExp (U2, csub) (* GEN END TAG OUTSIDE LET *)
           in
             (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
-          end
+          end (* GEN END FUN BRANCH *)
   
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EClo(U,s'), s), U2, cnstr) =
-          assignExp(nvaronly, depth, Glocal_u1, (U, I.comp(s', s)), U2, cnstr)
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.EClo(U,s'), s), U2, cnstr) =
+          assignExp(nvaronly, depth, Glocal_u1, (U, I.comp(s', s)), U2, cnstr) (* GEN END FUN BRANCH *)
   
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.FgnExp (_, ops), _), U2, cnstr) =
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1 as (I.FgnExp (_, ops), _), U2, cnstr) =
           (* by invariant Us2 cannot contain any FgnExp *)
           let
-            val U2' = normalizeNExp (U2, csub)
+            (* GEN BEGIN TAG OUTSIDE LET *) val U2' = normalizeNExp (U2, csub) (* GEN END TAG OUTSIDE LET *)
           in
             (Eqn(Glocal_u1, I.EClo(Us1), U2')::cnstr)
-          end
-        | assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.FgnExp (_, ops), cnstr) =
-          (Eqn(Glocal_u1, I.EClo(Us1), U2)::cnstr)
+          end (* GEN END FUN BRANCH *)
+        | (* GEN BEGIN FUN BRANCH *) assignExpW (nvaronly, depth, Glocal_u1, Us1, U2 as I.FgnExp (_, ops), cnstr) =
+          (Eqn(Glocal_u1, I.EClo(Us1), U2)::cnstr) (* GEN END FUN BRANCH *)
   (*      | assignExpW (nvaronly, depth, Glocal_u1, (U1, s1), I.Lam (D2, U2), cnstr) =
           (* Cannot occur if expressions are eta expanded *)
           raise Assignment "Cannot occur if expressions in clause heads are eta-expanded"*)
@@ -583,16 +583,16 @@ struct
   *)
            (* same reasoning holds as above *)
   
-      and assignSpine (nvaronly, depth, Glocal_u1, (I.Nil, _), I.Nil, cnstr) = cnstr
-        | assignSpine (nvaronly, depth, Glocal_u1, (I.SClo (S1, s1'), s1), S, cnstr) =
-        assignSpine (nvaronly, depth, Glocal_u1, (S1, I.comp (s1', s1)), S, cnstr)
-        | assignSpine (nvaronly, depth, Glocal_u1, (I.App (U1, S1), s1), I.App (U2, S2), cnstr) =
+      and (* GEN BEGIN FUN FIRST *) assignSpine (nvaronly, depth, Glocal_u1, (I.Nil, _), I.Nil, cnstr) = cnstr (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) assignSpine (nvaronly, depth, Glocal_u1, (I.SClo (S1, s1'), s1), S, cnstr) =
+        assignSpine (nvaronly, depth, Glocal_u1, (S1, I.comp (s1', s1)), S, cnstr) (* GEN END FUN BRANCH *)
+        | (* GEN BEGIN FUN BRANCH *) assignSpine (nvaronly, depth, Glocal_u1, (I.App (U1, S1), s1), I.App (U2, S2), cnstr) =
         let
-          val cnstr' = assignExp (nvaronly, depth, Glocal_u1, (U1, s1), U2, cnstr)
+          (* GEN BEGIN TAG OUTSIDE LET *) val cnstr' = assignExp (nvaronly, depth, Glocal_u1, (U1, s1), U2, cnstr) (* GEN END TAG OUTSIDE LET *)
         (* nsub_goal, asub may be destructively updated *)
         in
           assignSpine (nvaronly, depth, Glocal_u1, (S1, s1), S2, cnstr')
-        end
+        end (* GEN END FUN BRANCH *)
   
       and assignExp (nvaronly, depth, Glocal_u1, Us1, U2, cnstr) =
           assignExpW (nvaronly, depth, Glocal_u1, Whnf.whnf Us1, U2, cnstr)
@@ -617,14 +617,14 @@ struct
    *)
   fun assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
     let
-      val nsub_query' = querySubId ()
-      val cref = ref cnstr
+      (* GEN BEGIN TAG OUTSIDE LET *) val nsub_query' = querySubId () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val cref = ref cnstr (* GEN END TAG OUTSIDE LET *)
       fun assign' (nsub_query, nsub) =
         let
-          val (nsub_query_left, nsub_left1) = S.differenceModulo nsub_query nsub
-                                (fn (Glocal_u, (l, U)) => fn  (l', T) =>
-                                 cref := assign (l (* = l' *), Glocal_u, (U, I.id), T, nsub_query', assignSub, cnstrSub, !cref))
-          val nsub_left' = S.update nsub_left1 (fn (l,U) => (l, normalizeNExp (U, cnstrSub)))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (nsub_query_left, nsub_left1) = S.differenceModulo nsub_query nsub
+                                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (Glocal_u, (l, U)) => (* GEN BEGIN FUNCTION EXPRESSION *) fn  (l', T) =>
+                                 cref := assign (l (* = l' *), Glocal_u, (U, I.id), T, nsub_query', assignSub, cnstrSub, !cref) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val nsub_left' = S.update nsub_left1 ((* GEN BEGIN FUNCTION EXPRESSION *) fn (l,U) => (l, normalizeNExp (U, cnstrSub)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in
           (SOME(S.union nsub_query_left nsub_query', (S.union nsub_left nsub_left', cnstrSub), !cref))
         end
@@ -636,19 +636,19 @@ struct
 
   fun assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr) =
     let
-      val nsub_query' = querySubId ()
-      val cref = ref cnstr
+      (* GEN BEGIN TAG OUTSIDE LET *) val nsub_query' = querySubId () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val cref = ref cnstr (* GEN END TAG OUTSIDE LET *)
       fun assign' (nsub_query, nsub) =
         let
-          val (nsub_query_left, nsub_left) = S.differenceModulo nsub_query nsub
-                                (fn (Glocal_u, (l, U)) => fn  (l', T) =>
-                                 cref := assign (l' (* = l *), Glocal_u, (U, I.id), T, nsub_query', assignSub, cnstrSub, !cref))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (nsub_query_left, nsub_left) = S.differenceModulo nsub_query nsub
+                                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (Glocal_u, (l, U)) => (* GEN BEGIN FUNCTION EXPRESSION *) fn  (l', T) =>
+                                 cref := assign (l' (* = l *), Glocal_u, (U, I.id), T, nsub_query', assignSub, cnstrSub, !cref) (* GEN END FUNCTION EXPRESSION *) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
           (* normalize nsub_left (or require that it is normalized
              collect all left-over nsubs and later combine it with cnstrsub
            *)
-          val _ = S.forall nsub_left (fn (nv, (nvaronly, U)) => case (S.lookup cnstrSub nv)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = S.forall nsub_left ((* GEN BEGIN FUNCTION EXPRESSION *) fn (nv, (nvaronly, U)) => case (S.lookup cnstrSub nv)
                                                          of NONE =>  raise Error "Left-over nsubstitution"
-                                                       | SOME(I.AVar A) => A := SOME(normalizeNExp (U, cnstrSub)))
+                                                       | SOME(I.AVar A) => A := SOME(normalizeNExp (U, cnstrSub)) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
         in (* cnstr[rsub] *)
           (* nsub_goal1 = rgoal u nsub_goal'  remaining substitutions to be checked *)
           (SOME(S.union nsub_query_left nsub_query', cnstrSub, !cref))
@@ -659,15 +659,15 @@ struct
     end
 
   (* Unification *)
-  fun unifyW (G, (X as I.AVar(r as ref NONE), I.Shift 0), Us2) =
-      (r := SOME(I.EClo(Us2)))
-    | unifyW (G, (X as I.AVar(r as ref NONE), s), Us2 as (U, s2)) =
+  fun (* GEN BEGIN FUN FIRST *) unifyW (G, (X as I.AVar(r as ref NONE), I.Shift 0), Us2) =
+      (r := SOME(I.EClo(Us2))) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) unifyW (G, (X as I.AVar(r as ref NONE), s), Us2 as (U, s2)) =
       (print "unifyW -- not s = Id\n";
        print ("Us2 = " ^ Print.expToString (G, I.EClo(Us2)) ^ "\n");
-       r := SOME(I.EClo(Us2)))
-    | unifyW (G, Xs1, Us2) =
+       r := SOME(I.EClo(Us2))) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) unifyW (G, Xs1, Us2) =
     (* Xs1 should not contain any uninstantiated AVar anymore *)
-      Unify.unifyW(G, Xs1, Us2)
+      Unify.unifyW(G, Xs1, Us2) (* GEN END FUN BRANCH *)
 
   fun unify(G, Xs1, Us2) = unifyW(G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
@@ -677,22 +677,22 @@ struct
 
   (* Convert context G into explicit substitution *)
   (* ctxToEVarSub (i, G, G', asub, s) = s' *)
-  fun ctxToExplicitSub (i, Gquery, I.Null, asub) = I.id
-    | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.Dec(_, A)), asub) =
+  fun (* GEN BEGIN FUN FIRST *) ctxToExplicitSub (i, Gquery, I.Null, asub) = I.id (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.Dec(_, A)), asub) =
       let
-        val s = ctxToExplicitSub (i+1, Gquery, Gclause, asub)
-        val (U' as I.EVar(X',_,_, _)) = I.newEVar (Gquery, I.EClo(A, s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val s = ctxToExplicitSub (i+1, Gquery, Gclause, asub) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (U' as I.EVar(X',_,_, _)) = I.newEVar (Gquery, I.EClo(A, s)) (* GEN END TAG OUTSIDE LET *)
       in
         case S.lookup asub i
           of NONE => ()
         | SOME(Assign(Glocal_u, U)) =>
             X' := SOME(raiseType(Glocal_u, U));
         I.Dot(I.Exp(U'), s)
-      end
+      end (* GEN END FUN BRANCH *)
 
-    | ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.ADec(_, d)), asub) =
+    | (* GEN BEGIN FUN BRANCH *) ctxToExplicitSub (i, Gquery, I.Decl(Gclause, I.ADec(_, d)), asub) =
       let
-        val (U' as (I.AVar X')) = I.newAVar ()
+        (* GEN BEGIN TAG OUTSIDE LET *) val (U' as (I.AVar X')) = I.newAVar () (* GEN END TAG OUTSIDE LET *)
       in
         (case S.lookup asub i
            of NONE => ()
@@ -700,31 +700,31 @@ struct
             X' := SOME(U));
         I.Dot(I.Exp(I.EClo(U', I.Shift(~d))), ctxToExplicitSub (i+1, Gquery, Gclause, asub))
          (* d = I.ctxLength Glocal_u *)
-      end
+      end (* GEN END FUN BRANCH *)
 
-  fun solveAuxG (C.Trivial, s, Gquery) =  true (* succeed *)
-    | solveAuxG (C.UnifyEq(Glocal,e1, N, eqns), s, Gquery) =
+  fun (* GEN BEGIN FUN FIRST *) solveAuxG (C.Trivial, s, Gquery) =  true (* GEN END FUN FIRST *) (* succeed *)
+    | (* GEN BEGIN FUN BRANCH *) solveAuxG (C.UnifyEq(Glocal,e1, N, eqns), s, Gquery) =
       let
-        val G = compose' (Glocal, Gquery)
-        val s' = shift (Glocal, s)
+        (* GEN BEGIN TAG OUTSIDE LET *) val G = compose' (Glocal, Gquery) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val s' = shift (Glocal, s) (* GEN END TAG OUTSIDE LET *)
       in
         if unifiable (G, (N, s'), (e1, s'))
           then   solveAuxG (eqns, s, Gquery)
         else false
-      end
+      end (* GEN END FUN BRANCH *)
 
 
 
-  fun solveCnstr (Gquery, Gclause, nil, s) = true
-    | solveCnstr (Gquery, Gclause, Eqn(Glocal, U1, U2)::Cnstr, s) =
+  fun (* GEN BEGIN FUN FIRST *) solveCnstr (Gquery, Gclause, nil, s) = true (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) solveCnstr (Gquery, Gclause, Eqn(Glocal, U1, U2)::Cnstr, s) =
       (Unify.unifiable(compose'(Gquery, Glocal), (U1, I.id), (U2, shift(Glocal, s))) andalso
-       solveCnstr (Gquery, Gclause, Cnstr, s))
+       solveCnstr (Gquery, Gclause, Cnstr, s)) (* GEN END FUN BRANCH *)
 
 
   fun solveResiduals (Gquery, Gclause, CGoals(AuxG, cid, ConjGoals, i), asub, cnstr', sc) =
     let
-      val s = ctxToExplicitSub (1, Gquery, Gclause, asub)
-      val success =  solveAuxG (AuxG, s, Gquery) andalso solveCnstr (Gquery, Gclause, cnstr', s)
+      (* GEN BEGIN TAG OUTSIDE LET *) val s = ctxToExplicitSub (1, Gquery, Gclause, asub) (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val success =  solveAuxG (AuxG, s, Gquery) andalso solveCnstr (Gquery, Gclause, cnstr', s) (* GEN END TAG OUTSIDE LET *)
     in
       if success
         then
@@ -737,7 +737,7 @@ struct
 
   fun retrieveChild (num, Child, nsub_query, assignSub, cnstr, Gquery, sc) =
     let
-      fun retrieve (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, cnstrSub, cnstr) =
+      fun (* GEN BEGIN FUN FIRST *) retrieve (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, cnstrSub, cnstr) =
          (case assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr)
           (* destructively updates assignSub, might initiate backtracking  *)
           of NONE => ()
@@ -748,11 +748,11 @@ struct
                  if ithChild(Residuals, !num) then
                     solveResiduals (Gquery, Gclause, Residuals, assignSub, cnstr', sc)
                  else
-                   CSManager.trail (fn () => solveResiduals (Gquery, Gclause, Residuals, assignSub, cnstr', sc))
+                   CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => solveResiduals (Gquery, Gclause, Residuals, assignSub, cnstr', sc) (* GEN END FUNCTION EXPRESSION *))
              else
-              raise Error "Left-over normal substitutions!"))
+              raise Error "Left-over normal substitutions!")) (* GEN END FUN FIRST *)
   
-        | retrieve (Node(nsub, Children), nsub_query, assignSub, cnstrSub, cnstr) =
+        | (* GEN BEGIN FUN BRANCH *) retrieve (Node(nsub, Children), nsub_query, assignSub, cnstrSub, cnstr) =
          (case assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr)
           (* destructively updates nsub_query, assignSub,  might fail and initiate backtracking *)
           (* we must undo any changes to assignSub and whatever else is destructively updated,
@@ -760,7 +760,7 @@ struct
             of NONE => ()
              | SOME (nsub_query', cnstrSub', cnstr') =>
                (S.forall Children
-                (fn (n, Child) => retrieve (Child, nsub_query', S.copy assignSub, S.copy cnstrSub', cnstr'))))
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (n, Child) => retrieve (Child, nsub_query', S.copy assignSub, S.copy cnstrSub', cnstr') (* GEN END FUNCTION EXPRESSION *)))) (* GEN END FUN BRANCH *)
     in
       retrieve (Child, nsub_query, assignSub, cnstrSubId (), cnstr)
     end
@@ -768,18 +768,18 @@ struct
   fun retrieval (n, STree as Node(s, Children), G, r, sc) =
     (* s = id *)
     let
-      val (nsub_query, assignSub) = (querySubId (), assignSubId ())
+      (* GEN BEGIN TAG OUTSIDE LET *) val (nsub_query, assignSub) = (querySubId (), assignSubId ()) (* GEN END TAG OUTSIDE LET *)
     in
       S.insert nsub_query (1, (I.Null, (Body, r)));
-      S.forall Children (fn (_, C) => retrieveChild (n, C, nsub_query, assignSub, nil, G, sc))
+      S.forall Children ((* GEN BEGIN FUNCTION EXPRESSION *) fn (_, C) => retrieveChild (n, C, nsub_query, assignSub, nil, G, sc) (* GEN END FUNCTION EXPRESSION *))
     end
 
  (*----------------------------------------------------------------------------*)
  (* Retrieval via set of candidates *)
  fun retrieveAll (num, Child, nsub_query, assignSub, cnstr, candSet) =
     let
-      val i = ref 0
-      fun retrieve (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
+      (* GEN BEGIN TAG OUTSIDE LET *) val i = ref 0 (* GEN END TAG OUTSIDE LET *)
+      fun (* GEN BEGIN FUN FIRST *) retrieve (Leaf(nsub, Gclause, Residuals), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
          (case assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr)
           (* destructively updates assignSub, might initiate backtracking  *)
           of NONE => ()
@@ -790,9 +790,9 @@ struct
                  (i := !i+1;
                   S.insert candSet (!i, (assignSub, nsub_left', cnstrSub', cnstr', Gclause, Residuals));())
              else
-              raise Error "Left-over normal substitutions!"))
+              raise Error "Left-over normal substitutions!")) (* GEN END FUN FIRST *)
  
-        | retrieve (Node(nsub, Children), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
+        | (* GEN BEGIN FUN BRANCH *) retrieve (Node(nsub, Children), nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
          (case assignableLazy (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr)
           (* destructively updates nsub_query, assignSub,  might fail and initiate backtracking *)
           (* we must undo any changes to assignSub and whatever else is destructively updated,
@@ -800,7 +800,7 @@ struct
             of NONE => ()
              | SOME (nsub_query', (nsub_left', cnstrSub'), cnstr') =>
                (S.forall Children
-                (fn (n, Child) => retrieve (Child, nsub_query', S.copy assignSub, (S.copy nsub_left', S.copy cnstrSub'), cnstr'))))
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn (n, Child) => retrieve (Child, nsub_query', S.copy assignSub, (S.copy nsub_left', S.copy cnstrSub'), cnstr') (* GEN END FUNCTION EXPRESSION *)))) (* GEN END FUN BRANCH *)
     in
       retrieve (Child, nsub_query, assignSub, (nid(), cnstrSubId ()), cnstr)
     end
@@ -808,29 +808,29 @@ struct
  fun retrieveCandidates (n, STree as Node(s, Children), Gquery, r, sc) =
     (* s = id *)
     let
-      val (nsub_query, assignSub) = (querySubId (), assignSubId ())
-      val candSet = S.new()
+      (* GEN BEGIN TAG OUTSIDE LET *) val (nsub_query, assignSub) = (querySubId (), assignSubId ()) (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val candSet = S.new() (* GEN END TAG OUTSIDE LET *)
       fun solveCandidate (i, candSet) =
         case (S.lookup candSet i)
           of NONE => ((* print "No candidate left anymore\n" ;*) () )
            | SOME(assignSub, nsub_left, cnstrSub, cnstr, Gclause, Residuals
              (* CGoals(AuxG, cid, ConjGoals, i) *)) =>
-             (CSManager.trail (fn () =>
-               (S.forall nsub_left (fn (nv, (l, U)) => case (S.lookup cnstrSub nv)
+             (CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
+               (S.forall nsub_left ((* GEN BEGIN FUNCTION EXPRESSION *) fn (nv, (l, U)) => case (S.lookup cnstrSub nv)
                                                          of NONE =>  raise Error "Left-over nsubstitution"
-                                                       | SOME(I.AVar A) => A := SOME(U));
-              solveResiduals (Gquery, Gclause, Residuals, assignSub, cnstr, sc)));
+                                                       | SOME(I.AVar A) => A := SOME(U) (* GEN END FUNCTION EXPRESSION *));
+              solveResiduals (Gquery, Gclause, Residuals, assignSub, cnstr, sc)) (* GEN END FUNCTION EXPRESSION *));
                 solveCandidate (i+1, candSet (* sc = (fn S => (O::S)) *) ))
     in
       S.insert nsub_query (1, (I.Null, (Body, r)));
-      S.forall Children (fn (_, C) => retrieveAll (n, C, nsub_query, assignSub, nil, candSet));
+      S.forall Children ((* GEN BEGIN FUNCTION EXPRESSION *) fn (_, C) => retrieveAll (n, C, nsub_query, assignSub, nil, candSet) (* GEN END FUNCTION EXPRESSION *));
       (* execute one by one all candidates : here ! *)
       solveCandidate (1, candSet)
     end
 
  fun matchSig (a, G, ps as (I.Root(Ha,S),s), sc) =
      let
-       val (n, Tree) = Array.sub (indexArray, a)
+       (* GEN BEGIN TAG OUTSIDE LET *) val (n, Tree) = Array.sub (indexArray, a) (* GEN END TAG OUTSIDE LET *)
      in
        (* retrieval (n, !Tree, G, I.EClo(ps), sc)   *)
        retrieveCandidates (n, !Tree, G, I.EClo(ps), sc)
@@ -839,21 +839,21 @@ struct
 
  fun matchSigIt (a, G, ps as (I.Root(Ha,S),s), sc) =
      let
-       val (n, Tree) = Array.sub (indexArray, a)
+       (* GEN BEGIN TAG OUTSIDE LET *) val (n, Tree) = Array.sub (indexArray, a) (* GEN END TAG OUTSIDE LET *)
      in
        retrieval (n, !Tree, G, I.EClo(ps), sc)
      end
 
  fun sProgReset () =
    (nctr := 1;
-     Array.modify (fn (n, Tree) => (n := 0; Tree := !(makeTree ());
-                                   (n, Tree))) indexArray)
+     Array.modify ((* GEN BEGIN FUNCTION EXPRESSION *) fn (n, Tree) => (n := 0; Tree := !(makeTree ());
+                                   (n, Tree)) (* GEN END FUNCTION EXPRESSION *)) indexArray)
 
 
  fun sProgInstall (a, C.Head(E, G, Eqs, cid), R) =
    let
-     val (n, Tree) = Array.sub (indexArray, a)
-     val nsub_goal = S.new()
+     (* GEN BEGIN TAG OUTSIDE LET *) val (n, Tree) = Array.sub (indexArray, a) (* GEN END TAG OUTSIDE LET *)
+     (* GEN BEGIN TAG OUTSIDE LET *) val nsub_goal = S.new() (* GEN END TAG OUTSIDE LET *)
    in
       S.insert nsub_goal (1, (Body, E));
       Tree := insert (!Tree, nsub_goal, (G, CGoals(Eqs, cid, R, !n+1)));
@@ -862,9 +862,9 @@ struct
    end
 
   in
-    val sProgReset = sProgReset
-    val sProgInstall = sProgInstall
-    val matchSig = matchSigIt
+    (* GEN BEGIN TAG OUTSIDE LET *) val sProgReset = sProgReset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val sProgInstall = sProgInstall (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val matchSig = matchSigIt (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor SubTree *)
 

@@ -38,34 +38,34 @@ struct
       else ""
 
 
-  fun lower (0, G, V) = (G, V)
-    | lower (n, G, I.Pi ((D, _), V)) = lower (n-1, I.Decl (G, D), V)
+  fun (* GEN BEGIN FUN FIRST *) lower (0, G, V) = (G, V) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) lower (n, G, I.Pi ((D, _), V)) = lower (n-1, I.Decl (G, D), V) (* GEN END FUN BRANCH *)
 
   fun run (quy, Paths.Loc (fileName, r)) =
       let
         (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-        val (V, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+        (* GEN BEGIN TAG OUTSIDE LET *) val (V, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r)) (* GEN END TAG OUTSIDE LET *)
                                         (* times itself *)
-        val _ = if !Global.chatter >= 3
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then print ("%fquery")
-                else ()
-        val _ = if !Global.chatter >= 3
+                else () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then print (" ")
-                else ()
-        val _ = if !Global.chatter >= 3
+                else () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then print ((Timers.time Timers.printing expToString)
                               (IntSyn.Null, V) ^ ".\n")
-                else ()
+                else () (* GEN END TAG OUTSIDE LET *)
   
-        val (k, V1)  = Abstract.abstractDecImp V
-        val (G, V2) = lower (k, I.Null, V1)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (k, V1)  = Abstract.abstractDecImp V (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (G, V2) = lower (k, I.Null, V1) (* GEN END TAG OUTSIDE LET *)
                                         (* G |- V'' : type *)
-        val a = I.targetFam V2
-        val W = W.lookup a
-        val V3 = Worldify.worldifyGoal (G, V2)
-        val _ = TypeCheck.typeCheck (G, (V3, I.Uni I.Type))
-        val P = Converter.convertGoal (T.embedCtx G, V3)
-        val V = (Timers.time Timers.delphin Opsem.evalPrg) P
+        (* GEN BEGIN TAG OUTSIDE LET *) val a = I.targetFam V2 (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val W = W.lookup a (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val V3 = Worldify.worldifyGoal (G, V2) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = TypeCheck.typeCheck (G, (V3, I.Uni I.Type)) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val P = Converter.convertGoal (T.embedCtx G, V3) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val V = (Timers.time Timers.delphin Opsem.evalPrg) P (* GEN END TAG OUTSIDE LET *)
       in
         print ("Delphin: " ^ TomegaPrint.prgToString (I.Null, V) ^ "\n")
       end

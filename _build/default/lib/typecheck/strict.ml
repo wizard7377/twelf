@@ -1,7 +1,7 @@
 (* Checking Definitions for Strict *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Strict ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Strict ((*! structure IntSyn' : INTSYN !*)
                 structure Whnf : WHNF
                 (*! sharing Whnf.IntSyn = IntSyn' !*)
                 (*! structure Paths' : PATHS !*)
@@ -149,4 +149,4 @@ struct
     val check = strictTop
     val checkType = occursInType
   end
-end (* GEN END FUNCTOR DECL *);  (* functor Strict *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor Strict *)

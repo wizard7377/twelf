@@ -1,7 +1,7 @@
 (* Meta Prover Interface *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Interactive
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Interactive
   (structure Global : GLOBAL
    (*! structure IntSyn' : INTSYN !*)
    (*! structure Tomega' : TOMEGA !*)
@@ -407,4 +407,4 @@ struct
     val focus = focus
     val return = return
   end
-end (* GEN END FUNCTOR DECL *) (* functor Interactive *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor Interactive *)

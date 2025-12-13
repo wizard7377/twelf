@@ -1,7 +1,7 @@
 (* String Equation Solver *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CSEqStrings ((*! structure IntSyn : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CSEqStrings ((*! structure IntSyn : INTSYN !*)
                      structure Whnf : WHNF
                      (*! sharing Whnf.IntSyn = IntSyn !*)
                      structure Unify : UNIFY
@@ -659,4 +659,4 @@ struct
           } : CSManager.solver
 
   end
-end (* GEN END FUNCTOR DECL *)  (* functor CSEqStrings *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor CSEqStrings *)

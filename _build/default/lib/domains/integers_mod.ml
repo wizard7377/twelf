@@ -1,7 +1,7 @@
 (* Integers Modulo a Prime Number *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) IntegersMod (val p : int) :> FIELD =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) IntegersMod (val p : int) :> FIELD =
 struct
 
   val name = "integer" ^ (Int.toString p)
@@ -51,4 +51,4 @@ struct
 
   val toString = Int.toString
 
-end (* GEN END FUNCTOR DECL *);  (* functor IntegersMod *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor IntegersMod *)

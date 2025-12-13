@@ -1,7 +1,7 @@
 (* Lemma *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Lemma (structure MetaSyn' : METASYN
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Lemma (structure MetaSyn' : METASYN
                structure MetaAbstract : METAABSTRACT
                sharing MetaAbstract.MetaSyn = MetaSyn')
   : LEMMA =
@@ -65,4 +65,4 @@ struct
   in
     val apply = apply
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor lemma *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor lemma *)

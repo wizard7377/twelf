@@ -1,7 +1,7 @@
 (* Printing Mode Declarations *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ModePrint ((*! structure ModeSyn' : MODESYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ModePrint ((*! structure ModeSyn' : MODESYN !*)
                    structure Names : NAMES
                    (*! sharing Names.IntSyn = ModeSyn'.IntSyn !*)
                    structure Formatter : FORMATTER
@@ -67,4 +67,4 @@ struct
     val modesToString = modesToString
   end (* local *)
 
-end (* GEN END FUNCTOR DECL *); (* functor ModePrint *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor ModePrint *)

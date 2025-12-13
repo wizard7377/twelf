@@ -97,12 +97,12 @@ struct
              and  . |-  V' : kind
           *)
     
-          fun theoremToConDec' (I.Null, V) = V
-            | theoremToConDec' (I.Decl (G, D), V) =
+          fun (* GEN BEGIN FUN FIRST *) theoremToConDec' (I.Null, V) = V (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) theoremToConDec' (I.Decl (G, D), V) =
                 if Abstract.closedDec (G, (D, I.id))
                   then theoremToConDec' (G, Abstract.piDepend ((Whnf.normalizeDec (D, I.id),
                                                                 I.Maybe), V))
-                else error (r, "Free variables in theorem declaration")
+                else error (r, "Free variables in theorem declaration") (* GEN END FUN BRANCH *)
         in
           (GBs, I.ConDec (name, NONE, i, I.Normal, theoremToConDec' (G, I.Uni (I.Type)), I.Kind))
         end
@@ -119,16 +119,16 @@ struct
 
     fun theoremDecToModeSpine ((name,  ThDecl (GBs, G, MG, i)), r) =
       let
-        fun theoremToModeSpine' (I.Null, I.Null, mS) = mS
-          | theoremToModeSpine' (I.Decl (G, I.Dec (x, _)), I.Decl (MG, m), mS) =
-              theoremToModeSpine' (G, MG, M.Mapp (M.Marg (m, x), mS))
+        fun (* GEN BEGIN FUN FIRST *) theoremToModeSpine' (I.Null, I.Null, mS) = mS (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) theoremToModeSpine' (I.Decl (G, I.Dec (x, _)), I.Decl (MG, m), mS) =
+              theoremToModeSpine' (G, MG, M.Mapp (M.Marg (m, x), mS)) (* GEN END FUN BRANCH *)
       in
         theoremToModeSpine' (G, MG, M.Mnil)
       end
 
   in
-    val theoremDecToConDec = theoremDecToConDec
-    val theoremDecToModeSpine = theoremDecToModeSpine
+    (* GEN BEGIN TAG OUTSIDE LET *) val theoremDecToConDec = theoremDecToConDec (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val theoremDecToModeSpine = theoremDecToModeSpine (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 
 end (* GEN END FUNCTOR DECL *); (* functor ThmSyn *)

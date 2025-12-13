@@ -81,23 +81,23 @@ struct
   type bound = int option
 
   (* exceeds : bound * bound -> bool *)
-  fun exceeds (SOME(n), SOME(m)) = (n >= m)
-    | exceeds (SOME(n), NONE) = false
-    | exceeds (NONE, _) = true
+  fun (* GEN BEGIN FUN FIRST *) exceeds (SOME(n), SOME(m)) = (n >= m) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) exceeds (SOME(n), NONE) = false (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) exceeds (NONE, _) = true (* GEN END FUN BRANCH *)
 
   (* boundEq : bound * bound -> bool *)
-  fun boundEq (SOME(n), SOME(m)) = (n = m)
-    | boundEq (NONE, NONE) = true
-    | boundEq _ = false
+  fun (* GEN BEGIN FUN FIRST *) boundEq (SOME(n), SOME(m)) = (n = m) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) boundEq (NONE, NONE) = true (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) boundEq _ = false (* GEN END FUN BRANCH *)
 
   (* boundToString : bound -> string *)
-  fun boundToString (SOME(n)) = Int.toString (n)
-    | boundToString (NONE) = "*"
+  fun (* GEN BEGIN FUN FIRST *) boundToString (SOME(n)) = Int.toString (n) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) boundToString (NONE) = "*" (* GEN END FUN BRANCH *)
 
   (* boundMin : bound * bound -> bound *)
-  fun boundMin (SOME(n), SOME(m)) = SOME(Int.min (n,m))
-    | boundMin (b, NONE) = b
-    | boundMin (NONE, b) = b
+  fun (* GEN BEGIN FUN FIRST *) boundMin (SOME(n), SOME(m)) = SOME(Int.min (n,m)) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) boundMin (b, NONE) = b (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) boundMin (NONE, b) = b (* GEN END FUN BRANCH *)
 
   (* checkSolutions : bound * bound * int -> unit *)
   (* raises AbortQuery(msg) if the actual solutions do not match *)
@@ -158,24 +158,24 @@ struct
   *)
   fun solve' (defines, solve, Paths.Loc (fileName, r)) =
       let
-        val (A, finish) = (* self timing *)
-              ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r))
+        (* GEN BEGIN TAG OUTSIDE LET *) val (A, finish) = (* self timing *)
+              ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r)) (* GEN END TAG OUTSIDE LET *)
   
         (* echo declaration, according to chatter level *)
-        val _ = if !Global.chatter >= 3
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then Msg.message ("%solve ")
-                else ()
-        val _ = if !Global.chatter >= 3
+                else () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then Msg.message ("\n"
                               ^ (Timers.time Timers.printing expToString)
                               (IntSyn.Null, A)
                               ^ ".\n")
-                else ()
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
-                    (IntSyn.Null, A)
+                else () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val g = (Timers.time Timers.compiling Compile.compileGoal)
+                    (IntSyn.Null, A) (* GEN END TAG OUTSIDE LET *)
         fun search () = AbsMachine.solve
                           ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-                           fn M => raise Solution M)
+                           (* GEN BEGIN FUNCTION EXPRESSION *) fn M => raise Solution M (* GEN END FUNCTION EXPRESSION *))
       in
         CSManager.reset ();
         ((* Call to solve raises Solution _ if there is a solution,
@@ -200,20 +200,20 @@ struct
 *)
   fun solveSbt (defines, solve, Paths.Loc (fileName, r)) =
       let
-        val (A, finish) = (* self timing *)
-              ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r))
+        (* GEN BEGIN TAG OUTSIDE LET *) val (A, finish) = (* self timing *)
+              ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r)) (* GEN END TAG OUTSIDE LET *)
   
         (* echo declaration, according to chatter level *)
-        val _ = if !Global.chatter >= 3
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then Msg.message ("%solve ")
-                else ()
-        val _ = if !Global.chatter >= 3
+                else () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A)
                               ^ ".\n")
-                else ()
+                else () (* GEN END TAG OUTSIDE LET *)
   
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
-                    (IntSyn.Null, A)
+        (* GEN BEGIN TAG OUTSIDE LET *) val g = (Timers.time Timers.compiling Compile.compileGoal)
+                    (IntSyn.Null, A) (* GEN END TAG OUTSIDE LET *)
       in
         CSManager.reset ();
         ((* Call to solve raises Solution _ if there is a solution,
@@ -222,7 +222,7 @@ struct
          (TimeLimit.timeLimit (!Global.timeLimit))
          (Timers.time Timers.solving AbsMachineSbt.solve)
          ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-          fn Skel => raise SolutionSkel Skel);
+          (* GEN BEGIN FUNCTION EXPRESSION *) fn Skel => raise SolutionSkel Skel (* GEN END FUNCTION EXPRESSION *));
          raise AbortQuery ("No solution to %solve found"))
         handle SolutionSkel Skel =>
           (if !Global.chatter >= 2
@@ -230,7 +230,7 @@ struct
            else ();
            ((Timers.time Timers.ptrecon PtRecon.solve)
             (Skel, (g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-             (fn (Skel, M) => raise Solution M));
+             ((* GEN BEGIN FUNCTION EXPRESSION *) fn (Skel, M) => raise Solution M (* GEN END FUNCTION EXPRESSION *)));
                raise AbortQuery ("Proof reconstruction for %solve failed"))
              handle Solution M => finish (M))
         handle TimeLimit.TimeOut =>
@@ -251,19 +251,19 @@ struct
   fun query' ((expected, try, quy), Paths.Loc (fileName, r)) =
     let
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-      val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+      (* GEN BEGIN TAG OUTSIDE LET *) val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r)) (* GEN END TAG OUTSIDE LET *)
       (* times itself *)
-      val _ = if !Global.chatter >= 3
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                 then Msg.message ("%query " ^ boundToString expected
                             ^ " " ^ boundToString try ^ "\n")
-              else ()
-      val _ = if !Global.chatter >= 4
+              else () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 4
                 then Msg.message (" ")
-              else ()
-      val _ = if !Global.chatter >= 3
+              else () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString)
                             (IntSyn.Null, A) ^ ".\n")
-              else ()
+              else () (* GEN END TAG OUTSIDE LET *)
       (* Problem: we cannot give an answer substitution for the variables
          in the printed query, since the new variables in this query
          may not necessarily have global scope.
@@ -273,11 +273,11 @@ struct
        *)
       (* val Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs
        *)
-      val g = (Timers.time Timers.compiling Compile.compileGoal)
-        (IntSyn.Null, A)
+      (* GEN BEGIN TAG OUTSIDE LET *) val g = (Timers.time Timers.compiling Compile.compileGoal)
+        (IntSyn.Null, A) (* GEN END TAG OUTSIDE LET *)
   
       (* solutions = ref <n> counts the number of solutions found *)
-      val solutions = ref 0
+      (* GEN BEGIN TAG OUTSIDE LET *) val solutions = ref 0 (* GEN END TAG OUTSIDE LET *)
   
       (* Initial success continuation prints substitution (according to chatter level)
          and raises exception Done if bound has been reached, otherwise it returns
@@ -342,19 +342,19 @@ struct
   fun querySbt ((expected, try, quy), Paths.Loc (fileName, r)) =
     let
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-      val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+      (* GEN BEGIN TAG OUTSIDE LET *) val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r)) (* GEN END TAG OUTSIDE LET *)
       (* times itself *)
-      val _ = if !Global.chatter >= 3
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                 then Msg.message ("%query " ^ boundToString expected
                             ^ " " ^ boundToString try ^ "\n")
-              else ()
-      val _ = if !Global.chatter >= 4
+              else () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 4
                 then Msg.message (" ")
-              else ()
-      val _ = if !Global.chatter >= 3
+              else () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString)
                             (IntSyn.Null, A) ^ ".\n")
-              else ()
+              else () (* GEN END TAG OUTSIDE LET *)
             (* Problem: we cannot give an answer substitution for the variables
                in the printed query, since the new variables in this query
                may not necessarily have global scope.
@@ -365,11 +365,11 @@ struct
              (*
                 val Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs
              *)
-      val g = (Timers.time Timers.compiling Compile.compileGoal)
-              (IntSyn.Null, A)
+      (* GEN BEGIN TAG OUTSIDE LET *) val g = (Timers.time Timers.compiling Compile.compileGoal)
+              (IntSyn.Null, A) (* GEN END TAG OUTSIDE LET *)
   
       (* solutions = ref <n> counts the number of solutions found *)
-      val solutions = ref 0
+      (* GEN BEGIN TAG OUTSIDE LET *) val solutions = ref 0 (* GEN END TAG OUTSIDE LET *)
   
       (* Initial success continuation prints substitution (according to chatter level)
          and raises exception Done if bound has been reached, otherwise it returns
@@ -394,10 +394,10 @@ struct
   
                            (Timers.time Timers.ptrecon PtRecon.solve)
                            (M, (g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-                            (fn (pskel, M) => (if !Global.chatter >= 3
+                            ((* GEN BEGIN FUNCTION EXPRESSION *) fn (pskel, M) => (if !Global.chatter >= 3
                                 then Msg.message ((Timers.time Timers.printing evarInstToString)
                                             [(M, name)] ^ "\n")
-                              else ())))) ;
+                              else ()) (* GEN END FUNCTION EXPRESSION *)))) ;
   
              if !Global.chatter >= 3
                (* Question: should we collect constraints in M? *)
@@ -456,20 +456,20 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
   solutions or if we have reached the maximal number of stages *)
   fun querytabled ((numSol, try, quy), Paths.Loc (fileName, r)) =
     let
-      val _ = if !Global.chatter >= 3
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                 then Msg.message ("%querytabled " ^ boundToString numSol ^ " " ^
                             boundToString try)
-              else ()
+              else () (* GEN END TAG OUTSIDE LET *)
       (* optName = SOME(X) or NONE, Xs = free variables in query excluding X *)
-      val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r))
+      (* GEN BEGIN TAG OUTSIDE LET *) val (A, optName, Xs) = ReconQuery.queryToQuery(quy, Paths.Loc (fileName, r)) (* GEN END TAG OUTSIDE LET *)
       (* times itself *)
-      val _ = if !Global.chatter >= 4
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 4
                 then Msg.message (" ")
-              else ()
-      val _ = if !Global.chatter >= 3
+              else () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString)
                             (IntSyn.Null, A) ^ ".\n")
-              else ()
+              else () (* GEN END TAG OUTSIDE LET *)
      (* Problem: we cannot give an answer substitution for the variables
         in the printed query, since the new variables in this query
         may not necessarily have global scope.
@@ -478,16 +478,16 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
         original variables encountered during parsing.
      *)
      (* val Xs' = if !Global.chatter >= 3 then Names.namedEVars () else Xs *)
-      val g = (Timers.time Timers.compiling Compile.compileGoal)
-        (IntSyn.Null, A)
+      (* GEN BEGIN TAG OUTSIDE LET *) val g = (Timers.time Timers.compiling Compile.compileGoal)
+        (IntSyn.Null, A) (* GEN END TAG OUTSIDE LET *)
   
       (* solutions = ref <n> counts the number of solutions found *)
-      val solutions = ref 0
-      val status = ref false
-      val solExists = ref false
+      (* GEN BEGIN TAG OUTSIDE LET *) val solutions = ref 0 (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val status = ref false (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val solExists = ref false (* GEN END TAG OUTSIDE LET *)
   
       (* stage = ref <n> counts the number of stages found *)
-      val stages = ref 1
+      (* GEN BEGIN TAG OUTSIDE LET *) val stages = ref 1 (* GEN END TAG OUTSIDE LET *)
   
       (* Initial success continuation prints substitution (according to chatter level)
          and raises exception Done if bound has been reached, otherwise it returns
@@ -509,11 +509,11 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
          | SOME(name) => (Msg.message (CompSyn.pskeletonToString O ^ "\n");
                           (Timers.time Timers.ptrecon PtRecon.solve)
                               (O, (g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-                               (fn (O, M) =>
+                               ((* GEN BEGIN FUNCTION EXPRESSION *) fn (O, M) =>
                                 if !Global.chatter >= 3
                                   then Msg.message ((Timers.time Timers.printing evarInstToString)
                                               [(M, name)] ^ "\n")
-                                else ()))));
+                                else () (* GEN END FUNCTION EXPRESSION *)))));
   
       (if !Global.chatter >= 3 then
          (* Question: should we collect constraints in M? *)
@@ -569,8 +569,8 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                          *)
                         status := true;
                       raise Done)
-      val _ = Tabled.reset ()
-      val _ = Tabled.fillTable ()
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = Tabled.reset () (* GEN END TAG OUTSIDE LET *)
+      (* GEN BEGIN TAG OUTSIDE LET *) val _ = Tabled.fillTable () (* GEN END TAG OUTSIDE LET *)
       fun tabledSearch () =
         (Tabled.solve((g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null),
                       scInit) ;
@@ -636,13 +636,13 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
   fun qLoop () = qLoops (CSManager.reset ();
                          Parser.parseTerminalQ ("?- ", "   ")) (* primary, secondary prompt *)
   and qLoops (s) = qLoops' ((Timers.time Timers.parsing S.expose) s)
-  and qLoops' (S.Empty) = true          (* normal exit *)
-    | qLoops' (S.Cons (query, s')) =
+  and (* GEN BEGIN FUN FIRST *) qLoops' (S.Empty) = true (* GEN END FUN FIRST *)          (* normal exit *)
+    | (* GEN BEGIN FUN BRANCH *) qLoops' (S.Cons (query, s')) =
       let
-        val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))
+        (* GEN BEGIN TAG OUTSIDE LET *) val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0))) (* GEN END TAG OUTSIDE LET *)
                                         (* times itself *)
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
-                    (IntSyn.Null, A)
+        (* GEN BEGIN TAG OUTSIDE LET *) val g = (Timers.time Timers.compiling Compile.compileGoal)
+                    (IntSyn.Null, A) (* GEN END TAG OUTSIDE LET *)
         fun scInit M =
             ((if !Global.chatter >= 1
               then Msg.message ((Timers.time Timers.printing evarInstToString)
@@ -664,9 +664,9 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                                 ^ str ^ "\n")
              else ();
              if moreSolutions () then () else raise Done)
-        val _ = if !Global.chatter >= 3
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then Msg.message "Solving...\n"
-                else ()
+                else () (* GEN END TAG OUTSIDE LET *)
       in
         ((Timers.time Timers.solving AbsMachine.solve)
          ((g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit); (* scInit is timed into solving! *)
@@ -674,22 +674,22 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
         handle Done => ();
         (* Ignore s': parse one query at a time *)
         qLoop ()
-      end
+      end (* GEN END FUN BRANCH *)
 
 
   (* querytabled interactive top loop *)
   fun qLoopT () = qLoopsT (CSManager.reset ();
                          Parser.parseTerminalQ ("?- ", "   ")) (* primary, secondary prompt *)
   and qLoopsT (s) = qLoopsT' ((Timers.time Timers.parsing S.expose) s)
-  and qLoopsT' (S.Empty) = true         (* normal exit *)
-    | qLoopsT' (S.Cons (query, s')) =
+  and (* GEN BEGIN FUN FIRST *) qLoopsT' (S.Empty) = true (* GEN END FUN FIRST *)         (* normal exit *)
+    | (* GEN BEGIN FUN BRANCH *) qLoopsT' (S.Cons (query, s')) =
       let
-        val solExists = ref false
-        val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0)))
+        (* GEN BEGIN TAG OUTSIDE LET *) val solExists = ref false (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (A, optName, Xs) = ReconQuery.queryToQuery(query, Paths.Loc ("stdIn", Paths.Reg (0,0))) (* GEN END TAG OUTSIDE LET *)
                                         (* times itself *)
-        val g = (Timers.time Timers.compiling Compile.compileGoal)
-                    (IntSyn.Null, A)
-        val _ = Tabled.reset ()
+        (* GEN BEGIN TAG OUTSIDE LET *) val g = (Timers.time Timers.compiling Compile.compileGoal)
+                    (IntSyn.Null, A) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Tabled.reset () (* GEN END TAG OUTSIDE LET *)
         fun scInit O =
             ((if !Global.chatter >= 1
               then Msg.message ((Timers.time Timers.printing evarInstToString) Xs ^ "\n")
@@ -719,9 +719,9 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
                          * we check for *all* solutions
                          *)
                          raise Completed)
-        val _ = if !Global.chatter >= 3
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter >= 3
                   then Msg.message "Solving...\n"
-                else ()
+                else () (* GEN END TAG OUTSIDE LET *)
       in
         ((Timers.time Timers.solving Tabled.solve)
          ((g,IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit); (* scInit is timed into solving! *)
@@ -734,6 +734,6 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
         handle Done => ();
         (* Ignore s': parse one query at a time *)
         qLoopT ()
-      end
+      end (* GEN END FUN BRANCH *)
 
 end (* GEN END FUNCTOR DECL *); (* functor Solve *)

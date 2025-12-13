@@ -21,87 +21,87 @@ struct
     open CompSyn
   in
 
-    fun compose(IntSyn.Null, G) = G
-      | compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D)
+    fun (* GEN BEGIN FUN FIRST *) compose(IntSyn.Null, G) = G (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) compose(IntSyn.Decl(G, D), G') = IntSyn.Decl(compose(G, G'), D) (* GEN END FUN BRANCH *)
 
     (* goalToString (G, g) where G |- g  goal *)
-    fun goalToString t (G, Atom(p)) =
-         t ^ "SOLVE   " ^ Print.expToString (G, p) ^ "\n"
-      | goalToString t (G, Impl (p,A,_,g)) =
+    fun (* GEN BEGIN FUN FIRST *) goalToString t (G, Atom(p)) =
+         t ^ "SOLVE   " ^ Print.expToString (G, p) ^ "\n" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) goalToString t (G, Impl (p,A,_,g)) =
          t ^ "ASSUME  " ^ Print.expToString (G, A) ^ "\n" ^
          (clauseToString (t ^ "\t") (G, p)) ^
-         goalToString t (IntSyn.Decl(G, IntSyn.Dec(NONE, A)), g) ^ "\n"
-      | goalToString t (G, All(D,g)) =
+         goalToString t (IntSyn.Decl(G, IntSyn.Dec(NONE, A)), g) ^ "\n" (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) goalToString t (G, All(D,g)) =
          let
-           val D' = Names.decLUName (G, D)
+           (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decLUName (G, D) (* GEN END TAG OUTSIDE LET *)
          in
            t ^ "ALL     " ^
            Formatter.makestring_fmt (Print.formatDec (G, D')) ^ "\n" ^
            goalToString t (IntSyn.Decl (G, D'), g) ^ "\n"
-         end
+         end (* GEN END FUN BRANCH *)
 
     (* auxToString (G, r) where G |- r auxgoal *)
-    and auxToString t (G, Trivial) = ""
-      | auxToString t (G, UnifyEq(G', p1, N, ga)) =
+    and (* GEN BEGIN FUN FIRST *) auxToString t (G, Trivial) = "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) auxToString t (G, UnifyEq(G', p1, N, ga)) =
          t ^ "UNIFYEqn  " ^ Print.expToString (compose(G',G), p1) ^ " = " ^
                        Print.expToString (compose(G',G), N) ^ "\n" ^
-         auxToString t (G, ga)
+         auxToString t (G, ga) (* GEN END FUN BRANCH *)
 
     (* clauseToString (G, r) where G |- r  resgoal *)
-    and clauseToString t (G, Eq(p)) =
-         t ^ "UNIFY   " ^ Print.expToString (G, p) ^ "\n"
-      | clauseToString t (G, Assign(p, ga)) =
+    and (* GEN BEGIN FUN FIRST *) clauseToString t (G, Eq(p)) =
+         t ^ "UNIFY   " ^ Print.expToString (G, p) ^ "\n" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) clauseToString t (G, Assign(p, ga)) =
          (t ^ "ASSIGN  " ^ (Print.expToString (G, p)  handle _ => "<exc>")
-         ^ "\n" ^ (auxToString t (G, ga)))
-      | clauseToString t (G, And(r, A, g)) =
+         ^ "\n" ^ (auxToString t (G, ga))) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) clauseToString t (G, And(r, A, g)) =
          clauseToString t (IntSyn.Decl(G, IntSyn.Dec(NONE, A)), r) ^
-         goalToString t (G, g)
-      | clauseToString t (G, In(r, A, g)) =
+         goalToString t (G, g) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) clauseToString t (G, In(r, A, g)) =
          let
-           val D = Names.decEName (G, IntSyn.Dec (NONE, A))
+           (* GEN BEGIN TAG OUTSIDE LET *) val D = Names.decEName (G, IntSyn.Dec (NONE, A)) (* GEN END TAG OUTSIDE LET *)
          in
            clauseToString t (IntSyn.Decl(G, D), r) ^
            t ^ "META    " ^ Print.decToString (G, D) ^ "\n" ^
            goalToString t (G, g)
-         end
-      | clauseToString t (G, Exists(D, r)) =
+         end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) clauseToString t (G, Exists(D, r)) =
          let
-           val D' = Names.decEName (G, D)
+           (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decEName (G, D) (* GEN END TAG OUTSIDE LET *)
          in
            t ^ "EXISTS  " ^
            (Print.decToString (G, D') handle _ => "<exc>") ^ "\n" ^
            clauseToString t (IntSyn.Decl(G, D'), r)
-         end
+         end (* GEN END FUN BRANCH *)
 
-      | clauseToString t (G, Axists(D as IntSyn.ADec(SOME(n), d), r)) =
+      | (* GEN BEGIN FUN BRANCH *) clauseToString t (G, Axists(D as IntSyn.ADec(SOME(n), d), r)) =
          let
-           val D' = Names.decEName (G, D)
+           (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decEName (G, D) (* GEN END TAG OUTSIDE LET *)
          in
            t ^ "EXISTS'  " ^
            (Print.decToString (G, D') handle _ => "<exc>") ^ "\n" ^
            clauseToString t (IntSyn.Decl(G, D'), r)
-         end
+         end (* GEN END FUN BRANCH *)
 
-    fun subgoalsToString t (G, True) = t ^ "True "
-      | subgoalsToString t (G, Conjunct(Goal, A, Sg)) =
-        t  ^ goalToString t (IntSyn.Decl(G,IntSyn.Dec(NONE, A)), Goal) ^ " and " ^ subgoalsToString t (G, Sg)
+    fun (* GEN BEGIN FUN FIRST *) subgoalsToString t (G, True) = t ^ "True " (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) subgoalsToString t (G, Conjunct(Goal, A, Sg)) =
+        t  ^ goalToString t (IntSyn.Decl(G,IntSyn.Dec(NONE, A)), Goal) ^ " and " ^ subgoalsToString t (G, Sg) (* GEN END FUN BRANCH *)
 
     (* conDecToString (c, clause) printed representation of static clause *)
-    fun conDecToString (c, SClause(r)) =
+    fun (* GEN BEGIN FUN FIRST *) conDecToString (c, SClause(r)) =
         let
-          val _ = Names.varReset IntSyn.Null
-          val name = IntSyn.conDecName (IntSyn.sgnLookup c)
-          val l = String.size name
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val name = IntSyn.conDecName (IntSyn.sgnLookup c) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val l = String.size name (* GEN END TAG OUTSIDE LET *)
         in
           name ^ (if l > 6 then ":\n" else ":") ^
           (clauseToString "\t" (IntSyn.Null, r) ^ "\n")
-        end
-      | conDecToString (c, Void) =
-          Print.conDecToString (IntSyn.sgnLookup c) ^ "\n\n"
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) conDecToString (c, Void) =
+          Print.conDecToString (IntSyn.sgnLookup c) ^ "\n\n" (* GEN END FUN BRANCH *)
 
     (* sProgToString () = printed representation of static program *)
     fun sProgToString () =
-        let val (size, _) = IntSyn.sgnSize ()
+        let (* GEN BEGIN TAG OUTSIDE LET *) val (size, _) = IntSyn.sgnSize () (* GEN END TAG OUTSIDE LET *)
             fun ts (cid) = if cid < size
                              then conDecToString (cid, CompSyn.sProgLookup cid)
                                   ^ ts (cid+1)
@@ -111,17 +111,17 @@ struct
          end
 
     (* dProgToString (G, dProg) = printed representation of dynamic program *)
-    fun dProgToString (DProg (IntSyn.Null, IntSyn.Null)) = ""
-      | dProgToString (DProg (IntSyn.Decl(G,IntSyn.Dec(SOME x,_)),
+    fun (* GEN BEGIN FUN FIRST *) dProgToString (DProg (IntSyn.Null, IntSyn.Null)) = "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) dProgToString (DProg (IntSyn.Decl(G,IntSyn.Dec(SOME x,_)),
                        IntSyn.Decl(dPool, CompSyn.Dec (r,_,_)))) =
           dProgToString (DProg (G,dPool))
           ^ "\nClause    " ^ x ^ ":\n"
-          ^ clauseToString "\t" (G, r)
-      | dProgToString (DProg (IntSyn.Decl(G, IntSyn.Dec(SOME x,A)),
+          ^ clauseToString "\t" (G, r) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) dProgToString (DProg (IntSyn.Decl(G, IntSyn.Dec(SOME x,A)),
                        IntSyn.Decl(dPool, CompSyn.Parameter))) =
          dProgToString (DProg (G, dPool))
          ^ "\nParameter " ^ x ^ ":\t"
-         ^ Print.expToString (G, A)
+         ^ Print.expToString (G, A) (* GEN END FUN BRANCH *)
      (* case for CompSyn.BDec is still missing *)
 
 

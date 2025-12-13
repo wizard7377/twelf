@@ -18,7 +18,7 @@ struct
     structure I = IntSyn
     structure M = ModeSyn
 
-    val modeSignature : (M.mode_spine list) Table.table = Table.new(0);
+    (* GEN BEGIN TAG OUTSIDE LET *) val modeSignature : (M.mode_spine list) Table.table = Table.new(0) (* GEN END TAG OUTSIDE LET *);
 
     (* reset () = ()
 
@@ -71,19 +71,19 @@ struct
     *)
     fun installMmode (a, mS) =
           let
-            val mSs = mmodeLookup a
+            (* GEN BEGIN TAG OUTSIDE LET *) val mSs = mmodeLookup a (* GEN END TAG OUTSIDE LET *)
           in
             Table.insert modeSignature (a, mS :: mSs)
           end
 
   in
-    val reset = reset
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
 
-    val installMode = installMode
-    val modeLookup = modeLookup
-    val uninstallMode = uninstallMode
+    (* GEN BEGIN TAG OUTSIDE LET *) val installMode = installMode (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val modeLookup = modeLookup (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val uninstallMode = uninstallMode (* GEN END TAG OUTSIDE LET *)
 
-    val installMmode = installMmode
-    val mmodeLookup = mmodeLookup
+    (* GEN BEGIN TAG OUTSIDE LET *) val installMmode = installMmode (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val mmodeLookup = mmodeLookup (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *);  (* functor ModeTable *)

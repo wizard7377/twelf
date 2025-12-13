@@ -32,10 +32,10 @@ struct
     structure I = IntSyn
 
     (* List of open states *)
-    val openStates : MetaSyn.state list ref = ref nil
+    (* GEN BEGIN TAG OUTSIDE LET *) val openStates : MetaSyn.state list ref = ref nil (* GEN END TAG OUTSIDE LET *)
 
     (* List of solved states *)
-    val solvedStates : MetaSyn.state list ref = ref nil
+    (* GEN BEGIN TAG OUTSIDE LET *) val solvedStates : MetaSyn.state list ref = ref nil (* GEN END TAG OUTSIDE LET *)
 
 
 
@@ -55,9 +55,9 @@ struct
        Invariant:
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
-    fun contains (nil, _) = true
-      | contains (x :: L, L') =
-          (List.exists (fn x' => x = x') L') andalso contains (L, L')
+    fun (* GEN BEGIN FUN FIRST *) contains (nil, _) = true (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) contains (x :: L, L') =
+          (List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn x' => x = x' (* GEN END FUNCTION EXPRESSION *)) L') andalso contains (L, L') (* GEN END FUN BRANCH *)
 
     (* equiv (L1, L2) = B'
 
@@ -84,11 +84,11 @@ struct
        If   L is a list of cid,
        then s is a string, listing their names
     *)
-    fun cLToString (nil) = ""
-      | cLToString (c :: nil) =
-          (I.conDecName (I.sgnLookup c))
-      | cLToString (c :: L) =
-          (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
+    fun (* GEN BEGIN FUN FIRST *) cLToString (nil) = "" (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) cLToString (c :: nil) =
+          (I.conDecName (I.sgnLookup c)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) cLToString (c :: L) =
+          (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L) (* GEN END FUN BRANCH *)
 
     (* init (k, cL) = ()
 
@@ -100,13 +100,13 @@ struct
     *)
     fun init (k, cL as (c :: _)) =
         let
-          val _ = MetaGlobal.maxFill := k
-          val _ = reset ();
-          val cL' = Order.closure c
-                    handle Order.Error _ => cL  (* if no termination ordering given! *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = MetaGlobal.maxFill := k (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = reset () (* GEN END TAG OUTSIDE LET *);
+          (* GEN BEGIN TAG OUTSIDE LET *) val cL' = Order.closure c
+                    handle Order.Error _ => cL (* GEN END TAG OUTSIDE LET *)  (* if no termination ordering given! *)
         in
           if equiv (cL, cL')
-            then List.app (fn S => insertState S) (Init.init cL)
+            then List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => insertState S (* GEN END FUNCTION EXPRESSION *)) (Init.init cL)
           else raise Error ("Theorem by simultaneous induction not correctly stated:"
                              ^ "\n            expected: " ^ (cLToString cL'))
         end
@@ -119,15 +119,15 @@ struct
     *)
     fun auto () =
         let
-          val _ = print "M2.Prover.auto\n"
-          val (Open, solvedStates') = Strategy.run (!openStates)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "M2.Prover.auto\n" (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val (Open, solvedStates') = Strategy.run (!openStates)
              handle Splitting.Error s => error ("Splitting Error: " ^ s)
                   | Filling.Error s => error ("A proof could not be found -- Filling Error: " ^ s)
                   | Recursion.Error s => error ("Recursion Error: " ^ s)
-                  | Filling.TimeOut =>  error ("A proof could not be found -- Exceeding Time Limit\n")
+                  | Filling.TimeOut =>  error ("A proof could not be found -- Exceeding Time Limit\n") (* GEN END TAG OUTSIDE LET *)
     
-          val _ = openStates := Open
-          val _ = solvedStates := (!solvedStates) @ solvedStates'
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = openStates := Open (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = solvedStates := (!solvedStates) @ solvedStates' (* GEN END TAG OUTSIDE LET *)
         in
           if (List.length (!openStates)) > 0 then
             raise Error ("A proof could not be found")
@@ -144,9 +144,9 @@ struct
     *)
     fun makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
         let
-          fun makeConDec' (I.Null, V, k) = I.ConDec (name, NONE, k, I.Normal, V, I.Type)
-            | makeConDec' (I.Decl (G, D), V, k) =
-              makeConDec' (G, I.Pi ((D, I.Maybe), V), k+1)
+          fun (* GEN BEGIN FUN FIRST *) makeConDec' (I.Null, V, k) = I.ConDec (name, NONE, k, I.Normal, V, I.Type) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) makeConDec' (I.Decl (G, D), V, k) =
+              makeConDec' (G, I.Pi ((D, I.Maybe), V), k+1) (* GEN END FUN BRANCH *)
         in
           (makeConDec' (G, V, 0))
         end
@@ -157,10 +157,10 @@ struct
        If   SL is a list of states,
        then IS' is the corresponding interface signaure
     *)
-    fun makeSignature (nil) = M.SgnEmpty
-      | makeSignature (S :: SL) =
+    fun (* GEN BEGIN FUN FIRST *) makeSignature (nil) = M.SgnEmpty (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) makeSignature (S :: SL) =
           M.ConDec (makeConDec S,
-                      makeSignature SL)
+                      makeSignature SL) (* GEN END FUN BRANCH *)
 
     (* install () = ()
 
@@ -169,13 +169,13 @@ struct
     *)
     fun install (installConDec) =
         let
-          fun install' M.SgnEmpty = ()
-            | install' (M.ConDec (e, S)) =
+          fun (* GEN BEGIN FUN FIRST *) install' M.SgnEmpty = () (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) install' (M.ConDec (e, S)) =
                 (installConDec e;
-                 install' S)
-          val IS = if (List.length (!openStates)) > 0 then
+                 install' S) (* GEN END FUN BRANCH *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val IS = if (List.length (!openStates)) > 0 then
                      raise Error ("Theorem not proven")
-                   else makeSignature (!solvedStates)
+                   else makeSignature (!solvedStates) (* GEN END TAG OUTSIDE LET *)
         in
           (install' IS;
            if !Global.chatter > 2 then
@@ -192,10 +192,10 @@ struct
     *)
     fun printState () =
         let
-          fun print' nil = ()
-            | print' (S :: L) =
+          fun (* GEN BEGIN FUN FIRST *) print' nil = () (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) print' (S :: L) =
                 (print (MetaPrint.stateToString S);
-                 print' L)
+                 print' L) (* GEN END FUN BRANCH *)
         in
           (print "Open problems:\n";
            print "==============\n\n";
@@ -206,9 +206,9 @@ struct
         end
 
   in
-    val print = printState
-    val init = init
-    val auto = auto
-    val install = install
+    (* GEN BEGIN TAG OUTSIDE LET *) val print = printState (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val init = init (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val auto = auto (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val install = install (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor Prover *)

@@ -3,7 +3,7 @@
 
 (* compare to Paths *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Interface  () : INTERFACE =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Interface  () : INTERFACE =
 struct
 
   type pos = int
@@ -19,7 +19,7 @@ struct
 
   val nothing = ()
 
-end (* GEN END FUNCTOR DECL *)   (* functor INTERFACE  *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)   (* functor INTERFACE  *)
 
 
 

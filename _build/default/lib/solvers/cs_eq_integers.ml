@@ -1,7 +1,7 @@
 (* Diophantine Equation Solver *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CSEqIntegers (structure Integers : INTEGERS
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CSEqIntegers (structure Integers : INTEGERS
                       (*! structure IntSyn : INTSYN !*)
                       structure Whnf : WHNF
                       (*! sharing Whnf.IntSyn = IntSyn !*)
@@ -693,4 +693,4 @@ struct
 
     val constant = numberExp
   end
-end (* GEN END FUNCTOR DECL *)  (* functor CSEqIntegers *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor CSEqIntegers *)

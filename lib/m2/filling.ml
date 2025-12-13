@@ -51,20 +51,20 @@ struct
     *)
     fun operators (G, GE, Vs, abstractAll, abstractEx,  makeAddress) =
           operatorsW (G, GE, Whnf.whnf Vs, abstractAll, abstractEx,  makeAddress)
-    and operatorsW (G, GE, Vs as (I.Root (C, S), _), abstractAll, abstractEx,  makeAddress) =
+    and (* GEN BEGIN FUN FIRST *) operatorsW (G, GE, Vs as (I.Root (C, S), _), abstractAll, abstractEx,  makeAddress) =
           (nil,
-           (makeAddress 0, delay (fn Params => (Search.searchEx Params handle Success S => [S]),
-                                  (G, GE, Vs, abstractEx))))
-      | operatorsW (G, GE, (I.Pi ((D as I.Dec (_, V1), P), V2), s),
+           (makeAddress 0, delay ((* GEN BEGIN FUNCTION EXPRESSION *) fn Params => (Search.searchEx Params handle Success S => [S]) (* GEN END FUNCTION EXPRESSION *),
+                                  (G, GE, Vs, abstractEx)))) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) operatorsW (G, GE, (I.Pi ((D as I.Dec (_, V1), P), V2), s),
                     abstractAll, abstractEx,  makeAddress) =
         let
-          val (GO', O) = operators (I.Decl (G, I.decSub (D, s)), GE, (V2, I.dot1 s),
+          (* GEN BEGIN TAG OUTSIDE LET *) val (GO', O) = operators (I.Decl (G, I.decSub (D, s)), GE, (V2, I.dot1 s),
                                     abstractAll, abstractEx,
-                                    makeAddressCont makeAddress)
+                                    makeAddressCont makeAddress) (* GEN END TAG OUTSIDE LET *)
         in
           ((makeAddress 0, delay (Search.searchAll,
                                   (G, GE, (V1, s), abstractAll))) :: GO', O)
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* createEVars (G, M) = ((G', M'), s', GE')
@@ -78,23 +78,23 @@ struct
        and  GE a list of EVars
 
     *)
-    fun createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
-          (M.Prefix (I.Null, I.Null, I.Null), I.id, nil)
-      | createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
+    fun (* GEN BEGIN FUN FIRST *) createEVars (M.Prefix (I.Null, I.Null, I.Null)) =
+          (M.Prefix (I.Null, I.Null, I.Null), I.id, nil) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) createEVars (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) =
         let
-          val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B)) (* GEN END TAG OUTSIDE LET *)
         in
           (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
            I.dot1 s', GE')
-        end
-      | createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) createEVars (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) =
         let
-          val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
-          val X = I.newEVar (G', I.EClo (V, s'))
-          val X' = Whnf.lowerEVar X
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G', I.EClo (V, s')) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val X' = Whnf.lowerEVar X (* GEN END TAG OUTSIDE LET *)
         in
           (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'), X' :: GE')
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* expand' ((G, M), V) = (OE', OL')
@@ -113,7 +113,7 @@ struct
     *)
     fun expand (S as M.State (name, M.Prefix (G, M, B), V)) =
         let
-          val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B))
+          (* GEN BEGIN TAG OUTSIDE LET *) val (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B)) (* GEN END TAG OUTSIDE LET *)
           fun abstractAll acc = (MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'),
                                                                 I.EClo (V, s'))) :: acc
                                 handle MetaAbstract.Error s => acc)
@@ -135,10 +135,10 @@ struct
 
     fun menu ((M.State (name, M.Prefix (G, M, B), V), k), Sl) =
         let
-          fun toString (G, I.Pi ((I.Dec (_, V), _), _), 0) = Print.expToString (G, V)
-            | toString (G, V as  I.Root _, 0) = Print.expToString (G, V)
-            | toString (G, I.Pi ((D, _), V), k) =
-                toString (I.Decl (G, D), V, k-1)
+          fun (* GEN BEGIN FUN FIRST *) toString (G, I.Pi ((I.Dec (_, V), _), _), 0) = Print.expToString (G, V) (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) toString (G, V as  I.Root _, 0) = Print.expToString (G, V) (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) toString (G, I.Pi ((D, _), V), k) =
+                toString (I.Decl (G, D), V, k-1) (* GEN END FUN BRANCH *)
             (* no cases for
               toSTring (G, I.Root _, k) for k <> 0
             *)
@@ -147,8 +147,8 @@ struct
         end
 
   in
-    val expand = expand
-    val apply = apply
-    val menu = menu
+    (* GEN BEGIN TAG OUTSIDE LET *) val expand = expand (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val apply = apply (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val menu = menu (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor Filling *)

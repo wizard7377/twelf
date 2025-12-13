@@ -1,7 +1,7 @@
 (* Gaussian-Elimination Equation Solver *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CSEqField (structure Field : FIELD
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CSEqField (structure Field : FIELD
                    (*! structure IntSyn : INTSYN !*)
                    structure Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
@@ -613,4 +613,4 @@ struct
 
     val constant = numberExp
   end (* local *)
-end (* GEN END FUNCTOR DECL *)  (* functor CSEqField *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor CSEqField *)

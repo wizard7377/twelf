@@ -1,7 +1,7 @@
 (* Meta Prover *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Prover (structure MetaGlobal : METAGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Prover (structure MetaGlobal : METAGLOBAL
                 structure MetaSyn' : METASYN
                 structure Init : INIT
                   sharing Init.MetaSyn = MetaSyn'
@@ -211,4 +211,4 @@ struct
     val auto = auto
     val install = install
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Prover *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Prover *)

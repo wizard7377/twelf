@@ -18,7 +18,7 @@ struct
 
   datatype opt = No | LinearHeads | Indexing
 
-  val optimize = ref LinearHeads
+  (* GEN BEGIN TAG OUTSIDE LET *) val optimize = ref LinearHeads (* GEN END TAG OUTSIDE LET *)
 
   datatype goal =                       (* Goals                      *)
     Atom of IntSyn.exp                  (* g ::= p                    *)
@@ -134,11 +134,11 @@ struct
   datatype d_prog = DProg of IntSyn.dctx * com_dec IntSyn.ctx
 
   local
-    val maxCid = Global.maxCid
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxCid = Global.maxCid (* GEN END TAG OUTSIDE LET *)
     (* program array indexed by clause names (no direct head access) *)
-    val sProgArray = Array.array (maxCid+1, Void) : con_dec Array.array
+    (* GEN BEGIN TAG OUTSIDE LET *) val sProgArray = Array.array (maxCid+1, Void) : con_dec Array.array (* GEN END TAG OUTSIDE LET *)
 
-    val detTable : bool Table.table = Table.new (32)
+    (* GEN BEGIN TAG OUTSIDE LET *) val detTable : bool Table.table = Table.new (32) (* GEN END TAG OUTSIDE LET *)
   in
     (* Invariants *)
     (* 0 <= cid < I.sgnSize () *)
@@ -146,9 +146,9 @@ struct
     fun sProgInstall (cid, conDec) = Array.update (sProgArray, cid, conDec)
 
     fun sProgLookup (cid) = Array.sub (sProgArray, cid)
-    fun sProgReset () = Array.modify (fn _ => Void) sProgArray
+    fun sProgReset () = Array.modify ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => Void (* GEN END FUNCTION EXPRESSION *)) sProgArray
 
-    val detTableInsert = Table.insert detTable;
+    (* GEN BEGIN TAG OUTSIDE LET *) val detTableInsert = Table.insert detTable (* GEN END TAG OUTSIDE LET *);
     fun detTableCheck (cid) = (case (Table.lookup detTable cid)
                                  of SOME(deterministic) => deterministic
                                   | NONE => false)
@@ -161,12 +161,12 @@ struct
      then g' = g[s]
      and  G  |- g' : A
   *)
-  fun goalSub (Atom(p), s) = Atom(IntSyn.EClo(p,s))
-    | goalSub (Impl(d, A, Ha, g), s) =
+  fun (* GEN BEGIN FUN FIRST *) goalSub (Atom(p), s) = Atom(IntSyn.EClo(p,s)) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) goalSub (Impl(d, A, Ha, g), s) =
        Impl (resGoalSub (d, s), IntSyn.EClo(A, s), Ha,
-             goalSub (g, IntSyn.dot1 s))
-    | goalSub (All(D, g), s) =
-       All (IntSyn.decSub(D,s), goalSub (g, IntSyn.dot1 s))
+             goalSub (g, IntSyn.dot1 s)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) goalSub (All(D, g), s) =
+       All (IntSyn.decSub(D,s), goalSub (g, IntSyn.dot1 s)) (* GEN END FUN BRANCH *)
 
   (* resGoalSub (r, s) = r'
 
@@ -175,22 +175,22 @@ struct
      then r' = r[s]
      and  G  |- r' : A [s]
   *)
-  and resGoalSub (Eq(q), s) = Eq (IntSyn.EClo (q,s))
-    | resGoalSub (And(r, A, g), s) =
-        And (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s))
-    | resGoalSub (In(r, A, g), s) =
-        In (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s))
-    | resGoalSub (Exists(D, r), s) =
-        Exists (IntSyn.decSub(D, s), resGoalSub (r, IntSyn.dot1 s))
+  and (* GEN BEGIN FUN FIRST *) resGoalSub (Eq(q), s) = Eq (IntSyn.EClo (q,s)) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) resGoalSub (And(r, A, g), s) =
+        And (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) resGoalSub (In(r, A, g), s) =
+        In (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s)) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) resGoalSub (Exists(D, r), s) =
+        Exists (IntSyn.decSub(D, s), resGoalSub (r, IntSyn.dot1 s)) (* GEN END FUN BRANCH *)
 
 
-  fun pskeletonToString [] = " "
-    | pskeletonToString ((Pc i)::O) =
-        Names.qidToString (Names.constQid i) ^ " " ^ (pskeletonToString O)
-    | pskeletonToString ((Dc i)::O) =
-        ("(Dc " ^ (Int.toString i) ^ ") ") ^ (pskeletonToString O)
-    | pskeletonToString (Csolver U ::O) =
-        ("(cs _ ) " ^ (pskeletonToString O))
+  fun (* GEN BEGIN FUN FIRST *) pskeletonToString [] = " " (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) pskeletonToString ((Pc i)::O) =
+        Names.qidToString (Names.constQid i) ^ " " ^ (pskeletonToString O) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pskeletonToString ((Dc i)::O) =
+        ("(Dc " ^ (Int.toString i) ^ ") ") ^ (pskeletonToString O) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) pskeletonToString (Csolver U ::O) =
+        ("(cs _ ) " ^ (pskeletonToString O)) (* GEN END FUN BRANCH *)
 
 
 end (* GEN END FUNCTOR DECL *);  (* functor CompSyn *)

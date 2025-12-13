@@ -97,22 +97,22 @@ struct
        If   |- Psi ctx       and Psi is already named
        then fmt' is a format describing the context Psi
     *)
-    fun formatCtx (I.Null) = []
-      | formatCtx (I.Decl (I.Null, T.UDec D)) =
+    fun (* GEN BEGIN FUN FIRST *) formatCtx (I.Null) = [] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtx (I.Decl (I.Null, T.UDec D)) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Print.formatDec (I.Null, D)])]
         else
-          [Print.formatDec (I.Null, D)]
-      | formatCtx (I.Decl (I.Null, T.PDec (SOME s, F, _))) =
+          [Print.formatDec (I.Null, D)] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtx (I.Decl (I.Null, T.PDec (SOME s, F, _))) =
         if !Global.chatter >= 4 then
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space,
                        Fmt.String "::", Fmt.Space, TomegaPrint.formatFor (I.Null, F)])]
         else
           [Fmt.String s, Fmt.Space, Fmt.String "::", Fmt.Space,
-           TomegaPrint.formatFor (I.Null, F)]
-      | formatCtx (I.Decl (Psi, T.UDec D)) =
+           TomegaPrint.formatFor (I.Null, F)] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtx (I.Decl (Psi, T.UDec D)) =
         let
-          val G = T.coerceCtx Psi
+          (* GEN BEGIN TAG OUTSIDE LET *) val G = T.coerceCtx Psi (* GEN END TAG OUTSIDE LET *)
         in
           if !Global.chatter >= 4 then
             formatCtx Psi @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
@@ -120,15 +120,15 @@ struct
           else
             formatCtx Psi @ [Fmt.String ",",  Fmt.Break] @
             [Fmt.Break, Print.formatDec (G, D)]
-        end
-      | formatCtx (I.Decl (Psi, T.PDec (SOME s, F, _))) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtx (I.Decl (Psi, T.PDec (SOME s, F, _))) =
         if !Global.chatter >= 4 then
           formatCtx Psi @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
           [Fmt.HVbox ([Fmt.Break, Fmt.String s, Fmt.Space, Fmt.String "::", Fmt.Space, TomegaPrint.formatFor (Psi, F)])]
         else
           formatCtx Psi @ [Fmt.String ",",  Fmt.Break] @
           [Fmt.Break, Fmt.String s, Fmt.Space, Fmt.String "::", Fmt.Space,
-           TomegaPrint.formatFor (Psi, F)]
+           TomegaPrint.formatFor (Psi, F)] (* GEN END FUN BRANCH *)
 
     (* formatState S = fmt'
 
@@ -153,8 +153,8 @@ struct
 
 
   in
-    val nameState = nameState
-    val formatState = formatState
-    val stateToString = stateToString
+    (* GEN BEGIN TAG OUTSIDE LET *) val nameState = nameState (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val formatState = formatState (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val stateToString = stateToString (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *) (* functor MTPrint *)

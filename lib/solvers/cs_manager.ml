@@ -47,79 +47,79 @@ struct
   local
 
     (* vacuous solver *)
-    val emptySolver =
+    (* GEN BEGIN TAG OUTSIDE LET *) val emptySolver =
         {
           name = "",
           keywords = "",
           needs = nil,
-
+    
           fgnConst = NONE,
-
-          init = (fn _ => ()),
-
-          reset = (fn () => ()),
-          mark = (fn () => ()),
-          unwind = (fn () => ())
-        }
+    
+          init = ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => () (* GEN END FUNCTION EXPRESSION *)),
+    
+          reset = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+          mark = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *)),
+          unwind = ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => () (* GEN END FUNCTION EXPRESSION *))
+        } (* GEN END TAG OUTSIDE LET *)
 
     (* Twelf unification as a constraint solver *)
-    val unifySolver =
+    (* GEN BEGIN TAG OUTSIDE LET *) val unifySolver =
         {
           name = "Unify",
           keywords = "unification",
           needs = nil,
-
+    
           fgnConst = NONE,
-
-          init = (fn _ => ()),
-
+    
+          init = ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => () (* GEN END FUNCTION EXPRESSION *)),
+    
           reset  = Unify.reset,
           mark   = Unify.mark,
           unwind = Unify.unwind
-        }
+        } (* GEN END TAG OUTSIDE LET *)
 
     (* List of installed solvers *)
 
     datatype solver = Solver of solver * bool ref
 
-    val maxCS = Global.maxCSid
-    val csArray = Array.array (maxCS+1, Solver (emptySolver, ref false)) : solver Array.array
-    val _ = Array.update (csArray, 0, Solver (unifySolver, ref true))
-    val nextCS = ref(1) : int ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val maxCS = Global.maxCSid (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val csArray = Array.array (maxCS+1, Solver (emptySolver, ref false)) : solver Array.array (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val _ = Array.update (csArray, 0, Solver (unifySolver, ref true)) (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val nextCS = ref(1) : int ref (* GEN END TAG OUTSIDE LET *)
 
     (* Installing function *)
-    val installFN = ref (fn _ => ~1) : (sig_entry -> IntSyn.cid) ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val installFN = ref ((* GEN BEGIN FUNCTION EXPRESSION *) fn _ => ~1 (* GEN END FUNCTION EXPRESSION *)) : (sig_entry -> IntSyn.cid) ref (* GEN END TAG OUTSIDE LET *)
     fun setInstallFN f = (installFN := f)
 
     (* install the specified solver *)
     fun installSolver (solver) =
           let
             (* val _ = print ("Installing constraint domain " ^ #name solver ^ "\n") *)
-            val cs = !nextCS
-            val _ = if !nextCS > maxCS
+            (* GEN BEGIN TAG OUTSIDE LET *) val cs = !nextCS (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !nextCS > maxCS
                     then raise Error "too many constraint solvers"
-                    else ()
-            val _ = Array.update (csArray, cs, Solver (solver, ref false));
-            val _ = nextCS := !nextCS+1
+                    else () (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = Array.update (csArray, cs, Solver (solver, ref false)) (* GEN END TAG OUTSIDE LET *);
+            (* GEN BEGIN TAG OUTSIDE LET *) val _ = nextCS := !nextCS+1 (* GEN END TAG OUTSIDE LET *)
           in
             cs
           end
 
     (* install the unification solver *)
-    val _ = installSolver (unifySolver)
+    (* GEN BEGIN TAG OUTSIDE LET *) val _ = installSolver (unifySolver) (* GEN END TAG OUTSIDE LET *)
 
-    val activeKeywords = ref nil : string list ref
+    (* GEN BEGIN TAG OUTSIDE LET *) val activeKeywords = ref nil : string list ref (* GEN END TAG OUTSIDE LET *)
 
     (* make all the solvers inactive *)
     fun resetSolvers () =
           (
-            ArraySlice.appi (fn (cs, Solver (solver, active)) =>
+            ArraySlice.appi ((* GEN BEGIN FUNCTION EXPRESSION *) fn (cs, Solver (solver, active)) =>
                                 if !active then
                                     (
                                      active := false;
                                      #reset(solver) ()
                                     )
-                                else ())
+                                else () (* GEN END FUNCTION EXPRESSION *))
                             (ArraySlice.slice (csArray, 0, SOME(!nextCS)));
             activeKeywords := nil;
             useSolver "Unify"
@@ -131,10 +131,10 @@ struct
             exception Found of IntSyn.csid
             fun findSolver name =
                   (
-                    ArraySlice.appi (fn (cs, Solver (solver, _)) =>
+                    ArraySlice.appi ((* GEN BEGIN FUNCTION EXPRESSION *) fn (cs, Solver (solver, _)) =>
                                         if (#name(solver) = name)
                                         then raise Found cs
-                                        else ())
+                                        else () (* GEN END FUNCTION EXPRESSION *))
                                     (ArraySlice.slice (csArray, 0, SOME(!nextCS)));
                     NONE
                   ) handle Found cs => SOME(cs)
@@ -142,10 +142,10 @@ struct
             case findSolver name
               of SOME(cs) =>
                    let
-                     val Solver (solver, active) = Array.sub (csArray, cs)
+                     (* GEN BEGIN TAG OUTSIDE LET *) val Solver (solver, active) = Array.sub (csArray, cs) (* GEN END TAG OUTSIDE LET *)
                    in
                      if !active then ()
-                     else if List.exists (fn s => s = #keywords(solver))
+                     else if List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => s = #keywords(solver) (* GEN END FUNCTION EXPRESSION *))
                                          (!activeKeywords)
                      then raise Error ("solver " ^ name ^
                                        " is incompatible with a currently active solver")
@@ -173,40 +173,40 @@ struct
                                     | SOME conDec => raise Parsed (cs, conDec)))
         in
           (
-            ArraySlice.appi (fn (cs, Solver (solver, active)) =>
-                                if !active then parse' (cs, solver) else ())
+            ArraySlice.appi ((* GEN BEGIN FUNCTION EXPRESSION *) fn (cs, Solver (solver, active)) =>
+                                if !active then parse' (cs, solver) else () (* GEN END FUNCTION EXPRESSION *))
                             (ArraySlice.slice (csArray, 0, SOME(!nextCS)));
             NONE
           ) handle Parsed info => SOME(info)
         end
 
 
-  val markCount = ref 0 : int ref
+  (* GEN BEGIN TAG OUTSIDE LET *) val markCount = ref 0 : int ref (* GEN END TAG OUTSIDE LET *)
 
   (* reset the internal status of all the active solvers *)
   fun reset () =
-        ArraySlice.appi (fn (_, Solver (solver, active)) =>
+        ArraySlice.appi ((* GEN BEGIN FUNCTION EXPRESSION *) fn (_, Solver (solver, active)) =>
                             if !active then (markCount := 0; #reset(solver) ())
-                            else ())
+                            else () (* GEN END FUNCTION EXPRESSION *))
                         (ArraySlice.slice (csArray, 0, SOME(!nextCS)));
 
 
   (* mark all active solvers *)
   fun mark () =
         (markCount := !markCount + 1;
-          ArraySlice.appi (fn (_, Solver (solver, active)) =>
-                              if !active then #mark(solver) () else ())
+          ArraySlice.appi ((* GEN BEGIN FUNCTION EXPRESSION *) fn (_, Solver (solver, active)) =>
+                              if !active then #mark(solver) () else () (* GEN END FUNCTION EXPRESSION *))
                           (ArraySlice.slice (csArray, 0, SOME(!nextCS))))
 
   (* unwind all active solvers *)
   fun unwind targetCount =
     let
-      fun unwind' 0 = (markCount := targetCount)
-        | unwind' k =
-          (ArraySlice.appi (fn (_, Solver (solver, active)) =>
-                               if !active then #unwind(solver) () else ())
+      fun (* GEN BEGIN FUN FIRST *) unwind' 0 = (markCount := targetCount) (* GEN END FUN FIRST *)
+        | (* GEN BEGIN FUN BRANCH *) unwind' k =
+          (ArraySlice.appi ((* GEN BEGIN FUNCTION EXPRESSION *) fn (_, Solver (solver, active)) =>
+                               if !active then #unwind(solver) () else () (* GEN END FUNCTION EXPRESSION *))
            (ArraySlice.slice (csArray, 0, SOME(!nextCS)));
-           unwind' (k-1))
+           unwind' (k-1)) (* GEN END FUN BRANCH *)
     in
       unwind' (!markCount - targetCount)
     end
@@ -215,24 +215,24 @@ struct
   (* trail the give function *)
   fun trail f =
         let
-          val current = !markCount
-          val _ = mark ()
-          val r = f()
-          val _ = unwind current
+          (* GEN BEGIN TAG OUTSIDE LET *) val current = !markCount (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = mark () (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val r = f() (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = unwind current (* GEN END TAG OUTSIDE LET *)
         in
           r
         end
   in
-    val setInstallFN = setInstallFN
+    (* GEN BEGIN TAG OUTSIDE LET *) val setInstallFN = setInstallFN (* GEN END TAG OUTSIDE LET *)
 
-    val installSolver = installSolver
-    val resetSolvers = resetSolvers
-    val useSolver = useSolver
+    (* GEN BEGIN TAG OUTSIDE LET *) val installSolver = installSolver (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val resetSolvers = resetSolvers (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val useSolver = useSolver (* GEN END TAG OUTSIDE LET *)
 
-    val parse = parse
+    (* GEN BEGIN TAG OUTSIDE LET *) val parse = parse (* GEN END TAG OUTSIDE LET *)
 
-    val reset = reset
-    val trail = trail
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val trail = trail (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *)  (* functor CSManager *)
 

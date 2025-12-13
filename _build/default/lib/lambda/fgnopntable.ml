@@ -1,7 +1,7 @@
 (* Extensible operation on foreign matter *)
 (* Author: Aleksey Kliger *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) FgnOpnTable (type arg ; type result) :>
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) FgnOpnTable (type arg ; type result) :>
         FGN_OPN where type arg = arg
                 where type result = result = struct
   type csid = int
@@ -27,4 +27,4 @@ functor (* GEN BEGIN FUNCTOR DECL *) FgnOpnTable (type arg ; type result) :>
   fun apply (csid, rep) = Array.sub (table, csid) rep
 
 
-end (* GEN END FUNCTOR DECL *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)

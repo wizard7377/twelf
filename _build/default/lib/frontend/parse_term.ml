@@ -1,7 +1,7 @@
 (* Parsing Terms and Variable Declarations *)
 (* Author: Frank Pfenning *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ParseTerm
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ParseTerm
   ((*! structure Parsing' : PARSING !*)
    structure ExtSyn' : EXTSYN
    (*! sharing Parsing'.Lexer.Paths = ExtSyn'.Paths !*)
@@ -470,4 +470,4 @@ struct
     val parseCtx' = (fn f => (parseCtx (true, nil, f)))
   end  (* local ... in *)
 
-end (* GEN END FUNCTOR DECL *);  (* functor ParseTerm *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor ParseTerm *)

@@ -55,31 +55,31 @@ struct
      return to indicate backtracking.
   *)
 
-    fun cidFromHead (I.Const a) = a
-      | cidFromHead (I.Def a) = a
+    fun (* GEN BEGIN FUN FIRST *) cidFromHead (I.Const a) = a (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) cidFromHead (I.Def a) = a (* GEN END FUN BRANCH *)
 
-    fun eqHead (I.Const a, I.Const a') = a = a'
-      | eqHead (I.Def a, I.Def a') = a = a'
-      | eqHead _ = false
+    fun (* GEN BEGIN FUN FIRST *) eqHead (I.Const a, I.Const a') = a = a' (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) eqHead (I.Def a, I.Def a') = a = a' (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) eqHead _ = false (* GEN END FUN BRANCH *)
 
     (* Wed Mar 13 10:27:00 2002 -bp  *)
     (* should probably go to intsyn.fun *)
-    fun compose (G, IntSyn.Null) = G
-      | compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D)
+    fun (* GEN BEGIN FUN FIRST *) compose (G, IntSyn.Null) = G (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) compose (G, IntSyn.Decl(G', D)) = IntSyn.Decl(compose(G, G'), D) (* GEN END FUN BRANCH *)
 
-    fun shiftSub (IntSyn.Null, s) = s
-      | shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s))
+    fun (* GEN BEGIN FUN FIRST *) shiftSub (IntSyn.Null, s) = s (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) shiftSub (IntSyn.Decl(G, D), s) = I.dot1 (shiftSub (G, s)) (* GEN END FUN BRANCH *)
 
-    fun subgoalNum (I.Nil) = 1
-      | subgoalNum (I.App (U, S)) = 1 + subgoalNum S
+    fun (* GEN BEGIN FUN FIRST *) subgoalNum (I.Nil) = 1 (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) subgoalNum (I.App (U, S)) = 1 + subgoalNum S (* GEN END FUN BRANCH *)
 
     (* currently unused *)
-    fun goalToType (C.All (D, g), s) =
-          I.Pi ((I.decSub (D,s), I.Maybe), goalToType (g, I.dot1 s))
-      | goalToType (C.Impl (_, A, _, g), s) =
-          I.Pi ((I.Dec (NONE, I.EClo (A, s)), I.No), goalToType (g, I.dot1 s))
-      | goalToType (C.Atom(p), s) =
-          I.EClo (p, s)
+    fun (* GEN BEGIN FUN FIRST *) goalToType (C.All (D, g), s) =
+          I.Pi ((I.decSub (D,s), I.Maybe), goalToType (g, I.dot1 s)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) goalToType (C.Impl (_, A, _, g), s) =
+          I.Pi ((I.Dec (NONE, I.EClo (A, s)), I.No), goalToType (g, I.dot1 s)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) goalToType (C.Atom(p), s) =
+          I.EClo (p, s) (* GEN END FUN BRANCH *)
 
   (* solve' ((g, s), dp, sc) = ()
      Invariants:
@@ -92,26 +92,26 @@ struct
      Effects: instantiation of EVars in g, s, and dp
               any effect  sc M  might have
   *)
-  fun solve' ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) = matchAtom ((p,s), dp, sc)
-    | solve' ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
+  fun (* GEN BEGIN FUN FIRST *) solve' ((C.Atom(p), s), dp as C.DProg (G, dPool), sc) = matchAtom ((p,s), dp, sc) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) solve' ((C.Impl(r, A, Ha, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' as I.Dec(SOME(x),_) = N.decUName (G, I.Dec(NONE, I.EClo(A,s)))
-        val _ = T.signal (G, T.IntroHyp (Ha, D'))
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' as I.Dec(SOME(x),_) = N.decUName (G, I.Dec(NONE, I.EClo(A,s))) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = T.signal (G, T.IntroHyp (Ha, D')) (* GEN END TAG OUTSIDE LET *)
       in
         solve' ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec(r, s, Ha))),
-                (fn M => (T.signal (G, T.DischargeHyp (Ha, D'));
-                          sc (I.Lam (D', M)))))
-      end
-    | solve' ((C.All(D, g), s), C.DProg (G, dPool), sc) =
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn M => (T.signal (G, T.DischargeHyp (Ha, D'));
+                          sc (I.Lam (D', M))) (* GEN END FUNCTION EXPRESSION *)))
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) solve' ((C.All(D, g), s), C.DProg (G, dPool), sc) =
       let
-        val D' as I.Dec(SOME(x),V) = N.decUName (G, I.decSub (D, s))
-        val Ha = I.targetHead V
-        val _ = T.signal (G, T.IntroParm (Ha, D'))
+        (* GEN BEGIN TAG OUTSIDE LET *) val D' as I.Dec(SOME(x),V) = N.decUName (G, I.decSub (D, s)) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val Ha = I.targetHead V (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = T.signal (G, T.IntroParm (Ha, D')) (* GEN END TAG OUTSIDE LET *)
       in
         solve' ((g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl(dPool, C.Parameter)),
-                (fn M => (T.signal (G, T.DischargeParm (Ha,  D'));
-                          sc (I.Lam (D', M)))))
-      end
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn M => (T.signal (G, T.DischargeParm (Ha,  D'));
+                          sc (I.Lam (D', M))) (* GEN END FUNCTION EXPRESSION *)))
+      end (* GEN END FUN BRANCH *)
 
   (* rSolve' ((p,s'), (r,s), dp, (Hc, Ha), sc) = T
      Invariants:
@@ -127,48 +127,48 @@ struct
      Effects: instantiation of EVars in p[s'], r[s], and dp
               any effect  sc S  might have
   *)
-  and rSolve (ps', (C.Eq(Q), s), C.DProg (G, dPool), HcHa, sc) =
+  and (* GEN BEGIN FUN FIRST *) rSolve (ps', (C.Eq(Q), s), C.DProg (G, dPool), HcHa, sc) =
       (T.signal (G, T.Unify (HcHa, I.EClo (Q, s), I.EClo ps'));
        case Unify.unifiable' (G, (Q, s), ps') (* effect: instantiate EVars *)
          of NONE => (T.signal (G, T.Resolved HcHa);
                      sc I.Nil;                  (* call success continuation *)
                      true)                      (* deep backtracking *)
           | SOME(msg) => (T.signal (G, T.FailUnify (HcHa, msg));
-                          false))               (* shallow backtracking *)
+                          false)) (* GEN END FUN FIRST *)               (* shallow backtracking *)
 
 
-    | rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), HcHa, sc) =
+    | (* GEN BEGIN FUN BRANCH *) rSolve (ps', (C.Assign(Q, eqns), s), dp as C.DProg(G, dPool), HcHa, sc) =
       (* Do not signal unification events for optimized clauses *)
       (* Optimized clause heads lead to unprintable substitutions *)
       ((* T.signal (G, T.Unify (HcHa, I.EClo (Q, s), I.EClo ps')); *)
        case Assign.assignable (G, ps', (Q, s))
-         of SOME(cnstr) => aSolve((eqns, s), dp, HcHa, cnstr, (fn () => sc I.Nil))
+         of SOME(cnstr) => aSolve((eqns, s), dp, HcHa, cnstr, ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => sc I.Nil (* GEN END FUNCTION EXPRESSION *)))
           | NONE => ((* T.signal (G, T.FailUnify (HcHa, "Assignment failed")); *)
-                     false))
+                     false)) (* GEN END FUN BRANCH *)
 
-    | rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), HcHa, sc) =
+    | (* GEN BEGIN FUN BRANCH *) rSolve (ps', (C.And(r, A, g), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
         (* is this EVar redundant? -fp *)
-        val X = I.newEVar (G, I.EClo(A, s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo(A, s)) (* GEN END TAG OUTSIDE LET *)
       in
         rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, HcHa,
-                (fn S =>
-                 (T.signal (G, T.Subgoal (HcHa, fn () => subgoalNum S));
-                  solve' ((g, s), dp, (fn M => sc (I.App (M, S)))))))
-      end
-    | rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
+                ((* GEN BEGIN FUNCTION EXPRESSION *) fn S =>
+                 (T.signal (G, T.Subgoal (HcHa, (* GEN BEGIN FUNCTION EXPRESSION *) fn () => subgoalNum S (* GEN END FUNCTION EXPRESSION *)));
+                  solve' ((g, s), dp, ((* GEN BEGIN FUNCTION EXPRESSION *) fn M => sc (I.App (M, S)) (* GEN END FUNCTION EXPRESSION *)))) (* GEN END FUNCTION EXPRESSION *)))
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) rSolve (ps', (C.Exists(I.Dec(_,A), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
-        val X = I.newEVar (G, I.EClo (A,s))
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, I.EClo (A,s)) (* GEN END TAG OUTSIDE LET *)
       in
-        rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, HcHa, (fn S => sc (I.App(X,S))))
-      end
-    | rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
+        rSolve (ps', (r, I.Dot(I.Exp(X), s)), dp, HcHa, ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => sc (I.App(X,S)) (* GEN END FUNCTION EXPRESSION *)))
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) rSolve (ps', (C.Axists(I.ADec(_, d), r), s), dp as C.DProg (G, dPool), HcHa, sc) =
       let
-        val X = I.newAVar ()
+        (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newAVar () (* GEN END TAG OUTSIDE LET *)
       in
         rSolve (ps', (r, I.Dot(I.Exp(I.EClo(X, I.Shift(~d))), s)), dp, HcHa, sc)
         (* we don't increase the proof term here! *)
-      end
+      end (* GEN END FUN BRANCH *)
 
   (* aSolve ((ag, s), dp, HcHa, sc) = T
      Invariants:
@@ -180,23 +180,23 @@ struct
      Effects: instantiation of EVars in ag[s], dp and sc () *)
 
 
-  and aSolve ((C.Trivial, s), dp as C.DProg(G, dPool), HcHa, cnstr, sc) =
+  and (* GEN BEGIN FUN FIRST *) aSolve ((C.Trivial, s), dp as C.DProg(G, dPool), HcHa, cnstr, sc) =
         if Assign.solveCnstr cnstr then
            (T.signal (G, T.Resolved HcHa);
             sc (); true)
         else
           ((* T.signal (G, T.FailUnify (HcHa, "Dynamic residual equations failed")); *)
-           false)
-    | aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), HcHa, cnstr, sc) =
+           false) (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) aSolve ((C.UnifyEq(G',e1, N, eqns), s), dp as C.DProg(G, dPool), HcHa, cnstr, sc) =
       let
-        val G'' = compose (G, G')
-        val s' = shiftSub (G', s)
+        (* GEN BEGIN TAG OUTSIDE LET *) val G'' = compose (G, G') (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val s' = shiftSub (G', s) (* GEN END TAG OUTSIDE LET *)
       in
         if Assign.unifiable (G'', (N, s'), (e1, s'))
            then aSolve ((eqns, s), dp, HcHa, cnstr, sc)
         else ((* T.signal (G, T.FailUnify (HcHa, "Static residual equations failed")); *)
               false)
-     end
+     end (* GEN END FUN BRANCH *)
 
   (* matchatom ((p, s), dp, sc) = res
      Invariants:
@@ -214,10 +214,10 @@ struct
   *)
   and matchAtom (ps' as (I.Root(Ha,S),s), dp as C.DProg (G,dPool), sc) =
       let
-        val tag = T.tagGoal ()
-        val _ = T.signal (G, T.SolveGoal (tag, Ha, I.EClo ps'))
+        (* GEN BEGIN TAG OUTSIDE LET *) val tag = T.tagGoal () (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = T.signal (G, T.SolveGoal (tag, Ha, I.EClo ps')) (* GEN END TAG OUTSIDE LET *)
   
-        val deterministic = C.detTableCheck (cidFromHead Ha)
+        (* GEN BEGIN TAG OUTSIDE LET *) val deterministic = C.detTableCheck (cidFromHead Ha) (* GEN END TAG OUTSIDE LET *)
         exception SucceedOnce of I.spine
   
         (* matchSig [c1,...,cn] = ()
@@ -227,26 +227,26 @@ struct
            #succeeds >= 1 (succeeds at least once)
         *)
   
-        fun matchSig nil =
+        fun (* GEN BEGIN FUN FIRST *) matchSig nil =
             (T.signal (G, T.FailGoal (tag, Ha, I.EClo ps'));
-             ())        (* return on failure *)
-          | matchSig (Hc::sgn') =
+             ()) (* GEN END FUN FIRST *)        (* return on failure *)
+          | (* GEN BEGIN FUN BRANCH *) matchSig (Hc::sgn') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              (* GEN BEGIN TAG OUTSIDE LET *) val C.SClause(r) = C.sProgLookup (cidFromHead Hc) (* GEN END TAG OUTSIDE LET *)
             in
               (* trail to undo EVar instantiations *)
               if
-                CSManager.trail (fn () =>
+                CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                                  rSolve (ps', (r, I.id), dp, (Hc, Ha),
-                                         (fn S => (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
-                                                   sc (I.Root(Hc, S))))))
+                                         ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
+                                                   sc (I.Root(Hc, S))) (* GEN END FUNCTION EXPRESSION *))) (* GEN END FUNCTION EXPRESSION *))
                 then (* deep backtracking *)
                   (T.signal (G, T.RetryGoal (tag, (Hc, Ha), I.EClo ps'));
                    ())
               else (* shallow backtracking *)
                 ();
               matchSig sgn'
-            end
+            end (* GEN END FUN BRANCH *)
   
         (* matchSigDet [c1,...,cn] = ()
            try each constant ci in turn for solving atomic goal ps', starting
@@ -254,19 +254,19 @@ struct
   
            succeeds exactly once (#succeeds = 1)
         *)
-        fun matchSigDet nil =
+        fun (* GEN BEGIN FUN FIRST *) matchSigDet nil =
             (T.signal (G, T.FailGoal (tag, Ha, I.EClo ps'));
-             ())        (* return on failure *)
-          | matchSigDet (Hc::sgn') =
+             ()) (* GEN END FUN FIRST *)        (* return on failure *)
+          | (* GEN BEGIN FUN BRANCH *) matchSigDet (Hc::sgn') =
             let
-              val C.SClause(r) = C.sProgLookup (cidFromHead Hc)
+              (* GEN BEGIN TAG OUTSIDE LET *) val C.SClause(r) = C.sProgLookup (cidFromHead Hc) (* GEN END TAG OUTSIDE LET *)
             in
               (* trail to undo EVar instantiations *)
               (if
-                CSManager.trail (fn () =>
+                CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                                  rSolve (ps', (r, I.id), dp, (Hc, Ha),
-                                         (fn S => (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
-                                                   raise SucceedOnce S))))
+                                         ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => (T.signal (G, T.SucceedGoal (tag, (Hc, Ha), I.EClo ps'));
+                                                   raise SucceedOnce S) (* GEN END FUNCTION EXPRESSION *))) (* GEN END FUNCTION EXPRESSION *))
                 then (* deep backtracking *)
                   (T.signal (G, T.RetryGoal (tag, (Hc, Ha), I.EClo ps'));
                    ())
@@ -275,27 +275,27 @@ struct
               matchSigDet sgn')
               handle SucceedOnce S => (T.signal (G, T.CommitGoal (tag, (Hc, Ha), I.EClo ps'));
                                        sc (I.Root(Hc, S)))
-            end
+            end (* GEN END FUN BRANCH *)
   
         (* matchDProg (dPool, k) = ()
            where k is the index of dPool in global dPool from call to matchAtom.
            Try each local assumption for solving atomic goal ps', starting
            with the most recent one.
         *)
-        fun matchDProg (I.Null, _) =
+        fun (* GEN BEGIN FUN FIRST *) matchDProg (I.Null, _) =
             (* dynamic program exhausted, try signature *)
             if deterministic
               then matchSigDet (Index.lookup (cidFromHead Ha))
-            else matchSig (Index.lookup (cidFromHead Ha))
-          | matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
+            else matchSig (Index.lookup (cidFromHead Ha)) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) matchDProg (I.Decl (dPool', C.Dec(r, s, Ha')), k) =
             if eqHead (Ha, Ha')
             then
               (if deterministic
                  then (* #succeeds = 1 *)
                    ((if (CSManager.trail (* trail to undo EVar instantiations *)
-                        (fn () => rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,(I.BVar(k), Ha),
-                                          (fn S => (T.signal (G, T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
-                                                    raise SucceedOnce S)))))
+                        ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => rSolve (ps', (r, I.comp(s, I.Shift(k))), dp,(I.BVar(k), Ha),
+                                          ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => (T.signal (G, T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
+                                                    raise SucceedOnce S) (* GEN END FUNCTION EXPRESSION *))) (* GEN END FUNCTION EXPRESSION *)))
                       then (* deep backtracking *)
                         (T.signal (G, T.RetryGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
                          ())
@@ -307,28 +307,28 @@ struct
             
                else (* #succeeds >= 1 -- allows backtracking *)
                  (if
-                    CSManager.trail (fn () =>
+                    CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                                      rSolve (ps', (r, I.comp(s, I.Shift(k))),
                                              dp, (I.BVar(k), Ha),
-                                             (fn S => (T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps');
-                                                       sc (I.Root(I.BVar(k), S))))))
+                                             ((* GEN BEGIN FUNCTION EXPRESSION *) fn S => (T.SucceedGoal (tag, (I.BVar(k), Ha), I.EClo ps');
+                                                       sc (I.Root(I.BVar(k), S))) (* GEN END FUNCTION EXPRESSION *))) (* GEN END FUNCTION EXPRESSION *))
                     then (* deep backtracking *)
                       (T.signal (G, T.RetryGoal (tag, (I.BVar(k), Ha), I.EClo ps'));
                        ())
                   else (* shallow backtracking *)
                     ();
                     matchDProg (dPool', k+1)))
-            else matchDProg (dPool', k+1)
-          | matchDProg (I.Decl (dPool', C.Parameter), k) =
-              matchDProg (dPool', k+1)
+            else matchDProg (dPool', k+1) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) matchDProg (I.Decl (dPool', C.Parameter), k) =
+              matchDProg (dPool', k+1) (* GEN END FUN BRANCH *)
         fun matchConstraint (cnstrSolve, try) =
               let
-                val succeeded =
+                (* GEN BEGIN TAG OUTSIDE LET *) val succeeded =
                   CSManager.trail
-                    (fn () =>
+                    ((* GEN BEGIN FUNCTION EXPRESSION *) fn () =>
                        case (cnstrSolve (G, I.SClo (S, s), try))
                          of SOME(U) => (sc U; true)
-                          | NONE => false)
+                          | NONE => false (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
               in
                 if succeeded
                 then matchConstraint (cnstrSolve, try+1)

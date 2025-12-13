@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) TMachine ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) TMachine ((*! structure IntSyn' : INTSYN !*)
                   (*! structure CompSyn' : COMPSYN !*)
                   (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                   structure Unify : UNIFY
@@ -344,4 +344,4 @@ struct
     fun solve (gs, dp, sc) = (T.init(); solve' (gs, dp, sc))
   end (* local ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor TMachine *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor TMachine *)

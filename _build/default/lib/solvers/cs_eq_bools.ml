@@ -1,7 +1,7 @@
 (* Booleans Equation Solver *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CSEqBools ((*! structure IntSyn : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CSEqBools ((*! structure IntSyn : INTSYN !*)
                    structure Whnf : WHNF
                    (*! sharing Whnf.IntSyn = IntSyn !*)
                    structure Unify : UNIFY
@@ -587,4 +587,4 @@ struct
             unwind = (fn () => ())
           }
   end
-end (* GEN END FUNCTOR DECL *)  (* functor CSEqBools *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *)  (* functor CSEqBools *)

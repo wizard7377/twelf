@@ -1,7 +1,7 @@
 (* Meta Printer Version 1.3 *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPrint (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPrint (structure Global : GLOBAL
                  (*! structure IntSyn : INTSYN !*)
                  (*! structure FunSyn : FUNSYN !*)
                  (*! sharing FunSyn.IntSyn = IntSyn !*)
@@ -129,4 +129,4 @@ struct
     val formatState = formatState
     val stateToString = stateToString
   end (* local *)
-end (* GEN END FUNCTOR DECL *) (* functor MTPrint *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor MTPrint *)

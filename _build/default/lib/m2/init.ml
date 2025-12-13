@@ -1,7 +1,7 @@
 (* Initialization *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Init (structure MetaSyn' : METASYN
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Init (structure MetaSyn' : METASYN
               structure MetaAbstract : METAABSTRACT
               sharing MetaAbstract.MetaSyn = MetaSyn')
   : INIT =
@@ -40,4 +40,4 @@ struct
   in
     val init = init
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Init *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Init *)

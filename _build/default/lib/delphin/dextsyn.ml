@@ -1,7 +1,7 @@
 (* Delphin external syntax *)
 (* Author: Richard Fontana *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) DextSyn ( (* structure Stream' : STREAM *)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) DextSyn ( (* structure Stream' : STREAM *)
                   structure ExtSyn' : EXTSYN
                   structure Parsing' : PARSING
 (*                    sharing Parsing'.Lexer.Paths = ExtSyn'.Paths  *)
@@ -194,7 +194,7 @@ in
 *)
 end
 
-end (* GEN END FUNCTOR DECL *) (* functor DextSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor DextSyn *)
 
 
 

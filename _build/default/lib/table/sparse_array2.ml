@@ -1,7 +1,7 @@
 (* Sparse 2-Dimensional Arrays *)
 (* Author: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) SparseArray2 (structure IntTable : TABLE where type key = int)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) SparseArray2 (structure IntTable : TABLE where type key = int)
   :> SPARSE_ARRAY2 =
 struct
 
@@ -187,4 +187,4 @@ struct
           end
         else raise General.Subscript
 
-end (* GEN END FUNCTOR DECL *);  (* structure SparseArray2 *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* structure SparseArray2 *)

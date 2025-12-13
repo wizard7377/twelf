@@ -49,23 +49,23 @@ struct
        and  G' |- s' : G, G1
        and  fmts is a format list of G1[s1]
     *)
-    fun formatCtxBlock (G, (I.Null, s)) = (G, s, nil)
-      | formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
+    fun (* GEN BEGIN FUN FIRST *) formatCtxBlock (G, (I.Null, s)) = (G, s, nil) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtxBlock (G, (I.Decl (I.Null, D), s)) =
         let
-          val D' = I.decSub (D, s)
-          val fmt = P.formatDec (G, D')
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = I.decSub (D, s) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val fmt = P.formatDec (G, D') (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G, D'), I.dot1 s, [fmt])
-        end
-      | formatCtxBlock (G, (I.Decl (G', D), s)) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatCtxBlock (G, (I.Decl (G', D), s)) =
         let
-          val (G'', s'', fmts) = formatCtxBlock (G, (G', s))
-          val D'' = I.decSub (D, s'')
-          val fmt = P.formatDec (G'', D'')
+          (* GEN BEGIN TAG OUTSIDE LET *) val (G'', s'', fmts) = formatCtxBlock (G, (G', s)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D'' = I.decSub (D, s'') (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val fmt = P.formatDec (G'', D'') (* GEN END TAG OUTSIDE LET *)
         in
           (I.Decl (G'', D''), I.dot1 s'', fmts @
            [Fmt.String ",", Fmt.Break, fmt])
-        end
+        end (* GEN END FUN BRANCH *)
 
 
     (* formatFor' (G, (F, s)) = fmts'
@@ -76,11 +76,11 @@ struct
        and  Psi' |- F formula
        then fmts' is a list of formats for F
     *)
-    fun formatFor' (G, (F.All (LD, F), s)) =
+    fun (* GEN BEGIN FUN FIRST *) formatFor' (G, (F.All (LD, F), s)) =
         (case LD
            of F.Prim D =>
              let
-               val D' = Names.decName (G, D)
+               (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decName (G, D) (* GEN END TAG OUTSIDE LET *)
              in
                [Fmt.String "{{", P.formatDec
                 (G, I.decSub (D', s)),
@@ -89,23 +89,23 @@ struct
              end
            | F.Block (F.CtxBlock (l, G')) =>
              let
-               val (G'', s'', fmts) = formatCtxBlock (G, (G', s))
+               (* GEN BEGIN TAG OUTSIDE LET *) val (G'', s'', fmts) = formatCtxBlock (G, (G', s)) (* GEN END TAG OUTSIDE LET *)
              in
                [Fmt.String "{",
                 Fmt.Hbox fmts,
                 Fmt.String "}", Fmt.Break] @
                formatFor' (G'', (F, s''))
-             end)
-      | formatFor' (G, (F.Ex (D, F), s)) =
+             end) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatFor' (G, (F.Ex (D, F), s)) =
         let
-          val D' = Names.decName (G, D)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decName (G, D) (* GEN END TAG OUTSIDE LET *)
         in
           [Fmt.String "[[", P.formatDec
            (G, I.decSub (D', s)), Fmt.String "]]", Fmt.Break] @
           formatFor' (I.Decl (G, D'), (F, I.dot1 s))
-        end
-      | formatFor' (G, (F.True, s)) =
-        [Fmt.String "True"]
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatFor' (G, (F.True, s)) =
+        [Fmt.String "True"] (* GEN END FUN BRANCH *)
 
 
     (* formatFor (Psi, F) names = fmt'
@@ -130,13 +130,13 @@ struct
            and  Psi |- F1 ^ .. ^ F(index-1) ^ F formula
            then fmts' is a list of pretty printed formats for F
         *)
-        fun formatFor1 (index, G, (F.And (F1, F2), s)) =
+        fun (* GEN BEGIN FUN FIRST *) formatFor1 (index, G, (F.And (F1, F2), s)) =
               formatFor1 (index, G, (F1, s)) @ [Fmt.Break] @
-              formatFor1 (index+1, G, (F2, s))
-          | formatFor1 (index, G, (F, s)) =
+              formatFor1 (index+1, G, (F2, s)) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatFor1 (index, G, (F, s)) =
               [Fmt.String (nameLookup index), Fmt.Space,
                Fmt.String "::",
-               Fmt.Space, Fmt.HVbox (formatFor' (G, (F, s)))]
+               Fmt.Space, Fmt.HVbox (formatFor' (G, (F, s)))] (* GEN END FUN BRANCH *)
     
         fun formatFor0 Args =
           Fmt.Vbox0 0 1 (formatFor1 Args)
@@ -168,15 +168,15 @@ struct
         *)
         fun blockName (G1, G2) =
           let
-            fun blockName' (G1, I.Null) = (G1, I.Null)
-              | blockName' (G1, I.Decl (G2, D)) =
+            fun (* GEN BEGIN FUN FIRST *) blockName' (G1, I.Null) = (G1, I.Null) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) blockName' (G1, I.Decl (G2, D)) =
                 let
-                  val (G1', G2') = blockName' (G1, G2)
-                  val D' = Names.decName (G1, D)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (G1', G2') = blockName' (G1, G2) (* GEN END TAG OUTSIDE LET *)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val D' = Names.decName (G1, D) (* GEN END TAG OUTSIDE LET *)
                 in
                   (I.Decl (G1', D'), I.Decl (G2', D'))
-                end
-            val (G1', G2') = blockName' (G1, G2)
+                end (* GEN END FUN BRANCH *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val (G1', G2') = blockName' (G1, G2) (* GEN END TAG OUTSIDE LET *)
           in
             G2'
           end
@@ -196,8 +196,8 @@ struct
            If   G1 |- LD lfdec
            then LD' = LD modulo new non-conficting variable names.
         *)
-        fun decName (G, F.Prim D) =  F.Prim (Names.decName (G, D))
-          | decName (G, F.Block CB)= F.Block (ctxBlockName (G, CB))
+        fun (* GEN BEGIN FUN FIRST *) decName (G, F.Prim D) =  F.Prim (Names.decName (G, D)) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) decName (G, F.Block CB)= F.Block (ctxBlockName (G, CB)) (* GEN END FUN BRANCH *)
     
         (* numberOfSplits Ds = n'
     
@@ -207,13 +207,13 @@ struct
         *)
         fun numberOfSplits Ds =
             let
-              fun numberOfSplits' (F.Empty, n) = n
-                | numberOfSplits' (F.New (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.App (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Lemma (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Split (_, Ds), n) = numberOfSplits' (Ds, n+1)
-                | numberOfSplits' (F.Left (_, Ds), n) = numberOfSplits' (Ds, n)
-                | numberOfSplits' (F.Right (_, Ds), n) = numberOfSplits' (Ds, n)
+              fun (* GEN BEGIN FUN FIRST *) numberOfSplits' (F.Empty, n) = n (* GEN END FUN FIRST *)
+                | (* GEN BEGIN FUN BRANCH *) numberOfSplits' (F.New (_, Ds), n) = numberOfSplits' (Ds, n) (* GEN END FUN BRANCH *)
+                | (* GEN BEGIN FUN BRANCH *) numberOfSplits' (F.App (_, Ds), n) = numberOfSplits' (Ds, n) (* GEN END FUN BRANCH *)
+                | (* GEN BEGIN FUN BRANCH *) numberOfSplits' (F.Lemma (_, Ds), n) = numberOfSplits' (Ds, n) (* GEN END FUN BRANCH *)
+                | (* GEN BEGIN FUN BRANCH *) numberOfSplits' (F.Split (_, Ds), n) = numberOfSplits' (Ds, n+1) (* GEN END FUN BRANCH *)
+                | (* GEN BEGIN FUN BRANCH *) numberOfSplits' (F.Left (_, Ds), n) = numberOfSplits' (Ds, n) (* GEN END FUN BRANCH *)
+                | (* GEN BEGIN FUN BRANCH *) numberOfSplits' (F.Right (_, Ds), n) = numberOfSplits' (Ds, n) (* GEN END FUN BRANCH *)
             in
               numberOfSplits' (Ds, 0)
             end
@@ -232,56 +232,56 @@ struct
         *)
         fun psiName (Psi1, s, Psi2, l) =
           let
-            fun nameDec (D as I.Dec (SOME _, _), name) = D
-              | nameDec (I.Dec (NONE, V), name) = I.Dec (SOME name, V)
+            fun (* GEN BEGIN FUN FIRST *) nameDec (D as I.Dec (SOME _, _), name) = D (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) nameDec (I.Dec (NONE, V), name) = I.Dec (SOME name, V) (* GEN END FUN BRANCH *)
     
-            fun namePsi (I.Decl (Psi, F.Prim D), 1, name) =
-                  I.Decl (Psi, F.Prim (nameDec (D, name)))
-              | namePsi (I.Decl (Psi, LD as F.Prim D), n, name) =
-                  I.Decl (namePsi (Psi, n-1, name), LD)
-              | namePsi (I.Decl (Psi, F.Block (F.CtxBlock (label, G))), n, name) =
+            fun (* GEN BEGIN FUN FIRST *) namePsi (I.Decl (Psi, F.Prim D), 1, name) =
+                  I.Decl (Psi, F.Prim (nameDec (D, name))) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) namePsi (I.Decl (Psi, LD as F.Prim D), n, name) =
+                  I.Decl (namePsi (Psi, n-1, name), LD) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) namePsi (I.Decl (Psi, F.Block (F.CtxBlock (label, G))), n, name) =
                 let
-                  val (Psi', G') = nameG (Psi, G, n, name, fn n' => namePsi (Psi, n', name))
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (Psi', G') = nameG (Psi, G, n, name, (* GEN BEGIN FUNCTION EXPRESSION *) fn n' => namePsi (Psi, n', name) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
                 in
                   I.Decl (Psi', F.Block (F.CtxBlock (label, G')))
-                end
+                end (* GEN END FUN BRANCH *)
     
-            and nameG (Psi, I.Null, n, name, k) = (k n, I.Null)
-              | nameG (Psi, I.Decl (G, D), 1, name, k) = (Psi, I.Decl (G, nameDec (D, name)))
-              | nameG (Psi, I.Decl (G, D), n, name, k) =
+            and (* GEN BEGIN FUN FIRST *) nameG (Psi, I.Null, n, name, k) = (k n, I.Null) (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) nameG (Psi, I.Decl (G, D), 1, name, k) = (Psi, I.Decl (G, nameDec (D, name))) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) nameG (Psi, I.Decl (G, D), n, name, k) =
                 let
-                  val (Psi', G') = nameG (Psi, G, n-1, name, k)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val (Psi', G') = nameG (Psi, G, n-1, name, k) (* GEN END TAG OUTSIDE LET *)
                 in
                   (Psi', I.Decl (G', D))
-                end
+                end (* GEN END FUN BRANCH *)
     
     
-            fun ignore (s, 0) = s
-              | ignore (I.Dot (_, s), k) = ignore (s, k-1)
-              | ignore (I.Shift n, k) =
-                  ignore (I.Dot (I.Idx (n+1), I.Shift (n+1)), k-1)
+            fun (* GEN BEGIN FUN FIRST *) ignore (s, 0) = s (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) ignore (I.Dot (_, s), k) = ignore (s, k-1) (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) ignore (I.Shift n, k) =
+                  ignore (I.Dot (I.Idx (n+1), I.Shift (n+1)), k-1) (* GEN END FUN BRANCH *)
     
-            fun copyNames (I.Shift n, G as I.Decl _) Psi1=
-                  copyNames (I.Dot (I.Idx (n+1), I.Shift (n+1)), G) Psi1
-              | copyNames (I.Dot (I.Exp _, s), I.Decl (G, _)) Psi1=
-                  copyNames (s, G) Psi1
-              | copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (NONE, _))) Psi1 =
-                  copyNames (s, G) Psi1
-              | copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (SOME name, _))) Psi1 =
+            fun (* GEN BEGIN FUN FIRST *) copyNames (I.Shift n, G as I.Decl _) Psi1=
+                  copyNames (I.Dot (I.Idx (n+1), I.Shift (n+1)), G) Psi1 (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) copyNames (I.Dot (I.Exp _, s), I.Decl (G, _)) Psi1=
+                  copyNames (s, G) Psi1 (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (NONE, _))) Psi1 =
+                  copyNames (s, G) Psi1 (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) copyNames (I.Dot (I.Idx k, s), I.Decl (G, I.Dec (SOME name, _))) Psi1 =
                 let
-                  val Psi1' = namePsi (Psi1, k, name)
+                  (* GEN BEGIN TAG OUTSIDE LET *) val Psi1' = namePsi (Psi1, k, name) (* GEN END TAG OUTSIDE LET *)
                 in
                   copyNames (s, G) Psi1'
-                end
-              | copyNames (I.Shift _, I.Null) Psi1 = Psi1
+                end (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) copyNames (I.Shift _, I.Null) Psi1 = Psi1 (* GEN END FUN BRANCH *)
     
-            fun psiName' (I.Null) = I.Null
-              | psiName' (I.Decl (Psi, D)) =
+            fun (* GEN BEGIN FUN FIRST *) psiName' (I.Null) = I.Null (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) psiName' (I.Decl (Psi, D)) =
                 let
-                  val Psi' = psiName' Psi
+                  (* GEN BEGIN TAG OUTSIDE LET *) val Psi' = psiName' Psi (* GEN END TAG OUTSIDE LET *)
                 in
                   I.Decl (Psi', decName (F.makectx Psi', D))
-                end
+                end (* GEN END FUN BRANCH *)
           in
             psiName' (copyNames (ignore (s, l), F.makectx Psi2) Psi1)
           end
@@ -292,9 +292,9 @@ struct
            Invariant:
            G' = G1, G2
         *)
-        fun merge (G1, I.Null) = G1
-          | merge (G1, I.Decl (G2, D)) =
-              I.Decl (merge (G1, G2), D)
+        fun (* GEN BEGIN FUN FIRST *) merge (G1, I.Null) = G1 (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) merge (G1, I.Decl (G2, D)) =
+              I.Decl (merge (G1, G2), D) (* GEN END FUN BRANCH *)
     
         (* formatCtx (Psi, G) = fmt'
     
@@ -305,17 +305,17 @@ struct
         *)
         fun formatCtx (Psi, G) =
           let
-            val G0 = F.makectx Psi
+            (* GEN BEGIN TAG OUTSIDE LET *) val G0 = F.makectx Psi (* GEN END TAG OUTSIDE LET *)
     
-            fun formatCtx' (I.Null) = nil
-              | formatCtx' (I.Decl (I.Null, I.Dec (SOME name, V))) =
+            fun (* GEN BEGIN FUN FIRST *) formatCtx' (I.Null) = nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) formatCtx' (I.Decl (I.Null, I.Dec (SOME name, V))) =
                   [Fmt.String name, Fmt.String ":",
-                   Print.formatExp (G0, V)]
-              | formatCtx' (I.Decl (G, I.Dec (SOME name, V))) =
+                   Print.formatExp (G0, V)] (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) formatCtx' (I.Decl (G, I.Dec (SOME name, V))) =
                   (formatCtx' G) @
                   [Fmt.String ",", Fmt.Break,
                    Fmt.String name, Fmt.String ":",
-                   Print.formatExp (merge (G0, G), V)]
+                   Print.formatExp (merge (G0, G), V)] (* GEN END FUN BRANCH *)
           in
             Fmt.Hbox (Fmt.String "|" :: (formatCtx' G @ [Fmt.String "|"]))
           end
@@ -329,12 +329,12 @@ struct
         *)
         fun formatTuple (Psi, P) =
           let
-            fun formatTuple' (F.Unit) = nil
-              | formatTuple' (F.Inx (M, F.Unit)) =
-              [Print.formatExp (F.makectx Psi, M)]
-              | formatTuple' (F.Inx (M, P')) =
+            fun (* GEN BEGIN FUN FIRST *) formatTuple' (F.Unit) = nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) formatTuple' (F.Inx (M, F.Unit)) =
+              [Print.formatExp (F.makectx Psi, M)] (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) formatTuple' (F.Inx (M, P')) =
               (Print.formatExp (F.makectx Psi, M) ::
-               Fmt.String "," :: Fmt.Break :: formatTuple' P')
+               Fmt.String "," :: Fmt.Break :: formatTuple' P') (* GEN END FUN BRANCH *)
           in
             case P
               of (F.Inx (_, F.Unit)) => Fmt.Hbox (formatTuple' P)
@@ -352,12 +352,12 @@ struct
         *)
         fun formatSplitArgs (Psi, L) =
           let
-            fun formatSplitArgs' (nil) = nil
-              | formatSplitArgs' (M :: nil) =
-                  [Print.formatExp (F.makectx Psi, M)]
-              | formatSplitArgs' (M :: L) =
+            fun (* GEN BEGIN FUN FIRST *) formatSplitArgs' (nil) = nil (* GEN END FUN FIRST *)
+              | (* GEN BEGIN FUN BRANCH *) formatSplitArgs' (M :: nil) =
+                  [Print.formatExp (F.makectx Psi, M)] (* GEN END FUN BRANCH *)
+              | (* GEN BEGIN FUN BRANCH *) formatSplitArgs' (M :: L) =
                   (Print.formatExp (F.makectx Psi, M) ::
-                   Fmt.String "," :: Fmt.Break :: formatSplitArgs' L)
+                   Fmt.String "," :: Fmt.Break :: formatSplitArgs' L) (* GEN END FUN BRANCH *)
           in
             if List.length L = 1 then Fmt.Hbox (formatSplitArgs' L)
             else Fmt.HVbox0 1 1 1
@@ -369,8 +369,8 @@ struct
            Invariant:
            G |- Ft = U' : V   for a G, V
         *)
-        fun frontToExp (I.Idx k) = I.Root (I.BVar k, I.Nil)
-          | frontToExp (I.Exp (U)) = U
+        fun (* GEN BEGIN FUN FIRST *) frontToExp (I.Idx k) = I.Root (I.BVar k, I.Nil) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) frontToExp (I.Exp (U)) = U (* GEN END FUN BRANCH *)
     
     
         (* formatDecs1 (Psi, Ds, s, L) = L'
@@ -389,11 +389,11 @@ struct
                 Psi'' |- Mi : Ai
                 (and Mi is a splitting of a the result of an inductive call)
         *)
-        fun formatDecs1 (Psi, F.Split (xx, Ds), I.Dot (Ft, s1), L) =
-              formatDecs1 (Psi, Ds, s1, frontToExp (Ft) :: L)
-          | formatDecs1 (Psi, F.Empty, s1, L) = L
-          | formatDecs1 (Psi, Ds, I.Shift n, L) =
-              formatDecs1 (Psi, Ds, I.Dot (I.Idx (n+1), I.Shift (n+1)), L)
+        fun (* GEN BEGIN FUN FIRST *) formatDecs1 (Psi, F.Split (xx, Ds), I.Dot (Ft, s1), L) =
+              formatDecs1 (Psi, Ds, s1, frontToExp (Ft) :: L) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatDecs1 (Psi, F.Empty, s1, L) = L (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) formatDecs1 (Psi, Ds, I.Shift n, L) =
+              formatDecs1 (Psi, Ds, I.Dot (I.Idx (n+1), I.Shift (n+1)), L) (* GEN END FUN BRANCH *)
     
     
         (* formatDecs0 (Psi, Ds) = (Ds', S')
@@ -406,14 +406,14 @@ struct
            and  Psi1, Delta1 |- Ds' : Psi1', Delta1'
                 (for some Psi1, Delta1, Psi1', Delta1')
         *)
-        fun formatDecs0 (Psi, F.App ((xx, M), Ds)) =
+        fun (* GEN BEGIN FUN FIRST *) formatDecs0 (Psi, F.App ((xx, M), Ds)) =
             let
-              val (Ds', S) =
-                formatDecs0 (Psi, Ds)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Ds', S) =
+                formatDecs0 (Psi, Ds) (* GEN END TAG OUTSIDE LET *)
             in
               (Ds', I.App (M, S))
-            end
-          | formatDecs0 (Psi, Ds) = (Ds, I.Nil)
+            end (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatDecs0 (Psi, Ds) = (Ds, I.Nil) (* GEN END FUN BRANCH *)
     
     
         (* formatDecs (index, Psi, Ds, (Psi1, s1)) = fmt'
@@ -424,51 +424,51 @@ struct
            and  Psi1 |- s1 : Psi, Psi'
            then fmt' is a pretty print format of Ds
         *)
-        fun formatDecs (index, Psi, Ds as F.App ((xx, _), P), (Psi1, s1)) =
+        fun (* GEN BEGIN FUN FIRST *) formatDecs (index, Psi, Ds as F.App ((xx, _), P), (Psi1, s1)) =
             let
-              val (Ds', S) = formatDecs0 (Psi, Ds)
-              val L' = formatDecs1 (Psi, Ds', s1, nil)
-              val name = nameLookup index
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Ds', S) = formatDecs0 (Psi, Ds) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val L' = formatDecs1 (Psi, Ds', s1, nil) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val name = nameLookup index (* GEN END TAG OUTSIDE LET *)
             in
               Fmt.Hbox [formatSplitArgs (Psi1, L'), Fmt.Space,
                         Fmt.String "=", Fmt.Break,
                         Fmt.HVbox (Fmt.String name :: Fmt.Break ::
                                    Print.formatSpine (F.makectx Psi, S))]
-            end
-          | formatDecs (index, Psi, F.New (B as F.CtxBlock (_, G), Ds),
+            end (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatDecs (index, Psi, F.New (B as F.CtxBlock (_, G), Ds),
                         (Psi1, s1)) =
             let
-              val B' = ctxBlockName (F.makectx Psi, B)
-              val fmt =
-                formatDecs (index, I.Decl (Psi, F.Block B'), Ds, (Psi1, s1))
+              (* GEN BEGIN TAG OUTSIDE LET *) val B' = ctxBlockName (F.makectx Psi, B) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val fmt =
+                formatDecs (index, I.Decl (Psi, F.Block B'), Ds, (Psi1, s1)) (* GEN END TAG OUTSIDE LET *)
             in
               Fmt.Vbox [formatCtx (Psi, G), Fmt.Break, fmt]
-            end
-          | formatDecs (index, Psi, F.Lemma (lemma, Ds), (Psi1, s1)) =
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) formatDecs (index, Psi, F.Lemma (lemma, Ds), (Psi1, s1)) =
             let
-              val (Ds', S) = formatDecs0 (Psi, Ds)
-              val L' = formatDecs1 (Psi, Ds', s1, nil)
-              val (F.LemmaDec (names, _, _)) = F.lemmaLookup lemma
+              (* GEN BEGIN TAG OUTSIDE LET *) val (Ds', S) = formatDecs0 (Psi, Ds) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val L' = formatDecs1 (Psi, Ds', s1, nil) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val (F.LemmaDec (names, _, _)) = F.lemmaLookup lemma (* GEN END TAG OUTSIDE LET *)
             in
               Fmt.Hbox [formatSplitArgs (Psi1, L'), Fmt.Space,
                         Fmt.String "=", Fmt.Break,
                         Fmt.HVbox (Fmt.String (List.nth (names, index)) :: Fmt.Break ::
                                    Print.formatSpine (F.makectx Psi, S))]
-            end
-          | formatDecs (index, Psi, F.Left (_, Ds), (Psi1, s1)) =
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) formatDecs (index, Psi, F.Left (_, Ds), (Psi1, s1)) =
             let
-              val fmt =
-                formatDecs (index, Psi, Ds, (Psi1, s1))
+              (* GEN BEGIN TAG OUTSIDE LET *) val fmt =
+                formatDecs (index, Psi, Ds, (Psi1, s1)) (* GEN END TAG OUTSIDE LET *)
             in
               fmt
-            end
-          | formatDecs (index, Psi, F.Right (_, Ds), (Psi1, s1)) =
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) formatDecs (index, Psi, F.Right (_, Ds), (Psi1, s1)) =
             let
-              val fmt =
-                formatDecs (index+1, Psi, Ds, (Psi1, s1))
+              (* GEN BEGIN TAG OUTSIDE LET *) val fmt =
+                formatDecs (index+1, Psi, Ds, (Psi1, s1)) (* GEN END TAG OUTSIDE LET *)
             in
               fmt
-            end
+            end (* GEN END FUN BRANCH *)
     
         (* formatLet (Psi, P, fmts) = fmts'
     
@@ -479,19 +479,19 @@ struct
            then fmts' extends fmts
            and  fmts also includes a pretty print format for P'
         *)
-        fun formatLet (Psi, F.Let (Ds, F.Case (F.Opts
+        fun (* GEN BEGIN FUN FIRST *) formatLet (Psi, F.Let (Ds, F.Case (F.Opts
                                 ((Psi1, s1, P1 as F.Let _) ::  nil))), fmts) =
             let
-              val Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds)
-              val fmt = formatDecs (0, Psi, Ds, (Psi1', s1))
+              (* GEN BEGIN TAG OUTSIDE LET *) val Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val fmt = formatDecs (0, Psi, Ds, (Psi1', s1)) (* GEN END TAG OUTSIDE LET *)
             in
               formatLet (Psi1', P1, fmts @ [fmt, Fmt.Break])
-            end
-          | formatLet (Psi, F.Let (Ds, F.Case (F.Opts
+            end (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatLet (Psi, F.Let (Ds, F.Case (F.Opts
                                 ((Psi1, s1, P1) ::  nil))), fmts) =
             let
-              val Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds)
-              val fmt = formatDecs (0, Psi, Ds, (Psi1', s1))
+              (* GEN BEGIN TAG OUTSIDE LET *) val Psi1' = psiName (Psi1, s1, Psi, numberOfSplits Ds) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val fmt = formatDecs (0, Psi, Ds, (Psi1', s1)) (* GEN END TAG OUTSIDE LET *)
             in
               Fmt.Vbox0 0 1 ([Fmt.String "let", Fmt.Break,
                               Fmt.Spaces 2, Fmt.Vbox0 0 1 (fmts @ [fmt]),
@@ -500,7 +500,7 @@ struct
                               Fmt.Spaces 2, formatPro3 (Psi1', P1),
                               Fmt.Break,
                               Fmt.String "end"])
-            end
+            end (* GEN END FUN BRANCH *)
     
     
         (* formatPro3 (Psi, P) = fmt
@@ -511,9 +511,9 @@ struct
            and  P = let .. in .. end | <..,..> | <>
            then fmt is a pretty print of P
         *)
-        and formatPro3 (Psi, P as F.Unit) = formatTuple (Psi, P)
-          | formatPro3 (Psi, P as F.Inx _) = formatTuple (Psi, P)
-          | formatPro3 (Psi, P as F.Let _) = formatLet (Psi, P, nil)
+        and (* GEN BEGIN FUN FIRST *) formatPro3 (Psi, P as F.Unit) = formatTuple (Psi, P) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatPro3 (Psi, P as F.Inx _) = formatTuple (Psi, P) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) formatPro3 (Psi, P as F.Let _) = formatLet (Psi, P, nil) (* GEN END FUN BRANCH *)
     
         (* argsToSpine (Psi1, s, S) = S'
     
@@ -525,11 +525,11 @@ struct
            where
            then Fmts is a list of arguments
         *)
-        fun argsToSpine (s, I.Null, S) = S
-          | argsToSpine (I.Shift (n), Psi, S) =
-              argsToSpine (I.Dot (I.Idx (n+1), I.Shift (n+1)), Psi, S)
-          | argsToSpine (I.Dot (Ft, s), I.Decl (Psi, D), S) =
-              argsToSpine (s, Psi, I.App (frontToExp Ft, S))
+        fun (* GEN BEGIN FUN FIRST *) argsToSpine (s, I.Null, S) = S (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) argsToSpine (I.Shift (n), Psi, S) =
+              argsToSpine (I.Dot (I.Idx (n+1), I.Shift (n+1)), Psi, S) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) argsToSpine (I.Dot (Ft, s), I.Decl (Psi, D), S) =
+              argsToSpine (s, Psi, I.App (frontToExp Ft, S)) (* GEN END FUN BRANCH *)
     
     
         (* formatHead (index, Psi1, s, Psi2) = fmt'
@@ -554,28 +554,28 @@ struct
            and  Psi |- L a list of cases
            then fmts' list of pretty print formats of L
         *)
-        fun formatPro2 (index, Psi, nil) = nil
-          | formatPro2 (index, Psi, (Psi', s, P) :: nil) =
+        fun (* GEN BEGIN FUN FIRST *) formatPro2 (index, Psi, nil) = nil (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatPro2 (index, Psi, (Psi', s, P) :: nil) =
             let
-              val Psi'' = psiName (Psi', s, Psi, 0)
-              val fhead = if index=0 then "fun" else "and"
+              (* GEN BEGIN TAG OUTSIDE LET *) val Psi'' = psiName (Psi', s, Psi, 0) (* GEN END TAG OUTSIDE LET *)
+              (* GEN BEGIN TAG OUTSIDE LET *) val fhead = if index=0 then "fun" else "and" (* GEN END TAG OUTSIDE LET *)
             in
               [Fmt.HVbox0 1 5 1
                [Fmt.String fhead, formatHead (index, Psi'', s, Psi),
                 Fmt.Space, Fmt.String "=", Fmt.Break,
                 formatPro3 (Psi'', P)], Fmt.Break]
-            end
-          | formatPro2 (index, Psi, (Psi', s, P) :: O) =
+            end (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) formatPro2 (index, Psi, (Psi', s, P) :: O) =
             let
-              val
-                Psi'' = psiName (Psi', s, Psi, 0)
+              (* GEN BEGIN TAG OUTSIDE LET *) val
+                Psi'' = psiName (Psi', s, Psi, 0) (* GEN END TAG OUTSIDE LET *)
             in
               formatPro2 (index, Psi, O) @
               [Fmt.HVbox0 1 5 1
                [Fmt.String "  |", formatHead (index, Psi'', s, Psi),
                 Fmt.Space, Fmt.String "=", Fmt.Break,
                 formatPro3 (Psi'', P)], Fmt.Break]
-            end
+            end (* GEN END FUN BRANCH *)
     
         (* formatPro1 (index, Psi, P) = fmts'
     
@@ -585,12 +585,12 @@ struct
            and  P is either a Lam .. | Case ... | Pair ...
            then fmts' is alist of pretty print formats of P
         *)
-        fun formatPro1 (index, Psi, F.Lam (D, P)) =
-              formatPro1 (index, I.Decl (Psi, decName (F.makectx Psi, D)), P)
-          | formatPro1 (index, Psi, F.Case (F.Opts Os)) =
-              formatPro2 (index, Psi, Os)
-          | formatPro1 (index, Psi, F.Pair (P1, P2)) =
-              formatPro1 (index, Psi, P1) @ formatPro1 (index+1, Psi, P2)
+        fun (* GEN BEGIN FUN FIRST *) formatPro1 (index, Psi, F.Lam (D, P)) =
+              formatPro1 (index, I.Decl (Psi, decName (F.makectx Psi, D)), P) (* GEN END FUN FIRST *)
+          | (* GEN BEGIN FUN BRANCH *) formatPro1 (index, Psi, F.Case (F.Opts Os)) =
+              formatPro2 (index, Psi, Os) (* GEN END FUN BRANCH *)
+          | (* GEN BEGIN FUN BRANCH *) formatPro1 (index, Psi, F.Pair (P1, P2)) =
+              formatPro1 (index, Psi, P1) @ formatPro1 (index+1, Psi, P2) (* GEN END FUN BRANCH *)
     
     
         (* formatPro0 (Psi, P) = fmt'
@@ -613,14 +613,14 @@ struct
     fun lemmaDecToString Args = Fmt.makestring_fmt (formatLemmaDec Args)
 
   in
-    val formatFor = formatFor
-    val formatForBare = formatForBare
-    val formatPro = formatPro
-    val formatLemmaDec = formatLemmaDec
+    (* GEN BEGIN TAG OUTSIDE LET *) val formatFor = formatFor (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val formatForBare = formatForBare (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val formatPro = formatPro (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val formatLemmaDec = formatLemmaDec (* GEN END TAG OUTSIDE LET *)
 
-    val forToString = forToString
-    val proToString = proToString
-    val lemmaDecToString = lemmaDecToString
+    (* GEN BEGIN TAG OUTSIDE LET *) val forToString = forToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val proToString = proToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val lemmaDecToString = lemmaDecToString (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *);  (* signature FUNPRINT *)
 

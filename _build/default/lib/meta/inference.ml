@@ -1,7 +1,7 @@
 (* Inference:  Version 1.3*)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) Inference (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) Inference (structure MTPGlobal : MTPGLOBAL
                    (*! structure IntSyn : INTSYN !*)
                    (*! structure FunSyn' : FUNSYN !*)
                    (*! sharing FunSyn'.IntSyn = IntSyn !*)
@@ -187,4 +187,4 @@ struct
     val apply = apply
     val menu = menu
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor Filling *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor Filling *)

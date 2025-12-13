@@ -2,7 +2,7 @@
 (* Author: Carsten Schuermann *)
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) MTPRecursion (structure MTPGlobal : MTPGLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) MTPRecursion (structure MTPGlobal : MTPGLOBAL
                       structure Global : GLOBAL
                       (*! structure IntSyn : INTSYN !*)
                       (*! structure FunSyn : FUNSYN !*)
@@ -799,4 +799,4 @@ struct
     val apply = apply
     val menu = menu
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* functor MTPRecursion *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor MTPRecursion *)

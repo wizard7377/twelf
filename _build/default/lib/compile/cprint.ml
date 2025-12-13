@@ -1,7 +1,7 @@
 (* Printer for Compiled Syntax *)
 (* Author: Iliano Cervesato *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) CPrint ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) CPrint ((*! structure IntSyn' : INTSYN !*)
                 (*! structure CompSyn' : COMPSYN !*)
                 (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                 structure Print: PRINT
@@ -128,4 +128,4 @@ struct
 
   end  (* local open ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor CPrint *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor CPrint *)

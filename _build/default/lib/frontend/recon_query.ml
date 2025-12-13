@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning *)
 (* Modified: Roberto Virga, Jeff Polakow *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) ReconQuery  (structure Global : GLOBAL
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) ReconQuery  (structure Global : GLOBAL
                      (*! structure IntSyn' : INTSYN !*)
 		     structure Names : NAMES
 		     (*! sharing Names.IntSyn = IntSyn' !*)
@@ -190,4 +190,4 @@ struct
   	(V, fn M => sc (M, defines, defines'))
       end
 
-end (* GEN END FUNCTOR DECL *) (* functor ReconQuery *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* functor ReconQuery *)

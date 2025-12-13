@@ -11,18 +11,18 @@ struct
 
   datatype traversal = RowMajor | ColMajor
 
-  val size = 29;
+  (* GEN BEGIN TAG OUTSIDE LET *) val size = 29 (* GEN END TAG OUTSIDE LET *);
 
   fun fromInt (code) =
         let
           fun fromInt' r =
                 let
-                  val code' = (r + 1)*(r + 2) div 2
+                  (* GEN BEGIN TAG OUTSIDE LET *) val code' = (r + 1)*(r + 2) div 2 (* GEN END TAG OUTSIDE LET *)
                 in
                   if(code < code')
                   then
                     let
-                      val diff = code'-code-1
+                      (* GEN BEGIN TAG OUTSIDE LET *) val diff = code'-code-1 (* GEN END TAG OUTSIDE LET *)
                     in
                       (diff, r-diff)
                     end
@@ -35,7 +35,7 @@ struct
 
   fun toInt (m, n) =
         let
-          val sum = m + n
+          (* GEN BEGIN TAG OUTSIDE LET *) val sum = m + n (* GEN END TAG OUTSIDE LET *)
         in
           sum*(sum + 1) div 2 + n
         end
@@ -66,20 +66,20 @@ struct
 
   fun row (array, i, (j, len)) =
         if (i >= 0) andalso (j >= 0) andalso (len >= 0)
-        then Vector.tabulate (len, (fn off => unsafeSub (array, i, j+off)))
+        then Vector.tabulate (len, ((* GEN BEGIN FUNCTION EXPRESSION *) fn off => unsafeSub (array, i, j+off) (* GEN END FUNCTION EXPRESSION *)))
         else raise General.Subscript
 
   fun column (array, j, (i, len)) =
         if (j >= 0) andalso (i >= 0) andalso (len >= 0)
-        then Vector.tabulate (len, (fn off => unsafeSub (array, i+off, j)))
+        then Vector.tabulate (len, ((* GEN BEGIN FUNCTION EXPRESSION *) fn off => unsafeSub (array, i+off, j) (* GEN END FUNCTION EXPRESSION *)))
         else raise General.Subscript
 
   fun app traversal f (region as {base, row, col, nrows, ncols}) =
         if checkRegion region
         then
           let
-            val rmax = row+nrows
-            val cmax = col+ncols
+            (* GEN BEGIN TAG OUTSIDE LET *) val rmax = row+nrows (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val cmax = col+ncols (* GEN END TAG OUTSIDE LET *)
             fun appR (row', col') =
                    if (row' < rmax)
                    then
@@ -115,8 +115,8 @@ struct
         if checkRegion region
         then
           let
-            val rmax = row+nrows
-            val cmax = col+ncols
+            (* GEN BEGIN TAG OUTSIDE LET *) val rmax = row+nrows (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val cmax = col+ncols (* GEN END TAG OUTSIDE LET *)
             fun foldR (row', col') =
                    if (row' < rmax)
                    then
@@ -150,8 +150,8 @@ struct
         if checkRegion region
         then
           let
-            val rmax = row+nrows
-            val cmax = col+ncols
+            (* GEN BEGIN TAG OUTSIDE LET *) val rmax = row+nrows (* GEN END TAG OUTSIDE LET *)
+            (* GEN BEGIN TAG OUTSIDE LET *) val cmax = col+ncols (* GEN END TAG OUTSIDE LET *)
             fun modifyR (row', col') =
                    if (row' < rmax)
                    then

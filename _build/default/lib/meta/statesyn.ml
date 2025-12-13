@@ -1,7 +1,7 @@
 (* State for Proof Search *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) StateSyn ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) StateSyn ((*! structure IntSyn' : INTSYN !*)
                   (*! structure FunSyn' : FUNSYN !*)
                   (*! sharing FunSyn'.IntSyn = IntSyn' !*)
                   structure Whnf : WHNF
@@ -127,4 +127,4 @@ struct
     val convOrder = convOrder
     val normalizeTag = normalizeTag
   end (* local *)
-end (* GEN END FUNCTOR DECL *); (* signature STATESYN *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* signature STATESYN *)

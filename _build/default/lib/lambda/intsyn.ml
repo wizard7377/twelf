@@ -2,7 +2,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 (* Modified: Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) IntSyn (structure Global : GLOBAL) :> INTSYN =
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) IntSyn (structure Global : GLOBAL) :> INTSYN =
 struct
 
   type cid = int                        (* Constant identifier        *)
@@ -669,7 +669,7 @@ struct
   *)
   fun targetFam (A) = valOf (targetFamOpt A)
 
-end (* GEN END FUNCTOR DECL *);  (* functor IntSyn *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *);  (* functor IntSyn *)
 
 structure IntSyn :> INTSYN =
   IntSyn (structure Global = Global);

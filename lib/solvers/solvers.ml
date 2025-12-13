@@ -58,7 +58,7 @@ structure CSIntWord32 = CSIntWord ((*! structure IntSyn = IntSyn !*)
                                    structure Whnf = Whnf
                                    structure Unify = UnifyTrail
                                    (*! structure CSManager = CSManager !*)
-				   (* GEN BEGIN TAG INSIDE LET *) val wordSize = 32 (* GEN END TAG INSIDE LET *));
+				   (* GEN BEGIN TAG OUTSIDE LET *) val wordSize = 32 (* GEN END TAG OUTSIDE LET *));
 
 (* GEN BEGIN SIGNATURE DECLARATION *) signature CS_INSTALLER =
 sig
@@ -69,13 +69,13 @@ end (* GEN END SIGNATURE DECLARATION *);
 (* wrapped in structure so it can be tracked by CM *)
 structure CSInstaller : CS_INSTALLER =
 struct
-  (* GEN BEGIN TAG INSIDE LET *) val solvers = [CSEqQ.solver, CSIneqQ.solver,
+  (* GEN BEGIN TAG OUTSIDE LET *) val solvers = [CSEqQ.solver, CSIneqQ.solver,
   		 CSEqStrings.solver,
   		 CSEqBools.solver,
   		 CSEqZ.solver, CSIneqZ.solver,
-  		 CSIntWord32.solver] (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) val _ = List.app (fn s => (CSManager.installSolver s; ())) solvers (* GEN END TAG INSIDE LET *)
-  (* GEN BEGIN TAG INSIDE LET *) val version = List.foldr (fn (s, str) => #name s ^ "\n" ^ str) "" solvers (* GEN END TAG INSIDE LET *)
+  		 CSIntWord32.solver] (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val _ = List.app ((* GEN BEGIN FUNCTION EXPRESSION *) fn s => (CSManager.installSolver s; ()) (* GEN END FUNCTION EXPRESSION *)) solvers (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val version = List.foldr ((* GEN BEGIN FUNCTION EXPRESSION *) fn (s, str) => #name s ^ "\n" ^ str (* GEN END FUNCTION EXPRESSION *)) "" solvers (* GEN END TAG OUTSIDE LET *)
   (*
   val _ = CSManager.installSolver (CSEqQ.solver)
   val _ = CSManager.installSolver (CSIneqQ.solver)

@@ -2,7 +2,7 @@
 (* Author: Iliano Cervesato *)
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) AbsMachineSbt ((*! structure IntSyn' : INTSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) AbsMachineSbt ((*! structure IntSyn' : INTSYN !*)
                        (*! structure CompSyn' : COMPSYN !*)
                        (*! sharing CompSyn'.IntSyn = IntSyn' !*)
                        structure Unify : UNIFY
@@ -309,6 +309,6 @@ struct
        | CompSyn.Indexing => (mSig := matchIndexSig; solve' args))
   end (* local ... *)
 
-end (* GEN END FUNCTOR DECL *); (* functor AbsMachineSbt *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *); (* functor AbsMachineSbt *)
 
 

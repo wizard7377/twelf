@@ -22,7 +22,7 @@ struct
     *)
     fun init' cid =
       let
-        val (V, _) = M.createAtomConst (I.Null, I.Const cid)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (V, _) = M.createAtomConst (I.Null, I.Const cid) (* GEN END TAG OUTSIDE LET *)
       in
         MetaAbstract.abstract (M.State ("/" ^ I.conDecName (I.sgnLookup cid) ^ "/",
                                         M.Prefix (I.Null, I.Null, I.Null), V))
@@ -38,6 +38,6 @@ struct
     fun init cidList = map init' cidList
 
   in
-    val init = init
+    (* GEN BEGIN TAG OUTSIDE LET *) val init = init (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 end (* GEN END FUNCTOR DECL *); (* functor Init *)

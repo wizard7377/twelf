@@ -21,7 +21,7 @@ struct
   local
     structure I = IntSyn
 
-    val tabledSignature : bool Table.table = Table.new(0);
+    (* GEN BEGIN TAG OUTSIDE LET *) val tabledSignature : bool Table.table = Table.new(0) (* GEN END TAG OUTSIDE LET *);
 
     (* reset () = ()
 
@@ -72,10 +72,10 @@ struct
      | SOME false => false)
 
   in
-    val reset = reset
-    val installTabled = installTabled
-    val installKeepTable =  installKeepTable
-    val tabledLookup = tabledLookup
-    val keepTable = keepTable
+    (* GEN BEGIN TAG OUTSIDE LET *) val reset = reset (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val installTabled = installTabled (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val installKeepTable =  installKeepTable (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val tabledLookup = tabledLookup (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val keepTable = keepTable (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *);  (* functor TabledSyn *)

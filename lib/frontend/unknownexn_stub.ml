@@ -3,4 +3,4 @@
 *)
 
 structure UnknownExn =
-  UnknownExn ((* GEN BEGIN TAG INSIDE LET *) val exnHistory = fn exn => nil (* GEN END TAG INSIDE LET *));
+  UnknownExn ((* GEN BEGIN TAG OUTSIDE LET *) val exnHistory = (* GEN BEGIN FUNCTION EXPRESSION *) fn exn => nil (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *));

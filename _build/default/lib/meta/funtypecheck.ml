@@ -1,7 +1,7 @@
  (* Type checking for functional proof term calculus *)
 (* Author: Carsten Schuermann *)
 
-functor (* GEN BEGIN FUNCTOR DECL *) FunTypeCheck ((*! structure FunSyn' : FUNSYN !*)
+functor (* GEN BEGIN FUNCTOR DECL *) (* GEN BEGIN FUNCTOR DECL *) FunTypeCheck ((*! structure FunSyn' : FUNSYN !*)
                       structure StateSyn' : STATESYN
                       (*! sharing StateSyn'.FunSyn = FunSyn' !*)
                       structure Abstract : ABSTRACT
@@ -492,4 +492,4 @@ struct
     val checkSub = checkSub
     val isState = isState
   end
-end (* GEN END FUNCTOR DECL *) (* Signature FUNTYPECHECK *)
+end (* GEN END FUNCTOR DECL *) (* GEN END FUNCTOR DECL *) (* Signature FUNTYPECHECK *)

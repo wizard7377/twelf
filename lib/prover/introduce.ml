@@ -27,14 +27,14 @@ struct
       fun stripTC TC = TC
 
 
-    fun stripTCOpt NONE = NONE
-      | stripTCOpt (SOME TC) = SOME (stripTC TC)
+    fun (* GEN BEGIN FUN FIRST *) stripTCOpt NONE = NONE (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) stripTCOpt (SOME TC) = SOME (stripTC TC) (* GEN END FUN BRANCH *)
 
-    fun stripDec (T.UDec D) = T.UDec D
-      | stripDec (T.PDec (name, F, TC1, TC2)) = T.PDec (name, F, TC1, stripTCOpt TC2)
+    fun (* GEN BEGIN FUN FIRST *) stripDec (T.UDec D) = T.UDec D (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) stripDec (T.PDec (name, F, TC1, TC2)) = T.PDec (name, F, TC1, stripTCOpt TC2) (* GEN END FUN BRANCH *)
 
-    fun strip I.Null = I.Null
-      | strip (I.Decl (Psi, D)) = I.Decl (strip Psi, stripDec D)
+    fun (* GEN BEGIN FUN FIRST *) strip I.Null = I.Null (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) strip (I.Decl (Psi, D)) = I.Decl (strip Psi, stripDec D) (* GEN END FUN BRANCH *)
 
 
     (* expand S = S'
@@ -44,25 +44,25 @@ struct
        and  F does not start with an all quantifier
        then S' = (Psi, x1:A1, ... xn:An |> F)
     *)
-    fun expand (S.Focus (R as T.EVar (Psi, r, T.All ((D, _), F), NONE, NONE, _), W)) =
+    fun (* GEN BEGIN FUN FIRST *) expand (S.Focus (R as T.EVar (Psi, r, T.All ((D, _), F), NONE, NONE, _), W)) =
         let
-          val D' = TomegaNames.decName (Psi, D)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = TomegaNames.decName (Psi, D) (* GEN END TAG OUTSIDE LET *)
         in
           SOME (R, T.Lam (D', T.newEVar (I.Decl (strip Psi, D'), F)))
-        end
-      | expand (S.Focus (R as T.EVar (Psi, r, T.Ex ((D as I.Dec (_, V), _), F), NONE, NONE, _), W)) =
+        end (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) expand (S.Focus (R as T.EVar (Psi, r, T.Ex ((D as I.Dec (_, V), _), F), NONE, NONE, _), W)) =
            let
-             val X = I.newEVar (T.coerceCtx (Psi), V)
-             val Y = T.newEVar (Psi, T.forSub (F, T.Dot (T.Exp X, T.id)))
+             (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (T.coerceCtx (Psi), V) (* GEN END TAG OUTSIDE LET *)
+             (* GEN BEGIN TAG OUTSIDE LET *) val Y = T.newEVar (Psi, T.forSub (F, T.Dot (T.Exp X, T.id))) (* GEN END TAG OUTSIDE LET *)
            in
              SOME (R, T.PairExp (X, Y))
-           end
-      | expand (S.Focus (R as T.EVar (Psi, r, T.True, NONE, NONE, _), W)) =
-           (SOME (R, T.Unit))
+           end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) expand (S.Focus (R as T.EVar (Psi, r, T.True, NONE, NONE, _), W)) =
+           (SOME (R, T.Unit)) (* GEN END FUN BRANCH *)
 
-      | expand (S.Focus (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), W)) =
-           expand (S.Focus (T.EVar (Psi, r, T.forSub (F, s), TC1, TC2, X), W))
-      | expand (S.Focus (T.EVar (Psi, r, _, _, _, _), W)) = NONE
+      | (* GEN BEGIN FUN BRANCH *) expand (S.Focus (T.EVar (Psi, r, T.FClo (F, s), TC1, TC2, X), W)) =
+           expand (S.Focus (T.EVar (Psi, r, T.forSub (F, s), TC1, TC2, X), W)) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) expand (S.Focus (T.EVar (Psi, r, _, _, _, _), W)) = NONE (* GEN END FUN BRANCH *)
 
     (* apply O = S
 
@@ -83,8 +83,8 @@ struct
     exception Error = Error
     type operator = operator
 
-    val expand = expand
-    val apply = apply
-    val menu =menu
+    (* GEN BEGIN TAG OUTSIDE LET *) val expand = expand (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val apply = apply (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val menu =menu (* GEN END TAG OUTSIDE LET *)
   end
 end (* GEN END FUNCTOR DECL *)

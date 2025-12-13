@@ -13,36 +13,36 @@ struct
     structure I = IntSyn
     structure F = Formatter
 
-    fun fmtIds nil = []
-      | fmtIds (n :: nil) = [F.String (n)]
-      | fmtIds (n :: L) = [F.String (n), F.String " "] @ (fmtIds L)
+    fun (* GEN BEGIN FUN FIRST *) fmtIds nil = [] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtIds (n :: nil) = [F.String (n)] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtIds (n :: L) = [F.String (n), F.String " "] @ (fmtIds L) (* GEN END FUN BRANCH *)
 
-    fun fmtParams nil = []
-      | fmtParams (SOME n :: nil) = [F.String (n)]
-      | fmtParams (NONE :: nil) = [F.String ("_")]
-      | fmtParams (SOME n :: L) = [F.String (n), F.String " "] @ (fmtParams L)
-      | fmtParams (NONE :: L) = [F.String ("_"), F.String " "] @ (fmtParams L)
+    fun (* GEN BEGIN FUN FIRST *) fmtParams nil = [] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtParams (SOME n :: nil) = [F.String (n)] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtParams (NONE :: nil) = [F.String ("_")] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtParams (SOME n :: L) = [F.String (n), F.String " "] @ (fmtParams L) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtParams (NONE :: L) = [F.String ("_"), F.String " "] @ (fmtParams L) (* GEN END FUN BRANCH *)
 
     fun fmtType (c, L) = F.HVbox ([F.String (I.conDecName (I.sgnLookup c)), F.String " "] @ (fmtParams L))
 
-    fun fmtCallpats nil = []
-      | fmtCallpats (T :: nil) = [F.String "(", fmtType T, F.String ")"]
-      | fmtCallpats (T :: L) = [F.String "(", fmtType T, F.String ") "] @ (fmtCallpats L)
+    fun (* GEN BEGIN FUN FIRST *) fmtCallpats nil = [] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtCallpats (T :: nil) = [F.String "(", fmtType T, F.String ")"] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtCallpats (T :: L) = [F.String "(", fmtType T, F.String ") "] @ (fmtCallpats L) (* GEN END FUN BRANCH *)
 
-    fun fmtOptions (L as (_ :: nil)) = [F.HVbox (fmtIds L)]
-      | fmtOptions L = [F.String "(", F.HVbox (fmtIds L), F.String ") "]
+    fun (* GEN BEGIN FUN FIRST *) fmtOptions (L as (_ :: nil)) = [F.HVbox (fmtIds L)] (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtOptions L = [F.String "(", F.HVbox (fmtIds L), F.String ") "] (* GEN END FUN BRANCH *)
 
 
-    fun fmtOrder (L.Varg L) =
+    fun (* GEN BEGIN FUN FIRST *) fmtOrder (L.Varg L) =
         (case L of
            (H :: nil) => (fmtIds L)
-         | _ => [F.String "(", F.HVbox (fmtIds L), F.String ")"])
-      | fmtOrder (L.Lex L) = [F.String "{", F.HVbox (fmtOrders L), F.String "}"]
-      | fmtOrder (L.Simul L) = [F.String "[", F.HVbox (fmtOrders L), F.String "]"]
+         | _ => [F.String "(", F.HVbox (fmtIds L), F.String ")"]) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtOrder (L.Lex L) = [F.String "{", F.HVbox (fmtOrders L), F.String "}"] (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtOrder (L.Simul L) = [F.String "[", F.HVbox (fmtOrders L), F.String "]"] (* GEN END FUN BRANCH *)
 
-    and fmtOrders nil = nil
-      | fmtOrders (O :: nil) = fmtOrder O
-      | fmtOrders (O :: L) = fmtOrder O @ (F.String " " :: fmtOrders L)
+    and (* GEN BEGIN FUN FIRST *) fmtOrders nil = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) fmtOrders (O :: nil) = fmtOrder O (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) fmtOrders (O :: L) = fmtOrder O @ (F.String " " :: fmtOrders L) (* GEN END FUN BRANCH *)
 
     fun tDeclToString (L.TDecl (O, L.Callpats L)) = F.makestring_fmt (F.HVbox (fmtOrder O @
                                                            (F.String " " :: fmtCallpats L)))
@@ -69,12 +69,12 @@ struct
         F.makestring_fmt (F.HVbox ([F.String (I.conDecName (I.sgnLookup cid))]))
 
   in
-    val tDeclToString = tDeclToString
-    val callpatsToString = callpatsToString
-    val ROrderToString = ROrderToString            (* -bp *)
-    val rDeclToString = rDeclToString              (* -bp *)
-    val tabledDeclToString = tabledDeclToString
-    val keepTableDeclToString = keepTableDeclToString
+    (* GEN BEGIN TAG OUTSIDE LET *) val tDeclToString = tDeclToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val callpatsToString = callpatsToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val ROrderToString = ROrderToString (* GEN END TAG OUTSIDE LET *)            (* -bp *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val rDeclToString = rDeclToString (* GEN END TAG OUTSIDE LET *)              (* -bp *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val tabledDeclToString = tabledDeclToString (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val keepTableDeclToString = keepTableDeclToString (* GEN END TAG OUTSIDE LET *)
   end (* local *)
 
 end (* GEN END FUNCTOR DECL *); (* functor ThmPrint *)

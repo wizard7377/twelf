@@ -96,15 +96,15 @@ struct
        and  G' is a context
        then G |- s : G'
     *)
-    fun createEVarSub (G, I.Null) = I.Shift (I.ctxLength G)
-      | createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
+    fun (* GEN BEGIN FUN FIRST *) createEVarSub (G, I.Null) = I.Shift (I.ctxLength G) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) createEVarSub (G, I.Decl(G', D as I.Dec (_, V))) =
         let
-          val s = createEVarSub (G, G')
-          val V' = I.EClo (V, s)
-          val X = I.newEVar (G, V')
+          (* GEN BEGIN TAG OUTSIDE LET *) val s = createEVarSub (G, G') (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val V' = I.EClo (V, s) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val X = I.newEVar (G, V') (* GEN END TAG OUTSIDE LET *)
         in
           I.Dot (I.Exp X, s)
-        end
+        end (* GEN END FUN BRANCH *)
 
     (* from cover.fun *)
     (* collectConstraints (Xs) = constrs
@@ -112,20 +112,20 @@ struct
 
        try simplifying away the constraints in case they are "hard"
     *)
-    fun collectConstraints (nil) = nil
-      | collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
-          collectConstraints Xs
-      | collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
+    fun (* GEN BEGIN FUN FIRST *) collectConstraints (nil) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectConstraints (I.EVar (_, _, _, ref nil)::Xs) =
+          collectConstraints Xs (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) collectConstraints (I.EVar (_, _, _, ref constrs)::Xs) =
           (* constrs <> nil *)
-          Constraints.simplify constrs @ collectConstraints Xs
+          Constraints.simplify constrs @ collectConstraints Xs (* GEN END FUN BRANCH *)
 
     (* collectEVars (G, s, Xs) = Xs'
        adds all uninstantiated EVars from s to Xs to obtain Xs'
        Invariant: s is EVar substitutions
     *)
-    fun collectEVars (G, I.Dot (I.Exp X, s), Xs) =
-           collectEVars (G, s, Abstract.collectEVars (G, (X, I.id), Xs))
-      | collectEVars (G, I.Shift _, Xs) = Xs
+    fun (* GEN BEGIN FUN FIRST *) collectEVars (G, I.Dot (I.Exp X, s), Xs) =
+           collectEVars (G, s, Abstract.collectEVars (G, (X, I.id), Xs)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) collectEVars (G, I.Shift _, Xs) = Xs (* GEN END FUN BRANCH *)
       (* other cases impossible by invariants since s is EVarSubst *)
 
     (* noConstraints (G, s) = true iff there are no remaining constraints in s
@@ -145,20 +145,20 @@ struct
           F.Hbox (F.String "{" :: Print.formatDec (G, D) :: F.String "}" :: nil)
 
     (* Declaration lists *)
-    fun formatDList (G, nil, t) = nil
-      | formatDList (G, D :: nil, t) =
+    fun (* GEN BEGIN FUN FIRST *) formatDList (G, nil, t) = nil (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) formatDList (G, D :: nil, t) =
         let
-          val D' = I.decSub (D, t)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = I.decSub (D, t) (* GEN END TAG OUTSIDE LET *)
         in
           formatD (G, D') :: nil (* Names.decUName (G, I.decSub(D, t)) *)
-        end
-      | formatDList (G, D :: L, t) =
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) formatDList (G, D :: L, t) =
         let
-          val D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val D' = I.decSub (D, t) (* GEN END TAG OUTSIDE LET *) (* Names.decUName (G, I.decSub (D, t)) *)
         in
           formatD (G, D') :: F.Break
           :: formatDList (I.Decl (G, D'), L, I.dot1 t)
-        end
+        end (* GEN END FUN BRANCH *)
 
     (*
     fun hypsToDList (I.Root _) = nil
@@ -247,12 +247,12 @@ struct
         then  B = true if  L [t] unifies with L'
               B = false otherwise
      *)
-     fun equivList (G, (_, nil), nil) = true
-       | equivList (G, (t, I.Dec (_, V1) :: L1), I.Dec (_, V2) :: L2) =
+     fun (* GEN BEGIN FUN FIRST *) equivList (G, (_, nil), nil) = true (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) equivList (G, (t, I.Dec (_, V1) :: L1), I.Dec (_, V2) :: L2) =
            (( Unify.unify (G, (V1, t), (V2, I.id))
             ; equivList (G, (I.dot1 t, L1), L2)
-            ) handle Unify.Unify _ => false)
-       | equivList _ = false
+            ) handle Unify.Unify _ => false) (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) equivList _ = false (* GEN END FUN BRANCH *)
 
 
      (* equivBlock ((G, L), L') = B
@@ -264,7 +264,7 @@ struct
      *)
      fun equivBlock ((G, L), L') =
          let
-           val t = createEVarSub (I.Null, G)
+           (* GEN BEGIN TAG OUTSIDE LET *) val t = createEVarSub (I.Null, G) (* GEN END TAG OUTSIDE LET *)
          in
            equivList (I.Null, (t, L), L')
          end
@@ -276,11 +276,11 @@ struct
         B = true if exists L' in W such that L = L'
         B = false otherwise
      *)
-     fun equivBlocks W1 nil = true
-       | equivBlocks nil L' = false
-       | equivBlocks (b :: W1) L' =
+     fun (* GEN BEGIN FUN FIRST *) equivBlocks W1 nil = true (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) equivBlocks nil L' = false (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) equivBlocks (b :: W1) L' =
            equivBlock (I.constBlock b, L')
-           orelse equivBlocks W1 L'
+           orelse equivBlocks W1 L' (* GEN END FUN BRANCH *)
 
      (* strengthen a (t, L) = L'
 
@@ -292,10 +292,10 @@ struct
         where V \in L and not V < a then V \in L'
         and   V \in L and V < a then not V \in L'
      *)
-     fun strengthen a (t, nil) = nil
-       | strengthen a (t, (D as I.Dec (_, V)) :: L) =
+     fun (* GEN BEGIN FUN FIRST *) strengthen a (t, nil) = nil (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) strengthen a (t, (D as I.Dec (_, V)) :: L) =
          if Subordinate.below (I.targetFam V, a) then (I.decSub (D, t) :: strengthen a (I.dot1 t, L))
-         else strengthen a (I.Dot (I.Undef,  t), L)
+         else strengthen a (I.Dot (I.Undef,  t), L) (* GEN END FUN BRANCH *)
 
 
      (* subsumedBlock a W1 (G, L) = ()
@@ -309,8 +309,8 @@ struct
      *)
      fun subsumedBlock a W1 (G, L) =
          let
-           val t = createEVarSub (I.Null, G) (* G |- t : someDecs *)
-           val L' = strengthen a (t, L)
+           (* GEN BEGIN TAG OUTSIDE LET *) val t = createEVarSub (I.Null, G) (* GEN END TAG OUTSIDE LET *) (* G |- t : someDecs *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val L' = strengthen a (t, L) (* GEN END TAG OUTSIDE LET *)
          in
            if equivBlocks W1 L' then () else raise Error "Static world subsumption failed"
          end
@@ -323,11 +323,11 @@ struct
         Then the function returns () if W2 is subsumed by W1
         otherwise Error is raised
      *)
-     fun subsumedBlocks a W1 nil = ()
-       | subsumedBlocks a W1 (b :: W2) =
+     fun (* GEN BEGIN FUN FIRST *) subsumedBlocks a W1 nil = () (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) subsumedBlocks a W1 (b :: W2) =
            ( subsumedBlock a W1 (I.constBlock b)
            ; subsumedBlocks a W1 W2
-           )
+           ) (* GEN END FUN BRANCH *)
 
      (* subsumedWorld a W1 W2 = ()
 
@@ -354,10 +354,10 @@ struct
         B = true if G1 and G2 are equal (modulo renaming of variables)
         B = false otherwise
      *)
-     fun eqCtx (I.Null, I.Null)  = true
-       | eqCtx (I.Decl (G1, D1), I.Decl (G2, D2)) =
-           eqCtx (G1, G2) andalso Conv.convDec ((D1, I.id), (D2, I.id))
-       | eqCtx _ = false
+     fun (* GEN BEGIN FUN FIRST *) eqCtx (I.Null, I.Null)  = true (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) eqCtx (I.Decl (G1, D1), I.Decl (G2, D2)) =
+           eqCtx (G1, G2) andalso Conv.convDec ((D1, I.id), (D2, I.id)) (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) eqCtx _ = false (* GEN END FUN BRANCH *)
 
      (* eqList (L1, L2) = B
 
@@ -366,10 +366,10 @@ struct
         B = true if L1 and L2 are equal (modulo renaming of variables)
         B = false otherwise
      *)
-     fun eqList (nil, nil) = true
-       | eqList (D1 :: L1, D2 :: L2) =
-           Conv.convDec ((D1, I.id), (D2, I.id)) andalso eqList (L1, L2)
-       | eqList _ = false
+     fun (* GEN BEGIN FUN FIRST *) eqList (nil, nil) = true (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) eqList (D1 :: L1, D2 :: L2) =
+           Conv.convDec ((D1, I.id), (D2, I.id)) andalso eqList (L1, L2) (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) eqList _ = false (* GEN END FUN BRANCH *)
 
 
      (* eqBlock (b1, b2) = B
@@ -381,8 +381,8 @@ struct
      *)
      fun eqBlock (b1, b2) =
          let
-           val (G1, L1) = I.constBlock b1
-           val (G2, L2) = I.constBlock b2
+           (* GEN BEGIN TAG OUTSIDE LET *) val (G1, L1) = I.constBlock b1 (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val (G2, L2) = I.constBlock b2 (* GEN END TAG OUTSIDE LET *)
          in
            eqCtx (G1, G2) andalso eqList (L1, L2)
          end
@@ -397,14 +397,14 @@ struct
         is listed in W
         otherwise Error is raised
      *)
-     fun subsumedCtx (I.Null, W) = ()
-       | subsumedCtx (I.Decl (G, I.BDec (_, (b, _))), W as T.Worlds Bs) =
-          ( if List.exists (fn b' => eqBlock (b, b')) Bs
+     fun (* GEN BEGIN FUN FIRST *) subsumedCtx (I.Null, W) = () (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) subsumedCtx (I.Decl (G, I.BDec (_, (b, _))), W as T.Worlds Bs) =
+          ( if List.exists ((* GEN BEGIN FUNCTION EXPRESSION *) fn b' => eqBlock (b, b') (* GEN END FUNCTION EXPRESSION *)) Bs
               then () else raise Error "Dynamic world subsumption failed"
           ; subsumedCtx (G, W)
-          )
-       | subsumedCtx (I.Decl (G, _), W as T.Worlds Bs) =
-          subsumedCtx (G, W)
+          ) (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) subsumedCtx (I.Decl (G, _), W as T.Worlds Bs) =
+          subsumedCtx (G, W) (* GEN END FUN BRANCH *)
 
 
 
@@ -418,16 +418,16 @@ struct
 
         Invariant: G |- V : type, V nf
      *)
-     fun checkGoal W (G, I.Root (I.Const a, S), occ) =
+     fun (* GEN BEGIN FUN FIRST *) checkGoal W (G, I.Root (I.Const a, S), occ) =
          let
-           val W' = W.getWorlds a
+           (* GEN BEGIN TAG OUTSIDE LET *) val W' = W.getWorlds a (* GEN END TAG OUTSIDE LET *)
          in
            ( subsumedWorld a W' W
            ; subsumedCtx (G, W)
            )
-         end
-       | checkGoal W (G, I.Pi ((D, _), V2), occ) =
-           checkGoal W (decUName (G, D), V2, P.body occ)
+         end (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) checkGoal W (G, I.Pi ((D, _), V2), occ) =
+           checkGoal W (decUName (G, D), V2, P.body occ) (* GEN END FUN BRANCH *)
 
     (* checkClause (G, V, W, occ) = ()
        iff all subgoals in V satisfy world spec W
@@ -436,12 +436,12 @@ struct
        Invariant: G |- V : type, V nf
        occ is occurrence of V in current clause
      *)
-     fun checkClause W (G, I.Root (a, S), occ) = ()
-       | checkClause W (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), occ) =
-         checkClause W (decEName (G, D), V2, P.body occ)
-       | checkClause W (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), occ) =
+     fun (* GEN BEGIN FUN FIRST *) checkClause W (G, I.Root (a, S), occ) = () (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) checkClause W (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), occ) =
+         checkClause W (decEName (G, D), V2, P.body occ) (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) checkClause W (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), occ) =
          (checkClause W (decEName (G, D), V2, P.body occ);
-          checkGoal W (G, V1, P.label occ))
+          checkGoal W (G, V1, P.label occ)) (* GEN END FUN BRANCH *)
 
      fun checkConDec W (I.ConDec (s, m, k, status, V, L)) =
            checkClause W (I.Null, V, P.top)
@@ -452,18 +452,18 @@ struct
     (* Matching hypotheses against worlds *)
     (**************************************)
 
-    fun subGoalToDList (I.Pi ((D, _), V)) = D::subGoalToDList(V)
-      | subGoalToDList (I.Root _) = nil
+    fun (* GEN BEGIN FUN FIRST *) subGoalToDList (I.Pi ((D, _), V)) = D::subGoalToDList(V) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) subGoalToDList (I.Root _) = nil (* GEN END FUN BRANCH *)
 
     (* worldsToReg (Worlds [c1,...,cn]) = R
        W = R, except that R is a regular expression
        with non-empty contextblocks as leaves
     *)
-    fun worldsToReg (T.Worlds nil) = One
-      | worldsToReg (T.Worlds cids) = Star (worldsToReg' cids)
-    and worldsToReg' (cid::nil) = Block (cid, I.constBlock cid)
-      | worldsToReg' (cid::cids) =
-          Plus (Block (cid, I.constBlock cid), worldsToReg' cids)
+    fun (* GEN BEGIN FUN FIRST *) worldsToReg (T.Worlds nil) = One (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) worldsToReg (T.Worlds cids) = Star (worldsToReg' cids) (* GEN END FUN BRANCH *)
+    and (* GEN BEGIN FUN FIRST *) worldsToReg' (cid::nil) = Block (cid, I.constBlock cid) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) worldsToReg' (cid::cids) =
+          Plus (Block (cid, I.constBlock cid), worldsToReg' cids) (* GEN END FUN BRANCH *)
 
     (* init b (G, L) raises Success iff V is empty
        or none of the remaining declarations are relevant to b
@@ -472,11 +472,11 @@ struct
 
        Invariant: G |- L dlist, L nf
     *)
-    fun init (_, Vs as (I.Root _, s)) =
+    fun (* GEN BEGIN FUN FIRST *) init (_, Vs as (I.Root _, s)) =
         (Trace.success () ;
-         raise Success (Whnf.normalize Vs))
-      | init (G, (V as I.Pi ((D1 as I.Dec (_, V1), _), V2), s)) =
-        (Trace.unmatched (G, subGoalToDList (Whnf.normalize (V, s))) ; ())
+         raise Success (Whnf.normalize Vs)) (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) init (G, (V as I.Pi ((D1 as I.Dec (_, V1), _), V2), s)) =
+        (Trace.unmatched (G, subGoalToDList (Whnf.normalize (V, s))) ; ()) (* GEN END FUN BRANCH *)
 
     (* accR ((G, (V, s)), R, k)   raises Success
        iff V[s] = {L1}{L2} P  such that R accepts L1
@@ -486,37 +486,37 @@ struct
                   R regular world expression
        trails at choice points to undo EVar instantiations during matching
     *)
-    fun accR (GVs, One, k) = k GVs
-      | accR (GVs as (G, (V, s)), Block (c, (someDecs, piDecs)), k) =
+    fun (* GEN BEGIN FUN FIRST *) accR (GVs, One, k) = k GVs (* GEN END FUN FIRST *)
+      | (* GEN BEGIN FUN BRANCH *) accR (GVs as (G, (V, s)), Block (c, (someDecs, piDecs)), k) =
         let
-          val t = createEVarSub (G, someDecs) (* G |- t : someDecs *)
-          val _ = Trace.matchBlock ((G, subGoalToDList (Whnf.normalize (V, s))), Seq (1, piDecs, t))
-          val k' = (fn (G', Vs') =>
+          (* GEN BEGIN TAG OUTSIDE LET *) val t = createEVarSub (G, someDecs) (* GEN END TAG OUTSIDE LET *) (* G |- t : someDecs *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val _ = Trace.matchBlock ((G, subGoalToDList (Whnf.normalize (V, s))), Seq (1, piDecs, t)) (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val k' = ((* GEN BEGIN FUNCTION EXPRESSION *) fn (G', Vs') =>
                     if noConstraints (G, t)
                       then k (G', Vs')
-                    else (Trace.constraintsRemain (); ()))
+                    else (Trace.constraintsRemain (); ()) (* GEN END FUNCTION EXPRESSION *)) (* GEN END TAG OUTSIDE LET *)
       
         in
           accR ((decUName (G, I.BDec (NONE, (c, t))), (V, I.comp (s, I.shift))),
                 Seq (1, piDecs, I.comp (t, I.shift)), k')
           handle Success V => raise Success (Whnf.normalize (I.Pi ((I.BDec (NONE, (c, t)), I.Maybe), V), I.id))
-        end
-      | accR ((G, (V as I.Pi ((D as I.Dec (_, V1), _), V2), s)),
+        end (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) accR ((G, (V as I.Pi ((D as I.Dec (_, V1), _), V2), s)),
               L' as Seq (j, I.Dec (_, V1')::L2', t), k) =
         if Unify.unifiable (G, (V1, s), (V1', t))
           then accR ((G, (V2, I.Dot (I.Exp (I.Root (I.Proj (I.Bidx 1, j), I.Nil)), s))),
                      Seq (j+1, L2', I.Dot (I.Exp (I.Root (I.Proj (I.Bidx 1, j), I.Nil)), t)), k)
-        else  (Trace.mismatch (G, (V1, I.id), (V1', t)) ; ())
-      | accR (GVs, Seq (_, nil, t), k) = k GVs
-      | accR (GVs as (G, (I.Root _, s)), R as Seq (_, L', t), k) =
-          ( Trace.missing (G, R); () )  (* L is missing *)
-      | accR (GVs, Plus (r1, r2), k) =
-          ( CSManager.trail (fn () => accR (GVs, r1, k)) ;
-            accR (GVs, r2, k) )
-      | accR (GVs, Star (One), k) = k GVs (* only possibility for non-termination in next rule *)
-      | accR (GVs, r as Star(r'), k) = (* r' does not accept empty declaration list *)
-          ( CSManager.trail (fn () => k GVs) ;
-            accR (GVs, r', fn GVs' => accR (GVs', r, k)))
+        else  (Trace.mismatch (G, (V1, I.id), (V1', t)) ; ()) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) accR (GVs, Seq (_, nil, t), k) = k GVs (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) accR (GVs as (G, (I.Root _, s)), R as Seq (_, L', t), k) =
+          ( Trace.missing (G, R); () ) (* GEN END FUN BRANCH *)  (* L is missing *)
+      | (* GEN BEGIN FUN BRANCH *) accR (GVs, Plus (r1, r2), k) =
+          ( CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => accR (GVs, r1, k) (* GEN END FUNCTION EXPRESSION *)) ;
+            accR (GVs, r2, k) ) (* GEN END FUN BRANCH *)
+      | (* GEN BEGIN FUN BRANCH *) accR (GVs, Star (One), k) = k GVs (* GEN END FUN BRANCH *) (* only possibility for non-termination in next rule *)
+      | (* GEN BEGIN FUN BRANCH *) accR (GVs, r as Star(r'), k) = (* r' does not accept empty declaration list *)
+          ( CSManager.trail ((* GEN BEGIN FUNCTION EXPRESSION *) fn () => k GVs (* GEN END FUNCTION EXPRESSION *)) ;
+            accR (GVs, r', (* GEN BEGIN FUNCTION EXPRESSION *) fn GVs' => accR (GVs', r, k) (* GEN END FUNCTION EXPRESSION *))) (* GEN END FUN BRANCH *)
 
 
     (******************************)
@@ -531,9 +531,9 @@ struct
     *)
     fun worldifyGoal (G, V, W as T.Worlds cids, occ) =
         let
-          val b = I.targetFam V
-          val Wb = W.getWorlds b
-          val Rb = worldsToReg Wb
+          (* GEN BEGIN TAG OUTSIDE LET *) val b = I.targetFam V (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Wb = W.getWorlds b (* GEN END TAG OUTSIDE LET *)
+          (* GEN BEGIN TAG OUTSIDE LET *) val Rb = worldsToReg Wb (* GEN END TAG OUTSIDE LET *)
         in
           (accR ((G, (V, I.id)), Rb, init);
            raise Error' (occ, "World violation"))
@@ -548,23 +548,23 @@ struct
        Invariant: G |- V : type, V nf
        occ is occurrence of V in current clause
      *)
-     fun worldifyClause (G, V as I.Root (a, S), W, occ) = V
-       | worldifyClause (G, I.Pi ((D as I.Dec (x, V1), I.Maybe), V2), W, occ) =
+     fun (* GEN BEGIN FUN FIRST *) worldifyClause (G, V as I.Root (a, S), W, occ) = V (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) worldifyClause (G, I.Pi ((D as I.Dec (x, V1), I.Maybe), V2), W, occ) =
          let
-           val _ = print "{"
-           val W2 = worldifyClause (decEName (G, D), V2, W, P.body occ)
-           val _ = print "}"
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "{" (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val W2 = worldifyClause (decEName (G, D), V2, W, P.body occ) (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "}" (* GEN END TAG OUTSIDE LET *)
        (*         val W1 = worldifyGoal (G, V1, W, P.label occ) *)
          in
            I.Pi ((I.Dec (x, V1 (* W1*)), I.Maybe), W2)
-         end
-       | worldifyClause (G, I.Pi ((D as I.Dec (x, V1), I.No), V2), W, occ) =
+         end (* GEN END FUN BRANCH *)
+       | (* GEN BEGIN FUN BRANCH *) worldifyClause (G, I.Pi ((D as I.Dec (x, V1), I.No), V2), W, occ) =
          let
-           val W1 = worldifyGoal (G, V1, W, P.label occ)
-           val W2 = worldifyClause (decEName (G, D), V2, W, P.body occ);
+           (* GEN BEGIN TAG OUTSIDE LET *) val W1 = worldifyGoal (G, V1, W, P.label occ) (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val W2 = worldifyClause (decEName (G, D), V2, W, P.body occ) (* GEN END TAG OUTSIDE LET *);
          in
            I.Pi ((I.Dec (x, W1), I.No), W2)
-         end
+         end (* GEN END FUN BRANCH *)
 
 
      (* worldcheck W a = ()
@@ -580,54 +580,54 @@ struct
               handle Error' (occ, msg) => raise Error (wrapMsg (c, occ, msg)))
        (* by invariant, other cases cannot apply *)
 
-     fun worldifyBlock (G, nil) = ()
-       | worldifyBlock (G, (D as (I.Dec (_, V))):: L) =
+     fun (* GEN BEGIN FUN FIRST *) worldifyBlock (G, nil) = () (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) worldifyBlock (G, (D as (I.Dec (_, V))):: L) =
          let
-           val a = I.targetFam V
-           val W' = W.getWorlds a
+           (* GEN BEGIN TAG OUTSIDE LET *) val a = I.targetFam V (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val W' = W.getWorlds a (* GEN END TAG OUTSIDE LET *)
          in
            ( checkClause W' (G, worldifyClause (I.Null, V, W', P.top), P.top)
            ; worldifyBlock (decUName(G, D), L)
            )
-         end
+         end (* GEN END FUN BRANCH *)
 
-     fun worldifyBlocks nil = ()
-       | worldifyBlocks (b :: Bs) =
+     fun (* GEN BEGIN FUN FIRST *) worldifyBlocks nil = () (* GEN END FUN FIRST *)
+       | (* GEN BEGIN FUN BRANCH *) worldifyBlocks (b :: Bs) =
          let
-           val _ = worldifyBlocks Bs
-           val (Gsome, Lblock) = I.constBlock b
-           val _ = print "|"
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = worldifyBlocks Bs (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val (Gsome, Lblock) = I.constBlock b (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "|" (* GEN END TAG OUTSIDE LET *)
          in
            worldifyBlock (Gsome, Lblock)
            handle Error' (occ, s) => raise Error (wrapMsgBlock (b, occ, "World not hereditarily closed"))
-         end
+         end (* GEN END FUN BRANCH *)
 
      fun worldifyWorld (T.Worlds Bs) = worldifyBlocks Bs
 
      fun worldify a =
          let
-           val W = W.getWorlds a
-           val _ = print "[?"
-           val W' = worldifyWorld W
-           val _ = print ";"
-           val _ = if !Global.chatter > 3
+           (* GEN BEGIN TAG OUTSIDE LET *) val W = W.getWorlds a (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "[?" (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val W' = worldifyWorld W (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = print ";" (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter > 3
                      then print ("World checking family " ^ Names.qidToString (Names.constQid a) ^ ":\n")
-                   else ()
-           val condecs = map (fn (I.Const c) => worldifyConDec W (c, I.sgnLookup c) handle Error' (occ, s) => raise Error (wrapMsg (c, occ, s)))
-                             (Index.lookup a)
-           val _ = map (fn condec => ( print "#"
-                                     ; checkConDec W condec)) condecs
-           val _ = print "]"
+                   else () (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val condecs = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn (I.Const c) => worldifyConDec W (c, I.sgnLookup c) handle Error' (occ, s) => raise Error (wrapMsg (c, occ, s)) (* GEN END FUNCTION EXPRESSION *))
+                             (Index.lookup a) (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = map ((* GEN BEGIN FUNCTION EXPRESSION *) fn condec => ( print "#"
+                                     ; checkConDec W condec) (* GEN END FUNCTION EXPRESSION *)) condecs (* GEN END TAG OUTSIDE LET *)
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = print "]" (* GEN END TAG OUTSIDE LET *)
      
-           val _ = if !Global.chatter = 4 then print "\n" else ()
+           (* GEN BEGIN TAG OUTSIDE LET *) val _ = if !Global.chatter = 4 then print "\n" else () (* GEN END TAG OUTSIDE LET *)
          in
            condecs
          end
 
 
   in
-    val worldify = worldify
-    val worldifyGoal = fn (G,V) => worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top)
+    (* GEN BEGIN TAG OUTSIDE LET *) val worldify = worldify (* GEN END TAG OUTSIDE LET *)
+    (* GEN BEGIN TAG OUTSIDE LET *) val worldifyGoal = (* GEN BEGIN FUNCTION EXPRESSION *) fn (G,V) => worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top) (* GEN END FUNCTION EXPRESSION *) (* GEN END TAG OUTSIDE LET *)
   end
 
 end (* GEN END FUNCTOR DECL *);  (* functor Worldify *)

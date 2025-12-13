@@ -30,8 +30,8 @@ local
      nl_ind()() : newline and indent
      nl_unind()() : newline and unindent
      nl() : newline (with current indentation) *)
-  val indent = ref 0
-  val tabstring = "   "
+  (* GEN BEGIN TAG OUTSIDE LET *) val indent = ref 0 (* GEN END TAG OUTSIDE LET *)
+  (* GEN BEGIN TAG OUTSIDE LET *) val tabstring = "   " (* GEN END TAG OUTSIDE LET *)
   fun tabs(n) = if (n <= 0) then "" else tabstring ^ tabs(n-1)
   fun ind_reset() = (indent := 0)
   fun ind(n) = indent := !indent + n
@@ -41,18 +41,18 @@ local
   fun nl() = "\n" ^ tabs(!indent)
 
   fun escape s = let
-          fun escapelist nil = nil
-            | escapelist (#"&" :: rest) = String.explode "&amp;" @ (escapelist rest)
-            | escapelist (#"<" :: rest) = String.explode "&lt;" @ (escapelist rest)
-            | escapelist (#">" :: rest) = String.explode "&gt;" @ (escapelist rest)
-            | escapelist (c :: rest) = c :: (escapelist rest)
+          fun (* GEN BEGIN FUN FIRST *) escapelist nil = nil (* GEN END FUN FIRST *)
+            | (* GEN BEGIN FUN BRANCH *) escapelist (#"&" :: rest) = String.explode "&amp;" @ (escapelist rest) (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) escapelist (#"<" :: rest) = String.explode "&lt;" @ (escapelist rest) (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) escapelist (#">" :: rest) = String.explode "&gt;" @ (escapelist rest) (* GEN END FUN BRANCH *)
+            | (* GEN BEGIN FUN BRANCH *) escapelist (c :: rest) = c :: (escapelist rest) (* GEN END FUN BRANCH *)
   in
     String.implode (escapelist (String.explode s))
   end
 
  (* If namesafe is true during printing, the output is guaranteed to be namesafe (no duplicate names).
     But it doesn't look good. If the user knows that are no overloaded constants, namesafe can be set to false. *)
- val namesafe = ref true
+ (* GEN BEGIN TAG OUTSIDE LET *) val namesafe = ref true (* GEN END TAG OUTSIDE LET *)
 
   (* XML start characters: ":" | "_" | [A-Z] | [a-z], further characters: "-" | "." | [0-9] *)
   fun replace c = if (Char.isAlphaNum c) orelse (Char.contains ":_-." c) then
@@ -60,9 +60,9 @@ local
   else
         "_"
   fun Name (cid) = let
-        val n = I.conDecName(I.sgnLookup cid)
-        val name = String.translate replace n
-        val start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
+        (* GEN BEGIN TAG OUTSIDE LET *) val n = I.conDecName(I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val name = String.translate replace n (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_" (* GEN END TAG OUTSIDE LET *)
   in
         if (!namesafe) then
                 start ^ name ^ "__c" ^ (Int.toString cid)
@@ -71,8 +71,8 @@ local
   end
   (* x must be the number of the varialbe in left ro right order in the context *)
   fun VarName (x,n) = let
-        val name = String.translate replace n
-        val start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_"
+        (* GEN BEGIN TAG OUTSIDE LET *) val name = String.translate replace n (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val start = if (Char.isAlpha (String.sub(name,0))) orelse (String.sub(name,0) = #"_") then "" else "_" (* GEN END TAG OUTSIDE LET *)
   in
         if (!namesafe) then
                 start ^ name ^ "__v" ^ (Int.toString x)
@@ -89,28 +89,28 @@ local
   fun sexp (l) = String.concat l
 
   (* This is probably defined elsewhere, too. It's needed to check how many arguments there will be in an om:OMA element *)
-  fun spineLength I.Nil = 0
-    | spineLength (I.SClo (S, _)) = spineLength S
-    | spineLength (I.App(_, S)) = 1 + (spineLength S)
+  fun (* GEN BEGIN FUN FIRST *) spineLength I.Nil = 0 (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) spineLength (I.SClo (S, _)) = spineLength S (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) spineLength (I.App(_, S)) = 1 + (spineLength S) (* GEN END FUN BRANCH *)
 
   (* fmtCon (c) = "c" where the name is assigned according the the Name table
      maintained in the names module.
      FVar's are printed with a preceding "`" (backquote) character
   *)
-  fun fmtCon (G, I.BVar(x)) =
+  fun (* GEN BEGIN FUN FIRST *) fmtCon (G, I.BVar(x)) =
       let
-        val I.Dec (SOME n, _) = I.ctxDec (G, x)
+        (* GEN BEGIN TAG OUTSIDE LET *) val I.Dec (SOME n, _) = I.ctxDec (G, x) (* GEN END TAG OUTSIDE LET *)
       in
         sexp [Str ("<om:OMV name=\"" ^ VarName(I.ctxLength G - x + 1,n) ^ "\"/>")]
-      end
-    | fmtCon (G, I.Const(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
-    | fmtCon (G, I.Def(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"]
-    | fmtCon (G, I.FgnConst (csid, condec)) = sexp [Str "FgnConst"]  (* FIX -cs Fri Jan 28 17:45:35 2005*)
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtCon (G, I.Const(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"] (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtCon (G, I.Def(cid)) = sexp [Str "<om:OMS cd=\"global\" name=\"", Name cid, Str "\"/>"] (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtCon (G, I.FgnConst (csid, condec)) = sexp [Str "FgnConst"] (* GEN END FUN BRANCH *)  (* FIX -cs Fri Jan 28 17:45:35 2005*)
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
-  fun fmtUni (I.Type) = Str "<om:OMS cd=\"twelf\" name=\"type\"/>"
-    | fmtUni (I.Kind) = Str "<om:OMS cd=\"twelf\" name=\"kind\"/>"
+  fun (* GEN BEGIN FUN FIRST *) fmtUni (I.Type) = Str "<om:OMS cd=\"twelf\" name=\"type\"/>" (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtUni (I.Kind) = Str "<om:OMS cd=\"twelf\" name=\"kind\"/>" (* GEN END FUN BRANCH *)
 
   (* fmtExpW (G, (U, s)) = fmt
 
@@ -122,81 +122,81 @@ local
        G'' |- U : V   G' |- s : G''  (so  G' |- U[s] : V[s])
        (U,s) in whnf
   *)
-  fun fmtExpW (G, (I.Uni(L), s), _) = sexp [fmtUni L]
-    | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s), imp) =
+  fun (* GEN BEGIN FUN FIRST *) fmtExpW (G, (I.Uni(L), s), _) = sexp [fmtUni L] (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s), imp) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
-                         val (D' as I.Dec (SOME(name), V1')) = Names.decLUName (G, D) (* could sometimes be EName *)
-                         val G' = I.Decl (G, D')
-                         val _ = ind(1)  (* temporary indentation *)
-                         val fmtBody = fmtExp (G', (V2, I.dot1 s), Int.max(0,imp - 1))
-                         val _ = ind(1)
-                         val fmtType = fmtExp (G, (V1', s), 0)
-                         val _ = unind(2)
-                         val pi = if (imp > 0) then "implicit_Pi" else "Pi"
-                         val id = VarName(I.ctxLength G',name)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val (D' as I.Dec (SOME(name), V1')) = Names.decLUName (G, D) (* GEN END TAG OUTSIDE LET *) (* could sometimes be EName *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val G' = I.Decl (G, D') (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val _ = ind(1) (* GEN END TAG OUTSIDE LET *)  (* temporary indentation *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val fmtBody = fmtExp (G', (V2, I.dot1 s), Int.max(0,imp - 1)) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val _ = ind(1) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val fmtType = fmtExp (G, (V1', s), 0) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val _ = unind(2) (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val pi = if (imp > 0) then "implicit_Pi" else "Pi" (* GEN END TAG OUTSIDE LET *)
+                         (* GEN BEGIN TAG OUTSIDE LET *) val id = VarName(I.ctxLength G',name) (* GEN END TAG OUTSIDE LET *)
                        in
                                 fmtBinder(pi, name, id, fmtType, fmtBody)
                        end
           | I.No => let
-                       val G' = I.Decl (G, D)
+                       (* GEN BEGIN TAG OUTSIDE LET *) val G' = I.Decl (G, D) (* GEN END TAG OUTSIDE LET *)
                     in
                       sexp [Str "<om:OMA>", nl_ind(), Str "<om:OMS cd=\"twelf\" name=\"arrow\"/>", nl(),
                             fmtExp (G, (V1, s), 0), nl(),
                             fmtExp (G', (V2, I.dot1 s), 0), nl_unind(),
                             Str "</om:OMA>"]
-                    end)
-    | fmtExpW (G, (I.Root (H, S), s), _) = let
-        val l = spineLength(S)
-        val out = ref ""
-        val _ = if (l = 0) then
+                    end) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtExpW (G, (I.Root (H, S), s), _) = let
+        (* GEN BEGIN TAG OUTSIDE LET *) val l = spineLength(S) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val out = ref "" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if (l = 0) then
                 (* no arguments *)
                 out := !out ^ fmtCon (G, H)
         else let
                 (* an application *)
-                val _ = out := !out ^ "<om:OMA>" ^ nl_ind()
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = out := !out ^ "<om:OMA>" ^ nl_ind() (* GEN END TAG OUTSIDE LET *)
                 (* If there are more than two explicit arguments to an infix operator,
                    the implict and the first two explicit arguments have to be wrapped in their own om:OMA element.
                    In this case, the output will not be in normal form. *)
-                val (test,cid) =
+                (* GEN BEGIN TAG OUTSIDE LET *) val (test,cid) =
                         case H of
                            I.Const(c) => (true,c)
                          | I.Skonst(c) => (true,c)
                          | I.Def(c) => (true,c)
                          | I.NSDef(c) => (true,c)
-                         | _ => (false,0)
-                val imp = IntSyn.conDecImp (IntSyn.sgnLookup cid)
-                val (test,args) = if test then
+                         | _ => (false,0) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val imp = IntSyn.conDecImp (IntSyn.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val (test,args) = if test then
                         case Names.getFixity cid of
                                   Names.Fixity.Infix(_,_) => (true,imp + 2)
                                 | _ => (false,0)
-                else (false,0)
-                val _ = if test andalso (l > args) then
+                else (false,0) (* GEN END TAG OUTSIDE LET *)
+                (* GEN BEGIN TAG OUTSIDE LET *) val _ = if test andalso (l > args) then
                         out := !out ^ "<om:OMA>" ^ nl_ind()
                 else
-                        ()
+                        () (* GEN END TAG OUTSIDE LET *)
         (* print constant and arguments,
            args is passed to fmtSpine so that fmtSpine can insert a closing tag after args arguments, 0 means no effect *)
         in out := !out ^ fmtCon (G, H) ^ fmtSpine (G, (S, s), args) ^ "</om:OMA>"
-        end
+        end (* GEN END TAG OUTSIDE LET *)
       in
         !out
-      end
-    | fmtExpW (G, (I.Lam(D, U), s), imp) =
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtExpW (G, (I.Lam(D, U), s), imp) =
       let
-        val (D' as I.Dec (SOME(name), V)) = Names.decLUName (G, D)
-        val G' = I.Decl (G, D')
-        val _ = ind(1)  (* temporary indentation *)
-        val fmtBody = fmtExp (G', (U, I.dot1 s), Int.max(0,imp - 1))
-        val _ = ind(1)
-        val fmtType = fmtExp (G, (V, s), 0)
-        val _ = unind(2)
-        val lam = if (imp > 0) then "implicit_lambda" else "lambda"
-        val id = VarName(I.ctxLength G',name)
+        (* GEN BEGIN TAG OUTSIDE LET *) val (D' as I.Dec (SOME(name), V)) = Names.decLUName (G, D) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val G' = I.Decl (G, D') (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = ind(1) (* GEN END TAG OUTSIDE LET *)  (* temporary indentation *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val fmtBody = fmtExp (G', (U, I.dot1 s), Int.max(0,imp - 1)) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = ind(1) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val fmtType = fmtExp (G, (V, s), 0) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = unind(2) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val lam = if (imp > 0) then "implicit_lambda" else "lambda" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val id = VarName(I.ctxLength G',name) (* GEN END TAG OUTSIDE LET *)
       in
         fmtBinder(lam, name, id, fmtType, fmtBody)
-      end
-    | fmtExpW (G, (I.FgnExp (csid, F), s), 0) = sexp [Str "FgnExp"] (* FIX -cs Fri Jan 28 17:45:43 2005 *)
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtExpW (G, (I.FgnExp (csid, F), s), 0) = sexp [Str "FgnExp"] (* GEN END FUN BRANCH *) (* FIX -cs Fri Jan 28 17:45:43 2005 *)
 
     (* I.EClo, I.Redex, I.EVar not possible *)
 
@@ -207,20 +207,20 @@ local
      context G which approximates G', where G' |- S[s] is valid
      args is the number of arguments after which </om:OMA> must be inserted, no effect if negative
   *)
-  and fmtSpine (G, (I.Nil, _),_) = nl_unind()
-    | fmtSpine (G, (I.SClo (S, s'), s), args) =
-        fmtSpine (G, (S, I.comp(s',s)), args)
-    | fmtSpine (G, (I.App(U, S), s), args) = let
+  and (* GEN BEGIN FUN FIRST *) fmtSpine (G, (I.Nil, _),_) = nl_unind() (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtSpine (G, (I.SClo (S, s'), s), args) =
+        fmtSpine (G, (S, I.comp(s',s)), args) (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtSpine (G, (I.App(U, S), s), args) = let
         (* print first argument, 0 is dummy value *)
-        val out = ref (nl() ^ fmtExp (G, (U, s), 0))
+        (* GEN BEGIN TAG OUTSIDE LET *) val out = ref (nl() ^ fmtExp (G, (U, s), 0)) (* GEN END TAG OUTSIDE LET *)
         (* close application if args reaches 0 *)
-        val _ = if (args = 1) andalso (spineLength(S) > 0) then
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = if (args = 1) andalso (spineLength(S) > 0) then
                         out := !out ^ nl_unind() ^ "</om:OMA>"
                 else
-                        ()
+                        () (* GEN END TAG OUTSIDE LET *)
         (* print remaining arguments *)
       in !out ^ fmtSpine (G, (S, s), args-1)
-      end
+      end (* GEN END FUN BRANCH *)
 
   and fmtExpTop (G, (U, s), imp) = sexp [Str "<om:OMOBJ>", nl_ind(), fmtExp (G, (U, s), imp), nl_unind(), Str "</om:OMOBJ>"]
 
@@ -247,9 +247,9 @@ local
         "<definition xml:id=\"" ^ name ^ ".def\" for=\"#" ^ name ^ "\">" ^ nl_ind() ^
         fmtExpTop (I.Null, (U, I.id), imp) ^ nl_unind() ^ "</definition>"
   and fmtPresentation(cid) = let
-        val imp = I.conDecImp (I.sgnLookup cid)
-        val fixity = Names.getFixity (cid)
-        val fixString = " fixity=\"" ^ (case fixity of
+        (* GEN BEGIN TAG OUTSIDE LET *) val imp = I.conDecImp (I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val fixity = Names.getFixity (cid) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val fixString = " fixity=\"" ^ (case fixity of
                   Names.Fixity.Nonfix => "prefix"       (* case identified by @precedence = Names.Fixity.minPrefInt *)
                 | Names.Fixity.Infix(prec, assoc) => (
                         case assoc of
@@ -259,15 +259,15 @@ local
                 )
                 | Names.Fixity.Prefix(prec) => "prefix"
                 | Names.Fixity.Postfix(prec) => "postfix"
-        ) ^ "\""
-        val precString = " precedence=\"" ^ (Int.toString (Names.Fixity.precToIntAsc(fixity))) ^ "\""
-        val bracString = " bracket-style=\"lisp\" lbrack=\"(\" rbrack=\")\""
-        val sepString = " separator=\" \""
-        val implicitString = " implicit=\"" ^ (Int.toString imp) ^ "\""
-        val useString1 = "<use format=\"twelf\""
-        val useString2 = ">" ^ (escape (I.conDecName(I.sgnLookup cid))) ^ "</use>"
-        val presString1 = "<presentation for=\"#" ^ (Name cid) ^ "\""
-        val presString2 = "</presentation>"
+        ) ^ "\"" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val precString = " precedence=\"" ^ (Int.toString (Names.Fixity.precToIntAsc(fixity))) ^ "\"" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val bracString = " bracket-style=\"lisp\" lbrack=\"(\" rbrack=\")\"" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val sepString = " separator=\" \"" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val implicitString = " implicit=\"" ^ (Int.toString imp) ^ "\"" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val useString1 = "<use format=\"twelf\"" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val useString2 = ">" ^ (escape (I.conDecName(I.sgnLookup cid))) ^ "</use>" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val presString1 = "<presentation for=\"#" ^ (Name cid) ^ "\"" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val presString2 = "</presentation>" (* GEN END TAG OUTSIDE LET *)
   in
         presString1 ^ ">" ^ nl_ind() ^ useString1 ^ useString2 ^ nl_unind() ^ presString2 ^ nl() ^
         presString1 ^ " role=\"applied\"" ^ fixString ^ precString ^ bracString ^ sepString ^ implicitString ^
@@ -275,8 +275,8 @@ local
   end
   (* fixity string attached to omdoc file in private element (no escaping, fixity string cannot contain ]]>) *)
   and fmtFixity(cid) = let
-        val fixity = Names.getFixity (cid)
-        val name = I.conDecName (I.sgnLookup cid)
+        (* GEN BEGIN TAG OUTSIDE LET *) val fixity = Names.getFixity (cid) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val name = I.conDecName (I.sgnLookup cid) (* GEN END TAG OUTSIDE LET *)
       in
         if (fixity = Names.Fixity.Nonfix) then "" else
         nl() ^ "<private for=\"#" ^ (Name cid) ^ "\">" ^ nl_ind() ^
@@ -290,31 +290,31 @@ local
      This function prints the quantifiers and abstractions only if hide = false.
   *)
 
-  fun fmtConDec (cid, I.ConDec (name, parent, imp, _, V, L)) =
+  fun (* GEN BEGIN FUN FIRST *) fmtConDec (cid, I.ConDec (name, parent, imp, _, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val name = Name cid
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val name = Name cid (* GEN END TAG OUTSIDE LET *)
       in
         fmtSymbol(name, V, imp)
-      end
-    | fmtConDec (_, I.SkoDec (name, parent, imp, V, L)) =
-      Str ("<!-- Skipping Skolem constant " ^ name ^ "-->")
-    | fmtConDec (cid, I.ConDef (name, parent, imp, U, V, L, _)) =
+      end (* GEN END FUN FIRST *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (_, I.SkoDec (name, parent, imp, V, L)) =
+      Str ("<!-- Skipping Skolem constant " ^ name ^ "-->") (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (cid, I.ConDef (name, parent, imp, U, V, L, _)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val name = Name cid
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val name = Name cid (* GEN END TAG OUTSIDE LET *)
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
-      end
-    | fmtConDec (cid, I.AbbrevDef (name, parent, imp, U, V, L)) =
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (cid, I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
-        val _ = Names.varReset IntSyn.Null
-        val name = Name cid
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = Names.varReset IntSyn.Null (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val name = Name cid (* GEN END TAG OUTSIDE LET *)
       in
         fmtSymbol(name, V, imp) ^ nl() ^ fmtDefinition(name, U, imp)
-      end
-    | fmtConDec (_, I.BlockDec (name, _, _, _)) =
-      Str ("<!-- Skipping Skolem constant " ^ name ^ "-->")
+      end (* GEN END FUN BRANCH *)
+    | (* GEN BEGIN FUN BRANCH *) fmtConDec (_, I.BlockDec (name, _, _, _)) =
+      Str ("<!-- Skipping Skolem constant " ^ name ^ "-->") (* GEN END FUN BRANCH *)
 
 in
 
@@ -337,27 +337,27 @@ in
 
   fun printSgn filename ns =
       let
-        val _ = namesafe := ns
-        val _ = ind_reset()
-        val file = TextIO.openOut (filename)
-        val OMDocPrefix =
-  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ^
-  "<!DOCTYPE omdoc PUBLIC \"-//OMDoc//DTD OMDoc V1.2//EN\" " ^
-  (* "\"https://svn.mathweb.org/repos/mathweb.org/branches/omdoc-1.2/dtd/omdoc.dtd\">\n" ^ *)
-  "\"../../dtd/omdoc.dtd\">\n" ^
-  "<omdoc xml:id=\"" ^ filename ^ "\" " ^
-  "xmlns=\"http://www.mathweb.org/omdoc\" " ^
-  "xmlns:om=\"http://www.openmath.org/OpenMath\" " ^
-  "version=\"1.2\">\n\n"
-        val _ = TextIO.output (file, OMDocPrefix ^ "<theory xml:id=\"global\">\n\n")
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = namesafe := ns (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = ind_reset() (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val file = TextIO.openOut (filename) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val OMDocPrefix =
+          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ^
+          "<!DOCTYPE omdoc PUBLIC \"-//OMDoc//DTD OMDoc V1.2//EN\" " ^
+          (* "\"https://svn.mathweb.org/repos/mathweb.org/branches/omdoc-1.2/dtd/omdoc.dtd\">\n" ^ *)
+          "\"../../dtd/omdoc.dtd\">\n" ^
+          "<omdoc xml:id=\"" ^ filename ^ "\" " ^
+          "xmlns=\"http://www.mathweb.org/omdoc\" " ^
+          "xmlns:om=\"http://www.openmath.org/OpenMath\" " ^
+          "version=\"1.2\">\n\n" (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = TextIO.output (file, OMDocPrefix ^ "<theory xml:id=\"global\">\n\n") (* GEN END TAG OUTSIDE LET *)
   
-        val _ = IntSyn.sgnApp (fn (cid) => (
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = IntSyn.sgnApp ((* GEN BEGIN FUNCTION EXPRESSION *) fn (cid) => (
                         (TextIO.output (file, fmtConst cid)) ;
                         TextIO.output (file, "\n\n")
-                )
-        )
-        val _ = TextIO.output (file, "</theory>\n\n</omdoc>")
-        val _ = TextIO.closeOut file
+                ) (* GEN END FUNCTION EXPRESSION *)
+        ) (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = TextIO.output (file, "</theory>\n\n</omdoc>") (* GEN END TAG OUTSIDE LET *)
+        (* GEN BEGIN TAG OUTSIDE LET *) val _ = TextIO.closeOut file (* GEN END TAG OUTSIDE LET *)
   
       in
         ()
