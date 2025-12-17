@@ -1,0 +1,1 @@
+INTSET   Intset   empty Intset   insert Int * Intset -> Intset   member Int * Intset -> Bool   foldl (Int * 'b -> 'b) -> 'b -> Intset -> 'b       module

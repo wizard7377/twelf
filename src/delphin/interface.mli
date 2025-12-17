@@ -1,0 +1,1 @@
+INTERFACE   Pos   line Pos Ref   init_line Unit -> Unit   next_line Unit -> Unit   error String * Pos * Pos -> Unit   Arg   nothing Arg

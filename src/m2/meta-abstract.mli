@@ -1,0 +1,1 @@
+METAABSTRACT   MetaSyn METASYN    error String   abstract State -> State

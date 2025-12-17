@@ -1,0 +1,1 @@
+PTRECON   error String   solve Pskeleton * (Goal * Sub) * DProg * (Pskeleton * Exp -> Unit) -> Unit

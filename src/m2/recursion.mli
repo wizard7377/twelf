@@ -1,0 +1,1 @@
+RECURSION   MetaSyn METASYN    error String   Operator   expandLazy State -> Operator List   expandEager State -> Operator List   apply Operator -> State   menu Operator -> String

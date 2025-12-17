@@ -1,0 +1,1 @@
+COVER   error String   checkNoDef Cid -> Unit   checkOut (Dctx * Eclo) -> Unit   checkCovers (Cid * ModeSpine) -> Unit   coverageCheckCases Worlds *  Dctx * Sub  List * Dctx -> Unit

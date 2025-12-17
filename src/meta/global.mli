@@ -1,0 +1,1 @@
+MTPGLOBAL   ProverType new  old    prover ProverType Ref   maxFill Int Ref   maxSplit Int Ref   maxRecurse Int Ref

@@ -1,0 +1,1 @@
+INT_INF   INTEGER   divmod (Int * Int) -> (Int * Int)   quotrem (Int * Int) -> (Int * Int)   pow (Int * Int) -> Int   log2 Int -> Int

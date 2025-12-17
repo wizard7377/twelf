@@ -1,0 +1,1 @@
+INTEGERS   INTEGER   gcd Int * Int -> Int   lcm Int * Int -> Int   solve_gcd Int * Int -> Int * Int

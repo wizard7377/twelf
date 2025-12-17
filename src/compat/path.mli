@@ -1,0 +1,1 @@
+COMPAT_PATH   mkAbsolute {path: String; relativeTo: String} -> String

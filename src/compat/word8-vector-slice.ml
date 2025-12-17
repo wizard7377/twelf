@@ -1,0 +1,1 @@
+MONO_VECTOR_SLICE   Slice   Vector   slice Vector * Int * Int Option -> Slice   vector Slice -> Vector   full Vector -> Slice       module   COMPAT_WORD8_VECTOR_SLICE   full Vector -> Slice       module

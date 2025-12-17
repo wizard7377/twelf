@@ -1,0 +1,1 @@
+TABLEDSYN   error String   reset Unit -> Unit   installTabled Cid -> Unit   installKeepTable Cid -> Unit   tabledLookup Cid -> Bool   keepTable Cid -> Bool

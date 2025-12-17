@@ -1,0 +1,1 @@
+METAPRINT   MetaSyn METASYN    stateToString State -> String   sgnToString Sgn -> String   modeToString Mode -> String   conDecToString ConDec -> String

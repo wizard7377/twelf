@@ -1,0 +1,1 @@
+TRANS   DextSyn DEXTSYN    error String   internalizeSig Unit -> Unit   transFor Form -> For   transDecs Decs -> Prg   externalizePrg Prg -> Prg

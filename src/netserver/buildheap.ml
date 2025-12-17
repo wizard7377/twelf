@@ -1,0 +1,1 @@
+setExamplesDir "/usr0/stuff/twelf-cvs/examples" let rec httpServer_ (httpServer 1066 "/usr0/stuff/twelf-cvs/src/netserver/htdocs"; success) exportFn ("netserver.heap",  , httpServer)

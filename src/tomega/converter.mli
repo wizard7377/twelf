@@ -1,0 +1,2 @@
+CONVERTER   error String   error' Sub   convertFor Cid List -> For   convertPrg Cid List -> Prg   installPrg Cid List -> Cid * Lemma List(* projections *)
+ * Lemma List   convertGoal Dec Ctx * Exp -> Prg

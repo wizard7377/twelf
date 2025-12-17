@@ -1,0 +1,1 @@
+TOMEGATYPECHECK   error String   checkCtx Dec Ctx -> Unit   checkFor Dec Ctx * For -> Unit   checkPrg Dec Ctx * (Prg * For) -> Unit   checkSub Dec Ctx * Sub * Dec Ctx -> Unit

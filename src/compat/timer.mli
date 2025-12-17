@@ -1,0 +1,1 @@
+COMPAT_TIMER   checkCPUTimer Cpu_timer -> {usr: Time; sys: Time}   checkGCTime Cpu_timer -> Time

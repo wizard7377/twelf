@@ -1,0 +1,1 @@
+ORDERED_FIELD   FIELD   sign Number -> Int   abs Number -> Number   > Number * Number -> Bool   < Number * Number -> Bool   >= Number * Number -> Bool   <= Number * Number -> Bool   compare Number * Number -> Order

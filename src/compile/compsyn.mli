@@ -1,0 +1,5 @@
+COMPSYN   Opt no  linearHeads  indexing    optimize Opt Ref   Goal atom Exp  impl ResGoal * Exp(*     | (r,A,a) => g         *)
+ * Head * Goal  all Dec * Goal   ResGoal eq Exp  assign Exp * AuxGoal  and ResGoal(*     | r & (A,g)            *)
+ * Exp * Goal  in ResGoal(*     | r virt& (A,g)        *)
+ * Exp * Goal  exists Dec * ResGoal  axists Dec * ResGoal   AuxGoal trivial  unifyEq Dctx * Exp(* call unify *)
+ * Exp * AuxGoal    Conjunction true  conjunct Goal * Exp * Conjunction    CompHead head (Exp * Dec Ctx * AuxGoal * Cid)    Flatterm pc Int  dc Int  csolver Exp    Pskeleton  ComDec parameter  dec ResGoal * Sub * Head  bDec  ResGoal * Sub * Head  List  pDec    DProg dProg (Dctx * ComDec Ctx)    ConDec sClause ResGoal  void    sProgInstall Cid * ConDec -> Unit   sProgLookup Cid -> ConDec   sProgReset Unit -> Unit   detTableInsert Cid * Bool -> Unit   detTableCheck Cid -> Bool   detTableReset Unit -> Unit   goalSub Goal * Sub -> Goal   resGoalSub ResGoal * Sub -> ResGoal   pskeletonToString Pskeleton -> String

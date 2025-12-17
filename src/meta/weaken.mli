@@ -1,0 +1,1 @@
+WEAKEN   strengthenExp (Exp * Sub) -> Exp   strengthenSpine (Spine * Sub) -> Spine   strengthenCtx (Dctx * Sub) -> (Dctx * Sub)   strengthenDec (Dec * Sub) -> Dec   strengthenSub (Sub * Sub) -> Sub

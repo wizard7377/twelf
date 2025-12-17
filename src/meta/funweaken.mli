@@ -1,0 +1,1 @@
+FUNWEAKEN   strengthenPsi (Lfctx * Sub) -> (Lfctx * Sub)   strengthenPsi' (LFDec List * Sub) -> (LFDec List * Sub)

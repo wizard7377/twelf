@@ -1,0 +1,4 @@
+MODSYN   Names NAMES    error String   abbrevify Cid * ConDec -> ConDec   strictify ConDec -> ConDec   Module   installStruct StrDec * Module * Namespace Option * (Cid * (String * OccConDec Option) -> Unit)(* action *)
+ * Bool -> Unit   installSig Module * Namespace Option * (Cid * (String * OccConDec Option) -> Unit)(* action *)
+ * Bool -> Unit   instantiateModule Module * (Namespace -> (Cid * ConDec -> ConDec))(* Names.namespace -> transform *)
+ -> Module   abstractModule Namespace * Mid Option -> Module   reset Unit -> Unit   installSigDef String * Module -> Unit   lookupSigDef String -> Module Option   sigDefSize Unit -> Int   resetFrom Int -> Unit

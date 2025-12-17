@@ -1,0 +1,1 @@
+STATE   error String   State state Worlds * Dec Ctx * Prg * For  stateLF Exp    Focus focus Prg * Worlds  focusLF Exp    init For * Worlds -> State   close State -> Bool   collectT Prg -> Prg List   collectLF Prg -> Exp List   collectLFSub Sub -> Exp List

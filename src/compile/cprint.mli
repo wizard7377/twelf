@@ -1,0 +1,1 @@
+CPRINT   goalToString String -> Dctx * Goal -> String   clauseToString String -> Dctx * ResGoal -> String   sProgToString Unit -> String   dProgToString DProg -> String   subgoalsToString String -> Dctx * Conjunction -> String

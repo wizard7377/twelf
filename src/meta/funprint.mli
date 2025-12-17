@@ -1,0 +1,1 @@
+FUNPRINT   Formatter FORMATTER    formatForBare Dctx * For -> Format   formatFor Lfctx * For -> String List -> Format   formatPro Lfctx * Pro -> String List -> Format   formatLemmaDec LemmaDec -> Format   forToString Lfctx * For -> String List -> String   proToString Lfctx * Pro -> String List -> String   lemmaDecToString LemmaDec -> String

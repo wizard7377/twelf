@@ -1,0 +1,1 @@
+SPLITTING   MetaSyn METASYN    error String   Operator   expand State -> Operator List   apply Operator -> State List   var Operator -> Int   menu Operator -> String   index Operator -> Int

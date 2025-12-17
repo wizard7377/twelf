@@ -1,0 +1,1 @@
+COMPAT_SOCKET_IO   sendVec  'a Active Stream  Sock * Vector -> Int

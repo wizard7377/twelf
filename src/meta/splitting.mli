@@ -1,0 +1,1 @@
+MTPSPLITTING   StateSyn STATESYN    error String   Operator   expand State -> Operator List   applicable Operator -> Bool   apply Operator -> State List   menu Operator -> String   index Operator -> Int   compare Operator * Operator -> Order

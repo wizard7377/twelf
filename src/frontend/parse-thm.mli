@@ -1,0 +1,1 @@
+PARSE_THM   ThmExtSyn THMEXTSYN    parseTotal' Tdecl Parser   parseTerminates' Tdecl Parser   parseReduces' Rdecl Parser   parseTabled' Tableddecl Parser   parseKeepTable' KeepTabledecl Parser   parseTheorem' Theorem Parser   parseTheoremDec' Theoremdec Parser   parseWorlds' Wdecl Parser   parseProve' Prove Parser   parseEstablish' Establish Parser   parseAssert' Assert Parser

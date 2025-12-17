@@ -1,0 +1,1 @@
+ORIGINS   reset Unit -> Unit   installLinesInfo String * LinesInfo -> Unit   linesInfoLookup String -> LinesInfo Option   installOrigin Cid * (String * OccConDec Option) -> Unit   originLookup Cid -> (String * OccConDec Option)

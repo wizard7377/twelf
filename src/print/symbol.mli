@@ -1,0 +1,1 @@
+SYMBOL   str String -> String * Int   evar String -> String * Int   bvar String -> String * Int   const String -> String * Int   label String -> String * Int   skonst String -> String * Int   def String -> String * Int   fvar String -> String * Int   sym String -> String * Int

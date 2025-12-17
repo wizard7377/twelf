@@ -1,0 +1,1 @@
+MODECHECK   error String   checkD ConDec * String * OccConDec Option -> Unit   checkMode Cid * ModeSpine -> Unit   checkFreeOut Cid * ModeSpine -> Unit

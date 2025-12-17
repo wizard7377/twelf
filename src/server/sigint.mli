@@ -1,0 +1,1 @@
+SIGINT   interruptLoop (Unit -> Unit) -> Unit

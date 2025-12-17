@@ -1,0 +1,1 @@
+CONV   conv Eclo * Eclo -> Bool   convDec (Dec * Sub) * (Dec * Sub) -> Bool   convSub Sub * Sub -> Bool

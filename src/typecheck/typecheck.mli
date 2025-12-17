@@ -1,0 +1,1 @@
+TYPECHECK   error String   check Exp * Exp -> Unit   checkDec Dctx * (Dec * Sub) -> Unit   checkConv Exp * Exp -> Unit   infer Exp -> Exp   infer' Dctx * Exp -> Exp   typeCheck Dctx * (Exp * Exp) -> Unit   typeCheckCtx Dctx -> Unit   typeCheckSub Dctx * Sub * Dctx -> Unit

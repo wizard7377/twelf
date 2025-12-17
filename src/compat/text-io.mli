@@ -1,0 +1,1 @@
+COMPAT_TEXT_IO   inputLine Instream -> String Option

@@ -1,0 +1,1 @@
+PARSE_FIXITY   Names NAMES    parseFixity'  (Qid * Region) * Fixity  Parser   parseNamePref'  (Qid * Region) * (String List * String List)  Parser

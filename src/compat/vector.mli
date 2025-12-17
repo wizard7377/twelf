@@ -1,0 +1,1 @@
+COMPAT_VECTOR   appi (Int * 'a -> Unit) -> 'a Vector -> Unit   mapi (Int * 'a -> 'b) -> 'a Vector -> 'b Vector

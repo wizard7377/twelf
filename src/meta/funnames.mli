@@ -1,0 +1,1 @@
+FUNNAMES   error String   reset Unit -> Unit   installName String * Lemma -> Unit   nameLookup String -> Lemma Option   constName Lemma -> String

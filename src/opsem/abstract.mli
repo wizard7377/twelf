@@ -1,0 +1,1 @@
+ABSTRACTTABLED   error String   abstractEVarCtx (DProg * Exp * Sub) -> (Dctx * Dctx * Dctx * Exp * ResEqn * Sub)   abstractAnswSub Sub -> Dctx * Sub   raiseType Dctx * Exp -> Exp

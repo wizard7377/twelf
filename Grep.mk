@@ -6,7 +6,7 @@ OML_FILES := $(patsubst src/, lib/, $(addsuffix .ml, $(SML_FILES) $(FUN_FILES)))
 MLI_FILES := $(patsubst src/, lib/, $(addsuffix .mli, $(SIG_FILES)))
 
 ML_FILES := $(OML_FILES) $(MLI_FILES)
-CONVERTER_SCRIPT := ./grep/sr/sml_process.py
+CONVERTER_SCRIPT := ./grep/sr/main.py
 CONVERTER := python $(CONVERTER_SCRIPT)
 %.ml: %.fun $(CONVERTER_SCRIPT)
 	$(CONVERTER) $< $@

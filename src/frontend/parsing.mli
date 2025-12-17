@@ -1,0 +1,1 @@
+PARSING   Stream STREAM    LexResult  Parser  'a RecParseResult done 'a  continuation 'a RecParseResult Parser    Recparser  recwith 'a Recparser * ('a -> 'b) -> 'b Recparser   error String   error Region * String -> 'a

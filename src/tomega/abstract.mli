@@ -1,0 +1,1 @@
+TOMEGAABSTRACT   error String   raiseFor Dec Ctx * (For * Sub) -> For   raisePrg Dec Ctx * Prg * For -> Prg   raiseP Dec Ctx * Prg * For -> Prg   raiseF Dec Ctx * (For * Sub) -> For

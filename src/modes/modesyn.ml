@@ -1,0 +1,1 @@
+MODESYN   Mode plus  star  minus  minus1    ModeSpine mnil  mapp Marg * ModeSpine   Marg marg Mode * String Option    modeEqual Mode * Mode -> Bool   modeToString Mode -> String       module

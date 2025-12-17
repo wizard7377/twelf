@@ -1,0 +1,1 @@
+WORLDSYN   error String   reset Unit -> Unit   install Cid * Worlds -> Unit   lookup Cid -> Worlds   uninstall Cid -> Bool   worldcheck Worlds -> Cid -> Unit   ctxToList Dec Ctx -> Dec List   isSubsumed Worlds -> Cid -> Unit   getWorlds Cid -> Worlds

@@ -1,0 +1,1 @@
+TOMEGANAMES   decName Dec Ctx * Dec -> Dec

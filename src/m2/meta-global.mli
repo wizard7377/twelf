@@ -1,0 +1,1 @@
+METAGLOBAL   Strategy rFS  fRS    strategy Strategy Ref   maxFill Int Ref   maxSplit Int Ref   maxRecurse Int Ref

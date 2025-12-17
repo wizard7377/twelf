@@ -1,0 +1,1 @@
+FUNTYPECHECK   StateSyn STATESYN    error String   isFor Dctx * For -> Unit   check Pro * For -> Unit   checkSub Lfctx * Sub * Lfctx -> Unit   isState State -> Unit

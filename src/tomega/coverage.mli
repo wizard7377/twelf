@@ -1,0 +1,1 @@
+TOMEGACOVERAGE   error String   coverageCheckPrg Worlds * Dec Ctx * Prg -> Unit

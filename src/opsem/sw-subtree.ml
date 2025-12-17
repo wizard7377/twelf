@@ -1,0 +1,4 @@
+SwMemoTable  MemoTable MEMOTABLE    MemoTableInst MEMOTABLE     MEMOTABLE  struct (*! structure IntSyn = MemoTable.IntSyn !*)
+(*! structure CompSyn = MemoTable.CompSyn !*)
+(*! structure TableParam = MemoTable.TableParam !*)
+let rec callCheckargs match (! strategy) with variant -> callCheck args subsumption -> callCheck argslet rec insertIntoTreeargs match (! strategy) with variant -> insertIntoTree args subsumption -> insertIntoTree argslet rec answerCheckargs match (! strategy) with variant -> answerCheck args subsumption -> answerCheck argslet rec reset() match (! strategy) with variant -> reset () subsumption -> reset ()let rec updateTable() match (! strategy) with variant -> updateTable () subsumption -> updateTable ()let rec tableSize() match (! strategy) with variant -> tableSize () subsumption -> tableSize ()let rec memberCtxargs match (! strategy) with subsumption -> memberCtx args variant -> memberCtx argsend

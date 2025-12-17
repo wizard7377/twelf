@@ -1,0 +1,1 @@
+TIMING   init Unit -> Unit   Center   newCenter String -> Center   reset Center -> Unit   time Center -> ('a -> 'b) -> ('a -> 'b)   Sum   sumCenter String * Center List -> Sum   toString Center -> String   sumToString Sum -> String       module  module
