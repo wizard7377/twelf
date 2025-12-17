@@ -31,7 +31,13 @@ class TestCorpusFiles(unittest.TestCase):
                     converted = process_code(text)
                     #print("Original:\n" + text)
                     #print("Converted:\n" + converted)
-                    self.assertTrue(test_ocaml_code(converted))
+                    res = test_ocaml_code(converted)
+                    if res == True:
+                        self.assertTrue(True)
+                    else:
+                        print(res)
+                        self.fail("Failed to parse in OCaml: " + str(path))
+                        
                         
 
 if __name__ == "__main__":
