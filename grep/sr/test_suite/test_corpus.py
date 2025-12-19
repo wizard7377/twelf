@@ -16,7 +16,8 @@ if str(SRC_DIR) not in sys.path:
     sys.path.append(str(SRC_DIR))
 
 from test_ocaml import test_ocaml_code
-from sml_process import process_code
+from sml_process import process_code, PARSER as SML_PARSER
+import tree_sitter as TS
 
 class TestCorpusFiles(unittest.TestCase):
     """Validate conversion of all files in the sml_sources folder."""
@@ -29,16 +30,53 @@ class TestCorpusFiles(unittest.TestCase):
                 with self.subTest("Testing ${path}",file=str(path)):
                     text = path.read_text(encoding="utf-8", errors="ignore")
                     converted = process_code(text)
-                    #print("Original:\n" + text)
-                    #print("Converted:\n" + converted)
-                    res = test_ocaml_code(converted)
-                    if res == True:
+                    
+                    # Parse both SML and OCaml for error reporting
+                    sml_tree = SML_PARSER.parse(text.encode("utf-8"))
+                    ocaml_result = test_ocaml_code(converted)
+                    
+                    if isinstance(ocaml_result, TS.Tree):
                         self.assertTrue(True)
                     else:
-                        print(res)
-                        self.fail("Failed to parse in OCaml: " + str(path))
+                        # Format failure message with all requested information
+                        failure_msg = f"""
+================================================================================
+FILE: {path}
+================================================================================
+
+SML SOURCE:
+--------------------------------------------------------------------------------
+{text}
+================================================================================
+
+CONVERTED OCaml:
+--------------------------------------------------------------------------------
+{converted}
+================================================================================
+
+SML PARSE TREE:
+--------------------------------------------------------------------------------
+{sml_tree.root_node}
+================================================================================
+
+OCaml PARSE TREE:
+--------------------------------------------------------------------------------
+"""
+                        # Parse the OCaml code to show parse tree
+                        try:
+                            from tree_sitter import Language, Parser
+                            import tree_sitter_ocaml
+                            ocaml_lang = Language(tree_sitter_ocaml.language_ocaml())
+                            ocaml_parser = Parser(ocaml_lang)
+                            ocaml_tree = ocaml_parser.parse(converted.encode("utf-8"))
+                            failure_msg += str(ocaml_tree.root_node)
+                        except Exception as e:
+                            failure_msg += f"(Could not parse: {e})"
                         
+                        failure_msg += "\n================================================================================"
+                        self.fail(failure_msg)
                         
 
 if __name__ == "__main__":
     unittest.main()
+    print("All tests passed!")
