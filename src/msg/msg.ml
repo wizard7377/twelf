@@ -1,1 +1,0 @@
-MSG   message String -> Unit   setMessageFunc (String -> Unit) -> Unit      module

@@ -1,1 +1,0 @@
-SOLVE   ExtQuery EXTQUERY    abortQuery String   solve Define List * Solve * Location ->  ConDec * OccConDec Option  List   query (Int Option * Int Option * Query) * Location -> Unit   querytabled (Int Option * Int Option * Query) * Location -> Unit   qLoop Unit -> Bool   qLoopT Unit -> Bool

@@ -1,1 +1,0 @@
-CHECKING   Order ORDER    Quantifier all  exist  and Occ    'a Predicate less 'a * 'a  leq 'a * 'a  eq 'a * 'a  pi Dec * 'a Predicate    Order  Rctx  Qctx  shiftRCtx Rctx -> (Sub -> Sub) -> Rctx   shiftPred Order Predicate -> (Sub -> Sub) -> Order Predicate   deduce Dctx * Qctx * Rctx * Order Predicate -> Bool

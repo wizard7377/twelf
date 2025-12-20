@@ -1,1 +1,0 @@
-MEMOTABLE   callCheck Dctx * Dctx * Dctx * Exp * ResEqn * Status -> CallCheckResult   insertIntoTree Dctx * Dctx * Dctx * Exp * ResEqn * Answer * Status -> CallCheckResult   answerCheck Sub * Answer * Pskeleton -> AnswState   reset Unit -> Unit   updateTable Unit -> Bool   tableSize Unit -> Int   memberCtx (Dctx * Exp) * Dctx -> Dec Option

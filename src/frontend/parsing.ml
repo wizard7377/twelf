@@ -1,2 +1,0 @@
-Parsing  Stream' STREAM     PARSING  struct module (*! structure Lexer = Lexer' !*)
-type LexResulttype Parsertype RecParseResulttype Recparserlet rec recwith(recparser,  , func)f (match recparser f with (done x,  , f') -> (done (func x),  , f') (continuation k,  , f') -> (continuation (recwith (k,  , func)),  , f'))exception let rec error(r,  , msg) raise (error (wrap (r,  , msg)))end   module

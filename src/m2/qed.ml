@@ -1,2 +1,0 @@
-Qed  Global GLOBAL    MetaSyn' METASYN     QED  struct module exception module module let rec subgoal(state (name,  , prefix (g,  , m,  , b),  , v)) let let rec checknull true check(decl (m,  , top)) check m check(decl (m,  , bot)) false in check mlet  in(* local *)
-end

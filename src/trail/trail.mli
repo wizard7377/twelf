@@ -1,1 +1,0 @@
-TRAIL   'a Trail   trail Unit -> 'a Trail   suspend 'a Trail * ('a -> 'b) -> 'b Trail   resume 'b Trail * 'a Trail * ('b -> 'a) -> Unit   reset 'a Trail -> Unit   mark 'a Trail -> Unit   unwind 'a Trail * ('a -> Unit) -> Unit   log 'a Trail * 'a -> Unit

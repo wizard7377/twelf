@@ -1,1 +1,0 @@
-NORMALIZE   IntSyn INTSYN    Tomega TOMEGA    normalizeFor (For * Sub) -> For   normalizePrg (Prg * Sub) -> Prg   normalizeSpine (Spine * Sub) -> Spine   normalizeSub Sub -> Sub

@@ -1,1 +1,0 @@
-MODEDEC   error String   shortToFull Cid * ModeSpine * Region -> ModeSpine   checkFull Cid * ModeSpine * Region -> Unit   checkPure (Cid * ModeSpine) * Region -> Unit

@@ -1,1 +1,0 @@
-FILLING   MetaSyn METASYN    error String   timeOut   Operator   expand State -> Operator List * Operator   apply Operator -> State List   menu Operator -> String

@@ -1,1 +1,0 @@
-FIXEDPOINT   State STATE    error String   Operator   expand (Focus * TC) -> Operator   apply Operator -> Unit   menu Operator -> String

@@ -1,1 +1,0 @@
-Interface   INTERFACE  struct type Poslet  inlet rec init_line() (line := 1)let rec next_line() (line := ! line + 1)let rec error(errmsg,  , line : Pos,  , _) output (stdOut,  , "Line " ^ (toString (line)) ^ ": " ^ errmsg ^ "\n")type Arglet  inend

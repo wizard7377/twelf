@@ -1,1 +1,0 @@
-TABLE   Key   Entry  'a Table   new Int -> 'a Table   insert 'a Table -> 'a Entry -> Unit   insertShadow 'a Table -> 'a Entry ->  'a Entry  Option   lookup 'a Table -> Key -> 'a Option   delete 'a Table -> Key -> Unit   clear 'a Table -> Unit   app ('a Entry -> Unit) -> 'a Table -> Unit

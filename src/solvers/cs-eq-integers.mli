@@ -1,1 +1,0 @@
-CS_EQ_INTEGERS   CS   Integers INTEGERS    Mset  Sum sum Int * Mon Mset   Mon mon Int *  Exp * Sub  Mset    fromExp Eclo -> Sum   toExp Sum -> Exp   normalize Sum -> Sum   compatibleMon Mon * Mon -> Bool   number Unit -> Exp   unaryMinus Exp -> Exp   plus Exp * Exp -> Exp   minus Exp * Exp -> Exp   times Exp * Exp -> Exp   constant Int -> Exp

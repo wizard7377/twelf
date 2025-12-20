@@ -1,1 +1,0 @@
-HEURISTIC   Index  compare Index * Index -> Order   indexToString Index -> String

@@ -1,1 +1,0 @@
-MONO_ARRAY_SLICE   Array   Slice   Vector   slice Array * Int * Int Option -> Slice   vector Slice -> Vector

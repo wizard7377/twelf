@@ -1,1 +1,0 @@
-TIME_LIMIT   timeOut   timeLimit Time Option -> ('a -> 'b) -> 'a -> 'b

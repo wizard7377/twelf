@@ -1,1 +1,0 @@
-LEMMA   MetaSyn METASYN    error String   apply State * Cid -> State

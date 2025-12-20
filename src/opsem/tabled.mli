@@ -1,1 +1,0 @@
-TABLED   solve (Goal * Sub) * DProg * (Pskeleton -> Unit) -> Unit   updateGlobalTable (Goal * Bool) -> Unit   keepTable Cid -> Bool   fillTable Unit -> Unit   nextStage Unit -> Bool   reset Unit -> Unit   tableSize Unit -> Int   suspGoalNo Unit -> Int

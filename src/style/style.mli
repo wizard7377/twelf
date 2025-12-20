@@ -1,1 +1,0 @@
-STYLECHECK   error String   check Unit -> Unit   checkConDec Cid -> Unit

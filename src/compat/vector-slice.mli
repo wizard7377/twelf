@@ -1,1 +1,0 @@
-VECTOR_SLICE   'a Slice   slice 'a Vector * Int * Int Option -> 'a Slice   appi (Int * 'a -> Unit) -> 'a Slice -> Unit   mapi (Int * 'a -> 'b) -> 'a Slice -> 'b Vector

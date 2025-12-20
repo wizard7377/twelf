@@ -1,1 +1,0 @@
-MTPINIT   StateSyn STATESYN    error String   init (For * Order) -> State List

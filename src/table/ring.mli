@@ -1,1 +1,0 @@
-RING   empty   'a Ring   init 'a List -> 'a Ring   empty 'a Ring -> Bool   insert 'a Ring * 'a -> 'a Ring   delete 'a Ring -> 'a Ring   current 'a Ring -> 'a   next 'a Ring -> 'a Ring   previous 'a Ring -> 'a Ring   foldr ('a * 'b -> 'b) -> 'b -> 'a Ring -> 'b   map ('a -> 'b) -> 'a Ring -> 'b Ring

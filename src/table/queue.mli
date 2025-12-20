@@ -1,1 +1,0 @@
-QUEUE   'a Queue   empty 'a Queue   insert 'a * 'a Queue -> 'a Queue   delete 'a Queue ->  'a * 'a Queue  Option   insertFront 'a * 'a Queue -> 'a Queue   deleteEnd 'a Queue ->  'a * 'a Queue  Option   toList 'a Queue -> 'a List * 'a Queue Option

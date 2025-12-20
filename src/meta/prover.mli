@@ -1,1 +1,0 @@
-MTPROVER   StateSyn STATESYN    error String   init For * Order -> Unit

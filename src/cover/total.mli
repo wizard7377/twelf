@@ -1,1 +1,0 @@
-TOTAL   error String   reset Unit -> Unit   install Cid -> Unit   uninstall Cid -> Bool   checkFam Cid -> Unit

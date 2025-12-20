@@ -1,1 +1,0 @@
-QED   MetaSyn METASYN    error String   subgoal State -> Bool

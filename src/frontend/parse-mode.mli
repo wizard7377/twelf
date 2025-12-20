@@ -1,1 +1,0 @@
-PARSE_MODE   ExtModes EXTMODES    parseMode'  Modedec List  Parser

@@ -1,1 +1,0 @@
-CS_MANAGER   Fixity FIXITY    SigEntry  FgnConDec  Solver  error String   setInstallFN (SigEntry -> Cid) -> Unit   installSolver Solver -> Csid   resetSolvers Unit -> Unit   useSolver String -> Unit   parse String ->  Csid * ConDec  Option   reset Unit -> Unit   trail (Unit -> 'a) -> 'a

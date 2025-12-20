@@ -1,5 +1,0 @@
-METASYN   Mode bot  top    Prefix prefix Dctx(* G   declarations           *)
- * Mode Ctx(* Mtx modes                  *)
- * Int Ctx    State state String(*             [name]         *)
- * Prefix(*             G; Mtx; Btx    *)
- * Exp    Sgn sgnEmpty  conDec ConDec * Sgn    createAtomConst Dctx * Head -> (Exp * Eclo)   createAtomBVar Dctx * Int -> (Exp * Eclo)

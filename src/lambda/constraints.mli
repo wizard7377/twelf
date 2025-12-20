@@ -1,1 +1,0 @@
-CONSTRAINTS   error Cnstr List   simplify Cnstr List -> Cnstr List   warnConstraints String List -> Unit

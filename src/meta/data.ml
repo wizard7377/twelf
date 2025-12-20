@@ -1,1 +1,0 @@
-MTPData  MTPGlobal MTPGLOBAL     MTPDATA  struct let  inend

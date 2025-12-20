@@ -1,1 +1,0 @@
-RATIONALS   ORDERED_FIELD   Integers INTEGERS    fromInteger Int -> Number   floor Number -> Int   ceiling Number -> Int   numerator Number -> Int   denominator Number -> Int

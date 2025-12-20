@@ -1,1 +1,0 @@
-let rec dumpText(tcb,  , semant,  , checker,  , outputSemant,  , outputChecker) let let  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  inlet  in in () dumpText ("pcc/flit/ltal.cfg",  , "pcc/ltal/semant.cfg",  , "pcc/ltal/checker.cfg",  , "dumpsemant",  , "dumpchecker")

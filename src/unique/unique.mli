@@ -1,1 +1,0 @@
-UNIQUE   error String   checkUnique (Cid * ModeSpine) -> Unit

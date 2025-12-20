@@ -1,1 +1,0 @@
-DELPHIN   version String   loadFile String * String -> Unit   top Unit -> Unit   runSimpleTest String -> (String List) -> String List -> Unit   eval Prg -> Prg

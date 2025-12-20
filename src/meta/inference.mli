@@ -1,1 +1,0 @@
-INFERENCE   StateSyn STATESYN    error String   Operator   expand State -> Operator   apply Operator -> State   menu Operator -> String

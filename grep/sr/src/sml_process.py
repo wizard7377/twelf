@@ -1459,7 +1459,7 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                             elif c.type == "sigid_sigexp":
                                 sig = walk_tree(c)
                         if name and sig:
-                            params.append(f"{name} : {sig}")
+                            params.append(f"({name} : {sig})")
                 elif child.type == "sharing_spec" and in_params:
                     # Skip sharing constraints in parameters
                     pass

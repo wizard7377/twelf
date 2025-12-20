@@ -1,1 +1,0 @@
-COMPAT   inputLine97 Instream -> String   Array COMPAT_ARRAY    Vector COMPAT_VECTOR    OS   Path COMPAT_PATH        Substring COMPAT_SUBSTRING    TextIO COMPAT_TEXT_IO    Timer COMPAT_TIMER    SocketIO COMPAT_SOCKET_IO

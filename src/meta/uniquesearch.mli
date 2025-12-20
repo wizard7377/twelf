@@ -1,1 +1,0 @@
-UNIQUESEARCH   StateSyn STATESYN    error String   Acctype  searchEx Int * Exp List * (Acctype List -> Acctype List) -> Acctype List

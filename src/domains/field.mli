@@ -1,1 +1,0 @@
-FIELD   name String   Number   div   zero Number   one Number   ~ Number -> Number   + Number * Number -> Number   - Number * Number -> Number   * Number * Number -> Number   inverse Number -> Number   fromInt Int -> Number   fromString String -> Number Option   toString Number -> String

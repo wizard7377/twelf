@@ -1,1 +1,0 @@
-STRING_HASH   stringHash String -> Int

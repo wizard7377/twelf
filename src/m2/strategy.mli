@@ -1,1 +1,0 @@
-STRATEGY   MetaSyn METASYN    run State List -> State List * State List

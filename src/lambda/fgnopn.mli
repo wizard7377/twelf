@@ -1,1 +1,0 @@
-FGN_OPN   Csid  Rep  Arg   Result   Func  install Csid * Func -> Unit   apply Csid * Rep -> Arg -> Result

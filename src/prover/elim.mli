@@ -1,1 +1,0 @@
-ELIM   State STATE    error String   Operator   expand Focus -> Operator List   apply Operator -> Unit   menu Operator -> String

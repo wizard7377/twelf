@@ -1,1 +1,0 @@
-COMPAT_SUBSTRING   full String -> Substring

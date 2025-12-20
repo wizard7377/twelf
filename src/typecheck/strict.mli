@@ -1,1 +1,0 @@
-STRICT   error String   check (Exp * Exp) * OccConDec Option -> Unit   checkType (Int * Exp) * OccConDec Option -> Unit

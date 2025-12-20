@@ -1,1 +1,0 @@
-UnknownExn  exnHistory Exn -> String List    UNKNOWN_EXN  struct let rec unknownExnexn let let  inlet rec wrap1x "  raised at: " ^ x ^ "\n"let rec wrapnx "             " ^ x ^ "\n" in concat ("Unrecognized exception " :: (exnName exn) :: "\n" :: (match history with nil -> [""] x :: xs -> (wrap1 x :: map wrapn xs)))end

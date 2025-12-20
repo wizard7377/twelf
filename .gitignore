@@ -1,3 +1,6 @@
 CM
 .cm
 src/frontend/buildid.sml
+_build
+dev-tools.locks
+dune.lock 

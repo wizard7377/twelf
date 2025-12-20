@@ -1,1 +1,0 @@
-COMPRESS   sgnReset Unit -> Unit   sgnLookup Cid -> Sigent   sgnResetUpTo Int -> Unit   sgnCompressUpTo Int -> Unit   check Tp List * Term * Tp -> Bool   set_modes Int * Mode List -> Unit

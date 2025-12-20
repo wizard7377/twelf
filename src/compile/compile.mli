@@ -1,1 +1,0 @@
-COMPILE   error String   Opt  Opt  optimize Opt Ref   install ConDecForm -> Cid -> Unit   sProgReset Unit -> Unit   compileCtx Bool -> (Dec Ctx) -> DProg   compileGoal (Dec Ctx * Exp) -> Goal   compilePsi Bool -> (Dec Ctx) -> DProg

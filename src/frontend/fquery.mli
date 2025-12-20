@@ -1,1 +1,0 @@
-FQUERY   ExtQuery EXTQUERY    abortQuery String   run Query * Location -> Unit

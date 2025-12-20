@@ -1,1 +1,0 @@
-COMPAT_ARRAY   appi (Int * 'a -> Unit) -> 'a Array -> Unit

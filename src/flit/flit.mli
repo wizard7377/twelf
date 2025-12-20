@@ -1,1 +1,0 @@
-FLIT   init String -> Unit   initForText Unit -> Unit   dump (String * String) -> Int   dumpText String * String -> Unit   setFlag Unit -> Unit   setEndTcb Unit -> Unit   dumpFlagged String -> Unit   dumpSymTable (String * String * String) -> Unit

@@ -1,1 +1,0 @@
-MTPGlobal  MetaGlobal METAGLOBAL     MTPGLOBAL  struct type ProverTypelet  inlet  inlet  inlet  inend

@@ -1,1 +1,0 @@
-INTERACTIVE   State STATE    error String   init String List -> Unit   select Int -> Unit   print Unit -> Unit   stats Unit -> Unit   focus String -> Unit   return Unit -> Unit   reset Unit -> Unit

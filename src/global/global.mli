@@ -1,1 +1,0 @@
-GLOBAL   chatter Int Ref   style Int Ref   maxCid Int   maxMid Int   maxCSid Int   doubleCheck Bool Ref   unsafe Bool Ref   autoFreeze Bool Ref   chPrint Int -> (Unit -> String) -> Unit   chMessage Int -> (Unit -> String) -> (String -> Unit) -> Unit   timeLimit  Time Option  Ref

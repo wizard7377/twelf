@@ -1,1 +1,0 @@
-MODETABLE   error String   reset Unit -> Unit   installMode (Cid * ModeSpine) -> Unit   modeLookup Cid -> ModeSpine Option   uninstallMode Cid -> Bool   installMmode (Cid * ModeSpine) -> Unit   mmodeLookup Cid -> ModeSpine List

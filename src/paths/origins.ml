@@ -1,3 +1,0 @@
-Origins  Global GLOBAL    Table TABLE   Key String     ORIGINS  struct (*! structure IntSyn = IntSyn' !*)
-(*! structure Paths = Paths' !*)
-let  inlet rec reset() clear linesInfoTablelet rec install(string,  , linesInfo) insert linesInfoTable (string,  , linesInfo)let rec lookup(string) lookup linesInfoTable stringlet  inlet  inlet  inlet  inlet rec installOrigin(cid,  , fileNameOpt) update (originArray,  , cid,  , fileNameOpt)let rec originLookup(cid) sub (originArray,  , cid)end
