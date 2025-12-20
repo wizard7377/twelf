@@ -1,0 +1,25 @@
+(* Origins of Declarations *)
+
+
+(* Author: Frank Pfenning *)
+
+
+module Origins (Global : GLOBAL) : ORIGINS = struct (*! structure IntSyn = IntSyn' !*)
+
+(*! structure Paths = Paths' !*)
+
+let linesInfoTable : Paths.linesInfo Table.table = Table.new_ (31)
+let rec reset ()  = Table.clear linesInfoTable
+let rec install (string, linesInfo)  = Table.insert linesInfoTable (string, linesInfo)
+let rec lookup (string)  = Table.lookup linesInfoTable string
+let reset = reset
+let installLinesInfo = install
+let linesInfoLookup = lookup
+let originArray = (Array.array (Global.maxCid + 1, ("", None)) : string * Paths.occConDec option Array.array)
+let rec installOrigin (cid, fileNameOpt)  = Array.update (originArray, cid, fileNameOpt)
+let rec originLookup (cid)  = Array.sub (originArray, cid)
+ end
+
+
+(* functor Origins *)
+
