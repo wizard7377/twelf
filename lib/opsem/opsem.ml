@@ -1,124 +1,29 @@
-module AbsMachine = 
-  AbsMachine ((*! module IntSyn' = IntSyn !*)
-              (*! module CompSyn' = CompSyn !*)
-              module Unify = UnifyTrail
-	      module Assign = Assign 
-	      module Index = Index
-              module CPrint = CPrint
-              module Print = Print
-              module Names = Names
-              (*! module CSManager = CSManager !*)
-		); 
-
-module AbstractTabled =
-  AbstractTabled ((*! module IntSyn' = IntSyn !*)
-		  module Print = Print
-		  module Whnf = Whnf
-		  module Unify = UnifyTrail
-		  module Constraints = Constraints
-		  module Subordinate = Subordinate
-		  (*! module TableParam = TableParam !*)
-		  module Conv = Conv
-		  module Print = Print);
-
-module MemoTable =
- MemoTable ((*! module IntSyn' = IntSyn !*)
-	    (*! module CompSyn' = CompSyn !*)
-	    module Conv = Conv
-	    module Whnf = Whnf
-	    module Print = Print
-	    (*! module TableParam = TableParam !*)
-	    module AbstractTabled = AbstractTabled
-	    module Table = IntRedBlackTree
-	    (*! module RBSet = RBSet!*))
+module AbsMachine = AbsMachine (struct module Unify = UnifyTrail end) (struct module Assign = Assign end) (struct module Index = Index end) (struct module CPrint = CPrint end) (struct module Print = Print end) (struct module Names = Names end)
 
 
-module MemoTableInst =
- MemoTableInst ((*! module IntSyn' = IntSyn !*)
-		(*! module CompSyn' = CompSyn !*)
-		module Conv = Conv
-		module Whnf = Whnf
-		module Match = Match
-		module Assign = Assign
-		module Print = Print
-		(*! module TableParam = TableParam !*)
-		module AbstractTabled = AbstractTabled
-		module Table = IntRedBlackTree
-		(*! module RBSet = RBSet!*))
+module AbstractTabled = AbstractTabled (struct module Print = Print end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Constraints = Constraints end) (struct module Subordinate = Subordinate end) (struct module Conv = Conv end) (struct module Print = Print end)
 
 
-module SwMemoTable =
- SwMemoTable ((*! module TableParam = TableParam !*)
-	      module MemoTable = MemoTable
-	      module MemoTableInst = MemoTableInst)
+module MemoTable = MemoTable (struct module Conv = Conv end) (struct module Whnf = Whnf end) (struct module Print = Print end) (struct module AbstractTabled = AbstractTabled end) (struct module Table = IntRedBlackTree end)
 
-module Tabled = 
-  Tabled ((*! module IntSyn' = IntSyn !*)
-          (*! module CompSyn' = CompSyn !*)
-	  module Unify = UnifyTrail 
-	  module Match = Match
-	  module TabledSyn = TabledSyn
-	  module Assign = Assign 
-	  module Index = Index
-	  module Queue = Queue
-	  (*! module TableParam = TableParam !*)
-(*	  module MemoTable = MemoTable    *)
-	  module MemoTable = SwMemoTable    
-	  module AbstractTabled = AbstractTabled
-	  module CPrint = CPrint
-	  module Print = Print
-(*	  module Names = Names*)
-	  (*! module CSManager = CSManager !*)
-(*	  module Subordinate = Subordinate*)); 
+module MemoTableInst = MemoTableInst (struct module Conv = Conv end) (struct module Whnf = Whnf end) (struct module Match = Match end) (struct module Assign = Assign end) (struct module Print = Print end) (struct module AbstractTabled = AbstractTabled end) (struct module Table = IntRedBlackTree end)
+
+module SwMemoTable = SwMemoTable (struct module MemoTable = MemoTable end) (struct module MemoTableInst = MemoTableInst end)
+
+module Tabled = Tabled (struct module Unify = UnifyTrail end) (struct module Match = Match end) (struct module TabledSyn = TabledSyn end) (struct module Assign = Assign end) (struct module Index = Index end) (struct module Queue = Queue end) (struct module MemoTable = SwMemoTable end) (struct module AbstractTabled = AbstractTabled end) (struct module CPrint = CPrint end) (struct module Print = Print end)
 
 
-module PtRecon = 
-  PtRecon ((*! module IntSyn' = IntSyn !*)
-           (*! module CompSyn' = CompSyn !*)
-	  module Unify = UnifyTrail
-	  (*! module TableParam = TableParam !*)
-	  module MemoTable = SwMemoTable    
-	  module Assign = Assign 
-	  module Index = Index
-	  module CPrint = CPrint
-	  module Names = Names
-	  (*! module CSManager = CSManager !*)
-	    ); 
-
-module Trace =
-  Trace ((*! module IntSyn' = IntSyn !*)
-	 module Names = Names
-	 module Whnf = Whnf
-	 module Abstract = Abstract
-	 module Print = Print);
+module PtRecon = PtRecon (struct module Unify = UnifyTrail end) (struct module MemoTable = SwMemoTable end) (struct module Assign = Assign end) (struct module Index = Index end) (struct module CPrint = CPrint end) (struct module Names = Names end)
 
 
-module AbsMachineSbt = 
-  AbsMachineSbt (module IntSyn' = IntSyn
-              module CompSyn' = CompSyn
-	      module SubTree = SubTree
-              module Unify = UnifyTrail
-	      module Assign = Assign 
-	      module Index = Index
-              module CPrint = CPrint
-              module Print = Print
-              module Names = Names
-              module CSManager = CSManager); 
+module Trace = Trace (struct module Names = Names end) (struct module Whnf = Whnf end) (struct module Abstract = Abstract end) (struct module Print = Print end)
 
-module TMachine =
-  TMachine ((*! module IntSyn' = IntSyn !*)
-            (*! module CompSyn' = CompSyn !*)
-	    module Unify = UnifyTrail
-	    module Index = Index
-	    module Assign = Assign 
-	    module CPrint = CPrint
-            module Names = Names
-	    module Trace = Trace
-	    (*! module CSManager = CSManager !*)
-		);
 
-module SwMachine =
-  SwMachine (module Trace = Trace
-	     module AbsMachine = AbsMachine
-             module TMachine = TMachine);
+module AbsMachineSbt = AbsMachineSbt (struct module IntSyn' = IntSyn end) (struct module CompSyn' = CompSyn end) (struct module SubTree = SubTree end) (struct module Unify = UnifyTrail end) (struct module Assign = Assign end) (struct module Index = Index end) (struct module CPrint = CPrint end) (struct module Print = Print end) (struct module Names = Names end) (struct module CSManager = CSManager end)
+
+
+module TMachine = TMachine (struct module Unify = UnifyTrail end) (struct module Index = Index end) (struct module Assign = Assign end) (struct module CPrint = CPrint end) (struct module Names = Names end) (struct module Trace = Trace end)
+
+
+module SwMachine = SwMachine (struct module Trace = Trace end) (struct module AbsMachine = AbsMachine end) (struct module TMachine = TMachine end)
 

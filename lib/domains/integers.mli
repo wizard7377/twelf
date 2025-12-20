@@ -1,12 +1,17 @@
 (* Integers *)
+
+
 (* Author: Roberto Virga *)
 
-module type INTEGERS =
-sig
-  include INTEGER
 
+module type INTEGERS = sig
+  include INTEGER
   val gcd : int * int -> int
   val lcm : int * int -> int
   val solve_gcd : int * int -> int * int
-end;; (* module type INTEGERS *)
+
+end
+
+
+(* signature INTEGERS *)
 

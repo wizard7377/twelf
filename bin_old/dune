@@ -1,0 +1,4 @@
+(executable
+ (public_name twelf)
+ (name main)
+ (libraries twelf))

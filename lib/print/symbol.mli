@@ -1,6 +1,4 @@
-module type SYMBOL =
-sig
-
+module type SYMBOL = sig
   val str : string -> string * int
   val evar : string -> string * int
   val bvar : string -> string * int
@@ -9,7 +7,10 @@ sig
   val skonst : string -> string * int
   val def : string -> string * int
   val fvar : string -> string * int
-
   val sym : string -> string * int
 
-end;; (* module type SYMBOL *)
+end
+
+
+(* signature SYMBOL *)
+

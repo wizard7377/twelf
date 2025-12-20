@@ -1,12 +1,15 @@
-(* Weakening substitutions for meta substitutions *)
+(* Weakening substitutions for_sml meta substitutions *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type FUNWEAKEN = 
-sig
-  (*! module FunSyn : FUNSYN !*)
 
-  val strengthenPsi : (FunSyn.lfctx * IntSyn.Sub) 
-                  -> (FunSyn.lfctx * IntSyn.Sub)
-  val strengthenPsi': (FunSyn.lfDec list * IntSyn.Sub) 
-                  -> (FunSyn.lfDec list * IntSyn.Sub) 
-end (* module type FUNWEAKEN *)
+module type FUNWEAKEN = sig
+(*! structure FunSyn : FUNSYN !*)
+  val strengthenPsi : (FunSyn.lfctx * IntSyn.sub) -> (FunSyn.lfctx * IntSyn.sub)
+  val strengthenPsi' : (FunSyn.lFDec list * IntSyn.sub) -> (FunSyn.lFDec list * IntSyn.sub)
+
+end
+
+(* signature FUNWEAKEN *)
+

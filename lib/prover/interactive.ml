@@ -1,410 +1,99 @@
 (* Meta Prover Interface *)
+
+
 (* Author: Carsten Schuermann *)
 
-module Interactive
-  (Global : GLOBAL)
-   (*! module IntSyn' : INTSYN !*)
-   (*! module Tomega' : TOMEGA !*)
-   (*! sharing Tomega'.IntSyn = IntSyn' !*)
-   module State' : STATE
-   (*! sharing State'.IntSyn = IntSyn' !*)
-   (*! sharing State'.Tomega = Tomega' !*)
-   (Formatter : FORMATTER)
-   (Trail : TRAIL)
-   (Ring : RING)
-   (Names : NAMES)
-   (*! sharing Names.IntSyn = IntSyn' !*)
-   (Weaken : WEAKEN)
-   (*! sharing Weaken.IntSyn = IntSyn' !*)
-   (* (ModeSyn : MODESYN) *)
-   (*! sharing ModeSyn.IntSyn = IntSyn' !*)
-   (WorldSyn : WORLDSYN)
-   (*! sharing WorldSyn.IntSyn = IntSyn' !*)
-   (*! sharing WorldSyn.Tomega = Tomega' !*)
-   (Introduce : INTRODUCE)
-   (*! sharing Introduce.IntSyn = IntSyn' !*)
-   (*! sharing Introduce.Tomega = Tomega' !*)
-     sharing Introduce.State = State'
-   (Elim : ELIM)
-   (*! sharing Elim.IntSyn = IntSyn' !*)
-   (*! sharing Elim.Tomega = Tomega' !*)
-     sharing Elim.State = State'
-   (Split : SPLIT)
-   (*! sharing Split.IntSyn = IntSyn' !*)
-   (*! sharing Split.Tomega = Tomega' !*)
-     sharing Split.State = State'
-   (FixedPoint : FIXEDPOINT)
-   (*! sharing FixedPoint.IntSyn = IntSyn' !*)
-   (*! sharing FixedPoint.Tomega = Tomega' !*)
-     sharing FixedPoint.State = State'
-   (Fill : FILL)
-   (*! sharing Fill.IntSyn = IntSyn' !*)
-   (*! sharing Fill.Tomega = Tomega' !*)
-     sharing Fill.State = State')
-  : INTERACTIVE =
-struct
-  (*! module IntSyn = IntSyn' !*)
-  (*! module Tomega = Tomega' !*)
-  module State = State'
 
-  exception Error = State'.Error
+module Interactive (Global : GLOBAL) (State' : STATE) (Formatter : FORMATTER) (Trail : TRAIL) (Ring : RING) (Names : NAMES) (Weaken : WEAKEN) (WorldSyn : WORLDSYN) (Introduce : INTRODUCE) (Elim : ELIM) (Split : SPLIT) (FixedPoint : FIXEDPOINT) (Fill : FILL) : INTERACTIVE = struct (*! structure IntSyn = IntSyn' !*)
 
-  local
-    module I = IntSyn
-    module T = Tomega
-    module S = State
-    module M = ModeSyn
-    module W = WorldSyn
+(*! structure Tomega = Tomega' !*)
 
-    let rec abort s =
-        (print ("* " ^ s ^ "\n");
-         raise Error s)
-
-    (* this is pretty preliminary:
-       I think we should just adapt the internal representation for formulas
+module State = State'
+exception ErrorState'.Error
+module I = IntSyn
+module T = Tomega
+module S = State
+module M = ModeSyn
+module W = WorldSyn
+let rec abort s  = (print ("* " ^ s ^ "\n"); raise (Error s))
+(* this is pretty preliminary:
+       I think we should just adapt the internal representation for_sml formulas
     *)
-    let rec convertOneFor cid =
-      let
-        let V  = case I.sgnLookup cid
-                   of I.ConDec (name, _, _, _, V, I.Kind) => V
-                    | _ => raise Error "Type Constant declaration expected"
-        let mS = case ModeTable.modeLookup cid
-                   of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
 
-        (* convertFor' (V, mS, w1, w2, n) = (F', F'')
+let rec convertOneFor cid  = ( (* convertFor' (V, mS, w1, w2, n) = (F', F'')
 
            Invariant:
            If   G |- V = {{G'}} type :kind
            and  G |- w1 : G+
            and  G+, G'+, G- |- w2 : G
            and  G+, G'+, G- |- ^n : G+
-           and  mS is a spine for G'
-           then F'  is a formula excepting a another formula as argument s.t.
+           and  mS is a spine for_sml G'
+           then F'  is a formula excepting a another argument s.t.
                 If G+, G'+ |- F formula,
                 then . |- F' F formula
            and  G+, G'+ |- F'' formula
         *)
-        let rec convertFor' = function (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) -> 
-            let
-              let (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1)
-            in
-              (fun F -> T.All ((T.UDec (Weaken.strengthenDec (D, w1)), T.Explicit), F' F), F'')
-            end
-          | (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) -> 
-            let
-              let (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
-            in
-              (F', T.Ex ((I.decSub (D, w2), T.Explicit), F''))
-            end
-          | (I.Uni I.Type, M.Mnil, _, _, _) -> 
-              (fun F -> F, T.True)
-          | _ -> raise Error "type family must be +/- moded"
-
-        (* shiftPlus (mS) = s'
+(* shiftPlus (mS) = s'
 
          Invariant:
          s' = ^(# of +'s in mS)
          *)
-
-        let rec shiftPlus mS =
-          let
-            let rec shiftPlus' = function (M.Mnil, n) -> n
-              | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> 
-                  shiftPlus' (mS', n+1)
-              | (M.Mapp (M.Marg (M.Minus, _), mS'), n) -> 
-                  shiftPlus' (mS', n)
-          in
-            shiftPlus' (mS, 0)
-          end
-
-        let n = shiftPlus mS
-        let (F, F') = convertFor' (V, mS, I.id, I.Shift n, n)
-      in
-        F F'
-      end
-
-
-    (* convertFor L = F'
+let V = match I.sgnLookup cid with I.ConDec (name, _, _, _, V, I.Kind) -> V | _ -> raise (Error "Type Constant declaration expected") in let mS = match ModeTable.modeLookup cid with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let rec convertFor' = function (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) -> ( let (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n - 1) in  (fun F -> T.All ((T.UDec (Weaken.strengthenDec (D, w1)), T.Explicit), F' F), F'') ) | (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) -> ( let (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n + 1) in  (F', T.Ex ((I.decSub (D, w2), T.Explicit), F'')) ) | (I.Uni I.Type, M.Mnil, _, _, _) -> (fun F -> F, T.True) | _ -> raise (Error "type family must be +/- moded") in let rec shiftPlus mS  = ( let rec shiftPlus' = function (M.Mnil, n) -> n | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> shiftPlus' (mS', n + 1) | (M.Mapp (M.Marg (M.Minus, _), mS'), n) -> shiftPlus' (mS', n) in  shiftPlus' (mS, 0) ) in let n = shiftPlus mS in let (F, F') = convertFor' (V, mS, I.id, I.Shift n, n) in  F F' )
+(* convertFor L = F'
 
        Invariant:
        If   L is a list of type families
        then F' is the conjunction of the logical interpretation of each
             type family
      *)
-    let rec convertFor = function nil -> raise Error "Empty theorem"
-      | [a] -> convertOneFor a
-      | (a :: L) -> T.And (convertOneFor a, convertFor L)
 
-   (* here ends the preliminary stuff *)
+let rec convertFor = function [] -> raise (Error "Empty theorem") | [a] -> convertOneFor a | (a :: L) -> T.And (convertOneFor a, convertFor L)
+(* here ends the preliminary stuff *)
 
-    type menuItem
-    = Split     of Split.operator
-    | Fill      of Fill.operator
-    | Introduce of Introduce.operator
-    | Fix       of FixedPoint.operator
-    | Elim      of Elim.operator
-
-    let Focus : (S.State list) ref = ref []
-
-    let Menu : menuItem list option ref = ref NONE
-
-
-    let rec SplittingToMenu (O, A) = Split O :: A
-
-    let rec initFocus () = (Focus := [])
-
-
-    let rec normalize () =
-        (case (!Focus)
-          of (S.State (W, Psi, P, F) :: Rest) =>
-              (Focus := (S.State (W, Psi, T.derefPrg P, F) :: Rest))
-           | _ => ())
-
-    let rec reset () =
-        (initFocus ();
-         Menu := NONE)
-
-    let rec format k =
-        if k < 10 then (Int.toString k) ^ ".  "
-        else (Int.toString k) ^ ". "
-
-    let rec menuToString () =
-        let
-          let rec menuToString' = function (k, nil) -> ""
-            | (k, Split O  :: M) -> 
+type menuItem = Split of Split.operator | Fill of Fill.operator | Introduce of Introduce.operator | Fix of FixedPoint.operator | Elim of Elim.operator
+let Focus : S.state list ref = ref []
+let Menu : menuItem list option ref = ref None
+let rec SplittingToMenu (O, A)  = Split O :: A
+let rec initFocus ()  = (Focus := [])
+let rec normalize ()  = (match (! Focus) with (S.State (W, Psi, P, F) :: Rest) -> (Focus := (S.State (W, Psi, T.derefPrg P, F) :: Rest)) | _ -> ())
+let rec reset ()  = (initFocus (); Menu := None)
+let rec format k  = if k < 10 then (Int.toString k) ^ ".  " else (Int.toString k) ^ ". "
+let rec menuToString ()  = ( (*          | menuToString' (k, Inference O :: M,kOopt) =
               let
-                let s = menuToString' (k+1, M)
-              in
-                 s ^ "\n  " ^ (format k) ^ (Split.menu O)
-              end
-            | (k, Introduce O :: M) -> 
-              let
-                let s = menuToString' (k+1, M)
-              in
-                s ^ "\n  " ^ (format k) ^ (Introduce.menu O)
-              end
-            | (k, Fill O :: M) -> 
-              let
-                let s = menuToString' (k+1, M)
-              in
-                s ^ "\n  " ^ (format k) ^ (Fill.menu O)
-              end
-            | (k, Fix O :: M) -> 
-              let
-                let s = menuToString' (k+1, M)
-              in
-                s ^ "\n  " ^ (format k) ^ (FixedPoint.menu O)
-              end
-            | (k, Elim O :: M) -> 
-              let
-                let s = menuToString' (k+1, M)
-              in
-                s ^ "\n  " ^ (format k) ^ (Elim.menu O)
-              end
-(*          | menuToString' (k, Inference O :: M,kOopt) =
-              let
-                let (kopt, s) = menuToString' (k+1, M, kOopt)
+                val (kopt, s) = menuToString' (k+1, M, kOopt)
               in
                 (kopt, s ^ "\n  " ^ (format k) ^ (Inference.menu O))
               end
-*)      in
-          case !Menu of
-            NONE => raise Error "Menu is empty"
-          | SOME M =>  menuToString' (1, M)
-        end
-
-
-    let rec printStats () =
-        let
-          let nopen   = 0
-          let nsolved = 0
-        in
-          (print "Statistics:\n\n";
-           print ("Number of goals : " ^ (Int.toString (nopen + nsolved)) ^"\n");
-           print ("     open goals : " ^ (Int.toString (nopen)) ^ "\n");
-           print ("   solved goals : " ^ (Int.toString (nsolved)) ^ "\n"))
-        end
-
-    let rec printmenu () =
-        (case !Focus
-           of [] => abort "QED"
-            | (S.State (W, Psi, P, F) :: R) =>
-                  (print ("\n=======================");
-                   print ("\n= META THEOREM PROVER =\n");
-                   print (TomegaPrint.ctxToString (Psi));
-                   print ("\n-----------------------\n");
-                   print (TomegaPrint.forToString (Psi, F));
-                   print ("\n-----------------------\n");
-                   print (TomegaPrint.prgToString (Psi, P));
-                   print ("\n-----------------------");
-                   print (menuToString ());
-                   print ("\n=======================\n"))
-            | (S.StateLF (X as I.EVar (r, G, V, Cs)) :: R) =>
-                  (print ("\n=======================");
-                   print ("\n=== THEOREM PROVER ====\n");
-                   print (Print.ctxToString (I.Null, G));
-                   print ("\n-----------------------\n");
-                   print (Print.expToString (G, V));
-                   print ("\n-----------------------\n");
-                   print (Print.expToString (G, X));
-                   print ("\n-----------------------");
-                   print (menuToString ());
-                   print ("\n=======================\n")))
-
-
-
-    let rec menu () =
-        (case (!Focus)
-           of [] => print "Please initialize first\n"
-            | (S.State (W, Psi, P, F) :: _) =>
-              let
-                let Xs = S.collectT P
-                let F1 = map (fn (T.EVar (Psi, r, F, TC, TCs, X)) => (Names.varReset I.Null;
-                                                             S.Focus (T.EVar (TomegaPrint.nameCtx Psi, r, F, TC, TCs, X), W))) Xs
-                let Ys = S.collectLF P
-                let F2 = map (fun Y -> S.FocusLF Y) Ys
-
-
-                let rec splitMenu = function [] -> []
-                  | (operators :: l) -> map Split operators @ splitMenu l
-
-                let _ = Global.doubleCheck := true
-
-
-                let rec introMenu = function [] -> []
-                  | ((SOME oper) :: l) -> (Introduce oper) :: introMenu l
-                  | (NONE :: l) -> introMenu l
-
-                let intro = introMenu (map Introduce.expand F1)
-
-
-                let fill = foldr (fn (S, l) => l @ map (fun O -> Fill O) (Fill.expand S)) nil F2
-
-                let rec elimMenu = function [] -> []
-                  | (operators :: l) -> map Elim operators @ elimMenu l
-
-                let elim = elimMenu (map Elim.expand F1)
-
-                let split = splitMenu (map Split.expand F1)
-              in
-                Menu := SOME (intro @ split @ fill @ elim)
-              end
-            | (S.StateLF Y :: _) =>
-              let
-                let Ys = Abstract.collectEVars (I.Null, (Y, I.id), nil)
-                let F2 = map (fun Y -> S.FocusLF Y) Ys
-                let fill = foldr (fn (S, l) => l @ map (fun O -> Fill O) (Fill.expand S)) nil F2
-              in
-                Menu := SOME (fill)
-              end)
-
-
-    let rec select k =
-        let
-          let rec select' = function (k, nil) -> abort ("No such menu item")
-            | (1, Split O :: _) -> 
-                (Timers.time Timers.splitting Split.apply) O
-            | (1, Introduce O :: _) -> 
-                Introduce.apply O    (* no timer yet -- cs *)
-            | (1, Elim O :: _) -> 
-                Elim.apply O    (* no timer yet -- cs *)
-            | (1, Fill O :: _) -> 
-                (Timers.time Timers.filling Fill.apply) O
-            | (k, _ :: M) -> select' (k-1, M)
-        in
-          (case !Menu of
-            NONE => raise Error "No menu defined"
-          | SOME M => (select' (k, M); normalize (); menu (); printmenu())
-             handle S.Error s => ())
-        end
-
-
-    let rec init names =
-        let
-          let _ = TomegaPrint.evarReset()
-          let cL = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names
-          let F = convertFor cL
-          let Ws = map W.lookup cL
-          let rec select c = (Order.selLookup c handle _ => Order.Lex [])
-
-          let TC = Tomega.transformTC (I.Null, F, map select cL)
-          (* so far omitted:  make sure that all parts of the theorem are
+*)
+let rec menuToString' = function (k, []) -> "" | (k, Split O :: M) -> ( let s = menuToString' (k + 1, M) in  s ^ "\n  " ^ (format k) ^ (Split.menu O) ) | (k, Introduce O :: M) -> ( let s = menuToString' (k + 1, M) in  s ^ "\n  " ^ (format k) ^ (Introduce.menu O) ) | (k, Fill O :: M) -> ( let s = menuToString' (k + 1, M) in  s ^ "\n  " ^ (format k) ^ (Fill.menu O) ) | (k, Fix O :: M) -> ( let s = menuToString' (k + 1, M) in  s ^ "\n  " ^ (format k) ^ (FixedPoint.menu O) ) | (k, Elim O :: M) -> ( let s = menuToString' (k + 1, M) in  s ^ "\n  " ^ (format k) ^ (Elim.menu O) ) in  match ! Menu with None -> raise (Error "Menu is empty") | Some M -> menuToString' (1, M) )
+let rec printStats ()  = ( let nopen = 0 in let nsolved = 0 in  (print "Statistics:\n\n"; print ("Number of goals : " ^ (Int.toString (nopen + nsolved)) ^ "\n"); print ("     open goals : " ^ (Int.toString (nopen)) ^ "\n"); print ("   solved goals : " ^ (Int.toString (nsolved)) ^ "\n")) )
+let rec printmenu ()  = (match ! Focus with [] -> abort "QED" | (S.State (W, Psi, P, F) :: R) -> (print ("\n======================="); print ("\n= META THEOREM PROVER =\n"); print (TomegaPrint.ctxToString (Psi)); print ("\n-----------------------\n"); print (TomegaPrint.forToString (Psi, F)); print ("\n-----------------------\n"); print (TomegaPrint.prgToString (Psi, P)); print ("\n-----------------------"); print (menuToString ()); print ("\n=======================\n")) | (S.StateLF (X) :: R) -> (print ("\n======================="); print ("\n=== THEOREM PROVER ====\n"); print (Print.ctxToString (I.Null, G)); print ("\n-----------------------\n"); print (Print.expToString (G, V)); print ("\n-----------------------\n"); print (Print.expToString (G, X)); print ("\n-----------------------"); print (menuToString ()); print ("\n=======================\n")))
+let rec menu ()  = (match (! Focus) with [] -> print "Please initialize first\n" | (S.State (W, Psi, P, F) :: _) -> ( let Xs = S.collectT P in let F1 = map (fun (T.EVar (Psi, r, F, TC, TCs, X)) -> (Names.varReset I.Null; S.Focus (T.EVar (TomegaPrint.nameCtx Psi, r, F, TC, TCs, X), W))) Xs in let Ys = S.collectLF P in let F2 = map (fun Y -> S.FocusLF Y) Ys in let rec splitMenu = function [] -> [] | (operators :: l) -> map Split operators @ splitMenu l in let _ = Global.doubleCheck := true in let rec introMenu = function [] -> [] | ((Some oper) :: l) -> (Introduce oper) :: introMenu l | (None :: l) -> introMenu l in let intro = introMenu (map Introduce.expand F1) in let fill = foldr (fun (S, l) -> l @ map (fun O -> Fill O) (Fill.expand S)) [] F2 in let rec elimMenu = function [] -> [] | (operators :: l) -> map Elim operators @ elimMenu l in let elim = elimMenu (map Elim.expand F1) in let split = splitMenu (map Split.expand F1) in  Menu := Some (intro @ split @ fill @ elim) ) | (S.StateLF Y :: _) -> ( let Ys = Abstract.collectEVars (I.Null, (Y, I.id), []) in let F2 = map (fun Y -> S.FocusLF Y) Ys in let fill = foldr (fun (S, l) -> l @ map (fun O -> Fill O) (Fill.expand S)) [] F2 in  Menu := Some (fill) ))
+let rec select k  = ( let rec select' = function (k, []) -> abort ("No such menu item") | (1, Split O :: _) -> (Timers.time Timers.splitting Split.apply) O | (1, Introduce O :: _) -> Introduce.apply O | (1, Elim O :: _) -> Elim.apply O | (1, Fill O :: _) -> (Timers.time Timers.filling Fill.apply) O | (k, _ :: M) -> select' (k - 1, M) in  (match ! Menu with None -> raise (Error "No menu defined") | Some M -> try (select' (k, M); normalize (); menu (); printmenu ()) with S.Error s -> ()) )
+let rec init names  = ( (* so far omitted:  make sure that all parts of the theorem are
              declared in the same world
           *)
-          let (W :: _) = Ws
-          let _ = Focus :=  [S.init (F, W)]
-          let P = (case (!Focus)
-                     of [] => abort "Initialization of proof goal failed\n"
-                   | (S.State (W, Psi, P, F) :: _) => P)
-          let Xs = S.collectT P
-          let F = map (fn (T.EVar (Psi, r, F, TC, TCs, X)) => (Names.varReset I.Null;
-                                                    S.Focus (T.EVar (TomegaPrint.nameCtx Psi, r, F, TC, TCs, X), W))) Xs
-          let [Ofix] = map (fun f -> (FixedPoint.expand (f, TC))) F
-          let _ = FixedPoint.apply Ofix
-          let _ = normalize ();
-          let _ = menu ()
-          let _ = printmenu ()
-        in
-          ()
-        end
-
-
-    (* focus n = ()
+let _ = TomegaPrint.evarReset () in let cL = map (fun x -> valOf (Names.constLookup (valOf (Names.stringToQid x)))) names in let F = convertFor cL in let Ws = map W.lookup cL in let rec select c  = (try Order.selLookup c with _ -> Order.Lex []) in let TC = Tomega.transformTC (I.Null, F, map select cL) in let (W :: _) = Ws in let _ = Focus := [S.init (F, W)] in let P = (match (! Focus) with [] -> abort "Initialization of proof goal failed\n" | (S.State (W, Psi, P, F) :: _) -> P) in let Xs = S.collectT P in let F = map (fun (T.EVar (Psi, r, F, TC, TCs, X)) -> (Names.varReset I.Null; S.Focus (T.EVar (TomegaPrint.nameCtx Psi, r, F, TC, TCs, X), W))) Xs in let [Ofix] = map (fun f -> (FixedPoint.expand (f, TC))) F in let _ = FixedPoint.apply Ofix in let _ = normalize () in let _ = menu () in let _ = printmenu () in  () )
+(* focus n = ()
 
        Invariant:
        Let n be a string.
        Side effect: Focus on selected subgoal.
     *)
-    let rec focus n =
-        (case (!Focus)
-           of [] => print "Please initialize first\n"
-            | (S.State (W, Psi, P, F) :: _) =>
-              let
-                let rec findIEVar = function nil -> raise Error ("cannot focus on " ^ n)
-                  | (Y :: Ys) -> 
-                    if Names.evarName (T.coerceCtx Psi, Y) = n then
-                       (Focus := (S.StateLF Y :: !Focus);
-                        normalize ();
-                        menu ();
-                        printmenu ())
-                    else findIEVar Ys
-                let rec findTEVar = function nil -> findIEVar (S.collectLF P)
-                  | ((X as T.EVar (Psi, r, F, TC, TCs, Y)) :: Xs) -> 
-                    if Names.evarName (T.coerceCtx Psi, Y) = n then
-                      (Focus := (S.State (W, TomegaPrint.nameCtx Psi, X, F) :: !Focus);
-                       normalize ();
-                       menu ();
-                       printmenu ())
-                    else findTEVar Xs
-              in
-                findTEVar (S.collectT P)
-              end
-            | (S.StateLF (U) :: _) =>
-              (* Invariant: U has already been printed, all EVars occuring
+
+let rec focus n  = (match (! Focus) with [] -> print "Please initialize first\n" | (S.State (W, Psi, P, F) :: _) -> ( let rec findIEVar = function [] -> raise (Error ("cannot focus on " ^ n)) | (Y :: Ys) -> if Names.evarName (T.coerceCtx Psi, Y) = n then (Focus := (S.StateLF Y :: ! Focus); normalize (); menu (); printmenu ()) else findIEVar Ys in let rec findTEVar = function [] -> findIEVar (S.collectLF P) | ((X) :: Xs) -> if Names.evarName (T.coerceCtx Psi, Y) = n then (Focus := (S.State (W, TomegaPrint.nameCtx Psi, X, F) :: ! Focus); normalize (); menu (); printmenu ()) else findTEVar Xs in  findTEVar (S.collectT P) ) | (S.StateLF (U) :: _) -> (* Invariant: U has already been printed, all EVars occuring
                  in U are already named.
               *)
-              (case (Names.getEVarOpt n)
-                 of NONE => raise Error ("cannot focus on " ^ n)
-                  | SOME Y =>
-                       (Focus := (S.StateLF Y :: !Focus);
-                        normalize ();
-                        menu ();
-                        printmenu ())))
+(match (Names.getEVarOpt n) with None -> raise (Error ("cannot focus on " ^ n)) | Some Y -> (Focus := (S.StateLF Y :: ! Focus); normalize (); menu (); printmenu ())))
+let rec return ()  = (match (! Focus) with [S] -> if S.close S then print "[Q.E.D.]\n" else () | (S :: Rest) -> (Focus := Rest; normalize (); menu (); printmenu ()))
+let init = init
+let select = select
+let print = printmenu
+let stats = printStats
+let reset = reset
+let focus = focus
+let return = return
+ end
 
+(* functor Interactive *)
 
-    let rec return () =
-      (case (!Focus)
-        of [S] => if S.close S then print "[Q.E.D.]\n" else ()
-         | (S :: Rest) => (Focus := Rest ; normalize (); menu (); printmenu ()))
-
-  in
-    let init = init
-    let select = select
-    let print = printmenu
-    let stats = printStats
-    let reset = reset
-    let focus = focus
-    let return = return
-  end
-end (* functor Interactive *)

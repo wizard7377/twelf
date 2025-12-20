@@ -1,16 +1,19 @@
 (* Basic search engine: Version 1.3*)
+
+
 (* Author: Carsten Schuermann *)
 
-module type UNIQUESEARCH = 
-sig
-  (*! module IntSyn : INTSYN !*)
-  (*! module FunSyn : FUNSYN !*)
+
+module type UNIQUESEARCH = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure FunSyn : FUNSYN !*)
   module StateSyn : STATESYN
-
   exception Error of string
-
   type acctype = IntSyn.exp
+  val searchEx : int * IntSyn.exp list * (acctype list -> acctype list) -> acctype list
 
-  val searchEx : int * IntSyn.exp list
-      * (acctype list -> acctype list) -> acctype list
-end;; (* module type SEARCH *)
+end
+
+
+(* signature SEARCH *)
+

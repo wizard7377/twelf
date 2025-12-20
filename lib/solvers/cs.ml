@@ -1,11 +1,14 @@
 (* Constraint Solver *)
-module type CS =
-sig
-  (*! (CSManager : CS_MANAGER) !*)
 
-  (* all a constraint solver must define is a module
-     suitable for the constraint solver manager to install.
+
+module type CS = sig
+(*! structure CSManager : CS_MANAGER !*)
+(* all a constraint solver must define is a structure
+     suitable for_sml the constraint solver manager to install.
   *)
-  let solver : CSManager.solver
+  val solver : CSManager.solver
 
-end  (* module type CS *)
+end
+
+(* signature CS *)
+

@@ -1,21 +1,19 @@
 (* Abstraction *)
+
+
 (* Author: Brigitte Pientka *)
 
-module type ABSTRACTTABLED =
-sig
 
-  (*! module IntSyn : INTSYN !*)
-
-  (*! module TableParam : TABLEPARAM !*)
-    
+module type ABSTRACTTABLED = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure TableParam : TABLEPARAM !*)
   exception Error of string
+  val abstractEVarCtx : (CompSyn.dProg * IntSyn.exp * IntSyn.sub) -> (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.exp * TableParam.resEqn * IntSyn.sub)
+  val abstractAnswSub : IntSyn.sub -> IntSyn.dctx * IntSyn.sub
+  val raiseType : IntSyn.dctx * IntSyn.exp -> IntSyn.exp
+
+end
 
 
-  val abstractEVarCtx : (CompSyn.DProg * IntSyn.exp * IntSyn.Sub) ->  
-                        (IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.exp * TableParam.ResEqn * IntSyn.Sub)
+(* signature ABSTRACTTABLED *)
 
-  val abstractAnswSub :  IntSyn.Sub -> IntSyn.dctx * IntSyn.Sub  
-
-  val raiseType : IntSyn.dctx * IntSyn.exp -> IntSyn.exp   
-
-end;; (* module type ABSTRACTTABLED *)

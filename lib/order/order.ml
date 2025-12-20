@@ -1,128 +1,88 @@
 (* Terminiation and Reduction Order *)
+
+
 (* Author: Carsten Schuermann *)
+
+
 (* Modified: Brigitte Pientka *)
 
-module Order ((*! module IntSyn' : INTSYN !*)
-               (Table : TABLE with type key = int))
-  : ORDER =
-struct
-  (*! module IntSyn = IntSyn' !*)
 
-  exception Error of string
+module Order : ORDER = struct (*! structure IntSyn = IntSyn' !*)
 
+exception Error of string
+type 'a order = Arg of 'a | Lex of 'a order list | Simul of 'a order list
+(*     | [O1 .. On]           *)
 
-  type 'a Order =                   (* Orders                     *)
-      Arg of 'a                         (* O ::= x                    *)
-    | Lex of 'a Order list              (*     | {O1 .. On}           *)
-    | Simul of 'a Order list            (*     | [O1 .. On]           *)
+type predicate = Less of int order * int order | Leq of int order * int order | Eq of int order * int order
+(* Mutual dependencies in call patterns:                            *)
 
+(* A call pattern   (a1 P1) .. (ai Pi) .. (an Pn)   expresses       *)
 
-  type predicate =
-      Less of int Order * int Order
-    | Leq of int Order * int Order
-    | Eq of int Order * int Order
+(* that the proof of ai can refer to                                *)
 
-  (* Mutual dependencies in call patterns:                            *)
-  (* A call pattern   (a1 P1) .. (ai Pi) .. (an Pn)   expresses       *)
-  (* that the proof of ai can refer to                                *)
-  (*   ih a1 .. ai, as long as the arguments are strictly smaller     *)
-  (* and to                                                           *)
-  (*   ih a(i+1) .. an as long as the arguments are smaller or equal  *)
-  (* then the ones of ai.                                             *)
+(*   ih a1 .. ai, as the arguments are strictly smaller     *)
 
-  type mutual =                     (* Mutual dependencies        *)
-      Empty                             (* C ::= .                    *)
-    | LE of IntSyn.cid * mutual         (*     |  <= (a) C            *)
-    | LT of IntSyn.cid * mutual         (*     |  > (a) C             *)
+(* and to                                                           *)
 
-  type tDec =                       (* Termination declaration    *)
-      TDec of int order * mutual        (* TDec ::= (O, C)            *)
+(*   ih a(i+1) .. the arguments are smaller or equal  *)
 
-  type rDec =                       (* Reduction declaration      *)
-      RDec of predicate * mutual        (* RDec ::= (P, C)            *)
+(* then the ones of ai.                                             *)
 
-  local
-    module I = IntSyn
-    let OrderTable : TDec Table.Table = Table.new(0)
-    let RedOrderTable : RDec Table.Table = Table.new(0)
+type mutual = Empty | LE of IntSyn.cid * mutual | LT of IntSyn.cid * mutual
+(*     |  > (a) C             *)
 
-    let rec reset () = Table.clear OrderTable
-    let rec resetROrder () = Table.clear RedOrderTable
+type tDec = TDec of int order * mutual
+(* TDec ::= (O, C)            *)
 
-    let rec install (cid, O) = Table.insert OrderTable (cid, O)
-    let rec uninstall cid =
-        case Table.lookup OrderTable cid
-          of NONE => false
-           | SOME _ => (Table.delete OrderTable cid ; true)
+type rDec = RDec of predicate * mutual
+(* RDec ::= (P, C)            *)
 
-    let rec installROrder (cid, P) = Table.insert RedOrderTable (cid, P)
-    let rec uninstallROrder cid =
-        case Table.lookup RedOrderTable cid
-          of NONE => false
-           | SOME _ => (Table.delete RedOrderTable cid ; true)
-
-
-    let rec lookup cid = Table.lookup OrderTable cid
-    let rec lookupROrder cid = Table.lookup RedOrderTable cid
-
-    let rec selLookup a =
-        case lookup a
-          of NONE => raise Error ("No termination order assigned for " ^ I.conDecName (I.sgnLookup a))
-           | SOME (TDec (S, _)) => S
-
-    let rec selLookupROrder a =
-        case lookupROrder a
-          of NONE => raise Error ("No reduction order assigned for " ^ I.conDecName (I.sgnLookup a) ^ ".")
-           | SOME (RDec (P, _)) => P
-
-    let rec mutLookupROrder a =
-        case lookupROrder a
-          of NONE => raise Error ("No order assigned for " ^ I.conDecName (I.sgnLookup a) ^ ".")
-           | SOME (RDec (_, M)) => M
-
-    let rec mutLookup a =
-        case lookup a
-          of NONE => raise Error ("No order assigned for " ^ I.conDecName (I.sgnLookup a))
-           | SOME (TDec (_, M)) => M
-
-    (* mutual a = a's
+module I = IntSyn
+let OrderTable : tDec Table.table = Table.new_ (0)
+let RedOrderTable : rDec Table.table = Table.new_ (0)
+let rec reset ()  = Table.clear OrderTable
+let rec resetROrder ()  = Table.clear RedOrderTable
+let rec install (cid, O)  = Table.insert OrderTable (cid, O)
+let rec uninstall cid  = match Table.lookup OrderTable cid with None -> false | Some _ -> (Table.delete OrderTable cid; true)
+let rec installROrder (cid, P)  = Table.insert RedOrderTable (cid, P)
+let rec uninstallROrder cid  = match Table.lookup RedOrderTable cid with None -> false | Some _ -> (Table.delete RedOrderTable cid; true)
+let rec lookup cid  = Table.lookup OrderTable cid
+let rec lookupROrder cid  = Table.lookup RedOrderTable cid
+let rec selLookup a  = match lookup a with None -> raise (Error ("No termination order assigned for_sml " ^ I.conDecName (I.sgnLookup a))) | Some (TDec (S, _)) -> S
+let rec selLookupROrder a  = match lookupROrder a with None -> raise (Error ("No reduction order assigned for_sml " ^ I.conDecName (I.sgnLookup a) ^ ".")) | Some (RDec (P, _)) -> P
+let rec mutLookupROrder a  = match lookupROrder a with None -> raise (Error ("No order assigned for_sml " ^ I.conDecName (I.sgnLookup a) ^ ".")) | Some (RDec (_, M)) -> M
+let rec mutLookup a  = match lookup a with None -> raise (Error ("No order assigned for_sml " ^ I.conDecName (I.sgnLookup a))) | Some (TDec (_, M)) -> M
+(* mutual a = a's
 
        Invariant:
        If   a occurs in a call pattern (a1 P1) .. (an Pn)
        then a's = a1 .. an
     *)
-    let rec mutual a =
-        let
-          let rec mutual' = function (Empty, a's) -> a's
-            | (LE (a, M), a's) -> mutual' (M, a :: a's)
-            | (LT (a, M), a's) -> mutual' (M, a :: a's)
-        in
-          mutual' (mutLookup a, nil)
-        end
 
-    (* closure (a1s, a2s) = a3s
+let rec mutual a  = ( let rec mutual' = function (Empty, a's) -> a's | (LE (a, M), a's) -> mutual' (M, a :: a's) | (LT (a, M), a's) -> mutual' (M, a :: a's) in  mutual' (mutLookup a, []) )
+(* closure (a1s, a2s) = a3s
 
        Invariant:
        If   a1s  and a2s are lists of type families,
        then a3s is a list of type fmailies, which are mutual recursive to each other
        and include a1s and a2s.
     *)
-    let rec closure = function (nil, a2s) -> a2s
-      | (a :: a1s, a2s) -> 
-        if List.exists (fn a' => a = a') a2s
-          then closure (a1s, a2s)
-        else closure (mutual a @ a1s, a :: a2s)
 
-  in
-    let reset = reset
-    let resetROrder = resetROrder
-    let install = install
-    let uninstall = uninstall
-    let installROrder = installROrder
-    let uninstallROrder = uninstallROrder
-    let selLookup = selLookup
-    let selLookupROrder = selLookupROrder
-    let mutLookup = mutLookup
-    let closure = fun a -> closure ([a], nil)
-  end (* local *)
-end;; (* functor Order *)
+let rec closure = function ([], a2s) -> a2s | (a :: a1s, a2s) -> if List.exists (fun a' -> a = a') a2s then closure (a1s, a2s) else closure (mutual a @ a1s, a :: a2s)
+let reset = reset
+let resetROrder = resetROrder
+let install = install
+let uninstall = uninstall
+let installROrder = installROrder
+let uninstallROrder = uninstallROrder
+let selLookup = selLookup
+let selLookupROrder = selLookupROrder
+let mutLookup = mutLookup
+let closure = fun a -> closure ([a], [])
+(* local *)
+
+ end
+
+
+(* functor Order *)
+

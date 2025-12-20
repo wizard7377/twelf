@@ -1,6 +1,8 @@
-module Integers = Integers(IntInf);
+module Integers = Integers
 
-module Rationals = Rationals(Integers);
 
-module IntegersMod7 = IntegersMod(let p = 7);
+module Rationals = Rationals
+
+
+module IntegersMod7 = IntegersMod
 

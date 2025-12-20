@@ -1,121 +1,39 @@
-module State = State 
-  ((*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module WorldSyn' = WorldSyn
-   module Formatter = Formatter)
-     
-module Introduce = Introduce 
-  ((*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module TomegaNames = TomegaNames
-   module State' = State)
+module State = State (struct module WorldSyn' = WorldSyn end) (struct module Formatter = Formatter end)
 
-   
-module Elim = Elim 
-  (module Data = Data
-   (*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module State' = State
-   module Whnf = Whnf
-   module Abstract = Abstract
-   module Unify = UnifyTrail
-   module Constraints = Constraints
-   module Index = Index
-   module TypeCheck = TypeCheck)
- 
-module FixedPoint = FixedPoint 
-  ((*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module State' = State)
+module Introduce = Introduce (struct module TomegaNames = TomegaNames end) (struct module State' = State end)
 
-module Split = Split
-  (module Global = Global
-   (*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module State' = State
-   module Whnf = Whnf
-   module Abstract = Abstract
-   module Unify = UnifyTrail
-   module Constraints = Constraints
-   module Index = Index
-   module Names = Names
-   module Print = Print
-   module TypeCheck = TypeCheck
-   module Subordinate = Subordinate)
+module Elim = Elim (struct module Data = Data end) (struct module State' = State end) (struct module Whnf = Whnf end) (struct module Abstract = Abstract end) (struct module Unify = UnifyTrail end) (struct module Constraints = Constraints end) (struct module Index = Index end) (struct module TypeCheck = TypeCheck end)
+
+module FixedPoint = FixedPoint (struct module State' = State end)
+
+module Split = Split (struct module Global = Global end) (struct module State' = State end) (struct module Whnf = Whnf end) (struct module Abstract = Abstract end) (struct module Unify = UnifyTrail end) (struct module Constraints = Constraints end) (struct module Index = Index end) (struct module Names = Names end) (struct module Print = Print end) (struct module TypeCheck = TypeCheck end) (struct module Subordinate = Subordinate end)
+
+module Search = Search (struct module Global = Global end) (struct module Data = Data end) (struct module State' = State end) (struct module Abstract = Abstract end) (struct module Conv = Conv end) (struct module CompSyn' = CompSyn end) (struct module Compile = Compile end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Index = IndexSkolem end) (struct module Assign = Assign end) (struct module CPrint = CPrint end) (struct module Print = Print end) (struct module Names = Names end) (struct module CSManager = CSManager end)
 
 
-module Search = Search 
-  (module Global = Global
-   module Data = Data
-   (*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module State' = State
-   module Abstract = Abstract
-   module Conv = Conv
-   module CompSyn' = CompSyn
-   module Compile = Compile
-   module Whnf = Whnf
-   module Unify = UnifyTrail
-   module Index = IndexSkolem
-   module Assign = Assign 
-   module CPrint = CPrint
-   module Print = Print
-   module Names = Names
-   module CSManager = CSManager); 
+module Fill = Fill (struct module Data = Data end) (struct module State' = State end) (struct module Whnf = Whnf end) (struct module Abstract = Abstract end) (struct module Unify = UnifyTrail end) (struct module Constraints = Constraints end) (struct module Index = Index end) (struct module Search = Search end) (struct module TypeCheck = TypeCheck end)
 
-module Fill = Fill
-  (module Data = Data
-   (*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module State' = State
-   module Whnf = Whnf
-   module Abstract = Abstract
-   module Unify = UnifyTrail
-   module Constraints = Constraints
-   module Index = Index
-   module Search = Search
-   module TypeCheck = TypeCheck)
-
-module Weaken =
-  Weaken ((*! module IntSyn' = IntSyn !*)
-	  module Whnf = Whnf)
+module Weaken = Weaken (struct module Whnf = Whnf end)
 
 (*
-module Recurse = Recurse
-  (module Global = Global
-   module Data = Data
-   module State' = State
-   module Whnf = Whnf
-   module Conv = Conv
-   module Names = Names
-   module Subordinate = Subordinate
-   module Print = Print
-   module Formatter = Formatter
-   module TomegaPrint = TomegaPrint
-   module Abstract = Abstract
-   module Unify = UnifyTrail
-   module Constraints = Constraints
-   module Index = Index
-   module Search = Search
-   module TypeCheck = TypeCheck)
+structure Recurse = Recurse
+  (structure Global = Global
+   structure Data = Data
+   structure State' = State
+   structure Whnf = Whnf
+   structure Conv = Conv
+   structure Names = Names
+   structure Subordinate = Subordinate
+   structure Print = Print
+   structure Formatter = Formatter
+   structure TomegaPrint = TomegaPrint
+   structure Abstract = Abstract
+   structure Unify = UnifyTrail
+   structure Constraints = Constraints
+   structure Index = Index
+   structure Search = Search
+   structure TypeCheck = TypeCheck)
 *)
 
 
-module Interactive = Interactive
-  (module Global = Global
-   (*! module IntSyn' = IntSyn !*)
-   (*! module Tomega' = Tomega !*)
-   module State' = State
-   module Ring = Ring
-   module Formatter = Formatter
-   module Trail = Trail
-   module Names = Names
-   module Weaken = Weaken
-   module ModeSyn = ModeSyn
-   module WorldSyn = WorldSyn
-   module Introduce = Introduce
-   module FixedPoint = FixedPoint
-   module Split = Split
-   module Fill = Fill
-   module Elim = Elim)
- 
+module Interactive = Interactive (struct module Global = Global end) (struct module State' = State end) (struct module Ring = Ring end) (struct module Formatter = Formatter end) (struct module Trail = Trail end) (struct module Names = Names end) (struct module Weaken = Weaken end) (struct module ModeSyn = ModeSyn end) (struct module WorldSyn = WorldSyn end) (struct module Introduce = Introduce end) (struct module FixedPoint = FixedPoint end) (struct module Split = Split end) (struct module Fill = Fill end) (struct module Elim = Elim end)

@@ -1,45 +1,39 @@
 (* Mode Syntax *)
+
+
 (* Author: Carsten Schuermann *)
+
+
 (* Modified: Frank Pfenning, Roberto Virga *)
 
-module type MODESYN =
-sig
 
-  (*! (IntSyn : INTSYN) !*)
-
+module type MODESYN = sig
+(*! structure IntSyn : INTSYN !*)
   type mode = Plus | Star | Minus | Minus1
-  type modeSpine = Mnil | Mapp of Marg * modeSpine
-  and Marg = Marg of mode * string option
+  type modeSpine = Mnil | Mapp of marg * modeSpine and marg = Marg of mode * string option
+  val modeEqual : mode * mode -> bool
+  val modeToString : mode -> string
 
-  let modeEqual : mode * mode -> bool
-  let modeToString : mode -> string
-end;; (* module type MODESYN *)
+end
 
 
-(ModeSyn : MODESYN) =
-struct
+(* signature MODESYN *)
 
-  exception Error of string
 
-  type mode = Plus | Star | Minus | Minus1
-  type modeSpine = Mnil | Mapp of Marg * modeSpine
-  and  Marg = Marg of mode * string option
-   
+module ModeSyn : MODESYN = struct exception Error of string
+type mode = Plus | Star | Minus | Minus1
+type modeSpine = Mnil | Mapp of marg * modeSpine and marg = Marg of mode * string option
+(* modeEqual (M1, M2) = true iff M1 = M2 *)
 
-  (* modeEqual (M1, M2) = true iff M1 = M2 *)
-  let rec modeEqual = function (Plus, Plus) -> true
-    | (Star, Star) -> true
-    | (Minus, Minus) -> true
-    | (Minus1, Minus1) -> true
-    | (_, _) -> false
-
-  (* modeToString M = string
+let rec modeEqual = function (Plus, Plus) -> true | (Star, Star) -> true | (Minus, Minus) -> true | (Minus1, Minus1) -> true | (_, _) -> false
+(* modeToString M = string
     
-       converts a mode into a string for error messages
+       converts a mode into a string for_sml error messages
   *)
-  let rec modeToString = function Plus -> "input (+)"
-    | Star -> "unrestricted (*)"
-    | Minus -> "output (-)"
-    | Minus1 -> "unique output (-1)"
 
-end;; (* module ModeSyn *)
+let rec modeToString = function Plus -> "input (+)" | Star -> "unrestricted (*)" | Minus -> "output (-)" | Minus1 -> "unique output (-1)"
+ end
+
+
+(* structure ModeSyn *)
+

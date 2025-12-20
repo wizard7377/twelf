@@ -1,264 +1,69 @@
-module MTPGlobal = 
-  MTPGlobal (module MetaGlobal = MetaGlobal)
+module MTPGlobal = MTPGlobal (struct module MetaGlobal = MetaGlobal end)
 
 (* Now in funsyn.fun *)
+
+
 (*
-module FunSyn = 
-  FunSyn ((*! module IntSyn' = IntSyn !*)
-	  module Whnf = Whnf
-	  module Conv = Conv);
+structure FunSyn = 
+  FunSyn ((*! structure IntSyn' = IntSyn !*)
+	  structure Whnf = Whnf
+	  structure Conv = Conv);
 *)
 
-module StateSyn = 
-  StateSyn ((*! module FunSyn' = FunSyn !*)
-	    (*! module IntSyn' = IntSyn !*)
-	    module Whnf = Whnf
-	    module Conv = Conv)
 
-module FunNames = 
-  FunNames (module Global = Global
-	    (*! module FunSyn' = FunSyn !*)
-	    module HashTable = StringHashTable);
+module StateSyn = StateSyn (struct module Whnf = Whnf end) (struct module Conv = Conv end)
 
-module FunPrint = 
-  FunPrint ((*! module FunSyn' = FunSyn !*)
-	    module Formatter = Formatter
-	    module Print = Print
-	    module Names = Names);
+module FunNames = FunNames (struct module Global = Global end) (struct module HashTable = StringHashTable end)
+
+
+module FunPrint = FunPrint (struct module Formatter = Formatter end) (struct module Print = Print end) (struct module Names = Names end)
+
+
 (* moves eventually into the Twelf core *)
-module Weaken =
-  Weaken ((*! module IntSyn' = IntSyn !*)
-	  module Whnf = Whnf)
-
-module FunWeaken =
-  FunWeaken ((*! module FunSyn' = FunSyn !*)
-	     module Weaken = Weaken)
-
-module FunTypeCheck = 
-  FunTypeCheck ((*! module FunSyn' = FunSyn !*)
-		module StateSyn' = StateSyn
-	        module Abstract = Abstract
-	        module TypeCheck = TypeCheck
-	        module Conv = Conv
-		module Weaken = Weaken
-		module Subordinate = Subordinate
-		module Whnf = Whnf
-		module Print = Print
-		module FunPrint = FunPrint);
-
-module RelFun = 
-  RelFun (module Global = Global
-          (*! module FunSyn' = FunSyn !*)
-	  module ModeTable = ModeTable
-	  module Names = Names
-	  module TypeCheck = TypeCheck
-	  module Trail = Trail
-	  module Unify = UnifyTrail
-	  module Whnf = Whnf
-	  module Print = Print
-	  module Weaken = Weaken
-	  module FunWeaken = FunWeaken
-	  module FunNames = FunNames);
-
-(* Functor instantiation for the Prover *)
-
-module MTPData = 
-  MTPData (module MTPGlobal = MTPGlobal)
-
-module MTPAbstract =
-  MTPAbstract ((*! module IntSyn' = IntSyn !*)
-               (*! module FunSyn' = FunSyn !*)
-	       module StateSyn' = StateSyn
-	       module Whnf = Whnf
-	       module Constraints = Constraints
-               module Unify = UnifyTrail
-	       module Subordinate = Subordinate
-	       module TypeCheck = TypeCheck
-	       module FunTypeCheck = FunTypeCheck
-	       module Abstract = Abstract);
 
 
-module MTPInit = 
-  MTPInit (module MTPGlobal = MTPGlobal
-	   (*! module IntSyn = IntSyn !*)
-	   module Names = Names
-	   (*! module FunSyn' = FunSyn !*)
-	   module StateSyn' = StateSyn
-	   module MTPData = MTPData
-	   module Formatter = Formatter
-	   module Whnf = Whnf
-	   module Print = Print
-	   module FunPrint = FunPrint)
+module Weaken = Weaken (struct module Whnf = Whnf end)
 
-module MTPrint = 
-  MTPrint (module Global = Global
-	   (*! module IntSyn = IntSyn !*)
-	   (*! module FunSyn = FunSyn !*)
-	   module Names = Names
-	   module StateSyn' = StateSyn
-	   module Formatter' = Formatter
-	   module Print = Print
-	   module FunPrint = FunPrint)
+module FunWeaken = FunWeaken (struct module Weaken = Weaken end)
+
+module FunTypeCheck = FunTypeCheck (struct module StateSyn' = StateSyn end) (struct module Abstract = Abstract end) (struct module TypeCheck = TypeCheck end) (struct module Conv = Conv end) (struct module Weaken = Weaken end) (struct module Subordinate = Subordinate end) (struct module Whnf = Whnf end) (struct module Print = Print end) (struct module FunPrint = FunPrint end)
 
 
-
-module MTPSearch = 
-  MTPSearch (module Global = Global
-             module MTPGlobal = MTPGlobal
-	     (*! module IntSyn' = IntSyn !*)
-	     module Abstract = Abstract
-	     module Conv = Conv
-	     module StateSyn' = StateSyn
-	     (*! module CompSyn' = CompSyn !*)
-	     module Compile = Compile
-	     module Whnf = Whnf
-	     module Unify = UnifyTrail
-	     module Index = IndexSkolem
-	     module Assign = Assign 
-	     module CPrint = CPrint
-	     module Print = Print
-	     module Names = Names
-             (*! module CSManager = CSManager  !*)
-	       );
-
-module MTPFilling =
-  MTPFilling (module MTPGlobal = MTPGlobal
-              (*! module IntSyn = IntSyn !*)
-	      (*! module FunSyn' = FunSyn !*)
-	      module StateSyn' = StateSyn
-	      module MTPData = MTPData
-	      module Whnf = Whnf
-	      module Abstract = Abstract
-	      module TypeCheck = TypeCheck
-	      module Search = MTPSearch
-	      module Whnf = Whnf)
-
-module MTPSplitting = 
-  MTPSplitting (module MTPGlobal = MTPGlobal
-		module Global = Global
-		(*! module IntSyn = IntSyn !*)
-		(*! module FunSyn = FunSyn !*)
-		module StateSyn' = StateSyn
-		module Heuristic = Heuristic
-		module MTPrint = MTPrint
-		module MTPAbstract = MTPAbstract
-		module Names = Names  (* to be removed -cs *)
-		module Conv = Conv
-		module Whnf = Whnf
-		module TypeCheck = TypeCheck
-		module Subordinate = Subordinate
-		module FunTypeCheck = FunTypeCheck
-		module Index = Index
-		module Print = Print
-		module Unify = UnifyTrail
-                (*! module CSManager = CSManager !*)
-		  ); 
-
-module UniqueSearch =
-  UniqueSearch (module Global = Global
-		(*! module IntSyn' = IntSyn !*)
-		(*! module FunSyn' = FunSyn !*)
-		module StateSyn' = StateSyn
-		module Abstract = Abstract
-		module MTPGlobal = MTPGlobal
-		(*! module CompSyn' = CompSyn !*)
-		module Whnf = Whnf
-		module Unify = UnifyTrail
-		module Assign = Assign		
-		module Index = Index
-		module Compile = Compile
-		module CPrint = CPrint
-		module Print = Print
-		module Names = Names
-                (*! module CSManager = CSManager !*)
-		  ); 
-
-module Inference = 
-  Inference (module MTPGlobal = MTPGlobal
-	     (*! module IntSyn = IntSyn !*)
-	     (*! module FunSyn' = FunSyn !*)
-	     module StateSyn' = StateSyn
-	     module Abstract = Abstract
-	     module TypeCheck = TypeCheck
-	     module FunTypeCheck = FunTypeCheck
-	     module UniqueSearch = UniqueSearch
-	     module Whnf = Whnf
-	     module Print = Print)
-
-		  
-module MTPRecursion = 
-  MTPRecursion (module MTPGlobal = MTPGlobal
-                module Global =  Global
-		(*! module IntSyn = IntSyn !*)
-		(*! module FunSyn = FunSyn !*)
-		module StateSyn' = StateSyn
-		module FunTypeCheck = FunTypeCheck
-		module MTPSearch = MTPSearch
-		module Abstract = Abstract
-		module MTPAbstract = MTPAbstract
-		module Whnf = Whnf
-		module Unify = UnifyTrail
-		module Conv = Conv
-		module Names = Names
-		module Subordinate = Subordinate
-		module MTPrint = MTPrint
-		module Print = Print
-		module TypeCheck = TypeCheck
-		module FunPrint = FunPrint
-		module Formatter = Formatter
-                (*! module CSManager = CSManager !*)
-		  ); 
+module RelFun = RelFun (struct module Global = Global end) (struct module ModeTable = ModeTable end) (struct module Names = Names end) (struct module TypeCheck = TypeCheck end) (struct module Trail = Trail end) (struct module Unify = UnifyTrail end) (struct module Whnf = Whnf end) (struct module Print = Print end) (struct module Weaken = Weaken end) (struct module FunWeaken = FunWeaken end) (struct module FunNames = FunNames end)
 
 
-
-module MTPStrategy = 
-  MTPStrategy (module MTPGlobal = MTPGlobal
-	       module StateSyn' = StateSyn
-	       module MTPrint = MTPrint
-	       module MTPData = MTPData
-	       module MTPFilling = MTPFilling
-	       module MTPSplitting = MTPSplitting
-	       module MTPRecursion = MTPRecursion
-	       module Inference = Inference
-	       module Timers = Timers)
-
-module MTProver =
-  MTProver (module MTPGlobal = MTPGlobal
-            (*! module IntSyn' = IntSyn !*)
-            (*! module FunSyn = FunSyn !*)
-	    module StateSyn = StateSyn
-	    module Order = Order
-	    module MTPrint = MTPrint
-	    module MTPInit = MTPInit
-	    module MTPStrategy = MTPStrategy
-	    module RelFun = RelFun)
-
-module CombiProver = 
-  CombiProver (module MTPGlobal = MTPGlobal
-	       (*! module IntSyn' = IntSyn !*)
-	       module ProverNew = MTProver
-	       module ProverOld = Prover)
+(* Functor instantiation for_sml the Prover *)
 
 
-module MTPi = 
-  MTPi (module MTPGlobal = MTPGlobal
-	(*! module IntSyn = IntSyn !*)
-	(*! module FunSyn' = FunSyn !*)
-	module StateSyn' = StateSyn
-	module FunTypeCheck = FunTypeCheck
-	module RelFun = RelFun
-	module Formatter = Formatter
-	module Print = Print
-	module MTPrint = MTPrint
-	module MTPInit = MTPInit
-	module MTPFilling = MTPFilling
-	module MTPData = MTPData
-	module MTPSplitting = MTPSplitting
-	module MTPRecursion = MTPRecursion
-	module Inference = Inference
-	module MTPStrategy = MTPStrategy
-	module Names = Names
-	module Order = Order
-	module Timers = Timers
-	module Ring = Ring)
-	  
+module MTPData = MTPData (struct module MTPGlobal = MTPGlobal end)
+
+module MTPAbstract = MTPAbstract (struct module StateSyn' = StateSyn end) (struct module Whnf = Whnf end) (struct module Constraints = Constraints end) (struct module Unify = UnifyTrail end) (struct module Subordinate = Subordinate end) (struct module TypeCheck = TypeCheck end) (struct module FunTypeCheck = FunTypeCheck end) (struct module Abstract = Abstract end)
+
+
+module MTPInit = MTPInit (struct module MTPGlobal = MTPGlobal end) (struct module Names = Names end) (struct module StateSyn' = StateSyn end) (struct module MTPData = MTPData end) (struct module Formatter = Formatter end) (struct module Whnf = Whnf end) (struct module Print = Print end) (struct module FunPrint = FunPrint end)
+
+module MTPrint = MTPrint (struct module Global = Global end) (struct module Names = Names end) (struct module StateSyn' = StateSyn end) (struct module Formatter' = Formatter end) (struct module Print = Print end) (struct module FunPrint = FunPrint end)
+
+module MTPSearch = MTPSearch (struct module Global = Global end) (struct module MTPGlobal = MTPGlobal end) (struct module Abstract = Abstract end) (struct module Conv = Conv end) (struct module StateSyn' = StateSyn end) (struct module Compile = Compile end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Index = IndexSkolem end) (struct module Assign = Assign end) (struct module CPrint = CPrint end) (struct module Print = Print end) (struct module Names = Names end)
+
+
+module MTPFilling = MTPFilling (struct module MTPGlobal = MTPGlobal end) (struct module StateSyn' = StateSyn end) (struct module MTPData = MTPData end) (struct module Whnf = Whnf end) (struct module Abstract = Abstract end) (struct module TypeCheck = TypeCheck end) (struct module Search = MTPSearch end) (struct module Whnf = Whnf end)
+
+module MTPSplitting = MTPSplitting (struct module MTPGlobal = MTPGlobal end) (struct module Global = Global end) (struct module StateSyn' = StateSyn end) (struct module Heuristic = Heuristic end) (struct module MTPrint = MTPrint end) (struct module MTPAbstract = MTPAbstract end) (struct module Names = Names end) (struct module Conv = Conv end) (struct module Whnf = Whnf end) (struct module TypeCheck = TypeCheck end) (struct module Subordinate = Subordinate end) (struct module FunTypeCheck = FunTypeCheck end) (struct module Index = Index end) (struct module Print = Print end) (struct module Unify = UnifyTrail end)
+
+
+module UniqueSearch = UniqueSearch (struct module Global = Global end) (struct module StateSyn' = StateSyn end) (struct module Abstract = Abstract end) (struct module MTPGlobal = MTPGlobal end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Assign = Assign end) (struct module Index = Index end) (struct module Compile = Compile end) (struct module CPrint = CPrint end) (struct module Print = Print end) (struct module Names = Names end)
+
+
+module Inference = Inference (struct module MTPGlobal = MTPGlobal end) (struct module StateSyn' = StateSyn end) (struct module Abstract = Abstract end) (struct module TypeCheck = TypeCheck end) (struct module FunTypeCheck = FunTypeCheck end) (struct module UniqueSearch = UniqueSearch end) (struct module Whnf = Whnf end) (struct module Print = Print end)
+
+module MTPRecursion = MTPRecursion (struct module MTPGlobal = MTPGlobal end) (struct module Global = Global end) (struct module StateSyn' = StateSyn end) (struct module FunTypeCheck = FunTypeCheck end) (struct module MTPSearch = MTPSearch end) (struct module Abstract = Abstract end) (struct module MTPAbstract = MTPAbstract end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Conv = Conv end) (struct module Names = Names end) (struct module Subordinate = Subordinate end) (struct module MTPrint = MTPrint end) (struct module Print = Print end) (struct module TypeCheck = TypeCheck end) (struct module FunPrint = FunPrint end) (struct module Formatter = Formatter end)
+
+
+module MTPStrategy = MTPStrategy (struct module MTPGlobal = MTPGlobal end) (struct module StateSyn' = StateSyn end) (struct module MTPrint = MTPrint end) (struct module MTPData = MTPData end) (struct module MTPFilling = MTPFilling end) (struct module MTPSplitting = MTPSplitting end) (struct module MTPRecursion = MTPRecursion end) (struct module Inference = Inference end) (struct module Timers = Timers end)
+
+module MTProver = MTProver (struct module MTPGlobal = MTPGlobal end) (struct module StateSyn = StateSyn end) (struct module Order = Order end) (struct module MTPrint = MTPrint end) (struct module MTPInit = MTPInit end) (struct module MTPStrategy = MTPStrategy end) (struct module RelFun = RelFun end)
+
+module CombiProver = CombiProver (struct module MTPGlobal = MTPGlobal end) (struct module ProverNew = MTProver end) (struct module ProverOld = Prover end)
+
+module MTPi = MTPi (struct module MTPGlobal = MTPGlobal end) (struct module StateSyn' = StateSyn end) (struct module FunTypeCheck = FunTypeCheck end) (struct module RelFun = RelFun end) (struct module Formatter = Formatter end) (struct module Print = Print end) (struct module MTPrint = MTPrint end) (struct module MTPInit = MTPInit end) (struct module MTPFilling = MTPFilling end) (struct module MTPData = MTPData end) (struct module MTPSplitting = MTPSplitting end) (struct module MTPRecursion = MTPRecursion end) (struct module Inference = Inference end) (struct module MTPStrategy = MTPStrategy end) (struct module Names = Names end) (struct module Order = Order end) (struct module Timers = Timers end) (struct module Ring = Ring end)

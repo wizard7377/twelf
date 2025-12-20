@@ -1,38 +1,28 @@
 (* Indexing *)
+
+
 (* Author: Brigitte Pientka *)
 
-module type TABLEINDEX =
-sig
 
-  (*! module IntSyn : INTSYN !*)
-  (*! module CompSyn : COMPSYN !*)
-    
-  type answer = {solutions : ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list,
-		 lookup: int}
-
+module type TABLEINDEX = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure CompSyn : COMPSYN !*)
+  type answer = <solutions: (IntSyn.dctx * IntSyn.sub) * CompSyn.pskeleton list; lookup: int>
   type strategy = Variant | Subsumption
-
-  val strategy  : Strategy ref 
-
-  val termDepth  : int option ref
-  val ctxDepth   : int option ref
-  val ctxLength  : int option ref
+  val strategy : strategy ref
+  val termDepth : int option ref
+  val ctxDepth : int option ref
+  val ctxLength : int option ref
   val strengthen : bool ref
-
-  val query : (IntSyn.dctx * IntSyn.dctx  * IntSyn.exp * IntSyn.Sub * (CompSyn.pskeleton -> unit)) option ref
-
+  val query : IntSyn.dctx * IntSyn.dctx * IntSyn.exp * IntSyn.sub * (CompSyn.pskeleton -> unit) option ref
   type answState = New | Repeated
-
-  (* table: G, Gdprog |- goal , 
+(* table: G, Gdprog |- goal , 
             (answ list (ith stage) , answ list (1 to i-1 th stage))
-   *) 
-  val table : ((int ref * IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer) list ref 
-
-  val noAnswers : ((IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer) list -> bool
-
-  (* call check/insert *)
-
-  (* callCheck (G, D, U)
+   *)
+  val table : (int ref * IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer list ref
+  val noAnswers : (IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer list -> bool
+(* call check/insert *)
+(* callCheck (G, D, U)
    *
    * if D, G |- U     in table  
    *    then SOME(entries)
@@ -40,13 +30,9 @@ sig
    *    then NONE  
    *          SIDE EFFECT: D, G |- U added to table
    *)
-
-  val callCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.exp ->  
-                  (((IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer) list) option
-  
-
-  (* answer check/insert *)
-  (* answerCheck (G, D, (U,s))
+  val callCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.exp -> (IntSyn.dctx * IntSyn.dctx * IntSyn.exp) * answer list option
+(* answer check/insert *)
+(* answerCheck (G, D, (U,s))
    * 
    * Assumption: D, G |- U is in table
    *             and A represents the corresponding solutions
@@ -57,30 +43,27 @@ sig
    * If  (Dk, sk) in A then repeated
    *  else New
    *)
-
-  val answerCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.exp * IntSyn.Sub * CompSyn.pskeleton -> answState
-
-  (* reset table *)
-  val reset: unit -> unit
-  
+  val answerCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.exp * IntSyn.sub * CompSyn.pskeleton -> answState
+(* reset table *)
+  val reset : unit -> unit
   val printTable : unit -> unit
   val printTableEntries : unit -> unit
-
-  (* updateTable 
+(* updateTable 
    *
    * SIDE EFFECT: 
-   *   for each table entry: 
+   *   for_sml each table entry: 
    *       advance lookup pointer
    *
    * if Table did not change during last stage 
    *    then updateTable () =  false
    * else updateTable () = true
    *)
-   
   val updateTable : unit -> bool
-
-  val solutions : answer -> ((IntSyn.dctx * IntSyn.Sub) * CompSyn.pskeleton) list
+  val solutions : answer -> (IntSyn.dctx * IntSyn.sub) * CompSyn.pskeleton list
   val lookup : answer -> int
 
-end;; (* module type TABLEINDEX *)
+end
+
+
+(* signature TABLEINDEX *)
 

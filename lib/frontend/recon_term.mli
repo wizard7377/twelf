@@ -1,64 +1,77 @@
 (* External Syntax and Type Reconstruction *)
+
+
 (* Author: Frank Pfenning *)
 
-(* module type EXTSYN
-   provides the interface for type reconstruction as seen
+
+(* signature EXTSYN
+   provides the interface for_sml type seen
    by the parser
 *)
 
-module type EXTSYN =
-sig
 
-  (*! module Paths : PATHS !*)
-
-  type term				(* term *)
-  type dec				(* variable declaration *)
-
-  val lcid : string list * string * Paths.region -> term (* lower case id *)
-  val ucid : string list * string * Paths.region -> term (* upper case id *)
-  val quid : string list * string * Paths.region -> term (* quoted id, currently not parsed *)
-  val scon : string * Paths.region -> term (* string constant *)
-
-  (* unconditionally interpreted as such *)
+module type EXTSYN = sig
+(*! structure Paths : PATHS !*)
+  type term
+(* term *)
+  type dec
+(* variable declaration *)
+  val lcid : string list * string * Paths.region -> term
+(* lower case id *)
+  val ucid : string list * string * Paths.region -> term
+(* upper case id *)
+  val quid : string list * string * Paths.region -> term
+(* quoted id, currently not parsed *)
+  val scon : string * Paths.region -> term
+(* string constant *)
+(* unconditionally such *)
   val evar : string * Paths.region -> term
   val fvar : string * Paths.region -> term
+  val typ : Paths.region -> term
+(* type, region for_sml "type" *)
+  val arrow : term * term -> term
+(* tm -> tm *)
+  val backarrow : term * term -> term
+(* tm <- tm *)
+  val pi : dec * term -> term
+(* {d} tm *)
+  val lam : dec * term -> term
+(* [d] tm *)
+  val app : term * term -> term
+(* tm tm *)
+  val hastype : term * term -> term
+(* tm : tm *)
+  val omitted : Paths.region -> term
+(* object, region for_sml "_" *)
+(* region for_sml "{dec}" "[dec]" etc. *)
+  val dec : string option * term * Paths.region -> dec
+(* id : tm | _ : tm *)
+  val dec0 : string option * Paths.region -> dec
+(* id | _  (type omitted) *)
 
-  val typ : Paths.region -> term	(* type, region for "type" *)
-  val arrow : term * term -> term	(* tm -> tm *)
-  val backarrow : term * term -> term	(* tm <- tm *)
-  val pi : dec * term -> term           (* {d} tm *)
-  val lam : dec * term -> term          (* [d] tm *)
-  val app : term * term -> term		(* tm tm *)
-  val hastype : term * term -> term	(* tm : tm *)
-  val omitted : Paths.region -> term	(* _ as object, region for "_" *)
+end
 
-  (* region for "{dec}" "[dec]" etc. *)
-  val dec : string option * term * Paths.region -> dec (* id : tm | _ : tm *)
-  val dec0 : string option * Paths.region -> dec (* id | _  (type omitted) *)
 
-end;; (* module type EXTSYN *)
+(* signature EXTSYN *)
 
-(* module type RECON_TERM
+
+(* signature RECON_TERM
    provides the interface to type reconstruction seen by Twelf 
 *)
 
-module type RECON_TERM =
-sig
 
-  (*! module IntSyn : INTSYN !*)
+module type RECON_TERM = sig
+(*! structure IntSyn : INTSYN !*)
   include EXTSYN
-
   exception Error of string
-  val resetErrors : string -> unit      (* filename -fp *)
+  val resetErrors : string -> unit
+(* filename -fp *)
   val checkErrors : Paths.region -> unit
-
   type traceMode = Progressive | Omniscient
   val trace : bool ref
-  val traceMode : TraceMode ref
-
-  (* Reconstruction jobs *)
+  val traceMode : traceMode ref
+(* Reconstruction jobs *)
   type job
-
   val jnothing : job
   val jand : job * job -> job
   val jwithctx : dec IntSyn.ctx * job -> job
@@ -66,26 +79,20 @@ sig
   val jclass : term -> job
   val jof : term * term -> job
   val jof' : term * IntSyn.exp -> job
-
-  type job =
-      JNothing
-    | JAnd of Job * Job
-    | JWithCtx of IntSyn.dec IntSyn.ctx * Job
-    | JTerm of (IntSyn.exp * Paths.occExp) * IntSyn.exp * IntSyn.Uni
-    | JClass of (IntSyn.exp * Paths.occExp) * IntSyn.Uni
-    | JOf of (IntSyn.exp * Paths.occExp) * (IntSyn.exp * Paths.occExp) * IntSyn.Uni
-
-  val recon : job -> Job
-  val reconQuery : job -> Job
-  val reconWithCtx : IntSyn.dctx * job -> Job
-  val reconQueryWithCtx : IntSyn.dctx * job -> Job
-
+  type job = JNothing | JAnd of job * job | JWithCtx of IntSyn.dec IntSyn.ctx * job | JTerm of (IntSyn.exp * Paths.occExp) * IntSyn.exp * IntSyn.uni | JClass of (IntSyn.exp * Paths.occExp) * IntSyn.uni | JOf of (IntSyn.exp * Paths.occExp) * (IntSyn.exp * Paths.occExp) * IntSyn.uni
+  val recon : job -> job
+  val reconQuery : job -> job
+  val reconWithCtx : IntSyn.dctx * job -> job
+  val reconQueryWithCtx : IntSyn.dctx * job -> job
   val termRegion : term -> Paths.region
   val decRegion : dec -> Paths.region
   val ctxRegion : dec IntSyn.ctx -> Paths.region option
-                  
-  (* unimplemented for the moment *)
+(* unimplemented for_sml the moment *)
   val internalInst : 'a -> 'b
   val externalInst : 'a -> 'b
 
-end;; (* module type RECON_TERM *)
+end
+
+
+(* signature RECON_TERM *)
+

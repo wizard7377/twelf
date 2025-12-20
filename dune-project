@@ -1,24 +1,24 @@
-(lang dune 3.19)
+(lang dune 3.20)
 
 (name twelf)
 
 (generate_opam_files true)
 
 (source
- (github wizard7377/twelf))
+ (github username/reponame))
 
-(authors "Asher Frost")
+(authors "Author Name <author@example.com>")
 
-; (maintainers "Maintainer Name <maintainer@example.com>")
+(maintainers "Maintainer Name <maintainer@example.com>")
 
 (license LICENSE)
 
-; (documentation https://url/to/documentation)
+(documentation https://url/to/documentation)
 
 (package
  (name twelf)
- (synopsis "Implementation of the Edinburgh Logical Framework")
- (description "An OCaml port of the Twelf project, an implementation of the Edinburgh Logical Framework (LF) and its extensions.")
+ (synopsis "A short synopsis")
+ (description "A longer description")
  (depends ocaml)
  (tags
   ("add topics" "to describe" your project)))

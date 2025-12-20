@@ -1,13 +1,16 @@
 (* Unification on Formulas *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type TOMEGAUNIFY = 
-sig
-  (*! module IntSyn : INTSYN !*)
-  (*! module Tomega : TOMEGA !*)
 
+module type TOMEGAUNIFY = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure Tomega : TOMEGA !*)
   exception Unify of string
+  val unifyFor : Tomega.dec IntSyn.ctx * Tomega.for_sml * Tomega.for_sml -> unit
 
-  val unifyFor : Tomega.Dec IntSyn.ctx * Tomega.For * Tomega.For -> unit
-end (* Signature TOMEGATYPECHECK *)       
+end
+
+(* Signature TOMEGATYPECHECK *)
 

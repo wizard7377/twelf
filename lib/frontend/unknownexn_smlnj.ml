@@ -2,5 +2,6 @@
    SMLofNJ.exnHistory.
 *)
 
-module UnknownExn =
-  UnknownExn (let exnHistory = SMLofNJ.exnHistory);
+
+module UnknownExn = UnknownExn
+

@@ -1,33 +1,29 @@
 (* Flit DAG generator *)
+
+
 (* Author: Roberto Virga *)
 
-module type FLIT =
-sig
 
-  (* init (sym_table_file) *)
+module type FLIT = sig
+(* init (sym_table_file) *)
   val init : string -> unit
-
-  (* initForText () *)
+(* initForText () *)
   val initForText : unit -> unit
-
-  (* dump (symbol, dag_file) *)
+(* dump (symbol, dag_file) *)
   val dump : (string * string) -> int
-
-  (* dumpText (outputSemant, outputChecker) *)
+(* dumpText (outputSemant, outputChecker) *)
   val dumpText : string * string -> unit
-
-  (* setFlag () *)
+(* setFlag () *)
   val setFlag : unit -> unit
-
-  (* setEndTcb () *)
+(* setEndTcb () *)
   val setEndTcb : unit -> unit
-
-  (* dumpFlagged (dag_file) *)
+(* dumpFlagged (dag_file) *)
   val dumpFlagged : string -> unit
-
-  (* dumpSynTable (start_sym, end_sym, sym_table_file) *)
+(* dumpSynTable (start_sym, end_sym, sym_table_file) *)
   val dumpSymTable : (string * string * string) -> unit
 
-end;; (* module type FLIT *)
+end
 
-  
+
+(* signature FLIT *)
+

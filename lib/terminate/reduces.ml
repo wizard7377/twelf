@@ -1,105 +1,41 @@
 (* Reduction and Termination checker *)
+
+
 (* Author: Brigitte Pientka *)
-(* for termination checking see [Rohwedder,Pfenning ESOP'96]
-   for a revised version incorporating reducation checking see
+
+
+(* for_sml termination checking see [Rohwedder,Pfenning ESOP'96]
+   for_sml a revised version incorporating reducation checking see
    tech report CMU-CS-01-115
  *)
 
-module Reduces   (Global : GLOBAL)
-                   (*! module IntSyn' : INTSYN !*)
-                   (Whnf : WHNF)
-                   (*! sharing Whnf.IntSyn = IntSyn' !*)
-                   (Names : NAMES)
-                   (*! sharing Names.IntSyn = IntSyn' !*)
-                   (Index : INDEX)
-                   (*! sharing Index.IntSyn = IntSyn' !*)
-                   (Subordinate : SUBORDINATE)
-                   (*! sharing Subordinate.IntSyn = IntSyn' !*)
-                   (Formatter : FORMATTER)
-                   (Print : PRINT)
-                   (*! sharing Print.IntSyn = IntSyn' !*)
-                     sharing Print.Formatter = Formatter
-                   (Order : ORDER)
-                   (*! sharing Order.IntSyn = IntSyn' !*)
-                   (*! module Paths  : PATHS !*)
-                   (Checking : CHECKING)
-                      sharing Checking.Order = Order
-                      (*! sharing Checking.IntSyn = IntSyn' !*)
-                      (*! sharing Checking.Paths = Paths !*)
-                   (Origins : ORIGINS): REDUCES =
-                   (*! sharing Origins.Paths = Paths !*)
-                     (*! sharing Origins.IntSyn = IntSyn' !*)
-                   (*! (CSManager : CS_MANAGER) !*)
-                   (*! sharing CSManager.IntSyn = IntSyn' !*)
-struct
-  (*! module IntSyn = IntSyn' !*)
 
-  exception Error of string
+module Reduces (Global : GLOBAL) (Whnf : WHNF) (Names : NAMES) (Index : INDEX) (Subordinate : SUBORDINATE) (Formatter : FORMATTER) (Print : PRINT) (Order : ORDER) (Checking : CHECKING) (Origins : ORIGINS) : REDUCES = struct (*! structure IntSyn = IntSyn' !*)
 
-  local
-    module I = IntSyn
-    module P = Paths
-    module N = Names
-    module F = Formatter
-    module R = Order
-    module C = Checking
+exception Error of string
+module I = IntSyn
+module P = Paths
+module N = Names
+module F = Formatter
+module R = Order
+module C = Checking
+exception Error' of P.occ * string
+let rec error (c, occ, msg)  = (match Origins.originLookup c with (fileName, None) -> raise (Error (fileName ^ ":" ^ msg)) | (fileName, Some occDec) -> raise (Error (P.wrapLoc' (P.Loc (fileName, P.occToRegionDec occDec occ), Origins.linesInfoLookup (fileName), msg))))
+let rec concat = function (G', I.Null) -> G' | (G', I.Decl (G, D)) -> I.Decl (concat (G', G), D)
+(*--------------------------------------------------------------------*)
 
-    exception Error' of P.occ * string
+(* Printing *)
 
-    let rec error (c, occ, msg) =
-        (case Origins.originLookup c
-           of (fileName, NONE) => raise Error (fileName ^ ":" ^ msg)
-            | (fileName, SOME occDec) =>
-                raise Error (P.wrapLoc' (P.Loc (fileName, P.occToRegionDec occDec occ),
-                                         Origins.linesInfoLookup (fileName),
-                                         msg)))
+let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+and fmtOrders = function [] -> [] | (O :: []) -> fmtOrder' O :: [] | (O :: L) -> fmtOrder' O :: F.Break :: fmtOrders L in  fmtOrder' O )
+let rec fmtComparison (G, O, comp, O')  = F.HOVbox0 1 0 1 [fmtOrder (G, O); F.Break; F.String comp; F.Break; fmtOrder (G, O')]
+let rec fmtPredicate = function (G, C.Less (O, O')) -> fmtComparison (G, O, "<", O') | (G, C.Leq (O, O')) -> fmtComparison (G, O, "<=", O') | (G, C.Eq (O, O')) -> fmtComparison (G, O, "=", O') | (G, C.Pi (D, P)) -> F.Hbox [F.String "Pi "; fmtPredicate (I.Decl (G, D), P)]
+let rec rlistToString' = function (G, []) -> "" | (G, [P]) -> F.makestring_fmt (fmtPredicate (G, P)) | (G, (P :: Rl)) -> F.makestring_fmt (fmtPredicate (G, P)) ^ " ," ^ rlistToString' (G, Rl)
+let rec rlistToString (G, Rl)  = rlistToString' (Names.ctxName G, Rl)
+let rec orderToString (G, P)  = F.makestring_fmt (fmtPredicate (Names.ctxName G, P))
+(*--------------------------------------------------------------------*)
 
-    let rec concat = function (G', I.Null) -> G'
-      | (G', I.Decl(G, D)) -> I.Decl(concat(G', G), D)
-   (*--------------------------------------------------------------------*)
-   (* Printing *)
-
-    let rec fmtOrder (G, O) =
-        let
-          let rec fmtOrder' = function (R.Arg (Us as (U, s), Vs as (V, s'))) -> 
-                F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
-            | (R.Lex L) -> 
-                F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"]
-            | (R.Simul L) -> 
-                F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"]
-
-          and fmtOrders [] = []
-            | fmtOrders (O :: []) = fmtOrder' O :: []
-            | fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L
-        in
-          fmtOrder' O
-        end
-
-    let rec fmtComparison (G, O, comp, O') =
-        F.HOVbox0 1 0 1 [fmtOrder (G, O), F.Break, F.String comp,
-                         F.Break, fmtOrder (G, O')]
-
-
-    let rec fmtPredicate = function (G, C.Less(O, O')) -> fmtComparison (G, O, "<", O')
-      | (G, C.Leq(O, O')) -> fmtComparison (G, O, "<=", O')
-      | (G, C.Eq(O, O')) -> fmtComparison (G, O, "=", O')
-      | (G, C.Pi(D, P)) -> 
-          F.Hbox [F.String "Pi ",
-                  fmtPredicate (I.Decl(G, D), P)]
-
-    let rec rlistToString' = function (G, nil) -> ""
-      | (G, [P]) -> 
-        F.makestring_fmt(fmtPredicate (G, P) )
-      | (G, (P::Rl)) -> 
-        F.makestring_fmt(fmtPredicate (G, P)) ^ " ," ^ rlistToString' (G, Rl)
-
-    let rec rlistToString (G, Rl) = rlistToString' (Names.ctxName G, Rl)
-
-    let rec orderToString (G, P) = F.makestring_fmt(fmtPredicate (Names.ctxName G, P))
-
-
-   (*--------------------------------------------------------------------*)
-   (* select (c, (S, s)) = P
+(* select (c, (S, s)) = P
 
       select parameters according to termination order
 
@@ -110,35 +46,11 @@ struct
       and  G |- si : Gi  Gi |- Ui : Vi
       and  G |- Vi[s]  == V[si] : type   forall 1<=i<=n
     *)
-    let rec select (c, (S, s)) =
-        let
-          let SO = R.selLookup c
-          let Vid = (I.constType c, I.id)
-          let rec select'' (n, (Ss', Vs'')) =
-                select''W (n, (Ss', Whnf.whnf Vs''))
-          and select''W (1, ((I.App (U', S'), s'),
-                             (I.Pi ((I.Dec (_, V''), _), _), s''))) =
-                ((U', s'), (V'', s''))
-            | select''W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
-                select''W (n, ((S', I.comp (s1', s2')), Vs''))
-            | select''W (n, ((I.App (U', S'), s'),
-                             (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
-                select'' (n-1, ((S', s'),
-                                (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
-          let rec select' = function (R.Arg n) -> R.Arg (select'' (n, ((S, s), Vid)))
-            | (R.Lex L) -> R.Lex (map select' L)
-            | (R.Simul L) -> R.Simul (map select' L)
-        in
-          select' (R.selLookup c)
-        end
 
-    let rec selectOcc (c, (S, s), occ) =
-        select (c, (S, s))
-        handle R.Error (msg) =>
-          raise Error' (occ, "Termination violation: no order assigned for " ^
-                        N.qidToString (N.constQid c))
-
-    (* selectROrder (c, (S, s)) = P
+let rec select (c, (S, s))  = ( let SO = R.selLookup c in let Vid = (I.constType c, I.id) in let rec select'' (n, (Ss', Vs''))  = select''W (n, (Ss', Whnf.whnf Vs''))
+and select''W = function (1, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V''), _), _), s''))) -> ((U', s'), (V'', s'')) | (n, ((I.SClo (S', s1'), s2'), Vs'')) -> select''W (n, ((S', I.comp (s1', s2')), Vs'')) | (n, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) -> select'' (n - 1, ((S', s'), (V2'', I.Dot (I.Exp (I.EClo (U', s')), s'')))) in let rec select' = function (R.Arg n) -> R.Arg (select'' (n, ((S, s), Vid))) | (R.Lex L) -> R.Lex (map select' L) | (R.Simul L) -> R.Simul (map select' L) in  select' (R.selLookup c) )
+let rec selectOcc (c, (S, s), occ)  = try select (c, (S, s)) with R.Error (msg) -> raise (Error' (occ, "Termination violation: no order assigned for_sml " ^ N.qidToString (N.constQid c)))
+(* selectROrder (c, (S, s)) = P
 
        select parameters according to reduction order
 
@@ -149,34 +61,12 @@ struct
        and  G |- si : Gi  Gi |- Ui : Vi
        and  G |- Vi[s]  == V[si] : type   forall 1<=i<=n
     *)
-    let rec selectROrder (c, (S, s)) =
-        let
-          let Vid = (I.constType c, I.id)
-          let rec select'' (n, (Ss', Vs'')) =
-                select''W (n, (Ss', Whnf.whnf Vs''))
-          and select''W (1, ((I.App (U', S'), s'),
-                             (I.Pi ((I.Dec (_, V''), _), _), s''))) =
-                ((U', s'), (V'', s''))
-            | select''W (n, ((I.SClo (S', s1'), s2'), Vs'')) =
-                select''W (n, ((S', I.comp (s1', s2')), Vs''))
-            | select''W (n, ((I.App (U', S'), s'),
-                             (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) =
-                select'' (n-1, ((S', s'),
-                                (V2'', I.Dot (I.Exp (I.EClo (U', s')), s''))))
-          let rec select' = function (R.Arg n) -> R.Arg (select'' (n, ((S, s), Vid)))
-            | (R.Lex L) -> R.Lex (map select' L)
-            | (R.Simul L) -> R.Simul (map select' L)
 
-          let rec selectP = function (R.Less(O1, O2)) -> C.Less(select' O1, select' O2)
-            | (R.Leq(O1, O2)) -> C.Leq(select' O1, select' O2)
-            | (R.Eq(O1, O2)) -> C.Eq(select' O1, select' O2)
-        in
-          SOME(selectP (R.selLookupROrder c)) handle R.Error(s) => NONE
-        end
+let rec selectROrder (c, (S, s))  = ( let Vid = (I.constType c, I.id) in let rec select'' (n, (Ss', Vs''))  = select''W (n, (Ss', Whnf.whnf Vs''))
+and select''W = function (1, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V''), _), _), s''))) -> ((U', s'), (V'', s'')) | (n, ((I.SClo (S', s1'), s2'), Vs'')) -> select''W (n, ((S', I.comp (s1', s2')), Vs'')) | (n, ((I.App (U', S'), s'), (I.Pi ((I.Dec (_, V1''), _), V2''), s''))) -> select'' (n - 1, ((S', s'), (V2'', I.Dot (I.Exp (I.EClo (U', s')), s'')))) in let rec select' = function (R.Arg n) -> R.Arg (select'' (n, ((S, s), Vid))) | (R.Lex L) -> R.Lex (map select' L) | (R.Simul L) -> R.Simul (map select' L) in let rec selectP = function (R.Less (O1, O2)) -> C.Less (select' O1, select' O2) | (R.Leq (O1, O2)) -> C.Leq (select' O1, select' O2) | (R.Eq (O1, O2)) -> C.Eq (select' O1, select' O2) in  try Some (selectP (R.selLookupROrder c)) with R.Error (s) -> None )
+(*--------------------------------------------------------------*)
 
-   (*--------------------------------------------------------------*)
-
-    (* abstractRO (G, D, RO) = Pi D. RO
+(* abstractRO (G, D, RO) = Pi D. RO
        Invariant:
 
        If  G, D |- RO
@@ -184,55 +74,22 @@ struct
 
     *)
 
-    let rec abstractRO (G, D, O) = C.Pi(D, O)
-
-    (* getROrder (G, Q, (V, s)) = O
+let rec abstractRO (G, D, O)  = C.Pi (D, O)
+(* getROrder (G, Q, (V, s)) = O
        If G: Q
        and  G |- s : G1    and   G1 |- V : L
        then O is the reduction order associated to V[s]
        and  G |- O
 
      *)
-    let rec getROrder (G, Q, Vs, occ) = getROrderW (G, Q, Whnf.whnf Vs, occ)
-    and getROrderW (G, Q, Vs as (I.Root (I.Const a, S), s), occ) =
-         let
-           let O = selectROrder (a, (S, s))
-           let _ = case O
-                    of NONE => ()
-                     | SOME(O) => if (!Global.chatter) > 5
-                                       then print ("Reduction predicate for " ^
-                                                   N.qidToString (N.constQid a) ^
-                                                   " added : " ^
-                                                   orderToString (G, O) ^ "\n")
-                                      else ()
-         in
-           O
-         end
-      | getROrderW (G, Q, (I.Pi ((D, I.Maybe), V), s), occ) =
-          let
-            let O = getROrder (I.Decl (G, N.decLUName (G, I.decSub (D, s))),
-                                I.Decl (Q, C.All), (V, I.dot1 s), P.body occ)
-          in
-            case O
-              of NONE => NONE
-               | SOME(O') => SOME(abstractRO(G, I.decSub(D, s), O'))
-          end
-      | getROrderW (G, Q, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
-          let
-            let O = getROrder (G, Q, (V2, I.comp(I.invShift, s)), P.body occ)
-          in
-            case O
-              of NONE => NONE
-               | SOME(O') => SOME(O')
-          end
-      | getROrderW (G, Q, Vs as (I.Root (I.Def a, S), s), occ) =
-          raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
-                        ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
 
-    (*--------------------------------------------------------------------*)
+let rec getROrder (G, Q, Vs, occ)  = getROrderW (G, Q, Whnf.whnf Vs, occ)
+and getROrderW = function (G, Q, Vs, occ) -> ( let O = selectROrder (a, (S, s)) in let _ = match O with None -> () | Some (O) -> if (! Global.chatter) > 5 then print ("Reduction predicate for_sml " ^ N.qidToString (N.constQid a) ^ " added : " ^ orderToString (G, O) ^ "\n") else () in  O ) | (G, Q, (I.Pi ((D, I.Maybe), V), s), occ) -> ( let O = getROrder (I.Decl (G, N.decLUName (G, I.decSub (D, s))), I.Decl (Q, C.All), (V, I.dot1 s), P.body occ) in  match O with None -> None | Some (O') -> Some (abstractRO (G, I.decSub (D, s), O')) ) | (G, Q, (I.Pi ((D, I.No), V2), s), occ) -> ( let O = getROrder (G, Q, (V2, I.comp (I.invShift, s)), P.body occ) in  match O with None -> None | Some (O') -> Some (O') ) | (G, Q, Vs, occ) -> raise (Error' (occ, "Reduction checking for_sml defined type families not yet available:\n" ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ "."))
+(*--------------------------------------------------------------------*)
 
-    (* Termination Checker *)
-    (* checkGoal (G0, Q0, Rl, (V, s), (V', s'), occ) = ()
+(* Termination Checker *)
+
+(* checkGoal (G0, Q0, Rl, (V, s), (V', s'), occ) = ()
 
        Invariant:
        If   G0 : Q0
@@ -246,137 +103,20 @@ struct
        else Error is raised.
     *)
 
-    let rec checkGoal (G0, Q0, Rl, Vs, Vs', occ) =
-          checkGoalW (G0, Q0, Rl, Whnf.whnf Vs, Vs', occ)
-    and checkGoalW (G0, Q0, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), Vs', occ) =
-        (checkClause ((G0, Q0, Rl), I.Null, I.Null, (V1, s), P.label occ);
-         checkGoal (G0, Q0, Rl, (V2, I.comp(I.invShift, s)), Vs', P.body occ))
-      | checkGoalW (G0, Q0, Rl, (I.Pi ((D, I.Maybe), V), s), (V', s'), occ) =
-        checkGoal (I.Decl (G0, N.decLUName (G0, I.decSub (D, s))),
-                     I.Decl (Q0, C.All),
-                     C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
-                     (V, I.dot1 s), (V', I.comp(s', I.shift)), P.body occ)
-      | checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Const a, S), s),
-                    Vs' as (I.Root (I.Const a', S'), s'), occ) =
-        let
-          let rec lookup = function (R.Empty, f) -> R.Empty
-            | (a's as R.LE (a, a's'), f) -> 
-                if (f a) then a's else lookup (a's', f)
-            | (a's as R.LT (a, a's'), f) -> 
-                if (f a) then a's else lookup (a's', f)
-          let P = selectOcc (a, (S, s), occ)    (* only if a terminates? *)
-          let P' = select (a', (S', s')) (* always succeeds? -fp *)
-          let a's = Order.mutLookup a   (* always succeeds? -fp *)
-        in
-          (case lookup (a's, fn x' => x' = a')
-             of R.Empty => ()
-              | R.LE _ => (if (!Global.chatter) > 4
-                             then (print ("Verifying termination order:\n");
-                                   print (rlistToString (G0, Rl));
-                                   print( " ---> " ^ orderToString (G0, C.Leq(P, P')) ^ "\n"))
-                           else ();
-                           if C.deduce (G0, Q0, Rl, C.Leq(P, P'))
-                             then ()
-                           else raise Error' (occ, "Termination violation:\n" ^
-                                              rlistToString (G0, Rl) ^ " ---> " ^
-                                              orderToString (G0, C.Leq(P, P'))))
-             | R.LT _ =>  (if (!Global.chatter) > 4
-                            then  (print "Verifying termination order:\n";
-                                   print (rlistToString (G0, Rl) ^ " ---> ");
-                                   print(orderToString (G0, C.Less(P, P')) ^ "\n"))
-                           else ();
-                           if C.deduce (G0, Q0, Rl, C.Less(P, P'))
-                             then ()
-                           else raise Error' (occ, "Termination violation:\n" ^
-                                               rlistToString (G0, Rl) ^ " ---> " ^
-                                               orderToString (G0, C.Less(P, P')))))
-        end
-      | checkGoalW (G0, Q0, Rl, Vs as (I.Root (I.Def a, S), s), Vs', occ) =
-        raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
-                      ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
+let rec checkGoal (G0, Q0, Rl, Vs, Vs', occ)  = checkGoalW (G0, Q0, Rl, Whnf.whnf Vs, Vs', occ)
+and checkGoalW = function (G0, Q0, Rl, (I.Pi ((D, I.No), V2), s), Vs', occ) -> (checkClause ((G0, Q0, Rl), I.Null, I.Null, (V1, s), P.label occ); checkGoal (G0, Q0, Rl, (V2, I.comp (I.invShift, s)), Vs', P.body occ)) | (G0, Q0, Rl, (I.Pi ((D, I.Maybe), V), s), (V', s'), occ) -> checkGoal (I.Decl (G0, N.decLUName (G0, I.decSub (D, s))), I.Decl (Q0, C.All), C.shiftRCtx Rl (fun s -> I.comp (s, I.shift)), (V, I.dot1 s), (V', I.comp (s', I.shift)), P.body occ) | (G0, Q0, Rl, Vs, Vs', occ) -> ( (* only if a terminates? *)
+(* always succeeds? -fp *)
+(* always succeeds? -fp *)
+let rec lookup = function (R.Empty, f) -> R.Empty | (a's, f) -> if (f a) then a's else lookup (a's', f) | (a's, f) -> if (f a) then a's else lookup (a's', f) in let P = selectOcc (a, (S, s), occ) in let P' = select (a', (S', s')) in let a's = Order.mutLookup a in  (match lookup (a's, fun x' -> x' = a') with R.Empty -> () | R.LE _ -> (if (! Global.chatter) > 4 then (print ("Verifying termination order:\n"); print (rlistToString (G0, Rl)); print (" ---> " ^ orderToString (G0, C.Leq (P, P')) ^ "\n")) else (); if C.deduce (G0, Q0, Rl, C.Leq (P, P')) then () else raise (Error' (occ, "Termination violation:\n" ^ rlistToString (G0, Rl) ^ " ---> " ^ orderToString (G0, C.Leq (P, P'))))) | R.LT _ -> (if (! Global.chatter) > 4 then (print "Verifying termination order:\n"; print (rlistToString (G0, Rl) ^ " ---> "); print (orderToString (G0, C.Less (P, P')) ^ "\n")) else (); if C.deduce (G0, Q0, Rl, C.Less (P, P')) then () else raise (Error' (occ, "Termination violation:\n" ^ rlistToString (G0, Rl) ^ " ---> " ^ orderToString (G0, C.Less (P, P')))))) ) | (G0, Q0, Rl, Vs, Vs', occ) -> raise (Error' (occ, "Reduction checking for_sml defined type families not yet available:\n" ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")) | (G0, Q0, Rl, Vs, Vs', occ) -> raise (Error' (occ, "Reduction checking for_sml defined type families not yet available:\n" ^ "Illegal use of " ^ N.qidToString (N.constQid a') ^ "."))
+and checkSubgoals = function (G0, Q0, Rl, Vs, n, (I.Decl (G, D), I.Decl (Q, C.And (occ)))) -> ( let _ = checkGoal (G0, Q0, Rl, (V', I.Shift (n + 1)), Vs, occ) in let RO = getROrder (G0, Q0, (V', I.Shift (n + 1)), occ) in let Rl' = match RO with None -> Rl | Some (O) -> O :: Rl in  checkSubgoals (G0, Q0, Rl', Vs, n + 1, (G, Q)) ) | (G0, Q0, Rl, Vs, n, (I.Decl (G, D), I.Decl (Q, C.Exist))) -> checkSubgoals (G0, Q0, Rl, Vs, n + 1, (G, Q)) | (G0, Q0, Rl, Vs, n, (I.Decl (G, D), I.Decl (Q, C.All))) -> checkSubgoals (G0, Q0, Rl, Vs, n + 1, (G, Q)) | (G0, Q0, Rl, Vs, n, (I.Null, I.Null)) -> ()
+and checkClause (GQR, G, Q, Vs, occ)  = checkClauseW (GQR, G, Q, Whnf.whnf Vs, occ)
+and checkClauseW = function (GQR, G, Q, (I.Pi ((D, I.Maybe), V), s), occ) -> checkClause (GQR, I.Decl (G, N.decEName (G, I.decSub (D, s))), I.Decl (Q, C.Exist), (V, I.dot1 s), P.body occ) | (GQR, G, Q, (I.Pi ((D, I.No), V2), s), occ) -> checkClause (GQR, I.Decl (G, I.decSub (D, s)), I.Decl (Q, C.And (P.label occ)), (V2, I.dot1 s), P.body occ) | (GQR, G, Q, Vs, occ) -> ( let n = I.ctxLength G in let Rl' = C.shiftRCtx Rl (fun s -> I.comp (s, I.Shift n)) in  checkSubgoals (concat (G0, G), concat (Q0, Q), Rl', Vs, 0, (G, Q)) ) | (GQR, G, Q, (I.Root (I.Def a, S), s), occ) -> raise (Error' (occ, "Termination checking for_sml defined type families not yet available:\n" ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ "."))
+let rec checkClause' (Vs, occ)  = checkClause ((I.Null, I.Null, []), I.Null, I.Null, Vs, occ)
+(*-------------------------------------------------------------------*)
 
-      | checkGoalW (G0, Q0, Rl, Vs, Vs' as (I.Root (I.Def a', S'), s'), occ) =
-        raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
-                        ^ "Illegal use of " ^ N.qidToString (N.constQid a') ^ ".")
+(* Reduction Checker *)
 
-    (* checkSubgoals (G0, Q0, Rl, Vs, n, (G, Q), Vs, occ)
-
-      if    G0 |- Q0
-       and  G0 |- s : G1    and   G1 |- V : L
-       and  V[s] does not contain any skolem constants
-       and  Rl is a list of reduction propositions
-       and  G0 |- Rl
-       and  G0 |- V[s]
-       and  G0 = G0', G' where G' <= G
-       and  n = |G'| - |G|
-       and  G0 |- G[^n]
-       and  G |- Q
-     and
-       V[s] satisfies the associated termination order
-
-     *)
-
-    and checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D as I.Dec(_,V')), I.Decl(Q, C.And(occ)))) =
-          let
-            let _ = checkGoal (G0, Q0, Rl, (V', I.Shift (n+1)), Vs, occ)
-            let RO = getROrder (G0, Q0, (V', I.Shift (n+1)), occ)
-            let Rl' = case RO
-                        of NONE => Rl
-                          | SOME(O) => O :: Rl
-          in
-            checkSubgoals (G0, Q0, Rl', Vs, n+1, (G, Q))
-          end
-      | checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D), I.Decl(Q, C.Exist))) =
-          checkSubgoals (G0, Q0, Rl, Vs, n+1, (G, Q))
-
-      | checkSubgoals (G0, Q0, Rl, Vs, n, (I.Decl(G, D), I.Decl(Q, C.All))) =
-          checkSubgoals (G0, Q0, Rl, Vs, n+1, (G, Q))
-
-      | checkSubgoals (G0, Q0, Rl, Vs, n, (I.Null, I.Null)) = ()
-
-
-    (* checkClause (GQR as (G0, Q0, Rl), G, Q, Vs, occ)
-
-      if   G0, G |- Q0, Q
-       and  G0, G |- s : G1    and   G1 |- V : L
-       and  V[s] does not contain any skolem constants
-       and  Rl is a list of reduction propositions
-       and  G0, G |- Rl
-       and  G0, G |- V[s]
-     and
-       V[s] satisfies the associated termination order
-     *)
-    and checkClause (GQR, G, Q, Vs, occ) =
-         checkClauseW (GQR, G, Q, Whnf.whnf Vs, occ)
-
-    and checkClauseW (GQR, G, Q, (I.Pi ((D, I.Maybe), V), s), occ) =
-           checkClause (GQR, I.Decl(G, N.decEName (G, I.decSub (D, s))),
-                        I.Decl (Q, C.Exist), (V, I.dot1 s), P.body occ)
-
-      | checkClauseW (GQR, G, Q, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
-           checkClause (GQR, I.Decl (G, I.decSub (D, s)), I.Decl (Q, C.And (P.label occ)),
-                        (V2, I.dot1 s), P.body occ)
-
-      | checkClauseW (GQR as (G0, Q0, Rl), G, Q, Vs as (I.Root (I.Const a, S), s), occ) =
-          let
-            let n = I.ctxLength G
-            let Rl' = C.shiftRCtx Rl (fun s -> I.comp(s, I.Shift n))
-          in
-            checkSubgoals (concat(G0, G), concat(Q0, Q), Rl', Vs, 0, (G, Q))
-          end
-
-      | checkClauseW (GQR, G, Q, (I.Root (I.Def a, S), s), occ) =
-        raise Error' (occ, "Termination checking for defined type families not yet available:\n"
-                      ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
-
-
-    let rec checkClause' (Vs, occ) =
-      checkClause ((I.Null, I.Null, nil), I.Null, I.Null, Vs, occ)
-
-    (*-------------------------------------------------------------------*)
-    (* Reduction Checker *)
-
-    (* checkRGoal (G, Q, Rl, (V1, s1), occ) = Rl''
+(* checkRGoal (G, Q, Rl, (V1, s1), occ) = Rl''
 
        Invariant
        If   G : Q
@@ -390,222 +130,50 @@ struct
 
      *)
 
-     let rec checkRGoal (G, Q, Rl, Vs, occ) =
-           checkRGoalW (G, Q, Rl, Whnf.whnf Vs, occ)
-
-     and checkRGoalW (G, Q, Rl, Vs as (I.Root (I.Const a, S), s), occ) = () (* trivial *)
-
-       | checkRGoalW (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) =
-           checkRGoal (I.Decl (G, N.decLUName (G, I.decSub (D, s))),
-                      I.Decl (Q, C.All),
-                      C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
-                      (V, I.dot1 s), P.body occ)
-
-       | checkRGoalW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
-           (checkRClause (G, Q, Rl, (V1, s), P.label occ);
-            checkRGoal (G, Q, Rl, (V2, I.comp(I.invShift, s)), P.body occ))
-
-
-       | checkRGoalW (G, Q, Rl, (I.Root (I.Def a, S), s), occ) =
-           raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
-                         ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
-
-
-    (* checkRImp (G, Q, Rl, (V1, s1), (V2, s2), occ) = ()
-
-       Invariant
-       If   G : Q
-       and  G |- s1 : G1   and   G1 |- V1 : type
-       and  V1[s1], V2[s2] does not contain Skolem constants
-       and  G |- s2 : G2   and   G2 |- V2 : type
-       and occ locates V1 in declaration
-       and Rl is a context for derived reduction order assumptions
-       and G |- Rl
-
-       then Rl implies that  V2[s2] satisfies its associated reduction order
-            with respect to V1[s1]
-    *)
-
-    and checkRImp (G, Q, Rl, Vs, Vs', occ) =
-         checkRImpW (G, Q, Rl, Whnf.whnf Vs, Vs', occ)
-
-    and checkRImpW (G, Q, Rl, (I.Pi ((D', I.Maybe), V'), s'), (V, s), occ) =
-          checkRImp (I.Decl (G, N.decEName (G, I.decSub (D', s'))),
-                     I.Decl (Q, C.Exist),
-                     C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
-                     (V', I.dot1 s'), (V, I.comp (s, I.shift)), occ)
-      | checkRImpW (G, Q, Rl, (I.Pi ((D' as I.Dec (_, V1), I.No), V2), s'), (V, s), occ) =
-          let
-            let Rl' = case getROrder (G, Q, (V1, s'), occ)
-                         of NONE => Rl
-                       | SOME(O) => O :: Rl
-          in
-            checkRImp (G, Q, Rl',
-                    (V2, I.comp(I.invShift, s')), (V, s), occ)
-          end
-
-      | checkRImpW (G, Q, Rl, Vs' as (I.Root (I.Const a, S), s),  Vs, occ) =
-          checkRGoal (G, Q, Rl, Vs, occ)
-      | checkRImpW (G, Q, Rl, Vs' as (I.Root (I.Def a, S), s), Vs, occ) =
-          raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
-                        ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
-
-
-    (* checkRClause (G, Q, Rl, (V, s)) = ()
+let rec checkRGoal (G, Q, Rl, Vs, occ)  = checkRGoalW (G, Q, Rl, Whnf.whnf Vs, occ)
+and checkRGoalW = function (G, Q, Rl, Vs, occ) -> () | (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) -> checkRGoal (I.Decl (G, N.decLUName (G, I.decSub (D, s))), I.Decl (Q, C.All), C.shiftRCtx Rl (fun s -> I.comp (s, I.shift)), (V, I.dot1 s), P.body occ) | (G, Q, Rl, (I.Pi ((D, I.No), V2), s), occ) -> (checkRClause (G, Q, Rl, (V1, s), P.label occ); checkRGoal (G, Q, Rl, (V2, I.comp (I.invShift, s)), P.body occ)) | (G, Q, Rl, (I.Root (I.Def a, S), s), occ) -> raise (Error' (occ, "Reduction checking for_sml defined type families not yet available:\n" ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ "."))
+and checkRImp (G, Q, Rl, Vs, Vs', occ)  = checkRImpW (G, Q, Rl, Whnf.whnf Vs, Vs', occ)
+and checkRImpW = function (G, Q, Rl, (I.Pi ((D', I.Maybe), V'), s'), (V, s), occ) -> checkRImp (I.Decl (G, N.decEName (G, I.decSub (D', s'))), I.Decl (Q, C.Exist), C.shiftRCtx Rl (fun s -> I.comp (s, I.shift)), (V', I.dot1 s'), (V, I.comp (s, I.shift)), occ) | (G, Q, Rl, (I.Pi ((D', I.No), V2), s'), (V, s), occ) -> ( let Rl' = match getROrder (G, Q, (V1, s'), occ) with None -> Rl | Some (O) -> O :: Rl in  checkRImp (G, Q, Rl', (V2, I.comp (I.invShift, s')), (V, s), occ) ) | (G, Q, Rl, Vs', Vs, occ) -> checkRGoal (G, Q, Rl, Vs, occ) | (G, Q, Rl, Vs', Vs, occ) -> raise (Error' (occ, "Reduction checking for_sml defined type families not yet available:\n" ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ "."))
+and checkRClause (G, Q, Rl, Vs, occ)  = checkRClauseW (G, Q, Rl, Whnf.whnf Vs, occ)
+and checkRClauseW = function (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) -> checkRClause (I.Decl (G, N.decEName (G, I.decSub (D, s))), I.Decl (Q, C.Exist), C.shiftRCtx Rl (fun s -> I.comp (s, I.shift)), (V, I.dot1 s), P.body occ) | (G, Q, Rl, (I.Pi ((D, I.No), V2), s), occ) -> ( (* N.decEName (G, I.decSub (D, s)) *)
+(* will not be used *)
+let G' = I.Decl (G, I.decSub (D, s)) in let Q' = I.Decl (Q, C.Exist) in let Rl' = C.shiftRCtx Rl (fun s -> I.comp (s, I.shift)) in let Rl'' = match getROrder (G', Q', (V1, I.comp (s, I.shift)), occ) with None -> Rl' | Some (O) -> O :: Rl' in  checkRClause (G', Q', Rl'', (V2, I.dot1 s), P.body occ); checkRImp (G', Q', Rl'', (V2, I.dot1 s), (V1, I.comp (s, I.shift)), P.label occ) ) | (G, Q, Rl, Vs, occ) -> ( let RO = match selectROrder (a, (S, s)) with None -> raise (Error' (occ, "No reduction order assigned for_sml " ^ N.qidToString (N.constQid a) ^ ".")) | Some (O) -> O in let _ = if ! Global.chatter > 4 then print ("Verifying reduction property:\n" ^ rlistToString (G, Rl) ^ " ---> " ^ orderToString (G, RO) ^ " \n") else () in  if C.deduce (G, Q, Rl, RO) then () else raise (Error' (occ, "Reduction violation:\n" ^ rlistToString (G, Rl) ^ " ---> " ^ (* rename ctx ??? *)
+ orderToString (G, RO))) ) | (G, Q, Rl, VS, occ) -> raise (Error' (occ, "Reduction checking for_sml defined type families not yet available:\n" ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ "."))
+(* checkFamReduction a = ()
 
        Invariant:
-       If G: Q
-       and  G |- s : G1    and   G1 |- V : L
-       and  V[s] does not contain any Skolem constants
-       and  Rl is a context of reduction predicates
-       and  G |- Rl
-       then Rl implies that V[s] satifies the reduction order
-    *)
-
-    and checkRClause (G, Q, Rl, Vs, occ) = checkRClauseW (G, Q, Rl, Whnf.whnf Vs, occ)
-
-    and checkRClauseW (G, Q, Rl, (I.Pi ((D, I.Maybe), V), s), occ) =
-          checkRClause (I.Decl (G, N.decEName (G, I.decSub (D, s))),
-                        I.Decl (Q, C.Exist),
-                        C.shiftRCtx Rl (fun s -> I.comp(s, I.shift)),
-                        (V, I.dot1 s), P.body occ)
-
-      | checkRClauseW (G, Q, Rl, (I.Pi ((D as I.Dec (_, V1), I.No), V2), s), occ) =
-         let
-           let G' = I.Decl (G, I.decSub (D, s))  (* N.decEName (G, I.decSub (D, s)) *)
-           let Q' = I.Decl (Q, C.Exist) (* will not be used *)
-           let Rl' = C.shiftRCtx Rl (fun s -> I.comp(s, I.shift))
-           let Rl'' = case getROrder (G', Q', (V1, I.comp (s, I.shift)), occ)
-                        of NONE => Rl'
-                         | SOME(O) => O :: Rl'
-         in
-          checkRClause (G', Q', Rl'', (V2, I.dot1 s), P.body occ);
-          checkRImp (G', Q', Rl'', (V2, I.dot1 s), (V1, I.comp(s, I.shift)), P.label occ)
-        end
-
-      | checkRClauseW (G, Q, Rl, Vs as (I.Root (I.Const a, S), s), occ) =
-        let
-          let RO = case selectROrder (a, (S, s))
-                     of NONE => raise Error' (occ, "No reduction order assigned for " ^
-                                              N.qidToString (N.constQid a) ^ ".")
-                      | SOME(O) => O
-          let _ = if !Global.chatter > 4
-                    then print ("Verifying reduction property:\n" ^
-                                rlistToString (G, Rl) ^ " ---> " ^
-                                orderToString (G, RO) ^ " \n")
-                  else ()
-        in
-          if C.deduce(G, Q, Rl, RO)
-            then ()
-          else raise Error' (occ, "Reduction violation:\n" ^
-                             rlistToString (G, Rl) ^ " ---> " ^  (* rename ctx ??? *)
-                             orderToString (G, RO))
-        end
-      | checkRClauseW (G, Q, Rl, VS as (I.Root (I.Def a, S), s), occ) =
-        raise Error' (occ, "Reduction checking for defined type families not yet available:\n"
-                      ^ "Illegal use of " ^ N.qidToString (N.constQid a) ^ ".")
-
-    (* checkFamReduction a = ()
-
-       Invariant:
-       a is name of type family in the module type
-       raises invariant, if clauses for a does not fulfill
+       a is name of type family in the signature
+       raises invariant, if clauses for_sml a does not fulfill
        specified reducation property
 
        Note: checking reduction is a separate property of termination
     *)
-    let rec checkFamReduction a =
-        let
-          let rec checkFam' = function [] -> 
-              (if !Global.chatter > 3
-                 then print "\n"
-               else () ; ())
-            | (I.Const(b)::bs) -> 
-                (if (!Global.chatter) > 3 then
-                   print (N.qidToString (N.constQid b) ^ " ")
-                 else ();
-                 (* reuse variable names when tracing *)
-                 if (!Global.chatter) > 4
-                   then (N.varReset IntSyn.Null; print "\n")
-                 else ();
-                 (( checkRClause (I.Null, I.Null, nil, (I.constType (b), I.id), P.top))
-                    handle Error' (occ, msg) => error (b, occ, msg)
-                         | R.Error (msg) => raise Error (msg));
-                   checkFam' bs)
-            | (I.Def(d)::bs) -> 
-                (if (!Global.chatter) > 3 then
-                   print (N.qidToString (N.constQid d) ^ " ")
-                 else ();
-                 (* reuse variable names when tracing *)
-                 if (!Global.chatter) > 4
-                   then (N.varReset IntSyn.Null; print "\n")
-                 else ();
-                 (( checkRClause (I.Null, I.Null, nil, (I.constType (d), I.id), P.top))
-                    handle Error' (occ, msg) => error (d, occ, msg)
-                         | R.Error (msg) => raise Error (msg));
-                   checkFam' bs)
-          let _ = if (!Global.chatter) > 3
-                    then print ("Reduction checking family " ^ N.qidToString (N.constQid a)
-                                ^ ":\n")
-                  else ()
-        in
-          checkFam' (Index.lookup a)
-        end
 
-    (* checkFam a = ()
+let rec checkFamReduction a  = ( let rec checkFam' = function [] -> (if ! Global.chatter > 3 then print "\n" else (); ()) | (I.Const (b) :: bs) -> (if (! Global.chatter) > 3 then print (N.qidToString (N.constQid b) ^ " ") else (); (* reuse variable names when tracing *)
+if (! Global.chatter) > 4 then (N.varReset IntSyn.Null; print "\n") else (); (try (checkRClause (I.Null, I.Null, [], (I.constType (b), I.id), P.top)) with Error' (occ, msg) -> error (b, occ, msg) | R.Error (msg) -> raise (Error (msg))); checkFam' bs) | (I.Def (d) :: bs) -> (if (! Global.chatter) > 3 then print (N.qidToString (N.constQid d) ^ " ") else (); (* reuse variable names when tracing *)
+if (! Global.chatter) > 4 then (N.varReset IntSyn.Null; print "\n") else (); (try (checkRClause (I.Null, I.Null, [], (I.constType (d), I.id), P.top)) with Error' (occ, msg) -> error (d, occ, msg) | R.Error (msg) -> raise (Error (msg))); checkFam' bs) in let _ = if (! Global.chatter) > 3 then print ("Reduction checking family " ^ N.qidToString (N.constQid a) ^ ":\n") else () in  checkFam' (Index.lookup a) )
+(* checkFam a = ()
 
        Invariant:
-       a is name of type family in the module type
-       raises invariant, if clauses for a do not terminate
+       a is name of type family in the signature
+       raises invariant, if clauses for_sml a do not terminate
        according to specified termination order
 
        Note: termination checking takes into account proven
              reduction properties.
     *)
 
-    let rec checkFam a =
-        let
-          let rec checkFam' = function [] -> 
-              (if !Global.chatter > 3
-                 then print "\n"
-               else () ; ())
-            | (I.Const b::bs) -> 
-                (if (!Global.chatter) > 3 then
-                   print (N.qidToString (N.constQid b) ^ " ")
-                 else ();
-                 (* reuse variable names when tracing *)
-                 if (!Global.chatter) > 4
-                   then (N.varReset IntSyn.Null; print "\n")
-                 else ();
-                (checkClause' ((I.constType (b), I.id), P.top)
-                 handle Error' (occ, msg) => error (b, occ, msg)
-                      | Order.Error (msg) => raise Error (msg));
-                 checkFam' bs)
-            | (I.Def(d)::bs) -> 
-                (if (!Global.chatter) > 3 then
-                   print (N.qidToString (N.constQid d) ^ " ")
-                 else ();
-                 (* reuse variable names when tracing *)
-                 if (!Global.chatter) > 4
-                   then (N.varReset IntSyn.Null; print "\n")
-                 else ();
-                (checkClause' ((I.constType (d), I.id), P.top)
-                 handle Error' (occ, msg) => error (d, occ, msg)
-                      | Order.Error (msg) => raise Error (msg));
-                 checkFam' bs)
-          let _ = if (!Global.chatter) > 3
-                    then print ("Termination checking family " ^ N.qidToString (N.constQid a)
-                                ^ "\n")
-                  else ()
-        in
-          checkFam' (Index.lookup a)
-        end
+let rec checkFam a  = ( let rec checkFam' = function [] -> (if ! Global.chatter > 3 then print "\n" else (); ()) | (I.Const b :: bs) -> (if (! Global.chatter) > 3 then print (N.qidToString (N.constQid b) ^ " ") else (); (* reuse variable names when tracing *)
+if (! Global.chatter) > 4 then (N.varReset IntSyn.Null; print "\n") else (); (try checkClause' ((I.constType (b), I.id), P.top) with Error' (occ, msg) -> error (b, occ, msg) | Order.Error (msg) -> raise (Error (msg))); checkFam' bs) | (I.Def (d) :: bs) -> (if (! Global.chatter) > 3 then print (N.qidToString (N.constQid d) ^ " ") else (); (* reuse variable names when tracing *)
+if (! Global.chatter) > 4 then (N.varReset IntSyn.Null; print "\n") else (); (try checkClause' ((I.constType (d), I.id), P.top) with Error' (occ, msg) -> error (d, occ, msg) | Order.Error (msg) -> raise (Error (msg))); checkFam' bs) in let _ = if (! Global.chatter) > 3 then print ("Termination checking family " ^ N.qidToString (N.constQid a) ^ "\n") else () in  checkFam' (Index.lookup a) )
+let rec reset ()  = (R.reset (); R.resetROrder ())
+let reset = reset
+let checkFamReduction = checkFamReduction
+let checkFam = checkFam
+(* local *)
 
-    let rec reset () = (R.reset(); R.resetROrder())
+ end
 
-  in
-    let reset = reset
-    let checkFamReduction = checkFamReduction
-    let checkFam = checkFam
-  end (* local *)
-end;; (* functor Reduces  *)
+
+(* functor Reduces  *)
+

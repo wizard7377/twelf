@@ -1,6 +1,5 @@
-module type REDUNDANT  =
-  sig
-    exception Error of string
+module type REDUNDANT = sig
+  exception Error of string
+  val convert : Tomega.prg -> Tomega.prg
 
-    val convert : Tomega.Prg -> Tomega.Prg
-  end
+end

@@ -1,46 +1,34 @@
-(* State definition for Proof Search *)
+(* State definition for_sml Proof Search *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type STATESYN =
-sig
-  (*! module IntSyn : INTSYN !*)
-  (*! module FunSyn : FUNSYN !*)
 
-  type order =	       	        (* Orders                     *)
-    Arg of (IntSyn.exp * IntSyn.Sub) * 
-           (IntSyn.exp * IntSyn.Sub)	(* O ::= U[s] : V[s]          *)
-  | Lex of order list			(*     | (O1 .. On)           *)
-  | Simul of order list			(*     | {O1 .. On}           *)
-  | All of IntSyn.dec * order  	(*     | {{D}} O              *)
-  | And of order * order		(*     | O1 ^ O2              *)
-
-
-  type info =
-    Splits of int
-  | RL 
-  | RLdone
-    
-  type tag = 
-    Parameter of FunSyn.label option
-  | Lemma of Info
-  | None
-
-  type state =			(* S = <n, (G, B), (IH, OH), d, O, H, F> *)
-    State of int			(* Part of theorem                   *)
-	   * (IntSyn.dctx	(* Context of Hypothesis, in general not named *)
-           * Tag IntSyn.ctx) (* Status information *)
-           * (FunSyn.For * Order)	(* Induction hypothesis, order       *)
-           * int			(* length of meta context            *)
-           * Order			(* Current order *)
-           * (int * FunSyn.For) list	(* History of residual lemmas *)
-           * FunSyn.For			(* Formula *)
-
-  val orderSub : order * IntSyn.Sub -> order  
-  val decrease : Tag -> Tag
-  val splitDepth : Info -> int
-
+module type STATESYN = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure FunSyn : FUNSYN !*)
+  type order = Arg of (IntSyn.exp * IntSyn.sub) * (IntSyn.exp * IntSyn.sub) | Lex of order list | Simul of order list | All of IntSyn.dec * order | And of order * order
+(*     | O1 ^ O2              *)
+  type info = Splits of int | RL | RLdone
+  type tag = Parameter of FunSyn.label option | Lemma of info | None
+  type state = State of int(* Part of theorem                   *)
+ * (IntSyn.dctx(* Context of Hypothesis, in general not named *)
+ * tag IntSyn.ctx)(* Status information *)
+ * (FunSyn.for_sml * order)(* Induction hypothesis, order       *)
+ * int(* length of meta context            *)
+ * order(* Current order *)
+ * int * FunSyn.for_sml list(* History of residual lemmas *)
+ * FunSyn.for_sml
+(* Formula *)
+  val orderSub : order * IntSyn.sub -> order
+  val decrease : tag -> tag
+  val splitDepth : info -> int
   val normalizeOrder : order -> order
   val convOrder : order * order -> bool
+  val normalizeTag : tag * IntSyn.sub -> tag
 
-  val normalizeTag : tag * IntSyn.Sub -> tag
-end;; (* module type STATESYN *)
+end
+
+
+(* signature STATESYN *)
+

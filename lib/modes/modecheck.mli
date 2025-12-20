@@ -1,18 +1,26 @@
 (* Mode Checking *)
+
+
 (* Author: Carsten Schuermann *)
+
+
 (* Modified: Frank Pfenning *)
 
-module type MODECHECK =
-sig
+
+module type MODECHECK = sig
   exception Error of string
+(* for_sml new declarations *)
+  val checkD : IntSyn.conDec * string * Paths.occConDec option -> unit
+(* raises Error (msg) *)
+(* for_sml prior declarations *)
+  val checkMode : IntSyn.cid * ModeSyn.modeSpine -> unit
+(* raises Error(msg) *)
+(* for_sml output coverage of prior declarations *)
+  val checkFreeOut : IntSyn.cid * ModeSyn.modeSpine -> unit
+(* raises Error(msg) *)
 
-  (* for new declarations *)
-  val checkD : IntSyn.conDec * string * Paths.occConDec option -> unit  (* raises Error (msg) *)
+end
 
-  (* for prior declarations *)
-  val checkMode : IntSyn.cid * ModeSyn.modeSpine -> unit (* raises Error(msg) *)
 
-  (* for output coverage of prior declarations *)
-  val checkFreeOut : IntSyn.cid * ModeSyn.modeSpine -> unit (* raises Error(msg) *)
+(* signature MODECHECK *)
 
-end;; (* module type MODECHECK *)

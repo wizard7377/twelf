@@ -1,13 +1,16 @@
 (* Unification on Formulas *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type TOMEGACOVERAGE = 
-sig
-  (*! module IntSyn : INTSYN !*)
-  (*! module Tomega : TOMEGA !*)
 
+module type TOMEGACOVERAGE = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure Tomega : TOMEGA !*)
   exception Error of string
+  val coverageCheckPrg : Tomega.worlds * Tomega.dec IntSyn.ctx * Tomega.prg -> unit
 
-  val coverageCheckPrg : Tomega.Worlds * Tomega.Dec IntSyn.ctx * Tomega.Prg -> unit
-end (* Signature TOMEGACOVERAGE *)       
+end
+
+(* Signature TOMEGACOVERAGE *)
 

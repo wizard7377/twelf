@@ -1,9 +1,16 @@
 (* Data Global parameters *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type DATA =
-sig
+
+module type DATA = sig
   val maxFill : int ref
   val maxSplit : int ref
   val maxRecurse : int ref
-end;; (* module type DATA *)
+
+end
+
+
+(* signature DATA *)
+

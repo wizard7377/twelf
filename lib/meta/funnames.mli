@@ -1,18 +1,21 @@
 (* Names of Constants and Variables *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type FUNNAMES =
-sig
 
-  (*! module FunSyn : FUNSYN !*)
-
+module type FUNNAMES = sig
+(*! structure FunSyn : FUNSYN !*)
   exception Error of string
-
-  (* Constant names and fixities *)
+(* Constant names and fixities *)
   val reset : unit -> unit
-
   val installName : string * FunSyn.lemma -> unit
   val nameLookup : string -> FunSyn.lemma option
-  val constName : FunSyn.lemma -> string	(* will mark if shadowed *)
+  val constName : FunSyn.lemma -> string
+(* will mark if shadowed *)
 
-end;; (* module type NAMES *)
+end
+
+
+(* signature NAMES *)
+

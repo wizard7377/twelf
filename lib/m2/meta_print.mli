@@ -1,13 +1,18 @@
-(* Meta printer for proof states *)
+(* Meta printer for_sml proof states *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type METAPRINT =
-sig
+
+module type METAPRINT = sig
   module MetaSyn : METASYN
+  val stateToString : MetaSyn.state -> string
+  val sgnToString : MetaSyn.sgn -> string
+  val modeToString : MetaSyn.mode -> string
+  val conDecToString : IntSyn.conDec -> string
 
-  val stateToString  : MetaSyn.state -> string
-  val sgnToString    : MetaSyn.Sgn -> string
-  val modeToString   : MetaSyn.mode -> string
-  val conDecToString  : IntSyn.conDec -> string
+end
 
-end;; (* module type METAPRINT *)
+
+(* signature METAPRINT *)
+

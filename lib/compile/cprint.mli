@@ -1,16 +1,20 @@
-(* Printer for Compiled Syntax *)
+(* Printer for_sml Compiled Syntax *)
+
+
 (* Author: Iliano Cervesato *)
 
-module type CPRINT =
-sig
 
-  (*! module IntSyn : INTSYN !*)
-  (*! module CompSyn : COMPSYN !*)
+module type CPRINT = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure CompSyn : COMPSYN !*)
+  val goalToString : string -> IntSyn.dctx * CompSyn.goal -> string
+  val clauseToString : string -> IntSyn.dctx * CompSyn.resGoal -> string
+  val sProgToString : unit -> string
+  val dProgToString : CompSyn.dProg -> string
+  val subgoalsToString : string -> IntSyn.dctx * CompSyn.conjunction -> string
 
-  val goalToString: string -> IntSyn.dctx * CompSyn.Goal -> string
-  val clauseToString: string -> IntSyn.dctx * CompSyn.ResGoal -> string
-  val sProgToString: unit -> string
-  val dProgToString: CompSyn.DProg -> string
-  val subgoalsToString : string -> IntSyn.dctx * CompSyn.Conjunction -> string
+end
 
-end;; (* module type CPRINT *)
+
+(* signature CPRINT *)
+

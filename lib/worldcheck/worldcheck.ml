@@ -1,42 +1,8 @@
-module MemoTable =
-  HashTable (type key' = int * int
-	     let hash = (fn (n,m) => 7 * n + m)
-             let eq = (op =));
+module MemoTable = HashTable
 
-module WorldSyn = 
-  WorldSyn (module Global = Global
-	    module Whnf = Whnf
-	    module Names = Names
-	    module Unify = UnifyTrail
-	    module Abstract = Abstract
-	    module Constraints = Constraints
-	    module Index = Index
-	    (*! module CSManager = CSManager !*)
-	    module Subordinate = Subordinate
-	    module Print = Print
-	    module Table = IntRedBlackTree
-	    module Paths = Paths
-	    module Origins = Origins
-            module Timers = Timers);
 
-module Worldify = Worldify 
-  (module Global = Global
-   (*! module IntSyn = IntSyn !*)
-   module WorldSyn = WorldSyn
-   (*! module Tomega = Tomega !*)
-   module Whnf = Whnf
-   module Names = Names
-   module Unify = UnifyTrail
-   module Abstract = Abstract
-   module Constraints = Constraints
-   module Index = Index
-   module CSManager = CSManager
-   module Subordinate = Subordinate
-   module Print = Print
-   module Table = IntRedBlackTree
-   module MemoTable = MemoTable
-   module IntSet = IntSet 
-  (*! module Paths = Paths !*)
-   module Origins = Origins);
+module WorldSyn = WorldSyn (struct module Global = Global end) (struct module Whnf = Whnf end) (struct module Names = Names end) (struct module Unify = UnifyTrail end) (struct module Abstract = Abstract end) (struct module Constraints = Constraints end) (struct module Index = Index end) (struct module Subordinate = Subordinate end) (struct module Print = Print end) (struct module Table = IntRedBlackTree end) (struct module Paths = Paths end) (struct module Origins = Origins end) (struct module Timers = Timers end)
 
+
+module Worldify = Worldify (struct module Global = Global end) (struct module WorldSyn = WorldSyn end) (struct module Whnf = Whnf end) (struct module Names = Names end) (struct module Unify = UnifyTrail end) (struct module Abstract = Abstract end) (struct module Constraints = Constraints end) (struct module Index = Index end) (struct module CSManager = CSManager end) (struct module Subordinate = Subordinate end) (struct module Print = Print end) (struct module Table = IntRedBlackTree end) (struct module MemoTable = MemoTable end) (struct module IntSet = IntSet end) (struct module Origins = Origins end)
 

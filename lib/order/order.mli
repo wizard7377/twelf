@@ -1,46 +1,33 @@
 (* Termination Order *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type ORDER =
-sig
 
-  (*! module IntSyn : INTSYN !*)
-
+module type ORDER = sig
+(*! structure IntSyn : INTSYN !*)
   exception Error of string
-
-  type 'a Order =	       	        (* Orders                     *)
-      Arg of 'a				(* O ::= x                    *)
-    | Lex of 'a Order list              (*     | {O1 .. On}           *)
-    | Simul of 'a Order list            (*     | [O1 .. On]           *)
-
-  type predicate =                  (* Reduction Order            *)
-      Less of int Order * int Order     (* O < O'                     *)
-    | Leq of int Order * int Order      (* O <= O'                    *)
-    | Eq of int Order * int Order       (* O = O'                     *)
-
-  type mutual =			(* Termination ordering       *)
-      Empty				(* O ::= No order specified   *)
-    | LE of IntSyn.cid * mutual		(*     | mutual dependencies  *)
-    | LT of IntSyn.cid * mutual		(*     | lex order for  -     *)
-
-  type tDec =			(* Termination declaration *)
-      TDec of int order * mutual
-
-  type rDec =			(* Reduction declaration      *)
-      RDec of predicate * mutual
-
+  type 'a order = Arg of 'a | Lex of 'a order list | Simul of 'a order list
+(*     | [O1 .. On]           *)
+  type predicate = Less of int order * int order | Leq of int order * int order | Eq of int order * int order
+(* O = O'                     *)
+  type mutual = Empty | LE of IntSyn.cid * mutual | LT of IntSyn.cid * mutual
+(*     | lex order for_sml  -     *)
+  type tDec = TDec of int order * mutual
+  type rDec = RDec of predicate * mutual
   val reset : unit -> unit
   val resetROrder : unit -> unit
-
-  val install : IntSyn.cid * TDec -> unit 
+  val install : IntSyn.cid * tDec -> unit
   val uninstall : IntSyn.cid -> bool
-  val installROrder : IntSyn.cid * RDec -> unit 
+  val installROrder : IntSyn.cid * rDec -> unit
   val uninstallROrder : IntSyn.cid -> bool
-
-  val selLookup : IntSyn.cid -> int Order
-  val selLookupROrder : IntSyn.cid -> Predicate
-  
-  val mutLookup : IntSyn.cid -> Mutual
+  val selLookup : IntSyn.cid -> int order
+  val selLookupROrder : IntSyn.cid -> predicate
+  val mutLookup : IntSyn.cid -> mutual
   val closure : IntSyn.cid -> IntSyn.cid list
 
-end;; (* module type ORDER *)
+end
+
+
+(* signature ORDER *)
+

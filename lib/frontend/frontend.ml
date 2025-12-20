@@ -1,265 +1,85 @@
 (* Front End Interface *)
+
+
 (* Author: Frank Pfenning *)
 
+
 (* Presently, we do not memoize the token stream returned *)
+
+
 (* by the lexer.  Use Stream = MStream below if memoization becomes *)
+
+
 (* necessary. *)
+
+
 (* Now in lexer.fun *)
+
+
 (*
-module Lexer =
-  Lexer (module Stream' = Stream
-	 module Paths' = Paths);
+structure Lexer =
+  Lexer (structure Stream' = Stream
+	 structure Paths' = Paths);
 *)
+
 
 (* Now in parsing.fun *)
+
+
 (*
-module Parsing =
-  Parsing (module Stream' = Stream
-	   module Lexer' = Lexer);
+structure Parsing =
+  Parsing (structure Stream' = Stream
+	   structure Lexer' = Lexer);
 *)
 
 
-module ReconTerm =
-  ReconTerm ((*! module IntSyn' = IntSyn !*)
-	     module Names = Names
-	     (*! module Paths' = Paths !*)
-             module Approx = Approx
- 	     module Whnf = Whnf
-	     module Unify = UnifyTrail
-             module Abstract = Abstract
-	     module Print = Print
-             (*! module CSManager = CSManager !*)
-             module StringTree = StringRedBlackTree
-             module Msg = Msg);
-
-module ReconConDec =
-  ReconConDec (module Global = Global
-               (*! module IntSyn' = IntSyn !*)
-               module Names = Names
-               module Abstract = Abstract
-               (*! module Paths' = Paths !*)
-               module ReconTerm' = ReconTerm
-               module Constraints = Constraints
-               module Strict = Strict
-               module TypeCheck = TypeCheck
-               module Timers = Timers
-               module Print = Print
-	       module Msg = Msg);
-                                                        
-module ReconQuery =
-  ReconQuery (module Global = Global
-              (*! module IntSyn' = IntSyn !*)
-              module Names = Names
-              module Abstract = Abstract
-              (*! module Paths' = Paths !*)
-              module ReconTerm' = ReconTerm
-              module TypeCheck = TypeCheck
-              module Strict = Strict
-              module Timers = Timers
-              module Print = Print);
-
-module ReconMode =
-  ReconMode (module Global = Global
-	     (*! module ModeSyn' = ModeSyn !*)
-	     module Whnf = Whnf
-	     (*! module Paths' = Paths !*)
-             module Names = Names
-	     module ModePrint = ModePrint
-	     module ModeDec = ModeDec
-	     module ReconTerm' = ReconTerm);
-
-module ReconThm =
-  ReconThm (module Global = Global
-	    module IntSyn = IntSyn
-	    module Abstract = Abstract
-	    module Constraints = Constraints
-	    (*! module ModeSyn = ModeSyn !*)
-	    module Names = Names
-	    (*! module Paths' = Paths !*)
-	    module ThmSyn' = ThmSyn
-	    module ReconTerm' = ReconTerm
-	    module Print = Print);
+module ReconTerm = ReconTerm (struct module Names = Names end) (struct module Approx = Approx end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Abstract = Abstract end) (struct module Print = Print end) (struct module StringTree = StringRedBlackTree end) (struct module Msg = Msg end)
 
 
-module ReconModule =
-  ReconModule (module Global = Global
-               module IntSyn = IntSyn
-               module Names = Names
-               (*! module Paths' = Paths !*)
-               module ReconTerm' = ReconTerm
-               module ModSyn' = ModSyn
-               module IntTree = IntRedBlackTree);
-
-module ParseTerm =
-  ParseTerm ((*! module Parsing' = Parsing !*)
-	     module ExtSyn' = ReconTerm
-	     module Names = Names);
-
-module ParseConDec =
-  ParseConDec ((*! module Parsing' = Parsing !*)
-	       module ExtConDec' = ReconConDec
-	       module ParseTerm = ParseTerm);
-
-module ParseQuery =
-  ParseQuery ((*! module Parsing' = Parsing !*)
-	      module ExtQuery' = ReconQuery
-	      module ParseTerm = ParseTerm);
-
-module ParseFixity =
-  ParseFixity ((*! module Parsing' = Parsing !*)
-	       module Names' = Names);
-
-module ParseMode =
-  ParseMode ((*! module Parsing' = Parsing !*)
-	     module ExtModes' = ReconMode
-	     (*! module Paths = Paths !*)
-	     module ParseTerm = ParseTerm);
-
-module ParseThm =
-  ParseThm ((*! module Parsing' = Parsing !*)
-	    module ThmExtSyn' = ReconThm
-	    module ParseTerm = ParseTerm
-	    (*! module Paths = Paths !*)
-	      );
-
-module ParseModule =
-  ParseModule ((*! module Parsing' = Parsing !*)
-               module ModExtSyn' = ReconModule
-               module ParseTerm = ParseTerm
-               (*! module Paths = Paths !*)
-		 );
-
-module Parser =
-  Parser ((*! module Parsing' = Parsing !*)
-	  module Stream' = Stream
-	  module ExtSyn' = ReconTerm
-	  module Names' = Names
-          module ExtConDec' = ReconConDec
-          module ExtQuery' = ReconQuery
-	  module ExtModes' = ReconMode
-	  module ThmExtSyn' = ReconThm
-          module ModExtSyn' = ReconModule
-	  module ParseConDec = ParseConDec
-	  module ParseQuery = ParseQuery
-	  module ParseFixity = ParseFixity
-	  module ParseMode = ParseMode
-	  module ParseThm = ParseThm
-          module ParseModule = ParseModule
-          module ParseTerm = ParseTerm);
-
-module Solve =
-  Solve (module Global = Global
-	 (*! module IntSyn' = IntSyn !*)
-	 module Names = Names
-	 module Parser = Parser
-	 module ReconQuery = ReconQuery
-	 module Timers = Timers
-	 (*! module CompSyn = CompSyn !*)
-	 module Compile = Compile
-	 module CPrint = CPrint
-         (*! module CSManager = CSManager !*)
-	 module AbsMachine = SwMachine
-	 module PtRecon = PtRecon
-	 module AbsMachineSbt = AbsMachineSbt
-	 module PtRecon = PtRecon
-	 (*! module TableParam = TableParam !*)
-	 module Tabled = Tabled
-(*	 module TableIndex = TableIndex *)
-(*	 module MemoTable = MemoTable *)
-	 module Print = Print 
-         module Msg = Msg);
+module ReconConDec = ReconConDec (struct module Global = Global end) (struct module Names = Names end) (struct module Abstract = Abstract end) (struct module ReconTerm' = ReconTerm end) (struct module Constraints = Constraints end) (struct module Strict = Strict end) (struct module TypeCheck = TypeCheck end) (struct module Timers = Timers end) (struct module Print = Print end) (struct module Msg = Msg end)
 
 
-module Fquery =
-  Fquery (module Global = Global
-	  module Names = Names
-	  module ReconQuery = ReconQuery
-	  module Timers = Timers
-	  module Print = Print);
+module ReconQuery = ReconQuery (struct module Global = Global end) (struct module Names = Names end) (struct module Abstract = Abstract end) (struct module ReconTerm' = ReconTerm end) (struct module TypeCheck = TypeCheck end) (struct module Strict = Strict end) (struct module Timers = Timers end) (struct module Print = Print end)
 
-module Twelf =
-  Twelf (module Global = Global
-	 module Timers = Timers
-	 (*! module IntSyn' = IntSyn !*)
-	 module Whnf = Whnf
-	 module Print = Print
 
-	 module Names = Names
-	 (*! module Paths = Paths !*)
-	 module Origins = Origins
-	 module Lexer = Lexer
-	 (*! module Parsing = Parsing !*)
-	 module Parser = Parser
-	 module TypeCheck = TypeCheck
-	 module Strict = Strict
-	 module Constraints = Constraints
-	 module Abstract = Abstract
-	 module ReconTerm = ReconTerm
-         module ReconConDec = ReconConDec
-         module ReconQuery = ReconQuery
+module ReconMode = ReconMode (struct module Global = Global end) (struct module Whnf = Whnf end) (struct module Names = Names end) (struct module ModePrint = ModePrint end) (struct module ModeDec = ModeDec end) (struct module ReconTerm' = ReconTerm end)
 
-	 module ModeTable = ModeTable
-	 module ModeCheck = ModeCheck
-	 module ModeDec = ModeDec
-	 module ReconMode = ReconMode
-	 module ModePrint = ModePrint
 
-         module Unique = Unique
-         module UniqueTable = UniqueTable
+module ReconThm = ReconThm (struct module Global = Global end) (struct module IntSyn = IntSyn end) (struct module Abstract = Abstract end) (struct module Constraints = Constraints end) (struct module Names = Names end) (struct module ThmSyn' = ThmSyn end) (struct module ReconTerm' = ReconTerm end) (struct module Print = Print end)
 
-         module Cover = Cover
-	 module Converter = Converter
-	 module TomegaPrint = TomegaPrint
-	 module TomegaCoverage = TomegaCoverage
-	 module TomegaTypeCheck = TomegaTypeCheck
-         module Total = Total
 
-	 module Reduces = Reduces
+module ReconModule = ReconModule (struct module Global = Global end) (struct module IntSyn = IntSyn end) (struct module Names = Names end) (struct module ReconTerm' = ReconTerm end) (struct module ModSyn' = ModSyn end) (struct module IntTree = IntRedBlackTree end)
 
-	 module Index = Index
-	 module IndexSkolem = IndexSkolem
-	 module Subordinate = Subordinate
-	 (*! module CompSyn' = CompSyn !*)
-	 module Compile = Compile
-	 module CPrint = CPrint
-	 module AbsMachine = SwMachine
-	 (*! module TableParam = TableParam !*)
-	 module Tabled = Tabled
-	 module Solve = Solve
-	 module Fquery = Fquery
 
-	 module StyleCheck = StyleCheck
+module ParseTerm = ParseTerm (struct module ExtSyn' = ReconTerm end) (struct module Names = Names end)
 
-	 module ThmSyn = ThmSyn
-	 module Thm = Thm
-	 module ReconThm = ReconThm
-	 module ThmPrint = ThmPrint
-                              
-	 module TabledSyn = TabledSyn
 
-	 module WorldSyn = WorldSyn
-(*	 module WorldPrint = WorldPrint *)
-	 module Worldify = Worldify
+module ParseConDec = ParseConDec (struct module ExtConDec' = ReconConDec end) (struct module ParseTerm = ParseTerm end)
 
-         module ModSyn = ModSyn
-         module ReconModule = ReconModule
 
-	 module MetaGlobal = MetaGlobal
-	 (*! module FunSyn = FunSyn !*)
-	 module Skolem = Skolem
-	 module Prover = CombiProver
-	 module ClausePrint = ClausePrint
+module ParseQuery = ParseQuery (struct module ExtQuery' = ReconQuery end) (struct module ParseTerm = ParseTerm end)
 
-         module Trace = Trace
 
-	 module PrintTeX = PrintTeX
-	 module ClausePrintTeX = ClausePrintTeX
+module ParseFixity = ParseFixity (struct module Names' = Names end)
 
-         module CSManager = CSManager
-         module CSInstaller = CSInstaller (* unused -- creates necessary CM dependency *)
 
-         module Compat = Compat
-	 module UnknownExn = UnknownExn
+module ParseMode = ParseMode (struct module ExtModes' = ReconMode end) (struct module ParseTerm = ParseTerm end)
 
-	 module Msg = Msg
-	   );
+
+module ParseThm = ParseThm (struct module ThmExtSyn' = ReconThm end) (struct module ParseTerm = ParseTerm end)
+
+
+module ParseModule = ParseModule (struct module ModExtSyn' = ReconModule end) (struct module ParseTerm = ParseTerm end)
+
+
+module Parser = Parser (struct module Stream' = Stream end) (struct module ExtSyn' = ReconTerm end) (struct module Names' = Names end) (struct module ExtConDec' = ReconConDec end) (struct module ExtQuery' = ReconQuery end) (struct module ExtModes' = ReconMode end) (struct module ThmExtSyn' = ReconThm end) (struct module ModExtSyn' = ReconModule end) (struct module ParseConDec = ParseConDec end) (struct module ParseQuery = ParseQuery end) (struct module ParseFixity = ParseFixity end) (struct module ParseMode = ParseMode end) (struct module ParseThm = ParseThm end) (struct module ParseModule = ParseModule end) (struct module ParseTerm = ParseTerm end)
+
+
+module Solve = Solve (struct module Global = Global end) (struct module Names = Names end) (struct module Parser = Parser end) (struct module ReconQuery = ReconQuery end) (struct module Timers = Timers end) (struct module Compile = Compile end) (struct module CPrint = CPrint end) (struct module AbsMachine = SwMachine end) (struct module PtRecon = PtRecon end) (struct module AbsMachineSbt = AbsMachineSbt end) (struct module PtRecon = PtRecon end) (struct module Tabled = Tabled end) (struct module Print = Print end) (struct module Msg = Msg end)
+
+
+module Fquery = Fquery (struct module Global = Global end) (struct module Names = Names end) (struct module ReconQuery = ReconQuery end) (struct module Timers = Timers end) (struct module Print = Print end)
+
+
+module Twelf = Twelf (struct module Global = Global end) (struct module Timers = Timers end) (struct module Whnf = Whnf end) (struct module Print = Print end) (struct module Names = Names end) (struct module Origins = Origins end) (struct module Lexer = Lexer end) (struct module Parser = Parser end) (struct module TypeCheck = TypeCheck end) (struct module Strict = Strict end) (struct module Constraints = Constraints end) (struct module Abstract = Abstract end) (struct module ReconTerm = ReconTerm end) (struct module ReconConDec = ReconConDec end) (struct module ReconQuery = ReconQuery end) (struct module ModeTable = ModeTable end) (struct module ModeCheck = ModeCheck end) (struct module ModeDec = ModeDec end) (struct module ReconMode = ReconMode end) (struct module ModePrint = ModePrint end) (struct module Unique = Unique end) (struct module UniqueTable = UniqueTable end) (struct module Cover = Cover end) (struct module Converter = Converter end) (struct module TomegaPrint = TomegaPrint end) (struct module TomegaCoverage = TomegaCoverage end) (struct module TomegaTypeCheck = TomegaTypeCheck end) (struct module Total = Total end) (struct module Reduces = Reduces end) (struct module Index = Index end) (struct module IndexSkolem = IndexSkolem end) (struct module Subordinate = Subordinate end) (struct module Compile = Compile end) (struct module CPrint = CPrint end) (struct module AbsMachine = SwMachine end) (struct module Tabled = Tabled end) (struct module Solve = Solve end) (struct module Fquery = Fquery end) (struct module StyleCheck = StyleCheck end) (struct module ThmSyn = ThmSyn end) (struct module Thm = Thm end) (struct module ReconThm = ReconThm end) (struct module ThmPrint = ThmPrint end) (struct module TabledSyn = TabledSyn end) (struct module WorldSyn = WorldSyn end) (struct module Worldify = Worldify end) (struct module ModSyn = ModSyn end) (struct module ReconModule = ReconModule end) (struct module MetaGlobal = MetaGlobal end) (struct module Skolem = Skolem end) (struct module Prover = CombiProver end) (struct module ClausePrint = ClausePrint end) (struct module Trace = Trace end) (struct module PrintTeX = PrintTeX end) (struct module ClausePrintTeX = ClausePrintTeX end) (struct module CSManager = CSManager end) (struct module CSInstaller = CSInstaller end) (struct module Compat = Compat end) (struct module UnknownExn = UnknownExn end) (struct module Msg = Msg end)
+

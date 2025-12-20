@@ -1,1362 +1,334 @@
-(* Solver for linear inequations, based on branch & bound *)
+(* Solver for_sml linear inequations, based on branch & bound *)
+
+
 (* Author: Roberto Virga *)
 
-module CSIneqIntegers (Integers : INTEGERS)
-   (Rationals : RATIONALS)
-                          sharing Rationals.Integers = Integers
-                          (*! (IntSyn : INTSYN) !*)
-                        (Trail : TRAIL)
-                        (Unify : UNIFY)
-                        (*! sharing Unify.IntSyn = IntSyn !*)
-                        module SparseArray  : SPARSE_ARRAY
-                        (SparseArray2 : SPARSE_ARRAY2)
-                        (*! (CSManager : CS_MANAGER) !*)
-                        (*! sharing CSManager.IntSyn = IntSyn !*)
-                        (CSEqIntegers : CS_EQ_INTEGERS)
-                          sharing CSEqIntegers.Integers = Integers
-                          (*! sharing CSEqIntegers.IntSyn = IntSyn !*)
-                          (*! sharing CSEqIntegers.CSManager = CSManager !*)
-                        (Compat : COMPAT) =
-struct
-  (*! module CSManager = CSManager !*)
 
-  local
-    open IntSyn
-    open Rationals
-    open CSEqIntegers
+module CSIneqIntegers (Integers : INTEGERS) (Rationals : RATIONALS) (Trail : TRAIL) (Unify : UNIFY) (SparseArray : SPARSE_ARRAY) (SparseArray2 : SPARSE_ARRAY2) (CSEqIntegers : CS_EQ_INTEGERS) (Compat : COMPAT) = struct (*! structure CSManager = CSManager !*)
 
-    module CSM = CSManager
-    module FX = CSM.Fixity
-    module MS = ModeSyn (* CSM.ModeSyn *)
+open IntSyn
+open Rationals
+open CSEqIntegers
+module CSM = CSManager
+module FX = CSMFixity
+module MS = ModeSyn
+(* CSM.ModeSyn *)
 
-    module Array  = SparseArray
-    module Array2 = SparseArray2
+module Array = SparseArray
+module Array2 = SparseArray2
+(* useful integer values *)
 
-    (* useful integer values *)
-    let zero_int = Integers.fromInt(0)
-    let one_int  = Integers.fromInt(1)
+let zero_int = Integers.fromInt (0)
+let one_int = Integers.fromInt (1)
+(* solver ID of this solver *)
 
-    (* solver ID of this solver *)
-    let myID = ref ~1 : cid ref
+let myID = (ref -1 : cid ref)
+(* constant IDs of the declared type constants *)
 
-   (* constant IDs of the declared type constants *)
-    let geqID  = ref ~1 : cid ref
+let geqID = (ref -1 : cid ref)
+(* constructors for_sml the declared types *)
 
-    (* constructors for the declared types *)
-    let rec geq (U, V) = Root (Const (!geqID), App (U, App (V, Nil)))
+let rec geq (U, V)  = Root (Const (! geqID), App (U, App (V, Nil)))
+(* specialized constructors for_sml the declared types *)
 
-    (* specialized constructors for the declared types *)
-    let rec geq0 (U) = geq (U, constant (zero_int))
+let rec geq0 (U)  = geq (U, constant (zero_int))
+(* constant IDs of the declared object constants *)
 
-    (* constant IDs of the declared object constants *)
-    let geqAddID = ref ~1 : cid ref
+let geqAddID = (ref -1 : cid ref)
+(* constructors for_sml the declared objects *)
 
-    (* constructors for the declared objects *)
-    let rec geqAdd (U1, U2, V, W) =
-          Root (Const (!geqAddID), App (U1, App (U2, App (V,  App (W, Nil)))))
+let rec geqAdd (U1, U2, V, W)  = Root (Const (! geqAddID), App (U1, App (U2, App (V, App (W, Nil)))))
+(* constant declaration for_sml the proof object d>=0 *)
 
-    (* constant declaration for the proof object d>=0 *)
-    let rec geqNConDec (d) = ConDec (Integers.toString (d) ^ ">=" ^ Integers.toString (zero_int),
-                                 NONE, 0, Normal, geq0 (constant (d)), Type)
+let rec geqNConDec (d)  = ConDec (Integers.toString (d) ^ ">=" ^ Integers.toString (zero_int), None, 0, Normal, geq0 (constant (d)), Type)
+(* foreign constant for_sml the proof object d>=0 *)
 
-    (* foreign constant for the proof object d>=0 *)
-    let rec geqNExp (d) = Root (FgnConst (!myID, geqNConDec (d)), Nil)
+let rec geqNExp (d)  = Root (FgnConst (! myID, geqNConDec (d)), Nil)
+(* parsing proof objects d>=0 *)
 
-    (* parsing proof objects d>=0 *)
-    let rec parseGeqN string =
-          let
-            let suffix   = (">=" ^ (toString (zero)))
-            let stringLen  = String.size string
-            let suffixLen = String.size suffix
-            let numLen  = Int.-(stringLen, suffixLen)
-          in
-            if Int.>(stringLen, suffixLen)
-              andalso (String.substring (string, numLen, suffixLen) = suffix)
-            then
-              (case Integers.fromString (String.substring (string, 0, numLen))
-                 of SOME(d) => if Integers.>=(d, zero_int)
-                               then SOME(geqNConDec (d))
-                               else NONE
-                  | NONE => NONE)
-            else
-              NONE
-          end
+let rec parseGeqN string  = ( let suffix = (">=" ^ (toString (zero))) in let stringLen = String.size string in let suffixLen = String.size suffix in let numLen = Int.- (stringLen, suffixLen) in  if Int.> (stringLen, suffixLen) && (String.substring (string, numLen, suffixLen) = suffix) then (match Integers.fromString (String.substring (string, 0, numLen)) with Some (d) -> if Integers.>= (d, zero_int) then Some (geqNConDec (d)) else None | None -> None) else None )
+type position = Row of int | Col of int
+type owner = Var of IntSyn.dctx * mon | Exp of IntSyn.dctx * sum
+(*   - sum                           *)
 
-    type position =                               (* position of a tableau entry       *)
-      Row of int
-    | Col of int
+type restriction = Restr of IntSyn.dctx * IntSyn.exp
+(*   Restr (G, U)                    *)
 
-    type owner =                                  (* owner of an entry:                *)
-      Var of IntSyn.dctx * Mon                        (*   - monomial                      *)
-    | Exp of IntSyn.dctx * sum                        (*   - sum                           *)
+type label = <owner: owner; (* owner of the row/column (if any)  *)
+; tag: int ref; (* tag: used to keep track of the    *)
+; (* position of a tableau entry       *)
+; restr: restriction option ref; (* restriction (if any)              *)
+; dead: bool ref>
+(* has the row/column already been   *)
 
-    type restriction =                            (* Restriction: (proof object)       *)
-      Restr of IntSyn.dctx * IntSyn.exp               (*   Restr (G, U)                    *)
+(* solved?                           *)
 
-    type label =
-           {owner : owner,                            (* owner of the row/column (if any)  *)
-            tag   : int ref,                          (* tag: used to keep track of the    *)
-                                                      (* position of a tableau entry       *)
-            restr : restriction option ref,           (* restriction (if any)              *)
-            dead  : bool ref}                         (* has the row/column already been   *)
-                                                      (* solved?                           *)
+type operation = Insert of position | Pivot of int * int | Kill of position | Restrict of position | UpdateOwner of position * owner * int ref
+(* change the owner                  *)
 
-    type operation =                              (* Undoable operations:              *)
-      Insert of position                              (* insert a new row/column           *)
-    | Pivot of int * int                              (* pivot on (i, j)                   *)
-    | Kill of position                                (* mark the given position solved    *)
-    | Restrict of position                            (* restrict the given position       *)
-    | UpdateOwner of position * owner * int ref       (* change the owner                  *)
+type tableau = (* Tableau:                          *)
+<rlabels: label Array.array; (* row labels                        *)
+; clabels: label Array.array; (* column labels                     *)
+; consts: number Array.array; (* constant terms                    *)
+; coeffs: number Array2.array; (* variables coefficients            *)
+; nrows: int ref; ncols: int ref; (* dimensions                        *)
+; trail: operation Trail.trail>
+(* undo mechanism                    *)
 
-    type tableau =                                    (* Tableau:                          *)
-           {rlabels : label Array.array,              (* row labels                        *)
-            clabels : label Array.array,              (* column labels                     *)
-            consts : number Array.array,              (* constant terms                    *)
-            coeffs : number Array2.array,             (* variables coefficients            *)
-            nrows : int ref, ncols : int ref,         (* dimensions                        *)
-            trail : Operation Trail.trail}            (* undo mechanism                    *)
+exception MyFgnCnstrRep of int ref
+(* FgnCnstr representation *)
 
-    exception MyFgnCnstrRep of int ref                (* FgnCnstr representation *)
-
-    exception Error
-
-    (* Representational invariants:
+exception Error
+(* Representational invariants:
          rlabels[i] = vacuous
          clabels[j] = vacuous
          const[i] = zero
          coeff[i,j] = zero
-       for i >= !nrows or j > !ncols, where "vacuous" is the vacuous label:
-          #owner(vacuous) = Exp (Null, sum (zero, nil))
+       for_sml i >= !nrows or j > !ncols, where "vacuous" is the vacuous label:
+          #owner(vacuous) = Exp (Null, Sum (zero, nil))
           #restr(vacuous) = ref NONE
           #dead(vacuous) = ref true
     *)
 
-    (* little random generation routine taken from Paulson '91 *)
-    local
-      let a = 16807.0 and m = 2147483647.0
-      let seed = ref 1999.0
-    in
-      let rec rand (min, size) =
-        let
-          let rec nextrand ()=
-                let
-                  let t = Real.*(a, !seed)
-                in
-                  (
-                    seed := Real.-(t, Real.*(m, Real.fromInt(Real.floor(t/m))));
-                    Real.-(!seed, 1.0) / Real.-(m, 1.0)
-                  )
-                end
-        in
-          Int.+(min, Real.floor(Real.*(nextrand(), Real.fromInt(size))))
-        end
-    end
+(* little random generation routine taken from Paulson '91 *)
 
-    (* create a new (empty) tableau *)
-    let tableau =
-          let
-            let l = {owner = Exp (Null, sum(zero_int, nil)), tag = ref 0,
-                     restr = ref NONE, dead = ref true}
-          in
-            {rlabels = Array.array (l), clabels = Array.array (l),
-             consts = Array.array (zero), coeffs = Array2.array (zero),
-             nrows = ref 0, ncols = ref 0, trail = Trail.trail ()} : tableau
-          end
+let a = 16807.0 and m = 2147483647.0
+let seed = ref 1999.0
+let rec rand (min, size)  = ( let rec nextrand ()  = ( let t = Real.* (a, ! seed) in  (seed := Real.- (t, Real.* (m, Real.fromInt (Real.floor (t / m)))); Real.- (! seed, 1.0) / Real.- (m, 1.0)) ) in  Int.+ (min, Real.floor (Real.* (nextrand (), Real.fromInt (size)))) )
+(* create a new (empty) tableau *)
 
-    (* i-th tableau row label *)
-    let rec rlabel (i) =
-          Array.sub (#rlabels(tableau), i)
+let tableau = ( let l = {owner = Exp (Null, Sum (zero_int, [])); tag = ref 0; restr = ref None; dead = ref true} in  ({rlabels = Array.array (l); clabels = Array.array (l); consts = Array.array (zero); coeffs = Array2.array (zero); nrows = ref 0; ncols = ref 0; trail = Trail.trail ()} : tableau) )
+(* i-th tableau row label *)
 
-    (* j-th tableau column label *)
-    let rec clabel (j) =
-          Array.sub (#clabels(tableau), j)
+let rec rlabel (i)  = Array.sub (rlabels (tableau), i)
+(* j-th tableau column label *)
 
-    (* i-th tableau constant term *)
-    let rec const (i) =
-          Array.sub (#consts(tableau), i)
+let rec clabel (j)  = Array.sub (clabels (tableau), j)
+(* i-th tableau constant term *)
 
-    (* coefficient in row i, column j *)
-    let rec coeff (i, j) =
-          Array2.sub (#coeffs(tableau), i, j)
+let rec const (i)  = Array.sub (consts (tableau), i)
+(* coefficient in row i, column j *)
 
-    (* number of rows *)
-    let rec nRows () = !(#nrows(tableau))
+let rec coeff (i, j)  = Array2.sub (coeffs (tableau), i, j)
+(* number of rows *)
 
-    (* number of columns *)
-    let rec nCols () = !(#ncols(tableau))
+let rec nRows ()  = ! (nrows (tableau))
+(* number of columns *)
 
-    (* increase the number of rows, and return the index of the last row *)
-    let rec incrNRows () =
-          let
-            let old = nRows ()
-          in
-            (#nrows(tableau) := Int.+(old, 1); old)
-          end
+let rec nCols ()  = ! (ncols (tableau))
+(* increase the number of rows, and return the index of the last row *)
 
-    (* increase the number of columns, and return the index of the last column *)
-    let rec incrNCols () =
-          let
-            let old = nCols ()
-          in
-            (#ncols(tableau) := Int.+(old, 1); old)
-          end
+let rec incrNRows ()  = ( let old = nRows () in  (nrows (tableau) := Int.+ (old, 1); old) )
+(* increase the number of columns, and return the index of the last column *)
 
-    (* decrease the number of rows *)
-    let rec decrNRows () =
-          #nrows(tableau) := Int.-(nRows(), 1)
+let rec incrNCols ()  = ( let old = nCols () in  (ncols (tableau) := Int.+ (old, 1); old) )
+(* decrease the number of rows *)
 
-    (* decrease the number of columns *)
-    let rec decrNCols () =
-          #ncols(tableau) := Int.-(nCols(), 1)
+let rec decrNRows ()  = nrows (tableau) := Int.- (nRows (), 1)
+(* decrease the number of columns *)
 
-    (* increase by the given amount the element i of the array *)
-    let rec incrArray (array, i, value) =
-          Array.update (array, i, Array.sub (array, i) + value)
+let rec decrNCols ()  = ncols (tableau) := Int.- (nCols (), 1)
+(* increase by the given amount the element i of the array *)
 
-    (* increase by the given amount the element (i, j) of the array *)
-    let rec incrArray2 (array, i, j, value) =
-          Array2.update (array, i, j, Array2.sub (array, i, j) + value)
+let rec incrArray (array, i, value)  = Array.update (array, i, Array.sub (array, i) + value)
+(* increase by the given amount the element (i, j) of the array *)
 
-    (* increase by f(j') all the elements (i, j'), with j <= j' < j+len *)
-    let rec incrArray2Row (array, i, (j, len), f) =
-          Compat.Vector.mapi
-            (fn (j, value) => Array2.update (array, i, j, value + f(j)))
-            (Array2.row (array, i, (j, len)))
+let rec incrArray2 (array, i, j, value)  = Array2.update (array, i, j, Array2.sub (array, i, j) + value)
+(* increase by f(j') all the elements (i, j'), with j <= j' < j+len *)
 
-    (* increase by f(i') all the elements (i', j), with i <= i' < i+len *)
-    let rec incrArray2Col (array, j, (i, len), f) =
-          Compat.Vector.mapi
-            (fn (i, value) => Array2.update (array, i, j, value + f(i)))
-            (Array2.column (array, j, (i, len)))
+let rec incrArray2Row (array, i, (j, len), f)  = Compat.Vector.mapi (fun (j, value) -> Array2.update (array, i, j, value + f (j))) (Array2.row (array, i, (j, len)))
+(* increase by f(i') all the elements (i', j), with i <= i' < i+len *)
 
-    (* set the given row to zero *)
-    let rec clearArray2Row (array, i, (j, len)) =
-          Compat.Vector.mapi
-            (fn (j, value) => Array2.update (array, i, j, zero))
-            (Array2.row (array, i, (j, len)))
+let rec incrArray2Col (array, j, (i, len), f)  = Compat.Vector.mapi (fun (i, value) -> Array2.update (array, i, j, value + f (i))) (Array2.column (array, j, (i, len)))
+(* set the given row to zero *)
 
-    (* set the given column to zero *)
-    let rec clearArray2Col (array, j, (i, len)) =
-          Compat.Vector.mapi
-            (fn (i, value) => Array2.update (array, i, j, zero))
-            (Array2.column (array, j, (i, len)))
+let rec clearArray2Row (array, i, (j, len))  = Compat.Vector.mapi (fun (j, value) -> Array2.update (array, i, j, zero)) (Array2.row (array, i, (j, len)))
+(* set the given column to zero *)
 
-    (* return the label at the given position (row or column) *)
-    let rec label = function (Row(i)) -> rlabel (i)
-      | (Col(j)) -> clabel (j)
+let rec clearArray2Col (array, j, (i, len))  = Compat.Vector.mapi (fun (i, value) -> Array2.update (array, i, j, zero)) (Array2.column (array, j, (i, len)))
+(* return the label at the given position (row or column) *)
 
-    (* return the restriction on the given label *)
-    let rec restriction (l : label) = !(#restr(l))
+let rec label = function (Row (i)) -> rlabel (i) | (Col (j)) -> clabel (j)
+(* return the restriction on the given label *)
 
-    (* is the given label is restricted? *)
-    let rec restricted (l : label) =
-          (case (restriction (l))
-             of SOME _ => true
-              | NONE => false)
+let rec restriction (l : label)  = ! (restr (l))
+(* is the given label is restricted? *)
 
-    (* return true iff the given label has been solved *)
-    let rec dead (l : label) = !(#dead(l))
+let rec restricted (l : label)  = (match (restriction (l)) with Some _ -> true | None -> false)
+(* return true iff the given label has been solved *)
 
-    (* set the ownership of the given position *)
-    let rec setOwnership (pos, owner, tag) =
-          let
-            let old = label(pos)
-            let new = {owner = owner,
-                       tag = tag,
-                       restr = ref (restriction (old)),
-                       dead = ref (dead (old))}
-          in
-            (case pos
-               of Row(i) =>
-                    Array.update (#rlabels(tableau), i, new)
-                | Col(j) =>
-                    Array.update (#clabels(tableau), j, new))
-          end
+let rec dead (l : label)  = ! (dead (l))
+(* set the ownership of the given position *)
 
-    (* return the context of a owner *)
-    let rec ownerContext = function (Var (G, mon)) -> G
-      | (Exp (G, sum)) -> G
+let rec setOwnership (pos, owner, tag)  = ( let old = label (pos) in let new_ = {owner = owner; tag = tag; restr = ref (restriction (old)); dead = ref (dead (old))} in  (match pos with Row (i) -> Array.update (rlabels (tableau), i, new_) | Col (j) -> Array.update (clabels (tableau), j, new_)) )
+(* return the context of a owner *)
 
-    (* return the owner as a sum *)
-    let rec ownerSum = function (Var (G, mon)) -> sum(zero_int, [mon])
-      | (Exp (G, sum)) -> sum
+let rec ownerContext = function (Var (G, mon)) -> G | (Exp (G, sum)) -> G
+(* return the a sum *)
 
-    (* debugging code - REMOVE *)
-    let rec displayPos = function (Row(row)) -> 
-          print ("row " ^ Int.toString(row) ^ "\n")
-      | (Col(col)) -> 
-          print ("column " ^ Int.toString(col) ^ "\n")
+let rec ownerSum = function (Var (G, mon)) -> Sum (zero_int, [mon]) | (Exp (G, sum)) -> sum
+(* debugging code - REMOVE *)
 
-    (* debugging code - REMOVE *)
-    let rec displaySum = function (sum(m, Mon(n, _) :: monL)) -> 
-          (
-            print (Integers.toString n);
-            print " ? + ";
-            displaySum (sum(m, monL))
-          )
-      | (sum(m, nil)) -> 
-          (
-            print (Integers.toString m);
-            print " >= 0\n"
-          )
+let rec displayPos = function (Row (row)) -> print ("row " ^ Int.toString (row) ^ "\n") | (Col (col)) -> print ("column " ^ Int.toString (col) ^ "\n")
+(* debugging code - REMOVE *)
 
-    (* debugging code - REMOVE *)
-    let rec display () =
-          let
-            let rec printLabel (col, l : label) =
-                  (
-                    print "\t";
-                    (case (#owner(l)) of Var _ => print "V" | Exp _ => print "E");
-                    if restricted (l) then print ">" else print "*";
-                    if dead (l) then print "#" else print ""
-                  )
-            let rec printRow (row, l : label) =
-                  let
-                    let rec printCol (col, d : number) =
-                          (
-                            print "\t";
-                            print (toString d)
-                          )
-                    let vec = Array2.row (#coeffs(tableau), row, (0, nCols()))
-                  in
-                    (
-                      (case (#owner(l)) of Var _ => print "V" | Exp _ => print "E");
-                      if restricted (l) then print ">" else print "*";
-                      if dead (l) then print "#" else print "";
-                      print "\t";
-                      Compat.Vector.mapi printCol vec;
-                      print "\t";
-                      print (toString (const (row)));
-                      print "\n"
-                    )
-                  end
-          in
-            (
-              print "\t";
-              Array.app printLabel (#clabels(tableau), 0, nCols());
-              print "\n";
-              Array.app printRow (#rlabels(tableau), 0, nRows());
-              print "Columns:\n";
-              Array.app (fn (_, l : label) => displaySum (ownerSum (#owner (l))))
-                        (#clabels(tableau), 0, nCols());
-              print "Rows:\n";
-              Array.app (fn (_, l : label) => displaySum (ownerSum (#owner (l))))
-                        (#rlabels(tableau), 0, nRows())
-            )
-          end
+let rec displaySum = function (Sum (m, Mon (n, _) :: monL)) -> (print (Integers.toString n); print " ? + "; displaySum (Sum (m, monL))) | (Sum (m, [])) -> (print (Integers.toString m); print " >= 0\n")
+(* debugging code - REMOVE *)
 
-    (* find the given monomial in the tableau *)
-    let rec findMon (mon) =
-          let
-            exception Found of int
+let rec display ()  = ( let rec printLabel (col, l : label)  = (print "\t"; (match (owner (l)) with Var _ -> print "V" | Exp _ -> print "E"); if restricted (l) then print ">" else print "*"; if dead (l) then print "#" else print "") in let rec printRow (row, l : label)  = ( let rec printCol (col, d : number)  = (print "\t"; print (toString d)) in let vec = Array2.row (coeffs (tableau), row, (0, nCols ())) in  ((match (owner (l)) with Var _ -> print "V" | Exp _ -> print "E"); if restricted (l) then print ">" else print "*"; if dead (l) then print "#" else print ""; print "\t"; Compat.Vector.mapi printCol vec; print "\t"; print (toString (const (row))); print "\n") ) in  (print "\t"; Array.app printLabel (clabels (tableau), 0, nCols ()); print "\n"; Array.app printRow (rlabels (tableau), 0, nRows ()); print "Columns:\n"; Array.app (fun (_, l : label) -> displaySum (ownerSum (owner (l)))) (clabels (tableau), 0, nCols ()); print "Rows:\n"; Array.app (fun (_, l : label) -> displaySum (ownerSum (owner (l)))) (rlabels (tableau), 0, nRows ())) )
+(* find the given monomial in the tableau *)
 
-            let rec find (i, l : label) =
-                  (case (#owner(l))
-                     of (Var (G, mon')) =>
-                          if compatibleMon (mon, mon')
-                          then raise Found i
-                          else ()
-                      | _ => ())
-          in
-            (Array.app find (#clabels(tableau), 0, nCols());
-               (Array.app find (#rlabels(tableau), 0, nRows());
-                  NONE)
-                handle Found i => SOME(Row(i)))
-             handle Found j => SOME(Col(j))
-          end
+let rec findMon (mon)  = ( exception Found of int in let rec find (i, l : label)  = (match (owner (l)) with (Var (G, mon')) -> if compatibleMon (mon, mon') then raise (Found i) else () | _ -> ()) in  try (Array.app find (clabels (tableau), 0, nCols ()); try (Array.app find (rlabels (tableau), 0, nRows ()); None) with Found i -> Some (Row (i))) with Found j -> Some (Col (j)) )
+(* return the a position in the tableau of the tagged expression *)
 
-    (* return the a position in the tableau of the tagged expression *)
-    let rec findTag (t) =
-          let
-            exception Found of int
+let rec findTag (t)  = ( exception Found of int in let rec find (i, l : label)  = if (tag (l) = t) then raise (Found i) else () in  try (Array.app find (clabels (tableau), 0, nCols ()); try (Array.app find (rlabels (tableau), 0, nRows ()); None) with Found i -> Some (Row (i))) with Found j -> Some (Col (j)) )
+(* return true iff the given row is null at all the active columns *)
 
-            let rec find (i, l : label) =
-                  if (#tag(l) = t)
-                  then raise Found i
-                  else ()
-          in
-            (Array.app find (#clabels(tableau), 0, nCols());
-               (Array.app find (#rlabels(tableau), 0, nRows());
-                  NONE)
-                handle Found i => SOME(Row(i)))
-             handle Found j => SOME(Col(j))
-          end
-
-    (* return true iff the given row is null at all the active columns *)
-    let rec isConstant (row) =
-          Array.foldl
-           (fn (j, l, rest) =>
-              (dead (l) orelse (coeff (row, j) = zero)) andalso rest)
-           true
-           (#clabels(tableau), 0, nCols())
-
-    (* return the position of the row/column of the tableau (if any) that makes the
+let rec isConstant (row)  = Array.foldl (fun (j, l, rest) -> (dead (l) || (coeff (row, j) = zero)) && rest) true (clabels (tableau), 0, nCols ())
+(* return the position of the row/column of the tableau (if any) that makes the
        given row redundant *)
-    let rec isSubsumed (row) =
-          let
-            let constRow = const (row)
 
-            let rec isSubsumedByRow () =
-                  let
-                    (* the candidates are those (active) rows with the same constant
+let rec isSubsumed (row)  = ( let constRow = const (row) in let rec isSubsumedByRow ()  = ( (* the candidates are those (active) rows with the same constant
                        term *)
-                    let candidates =
-                          Array.foldl
-                            (fn (i, l : label, rest) =>
-                               if (i <> row)
-                                 andalso not (dead (l))
-                                 andalso (const (i) = constRow)
-                               then (i :: rest)
-                               else rest)
-                            nil
-                            (#rlabels(tableau), 0, nRows())
-                    (* if j is active, trim the list of candidates to those that have
+(* if j is active, trim the list of candidates to those that have
                        the same coefficient in column j
                     *)
-                    let rec filter = function (j, l, nil) -> nil
-                      | (j, l : label, candidates) -> 
-                          if not (dead (l))
-                          then
-                             List.filter
-                               (fun i -> (coeff (i, j) = coeff (row, j)))
-                               candidates
-                          else
-                            candidates
-                  in
-                    (case (Array.foldl filter candidates
-                                       (#clabels(tableau), 0, nCols()))
-                       of nil => NONE
-                        | (i :: _) => SOME(i))
-                  end
-
-            let rec isSubsumedByCol () =
-                  if (constRow = zero)
-                  then
-                    let
-                      (* compute the list of non-null coefficients in the row *)
-                      let nonNull =
-                            Array.foldl
-                              (fn (j, l : label, rest) =>
-                                 if not (dead (l))
-                                 then
-                                   let
-                                     let value = coeff (row, j)
-                                   in
-                                     if (value <> zero)
-                                     then ((j, value) :: rest)
-                                     else rest
-                                   end
-                                 else
-                                   rest)
-                             nil
-                             (#clabels(tableau), 0, nCols())
-                    in
-                      (case nonNull
-                         of [(j, value)] =>
-                              if (value = one) then SOME(j)
-                              else NONE
-                          | _ => NONE)
-                    end
-                  else
-                    NONE
-          in
-            case isSubsumedByRow ()
-              of SOME(i) => SOME(Row(i))
-               | NONE => (case isSubsumedByCol ()
-                            of SOME(j) => SOME(Col(j))
-                             | NONE => NONE)
-          end
-
-     (* find the coordinates of the pivot which gives the largest increase in
+let candidates = Array.foldl (fun (i, l : label, rest) -> if (i <> row) && not (dead (l)) && (const (i) = constRow) then (i :: rest) else rest) [] (rlabels (tableau), 0, nRows ()) in let rec filter = function (j, l, []) -> [] | (j, l : label, candidates) -> if not (dead (l)) then List.filter (fun i -> (coeff (i, j) = coeff (row, j))) candidates else candidates in  (match (Array.foldl filter candidates (clabels (tableau), 0, nCols ())) with [] -> None | (i :: _) -> Some (i)) ) in let rec isSubsumedByCol ()  = if (constRow = zero) then ( (* compute the list of non-null coefficients in the row *)
+let nonNull = Array.foldl (fun (j, l : label, rest) -> if not (dead (l)) then ( let value = coeff (row, j) in  if (value <> zero) then ((j, value) :: rest) else rest ) else rest) [] (clabels (tableau), 0, nCols ()) in  (match nonNull with [(j, value)] -> if (value = one) then Some (j) else None | _ -> None) ) else None in  match isSubsumedByRow () with Some (i) -> Some (Row (i)) | None -> (match isSubsumedByCol () with Some (j) -> Some (Col (j)) | None -> None) )
+(* find the coordinates of the pivot which gives the largest increase in
         const(row) *)
-     let rec findPivot (row) =
-          let
-            (* extend Integers.compare to deal with NONE (= infinity) *)
-            let rec compareScore = function (SOME(d), SOME(d')) -> 
-                  compare (d, d')
-              | (SOME(d), NONE) -> LESS
-              | (NONE, SOME(d')) -> GREATER
-              | (NONE, NONE) -> EQUAL
 
-            (* find the best pivot candidates for the given row *)
-            let rec findPivotCol (j, l : label, result as (score, champs)) =
-                  let
-                    let value = coeff(row, j)
-                    (* find the best pivot candidates for the given row and column *)
-                    let rec findPivotRow sgn (i, l : label, result as (score, champs)) =
-                          let
-                            let value = coeff (i, j)
-                          in
-                            if (not (dead (l))) andalso (i <> row) andalso restricted (l)
-                              andalso ((fromInt (sgn) * value) < zero)
-                            then
-                              let
-                                let score' = SOME(abs (const (i) * inverse (value)))
-                              in
-                                case compareScore (score, score')
-                                  (* always choose the smallest *)
-                                  of GREATER => (score', [(i, j)])
-                                   | EQUAL => (score, (i, j) :: champs)
-                                   | LESS => result
-                              end
-                            else
-                              result
-                          end
-                  in
-                    if (not (dead (l))) andalso (value <> zero)
-                      andalso (not (restricted (l)) orelse (value > zero))
-                    then
-                      let
-                        let (result' as (score', champs')) =
-                              Array.foldl (findPivotRow (sign value))
-                                                (NONE, [(row, j)])
-                                                (#rlabels(tableau), 0, nRows ())
-                      in
-                        case compareScore (score, score')
-                          (* always choose the largest *)
-                          of GREATER => result
-                           | EQUAL => (score, champs @ champs')
-                           | LESS => result'
-                      end
-                    else
-                      result
-                  end
-          in
-            case (Array.foldl findPivotCol (SOME(zero), nil)
-                                    (#clabels(tableau), 0, nCols ()))
-              of (_, nil) => NONE
-               | (_, champs) =>
-                   (* choose one randomly to ensure fairness *)
-                   SOME(List.nth (champs, rand (0, List.length (champs))))
-          end
+let rec findPivot (row)  = ( (* extend Integers.compare to deal with NONE (= infinity) *)
+(* find the best pivot candidates for_sml the given row *)
+let rec compareScore = function (Some (d), Some (d')) -> compare (d, d') | (Some (d), None) -> Lt | (None, Some (d')) -> Gt | (None, None) -> Eq in let rec findPivotCol (j, l : label, result)  = ( (* find the best pivot candidates for_sml the given row and column *)
+let value = coeff (row, j) in let rec findPivotRow sgn (i, l : label, result)  = ( let value = coeff (i, j) in  if (not (dead (l))) && (i <> row) && restricted (l) && ((fromInt (sgn) * value) < zero) then ( let score' = Some (abs (const (i) * inverse (value))) in  match compareScore (score, score')(* always choose the smallest *)
+ with Gt -> (score', [(i, j)]) | Eq -> (score, (i, j) :: champs) | Lt -> result ) else result ) in  if (not (dead (l))) && (value <> zero) && (not (restricted (l)) || (value > zero)) then ( let (result') = Array.foldl (findPivotRow (sign value)) (None, [(row, j)]) (rlabels (tableau), 0, nRows ()) in  match compareScore (score, score')(* always choose the largest *)
+ with Gt -> result | Eq -> (score, champs @ champs') | Lt -> result' ) else result ) in  match (Array.foldl findPivotCol (Some (zero), []) (clabels (tableau), 0, nCols ())) with (_, []) -> None | (_, champs) -> (* choose one randomly to ensure fairness *)
+Some (List.nth (champs, rand (0, List.length (champs)))) )
+(* pivot the element at the given coordinates *)
 
-    (* pivot the element at the given coordinates *)
-    let rec pivot (row, col) =
-          let
-            let pCoeffInverse = inverse (coeff (row, col))
+let rec pivot (row, col)  = ( let pCoeffInverse = inverse (coeff (row, col)) in let pRowVector = Array2.row (coeffs (tableau), row, (0, nCols ())) in let rec pRow (j)  = Vector.sub (pRowVector, j) in let pColVector = Array2.column (coeffs (tableau), col, (0, nRows ())) in let rec pCol (i)  = Vector.sub (pColVector, i) in let pConst = const (row) in let pRLabel = rlabel (row) in let pCLabel = clabel (col) in  (Array.modify (fun (i, value) -> if (i = row) then (* same the pivot *)
+~ (value * pCoeffInverse) else (* any other row *)
+value - (pConst * pCol (i) * pCoeffInverse)) (consts (tableau), 0, nRows ()); Array2.modify Array2.ColMajor (fun (i, j, value) -> (match (i = row, j = col) with (true, true) -> (* pivot *)
+pCoeffInverse | (true, false) -> (* same the pivot *)
+~ (value * pCoeffInverse) | (false, true) -> (* same the pivot *)
+value * pCoeffInverse | (false, false) -> (* any other row/column *)
+value - (pRow (j) * pCol (i) * pCoeffInverse))) {base = (coeffs (tableau)); row = 0; col = 0; nrows = nRows (); ncols = nCols ()}; Array.update (rlabels (tableau), row, pCLabel); Array.update (clabels (tableau), col, pRLabel)) )
+(* delay all terms of a monomial on the given constraint *)
 
-            let pRowVector =
-                  Array2.row (#coeffs(tableau), row, (0, nCols ()))
-            let rec pRow(j) = Vector.sub (pRowVector, j)
+let rec delayMon (Mon (n, UsL), cnstr)  = List.app (fun Us -> Unify.delay (Us, cnstr)) UsL
+(* unify two restrictions *)
 
-            let pColVector =
-                  Array2.column (#coeffs(tableau), col, (0, nRows ()))
-            let rec pCol(i) = Vector.sub (pColVector, i)
+let rec unifyRestr (Restr (G, proof), proof')  = if Unify.unifiable (G, (proof, id), (proof', id)) then () else raise (Error)
+(* unify a sum with a number *)
 
-            let pConst = const (row)
+let rec unifySum (G, sum, d)  = if (Unify.unify (G, (toExp (sum), id), (constant (floor (d)), id)); true) then () else raise (Error)
+(* decomposition of an the weighted sum of tableau positions *)
 
-            let pRLabel = rlabel (row)
-            let pCLabel = clabel (col)
-          in
-            (
-               Array.modify
-                 (fn (i, value) =>
-                    if (i = row) then
-                      (* same row as the pivot *)
-                      ~(value * pCoeffInverse)
-                    else
-                      (* any other row *)
-                      value - (pConst * pCol(i) * pCoeffInverse))
-                 (#consts(tableau), 0, nRows());
+type decomp = number * number * position list
+(* change sign to the given decomposition *)
 
-                Array2.modify Array2.ColMajor
-                  (fn (i, j, value) =>
-                     (case (i = row, j = col)
-                        of (true, true) =>
-                             (* pivot *)
-                             pCoeffInverse
-                         | (true, false) =>
-                             (* same row as the pivot *)
-                             ~(value * pCoeffInverse)
-                         | (false, true) =>
-                             (* same column as the pivot *)
-                             value * pCoeffInverse
-                         | (false, false) =>
-                             (* any other row/column *)
-                             value - (pRow(j) * pCol (i) * pCoeffInverse)))
-                  {base = (#coeffs(tableau)), row = 0, col = 0,
-                   nrows = nRows(), ncols = nCols ()};
+let rec unaryMinusDecomp ((d, wposL))  = (~ d, List.map (fun (d, pos) -> (~ d, pos)) wposL)
+type maximizeResult = Nonnegative of number | Unbounded of int
+(* manifestly unbounded, pivoting on column col *)
 
-               Array.update (#rlabels(tableau), row, pCLabel);
-               Array.update (#clabels(tableau), col, pRLabel)
-            )
-          end
+type branchResult = BranchSucceed of int option | BranchFail | BranchDivide of int * branchResult * branchResult
+(* decompose a sum in whnf into a weighted sum of tableau positions *)
 
-    (* delay all terms of a monomial on the given constraint *)
-    let rec delayMon (Mon(n, UsL), cnstr) =
-          List.app (fun Us -> Unify.delay (Us, cnstr)) UsL
-
-    (* unify two restrictions *)
-    let rec unifyRestr (Restr (G, proof), proof') =
-          if Unify.unifiable (G, (proof, id), (proof', id)) then ()
-          else raise Error
-
-    (* unify a sum with a number *)
-    let rec unifySum (G, sum, d) =
-          if (Unify.unify (G, (toExp (sum), id),
-                                  (constant (floor (d)), id)); true)
-          then ()
-          else raise Error
-
-    (* decomposition of an expression as the weighted sum of tableau positions *)
-    type decomp = number * (number * position) list
-
-    (* change sign to the given decomposition *)
-    let rec unaryMinusDecomp ((d, wposL)) =
-          (~d, List.map (fn (d, pos) => (~d, pos)) wposL)
-
-    type maximizeResult =              (* Result of maximization of a row:             *)
-      Nonnegative of number                (* nonnegative value c                          *)
-    | Unbounded of int                     (* manifestly unbounded, pivoting on column col *)
-
-    type branchResult =
-      BranchSucceed of int option
-    | BranchFail
-    | BranchDivide of int * branchResult * branchResult
-
-    (* decompose a sum in whnf into a weighted sum of tableau positions *)
-    let rec decomposeSum (G, sum (m, monL)) =
-          let
-            let rec monToWPos (mon as (Mon(n, UsL))) =
-                  (case findMon (mon)
-                     of SOME(pos) => (fromInteger (n), pos)
-                      | NONE =>
-                          let
-                            let new = incrNCols()
-                            let l = {owner = Var (G, Mon(one_int, UsL)),
-                                     tag = ref 0,
-                                     restr = ref NONE,
-                                     dead = ref false}
-                          in
-                             (
-                               Trail.log (#trail(tableau), Insert(Col(new)));
-                               delayMon (mon, ref (makeCnstr (#tag(l))));
-                               Array.update (#clabels(tableau), new, l);
-                               (fromInteger (n), Col(new))
-                             )
-                          end)
-          in
-            (fromInteger (m), List.map monToWPos monL)
-          end
-
-    (* maximize the given row by performing pivot operations.
-       Return a term of type MaximizeResult *)
-    and maximizeRow (row) =
-          let
-            let value = const(row)
-          in
-            if (value < zero)
-            then
-              (case findPivot (row)
-                 of SOME(i,j) =>
-                      if (i <> row) then
-                        (
-                          Trail.log (#trail(tableau), Pivot(i, j));
-                          pivot (i, j);
-                          maximizeRow row
-                        )
-                      else
-                        (* the tableau is unbounded *)
-                        Unbounded j
-                  | NONE => raise Error)
-            else Nonnegative value
-          end
-
-    (* insert the given expression in the tableau, labelling it with owner *)
-    and insertDecomp (decomp as (d, wposL), owner) =
-          let
-            let new = incrNRows ()
-
-            let rec insertWPos (d, pos) =
-                  (case pos
-                     of Row(row) =>
-                          (
-                            incrArray2Row (#coeffs(tableau), new,
-                                           (0, nCols()),
-                                           (fn (j) =>
-                                              d*coeff(row, j)));
-                            incrArray (#consts(tableau), new,
-                                       d*const(row))
-                          )
-                      | Col(col) =>
-                          incrArray2 (#coeffs(tableau), new, col, d))
-          in
-            (
-              (* add the decomposition to the newly created row *)
-              List.app insertWPos wposL;
-              incrArray(#consts(tableau), new, d);
-              (* is this row trivial? *)
-              case isSubsumed (new)
-                of SOME(pos) =>
-                     (
-                       clearArray2Row (#coeffs(tableau), new, (0, nCols()));
-                       Array.update (#consts(tableau), new, zero);
-                       decrNRows ();
-                       pos
-                     )
-                 | NONE =>
-                     (
-                       setOwnership (Row(new), owner, ref 0);
-                       #dead(label(Row(new))) := isConstant(new);
-                       (* log the creation of this row *)
-                       Trail.log (#trail(tableau), Insert(Row(new)));
-                       (* return its position *)
-                       Row(new)
-                     )
-            )
-          end
-
-    (* insert the given (unrestricted) expression in the tableau *)
-    and insert (G, Us) =
-          let
-            let sum = fromExp Us
-          in
-            insertDecomp (decomposeSum (G, sum), Exp (G, sum))
-          end
-
-    (* restrict the given row/column to be nonnegative *)
-    and restrict (pos as Col(col), restr) =
-          let
-            let l = label(pos)
-          in
-            if dead(l)
-            then
-              (unifyRestr (restr, geqNExp (zero_int)); NONE)
-            else
-              case restriction (l)
-                of SOME(Restr(_, proof')) =>
-                     (unifyRestr (restr, proof'); NONE)
-                 | NONE =>
-                     let
-                       (* compute the list of non-null row entries *)
-                       let nonNull =
-                             Array.foldl
-                               (fn (i, l : label, rest) =>
-                                  if not (dead(l))
-                                  then
-                                    let
-                                      let value = coeff (i, col)
-                                    in
-                                      if (value <> zero) then (i :: rest)
-                                      else rest
-                                    end
-                                  else
-                                    rest)
-                             nil
-                             (#rlabels(tableau), 0, nRows())
-                     in
-                       case nonNull
-                         of (row :: _) =>
-                              (
-                                (* pivot to a row position; this is sound since
+let rec decomposeSum (G, Sum (m, monL))  = ( let rec monToWPos (mon)  = (match findMon (mon) with Some (pos) -> (fromInteger (n), pos) | None -> ( let new_ = incrNCols () in let l = {owner = Var (G, Mon (one_int, UsL)); tag = ref 0; restr = ref None; dead = ref false} in  (Trail.log (trail (tableau), Insert (Col (new_))); delayMon (mon, ref (makeCnstr (tag (l)))); Array.update (clabels (tableau), new_, l); (fromInteger (n), Col (new_))) )) in  (fromInteger (m), List.map monToWPos monL) )
+and maximizeRow (row)  = ( let value = const (row) in  if (value < zero) then (match findPivot (row) with Some (i, j) -> if (i <> row) then (Trail.log (trail (tableau), Pivot (i, j)); pivot (i, j); maximizeRow row) else (* the tableau is unbounded *)
+Unbounded j | None -> raise (Error)) else Nonnegative value )
+and insertDecomp (decomp, owner)  = ( let new_ = incrNRows () in let rec insertWPos (d, pos)  = (match pos with Row (row) -> (incrArray2Row (coeffs (tableau), new_, (0, nCols ()), (fun (j) -> d * coeff (row, j))); incrArray (consts (tableau), new_, d * const (row))) | Col (col) -> incrArray2 (coeffs (tableau), new_, col, d)) in  ((* add the decomposition to the newly created row *)
+List.app insertWPos wposL; incrArray (consts (tableau), new_, d); (* is this row trivial? *)
+match isSubsumed (new_) with Some (pos) -> (clearArray2Row (coeffs (tableau), new_, (0, nCols ())); Array.update (consts (tableau), new_, zero); decrNRows (); pos) | None -> (setOwnership (Row (new_), owner, ref 0); dead (label (Row (new_))) := isConstant (new_); (* log the creation of this row *)
+Trail.log (trail (tableau), Insert (Row (new_))); (* return its position *)
+Row (new_))) )
+and insert (G, Us)  = ( let sum = fromExp Us in  insertDecomp (decomposeSum (G, sum), Exp (G, sum)) )
+and restrict = function (pos, restr) -> ( let l = label (pos) in  if dead (l) then (unifyRestr (restr, geqNExp (zero_int)); None) else match restriction (l) with Some (Restr (_, proof')) -> (unifyRestr (restr, proof'); None) | None -> ( (* compute the list of non-null row entries *)
+let nonNull = Array.foldl (fun (i, l : label, rest) -> if not (dead (l)) then ( let value = coeff (i, col) in  if (value <> zero) then (i :: rest) else rest ) else rest) [] (rlabels (tableau), 0, nRows ()) in  match nonNull with (row :: _) -> ((* pivot to a row position; this is sound since
                                    the column is unrestricted (see Nelson '81)
                                 *)
-                                Trail.log (#trail(tableau), Pivot(row, col));
-                                pivot (row, col);
-                                restrict (Row(row), restr)
-                              )
-                          | nil =>
-                              (
-                                (* the column is zero at all the active row
+Trail.log (trail (tableau), Pivot (row, col)); pivot (row, col); restrict (Row (row), restr)) | [] -> ((* the column is zero at all the active row
                                    positions, so we can restrict it right away
                                 *)
-                                Trail.log (#trail(tableau), Restrict(Col(col)));
-                                #restr(label(Col(col))) := SOME(restr);
-                                NONE
-                              )
-                     end
-          end
-      | restrict (pos as Row(row), restr) =
-          let
-            let l = label(pos)
-          in
-            if dead(l)
-            then
-              (* it is an integer *)
-              (unifyRestr (restr, geqNExp (floor (const (row)))); NONE)
-            else
-              case restriction (l)
-                of SOME(Restr(_, proof')) =>
-                     (unifyRestr (restr, proof'); NONE)
-                 | NONE =>
-                     case maximizeRow (row)
-                       of Unbounded col =>
-                            (
-                              Trail.log (#trail(tableau), Restrict(Row(row)));
-                              #restr(Array.sub (#rlabels(tableau), row)) := SOME(restr);
-                              if (const(row) < zero)
-                              then
-                                (
-                                  Trail.log (#trail(tableau), Pivot(row, col));
-                                  pivot (row, col)
-                                )
-                              else ();
-                              NONE
-                            )
-                        | Nonnegative value =>
-                            (
-                              Trail.log (#trail(tableau), Restrict(Row(row)));
-                              #restr(Array.sub (#rlabels(tableau), row)) := SOME(restr);
-                              SOME(row)
-                            )
-          end
-
-    (* insert the equality Var(pos) = Us as two inequalities:
-         Var(pos) - Us >= zero
-         Us - Var(pos) >= zero
-    *)
-    and insertEqual (G, pos, sum) =
-          let
-            let (m, wposL) = decomposeSum (G, sum)
-
-            let decomp' = (m, (~one, pos) :: wposL)
-            let pos' = insertDecomp (decomp', Exp (G, sum(zero_int, nil)))
-
-            let decomp'' = unaryMinusDecomp (decomp')
-            let tag'' = #tag(label (insertDecomp (decomp'', Exp (G, sum(zero_int, nil)))))
-          in
-            (
-               (* the second expression may change position when we
+Trail.log (trail (tableau), Restrict (Col (col))); restr (label (Col (col))) := Some (restr); None) ) ) | (pos, restr) -> ( let l = label (pos) in  if dead (l) then (* it is an integer *)
+(unifyRestr (restr, geqNExp (floor (const (row)))); None) else match restriction (l) with Some (Restr (_, proof')) -> (unifyRestr (restr, proof'); None) | None -> match maximizeRow (row) with Unbounded col -> (Trail.log (trail (tableau), Restrict (Row (row))); restr (Array.sub (rlabels (tableau), row)) := Some (restr); if (const (row) < zero) then (Trail.log (trail (tableau), Pivot (row, col)); pivot (row, col)) else (); None) | Nonnegative value -> (Trail.log (trail (tableau), Restrict (Row (row))); restr (Array.sub (rlabels (tableau), row)) := Some (restr); Some (row)) )
+and insertEqual (G, pos, sum)  = ( let (m, wposL) = decomposeSum (G, sum) in let decomp' = (m, (~ one, pos) :: wposL) in let pos' = insertDecomp (decomp', Exp (G, Sum (zero_int, []))) in let decomp'' = unaryMinusDecomp (decomp') in let tag'' = tag (label (insertDecomp (decomp'', Exp (G, Sum (zero_int, []))))) in  ((* the second expression may change position when we
                   restrict the first. We use tags to keep track of it *)
-               restrictBB (exploreBB (pos', Restr (G, geqNExp (zero_int))));
-               (case findTag (tag'')
-                  of SOME(pos'') =>
-                       restrictBB (exploreBB (pos'', Restr (G, geqNExp (zero_int)))))
-            )
-          end
-
-    (* update the tableau upon discovery that Var(pos) = sum *)
-    and update (G, pos, sum) =
-          let
-            let l = label (pos)
-          in
-            (
-              (* if the given position has a owner, delete it, since not doing so
+restrictBB (exploreBB (pos', Restr (G, geqNExp (zero_int)))); (match findTag (tag'') with Some (pos'') -> restrictBB (exploreBB (pos'', Restr (G, geqNExp (zero_int)))))) )
+and update (G, pos, sum)  = ( let l = label (pos) in  ((* if the given position has a owner, delete it, since not doing so
                  may violate the invariant *)
-              Trail.log (#trail(tableau), UpdateOwner(pos, #owner(l), #tag(l)));
-              setOwnership (pos, Exp (G, sum), ref 0);
-              (* analyze the given position to see exactly how to represent this
+Trail.log (trail (tableau), UpdateOwner (pos, owner (l), tag (l))); setOwnership (pos, Exp (G, sum), ref 0); (* analyze the given position to see exactly how to represent this
                  equality *)
-              if dead(l)
-              then
-                (case pos
-                   of Row(row) =>
-                        (* find out why it died *)
-                        if isConstant (row)
-                        then
-                          (* row is dead because constant and equal to n *)
-                          unifySum (G, sum, const(row))
-                        else
-                          (* row is dead because is subsumed by another *)
-                          (case isSubsumed (row)
-                             of SOME(pos') => update (G, pos', sum))
-                    | Col(col) =>
-                        (* column is dead because = 0 *)
-                        unifySum (G, sum, zero))
-              else
-                let
-                  let rec isVar = function (sum(m, [mon as Mon(n, _)])) -> 
-                        if (m = zero_int) andalso (n = one_int)
-                        then SOME(mon)
-                        else NONE
-                    | (sum) -> NONE
-                in
-                  case isVar (sum)
-                    of SOME(mon) =>
-                         (* the nf is another variable *)
-                          (case findMon (mon)
-                            of SOME _ => insertEqual (G, pos, sum)
-                             | NONE =>
-                                let
-                                  let tag = ref 0
-                                in
-                                  (
-                                    (* recycle the current label *)
-                                    Trail.log (#trail(tableau),
-                                               UpdateOwner (pos, #owner(l), #tag(l)));
-                                    setOwnership (pos, Var (G, mon), tag);
-                                    delayMon (mon, ref (makeCnstr (tag)))
-                                  )
-                                end)
-                     | NONE => insertEqual (G, pos, sum)
-                 end
-            )
-          end
-
-    (* insert the proof term used to restrict l (if any) at the beginning of UL *)
-    and insertRestrExp (l, UL) =
-          (case restriction (l)
-             of NONE => UL
-              | SOME(Restr(_, _)) =>
-                  let
-                    let owner = #owner(l)
-                    let G = ownerContext (owner)
-                    let U = toExp (ownerSum (owner))
-                  in
-                    (G, geq0 (U)) :: UL
-                  end)
-
-    (* returns the list of unsolved constraints associated with the given position *)
-    and restrictions (pos) =
-          let
-            let rec member (x, l) = List.exists (fun y -> x = y) l
-            let rec test (l) = restricted(l) andalso not (dead(l))
-            let rec reachable = function ((pos as Row(row)) :: candidates, tried, closure) -> 
-                  if member (pos, tried)
-                  then reachable (candidates, tried, closure)
-                  else
-                    let
-                      let new_candidates =
-                            Array.foldl
-                              (fn (col, _, candidates) =>
-                                    if (coeff(row, col) <> zero)
-                                    then (Col(col)) :: candidates
-                                    else candidates)
-                              nil
-                              (#clabels(tableau), 0, nCols())
-                      let closure' = if test (label(pos)) then (pos :: closure)
-                                     else closure
-                    in
-                      reachable (new_candidates @ candidates,
-                                 pos :: tried,
-                                 closure')
-                    end
-              | ((pos as Col(col)) :: candidates, tried, closure) -> 
-                  if member (pos, tried)
-                  then reachable (candidates, tried, closure)
-                  else
-                    let
-                      let candidates' =
-                            Array.foldl
-                              (fn (row, _, candidates) =>
-                                    if (coeff(row, col) <> zero)
-                                    then (Row(row)) :: candidates
-                                    else candidates)
-                              nil
-                              (#rlabels(tableau), 0, nRows())
-                      let closure' = if test (label(pos)) then (pos :: closure)
-                                     else closure
-                    in
-                      reachable (candidates' @ candidates,
-                                 pos :: tried,
-                                 closure')
-                    end
-              | (nil, _, closure) -> closure
-            let rec restrExp (pos) =
-                  let
-                    let l = label(pos)
-                    let owner = #owner(l)
-                    let G = ownerContext (owner)
-                    let U = toExp (ownerSum (owner))
-                  in
-                    (G, geq0 (U))
-                  end
-
-          in
-            List.map restrExp (reachable ([pos], nil, nil))
-          end
-
-    (* returns the list of unsolved constraints associated with the given tag *)
-    and toInternal (tag) () =
-           (case findTag (tag)
-              of NONE => nil
-               | SOME(pos) => restrictions (pos))
-
-    (* awake function for tableau constraints *)
-    and awake (tag) () =
-          (
-            (case findTag (tag)
-               of SOME(pos) =>
-                    let
-                      let owner = #owner(label (pos))
-                      let G = ownerContext(owner)
-                      let sum = normalize (ownerSum (owner))
-                   in
-                      (update (G, pos, sum) ; true)
-                    end
-                | NONE => true)
-            handle Error => false
-          )
-
-    (* simplify function for tableau constraints *)
-    and simplify (tag) () =
-          (case toInternal (tag) ()
-             of nil => true
-              | (_ :: _) => false)
-
-    (* create a foreign constraint for the given tag *)
-    and makeCnstr (tag) =
-          FgnCnstr (!myID, MyFgnCnstrRep (tag))
-
-    (* checks if the (primally and dually) feasible solution is an integral solution;
-       returns NONE if it is, otherwise the coordinate of a non-integral component *)
-    and isIntegral () =
-          let
-            exception Found of int
-
-            let rec find (i, l : label) =
-                  if not (dead (l)) then
-                    if (denominator (const (i)) <> one_int)
-                    then raise Found i
-                    else ()
-                  else () (* unbounded component *)
-          in
-            (Array.app find (#rlabels(tableau), 0, nRows());
-             NONE) handle Found i => SOME(i)
-          end
-
-    (* bound the given expression below d *)
-    and boundLower (G, decomp, d) =
-          let
-            let W = newEVar (G, number ())
-            let proof = newEVar (G, geq0 (W))
-
-            let (d', wPosL) = unaryMinusDecomp (decomp)
-            let pos = insertDecomp ((d' + d, wPosL), Var(G, Mon(one_int, [(W, id)])))
-          in
-            (pos, Restr(G, proof))
-          end
-
-    (* bound the given expression above d *)
-    and boundUpper (G, decomp, d) =
-          let
-            let W = newEVar (G, number ())
-            let proof = newEVar (G, geq0 (W))
-
-            let (d', wPosL) = decomp
-            let pos = insertDecomp ((d' - d, wPosL), Var(G, Mon(one_int, [(W, id)])))
-          in
-            (pos, Restr (G, proof))
-          end
-
-    (* explore the relaxed solution space looking for integer solutions *)
-    and exploreBB (pos, restr) =
-          (let
-             let result = restrict (pos, restr)
-           in
-             case isIntegral ()
-               of SOME(row) =>
-                    let
-                      let value = const (row)
-                      let decomp = (zero, [(one, Row(row))])
-                      let G = ownerContext(#owner(label(Row(row))))
-
-                      let lower = fromInteger (floor (value))
-                      let upper = fromInteger (ceiling (value))
-
-                      let rec left () =
-                            exploreBB (boundLower (G, decomp, lower))
-                      let rec right () =
-                            exploreBB (boundUpper (G, decomp, upper))
-                    in
-                      case (CSM.trail left, CSM.trail right)
-                        of (BranchFail, BranchFail) => BranchFail
-                         | (resultL, resultR) => BranchDivide(row, resultL, resultR)
-                    end
-                 | NONE => BranchSucceed(result)
-           end) handle Error => BranchFail
-
-    (* minimize a tableau that has been determined non-minimal (but consistent) as a
-       consequence of adding the given row
-    *)
-    and minimizeBB (row) =
-          let
-            (* check if the column is zero for all possible solutions *)
-            let rec zeroColumn (j, l : label) =
-                  let
-                    let decomp = (zero, [(one, Col(j))])
-                    let G = ownerContext(#owner(label(Col(j))))
-
-                    let lower = ~one
-                    let upper = one
-
-                    let rec left () =
-                          exploreBB (boundLower (G, decomp, lower))
-                    let rec right () =
-                          exploreBB (boundUpper (G, decomp, upper))
-                  in
-                    if restricted(l)
-                    then (CSM.trail right = BranchFail)
-                    else (CSM.trail left = BranchFail) andalso (CSM.trail right = BranchFail)
-                  end
-            (* equate the given column to zero if coeff(row, j) <> zero *)
-            let rec killColumn (j, l : label) =
-                  if (not (dead(l))) andalso (coeff(row, j) <> zero)
-                    andalso zeroColumn (j, l)
-                  then
-                    (
-                      (* mark the column dead *)
-                      Trail.log (#trail(tableau), Kill(Col(j)));
-                      #dead(Array.sub (#clabels(tableau), j)) := true;
-                      (* if restricted, instantiate the proof object to 0>=0 *)
-                      (case restriction (l)
-                         of SOME(restr) =>
-                              unifyRestr (restr, geqNExp (zero_int))
-                          | NONE => ());
-                      (* if owned by a monomial, unify it with zero *)
-                      (case #owner(l)
-                         of (owner as (Var _)) =>
-                              unifySum (ownerContext (owner), ownerSum (owner), zero)
-                          | _ => ())
-                    )
-                  else ()
-            (* find out if the given row has been made trivial by killing some columns *)
-            let rec killRow (i, l : label) =
-                  if not (dead(l))
-                  then
-                    if isConstant (i)
-                    then (* row is now constant and equal to n = const(i) *)
-                      (
-                        (* check if it is an integer *)
-                        if denominator (const(i)) = one_int then () else raise Error;
-                        (* mark the row dead *)
-                        Trail.log (#trail(tableau), Kill(Row(i)));
-                        #dead(Array.sub (#rlabels(tableau), i)) := true;
-                        (* if restricted, instantiate the proof object to n>=0 *)
-                        (case restriction (l)
-                           of SOME(restr) =>
-                                if denominator (const(i)) = one_int
-                                then unifyRestr (restr, geqNExp (floor (const(i))))
-                                else raise Error
-                            | NONE => ());
-                        (* if owned by a monomial, unify it with n *)
-                        (case #owner(l)
-                           of (owner as (Var _)) =>
-                                unifySum (ownerContext (owner), ownerSum (owner), const(i))
-                            | _ => ())
-                      )
-                    else
-                      case isSubsumed (i)
-                        of SOME(pos') =>
-                             let
-                               let l' = label(pos')
-                             in
-                               (
-                                 Trail.log (#trail(tableau), Kill(Row(i)));
-                                 #dead(Array.sub (#rlabels(tableau), i)) := true;
-                                 (case (restriction (l), restriction (l'))
-                                    of (SOME(restr), SOME(Restr(_, proof'))) =>
-                                         unifyRestr (restr, proof')
-                                     | (SOME _, NONE) =>
-                                         (
-                                           (* it is safe to restrict without doing all
+if dead (l) then (match pos with Row (row) -> (* find out why it died *)
+if isConstant (row) then (* row is dead because constant and equal to n *)
+unifySum (G, sum, const (row)) else (* row is dead because is subsumed by another *)
+(match isSubsumed (row) with Some (pos') -> update (G, pos', sum)) | Col (col) -> (* column is dead because = 0 *)
+unifySum (G, sum, zero)) else ( let rec isVar = function (Sum (m, [mon])) -> if (m = zero_int) && (n = one_int) then Some (mon) else None | (sum) -> None in  match isVar (sum) with Some (mon) -> (* the nf is another variable *)
+(match findMon (mon) with Some _ -> insertEqual (G, pos, sum) | None -> ( let tag = ref 0 in  ((* recycle the current label *)
+Trail.log (trail (tableau), UpdateOwner (pos, owner (l), tag (l))); setOwnership (pos, Var (G, mon), tag); delayMon (mon, ref (makeCnstr (tag)))) )) | None -> insertEqual (G, pos, sum) )) )
+and insertRestrExp (l, UL)  = (match restriction (l) with None -> UL | Some (Restr (_, _)) -> ( let owner = owner (l) in let G = ownerContext (owner) in let U = toExp (ownerSum (owner)) in  (G, geq0 (U)) :: UL ))
+and restrictions (pos)  = ( let rec member (x, l)  = List.exists (fun y -> x = y) l in let rec test (l)  = restricted (l) && not (dead (l)) in let rec reachable = function ((pos) :: candidates, tried, closure) -> if member (pos, tried) then reachable (candidates, tried, closure) else ( let new_candidates = Array.foldl (fun (col, _, candidates) -> if (coeff (row, col) <> zero) then (Col (col)) :: candidates else candidates) [] (clabels (tableau), 0, nCols ()) in let closure' = if test (label (pos)) then (pos :: closure) else closure in  reachable (new_candidates @ candidates, pos :: tried, closure') ) | ((pos) :: candidates, tried, closure) -> if member (pos, tried) then reachable (candidates, tried, closure) else ( let candidates' = Array.foldl (fun (row, _, candidates) -> if (coeff (row, col) <> zero) then (Row (row)) :: candidates else candidates) [] (rlabels (tableau), 0, nRows ()) in let closure' = if test (label (pos)) then (pos :: closure) else closure in  reachable (candidates' @ candidates, pos :: tried, closure') ) | ([], _, closure) -> closure in let rec restrExp (pos)  = ( let l = label (pos) in let owner = owner (l) in let G = ownerContext (owner) in let U = toExp (ownerSum (owner)) in  (G, geq0 (U)) ) in  List.map restrExp (reachable ([pos], [], [])) )
+and toInternal (tag) ()  = (match findTag (tag) with None -> [] | Some (pos) -> restrictions (pos))
+and awake (tag) ()  = (try (match findTag (tag) with Some (pos) -> ( let owner = owner (label (pos)) in let G = ownerContext (owner) in let sum = normalize (ownerSum (owner)) in  (update (G, pos, sum); true) ) | None -> true) with Error -> false)
+and simplify (tag) ()  = (match toInternal (tag) () with [] -> true | (_ :: _) -> false)
+and makeCnstr (tag)  = FgnCnstr (! myID, MyFgnCnstrRep (tag))
+and isIntegral ()  = ( (* unbounded component *)
+exception Found of int in let rec find (i, l : label)  = if not (dead (l)) then if (denominator (const (i)) <> one_int) then raise (Found i) else () else () in  try (Array.app find (rlabels (tableau), 0, nRows ()); None) with Found i -> Some (i) )
+and boundLower (G, decomp, d)  = ( let W = newEVar (G, number ()) in let proof = newEVar (G, geq0 (W)) in let (d', wPosL) = unaryMinusDecomp (decomp) in let pos = insertDecomp ((d' + d, wPosL), Var (G, Mon (one_int, [(W, id)]))) in  (pos, Restr (G, proof)) )
+and boundUpper (G, decomp, d)  = ( let W = newEVar (G, number ()) in let proof = newEVar (G, geq0 (W)) in let (d', wPosL) = decomp in let pos = insertDecomp ((d' - d, wPosL), Var (G, Mon (one_int, [(W, id)]))) in  (pos, Restr (G, proof)) )
+and exploreBB (pos, restr)  = try (( let result = restrict (pos, restr) in  match isIntegral () with Some (row) -> ( let value = const (row) in let decomp = (zero, [(one, Row (row))]) in let G = ownerContext (owner (label (Row (row)))) in let lower = fromInteger (floor (value)) in let upper = fromInteger (ceiling (value)) in let rec left ()  = exploreBB (boundLower (G, decomp, lower)) in let rec right ()  = exploreBB (boundUpper (G, decomp, upper)) in  match (CSM.trail left, CSM.trail right) with (BranchFail, BranchFail) -> BranchFail | (resultL, resultR) -> BranchDivide (row, resultL, resultR) ) | None -> BranchSucceed (result) )) with Error -> BranchFail
+and minimizeBB (row)  = ( (* check if the column is zero for_sml all possible solutions *)
+(* equate the given column to zero if coeff(row, j) <> zero *)
+(* find out if the given row has been made trivial by killing some columns *)
+let rec zeroColumn (j, l : label)  = ( let decomp = (zero, [(one, Col (j))]) in let G = ownerContext (owner (label (Col (j)))) in let lower = ~ one in let upper = one in let rec left ()  = exploreBB (boundLower (G, decomp, lower)) in let rec right ()  = exploreBB (boundUpper (G, decomp, upper)) in  if restricted (l) then (CSM.trail right = BranchFail) else (CSM.trail left = BranchFail) && (CSM.trail right = BranchFail) ) in let rec killColumn (j, l : label)  = if (not (dead (l))) && (coeff (row, j) <> zero) && zeroColumn (j, l) then ((* mark the column dead *)
+Trail.log (trail (tableau), Kill (Col (j))); dead (Array.sub (clabels (tableau), j)) := true; (* if restricted, instantiate the proof object to 0>=0 *)
+(match restriction (l) with Some (restr) -> unifyRestr (restr, geqNExp (zero_int)) | None -> ()); (* if owned by a monomial, unify it with zero *)
+(match owner (l) with (owner) -> unifySum (ownerContext (owner), ownerSum (owner), zero) | _ -> ())) else () in let rec killRow (i, l : label)  = if not (dead (l)) then if isConstant (i) then (* row is now constant and equal to n = const(i) *)
+((* check if it is an integer *)
+if denominator (const (i)) = one_int then () else raise (Error); (* mark the row dead *)
+Trail.log (trail (tableau), Kill (Row (i))); dead (Array.sub (rlabels (tableau), i)) := true; (* if restricted, instantiate the proof object to n>=0 *)
+(match restriction (l) with Some (restr) -> if denominator (const (i)) = one_int then unifyRestr (restr, geqNExp (floor (const (i)))) else raise (Error) | None -> ()); (* if owned by a monomial, unify it with n *)
+(match owner (l) with (owner) -> unifySum (ownerContext (owner), ownerSum (owner), const (i)) | _ -> ())) else match isSubsumed (i) with Some (pos') -> ( let l' = label (pos') in  (Trail.log (trail (tableau), Kill (Row (i))); dead (Array.sub (rlabels (tableau), i)) := true; (match (restriction (l), restriction (l')) with (Some (restr), Some (Restr (_, proof'))) -> unifyRestr (restr, proof') | (Some _, None) -> ((* it is safe to restrict without doing all
                                               the checks in this case, since the two rows
                                               are identical *)
-                                           Trail.log (#trail(tableau), Restrict(pos'));
-                                           #restr(l') := restriction (l)
-                                         )
-                                     | (NONE, _) => ())
-                               )
-                             end
-                         | NONE => ()
-                  else ()
-          in
-            (
-              Array.app killColumn (#clabels(tableau), 0, nCols());
-              Array.app killRow (#rlabels(tableau), 0, nRows())
-            )
-          end
+Trail.log (trail (tableau), Restrict (pos')); restr (l') := restriction (l)) | (None, _) -> ())) ) | None -> () else () in  (Array.app killColumn (clabels (tableau), 0, nCols ()); Array.app killRow (rlabels (tableau), 0, nRows ())) )
+and restrictBB (result)  = match result with BranchFail -> raise (Error) | BranchDivide (row, resultL, BranchFail) -> ( let value = fromInteger (floor (const (row))) in let decomp = (zero, [(one, Row (row))]) in let G = ownerContext (owner (label (Row (row)))) in let _ = restrict (boundLower (G, decomp, value)) in  restrictBB (resultL) ) | BranchDivide (row, BranchFail, resultR) -> ( let value = fromInteger (ceiling (const (row))) in let decomp = (zero, [(one, Row (row))]) in let G = ownerContext (owner (label (Row (row)))) in let _ = restrict (boundUpper (G, decomp, value)) in  restrictBB (resultR) ) | BranchSucceed result -> (match result with Some (row) -> minimizeBB (row) | None -> ()) | _ -> ()
+(* undo function for_sml trailing tableau operations *)
 
-    and restrictBB (result) =
-          case result
-            of BranchFail => raise Error
-             | BranchDivide(row, resultL, BranchFail) =>
-                 let
-                   let value = fromInteger (floor (const (row)))
-                   let decomp = (zero, [(one, Row(row))])
-                   let G = ownerContext(#owner(label(Row(row))))
-                   let _ = restrict (boundLower (G, decomp, value))
-                 in
-                   restrictBB (resultL)
-                 end
-             | BranchDivide(row, BranchFail, resultR) =>
-                 let
-                   let value = fromInteger (ceiling (const (row)))
-                   let decomp = (zero, [(one, Row(row))])
-                   let G = ownerContext(#owner(label(Row(row))))
-                   let _ = restrict (boundUpper (G, decomp, value))
-                 in
-                   restrictBB (resultR)
-                 end
-             | BranchSucceed result =>
-                 (case result
-                    of SOME(row) => minimizeBB (row)
-                     | NONE => ())
-             | _ => ()
+let rec undo = function (Insert (Row (row))) -> (dead (Array.sub (rlabels (tableau), row)) := true; clearArray2Row (coeffs (tableau), row, (0, nCols ())); Array.update (consts (tableau), row, zero); decrNRows ()) | (Insert (Col (col))) -> (dead (Array.sub (clabels (tableau), col)) := true; clearArray2Col (coeffs (tableau), col, (0, nRows ())); decrNCols ()) | (Pivot (row, col)) -> pivot (row, col) | (Kill (pos)) -> dead (label (pos)) := false | (Restrict (pos)) -> restr (label (pos)) := None | (UpdateOwner (pos, owner, tag)) -> setOwnership (pos, owner, tag)
+(* reset the internal status of the tableau *)
 
-    (* undo function for trailing tableau operations *)
-    let rec undo = function (Insert(Row(row))) -> 
-          (
-            #dead(Array.sub (#rlabels(tableau), row)) := true;
-            clearArray2Row (#coeffs(tableau), row, (0, nCols()));
-            Array.update(#consts(tableau), row, zero);
-            decrNRows ()
-          )
-      | (Insert(Col(col))) -> 
-          (
-            #dead(Array.sub (#clabels(tableau), col)) := true;
-            clearArray2Col (#coeffs(tableau), col, (0, nRows()));
-            decrNCols ()
-          )
-      | (Pivot(row, col)) -> 
-          pivot(row, col)
-      | (Kill(pos)) -> 
-          #dead(label(pos)) := false
-      | (Restrict(pos)) -> 
-          #restr(label(pos)) := NONE
-      | (UpdateOwner(pos, owner, tag)) -> 
-          setOwnership (pos, owner, tag)
+let rec reset ()  = ( let l = {owner = Exp (Null, Sum (zero_int, [])); tag = ref 0; restr = ref None; dead = ref true} in  (Array.modify (fun _ -> l) (rlabels (tableau), 0, nRows ()); Array.modify (fun _ -> l) (clabels (tableau), 0, nCols ()); Array.modify (fun _ -> zero) (consts (tableau), 0, nRows ()); Array2.modify Array2.RowMajor (fun _ -> zero) {base = coeffs (tableau); row = 0; col = 0; nrows = nRows (); ncols = nCols ()}; nrows (tableau) := 0; ncols (tableau) := 0; Trail.reset (trail (tableau))) )
+(* trailing functions *)
 
-    (* reset the internal status of the tableau *)
-    let rec reset () =
-          let
-            let l = {owner = Exp (Null, sum(zero_int, nil)), tag = ref 0,
-                     restr = ref NONE, dead = ref true}
-          in
-            (
-               Array.modify
-                 (fun _ -> l)
-                 (#rlabels(tableau), 0, nRows());
-               Array.modify
-                 (fun _ -> l)
-                 (#clabels(tableau), 0, nCols());
-               Array.modify
-                 (fun _ -> zero)
-                 (#consts(tableau), 0, nRows());
-               Array2.modify
-                 Array2.RowMajor (fun _ -> zero)
-                 {base = #coeffs(tableau), row = 0, col = 0,
-                  nrows = nRows(), ncols = nCols()};
-               #nrows(tableau) := 0; #ncols(tableau) := 0;
-               Trail.reset (#trail(tableau))
-            )
-          end
+let rec mark ()  = Trail.mark (trail (tableau))
+let rec unwind ()  = Trail.unwind (trail (tableau), undo)
+(* fst (S, s) = U1, the first argument in S[s] *)
 
-    (* trailing functions *)
-    let rec mark () =
-          Trail.mark (#trail(tableau))
+let rec fst = function (App (U1, _), s) -> (U1, s) | (SClo (S, s'), s) -> fst (S, comp (s', s))
+(* snd (S, s) = U2, the second argument in S[s] *)
 
-    let rec unwind () =
-          Trail.unwind (#trail(tableau), undo)
+let rec snd = function (App (U1, S), s) -> fst (S, s) | (SClo (S, s'), s) -> snd (S, comp (s', s))
+(* checks if the given foreign term can be simplified to a constant *)
 
-    (* fst (S, s) = U1, the first argument in S[s] *)
-    let rec fst = function (App (U1, _), s) -> (U1, s)
-      | (SClo (S, s'), s) -> fst (S, comp (s', s))
+let rec isConstantExp (U)  = (match (fromExp (U, id)) with (Sum (m, [])) -> Some (m) | _ -> None)
+(* checks if the given foreign term can be simplified to zero *)
 
-    (* snd (S, s) = U2, the second argument in S[s] *)
-    let rec snd = function (App (U1, S), s) -> fst (S, s)
-      | (SClo (S, s'), s) -> snd (S, comp (s', s))
+let rec isZeroExp (U)  = (match isConstantExp (U) with Some (d) -> (d = zero_int) | None -> false)
+(* solveGeq (G, S, n) tries to find the n-th solution to G |- '>=' @ S : type *)
 
-    (* checks if the given foreign term can be simplified to a constant *)
-    let rec isConstantExp (U) =
-          (case (fromExp (U, id))
-             of (sum(m, nil)) => SOME(m)
-              | _ => NONE)
+let rec solveGeq = function (G, S, 0) -> ( let rec solveGeq0 (W)  = match isConstantExp (W) with Some (d) -> if Integers.>= (d, zero_int) then geqNExp (d) else raise (Error) | None -> ( let proof = newEVar (G, geq0 (W)) in let _ = restrictBB (exploreBB (insert (G, (W, id)), Restr (G, proof))) in  proof ) in let U1 = EClo (fst (S, id)) in let U2 = EClo (snd (S, id)) in  try (if isZeroExp (U2) then Some (solveGeq0 (U1)) else ( let W = minus (U1, U2) in let proof = solveGeq0 (W) in  Some (geqAdd (W, constant (zero_int), U2, proof)) )) with Error -> None ) | (G, S, n) -> None
+(* constructors for_sml higher-order types *)
 
-    (* checks if the given foreign term can be simplified to zero *)
-    let rec isZeroExp (U) =
-          (case isConstantExp (U)
-             of SOME(d) => (d = zero_int)
-              | NONE => false)
+let rec pi (name, U, V)  = Pi ((Dec (Some (name), U), Maybe), V)
+let rec arrow (U, V)  = Pi ((Dec (None, U), No), V)
+let rec installFgnCnstrOps ()  = ( let csid = ! myID in let _ = FgnCnstrStd.ToInternal.install (csid, (fun (MyFgnCnstrRep tag) -> toInternal (tag) | fc -> raise (UnexpectedFgnCnstr fc))) in let _ = FgnCnstrStd.Awake.install (csid, (fun (MyFgnCnstrRep tag) -> awake (tag) | fc -> raise (UnexpectedFgnCnstr fc))) in let _ = FgnCnstrStd.Simplify.install (csid, (fun (MyFgnCnstrRep tag) -> simplify (tag) | fc -> raise (UnexpectedFgnCnstr fc))) in  () )
+(* install the signature *)
 
-    (* solveGeq (G, S, n) tries to find the n-th solution to G |- '>=' @ S : type *)
-    let rec solveGeq = function (G, S, 0) -> 
-          let
-            let rec solveGeq0 (W) =
-                  case isConstantExp (W)
-                    of SOME(d) =>
-                         if Integers.>=(d, zero_int)
-                         then geqNExp (d)
-                         else raise Error
-                     | NONE =>
-                         let
-                           let proof = newEVar (G, geq0 (W))
-                           let _ = restrictBB (exploreBB (insert (G, (W, id)),
-                                                           Restr (G, proof)))
-                         in
-                           proof
-                         end
+let rec init (cs, installF)  = (myID := cs; geqID := installF (ConDec (">=", None, 0, Constraint (! myID, solveGeq), arrow (number (), arrow (number (), Uni (Type))), Kind), Some (FX.Infix (FX.minPrec, FX.None)), [MS.Mapp (MS.Marg (MS.Star, None), MS.Mapp (MS.Marg (MS.Star, None), MS.Mnil))]); geqAddID := installF (ConDec ("+>=", None, 2, Normal, pi ("X", number (), pi ("Y", number (), pi ("Z", number (), arrow (geq (Root (BVar 3, Nil), Root (BVar 2, Nil)), geq (plus (Root (BVar 4, Nil), Root (BVar 2, Nil)), plus (Root (BVar 3, Nil), Root (BVar 2, Nil))))))), Type), None, []); installFgnCnstrOps (); ())
+let solver = ({name = ("inequality/integers"); keywords = "arithmetic,inequality"; needs = ["Unify"; name (CSEqIntegers.solver)]; fgnConst = Some ({parse = parseGeqN}); init = init; reset = reset; mark = mark; unwind = unwind} : CSManager.solver)
+ end
 
-            let U1 = EClo (fst (S, id))
-            let U2 = EClo (snd (S, id))
-          in
-            (
-              if isZeroExp (U2)
-              then SOME(solveGeq0 (U1))
-              else
-                let
-                  let W = minus (U1, U2)
-                  let proof = solveGeq0 (W)
-                in
-                  SOME(geqAdd (W, constant (zero_int), U2, proof))
-                end
-            ) handle Error => NONE
-          end
-      | (G, S, n) -> NONE
+(* functor CSIneqIntegers *)
 
-    (* constructors for higher-order types *)
-    let rec pi (name, U, V) = Pi ((Dec (SOME(name), U), Maybe), V)
-    let rec arrow (U, V) = Pi ((Dec (NONE, U), No), V)
-
-    let rec installFgnCnstrOps () = let
-        let csid = !myID
-        let _ = FgnCnstrStd.ToInternal.install (csid,
-                                                (fn (MyFgnCnstrRep tag) => toInternal (tag)
-                                                  | fc => raise UnexpectedFgnCnstr fc))
-        let _ = FgnCnstrStd.Awake.install (csid,
-                                           (fn (MyFgnCnstrRep tag) => awake (tag)
-                                             | fc => raise UnexpectedFgnCnstr fc))
-        let _ = FgnCnstrStd.Simplify.install (csid,
-                                              (fn (MyFgnCnstrRep tag) => simplify (tag)
-                                                | fc => raise UnexpectedFgnCnstr fc))
-    in
-        ()
-    end
-
-    (* install the module type *)
-    let rec init (cs, installF) =
-          (
-            myID := cs;
-
-            geqID :=
-              installF (ConDec (">=", NONE, 0,
-                                Constraint (!myID, solveGeq),
-                                arrow (number (), arrow (number (), Uni (Type))), Kind),
-                        SOME(FX.Infix(FX.minPrec, FX.None)),
-                        [MS.Mapp(MS.Marg(MS.Star, NONE),
-                                MS.Mapp(MS.Marg(MS.Star, NONE), MS.Mnil))]);
-
-            geqAddID :=
-              installF (ConDec ("+>=", NONE, 2, Normal,
-                                pi ("X", number(),
-                                    pi ("Y", number(),
-                                        pi ("Z", number(),
-                                            arrow (geq (Root (BVar 3, Nil),
-                                                        Root (BVar 2, Nil)),
-                                                   geq (plus (Root (BVar 4, Nil),
-                                                              Root (BVar 2, Nil)),
-                                                        plus (Root (BVar 3, Nil),
-                                                              Root (BVar 2, Nil))))))),
-                                Type),
-                        NONE, nil);
-
-            installFgnCnstrOps ();
-            ()
-          )
-  in
-    let solver =
-          {
-            name = ("inequality/integers"),
-            keywords = "arithmetic,inequality",
-            needs = ["Unify", #name(CSEqIntegers.solver)],
-
-            fgnConst = SOME({parse = parseGeqN}),
-
-            init = init,
-
-            reset  = reset,
-            mark   = mark,
-            unwind = unwind
-          } : CSManager.solver
-  end
-end  (* functor CSIneqIntegers *)

@@ -1,12 +1,18 @@
 (* Global parameters *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type MTPGLOBAL =
-sig
-  type proverType = New | Old
 
-  val prover : ProverType ref
+module type MTPGLOBAL = sig
+  type proverType = New | Old
+  val prover : proverType ref
   val maxFill : int ref
   val maxSplit : int ref
   val maxRecurse : int ref
-end;; (* module type MTPGLOBAL *)
+
+end
+
+
+(* signature MTPGLOBAL *)
+

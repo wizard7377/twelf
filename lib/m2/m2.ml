@@ -1,166 +1,47 @@
-module MetaSyn = 
-  MetaSyn ((*! module IntSyn' = IntSyn !*)
-	   module Whnf = Whnf);
+module MetaSyn = MetaSyn (struct module Whnf = Whnf end)
 
-module MetaAbstract = 
-  MetaAbstract (module Global = Global
-                module MetaSyn' = MetaSyn
-		module MetaGlobal = MetaGlobal
-		module Abstract = Abstract
-		module ModeTable = ModeTable
-		module Whnf = Whnf
-		module Print = Print
-		module Constraints = Constraints
-		module Unify = UnifyNoTrail
-		module Names = Names
-		module TypeCheck = TypeCheck
-		module Subordinate = Subordinate
-                (*! module CSManager = CSManager !*)
-		  );
 
-module MetaPrint = 
-  MetaPrint (module Global = Global
-	     module MetaSyn' = MetaSyn
-	     module Formatter = Formatter
-	     module Print = Print
-	     module ClausePrint = ClausePrint);
+module MetaAbstract = MetaAbstract (struct module Global = Global end) (struct module MetaSyn' = MetaSyn end) (struct module MetaGlobal = MetaGlobal end) (struct module Abstract = Abstract end) (struct module ModeTable = ModeTable end) (struct module Whnf = Whnf end) (struct module Print = Print end) (struct module Constraints = Constraints end) (struct module Unify = UnifyNoTrail end) (struct module Names = Names end) (struct module TypeCheck = TypeCheck end) (struct module Subordinate = Subordinate end)
 
-module Init = 
-  Init (module MetaSyn' = MetaSyn
-	module MetaAbstract = MetaAbstract);
 
-module OLDSearch = 
-  OLDSearch (module MetaGlobal = MetaGlobal
-	  module Conv = Conv
-	  module MetaSyn' = MetaSyn
-	  (*! module CompSyn' = CompSyn !*)
-	  module Compile = Compile
-	  module Whnf = Whnf
-	  module Unify = UnifyTrail
-	  module Index = IndexSkolem
-	  (* module Assign = Assign *)
-	  module CPrint = CPrint
-	  module Print = Print
-	  module Names = Names
-          (*! module CSManager = CSManager !*)
-	    );
+module MetaPrint = MetaPrint (struct module Global = Global end) (struct module MetaSyn' = MetaSyn end) (struct module Formatter = Formatter end) (struct module Print = Print end) (struct module ClausePrint = ClausePrint end)
 
-module Lemma =
-  Lemma (module MetaSyn' = MetaSyn
-	 module MetaAbstract = MetaAbstract);
 
-module Splitting =
-  Splitting (module Global = Global
-	     module MetaSyn' = MetaSyn
-	     module MetaPrint = MetaPrint
-	     module MetaAbstract = MetaAbstract
-	     module Whnf = Whnf
-	     module ModeTable = ModeTable
-	     module Index = Index
-	     module Print = Print
-	     module Unify = UnifyTrail
-             (*! module CSManager = CSManager !*)
-	       );
+module Init = Init (struct module MetaSyn' = MetaSyn end) (struct module MetaAbstract = MetaAbstract end)
 
-module Filling =
-  Filling (module Global = Global
-	   module MetaSyn' = MetaSyn
-	   module MetaAbstract = MetaAbstract
-	   module Print = Print
-	   module Search = OLDSearch
-	   module Whnf = Whnf);
 
-module Recursion =
-  Recursion (module Global = Global
-	     module MetaSyn' = MetaSyn
-	     module MetaPrint = MetaPrint
-	     module Whnf = Whnf
-	     module Unify = UnifyTrail
-	     module Conv = Conv
-	     module Names = Names
-	     module Print = Print
-	     module Subordinate = Subordinate
-	     module Order = Order
-	     module ModeTable = ModeTable
-	     module MetaAbstract = MetaAbstract
-	     module Lemma = Lemma
-	     module Filling = Filling
-	     module Formatter = Formatter
-             (*! module CSManager = CSManager !*)
-	       );
+module OLDSearch = OLDSearch (struct module MetaGlobal = MetaGlobal end) (struct module Conv = Conv end) (struct module MetaSyn' = MetaSyn end) (struct module Compile = Compile end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Index = IndexSkolem end) (struct module CPrint = CPrint end) (struct module Print = Print end) (struct module Names = Names end)
 
-module Qed = 
-  Qed (module Global = Global
-       module MetaSyn' = MetaSyn);
 
-module StrategyFRS = 
-  StrategyFRS (module MetaGlobal = MetaGlobal
-	       module MetaSyn' = MetaSyn
-	       module MetaAbstract = MetaAbstract 
-	       module Lemma = Lemma
-	       module Filling = Filling
-	       module Recursion = Recursion
-	       module Splitting = Splitting
-	       module Qed = Qed
-	       module MetaPrint = MetaPrint
-	       module Timers = Timers);
+module Lemma = Lemma (struct module MetaSyn' = MetaSyn end) (struct module MetaAbstract = MetaAbstract end)
 
-module StrategyRFS = 
-  StrategyRFS (module MetaGlobal = MetaGlobal
-	       module MetaSyn' = MetaSyn
-	       module MetaAbstract = MetaAbstract 
-	       module Lemma = Lemma
-	       module Filling = Filling
-	       module Recursion = Recursion
-	       module Splitting = Splitting
-	       module Qed = Qed
-	       module MetaPrint = MetaPrint
-	       module Timers = Timers);
 
-module Strategy = 
-  Strategy (module MetaGlobal = MetaGlobal
-	    module MetaSyn' = MetaSyn
-	    module StrategyFRS = StrategyFRS
-	    module StrategyRFS = StrategyRFS);
+module Splitting = Splitting (struct module Global = Global end) (struct module MetaSyn' = MetaSyn end) (struct module MetaPrint = MetaPrint end) (struct module MetaAbstract = MetaAbstract end) (struct module Whnf = Whnf end) (struct module ModeTable = ModeTable end) (struct module Index = Index end) (struct module Print = Print end) (struct module Unify = UnifyTrail end)
 
-module Prover = 
-  Prover (module MetaGlobal = MetaGlobal
-	  module MetaSyn' = MetaSyn
-	  module MetaAbstract = MetaAbstract 
-	  module MetaPrint = MetaPrint
-	  module Filling = Filling
-	  module Splitting = Splitting
-	  module Recursion = Recursion
-	  module Init = Init
-	  module Strategy = Strategy
-	  module Qed = Qed
-	  module Names = Names
-	  module Timers = Timers);
 
-module Mpi = 
-  Mpi (module MetaGlobal = MetaGlobal
-       module MetaSyn' = MetaSyn
-       module MetaAbstract = MetaAbstract 
-       module Init = Init
-       module Lemma = Lemma
-       module Filling = Filling
-       module Recursion = Recursion
-       module Splitting = Splitting
-       module Strategy = Strategy
-       module Qed = Qed
-       module MetaPrint = MetaPrint
-       module Names = Names
-       module Timers = Timers
-       module Ring = Ring);
+module Filling = Filling (struct module Global = Global end) (struct module MetaSyn' = MetaSyn end) (struct module MetaAbstract = MetaAbstract end) (struct module Print = Print end) (struct module Search = OLDSearch end) (struct module Whnf = Whnf end)
 
-module Skolem = 
-  Skolem (module Global = Global
-          (*! module IntSyn' = IntSyn !*)
-	  module Whnf = Whnf
-	  module Abstract = Abstract
-	  module IndexSkolem = IndexSkolem
-	  module ModeTable = ModeTable
-	  module Print = Print
-	  module Timers = Timers
-	  module Compile = Compile
-	  module Names = Names);
+
+module Recursion = Recursion (struct module Global = Global end) (struct module MetaSyn' = MetaSyn end) (struct module MetaPrint = MetaPrint end) (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Conv = Conv end) (struct module Names = Names end) (struct module Print = Print end) (struct module Subordinate = Subordinate end) (struct module Order = Order end) (struct module ModeTable = ModeTable end) (struct module MetaAbstract = MetaAbstract end) (struct module Lemma = Lemma end) (struct module Filling = Filling end) (struct module Formatter = Formatter end)
+
+
+module Qed = Qed (struct module Global = Global end) (struct module MetaSyn' = MetaSyn end)
+
+
+module StrategyFRS = StrategyFRS (struct module MetaGlobal = MetaGlobal end) (struct module MetaSyn' = MetaSyn end) (struct module MetaAbstract = MetaAbstract end) (struct module Lemma = Lemma end) (struct module Filling = Filling end) (struct module Recursion = Recursion end) (struct module Splitting = Splitting end) (struct module Qed = Qed end) (struct module MetaPrint = MetaPrint end) (struct module Timers = Timers end)
+
+
+module StrategyRFS = StrategyRFS (struct module MetaGlobal = MetaGlobal end) (struct module MetaSyn' = MetaSyn end) (struct module MetaAbstract = MetaAbstract end) (struct module Lemma = Lemma end) (struct module Filling = Filling end) (struct module Recursion = Recursion end) (struct module Splitting = Splitting end) (struct module Qed = Qed end) (struct module MetaPrint = MetaPrint end) (struct module Timers = Timers end)
+
+
+module Strategy = Strategy (struct module MetaGlobal = MetaGlobal end) (struct module MetaSyn' = MetaSyn end) (struct module StrategyFRS = StrategyFRS end) (struct module StrategyRFS = StrategyRFS end)
+
+
+module Prover = Prover (struct module MetaGlobal = MetaGlobal end) (struct module MetaSyn' = MetaSyn end) (struct module MetaAbstract = MetaAbstract end) (struct module MetaPrint = MetaPrint end) (struct module Filling = Filling end) (struct module Splitting = Splitting end) (struct module Recursion = Recursion end) (struct module Init = Init end) (struct module Strategy = Strategy end) (struct module Qed = Qed end) (struct module Names = Names end) (struct module Timers = Timers end)
+
+
+module Mpi = Mpi (struct module MetaGlobal = MetaGlobal end) (struct module MetaSyn' = MetaSyn end) (struct module MetaAbstract = MetaAbstract end) (struct module Init = Init end) (struct module Lemma = Lemma end) (struct module Filling = Filling end) (struct module Recursion = Recursion end) (struct module Splitting = Splitting end) (struct module Strategy = Strategy end) (struct module Qed = Qed end) (struct module MetaPrint = MetaPrint end) (struct module Names = Names end) (struct module Timers = Timers end) (struct module Ring = Ring end)
+
+
+module Skolem = Skolem (struct module Global = Global end) (struct module Whnf = Whnf end) (struct module Abstract = Abstract end) (struct module IndexSkolem = IndexSkolem end) (struct module ModeTable = ModeTable end) (struct module Print = Print end) (struct module Timers = Timers end) (struct module Compile = Compile end) (struct module Names = Names end)
+

@@ -1,54 +1,51 @@
 (* Now in intsyn.fun *)
+
+
 (*
-module IntSyn =
-  IntSyn (module Global = Global);
+structure IntSyn =
+  IntSyn (structure Global = Global);
 *)
+
 
 (* Now in tomega.sml *)
+
+
 (*
-module Whnf =
-  Whnf ((*! module IntSyn' = IntSyn !*));
+structure Whnf =
+  Whnf ((*! structure IntSyn' = IntSyn !*));
 
-module Conv =
-  Conv ((*! module IntSyn' = IntSyn !*)
-	module Whnf = Whnf);
+structure Conv =
+  Conv ((*! structure IntSyn' = IntSyn !*)
+	structure Whnf = Whnf);
 
-(Tomega : TOMEGA) =
-   Tomega (module IntSyn' = IntSyn
-	   module Whnf = Whnf
-	   module Conv = Conv)
+structure Tomega : TOMEGA =
+   Tomega (structure IntSyn' = IntSyn
+	   structure Whnf = Whnf
+	   structure Conv = Conv)
 *)
 
-module Constraints =
-  Constraints ((*! module IntSyn' = IntSyn !*)
-	       module Conv = Conv);
 
-module UnifyNoTrail =
-  Unify ((*! module IntSyn' = IntSyn !*)
-	 module Whnf = Whnf
-	 module Trail = NoTrail);
+module Constraints = Constraints (struct module Conv = Conv end)
 
-module UnifyTrail =
-  Unify ((*! module IntSyn' = IntSyn !*)
-	 module Whnf = Whnf
-	 module Trail = Trail);
 
-(* (Normalize : NORMALIZE) =  
-  Normalize ((*! module IntSyn' = IntSyn !*)
-             (*! module Tomega' = Tomega !*)
-             module Whnf = Whnf)
+module UnifyNoTrail = Unify (struct module Whnf = Whnf end) (struct module Trail = NoTrail end)
+
+
+module UnifyTrail = Unify (struct module Whnf = Whnf end) (struct module Trail = Trail end)
+
+
+(* structure Normalize : NORMALIZE =  
+  Normalize ((*! structure IntSyn' = IntSyn !*)
+             (*! structure Tomega' = Tomega !*)
+             structure Whnf = Whnf)
  *)
 
-module Match = 
-  Match (module Whnf = Whnf
-	 module Unify = UnifyTrail
-	 module Trail = Trail);
 
-module Abstract =
-  Abstract (module Whnf = Whnf
-	    module Constraints = Constraints
-	    module Unify = UnifyNoTrail);
+module Match = Match (struct module Whnf = Whnf end) (struct module Unify = UnifyTrail end) (struct module Trail = Trail end)
 
-module Approx =
-  Approx ((*! module IntSyn' = IntSyn !*)
-          module Whnf = Whnf);
+
+module Abstract = Abstract (struct module Whnf = Whnf end) (struct module Constraints = Constraints end) (struct module Unify = UnifyNoTrail end)
+
+
+module Approx = Approx (struct module Whnf = Whnf end)
+

@@ -1,11 +1,16 @@
 (* Initialization *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type INIT = 
-sig
+
+module type INIT = sig
   module MetaSyn : METASYN
-
   exception Error of string
-
   val init : IntSyn.cid list -> MetaSyn.state list
-end;; (* module type INIT *)
+
+end
+
+
+(* signature INIT *)
+

@@ -1,5 +1,2 @@
-module TabledSyn = 
-  TabledSyn ((*! module IntSyn' = IntSyn !*)
-	   module Names = Names
-	   module Table = IntRedBlackTree
-	   module Index = Index);
+module TabledSyn = TabledSyn (struct module Names = Names end) (struct module Table = IntRedBlackTree end) (struct module Index = Index end)
+

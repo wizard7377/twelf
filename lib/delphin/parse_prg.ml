@@ -1,100 +1,35 @@
 (* The Parser *)
+
+
 (* Author: Richard Fontana *)
 
-module Parse  (module DextSyn  : DEXTSYN)
-   (Interface : INTERFACE)
-   (Parserr : PARSERR)
-                     sharing type Parserr.arg = Interface.arg
-                     sharing type Parserr.pos = Interface.pos
-                     sharing type Parserr.result = DextSyn.Ast
-                (Tokens : Delphin_TOKENS)
-                     sharing type Tokens.token = Parserr.Token.token
-                     sharing type Tokens.svalue = Parserr.svalue) : PARSE =
 
-struct
-
-module DextSyn = DextSyn
+module Parse Parserr.argInterface.arg Parserr.posInterface.pos Parserr.resultDextSyn.ast Tokens.tokenParserr.Token.token Tokens.svalueParserr.svalue (DextSyn : DEXTSYN) (Interface : INTERFACE) (Parserr : PARSERR) (Tokens : Delphin_TOKENS) : PARSE = struct module DextSyn = DextSyn
 module Interface = Interface
 module Parserr = Parserr
 module Tokens = Tokens
-module Streamm = Parserr.Streamm
-module Token = Parserr.Token
-
+module Streamm = ParserrStreamm
+module Token = ParserrToken
 (* Given a lexer, invoke parser *)
-let rec invoke lexstream =
-   Parserr.parse(0, lexstream, Interface.error, Interface.nothing)
 
+let rec invoke lexstream  = Parserr.parse (0, lexstream, Interface.error, Interface.nothing)
 (* Parse a named input file *)
-let rec fparse fname =
-   let let _ = Interface.init_line ()
-       let infile = TextIO.openIn(fname)
-       let lexer = Parserr.makeLexer
-           (fun _ -> Compat.inputLine97 infile)
-       let empty = !Interface.line
-       let dummyEOF = Tokens.EOF(empty, empty)
-       let rec loop lexer =
-           let let (result, lexer) = invoke lexer
-               let (nextToken, lexer) = Parserr.Streamm.get lexer
-           in
-              if Parserr.sameToken(nextToken, dummyEOF)
-                 then ()
-              else loop lexer;
-              (* DextSyn.printAst result; *)
-              (* Invoke the term parser on the Term nodes in the
+
+let rec fparse fname  = ( let _ = Interface.init_line () in let infile = TextIO.openIn (fname) in let lexer = Parserr.makeLexer (fun _ -> Compat.inputLine97 infile) in let empty = ! Interface.line in let dummyEOF = Tokens.EOF (empty, empty) in let rec loop lexer  = ( let (result, lexer) = invoke lexer in let (nextToken, lexer) = Parserr.Streamm.get lexer in  if Parserr.sameToken (nextToken, dummyEOF) then () else loop lexer; (* DextSyn.printAst result; *)
+(* Invoke the term parser on the Term nodes in the
                  generated syntax tree *)
-             (* DextSyn.termparse result; *)
-              ()
-           end
-   in loop lexer
-   end
-
-
-let rec sparse () =
-  let
-    let _ = Interface.init_line ()
-    let infile = TextIO.openString (TextIO.input TextIO.stdIn)
-    let lexer = Parserr.makeLexer
-           (fun _ -> Compat.inputLine97 infile)
-    let empty = !Interface.line
-    let dummyEOF = Tokens.EOF(empty, empty)
-    let rec loop lexer =
-      let let (result, lexer) = invoke lexer
-          let (nextToken, lexer) = Parserr.Streamm.get lexer
-       in
-              if Parserr.sameToken(nextToken, dummyEOF)
-                 then (* () *)
-                    result
-              else loop lexer
-       end
-   in loop lexer
-   end
-
-
-
-
-let rec  gparse fname =
-   let let _ = Interface.init_line ()
-       let infile = TextIO.openIn(fname)
-       let lexer = Parserr.makeLexer
-           (fun _ -> Compat.inputLine97 infile)
-       let empty = !Interface.line
-       let dummyEOF = Tokens.EOF(empty, empty)
-       let rec loop lexer =
-           let let (result, lexer) = invoke lexer
-               let (nextToken, lexer) = Parserr.Streamm.get lexer
-           in
-              if Parserr.sameToken(nextToken, dummyEOF)
-                 then (* () *)
-                    result
-              else loop lexer
-              (* DextSyn.printAst result; *)
-              (* Invoke the term parser on the Term nodes in the
+(* DextSyn.termparse result; *)
+() ) in  loop lexer )
+let rec sparse ()  = ( let _ = Interface.init_line () in let infile = TextIO.openString (TextIO.input TextIO.stdIn) in let lexer = Parserr.makeLexer (fun _ -> Compat.inputLine97 infile) in let empty = ! Interface.line in let dummyEOF = Tokens.EOF (empty, empty) in let rec loop lexer  = ( let (result, lexer) = invoke lexer in let (nextToken, lexer) = Parserr.Streamm.get lexer in  if Parserr.sameToken (nextToken, dummyEOF) then (* () *)
+result else loop lexer ) in  loop lexer )
+let rec gparse fname  = ( let _ = Interface.init_line () in let infile = TextIO.openIn (fname) in let lexer = Parserr.makeLexer (fun _ -> Compat.inputLine97 infile) in let empty = ! Interface.line in let dummyEOF = Tokens.EOF (empty, empty) in let rec loop lexer  = ( let (result, lexer) = invoke lexer in let (nextToken, lexer) = Parserr.Streamm.get lexer in  if Parserr.sameToken (nextToken, dummyEOF) then (* () *)
+result else loop lexer(* DextSyn.printAst result; *)
+(* Invoke the term parser on the Term nodes in the
                  generated syntax tree *)
-             (* DextSyn.termparse result; *)
-           (*   ()  *)
-           end
-   in loop lexer
-   end
-end  (* functor Parse *)
+(* DextSyn.termparse result; *)
+(*   ()  *)
+ ) in  loop lexer )
+ end
 
+(* functor Parse *)
 

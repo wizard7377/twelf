@@ -1,38 +1,18 @@
 (* time-limit.sml
  *
- * COPYRIGHT (c) 1993 by AT&T Bell Laboratories.  See COPYRIGHT file for details.
+ * COPYRIGHT (c) 1993 by AT&T Bell Laboratories.  See COPYRIGHT file for_sml details.
  * Modified: Brigitte Pientka
  *)
 
-(TimeLimit : sig)
-    exception TimeOut
-    let timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
-  end = struct
 
-    exception TimeOut
+module TimeLimit : sig
+  exception TimeOut
+  val timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
 
-    let rec timeLimit = function NONE f x -> f x
-      | (SOME t) f x -> 
-      let
-	let _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n")
-	let setitimer = SMLofNJ.IntervalTimer.setIntTimer
+end = struct exception TimeOut
+let rec timeLimit = function (None, f, x) -> f x | ((Some t), f, x) -> ( let _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n") in let setitimer = SMLofNJ.IntervalTimer.setIntTimer in let rec timerOn ()  = ignore (setitimer (Some t)) in let rec timerOff ()  = ignore (setitimer None) in let escapeCont = SMLofNJ.Cont.callcc (fun k -> (SMLofNJ.Cont.callcc (fun k' -> (SMLofNJ.Cont.throw k k')); timerOff (); raise (TimeOut))) in let rec handler _  = escapeCont in  Signals.setHandler (Signals.sigALRM, Signals.HANDLER handler); timerOn (); (try (f x) with ex -> (timerOff (); raise (ex))) before timerOff () )
+ end
 
-	let rec timerOn () = ignore(setitimer (SOME t))
 
-	let rec timerOff () = ignore(setitimer NONE)
+(* TimeLimit *)
 
-	let escapeCont = SMLofNJ.Cont.callcc (fun k -> (
-		SMLofNJ.Cont.callcc (fn k' => (SMLofNJ.Cont.throw k k'));
-		timerOff();
-		raise TimeOut))
-
-	let rec handler _ = escapeCont
-
-      in
-	Signals.setHandler (Signals.sigALRM, Signals.HANDLER handler);
-	timerOn(); 
-	((f x) handle ex => (timerOff(); raise ex))
-	  before timerOff()
-      end
-
-  end; (* TimeLimit *)

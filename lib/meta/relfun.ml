@@ -1,36 +1,17 @@
 (* Converter from relational representation to a functional
    representation of proof terms *)
+
+
 (* Author: Carsten Schuermann *)
 
-module RelFun (Global : GLOBAL)
-                (*! module FunSyn' : FUNSYN !*)
-                (ModeTable : MODETABLE)
-                (*! sharing ModeSyn.IntSyn = FunSyn'.IntSyn !*)
-                (Names : NAMES)
-                (*! sharing Names.IntSyn = FunSyn'.IntSyn !*)
-                (Unify : UNIFY)
-                (*! sharing Unify.IntSyn = FunSyn'.IntSyn !*)
-                (Whnf : WHNF)
-                (*! sharing Whnf.IntSyn = FunSyn'.IntSyn !*)
-                (Weaken : WEAKEN)
-                (*! sharing Weaken.IntSyn = FunSyn'.IntSyn !*)
-                (TypeCheck : TYPECHECK)
-                (*! sharing TypeCheck.IntSyn = FunSyn'.IntSyn !*)
-                (FunWeaken : FUNWEAKEN)
-                (*! sharing FunWeaken.FunSyn = FunSyn' !*)
-                (FunNames : FUNNAMES): RELFUN =
-                (*! sharing FunNames.FunSyn = FunSyn' !*)
-struct
-  (*! module FunSyn = FunSyn' !*)
 
-  exception Error of string
+module RelFun (Global : GLOBAL) (ModeTable : MODETABLE) (Names : NAMES) (Unify : UNIFY) (Whnf : WHNF) (Weaken : WEAKEN) (TypeCheck : TYPECHECK) (FunWeaken : FUNWEAKEN) (FunNames : FUNNAMES) : RELFUN = struct (*! structure FunSyn = FunSyn' !*)
 
-  local
-    module F = FunSyn
-    module I = IntSyn
-    module M = ModeSyn
-
-    (* ctxSub (G, s) = (G', s')
+exception Error of string
+module F = FunSyn
+module I = IntSyn
+module M = ModeSyn
+(* ctxSub (G, s) = (G', s')
 
        Invariant:
        if   Psi |- G ctx
@@ -39,162 +20,79 @@ struct
        and  Psi', G' |- s' : G
        and  G' = G [s],  declarationwise defined
     *)
-    let rec ctxSub = function (I.Null, s) -> (I.Null, s)
-      | (I.Decl (G, D), s) -> 
-        let
-          let (G', s') = ctxSub (G, s)
-        in
-          (I.Decl (G', I.decSub (D, s')), I.dot1 s)
-        end
 
-
-    let rec convertOneFor cid =
-      let
-        let V  = case I.sgnLookup cid
-                   of I.ConDec (name, _, _, _, V, I.Kind) => V
-                    | _ => raise Error "Type Constant declaration expected"
-        let mS = case ModeTable.modeLookup cid
-                   of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
-
-        (* convertFor' (V, mS, w1, w2, n) = (F', F'')
+let rec ctxSub = function (I.Null, s) -> (I.Null, s) | (I.Decl (G, D), s) -> ( let (G', s') = ctxSub (G, s) in  (I.Decl (G', I.decSub (D, s')), I.dot1 s) )
+let rec convertOneFor cid  = ( (* convertFor' (V, mS, w1, w2, n) = (F', F'')
 
            Invariant:
            If   G |- V = {{G'}} type :kind
            and  G |- w1 : G+
            and  G+, G'+, G- |- w2 : G
            and  G+, G'+, G- |- ^n : G+
-           and  mS is a spine for G'
-           then F'  is a formula excepting a another formula as argument s.t.
+           and  mS is a spine for_sml G'
+           then F'  is a formula excepting a another argument s.t.
                 If G+, G'+ |- F formula,
                 then . |- F' F formula
            and  G+, G'+ |- F'' formula
         *)
-        let rec convertFor' = function (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) -> 
-            let
-              let (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n-1)
-            in
-              (fun F -> F.All (F.Prim (Weaken.strengthenDec (D, w1)), F' F), F'')
-            end
-          | (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) -> 
-            let
-              let (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n+1)
-            in
-              (F', F.Ex (I.decSub (D, w2), F''))
-            end
-          | (I.Uni I.Type, M.Mnil, _, _, _) -> 
-              (fun F -> F, F.True)
-          | _ -> raise Error "type family must be +/- moded"
-
-        (* shiftPlus (mS) = s'
+(* shiftPlus (mS) = s'
 
          Invariant:
          s' = ^(# of +'s in mS)
          *)
-
-        let rec shiftPlus mS =
-          let
-            let rec shiftPlus' = function (M.Mnil, n) -> n
-              | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> 
-                  shiftPlus' (mS', n+1)
-              | (M.Mapp (M.Marg (M.Minus, _), mS'), n) -> 
-                  shiftPlus' (mS', n)
-          in
-            shiftPlus' (mS, 0)
-          end
-
-        let n = shiftPlus mS
-        let (F, F') = convertFor' (V, mS, I.id, I.Shift n, n)
-      in
-        F F'
-      end
-
-
-    (* convertFor L = F'
+let V = match I.sgnLookup cid with I.ConDec (name, _, _, _, V, I.Kind) -> V | _ -> raise (Error "Type Constant declaration expected") in let mS = match ModeTable.modeLookup cid with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let rec convertFor' = function (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Plus, _), mS), w1, w2, n) -> ( let (F', F'') = convertFor' (V, mS, I.dot1 w1, I.Dot (I.Idx n, w2), n - 1) in  (fun F -> F.All (F.Prim (Weaken.strengthenDec (D, w1)), F' F), F'') ) | (I.Pi ((D, _), V), M.Mapp (M.Marg (M.Minus, _), mS), w1, w2, n) -> ( let (F', F'') = convertFor' (V, mS, I.comp (w1, I.shift), I.dot1 w2, n + 1) in  (F', F.Ex (I.decSub (D, w2), F'')) ) | (I.Uni I.Type, M.Mnil, _, _, _) -> (fun F -> F, F.True) | _ -> raise (Error "type family must be +/- moded") in let rec shiftPlus mS  = ( let rec shiftPlus' = function (M.Mnil, n) -> n | (M.Mapp (M.Marg (M.Plus, _), mS'), n) -> shiftPlus' (mS', n + 1) | (M.Mapp (M.Marg (M.Minus, _), mS'), n) -> shiftPlus' (mS', n) in  shiftPlus' (mS, 0) ) in let n = shiftPlus mS in let (F, F') = convertFor' (V, mS, I.id, I.Shift n, n) in  F F' )
+(* convertFor L = F'
 
        Invariant:
        If   L is a list of type families
        then F' is the conjunction of the logical interpretation of each
             type family
      *)
-    let rec convertFor = function nil -> raise Error "Empty theorem"
-      | [a] -> convertOneFor a
-      | (a :: L) -> F.And (convertOneFor a, convertFor L)
 
-
-
-    (* occursInExpN (k, U) = B,
+let rec convertFor = function [] -> raise (Error "Empty theorem") | [a] -> convertOneFor a | (a :: L) -> F.And (convertOneFor a, convertFor L)
+(* occursInExpN (k, U) = B,
 
        Invariant:
        If    U in nf
        then  B iff k occurs in U
     *)
-    let rec occursInExpN = function (k, I.Uni _) -> false
-      | (k, I.Pi (DP, V)) -> occursInDecP (k, DP) orelse occursInExpN (k+1, V)
-      | (k, I.Root (H, S)) -> occursInHead (k, H) orelse occursInSpine (k, S)
-      | (k, I.Lam (D, V)) -> occursInDec (k, D) orelse occursInExpN (k+1, V)
-      | (k, I.FgnExp csfe) -> 
-        I.FgnExpStd.fold csfe (fn (U,B) => B orelse occursInExpN (k, Whnf.normalize (U, I.id))) false
-    (* no case for Redex, EVar, EClo *)
 
-
-    and occursInHead (k, I.BVar (k')) = (k = k')
-      | occursInHead (k, I.Const _) = false
-      | occursInHead (k, I.Def _) = false
-      | occursInHead (k, I.FgnConst _) = false
-      (* no case for FVar *)
-
-    and occursInSpine (_, I.Nil) = false
-      | occursInSpine (k, I.App (U, S)) = occursInExpN (k, U) orelse occursInSpine (k, S)
-      (* no case for SClo *)
-
-    and occursInDec (k, I.Dec (_, V)) = occursInExpN (k, V)
-    and occursInDecP (k, (D, _)) = occursInDec (k, D)
-
-    and occursInExp (k, U) = occursInExpN (k, Whnf.normalize (U, I.id))
-
-    (* dot1inv w = w'
+let rec occursInExpN = function (k, I.Uni _) -> false | (k, I.Pi (DP, V)) -> occursInDecP (k, DP) || occursInExpN (k + 1, V) | (k, I.Root (H, S)) -> occursInHead (k, H) || occursInSpine (k, S) | (k, I.Lam (D, V)) -> occursInDec (k, D) || occursInExpN (k + 1, V) | (k, I.FgnExp csfe) -> I.FgnExpStd.fold csfe (fun (U, B) -> B || occursInExpN (k, Whnf.normalize (U, I.id))) false
+and occursInHead = function (k, I.BVar (k')) -> (k = k') | (k, I.Const _) -> false | (k, I.Def _) -> false | (k, I.FgnConst _) -> false
+and occursInSpine = function (_, I.Nil) -> false | (k, I.App (U, S)) -> occursInExpN (k, U) || occursInSpine (k, S)
+and occursInDec (k, I.Dec (_, V))  = occursInExpN (k, V)
+and occursInDecP (k, (D, _))  = occursInDec (k, D)
+and occursInExp (k, U)  = occursInExpN (k, Whnf.normalize (U, I.id))
+(* dot1inv w = w'
 
        Invariant:
        If   G, A |- w : G', A
        then G |- w' : G'
        and  w = 1.w' o ^
     *)
-    let rec dot1inv (w) = Weaken.strengthenSub (I.comp (I.shift, w), I.shift)
 
-    (* shiftinv (w) = w'
+let rec dot1inv (w)  = Weaken.strengthenSub (I.comp (I.shift, w), I.shift)
+(* shiftinv (w) = w'
 
        Invariant:
        If   G, A |- w : G'
        and  1 does not occur in w
        then w  = w' o ^
     *)
-    let rec shiftinv (w) = Weaken.strengthenSub (w, I.shift)
 
-    let rec eqIdx = function (I.Idx(n), I.Idx(k)) -> (n = k)
-      | _ -> false
-
-    let rec peel w =
-      if eqIdx(I.bvarSub (1, w), I.Idx 1) then dot1inv w else shiftinv w
-
-    let rec peeln = function (0, w) -> w
-      | (n, w) -> peeln (n-1, peel w)
-
-
-
-    (* domain (G2, w) = n'
+let rec shiftinv (w)  = Weaken.strengthenSub (w, I.shift)
+let rec eqIdx = function (I.Idx (n), I.Idx (k)) -> (n = k) | _ -> false
+let rec peel w  = if eqIdx (I.bvarSub (1, w), I.Idx 1) then dot1inv w else shiftinv w
+let rec peeln = function (0, w) -> w | (n, w) -> peeln (n - 1, peel w)
+(* domain (G2, w) = n'
 
        Invariant:
        If   G2 |- w: G1   and w weakening substitution
        then n' = |G1|
     *)
-    let rec domain = function (G, I.Dot (I.Idx _, s)) -> domain (G, s) + 1
-      | (I.Null, I.Shift 0) -> 0
-      | (G as I.Decl _, I.Shift 0) -> domain (G, I.Dot (I.Idx 1, I.Shift 1))
-      | (I.Decl (G, _), I.Shift n) -> domain (G, I.Shift (n-1))
 
-
-    (* strenghten (Psi, (a, S), w, m) = (Psi', w')
+let rec domain = function (G, I.Dot (I.Idx _, s)) -> domain (G, s) + 1 | (I.Null, I.Shift 0) -> 0 | (G, I.Shift 0) -> domain (G, I.Dot (I.Idx 1, I.Shift 1)) | (I.Decl (G, _), I.Shift n) -> domain (G, I.Shift (n - 1))
+(* strenghten (Psi, (a, S), w, m) = (Psi', w')
 
        Invariant:
        If   |- Psi ctx
@@ -209,52 +107,7 @@ struct
        where Psi' extends Psi1
     *)
 
-    let rec strengthen (Psi, (a, S), w, m) =
-      let
-        let mS = case ModeTable.modeLookup a
-                   of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
-
-        let rec args = function (I.Nil, M.Mnil) -> nil
-          | (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) -> 
-              let
-                let L = args (S', mS)
-              in
-                (case M.modeEqual (m, m')
-                   of true => U :: L
-                    | false => L)
-              end
-
-
-        let rec strengthenArgs = function (nil, s) -> nil
-          | (U :: L, s) -> 
-              Weaken.strengthenExp (U, s) :: strengthenArgs (L, s)
-
-        let rec occursInArgs = function (n, nil) -> false
-          | (n, U :: L) -> 
-            (occursInExp (n, U) orelse occursInArgs (n, L))
-
-        let rec occursInPsi = function (n, (nil, L)) -> 
-              occursInArgs (n, L)
-          | (n, (F.Prim (I.Dec (_, V)) :: Psi1, L)) -> 
-              occursInExp (n, V) orelse occursInPsi (n+1, (Psi1, L))
-          | (n, (F.Block (F.CtxBlock (l, G)) :: Psi1, L)) -> 
-              occursInG (n, G, fn n' => occursInPsi (n', (Psi1, L)))
-
-        and occursInG (n, I.Null, k) = k n
-          | occursInG (n, I.Decl (G, I.Dec (_, V)), k) =
-              occursInG (n, G, fn n' => occursInExp (n', V) orelse k (n'+ 1))
-
-        let rec occursBlock = function (G, (Psi2, L)) -> 
-          let
-            let rec occursBlock (I.Null, n) = false
-              | (I.Decl (G, D), n) -> 
-                  occursInPsi (n, (Psi2, L)) orelse occursBlock (G, n+1)
-          in
-            occursBlock (G, 1)
-          end
-
-        (* testBlock (G, (bw, w1)) = (bw', w')
+let rec strengthen (Psi, (a, S), w, m)  = ( (* testBlock (G, (bw, w1)) = (bw', w')
 
            Invariant:
            If   |- G ctx
@@ -267,25 +120,7 @@ struct
            and  G1' |- w' : G2
            and  bw' = bw or (G1 =/= G1')
          *)
-        let rec inBlock = function (I.Null, (bw, w1)) -> (bw, w1)
-          | (I.Decl (G, D), (bw, w1)) -> 
-            if eqIdx(I.bvarSub (1, w1), I.Idx 1) then
-              inBlock (G, (true, dot1inv w1))
-            else inBlock (G, (bw, Weaken.strengthenSub (w1, I.shift)))
-
-
-
-
-        let rec blockSub = function (I.Null, w) -> (I.Null, w)
-          | (I.Decl (G, I.Dec (name, V)), w) -> 
-            let
-              let (G', w') = blockSub (G, w)
-              let V' = Weaken.strengthenExp (V, w')
-            in
-              (I.Decl (G', I.Dec (name, V')), I.dot1 w')
-            end
-
-        (* strengthen' (Psi1, Psi2, S, w1) =  (Psi', w')
+(* strengthen' (Psi1, Psi2, S, w1) =  (Psi', w')
 
            Invariant:
            If   |- Psi1 ctx
@@ -299,90 +134,21 @@ struct
                                        and all variables occuring in m
                                        position in S)
         *)
-        let rec strengthen' = function (I.Null, Psi2, L, w1 (* -> I.id *)) = (I.Null, I.id)
-          | (I.Decl (Psi1, LD as F.Prim (I.Dec (name, V))), Psi2, L, w1) -> 
-            let
-              let (bw, w1') = if eqIdx(I.bvarSub (1, w1), I.Idx 1) then (true, dot1inv w1)
-                              else (false, Weaken.strengthenSub (w1, I.shift))
-            in
-              if bw orelse occursInPsi (1, (Psi2, L)) then
-                let
-                  let (Psi1', w') = strengthen' (Psi1, LD :: Psi2, L, w1')
-                  let V' = Weaken.strengthenExp (V, w')
-                in
-                  (I.Decl (Psi1', F.Prim (I.Dec (name, V'))), I.dot1 w')
-                end
-              else
-                let
-                  let w2 = I.shift
-                  let (Psi2', w2') = FunWeaken.strengthenPsi' (Psi2, w2)
-                  let L' = strengthenArgs (L, w2')
-                  let (Psi1'', w') = strengthen' (Psi1, Psi2', L', w1')
-                in
-                  (Psi1'', I.comp (w', I.shift))
-                end
-            end
-          | (I.Decl (Psi1, LD as F.Block (F.CtxBlock (name, G))), Psi2, L, w1) -> 
-            let
-              let (bw, w1') = inBlock (G, (false, w1))
-            in
-              if bw orelse occursBlock (G, (Psi2, L))
-                then
-                  let
-                    let (Psi1', w') = strengthen' (Psi1, LD :: Psi2, L, w1')
-                    let (G'', w'') = blockSub (G, w')
-                  in
-                    (I.Decl (Psi1', F.Block (F.CtxBlock (name, G''))), w'')
-                  end
-              else
-                let
-                  let w2 = I.Shift (I.ctxLength G)
-                  let (Psi2', w2') = FunWeaken.strengthenPsi' (Psi2, w2)
-                  let L' = strengthenArgs (L, w2')
-                in
-                  strengthen' (Psi1, Psi2', L', w1')
-                end
-            end
-
-
-      in
-        strengthen' (Psi, nil, args (S, mS), w)
-      end
-
-
-    let rec recursion L =
-      let
-        let F = convertFor L
-
-        let rec name = function [a] -> I.conDecName (I.sgnLookup a)
-          | (a :: L) -> I.conDecName (I.sgnLookup a) ^ "/" ^ (name L)
-      in
-        fun p -> F.Rec (F.MDec (SOME (name L), F), p)
-      end
-
-
-
-    (* abstract a = P'
+let mS = match ModeTable.modeLookup a with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let rec args = function (I.Nil, M.Mnil) -> [] | (I.App (U, S'), M.Mapp (M.Marg (m', _), mS)) -> ( let L = args (S', mS) in  (match M.modeEqual (m, m') with true -> U :: L | false -> L) ) in let rec strengthenArgs = function ([], s) -> [] | (U :: L, s) -> Weaken.strengthenExp (U, s) :: strengthenArgs (L, s) in let rec occursInArgs = function (n, []) -> false | (n, U :: L) -> (occursInExp (n, U) || occursInArgs (n, L)) in let rec occursInPsi = function (n, ([], L)) -> occursInArgs (n, L) | (n, (F.Prim (I.Dec (_, V)) :: Psi1, L)) -> occursInExp (n, V) || occursInPsi (n + 1, (Psi1, L)) | (n, (F.Block (F.CtxBlock (l, G)) :: Psi1, L)) -> occursInG (n, G, fun n' -> occursInPsi (n', (Psi1, L)))
+and occursInG = function (n, I.Null, k) -> k n | (n, I.Decl (G, I.Dec (_, V)), k) -> occursInG (n, G, fun n' -> occursInExp (n', V) || k (n' + 1)) in let rec occursBlock (G, (Psi2, L))  = ( let rec occursBlock = function (I.Null, n) -> false | (I.Decl (G, D), n) -> occursInPsi (n, (Psi2, L)) || occursBlock (G, n + 1) in  occursBlock (G, 1) ) in let rec inBlock = function (I.Null, (bw, w1)) -> (bw, w1) | (I.Decl (G, D), (bw, w1)) -> if eqIdx (I.bvarSub (1, w1), I.Idx 1) then inBlock (G, (true, dot1inv w1)) else inBlock (G, (bw, Weaken.strengthenSub (w1, I.shift))) in let rec blockSub = function (I.Null, w) -> (I.Null, w) | (I.Decl (G, I.Dec (name, V)), w) -> ( let (G', w') = blockSub (G, w) in let V' = Weaken.strengthenExp (V, w') in  (I.Decl (G', I.Dec (name, V')), I.dot1 w') ) in let rec strengthen' = function (I.Null, Psi2, L, w1(* =  I.id *)
+) -> (I.Null, I.id) | (I.Decl (Psi1, LD), Psi2, L, w1) -> ( let (bw, w1') = if eqIdx (I.bvarSub (1, w1), I.Idx 1) then (true, dot1inv w1) else (false, Weaken.strengthenSub (w1, I.shift)) in  if bw || occursInPsi (1, (Psi2, L)) then ( let (Psi1', w') = strengthen' (Psi1, LD :: Psi2, L, w1') in let V' = Weaken.strengthenExp (V, w') in  (I.Decl (Psi1', F.Prim (I.Dec (name, V'))), I.dot1 w') ) else ( let w2 = I.shift in let (Psi2', w2') = FunWeaken.strengthenPsi' (Psi2, w2) in let L' = strengthenArgs (L, w2') in let (Psi1'', w') = strengthen' (Psi1, Psi2', L', w1') in  (Psi1'', I.comp (w', I.shift)) ) ) | (I.Decl (Psi1, LD), Psi2, L, w1) -> ( let (bw, w1') = inBlock (G, (false, w1)) in  if bw || occursBlock (G, (Psi2, L)) then ( let (Psi1', w') = strengthen' (Psi1, LD :: Psi2, L, w1') in let (G'', w'') = blockSub (G, w') in  (I.Decl (Psi1', F.Block (F.CtxBlock (name, G''))), w'') ) else ( let w2 = I.Shift (I.ctxLength G) in let (Psi2', w2') = FunWeaken.strengthenPsi' (Psi2, w2) in let L' = strengthenArgs (L, w2') in  strengthen' (Psi1, Psi2', L', w1') ) ) in  strengthen' (Psi, [], args (S, mS), w) )
+let rec recursion L  = ( let F = convertFor L in let rec name = function [a] -> I.conDecName (I.sgnLookup a) | (a :: L) -> I.conDecName (I.sgnLookup a) ^ "/" ^ (name L) in  fun p -> F.Rec (F.MDec (Some (name L), F), p) )
+(* abstract a = P'
 
        Invariant:
        If   a is a type family
        and  Sigma (a) = {x1:A1}..{xn:An} type
-       then for all P s.t.
+       then for_sml all P s.t.
             +x1:A1, .., +xn:An; . |- P in [[-x1:A1]] .. [[-xn:An]] true
             . ;. |- (P' P) in [[+x1:A1]] .. [[+xn:An]] [[-x1:A1]] .. [[-xn:An]] true
     *)
-    let rec abstract (a) =
 
-      let
-        let mS = case ModeTable.modeLookup a
-                   of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
-        let V = case I.sgnLookup a
-                   of I.ConDec (name, _, _, _, V, I.Kind) => V
-                    | _ => raise Error "Type Constant declaration expected"
-
-
-        (* abstract' ((V, mS), w) = P'
+let rec abstract (a)  = ( (* abstract' ((V, mS), w) = P'
 
            Invariant:
            If  Sigma (a) = {x1:A1} .. {xn:An} type
@@ -391,21 +157,8 @@ struct
            and  Gamma |- w : Gamma+
            then P' is a Lam abstraction
         *)
-        let rec abstract' = function ((_, M.Mnil), w) -> (fun p -> p)
-          | ((I.Pi ((D, _), V2), M.Mapp (M.Marg (M.Plus, _), mS)), w) -> 
-            let
-              let D' = Weaken.strengthenDec (D, w)
-              let P = abstract' ((V2, mS), I.dot1 w)
-            in
-              fun p -> F.Lam (F.Prim D', P p)
-            end
-          | ((I.Pi (_, V2), M.Mapp (M.Marg (M.Minus, _), mS)), w) -> 
-              abstract' ((V2, mS), I.comp (w, I.shift))
-      in
-        abstract' ((V, mS), I.id)
-      end
-
-    (* transformInit (Psi, (a, S), w1) = (w', s')
+let mS = match ModeTable.modeLookup a with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let V = match I.sgnLookup a with I.ConDec (name, _, _, _, V, I.Kind) -> V | _ -> raise (Error "Type Constant declaration expected") in let rec abstract' = function ((_, M.Mnil), w) -> (fun p -> p) | ((I.Pi ((D, _), V2), M.Mapp (M.Marg (M.Plus, _), mS)), w) -> ( let D' = Weaken.strengthenDec (D, w) in let P = abstract' ((V2, mS), I.dot1 w) in  fun p -> F.Lam (F.Prim D', P p) ) | ((I.Pi (_, V2), M.Mapp (M.Marg (M.Minus, _), mS)), w) -> abstract' ((V2, mS), I.comp (w, I.shift)) in  abstract' ((V, mS), I.id) )
+(* transformInit (Psi, (a, S), w1) = (w', s')
 
        Invariant:
        If   |- Psi ctx
@@ -417,16 +170,8 @@ struct
        and  Psi+ |- s' : Gamma+
        and  x1:A1 .. xn:An |- w: Gamma+    (w weakening substitution)
     *)
-    let rec transformInit (Psi, (a, S), w1) =
-      let
-        let mS = case ModeTable.modeLookup a
-                   of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
-        let V = case I.sgnLookup a
-                   of I.ConDec (name, _, _, _, V, I.Kind) => V
-                    | _ => raise Error "Type Constant declaration expected"
 
-        (* transformInit' ((S, mS), V, (w, s)) = (w', s')
+let rec transformInit (Psi, (a, S), w1)  = ( (* transformInit' ((S, mS), V, (w, s)) = (w', s')
 
            Invariant:
            If   Psi |- S : V > type
@@ -437,32 +182,8 @@ struct
            then x1:A1...xn:An |- w' : +x1:A1... +xn:An
            and  Psi+ |- s' : +x1:A1 .. +xn:An
         *)
-
-        let rec transformInit' = function ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) -> (w, s)
-          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
-                            I.Pi (_, V2), (w, s)) =
-            let
-              let w' = I.comp (w, I.shift)
-              let s' = s
-            in
-              transformInit' ((S, mS), V2, (w', s'))
-            end
-          | transformInit' ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
-                            I.Pi ((I.Dec (name, V1), _), V2), (w, s)) =
-            let
-              let V1' = Weaken.strengthenExp (V1, w)
-              let w' =  I.dot1 w
-              let U' = Weaken.strengthenExp (U, w1)
-              let s' = Whnf.dotEta (I.Exp (U'), s)
-            in
-              transformInit' ((S, mS), V2, (w', s'))
-            end
-      in
-        transformInit' ((S, mS), V, (I.id, I.Shift (F.lfctxLength Psi)))
-      end
-
-
-    (* transformDec (c'', (Psi+-, G0), d, (a, S), w1, w2, t) = (d', w', s', t', Ds)
+let mS = match ModeTable.modeLookup a with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let V = match I.sgnLookup a with I.ConDec (name, _, _, _, V, I.Kind) -> V | _ -> raise (Error "Type Constant declaration expected") in let rec transformInit' = function ((I.Nil, M.Mnil), I.Uni I.Type, (w, s)) -> (w, s) | ((I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)), I.Pi (_, V2), (w, s)) -> ( let w' = I.comp (w, I.shift) in let s' = s in  transformInit' ((S, mS), V2, (w', s')) ) | ((I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)), I.Pi ((I.Dec (name, V1), _), V2), (w, s)) -> ( let V1' = Weaken.strengthenExp (V1, w) in let w' = I.dot1 w in let U' = Weaken.strengthenExp (U, w1) in let s' = Whnf.dotEta (I.Exp (U'), s) in  transformInit' ((S, mS), V2, (w', s')) ) in  transformInit' ((S, mS), V, (I.id, I.Shift (F.lfctxLength Psi))) )
+(* transformDec (c'', (Psi+-, G0), d, (a, S), w1, w2, t) = (d', w', s', t', Ds)
 
        Invariant:
        If   |- Psi ctx
@@ -481,116 +202,30 @@ struct
        and  d' = |Delta'|
     *)
 
-    let rec transformDec (Ts, (Psi, G0), d, (a, S), w1, w2, t0) =
-      let
-        let mS = case ModeTable.modeLookup a
-                   of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
-        let V = case I.sgnLookup a
-                   of I.ConDec (name, _, _, _, V, I.Kind) => V
-                    | _ => raise Error "Type Constant declaration expected"
-
-
-        (* raiseExp (G, U, a) = U'
+let rec transformDec (Ts, (Psi, G0), d, (a, S), w1, w2, t0)  = ( (* raiseExp (G, U, a) = U'
 
            Invariant:
-           If   |- Psi ctx         (for some given Psi)
+           If   |- Psi ctx         (for_sml some given Psi)
            and  Psi |- G ctx
-           and  Psi, G |- U : V    (for some V)
+           and  Psi, G |- U : V    (for_sml some V)
            then Psi, G |- [[G]] U : {{G}} V     (wrt subordination)
         *)
-        let rec raiseExp (G, U, a) =
-          let
-
-            (* raiseExp G = (w', k)
-
-               Invariant:
-               If   |-  Psi ctx
-               and  Psi |- G ctx
-               and  Psi |- G' ctx   which ARE subordinate to a
-               then Psi, G |- w : Psi, G'
-               and  k is a continuation calculuting the right exprssion:
-                    for all U, s.t. Psi, G |- U : V
-                    Psi |- [[G']] U : {{G'}} V
-            *)
-            let rec raiseExp' = function I.Null -> (I.id, fun x -> x)
-              | (I.Decl (G, D as I.Dec (_, V))) -> 
-                let
-                  let (w, k) = raiseExp' G
-                in
-                  if Subordinate.belowEq (I.targetFam V, a) then
-                    (I.dot1 w, fun x -> k (I.Lam (Weaken.strengthenDec (D, w), x)))
-                  else
-                    (I.comp (w, I.shift), k)
-                end
-
-            let (w, k) = raiseExp' G
-          in
-            k (Weaken.strengthenExp (U, w))
-          end
-
-
-        (* raiseType (G, U, a) = U'
+(* raiseType (G, U, a) = U'
 
            Invariant:
-           If   |- Psi ctx         (for some given Psi)
+           If   |- Psi ctx         (for_sml some given Psi)
            and  Psi |- G ctx
-           and  Psi, G |- U : V    (for some V)
+           and  Psi, G |- U : V    (for_sml some V)
            then Psi, G |- [[G]] U : {{G}} V     (wrt subordination)
            and  Psi, G, x:{{G}} V |- x G : V
         *)
-
-        let rec raiseType (G, U, a) =
-          let
-            (* raiseType (G, n) = (w', k, S')
-
-              Invariant:
-              If   |-  Psi ctx
-              and  Psi |- G, Gv ctx
-              and  Psi |- G' ctx   which ARE subordinate to a
-              and  n = |Gv| + 1
-              then Psi, G |- w : Psi, G'
-              and  k is a continuation calculating the right exprssion:
-                   for all U, s.t. Psi, G |- U : V
-                   Psi |- [[G']] U : {{G'}} V
-              and  k' is a continuation calculating the corresponding spine:
-                   for all S, s.t. Psi, G, G0,|- ... refine
-            *)
-            let rec raiseType' = function (I.Null, n) -> (I.id, fun x -> x, fun S -> S)
-              | (I.Decl (G, D as I.Dec (_, V)), n) -> 
-                let
-                  let (w, k, k') = raiseType' (G, n+1)
-                in
-                  if Subordinate.belowEq (I.targetFam V, a) then
-                    (I.dot1 w, fun x -> k (I.Pi ((Weaken.strengthenDec (D, w), I.Maybe), x)),
-                               fun S -> I.App (I.Root (I.BVar n, I.Nil), S))
-                  else
-                    (I.comp (w, I.shift), k, k')
-                end
-
-            let (w, k, k') = raiseType' (G, 2)
-          in
-            (k (Weaken.strengthenExp (U, w)), I.Root (I.BVar 1, k' I.Nil))
-          end
-
-
-        (* exchangeSub (G0) = s'
+(* exchangeSub (G0) = s'
 
            Invariant:
            For some Psi, some G, some V:
            Psi, V, G0 |- s' : Psi, G0, V
         *)
-        let rec exchangeSub (G0) =
-          let
-            let g0 = I.ctxLength G0
-            let rec exchangeSub' = function (0, s) -> s
-              | (k, s) -> exchangeSub' (k-1, I.Dot (I.Idx (k), s))
-          in
-            I.Dot (I.Idx (g0 + 1), exchangeSub' (g0, I.Shift (g0 + 1)))
-          end
-
-
-        (* transformDec' (d, (S, mS), V, (z1, z2), (w, t)) = (d', w', t', (Ds+, Ds-))
+(* transformDec' (d, (S, mS), V, (z1, z2), (w, t)) = (d', w', t', (Ds+, Ds-))
 
            Invariant:
            If   Psi, G0 |- S : V > type
@@ -608,54 +243,7 @@ struct
            and  Psi+- |- t' : Psi+, -x1:{{G0}} A1... -xn:{{G0}} An
            and  d' = |Delta'|
         *)
-        let rec transformDec' = function (d, (I.Nil, M.Mnil), I.Uni I.Type, (z1, z2), (w, t)) -> 
-              (w, t, (d, fn (k, Ds) => Ds k, fun _ -> F.Empty))
-          | transformDec' (d, (I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
-                          I.Pi ((I.Dec (_, V1), DP), V2), (z1, z2), (w, t)) =
-              let
-                let g = I.ctxLength G0
-                let w1' = peeln (g, w1)
-                let (G1, _) = Weaken.strengthenCtx (G0, w1')
-                let (G2, _) = ctxSub (G1, z1)
-                let (V1'', Ur) = raiseType (G2, I.EClo (V1, z2), I.targetFam V1)
-                let w' = (case DP
-                            of I.Maybe => I.dot1 w
-                            |  I.No => I.comp (w, I.shift))
-
-                let U0 = raiseExp (G0, U, I.targetFam V1'')
-                let U' = Weaken.strengthenExp (U0, w2)
-                let t' = Whnf.dotEta (I.Exp (U'), t)
-                let z1' = I.comp (z1, I.shift)
-                let xc  = exchangeSub G0
-                let z2n = I.comp (z2, I.comp (I.shift, xc))
-                let Ur' = I.EClo (Ur, xc)
-                let z2' = Whnf.dotEta (I.Exp (Ur'), z2n)
-                let (w'', t'', (d', Dplus, Dminus)) =
-                  transformDec' (d+1, (S, mS), V2, (z1', z2'), (w', t'))
-              in
-                (w'', t'', (d', Dplus, fun k -> F.Split (k, Dminus 1)))
-              end
-          | transformDec' (d, (I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
-                          I.Pi ((I.Dec (name, V1), _), V2), (z1, z2), (w, t)) =
-            let
-              let V1' = Weaken.strengthenExp (V1, w)
-              let w' =  I.dot1 w
-              let U' = Weaken.strengthenExp (U, w1)
-              let t' = t
-              let z1' = F.dot1n (G0, z1)
-              let z2' = I.Dot (I.Exp (I.EClo (U', z1')), z2)
-              let (w'', t'', (d', Dplus, Dminus)) =
-                transformDec' (d+1, (S, mS), V2, (z1, z2'), (w', t'))
-            in
-              (w'', t'', (d', fn (k, Ds) => F.App ((k, U'), Dplus (1, Ds)), Dminus))
-            end
-
-          let (w'', t'', (d', Dplus, Dminus)) =
-            transformDec' (d, (S, mS), V, (I.id, I.Shift (domain (Psi, t0) + I.ctxLength G0)),
-                           (I.id, t0))
-
-
-          (* head Ts (w, t, (d, Dplus, Dminus)) = (d', w', t', P')
+(* head Ts (w, t, (d, Dplus, Dminus)) = (d', w', t', P')
 
              Invariant:
              If   a not in Ts  then d'= d+1,  P' makes a lemma call
@@ -664,42 +252,33 @@ struct
              then d' = d+i   and P' select ih, and then decomposes is, using
                   (i-1) Rights and 1 Left
           *)
-          let rec varHead Ts (w'', t'', (d', Dplus, Dminus)) =
-            let
-              let rec head' ([a'], d1, k1) = (d1, k1)
-                | head' (a'::Ts', d1, k1) =
-                  if a = a' then
-                    (d1+1, fun xx -> F.Left (xx, (k1 1)))
-                  else
-                    let
-                      let (d2, k2) = head' (Ts', d1+1, k1)
-                    in
-                      (d2, fun xx -> F.Right (xx, (k2 1)))
-                    end
+let mS = match ModeTable.modeLookup a with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let V = match I.sgnLookup a with I.ConDec (name, _, _, _, V, I.Kind) -> V | _ -> raise (Error "Type Constant declaration expected") in let rec raiseExp (G, U, a)  = ( (* raiseExp G = (w', k)
 
-                let (d2, k2) = head' (Ts, d', fun xx -> Dplus (xx, Dminus))
-              in
-                (d2, w'', t'', k2 d)
-              end
+               Invariant:
+               If   |-  Psi ctx
+               and  Psi |- G ctx
+               and  Psi |- G' ctx   which ARE subordinate to a
+               then Psi, G |- w : Psi, G'
+               and  k is a continuation calculuting the right exprssion:
+                    for_sml all U, s.t. Psi, G |- U : V
+                    Psi |- [[G']] U : {{G'}} V
+            *)
+let rec raiseExp' = function I.Null -> (I.id, fun x -> x) | (I.Decl (G, D)) -> ( let (w, k) = raiseExp' G in  if Subordinate.belowEq (I.targetFam V, a) then (I.dot1 w, fun x -> k (I.Lam (Weaken.strengthenDec (D, w), x))) else (I.comp (w, I.shift), k) ) in let (w, k) = raiseExp' G in  k (Weaken.strengthenExp (U, w)) ) in let rec raiseType (G, U, a)  = ( (* raiseType (G, n) = (w', k, S')
 
-
-          let rec lemmaHead (w'', t'', (d', Dplus, Dminus)) =
-            let
-              let name = I.conDecName (I.sgnLookup a)
-              let l = (case (FunNames.nameLookup name)
-                         of NONE => raise Error ("Lemma " ^ name ^ " not defined")
-                       | SOME lemma => lemma)
-            in
-              (d'+1, w'', t'', F.Lemma (l, Dplus (1, Dminus)))
-            end
-
-      in
-        if List.exists (fun x -> x = a) Ts
-          then varHead Ts (w'', t'', (d', Dplus, Dminus))
-        else lemmaHead (w'', t'', (d', Dplus, Dminus))
-      end
-
-    (* transformConc ((a, S), w) = P
+              Invariant:
+              If   |-  Psi ctx
+              and  Psi |- G, Gv ctx
+              and  Psi |- G' ctx   which ARE subordinate to a
+              and  n = |Gv| + 1
+              then Psi, G |- w : Psi, G'
+              and  k is a continuation calculating the right exprssion:
+                   for_sml all U, s.t. Psi, G |- U : V
+                   Psi |- [[G']] U : {{G'}} V
+              and  k' is a continuation calculating the corresponding spine:
+                   for_sml all S, s.t. Psi, G, G0,|- ... refine
+            *)
+let rec raiseType' = function (I.Null, n) -> (I.id, fun x -> x, fun S -> S) | (I.Decl (G, D), n) -> ( let (w, k, k') = raiseType' (G, n + 1) in  if Subordinate.belowEq (I.targetFam V, a) then (I.dot1 w, fun x -> k (I.Pi ((Weaken.strengthenDec (D, w), I.Maybe), x)), fun S -> I.App (I.Root (I.BVar n, I.Nil), S)) else (I.comp (w, I.shift), k, k') ) in let (w, k, k') = raiseType' (G, 2) in  (k (Weaken.strengthenExp (U, w)), I.Root (I.BVar 1, k' I.Nil)) ) in let rec exchangeSub (G0)  = ( let g0 = I.ctxLength G0 in let rec exchangeSub' = function (0, s) -> s | (k, s) -> exchangeSub' (k - 1, I.Dot (I.Idx (k), s)) in  I.Dot (I.Idx (g0 + 1), exchangeSub' (g0, I.Shift (g0 + 1))) ) in let rec transformDec' = function (d, (I.Nil, M.Mnil), I.Uni I.Type, (z1, z2), (w, t)) -> (w, t, (d, fun (k, Ds) -> Ds k, fun _ -> F.Empty)) | (d, (I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)), I.Pi ((I.Dec (_, V1), DP), V2), (z1, z2), (w, t)) -> ( let g = I.ctxLength G0 in let w1' = peeln (g, w1) in let (G1, _) = Weaken.strengthenCtx (G0, w1') in let (G2, _) = ctxSub (G1, z1) in let (V1'', Ur) = raiseType (G2, I.EClo (V1, z2), I.targetFam V1) in let w' = (match DP with I.Maybe -> I.dot1 w | I.No -> I.comp (w, I.shift)) in let U0 = raiseExp (G0, U, I.targetFam V1'') in let U' = Weaken.strengthenExp (U0, w2) in let t' = Whnf.dotEta (I.Exp (U'), t) in let z1' = I.comp (z1, I.shift) in let xc = exchangeSub G0 in let z2n = I.comp (z2, I.comp (I.shift, xc)) in let Ur' = I.EClo (Ur, xc) in let z2' = Whnf.dotEta (I.Exp (Ur'), z2n) in let (w'', t'', (d', Dplus, Dminus)) = transformDec' (d + 1, (S, mS), V2, (z1', z2'), (w', t')) in  (w'', t'', (d', Dplus, fun k -> F.Split (k, Dminus 1))) ) | (d, (I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)), I.Pi ((I.Dec (name, V1), _), V2), (z1, z2), (w, t)) -> ( let V1' = Weaken.strengthenExp (V1, w) in let w' = I.dot1 w in let U' = Weaken.strengthenExp (U, w1) in let t' = t in let z1' = F.dot1n (G0, z1) in let z2' = I.Dot (I.Exp (I.EClo (U', z1')), z2) in let (w'', t'', (d', Dplus, Dminus)) = transformDec' (d + 1, (S, mS), V2, (z1, z2'), (w', t')) in  (w'', t'', (d', fun (k, Ds) -> F.App ((k, U'), Dplus (1, Ds)), Dminus)) ) in let (w'', t'', (d', Dplus, Dminus)) = transformDec' (d, (S, mS), V, (I.id, I.Shift (domain (Psi, t0) + I.ctxLength G0)), (I.id, t0)) in let rec varHead Ts (w'', t'', (d', Dplus, Dminus))  = ( let rec head' = function ([a'], d1, k1) -> (d1, k1) | (a' :: Ts', d1, k1) -> if a = a' then (d1 + 1, fun xx -> F.Left (xx, (k1 1))) else ( let (d2, k2) = head' (Ts', d1 + 1, k1) in  (d2, fun xx -> F.Right (xx, (k2 1))) ) in let (d2, k2) = head' (Ts, d', fun xx -> Dplus (xx, Dminus)) in  (d2, w'', t'', k2 d) ) in let rec lemmaHead (w'', t'', (d', Dplus, Dminus))  = ( let name = I.conDecName (I.sgnLookup a) in let l = (match (FunNames.nameLookup name) with None -> raise (Error ("Lemma " ^ name ^ " not defined")) | Some lemma -> lemma) in  (d' + 1, w'', t'', F.Lemma (l, Dplus (1, Dminus))) ) in  if List.exists (fun x -> x = a) Ts then varHead Ts (w'', t'', (d', Dplus, Dminus)) else lemmaHead (w'', t'', (d', Dplus, Dminus)) )
+(* transformConc ((a, S), w) = P
 
        Invariant:
        If   Sigma (a) = {x1:A1} .. {xn:An} type
@@ -708,35 +287,17 @@ struct
        then P is proof term consisting of all - objects of S,
             defined in PsiAll
     *)
-    let rec transformConc ((a, S), w) =
-      let
-        let mS = case ModeTable.modeLookup a
-                   of NONE => raise Error "Mode declaration expected"
-                    | SOME mS => mS
 
-        let rec transformConc' = function (I.Nil, M.Mnil) -> 
-              F.Unit
-          | (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) -> 
-              transformConc' (S', mS')
-          | (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) -> 
-              F.Inx (Weaken.strengthenExp (U, w), transformConc' (S', mS'))
-      in
-        transformConc' (S, mS)
-      end
-
-
-
-    (* traverse (Ts, c) = L'
+let rec transformConc ((a, S), w)  = ( let mS = match ModeTable.modeLookup a with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let rec transformConc' = function (I.Nil, M.Mnil) -> F.Unit | (I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS')) -> transformConc' (S', mS') | (I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS')) -> F.Inx (Weaken.strengthenExp (U, w), transformConc' (S', mS')) in  transformConc' (S, mS) )
+(* traverse (Ts, c) = L'
 
        Invariant:
        If   Ts is a list of type families
        and  c is a type family which entries are currently traversed
        then L' is a list of cases
     *)
-    let rec traverse (Ts, c) =
-      let
 
-        (* traverseNeg (c'', Psi, (V, v), L) = ([w', d', PQ'], L')    [] means optional
+let rec traverse (Ts, c)  = ( (* traverseNeg (c'', Psi, (V, v), L) = ([w', d', PQ'], L')    [] means optional
 
            Invariant:
            If   Psi0 |- V : type
@@ -749,131 +310,17 @@ struct
            and  d' is the length of Delta
            and  PQ'  is a pair, generating the proof term
         *)
-
-        let rec traverseNeg (c'', Psi, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v), L) =
-            (case traverseNeg (c'', I.Decl (Psi, F.Prim
-                                     (Weaken.strengthenDec (D, v))),
-(*                                   (Names.decName (F.makectx Psi, Weaken.strengthenDec (D, v)))),
-*)                             (V2, I.dot1 v), L)
-               of (SOME (w', d', PQ'), L') => (SOME (peel w', d', PQ'), L')
-                | (NONE, L') => (NONE, L'))
-
-          | traverseNeg (c'', Psi, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), L) =
-            (case traverseNeg (c'', Psi, (V2, I.comp (v, I.shift)), L)
-               of (SOME (w', d', PQ'), L') => traversePos (c'', Psi, I.Null,
-                                                           (Weaken.strengthenExp (V1, v), I.id),
-                                                           SOME (w', d', PQ'), L')
-                | (NONE, L') => traversePos (c'', Psi, I.Null,
-                                             (Weaken.strengthenExp (V1, v), I.id), NONE, L'))
-
-          | traverseNeg (c'', Psi, (V as I.Root (I.Const c', S) , v), L) =
-            if c = c' then
-              let (* Clause head found *)
-                let S' = Weaken.strengthenSpine (S, v)
-                let (Psi', w') = strengthen (Psi, (c', S'), I.Shift (F.lfctxLength Psi), M.Plus)
-                let (w'', s'') = transformInit (Psi', (c', S'), w')
-              in
-                (SOME (w', 1, (fun p -> (Psi', s'', p), fun wf -> transformConc ((c', S'), wf))), L)
-              end
-            else
-              (NONE, L)
-
-        (* traversePos (c, Psi, G, (V, v), [w', d', PQ'], L) =  ([w'', d'', PQ''], L'')
-
-           Invariant:
-           If   Psi, G |- V : type
-           and  Psi, G |- v : Psi'       (s.t.  Psi' |- V[v^-1] : type exists)
-           and V[v^-1] does not contain Skolem constants
-           [ and Psi', G |- w' : Psi''
-             and |Delta'| = d'    for a Delta'
-             and PQ' can generate the proof term so far in Delta'; Psi''
-           ]
-           and  c is the name of the constant currently considered
-           and  L is a list of cases
-           then L'' list of cases and L'' extends L
-           and  Psi |- w'' : Psi2
-           and  |Delta''| = d''  for a Delta'
-           and  PQ'' can genreate the proof term so far in Delta''; Psi2
-        *)
-        and traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v),
-                         SOME (w, d, PQ), L) =
-            (case traversePos (c'', Psi, I.Decl (G, Weaken.strengthenDec (D, v)),
-                               (V2, I.dot1 v),
-                               SOME (I.dot1 w, d, PQ), L)
-               of (SOME (w', d', PQ'), L') => (SOME  (w', d', PQ'), L'))
-          | traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), SOME (w, d, PQ), L) =
-            (case traversePos (c'', Psi, G, (V2, I.comp (v, I.shift)), SOME (w, d, PQ), L)
-               of (SOME (w', d', PQ'), L') =>
-                 (case traverseNeg (c'', I.Decl (Psi, F.Block (F.CtxBlock (NONE, G))),
-                                    (V1, v), L')
-                    of (SOME (w'', d'', (P'', Q'')), L'') => (SOME (w', d', PQ'), (P'' (Q'' w'')) :: L'')
-                     | (NONE, L'') => (SOME (w', d', PQ'), L'')))
-
-          | traversePos (c'', Psi, I.Null, (V, v), SOME (w1, d, (P, Q)), L) =
-            let (* Lemma calls (no context block) *)
-              let I.Root (I.Const a', S) = Whnf.normalize (Weaken.strengthenExp (V, v), I.id)
-              let (Psi', w2) = strengthen (Psi, (a', S), w1, M.Minus)
-
-              let _ = if !Global.doubleCheck
-                        then TypeCheck.typeCheck (F.makectx Psi', (I.Uni I.Type, I.Uni I.Kind))
-                      else ()    (* provide typeCheckCtx from typecheck *)
-              let w3 = Weaken.strengthenSub (w1, w2)
-              let (d4, w4, t4, Ds) = transformDec (Ts, (Psi', I.Null), d, (a', S), w1, w2, w3)
-            in
-              (SOME (w2, d4, (fun p -> P (F.Let (Ds,
-                                       F.Case (F.Opts [(Psi', t4, p)]))), Q)), L)
-            end
-          | traversePos (c'', Psi, G, (V, v), SOME (w1, d, (P, Q)), L) =
-            let (* Lemma calls (under a context block) *)
-              let I.Root (I.Const a', S) = Weaken.strengthenExp (V, v)
-              let (dummy as I.Decl (Psi', F.Block (F.CtxBlock (name, G2))), w2) =
-                    strengthen (I.Decl (Psi, F.Block (F.CtxBlock (NONE, G))),
-                                            (a', S), w1, M.Minus)
-              let _ = if !Global.doubleCheck
-                        then TypeCheck.typeCheck (F.makectx dummy, (I.Uni I.Type, I.Uni I.Kind))
-                      else ()   (* provide typeCheckCtx from typecheck *)
-              let g = I.ctxLength G
-              let w1' = peeln (g, w1)
-              let w2' = peeln (g, w2)  (* change w1 to w1' and w2 to w2' below *)
-              let (G1, _) = Weaken.strengthenCtx (G, w1')
-              let w3 = Weaken.strengthenSub (w1', w2')
-              let (d4, w4, t4, Ds) = transformDec (Ts, (Psi', G), d, (a', S), w1, w2', w3)
-            in
-              (SOME (w2', d4, (fun p -> P (F.Let (F.New (F.CtxBlock (NONE, G1), Ds),
-                                       F.Case (F.Opts [(Psi', t4, p)]))), Q)), L)
-            end
-
-          | traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.Maybe), V2), v), NONE, L) =
-              traversePos (c'', Psi, I.Decl (G, Weaken.strengthenDec (D, v)),
-                               (V2, I.dot1 v),
-                               NONE, L)
-
-          | traversePos (c'', Psi, G, (I.Pi ((D as I.Dec (_, V1), I.No), V2), v), NONE, L) =
-            (case traversePos (c'', Psi, G, (V2, I.comp (v, I.shift)), NONE, L)
-               of (NONE, L') =>
-                 (case traverseNeg (c'', I.Decl (Psi, F.Block (F.CtxBlock (NONE, G))),
-                                    (V1, v), L')
-                    of (SOME (w'', d'', (P'', Q'')), L'') => (NONE, (P'' (Q'' w'')) :: L'')
-                     | (NONE, L'') => (NONE, L'')))
-
-          | traversePos (c'', Psi, G, (V, v), NONE, L) =
-            (NONE, L)
-
-        let rec traverseSig' (c'', L) =
-          if c'' = #1 (I.sgnSize ()) then L
-          else
-            (case I.sgnLookup (c'')
-               of I.ConDec (name, _, _, _, V, I.Type) =>
-                 (case traverseNeg (c'', I.Null, (V, I.id), L)
-                    of (SOME (wf, d', (P', Q')), L') =>  traverseSig' (c''+1, (P' (Q' wf)) :: L')
-                     | (NONE, L') => traverseSig' (c''+1, L'))
-             | _ => traverseSig' (c''+1, L))
-      in
-        traverseSig' (0, nil)
-      end
-
-
-    (* convertPro Ts = P'
+let rec traverseNeg = function (c'', Psi, (I.Pi ((D, I.Maybe), V2), v), L) -> (match traverseNeg (c'', I.Decl (Psi, F.Prim (Weaken.strengthenDec (D, v)))(*                                   (Names.decName (F.makectx Psi, Weaken.strengthenDec (D, v)))),
+*)
+, (V2, I.dot1 v), L) with (Some (w', d', PQ'), L') -> (Some (peel w', d', PQ'), L') | (None, L') -> (None, L')) | (c'', Psi, (I.Pi ((D, I.No), V2), v), L) -> (match traverseNeg (c'', Psi, (V2, I.comp (v, I.shift)), L) with (Some (w', d', PQ'), L') -> traversePos (c'', Psi, I.Null, (Weaken.strengthenExp (V1, v), I.id), Some (w', d', PQ'), L') | (None, L') -> traversePos (c'', Psi, I.Null, (Weaken.strengthenExp (V1, v), I.id), None, L')) | (c'', Psi, (V, v), L) -> if c = c' then ( (* Clause head found *)
+let S' = Weaken.strengthenSpine (S, v) in let (Psi', w') = strengthen (Psi, (c', S'), I.Shift (F.lfctxLength Psi), M.Plus) in let (w'', s'') = transformInit (Psi', (c', S'), w') in  (Some (w', 1, (fun p -> (Psi', s'', p), fun wf -> transformConc ((c', S'), wf))), L) ) else (None, L)
+and traversePos = function (c'', Psi, G, (I.Pi ((D, I.Maybe), V2), v), Some (w, d, PQ), L) -> (match traversePos (c'', Psi, I.Decl (G, Weaken.strengthenDec (D, v)), (V2, I.dot1 v), Some (I.dot1 w, d, PQ), L) with (Some (w', d', PQ'), L') -> (Some (w', d', PQ'), L')) | (c'', Psi, G, (I.Pi ((D, I.No), V2), v), Some (w, d, PQ), L) -> (match traversePos (c'', Psi, G, (V2, I.comp (v, I.shift)), Some (w, d, PQ), L) with (Some (w', d', PQ'), L') -> (match traverseNeg (c'', I.Decl (Psi, F.Block (F.CtxBlock (None, G))), (V1, v), L') with (Some (w'', d'', (P'', Q'')), L'') -> (Some (w', d', PQ'), (P'' (Q'' w'')) :: L'') | (None, L'') -> (Some (w', d', PQ'), L''))) | (c'', Psi, I.Null, (V, v), Some (w1, d, (P, Q)), L) -> ( (* Lemma calls (no context block) *)
+(* provide typeCheckCtx from typecheck *)
+let I.Root (I.Const a', S) = Whnf.normalize (Weaken.strengthenExp (V, v), I.id) in let (Psi', w2) = strengthen (Psi, (a', S), w1, M.Minus) in let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (F.makectx Psi', (I.Uni I.Type, I.Uni I.Kind)) else () in let w3 = Weaken.strengthenSub (w1, w2) in let (d4, w4, t4, Ds) = transformDec (Ts, (Psi', I.Null), d, (a', S), w1, w2, w3) in  (Some (w2, d4, (fun p -> P (F.Let (Ds, F.Case (F.Opts [(Psi', t4, p)]))), Q)), L) ) | (c'', Psi, G, (V, v), Some (w1, d, (P, Q)), L) -> ( (* Lemma calls (under a context block) *)
+(* provide typeCheckCtx from typecheck *)
+(* change w1 to w1' and w2 to w2' below *)
+let I.Root (I.Const a', S) = Weaken.strengthenExp (V, v) in let (dummy, w2) = strengthen (I.Decl (Psi, F.Block (F.CtxBlock (None, G))), (a', S), w1, M.Minus) in let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (F.makectx dummy, (I.Uni I.Type, I.Uni I.Kind)) else () in let g = I.ctxLength G in let w1' = peeln (g, w1) in let w2' = peeln (g, w2) in let (G1, _) = Weaken.strengthenCtx (G, w1') in let w3 = Weaken.strengthenSub (w1', w2') in let (d4, w4, t4, Ds) = transformDec (Ts, (Psi', G), d, (a', S), w1, w2', w3) in  (Some (w2', d4, (fun p -> P (F.Let (F.New (F.CtxBlock (None, G1), Ds), F.Case (F.Opts [(Psi', t4, p)]))), Q)), L) ) | (c'', Psi, G, (I.Pi ((D, I.Maybe), V2), v), None, L) -> traversePos (c'', Psi, I.Decl (G, Weaken.strengthenDec (D, v)), (V2, I.dot1 v), None, L) | (c'', Psi, G, (I.Pi ((D, I.No), V2), v), None, L) -> (match traversePos (c'', Psi, G, (V2, I.comp (v, I.shift)), None, L) with (None, L') -> (match traverseNeg (c'', I.Decl (Psi, F.Block (F.CtxBlock (None, G))), (V1, v), L') with (Some (w'', d'', (P'', Q'')), L'') -> (None, (P'' (Q'' w'')) :: L'') | (None, L'') -> (None, L''))) | (c'', Psi, G, (V, v), None, L) -> (None, L) in let rec traverseSig' (c'', L)  = if c'' = 1 (I.sgnSize ()) then L else (match I.sgnLookup (c'') with I.ConDec (name, _, _, _, V, I.Type) -> (match traverseNeg (c'', I.Null, (V, I.id), L) with (Some (wf, d', (P', Q')), L') -> traverseSig' (c'' + 1, (P' (Q' wf)) :: L') | (None, L') -> traverseSig' (c'' + 1, L')) | _ -> traverseSig' (c'' + 1, L)) in  traverseSig' (0, []) )
+(* convertPro Ts = P'
 
        Invariant:
        If   Ts is a list of type families
@@ -882,36 +329,11 @@ struct
             family in Ts into functional form
     *)
 
-    let rec convertPro Ts =
-      let
-        let rec convertOnePro a =
-          let
-            let V = case I.sgnLookup a
-                      of I.ConDec (name, _, _, _, V, I.Kind) => V
-                       | _ => raise Error "Type Constant declaration expected"
-            let mS = case ModeTable.modeLookup a
-                       of NONE => raise Error "Mode declaration expected"
-                        | SOME mS => mS
+let rec convertPro Ts  = ( let rec convertOnePro a  = ( let V = match I.sgnLookup a with I.ConDec (name, _, _, _, V, I.Kind) -> V | _ -> raise (Error "Type Constant declaration expected") in let mS = match ModeTable.modeLookup a with None -> raise (Error "Mode declaration expected") | Some mS -> mS in let P = abstract a in  P (F.Case (F.Opts (traverse (Ts, a)))) ) in let rec convertPro' = function [] -> raise (Error "Cannot convert Empty program") | [a] -> convertOnePro a | (a :: Ts') -> F.Pair (convertOnePro a, convertPro' Ts') in let R = recursion Ts in  R (convertPro' Ts) )
+let convertFor = convertFor
+let convertPro = convertPro
+let traverse = traverse
+ end
 
-            let P = abstract a
-          in
-            P (F.Case (F.Opts (traverse (Ts, a))))
-          end
+(* functor FunSyn *)
 
-        let rec convertPro' = function nil -> raise Error "Cannot convert Empty program"
-          | [a] -> convertOnePro a
-          | (a :: Ts') -> F.Pair (convertOnePro a, convertPro' Ts')
-
-        let R = recursion Ts
-      in
-        R (convertPro' Ts)
-      end
-
-
-
-  in
-    let convertFor = convertFor
-    let convertPro = convertPro
-    let traverse = traverse
-  end
-end (* functor FunSyn *)

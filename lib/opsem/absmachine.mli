@@ -1,15 +1,22 @@
 (* Abstract Machine *)
+
+
 (* Author: Iliano Cervesato *)
+
+
 (* Modified: Jeff Polakow *)
+
+
 (* Modified: Frank Pfenning *)
 
-module type ABSMACHINE =
-sig
 
-  (*! module IntSyn : INTSYN !*)
-  (*! module CompSyn : COMPSYN !*)
+module type ABSMACHINE = sig
+(*! structure IntSyn : INTSYN !*)
+(*! structure CompSyn : COMPSYN !*)
+  val solve : (CompSyn.goal * IntSyn.sub) * CompSyn.dProg * (IntSyn.exp -> unit) -> unit
 
-  val solve     : (CompSyn.Goal * IntSyn.Sub) * CompSyn.DProg
-                  * (IntSyn.exp -> unit) -> unit
+end
 
-end;; (* module type ABSMACHINE *)
+
+(* signature ABSMACHINE *)
+

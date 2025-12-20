@@ -1,64 +1,19 @@
 (* Strategy *)
+
+
 (* Author: Carsten Schuermann *)
 
-module StrategyFRS (MetaGlobal : METAGLOBAL)
-   (module MetaSyn' : METASYN)
-   (Filling : FILLING)
-                     sharing Filling.MetaSyn = MetaSyn'
-                     (Splitting : SPLITTING)
-                     sharing Splitting.MetaSyn = MetaSyn'
-                     (Recursion : RECURSION)
-                     sharing Recursion.MetaSyn = MetaSyn'
-                     (Lemma : LEMMA)
-                     sharing Lemma.MetaSyn = MetaSyn'
-                     (Qed : QED)
-                     sharing Qed.MetaSyn = MetaSyn'
-                     (MetaPrint : METAPRINT)
-                     sharing MetaPrint.MetaSyn = MetaSyn'
-                     (Timers : TIMERS)
-  : STRATEGY =
-struct
 
-  module MetaSyn = MetaSyn'
-
-  local
-
-    module M = MetaSyn
-
-    let rec printInit () =
-        if !Global.chatter > 3 then print "Strategy 1.0: FRS\n"
-        else ()
-
-    let rec printFinish (M.State (name, _, _)) =
-        if !Global.chatter > 5 then print ("[Finished: " ^ name ^ "]\n")
-        else if !Global.chatter> 4 then print ("[" ^ name ^ "]\n")
-             else if !Global.chatter> 3 then print ("[" ^ name ^ "]")
-                  else ()
-
-    let rec printFilling () =
-        if !Global.chatter > 5 then print ("[Filling ... ")
-        else if !Global.chatter> 4 then print ("F")
-             else  ()
-
-    let rec printRecursion () =
-        if !Global.chatter > 5 then print ("[Recursion ...")
-        else if !Global.chatter> 4 then print ("R")
-             else ()
-
-    let rec printSplitting () =
-        if !Global.chatter > 5 then print ("[Splitting ...")
-        else if !Global.chatter> 4 then print ("S")
-             else ()
-
-    let rec printCloseBracket () =
-        if !Global.chatter > 5 then print ("]\n")
-        else ()
-
-    let rec printQed () =
-        if !Global.chatter > 3 then print ("[QED]\n")
-        else ()
-
-    (* findMin L = Sopt
+module StrategyFRS (MetaGlobal : METAGLOBAL) (MetaSyn' : METASYN) (Filling : FILLING) (Splitting : SPLITTING) (Recursion : RECURSION) (Lemma : LEMMA) (Qed : QED) (MetaPrint : METAPRINT) (Timers : TIMERS) : STRATEGY = struct module MetaSyn = MetaSyn'
+module M = MetaSyn
+let rec printInit ()  = if ! Global.chatter > 3 then print "Strategy 1.0: FRS\n" else ()
+let rec printFinish (M.State (name, _, _))  = if ! Global.chatter > 5 then print ("[Finished: " ^ name ^ "]\n") else if ! Global.chatter > 4 then print ("[" ^ name ^ "]\n") else if ! Global.chatter > 3 then print ("[" ^ name ^ "]") else ()
+let rec printFilling ()  = if ! Global.chatter > 5 then print ("[Filling ... ") else if ! Global.chatter > 4 then print ("F") else ()
+let rec printRecursion ()  = if ! Global.chatter > 5 then print ("[Recursion ...") else if ! Global.chatter > 4 then print ("R") else ()
+let rec printSplitting ()  = if ! Global.chatter > 5 then print ("[Splitting ...") else if ! Global.chatter > 4 then print ("S") else ()
+let rec printCloseBracket ()  = if ! Global.chatter > 5 then print ("]\n") else ()
+let rec printQed ()  = if ! Global.chatter > 3 then print ("[QED]\n") else ()
+(* findMin L = Sopt
 
        Invariant:
 
@@ -66,22 +21,9 @@ struct
        then Sopt = NONE if L = []
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
-    let rec findMin = function nil -> NONE
-      | (O :: L) -> 
-        let
-          let rec findMin' (nil, k, result) = result
-            | findMin' (O' :: L', k ,result)=
-                let
-                  let k' = Splitting.index O'
-                in
-                  if Splitting.index O' < k then findMin' (L', k', SOME O')
-                  else findMin' (L', k, result)
-                end
-        in
-          findMin' (L, Splitting.index O, SOME O)
-        end
 
-    (* split   (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
+let rec findMin = function [] -> None | (O :: L) -> ( let rec findMin' = function ([], k, result) -> result | (O' :: L', k, result) -> ( let k' = Splitting.index O' in  if Splitting.index O' < k then findMin' (L', k', Some O') else findMin' (L', k, result) ) in  findMin' (L, Splitting.index O, Some O) )
+(* split   (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
        recurse (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
        fill    (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
 
@@ -93,56 +35,11 @@ struct
          contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
     *)
-    let rec split (S :: givenStates, os as (openStates, solvedStates)) =
-        case findMin ((Timers.time Timers.splitting Splitting.expand) S)
-          of NONE => fill (givenStates, (S :: openStates, solvedStates))
-           | SOME splitOp =>
-             let
-               let _ = printSplitting ()
-               let SL = (Timers.time Timers.splitting Splitting.apply) splitOp
-               let _ = printCloseBracket ()
-             in
-               (fill (SL @ givenStates, os)
-                handle Splitting.Error _ => fill (givenStates, (S :: openStates, solvedStates)))
-             end
 
-    and recurse (S :: givenStates, os as (openStates, solvedStates)) =
-        case (Timers.time Timers.recursion Recursion.expandEager) S
-          of nil => split (S :: givenStates, os)
-           | (recursionOp :: _) =>
-             let
-               let _ = printRecursion ()
-               let S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
-               let _ = printCloseBracket ()
-             in
-               (fill (S' :: givenStates, (openStates, solvedStates))
-                handle Recursion.Error _ => split (S :: givenStates, os))
-             end
-
-    and fill (nil, os) = os
-      | fill (S :: givenStates, os as (openStates, solvedStates)) =
-      let
-        let rec fillOp () =
-          case (Timers.time Timers.filling Filling.expand) S
-            of (_, fillingOp) =>
-              (let
-                 let _ = printFilling ()
-                 let [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
-                 let _ = printCloseBracket ()
-               in
-                 if Qed.subgoal S'
-                   then (printFinish S'; fill (givenStates, (openStates, S' :: solvedStates)))
-                 else fill (S' :: givenStates, os)
-               end
-                 handle Filling.Error _ => recurse (S :: givenStates, os))
-      in
-        (TimeLimit.timeLimit (!Global.timeLimit) fillOp ())
-        handle TimeLimit.TimeOut =>
-          (print "\n----------- TIME OUT ---------------\n" ; raise Filling.TimeOut)
-
-      end
-
-    (* run givenStates = (openStates', solvedStates')
+let rec split (S :: givenStates, os)  = match findMin ((Timers.time Timers.splitting Splitting.expand) S) with None -> fill (givenStates, (S :: openStates, solvedStates)) | Some splitOp -> ( let _ = printSplitting () in let SL = (Timers.time Timers.splitting Splitting.apply) splitOp in let _ = printCloseBracket () in  (try fill (SL @ givenStates, os) with Splitting.Error _ -> fill (givenStates, (S :: openStates, solvedStates))) )
+and recurse (S :: givenStates, os)  = match (Timers.time Timers.recursion Recursion.expandEager) S with [] -> split (S :: givenStates, os) | (recursionOp :: _) -> ( let _ = printRecursion () in let S' = (Timers.time Timers.recursion Recursion.apply) recursionOp in let _ = printCloseBracket () in  (try fill (S' :: givenStates, (openStates, solvedStates)) with Recursion.Error _ -> split (S :: givenStates, os)) )
+and fill = function ([], os) -> os | (S :: givenStates, os) -> ( let rec fillOp ()  = match (Timers.time Timers.filling Filling.expand) S with (_, fillingOp) -> (try ( let _ = printFilling () in let [S'] = (Timers.time Timers.filling Filling.apply) fillingOp in let _ = printCloseBracket () in  if Qed.subgoal S' then (printFinish S'; fill (givenStates, (openStates, S' :: solvedStates))) else fill (S' :: givenStates, os) ) with Filling.Error _ -> recurse (S :: givenStates, os)) in  try (TimeLimit.timeLimit (! Global.timeLimit) fillOp ()) with TimeLimit.TimeOut -> (print "\n----------- TIME OUT ---------------\n"; raise (Filling.TimeOut)) )
+(* run givenStates = (openStates', solvedStates')
 
        Invariant:
        openStates' contains the states resulting from givenStates which cannot be
@@ -150,81 +47,27 @@ struct
        solvedStates' contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
      *)
-    let rec run givenStates =
-        let
-          let _ = printInit ()
-          let os = fill (givenStates, (nil, nil))
-          let _ = case os
-                    of (nil, _) => printQed ()
-                     | _ => ()
-        in
-          os
-        end
-  in
-    let run = run
-  end (* local *)
-end;; (* functor StrategyFRS *)
+
+let rec run givenStates  = ( let _ = printInit () in let os = fill (givenStates, ([], [])) in let _ = match os with ([], _) -> printQed () | _ -> () in  os )
+let run = run
+(* local *)
+
+ end
 
 
+(* functor StrategyFRS *)
 
-module StrategyRFS (MetaGlobal : METAGLOBAL)
-   (module MetaSyn' : METASYN)
-   (Filling : FILLING)
-                     sharing Filling.MetaSyn = MetaSyn'
-                     (Splitting : SPLITTING)
-                     sharing Splitting.MetaSyn = MetaSyn'
-                     (Recursion : RECURSION)
-                     sharing Recursion.MetaSyn = MetaSyn'
-                     (Lemma : LEMMA)
-                     sharing Lemma.MetaSyn = MetaSyn'
-                     (Qed : QED)
-                     sharing Qed.MetaSyn = MetaSyn'
-                     (MetaPrint : METAPRINT)
-                     sharing MetaPrint.MetaSyn = MetaSyn'
-                     (Timers : TIMERS)
-  : STRATEGY =
-struct
 
-  module MetaSyn = MetaSyn'
-
-  local
-
-    module M = MetaSyn
-
-    let rec printInit () =
-        if !Global.chatter > 3 then print "Strategy 1.0: RFS\n"
-        else ()
-
-    let rec printFinish (M.State (name, _, _)) =
-        if !Global.chatter > 5 then print ("[Finished: " ^ name ^ "]\n")
-        else if !Global.chatter> 4 then print ("[" ^ name ^ "]\n")
-             else if !Global.chatter> 3 then print ("[" ^ name ^ "]")
-                  else ()
-
-    let rec printFilling () =
-        if !Global.chatter > 5 then print ("[Filling ... ")
-        else if !Global.chatter> 4 then print ("F")
-             else  ()
-
-    let rec printRecursion () =
-        if !Global.chatter > 5 then print ("[Recursion ...")
-        else if !Global.chatter> 4 then print ("R")
-             else ()
-
-    let rec printSplitting () =
-        if !Global.chatter > 5 then print ("[Splitting ...")
-        else if !Global.chatter> 4 then print ("S")
-             else ()
-
-    let rec printCloseBracket () =
-        if !Global.chatter > 5 then print ("]\n")
-        else ()
-
-    let rec printQed () =
-        if !Global.chatter > 3 then print ("[QED]\n")
-        else ()
-
-    (* findMin L = Sopt
+module StrategyRFS (MetaGlobal : METAGLOBAL) (MetaSyn' : METASYN) (Filling : FILLING) (Splitting : SPLITTING) (Recursion : RECURSION) (Lemma : LEMMA) (Qed : QED) (MetaPrint : METAPRINT) (Timers : TIMERS) : STRATEGY = struct module MetaSyn = MetaSyn'
+module M = MetaSyn
+let rec printInit ()  = if ! Global.chatter > 3 then print "Strategy 1.0: RFS\n" else ()
+let rec printFinish (M.State (name, _, _))  = if ! Global.chatter > 5 then print ("[Finished: " ^ name ^ "]\n") else if ! Global.chatter > 4 then print ("[" ^ name ^ "]\n") else if ! Global.chatter > 3 then print ("[" ^ name ^ "]") else ()
+let rec printFilling ()  = if ! Global.chatter > 5 then print ("[Filling ... ") else if ! Global.chatter > 4 then print ("F") else ()
+let rec printRecursion ()  = if ! Global.chatter > 5 then print ("[Recursion ...") else if ! Global.chatter > 4 then print ("R") else ()
+let rec printSplitting ()  = if ! Global.chatter > 5 then print ("[Splitting ...") else if ! Global.chatter > 4 then print ("S") else ()
+let rec printCloseBracket ()  = if ! Global.chatter > 5 then print ("]\n") else ()
+let rec printQed ()  = if ! Global.chatter > 3 then print ("[QED]\n") else ()
+(* findMin L = Sopt
 
        Invariant:
 
@@ -232,22 +75,9 @@ struct
        then Sopt = NONE if L = []
        else Sopt = SOME S, s.t. index S is minimal among all elements in L
     *)
-    let rec findMin = function nil -> NONE
-      | (O :: L) -> 
-          let
-            let rec findMin' (nil, k, result) = result
-              | findMin' (O' :: L', k ,result)=
-                  let
-                    let k' = Splitting.index O'
-                  in
-                    if Splitting.index O' < k then findMin' (L', k', SOME O')
-                    else findMin' (L', k, result)
-                  end
-          in
-            findMin' (L, Splitting.index O, SOME O)
-          end
 
-    (* split   (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
+let rec findMin = function [] -> None | (O :: L) -> ( let rec findMin' = function ([], k, result) -> result | (O' :: L', k, result) -> ( let k' = Splitting.index O' in  if Splitting.index O' < k then findMin' (L', k', Some O') else findMin' (L', k, result) ) in  findMin' (L, Splitting.index O, Some O) )
+(* split   (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
        recurse (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
        fill    (givenStates, (openStates, solvedStates)) = (openStates', solvedStates')
 
@@ -259,49 +89,11 @@ struct
          contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
     *)
-    let rec split (S :: givenStates, os as (openStates, solvedStates)) =
-        case findMin ((Timers.time Timers.splitting Splitting.expand) S) of
-          NONE => recurse (givenStates, (S :: openStates, solvedStates))
-        | SOME splitOp =>
-            let
-              let _ = printSplitting ()
-              let SL = (Timers.time Timers.splitting Splitting.apply) splitOp
-              let _ = printCloseBracket ()
-            in
-              (recurse (SL @ givenStates, os)
-               handle Splitting.Error _ => recurse (givenStates, (S :: openStates, solvedStates)))
-            end
 
-    and fill (nil, os) = os
-      | fill (S :: givenStates, os as (openStates, solvedStates)) =
-        case (Timers.time Timers.filling Filling.expand) S
-          of (_, fillingOp) =>
-             (let
-                let _ = printFilling ()
-                let [S'] = (Timers.time Timers.filling Filling.apply) fillingOp
-                let _ = printCloseBracket ()
-              in
-                if Qed.subgoal S' then
-                  (printFinish S'; recurse (givenStates, (openStates, S' :: solvedStates)))
-                else fill (S' :: givenStates, os)
-              end
-                handle Filling.Error _ => split (S :: givenStates, os))
-
-    and recurse (nil, os) = os
-      | recurse (S :: givenStates, os as (openStates, solvedStates)) =
-        case (Timers.time Timers.recursion Recursion.expandEager) S
-          of nil => fill (S :: givenStates, os)
-           | (recursionOp :: _) =>
-             let
-               let _ = printRecursion ()
-               let S' = (Timers.time Timers.recursion Recursion.apply) recursionOp
-               let _ = printCloseBracket ()
-             in
-               (recurse (S' :: givenStates, (openStates, solvedStates))
-                handle Recursion.Error _ => fill (S :: givenStates, os))
-             end
-
-    (* run givenStates = (openStates', solvedStates')
+let rec split (S :: givenStates, os)  = match findMin ((Timers.time Timers.splitting Splitting.expand) S) with None -> recurse (givenStates, (S :: openStates, solvedStates)) | Some splitOp -> ( let _ = printSplitting () in let SL = (Timers.time Timers.splitting Splitting.apply) splitOp in let _ = printCloseBracket () in  (try recurse (SL @ givenStates, os) with Splitting.Error _ -> recurse (givenStates, (S :: openStates, solvedStates))) )
+and fill = function ([], os) -> os | (S :: givenStates, os) -> match (Timers.time Timers.filling Filling.expand) S with (_, fillingOp) -> (try ( let _ = printFilling () in let [S'] = (Timers.time Timers.filling Filling.apply) fillingOp in let _ = printCloseBracket () in  if Qed.subgoal S' then (printFinish S'; recurse (givenStates, (openStates, S' :: solvedStates))) else fill (S' :: givenStates, os) ) with Filling.Error _ -> split (S :: givenStates, os))
+and recurse = function ([], os) -> os | (S :: givenStates, os) -> match (Timers.time Timers.recursion Recursion.expandEager) S with [] -> fill (S :: givenStates, os) | (recursionOp :: _) -> ( let _ = printRecursion () in let S' = (Timers.time Timers.recursion Recursion.apply) recursionOp in let _ = printCloseBracket () in  (try recurse (S' :: givenStates, (openStates, solvedStates)) with Recursion.Error _ -> fill (S :: givenStates, os)) )
+(* run givenStates = (openStates', solvedStates')
 
        Invariant:
        openStates' contains the states resulting from givenStates which cannot be
@@ -309,37 +101,21 @@ struct
        solvedStates' contains the states resulting from givenStates which can be
          solved using Filling, Recursion, and Splitting
      *)
-    let rec run givenStates =
-        let
-          let _ = printInit ()
-          let os = recurse (givenStates, (nil, nil))
-          let _ = case os
-                    of (nil, _) => printQed ()
-                     | _ => ()
-        in
-          os
-        end
-  in
-    let run = run
-  end (* local *)
-end;; (* functor StrategyRFS *)
+
+let rec run givenStates  = ( let _ = printInit () in let os = recurse (givenStates, ([], [])) in let _ = match os with ([], _) -> printQed () | _ -> () in  os )
+let run = run
+(* local *)
+
+ end
 
 
+(* functor StrategyRFS *)
 
-module Strategy (MetaGlobal : METAGLOBAL)
-   (module MetaSyn' : METASYN)
-   (StrategyFRS : STRATEGY)
-                  sharing StrategyFRS.MetaSyn = MetaSyn'
-                  (StrategyRFS : STRATEGY)
-                  sharing StrategyRFS.MetaSyn = MetaSyn')
-  : STRATEGY =
-struct
 
-  module MetaSyn = MetaSyn'
+module Strategy (MetaGlobal : METAGLOBAL) (MetaSyn' : METASYN) (StrategyFRS : STRATEGY) (StrategyRFS : STRATEGY) : STRATEGY = struct module MetaSyn = MetaSyn'
+let rec run SL  = match ! MetaGlobal.strategy with MetaGlobal.RFS -> StrategyRFS.run SL | MetaGlobal.FRS -> StrategyFRS.run SL
+ end
 
-  let rec run SL =
-      case !MetaGlobal.strategy
-        of MetaGlobal.RFS => StrategyRFS.run SL
-         | MetaGlobal.FRS => StrategyFRS.run SL
 
-end;; (* functor Strategy *)
+(* functor Strategy *)
+

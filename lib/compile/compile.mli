@@ -1,33 +1,33 @@
 (* Compiler *)
+
+
 (* Author: Iliano Cervesato *)
+
+
 (* Modified: Jeff Polakow *)
+
+
 (* Modified: Carsten Schuermann *)
+
+
 (* Modified: Frank Pfenning *)
 
-module type COMPILE =
-sig
 
-  (*! module IntSyn: INTSYN !*)
-  (*! module CompSyn: COMPSYN !*)
-
-
+module type COMPILE = sig
+(*! structure IntSyn: INTSYN !*)
+(*! structure CompSyn: COMPSYN !*)
   exception Error of string
-
-  type opt = type CompSyn.Opt
-
-  val optimize : Opt ref
-
+  optCompSyn.opt
+  val optimize : opt ref
   val install : IntSyn.conDecForm -> IntSyn.cid -> unit
-
   val sProgReset : unit -> unit
+  val compileCtx : bool -> (IntSyn.dec IntSyn.ctx) -> CompSyn.dProg
+  val compileGoal : (IntSyn.dec IntSyn.ctx * IntSyn.exp) -> CompSyn.goal
+(* for_sml the meta theorem prover  --cs *)
+  val compilePsi : bool -> (Tomega.dec IntSyn.ctx) -> CompSyn.dProg
+
+end
 
 
-  val compileCtx: bool -> (IntSyn.dec IntSyn.ctx) -> CompSyn.DProg  
+(* signature COMPILE *)
 
-  val compileGoal: (IntSyn.dec IntSyn.ctx * IntSyn.exp) -> CompSyn.Goal
-
-  (* for the meta theorem prover  --cs *)
-  val compilePsi: bool -> (Tomega.Dec IntSyn.ctx) -> CompSyn.DProg
- 
-
-end;; (* module type COMPILE *)

@@ -1,28 +1,30 @@
 (* Persistent red/black trees *)
-(* Specialized for subordination *)
+
+
+(* Specialized for_sml subordination *)
+
+
 (* Author: Frank Pfenning *)
+
+
 (* Copied from src/table/red-black-tree.fun *)
 
-module type INTSET =
-sig
+
+module type INTSET = sig
   type intset
-  let empty : intset
-  let insert : int * intset -> intset
-  let member : int * intset -> bool
-  let foldl : (int * 'b -> 'b) -> 'b -> intset -> 'b
-end;
+  val empty : intset
+  val insert : int * intset -> intset
+  val member : int * intset -> bool
+  val foldl : (int * 'b -> 'b) -> 'b -> intset -> 'b
 
-(IntSet : INTSET) =
-struct
+end
 
-  type rbt =
-    Empty				(* considered black *)
-  | Red of int * rbt * rbt
-  | Black of int * rbt * rbt
 
-  (* Representation Invariants *)
-  (*
-     1. The tree is ordered: for every node Red((key1,datum1), left, right) or
+module IntSet : INTSET = struct type rbt = Empty | Red of int * rbt * rbt | Black of int * rbt * rbt
+(* Representation Invariants *)
+
+(*
+     1. The tree is ordered: for_sml every node Red((key1,datum1), left, right) or
         Black ((key1,datum1), left, right), every key in left is less than
         key1 and every key in right is greater than key1.
 
@@ -32,24 +34,11 @@ struct
         black nodes, called the black height of the tree.
   *)
 
-  local
+let rec lookup dict x  = ( let rec lk = function (Empty) -> false | (Red tree) -> lk' tree | (Black tree) -> lk' tree
+and lk' (x1, left, right)  = (match Int.compare (x, x1) with Eq -> true | Lt -> lk left | Gt -> lk right) in  lk dict )
+(* val restore_right : 'a dict -> 'a dict *)
 
-  let rec lookup dict x =
-    let
-      let rec lk = function (Empty) -> false
-	| (Red tree) -> lk' tree
-        | (Black tree) -> lk' tree
-      and lk' (x1, left, right) =
-	    (case Int.compare(x,x1)
-	       of EQUAL => true
-	        | LESS => lk left
-		| GREATER => lk right)
-      in
-	lk dict
-      end
-
-  (* let restore_right : 'a dict -> 'a dict *)
-  (*
+(*
      restore_right (Black(e,l,r)) >=> dict
      where (1) Black(e,l,r) is ordered,
            (2) Black(e,l,r) has black height n,
@@ -58,69 +47,27 @@ struct
      and dict is a re-balanced red/black tree (satisfying all invariants)
      and same black height n.
   *)
-  let rec restore_right = function (Black(e, Red lt, Red (rt as (_,Red _,_)))) -> 
-         Red(e, Black lt, Black rt)	(* re-color *)
-    | (Black(e, Red lt, Red (rt as (_,_,Red _)))) -> 
-         Red(e, Black lt, Black rt)	(* re-color *)
-    | (Black(e, l, Red(re, Red(rle, rll, rlr), rr))) -> 
-	 (* l is black, deep rotate *)
-	 Black(rle, Red(e, l, rll), Red(re, rlr, rr))
-    | restore_right (Black(e, l, Red(re, rl, rr as Red _))) =
-	 (* l is black, shallow rotate *)
-	 Black(re, Red(e, l, rl), rr)
-    | restore_right dict = dict
 
-  (* restore_left is like restore_right, except *)
-  (* the color invariant may be violated only at the root of left child *)
-  let rec restore_left (Black(e, Red (lt as (_,Red _,_)), Red rt)) =
-	 Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_left (Black(e, Red (lt as (_,_,Red _)), Red rt)) =
-	 Red(e, Black lt, Black rt)	(* re-color *)
-    | restore_left (Black(e, Red(le, ll as Red _, lr), r)) =
-	 (* r is black, shallow rotate *)
-	 Black(le, ll, Red(e, lr, r))
-    | restore_left (Black(e, Red(le, ll, Red(lre, lrl, lrr)), r)) =
-	 (* r is black, deep rotate *)
-	 Black(lre, Red(le, ll, lrl), Red(e, lrr, r))
-    | restore_left dict = dict
+let rec restore_right = function (Black (e, Red lt, Red (rt))) -> Red (e, Black lt, Black rt) | (Black (e, Red lt, Red (rt))) -> Red (e, Black lt, Black rt) | (Black (e, l, Red (re, Red (rle, rll, rlr), rr))) -> Black (rle, Red (e, l, rll), Red (re, rlr, rr)) | (Black (e, l, Red (re, rl, rr))) -> Black (re, Red (e, l, rl), rr) | dict -> dict
+(* restore_left is like restore_right, except *)
 
-  let rec insert (dict, x) =
-    let
-      (* let ins : 'a dict -> 'a dict  inserts entry *)
-      (* ins (Red _) may violate color invariant at root *)
-      (* ins (Black _) or ins (Empty) will be red/black tree *)
-      (* ins preserves black height *)
-      let rec ins = function (Empty) -> Red(x, Empty, Empty)
-	| (Red(x1, left, right)) -> 
-	  (case Int.compare(x,x1)
-	     of EQUAL => Red(x, left, right)
-	      | LESS => Red(x1, ins left, right)
-	      | GREATER => Red(x1, left, ins right))
-	| ins (Black(x1, left, right)) =
-	  (case Int.compare(x,x1)
-	     of EQUAL => Black(x, left, right)
-	      | LESS => restore_left (Black(x1, ins left, right))
-	      | GREATER => restore_right (Black(x1, left, ins right)))
-    in
-      case ins dict
-	of Red (t as (_, Red _, _)) => Black t (* re-color *)
-	 | Red (t as (_, _, Red _)) => Black t (* re-color *)
-	 | dict => dict
-    end
-  in
-    type intset = rbt
-    let empty = Empty
-    let insert = fn (x,t) => insert (t, x)
-    let member = fn (x,t) => lookup t x
-    let rec foldl f a t =
-        let fun fo (Empty, r) = r
-              | fo (Red (x, left, right), r) =
-	          fo (right, f (x, fo (left, r)))
-              | fo (Black (x, left, right), r) =
-		  fo (right, f (x, fo (left, r)))
-	in
-	  fo (t, a)
-	end
-  end
+(* the color invariant may be violated only at the root of left child *)
 
-end;; (* module IntSet *)
+let rec restore_left = function (Black (e, Red (lt), Red rt)) -> Red (e, Black lt, Black rt) | (Black (e, Red (lt), Red rt)) -> Red (e, Black lt, Black rt) | (Black (e, Red (le, ll, lr), r)) -> Black (le, ll, Red (e, lr, r)) | (Black (e, Red (le, ll, Red (lre, lrl, lrr)), r)) -> Black (lre, Red (le, ll, lrl), Red (e, lrr, r)) | dict -> dict
+let rec insert (dict, x)  = ( (* val ins : 'a dict -> 'a dict  inserts entry *)
+(* ins (Red _) may violate color invariant at root *)
+(* ins (Black _) or ins (Empty) will be red/black tree *)
+(* ins preserves black height *)
+let rec ins = function (Empty) -> Red (x, Empty, Empty) | (Red (x1, left, right)) -> (match Int.compare (x, x1) with Eq -> Red (x, left, right) | Lt -> Red (x1, ins left, right) | Gt -> Red (x1, left, ins right)) | (Black (x1, left, right)) -> (match Int.compare (x, x1) with Eq -> Black (x, left, right) | Lt -> restore_left (Black (x1, ins left, right)) | Gt -> restore_right (Black (x1, left, ins right))) in  match ins dict with Red (t) -> Black t(* re-color *)
+ | Red (t) -> Black t(* re-color *)
+ | dict -> dict )
+type intset = rbt
+let empty = Empty
+let insert = fun (x, t) -> insert (t, x)
+let member = fun (x, t) -> lookup t x
+let rec foldl f a t  = ( let rec fo = function (Empty, r) -> r | (Red (x, left, right), r) -> fo (right, f (x, fo (left, r))) | (Black (x, left, right), r) -> fo (right, f (x, fo (left, r))) in  fo (t, a) )
+ end
+
+
+(* structure IntSet *)
+

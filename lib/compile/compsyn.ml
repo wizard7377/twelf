@@ -1,66 +1,36 @@
 (* Compiled Syntax *)
+
+
 (* Author: Iliano Cervesato *)
+
+
 (* Modified: Jeff Polakow *)
+
+
 (* Modified: Frank Pfenning *)
+
+
 (* Modified: Brigitte Pientka *)
 
-module CompSyn (Global : GLOBAL)
-                 (*! module IntSyn' : INTSYN !*)
-                 (Names : NAMES)
-                 (*! sharing Names.IntSyn = IntSyn' !*)
-                 (Table : TABLE)
-                   with type key = int)
-  : COMPSYN =
-struct
 
-  (*! module IntSyn = IntSyn' !*)
+module CompSyn (Global : GLOBAL) (Names : NAMES) : COMPSYN = struct (*! structure IntSyn = IntSyn' !*)
 
+type opt = No | LinearHeads | Indexing
+let optimize = ref LinearHeads
+type goal = Atom of IntSyn.exp | Impl of resGoal * IntSyn.exp(*     | (r,A,a) => g         *)
+ * IntSyn.head * goal | All of IntSyn.dec * goal and resGoal = Eq of IntSyn.exp | Assign of IntSyn.exp * auxGoal | And of resGoal(*     | r & (A,g)            *)
+ * IntSyn.exp * goal | In of resGoal(*     | r && (A,g)           *)
+ * IntSyn.exp * goal | Exists of IntSyn.dec * resGoal | Axists of IntSyn.dec * resGoal and auxGoal = Trivial | UnifyEq of IntSyn.dctx * IntSyn.exp(* call unify *)
+ * IntSyn.exp * auxGoal
+(* Static programs -- compiled version for_sml substitution trees *)
 
-  type opt = No | LinearHeads | Indexing
+type conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
+type compHead = Head of (IntSyn.exp * IntSyn.dec IntSyn.ctx * auxGoal * IntSyn.cid)
+(* proof skeletons instead of proof term *)
 
-  let optimize = ref LinearHeads
-
-  type goal =                       (* Goals                      *)
-    Atom of IntSyn.exp                  (* g ::= p                    *)
-  | Impl of ResGoal * IntSyn.exp        (*     | (r,A,a) => g         *)
-            * IntSyn.Head * goal
-  | All  of IntSyn.dec * goal           (*     | all x:A. g           *)
-
-  and ResGoal =                         (* Residual Goals             *)
-    Eq     of IntSyn.exp                (* r ::= p = ?                *)
-  | Assign of IntSyn.exp * AuxGoal      (*     | p = ?, where p has   *)
-                                        (* only new vars,             *)
-                                        (* then unify all the vars    *)
-  | And    of ResGoal                   (*     | r & (A,g)            *)
-              * IntSyn.exp * goal
-  | In     of ResGoal                   (*     | r && (A,g)           *)
-              * IntSyn.exp * goal
-  | Exists of IntSyn.dec * ResGoal      (*     | exists x:A. r        *)
-  | Axists of IntSyn.dec * ResGoal      (*     | exists' x:_. r       *)
-                                        (* exists' is used for local evars
-                                           which are introduced to linearize
-                                           the head of a clause;
-                                           they do not have a type -bp *)
-
-  and AuxGoal =
-    Trivial                               (* trivially done *)
-  | UnifyEq of IntSyn.dctx * IntSyn.exp   (* call unify *)
-             * IntSyn.exp * AuxGoal
-
-  (* Static programs -- compiled version for substitution trees *)
-  type conjunction = True | Conjunct of goal * IntSyn.exp * conjunction
-
-  type compHead =
-     Head of (IntSyn.exp * IntSyn.dec IntSyn.ctx * AuxGoal * IntSyn.cid)
-
-
-  (* proof skeletons instead of proof term *)
-  type flatterm =
-    Pc of IntSyn.cid | Dc of IntSyn.cid | Csolver of IntSyn.exp
-
-  type pskeleton = Flatterm list
-
-  (* Representation invariants for compiled syntax:
+type flatterm = Pc of IntSyn.cid | Dc of IntSyn.cid | Csolver of IntSyn.exp
+type pskeleton = flatterm list
+(* Representation invariants for_sml compiled syntax:
      Judgments:
        G |- g goal   g is a valid goal in G
        G |- r resgoal  g is a valid residual goal in G
@@ -76,7 +46,7 @@ struct
      if G |- A : type
         G |- r  resgoal
         G |- A ~> r
-        a  target head of A (for indexing purposes)
+        a  target head of A (for_sml indexing purposes)
 
      G |- all x:A. g  goal
      if G |- A : type
@@ -110,94 +80,59 @@ struct
 
   *)
 
-  (* Static programs --- compiled version of the module type (no indexing) *)
-  type conDec =                        (* Compiled constant declaration           *)
-       SClause of ResGoal                  (* c : A  -- static clause (residual goal) *)
-    | Void                                 (* Other declarations are ignored          *)
+(* Static programs --- compiled version of the signature (no indexing) *)
 
-  (* Static programs --- compiled version of the module type (indexed by first argument) *)
-  type conDecDirect =                  (* Compiled constant declaration     *)
-      HeadGoals of CompHead * Conjunction  (* static clause with direct head access   *)
-    | Null                                 (* Other declarations are ignored          *)
+type conDec = SClause of resGoal | Void
+(* Other declarations are ignored          *)
 
-  (* Compiled Declarations *)
-  (* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
-  type comDec =
-    Parameter
-  | Dec of ResGoal * IntSyn.Sub * IntSyn.Head
-  | BDec of (ResGoal * IntSyn.Sub *IntSyn.Head) list
-  | PDec
+(* Static programs --- compiled version of the signature (indexed by first argument) *)
 
-  (* The dynamic clause pool --- compiled version of the context *)
-  (* Dynamic programs: context with synchronous clause pool *)
+type conDecDirect = HeadGoals of compHead * conjunction | Null
+(* Other declarations are ignored          *)
 
-  type dProg = DProg of IntSyn.dctx * comDec IntSyn.ctx
+(* Compiled Declarations *)
 
-  local
-    let maxCid = Global.maxCid
-    (* program array indexed by clause names (no direct head access) *)
-    let sProgArray = Array.array (maxCid+1, Void) : ConDec Array.array
+(* added Thu Jun 13 13:41:32 EDT 2002 -cs *)
 
-    let detTable : bool Table.Table = Table.new (32)
-  in
-    (* Invariants *)
-    (* 0 <= cid < I.sgnSize () *)
-    (* program array indexed by clause names (no direct head access) *)
-    let rec sProgInstall (cid, conDec) = Array.update (sProgArray, cid, conDec)
+type comDec = Parameter | Dec of resGoal * IntSyn.sub * IntSyn.head | BDec of resGoal * IntSyn.sub * IntSyn.head list | PDec
+(* The dynamic clause pool --- compiled version of the context *)
 
-    let rec sProgLookup (cid) = Array.sub (sProgArray, cid)
-    let rec sProgReset () = Array.modify (fun _ -> Void) sProgArray
+(* Dynamic programs: context with synchronous clause pool *)
 
-    let detTableInsert = Table.insert detTable;
-    let rec detTableCheck (cid) = (case (Table.lookup detTable cid)
-                                 of SOME(deterministic) => deterministic
-                                  | NONE => false)
-    let rec detTableReset () = Table.clear detTable;
-  end
-  (* goalSub (g, s) = g'
+type dProg = DProg of IntSyn.dctx * comDec IntSyn.ctx
+let maxCid = Global.maxCid
+(* program array indexed by clause names (no direct head access) *)
+
+let sProgArray = (Array.array (maxCid + 1, Void) : conDec Array.array)
+let detTable : bool Table.table = Table.new_ (32)
+(* Invariants *)
+
+(* 0 <= cid < I.sgnSize () *)
+
+(* program array indexed by clause names (no direct head access) *)
+
+let rec sProgInstall (cid, conDec)  = Array.update (sProgArray, cid, conDec)
+let rec sProgLookup (cid)  = Array.sub (sProgArray, cid)
+let rec sProgReset ()  = Array.modify (fun _ -> Void) sProgArray
+let detTableInsert = Table.insert detTable
+let rec detTableCheck (cid)  = (match (Table.lookup detTable cid) with Some (deterministic) -> deterministic | None -> false)
+let rec detTableReset ()  = Table.clear detTable
+(* goalSub (g, s) = g'
 
      Invariants:
      If   G  |- s : G'    G' |- g : A
      then g' = g[s]
      and  G  |- g' : A
   *)
-  let rec goalSub = function (Atom(p), s) -> Atom(IntSyn.EClo(p,s))
-    | (Impl(d, A, Ha, g), s) -> 
-       Impl (resGoalSub (d, s), IntSyn.EClo(A, s), Ha,
-             goalSub (g, IntSyn.dot1 s))
-    | (All(D, g), s) -> 
-       All (IntSyn.decSub(D,s), goalSub (g, IntSyn.dot1 s))
 
-  (* resGoalSub (r, s) = r'
-
-     Invariants:
-     If   G  |- s : G'    G' |- r : A
-     then r' = r[s]
-     and  G  |- r' : A [s]
-  *)
-  and resGoalSub (Eq(q), s) = Eq (IntSyn.EClo (q,s))
-    | resGoalSub (And(r, A, g), s) =
-        And (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s))
-    | resGoalSub (In(r, A, g), s) =
-        In (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo(A,s), goalSub (g, s))
-    | resGoalSub (Exists(D, r), s) =
-        Exists (IntSyn.decSub(D, s), resGoalSub (r, IntSyn.dot1 s))
+let rec goalSub = function (Atom (p), s) -> Atom (IntSyn.EClo (p, s)) | (Impl (d, A, Ha, g), s) -> Impl (resGoalSub (d, s), IntSyn.EClo (A, s), Ha, goalSub (g, IntSyn.dot1 s)) | (All (D, g), s) -> All (IntSyn.decSub (D, s), goalSub (g, IntSyn.dot1 s))
+and resGoalSub = function (Eq (q), s) -> Eq (IntSyn.EClo (q, s)) | (And (r, A, g), s) -> And (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo (A, s), goalSub (g, s)) | (In (r, A, g), s) -> In (resGoalSub (r, IntSyn.dot1 s), IntSyn.EClo (A, s), goalSub (g, s)) | (Exists (D, r), s) -> Exists (IntSyn.decSub (D, s), resGoalSub (r, IntSyn.dot1 s))
+let rec pskeletonToString = function [] -> " " | ((Pc i) :: O) -> Names.qidToString (Names.constQid i) ^ " " ^ (pskeletonToString O) | ((Dc i) :: O) -> ("(Dc " ^ (Int.toString i) ^ ") ") ^ (pskeletonToString O) | (Csolver U :: O) -> ("(cs _ ) " ^ (pskeletonToString O))
+ end
 
 
-  let rec pskeletonToString = function [] -> " "
-    | ((Pc i)::O) -> 
-        Names.qidToString (Names.constQid i) ^ " " ^ (pskeletonToString O)
-    | ((Dc i)::O) -> 
-        ("(Dc " ^ (Int.toString i) ^ ") ") ^ (pskeletonToString O)
-    | (Csolver U ::O) -> 
-        ("(cs _ ) " ^ (pskeletonToString O))
+(* functor CompSyn *)
 
 
-end;; (* functor CompSyn *)
-
-module CompSyn =
-  CompSyn (module Global = Global
-           (*! module IntSyn' = IntSyn !*)
-           module Names = Names
-           module Table = IntRedBlackTree);
+module CompSyn = CompSyn (struct module Global = Global end) (struct module Names = Names end) (struct module Table = IntRedBlackTree end)
 

@@ -1,176 +1,140 @@
 (* Stream Library *)
+
+
 (* Author: Frank Pfenning *)
 
+
 (* BASIC_STREAM defines the visible "core" of streams *)
-module type BASIC_STREAM =
-sig
+
+
+module type BASIC_STREAM = sig
   type 'a stream
   type 'a front = Empty | Cons of 'a * 'a stream
+(* Lazy stream construction and exposure *)
+  val delay : (unit -> 'a front) -> 'a stream
+  val expose : 'a stream -> 'a front
+(* Eager stream construction *)
+  val empty : 'a stream
+  val cons : 'a * 'a stream -> 'a stream
 
-  (* Lazy stream construction and exposure *)
-  let delay : (unit -> 'a front) -> 'a stream
-  let expose : 'a stream -> 'a front
+end
 
-  (* Eager stream construction *)
-  let empty : 'a stream
-  let cons : 'a * 'a stream -> 'a stream
-end;
 
-(BasicStream : BASIC_STREAM) =
-struct
-  type 'a stream = Stream of unit -> 'a front
-  and 'a front = Empty | Cons of 'a * 'a stream
+module BasicStream : BASIC_STREAM = struct type 'a stream = Stream of unit -> 'a front and 'a front = Empty | Cons of 'a * 'a stream
+let rec delay (d)  = Stream (d)
+let rec expose (Stream (d))  = d ()
+let empty = Stream (fun () -> Empty)
+let rec cons (x, s)  = Stream (fun () -> Cons (x, s))
+ end
 
-  let rec delay (d) = Stream(d)
-  let rec expose (Stream(d)) = d ()
-
-  let empty = Stream (fn () => Empty)
-  let rec cons (x, s) = Stream (fn () => Cons (x, s))
-end;
 
 (* Note that this implementation is NOT semantically *)
+
+
 (* equivalent to the plain (non-memoizing) streams, since *)
+
+
 (* effects will be executed only once in this implementation *)
-(BasicMemoStream : BASIC_STREAM) =
-struct
 
-  type 'a stream = Stream of unit -> 'a front
-  and 'a front = Empty | Cons of 'a * 'a stream
 
-  exception Uninitialized
+module BasicMemoStream : BASIC_STREAM = struct type 'a stream = Stream of unit -> 'a front and 'a front = Empty | Cons of 'a * 'a stream
+exception Uninitialized
+let rec expose (Stream (d))  = d ()
+let rec delay (d)  = ( let memo = ref (fun () -> raise (Uninitialized)) in let rec memoFun ()  = try ( let r = d () in  (memo := (fun () -> r); r) ) with exn -> (memo := (fun () -> raise (exn)); raise (exn)) in  memo := memoFun; Stream (fun () -> ! memo ()) )
+let empty = Stream (fun () -> Empty)
+let rec cons (x, s)  = Stream (fun () -> Cons (x, s))
+ end
 
-  let rec expose (Stream (d)) = d ()
-  let rec delay (d) =
-      let let memo = ref (fn () => raise Uninitialized)
-	  let rec memoFun () =
-	      let
-		  let r = d ()
-	       in
-		  ( memo := (fn () => r) ; r )
-	      end
-	      handle exn => ( memo := (fn () => raise exn) ; raise exn )
-      in
-	memo := memoFun ; Stream (fn () => !memo ())
-      end
-
-  let empty = Stream (fn () => Empty)
-  let rec cons (x, s) = Stream (fn () => Cons (x, s))
-end;
 
 (* STREAM extends BASIC_STREAMS by operations *)
+
+
 (* definable without reference to the implementation *)
-module type STREAM =
-sig
+
+
+module type STREAM = sig
   include BASIC_STREAM
-
   exception EmptyStream
-  let null : 'a stream -> bool
-  let hd : 'a stream -> 'a
-  let tl : 'a stream -> 'a stream
+  val null : 'a stream -> bool
+  val hd : 'a stream -> 'a
+  val tl : 'a stream -> 'a stream
+  val map : ('a -> 'b) -> 'a stream -> 'b stream
+  val filter : ('a -> bool) -> 'a stream -> 'a stream
+  val exists : ('a -> bool) -> 'a stream -> bool
+  val take : 'a stream * int -> 'a list
+  val drop : 'a stream * int -> 'a stream
+  val fromList : 'a list -> 'a stream
+  val toList : 'a stream -> 'a list
+  val tabulate : (int -> 'a) -> 'a stream
 
-  let map : ('a -> 'b) -> 'a stream -> 'b stream
-  let filter : ('a -> bool) -> 'a stream -> 'a stream
-  let exists : ('a -> bool) -> 'a stream -> bool
+end
 
-  let take : 'a stream * int -> 'a list
-  let drop : 'a stream * int -> 'a stream
 
-  let fromList : 'a list -> 'a stream
-  let toList : 'a stream -> 'a list
+module Stream (BasicStream : BASIC_STREAM) : STREAM = struct open BasicStream
+exception EmptyStream
+(* functions null, hd, tl, map, filter, exists, take, drop *)
 
-  let tabulate : (int -> 'a) -> 'a stream
-end;
+(* parallel the functions in the List structure *)
 
-module Stream
-  (BasicStream : BASIC_STREAM) : STREAM =
-struct
-  open BasicStream
+let rec null (s)  = null' (expose s)
+and null' = function (Empty) -> true | (Cons _) -> false
+let rec hd (s)  = hd' (expose s)
+and hd' = function (Empty) -> raise (EmptyStream) | (Cons (x, s)) -> x
+let rec tl (s)  = tl' (expose s)
+and tl' = function (Empty) -> raise (EmptyStream) | (Cons (x, s)) -> s
+let rec map f s  = delay (fun () -> map' f (expose s))
+and map' = function (f, (Empty)) -> Empty | (f, (Cons (x, s))) -> Cons (f (x), map f s)
+let rec filter p s  = delay (fun () -> filter' p (expose s))
+and filter' = function (p, (Empty)) -> Empty | (p, (Cons (x, s))) -> if p (x) then Cons (x, filter p s) else filter' p (expose s)
+let rec exists p s  = exists' p (expose s)
+and exists' = function (p, (Empty)) -> false | (p, (Cons (x, s))) -> p (x) || exists p s
+let rec takePos = function (s, 0) -> [] | (s, n) -> take' (expose s, n)
+and take' = function (Empty, _) -> [] | (Cons (x, s), n) -> x :: takePos (s, n - 1)
+let rec take (s, n)  = if n < 0 then raise (Subscript) else takePos (s, n)
+let rec fromList = function ([]) -> empty | (x :: l) -> cons (x, fromList (l))
+let rec toList (s)  = toList' (expose s)
+and toList' = function (Empty) -> [] | (Cons (x, s)) -> x :: toList (s)
+let rec dropPos = function (s, 0) -> s | (s, n) -> drop' (expose s, n)
+and drop' = function (Empty, _) -> empty | (Cons (x, s), n) -> dropPos (s, n - 1)
+let rec drop (s, n)  = if n < 0 then raise (Subscript) else dropPos (s, n)
+let rec tabulate f  = delay (fun () -> tabulate' f)
+and tabulate' f  = Cons (f (0), tabulate (fun i -> f (i + 1)))
+ end
 
-  exception EmptyStream
 
-  (* functions null, hd, tl, map, filter, exists, take, drop *)
-  (* parallel the functions in the List module *)
-  let rec null (s) = null' (expose s)
-  and null' (Empty) = true
-    | null' (Cons _) = false
+(* structure Stream :> STREAM --- non-memoizing *)
 
-  let rec hd (s) = hd' (expose s)
-  and hd' (Empty) = raise EmptyStream
-    | hd' (Cons (x,s)) = x
 
-  let rec tl (s) = tl' (expose s)
-  and tl' (Empty) = raise EmptyStream
-    | tl' (Cons (x,s)) = s
+module Stream : STREAM = Stream (struct module BasicStream = BasicStream end)
 
-  let rec map f s = delay (fn () => map' f (expose s))
-  and map' f (Empty) = Empty
-    | map' f (Cons(x,s)) = Cons (f(x), map f s)
 
-  let rec filter p s = delay (fn () => filter' p (expose s))
-  and filter' p (Empty) = Empty
-    | filter' p (Cons(x,s)) =
-        if p(x) then Cons (x, filter p s)
-	else filter' p (expose s)
+(* structure MStream :> STREAM --- memoizing *)
 
-  let rec exists p s = exists' p (expose s)
-  and exists' p (Empty) = false
-    | exists' p (Cons(x,s)) =
-        p(x) orelse exists p s
 
-  let rec takePos = function (s, 0) -> nil
-    | (s, n) -> take' (expose s, n)
-  and take' (Empty, _) = nil
-    | take' (Cons(x,s), n) = x::takePos(s, n-1)
+module MStream : STREAM = Stream (struct module BasicStream = BasicMemoStream end)
 
-  let rec take (s,n) = if n < 0 then raise Subscript else takePos (s,n)
-
-  let rec fromList = function (nil) -> empty
-    | (x::l) -> cons(x,fromList(l))
-
-  let rec toList (s) = toList' (expose s)
-  and toList' (Empty) = nil
-    | toList' (Cons(x,s)) = x::toList(s)
-
-  let rec dropPos = function (s, 0) -> s
-    | (s, n) -> drop' (expose s, n)
-  and drop' (Empty, _) = empty
-    | drop' (Cons(x,s), n) = dropPos (s, n-1)
-
-  let rec drop (s,n) = if n < 0 then raise Subscript else dropPos (s,n)
-
-  let rec tabulate f = delay (fn () => tabulate' f)
-  and tabulate' f = Cons (f(0), tabulate (fun i -> f(i+1)))
-
-end;
-
-(* (Stream : STREAM) --- non-memoizing *)
-(Stream : STREAM) =
-  Stream (module BasicStream = BasicStream);
-
-(* (MStream : STREAM) --- memoizing *)
-(MStream : STREAM) =
-  Stream (module BasicStream = BasicMemoStream);
 
 (*
-module S = Stream;  (* abbreviation *)
+structure S = Stream;  (* abbreviation *)
 
 (* simple definition *)
-let rec ones' () = S.Cons(1, S.delay ones');
-let ones = S.delay ones';
+fun ones' () = S.Cons(1, S.delay ones');
+val ones = S.delay ones';
 
 (* alternative definitions *)
-let ones = S.tabulate (fun _ -> 1);
-let nats = S.tabulate (fun i -> i);
-let poss = S.map (fun i -> i+1) nats;
-let evens = S.map (fun i -> 2*i) nats;
+val ones = S.tabulate (fn _ => 1);
+val nats = S.tabulate (fn i => i);
+val poss = S.map (fn i => i+1) nats;
+val evens = S.map (fn i => 2*i) nats;
 
 (* notMultiple p q >=> true iff q is not a multiple of p *)
-let rec notMultiple p q = (q mod p <> 0);
+fun notMultiple p q = (q mod p <> 0);
 
-let rec sieve s = S.delay (fn () => sieve' (S.expose s))
+fun sieve s = S.delay (fn () => sieve' (S.expose s))
 and sieve' (S.Empty) = S.Empty
   | sieve' (S.Cons(p, s)) =
       S.Cons (p, sieve (S.filter (notMultiple p) s));
 
-let primes = sieve (S.tabulate (fun i -> i+2));
+val primes = sieve (S.tabulate (fn i => i+2));
 *)
+

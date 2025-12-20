@@ -1,14 +1,18 @@
 (* Reduction and Termination checker *)
+
+
 (* Author: Brigitte Pientka *)
 
-module type REDUCES =
-sig
-  (*! module IntSyn : INTSYN !*)
-    
+
+module type REDUCES = sig
+(*! structure IntSyn : INTSYN !*)
   exception Error of string
-
   val reset : unit -> unit
-  val checkFamReduction : IntSyn.cid -> unit 
-  val checkFam : IntSyn.cid -> unit   
+  val checkFamReduction : IntSyn.cid -> unit
+  val checkFam : IntSyn.cid -> unit
 
-end;; (* module type REDUCES *)
+end
+
+
+(* signature REDUCES *)
+

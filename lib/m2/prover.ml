@@ -1,96 +1,60 @@
 (* Meta Prover *)
+
+
 (* Author: Carsten Schuermann *)
 
-module Prover (MetaGlobal : METAGLOBAL)
-   (module MetaSyn' : METASYN)
-   (Init : INIT)
-                  sharing Init.MetaSyn = MetaSyn'
-                (Strategy : STRATEGY)
-                  sharing Strategy.MetaSyn = MetaSyn'
-                (Filling : FILLING)
-                  sharing Filling.MetaSyn = MetaSyn'
-                (Splitting : SPLITTING)
-                  sharing Splitting.MetaSyn = MetaSyn'
-                (Recursion : RECURSION)
-                  sharing Recursion.MetaSyn = MetaSyn'
-                (Qed : QED)
-                  sharing Qed.MetaSyn = MetaSyn'
-                (MetaPrint : METAPRINT)
-                  sharing MetaPrint.MetaSyn = MetaSyn'
-                (Names : NAMES)
-                (*! sharing Names.IntSyn = MetaSyn'.IntSyn !*)
-                (Timers : TIMERS)
-  : PROVER =
-struct
-  (*! module IntSyn = MetaSyn'.IntSyn !*)
 
-  exception Error of string
+module Prover (MetaGlobal : METAGLOBAL) (MetaSyn' : METASYN) (Init : INIT) (Strategy : STRATEGY) (Filling : FILLING) (Splitting : SPLITTING) (Recursion : RECURSION) (Qed : QED) (MetaPrint : METAPRINT) (Names : NAMES) (Timers : TIMERS) : PROVER = struct (*! structure IntSyn = MetaSyn'.IntSyn !*)
 
-  local
-    module MetaSyn = MetaSyn'
-    module M = MetaSyn
-    module I = IntSyn
+exception Error of string
+module MetaSyn = MetaSyn'
+module M = MetaSyn
+module I = IntSyn
+(* List of open states *)
 
-    (* List of open states *)
-    let openStates : MetaSyn.State list ref = ref nil
+let openStates : MetaSyn.state list ref = ref []
+(* List of solved states *)
 
-    (* List of solved states *)
-    let solvedStates : MetaSyn.State list ref = ref nil
-
-
-
-    let rec error s = raise Error s
-
-    (* reset () = ()
+let solvedStates : MetaSyn.state list ref = ref []
+let rec error s  = raise (Error s)
+(* reset () = ()
 
        Invariant:
        Resets the internal state of open states/solved states
     *)
-    let rec reset () =
-        (openStates := nil;
-         solvedStates := nil)
 
-    (* contains (L1, L2) = B'
+let rec reset ()  = (openStates := []; solvedStates := [])
+(* contains (L1, L2) = B'
 
        Invariant:
        B' holds iff L1 subset of L2 (modulo permutation)
     *)
-    let rec contains = function (nil, _) -> true
-      | (x :: L, L') -> 
-          (List.exists (fn x' => x = x') L') andalso contains (L, L')
 
-    (* equiv (L1, L2) = B'
+let rec contains = function ([], _) -> true | (x :: L, L') -> (List.exists (fun x' -> x = x') L') && contains (L, L')
+(* equiv (L1, L2) = B'
 
        Invariant:
        B' holds iff L1 is equivalent to L2 (modulo permutation)
     *)
-    let rec equiv (L1, L2) =
-          contains (L1, L2) andalso contains (L2, L1)
 
-    (* insertState S = ()
+let rec equiv (L1, L2)  = contains (L1, L2) && contains (L2, L1)
+(* insertState S = ()
 
        Invariant:
        If S is successful prove state, S is stored in solvedStates
        else S is stored in openStates
     *)
-    let rec insertState S =
-        if Qed.subgoal S then solvedStates := S :: (! solvedStates)
-        else openStates := S :: (! openStates)
 
-
-    (* cLtoString L = s
+let rec insertState S  = if Qed.subgoal S then solvedStates := S :: (! solvedStates) else openStates := S :: (! openStates)
+(* cLtoString L = s
 
        Invariant:
        If   L is a list of cid,
        then s is a string, listing their names
     *)
-    let rec cLToString = function (nil) -> ""
-      | (c :: nil) -> 
-          (I.conDecName (I.sgnLookup c))
-      | (c :: L) -> 
-          (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
 
-    (* init (k, cL) = ()
+let rec cLToString = function ([]) -> "" | (c :: []) -> (I.conDecName (I.sgnLookup c)) | (c :: L) -> (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
+(* init (k, cL) = ()
 
        Invariant:
        If   k is the maximal search depth
@@ -98,117 +62,56 @@ struct
        then init initializes the openStates/solvedStates
        else an Error exception is raised
     *)
-    let rec init (k, cL as (c :: _)) =
-        let
-          let _ = MetaGlobal.maxFill := k
-          let _ = reset ();
-          let cL' = Order.closure c
-                    handle Order.Error _ => cL  (* if no termination ordering given! *)
-        in
-          if equiv (cL, cL')
-            then List.app (fun S -> insertState S) (Init.init cL)
-          else raise Error ("Theorem by simultaneous induction not correctly stated:"
-                             ^ "\n            expected: " ^ (cLToString cL'))
-        end
 
-    (* auto () = ()
+let rec init (k, cL)  = ( (* if no termination ordering given! *)
+let _ = MetaGlobal.maxFill := k in let _ = reset () in let cL' = try Order.closure c with Order.Error _ -> cL in  if equiv (cL, cL') then List.app (fun S -> insertState S) (Init.init cL) else raise (Error ("Theorem by simultaneous induction not correctly stated:" ^ "\n            expected: " ^ (cLToString cL'))) )
+(* auto () = ()
 
        Invariant:
-       Solves as many States in openStates
-       as possible.
+       many States in possible.
     *)
-    let rec auto () =
-        let
-          let _ = print "M2.Prover.auto\n"
-          let (Open, solvedStates') = Strategy.run (!openStates)
-             handle Splitting.Error s => error ("Splitting Error: " ^ s)
-                  | Filling.Error s => error ("A proof could not be found -- Filling Error: " ^ s)
-                  | Recursion.Error s => error ("Recursion Error: " ^ s)
-                  | Filling.TimeOut =>  error ("A proof could not be found -- Exceeding Time Limit\n")
 
-          let _ = openStates := Open
-          let _ = solvedStates := (!solvedStates) @ solvedStates'
-        in
-          if (List.length (!openStates)) > 0 then
-            raise Error ("A proof could not be found")
-          else ()
-        end
-
-    (* makeConDec (name, (G, M), V) = e'
+let rec auto ()  = ( let _ = print "M2.Prover.auto\n" in let (Open, solvedStates') = try Strategy.run (! openStates) with Splitting.Error s -> error ("Splitting Error: " ^ s) | Filling.Error s -> error ("A proof could not be found -- Filling Error: " ^ s) | Recursion.Error s -> error ("Recursion Error: " ^ s) | Filling.TimeOut -> error ("A proof could not be found -- Exceeding Time Limit\n") in let _ = openStates := Open in let _ = solvedStates := (! solvedStates) @ solvedStates' in  if (List.length (! openStates)) > 0 then raise (Error ("A proof could not be found")) else () )
+(* makeConDec (name, (G, M), V) = e'
 
        Invariant:
        If   |- G ctx
        and  G |- M mtx
        and  G |- V : type
-       then e' = (name, |G|, {G}.V, Type) is a module type conDec
+       then e' = (name, |G|, {G}.V, Type) is a signature conDec
     *)
-    let rec makeConDec (M.State (name, M.Prefix (G, M, B), V)) =
-        let
-          let rec makeConDec' = function (I.Null, V, k) -> I.ConDec (name, NONE, k, I.Normal, V, I.Type)
-            | (I.Decl (G, D), V, k) -> 
-              makeConDec' (G, I.Pi ((D, I.Maybe), V), k+1)
-        in
-          (makeConDec' (G, V, 0))
-        end
 
-    (* makeSignature (SL) = IS'
+let rec makeConDec (M.State (name, M.Prefix (G, M, B), V))  = ( let rec makeConDec' = function (I.Null, V, k) -> I.ConDec (name, None, k, I.Normal, V, I.Type) | (I.Decl (G, D), V, k) -> makeConDec' (G, I.Pi ((D, I.Maybe), V), k + 1) in  (makeConDec' (G, V, 0)) )
+(* makeSignature (SL) = IS'
 
        Invariant:
        If   SL is a list of states,
        then IS' is the corresponding interface signaure
     *)
-    let rec makeSignature = function (nil) -> M.SgnEmpty
-      | (S :: SL) -> 
-          M.ConDec (makeConDec S,
-                      makeSignature SL)
 
-    (* install () = ()
+let rec makeSignature = function ([]) -> M.SgnEmpty | (S :: SL) -> M.ConDec (makeConDec S, makeSignature SL)
+(* install () = ()
 
        Invariant:
-       Installs solved states into the global module type.
+       Installs solved states into the global signature.
     *)
-    let rec install (installConDec) =
-        let
-          let rec install' = function M.SgnEmpty -> ()
-            | (M.ConDec (e, S)) -> 
-                (installConDec e;
-                 install' S)
-          let IS = if (List.length (!openStates)) > 0 then
-                     raise Error ("Theorem not proven")
-                   else makeSignature (!solvedStates)
-        in
-          (install' IS;
-           if !Global.chatter > 2 then
-             (print "% ------------------\n";
-              print (MetaPrint.sgnToString (IS));
-              print "% ------------------\n")
-           else ())
-        end
 
-    (* print () = ()
+let rec install (installConDec)  = ( let rec install' = function M.SgnEmpty -> () | (M.ConDec (e, S)) -> (installConDec e; install' S) in let IS = if (List.length (! openStates)) > 0 then raise (Error ("Theorem not proven")) else makeSignature (! solvedStates) in  (install' IS; if ! Global.chatter > 2 then (print "% ------------------\n"; print (MetaPrint.sgnToString (IS)); print "% ------------------\n") else ()) )
+(* print () = ()
 
        Invariant:
        Prints the list of open States and the list of closed states.
     *)
-    let rec printState () =
-        let
-          let rec print' = function nil -> ()
-            | (S :: L) -> 
-                (print (MetaPrint.stateToString S);
-                 print' L)
-        in
-          (print "Open problems:\n";
-           print "==============\n\n";
-           print' (!openStates);
-           print "Solved problems:\n";
-           print "================\n\n";
-           print' (!solvedStates))
-        end
 
-  in
-    let print = printState
-    let init = init
-    let auto = auto
-    let install = install
-  end (* local *)
-end;; (* functor Prover *)
+let rec printState ()  = ( let rec print' = function [] -> () | (S :: L) -> (print (MetaPrint.stateToString S); print' L) in  (print "Open problems:\n"; print "==============\n\n"; print' (! openStates); print "Solved problems:\n"; print "================\n\n"; print' (! solvedStates)) )
+let print = printState
+let init = init
+let auto = auto
+let install = install
+(* local *)
+
+ end
+
+
+(* functor Prover *)
+

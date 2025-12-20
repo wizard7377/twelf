@@ -1,7 +1,14 @@
 (* Data aquired during proof search *)
+
+
 (* Author: Carsten Schuermann *)
 
-module type MTPDATA =
-sig
+
+module type MTPDATA = sig
   val maxFill : int ref
-end;; (* module type MTPDATA *)
+
+end
+
+
+(* signature MTPDATA *)
+

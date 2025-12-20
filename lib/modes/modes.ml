@@ -1,23 +1,14 @@
-(* module ModeSyn  in modesyn.sml *)
+(* structure ModeSyn  in modesyn.sml *)
 
-module ModeTable =
-  ModeTable (module Table = IntRedBlackTree);
 
-module ModeDec =
-  ModeDec ((*! module ModeSyn' = ModeSyn !*)
-	   (*! module Paths' = Paths !*)
-	     );
+module ModeTable = ModeTable (struct module Table = IntRedBlackTree end)
 
-module ModeCheck =
-  ModeCheck ((*! module IntSyn = IntSyn !*)
-	     module ModeTable = ModeTable
-             module Whnf = Whnf
-	     module Index = Index
-	     (*! module Paths = Paths !*)
-	     module Origins = Origins);
 
-module ModePrint =
-  ModePrint ((*! module ModeSyn' = ModeSyn !*)
-	     module Names = Names
-	     module Formatter = Formatter
-	     module Print = Print);
+module ModeDec = ModeDec
+
+
+module ModeCheck = ModeCheck (struct module ModeTable = ModeTable end) (struct module Whnf = Whnf end) (struct module Index = Index end) (struct module Origins = Origins end)
+
+
+module ModePrint = ModePrint (struct module Names = Names end) (struct module Formatter = Formatter end) (struct module Print = Print end)
+
