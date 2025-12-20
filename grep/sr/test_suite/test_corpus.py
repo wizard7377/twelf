@@ -18,15 +18,22 @@ if str(SRC_DIR) not in sys.path:
 from test_ocaml import test_ocaml_code
 from sml_process import process_code, PARSER as SML_PARSER
 import tree_sitter as TS
-
+VERBOSE = False
 class TestCorpusFiles(unittest.TestCase):
     """Validate conversion of all files in the sml_sources folder."""
 
     def test_all_sml_like_files_parse_in_ocaml(self):
         base_dir = ROOT_DIR / "examples" / "sml_sources"
         allowed_exts = {".sml", ".sig", ".fun"}
+        if VERBOSE is False:
+                    failures_dir = ROOT_DIR / "test_suite" / "failures"
+                    if failures_dir.exists():
+                        for f in failures_dir.iterdir():
+                            f.unlink() 
+                        failures_dir.rmdir()
         for path in base_dir.rglob("*"):
             if path.is_file() and path.suffix in allowed_exts:
+                
                 with self.subTest("Testing ${path}",file=str(path)):
                     text = path.read_text(encoding="utf-8", errors="ignore")
                     converted = process_code(text)
@@ -71,12 +78,29 @@ OCaml PARSE TREE:
                             ocaml_tree = ocaml_parser.parse(converted.encode("utf-8"))
                             failure_msg += str(ocaml_tree.root_node)
                         except Exception as e:
-                            failure_msg += f"(Could not parse: {e})"
+                            failure_msg += f"(Could not parse: {path})"
                         
                         failure_msg += "\n================================================================================"
-                        self.fail(failure_msg)
-                        
+                        if VERBOSE == 1 or VERBOSE is True:
+                            self.fail(failure_msg)
+                        elif VERBOSE == 0 or VERBOSE is False:
+                            
+                            # Save failed output to a file for later inspection
+                            failures_dir = ROOT_DIR / "test_suite" / "failures"
+                            
+                            # TODO remove if exists
+                            failures_dir.mkdir(exist_ok=True)
+                            
+                            ocaml_suffix = ".ml"
+                            if path.suffix == ".sig":
+                                ocaml_suffix = ".mli"
+
+                            failure_file = failures_dir / f"{path.stem}{ocaml_suffix}"
+                            fail_file = converted + "\n\n(** NOTE SML SOURCE \n" + text + "\n**)\n"
+                            failure_file.write_text(fail_file, encoding="utf-8")
+                            self.fail(f"Conversion failed for file: {path}. Run with VERBOSE=True for details.")
+                            # Create `failures` directory if it doesn't exist
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=0)
     print("All tests passed!")

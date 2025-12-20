@@ -27,7 +27,100 @@ OCAML_PARSER: Parser = Parser(OCAML_LANGUAGE)
 OCAML_RESERVED_RENAMES = {
     "new": "new_",
     "match": "match_",
+    "try": "try_",
+    "type": "type_",
+    "module": "module_",
+    "struct": "struct_",
+    "sig": "sig_",
+    "object": "object_",
+    "class": "class_",
+    "constraint": "constraint_",
+    "method": "method_",
+    "fun": "fun_",
+    "function": "function_",
+    "to": "to_",
+    "do": "do_",
+    "done": "done_",
+    "begin": "begin_",
+    "end": "end_",
+    "if": "if_",
+    "then": "then_",
+    "else": "else_",
+    "in": "in_",
+    "let": "let_",
+    "rec": "rec_",
+    "and": "and_",
+    "or": "or_",
+    "land": "land_",
+    "lor": "lor_",
+    "lsl": "lsl_",
+    "lsr": "lsr_",
+    "lxor": "lxor_",
+    "mod": "mod_",
+    "when": "when_",
+    "while": "while_",
+    "for": "for_",
+    "downto": "downto_",
+    "val": "val_",
+    "open": "open_",
+    "include": "include_",
+    "inherit": "inherit_",
+    "initializer": "initializer_",
 }
+
+OPERATOR_CHARS = set("!$%&*+-/:<=>?@^|~")
+
+
+def _is_operator(text: str) -> bool:
+    return bool(text) and all(ch in OPERATOR_CHARS for ch in text)
+
+
+def _format_operator(text: str, prefix: str | None = None) -> str:
+    formatted = f"( {text} )"
+    return f"{prefix}.{formatted}" if prefix else formatted
+
+
+def _convert_char_literal(text: str) -> str:
+    """Convert SML char literal (e.g., #"a", #"\\^D") to an OCaml-compatible char."""
+    if not (text.startswith("#\"") and text.endswith("\"")):
+        return text
+
+    body = text[2:-1]
+
+    # Control character notation \^X
+    if body.startswith("\\^") and len(body) >= 3:
+        ctrl = body[2]
+        code = ord(ctrl.upper()) - 64  # Ctrl+A == 1
+        code = max(0, min(code, 0o377))
+        return f"'\\{code:03o}'"
+
+    # Common escape sequences
+    escapes = {
+        "n": "\\n",
+        "t": "\\t",
+        "r": "\\r",
+        "b": "\\b",
+        "f": "\\f",
+        "\\": "\\\\",
+        "\"": "\"",
+        "'": "\\'",
+    }
+
+    if body.startswith("\\"):
+        esc = body[1:]
+        if esc and esc[0].isdigit():
+            try:
+                val_int = int(esc, 10)
+                val_int = max(0, min(val_int, 0o377))
+                return f"'\\{val_int:03o}'"
+            except ValueError:
+                pass
+        mapped = escapes.get(esc, "\\" + esc)
+        return f"'{mapped}'"
+
+    # Plain character
+    body = body.replace("'", "\\'")
+    return f"'{body}'"
 
 # SML to OCaml name mappings for standard library
 SML_TO_OCAML_NAMES = {
@@ -120,15 +213,15 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
             result = ""
             for child in node.children:
                 if child.type == ";":
-                    result += ";;\n"
+                    result += "\n"
                 else:
                     text = walk_tree(child)
                     if text:
                         if result and not result.endswith(";;\n"):
-                            result += ";;\n"
+                            result += "\n"
                         result += text
                         if not result.endswith(";;\n"):
-                            result += ";;\n"
+                            result += "\n"
             return result
         case "program":
             return walk_children(node)
@@ -161,16 +254,17 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
         case "char_scon":
             # SML: #"a" -> OCaml: 'a'
             text = get_text(node)
-            if text.startswith("#"):
-                return "'" + text[2:-1] + "'"
-            return text
+            return _convert_char_literal(text)
         
         # Identifiers
         case "vid":
             text = get_text(node)
-            # Check for SML standard library names that need conversion
+            # Don't wrap operators here - just return them as-is.
+            # Context (infix vs. prefix) is handled by parent nodes.
             if text in SML_TO_OCAML_NAMES:
                 return SML_TO_OCAML_NAMES[text]
+            if _is_operator(text):
+                return text
             return process_name_lower(text)
         case "longvid":
             parts = []
@@ -181,6 +275,8 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                     text = get_text(child)
                     if text in SML_TO_OCAML_NAMES:
                         parts.append(SML_TO_OCAML_NAMES[text])
+                    elif _is_operator(text):
+                        parts.append(text)
                     else:
                         parts.append(process_name_lower(text))
                 elif child.type != ".":
@@ -189,8 +285,11 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                 text = get_text(node)
                 if text in SML_TO_OCAML_NAMES:
                     parts.append(SML_TO_OCAML_NAMES[text])
+                elif _is_operator(text):
+                    parts.append(text)
                 else:
                     parts.append(process_name_lower(text))
+
             return ".".join(parts)
         case "tycon":
             # Type constructor - OCaml type names must be lowercase
@@ -252,19 +351,13 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
         case "vid_exp":
             return walk_children(node)
         case "record_exp":
-            # SML: {a=1, b=2} -> OCaml: {a = 1; b = 2}
-            result = "{"
-            first = True
+            # Map record expressions directly to OCaml records
+            fields = []
             for child in node.children:
-                if child.type == "exprow":
-                    if not first:
-                        result += "; "
-                    result += walk_tree(child)
-                    first = False
-                elif child.type not in ("{", "}"):
-                    pass
-            result += "}"
-            return result
+                if child.type in ("{", "}", ","):
+                    continue
+                fields.append(walk_tree(child))
+            return "{" + "; ".join(fields) + "}"
         case "exprow":
             # exprow: lab = exp
             result = ""
@@ -371,8 +464,8 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                 elif child.type == "in":
                     # Process all collected declarations
                     for decl in declarations:
-                        result += walk_tree(decl) + " "
-                    result += "in "
+                        result += walk_tree(decl) + " in "
+                    result += " "
                     in_body = True
                 elif child.type == "end":
                     break
@@ -639,6 +732,7 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                 
                 result = func_name + " = function " + " | ".join(clauses)
                 return result
+
         case "type_dec":
             # SML: type t = ... -> OCaml: type t = ...
             result = "type "
@@ -671,13 +765,14 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
         case "typbind":
             # type name = type
             result = ""
+            child : TS.Node
             for child in node.children:
                 if child.type == "tyvarseq":
                     result += walk_tree(child) + " "
                 elif child.type == "tycon":
-                    result += walk_tree(child)
-                elif child.type == "=":
-                    result += " = "
+                    result += walk_tree(child) + " = "
+                elif child.text.strip() == "=":
+                    pass
                 elif child.type not in ("and",):
                     result += walk_tree(child)
             return result
@@ -719,9 +814,9 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                 if child.type == "tyvarseq":
                     result += walk_tree(child) + " "
                 elif child.type == "tycon":
-                    result += walk_tree(child)
+                    result += walk_tree(child) + " = "
                 elif child.type == "=":
-                    result += " = "
+                    pass
                 elif child.type == "conbind":
                     conbinds.append(child)
             
@@ -933,33 +1028,21 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                     result += walk_tree(child)
             return result
         case "as_pat":
-            name = ""
+            # Drop aliases to avoid producing invalid OCaml patterns; keep RHS pattern
             pattern = ""
-            is_pat = False
-            children : List[TS.Node] = node.children
-            for child in children:
-                if child.text == "as":
-                    is_pat = True
-                else:
-                    if is_pat:
-                        pattern += walk_tree(child)
-                    else:
-                        name = walk_tree(child)
-            return f"{pattern} as {name}"
-        case "conj_pat":
-            result = ""
-            name = ""
-            pat = ""
-            is_name = True
             for child in node.children:
                 if child.type == "as":
-                    is_name = False
-                else:
-                    if is_name:
-                        name += walk_tree(child)
-                    else:
-                        pat += walk_tree(child)
-            return f"{pat} as {name}"
+                    break
+                pattern += walk_tree(child)
+            return pattern
+        case "conj_pat":
+            # Treat A as B patterns similarly by keeping only the pattern portion
+            pat = ""
+            for child in node.children:
+                if child.type == "as":
+                    break
+                pat += walk_tree(child)
+            return pat
         case "disj_pat":
             # SML: p1 | p2 -> OCaml: not directly supported in patterns
             result = ""
@@ -1005,13 +1088,13 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
         case "tyvar_ty":
             return walk_children(node)
         case "record_ty":
-            # OCaml does not support anonymous record type expressions; use an
-            # object type with the same fields so the parser accepts the
-            # signature while keeping field names visible.
+            # OCaml lacks anonymous record type expressions; map to an object type
+            # so field names remain visible and the parser accepts inline usages.
             fields = []
             for child in node.children:
-                if child.type not in ("{", "}", ","):
-                    fields.append(walk_tree(child))
+                if child.type in ("{", "}", ","):
+                    continue
+                fields.append(walk_tree(child))
             return "<" + "; ".join(fields) + ">"
         case "tyrow":
             result = ""
@@ -1168,12 +1251,16 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
         case "sigid_sigexp":
             return walk_children(node)
         case "wheretype_sigexp":
-            # SML: sigexp where type ... = ...
+            # SML: sigexp where type ... = ... -> OCaml: sigexp with type ... = ...
             result = ""
             for child in node.children:
                 if child.type == "where":
-                    result += " where "
-                elif child.type not in ("where",):
+                    result += " with "
+                elif child.type == "type":
+                    result += "type "
+                elif child.type == "=":
+                    result += " = "
+                else:
                     result += walk_tree(child)
             return result
         
@@ -1269,6 +1356,39 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                 elif child.type not in ("=", "and"):
                     result += walk_tree(child)
             return result
+        case "datdesc":
+            # datatype name = conbind | conbind in signature
+            result = ""
+            condescs = []
+            
+            for child in node.children:
+                if child.type == "tyvarseq":
+                    result += walk_tree(child) + " "
+                elif child.type == "tycon":
+                    result += walk_tree(child) + " = "
+                elif child.type == "=":
+                    pass
+                elif child.type == "condesc":
+                    condescs.append(child)
+            
+            # Process all condesc, joining with ' | '
+            for i, condesc in enumerate(condescs):
+                if i > 0:
+                    result += " | "
+                result += walk_tree(condesc)
+            
+            return result
+        case "condesc":
+            # Constructor description in signature (like conbind)
+            result = ""
+            for child in node.children:
+                if child.type == "vid":
+                    result += walk_tree(child)
+                elif child.type == "of":
+                    result += " of "
+                elif child.type not in ("vid", "of", "|"):
+                    result += walk_tree(child)
+            return result
         case "strdesc":
             # structure name : sig
             result = ""
@@ -1324,7 +1444,7 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                     # OCaml uses a plain ':' for both transparent and opaque specs here
                     op = ":" if child.type in (":", ":>") else "="
                     result += f" {op} "
-                elif child.type == "structure_spec":
+                elif child.type == "structure_spec" and in_params:
                     # Functor parameter: structure Name : SIG
                     strdesc = None
                     for c in child.children:
@@ -1340,6 +1460,12 @@ def walk_tree(node: TS.Node, context: context = SIMP_CONTEXT) -> str:
                                 sig = walk_tree(c)
                         if name and sig:
                             params.append(f"{name} : {sig}")
+                elif child.type == "sharing_spec" and in_params:
+                    # Skip sharing constraints in parameters
+                    pass
+                elif child.type in ("block_comment", "line_comment"):
+                    # Skip comments in parameters
+                    pass
                 elif child.type != "fctid":
                     text = walk_tree(child)
                     if text:
@@ -1388,3 +1514,4 @@ if __name__ == "__main__":
     ocaml_code = process_code(sml_code)
     print("Converted OCaml code:")
     print(ocaml_code)
+        # Prepare to insert helper functions soon
