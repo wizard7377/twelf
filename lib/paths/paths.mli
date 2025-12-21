@@ -52,7 +52,7 @@ module type PATHS = sig
   *)
   type occExp and occSpine
 (* occurrence tree for_sml s spines *)
-  val Leaf : region -> occExp
+  val leaf : region -> occExp
 (* could be _ or identifier *)
   val bind : region * occExp option * occExp -> occExp
   val root : region * occExp * int * int * occSpine -> occExp

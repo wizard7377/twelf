@@ -55,10 +55,10 @@ type restriction = Restr of IntSyn.dctx * IntSyn.exp
 (*   Restr (G, U)                    *)
 
 type label = <owner: owner; (* owner of the row/column (if any)  *)
-; tag: int ref; (* tag: used to keep track of the    *)
-; (* position of a tableau entry       *)
-; restr: restriction option ref; (* restriction (if any)              *)
-; dead: bool ref>
+tag: int ref; (* tag: used to keep track of the    *)
+(* position of a tableau entry       *)
+restr: restriction option ref; (* restriction (if any)              *)
+dead: bool ref>
 (* has the row/column already been   *)
 
 (* solved?                           *)

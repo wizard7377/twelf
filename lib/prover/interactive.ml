@@ -9,7 +9,7 @@ module Interactive (Global : GLOBAL) (State' : STATE) (Formatter : FORMATTER) (T
 (*! structure Tomega = Tomega' !*)
 
 module State = State'
-exception ErrorState'.Error
+exception Error
 module I = IntSyn
 module T = Tomega
 module S = State

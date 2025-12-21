@@ -4,7 +4,7 @@
 (* Author: Roberto Virga *)
 
 
-module CSIntWord (val wordSize : int) (Whnf : WHNF) (Unify : UNIFY) : CS = struct (*! structure CSManager = CSManager !*)
+module CSIntWord (WS : sig val wordSize : int end) (Whnf : WHNF) (Unify : UNIFY) : CS = struct (*! structure CSManager = CSManager !*)
 
 open IntSyn
 module W = LargeWord
@@ -17,7 +17,7 @@ exception MyFgnCnstrRepPlus of dctx * exp * exp * exp * exp
 
 exception MyFgnCnstrRepTimes of dctx * exp * exp * exp * exp
 exception MyFgnCnstrRepQuot of dctx * exp * exp * exp * exp
-let wordSize' = Int.min (wordSize, W.wordSize)
+let wordSize' = Int.min (WS.wordSize, W.wordSize)
 let zero = W.fromInt 0
 let max = W.>> (W.notb zero, Word.fromInt (W.wordSize - wordSize'))
 (* numCheck (d) = true iff d <= max *)

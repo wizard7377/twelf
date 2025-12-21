@@ -15,14 +15,14 @@ type fgnConDec = (* foreign constant declaration *)
 <parse: string -> IntSyn.conDec option>
 type solver = (* constraint solver *)
 <(* name is the name of the solver *)
-; name: string; (* keywords identifying the type of solver *)
-; (* NOTE: no two solvers with the same keywords may be active simultaneously *)
-; keywords: string; (* names of other constraint solvers needed *)
-; needs: string list; (* foreign constants declared (if any) *)
-; fgnConst: fgnConDec option; (* install constants *)
-; init: (int * (sigEntry -> IntSyn.cid)) -> unit; (* reset internal status *)
-; reset: unit -> unit; (* trailing operations *)
-; mark: unit -> unit; unwind: unit -> unit>
+name: string; (* keywords identifying the type of solver *)
+(* NOTE: no two solvers with the same keywords may be active simultaneously *)
+keywords: string; (* names of other constraint solvers needed *)
+needs: string list; (* foreign constants declared (if any) *)
+fgnConst: fgnConDec option; (* install constants *)
+init: (int * (sigEntry -> IntSyn.cid)) -> unit; (* reset internal status *)
+reset: unit -> unit; (* trailing operations *)
+mark: unit -> unit; unwind: unit -> unit>
 exception Error of string
 (* vacuous solver *)
 

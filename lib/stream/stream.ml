@@ -97,9 +97,8 @@ module Stream (BasicStream : BASIC_STREAM) : STREAM = struct
 
   let rec tl s = tl' (expose s)
   and tl' = function Empty -> raise EmptyStream | Cons (x, s) -> s
-
   let rec map f s = delay (fun () -> map' f (expose s))
-  and map' = function f, Empty -> Empty | f, Cons (x, s) -> Cons (f x, map f s)
+  and map' f = function Empty -> Empty | Cons (x, s) -> Cons (f x, map f s)
 
   let rec filter p s = delay (fun () -> filter' p (expose s))
 

@@ -60,7 +60,7 @@ and doNS ns  = (Names.appStructs doStruct ns; Names.appConsts doConst ns) in  do
 let rec instantiateModule (module_, transform)  = ( let transformConDec = transform namespace in let mid = IntSyn.sgnStructAdd (IntSyn.StrDec ("wheresubj", None)) in let ns = Names.newNamespace () in let _ = Names.installComponents (mid, ns) in let _ = installModule (module_, Some mid, None, fun _ -> (), transformConDec) in  abstractModule (ns, Some mid) )
 let defList : string list ref = ref []
 let defCount : int ref = ref 0
-let defs : module HashTable.table = HashTable.new_ (4096)
+let defs : HashTable.table = HashTable.new_ (4096)
 let rec defsClear ()  = HashTable.clear defs
 let defsInsert = HashTable.insertShadow defs
 let defsLookup = HashTable.lookup defs

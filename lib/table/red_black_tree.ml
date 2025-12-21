@@ -4,7 +4,8 @@
 (* Author: Frank Pfenning *)
 
 
-module RedBlackTree (type key') (val compare : key' * key' -> order) : TABLE with type key = key' = struct type key = key'
+module RedBlackTree (K : sig type t val compare : K.t * K.t -> order end) : TABLE with type key = K.t = struct
+type key = K.t
 type 'a entry = key * 'a
 type 'a dict = Empty | Red of 'a entry * 'a dict * 'a dict | Black of 'a entry * 'a dict * 'a dict
 type 'a table = 'a dict ref
@@ -22,7 +23,7 @@ type 'a table = 'a dict ref
   *)
 
 let rec lookup dict key  = ( let rec lk = function (Empty) -> None | (Red tree) -> lk' tree | (Black tree) -> lk' tree
-and lk' ((key1, datum1), left, right)  = (match compare (key, key1) with Eq -> Some (datum1) | Lt -> lk left | Gt -> lk right) in  lk dict )
+and lk' ((key1, datum1), left, right)  = (match K.compare (key, key1) with Eq -> Some (datum1) | Lt -> lk left | Gt -> lk right) in  lk dict )
 (* val restore_right : 'a dict -> 'a dict *)
 
 (*
@@ -45,7 +46,7 @@ let rec insert (dict, entry)  = ( (* val ins : 'a dict -> 'a dict  inserts entry
 (* ins (Red _) may violate color invariant at root *)
 (* ins (Black _) or ins (Empty) will be red/black tree *)
 (* ins preserves black height *)
-let rec ins = function (Empty) -> Red (entry, Empty, Empty) | (Red (entry1, left, right)) -> (match compare (key, key1) with Eq -> Red (entry, left, right) | Lt -> Red (entry1, ins left, right) | Gt -> Red (entry1, left, ins right)) | (Black (entry1, left, right)) -> (match compare (key, key1) with Eq -> Black (entry, left, right) | Lt -> restore_left (Black (entry1, ins left, right)) | Gt -> restore_right (Black (entry1, left, ins right))) in  match ins dict with Red (t) -> Black t(* re-color *)
+let rec ins = function (Empty) -> Red (entry, Empty, Empty) | (Red (entry1, left, right)) -> (match K.compare (key, key1) with Eq -> Red (entry, left, right) | Lt -> Red (entry1, ins left, right) | Gt -> Red (entry1, left, ins right)) | (Black (entry1, left, right)) -> (match K.compare (key, key1) with Eq -> Black (entry, left, right) | Lt -> restore_left (Black (entry1, ins left, right)) | Gt -> restore_right (Black (entry1, left, ins right))) in  match ins dict with Red (t) -> Black t(* re-color *)
  | Red (t) -> Black t(* re-color *)
  | dict -> dict )
 (* function below from .../smlnj-lib/Util/int-redblack-set.sml *)
@@ -68,7 +69,7 @@ let rec zip = function (TOP, t) -> t | (LEFTB (x, b, z), a) -> zip (z, Black (x,
 (* use non-imperative version? *)
 
 let rec insertShadow (dict, entry)  = ( (* : 'a entry option ref *)
-let oldEntry = ref None in let rec ins = function (Empty) -> Red (entry, Empty, Empty) | (Red (entry1, left, right)) -> (match compare (key, key1) with Eq -> (oldEntry := Some (entry1); Red (entry, left, right)) | Lt -> Red (entry1, ins left, right) | Gt -> Red (entry1, left, ins right)) | (Black (entry1, left, right)) -> (match compare (key, key1) with Eq -> (oldEntry := Some (entry1); Black (entry, left, right)) | Lt -> restore_left (Black (entry1, ins left, right)) | Gt -> restore_right (Black (entry1, left, ins right))) in  (oldEntry := None; ((match ins dict with Red (t) -> Black t(* re-color *)
+let oldEntry = ref None in let rec ins = function (Empty) -> Red (entry, Empty, Empty) | (Red (entry1, left, right)) -> (match K.compare (key, key1) with Eq -> (oldEntry := Some (entry1); Red (entry, left, right)) | Lt -> Red (entry1, ins left, right) | Gt -> Red (entry1, left, ins right)) | (Black (entry1, left, right)) -> (match K.compare (key, key1) with Eq -> (oldEntry := Some (entry1); Black (entry, left, right)) | Lt -> restore_left (Black (entry1, ins left, right)) | Gt -> restore_right (Black (entry1, left, ins right))) in  (oldEntry := None; ((match ins dict with Red (t) -> Black t(* re-color *)
  | Red (t) -> Black t(* re-color *)
  | dict -> dict), ! oldEntry)) )
 let rec app f dict  = ( let rec ap = function (Empty) -> () | (Red tree) -> ap' tree | (Black tree) -> ap' tree

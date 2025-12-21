@@ -163,7 +163,7 @@ let rec findMon f (G, Sum (m, monL))  = ( let rec findMon' = function ([], monL2
          NONE       if sum is not divisible by k
     *)
 
-let rec divideSum (Sum (m, monL), k)  = ( exception Err in let rec divide n  = if rem (n, k) = zero then quot (n, k) else raise (Err) in let rec divideMon (Mon (n, UsL))  = Mon (divide n, UsL) in  try (Some (Sum (divide m, List.map divideMon monL))) with Err -> None )
+let rec divideSum (Sum (m, monL), k)  = ( let exception Err in let rec divide n  = if rem (n, k) = zero then quot (n, k) else raise (Err) in let rec divideMon (Mon (n, UsL))  = Mon (divide n, UsL) in  try (Some (Sum (divide m, List.map divideMon monL))) with Err -> None )
 (* delaySum (G, sum) = Delay (U, cnstr)
        where U the foreign expression corresponding to sum
        and cnstr is the constraint G |- sum = 0 : integer

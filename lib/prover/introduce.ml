@@ -12,7 +12,7 @@ module State = State'
 module S = State'
 module T = Tomega
 module I = IntSyn
-exception ErrorS.Error
+exception Error
 type operator = T.prg * T.prg
 (*    fun stripTC (T.Abs (_, TC)) = TC *)
 

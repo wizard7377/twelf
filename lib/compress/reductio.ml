@@ -82,7 +82,7 @@ let rec pp_invert (vs, shift)  = ( let inds = List.tabulate (shift, (fun x -> x)
            If sl is not pattern it raises NonPattern.
            If RHS is not in the range of sl, then MissingVar is raised by substitution *)
 
-let rec flex_left = function ((r, a), s : subst, rhs) -> ( let pps = try prepattern s with Domain -> raise (NonPattern) in let _ = if pp_ispat pps then () else raise (NonPattern) in let ppsi = pp_invert pps in let rhs' = subst_term ppsi (termof rhs) in let _ = r := Some rhs' in  () ) | _ -> raise (Error "evar invariant violated")
+let rec flex_left = function ((r, a), (s : subst), rhs) -> ( let pps = try prepattern s with Domain -> raise (NonPattern) in let _ = if pp_ispat pps then () else raise (NonPattern) in let ppsi = pp_invert pps in let rhs' = subst_term ppsi (termof rhs) in let _ = r := Some rhs' in  () ) | _ -> raise (Error "evar invariant violated")
 (* match_one' takes an equation (which by invariant does not
            have an instantiated evar on the left, and is ground on the
            right) and returns a list of smaller equations that are

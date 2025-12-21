@@ -83,7 +83,7 @@ let rec sclo'' = function (TooFew, s) -> TooFew | (Exact (S), s) -> Exact (S) | 
 let rec dropImp = function (0, S, 0) -> Exact (S) | (0, S, n) -> ( let rec checkArgNumber = function (I.Nil, 0) -> Exact (S) | (I.Nil, k) -> TooFew | (S', 0) -> TooMany (S, S') | (I.App (U, S'), k) -> checkArgNumber (S', k - 1) | (I.SClo (S', s), k) -> sclo'' (checkArgNumber (S', k), s) in  checkArgNumber (S, n) ) | (i, I.App (U, S), n) -> dropImp (i - 1, S, n) | (i, I.SClo (S, s), n) -> sclo' (dropImp (i, S, n), s) | (i, I.Nil, n) -> TooFew
 (* exceeded (n:int, b:bound) = true if n exceeds bound b *)
 
-let rec exceeded = function (_, None) -> false | (n : int, Some (m : int)) -> n >= m
+let rec exceeded = function (_, None) -> false | ((n : int), (Some (m : int))) -> n >= m
 (* Type ctxt is the "left context" of an expression to be printed.
      It an accumulator and is used to decide whether to insert of parentheses
      or elide nested subexpressions.

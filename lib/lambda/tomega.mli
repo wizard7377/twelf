@@ -55,7 +55,7 @@ module type TOMEGA = sig
   val revCoerceFront : IntSyn.front -> front
   val deblockify : IntSyn.dec IntSyn.ctx -> IntSyn.dec IntSyn.ctx * sub
 (* Stuff that has to do with termination conditions *)
-  val TCSub : tC * IntSyn.sub -> tC
+  val tCSub : tC * IntSyn.sub -> tC
   val normalizeTC : tC -> tC
   val convTC : tC * tC -> bool
   val transformTC : IntSyn.dec IntSyn.ctx * for_sml * int Order.order list -> tC

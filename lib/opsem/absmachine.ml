@@ -76,7 +76,7 @@ and matchAtom (ps', dp, sc)  = ( (* matchSig [c1,...,cn] = ()
            Try each local assumption for_sml solving atomic goal ps', starting
            with the most recent one.
         *)
-let deterministic = C.detTableCheck (cidFromHead Ha) in exception SucceedOnce of I.spine in let rec matchSig = function [] -> () | (Hc :: sgn') -> ( let C.SClause (r) = C.sProgLookup (cidFromHead Hc) in  (* trail to undo EVar instantiations *)
+let deterministic = C.detTableCheck (cidFromHead Ha) in let exception SucceedOnce of I.spine in let rec matchSig = function [] -> () | (Hc :: sgn') -> ( let C.SClause (r) = C.sProgLookup (cidFromHead Hc) in  (* trail to undo EVar instantiations *)
 CSManager.trail (fun () -> rSolve (ps', (r, I.id), dp, (fun S -> sc (I.Root (Hc, S))))); matchSig sgn' ) in let rec matchSigDet = function [] -> () | (Hc :: sgn') -> ( let C.SClause (r) = C.sProgLookup (cidFromHead Hc) in  (* trail to undo EVar instantiations *)
 try (CSManager.trail (fun () -> (rSolve (ps', (r, I.id), dp, (fun S -> raise (SucceedOnce S))))); matchSigDet sgn') with SucceedOnce S -> sc (I.Root (Hc, S)) ) in let rec matchDProg = function (I.Null, _) -> if deterministic then matchSigDet (Index.lookup (cidFromHead Ha)) else matchSig (Index.lookup (cidFromHead Ha)) | (I.Decl (dPool', C.Dec (r, s, Ha')), k) -> if eqHead (Ha, Ha') then if deterministic then (* #succeeds = 1 *)
 (try (CSManager.trail (* trail to undo EVar instantiations *)
