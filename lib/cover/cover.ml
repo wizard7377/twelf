@@ -116,7 +116,8 @@ and abbrevCGoal' = function (G, I.Pi ((D, P), V), ci) -> ( let D' = N.decUName (
 (* other cases are impossible by CGoal invariant *)
 
 let rec formatCGoal (V, p, ci)  = ( let _ = N.varReset I.Null in let (G, V') = abbrevCGoal (I.Null, V, p, ci) in  F.HVbox [Print.formatCtx (I.Null, G); F.Break; F.String "|-"; F.Space; Print.formatExp (G, V')] )
-let rec formatCGoals = function ((V, p) :: [], ci) -> [formatCGoal (V, p, ci)] | ((V, p) :: Vs, ci) -> formatCGoal (V, p, ci) :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
+let rec formatCGoals = function ((V, p) :: [], ci) -> [formatCGoal (V, p, ci)] 
+| ((V, p) :: Vs, ci) -> formatCGoal (V, p, ci) :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
 let rec missingToString (Vs, ci)  = F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (formatCGoals (Vs, ci)); F.String "."])
 let rec showSplitVar (V, p, k, ci)  = ( let _ = N.varReset I.Null in let (G, V') = abbrevCGoal (I.Null, V, p, ci) in let I.Dec (Some (x), _) = I.ctxLookup (G, k) in  "Split " ^ x ^ " in " ^ Print.expToString (G, V') )
 let rec showPendingGoal (V, p, ci, lab)  = F.makestring_fmt (F.Hbox [F.String (labToString (lab)); F.Space; F.String "?- "; formatCGoal (V, p, ci); F.String "."])

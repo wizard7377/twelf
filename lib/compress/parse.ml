@@ -12,8 +12,8 @@ let rec termToString = function (Id s) -> s | (App (t, u)) -> "(" ^ (termToStrin
 and vardecToString = function (v, Some t) -> v ^ ":" ^ (termToString t) | (v, None) -> v
 let id = maybe (function ID s -> Some s | _ -> None)
 let rec swap (x, y)  = (y, x)
-let rec vardec ()  = id << tick COLON && ($ term wth Some) || id wth (fun s -> (s, None))
-and term ()  = parsefixityadj (alt [id wth (Atm o Id); tick LPAREN >> $ term << tick RPAREN wth Atm; tick LPAREN >> $ term << tick COLON && $ term << tick RPAREN wth (Atm o Ascribe); tick LBRACKET >> $ vardec << tick RBRACKET && $ term wth (Atm o Lam); tick LBRACE >> tick STAR >> $ vardec << tick RBRACE && $ term wth (Atm o PiOmit); tick LBRACE >> tick PLUS >> $ vardec << tick RBRACE && $ term wth (Atm o PiPlus); tick LBRACE >> $ vardec << tick RBRACE && $ term wth (Atm o PiMinus); tick TYPE return (Atm Type); tick ARROW return Opr (Infix (Right, 5, Arrow)); tick PLUSARROW return Opr (Infix (Right, 5, PlusArrow)); tick BACKARROW return Opr (Infix (Left, 5, Arrow o swap)); tick STAR return (Atm Omit)]) Left App
-let condec = (opt (tick MINUS) wth (not o Option.isSome)) && id << tick COLON && $ term << tick DOT
-let rec parseof x  = Stream.toList (Parsing.transform ($ term) (Parsing.transform (!! tok) (Pos.markstream (StreamUtil.stostream (x ^ "\n%.")))))
+let rec vardec ()  = id << tick COLON && (wth (( $ ) term) Some) || wth id (fun s -> (s, None))
+and term ()  = parsefixityadj (alt [wth id (Atm o Id); wth (tick LPAREN >> ( $ ) term << tick RPAREN) Atm; wth (tick LPAREN >> ( $ ) term << tick COLON && ( $ ) term << tick RPAREN) (Atm o Ascribe); wth (tick LBRACKET >> ( $ ) vardec << tick RBRACKET && ( $ ) term) (Atm o Lam); wth (tick LBRACE >> tick STAR >> ( $ ) vardec << tick RBRACE && ( $ ) term) (Atm o PiOmit); wth (tick LBRACE >> tick PLUS >> ( $ ) vardec << tick RBRACE && ( $ ) term) (Atm o PiPlus); wth (tick LBRACE >> ( $ ) vardec << tick RBRACE && ( $ ) term) (Atm o PiMinus); tick TYPE return (Atm Type); tick ARROW return Opr (Infix (Right, 5, Arrow)); tick PLUSARROW return Opr (Infix (Right, 5, PlusArrow)); tick BACKARROW return Opr (Infix (Left, 5, Arrow o swap)); tick STAR return (Atm Omit)]) Left App
+let condec = wth (opt (tick MINUS)) (not o Option.isSome) && id << tick COLON && ( $ ) term << tick DOT
+let rec parseof x  = Stream.toList (Parsing.transform (( $ ) term) (Parsing.transform (!! tok) (Pos.markstream (StreamUtil.stostream (x ^ "\n%.")))))
  end

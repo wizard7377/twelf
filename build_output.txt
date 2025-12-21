@@ -1,0 +1,437 @@
+File "lib/int_inf/int_inf_sig.ml", line 10, characters 10-17:
+10 |   include INTEGER
+               ^^^^^^^
+Error: Unbound module type INTEGER
+File "lib/msg/msg.ml", line 9, characters 10-24:
+9 |   let rec setMessageFunc f = messageFunc := f
+              ^^^^^^^^^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/msg/msg.ml", line 10, characters 10-17:
+10 |   let rec message s = !messageFunc s
+               ^^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+File "lib/stream/stream.ml", line 24, characters 10-15:
+24 |   let rec delay d = Stream d
+               ^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/stream/stream.ml", line 25, characters 10-16:
+25 |   let rec expose (Stream d) = d ()
+               ^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/stream/stream.ml", line 27, characters 10-14:
+27 |   let rec cons (x, s) = Stream (fun () -> Cons (x, s))
+               ^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/stream/stream.ml", line 42, characters 10-16:
+42 |   let rec expose (Stream d) = d ()
+               ^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/stream/stream.ml", line 46, characters 12-19:
+46 |     let rec memoFun () =
+                 ^^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/stream/stream.ml", line 44, characters 10-15:
+44 |   let rec delay d =
+               ^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/stream/stream.ml", line 59, characters 10-14:
+59 |   let rec cons (x, s) = Stream (fun () -> Cons (x, s))
+               ^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/stream/stream.ml", line 106, characters 18-23:
+106 |     | p, Empty -> Empty
+                        ^^^^^
+Error: This expression should not be a constructor, the expected type is
+       'a front -> 'b front
+File "lib/int_inf/int_inf.ml", line 102, characters 0-1:
+102 | ) in  if (isDigit next) then cvt (next, rest) else None )
+      ^
+Error: Syntax error: end expected
+File "lib/int_inf/int_inf.ml", line 38, characters 6-12:
+38 | end = struct module W = Word32
+           ^^^^^^
+  This struct might be unmatched
+File "lib/global/global.mli", line 16, characters 18-22:
+16 |   val timeLimit : Time.time option ref
+                       ^^^^
+Error: Unbound module Time
+File "lib/heuristic/heuristic.mli", line 10, characters 33-38:
+10 |   val compare : index * index -> order
+                                      ^^^^^
+Error: Unbound type constructor order
+File "lib/cover/cover.ml", line 120, characters 72-73:
+120 | let rec missingToString (Vs, ci)  = F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (formatCGoals (Vs, ci)); F.String "."])
+                                                                              ^
+Error: Syntax error: ] expected
+File "lib/cover/cover.ml", line 120, characters 61-62:
+120 | let rec missingToString (Vs, ci)  = F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (formatCGoals (Vs, ci)); F.String "."])
+                                                                   ^
+  This [ might be unmatched
+File "lib/terminate/checking.ml", line 96, characters 195-196:
+96 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                                                        ^
+Error: Syntax error: ] expected
+File "lib/terminate/checking.ml", line 96, characters 168-169:
+96 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                             ^
+  This [ might be unmatched
+File "lib/formatter/formatter.mli", line 71, characters 17-23:
+71 |   val open_fmt : TextIO.outstream -> fmtstream
+                      ^^^^^^
+Error: Unbound module TextIO
+File "lib/modes/modeprint.ml", line 20, characters 59-60:
+20 | let rec modesToString mdecs  = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
+                                                                ^
+Error: Syntax error: ) expected
+File "lib/modes/modeprint.ml", line 20, characters 48-49:
+20 | let rec modesToString mdecs  = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
+                                                     ^
+  This ( might be unmatched
+File "lib/compress/parse.ml", line 15, characters 49-53:
+15 | let rec vardec ()  = id << tick COLON && (wth ($ term) Some) || (wth id (fun s -> (s, None)))
+                                                      ^^^^
+Error: Syntax error: ) expected
+File "lib/compress/parse.ml", line 15, characters 46-47:
+15 | let rec vardec ()  = id << tick COLON && (wth ($ term) Some) || (wth id (fun s -> (s, None)))
+                                                   ^
+  This ( might be unmatched
+File "lib/table/red_black_set.ml", line 155, characters 677-679:
+155 | let rec diffMod F (Set (_, s1), Set (_, s2))  = ( let rec ins = function ((Empty, _), n, result) -> (n, result) | ((Red (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) | ((Black (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) in let rec diff (t1, t2, (n1, result1), (n2, result2))  = (match (next t1, next t2) with ((Empty, _), t2) -> ((n1, result1), ins (t2, n2, result2)) | (t1, (Empty, _)) -> (ins (t1, n1, result1), (n2, result2)) | ((tree1, r1), (tree2, r2)) -> ( let e1 = getEntry tree1 in let e2 = getEntry tree2 in  match compare (x, y) with Lt -> diff (r1, t2, (n1 + 1, addItem (e1, result1)), (n2, result2)) | Eq -> ((F d1 d2); diff (r1, r2, (n1, result1), (n2, result2))) | Gt -> diff (t1, r2, (n1, result1), (n2 + 1, addItem (e2, result2))) )) in let ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO)) in  (Set (n1, linkAll result1), Set (n2, linkAll result2)) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^^
+Error: Syntax error: ) expected
+File "lib/table/red_black_set.ml", line 155, characters 671-672:
+155 | let rec diffMod F (Set (_, s1), Set (_, s2))  = ( let rec ins = function ((Empty, _), n, result) -> (n, result) | ((Red (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) | ((Black (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) in let rec diff (t1, t2, (n1, result1), (n2, result2))  = (match (next t1, next t2) with ((Empty, _), t2) -> ((n1, result1), ins (t2, n2, result2)) | (t1, (Empty, _)) -> (ins (t1, n1, result1), (n2, result2)) | ((tree1, r1), (tree2, r2)) -> ( let e1 = getEntry tree1 in let e2 = getEntry tree2 in  match compare (x, y) with Lt -> diff (r1, t2, (n1 + 1, addItem (e1, result1)), (n2, result2)) | Eq -> ((F d1 d2); diff (r1, r2, (n1, result1), (n2, result2))) | Gt -> diff (t1, r2, (n1, result1), (n2 + 1, addItem (e2, result2))) )) in let ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO)) in  (Set (n1, linkAll result1), Set (n2, linkAll result2)) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+  This ( might be unmatched
+File "lib/solvers/cs_eq_strings.ml", line 148, characters 1507-1508:
+148 | let rec unifyString = function (G, Concat (String prefix :: AL), str, cnstr) -> if (String.isPrefix prefix str) then ( let suffix = String.extract (str, String.size prefix, None) in  unifyString (G, Concat AL, suffix, cnstr) ) else Failure | (G, Concat AL, str, cnstr) -> ( let rec unifyString' = function (AL, []) -> (Failure, []) | ([], [Decomp (parse, parsedL)]) -> (MultAssign [], parse :: parsedL) | ([], candidates) -> (MultDelay ([], cnstr), []) | ((Exp Us1) :: (Exp Us2) :: AL, _) -> (MultDelay ([EClo Us1; EClo Us2], cnstr), []) | ((Exp (U, s)) :: AL, candidates) -> if (Whnf.isPatSub s) then ( let rec assign = function (r, []) -> None | (r, ((_, EVar (r', _, _, _), Root (FgnConst (cs, conDec), Nil), _) :: L)) -> if (r = r') then fromString (conDecName (conDec)) else assign r L | (r, (_ :: L)) -> assign r L in  (match unifyString' (AL, candidates) with (MultAssign L, parsed :: parsedL) -> (match (assign r L) with None -> ( let ss = Whnf.invert s in let W = stringExp (parsed) in  (MultAssign ((G, U, W, ss) :: L), parsedL) ) | Some (parsed') -> if (parsed = parsed') then (MultAssign L, parsedL) else (Failure, [])) | (MultDelay (UL, cnstr), _) -> (MultDelay ((EClo (U, s)) :: UL, cnstr), []) | (Failure, _) -> (Failure, [])) ) else (MultDelay ([EClo (U, s)], cnstr), []) | ((Exp Us) :: AL, _) -> (MultDelay ([EClo Us], cnstr), []) | ([String str], candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.mapPartial (fun (Split (prefix, "")) -> Some (Decomp (prefix, parsedL)) | (Split (prefix, suffix)) -> None) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' ([], candidates') ) | ((String str) :: AL, candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.map (fun (Split (prefix, suffix)) -> Decomp (suffix, prefix :: parsedL)) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' (AL, candidates') ) in  (match unifyString' (AL, [Decomp (str, [])]) with (result, []) -> result | (result, [""]) -> result | (result, parsedL) -> Failure) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^
+Error: Syntax error: ) expected
+File "lib/solvers/cs_eq_strings.ml", line 148, characters 1446-1447:
+148 | let rec unifyString = function (G, Concat (String prefix :: AL), str, cnstr) -> if (String.isPrefix prefix str) then ( let suffix = String.extract (str, String.size prefix, None) in  unifyString (G, Concat AL, suffix, cnstr) ) else Failure | (G, Concat AL, str, cnstr) -> ( let rec unifyString' = function (AL, []) -> (Failure, []) | ([], [Decomp (parse, parsedL)]) -> (MultAssign [], parse :: parsedL) | ([], candidates) -> (MultDelay ([], cnstr), []) | ((Exp Us1) :: (Exp Us2) :: AL, _) -> (MultDelay ([EClo Us1; EClo Us2], cnstr), []) | ((Exp (U, s)) :: AL, candidates) -> if (Whnf.isPatSub s) then ( let rec assign = function (r, []) -> None | (r, ((_, EVar (r', _, _, _), Root (FgnConst (cs, conDec), Nil), _) :: L)) -> if (r = r') then fromString (conDecName (conDec)) else assign r L | (r, (_ :: L)) -> assign r L in  (match unifyString' (AL, candidates) with (MultAssign L, parsed :: parsedL) -> (match (assign r L) with None -> ( let ss = Whnf.invert s in let W = stringExp (parsed) in  (MultAssign ((G, U, W, ss) :: L), parsedL) ) | Some (parsed') -> if (parsed = parsed') then (MultAssign L, parsedL) else (Failure, [])) | (MultDelay (UL, cnstr), _) -> (MultDelay ((EClo (U, s)) :: UL, cnstr), []) | (Failure, _) -> (Failure, [])) ) else (MultDelay ([EClo (U, s)], cnstr), []) | ((Exp Us) :: AL, _) -> (MultDelay ([EClo Us], cnstr), []) | ([String str], candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.mapPartial (fun (Split (prefix, "")) -> Some (Decomp (prefix, parsedL)) | (Split (prefix, suffix)) -> None) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' ([], candidates') ) | ((String str) :: AL, candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.map (fun (Split (prefix, suffix)) -> Decomp (suffix, prefix :: parsedL)) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' (AL, candidates') ) in  (match unifyString' (AL, [Decomp (str, [])]) with (result, []) -> result | (result, [""]) -> result | (result, parsedL) -> Failure) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+  This ( might be unmatched
+File "lib/solvers/cs_eq_field.ml", line 180, characters 195-196:
+180 | let rec unifySum (G, sum1, sum2)  = ( let rec invertMon = function (G, Mon (n, [(LHS, s)]), sum) -> if Whnf.isPatSub s then ( let ss = Whnf.invert s in let RHS = toFgn (timesSum (Sum (~ (inverse n), []), sum)) in  if Unify.invertible (G, (RHS, id), ss, r) then Some (G, LHS, RHS, ss) else None ) else None | _ -> None in  match minusSum (sum2, sum1) with Sum (m, []) -> if (m = zero) then Succeed [] else Fail | sum -> (match findMon invertMon (G, sum) with Some assignment -> Succeed [Assign assignment] | None -> ( let U = toFgn sum in let cnstr = ref (Eqn (G, U, numberExp (zero))) in  Succeed [Delay (U, cnstr)] )) )
+                                                                                                                                                                                                         ^
+Error: Syntax error
+File "lib/solvers/cs_eq_integers.ml", line 173, characters 94-95:
+173 | and solveSum = function (G, sum) -> if Whnf.isPatSub s then [Assign (G, X, numberExp (~ (quot (m, n))), Whnf.invert s)] else [delaySum (G, sum)] | (G, sum) -> ( let rec invertMon = function (G, mon, sum) -> if Whnf.isPatSub s then ( let ss = Whnf.invert s in let RHS = toFgn sum in  if Unify.invertible (G, (RHS, id), ss, r) then Some (mon, ss, sum) else None ) else None | (G, mon, sum) -> None in  match findMon invertMon (G, sum) with Some (Mon (n1, [(X1, s1)]), ss1, sum1) -> (match findMon invertMon (G, sum1) with Some (Mon (n2, [(X2, s2)]), ss2, sum2) -> ( let s = Unify.intersection (s1, s2) in let ss = Whnf.invert s in let G' = Whnf.strengthen (ss, G) in let g = gcd (n1, n2) in let (x1, x2) = solve_gcd (n1, n2) in let K = newEVar (G', number ()) in let Z = newEVar (G', number ()) in  Assign (G, X1, toFgn (plusSum (Sum (zero, [Mon (quot (n2, g), [(K, ss)])]), timesSum (Sum (x1, []), Sum (zero, [Mon (one, [(Z, ss)])])))), ss1) :: Assign (G, X2, toFgn (plusSum (Sum (zero, [Mon (~ (quot (n1, g)), [(K, ss)])]), timesSum (Sum (x2, []), Sum (zero, [Mon (one, [(Z, ss)])])))), ss2) :: solveSum (G, plusSum (Sum (zero, [Mon (g, [(Z, ss)])]), sum2)) ) | None -> (match divideSum (sum1, n1) with Some (sum1') -> [Assign (G, X1, toFgn (unaryMinusSum (sum1')), ss1)] | None -> [delaySum (G, sum)])) | None -> [delaySum (G, sum)] )
+                                                                                                    ^
+Error: Syntax error
+File "lib/solvers/cs_ineq_field.ml", line 191, characters 25-34:
+191 | let rec findTag (t)  = ( exception Found of int in let rec find (i, l : label)  = if (tag (l) = t) then raise (Found i) else () in  try (Array.app find (clabels (tableau), 0, nCols ()); try (Array.app find (rlabels (tableau), 0, nRows ()); None) with Found i -> Some (Row (i))) with Found j -> Some (Col (j)) )
+                               ^^^^^^^^^
+Error: Syntax error: operator expected.
+File "lib/print/print.ml", line 352, characters 41-42:
+352 | let rec formatCnstr (Cnstr)  = F.Vbox0 0 1 (fmtCnstr Cnstr)
+                                               ^
+Error: Syntax error: end expected
+File "lib/print/print.ml", line 10, characters 146-152:
+10 | module Print (Whnf : WHNF) (Abstract : ABSTRACT) (Constraints : CONSTRAINTS) (Names : NAMES) (Formatter' : FORMATTER) (Symbol : SYMBOL) : PRINT = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                       ^^^^^^
+  This struct might be unmatched
+File "lib/terminate/reduces.ml", line 29, characters 195-196:
+29 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                                                        ^
+Error: Syntax error: ] expected
+File "lib/terminate/reduces.ml", line 29, characters 168-169:
+29 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                             ^
+  This [ might be unmatched
+File "lib/solvers/cs_ineq_integers.ml", line 184, characters 25-34:
+184 | let rec findTag (t)  = ( exception Found of int in let rec find (i, l : label)  = if (tag (l) = t) then raise (Found i) else () in  try (Array.app find (clabels (tableau), 0, nCols ()); try (Array.app find (rlabels (tableau), 0, nRows ()); None) with Found i -> Some (Row (i))) with Found j -> Some (Col (j)) )
+                               ^^^^^^^^^
+Error: Syntax error: operator expected.
+File "lib/meta/funprint.ml", line 70, characters 375-376:
+70 | let rec nameLookup index  = List.nth (names, index) in let rec formatFor1 = function (index, G, (F.And (F1, F2), s)) -> formatFor1 (index, G, (F1, s)) @ [Fmt.Break] @ formatFor1 (index + 1, G, (F2, s)) | (index, G, (F, s)) -> [Fmt.String (nameLookup index); Fmt.Space; Fmt.String "::"; Fmt.Space; Fmt.HVbox (formatFor' (G, (F, s)))] in let rec formatFor0 Args  = Fmt.Vbox0 0 1 (formatFor1 Args) in  (Names.varReset I.Null; formatFor0 (0, F.makectx Psi, (F, I.id))) )
+                                                                                                                                                                                                                                                                                                                                                                                            ^
+Error: Syntax error
+File "lib/meta/funtypecheck.ml", line 21, characters 28-37:
+21 | let rec conv (Gs, Gs')  = ( exception Conv in let rec conv = function ((I.Null, s), (I.Null, s')) -> (s, s') | ((I.Decl (G, I.Dec (_, V)), s), (I.Decl (G', I.Dec (_, V')), s')) -> ( let (s1, s1') = conv ((G, s), (G', s')) in let ps = (I.dot1 s1, I.dot1 s1') in  if Conv.conv ((V, s1), (V', s1')) then ps else raise (Conv) ) | _ -> raise (Conv) in  try (conv (Gs, Gs'); true) with Conv -> false )
+                                 ^^^^^^^^^
+Error: Syntax error: operator expected.
+File "lib/meta/print.ml", line 23, characters 184-185:
+23 | let rec formatOrder = function (G, S.Arg (Us, Vs)) -> [Print.formatExp (G, I.EClo Us); Fmt.String ":"; Print.formatExp (G, I.EClo Vs)] | (G, S.Lex Os) -> [Fmt.String "{"; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "}"] | (G, S.Simul Os) -> [Fmt.String "["; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "]"]
+                                                                                                                                                                                             ^
+Error: Syntax error: ] expected
+File "lib/meta/print.ml", line 23, characters 154-155:
+23 | let rec formatOrder = function (G, S.Arg (Us, Vs)) -> [Print.formatExp (G, I.EClo Us); Fmt.String ":"; Print.formatExp (G, I.EClo Vs)] | (G, S.Lex Os) -> [Fmt.String "{"; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "}"] | (G, S.Simul Os) -> [Fmt.String "["; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "]"]
+                                                                                                                                                               ^
+  This [ might be unmatched
+File "lib/meta/inference.ml", line 43, characters 264-265:
+43 | let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type)) else () in let (Xs, (V', s')) = createEVars (G, (V, I.id)) in  try (match UniqueSearch.searchEx (2, Xs, fun [] -> [(Whnf.normalize (V', s'))] | _ -> raise (UniqueSearch.Error "Too many solutions")) with [VF''] -> Some VF'' | [] -> None) with UniqueSearch.Error _ -> None ) | (G, B, V) -> None
+                                                                                                                                                                                                                                                                             ^
+Error: Syntax error: ) expected
+File "lib/meta/inference.ml", line 43, characters 218-219:
+43 | let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type)) else () in let (Xs, (V', s')) = createEVars (G, (V, I.id)) in  try (match UniqueSearch.searchEx (2, Xs, fun [] -> [(Whnf.normalize (V', s'))] | _ -> raise (UniqueSearch.Error "Too many solutions")) with [VF''] -> Some VF'' | [] -> None) with UniqueSearch.Error _ -> None ) | (G, B, V) -> None
+                                                                                                                                                                                                                               ^
+  This ( might be unmatched
+File "lib/opsem/tabled.ml", line 199, characters 124-132:
+199 |  with T.NewEntry (answRef) -> matchAtom ((p, s), dp, (fun pskeleton -> match MT.answerCheck (s', answRef, pskeleton) with T.repeated -> () | T.new_ -> (sc pskeleton))) | T.RepeatedEntry (asub, answRef, T.Incomplete) -> if T.noAnswers answRef then (* loop detected
+                                                                                                                                  ^^^^^^^^
+Error: Syntax error
+File "lib/meta/mpi.ml", line 36, characters 347-348:
+36 | let rec printFillResult (_, P)  = ( let rec formatTuple (G, P)  = ( let rec formatTuple' = function (F.Unit) -> [] | (F.Inx (M, F.Unit)) -> [Print.formatExp (G, M)] | (F.Inx (M, P')) -> (Print.formatExp (G, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (F.Inx (_, F.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) ) in let S.State (n, (G, B), (IH, OH), d, O, H, F) = current () in  TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n") )
+                                                                                                                                                                                                                                                                                                                                                                ^
+Error: Syntax error: ) expected
+File "lib/meta/mpi.ml", line 36, characters 66-67:
+36 | let rec printFillResult (_, P)  = ( let rec formatTuple (G, P)  = ( let rec formatTuple' = function (F.Unit) -> [] | (F.Inx (M, F.Unit)) -> [Print.formatExp (G, M)] | (F.Inx (M, P')) -> (Print.formatExp (G, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (F.Inx (_, F.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) ) in let S.State (n, (G, B), (IH, OH), d, O, H, F) = current () in  TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n") )
+                                                                       ^
+  This ( might be unmatched
+File "lib/solvers/cs_integers_word.ml", line 183, characters 180-181:
+183 | let rec installFgnCnstrOps ()  = ( let csid = ! myID in let _ = FgnCnstrStd.ToInternal.install (csid, (fun (MyFgnCnstrRepPlus (G, _, U1, U2, U3)) -> toInternalPlus (G, U1, U2, U3) | (MyFgnCnstrRepTimes (G, _, U1, U2, U3)) -> toInternalTimes (G, U1, U2, U3) | (MyFgnCnstrRepQuot (G, _, U1, U2, U3)) -> toInternalQuot (G, U1, U2, U3) | fc -> raise ((UnexpectedFgnCnstr fc)))) in let _ = FgnCnstrStd.Awake.install (csid, (fun (MyFgnCnstrRepPlus (G, proof, U1, U2, U3)) -> awakePlus (G, proof, U1, U2, U3) | (MyFgnCnstrRepTimes (G, proof, U1, U2, U3)) -> awakeTimes (G, proof, U1, U2, U3) | (MyFgnCnstrRepQuot (G, proof, U1, U2, U3)) -> awakeQuot (G, proof, U1, U2, U3) | fc -> raise ((UnexpectedFgnCnstr fc)))) in let _ = FgnCnstrStd.Simplify.install (csid, (fun (MyFgnCnstrRepPlus _) -> (fun () -> false) | (MyFgnCnstrRepTimes _) -> (fun () -> false) | (MyFgnCnstrRepQuot _) -> (fun () -> false) | fc -> raise ((UnexpectedFgnCnstr fc)))) in  () )
+                                                                                                                                                                                          ^
+Error: Syntax error: ) expected
+File "lib/solvers/cs_integers_word.ml", line 183, characters 102-103:
+183 | let rec installFgnCnstrOps ()  = ( let csid = ! myID in let _ = FgnCnstrStd.ToInternal.install (csid, (fun (MyFgnCnstrRepPlus (G, _, U1, U2, U3)) -> toInternalPlus (G, U1, U2, U3) | (MyFgnCnstrRepTimes (G, _, U1, U2, U3)) -> toInternalTimes (G, U1, U2, U3) | (MyFgnCnstrRepQuot (G, _, U1, U2, U3)) -> toInternalQuot (G, U1, U2, U3) | fc -> raise ((UnexpectedFgnCnstr fc)))) in let _ = FgnCnstrStd.Awake.install (csid, (fun (MyFgnCnstrRepPlus (G, proof, U1, U2, U3)) -> awakePlus (G, proof, U1, U2, U3) | (MyFgnCnstrRepTimes (G, proof, U1, U2, U3)) -> awakeTimes (G, proof, U1, U2, U3) | (MyFgnCnstrRepQuot (G, proof, U1, U2, U3)) -> awakeQuot (G, proof, U1, U2, U3) | fc -> raise ((UnexpectedFgnCnstr fc)))) in let _ = FgnCnstrStd.Simplify.install (csid, (fun (MyFgnCnstrRepPlus _) -> (fun () -> false) | (MyFgnCnstrRepTimes _) -> (fun () -> false) | (MyFgnCnstrRepQuot _) -> (fun () -> false) | fc -> raise ((UnexpectedFgnCnstr fc)))) in  () )
+                                                                                                            ^
+  This ( might be unmatched
+File "lib/m2/splitting.ml", line 221, characters 1-3:
+221 |  && not (isIndex 1) && checkDec (M, D) then (makeAddress 1, split (M.Prefix (G', M', B'), (D, s'), abstract)) :: ops else ops in  (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'), ops') ) | (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), isIndex, abstract, makeAddress) -> ( let (M.Prefix (G', M', B'), s', ops) = expand' (M.Prefix (G, M, B), isIndexSucc (D, isIndex)(* -###- *)
+       ^^
+Error: Syntax error
+File "lib/meta/splitting.ml", line 49, characters 28-37:
+49 | let rec conv (Gs, Gs')  = ( exception Conv in let rec conv = function ((I.Null, s), (I.Null, s')) -> (s, s') | ((I.Decl (G, I.Dec (_, V)), s), (I.Decl (G', I.Dec (_, V')), s')) -> ( let (s1, s1') = conv ((G, s), (G', s')) in let ps = (I.dot1 s1, I.dot1 s1') in  if Conv.conv ((V, s1), (V', s1')) then ps else raise (Conv) ) | _ -> raise (Conv) in  try (conv (Gs, Gs'); true) with Conv -> false )
+                                 ^^^^^^^^^
+Error: Syntax error: operator expected.
+File "lib/prover/stateprint.ml", line 87, characters 63-64:
+87 | let rec formatState (S.State (W, Psi, P, F, _))  = Fmt.Vbox0 0 1 [Fmt.String "------------------------"; Fmt.Break; Fmt.String "------------------------"; Fmt.Break; TomegaPrint.formatPrg (Psi, P)]
+                                                                    ^
+Error: Syntax error: end expected
+File "lib/prover/stateprint.ml", line 7, characters 153-159:
+7 | module StatePrint (Global : GLOBAL) (State' : STATE) (Names : NAMES) (Formatter' : FORMATTER) (Print : PRINT) (TomegaPrint : TOMEGAPRINT) : STATEPRINT = struct module Formatter = Formatter'
+                                                                                                                                                             ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/lexer.ml", line 73, characters 0-3:
+73 | let _ = P.resetLines ()
+     ^^^
+Error: Syntax error
+File "lib/frontend/recon_module.ml", line 24, characters 21-27:
+24 | type sigexp = ModSyn.module option -> ModSyn.module * whereclause list
+                          ^^^^^^
+Error: Syntax error
+File "lib/tomega/tomegaprint.ml", line 310, characters 349-350:
+310 | and formatTuple (Psi, P)  = ( let rec formatTuple' = function (T.Unit) -> [] | (T.PairExp (M, T.Unit)) -> [Print.formatExp (T.coerceCtx Psi, M)] | (T.PairExp (M, P')) -> (Print.formatExp (T.coerceCtx Psi, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (T.PairExp (_, T.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) )
+                                                                                                                                                                                                                                                                                                                                                                   ^
+Error: Syntax error: ) expected
+File "lib/tomega/tomegaprint.ml", line 310, characters 28-29:
+310 | and formatTuple (Psi, P)  = ( let rec formatTuple' = function (T.Unit) -> [] | (T.PairExp (M, T.Unit)) -> [Print.formatExp (T.coerceCtx Psi, M)] | (T.PairExp (M, P')) -> (Print.formatExp (T.coerceCtx Psi, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (T.PairExp (_, T.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) )
+                                  ^
+  This ( might be unmatched
+File "lib/frontend/recon_query.ml", line 27, characters 19-21:
+27 | type solve = solve of string option * T.term * Paths.region
+                        ^^
+Error: Syntax error: end expected
+File "lib/frontend/recon_query.ml", line 10, characters 192-198:
+10 | module ReconQuery (Global : GLOBAL) (Names : NAMES) (Abstract : ABSTRACT) (ReconTerm' : RECON_TERM) (TypeCheck : TYPECHECK) (Strict : STRICT) (Timers : TIMERS) (Print : PRINT) : RECON_QUERY = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                                                                     ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/recon_term.ml", line 83, characters 21-23:
+83 | type term = internal of IntSyn.exp * IntSyn.exp * Paths.region | constant of IntSyn.head * Paths.region | bvar of int * Paths.region | evar of string * Paths.region | fvar of string * Paths.region | typ of Paths.region | arrow of term * term | pi of dec * term | lam of dec * term | app of term * term | hastype of term * term | mismatch of term * term * string * string | omitted of Paths.region | lcid of string list * string * Paths.region | ucid of string list * string * Paths.region | quid of string list * string * Paths.region | scon of string * Paths.region | omitapx of Apx.exp * Apx.exp * Apx.uni * Paths.region | omitexact of IntSyn.exp * IntSyn.exp * Paths.region and dec = dec of string option * term * Paths.region
+                          ^^
+Error: Syntax error: end expected
+File "lib/frontend/recon_term.ml", line 22, characters 146-152:
+22 | module ReconTerm (Names : NAMES) (Approx : APPROX) (Whnf : WHNF) (Unify : UNIFY) (Abstract : ABSTRACT) (Print : PRINT) (Msg : MSG) : RECON_TERM = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                       ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/solve.ml", line 10, characters 13-23:
+10 | module Solve ReconQuery.queryParser.ExtQuery.query ReconQuery.solveParser.ExtQuery.solve ReconQuery.defineParser.ExtQuery.define (Global : GLOBAL) (Names : NAMES) (Parser : PARSER) (ReconQuery : RECON_QUERY) (Timers : TIMERS) (Compile : COMPILE) (CPrint : CPRINT) (AbsMachine : ABSMACHINE) (AbsMachineSbt : ABSMACHINESBT) (PtRecon : PTRECON) (Tabled : TABLED) (Print : PRINT) (Msg : MSG) : SOLVE = struct (*! structure IntSyn = IntSyn' !*)
+                  ^^^^^^^^^^
+Error: Syntax error
+File "lib/frontend/twelf.ml", line 13, characters 13-22:
+13 | module Twelf ReconTerm.termParser.ExtSyn.term ReconConDec.condecParser.ExtConDec.condec ReconMode.modedecParser.ExtModes.modedec Solve.ExtQuery.queryParser.ExtQuery.query Solve.ExtQuery.defineParser.ExtQuery.define Solve.ExtQuery.solveParser.ExtQuery.solve Fquery.ExtQuery.queryParser.ExtQuery.query Fquery.ExtQuery.defineParser.ExtQuery.define Fquery.ExtQuery.solveParser.ExtQuery.solve ReconThm.tdeclParser.ThmExtSyn.tdecl ReconThm.rdeclParser.ThmExtSyn.rdecl ReconThm.tableddeclParser.ThmExtSyn.tableddecl ReconThm.keepTabledeclParser.ThmExtSyn.keepTabledecl ReconThm.wdeclParser.ThmExtSyn.wdecl ReconThm.theoremParser.ThmExtSyn.theorem ReconThm.theoremdecParser.ThmExtSyn.theoremdec ReconThm.proveParser.ThmExtSyn.prove ReconThm.establishParser.ThmExtSyn.establish ReconThm.assertParser.ThmExtSyn.assert_ml ReconModule.sigdefParser.ModExtSyn.sigdef ReconModule.structdecParser.ModExtSyn.structdec ReconModule.sigexpParser.ModExtSyn.sigexp ReconModule.strexpParser.ModExtSyn.strexp (Global : GLOBAL) (Timers : TIMERS) (Whnf : WHNF) (Print : PRINT) (Names : NAMES) (Origins : ORIGINS) (Lexer : LEXER) (Parser : PARSER) (TypeCheck : TYPECHECK) (Strict : STRICT) (Constraints : CONSTRAINTS) (Abstract : ABSTRACT) (ReconTerm : RECON_TERM) (ReconConDec : RECON_CONDEC) (ReconQuery : RECON_QUERY) (ModeTable : MODETABLE) (ModeCheck : MODECHECK) (ReconMode : RECON_MODE) (ModePrint : MODEPRINT) (ModeDec : MODEDEC) (StyleCheck : STYLECHECK) (Unique : UNIQUE) (UniqueTable : MODETABLE) (Cover : COVER) (Converter : CONVERTER) (TomegaPrint : TOMEGAPRINT) (TomegaCoverage : TOMEGACOVERAGE) (TomegaTypeCheck : TOMEGATYPECHECK) (Total : TOTAL) (Reduces : REDUCES) (Index : INDEX) (IndexSkolem : INDEX) (Subordinate : SUBORDINATE) (Compile : COMPILE) (AbsMachine : ABSMACHINE) (Tabled : TABLED) (Solve : SOLVE) (Fquery : FQUERY) (ThmSyn : THMSYN) (Thm : THM) (ReconThm : RECON_THM) (ThmPrint : THMPRINT) (TabledSyn : TABLEDSYN) (WorldSyn : WORLDSYN) (Worldify : WORLDIFY) (ModSyn : MODSYN) (ReconModule : RECON_MODULE) (MetaGlobal : METAGLOBAL) (Skolem : SKOLEM) (Prover : PROVER) (ClausePrint : CLAUSEPRINT) (Trace : TRACE) (PrintTeX : PRINT) (ClausePrintTeX : CLAUSEPRINT) (CSManager : CS_MANAGER) (CSInstaller : CS_INSTALLER) (Compat : COMPAT) (UnknownExn : UNKNOWN_EXN) (Msg : MSG) : TWELF = struct (*! structure IntSyn = IntSyn' !*)
+                  ^^^^^^^^^
+Error: Syntax error
+File "lib/frontend/unknownexn.ml", line 4, characters 19-22:
+4 | module UnknownExn (val exnHistory : exn -> string list) : UNKNOWN_EXN = struct let rec unknownExn exn  = ( let history = rev (exnHistory exn) in let rec wrap1 x  = "  raised at: " ^ x ^ "\n" in let rec wrapn x  = "             " ^ x ^ "\n" in  concat ("Unrecognized exception " :: (exnName exn) :: "\n" :: (match history with [] -> [""] | x :: xs -> (wrap1 x :: map wrapn xs))) )
+                       ^^^
+Error: Syntax error
+File "lib/delphin/interface.ml", line 14, characters 33-34:
+14 | let rec error (errmsg, line : pos, _)  = TextIO.output (TextIO.stdOut, "Line " ^ (Int.toString (line)) ^ ": " ^ errmsg ^ "\n")
+                                      ^
+Error: Syntax error: ) expected
+File "lib/delphin/interface.ml", line 14, characters 14-15:
+14 | let rec error (errmsg, line : pos, _)  = TextIO.output (TextIO.stdOut, "Line " ^ (Int.toString (line)) ^ ": " ^ errmsg ^ "\n")
+                   ^
+  This ( might be unmatched
+File "lib/delphin/parse_prg.ml", line 7, characters 13-20:
+7 | module Parse Parserr.argInterface.arg Parserr.posInterface.pos Parserr.resultDextSyn.ast Tokens.tokenParserr.Token.token Tokens.svalueParserr.svalue (DextSyn : DEXTSYN) (Interface : INTERFACE) (Parserr : PARSERR) (Tokens : Delphin_TOKENS) : PARSE = struct module DextSyn = DextSyn
+                 ^^^^^^^
+Error: Syntax error
+Error: Dependency cycle between:
+   _build/default/lib/tomega/.tomega.objs/abstract.intf.all-deps
+-> _build/default/lib/tomega/.tomega.objs/tomega.impl.all-deps
+-> _build/default/lib/tomega/.tomega.objs/abstract.intf.all-deps
+-> required by _build/default/lib/tomega/.tomega.objs/byte/abstract.cmi
+-> required by _build/default/lib/tomega/.tomega.objs/native/abstract.cmx
+-> required by _build/default/lib/tomega/tomega.a
+-> required by alias lib/tomega/all
+-> required by alias default
+File "lib/server/server.ml", line 118, characters 0-2:
+118 | \Parameters:\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 137, characters 0-2:
+137 | \Server types:\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 147, characters 0-2:
+147 | \See http://www.cs.cmu.edu/~twelf/guide-1-4/ for_sml more information,\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 148, characters 0-2:
+148 | \or type M-x twelf-info (C-c C-h) in Emacs.\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 158, characters 141-142:
+158 | let rec serve' = function ("set", args) -> (setParm (tokenize args); serve (Twelf.OK)) | ("get", args) -> (print (getParm (tokenize args) ^ "\n"); serve (Twelf.OK)) | ("Style.check", args) -> (checkEmpty args; StyleCheck.check (); serve (Twelf.OK)) | ("Print.sgn", args) -> (checkEmpty args; Twelf.Print.sgn (); serve (Twelf.OK)) | ("Print.prog", args) -> (checkEmpty args; Twelf.Print.prog (); serve (Twelf.OK)) | ("Print.subord", args) -> (checkEmpty args; Twelf.Print.subord (); serve (Twelf.OK)) | ("Print.domains", args) -> (checkEmpty args; Twelf.Print.domains (); serve (Twelf.OK)) | ("Print.TeX.sgn", args) -> (checkEmpty args; Twelf.Print.TeX.sgn (); serve (Twelf.OK)) | ("Print.TeX.prog", args) -> (checkEmpty args; Twelf.Print.TeX.prog (); serve (Twelf.OK)) | ("Trace.trace", args) -> (Twelf.Trace.trace (Twelf.Trace.Some (getIds (tokenize args))); serve (Twelf.OK)) | ("Trace.traceAll", args) -> (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.All); serve (Twelf.OK)) | ("Trace.untrace", args) -> (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.None); serve (Twelf.OK)) | ("Trace.break", args) -> (Twelf.Trace.break (Twelf.Trace.Some (getIds (tokenize args))); serve (Twelf.OK)) | ("Trace.breakAll", args) -> (checkEmpty args; Twelf.Trace.break (Twelf.Trace.All); serve (Twelf.OK)) | ("Trace.unbreak", args) -> (checkEmpty args; Twelf.Trace.break (Twelf.Trace.None); serve (Twelf.OK)) | ("Trace.show", args) -> (checkEmpty args; Twelf.Trace.show (); serve (Twelf.OK)) | ("Trace.reset", args) -> (checkEmpty args; Twelf.Trace.reset (); serve (Twelf.OK)) | ("Timers.show", args) -> (checkEmpty args; Timers.show (); serve (Twelf.OK)) | ("Timers.reset", args) -> (checkEmpty args; Timers.reset (); serve (Twelf.OK)) | ("Timers.check", args) -> (checkEmpty args; Timers.reset (); serve (Twelf.OK)) | ("OS.chDir", args) -> (Twelf.OS.chDir (getFile' args); serve (Twelf.OK)) | ("OS.getDir", args) -> (checkEmpty args; print (Twelf.OS.getDir () ^ "\n"); serve (Twelf.OK)) | ("OS.exit", args) -> (checkEmpty args; ()) | ("quit", args) -> () | ("Config.read", args) -> ( let fileName = getFile (args, "sources.cfg") in  globalConfig := Some (Twelf.Config.read fileName); serve (Twelf.OK) ) | ("Config.load", args) -> (match ! globalConfig with None -> (globalConfig := Some (Twelf.Config.read "sources.cfg")) | _ -> (); serve (Twelf.Config.load (valOf (! globalConfig)))) | ("Config.append", args) -> (match ! globalConfig with None -> (globalConfig := Some (Twelf.Config.read "sources.cfg")) | _ -> (); serve (Twelf.Config.append (valOf (! globalConfig)))) | ("make", args) -> ( let fileName = getFile (args, "sources.cfg") in  globalConfig := Some (Twelf.Config.read fileName); serve (Twelf.Config.load (valOf (! globalConfig))) ) | ("reset", args) -> (checkEmpty args; Twelf.reset (); serve (Twelf.OK)) | ("loadFile", args) -> serve (Twelf.loadFile (getFile' args)) | ("readDecl", args) -> (checkEmpty args; serve (Twelf.readDecl ())) | ("decl", args) -> serve (Twelf.decl (getId (tokenize args))) | ("top", args) -> (checkEmpty args; Twelf.top (); serve (Twelf.OK)) | ("Table.top", args) -> (checkEmpty args; Twelf.Table.top (); serve (Twelf.OK)) | ("version", args) -> (print (Twelf.version ^ "\n"); serve (Twelf.OK)) | ("help", args) -> (print (helpString); serve (Twelf.OK)) | (t, args) -> error ("Unrecognized command " ^ quote t)
+                                                                                                                                                   ^
+Error: Illegal character (\\)
+File "lib/trail/notrail.ml", line 8, characters 10-15:
+8 |   let rec trail () = ()
+              ^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 9, characters 10-17:
+9 |   let rec suspend ((), copy) = ()
+              ^^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 10, characters 10-16:
+10 |   let rec resume ((), (), reset) = ()
+               ^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 11, characters 10-15:
+11 |   let rec reset () = ()
+               ^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 12, characters 10-14:
+12 |   let rec mark () = ()
+               ^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 13, characters 10-16:
+13 |   let rec unwind ((), undo) = ()
+               ^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 14, characters 10-13:
+14 |   let rec log ((), action) = ()
+               ^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 5, characters 17-22:
+5 | module NoTrail : TRAIL = struct
+                     ^^^^^
+Error: Unbound module type TRAIL
+File "lib/domains/integers_mod.ml", line 9, characters 25-37:
+9 |   let name = "integer" ^ Int.toString p
+                             ^^^^^^^^^^^^
+Error: Unbound value Int.toString
+Hint:   Did you mean Int.to_string?
+File "lib/domains/ordered_field.ml", line 6, characters 10-15:
+6 |   include FIELD
+              ^^^^^
+Error: Unbound module type FIELD
+File "lib/compat/time_limit_smlnj.ml", line 11, characters 16-21:
+11 |         let _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n") in
+                     ^^^^^
+Error: Unbound value print
+File "lib/compat/word8_array_slice.ml", line 9, characters 15-25:
+9 |   type array = Word8Array.array
+                   ^^^^^^^^^^
+Error: Unbound module Word8Array
+File "lib/modules/modsyn.mli", line 14, characters 7-13:
+14 |   type module
+            ^^^^^^
+Error: Syntax error
+File "lib/compat/array.mli", line 6, characters 38-49:
+6 |   val appi : (int * 'a -> unit) -> 'a Array.array -> unit
+                                          ^^^^^^^^^^^
+Error: Unbound type constructor Array.array
+File "lib/compat/socket.mli", line 7, characters 38-44:
+7 |     ('a, Socket.active Socket.stream) Socket.sock * Word8Vector.vector -> int
+                                          ^^^^^^
+Error: Unbound module Socket
+File "lib/compat/compat.mli", line 6, characters 20-26:
+6 |   val inputLine97 : TextIO.instream -> string
+                        ^^^^^^
+Error: Unbound module TextIO
+File "lib/compat/substring.mli", line 6, characters 23-32:
+6 |   val full : string -> Substring.substring
+                           ^^^^^^^^^
+Error: Unbound module Substring
+Hint:    Did you mean String?
+File "lib/compat/time_limit.mli", line 4, characters 18-22:
+4 |   val timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
+                      ^^^^
+Error: Unbound module Time
+File "lib/compat/vector.mli", line 6, characters 38-44:
+6 |   val appi : (int * 'a -> unit) -> 'a Vector.vector -> unit
+                                          ^^^^^^
+Error: Unbound module Vector
+File "lib/compat/timer.mli", line 6, characters 22-27:
+6 |   val checkCPUTimer : Timer.cpu_timer -> < usr : Time.time ; sys : Time.time >
+                          ^^^^^
+Error: Unbound module Timer
+File "lib/compat/text_io.mli", line 6, characters 18-24:
+6 |   val inputLine : TextIO.instream -> string option
+                      ^^^^^^
+Error: Unbound module TextIO
+File "lib/compat/path.ml", line 6, characters 23-27:
+6 |   let rec mkAbsolute { path; relativeTo } = OS.Path.mkAbsolute (path, relativeTo)
+                           ^^^^
+Error: Unbound record field path
+File "lib/frontend/recon_module.mli", line 33, characters 55-61:
+33 |   type structDec = StructDec of string option * ModSyn.module * whereclause list | StructDef of string option * IntSyn.mid
+                                                            ^^^^^^
+Error: Syntax error
+File "lib/compat/word8_vector_slice.ml", line 16, characters 16-27:
+16 |   type vector = Word8Vector.vector
+                     ^^^^^^^^^^^
+Error: Unbound module Word8Vector
+File "lib/domains/integers.mli", line 6, characters 10-17:
+6 |   include INTEGER
+              ^^^^^^^
+Error: Unbound module type INTEGER
+File "lib/domains/rationals.mli", line 6, characters 10-23:
+6 |   include ORDERED_FIELD
+              ^^^^^^^^^^^^^
+Error: Unbound module type ORDERED_FIELD
+File "lib/trail/trail.ml", line 7, characters 2-30:
+7 |   type 'a trail = 'a trail ref
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error: The type abbreviation trail is cyclic:
+         'a trail = 'a trail ref,
+         'a trail ref contains 'a trail
+File "lib/lambda/approx.mli", line 11, characters 6-10:
+11 |   val Type : uni
+           ^^^^
+Error: Syntax error

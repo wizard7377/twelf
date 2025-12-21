@@ -1,6 +1,7 @@
 (* Not Trailing Abstract Operations *)
 
 (* Author: Roberto Virga *)
+open Trail
 
 module NoTrail : TRAIL = struct
   type 'a trail = unit

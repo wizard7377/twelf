@@ -99,22 +99,22 @@ let rec scanPrefix (getc : (char, 'a) StringCvt.reader) cs  = ( let rec skipWS c
        *)
 
 let rec chkOverflow mask w  = if (W.andb (mask, w) = 0x0L) then () else raise (Overflow)
-let rec scanBin (getc : (char, 'a) StringCvt.reader) cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x2L) in let chkOverflow = chkOverflow 0x80000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.<< (w, 0x1L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
+let rec scanBin (getc : (char, 'a) StringCvt.reader) cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x2L) in let chkOverflow = chkOverflow 0x80000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.( << ) (w, 0x1L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
 ) in  if (isDigit next) then cvt (next, rest) else None )(* end case *)
 )
-let rec scanOct getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x8L) in let chkOverflow = chkOverflow 0xE0000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.<< (w, 0x3L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
+let rec scanOct getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x8L) in let chkOverflow = chkOverflow 0xE0000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.( << ) (w, 0x3L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
 ) in  if (isDigit next) then cvt (next, rest) else None )(* end case *)
 )
 let rec scanDec getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x10L) in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (if ((w >= largestWordDiv10) && ((largestWordDiv10 < w) || (largestWordMod10 < d))) then raise (Overflow) else (); cvt (0x10L * w + d, rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
 ) in  if (isDigit next) then cvt (next, rest) else None )(* end case *)
 )
-let rec scanHex getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x16L) in let chkOverflow = chkOverflow 0xxF0000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.<< (w, 0x4L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
+let rec scanHex getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x16L) in let chkOverflow = chkOverflow 0xxF0000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.( << ) (w, 0x4L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
 ) in  if (isDigit next) then cvt (next, rest) else None )(* end case *)
 )
 let rec finalWord scanFn getc cs  = (match (scanFn getc cs) with None -> None | (Some {neg = true; _}) -> None | (Some {neg = false; word; rest}) -> Some (word, rest)(* end case *)
 )
 let rec scanWord = function StringCvt.BIN -> finalWord scanBin | StringCvt.OCT -> finalWord scanOct | StringCvt.DEC -> finalWord scanDec | StringCvt.HEX -> finalWord scanHex
-let rec finalInt scanFn getc cs  = (match (scanFn getc cs) with None -> None | (Some {neg = true; word; rest}) -> if (largestNegInt < word) then raise (Overflow) else Some (I.~ (W.toInt word), rest) | (Some {word; rest; _}) -> if (largestPosInt < word) then raise (Overflow) else Some (W.toInt word, rest)(* end case *)
+let rec finalInt scanFn getc cs  = (match (scanFn getc cs) with None -> None | (Some {neg = true; word; rest}) -> if (largestNegInt < word) then raise (Overflow) else Some (~-(W.toInt word), rest) | (Some {word; rest; _}) -> if (largestPosInt < word) then raise (Overflow) else Some (W.toInt word, rest)(* end case *)
 )
 let rec scanInt = function StringCvt.BIN -> finalInt scanBin | StringCvt.OCT -> finalInt scanOct | StringCvt.DEC -> finalInt scanDec | StringCvt.HEX -> finalInt scanHex
  end
@@ -127,22 +127,22 @@ module NumFormat : sig
 
 end = struct module W = Word32
 module I = Int
-let < = W.<
-let - = W.-
-let * = W.*
+let ( < ) = W.( < )
+let ( - ) = W.( - )
+let ( * ) = W.( * )
 let div = W.div
 let rec mkDigit (w : Word32.word)  = CharVector.sub ("0123456789abcdef", W.toInt w)
-let rec wordToBin w  = ( let rec mkBit w  = if (W.andb (w, 0x1L) = 0x0L) then '0' else '1' in let rec f = function (0x0L, n, l) -> (I.+ (n, 1), '0' :: l) | (0x1L, n, l) -> (I.+ (n, 1), '1' :: l) | (w, n, l) -> f (W.>> (w, 0x1L), I.+ (n, 1), (mkBit w) :: l) in  f (w, 0, []) )
-let rec wordToOct w  = ( let rec f (w, n, l)  = if (w < 0x8L) then (I.+ (n, 1), (mkDigit w) :: l) else f (W.>> (w, 0x3L), I.+ (n, 1), mkDigit (W.andb (w, 0x7L)) :: l) in  f (w, 0, []) )
+let rec wordToBin w  = ( let rec mkBit w  = if (W.andb (w, 0x1L) = 0x0L) then '0' else '1' in let rec f = function (0x0L, n, l) -> (I.+ (n, 1), '0' :: l) | (0x1L, n, l) -> (I.+ (n, 1), '1' :: l) | (w, n, l) -> f (W.( >> ) (w, 0x1L), I.+ (n, 1), (mkBit w) :: l) in  f (w, 0, []) )
+let rec wordToOct w  = ( let rec f (w, n, l)  = if (w < 0x8L) then (I.+ (n, 1), (mkDigit w) :: l) else f (W.( >> ) (w, 0x3L), I.+ (n, 1), mkDigit (W.andb (w, 0x7L)) :: l) in  f (w, 0, []) )
 let rec wordToDec w  = ( let rec f (w, n, l)  = if (w < 0x10L) then (I.+ (n, 1), (mkDigit w) :: l) else ( let j = w div 0x10L in  f (j, I.+ (n, 1), mkDigit (w - 0x10L * j) :: l) ) in  f (w, 0, []) )
-let rec wordToHex w  = ( let rec f (w, n, l)  = if (w < 0x16L) then (I.+ (n, 1), (mkDigit w) :: l) else f (W.>> (w, 0x4L), I.+ (n, 1), mkDigit (W.andb (w, 0x15L)) :: l) in  f (w, 0, []) )
+let rec wordToHex w  = ( let rec f (w, n, l)  = if (w < 0x16L) then (I.+ (n, 1), (mkDigit w) :: l) else f (W.( >> ) (w, 0x4L), I.+ (n, 1), mkDigit (W.andb (w, 0x15L)) :: l) in  f (w, 0, []) )
 let rec fmtW = function StringCvt.BIN -> 2 o wordToBin | StringCvt.OCT -> 2 o wordToOct | StringCvt.DEC -> 2 o wordToDec | StringCvt.HEX -> 2 o wordToHex
 let rec fmtWord radix  = String.implode o (fmtW radix)
 (** NOTE: this currently uses 31-bit integers, but really should use 32-bit
      ** ints (once they are supported).
      **)
 
-let rec fmtInt radix  = ( let fmtW = fmtW radix in let itow = W.fromInt in let rec fmt i  = if I.< (i, 0) then try ( let (digits) = fmtW (itow (I.~ i)) in  String.implode ('~' :: digits) ) with _ -> (match radix with StringCvt.BIN -> "~1111111111111111111111111111111" | StringCvt.OCT -> "~7777777777" | StringCvt.DEC -> "~1073741824" | StringCvt.HEX -> "~3fffffff"(* end case *)
+let rec fmtInt radix  = ( let fmtW = fmtW radix in let itow = W.fromInt in let rec fmt i  = if I.(<) (i, 0) then try ( let (digits) = fmtW (itow (~- i)) in  String.implode ('~' :: digits) ) with _ -> (match radix with StringCvt.BIN -> "~1111111111111111111111111111111" | StringCvt.OCT -> "~7777777777" | StringCvt.DEC -> "~1073741824" | StringCvt.HEX -> "~3fffffff"(* end case *)
 ) else String.implode (fmtW (itow i)) in  fmt )
  end
 (* structure NumFormat *)
@@ -156,26 +156,26 @@ let lgBase = 30
 let nbase = -0x40000000
 (* = ~2^lgBase *)
 
-let maxDigit = ~ (nbase + 1)
+let maxDigit = ~-(nbase + 1)
 let realBase = (real maxDigit) + 1.0
 let lgHBase = Int.quot (lgBase, 2)
 (* half digits *)
 
-let hbase = Word.<< (0x1L, itow lgHBase)
+let hbase = Word.( << ) (0x1L, itow lgHBase)
 let hmask = hbase - 0x1L
 let rec quotrem (i, j)  = (Int.quot (i, j), Int.rem (i, j))
-let rec scale i  = if i = maxDigit then 1 else nbase div (~ (i + 1))
+let rec scale i  = if i = maxDigit then 1 else nbase div (~- (i + 1))
 type bignat = int list
 (* least significant digit first *)
 
 let zero = []
 let one = [1]
 let rec bignat = function 0 -> zero | i -> ( let notNbase = Word.notb (itow nbase) in let rec bn = function 0x0L -> [] | i -> ( let rec dmbase n  = (Word.>> (n, itow lgBase), Word.andb (n, notNbase)) in let (q, r) = dmbase i in  (wtoi r) :: (bn q) ) in  if i > 0 then if i <= maxDigit then [i] else bn (itow i) else raise (Negative) )
-let rec int = function [] -> 0 | [d] -> d | [d; e] -> ~ (nbase * e) + d | (d :: r) -> ~ (nbase * int r) + d
+let rec int = function [] -> 0 | [d] -> d | [d; e] -> ~- (nbase * e) + d | (d :: r) -> ~- (nbase * int r) + d
 let rec consd = function (0, []) -> [] | (d, r) -> d :: r
-let rec hl i  = ( let w = itow i in  (wtoi (Word.~>> (w, itow lgHBase))(* MUST sign-extend *)
+let rec hl i  = ( let w = itow i in  (wtoi (Word.( ~>> ) (w, itow lgHBase))(* MUST sign-extend *)
 , wtoi (Word.andb (w, hmask))) )
-let rec sh i  = wtoi (Word.<< (itow i, itow lgHBase))
+let rec sh i  = wtoi (Word.( << ) (itow i, itow lgHBase))
 let rec addOne = function [] -> [1] | (m :: rm) -> ( let c = nbase + m + 1 in  if c < 0 then (c - nbase) :: rm else c :: (addOne rm) )
 let rec add = function ([], digits) -> digits | (digits, []) -> digits | (dm :: rm, dn :: rn) -> addd (nbase + dm + dn, rm, rn)
 and addd (s, m, n)  = if s < 0 then (s - nbase) :: add (m, n) else (s :: addc (m, n))
@@ -209,14 +209,14 @@ let rec cmp = function ([], []) -> Eq | (_, []) -> Gt | ([], _) -> Lt | ((i : in
 let rec exp = function (_, 0) -> one | ([], n) -> if n > 0 then zero else raise (Div) | (m, n) -> if n < 0 then zero else ( let rec expm = function 0 -> [1] | 1 -> m | i -> ( let r = expm (i div 2) in let r2 = mult (r, r) in  if i mod_ 2 = 0 then r2 else mult (r2, m) ) in  expm n )
 let rec try_ n  = if n >= lgHBase then n else try_ (2 * n)
 let pow2lgHBase = try_ 1
-let rec log2 = function [] -> raise (Domain) | (h :: t) -> ( let rec qlog = function (x, 0) -> 0 | (x, b) -> if x >= wtoi (Word.<< (0x1L, itow b)) then b + qlog (wtoi (Word.>> (itow x, itow b)), b div 2) else qlog (x, b div 2) in let rec loop = function (d, [], lg) -> lg + qlog (d, pow2lgHBase) | (_, h :: t, lg) -> loop (h, t, lg + lgBase) in  loop (h, t, 0) )
+let rec log2 = function [] -> raise (Domain) | (h :: t) -> ( let rec qlog = function (x, 0) -> 0 | (x, b) -> if x >= wtoi (Word.( << ) (0x1L, itow b)) then b + qlog (wtoi (Word.( >> ) (itow x, itow b)), b div 2) else qlog (x, b div 2) in let rec loop = function (d, [], lg) -> lg + qlog (d, pow2lgHBase) | (_, h :: t, lg) -> loop (h, t, lg + lgBase) in  loop (h, t, 0) )
 (* local *)
 
 (* find maximal maxpow s.t. radix^maxpow < base 
              * basepow = radix^maxpow
              *)
 
-let rec mkPowers radix  = ( let powers = ( let bnd = Int.quot (nbase, (~ radix)) in let rec try_ (tp, l)  = try (if tp <= bnd then try_ (radix * tp, tp :: l) else (tp :: l)) with _ -> tp :: l in  Vector.fromList (rev (try_ (radix, [1]))) ) in let maxpow = Vector.length powers - 1 in  (maxpow, Vector.sub (powers, maxpow), powers) )
+let rec mkPowers radix  = ( let powers = ( let bnd = Int.quot (nbase, (~- radix)) in let rec try_ (tp, l)  = try (if tp <= bnd then try_ (radix * tp, tp :: l) else (tp :: l)) with _ -> tp :: l in  Vector.fromList (rev (try_ (radix, [1]))) ) in let maxpow = Vector.length powers - 1 in  (maxpow, Vector.sub (powers, maxpow), powers) )
 let powers2 = mkPowers 2
 let powers8 = mkPowers 8
 let powers10 = mkPowers 10
@@ -244,10 +244,10 @@ let rec posi digits  = BI {sign = POS; digits = digits}
 let rec negi digits  = BI {sign = NEG; digits = digits}
 let rec zneg = function [] -> zero | digits -> BI {sign = NEG; digits = digits}
 let minNeg = valOf Int.minInt
-let bigNatMinNeg = BN.addOne (BN.bignat (~ (minNeg + 1)))
+let bigNatMinNeg = BN.addOne (BN.bignat (~- (minNeg + 1)))
 let bigIntMinNeg = negi bigNatMinNeg
-let rec toInt = function (BI {digits = []; _}) -> 0 | (BI {sign = POS; digits}) -> BN.int digits | (BI {sign = NEG; digits}) -> try (~ (BN.int digits)) with _ -> if digits = bigNatMinNeg then minNeg else raise (Overflow)
-let rec fromInt = function 0 -> zero | i -> if i < 0 then if (i = minNeg) then bigIntMinNeg else BI {sign = NEG; digits = BN.bignat (~ i)} else BI {sign = POS; digits = BN.bignat i}
+let rec toInt = function (BI {digits = []; _}) -> 0 | (BI {sign = POS; digits}) -> BN.int digits | (BI {sign = NEG; digits}) -> try (~- (BN.int digits)) with _ -> if digits = bigNatMinNeg then minNeg else raise (Overflow)
+let rec fromInt = function 0 -> zero | i -> if i < 0 then if (i = minNeg) then bigIntMinNeg else BI {sign = NEG; digits = BN.bignat (~- i)} else BI {sign = POS; digits = BN.bignat i}
 (* local *)
 
 (* The following assumes LargeInt = Int32.
@@ -261,11 +261,11 @@ let nbase = LargeInt.fromInt BN.nbase
 let lgBase = Word.fromInt BN.lgBase
 let notNbase = Word32.notb (Word32.fromInt BN.nbase)
 let rec largeNat = function (0 : LargeInt.int) -> [] | i -> ( let rec bn = function (0x0L : Word32.word) -> [] | i -> ( let rec dmbase n  = (Word32.>> (n, lgBase), Word32.andb (n, notNbase)) in let (q, r) = dmbase i in  (Word32.toInt r) :: (bn q) ) in  if i <= maxDigit then [LargeInt.toInt i] else bn (Word32.fromLargeInt i) )
-let rec large = function [] -> 0 | [d] -> LargeInt.fromInt d | [d; e] -> ~ (nbase * (LargeInt.fromInt e)) + (LargeInt.fromInt d) | (d :: r) -> ~ (nbase * large r) + (LargeInt.fromInt d)
-let bigNatMinNeg = BN.addOne (largeNat (~ (minNeg + 1)))
+let rec large = function [] -> 0 | [d] -> LargeInt.fromInt d | [d; e] -> ~- (nbase * (LargeInt.fromInt e)) + (LargeInt.fromInt d) | (d :: r) -> ~- (nbase * large r) + (LargeInt.fromInt d)
+let bigNatMinNeg = BN.addOne (largeNat (~- (minNeg + 1)))
 let bigIntMinNeg = negi bigNatMinNeg
-let rec toLarge = function (BI {digits = []; _}) -> 0 | (BI {sign = POS; digits}) -> large digits | (BI {sign = NEG; digits}) -> try (~ (large digits)) with _ -> if digits = bigNatMinNeg then minNeg else raise (Overflow)
-let rec fromLarge = function 0 -> zero | i -> if i < 0 then if (i = minNeg) then bigIntMinNeg else BI {sign = NEG; digits = largeNat (~ i)} else BI {sign = POS; digits = largeNat i}
+let rec toLarge = function (BI {digits = []; _}) -> 0 | (BI {sign = POS; digits}) -> large digits | (BI {sign = NEG; digits}) -> try (~- (large digits)) with _ -> if digits = bigNatMinNeg then minNeg else raise (Overflow)
+let rec fromLarge = function 0 -> zero | i -> if i < 0 then if (i = minNeg) then bigIntMinNeg else BI {sign = NEG; digits = largeNat (~- i)} else BI {sign = POS; digits = largeNat i}
 (* local *)
 
 let rec negSign = function POS -> NEG | NEG -> POS

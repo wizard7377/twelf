@@ -46,7 +46,7 @@ and aux' = function (G, B, 0) -> (aux (G, B), I.Null) | (I.Decl (G, D), I.Decl (
        Might migrate in to conv module  --cs
     *)
 
-let rec conv (Gs, Gs')  = ( exception Conv in let rec conv = function ((I.Null, s), (I.Null, s')) -> (s, s') | ((I.Decl (G, I.Dec (_, V)), s), (I.Decl (G', I.Dec (_, V')), s')) -> ( let (s1, s1') = conv ((G, s), (G', s')) in let ps = (I.dot1 s1, I.dot1 s1') in  if Conv.conv ((V, s1), (V', s1')) then ps else raise (Conv) ) | _ -> raise (Conv) in  try (conv (Gs, Gs'); true) with Conv -> false )
+let rec conv (Gs, Gs')  = ( let exception Conv in let rec conv = function ((I.Null, s), (I.Null, s')) -> (s, s') | ((I.Decl (G, I.Dec (_, V)), s), (I.Decl (G', I.Dec (_, V')), s')) -> ( let (s1, s1') = conv ((G, s), (G', s')) in let ps = (I.dot1 s1, I.dot1 s1') in  if Conv.conv ((V, s1), (V', s1')) then ps else raise (Conv) ) | _ -> raise (Conv) in  try (conv (Gs, Gs'); true) with Conv -> false )
 (* createEVarSpineW (G, (V, s)) = ((V', s') , S')
 
        Invariant:
