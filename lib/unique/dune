@@ -1,0 +1,18 @@
+(library
+ (name unique)
+ (wrapped false)
+ (libraries
+  global
+  lambda
+  names
+  paths
+  table
+  formatter
+  print
+  subordinate
+  modes
+  typecheck
+  index
+  solvers
+  worldcheck
+  timing))

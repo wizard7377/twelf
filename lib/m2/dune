@@ -1,0 +1,23 @@
+(library
+ (name m2)
+ (wrapped false)
+ (libraries
+  compat
+  timing
+  stream
+  global
+  lambda
+  names
+  modes
+  paths
+  formatter
+  print
+  typecheck
+  terminate
+  index
+  thm
+  opsem
+  compile
+  subordinate
+  table
+  solvers))

@@ -1,0 +1,16 @@
+(library
+ (name worldcheck)
+ (wrapped false)
+ (libraries
+  global
+  timing
+  table
+  lambda
+  names
+  paths
+  formatter
+  print
+  index
+  subordinate
+  meta
+  solvers))

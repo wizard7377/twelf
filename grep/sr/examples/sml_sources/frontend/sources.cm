@@ -1,117 +1,78 @@
-Library
-  signature TIMING
-  structure Timing
-  signature LEXER
-  structure Lexer
-  signature TWELF
-  structure Twelf
-  signature PARSING
-  structure Parsing
-  signature PARSER
-  structure Parser
-  signature EXTSYN
-  signature TOMEGA
-  structure Tomega
-  structure ParseTerm
-  structure ReconTerm
-  signature MTPI
-  structure MTPi
-  signature TYPECHECK
-  structure TypeCheck
-  signature CONVERTER
-  structure Converter
-  signature INTSYN
-  structure IntSyn
-  signature GLOBAL 
-  structure Global
-  structure PrintTwega
-  structure PrintXML
-  structure PrintOMDoc
-  structure Interactive
-  signature FLIT
-  structure Flit
-  structure Subordinate
-  signature STYLECHECK
-  structure StyleCheck
-  signature INTERACTIVE
-  structure Interactive
-is
-#if defined(NEW_CM)
-  $/basis.cm
-#endif
-  ../compat/sources.cm
-  ../timing/sources.cm 
-  ../stream/sources.cm
-  ../global/sources.cm
-  ../table/sources.cm
-  ../lambda/sources.cm
-  ../names/sources.cm
-  ../paths/sources.cm
-  ../print/sources.cm
-  ../typecheck/sources.cm
-  ../style/sources.cm
-  ../modes/sources.cm 
-  ../tabling/sources.cm 
-  ../terminate/sources.cm 
-  ../index/sources.cm
-  ../thm/sources.cm
+
+
+../compat
+../timing 
+../stream
+../global
+../table
+../lambda
+../names
+../paths
+../print
+../typecheck
+../style
+../modes 
+../tabling 
+../terminate 
+../index
+../thm
 (*  ../order/sources.cm *)
-  ../m2/sources.cm
-  ../compile/sources.cm
-  ../opsem/sources.cm
-  ../subordinate/sources.cm
-  ../modules/sources.cm
-  ../meta/sources.cm 
-  ../solvers/sources.cm
-  ../worldcheck/sources.cm
-  ../unique/sources.cm
-  ../cover/sources.cm
-  ../tomega/sources.cm 
-  ../prover/sources.cm
-  ../flit/sources.cm
-  ../msg/sources.cm
-  unknownexn.sig
-  unknownexn.fun
-  unknownexn-smlnj.sml
-  lexer.sig
-  lexer.fun
-  parsing.sig
-  parsing.fun
-  recon-term.sig
-  recon-term.fun
-  recon-condec.sig
-  recon-condec.fun
-  recon-query.sig
-  recon-query.fun
-  recon-mode.sig
-  recon-mode.fun
-  recon-thm.sig
-  recon-thm.fun
-  recon-module.sig
-  recon-module.fun
-  parse-term.sig
-  parse-term.fun
-  parse-condec.sig
-  parse-condec.fun
-  parse-query.sig
-  parse-query.fun
-  parse-fixity.sig
-  parse-fixity.fun
-  parse-mode.sig
-  parse-mode.fun 
-  parse-thm.sig
-  parse-thm.fun
-  parse-module.sig
-  parse-module.fun
-  parser.sig
-  parser.fun
-  solve.sig
-  solve.fun
-  fquery.sig
-  fquery.fun
-  buildid.sml
-  version.sml
-  twelf.sig
-  twelf.fun
-  frontend.sml
+../m2
+../compile
+../opsem
+../subordinate
+../modules
+../meta 
+../solvers
+../worldcheck
+../unique
+../cover
+../tomega 
+../prover
+../flit
+../msg
+unknownexn
+unknownexn
+unknownexn_smlnj
+lexer
+lexer
+parsing
+parsing
+recon_term
+recon_term
+recon_condec
+recon_condec
+recon_query
+recon_query
+recon_mode
+recon_mode
+recon_thm
+recon_thm
+recon_module
+recon_module
+parse_term
+parse_term
+parse_condec
+parse_condec
+parse_query
+parse_query
+parse_fixity
+parse_fixity
+parse_mode
+parse_mode 
+parse_thm
+parse_thm
+parse_module
+parse_module
+parser
+parser
+solve
+solve
+fquery
+fquery
+buildid
+version
+twelf
+twelf
+frontend
 

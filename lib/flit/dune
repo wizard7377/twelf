@@ -1,0 +1,4 @@
+(library
+ (name flit)
+ (wrapped false)
+ (libraries compat global table lambda names index paths print))

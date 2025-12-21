@@ -1,39 +1,89 @@
 (* Unification *)
 
-
 (* Author: Frank Pfenning, Carsten Schuermann *)
-
 
 (* Modified: Roberto Virga *)
 
+module Unify (Whnf : WHNF) (Trail : TRAIL) : UNIFY = struct
+  (*! structure IntSyn = IntSyn' !*)
 
-module Unify (Whnf : WHNF) (Trail : TRAIL) : UNIFY = struct (*! structure IntSyn = IntSyn' !*)
+  exception Unify of string
+  exception NotInvertible
 
-exception Unify of string
-exception NotInvertible
-open IntSyn
-type action = Instantiate of exp option ref | InstantiateBlock of block option ref | Add of cnstr list ref | Solve of cnstr * cnstr
-type cAction = BindCnstr of cnstr ref * cnstr
-type fAction = BindExp of exp option ref * exp option | BindBlock of block option ref * block option | BindAdd of cnstr list ref * cAction list | FSolve of cnstr ref * cnstr * cnstr
-(* ? *)
+  open IntSyn
 
-type unifTrail = fAction Trail.trail
-let globalTrail = (Trail.trail () : action Trail.trail)
-let rec copyCnstr = function [] -> [] | (refC :: clist) -> (BindCnstr (refC, ! refC) :: copyCnstr clist)
-let rec copy = function (Instantiate refU) -> (BindExp (refU, ! refU)) | (InstantiateBlock refB) -> (BindBlock (refB, ! refB)) | (Add (cnstrs)) -> (BindAdd (cnstrs, copyCnstr (! cnstrs))) | (Solve (cnstr, Cnstr)) -> (FSolve (cnstr, Cnstr, ! cnstr))
-let rec resetCnstr = function [] -> [] | (BindCnstr (refC, Cnstr) :: L) -> (refC := Cnstr; (refC :: (resetCnstr L)))
-let rec reset = function (BindExp (refU, U)) -> (refU := U; Instantiate refU) | (BindBlock (refB, B)) -> (refB := B; InstantiateBlock refB) | (BindAdd (cnstrs, CActions)) -> (cnstrs := resetCnstr CActions; Add cnstrs) | (FSolve (refCnstr, Cnstr, Cnstr')) -> (refCnstr := Cnstr'; Solve (refCnstr, Cnstr))
-let rec suspend ()  = Trail.suspend (globalTrail, copy)
-let rec resume trail  = Trail.resume (trail, globalTrail, reset)
-let rec undo = function (Instantiate refU) -> (refU := None) | (InstantiateBlock refB) -> (refB := None) | (Add (cnstrs)) -> (cnstrs := cnstrL) | (Solve (cnstr, Cnstr)) -> (cnstr := Cnstr)
-let rec reset ()  = Trail.reset globalTrail
-let rec mark ()  = Trail.mark globalTrail
-let rec unwind ()  = Trail.unwind (globalTrail, undo)
-let rec addConstraint (cnstrs, cnstr)  = (cnstrs := cnstr :: (! cnstrs); Trail.log (globalTrail, Add (cnstrs)))
-let rec solveConstraint (cnstr)  = (cnstr := Solved; Trail.log (globalTrail, Solve (cnstr, Cnstr)))
-(* Associate a constraint to an expression *)
+  type action =
+    | Instantiate of exp option ref
+    | InstantiateBlock of block option ref
+    | Add of cnstr list ref
+    | Solve of cnstr * cnstr
 
-(* delayExpW ((U, s), cnstr) = ()
+  type cAction = BindCnstr of cnstr ref * cnstr
+
+  type fAction =
+    | BindExp of exp option ref * exp option
+    | BindBlock of block option ref * block option
+    | BindAdd of cnstr list ref * cAction list
+    | FSolve of cnstr ref * cnstr * cnstr
+  (* ? *)
+
+  type unifTrail = fAction Trail.trail
+
+  let globalTrail = (Trail.trail () : action Trail.trail)
+
+  let rec copyCnstr = function
+    | [] -> []
+    | refC :: clist -> BindCnstr (refC, !refC) :: copyCnstr clist
+
+  let rec copy = function
+    | Instantiate refU -> BindExp (refU, !refU)
+    | InstantiateBlock refB -> BindBlock (refB, !refB)
+    | Add cnstrs -> BindAdd (cnstrs, copyCnstr !cnstrs)
+    | Solve (cnstr, Cnstr) -> FSolve (cnstr, Cnstr, !cnstr)
+
+  let rec resetCnstr = function
+    | [] -> []
+    | BindCnstr (refC, Cnstr) :: L ->
+        refC := Cnstr;
+        refC :: resetCnstr L
+
+  let rec reset = function
+    | BindExp (refU, U) ->
+        refU := U;
+        Instantiate refU
+    | BindBlock (refB, B) ->
+        refB := B;
+        InstantiateBlock refB
+    | BindAdd (cnstrs, CActions) ->
+        cnstrs := resetCnstr CActions;
+        Add cnstrs
+    | FSolve (refCnstr, Cnstr, Cnstr') ->
+        refCnstr := Cnstr';
+        Solve (refCnstr, Cnstr)
+
+  let rec suspend () = Trail.suspend (globalTrail, copy)
+  let rec resume trail = Trail.resume (trail, globalTrail, reset)
+
+  let rec undo = function
+    | Instantiate refU -> refU := None
+    | InstantiateBlock refB -> refB := None
+    | Add cnstrs -> cnstrs := cnstrL
+    | Solve (cnstr, Cnstr) -> cnstr := Cnstr
+
+  let rec reset () = Trail.reset globalTrail
+  let rec mark () = Trail.mark globalTrail
+  let rec unwind () = Trail.unwind (globalTrail, undo)
+
+  let rec addConstraint (cnstrs, cnstr) =
+    cnstrs := cnstr :: !cnstrs;
+    Trail.log (globalTrail, Add cnstrs)
+
+  let rec solveConstraint cnstr =
+    cnstr := Solved;
+    Trail.log (globalTrail, Solve (cnstr, Cnstr))
+  (* Associate a constraint to an expression *)
+
+  (* delayExpW ((U, s), cnstr) = ()
 
        Invariant:
        If   G' |- s : G    G |- U : V    (U,s)  in whnf
@@ -41,23 +91,59 @@ let rec solveConstraint (cnstr)  = (cnstr := Solved; Trail.log (globalTrail, Sol
        the constraint cnstr is added to all the rigid EVar occurrences in U[s]
     *)
 
-let rec delayExpW = function ((U, s1), _) -> () | ((Pi ((D, P), U), s), cnstr) -> (delayDec ((D, s), cnstr); delayExp ((U, dot1 s), cnstr)) | ((Root (H, S), s), cnstr) -> (delayHead (H, cnstr); delaySpine ((S, s), cnstr)) | ((Lam (D, U), s), cnstr) -> (delayDec ((D, s), cnstr); delayExp ((U, dot1 s), cnstr)) | ((EVar (G, r, V, cnstrs), s), cnstr) -> addConstraint (cnstrs, cnstr) | ((FgnExp csfe, s), cnstr) -> FgnExpStd.App.apply csfe (fun U -> delayExp ((U, s), cnstr))
-and delayExp (Us, cnstr)  = delayExpW (Whnf.whnf Us, cnstr)
-and delayHead = function (FVar (x, V, s'), cnstr) -> delayExp ((V, id), cnstr) | (H, _) -> ()
-and delaySpine = function ((Nil, s), cnstr) -> () | ((App (U, S), s), cnstr) -> (delayExp ((U, s), cnstr); delaySpine ((S, s), cnstr)) | ((SClo (S, s'), s), cnstr) -> delaySpine ((S, comp (s', s)), cnstr)
-and delayDec ((Dec (name, V), s), cnstr)  = delayExp ((V, s), cnstr)
-let awakenCnstrs = (ref [] : cnstr list ref)
-let rec resetAwakenCnstrs ()  = (awakenCnstrs := [])
-let rec nextCnstr ()  = match ! awakenCnstrs with [] -> None | (cnstr :: cnstrL) -> (awakenCnstrs := cnstrL; Some (cnstr))
-(* Instantiating EVars  *)
+  let rec delayExpW = function
+    | (U, s1), _ -> ()
+    | (Pi ((D, P), U), s), cnstr ->
+        delayDec ((D, s), cnstr);
+        delayExp ((U, dot1 s), cnstr)
+    | (Root (H, S), s), cnstr ->
+        delayHead (H, cnstr);
+        delaySpine ((S, s), cnstr)
+    | (Lam (D, U), s), cnstr ->
+        delayDec ((D, s), cnstr);
+        delayExp ((U, dot1 s), cnstr)
+    | (EVar (G, r, V, cnstrs), s), cnstr -> addConstraint (cnstrs, cnstr)
+    | (FgnExp csfe, s), cnstr ->
+        FgnExpStd.App.apply csfe (fun U -> delayExp ((U, s), cnstr))
 
-let rec instantiateEVar (refU, V, cnstrL)  = (refU := Some (V); Trail.log (globalTrail, Instantiate (refU)); awakenCnstrs := cnstrL @ ! awakenCnstrs)
-(* Instantiating LVars  *)
+  and delayExp (Us, cnstr) = delayExpW (Whnf.whnf Us, cnstr)
 
-let rec instantiateLVar (refB, B)  = (refB := Some (B); Trail.log (globalTrail, InstantiateBlock (refB)))
-(* local *)
+  and delayHead = function
+    | FVar (x, V, s'), cnstr -> delayExp ((V, id), cnstr)
+    | H, _ -> ()
 
-(* intersection (s1, s2) = s'
+  and delaySpine = function
+    | (Nil, s), cnstr -> ()
+    | (App (U, S), s), cnstr ->
+        delayExp ((U, s), cnstr);
+        delaySpine ((S, s), cnstr)
+    | (SClo (S, s'), s), cnstr -> delaySpine ((S, comp (s', s)), cnstr)
+
+  and delayDec ((Dec (name, V), s), cnstr) = delayExp ((V, s), cnstr)
+
+  let awakenCnstrs = (ref [] : cnstr list ref)
+  let rec resetAwakenCnstrs () = awakenCnstrs := []
+
+  let rec nextCnstr () =
+    match !awakenCnstrs with
+    | [] -> None
+    | cnstr :: cnstrL ->
+        awakenCnstrs := cnstrL;
+        Some cnstr
+  (* Instantiating EVars  *)
+
+  let rec instantiateEVar (refU, V, cnstrL) =
+    refU := Some V;
+    Trail.log (globalTrail, Instantiate refU);
+    awakenCnstrs := cnstrL @ !awakenCnstrs
+  (* Instantiating LVars  *)
+
+  let rec instantiateLVar (refB, B) =
+    refB := Some B;
+    Trail.log (globalTrail, InstantiateBlock refB)
+  (* local *)
+
+  (* intersection (s1, s2) = s'
        s' = s1 /\ s2 (see JICSLP'96)
 
        Invariant:
@@ -67,12 +153,18 @@ let rec instantiateLVar (refB, B)  = (refB := Some (B); Trail.log (globalTrail, 
        and  s' patsub
     *)
 
-let rec intersection = function (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) -> if (k1 = k2) then dot1 (intersection (s1, s2)) else comp (intersection (s1, s2), shift) | (s1, Shift (n2)) -> intersection (s1, Dot (Idx (n2 + 1), Shift (n2 + 1))) | (Shift (n1), s2) -> intersection (Dot (Idx (n1 + 1), Shift (n1 + 1)), s2) | (Shift _, Shift _) -> id
-(* both substitutions are the same number of shifts by invariant *)
+  let rec intersection = function
+    | Dot (Idx k1, s1), Dot (Idx k2, s2) ->
+        if k1 = k2 then dot1 (intersection (s1, s2))
+        else comp (intersection (s1, s2), shift)
+    | s1, Shift n2 -> intersection (s1, Dot (Idx (n2 + 1), Shift (n2 + 1)))
+    | Shift n1, s2 -> intersection (Dot (Idx (n1 + 1), Shift (n1 + 1)), s2)
+    | Shift _, Shift _ -> id
+  (* both substitutions are the same number of shifts by invariant *)
 
-(* all other cases impossible for_sml pattern substitutions *)
+  (* all other cases impossible for_sml pattern substitutions *)
 
-(* weakenSub (G1, s, ss) = w'
+  (* weakenSub (G1, s, ss) = w'
 
        Invariant:
        If    G |- s : G1       (* s patsub *)
@@ -83,8 +175,17 @@ let rec intersection = function (Dot (Idx (k1), s1), Dot (Idx (k2), s2)) -> if (
        and   G1' is maximal such
     *)
 
-let rec weakenSub = function (G, Shift n, ss) -> if n < ctxLength G then weakenSub (G, Dot (Idx (n + 1), Shift (n + 1)), ss) else id | (G, Dot (Idx n, s'), ss) -> (match bvarSub (n, ss) with Undef -> comp (weakenSub (G, s', ss), shift) | Idx _ -> dot1 (weakenSub (G, s', ss))) | (G, Dot (Undef, s'), ss) -> comp (weakenSub (G, s', ss), shift)
-(* invert (G, (U, s), ss, rOccur) = U[s][ss]
+  let rec weakenSub = function
+    | G, Shift n, ss ->
+        if n < ctxLength G then
+          weakenSub (G, Dot (Idx (n + 1), Shift (n + 1)), ss)
+        else id
+    | G, Dot (Idx n, s'), ss -> (
+        match bvarSub (n, ss) with
+        | Undef -> comp (weakenSub (G, s', ss), shift)
+        | Idx _ -> dot1 (weakenSub (G, s', ss)))
+    | G, Dot (Undef, s'), ss -> comp (weakenSub (G, s', ss), shift)
+  (* invert (G, (U, s), ss, rOccur) = U[s][ss]
 
        G |- s : G'   G' |- U : V  (G |- U[s] : V[s])
        G'' |- ss : G
@@ -94,25 +195,85 @@ let rec weakenSub = function (G, Shift n, ss) -> if n < ctxLength G then weakenS
                does NOT prune EVars in U[s] according to ss; fails instead
     *)
 
-let rec invertExp (G, Us, ss, rOccur)  = invertExpW (G, Whnf.whnf Us, ss, rOccur)
-and invertExpW = function (G, (U, s), _, _) -> U | (G, (Pi ((D, P), V), s), ss, rOccur) -> Pi ((invertDec (G, (D, s), ss, rOccur), P), invertExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur)) | (G, (Lam (D, V), s), ss, rOccur) -> Lam (invertDec (G, (D, s), ss, rOccur), invertExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur)) | (G, (Root (H, S), s(* = id *)
-), ss, rOccur) -> Root (invertHead (G, H, ss, rOccur), invertSpine (G, (S, s), ss, rOccur)) | (G, (X, s), ss, rOccur) -> if (rOccur = r) then raise (NotInvertible) else if Whnf.isPatSub (s) then ( let w = weakenSub (G, s, ss) in  if Whnf.isId w then EClo (X, comp (s, ss)) else raise (NotInvertible) ) else (* s not patsub *)
-(* invertExp may raise NotInvertible *)
-EClo (X, invertSub (G, s, ss, rOccur)) | (G, (FgnExp csfe, s), ss, rOccur) -> FgnExpStd.Map.apply csfe (fun U -> invertExp (G, (U, s), ss, rOccur))
-and invertDec (G, (Dec (name, V), s), ss, rOccur)  = Dec (name, invertExp (G, (V, s), ss, rOccur))
-and invertSpine = function (G, (Nil, s), ss, rOccur) -> Nil | (G, (App (U, S), s), ss, rOccur) -> App (invertExp (G, (U, s), ss, rOccur), invertSpine (G, (S, s), ss, rOccur)) | (G, (SClo (S, s'), s), ss, rOccur) -> invertSpine (G, (S, comp (s', s)), ss, rOccur)
-and invertHead = function (G, BVar k, ss, rOccur) -> (match (bvarSub (k, ss)) with Undef -> raise (NotInvertible) | Idx k' -> BVar k') | (G, H, ss, rOccur) -> H | (G, Proj (B, i), ss, rOccur) -> (match blockSub (B, ss) with Bidx (k') -> Proj (Bidx (k'), i)) | (G, H, ss, rOccur) -> (invertSub (G, t, id, rOccur); H) | (G, H, ss, rOccur) -> H | (G, H, ss, rOccur) -> H | (G, FVar (x, V, s'), ss, rOccur) -> (invertExp (G, (V, id), id, rOccur); (* why G here? -fp !!! *)
-FVar (x, V, comp (s', ss))) | (G, H, ss, rOccur) -> H
-and invertSub = function (G, s, ss, rOccur) -> if n < ctxLength (G) then invertSub (G, Dot (Idx (n + 1), Shift (n + 1)), ss, rOccur) else comp (s, ss) | (G, Dot (Idx (n), s'), ss, rOccur) -> (match bvarSub (n, ss) with Undef -> raise (NotInvertible) | Ft -> Dot (Ft, invertSub (G, s', ss, rOccur))) | (G, Dot (Exp (U), s'), ss, rOccur) -> Dot (Exp (invertExp (G, (U, id), ss, rOccur)), invertSub (G, s', ss, rOccur))
-(* pruneSub (G, Dot (Undef, s), ss, rOccur) is impossible *)
+  let rec invertExp (G, Us, ss, rOccur) =
+    invertExpW (G, Whnf.whnf Us, ss, rOccur)
 
-(* By invariant, all EVars X[s] are such that s is defined everywhere *)
+  and invertExpW = function
+    | G, (U, s), _, _ -> U
+    | G, (Pi ((D, P), V), s), ss, rOccur ->
+        Pi
+          ( (invertDec (G, (D, s), ss, rOccur), P),
+            invertExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur) )
+    | G, (Lam (D, V), s), ss, rOccur ->
+        Lam
+          ( invertDec (G, (D, s), ss, rOccur),
+            invertExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur) )
+    | G, (Root (H, S), s (* = id *)), ss, rOccur ->
+        Root (invertHead (G, H, ss, rOccur), invertSpine (G, (S, s), ss, rOccur))
+    | G, (X, s), ss, rOccur ->
+        if rOccur = r then raise NotInvertible
+        else if Whnf.isPatSub s then
+          let w = weakenSub (G, s, ss) in
+          if Whnf.isId w then EClo (X, comp (s, ss)) else raise NotInvertible
+        else (* s not patsub *)
+          (* invertExp may raise NotInvertible *)
+          EClo (X, invertSub (G, s, ss, rOccur))
+    | G, (FgnExp csfe, s), ss, rOccur ->
+        FgnExpStd.Map.apply csfe (fun U -> invertExp (G, (U, s), ss, rOccur))
 
-(* Pruning establishes and maintains this invariant *)
+  and invertDec (G, (Dec (name, V), s), ss, rOccur) =
+    Dec (name, invertExp (G, (V, s), ss, rOccur))
 
-(* invertCtx does not appear to be necessary *)
+  and invertSpine = function
+    | G, (Nil, s), ss, rOccur -> Nil
+    | G, (App (U, S), s), ss, rOccur ->
+        App
+          ( invertExp (G, (U, s), ss, rOccur),
+            invertSpine (G, (S, s), ss, rOccur) )
+    | G, (SClo (S, s'), s), ss, rOccur ->
+        invertSpine (G, (S, comp (s', s)), ss, rOccur)
 
-(*
+  and invertHead = function
+    | G, BVar k, ss, rOccur -> (
+        match bvarSub (k, ss) with
+        | Undef -> raise NotInvertible
+        | Idx k' -> BVar k')
+    | G, H, ss, rOccur -> H
+    | G, Proj (B, i), ss, rOccur -> (
+        match blockSub (B, ss) with Bidx k' -> Proj (Bidx k', i))
+    | G, H, ss, rOccur ->
+        invertSub (G, t, id, rOccur);
+        H
+    | G, H, ss, rOccur -> H
+    | G, H, ss, rOccur -> H
+    | G, FVar (x, V, s'), ss, rOccur ->
+        invertExp (G, (V, id), id, rOccur);
+        (* why G here? -fp !!! *)
+        FVar (x, V, comp (s', ss))
+    | G, H, ss, rOccur -> H
+
+  and invertSub = function
+    | G, s, ss, rOccur ->
+        if n < ctxLength G then
+          invertSub (G, Dot (Idx (n + 1), Shift (n + 1)), ss, rOccur)
+        else comp (s, ss)
+    | G, Dot (Idx n, s'), ss, rOccur -> (
+        match bvarSub (n, ss) with
+        | Undef -> raise NotInvertible
+        | Ft -> Dot (Ft, invertSub (G, s', ss, rOccur)))
+    | G, Dot (Exp U, s'), ss, rOccur ->
+        Dot
+          ( Exp (invertExp (G, (U, id), ss, rOccur)),
+            invertSub (G, s', ss, rOccur) )
+  (* pruneSub (G, Dot (Undef, s), ss, rOccur) is impossible *)
+
+  (* By invariant, all EVars X[s] are such that s is defined everywhere *)
+
+  (* Pruning establishes and maintains this invariant *)
+
+  (* invertCtx does not appear to be necessary *)
+
+  (*
     and invertCtx (Shift n, Null, rOccur) = Null
       | invertCtx (Dot (Idx k, t), Decl (G, D), rOccur) =
         let
@@ -127,7 +288,7 @@ and invertSub = function (G, s, ss, rOccur) -> if n < ctxLength (G) then invertS
           invertCtx (Dot (Idx (n+1), Shift (n+1)), G, rOccur)
     *)
 
-(* prune (G, (U, s), ss, rOccur) = U[s][ss]
+  (* prune (G, (U, s), ss, rOccur) = U[s][ss]
 
        !!! looks wrong to me -kw
        G |- U : V    G' |- s : G  (G' |- U[s] : V[s])
@@ -140,26 +301,112 @@ and invertSub = function (G, s, ss, rOccur) -> if n < ctxLength (G) then invertS
                raises Unify if U[s][ss] does not exist, or rOccur occurs in U[s]
     *)
 
-let rec pruneExp (G, Us, ss, rOccur)  = pruneExpW (G, Whnf.whnf Us, ss, rOccur)
-and pruneExpW = function (G, (U, s), _, _) -> U | (G, (Pi ((D, P), V), s), ss, rOccur) -> Pi ((pruneDec (G, (D, s), ss, rOccur), P), pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur)) | (G, (Lam (D, V), s), ss, rOccur) -> Lam (pruneDec (G, (D, s), ss, rOccur), pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur)) | (G, (Root (H, S), s(* = id *)
-), ss, rOccur) -> Root (pruneHead (G, H, ss, rOccur), pruneSpine (G, (S, s), ss, rOccur)) | (G, (X, s), ss, rOccur) -> if (rOccur = r) then raise (Unify "Variable occurrence") else if Whnf.isPatSub (s) then ( let w = weakenSub (G, s, ss) in  if Whnf.isId w then EClo (X, comp (s, ss)) else ( (* val V' = EClo (V, wi) *)
-(* val GY = Whnf.strengthen (wi, GX) *)
-(* shortcut on GY possible by invariant on GX and V[s]? -fp *)
-(* could optimize by checking for_sml identity subst *)
-let wi = Whnf.invert w in let V' = pruneExp (GX, (V, id), wi, rOccur) in let GY = pruneCtx (wi, GX, rOccur) in let Y = newEVar (GY, V') in let Yw = EClo (Y, w) in let _ = instantiateEVar (r, Yw, ! cnstrs) in  EClo (Yw, comp (s, ss)) ) ) else (* s not patsub *)
-(try EClo (X, invertSub (G, s, ss, rOccur)) with NotInvertible -> ( (* val GY = Whnf.strengthen (ss, G) *)
-(* shortcuts possible by invariants on G? *)
-(* prune or invert??? *)
-(* val V' = EClo (V, comp (s, ss)) *)
-(* prune or invert??? *)
-let GY = pruneCtx (ss, G, rOccur) in let V' = pruneExp (G, (V, s), ss, rOccur) in let Y = newEVar (GY, V') in let _ = addConstraint (cnstrs, ref (Eqn (G, EClo (X, s), EClo (Y, Whnf.invert ss)))) in  Y )) | (G, (FgnExp csfe, s), ss, rOccur) -> FgnExpStd.Map.apply csfe (fun U -> pruneExp (G, (U, s), ss, rOccur)) | (G, ((X), s), ss, rOccur) -> raise (Unify "Left-over AVar")
-and pruneDec = function (G, (Dec (name, V), s), ss, rOccur) -> Dec (name, pruneExp (G, (V, s), ss, rOccur)) | (G, (NDec x, _), _, _) -> NDec x
-and pruneSpine = function (G, (Nil, s), ss, rOccur) -> Nil | (G, (App (U, S), s), ss, rOccur) -> App (pruneExp (G, (U, s), ss, rOccur), pruneSpine (G, (S, s), ss, rOccur)) | (G, (SClo (S, s'), s), ss, rOccur) -> pruneSpine (G, (S, comp (s', s)), ss, rOccur)
-and pruneHead = function (G, BVar k, ss, rOccur) -> (match (bvarSub (k, ss)) with Undef -> raise (Unify "Parameter dependency") | Idx k' -> BVar k') | (G, H, ss, rOccur) -> H | (G, Proj (B, i), ss, rOccur) -> (match blockSub (B, ss) with Bidx (k') -> Proj (Bidx (k'), i)) | (G, H, ss, rOccur) -> (pruneSub (G, t, id, rOccur); H) | (G, H, ss, rOccur) -> H | (G, H, ss, rOccur) -> H | (G, FVar (x, V, s'), ss, rOccur) -> (pruneExp (G, (V, id), id, rOccur); (* why G here? -fp !!! *)
-FVar (x, V, comp (s', ss))) | (G, H, ss, rOccur) -> H
-and pruneSub = function (G, s, ss, rOccur) -> if n < ctxLength (G) then pruneSub (G, Dot (Idx (n + 1), Shift (n + 1)), ss, rOccur) else comp (s, ss) | (G, Dot (Idx (n), s'), ss, rOccur) -> (match bvarSub (n, ss) with Undef -> raise (Unify "Not prunable") | Ft -> Dot (Ft, pruneSub (G, s', ss, rOccur))) | (G, Dot (Exp (U), s'), ss, rOccur) -> Dot (Exp (pruneExp (G, (U, id), ss, rOccur)), pruneSub (G, s', ss, rOccur))
-and pruneCtx = function (Shift n, Null, rOccur) -> Null | (Dot (Idx k, t), Decl (G, D), rOccur) -> ( let t' = comp (t, invShift) in let D' = pruneDec (G, (D, id), t', rOccur) in  Decl (pruneCtx (t', G, rOccur), D') ) | (Dot (Undef, t), Decl (G, d), rOccur) -> pruneCtx (t, G, rOccur) | (Shift n, G, rOccur) -> pruneCtx (Dot (Idx (n + 1), Shift (n + 1)), G, rOccur)
-(* unifyExpW (G, (U1, s1), (U2, s2)) = ()
+  let rec pruneExp (G, Us, ss, rOccur) = pruneExpW (G, Whnf.whnf Us, ss, rOccur)
+
+  and pruneExpW = function
+    | G, (U, s), _, _ -> U
+    | G, (Pi ((D, P), V), s), ss, rOccur ->
+        Pi
+          ( (pruneDec (G, (D, s), ss, rOccur), P),
+            pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur) )
+    | G, (Lam (D, V), s), ss, rOccur ->
+        Lam
+          ( pruneDec (G, (D, s), ss, rOccur),
+            pruneExp (Decl (G, decSub (D, s)), (V, dot1 s), dot1 ss, rOccur) )
+    | G, (Root (H, S), s (* = id *)), ss, rOccur ->
+        Root (pruneHead (G, H, ss, rOccur), pruneSpine (G, (S, s), ss, rOccur))
+    | G, (X, s), ss, rOccur -> (
+        if rOccur = r then raise (Unify "Variable occurrence")
+        else if Whnf.isPatSub s then
+          let w = weakenSub (G, s, ss) in
+          if Whnf.isId w then EClo (X, comp (s, ss))
+          else
+            (* val V' = EClo (V, wi) *)
+            (* val GY = Whnf.strengthen (wi, GX) *)
+            (* shortcut on GY possible by invariant on GX and V[s]? -fp *)
+            (* could optimize by checking for_sml identity subst *)
+            let wi = Whnf.invert w in
+            let V' = pruneExp (GX, (V, id), wi, rOccur) in
+            let GY = pruneCtx (wi, GX, rOccur) in
+            let Y = newEVar (GY, V') in
+            let Yw = EClo (Y, w) in
+            let _ = instantiateEVar (r, Yw, !cnstrs) in
+            EClo (Yw, comp (s, ss))
+        else (* s not patsub *)
+          try EClo (X, invertSub (G, s, ss, rOccur))
+          with NotInvertible ->
+            (* val GY = Whnf.strengthen (ss, G) *)
+            (* shortcuts possible by invariants on G? *)
+            (* prune or invert??? *)
+            (* val V' = EClo (V, comp (s, ss)) *)
+            (* prune or invert??? *)
+            let GY = pruneCtx (ss, G, rOccur) in
+            let V' = pruneExp (G, (V, s), ss, rOccur) in
+            let Y = newEVar (GY, V') in
+            let _ =
+              addConstraint
+                (cnstrs, ref (Eqn (G, EClo (X, s), EClo (Y, Whnf.invert ss))))
+            in
+            Y)
+    | G, (FgnExp csfe, s), ss, rOccur ->
+        FgnExpStd.Map.apply csfe (fun U -> pruneExp (G, (U, s), ss, rOccur))
+    | G, (X, s), ss, rOccur -> raise (Unify "Left-over AVar")
+
+  and pruneDec = function
+    | G, (Dec (name, V), s), ss, rOccur ->
+        Dec (name, pruneExp (G, (V, s), ss, rOccur))
+    | G, (NDec x, _), _, _ -> NDec x
+
+  and pruneSpine = function
+    | G, (Nil, s), ss, rOccur -> Nil
+    | G, (App (U, S), s), ss, rOccur ->
+        App
+          (pruneExp (G, (U, s), ss, rOccur), pruneSpine (G, (S, s), ss, rOccur))
+    | G, (SClo (S, s'), s), ss, rOccur ->
+        pruneSpine (G, (S, comp (s', s)), ss, rOccur)
+
+  and pruneHead = function
+    | G, BVar k, ss, rOccur -> (
+        match bvarSub (k, ss) with
+        | Undef -> raise (Unify "Parameter dependency")
+        | Idx k' -> BVar k')
+    | G, H, ss, rOccur -> H
+    | G, Proj (B, i), ss, rOccur -> (
+        match blockSub (B, ss) with Bidx k' -> Proj (Bidx k', i))
+    | G, H, ss, rOccur ->
+        pruneSub (G, t, id, rOccur);
+        H
+    | G, H, ss, rOccur -> H
+    | G, H, ss, rOccur -> H
+    | G, FVar (x, V, s'), ss, rOccur ->
+        pruneExp (G, (V, id), id, rOccur);
+        (* why G here? -fp !!! *)
+        FVar (x, V, comp (s', ss))
+    | G, H, ss, rOccur -> H
+
+  and pruneSub = function
+    | G, s, ss, rOccur ->
+        if n < ctxLength G then
+          pruneSub (G, Dot (Idx (n + 1), Shift (n + 1)), ss, rOccur)
+        else comp (s, ss)
+    | G, Dot (Idx n, s'), ss, rOccur -> (
+        match bvarSub (n, ss) with
+        | Undef -> raise (Unify "Not prunable")
+        | Ft -> Dot (Ft, pruneSub (G, s', ss, rOccur)))
+    | G, Dot (Exp U, s'), ss, rOccur ->
+        Dot
+          (Exp (pruneExp (G, (U, id), ss, rOccur)), pruneSub (G, s', ss, rOccur))
+
+  and pruneCtx = function
+    | Shift n, Null, rOccur -> Null
+    | Dot (Idx k, t), Decl (G, D), rOccur ->
+        let t' = comp (t, invShift) in
+        let D' = pruneDec (G, (D, id), t', rOccur) in
+        Decl (pruneCtx (t', G, rOccur), D')
+    | Dot (Undef, t), Decl (G, d), rOccur -> pruneCtx (t, G, rOccur)
+    | Shift n, G, rOccur ->
+        pruneCtx (Dot (Idx (n + 1), Shift (n + 1)), G, rOccur)
+  (* unifyExpW (G, (U1, s1), (U2, s2)) = ()
 
        Invariant:
        If   G |- s1 : G1   G1 |- U1 : V1    (U1,s1) in whnf
@@ -176,47 +423,236 @@ and pruneCtx = function (Shift n, Null, rOccur) -> Null | (Dot (Idx k, t), Decl 
                       constraints may be added for_sml non-patterns
     *)
 
-let rec unifyExpW = function (G, Us1, Us2) -> (match (FgnExpStd.UnifyWith.apply csfe1 (G, EClo Us2)) with (Succeed residualL) -> ( let rec execResidual = function (Assign (G, EVar (r, _, _, cnstrs), W, ss)) -> ( let W' = pruneExp (G, (W, id), ss, r) in  instantiateEVar (r, W', ! cnstrs) ) | (Delay (U, cnstr)) -> delayExp ((U, id), cnstr) in  List.app execResidual residualL ) | Fail -> raise (Unify "Foreign Expression Mismatch")) | (G, Us1, Us2) -> (match (FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1)) with (Succeed opL) -> ( let rec execOp = function (Assign (G, EVar (r, _, _, cnstrs), W, ss)) -> ( let W' = pruneExp (G, (W, id), ss, r) in  instantiateEVar (r, W', ! cnstrs) ) | (Delay (U, cnstr)) -> delayExp ((U, id), cnstr) in  List.app execOp opL ) | Fail -> raise (Unify "Foreign Expression Mismatch")) | (G, (Uni (L1), _), (Uni (L2), _)) -> () | (G, Us1, Us2) -> (match (H1, H2) with (BVar (k1), BVar (k2)) -> if (k1 = k2) then unifySpine (G, (S1, s1), (S2, s2)) else raise (Unify "Bound variable clash") | (Const (c1), Const (c2)) -> if (c1 = c2) then unifySpine (G, (S1, s1), (S2, s2)) else raise (Unify "Constant clash") | (Proj (b1, i1), Proj (b2, i2)) -> if (i1 = i2) then (unifyBlock (G, b1, b2); unifySpine (G, (S1, s1), (S2, s2))) else raise (Unify "Global parameter clash") | (Skonst (c1), Skonst (c2)) -> if (c1 = c2) then unifySpine (G, (S1, s1), (S2, s2)) else raise (Unify "Skolem constant clash") | (FVar (n1, _, _), FVar (n2, _, _)) -> if (n1 = n2) then unifySpine (G, (S1, s1), (S2, s2)) else raise (Unify "Free variable clash") | (Def (d1), Def (d2)) -> if (d1 = d2) then (* because of strict *)
-unifySpine (G, (S1, s1), (S2, s2)) else (*  unifyExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) *)
-unifyDefDefW (G, Us1, Us2)(* four new cases for_sml defined constants *)
- | (Def (d1), Const (c2)) -> (match defAncestor d1 with Anc (_, _, None) -> (* conservative *)
-unifyExpW (G, Whnf.expandDef Us1, Us2) | Anc (_, _, Some (c1)) -> if (c1 = c2) then unifyExpW (G, Whnf.expandDef Us1, Us2) else raise (Unify "Constant clash")) | (Const (c1), Def (d2)) -> (match defAncestor d2 with Anc (_, _, None) -> (* conservative *)
-unifyExpW (G, Us1, Whnf.expandDef Us2) | Anc (_, _, Some (c2)) -> if (c1 = c2) then unifyExpW (G, Us1, Whnf.expandDef Us2) else raise (Unify "Constant clash")) | (Def (d1), BVar (k2)) -> raise (Unify "Head mismatch")(* due to strictness! *)
- | (BVar (k1), Def (d2)) -> raise (Unify "Head mismatch")(* due to strictness! *)
-(* next two cases for_sml def/fgn, fgn/def *)
- | (Def (d1), _) -> unifyExpW (G, Whnf.expandDef Us1, Us2) | (_, Def (d2)) -> unifyExpW (G, Us1, Whnf.expandDef Us2) | (FgnConst (cs1, ConDec (n1, _, _, _, _, _)), FgnConst (cs2, ConDec (n2, _, _, _, _, _))) -> (* we require unique string representation of external constants *)
-if (cs1 = cs2) && (n1 = n2) then () else raise (Unify "Foreign Constant clash") | (FgnConst (cs1, ConDef (n1, _, _, W1, _, _, _)), FgnConst (cs2, ConDef (n2, _, _, V, W2, _, _))) -> if (cs1 = cs2) && (n1 = n2) then () else unifyExp (G, (W1, s1), (W2, s2)) | (FgnConst (_, ConDef (_, _, _, W1, _, _, _)), _) -> unifyExp (G, (W1, s1), Us2) | (_, FgnConst (_, ConDef (_, _, _, W2, _, _, _))) -> unifyExp (G, Us1, (W2, s2)) | _ -> raise (Unify "Head mismatch")) | (G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2)) -> (unifyDec (G, (D1, s1), (D2, s2)); unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2))) | (G, Us1, Us2) -> unifyExpW (G, Us1, Whnf.expandDef (Us2)) | (G, Us1, Us2) -> unifyExpW (G, Whnf.expandDef (Us1), Us2) | (G, (Lam (D1, U1), s1), (Lam (D2, U2), s2)) -> unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2)) | (G, (Lam (D1, U1), s1), (U2, s2)) -> unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (Redex (EClo (U2, shift), App (Root (BVar (1), Nil), Nil)), dot1 s2)) | (G, (U1, s1), (Lam (D2, U2), s2)) -> unifyExp (Decl (G, decSub (D2, s2)), (Redex (EClo (U1, shift), App (Root (BVar (1), Nil), Nil)), dot1 s1), (U2, dot1 s2)) | (G, Us1, Us2) -> if r1 = r2 then if Whnf.isPatSub (s1) then if Whnf.isPatSub (s2) then ( (* compute ss' directly? *)
-let s' = intersection (s1, s2) in  (* without the next optimization, bugs/hangs/sources.cfg
+  let rec unifyExpW = function
+    | G, Us1, Us2 -> (
+        match FgnExpStd.UnifyWith.apply csfe1 (G, EClo Us2) with
+        | Succeed residualL ->
+            let rec execResidual = function
+              | Assign (G, EVar (r, _, _, cnstrs), W, ss) ->
+                  let W' = pruneExp (G, (W, id), ss, r) in
+                  instantiateEVar (r, W', !cnstrs)
+              | Delay (U, cnstr) -> delayExp ((U, id), cnstr)
+            in
+            List.app execResidual residualL
+        | Fail -> raise (Unify "Foreign Expression Mismatch"))
+    | G, Us1, Us2 -> (
+        match FgnExpStd.UnifyWith.apply csfe2 (G, EClo Us1) with
+        | Succeed opL ->
+            let rec execOp = function
+              | Assign (G, EVar (r, _, _, cnstrs), W, ss) ->
+                  let W' = pruneExp (G, (W, id), ss, r) in
+                  instantiateEVar (r, W', !cnstrs)
+              | Delay (U, cnstr) -> delayExp ((U, id), cnstr)
+            in
+            List.app execOp opL
+        | Fail -> raise (Unify "Foreign Expression Mismatch"))
+    | G, (Uni L1, _), (Uni L2, _) -> ()
+    | G, Us1, Us2 -> (
+        match (H1, H2) with
+        | BVar k1, BVar k2 ->
+            if k1 = k2 then unifySpine (G, (S1, s1), (S2, s2))
+            else raise (Unify "Bound variable clash")
+        | Const c1, Const c2 ->
+            if c1 = c2 then unifySpine (G, (S1, s1), (S2, s2))
+            else raise (Unify "Constant clash")
+        | Proj (b1, i1), Proj (b2, i2) ->
+            if i1 = i2 then (
+              unifyBlock (G, b1, b2);
+              unifySpine (G, (S1, s1), (S2, s2)))
+            else raise (Unify "Global parameter clash")
+        | Skonst c1, Skonst c2 ->
+            if c1 = c2 then unifySpine (G, (S1, s1), (S2, s2))
+            else raise (Unify "Skolem constant clash")
+        | FVar (n1, _, _), FVar (n2, _, _) ->
+            if n1 = n2 then unifySpine (G, (S1, s1), (S2, s2))
+            else raise (Unify "Free variable clash")
+        | Def d1, Def d2 ->
+            if d1 = d2 then (* because of strict *)
+              unifySpine (G, (S1, s1), (S2, s2))
+            else
+              (*  unifyExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) *)
+              unifyDefDefW (G, Us1, Us2)
+              (* four new cases for_sml defined constants *)
+        | Def d1, Const c2 -> (
+            match defAncestor d1 with
+            | Anc (_, _, None) ->
+                (* conservative *)
+                unifyExpW (G, Whnf.expandDef Us1, Us2)
+            | Anc (_, _, Some c1) ->
+                if c1 = c2 then unifyExpW (G, Whnf.expandDef Us1, Us2)
+                else raise (Unify "Constant clash"))
+        | Const c1, Def d2 -> (
+            match defAncestor d2 with
+            | Anc (_, _, None) ->
+                (* conservative *)
+                unifyExpW (G, Us1, Whnf.expandDef Us2)
+            | Anc (_, _, Some c2) ->
+                if c1 = c2 then unifyExpW (G, Us1, Whnf.expandDef Us2)
+                else raise (Unify "Constant clash"))
+        | Def d1, BVar k2 ->
+            raise (Unify "Head mismatch") (* due to strictness! *)
+        | BVar k1, Def d2 ->
+            raise (Unify "Head mismatch") (* due to strictness! *)
+        (* next two cases for_sml def/fgn, fgn/def *)
+        | Def d1, _ -> unifyExpW (G, Whnf.expandDef Us1, Us2)
+        | _, Def d2 -> unifyExpW (G, Us1, Whnf.expandDef Us2)
+        | ( FgnConst (cs1, ConDec (n1, _, _, _, _, _)),
+            FgnConst (cs2, ConDec (n2, _, _, _, _, _)) ) ->
+            (* we require unique string representation of external constants *)
+            if cs1 = cs2 && n1 = n2 then ()
+            else raise (Unify "Foreign Constant clash")
+        | ( FgnConst (cs1, ConDef (n1, _, _, W1, _, _, _)),
+            FgnConst (cs2, ConDef (n2, _, _, V, W2, _, _)) ) ->
+            if cs1 = cs2 && n1 = n2 then () else unifyExp (G, (W1, s1), (W2, s2))
+        | FgnConst (_, ConDef (_, _, _, W1, _, _, _)), _ ->
+            unifyExp (G, (W1, s1), Us2)
+        | _, FgnConst (_, ConDef (_, _, _, W2, _, _, _)) ->
+            unifyExp (G, Us1, (W2, s2))
+        | _ -> raise (Unify "Head mismatch"))
+    | G, (Pi ((D1, _), U1), s1), (Pi ((D2, _), U2), s2) ->
+        unifyDec (G, (D1, s1), (D2, s2));
+        unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2))
+    | G, Us1, Us2 -> unifyExpW (G, Us1, Whnf.expandDef Us2)
+    | G, Us1, Us2 -> unifyExpW (G, Whnf.expandDef Us1, Us2)
+    | G, (Lam (D1, U1), s1), (Lam (D2, U2), s2) ->
+        unifyExp (Decl (G, decSub (D1, s1)), (U1, dot1 s1), (U2, dot1 s2))
+    | G, (Lam (D1, U1), s1), (U2, s2) ->
+        unifyExp
+          ( Decl (G, decSub (D1, s1)),
+            (U1, dot1 s1),
+            (Redex (EClo (U2, shift), App (Root (BVar 1, Nil), Nil)), dot1 s2)
+          )
+    | G, (U1, s1), (Lam (D2, U2), s2) ->
+        unifyExp
+          ( Decl (G, decSub (D2, s2)),
+            (Redex (EClo (U1, shift), App (Root (BVar 1, Nil), Nil)), dot1 s1),
+            (U2, dot1 s2) )
+    | G, Us1, Us2 ->
+        if r1 = r2 then
+          if Whnf.isPatSub s1 then
+            if Whnf.isPatSub s2 then
+              (* compute ss' directly? *)
+              let s' = intersection (s1, s2) in
+              (* without the next optimization, bugs/hangs/sources.cfg
                      would gets into an apparent infinite loop
                      Fri Sep  5 20:23:27 2003 -fp
                   *)
-if Whnf.isId s'(* added for_sml definitions Mon Sep  1 19:53:13 2003 -fp *)
- then ()(* X[s] = X[s] *)
- else ( (* invertExp ((V1, id), s', ref NONE) *)
-let ss' = Whnf.invert s' in let V1' = EClo (V1, ss') in let G1' = Whnf.strengthen (ss', G1) in  instantiateEVar (r1, EClo (newEVar (G1', V1'), s'), ! cnstrs1) ) ) else addConstraint (cnstrs2, ref (Eqn (G, EClo Us2, EClo Us1))) else addConstraint (cnstrs1, ref (Eqn (G, EClo Us1, EClo Us2))) else if Whnf.isPatSub (s1) then ( let ss1 = Whnf.invert s1 in let U2' = pruneExp (G, Us2, ss1, r1) in  (* instantiateEVar (r1, EClo (U2, comp(s2, ss1)), !cnstrs1) *)
-(* invertExpW (Us2, s1, ref NONE) *)
-instantiateEVar (r1, U2', ! cnstrs1) ) else if Whnf.isPatSub (s2) then ( let ss2 = Whnf.invert s2 in let U1' = pruneExp (G, Us1, ss2, r2) in  (* instantiateEVar (r2, EClo (U1, comp(s1, ss2)), !cnstr2) *)
-(* invertExpW (Us1, s2, ref NONE) *)
-instantiateEVar (r2, U1', ! cnstrs2) ) else ( let cnstr = ref (Eqn (G, EClo Us1, EClo Us2)) in  addConstraint (cnstrs1, cnstr) ) | (G, Us1, Us2) -> if Whnf.isPatSub (s) then ( let ss = Whnf.invert s in let U2' = pruneExp (G, Us2, ss, r) in  (* instantiateEVar (r, EClo (U2, comp(s2, ss)), !cnstrs) *)
-(* invertExpW (Us2, s, r) *)
-instantiateEVar (r, U2', ! cnstrs) ) else addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2))) | (G, Us1, Us2) -> if Whnf.isPatSub (s) then ( let ss = Whnf.invert s in let U1' = pruneExp (G, Us1, ss, r) in  (* instantiateEVar (r, EClo (U1, comp(s1, ss)), !cnstrs) *)
-(* invertExpW (Us1, s, r) *)
-instantiateEVar (r, U1', ! cnstrs) ) else addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2))) | (G, Us1, Us2) -> raise (Unify ("Expression clash"))
-and unifyExp (G, Us1, Us2)  = unifyExpW (G, Whnf.whnf Us1, Whnf.whnf Us2)
-and unifyDefDefW (G, Us1, Us2)  = (*  unifyExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) *)
- ( (* conservative *)
-let Anc (_, h1, c1Opt) = defAncestor d1 in let Anc (_, h2, c2Opt) = defAncestor d2 in let _ = match (c1Opt, c2Opt) with (Some (c1), Some (c2)) -> if c1 <> c2 then raise (Unify ("Irreconcilable defined constant clash")) else () | _ -> () in  match Int.compare (h1, h2) with Eq -> unifyExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) | Lt -> unifyExpW (G, Us1, Whnf.expandDef (Us2)) | Gt -> unifyExpW (G, Whnf.expandDef (Us1), Us2) )
-and unifySpine = function (G, (Nil, _), (Nil, _)) -> () | (G, (SClo (S1, s1'), s1), Ss) -> unifySpine (G, (S1, comp (s1', s1)), Ss) | (G, Ss, (SClo (S2, s2'), s2)) -> unifySpine (G, Ss, (S2, comp (s2', s2))) | (G, (App (U1, S1), s1), (App (U2, S2), s2)) -> (unifyExp (G, (U1, s1), (U2, s2)); unifySpine (G, (S1, s1), (S2, s2)))
-and unifyDec (G, (Dec (_, V1), s1), (Dec (_, V2), s2))  = unifyExp (G, (V1, s1), (V2, s2))
-and unifySub = function (G, Shift (n1), Shift (n2)) -> () | (G, Shift (n), s2) -> unifySub (G, Dot (Idx (n + 1), Shift (n + 1)), s2) | (G, s1, Shift (m)) -> unifySub (G, s1, Dot (Idx (m + 1), Shift (m + 1))) | (G, Dot (Ft1, s1), Dot (Ft2, s2)) -> ((match (Ft1, Ft2) with (Idx (n1), Idx (n2)) -> if n1 <> n2 then raise (Error "SOME variables mismatch") else () | (Exp (U1), Exp (U2)) -> unifyExp (G, (U1, id), (U2, id)) | (Exp (U1), Idx (n2)) -> unifyExp (G, (U1, id), (Root (BVar (n2), Nil), id)) | (Idx (n1), Exp (U2)) -> unifyExp (G, (Root (BVar (n1), Nil), id), (U2, id))); (*         | (Undef, Undef) =>
+              if
+                Whnf.isId s'
+                (* added for_sml definitions Mon Sep  1 19:53:13 2003 -fp *)
+              then () (* X[s] = X[s] *)
+              else
+                (* invertExp ((V1, id), s', ref NONE) *)
+                let ss' = Whnf.invert s' in
+                let V1' = EClo (V1, ss') in
+                let G1' = Whnf.strengthen (ss', G1) in
+                instantiateEVar (r1, EClo (newEVar (G1', V1'), s'), !cnstrs1)
+            else addConstraint (cnstrs2, ref (Eqn (G, EClo Us2, EClo Us1)))
+          else addConstraint (cnstrs1, ref (Eqn (G, EClo Us1, EClo Us2)))
+        else if Whnf.isPatSub s1 then
+          let ss1 = Whnf.invert s1 in
+          let U2' = pruneExp (G, Us2, ss1, r1) in
+          (* instantiateEVar (r1, EClo (U2, comp(s2, ss1)), !cnstrs1) *)
+          (* invertExpW (Us2, s1, ref NONE) *)
+          instantiateEVar (r1, U2', !cnstrs1)
+        else if Whnf.isPatSub s2 then
+          let ss2 = Whnf.invert s2 in
+          let U1' = pruneExp (G, Us1, ss2, r2) in
+          (* instantiateEVar (r2, EClo (U1, comp(s1, ss2)), !cnstr2) *)
+          (* invertExpW (Us1, s2, ref NONE) *)
+          instantiateEVar (r2, U1', !cnstrs2)
+        else
+          let cnstr = ref (Eqn (G, EClo Us1, EClo Us2)) in
+          addConstraint (cnstrs1, cnstr)
+    | G, Us1, Us2 ->
+        if Whnf.isPatSub s then
+          let ss = Whnf.invert s in
+          let U2' = pruneExp (G, Us2, ss, r) in
+          (* instantiateEVar (r, EClo (U2, comp(s2, ss)), !cnstrs) *)
+          (* invertExpW (Us2, s, r) *)
+          instantiateEVar (r, U2', !cnstrs)
+        else addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))
+    | G, Us1, Us2 ->
+        if Whnf.isPatSub s then
+          let ss = Whnf.invert s in
+          let U1' = pruneExp (G, Us1, ss, r) in
+          (* instantiateEVar (r, EClo (U1, comp(s1, ss)), !cnstrs) *)
+          (* invertExpW (Us1, s, r) *)
+          instantiateEVar (r, U1', !cnstrs)
+        else addConstraint (cnstrs, ref (Eqn (G, EClo Us1, EClo Us2)))
+    | G, Us1, Us2 -> raise (Unify "Expression clash")
+
+  and unifyExp (G, Us1, Us2) = unifyExpW (G, Whnf.whnf Us1, Whnf.whnf Us2)
+
+  and unifyDefDefW (G, Us1, Us2) =
+    (*  unifyExpW (G, Whnf.expandDef (Us1), Whnf.expandDef (Us2)) *)
+    (* conservative *)
+    let (Anc (_, h1, c1Opt)) = defAncestor d1 in
+    let (Anc (_, h2, c2Opt)) = defAncestor d2 in
+    let _ =
+      match (c1Opt, c2Opt) with
+      | Some c1, Some c2 ->
+          if c1 <> c2 then raise (Unify "Irreconcilable defined constant clash")
+          else ()
+      | _ -> ()
+    in
+    match Int.compare (h1, h2) with
+    | Eq -> unifyExpW (G, Whnf.expandDef Us1, Whnf.expandDef Us2)
+    | Lt -> unifyExpW (G, Us1, Whnf.expandDef Us2)
+    | Gt -> unifyExpW (G, Whnf.expandDef Us1, Us2)
+
+  and unifySpine = function
+    | G, (Nil, _), (Nil, _) -> ()
+    | G, (SClo (S1, s1'), s1), Ss -> unifySpine (G, (S1, comp (s1', s1)), Ss)
+    | G, Ss, (SClo (S2, s2'), s2) -> unifySpine (G, Ss, (S2, comp (s2', s2)))
+    | G, (App (U1, S1), s1), (App (U2, S2), s2) ->
+        unifyExp (G, (U1, s1), (U2, s2));
+        unifySpine (G, (S1, s1), (S2, s2))
+
+  and unifyDec (G, (Dec (_, V1), s1), (Dec (_, V2), s2)) =
+    unifyExp (G, (V1, s1), (V2, s2))
+
+  and unifySub = function
+    | G, Shift n1, Shift n2 -> ()
+    | G, Shift n, s2 -> unifySub (G, Dot (Idx (n + 1), Shift (n + 1)), s2)
+    | G, s1, Shift m -> unifySub (G, s1, Dot (Idx (m + 1), Shift (m + 1)))
+    | G, Dot (Ft1, s1), Dot (Ft2, s2) ->
+        (match (Ft1, Ft2) with
+        | Idx n1, Idx n2 ->
+            if n1 <> n2 then raise (Error "SOME variables mismatch") else ()
+        | Exp U1, Exp U2 -> unifyExp (G, (U1, id), (U2, id))
+        | Exp U1, Idx n2 -> unifyExp (G, (U1, id), (Root (BVar n2, Nil), id))
+        | Idx n1, Exp U2 -> unifyExp (G, (Root (BVar n1, Nil), id), (U2, id)));
+        (*         | (Undef, Undef) =>
            | _ => false *)
-(* not possible because of invariant? -cs *)
-unifySub (G, s1, s2))
-and unifyBlock = function (G, LVar ({ contents = (Some (B1)) }, s, _), B2) -> unifyBlock (G, blockSub (B1, s), B2) | (G, B1, LVar ({ contents = (Some (B2)) }, s, _)) -> unifyBlock (G, B1, blockSub (B2, s)) | (G, B1, B2) -> unifyBlockW (G, B1, B2)
-and unifyBlockW = function (G, LVar (r1, s1, (l1, t1)), LVar (r2, s2, (l2, t2))) -> if l1 <> l2 then raise (Unify "Label clash") else if r1 = r2 then () else (unifySub (G, comp (t1, s1), comp (t2, s2)); (* Sat Dec  7 22:04:31 2002 -fp *)
-(* was: unifySub (G, t1, t2)  Jul 22 2010 *)
-if k1 < k2 then instantiateLVar (r1, LVar (r2, Shift (k2 - k1), (l2, t2))) else instantiateLVar (r2, LVar (r1, Shift (k1 - k2), (l1, t1)))) | (G, LVar (r1, s1, (l1, t1)), B2) -> instantiateLVar (r1, blockSub (B2, Whnf.invert s1)) | (G, B1, LVar (r2, s2, (l2, t2))) -> instantiateLVar (r2, blockSub (B1, Whnf.invert s2)) | (G, Bidx (n1), (Bidx (n2))) -> if n1 <> n2 then raise (Unify "Block index clash") else ()
-(*
+        (* not possible because of invariant? -cs *)
+        unifySub (G, s1, s2)
+
+  and unifyBlock = function
+    | G, LVar ({ contents = Some B1 }, s, _), B2 ->
+        unifyBlock (G, blockSub (B1, s), B2)
+    | G, B1, LVar ({ contents = Some B2 }, s, _) ->
+        unifyBlock (G, B1, blockSub (B2, s))
+    | G, B1, B2 -> unifyBlockW (G, B1, B2)
+
+  and unifyBlockW = function
+    | G, LVar (r1, s1, (l1, t1)), LVar (r2, s2, (l2, t2)) ->
+        if l1 <> l2 then raise (Unify "Label clash")
+        else if r1 = r2 then ()
+        else (
+          unifySub (G, comp (t1, s1), comp (t2, s2));
+          (* Sat Dec  7 22:04:31 2002 -fp *)
+          (* was: unifySub (G, t1, t2)  Jul 22 2010 *)
+          if k1 < k2 then
+            instantiateLVar (r1, LVar (r2, Shift (k2 - k1), (l2, t2)))
+          else instantiateLVar (r2, LVar (r1, Shift (k1 - k2), (l1, t1))))
+    | G, LVar (r1, s1, (l1, t1)), B2 ->
+        instantiateLVar (r1, blockSub (B2, Whnf.invert s1))
+    | G, B1, LVar (r2, s2, (l2, t2)) ->
+        instantiateLVar (r2, blockSub (B1, Whnf.invert s2))
+    | G, Bidx n1, Bidx n2 ->
+        if n1 <> n2 then raise (Unify "Block index clash") else ()
+  (*
       | unifyBlock (LVar (r1, _, _), Bidx _) = instantiate (r1, B)
       | unifyBlock (Bidx _, LVar (r2, _, _)) =
 
@@ -226,35 +662,71 @@ if k1 < k2 then instantiateLVar (r1, LVar (r2, Shift (k2 - k1), (l2, t2))) else 
 
 *)
 
-let rec unify1W (G, Us1, Us2)  = (unifyExpW (G, Us1, Us2); awakeCnstr (nextCnstr ()))
-and unify1 (G, Us1, Us2)  = (unifyExp (G, Us1, Us2); awakeCnstr (nextCnstr ()))
-and awakeCnstr = function (None) -> () | (Some ({ contents = Solved })) -> awakeCnstr (nextCnstr ()) | (Some (cnstr)) -> (solveConstraint cnstr; unify1 (G, (U1, id), (U2, id))) | (Some ({ contents = (FgnCnstr csfc) })) -> if (FgnCnstrStd.Awake.apply csfc ()) then () else raise (Unify "Foreign constraint violated")
-let rec unifyW (G, Us1, Us2)  = (resetAwakenCnstrs (); unify1W (G, Us1, Us2))
-let rec unify (G, Us1, Us2)  = (resetAwakenCnstrs (); unify1 (G, Us1, Us2))
-type unifTrail = unifTrail
-let reset = reset
-let mark = mark
-let unwind = unwind
-let suspend = suspend
-let resume = resume
-let delay = delayExp
-let instantiateEVar = instantiateEVar
-let instantiateLVar = instantiateLVar
-let resetAwakenCnstrs = resetAwakenCnstrs
-let nextCnstr = nextCnstr
-let addConstraint = addConstraint
-let solveConstraint = solveConstraint
-let intersection = intersection
-let unifyW = unifyW
-let unify = unify
-let unifySub = unifySub
-let unifyBlock = unifyBlock
-let rec invertible (G, Us, ss, rOccur)  = try (invertExp (G, Us, ss, rOccur); true) with NotInvertible -> false
-let invertSub = invertSub
-let rec unifiable (G, Us1, Us2)  = try (unify (G, Us1, Us2); true) with Unify msg -> false
-let rec unifiable' (G, Us1, Us2)  = try (unify (G, Us1, Us2); None) with Unify (msg) -> Some (msg)
- end
+  let rec unify1W (G, Us1, Us2) =
+    unifyExpW (G, Us1, Us2);
+    awakeCnstr (nextCnstr ())
 
+  and unify1 (G, Us1, Us2) =
+    unifyExp (G, Us1, Us2);
+    awakeCnstr (nextCnstr ())
+
+  and awakeCnstr = function
+    | None -> ()
+    | Some { contents = Solved } -> awakeCnstr (nextCnstr ())
+    | Some cnstr ->
+        solveConstraint cnstr;
+        unify1 (G, (U1, id), (U2, id))
+    | Some { contents = FgnCnstr csfc } ->
+        if FgnCnstrStd.Awake.apply csfc () then ()
+        else raise (Unify "Foreign constraint violated")
+
+  let rec unifyW (G, Us1, Us2) =
+    resetAwakenCnstrs ();
+    unify1W (G, Us1, Us2)
+
+  let rec unify (G, Us1, Us2) =
+    resetAwakenCnstrs ();
+    unify1 (G, Us1, Us2)
+
+  type unifTrail = unifTrail
+
+  let reset = reset
+  let mark = mark
+  let unwind = unwind
+  let suspend = suspend
+  let resume = resume
+  let delay = delayExp
+  let instantiateEVar = instantiateEVar
+  let instantiateLVar = instantiateLVar
+  let resetAwakenCnstrs = resetAwakenCnstrs
+  let nextCnstr = nextCnstr
+  let addConstraint = addConstraint
+  let solveConstraint = solveConstraint
+  let intersection = intersection
+  let unifyW = unifyW
+  let unify = unify
+  let unifySub = unifySub
+  let unifyBlock = unifyBlock
+
+  let rec invertible (G, Us, ss, rOccur) =
+    try
+      invertExp (G, Us, ss, rOccur);
+      true
+    with NotInvertible -> false
+
+  let invertSub = invertSub
+
+  let rec unifiable (G, Us1, Us2) =
+    try
+      unify (G, Us1, Us2);
+      true
+    with Unify msg -> false
+
+  let rec unifiable' (G, Us1, Us2) =
+    try
+      unify (G, Us1, Us2);
+      None
+    with Unify msg -> Some msg
+end
 
 (* functor Unify *)
-

@@ -1,0 +1,14 @@
+(library
+ (name terminate)
+ (wrapped false)
+ (libraries
+  global
+  trail
+  lambda
+  names
+  print
+  formatter
+  index
+  subordinate
+  paths
+  solvers))

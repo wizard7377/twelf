@@ -76,7 +76,7 @@ let rec compose = function (IntSyn.Null, G) -> G | (IntSyn.Decl (G, D), G') -> I
     *)
 
 let rec ctxToEVarSub = function (I.Null, s) -> s | (I.Decl (G, I.Dec (_, A)), s) -> ( let X = I.newEVar (I.Null, A) in  I.Dot (I.Exp (X), ctxToEVarSub (G, s)) )
-let rec ctxToAVarSub = function (I.Null, s) -> s | (I.Decl (G, I.Dec (_, A)), s) -> ( let X = I.newEVar (I.Null, A) in  I.Dot (I.Exp (X), ctxToAVarSub (G, s)) ) | (I.Decl (G, I.ADec (_, d)), s) -> ( let X = I.newAVar () in  I.Dot (I.Exp (I.EClo (X, I.Shift (~ d))), ctxToAVarSub (G, s)) )
+let rec ctxToAVarSub = function (I.Null, s) -> s | (I.Decl (G, I.Dec (_, A)), s) -> ( let X = I.newEVar (I.Null, A) in  I.Dot (I.Exp (X), ctxToAVarSub (G, s)) ) | (I.Decl (G, I.ADec (_, d)), s) -> ( let X = I.newAVar () in  I.Dot (I.Exp (I.EClo (X, I.Shift (~- d))), ctxToAVarSub (G, s)) )
 (* ---------------------------------------------------------------------- *)
 
 (* Solving  variable definitions *)
@@ -220,7 +220,7 @@ retrieve (ref 0, (G', U', s'), (asub, answRef), sc) | T.DivergingEntry (asub, an
 and rSolve = function (ps', (C.Eq (Q), s), C.DProg (G, dPool), sc) -> (if Unify.unifiable (G, ps', (Q, s))(* effect: instantiate EVars *)
  then sc [](* call success continuation *)
  else ()) | (ps', (C.Assign (Q, eqns), s), dp, sc) -> (match Assign.assignable (G, ps', (Q, s)) with Some (cnstr) -> aSolve ((eqns, s), dp, cnstr, (fun S -> sc S)) | None -> ()) | (ps', (C.And (r, A, g), s), dp, sc) -> ( (* is this EVar redundant? -fp *)
-let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S1 -> solve ((g, s), dp, (fun S2 -> sc (S1 @ S2))))) ) | (ps', (C.Exists (I.Dec (_, A), r), s), dp, sc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S -> sc S)) ) | (ps', (C.Axists (I.ADec (Some (X), d), r), s), dp, sc) -> ( let X' = I.newAVar () in  rSolve (ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift (~ d))), s)), dp, sc)(* we don't increase the proof term here! *)
+let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S1 -> solve ((g, s), dp, (fun S2 -> sc (S1 @ S2))))) ) | (ps', (C.Exists (I.Dec (_, A), r), s), dp, sc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S -> sc S)) ) | (ps', (C.Axists (I.ADec (Some (X), d), r), s), dp, sc) -> ( let X' = I.newAVar () in  rSolve (ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift (~- d))), s)), dp, sc)(* we don't increase the proof term here! *)
  )
 and aSolve = function ((C.Trivial, s), dp, cnstr, sc) -> (if Assign.solveCnstr cnstr then (sc []) else ()) | ((C.UnifyEq (G', e1, N, eqns), s), dp, cnstr, sc) -> ( let (G'') = append (G', G) in let s' = shift (G', s) in  if Assign.unifiable (G'', (N, s'), (e1, s')) then aSolve ((eqns, s), dp, cnstr, sc) else () )
 and matchAtom (ps', dp, sc)  = ( (* matchSig [c1,...,cn] = ()

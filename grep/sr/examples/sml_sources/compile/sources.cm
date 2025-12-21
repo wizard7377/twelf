@@ -1,42 +1,29 @@
-Library
-  signature COMPSYN
-  structure CompSyn
-  signature COMPILE
-  structure Compile
-  signature SUBTREE
-  structure SubTree
-  signature CPRINT
-  structure CPrint
-  signature ASSIGN
-  structure Assign
-is
-#if defined(NEW_CM)
-  $/basis.cm
-#endif
-  ../global/sources.cm
-  ../table/sources.cm
-  ../lambda/sources.cm
-  ../names/sources.cm
-  ../print/sources.cm
-  ../formatter/sources.cm  
-  ../index/sources.cm
-  ../typecheck/sources.cm
-  ../solvers/sources.cm
-  ../subordinate/sources.cm
 
-  compsyn.sig
-  compsyn.fun
 
-  compile.sig
-  compile.fun
+../global
+../table
+../lambda
+../names
+../print
+../formatter  
+../index
+../typecheck
+../solvers
+../subordinate
 
-  cprint.sig
-  cprint.fun
+compsyn
+compsyn
 
-  subtree.sig
-  subtree.fun
+compile
+compile
 
-  assign.sig
-  assign.fun
+cprint
+cprint
 
-  compile.sml
+subtree
+subtree
+
+assign
+assign
+
+compile

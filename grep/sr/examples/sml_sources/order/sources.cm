@@ -1,12 +1,7 @@
-Library
-  signature ORDER
-  structure Order
-is
-#if defined(NEW_CM)
-  $/basis.cm
-#endif
-  ../table/sources.cm
-  ../lambda/sources.cm
-  order.sig
-  order.fun
-  order.sml
+
+
+../table
+../lambda
+order
+order
+order

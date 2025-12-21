@@ -15,7 +15,7 @@
  *
  * The Red condition implies that the root is always black and the Black
  * condition implies that any node with only one child will be black and
- * its child will be a red leaf.
+ * its child will be a red Leaf.
  *)
 
 
@@ -38,7 +38,7 @@ let compare = Int.compare
 
      2. The children of a red node are black (color invariant).
 
-     3. Every path from the root to a leaf has the same number of
+     3. Every path from the root to a Leaf has the same number of
         black nodes, called the black height of the tree.
   *)
 

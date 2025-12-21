@@ -1,12 +1,11 @@
 (* Type Checking *)
 
-
 (* Author: Carsten Schuermann *)
 
-
 module type TYPECHECK = sig
-(*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : INTSYN !*)
   exception Error of string
+
   val check : IntSyn.exp * IntSyn.exp -> unit
   val checkDec : IntSyn.dctx * (IntSyn.dec * IntSyn.sub) -> unit
   val checkConv : IntSyn.exp * IntSyn.exp -> unit
@@ -14,11 +13,9 @@ module type TYPECHECK = sig
   val infer' : IntSyn.dctx * IntSyn.exp -> IntSyn.exp
   val typeCheck : IntSyn.dctx * (IntSyn.exp * IntSyn.exp) -> unit
   val typeCheckCtx : IntSyn.dctx -> unit
-(* val typeCheckSpine : IntSyn.dctx * IntSyn.Spine -> unit *)
-  val typeCheckSub : IntSyn.dctx * IntSyn.sub * IntSyn.dctx -> unit
 
+  (* val typeCheckSpine : IntSyn.dctx * IntSyn.Spine -> unit *)
+  val typeCheckSub : IntSyn.dctx * IntSyn.sub * IntSyn.dctx -> unit
 end
 
-
 (* signature TYPECHECK *)
-

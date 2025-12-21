@@ -1,161 +1,205 @@
 (* Front End Interface *)
 
-
 (* Author: Frank Pfenning *)
-
 
 module type TWELF = sig
   module Print : sig
-  val implicit : bool ref
-(* false, print implicit args *)
-  val printInfix : bool ref
-(* false, print fully explicit form infix when possible *)
-  val depth : int option ref
-(* NONE, limit print depth *)
-  val length : int option ref
-(* NONE, limit argument length *)
-  val indent : int ref
-(* 3, indentation of subterms *)
-  val width : int ref
-(* 80, line width *)
-  val noShadow : bool ref
-(* if true, don't print shadowed "%const%" *)
-  val sgn : unit -> unit
-(* print signature *)
-  val prog : unit -> unit
-(* print program *)
-  val subord : unit -> unit
-(* print subordination relation *)
-  val def : unit -> unit
-(* print information about definitions *)
-  val domains : unit -> unit
-(* print available constraint domains *)
-  module TeX : (* print in TeX format *)
-sig
-  val sgn : unit -> unit
-(* print signature *)
-  val prog : unit -> unit
-(* print program *)
+    val implicit : bool ref
 
-end
+    (* false, print implicit args *)
+    val printInfix : bool ref
 
-end
+    (* false, print fully explicit form infix when possible *)
+    val depth : int option ref
+
+    (* NONE, limit print depth *)
+    val length : int option ref
+
+    (* NONE, limit argument length *)
+    val indent : int ref
+
+    (* 3, indentation of subterms *)
+    val width : int ref
+
+    (* 80, line width *)
+    val noShadow : bool ref
+
+    (* if true, don't print shadowed "%const%" *)
+    val sgn : unit -> unit
+
+    (* print signature *)
+    val prog : unit -> unit
+
+    (* print program *)
+    val subord : unit -> unit
+
+    (* print subordination relation *)
+    val def : unit -> unit
+
+    (* print information about definitions *)
+    val domains : unit -> unit
+
+    (* print available constraint domains *)
+    module TeX : (* print in TeX format *)
+    sig
+      val sgn : unit -> unit
+
+      (* print signature *)
+      val prog : unit -> unit
+      (* print program *)
+    end
+  end
+
   module Trace : sig
-  type 'a spec = None | Some of 'a list | All
-(* trace all clauses and families *)
-  val trace : string spec -> unit
-(* trace clauses and families *)
-  val break : string spec -> unit
-(* break at clauses and families *)
-  val detail : int ref
-(* 0 = none, 1 = default, 2 = unify *)
-  val show : unit -> unit
-(* show trace, break, and detail *)
-  val reset : unit -> unit
-(* reset trace, break, and detail *)
+    type 'a spec = None | Some of 'a list | All
 
-end
+    (* trace all clauses and families *)
+    val trace : string spec -> unit
+
+    (* trace clauses and families *)
+    val break : string spec -> unit
+
+    (* break at clauses and families *)
+    val detail : int ref
+
+    (* 0 = none, 1 = default, 2 = unify *)
+    val show : unit -> unit
+
+    (* show trace, break, and detail *)
+    val reset : unit -> unit
+    (* reset trace, break, and detail *)
+  end
+
   module Table : sig
-  type strategy = Variant | Subsumption
-(* Variant | Subsumption *)
-  val strategy : strategy ref
-(* strategy used for_sml %querytabled *)
-  val strengthen : bool ref
-(* strengthenng used %querytabled *)
-  val resetGlobalTable : unit -> unit
-(* reset global table           *)
-  val top : unit -> unit
-(* top-level for_sml interactive tabled queries *)
+    type strategy = Variant | Subsumption
 
-end
+    (* Variant | Subsumption *)
+    val strategy : strategy ref
+
+    (* strategy used for_sml %querytabled *)
+    val strengthen : bool ref
+
+    (* strengthenng used %querytabled *)
+    val resetGlobalTable : unit -> unit
+
+    (* reset global table           *)
+    val top : unit -> unit
+    (* top-level for_sml interactive tabled queries *)
+  end
+
   module Timers : sig
-  val show : unit -> unit
-(* show and reset timers *)
-  val reset : unit -> unit
-(* reset timers *)
-  val check : unit -> unit
-(* display, but not no reset *)
+    val show : unit -> unit
 
-end
+    (* show and reset timers *)
+    val reset : unit -> unit
+
+    (* reset timers *)
+    val check : unit -> unit
+    (* display, but not no reset *)
+  end
+
   module OS : sig
-  val chDir : string -> unit
-(* change working directory *)
-  val getDir : unit -> string
-(* get working directory *)
-  val exit : unit -> unit
-(* exit Twelf and ML *)
+    val chDir : string -> unit
 
-end
+    (* change working directory *)
+    val getDir : unit -> string
+
+    (* get working directory *)
+    val exit : unit -> unit
+    (* exit Twelf and ML *)
+  end
+
   module Compile : sig
-  type opt = No | LinearHeads | Indexing
-  val optimize : opt ref
+    type opt = No | LinearHeads | Indexing
 
-end
+    val optimize : opt ref
+  end
+
   module Recon : sig
-  type traceMode = Progressive | Omniscient
-  val trace : bool ref
-  val traceMode : traceMode ref
+    type traceMode = Progressive | Omniscient
 
-end
+    val trace : bool ref
+    val traceMode : traceMode ref
+  end
+
   module Prover : sig
-  type strategy = RFS | FRS
-(* F=Filling, R=Recursion, S=Splitting *)
-  val strategy : strategy ref
-(* FRS, strategy used for_sml %prove *)
-  val maxSplit : int ref
-(* 2, bound on splitting  *)
-  val maxRecurse : int ref
-(* 10, bound on recursion *)
+    type strategy = RFS | FRS
 
-end
+    (* F=Filling, R=Recursion, S=Splitting *)
+    val strategy : strategy ref
+
+    (* FRS, strategy used for_sml %prove *)
+    val maxSplit : int ref
+
+    (* 2, bound on splitting  *)
+    val maxRecurse : int ref
+    (* 10, bound on recursion *)
+  end
+
   val chatter : int ref
-(* 3, chatter level *)
+
+  (* 3, chatter level *)
   val doubleCheck : bool ref
-(* false, check after reconstruction *)
+
+  (* false, check after reconstruction *)
   val unsafe : bool ref
-(* false, allows %assert *)
+
+  (* false, allows %assert *)
   val autoFreeze : bool ref
-(* false, freezes families in meta-theorems *)
+
+  (* false, freezes families in meta-theorems *)
   val timeLimit : Time.time option ref
-(* NONEe, allows timeLimit in seconds *)
+
+  (* NONEe, allows timeLimit in seconds *)
   type status = OK | ABORT
-(* return status *)
+
+  (* return status *)
   val reset : unit -> unit
-(* reset global signature *)
+
+  (* reset global signature *)
   val loadFile : string -> status
-(* load file *)
+
+  (* load file *)
   val loadString : string -> status
-(* load string *)
+
+  (* load string *)
   val readDecl : unit -> status
-(* read declaration interactively *)
+
+  (* read declaration interactively *)
   val decl : string -> status
-(* print declaration of constant *)
+
+  (* print declaration of constant *)
   val top : unit -> unit
-(* top-level for_sml interactive queries *)
+
+  (* top-level for_sml interactive queries *)
   module Config : sig
-  type config
-(* configuration *)
-  val suffix : string ref
-(* suffix of configuration files *)
-  val read : string -> config
-(* read config file *)
-  val readWithout : string * config -> config
-(* read config file, minus contents of another *)
-  val load : config -> status
-(* reset and load configuration *)
-  val append : config -> status
-(* load configuration (w/o reset) *)
-  val define : string list -> config
-(* explicitly define configuration *)
+    type config
 
-end
+    (* configuration *)
+    val suffix : string ref
+
+    (* suffix of configuration files *)
+    val read : string -> config
+
+    (* read config file *)
+    val readWithout : string * config -> config
+
+    (* read config file, minus contents of another *)
+    val load : config -> status
+
+    (* reset and load configuration *)
+    val append : config -> status
+
+    (* load configuration (w/o reset) *)
+    val define : string list -> config
+    (* explicitly define configuration *)
+  end
+
   val make : string -> status
-(* read and load configuration *)
+
+  (* read and load configuration *)
   val version : string
-(* Twelf version *)
-
+  (* Twelf version *)
 end
-
 
 (* signature TWELF *)
-

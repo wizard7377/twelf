@@ -18,7 +18,7 @@ module Formatter = Formatter'
 module I = IntSyn
 module F = Formatter
 let Str = F.String
-let rec Str0 (s, n)  = F.String0 n s
+let rec Str0 (s, n)  = F.string0 n s
 let rec sym (s)  = Str0 (Symbol.sym s)
 let rec parens (fmt)  = F.Hbox [sym "("; fmt; sym ")"]
 (* assumes NF *)

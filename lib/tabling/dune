@@ -1,0 +1,4 @@
+(library
+ (name tabling)
+ (wrapped false)
+ (libraries table lambda print names paths index))

@@ -1,0 +1,4 @@
+(library
+ (name thm)
+ (wrapped false)
+ (libraries global lambda names formatter modes paths tabling))

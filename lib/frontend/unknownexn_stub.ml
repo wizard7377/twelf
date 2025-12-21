@@ -2,6 +2,4 @@
    exnHistory function.
 *)
 
-
 module UnknownExn = UnknownExn
-

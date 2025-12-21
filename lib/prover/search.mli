@@ -1,19 +1,20 @@
 (* Basic search engine: Version 1.3*)
 
-
 (* Author: Carsten Schuermann *)
 
-
 module type SEARCH = sig
-(*! structure IntSyn   : INTSYN !*)
-(*! structure Tomega   : TOMEGA !*)
+  (*! structure IntSyn   : INTSYN !*)
+  (*! structure Tomega   : TOMEGA !*)
   module State : STATE
-  exception Error of string
-  val searchEx : int * IntSyn.exp list(*      * (StateSyn.FunSyn.IntSyn.Exp * StateSyn.FunSyn.IntSyn.Sub) *)
- * (int -> unit) -> unit
 
+  exception Error of string
+
+  val searchEx :
+    int
+    * IntSyn.exp list
+    (*      * (StateSyn.FunSyn.IntSyn.Exp * StateSyn.FunSyn.IntSyn.Sub) *)
+    * (int -> unit) ->
+    unit
 end
 
-
 (* signature SEARCH *)
-

@@ -1,0 +1,4 @@
+(library
+ (name compress)
+ (wrapped false)
+ (libraries global lambda))

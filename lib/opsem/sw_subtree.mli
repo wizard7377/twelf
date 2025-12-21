@@ -1,24 +1,39 @@
 (* Indexing *)
 
-
 (* Author: Brigitte Pientka *)
 
-
 module type MEMOTABLE = sig
-(*! structure IntSyn : INTSYN !*)
-(*! structure CompSyn : COMPSYN !*)
-(*! structure TableParam : TABLEPARAM !*)
-(* call check/insert *)
-(* callCheck (G, D, U, eqn)
+  (*! structure IntSyn : INTSYN !*)
+  (*! structure CompSyn : COMPSYN !*)
+  (*! structure TableParam : TABLEPARAM !*)
+  (* call check/insert *)
+  (* callCheck (G, D, U, eqn)
    *
    * if D, G |- U & eqn     in table  then RepeatedEntry (entries)
    * if D, G |- U & eqn not in table  then NewEntry (ptrAnswer)
    * SIDE EFFECT: D, G |- U added to table
    *)
-  val callCheck : IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.exp * TableParam.resEqn * TableParam.status -> TableParam.callCheckResult
-  val insertIntoTree : IntSyn.dctx * IntSyn.dctx * IntSyn.dctx * IntSyn.exp * TableParam.resEqn * TableParam.answer * TableParam.status -> TableParam.callCheckResult
-(* answer check/insert *)
-(* answerCheck (G, D, (U,s))
+  val callCheck :
+    IntSyn.dctx
+    * IntSyn.dctx
+    * IntSyn.dctx
+    * IntSyn.exp
+    * TableParam.resEqn
+    * TableParam.status ->
+    TableParam.callCheckResult
+
+  val insertIntoTree :
+    IntSyn.dctx
+    * IntSyn.dctx
+    * IntSyn.dctx
+    * IntSyn.exp
+    * TableParam.resEqn
+    * TableParam.answer
+    * TableParam.status ->
+    TableParam.callCheckResult
+
+  (* answer check/insert *)
+  (* answerCheck (G, D, (U,s))
    * 
    * Assupmtion: D, G |- U is in table
    *             and A represents the corresponding solutions
@@ -29,10 +44,13 @@ module type MEMOTABLE = sig
    * If  (Dk, sk) in A then repeated
    *  else new
    *)
-  val answerCheck : IntSyn.sub * TableParam.answer * CompSyn.pskeleton -> TableParam.answState
-(* reset table *)
+  val answerCheck :
+    IntSyn.sub * TableParam.answer * CompSyn.pskeleton -> TableParam.answState
+
+  (* reset table *)
   val reset : unit -> unit
-(* updateTable 
+
+  (* updateTable 
    *
    * SIDE EFFECT: 
    *   for_sml each table entry: 
@@ -45,9 +63,6 @@ module type MEMOTABLE = sig
   val updateTable : unit -> bool
   val tableSize : unit -> int
   val memberCtx : (IntSyn.dctx * IntSyn.exp) * IntSyn.dctx -> IntSyn.dec option
-
 end
 
-
 (* signature MemoTable *)
-

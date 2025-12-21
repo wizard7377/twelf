@@ -228,7 +228,7 @@ let rec unifySum (G, sum, d)  = if (Unify.unify (G, (toExp (sum), id), (constant
 type decomp = number * number * position list
 (* change sign to the given decomposition *)
 
-let rec unaryMinusDecomp ((d, wposL))  = (~ d, List.map (fun (d, pos) -> (~ d, pos)) wposL)
+let rec unaryMinusDecomp ((d, wposL))  = (~- d, List.map (fun (d, pos) -> (~- d, pos)) wposL)
 type maximizeResult = Nonnegative of number | Unbounded of int
 (* manifestly unbounded, pivoting on column col *)
 

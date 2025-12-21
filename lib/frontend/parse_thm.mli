@@ -1,30 +1,30 @@
 (* Parsing Theorems *)
 
-
 (* Author: Carsten Schuermann *)
 
-
 module type PARSE_THM = sig
-(*! structure Parsing : PARSING !*)
+  (*! structure Parsing : PARSING !*)
   module ThmExtSyn : THMEXTSYN
+
   val parseTotal' : ThmExtSyn.tdecl Parsing.parser
-(* -fp *)
+
+  (* -fp *)
   val parseTerminates' : ThmExtSyn.tdecl Parsing.parser
   val parseReduces' : ThmExtSyn.rdecl Parsing.parser
-(* -bp *)
+
+  (* -bp *)
   val parseTabled' : ThmExtSyn.tableddecl Parsing.parser
-(* -bp *)
+
+  (* -bp *)
   val parseKeepTable' : ThmExtSyn.keepTabledecl Parsing.parser
-(* -bp *)
+
+  (* -bp *)
   val parseTheorem' : ThmExtSyn.theorem Parsing.parser
   val parseTheoremDec' : ThmExtSyn.theoremdec Parsing.parser
   val parseWorlds' : ThmExtSyn.wdecl Parsing.parser
   val parseProve' : ThmExtSyn.prove Parsing.parser
   val parseEstablish' : ThmExtSyn.establish Parsing.parser
-  val parseAssert' : ThmExtSyn.assert Parsing.parser
-
+  val parseAssert' : ThmExtSyn.assert_ml Parsing.parser
 end
 
-
 (* signature PARSE_THM *)
-

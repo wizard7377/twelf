@@ -4,7 +4,7 @@
 (* Author: Frank Pfenning *)
 
 
-module RedBlackTree type key' val compare : key' * key' -> order : TABLE with type key = key' = struct type key = key'
+module RedBlackTree (type key') (val compare : key' * key' -> order) : TABLE with type key = key' = struct type key = key'
 type 'a entry = key * 'a
 type 'a dict = Empty | Red of 'a entry * 'a dict * 'a dict | Black of 'a entry * 'a dict * 'a dict
 type 'a table = 'a dict ref
@@ -17,7 +17,7 @@ type 'a table = 'a dict ref
 
      2. The children of a red node are black (color invariant).
 
-     3. Every path from the root to a leaf has the same number of
+     3. Every path from the root to a Leaf has the same number of
         black nodes, called the black height of the tree.
   *)
 

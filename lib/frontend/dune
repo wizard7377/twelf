@@ -1,0 +1,34 @@
+(library
+ (name frontend)
+ (wrapped false)
+ (libraries
+  compat
+  timing
+  stream
+  global
+  table
+  lambda
+  names
+  paths
+  print
+  typecheck
+  style
+  modes
+  tabling
+  terminate
+  index
+  thm
+  m2
+  compile
+  opsem
+  subordinate
+  modules
+  meta
+  solvers
+  worldcheck
+  unique
+  cover
+  tomega
+  prover
+  flit
+  msg))

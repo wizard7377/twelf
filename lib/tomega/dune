@@ -1,0 +1,16 @@
+(library
+ (name tomega)
+ (wrapped false)
+ (libraries
+  global
+  lambda
+  worldcheck
+  cover
+  formatter
+  names
+  print
+  typecheck
+  subordinate
+  meta
+  modes
+  trail))

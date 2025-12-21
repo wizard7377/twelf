@@ -1,0 +1,22 @@
+(library
+ (name meta)
+ (wrapped false)
+ (libraries
+  compat
+  global
+  trail
+  table
+  lambda
+  names
+  formatter
+  print
+  subordinate
+  modes
+  typecheck
+  index
+  opsem
+  compile
+  heuristic
+  timing
+  solvers
+  m2))

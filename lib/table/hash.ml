@@ -4,7 +4,7 @@
 (* Author: Frank Pfenning *)
 
 
-module HashTable type key' val hash : key' -> int val eq : key' * key' -> bool : TABLE with type key = key' = struct type key = key'
+module HashTable (type key') (val hash : key' -> int) (val eq : key' * key' -> bool) : TABLE with type key = key' = struct type key = key'
 type 'a entry = key * 'a
 (* A hashtable bucket is a linked list of mutable elements *)
 

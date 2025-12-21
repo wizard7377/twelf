@@ -1,0 +1,4 @@
+(library
+ (name names)
+ (wrapped false)
+ (libraries compat table global lambda))

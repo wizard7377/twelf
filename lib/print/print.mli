@@ -1,15 +1,13 @@
 (* Printing *)
 
-
 (* Author: Frank Pfenning *)
-
 
 (* Modified: Jeff Polakow *)
 
-
 module type PRINT = sig
-(*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : INTSYN !*)
   module Formatter : FORMATTER
+
   val implicit : bool ref
   val printInfix : bool ref
   val printDepth : int option ref
@@ -17,7 +15,10 @@ module type PRINT = sig
   val noShadow : bool ref
   val formatDec : IntSyn.dctx * IntSyn.dec -> Formatter.format
   val formatDecList : IntSyn.dctx * IntSyn.dec list -> Formatter.format
-  val formatDecList' : IntSyn.dctx * (IntSyn.dec list * IntSyn.sub) -> Formatter.format
+
+  val formatDecList' :
+    IntSyn.dctx * (IntSyn.dec list * IntSyn.sub) -> Formatter.format
+
   val formatExp : IntSyn.dctx * IntSyn.exp -> Formatter.format
   val formatSpine : IntSyn.dctx * IntSyn.spine -> Formatter.format list
   val formatConDec : IntSyn.conDec -> Formatter.format
@@ -29,16 +30,14 @@ module type PRINT = sig
   val conDecToString : IntSyn.conDec -> string
   val cnstrToString : IntSyn.cnstr -> string
   val cnstrsToString : IntSyn.cnstr list -> string
-(* assigns names in contexts *)
+
+  (* assigns names in contexts *)
   val ctxToString : IntSyn.dctx * IntSyn.dctx -> string
   val evarInstToString : IntSyn.exp * string list -> string
   val evarCnstrsToStringOpt : IntSyn.exp * string list -> string option
   val formatWorlds : Tomega.worlds -> Formatter.format
   val worldsToString : Tomega.worlds -> string
   val printSgn : unit -> unit
-
 end
 
-
 (* signature PRINT *)
-

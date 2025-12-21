@@ -1,3 +1,2 @@
-(include_subdirs unqualified)
-(library 
+(library
  (name twelf))

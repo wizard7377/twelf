@@ -1,0 +1,4 @@
+(library
+ (name lambda)
+ (wrapped false)
+ (libraries global trail table))

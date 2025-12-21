@@ -1,9 +1,6 @@
-Library
-  signature HEURISTIC
+TIC
   structure Heuristic
 is 
-#if defined(NEW_CM)
-  $/basis.cm
-#endif
-  heuristic.sig
-  heuristic.sum.fun
+
+heuristic
+heuristic.sum

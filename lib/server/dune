@@ -1,0 +1,4 @@
+(library
+ (name server)
+ (wrapped false)
+ (libraries compat timing frontend))

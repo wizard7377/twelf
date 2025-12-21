@@ -1,0 +1,4 @@
+(library
+ (name table)
+ (wrapped false)
+ (libraries compat))

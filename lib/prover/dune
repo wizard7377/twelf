@@ -1,0 +1,21 @@
+(library
+ (name prover)
+ (wrapped false)
+ (libraries
+  tomega
+  lambda
+  global
+  names
+  print
+  index
+  modes
+  typecheck
+  table
+  subordinate
+  solvers
+  opsem
+  trail
+  compile
+  worldcheck
+  formatter
+  timing))

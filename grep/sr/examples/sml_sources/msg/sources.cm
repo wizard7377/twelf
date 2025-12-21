@@ -1,5 +1,2 @@
-Library 
-	signature MSG
-	structure Msg
-is
-	msg.sml
+
+msg

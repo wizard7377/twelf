@@ -1,0 +1,4 @@
+(library
+ (name delphin)
+ (wrapped false)
+ (libraries compat frontend stream tomega lambda print names subordinate))

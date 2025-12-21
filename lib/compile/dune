@@ -1,0 +1,14 @@
+(library
+ (name compile)
+ (wrapped false)
+ (libraries
+  global
+  table
+  lambda
+  names
+  print
+  formatter
+  index
+  typecheck
+  solvers
+  subordinate))

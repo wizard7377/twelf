@@ -1,0 +1,4 @@
+(library
+ (name style)
+ (wrapped false)
+ (libraries global table lambda formatter print names paths index))

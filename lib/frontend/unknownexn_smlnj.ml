@@ -2,6 +2,4 @@
    SMLofNJ.exnHistory.
 *)
 
-
 module UnknownExn = UnknownExn
-

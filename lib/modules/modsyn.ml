@@ -23,12 +23,12 @@ type structInfo = StructInfo of IntSyn.strDec
           b. the namespace of the structure
      3. the top-level namespace of the module *)
 
-type module = structInfo IntTree.table * constInfo IntTree.table * Names.namespace
+type module_ = structInfo IntTree.table * constInfo IntTree.table * Names.namespace
 type action = IntSyn.cid * (string * Paths.occConDec option) -> unit
 type transform = IntSyn.cid * IntSyn.conDec -> IntSyn.conDec
 (* invariant: U in nf, result in nf *)
 
-let rec mapExpConsts f U  = ( open IntSyn in let rec trExp = function (Uni L) -> Uni L | (Pi ((D, P), V)) -> Pi ((trDec D, P), trExp V) | (Root (H, S)) -> Root (trHead H, trSpine S) | (Lam (D, U)) -> Lam (trDec D, trExp U) | (U) -> FgnExpStd.Map.apply csfe trExp
+let rec mapExpConsts f U  = ( let open IntSyn in let rec trExp = function (Uni L) -> Uni L | (Pi ((D, P), V)) -> Pi ((trDec D, P), trExp V) | (Root (H, S)) -> Root (trHead H, trSpine S) | (Lam (D, U)) -> Lam (trDec D, trExp U) | (U) -> FgnExpStd.Map.apply csfe trExp
 and trDec (Dec (name, V))  = Dec (name, trExp V)
 and trSpine = function Nil -> Nil | (App (U, S)) -> App (trExp U, trSpine S)
 and trHead = function (BVar n) -> BVar n | (Const cid) -> trConst cid | (Skonst cid) -> trConst cid | (Def cid) -> trConst cid | (NSDef cid) -> trConst cid | (FgnConst (csid, condec)) -> FgnConst (csid, mapConDecConsts f condec)

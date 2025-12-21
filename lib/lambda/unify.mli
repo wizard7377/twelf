@@ -1,47 +1,59 @@
 (* Unification *)
 
-
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-
 module type UNIFY = sig
-(*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : INTSYN !*)
   type unifTrail
-(* suspending and resuming trailing *)
+
+  (* suspending and resuming trailing *)
   val suspend : unit -> unifTrail
   val resume : unifTrail -> unit
-(* trailing of variable instantiation *)
+
+  (* trailing of variable instantiation *)
   val reset : unit -> unit
   val mark : unit -> unit
   val unwind : unit -> unit
-  val instantiateEVar : IntSyn.exp option ref * IntSyn.exp * IntSyn.cnstr list -> unit
+
+  val instantiateEVar :
+    IntSyn.exp option ref * IntSyn.exp * IntSyn.cnstr list -> unit
+
   val instantiateLVar : IntSyn.block option ref * IntSyn.block -> unit
   val resetAwakenCnstrs : unit -> unit
   val nextCnstr : unit -> IntSyn.cnstr option
   val addConstraint : IntSyn.cnstr list ref * IntSyn.cnstr -> unit
   val solveConstraint : IntSyn.cnstr -> unit
   val delay : IntSyn.eclo * IntSyn.cnstr -> unit
-(* unification *)
+
+  (* unification *)
   val intersection : IntSyn.sub * IntSyn.sub -> IntSyn.sub
+
   exception Unify of string
+
   val unify : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> unit
-(* raises Unify *)
+
+  (* raises Unify *)
   val unifyW : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> unit
-(* raises Unify *)
+
+  (* raises Unify *)
   val unifyBlock : IntSyn.dctx * IntSyn.block * IntSyn.block -> unit
-(* raises Unify *)
+
+  (* raises Unify *)
   val unifySub : IntSyn.dctx * IntSyn.sub * IntSyn.sub -> unit
-(* raises Unify *)
-  val invertible : IntSyn.dctx * IntSyn.eclo * IntSyn.sub * IntSyn.exp option ref -> bool
-  val invertSub : IntSyn.dctx * IntSyn.sub * IntSyn.sub * IntSyn.exp option ref -> IntSyn.sub
-(* unifiable (G, Us,Us') will instantiate an effect *)
+
+  (* raises Unify *)
+  val invertible :
+    IntSyn.dctx * IntSyn.eclo * IntSyn.sub * IntSyn.exp option ref -> bool
+
+  val invertSub :
+    IntSyn.dctx * IntSyn.sub * IntSyn.sub * IntSyn.exp option ref -> IntSyn.sub
+
+  (* unifiable (G, Us,Us') will instantiate an effect *)
   val unifiable : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> bool
-(* unifiable' (G, Us,Us') is like unifiable, but returns NONE for_sml
+
+  (* unifiable' (G, Us,Us') is like unifiable, but returns NONE for_sml
      success and SOME(msg) for_sml failure *)
   val unifiable' : IntSyn.dctx * IntSyn.eclo * IntSyn.eclo -> string option
-
 end
 
-
 (* signature UNIFY *)
-

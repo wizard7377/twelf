@@ -1,70 +1,89 @@
 (* Timers collecting statistics about Twelf *)
 
-
 (* Author: Frank Pfenning *)
-
 
 module type TIMERS = sig
   module Timing : TIMING
-(* Programming interface *)
+
+  (* Programming interface *)
   val parsing : Timing.center
-(* lexing and parsing *)
+
+  (* lexing and parsing *)
   val recon : Timing.center
-(* term reconstruction *)
+
+  (* term reconstruction *)
   val abstract : Timing.center
-(* abstraction after reconstruction *)
+
+  (* abstraction after reconstruction *)
   val checking : Timing.center
-(* redundant type-checking *)
+
+  (* redundant type-checking *)
   val modes : Timing.center
-(* mode checking *)
+
+  (* mode checking *)
   val subordinate : Timing.center
-(* construction subordination relation *)
+
+  (* construction subordination relation *)
   val printing : Timing.center
-(* printing *)
+
+  (* printing *)
   val compiling : Timing.center
-(* compilation *)
+
+  (* compilation *)
   val solving : Timing.center
-(* solving queries *)
+
+  (* solving queries *)
   val coverage : Timing.center
-(* coverage checking *)
+
+  (* coverage checking *)
   val worlds : Timing.center
-(* world checking *)
+
+  (* world checking *)
   val ptrecon : Timing.center
-(* solving queries using ptskeleon *)
+
+  (* solving queries using ptskeleon *)
   val filling : Timing.center
-(* filling in m2 *)
+
+  (* filling in m2 *)
   val filltabled : Timing.center
-(* filling in m2 *)
+
+  (* filling in m2 *)
   val recursion : Timing.center
-(* recursion in m2 *)
+
+  (* recursion in m2 *)
   val splitting : Timing.center
-(* splitting in m2 *)
+
+  (* splitting in m2 *)
   val inference : Timing.center
-(* inference in m2 *)
+
+  (* inference in m2 *)
   val terminate : Timing.center
-(* checking termination *)
+
+  (* checking termination *)
   val delphin : Timing.center
-(* Operational Semantics of Delphin *)
-(* Warning: time for_sml printing of the answer substitution to a
+
+  (* Operational Semantics of Delphin *)
+  (* Warning: time for_sml printing of the answer substitution to a
      query is counted twice here.
   *)
   val total : Timing.sum
-(* total time *)
-(* time center f x = y
+
+  (* total time *)
+  (* time center f x = y
      if f x = y and time of computing f x is added to center.
      If f x raises an exception, it is re-raised.
   *)
-  val time : Timing.center -> ('a -> 'b) -> ('a -> 'b)
-(* External interface *)
-  val reset : unit -> unit
-(* reset above centers *)
-  val check : unit -> unit
-(* check timer values *)
-  val show : unit -> unit
-(* check, then reset *)
+  val time : Timing.center -> ('a -> 'b) -> 'a -> 'b
 
+  (* External interface *)
+  val reset : unit -> unit
+
+  (* reset above centers *)
+  val check : unit -> unit
+
+  (* check timer values *)
+  val show : unit -> unit
+  (* check, then reset *)
 end
 
-
 (* signature TIMERS *)
-

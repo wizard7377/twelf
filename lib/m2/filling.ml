@@ -1,20 +1,31 @@
 (* Filling *)
 
-
 (* Author: Carsten Schuermann *)
 
+module Filling
+    (MetaSyn' : METASYN)
+    (MetaAbstract : METAABSTRACT)
+    (Search : OLDSEARCH)
+    (Whnf : WHNF)
+    (Print : PRINT) : FILLING = struct
+  module MetaSyn = MetaSyn'
 
-module Filling (MetaSyn' : METASYN) (MetaAbstract : METAABSTRACT) (Search : OLDSEARCH) (Whnf : WHNF) (Print : PRINT) : FILLING = struct module MetaSyn = MetaSyn'
-exception Error of string
-exception TimeOut
-type operator = (MetaSyn.state * int) * (unit -> MetaSyn.state list)
-module M = MetaSyn
-module I = IntSyn
-exception Success of M.state
-let rec delay (search, Params) ()  = (try search Params with Search.Error s -> raise (Error s))
-let rec makeAddressInit S k  = (S, k)
-let rec makeAddressCont makeAddress k  = makeAddress (k + 1)
-(* operators (G, GE, (V, s), abstract, makeAddress) = (OE', OL')
+  exception Error of string
+  exception TimeOut
+
+  type operator = (MetaSyn.state * int) * (unit -> MetaSyn.state list)
+
+  module M = MetaSyn
+  module I = IntSyn
+
+  exception Success of M.state
+
+  let rec delay (search, Params) () =
+    try search Params with Search.Error s -> raise (Error s)
+
+  let rec makeAddressInit S k = (S, k)
+  let rec makeAddressCont makeAddress k = makeAddress (k + 1)
+  (* operators (G, GE, (V, s), abstract, makeAddress) = (OE', OL')
 
        Invariant:
        If   G |- s : G1   G1 |- V : type
@@ -30,9 +41,31 @@ let rec makeAddressCont makeAddress k  = makeAddress (k + 1)
           in V' with the smallest possible terms.
     *)
 
-let rec operators (G, GE, Vs, abstractAll, abstractEx, makeAddress)  = operatorsW (G, GE, Whnf.whnf Vs, abstractAll, abstractEx, makeAddress)
-and operatorsW = function (G, GE, Vs, abstractAll, abstractEx, makeAddress) -> ([], (makeAddress 0, delay (fun Params -> (try Search.searchEx Params with Success S -> [S]), (G, GE, Vs, abstractEx)))) | (G, GE, (I.Pi ((D, P), V2), s), abstractAll, abstractEx, makeAddress) -> ( let (GO', O) = operators (I.Decl (G, I.decSub (D, s)), GE, (V2, I.dot1 s), abstractAll, abstractEx, makeAddressCont makeAddress) in  ((makeAddress 0, delay (Search.searchAll, (G, GE, (V1, s), abstractAll))) :: GO', O) )
-(* createEVars (G, M) = ((G', M'), s', GE')
+  let rec operators (G, GE, Vs, abstractAll, abstractEx, makeAddress) =
+    operatorsW (G, GE, Whnf.whnf Vs, abstractAll, abstractEx, makeAddress)
+
+  and operatorsW = function
+    | G, GE, Vs, abstractAll, abstractEx, makeAddress ->
+        ( [],
+          ( makeAddress 0,
+            delay (fun Params ->
+                ( (try Search.searchEx Params with Success S -> [ S ]),
+                  (G, GE, Vs, abstractEx) )) ) )
+    | G, GE, (I.Pi ((D, P), V2), s), abstractAll, abstractEx, makeAddress ->
+        let GO', O =
+          operators
+            ( I.Decl (G, I.decSub (D, s)),
+              GE,
+              (V2, I.dot1 s),
+              abstractAll,
+              abstractEx,
+              makeAddressCont makeAddress )
+        in
+        ( ( makeAddress 0,
+            delay (Search.searchAll, (G, GE, (V1, s), abstractAll)) )
+          :: GO',
+          O )
+  (* createEVars (G, M) = ((G', M'), s', GE')
 
        Invariant:
        If   |- G ctx
@@ -44,8 +77,21 @@ and operatorsW = function (G, GE, Vs, abstractAll, abstractEx, makeAddress) -> (
 
     *)
 
-let rec createEVars = function (M.Prefix (I.Null, I.Null, I.Null)) -> (M.Prefix (I.Null, I.Null, I.Null), I.id, []) | (M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b))) -> ( let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B)) in  (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)), I.dot1 s', GE') ) | (M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _))) -> ( let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B)) in let X = I.newEVar (G', I.EClo (V, s')) in let X' = Whnf.lowerEVar X in  (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'), X' :: GE') )
-(* expand' ((G, M), V) = (OE', OL')
+  let rec createEVars = function
+    | M.Prefix (I.Null, I.Null, I.Null) ->
+        (M.Prefix (I.Null, I.Null, I.Null), I.id, [])
+    | M.Prefix (I.Decl (G, D), I.Decl (M, M.Top), I.Decl (B, b)) ->
+        let M.Prefix (G', M', B'), s', GE' = createEVars (M.Prefix (G, M, B)) in
+        ( M.Prefix
+            (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Top), I.Decl (B', b)),
+          I.dot1 s',
+          GE' )
+    | M.Prefix (I.Decl (G, I.Dec (_, V)), I.Decl (M, M.Bot), I.Decl (B, _)) ->
+        let M.Prefix (G', M', B'), s', GE' = createEVars (M.Prefix (G, M, B)) in
+        let X = I.newEVar (G', I.EClo (V, s')) in
+        let X' = Whnf.lowerEVar X in
+        (M.Prefix (G', M', B'), I.Dot (I.Exp X, s'), X' :: GE')
+  (* expand' ((G, M), V) = (OE', OL')
 
        Invariant:
        If   |- G ctx
@@ -60,25 +106,47 @@ let rec createEVars = function (M.Prefix (I.Null, I.Null, I.Null)) -> (M.Prefix 
           in V' with the smallest possible terms.
     *)
 
-let rec expand (S)  = ( let (M.Prefix (G', M', B'), s', GE') = createEVars (M.Prefix (G, M, B)) in let rec abstractAll acc  = (try MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'), I.EClo (V, s'))) :: acc with MetaAbstract.Error s -> acc) in let rec abstractEx ()  = try (raise (Success (MetaAbstract.abstract (M.State (name, M.Prefix (G', M', B'), I.EClo (V, s')))))) with MetaAbstract.Error s -> () in  operators (G', GE', (V, s'), abstractAll, abstractEx, makeAddressInit S) )
-(* apply (S, f) = S'
+  let rec expand S =
+    let M.Prefix (G', M', B'), s', GE' = createEVars (M.Prefix (G, M, B)) in
+    let rec abstractAll acc =
+      try
+        MetaAbstract.abstract
+          (M.State (name, M.Prefix (G', M', B'), I.EClo (V, s')))
+        :: acc
+      with MetaAbstract.Error s -> acc
+    in
+    let rec abstractEx () =
+      try
+        raise
+          (Success
+             (MetaAbstract.abstract
+                (M.State (name, M.Prefix (G', M', B'), I.EClo (V, s')))))
+      with MetaAbstract.Error s -> ()
+    in
+    operators (G', GE', (V, s'), abstractAll, abstractEx, makeAddressInit S)
+  (* apply (S, f) = S'
 
        Invariant:
        S is state and f is a function constructing the successor state S'
     *)
 
-let rec apply (_, f)  = f ()
-let rec menu ((M.State (name, M.Prefix (G, M, B), V), k), Sl)  = ( (* no cases for_sml
+  let rec apply (_, f) = f ()
+
+  let rec menu ((M.State (name, M.Prefix (G, M, B), V), k), Sl) =
+    (* no cases for_sml
               toSTring (G, I.Root _, k) for_sml k <> 0
             *)
-let rec toString = function (G, I.Pi ((I.Dec (_, V), _), _), 0) -> Print.expToString (G, V) | (G, V, 0) -> Print.expToString (G, V) | (G, I.Pi ((D, _), V), k) -> toString (I.Decl (G, D), V, k - 1) in  "Filling   : " ^ toString (G, V, k) )
-let expand = expand
-let apply = apply
-let menu = menu
-(* local *)
+    let rec toString = function
+      | G, I.Pi ((I.Dec (_, V), _), _), 0 -> Print.expToString (G, V)
+      | G, V, 0 -> Print.expToString (G, V)
+      | G, I.Pi ((D, _), V), k -> toString (I.Decl (G, D), V, k - 1)
+    in
+    "Filling   : " ^ toString (G, V, k)
 
- end
-
+  let expand = expand
+  let apply = apply
+  let menu = menu
+  (* local *)
+end
 
 (* functor Filling *)
-

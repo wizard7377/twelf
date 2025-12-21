@@ -1,0 +1,4 @@
+(library
+ (name paths)
+ (wrapped false)
+ (libraries lambda global table))

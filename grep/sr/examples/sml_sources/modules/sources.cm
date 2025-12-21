@@ -1,13 +1,10 @@
-Library
-  signature MODSYN
-  structure ModSyn
-is
-  ../global/sources.cm
-  ../table/sources.cm
-  ../lambda/sources.cm
-  ../names/sources.cm
-  ../paths/sources.cm
-  ../typecheck/sources.cm
-  modsyn.sig
-  modsyn.fun
-  modules.sml
+
+../global
+../table
+../lambda
+../names
+../paths
+../typecheck
+modsyn
+modsyn
+modules

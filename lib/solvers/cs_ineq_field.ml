@@ -242,7 +242,7 @@ let rec unifySum (G, sum, d)  = if Unify.unifiable (G, (toExp (sum), id), (const
 type decomp = number * number * position list
 (* change sign to the given decomposition *)
 
-let rec unaryMinusDecomp ((d, wposL))  = (~ d, List.map (fun (d, pos) -> (~ d, pos)) wposL)
+let rec unaryMinusDecomp ((d, wposL))  = (~- d, List.map (fun (d, pos) -> (~- d, pos)) wposL)
 (* decompose a sum in whnf into a weighted sum of tableau positions *)
 
 let rec decomposeSum (G, Sum (m, monL))  = ( let rec monToWPos (mon)  = (match findMon (mon) with Some (pos) -> (n, pos) | None -> ( let new_ = incrNCols () in let l = {owner = Var (G, Mon (one, UsL)); tag = ref 0; restr = ref None; dead = ref false} in  (Trail.log (trail (tableau), Insert (Col (new_))); delayMon (mon, ref (makeCnstr (tag (l)))); Array.update (clabels (tableau), new_, l); (n, Col (new_))) )) in  (m, List.map monToWPos monL) )

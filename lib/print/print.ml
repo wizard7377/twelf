@@ -40,7 +40,7 @@ let lvars : I.block option ref list ref = ref []
 let rec lookuplvar (l)  = ( (* speed improvment possible Tue Mar  1 13:27:04 2011 --cs *)
 let _ = if (List.exists (fun r -> r = l) (! lvars)) then () else lvars := ! lvars @ [l] in let rec find (r :: L) n  = if r = l then n else find L (n + 1) in  Int.toString (find (! lvars) 0) )
 let Str = F.String
-let rec Str0 (s, n)  = F.String0 n s
+let rec Str0 (s, n)  = F.string0 n s
 let rec sym (s)  = Str0 (Symbol.sym s)
 let rec nameOf = function (Some (id)) -> id | (None) -> "_"
 (* fmtEVar (G, X) = "X", the name of the EVar X *)

@@ -6,15 +6,13 @@
  * close to the definition of the optional IntInf structure in the SML'97 basis.
  *)
 
-
 module type INT_INF = sig
   include INTEGER
-  val divmod : (int * int) -> (int * int)
-  val quotrem : (int * int) -> (int * int)
-  val pow : (int * Int.int) -> int
-  val log2 : int -> Int.int
 
+  val divmod : int * int -> int * int
+  val quotrem : int * int -> int * int
+  val pow : int * Int.int -> int
+  val log2 : int -> Int.int
 end
 
 (* signature INT_INF *)
-

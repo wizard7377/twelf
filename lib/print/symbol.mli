@@ -8,9 +8,6 @@ module type SYMBOL = sig
   val def : string -> string * int
   val fvar : string -> string * int
   val sym : string -> string * int
-
 end
 
-
 (* signature SYMBOL *)
-

@@ -1,13 +1,13 @@
 (* Meta Prover Interface *)
 
-
 (* Author: Carsten Schuermann *)
-
 
 module type MPI = sig
   module MetaSyn : METASYN
+
   exception Error of string
-  val init : (int * string list) -> unit
+
+  val init : int * string list -> unit
   val select : int -> unit
   val print : unit -> unit
   val next : unit -> unit
@@ -18,9 +18,6 @@ module type MPI = sig
   val extract : unit -> MetaSyn.sgn
   val show : unit -> unit
   val undo : unit -> unit
-
 end
 
-
 (* signature MPI *)
-

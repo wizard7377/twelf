@@ -1,22 +1,98 @@
 (* Delphin external syntax *)
 
-
 (* Author: Richard Fontana *)
 
+module DextSyn (ExtSyn' : EXTSYN) (Parsing' : PARSING) : DEXTSYN = struct
+  (*  structure Stream = Stream' *)
 
-module DextSyn (ExtSyn' : EXTSYN) (Parsing' : PARSING) : DEXTSYN = struct (*  structure Stream = Stream' *)
-
-module ExtSyn = ExtSyn'
-module Parsing = Parsing'
-(*  structure Paths = ExtSyn.Paths
+  module ExtSyn = ExtSyn'
+  module Parsing = Parsing'
+  (*  structure Paths = ExtSyn.Paths
   structure Lexer = Lexer' *)
 
-module L = Lexer
-(*  structure S = Parsing'.Lexer.Stream *)
+  module L = Lexer
+  (*  structure S = Parsing'.Lexer.Stream *)
 
-module S = Stream
-type ast = Ast of decs and decs = Empty | FunDecl of funDecl * decs | FormDecl of formDecl * decs | ValDecl of valDecl * decs | NewDecl of dec * decs | TwelfDecl of dec * decs | CreateDecl of createDecl * decs and createDecl = Create of term * createDecl | Decs of decs and formDecl = Form of string * form and funDecl = Fun of head * prog | Bar of head * prog | FunAnd of head * prog and valDecl = Val of pat * prog * form option and cases = First of pat * prog | Alt of cases * pat * prog and world = WorldIdent of string | Plus of world * world | Concat of world * world | Times of world and form = True | Forall of dec * form | ForallOmitted of dec * form | Exists of dec * form | ExistsOmitted of dec * form | And of form * form | World of world * form and prog = Unit | Pair of prog * prog | AppProg of prog * prog | AppTerm of prog * term | Inx of term * prog | Lam of dec * prog | Par of prog * prog | Const of string | Case of pat list * prog list | Let of decs * prog | New of dec list * prog | Choose of dec * prog and head = Head of string | AppLF of head * term | AppMeta of head * pat and pat = PatInx of term * pat | PatPair of pat * pat | PatVar of mDec | PatUnderscore | PatUnit and mDec = MDec of string * (form option) and block = Block of string list and term = Rtarrow of term * term | Ltarrow of term * term | Type | Id of string | Pi of dec * term | Fn of dec * term | App of term * term | Dot of term * string | Paren of term | Omit | Of of term * term and dec = Dec of string * term
-(*
+  module S = Stream
+
+  type ast = Ast of decs
+
+  and decs =
+    | Empty
+    | FunDecl of funDecl * decs
+    | FormDecl of formDecl * decs
+    | ValDecl of valDecl * decs
+    | NewDecl of dec * decs
+    | TwelfDecl of dec * decs
+    | CreateDecl of createDecl * decs
+
+  and createDecl = Create of term * createDecl | Decs of decs
+  and formDecl = Form of string * form
+
+  and funDecl =
+    | Fun of head * prog
+    | Bar of head * prog
+    | FunAnd of head * prog
+
+  and valDecl = Val of pat * prog * form option
+  and cases = First of pat * prog | Alt of cases * pat * prog
+
+  and world =
+    | WorldIdent of string
+    | Plus of world * world
+    | Concat of world * world
+    | Times of world
+
+  and form =
+    | True
+    | Forall of dec * form
+    | ForallOmitted of dec * form
+    | Exists of dec * form
+    | ExistsOmitted of dec * form
+    | And of form * form
+    | World of world * form
+
+  and prog =
+    | Unit
+    | Pair of prog * prog
+    | AppProg of prog * prog
+    | AppTerm of prog * term
+    | Inx of term * prog
+    | Lam of dec * prog
+    | Par of prog * prog
+    | Const of string
+    | Case of pat list * prog list
+    | Let of decs * prog
+    | New of dec list * prog
+    | Choose of dec * prog
+
+  and head = Head of string | AppLF of head * term | AppMeta of head * pat
+
+  and pat =
+    | PatInx of term * pat
+    | PatPair of pat * pat
+    | PatVar of mDec
+    | PatUnderscore
+    | PatUnit
+
+  and mDec = MDec of string * form option
+  and block = Block of string list
+
+  and term =
+    | Rtarrow of term * term
+    | Ltarrow of term * term
+    | Type
+    | Id of string
+    | Pi of dec * term
+    | Fn of dec * term
+    | App of term * term
+    | Dot of term * string
+    | Paren of term
+    | Omit
+    | Of of term * term
+
+  and dec = Dec of string * term
+  (*
 fun parseLFDecs (Ast dl) =
   let val tf = OS.FileSys.tmpName ()
       val tos = TextIO.openOut tf
@@ -34,7 +110,7 @@ fun parseLFDecs (Ast dl) =
 
 *)
 
-(*
+  (*
 
 fun rulesToCase (Ast decs) =
    let
@@ -79,11 +155,10 @@ fun rulesToCase (Ast decs) =
 
 *)
 
-(*     val appendPats = appendPats
+  (*     val appendPats = appendPats
      val parseLFDecs = parseLFDecs
      val abstractProgs = abstractProgs
 *)
- end
+end
 
 (* functor DextSyn *)
-

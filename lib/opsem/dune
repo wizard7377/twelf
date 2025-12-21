@@ -1,0 +1,17 @@
+(library
+ (name opsem)
+ (wrapped false)
+ (libraries
+  compat
+  global
+  table
+  lambda
+  names
+  print
+  formatter
+  index
+  typecheck
+  solvers
+  subordinate
+  tabling
+  compile))

@@ -1,68 +1,47 @@
-Library
-  signature ABSTRACTTABLED
-  structure AbstractTabled
-  signature TABLED
-  structure Tabled
-  signature TABLEPARAM
-  structure TableParam
-  signature ABSMACHINE
-  structure AbsMachine
-  signature ABSMACHINESBT
-  structure AbsMachineSbt
-  signature MEMOTABLE
-  structure MemoTable
-  signature PTRECON
-  structure PtRecon
-  signature TRACE
-  structure Trace
-  structure TMachine
-  structure SwMachine
-is
-#if defined(NEW_CM)
-  $/basis.cm
-#endif
-  ../compat/sources.cm
-  ../global/sources.cm
-  ../table/sources.cm
-  ../lambda/sources.cm
-  ../names/sources.cm
-  ../print/sources.cm
-  ../formatter/sources.cm  
-  ../index/sources.cm
-  ../typecheck/sources.cm
-  ../solvers/sources.cm
-  ../subordinate/sources.cm
-  ../tabling/sources.cm
-  ../compile/sources.cm
 
 
-  table-param.sig
-  table-param.fun
-  table-param.sml
+../compat
+../global
+../table
+../lambda
+../names
+../print
+../formatter  
+../index
+../typecheck
+../solvers
+../subordinate
+../tabling
+../compile
 
-  abstract.sig  
-  abstract.fun 
 
-  subtree.fun 
-  subtree-inst.fun  
+table_param
+table_param
+table_param
 
-  sw-subtree.fun
-  sw-subtree.sig
+abstract  
+abstract 
 
-  tabled.sig
-  tabled.fun     
+subtree 
+subtree_inst  
+
+sw_subtree
+sw_subtree
+
+tabled
+tabled     
  
-  absmachine.sig
-  absmachine.fun
+absmachine
+absmachine
 
-  absmachine-sbt.sig
-  absmachine-sbt.fun
+absmachine_sbt
+absmachine_sbt
 
-  ptrecon.sig
-  ptrecon.fun
+ptrecon
+ptrecon
 
-  trace.sig
-  trace.fun
-  tmachine.fun
-  swmachine.fun 
-  opsem.sml
+trace
+trace
+tmachine
+swmachine 
+opsem

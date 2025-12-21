@@ -1,166 +1,654 @@
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/modes/modeprint.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/modes/modesyn.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/server/server.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/heuristic/heuristic.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/heuristic/heuristic.sum.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/heuristic/heuristic.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/prover/fixedpoint.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/prover/search.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/prover/interactive.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/prover/state.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/prover/introduce.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/prover/fill.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/prover/stateprint.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/names/names.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/delphin/dextsyn.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/delphin/parse-prg.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/delphin/trans.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/splitting.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/meta-print.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/search.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/lemma.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/init.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/recursion.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/strategy.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/mpi.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/filling.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/prover.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/m2/metasyn.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tabling/tabledsyn.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compile/subtree.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compile/compsyn.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compile/compile.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compile/cprint.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compile/assign.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compile/subtree.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compile/compsyn.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/timing/timing.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/funnames.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/uniquesearch.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/funprint.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/funtypecheck.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/splitting.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/funsyn.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/search.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/abstract.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/inference.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/print.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/statesyn.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/abstract.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/init.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/recursion.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/strategy.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/mpi.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/filling.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/relfun.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/funsyn.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/meta/prover.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/order/order.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/modules/modsyn.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/tmachine.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/ptrecon.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/table-param.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/tabled.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/abstract.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/trace.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/absmachine.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/subtree-inst.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/absmachine-sbt.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/index.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/trace.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/opsem/subtree.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/recon-module.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parse-condec.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/twelf.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/recon-module.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parse-thm.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/recon-thm.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parsing.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parser.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/lexer.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/recon-condec.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/recon-query.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/unknownexn.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parser.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parse-mode.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/recon-term.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/recon-term.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/lexer.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parse-module.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/solve.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/frontend/parse-query.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/unify.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/match.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/approx.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/order.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/whnf.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/intsyn.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/approx.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/intsyn.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/fgnopntable.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/lambda/tomega.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/worldcheck/worldsyn.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/worldcheck/worldify.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compat/word8-vector-slice.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compat/word8-array-slice.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compress/convert.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compress/strict.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compress/syntax.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compress/parse.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compress/reductio.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compress/compress.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/compress/sgn.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/thm/thmprint.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/thm/thmsyn.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/terminate/reduces.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/terminate/checking.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/terminate/checking.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/formatter/formatter.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/print/clause-print.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/print/symbol.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/print/print-omdoc.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/stream/stream.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-eq-field.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-ineq-integers.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-manager.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-eq-integers.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-eq-field.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-eq-bools.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-integers-word.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-ineq-field.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-eq-strings.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-manager.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/solvers/cs-eq-integers.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/int-inf/int-inf.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/domains/rationals.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/domains/ordered-field.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/domains/integers-mod.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/domains/field.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/domains/integers.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/paths/origins.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/paths/paths.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/table/hash.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/table/redblack.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/table/red-black-tree.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/table/hash-table.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/converter.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/typecheck.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/redundant.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/abstract.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/normalize.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/coverage.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/tomegaprint.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/tomega/opsem.fun
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/table.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/print.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/lib.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/typecheckEL.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/syntax.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/lib.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/typecheckEE.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/top.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/layout.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/inverse/sml/signat.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/delphin/ml-yacc-lib-mod/base.sig
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/delphin/ml-yacc-lib-mod/parser2.sml
-FAILED TO PARSE: /home/asherf/Projects/OCaml/twelf/grep/sr/examples/sml_sources/delphin/ml-yacc-lib-mod/join.sml
+[asherf@asher-dasher twelf]$ dune build
+File "lib/domains/rationals.ml", line 7, characters 17-25:
+7 | module Rationals Integers : INTEGERS : RATIONALS = struct module Integers = Integers
+                     ^^^^^^^^
+Error: Syntax error
+File "lib/paths/paths.ml", line 72, characters 15-16:
+72 | type occ = top | label of occ | body of occ | head of occ | arg of int * occ
+                    ^
+Error: Syntax error: end expected
+File "lib/paths/paths.ml", line 7, characters 23-29:
+7 | module Paths : PATHS = struct type pos = int
+                           ^^^^^^
+  This struct might be unmatched
+File "lib/compress/syntax.ml", line 7, characters 21-23:
+7 | type tpfn = tpfnType of tp | tpfnLam of tpfn
+                         ^^
+Error: Syntax error: end expected
+File "lib/compress/syntax.ml", line 1, characters 16-22:
+1 | module Syntax = struct exception Syntax of string
+                    ^^^^^^
+  This struct might be unmatched
+File "lib/tabling/tabledsyn.ml", line 10, characters 18-19:
+10 | type tabled = yes | no
+                       ^
+Error: Syntax error: end expected
+File "lib/tabling/tabledsyn.ml", line 7, characters 63-69:
+7 | module TabledSyn (Names : NAMES) (Index : INDEX) : TABLEDSYN = struct (*! structure IntSyn = IntSyn' !*)
+                                                                   ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/version.ml", line 5, characters 4-12:
+5 | let external = BuildId.revision = "exported"
+        ^^^^^^^^
+Error: Syntax error
+File "lib/compile/subtree.ml", line 313, characters 581-582:
+313 | let rec ctxToExplicitSub = function (i, Gquery, I.Null, asub) -> I.id | (i, Gquery, I.Decl (Gclause, I.Dec (_, A)), asub) -> ( let s = ctxToExplicitSub (i + 1, Gquery, Gclause, asub) in let (U') = I.newEVar (Gquery, I.EClo (A, s)) in  match S.lookup asub i with None -> () | Some (Assign (Glocal_u, U)) -> X' := Some (raiseType (Glocal_u, U)); I.Dot (I.Exp (U'), s) ) | (i, Gquery, I.Decl (Gclause, I.ADec (_, d)), asub) -> ( let (U') = I.newAVar () in  (match S.lookup asub i with None -> () | Some (Assign (Glocal_u, U)) -> X' := Some (U)); I.Dot (I.Exp (I.EClo (U', I.Shift (~ d))), ctxToExplicitSub (i + 1, Gquery, Gclause, asub))(* d = I.ctxLength Glocal_u *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^
+Error: Syntax error
+File "lib/int_inf/int_inf_sig.ml", line 11, characters 10-17:
+11 |   include INTEGER
+               ^^^^^^^
+Error: Unbound module type INTEGER
+File "lib/stream/stream.ml", line 23, characters 75-77:
+23 | module BasicStream : BASIC_STREAM = struct type 'a stream = Stream of unit -> 'a front and 'a front = Empty | Cons of 'a * 'a stream
+                                                                                ^^
+Error: Syntax error: end expected
+File "lib/stream/stream.ml", line 23, characters 36-42:
+23 | module BasicStream : BASIC_STREAM = struct type 'a stream = Stream of unit -> 'a front and 'a front = Empty | Cons of 'a * 'a stream
+                                         ^^^^^^
+  This struct might be unmatched
+File "lib/msg/msg.ml", line 7, characters 40-45:
+7 | module Msg : MSG = struct let default = print
+                                            ^^^^^
+Error: Unbound value print
+File "lib/int_inf/int_inf.ml", line 40, characters 4-5:
+40 | let < = W.<
+         ^
+Error: Syntax error
+File "lib/formatter/formatter.mli", line 14, characters 6-12:
+14 |   val Indent : int ref
+           ^^^^^^
+Error: Syntax error
+File "lib/heuristic/heuristic.mli", line 9, characters 0-1:
+9 | ; ind: int option; (* Induction variable *)
+    ^
+Error: Syntax error
+File "lib/table/hash.ml", line 7, characters 17-21:
+7 | module HashTable type key' val hash : key' -> int val eq : key' * key' -> bool : TABLE with type key = key' = struct type key = key'
+                     ^^^^
+Error: Syntax error
+File "lib/print/clause_print.ml", line 21, characters 35-36:
+21 | let rec Str0 (s, n)  = F.String0 n s
+                                        ^
+Error: Syntax error: end expected
+File "lib/print/clause_print.ml", line 13, characters 124-130:
+13 | module ClausePrint (Whnf : WHNF) (Names : NAMES) (Formatter' : FORMATTER) (Print : PRINT) (Symbol : SYMBOL) : CLAUSEPRINT = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                 ^^^^^^
+  This struct might be unmatched
+File "lib/modules/modsyn.ml", line 26, characters 5-11:
+26 | type module = structInfo IntTree.table * constInfo IntTree.table * Names.namespace
+          ^^^^^^
+Error: Syntax error
+File "lib/global/global.mli", line 18, characters 18-22:
+18 |   val timeLimit : Time.time option ref
+                       ^^^^
+Error: Unbound module Time
+File "lib/compress/compress.ml", line 68, characters 407-408:
+68 | and compress_term = function (G, (S.ATerm (S.ARoot (S.Var n, sp)), _)) -> ( let a = S.ctxLookup (G, n) in let astar = compress_type G (None, a) in  S.ATerm (S.ARoot (S.Var n, compress_spine G (sp, a, astar))) ) | (G, (S.ATerm (S.ARoot (S.Const n, sp)), _)) -> ( let a = typeOf (Sgn.o_classifier n) in let astar = typeOf (Sgn.classifier n) in let term_former = match Sgn.get_p n with Some false -> S.NTerm o S.NRoot | _ -> S.ATerm o S.ARoot in  term_former (S.Const n, compress_spine G (sp, a, astar)) ) | (G, (S.NTerm (S.Lam t), S.TPi (_, a, b))) -> S.NTerm (S.Lam (compress_term (a :: G) (t, b)))
+                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+Error: Syntax error
+File "lib/opsem/absmachine.ml", line 59, characters 455-456:
+59 | let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S -> solve ((g, s), dp, (fun M -> sc (I.App (M, S)))))) ) | (ps', (C.Exists (I.Dec (_, A), r), s), dp, sc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S -> sc (I.App (X, S)))) ) | (ps', (C.Axists (I.ADec (_, d), r), s), dp, sc) -> ( let X' = I.newAVar () in  rSolve (ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift (~ d))), s)), dp, sc)(* we don't increase the proof term here! *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+Error: Syntax error
+File "lib/cover/cover.ml", line 120, characters 72-73:
+120 | let rec missingToString (Vs, ci)  = F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (formatCGoals (Vs, ci)); F.String "."])
+                                                                              ^
+Error: Syntax error: ] expected
+File "lib/cover/cover.ml", line 120, characters 61-62:
+120 | let rec missingToString (Vs, ci)  = F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (formatCGoals (Vs, ci)); F.String "."])
+                                                                   ^
+  This [ might be unmatched
+File "lib/terminate/checking.ml", line 96, characters 195-196:
+96 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                                                        ^
+Error: Syntax error: ] expected
+File "lib/terminate/checking.ml", line 96, characters 168-169:
+96 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                             ^
+  This [ might be unmatched
+File "lib/flit/flit.ml", line 74, characters 10-22:  
+74 | exception noPriorEntry of string
+               ^^^^^^^^^^^^
+Error: Syntax error
+File "lib/domains/integers_mod.ml", line 7, characters 19-22:
+7 | module IntegersMod val p : int : FIELD = struct let name = "integer" ^ (Int.toString p)
+                       ^^^
+Error: Syntax error
+File "lib/domains/integers.ml", line 7, characters 16-23:
+7 | module Integers Integer : INTEGER : INTEGERS = struct open Integer
+                    ^^^^^^^
+Error: Syntax error
+File "lib/domains/ordered_field.ml", line 13, characters 6-7:
+13 |   val > : number * number -> bool
+           ^
+Error: Syntax error
+File "lib/domains/field.ml", line 18, characters 6-7:
+18 |   val ~ : number -> number
+           ^
+Error: Syntax error
+File "lib/table/hash_table.ml", line 10, characters 17-21:
+10 | module HashTable type key' val hash : key' -> int val eq : key' * key' -> bool : TABLE with type key = key' = struct type key = key'
+                      ^^^^
+Error: Syntax error
+File "lib/table/red_black_tree.ml", line 7, characters 20-24:
+7 | module RedBlackTree type key' val compare : key' * key' -> order : TABLE with type key = key' = struct type key = key'
+                        ^^^^
+Error: Syntax error
+File "lib/table/redblack.ml", line 7, characters 20-24:
+7 | module RedBlackTree type key' val compare : key' * key' -> order : TABLE with type key = key' = struct type key = key'
+                        ^^^^
+Error: Syntax error
+File "lib/compress/convert.ml", line 10, characters 37-43:
+10 | let rec modeconvert = function Parse.mMINUS -> MINUS | Parse.mPLUS -> PLUS | Parse.mOMIT -> OMIT
+                                          ^^^^^^
+Error: Syntax error
+File "lib/lambda/fgnopntable.ml", line 7, characters 19-23:
+7 | module FgnOpnTable type arg type result : FGN_OPN with type arg = arg with type result = result = struct type csid = int
+                       ^^^^
+Error: Syntax error
+File "lib/compress/parse.ml", line 8, characters 6-7:
+8 | let ` = literal
+          ^
+Error: Syntax error
+File "lib/compress/rep.ml", line 11, characters 350-356:
+11 | let rec sanityCheck cid  = (try (match I.sgnLookup cid with I.ConDec (_, _, _, _, _, I.Type) -> (Reductio.check_plusconst_type (Sgn.typeOf (Sgn.classifier cid))) | I.ConDec (_, _, _, _, _, I.Kind) -> (Reductio.check_kind ([], Sgn.kindOf (Sgn.classifier cid))) | I.ConDef (_, _, _, _, _, I.Type, _) -> ( let Sgn.DEF_TERM y = Sgn.def cid in let Syntax.tclass z = Sgn.classifier cid in  (*                                  l := (y,z):: !l; *)
+                                                                                                                                                                                                                                                                                                                                                                   ^^^^^^
+Error: Syntax error
+File "lib/compress/strict.ml", line 20, characters 1-3:
+20 |  || type_occ (n + 1) (0 :: (map (fun x -> x + 1) D), b)
+      ^^
+Error: Syntax error
+File "lib/print/print_twega.ml", line 18, characters 35-36:
+18 | let rec Str0 (s, n)  = F.String0 n s
+                                        ^
+Error: Syntax error: end expected
+File "lib/print/print_twega.ml", line 10, characters 139-145:
+10 | module PrintTwega (Whnf : WHNF) (Abstract : ABSTRACT) (Constraints : CONSTRAINTS) (Names : NAMES) (Formatter' : FORMATTER) : PRINT_TWEGA = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                ^^^^^^
+  This struct might be unmatched
+File "lib/print/print_xml.ml", line 21, characters 35-36:
+21 | let rec Str0 (s, n)  = F.String0 n s
+                                        ^
+Error: Syntax error: end expected
+File "lib/print/print_xml.ml", line 13, characters 135-141:
+13 | module PrintXML (Whnf : WHNF) (Abstract : ABSTRACT) (Constraints : CONSTRAINTS) (Names : NAMES) (Formatter' : FORMATTER) : PRINT_XML = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                            ^^^^^^
+  This struct might be unmatched
+File "lib/print/print.ml", line 43, characters 35-36:
+43 | let rec Str0 (s, n)  = F.String0 n s
+                                        ^
+Error: Syntax error: end expected
+File "lib/print/print.ml", line 10, characters 146-152:
+10 | module Print (Whnf : WHNF) (Abstract : ABSTRACT) (Constraints : CONSTRAINTS) (Names : NAMES) (Formatter' : FORMATTER) (Symbol : SYMBOL) : PRINT = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                       ^^^^^^
+  This struct might be unmatched
+File "lib/modes/modeprint.ml", line 20, characters 59-60:
+20 | let rec modesToString mdecs  = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
+                                                                ^
+Error: Syntax error: ) expected
+File "lib/modes/modeprint.ml", line 20, characters 48-49:
+20 | let rec modesToString mdecs  = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
+                                                     ^
+  This ( might be unmatched
+File "lib/solvers/cs_ineq_field.ml", line 65, characters 0-1:
+65 | ; tag: int ref; (* tag: used to keep track of the    *)
+     ^
+Error: Syntax error
+File "lib/table/red_black_set.ml", line 155, characters 677-679:
+155 | let rec diffMod F (Set (_, s1), Set (_, s2))  = ( let rec ins = function ((Empty, _), n, result) -> (n, result) | ((Red (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) | ((Black (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) in let rec diff (t1, t2, (n1, result1), (n2, result2))  = (match (next t1, next t2) with ((Empty, _), t2) -> ((n1, result1), ins (t2, n2, result2)) | (t1, (Empty, _)) -> (ins (t1, n1, result1), (n2, result2)) | ((tree1, r1), (tree2, r2)) -> ( let e1 = getEntry tree1 in let e2 = getEntry tree2 in  match compare (x, y) with Lt -> diff (r1, t2, (n1 + 1, addItem (e1, result1)), (n2, result2)) | Eq -> ((F d1 d2); diff (r1, r2, (n1, result1), (n2, result2))) | Gt -> diff (t1, r2, (n1, result1), (n2 + 1, addItem (e2, result2))) )) in let ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO)) in  (Set (n1, linkAll result1), Set (n2, linkAll result2)) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^^
+Error: Syntax error: ) expected
+File "lib/table/red_black_set.ml", line 155, characters 671-672:
+155 | let rec diffMod F (Set (_, s1), Set (_, s2))  = ( let rec ins = function ((Empty, _), n, result) -> (n, result) | ((Red (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) | ((Black (x, _, _), r), n, result) -> ins (next r, n + 1, addItem (x, result)) in let rec diff (t1, t2, (n1, result1), (n2, result2))  = (match (next t1, next t2) with ((Empty, _), t2) -> ((n1, result1), ins (t2, n2, result2)) | (t1, (Empty, _)) -> (ins (t1, n1, result1), (n2, result2)) | ((tree1, r1), (tree2, r2)) -> ( let e1 = getEntry tree1 in let e2 = getEntry tree2 in  match compare (x, y) with Lt -> diff (r1, t2, (n1 + 1, addItem (e1, result1)), (n2, result2)) | Eq -> ((F d1 d2); diff (r1, r2, (n1, result1), (n2, result2))) | Gt -> diff (t1, r2, (n1, result1), (n2 + 1, addItem (e2, result2))) )) in let ((n1, result1), (n2, result2)) = diff (start s1, start s2, (0, ZERO), (0, ZERO)) in  (Set (n1, linkAll result1), Set (n2, linkAll result2)) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+  This ( might be unmatched
+File "lib/solvers/cs_integers_word.ml", line 7, characters 17-20:
+7 | module CSIntWord val wordSize : int (Whnf : WHNF) (Unify : UNIFY) : CS = struct (*! structure CSManager = CSManager !*)
+                     ^^^
+Error: Syntax error
+File "lib/compress/reductio.ml", line 85, characters 47-48:
+85 | let rec flex_left = function ((r, a), s : subst, rhs) -> ( let pps = try prepattern s with Domain -> raise (NonPattern) in let _ = if pp_ispat pps then () else raise (NonPattern) in let ppsi = pp_invert pps in let rhs' = subst_term ppsi (termof rhs) in let _ = r := Some rhs' in  () ) | _ -> raise (Error "evar invariant violated")
+                                                    ^
+Error: Syntax error: ) expected
+File "lib/compress/reductio.ml", line 85, characters 29-30:
+85 | let rec flex_left = function ((r, a), s : subst, rhs) -> ( let pps = try prepattern s with Domain -> raise (NonPattern) in let _ = if pp_ispat pps then () else raise (NonPattern) in let ppsi = pp_invert pps in let rhs' = subst_term ppsi (termof rhs) in let _ = r := Some rhs' in  () ) | _ -> raise (Error "evar invariant violated")
+                                  ^
+  This ( might be unmatched
+File "lib/solvers/cs_ineq_integers.ml", line 58, characters 0-1:
+58 | ; tag: int ref; (* tag: used to keep track of the    *)
+     ^
+Error: Syntax error
+File "lib/solvers/cs_eq_integers.ml", line 166, characters 42-51:
+166 | let rec divideSum (Sum (m, monL), k)  = ( exception Err in let rec divide n  = if rem (n, k) = zero then quot (n, k) else raise (Err) in let rec divideMon (Mon (n, UsL))  = Mon (divide n, UsL) in  try (Some (Sum (divide m, List.map divideMon monL))) with Err -> None )
+                                                ^^^^^^^^^
+Error: Syntax error: operator expected.
+File "lib/solvers/cs_eq_strings.ml", line 148, characters 1507-1508:
+148 | let rec unifyString = function (G, Concat (String prefix :: AL), str, cnstr) -> if (String.isPrefix prefix str) then ( let suffix = String.extract (str, String.size prefix, None) in  unifyString (G, Concat AL, suffix, cnstr) ) else Failure | (G, Concat AL, str, cnstr) -> ( let rec unifyString' = function (AL, []) -> (Failure, []) | ([], [Decomp (parse, parsedL)]) -> (MultAssign [], parse :: parsedL) | ([], candidates) -> (MultDelay ([], cnstr), []) | ((Exp Us1) :: (Exp Us2) :: AL, _) -> (MultDelay ([EClo Us1; EClo Us2], cnstr), []) | ((Exp (U, s)) :: AL, candidates) -> if (Whnf.isPatSub s) then ( let rec assign = function (r, []) -> None | (r, ((_, EVar (r', _, _, _), Root (FgnConst (cs, conDec), Nil), _) :: L)) -> if (r = r') then fromString (conDecName (conDec)) else assign r L | (r, (_ :: L)) -> assign r L in  (match unifyString' (AL, candidates) with (MultAssign L, parsed :: parsedL) -> (match (assign r L) with None -> ( let ss = Whnf.invert s in let W = stringExp (parsed) in  (MultAssign ((G, U, W, ss) :: L), parsedL) ) | Some (parsed') -> if (parsed = parsed') then (MultAssign L, parsedL) else (Failure, [])) | (MultDelay (UL, cnstr), _) -> (MultDelay ((EClo (U, s)) :: UL, cnstr), []) | (Failure, _) -> (Failure, [])) ) else (MultDelay ([EClo (U, s)], cnstr), []) | ((Exp Us) :: AL, _) -> (MultDelay ([EClo Us], cnstr), []) | ([String str], candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.mapPartial (fun (Split (prefix, "")) -> Some (Decomp (prefix, parsedL)) | (Split (prefix, suffix)) -> None) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' ([], candidates') ) | ((String str) :: AL, candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.map (fun (Split (prefix, suffix)) -> Decomp (suffix, prefix :: parsedL)) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' (AL, candidates') ) in  (match unifyString' (AL, [Decomp (str, [])]) with (result, []) -> result | (result, [""]) -> result | (result, parsedL) -> Failure) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^
+Error: Syntax error: ) expected
+File "lib/solvers/cs_eq_strings.ml", line 148, characters 1446-1447:
+148 | let rec unifyString = function (G, Concat (String prefix :: AL), str, cnstr) -> if (String.isPrefix prefix str) then ( let suffix = String.extract (str, String.size prefix, None) in  unifyString (G, Concat AL, suffix, cnstr) ) else Failure | (G, Concat AL, str, cnstr) -> ( let rec unifyString' = function (AL, []) -> (Failure, []) | ([], [Decomp (parse, parsedL)]) -> (MultAssign [], parse :: parsedL) | ([], candidates) -> (MultDelay ([], cnstr), []) | ((Exp Us1) :: (Exp Us2) :: AL, _) -> (MultDelay ([EClo Us1; EClo Us2], cnstr), []) | ((Exp (U, s)) :: AL, candidates) -> if (Whnf.isPatSub s) then ( let rec assign = function (r, []) -> None | (r, ((_, EVar (r', _, _, _), Root (FgnConst (cs, conDec), Nil), _) :: L)) -> if (r = r') then fromString (conDecName (conDec)) else assign r L | (r, (_ :: L)) -> assign r L in  (match unifyString' (AL, candidates) with (MultAssign L, parsed :: parsedL) -> (match (assign r L) with None -> ( let ss = Whnf.invert s in let W = stringExp (parsed) in  (MultAssign ((G, U, W, ss) :: L), parsedL) ) | Some (parsed') -> if (parsed = parsed') then (MultAssign L, parsedL) else (Failure, [])) | (MultDelay (UL, cnstr), _) -> (MultDelay ((EClo (U, s)) :: UL, cnstr), []) | (Failure, _) -> (Failure, [])) ) else (MultDelay ([EClo (U, s)], cnstr), []) | ((Exp Us) :: AL, _) -> (MultDelay ([EClo Us], cnstr), []) | ([String str], candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.mapPartial (fun (Split (prefix, "")) -> Some (Decomp (prefix, parsedL)) | (Split (prefix, suffix)) -> None) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' ([], candidates') ) | ((String str) :: AL, candidates) -> ( let rec successors (Decomp (parse, parsedL))  = List.map (fun (Split (prefix, suffix)) -> Decomp (suffix, prefix :: parsedL)) (split (str, parse)) in let candidates' = List.foldr @ [] (List.map successors candidates) in  unifyString' (AL, candidates') ) in  (match unifyString' (AL, [Decomp (str, [])]) with (result, []) -> result | (result, [""]) -> result | (result, parsedL) -> Failure) )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+  This ( might be unmatched
+File "lib/solvers/cs_eq_field.ml", line 180, characters 195-196:
+180 | let rec unifySum (G, sum1, sum2)  = ( let rec invertMon = function (G, Mon (n, [(LHS, s)]), sum) -> if Whnf.isPatSub s then ( let ss = Whnf.invert s in let RHS = toFgn (timesSum (Sum (~ (inverse n), []), sum)) in  if Unify.invertible (G, (RHS, id), ss, r) then Some (G, LHS, RHS, ss) else None ) else None | _ -> None in  match minusSum (sum2, sum1) with Sum (m, []) -> if (m = zero) then Succeed [] else Fail | sum -> (match findMon invertMon (G, sum) with Some assignment -> Succeed [Assign assignment] | None -> ( let U = toFgn sum in let cnstr = ref (Eqn (G, U, numberExp (zero))) in  Succeed [Delay (U, cnstr)] )) )
+                                                                                                                                                                                                         ^
+Error: Syntax error
+File "lib/terminate/reduces.ml", line 29, characters 195-196:
+29 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                                                        ^
+Error: Syntax error: ] expected
+File "lib/terminate/reduces.ml", line 29, characters 168-169:
+29 | let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
+                                                                                                                                                                             ^
+  This [ might be unmatched
+File "lib/solvers/cs_manager.ml", line 18, characters 0-1:
+18 | ; name: string; (* keywords identifying the type of solver *)
+     ^
+Error: Syntax error
+File "lib/opsem/absmachine_sbt.ml", line 46, characters 326-327:
+46 | let rec ctxToEVarSub = function (Gglobal, I.Null, s) -> s | (Gglobal, I.Decl (G, I.Dec (_, A)), s) -> ( let s' = ctxToEVarSub (Gglobal, G, s) in let X = I.newEVar (Gglobal, I.EClo (A, s')) in  I.Dot (I.Exp (X), s') ) | (Gglobal, I.Decl (G, I.ADec (_, d)), s) -> ( let X = I.newAVar () in  I.Dot (I.Exp (I.EClo (X, I.Shift (~ d))), ctxToEVarSub (Gglobal, G, s)) )
+                                                                                                                                                                                                                                                                                                                                           ^
+Error: Syntax error
+File "lib/opsem/subtree.ml", line 116, characters 277-278:
+116 | let rec ctxToAVarSub = function (G', I.Null, s) -> s | (G', I.Decl (D, I.Dec (_, A)), s) -> ( let E = I.newEVar (I.Null, A) in  I.Dot (I.Exp (E), ctxToAVarSub (G', D, s)) ) | (G', I.Decl (D, I.ADec (_, d)), s) -> ( let X = I.newAVar () in  I.Dot (I.Exp (I.EClo (X, I.Shift (~ d))), ctxToAVarSub (G', D, s)) )
+                                                                                                                                                                                                                                                                                           ^
+Error: Syntax error
+File "lib/opsem/ptrecon.ml", line 65, characters 506-507:
+65 | let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (O, ps', (r, I.Dot (I.Exp (X), s)), dp, (fun (O, S) -> solve' (O, (g, s), dp, (fun (O, M) -> sc (O, (I.App (M, S))))))) ) | (O, ps', (C.Exists (I.Dec (_, A), r), s), dp, sc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (O, ps', (r, I.Dot (I.Exp (X), s)), dp, (fun (O, S) -> sc (O, (I.App (X, S))))) ) | (O, ps', (C.Axists (I.ADec (Some (X), d), r), s), dp, sc) -> ( let X' = I.newAVar () in  rSolve (O, ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift (~ d))), s)), dp, sc)(* we don't increase the proof term here! *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+Error: Syntax error
+File "lib/opsem/tabled.ml", line 79, characters 261-262:
+79 | let rec ctxToAVarSub = function (I.Null, s) -> s | (I.Decl (G, I.Dec (_, A)), s) -> ( let X = I.newEVar (I.Null, A) in  I.Dot (I.Exp (X), ctxToAVarSub (G, s)) ) | (I.Decl (G, I.ADec (_, d)), s) -> ( let X = I.newAVar () in  I.Dot (I.Exp (I.EClo (X, I.Shift (~ d))), ctxToAVarSub (G, s)) )
+                                                                                                                                                                                                                                                                          ^
+Error: Syntax error
+File "lib/opsem/table_param.ml", line 33, characters 22-23:
+33 | type answState = new_ | repeated
+                           ^
+Error: Syntax error: end expected
+File "lib/opsem/table_param.ml", line 7, characters 51-57:
+7 | module TableParam (Global : GLOBAL) : TABLEPARAM = struct (*! structure IntSyn = IntSyn' !*)
+                                                       ^^^^^^
+  This struct might be unmatched
+File "lib/opsem/tmachine.ml", line 65, characters 536-537:
+65 | let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, HcHa, (fun S -> (T.signal (G, T.Subgoal (HcHa, fun () -> subgoalNum S)); solve' ((g, s), dp, (fun M -> sc (I.App (M, S))))))) ) | (ps', (C.Exists (I.Dec (_, A), r), s), dp, HcHa, sc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (ps', (r, I.Dot (I.Exp (X), s)), dp, HcHa, (fun S -> sc (I.App (X, S)))) ) | (ps', (C.Axists (I.ADec (_, d), r), s), dp, HcHa, sc) -> ( let X = I.newAVar () in  rSolve (ps', (r, I.Dot (I.Exp (I.EClo (X, I.Shift (~ d))), s)), dp, HcHa, sc)(* we don't increase the proof term here! *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+Error: Syntax error
+File "lib/opsem/subtree_inst.ml", line 158, characters 277-278:
+158 | let rec ctxToAVarSub = function (G', I.Null, s) -> s | (G', I.Decl (D, I.Dec (_, A)), s) -> ( let E = I.newEVar (I.Null, A) in  I.Dot (I.Exp (E), ctxToAVarSub (G', D, s)) ) | (G', I.Decl (D, I.ADec (_, d)), s) -> ( let X = I.newAVar () in  I.Dot (I.Exp (I.EClo (X, I.Shift (~ d))), ctxToAVarSub (G', D, s)) )
+                                                                                                                                                                                                                                                                                           ^
+Error: Syntax error
+File "lib/meta/funprint.ml", line 70, characters 375-376:
+70 | let rec nameLookup index  = List.nth (names, index) in let rec formatFor1 = function (index, G, (F.And (F1, F2), s)) -> formatFor1 (index, G, (F1, s)) @ [Fmt.Break] @ formatFor1 (index + 1, G, (F2, s)) | (index, G, (F, s)) -> [Fmt.String (nameLookup index); Fmt.Space; Fmt.String "::"; Fmt.Space; Fmt.HVbox (formatFor' (G, (F, s)))] in let rec formatFor0 Args  = Fmt.Vbox0 0 1 (formatFor1 Args) in  (Names.varReset I.Null; formatFor0 (0, F.makectx Psi, (F, I.id))) )
+                                                                                                                                                                                                                                                                                                                                                                                            ^
+Error: Syntax error
+File "lib/meta/funtypecheck.ml", line 21, characters 28-37:
+21 | let rec conv (Gs, Gs')  = ( exception Conv in let rec conv = function ((I.Null, s), (I.Null, s')) -> (s, s') | ((I.Decl (G, I.Dec (_, V)), s), (I.Decl (G', I.Dec (_, V')), s')) -> ( let (s1, s1') = conv ((G, s), (G', s')) in let ps = (I.dot1 s1, I.dot1 s1') in  if Conv.conv ((V, s1), (V', s1')) then ps else raise (Conv) ) | _ -> raise (Conv) in  try (conv (Gs, Gs'); true) with Conv -> false )
+                                 ^^^^^^^^^
+Error: Syntax error: operator expected.
+File "lib/m2/splitting.ml", line 221, characters 1-3:
+221 |  && not (isIndex 1) && checkDec (M, D) then (makeAddress 1, split (M.Prefix (G', M', B'), (D, s'), abstract)) :: ops else ops in  (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'), ops') ) | (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), isIndex, abstract, makeAddress) -> ( let (M.Prefix (G', M', B'), s', ops) = expand' (M.Prefix (G, M, B), isIndexSucc (D, isIndex)(* -###- *)
+       ^^
+Error: Syntax error
+File "lib/meta/inference.ml", line 43, characters 264-265:
+43 | let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type)) else () in let (Xs, (V', s')) = createEVars (G, (V, I.id)) in  try (match UniqueSearch.searchEx (2, Xs, fun [] -> [(Whnf.normalize (V', s'))] | _ -> raise (UniqueSearch.Error "Too many solutions")) with [VF''] -> Some VF'' | [] -> None) with UniqueSearch.Error _ -> None ) | (G, B, V) -> None
+                                                                                                                                                                                                                                                                             ^
+Error: Syntax error: ) expected
+File "lib/meta/inference.ml", line 43, characters 218-219:
+43 | let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type)) else () in let (Xs, (V', s')) = createEVars (G, (V, I.id)) in  try (match UniqueSearch.searchEx (2, Xs, fun [] -> [(Whnf.normalize (V', s'))] | _ -> raise (UniqueSearch.Error "Too many solutions")) with [VF''] -> Some VF'' | [] -> None) with UniqueSearch.Error _ -> None ) | (G, B, V) -> None
+                                                                                                                                                                                                                               ^
+  This ( might be unmatched
+File "lib/opsem/abstract.ml", line 326, characters 185-186:
+326 | let rec avarsToSub = function (I.Null, s) -> s | (I.Decl (Vars', (AV (E, d))), s) -> ( let s' = avarsToSub (Vars', s) in let X' = I.newAVar () in  I.Dot (I.Exp (I.EClo (X', I.Shift (~ d))), s') )
+                                                                                                                                                                                               ^
+Error: Syntax error
+File "lib/meta/print.ml", line 23, characters 184-185:
+23 | let rec formatOrder = function (G, S.Arg (Us, Vs)) -> [Print.formatExp (G, I.EClo Us); Fmt.String ":"; Print.formatExp (G, I.EClo Vs)] | (G, S.Lex Os) -> [Fmt.String "{"; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "}"] | (G, S.Simul Os) -> [Fmt.String "["; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "]"]
+                                                                                                                                                                                             ^
+Error: Syntax error: ] expected
+File "lib/meta/print.ml", line 23, characters 154-155:
+23 | let rec formatOrder = function (G, S.Arg (Us, Vs)) -> [Print.formatExp (G, I.EClo Us); Fmt.String ":"; Print.formatExp (G, I.EClo Vs)] | (G, S.Lex Os) -> [Fmt.String "{"; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "}"] | (G, S.Simul Os) -> [Fmt.String "["; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "]"]
+                                                                                                                                                               ^
+  This [ might be unmatched
+File "lib/meta/mpi.ml", line 36, characters 347-348: 
+36 | let rec printFillResult (_, P)  = ( let rec formatTuple (G, P)  = ( let rec formatTuple' = function (F.Unit) -> [] | (F.Inx (M, F.Unit)) -> [Print.formatExp (G, M)] | (F.Inx (M, P')) -> (Print.formatExp (G, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (F.Inx (_, F.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) ) in let S.State (n, (G, B), (IH, OH), d, O, H, F) = current () in  TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n") )
+                                                                                                                                                                                                                                                                                                                                                                ^
+Error: Syntax error: ) expected
+File "lib/meta/mpi.ml", line 36, characters 66-67:
+36 | let rec printFillResult (_, P)  = ( let rec formatTuple (G, P)  = ( let rec formatTuple' = function (F.Unit) -> [] | (F.Inx (M, F.Unit)) -> [Print.formatExp (G, M)] | (F.Inx (M, P')) -> (Print.formatExp (G, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (F.Inx (_, F.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) ) in let S.State (n, (G, B), (IH, OH), d, O, H, F) = current () in  TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n") )
+                                                                       ^
+  This ( might be unmatched
+File "lib/meta/splitting.ml", line 49, characters 28-37:
+49 | let rec conv (Gs, Gs')  = ( exception Conv in let rec conv = function ((I.Null, s), (I.Null, s')) -> (s, s') | ((I.Decl (G, I.Dec (_, V)), s), (I.Decl (G', I.Dec (_, V')), s')) -> ( let (s1, s1') = conv ((G, s), (G', s')) in let ps = (I.dot1 s1, I.dot1 s1') in  if Conv.conv ((V, s1), (V', s1')) then ps else raise (Conv) ) | _ -> raise (Conv) in  try (conv (Gs, Gs'); true) with Conv -> false )
+                                 ^^^^^^^^^
+Error: Syntax error: operator expected.
+File "lib/prover/fixedpoint.ml", line 15, characters 16-17:
+15 | exception ErrorS.Error
+                     ^
+Error: Syntax error: end expected
+File "lib/prover/fixedpoint.ml", line 7, characters 50-56:
+7 | module FixedPoint (State' : STATE) : FIXEDPOINT = struct (*! structure IntSyn = IntSyn' !*)
+                                                      ^^^^^^
+  This struct might be unmatched
+File "lib/meta/search.ml", line 102, characters 864-865:
+102 | let G0 = pruneCtx (G, depth) in let dPool0 = pruneCtx (dPool, depth) in let w = I.Shift (depth) in let iw = Whnf.invert w in let s' = I.comp (s, iw) in let X = I.newEVar (G0, I.EClo (A, s')) in let X' = I.EClo (X, w) in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (X'), s)), dp, (fun S -> if isInstantiated X then sc (I.App (X', S)) else solve (max, 0, (g, s'), C.DProg (G0, dPool0), (fun M -> (try (Unify.unify (G0, (X, I.id), (M, I.id)); sc (I.App (I.EClo (M, w), S))) with Unify.Unify _ -> ()))))) ) | (max, depth, ps', (C.Exists (I.Dec (_, A), r), s), dp, sc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S -> sc (I.App (X, S)))) ) | (max, depth, ps', (C.Axists (I.ADec (Some (X), d), r), s), dp, sc) -> ( let X' = I.newAVar () in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift (~ d))), s)), dp, sc)(* we don't increase the proof term here! *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+Error: Syntax error
+File "lib/prover/introduce.ml", line 15, characters 16-17:
+15 | exception ErrorS.Error
+                     ^
+Error: Syntax error: end expected
+File "lib/prover/introduce.ml", line 7, characters 76-82:
+7 | module Introduce (State' : STATE) (TomegaNames : TOMEGANAMES) : INTRODUCE = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                ^^^^^^
+  This struct might be unmatched
+File "lib/prover/interactive.ml", line 12, characters 21-22:
+12 | exception ErrorState'.Error
+                          ^
+Error: Syntax error: end expected
+File "lib/prover/interactive.ml", line 7, characters 274-280:
+7 | module Interactive (Global : GLOBAL) (State' : STATE) (Formatter : FORMATTER) (Trail : TRAIL) (Ring : RING) (Names : NAMES) (Weaken : WEAKEN) (WorldSyn : WORLDSYN) (Introduce : INTRODUCE) (Elim : ELIM) (Split : SPLIT) (FixedPoint : FIXEDPOINT) (Fill : FILL) : INTERACTIVE = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                                                                                                                                                      ^^^^^^
+  This struct might be unmatched
+File "lib/meta/uniquesearch.ml", line 95, characters 937-938:
+95 | let G0 = pruneCtx (G, depth) in let dPool0 = pruneCtx (dPool, depth) in let w = I.Shift (depth) in let iw = Whnf.invert w in let s' = I.comp (s, iw) in let X = I.newEVar (G0, I.EClo (A, s')) in let X' = I.EClo (X, w) in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (X'), s)), dp, (fun (S, acc') -> if isInstantiated X then sc (I.App (X', S), acc') else solve (max, 0, (g, s'), C.DProg (G0, dPool0), (fun (M, acc'') -> (try (Unify.unify (G0, (X, I.id), (M, I.id)); sc (I.App (I.EClo (M, w), S), acc'')) with Unify.Unify _ -> acc'')), acc')), acc) ) | (max, depth, ps', (C.Exists (I.Dec (_, A), r), s), dp, sc, acc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (X), s)), dp, (fun (S, acc') -> sc (I.App (X, S), acc')), acc) ) | (max, depth, ps', (C.Axists (I.ADec (Some (X), d), r), s), dp, sc, acc) -> ( let X' = I.newAVar () in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift (~ d))), s)), dp, sc, acc)(* we don't increase the proof term here! *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+Error: Syntax error
+File "lib/tomega/coverage.ml", line 64, characters 650-652:
+64 | let rec coverageCheckPrg = function (W, Psi, T.Lam (D, P)) -> coverageCheckPrg (W, I.Decl (Psi, D), P) | (W, Psi, T.New P) -> coverageCheckPrg (W, Psi, P) | (W, Psi, T.PairExp (U, P)) -> coverageCheckPrg (W, Psi, P) | (W, Psi, T.PairBlock (B, P)) -> coverageCheckPrg (W, Psi, P) | (W, Psi, T.PairPrg (P1, P2)) -> (coverageCheckPrg (W, Psi, P1); coverageCheckPrg (W, Psi, P2)) | (W, Psi, T.Unit) -> () | (W, Psi, T.Var _) -> () | (W, Psi, T.Const _) -> () | (W, Psi, T.Rec (D, P)) -> coverageCheckPrg (W, I.Decl (Psi, D), P) | (W, Psi, T.Case (T.Cases Omega)) -> coverageCheckCases (W, Psi, Omega, []) | (W, Psi, P) -> (coverageCheckPrg (W, Psi, P1); (* chatter 5 ("fn () => TomegaPrint.prgToString (Psi, P)); *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^^
+Error: This comment contains an unterminated string literal
+File "lib/tomega/coverage.ml", line 67, characters 165-166:
+67 | and coverageCheckCases = function (W, Psi, [], []) -> () | (W, Psi, [], Cs) -> ( let _ = chatter 5 (fun () -> Int.toString (List.length Cs) ^ " cases to be checked\n") in let (Cs') = map purify Cs in let Cs'' = map (fun (Psi0, t, _) -> (T.coerceCtx Psi0, T.coerceSub t)) Cs' in  Cover.coverageCheckCases (W, Cs'', T.coerceCtx Psi') ) | (W, Psi, (Psi', t, P) :: Omega, Cs) -> (coverageCheckPrg (W, Psi', P); coverageCheckCases (W, Psi, Omega, (Psi', t, Psi) :: Cs))
+                                                                                                                                                                          ^
+  String literal begins here
+File "lib/tomega/tomegaprint.ml", line 310, characters 349-350:
+310 | and formatTuple (Psi, P)  = ( let rec formatTuple' = function (T.Unit) -> [] | (T.PairExp (M, T.Unit)) -> [Print.formatExp (T.coerceCtx Psi, M)] | (T.PairExp (M, P')) -> (Print.formatExp (T.coerceCtx Psi, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (T.PairExp (_, T.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) )
+                                                                                                                                                                                                                                                                                                                                                                   ^
+Error: Syntax error: ) expected
+File "lib/tomega/tomegaprint.ml", line 310, characters 28-29:
+310 | and formatTuple (Psi, P)  = ( let rec formatTuple' = function (T.Unit) -> [] | (T.PairExp (M, T.Unit)) -> [Print.formatExp (T.coerceCtx Psi, M)] | (T.PairExp (M, P')) -> (Print.formatExp (T.coerceCtx Psi, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (T.PairExp (_, T.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) )
+                                  ^
+  This ( might be unmatched
+File "lib/prover/stateprint.ml", line 87, characters 63-64:
+87 | let rec formatState (S.State (W, Psi, P, F, _))  = Fmt.Vbox0 0 1 [Fmt.String "------------------------"; Fmt.Break; Fmt.String "------------------------"; Fmt.Break; TomegaPrint.formatPrg (Psi, P)]
+                                                                    ^
+Error: Syntax error: end expected
+File "lib/prover/stateprint.ml", line 7, characters 153-159:
+7 | module StatePrint (Global : GLOBAL) (State' : STATE) (Names : NAMES) (Formatter' : FORMATTER) (Print : PRINT) (TomegaPrint : TOMEGAPRINT) : STATEPRINT = struct module Formatter = Formatter'
+                                                                                                                                                             ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/lexer.ml", line 73, characters 0-3:
+73 | let _ = P.resetLines ()
+     ^^^
+Error: Syntax error
+File "lib/frontend/parser.ml", line 17, characters 626-632:
+17 | type fileParseResult = ConDec of ExtConDec.condec | FixDec of (Names.qid * Paths.region) * Names.Fixity.fixity | NamePref of (Names.qid * Paths.region) * (string list * string list) | ModeDec of ExtModes.modedec list | UniqueDec of ExtModes.modedec list | CoversDec of ExtModes.modedec list | TotalDec of ThmExtSyn.tdecl | TerminatesDec of ThmExtSyn.tdecl | WorldDec of ThmExtSyn.wdecl | ReducesDec of ThmExtSyn.rdecl | TabledDec of ThmExtSyn.tableddecl | KeepTableDec of ThmExtSyn.keepTabledecl | TheoremDec of ThmExtSyn.theoremdec | ProveDec of ThmExtSyn.prove | EstablishDec of ThmExtSyn.establish | AssertDec of ThmExtSyn.assert | Query of int option * int option * ExtQuery.query | FQuery of ExtQuery.query | Compile of Names.qid list | Querytabled of int option * int option * ExtQuery.query | Solve of ExtQuery.define list * ExtQuery.solve | AbbrevDec of ExtConDec.condec | TrustMe of fileParseResult * Paths.region | SubordDec of Names.qid * Names.qid list | FreezeDec of Names.qid list | ThawDec of Names.qid list | DeterministicDec of Names.qid list | ClauseDec of ExtConDec.condec | SigDef of ModExtSyn.sigdef | StructDec of ModExtSyn.structdec | Include of ModExtSyn.sigexp | Open of ModExtSyn.strexp | BeginSubsig | EndSubsig | Use of string
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^^^^^^
+Error: Syntax error
+File "lib/frontend/recon_condec.ml", line 22, characters 21-23:
+22 | type condec = condec of name * ExtSyn.term | condef of name option * ExtSyn.term * ExtSyn.term option | blockdef of string * string list * string list | blockdec of name * ExtSyn.dec list * ExtSyn.dec list
+                          ^^
+Error: Syntax error: end expected
+File "lib/frontend/recon_condec.ml", line 10, characters 234-240:
+10 | module ReconConDec (Global : GLOBAL) (Names : NAMES) (Abstract : ABSTRACT) (ReconTerm' : RECON_TERM) (Constraints : CONSTRAINTS) (Strict : STRICT) (TypeCheck : TYPECHECK) (Timers : TIMERS) (Print : PRINT) (Msg : MSG) : RECON_CONDEC = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                                                                                                               ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/parse_thm.ml", line 116, characters 114-120:
+116 | let rec parseAssert' (LS.Cons ((L.ASSERT, r), s'))  = ( let (callpats, f'') = parseCallPats (LS.expose s') in  (E.assert (E.callpats callpats), f'') )
+                                                                                                                        ^^^^^^
+Error: Syntax error
+File "lib/prover/search.ml", line 94, characters 864-865:
+94 | let G0 = pruneCtx (G, depth) in let dPool0 = pruneCtx (dPool, depth) in let w = I.Shift (depth) in let iw = Whnf.invert w in let s' = I.comp (s, iw) in let X = I.newEVar (G0, I.EClo (A, s')) in let X' = I.EClo (X, w) in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (X'), s)), dp, (fun S -> if isInstantiated X then sc (I.App (X', S)) else solve (max, 0, (g, s'), C.DProg (G0, dPool0), (fun M -> (try (Unify.unify (G0, (X, I.id), (M, I.id)); sc (I.App (I.EClo (M, w), S))) with Unify.Unify _ -> ()))))) ) | (max, depth, ps', (C.Exists (I.Dec (_, A), r), s), dp, sc) -> ( let X = I.newEVar (G, I.EClo (A, s)) in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (X), s)), dp, (fun S -> sc (I.App (X, S)))) ) | (max, depth, ps', (C.Axists (I.ADec (Some (X), d), r), s), dp, sc) -> ( let X' = I.newAVar () in  rSolve (max, depth, ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift (~ d))), s)), dp, sc)(* we don't increase the proof term here! *)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+Error: Syntax error
+File "lib/frontend/solve.ml", line 10, characters 13-23:
+10 | module Solve ReconQuery.queryParser.ExtQuery.query ReconQuery.solveParser.ExtQuery.solve ReconQuery.defineParser.ExtQuery.define (Global : GLOBAL) (Names : NAMES) (Parser : PARSER) (ReconQuery : RECON_QUERY) (Timers : TIMERS) (Compile : COMPILE) (CPrint : CPRINT) (AbsMachine : ABSMACHINE) (AbsMachineSbt : ABSMACHINESBT) (PtRecon : PTRECON) (Tabled : TABLED) (Print : PRINT) (Msg : MSG) : SOLVE = struct (*! structure IntSyn = IntSyn' !*)
+                  ^^^^^^^^^^
+Error: Syntax error
+File "lib/frontend/recon_module.ml", line 24, characters 21-27:
+24 | type sigexp = ModSyn.module option -> ModSyn.module * whereclause list
+                          ^^^^^^
+Error: Syntax error
+File "lib/frontend/recon_query.ml", line 23, characters 19-21:
+23 | type query = query of name option * T.term
+                        ^^
+Error: Syntax error: end expected
+File "lib/frontend/recon_query.ml", line 10, characters 192-198:
+10 | module ReconQuery (Global : GLOBAL) (Names : NAMES) (Abstract : ABSTRACT) (ReconTerm' : RECON_TERM) (TypeCheck : TYPECHECK) (Strict : STRICT) (Timers : TIMERS) (Print : PRINT) : RECON_QUERY = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                                                                     ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/recon_term.ml", line 83, characters 21-23:
+83 | type term = internal of IntSyn.exp * IntSyn.exp * Paths.region | constant of IntSyn.head * Paths.region | bvar of int * Paths.region | evar of string * Paths.region | fvar of string * Paths.region | typ of Paths.region | arrow of term * term | pi of dec * term | lam of dec * term | app of term * term | hastype of term * term | mismatch of term * term * string * string | omitted of Paths.region | lcid of string list * string * Paths.region | ucid of string list * string * Paths.region | quid of string list * string * Paths.region | scon of string * Paths.region | omitapx of Apx.exp * Apx.exp * Apx.uni * Paths.region | omitexact of IntSyn.exp * IntSyn.exp * Paths.region and dec = dec of string option * term * Paths.region
+                          ^^
+Error: Syntax error: end expected
+File "lib/frontend/recon_term.ml", line 22, characters 146-152:
+22 | module ReconTerm (Names : NAMES) (Approx : APPROX) (Whnf : WHNF) (Unify : UNIFY) (Abstract : ABSTRACT) (Print : PRINT) (Msg : MSG) : RECON_TERM = struct (*! structure IntSyn = IntSyn' !*)
+                                                                                                                                                       ^^^^^^
+  This struct might be unmatched
+File "lib/frontend/recon_thm.ml", line 66, characters 5-11:
+66 | type assert = ThmSyn.callpats * Paths.region list
+          ^^^^^^
+Error: Syntax error
+File "lib/frontend/twelf.ml", line 13, characters 13-22:
+13 | module Twelf ReconTerm.termParser.ExtSyn.term ReconConDec.condecParser.ExtConDec.condec ReconMode.modedecParser.ExtModes.modedec Solve.ExtQuery.queryParser.ExtQuery.query Solve.ExtQuery.defineParser.ExtQuery.define Solve.ExtQuery.solveParser.ExtQuery.solve Fquery.ExtQuery.queryParser.ExtQuery.query Fquery.ExtQuery.defineParser.ExtQuery.define Fquery.ExtQuery.solveParser.ExtQuery.solve ReconThm.tdeclParser.ThmExtSyn.tdecl ReconThm.rdeclParser.ThmExtSyn.rdecl ReconThm.tableddeclParser.ThmExtSyn.tableddecl ReconThm.keepTabledeclParser.ThmExtSyn.keepTabledecl ReconThm.wdeclParser.ThmExtSyn.wdecl ReconThm.theoremParser.ThmExtSyn.theorem ReconThm.theoremdecParser.ThmExtSyn.theoremdec ReconThm.proveParser.ThmExtSyn.prove ReconThm.establishParser.ThmExtSyn.establish ReconThm.assertParser.ThmExtSyn.assert ReconModule.sigdefParser.ModExtSyn.sigdef ReconModule.structdecParser.ModExtSyn.structdec ReconModule.sigexpParser.ModExtSyn.sigexp ReconModule.strexpParser.ModExtSyn.strexp (Global : GLOBAL) (Timers : TIMERS) (Whnf : WHNF) (Print : PRINT) (Names : NAMES) (Origins : ORIGINS) (Lexer : LEXER) (Parser : PARSER) (TypeCheck : TYPECHECK) (Strict : STRICT) (Constraints : CONSTRAINTS) (Abstract : ABSTRACT) (ReconTerm : RECON_TERM) (ReconConDec : RECON_CONDEC) (ReconQuery : RECON_QUERY) (ModeTable : MODETABLE) (ModeCheck : MODECHECK) (ReconMode : RECON_MODE) (ModePrint : MODEPRINT) (ModeDec : MODEDEC) (StyleCheck : STYLECHECK) (Unique : UNIQUE) (UniqueTable : MODETABLE) (Cover : COVER) (Converter : CONVERTER) (TomegaPrint : TOMEGAPRINT) (TomegaCoverage : TOMEGACOVERAGE) (TomegaTypeCheck : TOMEGATYPECHECK) (Total : TOTAL) (Reduces : REDUCES) (Index : INDEX) (IndexSkolem : INDEX) (Subordinate : SUBORDINATE) (Compile : COMPILE) (AbsMachine : ABSMACHINE) (Tabled : TABLED) (Solve : SOLVE) (Fquery : FQUERY) (ThmSyn : THMSYN) (Thm : THM) (ReconThm : RECON_THM) (ThmPrint : THMPRINT) (TabledSyn : TABLEDSYN) (WorldSyn : WORLDSYN) (Worldify : WORLDIFY) (ModSyn : MODSYN) (ReconModule : RECON_MODULE) (MetaGlobal : METAGLOBAL) (Skolem : SKOLEM) (Prover : PROVER) (ClausePrint : CLAUSEPRINT) (Trace : TRACE) (PrintTeX : PRINT) (ClausePrintTeX : CLAUSEPRINT) (CSManager : CS_MANAGER) (CSInstaller : CS_INSTALLER) (Compat : COMPAT) (UnknownExn : UNKNOWN_EXN) (Msg : MSG) : TWELF = struct (*! structure IntSyn = IntSyn' !*)
+                  ^^^^^^^^^
+Error: Syntax error
+File "lib/frontend/unknownexn.ml", line 4, characters 18-21:
+4 | module UnknownExn val exnHistory : exn -> string list : UNKNOWN_EXN = struct let rec unknownExn exn  = ( let history = rev (exnHistory exn) in let rec wrap1 x  = "  raised at: " ^ x ^ "\n" in let rec wrapn x  = "             " ^ x ^ "\n" in  concat ("Unrecognized exception " :: (exnName exn) :: "\n" :: (match history with [] -> [""] | x :: xs -> (wrap1 x :: map wrapn xs))) )
+                      ^^^
+Error: Syntax error
+File "lib/delphin/interface.ml", line 14, characters 33-34:
+14 | let rec error (errmsg, line : pos, _)  = TextIO.output (TextIO.stdOut, "Line " ^ (Int.toString (line)) ^ ": " ^ errmsg ^ "\n")
+                                      ^
+Error: Syntax error: ) expected
+File "lib/delphin/interface.ml", line 14, characters 14-15:
+14 | let rec error (errmsg, line : pos, _)  = TextIO.output (TextIO.stdOut, "Line " ^ (Int.toString (line)) ^ ": " ^ errmsg ^ "\n")
+                   ^
+  This ( might be unmatched
+File "lib/delphin/parse_prg.ml", line 7, characters 13-20:
+7 | module Parse Parserr.argInterface.arg Parserr.posInterface.pos Parserr.resultDextSyn.ast Tokens.tokenParserr.Token.token Tokens.svalueParserr.svalue (DextSyn : DEXTSYN) (Interface : INTERFACE) (Parserr : PARSERR) (Tokens : Delphin_TOKENS) : PARSE = struct module DextSyn = DextSyn
+                 ^^^^^^^
+Error: Syntax error
+File "lib/server/server.ml", line 118, characters 0-2:
+118 | \Parameters:\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 137, characters 0-2:
+137 | \Server types:\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 147, characters 0-2:
+147 | \See http://www.cs.cmu.edu/~twelf/guide-1-4/ for_sml more information,\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 148, characters 0-2:
+148 | \or type M-x twelf-info (C-c C-h) in Emacs.\n\
+      ^^
+Warning 14 [illegal-backslash]: illegal backslash escape in string.
+  Hint: Single backslashes \ are reserved for escape sequences (\n, \r, ...).
+  Did you check the list of OCaml escape sequences?
+  To get a backslash character, escape it with a second backslash: \\.
+
+File "lib/server/server.ml", line 158, characters 141-142:
+158 | let rec serve' = function ("set", args) -> (setParm (tokenize args); serve (Twelf.OK)) | ("get", args) -> (print (getParm (tokenize args) ^ "\n"); serve (Twelf.OK)) | ("Style.check", args) -> (checkEmpty args; StyleCheck.check (); serve (Twelf.OK)) | ("Print.sgn", args) -> (checkEmpty args; Twelf.Print.sgn (); serve (Twelf.OK)) | ("Print.prog", args) -> (checkEmpty args; Twelf.Print.prog (); serve (Twelf.OK)) | ("Print.subord", args) -> (checkEmpty args; Twelf.Print.subord (); serve (Twelf.OK)) | ("Print.domains", args) -> (checkEmpty args; Twelf.Print.domains (); serve (Twelf.OK)) | ("Print.TeX.sgn", args) -> (checkEmpty args; Twelf.Print.TeX.sgn (); serve (Twelf.OK)) | ("Print.TeX.prog", args) -> (checkEmpty args; Twelf.Print.TeX.prog (); serve (Twelf.OK)) | ("Trace.trace", args) -> (Twelf.Trace.trace (Twelf.Trace.Some (getIds (tokenize args))); serve (Twelf.OK)) | ("Trace.traceAll", args) -> (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.All); serve (Twelf.OK)) | ("Trace.untrace", args) -> (checkEmpty args; Twelf.Trace.trace (Twelf.Trace.None); serve (Twelf.OK)) | ("Trace.break", args) -> (Twelf.Trace.break (Twelf.Trace.Some (getIds (tokenize args))); serve (Twelf.OK)) | ("Trace.breakAll", args) -> (checkEmpty args; Twelf.Trace.break (Twelf.Trace.All); serve (Twelf.OK)) | ("Trace.unbreak", args) -> (checkEmpty args; Twelf.Trace.break (Twelf.Trace.None); serve (Twelf.OK)) | ("Trace.show", args) -> (checkEmpty args; Twelf.Trace.show (); serve (Twelf.OK)) | ("Trace.reset", args) -> (checkEmpty args; Twelf.Trace.reset (); serve (Twelf.OK)) | ("Timers.show", args) -> (checkEmpty args; Timers.show (); serve (Twelf.OK)) | ("Timers.reset", args) -> (checkEmpty args; Timers.reset (); serve (Twelf.OK)) | ("Timers.check", args) -> (checkEmpty args; Timers.reset (); serve (Twelf.OK)) | ("OS.chDir", args) -> (Twelf.OS.chDir (getFile' args); serve (Twelf.OK)) | ("OS.getDir", args) -> (checkEmpty args; print (Twelf.OS.getDir () ^ "\n"); serve (Twelf.OK)) | ("OS.exit", args) -> (checkEmpty args; ()) | ("quit", args) -> () | ("Config.read", args) -> ( let fileName = getFile (args, "sources.cfg") in  globalConfig := Some (Twelf.Config.read fileName); serve (Twelf.OK) ) | ("Config.load", args) -> (match ! globalConfig with None -> (globalConfig := Some (Twelf.Config.read "sources.cfg")) | _ -> (); serve (Twelf.Config.load (valOf (! globalConfig)))) | ("Config.append", args) -> (match ! globalConfig with None -> (globalConfig := Some (Twelf.Config.read "sources.cfg")) | _ -> (); serve (Twelf.Config.append (valOf (! globalConfig)))) | ("make", args) -> ( let fileName = getFile (args, "sources.cfg") in  globalConfig := Some (Twelf.Config.read fileName); serve (Twelf.Config.load (valOf (! globalConfig))) ) | ("reset", args) -> (checkEmpty args; Twelf.reset (); serve (Twelf.OK)) | ("loadFile", args) -> serve (Twelf.loadFile (getFile' args)) | ("readDecl", args) -> (checkEmpty args; serve (Twelf.readDecl ())) | ("decl", args) -> serve (Twelf.decl (getId (tokenize args))) | ("top", args) -> (checkEmpty args; Twelf.top (); serve (Twelf.OK)) | ("Table.top", args) -> (checkEmpty args; Twelf.Table.top (); serve (Twelf.OK)) | ("version", args) -> (print (Twelf.version ^ "\n"); serve (Twelf.OK)) | ("help", args) -> (print (helpString); serve (Twelf.OK)) | (t, args) -> error ("Unrecognized command " ^ quote t)
+                                                                                                                                                   ^
+Error: Illegal character (\\)
+File "lib/trail/notrail.ml", line 8, characters 8-13:
+8 | let rec trail ()  = ()
+            ^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 9, characters 8-15:
+9 | let rec suspend ((), copy)  = ()
+            ^^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 10, characters 8-14:
+10 | let rec resume ((), (), reset)  = ()
+             ^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 11, characters 8-13:
+11 | let rec reset ()  = ()
+             ^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 12, characters 8-12:
+12 | let rec mark ()  = ()
+             ^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 13, characters 8-14:
+13 | let rec unwind ((), undo)  = ()
+             ^^^^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 14, characters 8-11:
+14 | let rec log ((), action)  = ()
+             ^^^
+Error (warning 39 [unused-rec-flag]): unused rec flag.
+
+File "lib/trail/notrail.ml", line 7, characters 17-22:
+7 | module NoTrail : TRAIL = struct type 'a trail = unit
+                     ^^^^^
+Error: Unbound module type TRAIL
+File "lib/compat/time_limit_smlnj.ml", line 8, characters 81-86:
+8 | let rec timeLimit = function (None, f, x) -> f x | ((Some t), f, x) -> ( let _ = print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n") in let setitimer = SMLofNJ.IntervalTimer.setIntTimer in let rec timerOn ()  = ignore (setitimer (Some t)) in let rec timerOff ()  = ignore (setitimer None) in let escapeCont = SMLofNJ.Cont.callcc (fun k -> (SMLofNJ.Cont.callcc (fun k' -> (SMLofNJ.Cont.throw k k')); timerOff (); raise (TimeOut))) in let rec handler _  = escapeCont in  Signals.setHandler (Signals.sigALRM, Signals.HANDLER handler); timerOn (); (try (f x) with ex -> (timerOff (); raise (ex))) before timerOff () )
+                                                                                     ^^^^^
+Error: Unbound value print
+File "lib/compat/word8_array_slice.ml", line 7, characters 136-146:
+7 | module Word8ArraySlice : MONO_ARRAY_SLICE with type array = Word8Array.array with type vector = Word8Array.vector = struct type array = Word8Array.array
+                                                                                                                                            ^^^^^^^^^^
+Error: Unbound module Word8Array
+Error: Dependency cycle between:                     
+   _build/default/lib/tomega/.tomega.objs/abstract.intf.all-deps
+-> _build/default/lib/tomega/.tomega.objs/tomega.impl.all-deps
+-> _build/default/lib/tomega/.tomega.objs/abstract.intf.all-deps
+-> required by _build/default/lib/tomega/.tomega.objs/byte/abstract.cmi
+-> required by _build/default/lib/tomega/.tomega.objs/native/abstract.cmx
+-> required by _build/default/lib/tomega/tomega.a
+-> required by alias lib/tomega/all
+-> required by alias default
+File "lib/modules/modsyn.mli", line 14, characters 7-13:
+14 |   type module
+            ^^^^^^
+Error: Syntax error
+File "lib/compat/array.mli", line 8, characters 38-49:
+8 |   val appi : (int * 'a -> unit) -> 'a Array.array -> unit
+                                          ^^^^^^^^^^^
+Error: Unbound type constructor Array.array
+File "lib/compat/compat.mli", line 8, characters 20-26:
+8 |   val inputLine97 : TextIO.instream -> string
+                        ^^^^^^
+Error: Unbound module TextIO
+File "lib/compat/socket.mli", line 8, characters 50-56:
+8 |   val sendVec : ('a, Socket.active Socket.stream) Socket.sock * Word8Vector.vector -> int
+                                                      ^^^^^^
+Error: Unbound module Socket
+File "lib/compat/text_io.mli", line 8, characters 18-24:
+8 |   val inputLine : TextIO.instream -> string option
+                      ^^^^^^
+Error: Unbound module TextIO
+File "lib/compat/substring.mli", line 8, characters 23-32:
+8 |   val full : string -> Substring.substring
+                           ^^^^^^^^^
+Error: Unbound module Substring
+Hint:    Did you mean String?
+File "lib/compat/time_limit.mli", line 3, characters 18-22:
+3 |   val timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
+                      ^^^^
+Error: Unbound module Time
+File "lib/compat/vector.mli", line 8, characters 38-44:
+8 |   val appi : (int * 'a -> unit) -> 'a Vector.vector -> unit
+                                          ^^^^^^
+Error: Unbound module Vector
+File "lib/compat/timer.mli", line 8, characters 22-27:
+8 |   val checkCPUTimer : Timer.cpu_timer -> <usr: Time.time; sys: Time.time>
+                          ^^^^^
+Error: Unbound module Timer
+File "lib/domains/integers.mli", line 8, characters 10-17:
+8 |   include INTEGER
+              ^^^^^^^
+Error: Unbound module type INTEGER
+File "lib/compat/path.ml", line 7, characters 63-67: 
+7 | module CompatPath97 : COMPAT_PATH = struct let rec mkAbsolute {path = path; relativeTo = relativeTo}  = OS.Path.mkAbsolute (path, relativeTo)
+                                                                   ^^^^
+Error: Unbound record field path
+File "lib/domains/rationals.mli", line 8, characters 10-23:
+8 |   include ORDERED_FIELD
+              ^^^^^^^^^^^^^
+Error: Unbound module type ORDERED_FIELD
+File "lib/lambda/approx.mli", line 11, characters 6-10:
+11 |   val Type : uni
+           ^^^^
+Error: Syntax error
+File "lib/compat/word8_vector_slice.ml", line 17, characters 105-116:
+17 | module Word8VectorSlice : MONO_VECTOR_SLICE with type vector = Word8Vector.vector = struct type vector = Word8Vector.vector
+                                                                                                              ^^^^^^^^^^^
+Error: Unbound module Word8Vector
+File "lib/lambda/tomega.mli", line 58, characters 6-11:
+58 |   val TCSub : tC * IntSyn.sub -> tC
+           ^^^^^
+Error: Syntax error
+File "lib/trail/trail.ml", line 8, characters 0-28:   
+8 | type 'a trail = 'a trail ref
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error: The type abbreviation trail is cyclic:
+         'a trail = 'a trail ref,
+         'a trail ref contains 'a trail
+File "lib/thm/thmprint.mli", line 13, characters 6-20:
+13 |   val ROrderToString : ThmSyn.redOrder -> string
+           ^^^^^^^^^^^^^^
+Error: Syntax error
+File "lib/solvers/cs_manager.mli", line 18, characters 0-1:
+18 | ; name: string; (* keywords identifying the type of solver *)
+     ^
+Error: Syntax error
+File "lib/compile/compile.mli", line 20, characters 12-13:
+20 |   optCompSyn.opt
+                 ^
+Error: Syntax error: end expected
+File "lib/compile/compile.mli", line 16, characters 22-25:
+16 | module type COMPILE = sig
+                           ^^^
+  This sig might be unmatched
+File "lib/opsem/table_param.mli", line 30, characters 24-25:
+30 |   type answState = new_ | repeated
+                             ^
+Error: Syntax error: end expected
+File "lib/opsem/table_param.mli", line 7, characters 25-28:
+7 | module type TABLEPARAM = sig
+                             ^^^
+  This sig might be unmatched
+File "lib/frontend/parse_thm.mli", line 24, characters 31-37:
+24 |   val parseAssert' : ThmExtSyn.assert Parsing.parser
+                                    ^^^^^^
+Error: Syntax error
+File "lib/frontend/parser.mli", line 17, characters 628-634:
+17 |   type fileParseResult = ConDec of ExtConDec.condec | FixDec of (Names.qid * Paths.region) * Names.Fixity.fixity | NamePref of (Names.qid * Paths.region) * (string list * string list) | ModeDec of ExtModes.modedec list | UniqueDec of ExtModes.modedec list | CoversDec of ExtModes.modedec list | TotalDec of ThmExtSyn.tdecl | TerminatesDec of ThmExtSyn.tdecl | WorldDec of ThmExtSyn.wdecl | ReducesDec of ThmExtSyn.rdecl | TabledDec of ThmExtSyn.tableddecl | KeepTableDec of ThmExtSyn.keepTabledecl | TheoremDec of ThmExtSyn.theoremdec | ProveDec of ThmExtSyn.prove | EstablishDec of ThmExtSyn.establish | AssertDec of ThmExtSyn.assert | Query of int option * int option * ExtQuery.query | FQuery of ExtQuery.query | Compile of Names.qid list | Querytabled of int option * int option * ExtQuery.query | Solve of ExtQuery.define list * ExtQuery.solve | AbbrevDec of ExtConDec.condec | TrustMe of fileParseResult * Paths.region | SubordDec of Names.qid * Names.qid list | FreezeDec of Names.qid list | ThawDec of Names.qid list | DeterministicDec of Names.qid list | ClauseDec of ExtConDec.condec | SigDef of ModExtSyn.sigdef | StructDec of ModExtSyn.structdec | Include of ModExtSyn.sigexp | Open of ModExtSyn.strexp | BeginSubsig | EndSubsig | Use of string
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^^^^^^
+Error: Syntax error
+File "lib/frontend/recon_module.mli", line 33, characters 55-61:
+33 |   type structDec = StructDec of string option * ModSyn.module * whereclause list | StructDef of string option * IntSyn.mid
+                                                            ^^^^^^
+Error: Syntax error
+File "lib/frontend/recon_thm.mli", line 32, characters 7-13:
+32 |   type assert
+            ^^^^^^
+Error: Syntax error
+[asherf@asher-dasher twelf]$                         
+

@@ -1,0 +1,4 @@
+(library
+ (name index)
+ (wrapped false)
+ (libraries lambda table global))

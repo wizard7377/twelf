@@ -4,7 +4,7 @@
 (* Author: Roberto Virga *)
 
 
-module CSIntWord val wordSize : int (Whnf : WHNF) (Unify : UNIFY) : CS = struct (*! structure CSManager = CSManager !*)
+module CSIntWord (val wordSize : int) (Whnf : WHNF) (Unify : UNIFY) : CS = struct (*! structure CSManager = CSManager !*)
 
 open IntSyn
 module W = LargeWord

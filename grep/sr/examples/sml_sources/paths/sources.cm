@@ -1,17 +1,10 @@
-Library
-  signature PATHS
-  structure Paths
-  signature ORIGINS
-  structure Origins
-is
-#if defined(NEW_CM)
-  $/basis.cm
-#endif
-  ../lambda/sources.cm
-  ../global/sources.cm
-  ../table/sources.cm
-  paths.sig
-  paths.fun
-  origins.sig
-  origins.fun
-  paths.sml
+
+
+../lambda
+../global
+../table
+paths
+paths
+origins
+origins
+paths

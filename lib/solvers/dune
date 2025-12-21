@@ -1,0 +1,14 @@
+(library
+ (name solvers)
+ (wrapped false)
+ (libraries
+  compat
+  trail
+  global
+  domains
+  lambda
+  names
+  modes
+  table
+  print
+  formatter))

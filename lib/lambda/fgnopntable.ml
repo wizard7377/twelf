@@ -4,7 +4,7 @@
 (* Author: Aleksey Kliger *)
 
 
-module FgnOpnTable type arg type result : FGN_OPN with type arg = arg with type result = result = struct type csid = int
+module FgnOpnTable (type arg) (type result) : FGN_OPN with type arg = arg with type result = result = struct type csid = int
 type rep = exn
 type arg = arg
 type result = result

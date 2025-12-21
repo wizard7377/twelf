@@ -1,12 +1,12 @@
 (* Rings (aka cyclic lists) *)
 
-
 (* Author: Carsten Schuermann *)
-
 
 module type RING = sig
   exception Empty
+
   type 'a ring
+
   val init : 'a list -> 'a ring
   val empty : 'a ring -> bool
   val insert : 'a ring * 'a -> 'a ring
@@ -16,10 +16,7 @@ module type RING = sig
   val previous : 'a ring -> 'a ring
   val foldr : ('a * 'b -> 'b) -> 'b -> 'a ring -> 'b
   val map : ('a -> 'b) -> 'a ring -> 'b ring
-(* does not necessarily map f in order *)
-
+  (* does not necessarily map f in order *)
 end
 
-
 (* signature RING *)
-

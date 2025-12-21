@@ -37,11 +37,11 @@ module NumScan : sig
 
 end = struct module W = Word32
 module I = Int31
-let < = W.<
-let >= = W.>=
-let + = W.+
-let - = W.-
-let * = W.*
+let ( < ) = W.( < )
+let ( >= ) = W.( >= )
+let ( + ) = W.( + )
+let ( - ) = W.( - )
+let ( * ) = W.( * )
 let largestWordDiv10 : Word32.word = 0x429496729L
 (* 2^32-1 divided by 10 *)
 
@@ -78,7 +78,7 @@ let cvtTable = "\
     	    \\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     	    \\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     	    \\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    	  \"
+    	  "
 let ord = Char.ord
 let rec code (c : char)  = W.fromInt (ord (CharVector.sub (cvtTable, ord c)))
 let wsCode : Word32.word = 0x128L
@@ -99,10 +99,10 @@ let rec scanPrefix (getc : (char, 'a) StringCvt.reader) cs  = ( let rec skipWS c
        *)
 
 let rec chkOverflow mask w  = if (W.andb (mask, w) = 0x0L) then () else raise (Overflow)
-let rec scanBin (getc : (char, 'a) StringCvt.reader) cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x2L) in let chkOverflow = chkOverflow 0xx80000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.<< (w, 0x1L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
+let rec scanBin (getc : (char, 'a) StringCvt.reader) cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x2L) in let chkOverflow = chkOverflow 0x80000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.<< (w, 0x1L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
 ) in  if (isDigit next) then cvt (next, rest) else None )(* end case *)
 )
-let rec scanOct getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x8L) in let chkOverflow = chkOverflow 0xxE0000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.<< (w, 0x3L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
+let rec scanOct getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x8L) in let chkOverflow = chkOverflow 0xE0000000L in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (chkOverflow w; cvt (W.+ (W.<< (w, 0x3L), d), rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)
 ) in  if (isDigit next) then cvt (next, rest) else None )(* end case *)
 )
 let rec scanDec getc cs  = (match (scanPrefix getc cs) with None -> None | (Some {neg; next; rest}) -> ( let rec isDigit (d : Word32.word)  = (d < 0x10L) in let rec cvt (w, rest)  = (match (getc rest) with None -> Some {neg = neg; word = w; rest = rest} | Some (c, rest') -> ( let d = code c in  if (isDigit d) then (if ((w >= largestWordDiv10) && ((largestWordDiv10 < w) || (largestWordMod10 < d))) then raise (Overflow) else (); cvt (0x10L * w + d, rest')) else Some {neg = neg; word = w; rest = rest} )(* end case *)

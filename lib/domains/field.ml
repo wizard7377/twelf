@@ -1,33 +1,33 @@
 (* Field *)
 
-
 (* Author: Roberto Virga *)
 
-
 module type FIELD = sig
-(* Name of the set *)
+  (* Name of the set *)
   val name : string
-(* Main type *)
+
+  (* Main type *)
   type number
-(* Non-invertible element *)
+
+  (* Non-invertible element *)
   exception Div
-(* Constants *)
+
+  (* Constants *)
   val zero : number
   val one : number
-(* Operators *)
-  val ~ : number -> number
-  val + : number * number -> number
-  val - : number * number -> number
-  val * : number * number -> number
+
+  (* Operators *)
+  val ( ~- ) : number -> number
+  val ( + ) : number * number -> number
+  val ( - ) : number * number -> number
+  val ( * ) : number * number -> number
   val inverse : number -> number
-(* raises Div *)
-(* Conversions *)
+
+  (* raises Div *)
+  (* Conversions *)
   val fromInt : int -> number
   val fromString : string -> number option
   val toString : number -> string
-
 end
 
-
 (* signature FIELD *)
-

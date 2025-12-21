@@ -1,0 +1,7 @@
+(lang dune 3.14)
+(env 
+ (dev (flags (:standard)))
+ (sane (flags (:standard -error-style short -w -A)))
+ (check (flags (:standard)))
+ (release (flags (:standard)))
+)
