@@ -41,16 +41,3 @@ module Integers (Integer : INTEGER) : INTEGERS = struct
 end
 
 (* structure Integers *)
-(* Integers *)
-
-(* Author: Roberto Virga *)
-
-module type INTEGERS = sig
-  include INTEGER
-
-  val gcd : int * int -> int
-  val lcm : int * int -> int
-  val solve_gcd : int * int -> int * int
-end
-
-(* signature INTEGERS *)

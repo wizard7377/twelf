@@ -80,73 +80,73 @@ let rec getParm = function ("chatter" :: ts) -> Int.toString (! Twelf.chatter) |
 (* extracted from doc/guide/twelf.texi *)
 
 let helpString = "Commands:\n\
-  set <parameter> <value>     - Set <parameter> to <value>\n\
-  get <parameter>             - Print the current value of <parameter>\n\
-  Trace.trace <id1> ... <idn> - Trace given constants\n\
-  Trace.traceAll              - Trace all constants\n\
-  Trace.untrace               - Untrace all constants\n\
-  Trace.break <id1> ... <idn> - Set breakpoint for_sml given constants\n\
-  Trace.breakAll              - Break on all constants\n\
-  Trace.unbreak               - Remove all breakpoints\n\
-  Trace.show                  - Show current trace and breakpoints\n\
-  Trace.reset                 - Reset all tracing and breaking\n\
-  Print.sgn                   - Print current signature\n\
-  Print.prog                  - Print current program\n\
-  Print.subord                - Print current subordination relation\n\
-  Print.domains               - Print registered constraint domains\n\
-  Print.TeX.sgn               - Print signature in TeX format\n\
-  Print.TeX.prog              - Print signature in TeX program\n\
-  Timers.show                 - Print and reset timers\n\
-  Timers.reset                - Reset timers\n\
-  Timers.check                - Print, but do not reset timers.\n\
-  OS.chDir <file>             - Change working directory to <file>\n\
-  OS.getDir                   - Print current working directory\n\
-  OS.exit                     - Exit Twelf server\n\
-  quit                        - Quit Twelf server (exit)\n\
-  Config.read <file>          - Read current configuration from <file>\n\
-  Config.load                 - Load current configuration\n\
-  Config.append               - Load current configuration without prior reset\n\
-  make <file>                 - Read and load configuration from <file>\n\
-  reset                       - Reset global signature.\n\
-  loadFile <file>             - Load Twelf file <file>\n\
-  decl <id>                   - Show constant declaration for_sml <id>\n\
-  top                         - Enter interactive query loop\n\
-  Table.top                   - Enter interactive loop for_sml tables queries\n\
-  version                     - Print Twelf server's version\n\
-  help                        - Print this help message\n\
-\n\
-Parameters:\n\
-  chatter <nat>               - Level of verbosity (0 = none, 3 = default)\n\
-  doubleCheck <bool>          - Perform additional internal type-checking\n\
-  unsafe <bool>               - Allow unsafe operations (%assert)\n\
-  autoFreeze <bool>           - Freeze families involved in meta-theorems\n\
-  Print.implicit <bool>       - Print implicit arguments\n\
-  Print.depth <limit>         - Cut off printing at depth <limit>\n\
-  Print.length <limit>        - Cut off printing at length <limit>\n\
-  Print.indent <nat>          - Indent by <nat> spaces\n\
-  Print.width <nat>           - Line width for_sml formatting\n\
-  Trace.detail <nat>          - Detail of tracing\n\
-  Compile.optimize <bool>     - Optimize during translation to clauses\n\
-  Recon.trace <bool>          - Trace term reconstruction\n\
-  Recon.traceMode <reconTraceMode> - Term reconstruction tracing mode\n\
-  Prover.strategy <strategy>  - Prover strategy\n\
-  Prover.maxSplit <nat>       - Prover splitting depth bound\n\
-  Prover.maxRecurse <nat>     - Prover recursion depth bound\n\
-  Table.strategy <tableStrategy>   - Tabling strategy\n\
-\n\
-Server types:\n\
-  file                        - File name, relative to working directory\n\
-  id                          - A Twelf identifier\n\
-  bool                        - Either `true' or `false'\n\
-  nat                         - A natural number (starting at `0')\n\
-  limit                       - Either `*' (no limit) or a natural number\n\
-  reconTraceMode              - Either `Progressive' or `Omniscient'\n\
-  strategy                    - Either `FRS' or `RFS'\n\
-  tableStrategy               - Either `Variant' or `Subsumption'\n\
-\n\
-See http://www.cs.cmu.edu/~twelf/guide-1-4/ for_sml more information,\n\
-or type M-x twelf-info (C-c C-h) in Emacs.\n\
-"
+\  set <parameter> <value>     - Set <parameter> to <value>\n\
+\  get <parameter>             - Print the current value of <parameter>\n\
+\  Trace.trace <id1> ... <idn> - Trace given constants\n\
+\  Trace.traceAll              - Trace all constants\n\
+\  Trace.untrace               - Untrace all constants\n\
+\  Trace.break <id1> ... <idn> - Set breakpoint for_sml given constants\n\
+\  Trace.breakAll              - Break on all constants\n\
+\  Trace.unbreak               - Remove all breakpoints\n\
+\  Trace.show                  - Show current trace and breakpoints\n\
+\  Trace.reset                 - Reset all tracing and breaking\n\
+\  Print.sgn                   - Print current signature\n\
+\  Print.prog                  - Print current program\n\
+\  Print.subord                - Print current subordination relation\n\
+\  Print.domains               - Print registered constraint domains\n\
+\  Print.TeX.sgn               - Print signature in TeX format\n\
+\  Print.TeX.prog              - Print signature in TeX program\n\
+\  Timers.show                 - Print and reset timers\n\
+\  Timers.reset                - Reset timers\n\
+\  Timers.check                - Print, but do not reset timers.\n\
+\  OS.chDir <file>             - Change working directory to <file>\n\
+\  OS.getDir                   - Print current working directory\n\
+\  OS.exit                     - Exit Twelf server\n\
+\  quit                        - Quit Twelf server (exit)\n\
+\  Config.read <file>          - Read current configuration from <file>\n\
+\  Config.load                 - Load current configuration\n\
+\  Config.append               - Load current configuration without prior reset\n\
+\  make <file>                 - Read and load configuration from <file>\n\
+\  reset                       - Reset global signature.\n\
+\  loadFile <file>             - Load Twelf file <file>\n\
+\  decl <id>                   - Show constant declaration for_sml <id>\n\
+\  top                         - Enter interactive query loop\n\
+\  Table.top                   - Enter interactive loop for_sml tables queries\n\
+\  version                     - Print Twelf server's version\n\
+\  help                        - Print this help message\n\
+\\n\
+\Parameters:\n\
+\  chatter <nat>               - Level of verbosity (0 = none, 3 = default)\n\
+\  doubleCheck <bool>          - Perform additional internal type-checking\n\
+\  unsafe <bool>               - Allow unsafe operations (%assert)\n\
+\  autoFreeze <bool>           - Freeze families involved in meta-theorems\n\
+\  Print.implicit <bool>       - Print implicit arguments\n\
+\  Print.depth <limit>         - Cut off printing at depth <limit>\n\
+\  Print.length <limit>        - Cut off printing at length <limit>\n\
+\  Print.indent <nat>          - Indent by <nat> spaces\n\
+\  Print.width <nat>           - Line width for_sml formatting\n\
+\  Trace.detail <nat>          - Detail of tracing\n\
+\  Compile.optimize <bool>     - Optimize during translation to clauses\n\
+\  Recon.trace <bool>          - Trace term reconstruction\n\
+\  Recon.traceMode <reconTraceMode> - Term reconstruction tracing mode\n\
+\  Prover.strategy <strategy>  - Prover strategy\n\
+\  Prover.maxSplit <nat>       - Prover splitting depth bound\n\
+\  Prover.maxRecurse <nat>     - Prover recursion depth bound\n\
+\  Table.strategy <tableStrategy>   - Tabling strategy\n\
+\\n\
+\Server types:\n\
+\  file                        - File name, relative to working directory\n\
+\  id                          - A Twelf identifier\n\
+\  bool                        - Either `true' or `false'\n\
+\  nat                         - A natural number (starting at `0')\n\
+\  limit                       - Either `*' (no limit) or a natural number\n\
+\  reconTraceMode              - Either `Progressive' or `Omniscient'\n\
+\  strategy                    - Either `FRS' or `RFS'\n\
+\  tableStrategy               - Either `Variant' or `Subsumption'\n\
+\\n\
+\See http://www.cs.cmu.edu/~twelf/guide-1-4/ for_sml more information,\n\
+\or type M-x twelf-info (C-c C-h) in Emacs.\n\
+\"
 (* serve' (command, args) = ()
      executes the server commands represented by `tokens', 
      issues success or failure and then reads another command line.

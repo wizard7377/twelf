@@ -321,17 +321,3 @@ module Opsem
   let topLevel = fun P -> topLevel (I.Null, 0, (P, T.id))
   (* end -- removed local *)
 end
-(* Operational Semantics for_sml Delphin *)
-
-(* Author: Carsten Schuermann *)
-
-module type OPSEM = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  exception NoMatch
-
-  val evalPrg : Tomega.prg -> Tomega.prg
-  val topLevel : Tomega.prg -> unit
-  val createVarSub : Tomega.dec IntSyn.ctx * Tomega.dec IntSyn.ctx -> Tomega.sub
-  val matchSub : Tomega.dec IntSyn.ctx * Tomega.sub * Tomega.sub -> unit
-end

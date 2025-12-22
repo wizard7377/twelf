@@ -17,10 +17,3 @@ module StringHash : STRING_HASH = struct
 end
 
 (* structure StringHash *)
-(* String Hash Table *)
-
-(* Author: Frank Pfenning *)
-
-module type STRING_HASH = sig
-  val stringHash : string -> int
-end

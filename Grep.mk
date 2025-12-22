@@ -1,10 +1,22 @@
-OCAML_FILES := $(patsubst %.mlti, %.ml, $(wildcard lib/**/*.mlti))
+BASE_PATH ?= lib
+FUN_FILES := $(basename $(wildcard $(BASE_PATH)/**/*.fun))
+SIG_FILES := $(basename $(wildcard $(BASE_PATH)/**/*.sig))
+SML_FILES := $(basename $(wildcard $(BASE_PATH)/**/*.sml))
 
-%.ml : %.mlt %.mlti
-	cat $+ > $@ 
-	rm $+
+OML_FILES := $(sort $(addsuffix .ml, $(SML_FILES) $(FUN_FILES)))
+MLI_FILES := $(sort $(addsuffix .mli, $(SIG_FILES)))
 
-make_ocaml: $(OCAML_FILES)
+ML_FILES := $(OML_FILES) $(MLI_FILES)
+CONVERTER_SCRIPT := ./grep/sr/src/main.py
+CONVERTER_SOURCES := $(CONVERTER_SCRIPT) ./grep/sr/src/sml_process.py 
+CONVERTER := pipenv run python $(CONVERTER_SCRIPT)
+%.ml: %.fun $(CONVERTER_SOURCES)
+	@$(CONVERTER) $< $@
+%.fun: %.sml $(CONVERTER_SOURCES)
+	@cp $< $@
+%.mli: %.sig $(CONVERTER_SOURCES)
+	@$(CONVERTER) $< $@
 
-check_ocaml:
-	echo $(OCAML_FILES)
+
+make_ocaml: $(ML_FILES) $(MLI_FILES) 
+

@@ -86,26 +86,3 @@ module ThmPrint (ThmSyn' : THMSYN) (Formatter : FORMATTER) : THMPRINT = struct
 end
 
 (* functor ThmPrint *)
-(* Printer for_sml Meta Theorems *)
-
-(* Author: Carsten Schuermann *)
-
-module type THMPRINT = sig
-  module ThmSyn : THMSYN
-
-  val tDeclToString : ThmSyn.tDecl -> string
-  val callpatsToString : ThmSyn.callpats -> string
-  val rDeclToString : ThmSyn.rDecl -> string
-
-  (* -bp *)
-  val rOrderToString : ThmSyn.redOrder -> string
-
-  (* -bp *)
-  val tabledDeclToString : ThmSyn.tabledDecl -> string
-
-  (* -bp *)
-  val keepTableDeclToString : ThmSyn.keepTableDecl -> string
-  (* -bp *)
-end
-
-(* signature THMPRINT *)

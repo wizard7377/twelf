@@ -97,8 +97,3 @@ let t = Opsem.createVarSub (Psi1, Psi2) in let t' = T.comp (s2, t) in let doMatc
  with Error s -> (* (print ("***WARNING*** -- redundant case automatically ANNIHILATED:  " ^ s ^ "\n") ; [C]) *)
 raise (Error ("***WARNING*** -- redundant case automatically ANNIHILATED:  " ^ s ^ "\n")) else [C; C'] ) )
  end
-module type REDUNDANT = sig
-  exception Error of string
-
-  val convert : Tomega.prg -> Tomega.prg
-end

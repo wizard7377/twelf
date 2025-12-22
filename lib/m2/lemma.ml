@@ -60,16 +60,3 @@ module Lemma (MetaSyn' : METASYN) (MetaAbstract : METAABSTRACT) : LEMMA = struct
 end
 
 (* functor lemma *)
-(* Lemma *)
-
-(* Author: Carsten Schuermann *)
-
-module type LEMMA = sig
-  module MetaSyn : METASYN
-
-  exception Error of string
-
-  val apply : MetaSyn.state * IntSyn.cid -> MetaSyn.state
-end
-
-(* signature LEMMA *)

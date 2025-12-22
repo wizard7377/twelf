@@ -12,10 +12,3 @@ module TomegaNames : TOMEGANAMES = struct
         let (I.NDec x') = Names.decName (T.coerceCtx Psi, I.NDec x) in
         T.PDec (x', F, TC1, TC2)
 end
-(* Naming *)
-
-(* Author: Carsten Schuermann *)
-
-module type TOMEGANAMES = sig
-  val decName : Tomega.dec IntSyn.ctx * Tomega.dec -> Tomega.dec
-end

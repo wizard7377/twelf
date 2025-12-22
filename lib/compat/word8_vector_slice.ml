@@ -31,6 +31,3 @@ module Word8VectorSlice97 : COMPAT_WORD8_VECTOR_SLICE = struct
 
   let full = Word8VectorSlice.full
 end
-(* Compatibility shim to cope with Standard Basis version skew *)
-
-(* Author: Christopher Richards *)
