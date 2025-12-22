@@ -7,3 +7,12 @@ module MTPData (MTPGlobal : MTPGLOBAL) : MTPDATA = struct
 end
 
 (* structure MTPData*)
+(* Data aquired during proof search *)
+
+(* Author: Carsten Schuermann *)
+
+module type MTPDATA = sig
+  val maxFill : int ref
+end
+
+(* signature MTPDATA *)

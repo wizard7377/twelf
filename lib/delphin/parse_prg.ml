@@ -33,3 +33,16 @@ result else loop lexer(* DextSyn.printAst result; *)
 
 (* functor Parse *)
 
+(* The Parser *)
+
+(* Author: Richard Fontana *)
+
+module type PARSE = sig
+  module DextSyn : DEXTSYN
+
+  val fparse : string -> unit
+  val gparse : string -> DextSyn.ast
+  val sparse : unit -> DextSyn.ast
+end
+
+(* signature PARSE *)

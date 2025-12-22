@@ -292,3 +292,17 @@ module StyleCheck (Whnf : WHNF) (Index : INDEX) (Origins : ORIGINS) :
 
   let check = check
 end
+(* Style Checking *)
+
+(* Author: Carsten Schuermann *)
+
+module type STYLECHECK = sig
+  exception Error of string
+
+  val check : unit -> unit
+
+  (* raises Error (msg) *)
+  val checkConDec : IntSyn.cid -> unit
+end
+
+(* signature STYLECHECK *)

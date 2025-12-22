@@ -73,3 +73,22 @@ struct
   let apply = apply
   let menu = menu
 end
+(* Introduce: Version 1.4 *)
+
+(* Author: Carsten Schuermann *)
+
+module type INTRODUCE = sig
+  (*! structure IntSyn : INTSYN !*)
+  (*! structure Tomega : TOMEGA !*)
+  module State : STATE
+
+  exception Error of string
+
+  type operator
+
+  val expand : State.focus -> operator option
+  val apply : operator -> unit
+  val menu : operator -> string
+end
+
+(* signature INTRODUCE *)
