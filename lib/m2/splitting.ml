@@ -1,5 +1,24 @@
 (* Splitting *)
 
+(* Author: Carsten Schuermann *)
+
+module type SPLITTING = sig
+  module MetaSyn : METASYN
+
+  exception Error of string
+
+  type operator
+
+  val expand : MetaSyn.state -> operator list
+  val apply : operator -> MetaSyn.state list
+  val var : operator -> int
+  val menu : operator -> string
+  val index : operator -> int
+end
+
+(* signature SPLITTING *)
+(* Splitting *)
+
 
 (* Author: Carsten Schuermann *)
 
@@ -217,10 +236,10 @@ let rec makeAddressCont makeAddress k  = makeAddress (k + 1)
        and  ops' is a list of all possiblie splitting operators
     *)
 
-let rec expand' = function (M.Prefix (I.Null, I.Null, I.Null), isIndex, abstract, makeAddress) -> (M.Prefix (I.Null, I.Null, I.Null), I.id, []) | (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), isIndex, abstract, makeAddress) -> ( let (M.Prefix (G', M', B'), s', ops) = expand' (M.Prefix (G, M, B), isIndexSucc (D, isIndex), abstractCont ((D, mode, b), abstract), makeAddressCont makeAddress) in let I.Dec (xOpt, V) = D in let X = I.newEVar (G', I.EClo (V, s')) in let ops' = if b > 0 && (* check if splitting bound > 0 *)
+let rec expand' = function (M.Prefix (I.Null, I.Null, I.Null), isIndex, abstract, makeAddress) -> (M.Prefix (I.Null, I.Null, I.Null), I.id, []) | (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), isIndex, abstract, makeAddress) -> ( let (M.Prefix (G', M', B'), s', ops) = expand' (M.Prefix (G, M, B), isIndexSucc (D, isIndex), abstractCont ((D, mode, b), abstract), makeAddressCont makeAddress) in let I.Dec (xOpt, V) = D in let X = I.newEVar (G', I.EClo (V, s')) in let ops' = if b > 0 (* check if splitting bound > 0 *)
  && not (isIndex 1) && checkDec (M, D) then (makeAddress 1, split (M.Prefix (G', M', B'), (D, s'), abstract)) :: ops else ops in  (M.Prefix (G', M', B'), I.Dot (I.Exp (X), s'), ops') ) | (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), isIndex, abstract, makeAddress) -> ( let (M.Prefix (G', M', B'), s', ops) = expand' (M.Prefix (G, M, B), isIndexSucc (D, isIndex)(* -###- *)
-, abstractCont ((D, mode, b), abstract), makeAddressCont makeAddress) in  (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Bot), I.Decl (B', b))(* b = 0 *)
-, I.dot1 s', ops) )
+ , abstractCont ((D, mode, b), abstract), makeAddressCont makeAddress) in  (M.Prefix (I.Decl (G', I.decSub (D, s')), I.Decl (M', M.Bot), I.Decl (B', b))(* b = 0 *)
+ , I.dot1 s', ops) )
 (* expand ((G, M), V) = ops'
 
        Invariant:

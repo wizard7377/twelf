@@ -1,3 +1,6 @@
+module type UNKNOWN_EXN = sig
+  val unknownExn : exn -> string
+end
 (* Print an informative message on receipt of an unhandled exception. *)
 
 

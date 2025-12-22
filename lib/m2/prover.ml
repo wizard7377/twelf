@@ -2,6 +2,21 @@
 
 (* Author: Carsten Schuermann *)
 
+module type PROVER = sig
+  (*! structure IntSyn : INTSYN !*)
+  exception Error of string
+
+  val init : int * IntSyn.cid list -> unit
+  val auto : unit -> unit
+  val print : unit -> unit
+  val install : (IntSyn.conDec -> IntSyn.cid) -> unit
+end
+
+(* signature PROVER *)
+(* Meta Prover *)
+
+(* Author: Carsten Schuermann *)
+
 module Prover
     (MetaGlobal : METAGLOBAL)
     (MetaSyn' : METASYN)

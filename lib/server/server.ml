@@ -79,74 +79,74 @@ let rec setParm = function ("chatter" :: ts) -> Twelf.chatter := getNat ts | ("d
 let rec getParm = function ("chatter" :: ts) -> Int.toString (! Twelf.chatter) | ("doubleCheck" :: ts) -> Bool.toString (! Twelf.doubleCheck) | ("unsafe" :: ts) -> Bool.toString (! Twelf.unsafe) | ("autoFreeze" :: ts) -> Bool.toString (! Twelf.autoFreeze) | ("Print.implicit" :: ts) -> Bool.toString (! Twelf.Print.implicit) | ("Print.depth" :: ts) -> limitToString (! Twelf.Print.depth) | ("Print.length" :: ts) -> limitToString (! Twelf.Print.length) | ("Print.indent" :: ts) -> Int.toString (! Twelf.Print.indent) | ("Print.width" :: ts) -> Int.toString (! Twelf.Print.width) | ("Trace.detail" :: ts) -> Int.toString (! Twelf.Trace.detail) | ("Compile.optimize" :: ts) -> compOptToString (! Twelf.Compile.optimize) | ("Recon.trace" :: ts) -> Bool.toString (! Twelf.Recon.trace) | ("Recon.traceMode" :: ts) -> reconTraceModeToString (! Twelf.Recon.traceMode) | ("Prover.strategy" :: ts) -> strategyToString (! Twelf.Prover.strategy) | ("Prover.maxSplit" :: ts) -> Int.toString (! Twelf.Prover.maxSplit) | ("Prover.maxRecurse" :: ts) -> Int.toString (! Twelf.Prover.maxRecurse) | ("Table.strategy" :: ts) -> tableStrategyToString (! Twelf.Table.strategy) | (t :: ts) -> error ("Unknown parameter " ^ quote t) | ([]) -> error ("Missing parameter")
 (* extracted from doc/guide/twelf.texi *)
 
-let helpString = "Commands:\n\
-\  set <parameter> <value>     - Set <parameter> to <value>\n\
-\  get <parameter>             - Print the current value of <parameter>\n\
-\  Trace.trace <id1> ... <idn> - Trace given constants\n\
-\  Trace.traceAll              - Trace all constants\n\
-\  Trace.untrace               - Untrace all constants\n\
-\  Trace.break <id1> ... <idn> - Set breakpoint for_sml given constants\n\
-\  Trace.breakAll              - Break on all constants\n\
-\  Trace.unbreak               - Remove all breakpoints\n\
-\  Trace.show                  - Show current trace and breakpoints\n\
-\  Trace.reset                 - Reset all tracing and breaking\n\
-\  Print.sgn                   - Print current signature\n\
-\  Print.prog                  - Print current program\n\
-\  Print.subord                - Print current subordination relation\n\
-\  Print.domains               - Print registered constraint domains\n\
-\  Print.TeX.sgn               - Print signature in TeX format\n\
-\  Print.TeX.prog              - Print signature in TeX program\n\
-\  Timers.show                 - Print and reset timers\n\
-\  Timers.reset                - Reset timers\n\
-\  Timers.check                - Print, but do not reset timers.\n\
-\  OS.chDir <file>             - Change working directory to <file>\n\
-\  OS.getDir                   - Print current working directory\n\
-\  OS.exit                     - Exit Twelf server\n\
-\  quit                        - Quit Twelf server (exit)\n\
-\  Config.read <file>          - Read current configuration from <file>\n\
-\  Config.load                 - Load current configuration\n\
-\  Config.append               - Load current configuration without prior reset\n\
-\  make <file>                 - Read and load configuration from <file>\n\
-\  reset                       - Reset global signature.\n\
-\  loadFile <file>             - Load Twelf file <file>\n\
-\  decl <id>                   - Show constant declaration for_sml <id>\n\
-\  top                         - Enter interactive query loop\n\
-\  Table.top                   - Enter interactive loop for_sml tables queries\n\
-\  version                     - Print Twelf server's version\n\
-\  help                        - Print this help message\n\
-\\n\
-\Parameters:\n\
-\  chatter <nat>               - Level of verbosity (0 = none, 3 = default)\n\
-\  doubleCheck <bool>          - Perform additional internal type-checking\n\
-\  unsafe <bool>               - Allow unsafe operations (%assert)\n\
-\  autoFreeze <bool>           - Freeze families involved in meta-theorems\n\
-\  Print.implicit <bool>       - Print implicit arguments\n\
-\  Print.depth <limit>         - Cut off printing at depth <limit>\n\
-\  Print.length <limit>        - Cut off printing at length <limit>\n\
-\  Print.indent <nat>          - Indent by <nat> spaces\n\
-\  Print.width <nat>           - Line width for_sml formatting\n\
-\  Trace.detail <nat>          - Detail of tracing\n\
-\  Compile.optimize <bool>     - Optimize during translation to clauses\n\
-\  Recon.trace <bool>          - Trace term reconstruction\n\
-\  Recon.traceMode <reconTraceMode> - Term reconstruction tracing mode\n\
-\  Prover.strategy <strategy>  - Prover strategy\n\
-\  Prover.maxSplit <nat>       - Prover splitting depth bound\n\
-\  Prover.maxRecurse <nat>     - Prover recursion depth bound\n\
-\  Table.strategy <tableStrategy>   - Tabling strategy\n\
-\\n\
-\Server types:\n\
-\  file                        - File name, relative to working directory\n\
-\  id                          - A Twelf identifier\n\
-\  bool                        - Either `true' or `false'\n\
-\  nat                         - A natural number (starting at `0')\n\
-\  limit                       - Either `*' (no limit) or a natural number\n\
-\  reconTraceMode              - Either `Progressive' or `Omniscient'\n\
-\  strategy                    - Either `FRS' or `RFS'\n\
-\  tableStrategy               - Either `Variant' or `Subsumption'\n\
-\\n\
-\See http://www.cs.cmu.edu/~twelf/guide-1-4/ for_sml more information,\n\
-\or type M-x twelf-info (C-c C-h) in Emacs.\n\
-\"
+let helpString = {|Commands:
+  set <parameter> <value>     - Set <parameter> to <value>
+  get <parameter>             - Print the current value of <parameter>
+  Trace.trace <id1> ... <idn> - Trace given constants
+  Trace.traceAll              - Trace all constants
+  Trace.untrace               - Untrace all constants
+  Trace.break <id1> ... <idn> - Set breakpoint for_sml given constants
+ Trace.breakAll              - Break on all constants
+ Trace.unbreak               - Remove all breakpoints
+ Trace.show                  - Show current trace and breakpoints
+ Trace.reset                 - Reset all tracing and breaking
+ Print.sgn                   - Print current signature
+ Print.prog                  - Print current program
+ Print.subord                - Print current subordination relation
+  Print.domains               - Print registered constraint domains
+  Print.TeX.sgn               - Print signature in TeX format
+  Print.TeX.prog              - Print signature in TeX program
+  Timers.show                 - Print and reset timers
+  Timers.reset                - Reset timers
+  Timers.check                - Print, but do not reset timers.
+  OS.chDir <file>             - Change working directory to <file>
+  OS.getDir                   - Print current working directory
+  OS.exit                     - Exit Twelf server
+  quit                        - Quit Twelf server (exit)
+  Config.read <file>          - Read current configuration from <file>
+  Config.load                 - Load current configuration
+  Config.append               - Load current configuration without prior reset
+  make <file>                 - Read and load configuration from <file>
+  reset                       - Reset global signature.
+  loadFile <file>             - Load Twelf file <file>
+  decl <id>                   - Show constant declaration for_sml <id>
+  top                         - Enter interactive query loop
+  Table.top                   - Enter interactive loop for_sml tables queries
+  version                     - Print Twelf server's version
+  help                        - Print this help message
+
+Parameters:
+  chatter <nat>               - Level of verbosity (0 = none, 3 = default)
+  doubleCheck <bool>          - Perform additional internal type-checking
+  unsafe <bool>               - Allow unsafe operations (%assert)
+  autoFreeze <bool>           - Freeze families involved in meta-theorems
+  Print.implicit <bool>       - Print implicit arguments
+  Print.depth <limit>         - Cut off printing at depth <limit>
+  Print.length <limit>        - Cut off printing at length <limit>
+  Print.indent <nat>          - Indent by <nat> spaces
+  Print.width <nat>           - Line width for_sml formatting
+  Trace.detail <nat>          - Detail of tracing
+  Compile.optimize <bool>     - Optimize during translation to clauses
+  Recon.trace <bool>          - Trace term reconstruction
+  Recon.traceMode <reconTraceMode> - Term reconstruction tracing mode
+  Prover.strategy <strategy>  - Prover strategy
+  Prover.maxSplit <nat>       - Prover splitting depth bound
+  Prover.maxRecurse <nat>     - Prover recursion depth bound
+  Table.strategy <tableStrategy>   - Tabling strategy
+
+Server types:
+  file                        - File name, relative to working directory
+  id                          - A Twelf identifier
+  bool                        - Either `true' or `false'
+  nat                         - A natural number (starting at `0')
+  limit                       - Either `*' (no limit) or a natural number
+  reconTraceMode              - Either `Progressive' or `Omniscient'
+  strategy                    - Either `FRS' or `RFS'
+  tableStrategy               - Either `Variant' or `Subsumption'
+
+See http://www.cs.cmu.edu/~twelf/guide-1-4/ for_sml more information,
+or type M-x twelf-info (C-c C-h) in Emacs.
+|}
 (* serve' (command, args) = ()
      executes the server commands represented by `tokens', 
      issues success or failure and then reads another command line.

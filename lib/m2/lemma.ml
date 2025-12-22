@@ -2,6 +2,19 @@
 
 (* Author: Carsten Schuermann *)
 
+module type LEMMA = sig
+  module MetaSyn : METASYN
+
+  exception Error of string
+
+  val apply : MetaSyn.state * IntSyn.cid -> MetaSyn.state
+end
+
+(* signature LEMMA *)
+(* Lemma *)
+
+(* Author: Carsten Schuermann *)
+
 module Lemma (MetaSyn' : METASYN) (MetaAbstract : METAABSTRACT) : LEMMA = struct
   module MetaSyn = MetaSyn'
 

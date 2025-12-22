@@ -2,6 +2,19 @@
 
 (* Author: Carsten Schuermann *)
 
+module type INIT = sig
+  module MetaSyn : METASYN
+
+  exception Error of string
+
+  val init : IntSyn.cid list -> MetaSyn.state list
+end
+
+(* signature INIT *)
+(* Initialization *)
+
+(* Author: Carsten Schuermann *)
+
 module Init (MetaSyn' : METASYN) (MetaAbstract : METAABSTRACT) : INIT = struct
   module MetaSyn = MetaSyn'
 

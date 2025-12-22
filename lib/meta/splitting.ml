@@ -1,5 +1,25 @@
 (* Splitting : Version 1.3 *)
 
+(* Author: Carsten Schuermann *)
+
+module type MTPSPLITTING = sig
+  module StateSyn : STATESYN
+
+  exception Error of string
+
+  type operator
+
+  val expand : StateSyn.state -> operator list
+  val applicable : operator -> bool
+  val apply : operator -> StateSyn.state list
+  val menu : operator -> string
+  val index : operator -> int
+  val compare : operator * operator -> order
+end
+
+(* signature MTPSPLITTING *)
+(* Splitting : Version 1.3 *)
+
 
 (* Author: Carsten Schuermann *)
 
@@ -311,7 +331,7 @@ let rec applicable (Operator (_, Sl, I))  = not (List.exists isInActive Sl)
        Side effect: If Sl contains inactive states, an exception is raised
     *)
 
-let rec apply (Operator (_, Sl, I))  = map (fun (Active S) -> (if (! Global.doubleCheck) then FunTypeCheck.isState S else (); S) | InActive -> raise (Error "Not applicable: leftover constraints")) Sl
+let rec apply (Operator (_, Sl, I))  = map (function Active S -> (if (! Global.doubleCheck) then FunTypeCheck.isState S else (); S) | InActive -> raise (Error "Not applicable: leftover constraints")) Sl
 (* menu (Op) = s'
 
        Invariant:

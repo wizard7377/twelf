@@ -2,6 +2,20 @@
 
 (* Author: Carsten Schuermann *)
 
+module type STYLECHECK = sig
+  exception Error of string
+
+  val check : unit -> unit
+
+  (* raises Error (msg) *)
+  val checkConDec : IntSyn.cid -> unit
+end
+
+(* signature STYLECHECK *)
+(* Style Checking *)
+
+(* Author: Carsten Schuermann *)
+
 module StyleCheck (Whnf : WHNF) (Index : INDEX) (Origins : ORIGINS) :
   STYLECHECK = struct
   exception Error of string

@@ -2,6 +2,13 @@
 
 (* Author: Frank Pfenning *)
 
+module type STRING_HASH = sig
+  val stringHash : string -> int
+end
+(* String Hash Table *)
+
+(* Author: Frank Pfenning *)
+
 module StringHash : STRING_HASH = struct
   let rec stringHash s =
     (* sample 4 characters from string *)

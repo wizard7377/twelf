@@ -1,3 +1,123 @@
+(* External Syntax and Type Reconstruction *)
+
+(* Author: Frank Pfenning *)
+
+(* signature EXTSYN
+   provides the interface for_sml type seen
+   by the parser
+*)
+
+module type EXTSYN = sig
+  (*! structure Paths : PATHS !*)
+  type term
+
+  (* term *)
+  type dec
+
+  (* variable declaration *)
+  val lcid : string list * string * Paths.region -> term
+
+  (* lower case id *)
+  val ucid : string list * string * Paths.region -> term
+
+  (* upper case id *)
+  val quid : string list * string * Paths.region -> term
+
+  (* quoted id, currently not parsed *)
+  val scon : string * Paths.region -> term
+
+  (* string constant *)
+  (* unconditionally such *)
+  val evar : string * Paths.region -> term
+  val fvar : string * Paths.region -> term
+  val typ : Paths.region -> term
+
+  (* type, region for_sml "type" *)
+  val arrow : term * term -> term
+
+  (* tm -> tm *)
+  val backarrow : term * term -> term
+
+  (* tm <- tm *)
+  val pi : dec * term -> term
+
+  (* {d} tm *)
+  val lam : dec * term -> term
+
+  (* [d] tm *)
+  val app : term * term -> term
+
+  (* tm tm *)
+  val hastype : term * term -> term
+
+  (* tm : tm *)
+  val omitted : Paths.region -> term
+
+  (* object, region for_sml "_" *)
+  (* region for_sml "{dec}" "[dec]" etc. *)
+  val dec : string option * term * Paths.region -> dec
+
+  (* id : tm | _ : tm *)
+  val dec0 : string option * Paths.region -> dec
+  (* id | _  (type omitted) *)
+end
+
+(* signature EXTSYN *)
+
+(* signature RECON_TERM
+   provides the interface to type reconstruction seen by Twelf 
+*)
+
+module type RECON_TERM = sig
+  (*! structure IntSyn : INTSYN !*)
+  include EXTSYN
+
+  exception Error of string
+
+  val resetErrors : string -> unit
+
+  (* filename -fp *)
+  val checkErrors : Paths.region -> unit
+
+  type traceMode = Progressive | Omniscient
+
+  val trace : bool ref
+  val traceMode : traceMode ref
+
+  (* Reconstruction jobs *)
+  type job
+
+  val jnothing : job
+  val jand : job * job -> job
+  val jwithctx : dec IntSyn.ctx * job -> job
+  val jterm : term -> job
+  val jclass : term -> job
+  val jof : term * term -> job
+  val jof' : term * IntSyn.exp -> job
+
+  type job =
+    | JNothing
+    | JAnd of job * job
+    | JWithCtx of IntSyn.dec IntSyn.ctx * job
+    | JTerm of (IntSyn.exp * Paths.occExp) * IntSyn.exp * IntSyn.uni
+    | JClass of (IntSyn.exp * Paths.occExp) * IntSyn.uni
+    | JOf of
+        (IntSyn.exp * Paths.occExp) * (IntSyn.exp * Paths.occExp) * IntSyn.uni
+
+  val recon : job -> job
+  val reconQuery : job -> job
+  val reconWithCtx : IntSyn.dctx * job -> job
+  val reconQueryWithCtx : IntSyn.dctx * job -> job
+  val termRegion : term -> Paths.region
+  val decRegion : dec -> Paths.region
+  val ctxRegion : dec IntSyn.ctx -> Paths.region option
+
+  (* unimplemented for_sml the moment *)
+  val internalInst : 'a -> 'b
+  val externalInst : 'a -> 'b
+end
+
+(* signature RECON_TERM *)
 (* Type Reconstruction with Tracing *)
 
 
@@ -80,18 +200,18 @@ let rec getEVar (name, allowed)  = (match Names.getEVarOpt name with Some (X) ->
 let rec getFVarType (name, allowed)  = (match StringTree.lookup fvarTable name with Some V -> V | None -> ( let V = Option.valOf (StringTree.lookup fvarApxTable name) in let V' = Apx.apxToClass (IntSyn.Null, V, Apx.Type, allowed) in  StringTree.insert fvarTable (name, V'); V' ))
 (* External syntax of terms *)
 
-type term = internal of IntSyn.exp * IntSyn.exp * Paths.region | constant of IntSyn.head * Paths.region | bvar of int * Paths.region | evar of string * Paths.region | fvar of string * Paths.region | typ of Paths.region | arrow of term * term | pi of dec * term | lam of dec * term | app of term * term | hastype of term * term | mismatch of term * term * string * string | omitted of Paths.region | lcid of string list * string * Paths.region | ucid of string list * string * Paths.region | quid of string list * string * Paths.region | scon of string * Paths.region | omitapx of Apx.exp * Apx.exp * Apx.uni * Paths.region | omitexact of IntSyn.exp * IntSyn.exp * Paths.region and dec = dec of string option * term * Paths.region
-let rec backarrow (tm1, tm2)  = arrow (tm2, tm1)
+type term = Internal of IntSyn.exp * IntSyn.exp * Paths.region | Constant of IntSyn.head * Paths.region | Bvar of int * Paths.region | Evar of string * Paths.region | Fvar of string * Paths.region | Typ of Paths.region | Arrow of term * term | Pi of dec * term | Lam of dec * term | App of term * term | Hastype of term * term | Mismatch of term * term * string * string | Omitted of Paths.region | Lcid of string list * string * Paths.region | Ucid of string list * string * Paths.region | Quid of string list * string * Paths.region | Scon of string * Paths.region | Omitapx of Apx.exp * Apx.exp * Apx.uni * Paths.region | Omitexact of IntSyn.exp * IntSyn.exp * Paths.region and dec = Dec of string option * term * Paths.region
+let rec backarrow (tm1, tm2)  = Arrow (tm2, tm1)
 (* for_sml now *)
 
-let rec dec0 (nameOpt, r)  = dec (nameOpt, omitted (r), r)
-type job = jnothing | jand of job * job | jwithctx of dec IntSyn.ctx * job | jterm of term | jclass of term | jof of term * term | jof' of term * IntSyn.exp
-let rec termRegion = function (internal (U, V, r)) -> r | (constant (H, r)) -> r | (bvar (k, r)) -> r | (evar (name, r)) -> r | (fvar (name, r)) -> r | (typ (r)) -> r | (arrow (tm1, tm2)) -> Paths.join (termRegion tm1, termRegion tm2) | (pi (tm1, tm2)) -> Paths.join (decRegion tm1, termRegion tm2) | (lam (tm1, tm2)) -> Paths.join (decRegion tm1, termRegion tm2) | (app (tm1, tm2)) -> Paths.join (termRegion tm1, termRegion tm2) | (hastype (tm1, tm2)) -> Paths.join (termRegion tm1, termRegion tm2) | (mismatch (tm1, tm2, _, _)) -> termRegion tm2 | (omitted (r)) -> r | (lcid (_, _, r)) -> r | (ucid (_, _, r)) -> r | (quid (_, _, r)) -> r | (scon (_, r)) -> r | (omitapx (U, V, L, r)) -> r | (omitexact (U, V, r)) -> r
-and decRegion (dec (name, tm, r))  = r
+let rec dec0 (nameOpt, r)  = Dec (nameOpt, Omitted (r), r)
+type job = JNothing | JAnd of job * job | JWithCtx of dec IntSyn.ctx * job | JTerm of term | JClass of term | JOf of term * term | JOf' of term * IntSyn.exp
+let rec termRegion = function (Internal (U, V, r)) -> r | (Constant (H, r)) -> r | (Bvar (k, r)) -> r | (Evar (name, r)) -> r | (Fvar (name, r)) -> r | (Typ (r)) -> r | (Arrow (tm1, tm2)) -> Paths.join (termRegion tm1, termRegion tm2) | (Pi (tm1, tm2)) -> Paths.join (decRegion tm1, termRegion tm2) | (Lam (tm1, tm2)) -> Paths.join (decRegion tm1, termRegion tm2) | (App (tm1, tm2)) -> Paths.join (termRegion tm1, termRegion tm2) | (Hastype (tm1, tm2)) -> Paths.join (termRegion tm1, termRegion tm2) | (Mismatch (tm1, tm2, _, _)) -> termRegion tm2 | (Omitted (r)) -> r | (Lcid (_, _, r)) -> r | (Ucid (_, _, r)) -> r | (Quid (_, _, r)) -> r | (Scon (_, r)) -> r | (Omitapx (U, V, L, r)) -> r | (Omitexact (U, V, r)) -> r
+and decRegion (Dec (name, tm, r))  = r
 let rec ctxRegion = function (IntSyn.Null) -> None | (IntSyn.Decl (g, tm)) -> ctxRegion' (g, decRegion tm)
 and ctxRegion' = function (IntSyn.Null, r) -> Some r | (IntSyn.Decl (g, tm), r) -> ctxRegion' (g, Paths.join (r, decRegion tm))
 open Apx
-ctxIntSyn.ctx
+type ctx = IntSyn.ctx
 type dec = Dec of string option * exp | NDec of string option
 (* Phase 1:
        Try to determine an approximate type/kind and level for_sml each subterm.
@@ -126,22 +246,22 @@ type dec = Dec of string option * exp | NDec of string option
      *)
 
 let rec filterLevel (tm, L, max, msg)  = ( let notGround = makeGroundUni L in let Level i = whnfUni L in  if i > max then fatalError (termRegion tm, "Level too high\n" ^ msg) else if notGround then error (termRegion tm, "Ambiguous level\n" ^ "The level of this term could not be inferred\n" ^ "Defaulting to " ^ (match i with 1 -> "object" | 2 -> "type family" | 3 -> "kind") ^ " level") else () )
-let rec findOmitted (G, qid, r)  = (error (r, "Undeclared identifier " ^ Names.qidToString (valOf (Names.constUndef qid))); omitted (r))
+let rec findOmitted (G, qid, r)  = (error (r, "Undeclared identifier " ^ Names.qidToString (valOf (Names.constUndef qid))); Omitted (r))
 let rec findBVar' = function (Null, name, k) -> None | (Decl (G, Dec (None, _)), name, k) -> findBVar' (G, name, k + 1) | (Decl (G, NDec _), name, k) -> findBVar' (G, name, k + 1) | (Decl (G, Dec (Some (name'), _)), name, k) -> if name = name' then Some (k) else findBVar' (G, name, k + 1)
-let rec findBVar fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (match findBVar' (G, name, 1) with None -> fc (G, qid, r) | Some k -> bvar (k, r)))
-let rec findConst fc (G, qid, r)  = (match Names.constLookup qid with None -> fc (G, qid, r) | Some cid -> (match IntSyn.sgnLookup cid with IntSyn.ConDec _ -> constant (IntSyn.Const cid, r) | IntSyn.ConDef _ -> constant (IntSyn.Def cid, r) | IntSyn.AbbrevDef _ -> constant (IntSyn.NSDef cid, r) | _ -> (error (r, "Invalid identifier\n" ^ "Identifier `" ^ Names.qidToString qid ^ "' is not a constant, definition or abbreviation"); omitted (r))))
-let rec findCSConst fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (match CSManager.parse name with None -> fc (G, qid, r) | Some (cs, conDec) -> constant (IntSyn.FgnConst (cs, conDec), r)))
-let rec findEFVar fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (if ! queryMode then evar else fvar) (name, r))
+let rec findBVar fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (match findBVar' (G, name, 1) with None -> fc (G, qid, r) | Some k -> Bvar (k, r)))
+let rec findConst fc (G, qid, r)  = (match Names.constLookup qid with None -> fc (G, qid, r) | Some cid -> (match IntSyn.sgnLookup cid with IntSyn.ConDec _ -> Constant (IntSyn.Const cid, r) | IntSyn.ConDef _ -> Constant (IntSyn.Def cid, r) | IntSyn.AbbrevDef _ -> Constant (IntSyn.NSDef cid, r) | _ -> (error (r, "Invalid identifier\n" ^ "Identifier `" ^ Names.qidToString qid ^ "' is not a constant, definition or abbreviation"); Omitted (r))))
+let rec findCSConst fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (match CSManager.parse name with None -> fc (G, qid, r) | Some (cs, conDec) -> Constant (IntSyn.FgnConst (cs, conDec), r)))
+let rec findEFVar fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (if ! queryMode then Evar else Fvar) (name, r))
 let rec findLCID x  = findBVar (findConst (findCSConst findOmitted)) x
 let rec findUCID x  = findBVar (findConst (findCSConst (findEFVar findOmitted))) x
 let rec findQUID x  = findConst (findCSConst findOmitted) x
-let rec inferApx = function (G, tm) -> ( let (U', V', L') = exactToApx (U, V) in  (tm, U', V', L') ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findLCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findUCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findQUID (G, qid, r)) ) | (G, tm) -> (match CSManager.parse name with None -> (error (r, "Strings unsupported in current signature"); inferApx (G, omitted (r))) | Some (cs, conDec) -> inferApx (G, constant (IntSyn.FgnConst (cs, conDec), r))) | (G, tm) -> ( let cd = headConDec H in let (U', V', L') = exactToApx (IntSyn.Root (H, IntSyn.Nil), IntSyn.conDecType cd) in let rec dropImplicit = function (V, 0) -> V | (Arrow (_, V), i) -> dropImplicit (V, i - 1) in let V'' = dropImplicit (V', IntSyn.conDecImp cd) in  (tm, U', V'', L') ) | (G, tm) -> ( let Dec (_, V) = IntSyn.ctxLookup (G, k) in  (tm, Undefined, V, Type) ) | (G, tm) -> (tm, Undefined, getEVarTypeApx name, Type) | (G, tm) -> (tm, Undefined, getFVarTypeApx name, Type) | (G, tm) -> (tm, Uni Type, Uni Kind, Hyperkind) | (G, arrow (tm1, tm2)) -> ( let L = newLVar () in let (tm1', V1) = checkApx (G, tm1, Uni Type, Kind, "Left-hand side of arrow must be a type") in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "Right-hand side of arrow must be a type or a kind") in  (arrow (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, pi (tm1, tm2)) -> ( let (tm1', D) = inferApxDec (G, tm1) in let L = newLVar () in let (tm2', V2) = checkApx (Decl (G, D), tm2, Uni L, Next L, "Body of pi must be a type or a kind") in  (pi (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, tm) -> ( let (tm1', D) = inferApxDec (G, tm1) in let (tm2', U2, V2, L2) = inferApx (Decl (G, D), tm2) in  (lam (tm1', tm2'), U2, Arrow (V1, V2), L2) ) | (G, tm) -> ( (* probably a confusing message if the problem is the level: *)
-let L = newLVar () in let Va = newCVar () in let Vr = newCVar () in let (tm1', U1) = checkApx (G, tm1, Arrow (Va, Vr), L, "Non-function was applied to an argument") in let (tm2', _) = checkApx (G, tm2, Va, Type, "Argument type did not match function domain type") in  (app (tm1', tm2'), U1, Vr, L) ) | (G, tm) -> ( let L = newLVar () in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "Right-hand side of ascription must be a type or a kind") in let (tm1', U1) = checkApx (G, tm1, V2, L, "Ascription did not hold") in let _ = addDelayed (fun () -> filterLevel (tm, L, 2, "Ascription can only be applied to objects and type families")) in  (hastype (tm1', tm2'), U1, V2, L) ) | (G, omitted (r)) -> ( (* guaranteed not to be used if L is type *)
-let L = newLVar () in let V = newCVar () in let U = newCVar () in  (omitapx (U, V, L, r), U, V, L) )
+let rec inferApx = function (G, tm) -> ( let (U', V', L') = exactToApx (U, V) in  (tm, U', V', L') ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findLCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findUCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findQUID (G, qid, r)) ) | (G, tm) -> (match CSManager.parse name with None -> (error (r, "Strings unsupported in current signature"); inferApx (G, Omitted (r))) | Some (cs, conDec) -> inferApx (G, Constant (IntSyn.FgnConst (cs, conDec), r))) | (G, tm) -> ( let cd = headConDec H in let (U', V', L') = exactToApx (IntSyn.Root (H, IntSyn.Nil), IntSyn.conDecType cd) in let rec dropImplicit = function (V, 0) -> V | (Arrow (_, V), i) -> dropImplicit (V, i - 1) in let V'' = dropImplicit (V', IntSyn.conDecImp cd) in  (tm, U', V'', L') ) | (G, tm) -> ( let Dec (_, V) = IntSyn.ctxLookup (G, k) in  (tm, Undefined, V, Type) ) | (G, tm) -> (tm, Undefined, getEVarTypeApx name, Type) | (G, tm) -> (tm, Undefined, getFVarTypeApx name, Type) | (G, tm) -> (tm, Uni Type, Uni Kind, Hyperkind) | (G, Arrow (tm1, tm2)) -> ( let L = newLVar () in let (tm1', V1) = checkApx (G, tm1, Uni Type, Kind, "Left-hand side of arrow must be a type") in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "Right-hand side of arrow must be a type or a kind") in  (Arrow (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, Pi (tm1, tm2)) -> ( let (tm1', D) = inferApxDec (G, tm1) in let L = newLVar () in let (tm2', V2) = checkApx (Decl (G, D), tm2, Uni L, Next L, "Body of pi must be a type or a kind") in  (Pi (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, tm) -> ( let (tm1', D) = inferApxDec (G, tm1) in let (tm2', U2, V2, L2) = inferApx (Decl (G, D), tm2) in  (Lam (tm1', tm2'), U2, Arrow (V1, V2), L2) ) | (G, tm) -> ( (* probably a confusing message if the problem is the level: *)
+let L = newLVar () in let Va = newCVar () in let Vr = newCVar () in let (tm1', U1) = checkApx (G, tm1, Arrow (Va, Vr), L, "Non-function was applied to an argument") in let (tm2', _) = checkApx (G, tm2, Va, Type, "Argument type did not match function domain type") in  (App (tm1', tm2'), U1, Vr, L) ) | (G, tm) -> ( let L = newLVar () in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "Right-hand side of ascription must be a type or a kind") in let (tm1', U1) = checkApx (G, tm1, V2, L, "Ascription did not hold") in let _ = addDelayed (fun () -> filterLevel (tm, L, 2, "Ascription can only be applied to objects and type families")) in  (Hastype (tm1', tm2'), U1, V2, L) ) | (G, Omitted (r)) -> ( (* guaranteed not to be used if L is type *)
+let L = newLVar () in let V = newCVar () in let U = newCVar () in  (Omitapx (U, V, L, r), U, V, L) )
 and checkApx (G, tm, V, L, location_msg)  = ( let (tm', U', V', L') = inferApx (G, tm) in  try (matchUni (L, L'); match_ (V, V'); (tm', U')) with Unify problem_msg -> ( (* just in case *)
-let r = termRegion tm in let (tm'', U'') = checkApx (G, omitted (r), V, L, location_msg) in let _ = addDelayed (fun () -> (makeGroundUni L'; ())) in  (mismatch (tm', tm'', location_msg, problem_msg), U'') ) )
-and inferApxDec (G, dec (name, tm, r))  = ( let (tm', V1) = checkApx (G, tm, Uni Type, Kind, "Classifier in declaration must be a type") in let D = Dec (name, V1) in  (dec (name, tm', r), D) )
-let rec inferApxJob = function (G, jnothing) -> jnothing | (G, jand (j1, j2)) -> jand (inferApxJob (G, j1), inferApxJob (G, j2)) | (G, jwithctx (g, j)) -> ( let rec ia = function (Null) -> (G, Null) | (Decl (g, tm)) -> ( let (G', g') = ia (g) in let _ = clearDelayed () in let (tm', D) = inferApxDec (G', tm) in let _ = runDelayed () in  (Decl (G', D), Decl (g', tm')) ) in let (G', g') = ia (g) in  jwithctx (g', inferApxJob (G', j)) ) | (G, jterm (tm)) -> ( let _ = clearDelayed () in let (tm', U, V, L) = inferApx (G, tm) in let _ = filterLevel (tm', L, 2, "The term in this position must be an object or a type family") in let _ = runDelayed () in  jterm (tm') ) | (G, jclass (tm)) -> ( let _ = clearDelayed () in let L = newLVar () in let (tm', V) = checkApx (G, tm, Uni L, Next L, "The term in this position must be a type or a kind") in let _ = filterLevel (tm', Next L, 3, "The term in this position must be a type or a kind") in let _ = runDelayed () in  jclass (tm') ) | (G, jof (tm1, tm2)) -> ( let _ = clearDelayed () in let L = newLVar () in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "The term in this position must be a type or a kind") in let (tm1', U1) = checkApx (G, tm1, V2, L, "Ascription in declaration did not hold") in let _ = filterLevel (tm1', L, 2, "The term in this position must be an object or a type family") in let _ = runDelayed () in  jof (tm1', tm2') ) | (G, jof' (tm1, V)) -> ( let _ = clearDelayed () in let L = newLVar () in let (V2, _) = Apx.classToApx V in let (tm1', U1) = checkApx (G, tm1, V2, L, "Ascription in declaration did not hold") in let _ = filterLevel (tm1', L, 2, "The term in this position must be an object or a type family") in let _ = runDelayed () in  jof' (tm1', V) )
+let r = termRegion tm in let (tm'', U'') = checkApx (G, Omitted (r), V, L, location_msg) in let _ = addDelayed (fun () -> (makeGroundUni L'; ())) in  (Mismatch (tm', tm'', location_msg, problem_msg), U'') ) )
+and inferApxDec (G, Dec (name, tm, r))  = ( let (tm', V1) = checkApx (G, tm, Uni Type, Kind, "Classifier in declaration must be a type") in let D = Dec (name, V1) in  (Dec (name, tm', r), D) )
+let rec inferApxJob = function (G, JNothing) -> JNothing | (G, JAnd (j1, j2)) -> JAnd (inferApxJob (G, j1), inferApxJob (G, j2)) | (G, JWithCtx (g, j)) -> ( let rec ia = function (Null) -> (G, Null) | (Decl (g, tm)) -> ( let (G', g') = ia (g) in let _ = clearDelayed () in let (tm', D) = inferApxDec (G', tm) in let _ = runDelayed () in  (Decl (G', D), Decl (g', tm')) ) in let (G', g') = ia (g) in  JWithCtx (g', inferApxJob (G', j)) ) | (G, JTerm (tm)) -> ( let _ = clearDelayed () in let (tm', U, V, L) = inferApx (G, tm) in let _ = filterLevel (tm', L, 2, "The term in this position must be an object or a type family") in let _ = runDelayed () in  JTerm (tm') ) | (G, JClass (tm)) -> ( let _ = clearDelayed () in let L = newLVar () in let (tm', V) = checkApx (G, tm, Uni L, Next L, "The term in this position must be a type or a kind") in let _ = filterLevel (tm', Next L, 3, "The term in this position must be a type or a kind") in let _ = runDelayed () in  JClass (tm') ) | (G, JOf (tm1, tm2)) -> ( let _ = clearDelayed () in let L = newLVar () in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "The term in this position must be a type or a kind") in let (tm1', U1) = checkApx (G, tm1, V2, L, "Ascription in declaration did not hold") in let _ = filterLevel (tm1', L, 2, "The term in this position must be an object or a type family") in let _ = runDelayed () in  JOf (tm1', tm2') ) | (G, JOf' (tm1, V)) -> ( let _ = clearDelayed () in let L = newLVar () in let (V2, _) = Apx.classToApx V in let (tm1', U1) = checkApx (G, tm1, V2, L, "Ascription in declaration did not hold") in let _ = filterLevel (tm1', L, 2, "The term in this position must be an object or a type family") in let _ = runDelayed () in  JOf' (tm1', V) )
 let rec ctxToApx = function IntSyn.Null -> IntSyn.Null | (IntSyn.Decl (G, IntSyn.NDec x)) -> IntSyn.Decl (ctxToApx G, NDec x) | (IntSyn.Decl (G, IntSyn.Dec (name, V))) -> ( let (V', _) = Apx.classToApx V in  IntSyn.Decl (ctxToApx G, Dec (name, V')) )
 let rec inferApxJob' (G, t)  = inferApxJob (ctxToApx G, t)
 (* open Apx *)
@@ -199,7 +319,7 @@ let rec report f  = match ! traceMode with Progressive -> f () | Omniscient -> a
 let rec reportMismatch (G, Vs1, Vs2, problem_msg)  = report (fun () -> ( let Xs = Abstract.collectEVars (G, Vs2, Abstract.collectEVars (G, Vs1, [])) in let Xnames = List.map (fun X -> (X, Names.evarName (IntSyn.Null, X))) Xs in let eqnsFmt = F.HVbox [F.String "|?"; F.Space; formatExp (G, EClo Vs1); F.Break; F.String "="; F.Space; formatExp (G, EClo Vs2)] in let _ = Msg.message (F.makestring_fmt eqnsFmt ^ "\n") in let _ = reportConstraints Xnames in let _ = Msg.message ("Failed: " ^ problem_msg ^ "\n" ^ "Continuing with subterm replaced by _\n") in  () ))
 let rec reportUnify' (G, Vs1, Vs2)  = ( let Xs = Abstract.collectEVars (G, Vs2, Abstract.collectEVars (G, Vs1, [])) in let Xnames = List.map (fun X -> (X, Names.evarName (IntSyn.Null, X))) Xs in let eqnsFmt = F.HVbox [F.String "|?"; F.Space; formatExp (G, EClo Vs1); F.Break; F.String "="; F.Space; formatExp (G, EClo Vs2)] in let _ = Msg.message (F.makestring_fmt eqnsFmt ^ "\n") in let _ = try unifyIdem (G, Vs1, Vs2) with e -> (Msg.message ("Failed: " ^ msg ^ "\n" ^ "Continuing with subterm replaced by _\n"); raise (e)) in let _ = reportInst Xnames in let _ = reportConstraints Xnames in  () )
 let rec reportUnify (G, Vs1, Vs2)  = (match ! traceMode with Progressive -> reportUnify' (G, Vs1, Vs2) | Omniscient -> (try unifyIdem (G, Vs1, Vs2) with e -> (reportMismatch (G, Vs1, Vs2, msg); raise (e))))
-let rec reportInfer' = function (G, omitexact (_, _, r), U, V) -> ( let Xs = Abstract.collectEVars (G, (U, id), Abstract.collectEVars (G, (V, id), [])) in let Xnames = List.map (fun X -> (X, Names.evarName (IntSyn.Null, X))) Xs in let omit = F.HVbox [F.String "|-"; F.Space; F.String "_"; F.Space; F.String "==>"; F.Space; formatExp (G, U); F.Break; F.String ":"; F.Space; formatExp (G, V)] in let _ = Msg.message (F.makestring_fmt omit ^ "\n") in let _ = reportConstraints Xnames in  () ) | (G, mismatch (tm1, tm2, _, _), U, V) -> reportInfer' (G, tm2, U, V) | (G, hastype _, U, V) -> () | (G, tm, U, V) -> ( let Xs = Abstract.collectEVars (G, (U, id), Abstract.collectEVars (G, (V, id), [])) in let Xnames = List.map (fun X -> (X, Names.evarName (IntSyn.Null, X))) Xs in let judg = F.HVbox [F.String "|-"; F.Space; formatExp (G, U); F.Break; F.String ":"; F.Space; formatExp (G, V)] in let _ = Msg.message (F.makestring_fmt judg ^ "\n") in let _ = reportConstraints Xnames in  () )
+let rec reportInfer' = function (G, Omitexact (_, _, r), U, V) -> ( let Xs = Abstract.collectEVars (G, (U, id), Abstract.collectEVars (G, (V, id), [])) in let Xnames = List.map (fun X -> (X, Names.evarName (IntSyn.Null, X))) Xs in let omit = F.HVbox [F.String "|-"; F.Space; F.String "_"; F.Space; F.String "==>"; F.Space; formatExp (G, U); F.Break; F.String ":"; F.Space; formatExp (G, V)] in let _ = Msg.message (F.makestring_fmt omit ^ "\n") in let _ = reportConstraints Xnames in  () ) | (G, Mismatch (tm1, tm2, _, _), U, V) -> reportInfer' (G, tm2, U, V) | (G, Hastype _, U, V) -> () | (G, tm, U, V) -> ( let Xs = Abstract.collectEVars (G, (U, id), Abstract.collectEVars (G, (V, id), [])) in let Xnames = List.map (fun X -> (X, Names.evarName (IntSyn.Null, X))) Xs in let judg = F.HVbox [F.String "|-"; F.Space; formatExp (G, U); F.Break; F.String ":"; F.Space; formatExp (G, V)] in let _ = Msg.message (F.makestring_fmt judg ^ "\n") in let _ = reportConstraints Xnames in  () )
 let rec reportInfer x  = report (fun () -> reportInfer' x)
 (* inferExact (G, tm) = (tm', U, V)
        if  tm is approximately well typed
@@ -213,36 +333,36 @@ let rec reportInfer x  = report (fun () -> reportInfer' x)
 let rec inferExactN = function (G, tm) -> (tm, Intro U, V) | (G, tm) -> ( let cd = headConDec (H) in let (E, V) = addImplicit (G, headElim H, (conDecType cd, id), conDecImp cd) in  (tm, Elim E, V) ) | (G, tm) -> ( let Dec (_, V) = ctxDec (G, k) in  (tm, Elim (bvarElim k), V) ) | (G, tm) -> ( (* externally EVars are raised elim forms *)
 (* necessary? -kw *)
 let (X, V) = try getEVar (name, false) with Apx.Ambiguous -> ( let (X, V) = getEVar (name, true) in  delayAmbiguous (G, V, r, "Free variable has ambiguous type"); (X, V) ) in let s = Shift (ctxLength (G)) in  (tm, Elim (elimSub (evarElim X, s)), EClo (V, s)) ) | (G, tm) -> ( (* necessary? -kw *)
-let V = try getFVarType (name, false) with Apx.Ambiguous -> ( let V = getFVarType (name, true) in  delayAmbiguous (G, V, r, "Free variable has ambiguous type"); V ) in let s = Shift (ctxLength (G)) in  (tm, Elim (fvarElim (name, V, s)), EClo (V, s)) ) | (G, tm) -> (tm, Intro (Uni Type), Uni Kind) | (G, arrow (tm1, tm2)) -> ( let (tm1', B1, _(* Uni Type *)
-) = inferExact (G, tm1) in let D = Dec (None, toIntro (B1, (Uni Type, id))) in let (tm2', B2, L) = inferExact (G, tm2) in let V2 = toIntro (B2, (L, id)) in  (arrow (tm1', tm2'), Intro (Pi ((D, No), EClo (V2, shift))), L) ) | (G, pi (tm1, tm2)) -> ( let (tm1', D) = inferExactDec (G, tm1) in let (tm2', B2, L) = inferExact (Decl (G, D), tm2) in let V2 = toIntro (B2, (L, id)) in  (pi (tm1', tm2'), Intro (Pi ((D, Maybe), V2)), L) ) | (G, lam (tm1, tm2)) -> ( let (tm1', D) = inferExactDec (G, tm1) in let (tm2', B2, V2) = inferExact (Decl (G, D), tm2) in let U2 = toIntro (B2, (V2, id)) in  (lam (tm1', tm2'), Intro (Lam (D, U2)), Pi ((D, Maybe), V2)) ) | (G, app (tm1, tm2)) -> ( let (tm1', B1, V1) = inferExact (G, tm1) in let E1 = toElim (B1) in let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef (V1, id) in let (tm2', B2) = checkExact (G, tm2, (Va, s), "Argument type did not match function domain type\n(Index object(s) did not match)") in let U2 = toIntro (B2, (Va, s)) in  (app (tm1', tm2'), Elim (elimApp (E1, U2)), EClo (Vr, Whnf.dotEta (Exp U2, s))) ) | (G, hastype (tm1, tm2)) -> ( let (tm2', B2, L) = inferExact (G, tm2) in let V = toIntro (B2, (L, id)) in let (tm1', B1) = checkExact (G, tm1, (V, id), "Ascription did not hold\n(Index object(s) did not match)") in  (hastype (tm1', tm2'), B1, V) ) | (G, mismatch (tm1, tm2, location_msg, problem_msg)) -> ( let (tm1', _, V1) = inferExact (G, tm1) in let (tm2', B, V) = inferExactN (G, tm2) in let _ = if ! trace then reportMismatch (G, (V1, id), (V, id), problem_msg) else () in let _ = delayMismatch (G, V1, V, termRegion tm2', location_msg, problem_msg) in  (mismatch (tm1', tm2', location_msg, problem_msg), B, V) ) | (G, omitapx (U, V, L, r)) -> ( let V' = try Apx.apxToClass (G, V, L, false) with Apx.Ambiguous -> ( let V' = Apx.apxToClass (G, V, L, true) in  delayAmbiguous (G, V', r, "Omitted term has ambiguous " ^ (match Apx.whnfUni L with Apx.Level 1 -> "type" | Apx.Level 2 -> "kind"(* yes, this can happen in pathological cases, e.g.
+let V = try getFVarType (name, false) with Apx.Ambiguous -> ( let V = getFVarType (name, true) in  delayAmbiguous (G, V, r, "Free variable has ambiguous type"); V ) in let s = Shift (ctxLength (G)) in  (tm, Elim (fvarElim (name, V, s)), EClo (V, s)) ) | (G, tm) -> (tm, Intro (Uni Type), Uni Kind) | (G, Arrow (tm1, tm2)) -> ( let (tm1', B1, _(* Uni Type *)
+) = inferExact (G, tm1) in let D = Dec (None, toIntro (B1, (Uni Type, id))) in let (tm2', B2, L) = inferExact (G, tm2) in let V2 = toIntro (B2, (L, id)) in  (Arrow (tm1', tm2'), Intro (Pi ((D, No), EClo (V2, shift))), L) ) | (G, Pi (tm1, tm2)) -> ( let (tm1', D) = inferExactDec (G, tm1) in let (tm2', B2, L) = inferExact (Decl (G, D), tm2) in let V2 = toIntro (B2, (L, id)) in  (Pi (tm1', tm2'), Intro (Pi ((D, Maybe), V2)), L) ) | (G, Lam (tm1, tm2)) -> ( let (tm1', D) = inferExactDec (G, tm1) in let (tm2', B2, V2) = inferExact (Decl (G, D), tm2) in let U2 = toIntro (B2, (V2, id)) in  (Lam (tm1', tm2'), Intro (Lam (D, U2)), Pi ((D, Maybe), V2)) ) | (G, App (tm1, tm2)) -> ( let (tm1', B1, V1) = inferExact (G, tm1) in let E1 = toElim (B1) in let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef (V1, id) in let (tm2', B2) = checkExact (G, tm2, (Va, s), "Argument type did not match function domain type\n(Index object(s) did not match)") in let U2 = toIntro (B2, (Va, s)) in  (App (tm1', tm2'), Elim (elimApp (E1, U2)), EClo (Vr, Whnf.dotEta (Exp U2, s))) ) | (G, Hastype (tm1, tm2)) -> ( let (tm2', B2, L) = inferExact (G, tm2) in let V = toIntro (B2, (L, id)) in let (tm1', B1) = checkExact (G, tm1, (V, id), "Ascription did not hold\n(Index object(s) did not match)") in  (Hastype (tm1', tm2'), B1, V) ) | (G, Mismatch (tm1, tm2, location_msg, problem_msg)) -> ( let (tm1', _, V1) = inferExact (G, tm1) in let (tm2', B, V) = inferExactN (G, tm2) in let _ = if ! trace then reportMismatch (G, (V1, id), (V, id), problem_msg) else () in let _ = delayMismatch (G, V1, V, termRegion tm2', location_msg, problem_msg) in  (Mismatch (tm1', tm2', location_msg, problem_msg), B, V) ) | (G, Omitapx (U, V, L, r)) -> ( let V' = try Apx.apxToClass (G, V, L, false) with Apx.Ambiguous -> ( let V' = Apx.apxToClass (G, V, L, true) in  delayAmbiguous (G, V', r, "Omitted term has ambiguous " ^ (match Apx.whnfUni L with Apx.Level 1 -> "type" | Apx.Level 2 -> "kind"(* yes, this can happen in pathological cases, e.g.
                                   a : type. b = a : _ _. *)
 (* FIX: this violates an invariant in printing *)
- | Apx.Level 3 -> "hyperkind")); V' ) in let U' = try Apx.apxToExact (G, U, (V', id), false) with Apx.Ambiguous -> ( let U' = Apx.apxToExact (G, U, (V', id), true) in  delayAmbiguous (G, U', r, "Omitted " ^ (match Apx.whnfUni L with Apx.Level 2 -> "type" | Apx.Level 3 -> "kind") ^ " is ambiguous"); U' ) in  (omitexact (U', V', r), Intro U', V') )
+ | Apx.Level 3 -> "hyperkind")); V' ) in let U' = try Apx.apxToExact (G, U, (V', id), false) with Apx.Ambiguous -> ( let U' = Apx.apxToExact (G, U, (V', id), true) in  delayAmbiguous (G, U', r, "Omitted " ^ (match Apx.whnfUni L with Apx.Level 2 -> "type" | Apx.Level 3 -> "kind") ^ " is ambiguous"); U' ) in  (Omitexact (U', V', r), Intro U', V') )
 and inferExact (G, tm)  = if not (! trace) then inferExactN (G, tm) else ( let (tm', B', V') = inferExactN (G, tm) in  reportInfer (G, tm', toIntro (B', (V', id)), V'); (tm', B', V') )
-and inferExactDec (G, dec (name, tm, r))  = ( let (tm', B1, _(* Uni Type *)
-) = inferExact (G, tm) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (name, V1) in  (dec (name, tm', r), D) )
-and checkExact1 = function (G, lam (dec (name, tm1, r), tm2), Vhs) -> ( let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef Vhs in let ((tm1', B1, _(* Uni Type *)
-), ok1) = unifyExact (G, tm1, (Va, s)) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (name, V1) in let ((tm2', B2, V2), ok2) = if ok1 then checkExact1 (Decl (G, D), tm2, (Vr, dot1 s)) else (inferExact (Decl (G, D), tm2), false) in let U2 = toIntro (B2, (V2, id)) in  ((lam (dec (name, tm1', r), tm2'), Intro (Lam (D, U2)), Pi ((D, Maybe), V2)), ok2) ) | (G, hastype (tm1, tm2), Vhs) -> ( let ((tm2', B2, L), ok2) = unifyExact (G, tm2, Vhs) in let V = toIntro (B2, (L, id)) in let (tm1', B1) = checkExact (G, tm1, (V, id), "Ascription did not hold\n(Index object(s) did not match)") in  ((hastype (tm1', tm2'), B1, V), ok2) ) | (G, mismatch (tm1, tm2, location_msg, problem_msg), Vhs) -> ( let (tm1', _, V1) = inferExact (G, tm1) in let ((tm2', B, V), ok2) = checkExact1 (G, tm2, Vhs) in let _ = delayMismatch (G, V1, V, termRegion tm2', location_msg, problem_msg) in  ((mismatch (tm1', tm2', location_msg, problem_msg), B, V), ok2) ) | (G, omitapx (U, V(* = Vhs *)
-, L, r), Vhs) -> ( let V' = EClo Vhs in let U' = try Apx.apxToExact (G, U, Vhs, false) with Apx.Ambiguous -> ( let U' = Apx.apxToExact (G, U, Vhs, true) in  delayAmbiguous (G, U', r, "Omitted " ^ (match Apx.whnfUni L with Apx.Level 2 -> "type" | Apx.Level 3 -> "kind") ^ " is ambiguous"); U' ) in  ((omitexact (U', V', r), Intro U', V'), true) ) | (G, tm, Vhs) -> ( let (tm', B', V') = inferExact (G, tm) in  ((tm', B', V'), unifiableIdem (G, Vhs, (V', id))) )
+and inferExactDec (G, Dec (name, tm, r))  = ( let (tm', B1, _(* Uni Type *)
+) = inferExact (G, tm) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (name, V1) in  (Dec (name, tm', r), D) )
+and checkExact1 = function (G, Lam (Dec (name, tm1, r), tm2), Vhs) -> ( let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef Vhs in let ((tm1', B1, _(* Uni Type *)
+), ok1) = unifyExact (G, tm1, (Va, s)) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (name, V1) in let ((tm2', B2, V2), ok2) = if ok1 then checkExact1 (Decl (G, D), tm2, (Vr, dot1 s)) else (inferExact (Decl (G, D), tm2), false) in let U2 = toIntro (B2, (V2, id)) in  ((Lam (Dec (name, tm1', r), tm2'), Intro (Lam (D, U2)), Pi ((D, Maybe), V2)), ok2) ) | (G, Hastype (tm1, tm2), Vhs) -> ( let ((tm2', B2, L), ok2) = unifyExact (G, tm2, Vhs) in let V = toIntro (B2, (L, id)) in let (tm1', B1) = checkExact (G, tm1, (V, id), "Ascription did not hold\n(Index object(s) did not match)") in  ((Hastype (tm1', tm2'), B1, V), ok2) ) | (G, Mismatch (tm1, tm2, location_msg, problem_msg), Vhs) -> ( let (tm1', _, V1) = inferExact (G, tm1) in let ((tm2', B, V), ok2) = checkExact1 (G, tm2, Vhs) in let _ = delayMismatch (G, V1, V, termRegion tm2', location_msg, problem_msg) in  ((Mismatch (tm1', tm2', location_msg, problem_msg), B, V), ok2) ) | (G, Omitapx (U, V(* = Vhs *)
+, L, r), Vhs) -> ( let V' = EClo Vhs in let U' = try Apx.apxToExact (G, U, Vhs, false) with Apx.Ambiguous -> ( let U' = Apx.apxToExact (G, U, Vhs, true) in  delayAmbiguous (G, U', r, "Omitted " ^ (match Apx.whnfUni L with Apx.Level 2 -> "type" | Apx.Level 3 -> "kind") ^ " is ambiguous"); U' ) in  ((Omitexact (U', V', r), Intro U', V'), true) ) | (G, tm, Vhs) -> ( let (tm', B', V') = inferExact (G, tm) in  ((tm', B', V'), unifiableIdem (G, Vhs, (V', id))) )
 and checkExact (G, tm, Vs, location_msg)  = if not (! trace) then ( let ((tm', B', V'), ok) = checkExact1 (G, tm, Vs) in  if ok then (tm', B') else (try (unifyIdem (G, (V', id), Vs); raise (Match)(* can't happen *)
 ) with Unify.Unify problem_msg -> ( let r = termRegion tm in let U' = toIntro (B', (V', id)) in let (Uapx, Vapx, Lapx) = Apx.exactToApx (U', V') in let ((tm'', B'', _(* Vs *)
 ), _(* true *)
-) = checkExact1 (G, omitapx (Uapx, Vapx, Lapx, r), Vs) in let _ = delayMismatch (G, V', EClo Vs, r, location_msg, problem_msg) in  (mismatch (tm', tm'', location_msg, problem_msg), B'') )) ) else ( let (tm', B', V') = inferExact (G, tm) in  try (reportUnify (G, (V', id), Vs); (tm', B')) with Unify.Unify problem_msg -> ( let r = termRegion tm in let U' = toIntro (B', (V', id)) in let (Uapx, Vapx, Lapx) = Apx.exactToApx (U', V') in let (tm'', B'') = checkExact (G, omitapx (Uapx, Vapx, Lapx, r), Vs, location_msg) in let _ = delayMismatch (G, V', EClo Vs, r, location_msg, problem_msg) in  (mismatch (tm', tm'', location_msg, problem_msg), B'') ) )
-and unifyExact = function (G, arrow (tm1, tm2), Vhs) -> ( let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef Vhs in let ((tm1', B1, _(* Uni Type *)
-), ok1) = unifyExact (G, tm1, (Va, s)) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (None, V1) in let (tm2', B2, L) = inferExact (G, tm2) in let V2 = toIntro (B2, (L, id)) in  ((arrow (tm1', tm2'), Intro (Pi ((D, No), EClo (V2, shift))), L), ok1 && unifiableIdem (Decl (G, D), (Vr, dot1 s), (V2, shift))) ) | (G, pi (dec (name, tm1, r), tm2), Vhs) -> ( let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef Vhs in let ((tm1', B1, _(* Uni Type *)
-), ok1) = unifyExact (G, tm1, (Va, s)) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (name, V1) in let ((tm2', B2, L), ok2) = if ok1 then unifyExact (Decl (G, D), tm2, (Vr, dot1 s)) else (inferExact (Decl (G, D), tm2), false) in let V2 = toIntro (B2, (L, id)) in  ((pi (dec (name, tm1', r), tm2'), Intro (Pi ((D, Maybe), V2)), L), ok2) ) | (G, hastype (tm1, tm2), Vhs) -> ( (* Vh : L by invariant *)
+) = checkExact1 (G, Omitapx (Uapx, Vapx, Lapx, r), Vs) in let _ = delayMismatch (G, V', EClo Vs, r, location_msg, problem_msg) in  (Mismatch (tm', tm'', location_msg, problem_msg), B'') )) ) else ( let (tm', B', V') = inferExact (G, tm) in  try (reportUnify (G, (V', id), Vs); (tm', B')) with Unify.Unify problem_msg -> ( let r = termRegion tm in let U' = toIntro (B', (V', id)) in let (Uapx, Vapx, Lapx) = Apx.exactToApx (U', V') in let (tm'', B'') = checkExact (G, Omitapx (Uapx, Vapx, Lapx, r), Vs, location_msg) in let _ = delayMismatch (G, V', EClo Vs, r, location_msg, problem_msg) in  (Mismatch (tm', tm'', location_msg, problem_msg), B'') ) )
+and unifyExact = function (G, Arrow (tm1, tm2), Vhs) -> ( let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef Vhs in let ((tm1', B1, _(* Uni Type *)
+), ok1) = unifyExact (G, tm1, (Va, s)) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (None, V1) in let (tm2', B2, L) = inferExact (G, tm2) in let V2 = toIntro (B2, (L, id)) in  ((Arrow (tm1', tm2'), Intro (Pi ((D, No), EClo (V2, shift))), L), ok1 && unifiableIdem (Decl (G, D), (Vr, dot1 s), (V2, shift))) ) | (G, Pi (Dec (name, tm1, r), tm2), Vhs) -> ( let (Pi ((Dec (_, Va), _), Vr), s) = Whnf.whnfExpandDef Vhs in let ((tm1', B1, _(* Uni Type *)
+), ok1) = unifyExact (G, tm1, (Va, s)) in let V1 = toIntro (B1, (Uni Type, id)) in let D = Dec (name, V1) in let ((tm2', B2, L), ok2) = if ok1 then unifyExact (Decl (G, D), tm2, (Vr, dot1 s)) else (inferExact (Decl (G, D), tm2), false) in let V2 = toIntro (B2, (L, id)) in  ((Pi (Dec (name, tm1', r), tm2'), Intro (Pi ((D, Maybe), V2)), L), ok2) ) | (G, Hastype (tm1, tm2), Vhs) -> ( (* Vh : L by invariant *)
 let (tm2', _(* Uni L *)
 , _(* Uni (Next L) *)
-) = inferExact (G, tm2) in let ((tm1', B, L), ok1) = unifyExact (G, tm1, Vhs) in  ((hastype (tm1', tm2'), B, L), ok1) ) | (G, mismatch (tm1, tm2, location_msg, problem_msg), Vhs) -> ( let (tm1', _, L1) = inferExact (G, tm1) in let ((tm2', B, L), ok2) = unifyExact (G, tm2, Vhs) in let _ = delayMismatch (G, L1, L, termRegion tm2', location_msg, problem_msg) in  ((mismatch (tm1', tm2', location_msg, problem_msg), B, L), ok2) ) | (G, omitapx (V(* = Vhs *)
+) = inferExact (G, tm2) in let ((tm1', B, L), ok1) = unifyExact (G, tm1, Vhs) in  ((Hastype (tm1', tm2'), B, L), ok1) ) | (G, Mismatch (tm1, tm2, location_msg, problem_msg), Vhs) -> ( let (tm1', _, L1) = inferExact (G, tm1) in let ((tm2', B, L), ok2) = unifyExact (G, tm2, Vhs) in let _ = delayMismatch (G, L1, L, termRegion tm2', location_msg, problem_msg) in  ((Mismatch (tm1', tm2', location_msg, problem_msg), B, L), ok2) ) | (G, Omitapx (V(* = Vhs *)
 , L, nL(* Next L *)
 , r), Vhs) -> ( (* cannot raise Ambiguous *)
-let L' = Apx.apxToClass (G, L, nL, false) in let V' = EClo Vhs in  ((omitexact (V', L', r), Intro V', L'), true) ) | (G, tm, Vhs) -> ( let (tm', B', L') = inferExact (G, tm) in let V' = toIntro (B', (L', id)) in  ((tm', B', L'), unifiableIdem (G, Vhs, (V', id))) )
-let rec occElim = function (constant (H, r), os, rs, i) -> ( (* should probably treat a constant with Foreign
+let L' = Apx.apxToClass (G, L, nL, false) in let V' = EClo Vhs in  ((Omitexact (V', L', r), Intro V', L'), true) ) | (G, tm, Vhs) -> ( let (tm', B', L') = inferExact (G, tm) in let V' = toIntro (B', (L', id)) in  ((tm', B', L'), unifiableIdem (G, Vhs, (V', id))) )
+let rec occElim = function (Constant (H, r), os, rs, i) -> ( (* should probably treat a constant with Foreign
              a redex *)
-let r' = List.foldr Paths.join r rs in  (Paths.root (r', Paths.Leaf r, conDecImp (headConDec H), i, os), r') ) | (bvar (k, r), os, rs, i) -> ( let r' = List.foldr Paths.join r rs in  (Paths.root (r', Paths.Leaf r, 0, i, os), r') ) | (fvar (name, r), os, rs, i) -> ( let r' = List.foldr Paths.join r rs in  (Paths.root (r', Paths.Leaf r, 0, i, os), r') ) | (app (tm1, tm2), os, rs, i) -> ( let (oc2, r2) = occIntro tm2 in  occElim (tm1, Paths.app (oc2, os), r2 :: rs, i + 1) ) | (hastype (tm1, tm2), os, rs, i) -> occElim (tm1, os, rs, i) | (tm, os, rs, i) -> ( let r' = List.foldr Paths.join (termRegion tm) rs in  (Paths.Leaf r', r') )
-and occIntro = function (arrow (tm1, tm2)) -> ( let (oc1, r1) = occIntro tm1 in let (oc2, r2) = occIntro tm2 in let r' = Paths.join (r1, r2) in  (Paths.Bind (r', Some oc1, oc2), r') ) | (pi (dec (name, tm1, r), tm2)) -> ( let (oc1, r1) = occIntro tm1 in let (oc2, r2) = occIntro tm2 in let r' = Paths.join (r, r2) in  (* not quite consistent with older implementation for_sml dec0 *)
-(Paths.Bind (r', Some oc1, oc2), r') ) | (lam (dec (name, tm1, r), tm2)) -> ( let (oc1, r1) = occIntro tm1 in let (oc2, r2) = occIntro tm2 in let r' = Paths.join (r, r2) in  (* not quite consistent with older implementation for_sml dec0 *)
-(Paths.Bind (r', Some oc1, oc2), r') ) | (hastype (tm1, tm2)) -> occIntro tm1 | (tm) -> ( (* still doesn't work quite right for_sml the location -> occurrence map? *)
+let r' = List.foldr Paths.join r rs in  (Paths.root (r', Paths.Leaf r, conDecImp (headConDec H), i, os), r') ) | (Bvar (k, r), os, rs, i) -> ( let r' = List.foldr Paths.join r rs in  (Paths.root (r', Paths.Leaf r, 0, i, os), r') ) | (Fvar (name, r), os, rs, i) -> ( let r' = List.foldr Paths.join r rs in  (Paths.root (r', Paths.Leaf r, 0, i, os), r') ) | (App (tm1, tm2), os, rs, i) -> ( let (oc2, r2) = occIntro tm2 in  occElim (tm1, Paths.app (oc2, os), r2 :: rs, i + 1) ) | (Hastype (tm1, tm2), os, rs, i) -> occElim (tm1, os, rs, i) | (tm, os, rs, i) -> ( let r' = List.foldr Paths.join (termRegion tm) rs in  (Paths.Leaf r', r') )
+and occIntro = function (Arrow (tm1, tm2)) -> ( let (oc1, r1) = occIntro tm1 in let (oc2, r2) = occIntro tm2 in let r' = Paths.join (r1, r2) in  (Paths.Bind (r', Some oc1, oc2), r') ) | (Pi (Dec (name, tm1, r), tm2)) -> ( let (oc1, r1) = occIntro tm1 in let (oc2, r2) = occIntro tm2 in let r' = Paths.join (r, r2) in  (* not quite consistent with older implementation for_sml dec0 *)
+(Paths.Bind (r', Some oc1, oc2), r') ) | (Lam (Dec (name, tm1, r), tm2)) -> ( let (oc1, r1) = occIntro tm1 in let (oc2, r2) = occIntro tm2 in let r' = Paths.join (r, r2) in  (* not quite consistent with older implementation for_sml dec0 *)
+(Paths.Bind (r', Some oc1, oc2), r') ) | (Hastype (tm1, tm2)) -> occIntro tm1 | (tm) -> ( (* still doesn't work quite right for_sml the location -> occurrence map? *)
 let (oc, r) = occElim (tm, Paths.nils, [], 0) in  (oc, r) )
 let rec inferExactJob = function (G, jnothing) -> JNothing | (G, jand (j1, j2)) -> JAnd (inferExactJob (G, j1), inferExactJob (G, j2)) | (G, jwithctx (g, j)) -> ( let rec ie = function (Null) -> (G, Null) | (Decl (g, tm)) -> ( let (G', Gresult) = ie (g) in let (_, D) = inferExactDec (G', tm) in  (Decl (G', D), Decl (Gresult, D)) ) in let (G', Gresult) = ie (g) in  JWithCtx (Gresult, inferExactJob (G', j)) ) | (G, jterm (tm)) -> ( (* others impossible *)
 let (tm', B, V) = inferExact (G, tm) in let U = toIntro (B, (V, id)) in let (oc, r) = occIntro (tm') in let rec iu = function (Uni Type) -> Kind | (Pi (_, V)) -> iu V | (Root _) -> Type | (Redex (V, _)) -> iu V | (Lam (_, V)) -> iu V | (EClo (V, _)) -> iu V in  JTerm ((U, oc), V, iu V) ) | (G, jclass (tm)) -> ( let (tm', B, L) = inferExact (G, tm) in let V = toIntro (B, (L, id)) in let (oc, r) = occIntro (tm') in let (Uni L, _) = Whnf.whnf (L, id) in  JClass ((V, oc), L) ) | (G, jof (tm1, tm2)) -> ( let (tm2', B2, L2) = inferExact (G, tm2) in let V2 = toIntro (B2, (L2, id)) in let (tm1', B1) = checkExact (G, tm1, (V2, id), "Ascription in declaration did not hold\n" ^ "(Index object(s) did not match)") in let U1 = toIntro (B1, (V2, id)) in let (oc2, r2) = occIntro tm2' in let (oc1, r1) = occIntro tm1' in let (Uni L2, _) = Whnf.whnf (L2, id) in  JOf ((U1, oc1), (V2, oc2), L2) ) | (G, jof' (tm1, V2)) -> ( (*          val (tm2', B2, L2) = inferExact (G, tm2)

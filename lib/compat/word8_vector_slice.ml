@@ -1,3 +1,6 @@
+(* Compatibility shim to cope with Standard Basis version skew *)
+
+(* Author: Christopher Richards *)
 (* Compatibility shim from Basis-02 Word8VectorSlice to Basis-97 Word8Vector *)
 
 (* Author: Christopher Richards *)

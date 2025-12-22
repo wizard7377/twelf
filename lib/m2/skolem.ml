@@ -1,3 +1,13 @@
+(* Skolem administration *)
+
+(* Author: Carsten Schuermann *)
+
+module type SKOLEM = sig
+  (*! structure IntSyn : INTSYN !*)
+  val install : IntSyn.cid list -> unit
+end
+
+(* signature SKOLEM *)
 (* Skolem constant administration *)
 
 (* Author: Carsten Schuermann *)
