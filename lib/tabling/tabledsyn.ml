@@ -18,7 +18,8 @@ end
 
 (* Author: Brigitte Pientka *)
 
-module TabledSyn (Names : Names.NAMES) (Index : Index.INDEX) : Tabled.Table.TABLEDSYN = struct
+module TabledSyn (Names : Names.NAMES) (Index : Index.INDEX) :
+  Tabled.Table.TABLEDSYN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

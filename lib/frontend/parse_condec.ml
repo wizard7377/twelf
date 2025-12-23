@@ -16,8 +16,10 @@ end
 
 (* Author: Frank Pfenning *)
 
-module ParseConDec (ExtConDec' : Recon_condec.EXTCONDEC) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) :
-  Parse_prg.PARSE_CONDEC = struct
+module ParseConDec
+    (ExtConDec' : Recon_condec.EXTCONDEC)
+    (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_CONDEC =
+struct
   (*! structure Parsing = Parsing' !*)
 
   module ExtConDec = ExtConDec'

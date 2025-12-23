@@ -18,8 +18,10 @@ end
 
 (* Author: Kevin Watkins *)
 
-module ParseModule (ModExtSyn' : Recon_module.MODEXTSYN) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) :
-  Parse_prg.PARSE_MODULE = struct
+module ParseModule
+    (ModExtSyn' : Recon_module.MODEXTSYN)
+    (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_MODULE =
+struct
   (*! structure Parsing = Parsing' !*)
 
   module ModExtSyn = ModExtSyn'

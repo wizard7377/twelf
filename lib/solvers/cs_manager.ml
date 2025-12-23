@@ -50,8 +50,10 @@ end
 
 (* Author: Roberto Virga *)
 
-module CSManager (Global : Global.GLOBAL) (Unify : Unify.UNIFY) (Fixity : Names.FIXITY) :
-  Cs.CS_MANAGER = struct
+module CSManager
+    (Global : Global.GLOBAL)
+    (Unify : Unify.UNIFY)
+    (Fixity : Names.FIXITY) : Cs.CS_MANAGER = struct
   module IntSyn = IntSyn
   module Fixity = Fixity
   (* structure ModeSyn = ModeSyn *)

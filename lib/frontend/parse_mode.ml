@@ -14,7 +14,9 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module ParseMode (ExtModes' : Recon_mode.EXTMODES) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_MODE =
+module ParseMode
+    (ExtModes' : Recon_mode.EXTMODES)
+    (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_MODE =
 struct
   (*! structure Parsing = Parsing' !*)
 

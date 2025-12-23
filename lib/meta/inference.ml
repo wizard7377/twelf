@@ -18,20 +18,31 @@ end
 (* signature Inference *)
 (* Inference:  Version 1.3*)
 
-
 (* Author: Carsten Schuermann *)
 
+module Inference
+    (MTPGlobal : Global.MTPGLOBAL)
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Abstract : Abstract.ABSTRACT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (FunTypeCheck : Funtypecheck.FUNTYPECHECK)
+    (UniqueSearch : Uniquesearch.Unique.UNIQUESEARCH)
+    (Print : Print.PRINT)
+    (Whnf : Whnf.WHNF) : INFERENCE = struct
+  (*! structure FunSyn = FunSyn' !*)
 
-module Inference (MTPGlobal : Global.MTPGLOBAL) (StateSyn' : Statesyn.State.STATESYN) (Abstract : Abstract.ABSTRACT) (TypeCheck : Typecheck.TYPECHECK) (FunTypeCheck : Funtypecheck.FUNTYPECHECK) (UniqueSearch : Uniquesearch.Unique.UNIQUESEARCH) (Print : Print.PRINT) (Whnf : Whnf.WHNF) : INFERENCE = struct (*! structure FunSyn = FunSyn' !*)
+  module StateSyn = StateSyn'
 
-module StateSyn = StateSyn'
-exception Error of string
-type operator = (unit -> StateSyn'.state)
-module S = StateSyn
-module F = FunSyn
-module I = IntSyn
-exception Success
-(* createEVars (G, (F, V, s)) = (Xs', (F', V', s'))
+  exception Error of string
+
+  type operator = unit -> StateSyn'.state
+
+  module S = StateSyn
+  module F = FunSyn
+  module I = IntSyn
+
+  exception Success
+  (* createEVars (G, (F, V, s)) = (Xs', (F', V', s'))
 
        Invariant:
        If   |- G ctx
@@ -45,8 +56,14 @@ exception Success
        and  G0 |- V' = V1 : type
     *)
 
-let rec createEVars = function (G, (I.Pi ((I.Dec (_, V), I.Meta), V'), s)) -> ( let X = I.newEVar (G, I.EClo (V, s)) in let X' = Whnf.lowerEVar X in let (Xs, FVs') = createEVars (G, (V', I.Dot (I.Exp X, s))) in  (X' :: Xs, FVs') ) | (G, FVs) -> ([], FVs)
-(* forward (G, B, (V, F)) = (V', F')  (or none)
+  let rec createEVars = function
+    | G, (I.Pi ((I.Dec (_, V), I.Meta), V'), s) ->
+        let X = I.newEVar (G, I.EClo (V, s)) in
+        let X' = Whnf.lowerEVar X in
+        let Xs, FVs' = createEVars (G, (V', I.Dot (I.Exp X, s))) in
+        (X' :: Xs, FVs')
+    | G, FVs -> ([], FVs)
+  (* forward (G, B, (V, F)) = (V', F')  (or none)
 
        Invariant:
        If   |- G ctx
@@ -58,8 +75,27 @@ let rec createEVars = function (G, (I.Pi ((I.Dec (_, V), I.Meta), V'), s)) -> ( 
 
     *)
 
-let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type)) else () in let (Xs, (V', s')) = createEVars (G, (V, I.id)) in  try (match UniqueSearch.searchEx (2, Xs, function [] -> [(Whnf.normalize (V', s'))] | _ -> raise (UniqueSearch.Error "Too many solutions")) with [VF''] -> Some VF'' | [] -> None) with UniqueSearch.Error _ -> None ) | (G, B, V) -> None
-(* expand' ((G, B), n) = ((Gnew, Bnew), sc)
+  let rec forward = function
+    | G, B, V -> (
+        let _ =
+          if !Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type))
+          else ()
+        in
+        let Xs, (V', s') = createEVars (G, (V, I.id)) in
+        try
+          match
+            UniqueSearch.searchEx
+              ( 2,
+                Xs,
+                function
+                | [] -> [ Whnf.normalize (V', s') ]
+                | _ -> raise (UniqueSearch.Error "Too many solutions") )
+          with
+          | [ VF'' ] -> Some VF''
+          | [] -> None
+        with UniqueSearch.Error _ -> None)
+    | G, B, V -> None
+  (* expand' ((G, B), n) = ((Gnew, Bnew), sc)
 
        Invariant:
        If   |- G0 ctx    G0 |- B0 tags
@@ -78,39 +114,72 @@ let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then T
        where Bnew stems from B where all used lemmas (S.RL) are now tagged with (S.RLdone)
     *)
 
-let rec expand' = function ((G0, B0), (I.Null, I.Null), n) -> ((I.Null, I.Null), fun ((G', B'), w') -> ((G', B'), w')) | ((G0, B0), (I.Decl (G, D), I.Decl (B, T)), n) -> ( let ((G0', B0'), sc') = expand' ((G0, B0), (G, B), n + 1) in let s = I.Shift (n + 1) in let Vs = Whnf.normalize (V, s) in  match (forward (G0, B0, (Vs))) with None -> ((I.Decl (G0', D), I.Decl (B0', T)), sc') | Some (V') -> ((I.Decl (G0', D), I.Decl (B0', S.Lemma (S.RLdone))), fun ((G', B'), w') -> ( (* G' |- V'' : type *)
-let V'' = Whnf.normalize (V', w') in  sc' ((I.Decl (G', I.Dec (None, V'')), I.Decl (B', S.Lemma (S.Splits (! MTPGlobal.maxSplit)))), I.comp (w', I.shift)) )) ) | (GB0, (I.Decl (G, D), I.Decl (B, T)), n) -> ( let ((G0', B0'), sc') = expand' (GB0, (G, B), n + 1) in  ((I.Decl (G0', D), I.Decl (B0', T)), sc') )
-(* expand' S = op'
+  let rec expand' = function
+    | (G0, B0), (I.Null, I.Null), n ->
+        ((I.Null, I.Null), fun ((G', B'), w') -> ((G', B'), w'))
+    | (G0, B0), (I.Decl (G, D), I.Decl (B, T)), n -> (
+        let (G0', B0'), sc' = expand' ((G0, B0), (G, B), n + 1) in
+        let s = I.Shift (n + 1) in
+        let Vs = Whnf.normalize (V, s) in
+        match forward (G0, B0, Vs) with
+        | None -> ((I.Decl (G0', D), I.Decl (B0', T)), sc')
+        | Some V' ->
+            ( (I.Decl (G0', D), I.Decl (B0', S.Lemma S.RLdone)),
+              fun ((G', B'), w') ->
+                (* G' |- V'' : type *)
+                let V'' = Whnf.normalize (V', w') in
+                sc'
+                  ( ( I.Decl (G', I.Dec (None, V'')),
+                      I.Decl (B', S.Lemma (S.Splits !MTPGlobal.maxSplit)) ),
+                    I.comp (w', I.shift) ) ))
+    | GB0, (I.Decl (G, D), I.Decl (B, T)), n ->
+        let (G0', B0'), sc' = expand' (GB0, (G, B), n + 1) in
+        ((I.Decl (G0', D), I.Decl (B0', T)), sc')
+  (* expand' S = op'
 
        Invariant:
        If   |- S state
        then op' is an operator which performs the filling operation
     *)
 
-let rec expand (S)  = ( let _ = if (! Global.doubleCheck) then TypeCheck.typeCheckCtx (G) else () in let ((Gnew, Bnew), sc) = expand' ((G, B), (G, B), 0) in let _ = if (! Global.doubleCheck) then TypeCheck.typeCheckCtx (Gnew) else () in let ((G', B'), w') = sc ((Gnew, Bnew), I.id) in let _ = TypeCheck.typeCheckCtx G' in let S' = S.State (n, (G', B'), (IH, OH), d, S.orderSub (O, w'), map (fun (i, F') -> (i, F.forSub (F', w'))) H, F.forSub (F, w')) in let _ = if ! Global.doubleCheck then FunTypeCheck.isState S' else () in  fun () -> S' )
-(* apply op = B'
+  let rec expand S =
+    let _ = if !Global.doubleCheck then TypeCheck.typeCheckCtx G else () in
+    let (Gnew, Bnew), sc = expand' ((G, B), (G, B), 0) in
+    let _ = if !Global.doubleCheck then TypeCheck.typeCheckCtx Gnew else () in
+    let (G', B'), w' = sc ((Gnew, Bnew), I.id) in
+    let _ = TypeCheck.typeCheckCtx G' in
+    let S' =
+      S.State
+        ( n,
+          (G', B'),
+          (IH, OH),
+          d,
+          S.orderSub (O, w'),
+          map (fun (i, F') -> (i, F.forSub (F', w'))) H,
+          F.forSub (F, w') )
+    in
+    let _ = if !Global.doubleCheck then FunTypeCheck.isState S' else () in
+    fun () -> S'
+  (* apply op = B'
 
        Invariant:
        If op is a filling operator
        then B' holds iff the filling operation was successful
     *)
 
-let rec apply f  = f ()
-(* menu op = s'
+  let rec apply f = f ()
+  (* menu op = s'
 
        Invariant:
        If op is a filling operator
        then s' is a string describing the operation in plain text
     *)
 
-let rec menu _  = "Inference"
-let expand = expand
-let apply = apply
-let menu = menu
-(* local *)
-
- end
-
+  let rec menu _ = "Inference"
+  let expand = expand
+  let apply = apply
+  let menu = menu
+  (* local *)
+end
 
 (* functor Filling *)
-

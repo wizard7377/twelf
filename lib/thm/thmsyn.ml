@@ -64,8 +64,10 @@ end
 
 (* Modified: Brigitte Pientka *)
 
-module ThmSyn (Abstract : Abstract.ABSTRACT) (Whnf : Whnf.WHNF) (Names' : Names.NAMES) : THMSYN =
-struct
+module ThmSyn
+    (Abstract : Abstract.ABSTRACT)
+    (Whnf : Whnf.WHNF)
+    (Names' : Names.NAMES) : THMSYN = struct
   (*! structure IntSyn = IntSyn !*)
 
   (*! structure ModeSyn = ModeSyn' *)

@@ -31,7 +31,8 @@ module TomegaTypeCheck
     (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
     (Subordinate : Subordinate.SUBORDINATE)
     (Weaken : Weaken.Weaken.WEAKEN)
-    (TomegaAbstract : Tomega.Abstract.TOMEGAABSTRACT) : Tomega.TOMEGATYPECHECK = struct
+    (TomegaAbstract : Tomega.Abstract.TOMEGAABSTRACT) : Tomega.TOMEGATYPECHECK =
+struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

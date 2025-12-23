@@ -17,8 +17,10 @@ end
 
 (* Author: Iliano Cervesato *)
 
-module CPrint (Print : Print.PRINT) (Formatter : Formatter.FORMATTER) (Names : Names.NAMES) : CPRINT =
-struct
+module CPrint
+    (Print : Print.PRINT)
+    (Formatter : Formatter.FORMATTER)
+    (Names : Names.NAMES) : CPRINT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)

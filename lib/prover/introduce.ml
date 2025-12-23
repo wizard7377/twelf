@@ -21,8 +21,9 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Introduce (State' : State.STATE) (TomegaNames : Tomega.Tomeganames.TOMEGANAMES) : INTRODUCE =
-struct
+module Introduce
+    (State' : State.STATE)
+    (TomegaNames : Tomega.Tomeganames.TOMEGANAMES) : INTRODUCE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

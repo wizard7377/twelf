@@ -15,8 +15,10 @@ end
 
 (* Author: Frank Pfenning *)
 
-module ParseQuery (ExtQuery' : Recon_query.EXTQUERY) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) :
-  Parse_prg.PARSE_QUERY = struct
+module ParseQuery
+    (ExtQuery' : Recon_query.EXTQUERY)
+    (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_QUERY =
+struct
   (*! structure Parsing = Parsing' !*)
 
   module ExtQuery = ExtQuery'
@@ -101,7 +103,8 @@ module ParseQuery (ExtQuery' : Recon_query.EXTQUERY) (ParseTerm : Parse_prg.Pars
         Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
 
   and parseSolve1 = function
-    | defns, LS.Cons ((L.Solve.SOLVE, r0), s') -> parseSolve2 (defns, LS.expose s', r0)
+    | defns, LS.Cons ((L.Solve.SOLVE, r0), s') ->
+        parseSolve2 (defns, LS.expose s', r0)
     | defns, LS.Cons ((L.DEFINE, r0), s') ->
         let defn, f' = parseDefine1 (LS.expose s') in
         parseSolve1 (defn :: defns, f')

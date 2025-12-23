@@ -84,7 +84,8 @@ end
 
 (* Author: Richard Fontana *)
 
-module DextSyn (ExtSyn' : Recon_term.EXTSYN) (Parsing' : Parsing.PARSING) : DEXTSYN = struct
+module DextSyn (ExtSyn' : Recon_term.EXTSYN) (Parsing' : Parsing.PARSING) :
+  DEXTSYN = struct
   (*  structure Stream = Stream' *)
 
   module ExtSyn = ExtSyn'

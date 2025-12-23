@@ -46,8 +46,10 @@ module type TRAVERSE = sig
 end
 
 (* signature TRAVERSE *)
-module Traverse (Whnf : Whnf.WHNF) (Names : Names.NAMES) (Traverser' : TRAVERSER) :
-  TRAVERSE = struct
+module Traverse
+    (Whnf : Whnf.WHNF)
+    (Names : Names.NAMES)
+    (Traverser' : TRAVERSER) : TRAVERSE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module Traverser = Traverser'

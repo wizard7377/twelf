@@ -40,8 +40,10 @@ end
 
 (* Modified: Roberto Virga *)
 
-module Abstract (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Constraints : Constraints.CONSTRAINTS) :
-  ABSTRACT = struct
+module Abstract
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Constraints : Constraints.CONSTRAINTS) : ABSTRACT = struct
   exception Error of string
 
   module I = IntSyn

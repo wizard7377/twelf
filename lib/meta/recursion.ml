@@ -463,7 +463,9 @@ module MTPRecursion
   and ordltLex = function
     | GB, [], [], sc, ac, Ds -> Ds
     | GB, O :: L, O' :: L', sc, ac, Ds ->
-        let Ds' = Cs.CSManager.trail (fun () -> ordlt (GB, O, O', sc, ac, Ds)) in
+        let Ds' =
+          Cs.CSManager.trail (fun () -> ordlt (GB, O, O', sc, ac, Ds))
+        in
         ordeq
           (GB, O, O', fun Ds'' -> (ordltLex (GB, L, L', sc, ac, Ds''), ac, Ds'))
 

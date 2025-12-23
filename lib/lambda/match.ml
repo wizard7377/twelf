@@ -37,7 +37,8 @@ end
 
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-module Match (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Trail : Trail.TRAIL) : MATCH = struct
+module Match (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Trail : Trail.TRAIL) :
+  MATCH = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Match of string

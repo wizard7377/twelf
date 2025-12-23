@@ -446,9 +446,9 @@ let mdecs = List.map ReconMode.modeToMode mterms in let _ = ReconTerm.checkError
 *)
 (* %total does not auto-freeze, since the predicate must already be frozen *)
 let (T, rrs) = ReconThm.tdeclTotDecl lterm in let La = Thm.installTotal (T, rrs) in let _ = map Total.install La in let _ = try map Total.checkFam La with Total.Error (msg) -> raise (Total.Error (msg)) | (* include region and file *)
- | Cover.Error (msg) -> raise (Cover.Error (Paths.wrap (r, msg))) | (*                     | Cover.Error (msg) => covererror (result1, msg)  disabled -cs Thu Jan 29 16:35:13 2004 *)
- | Reduces.Error (msg) -> raise (Reduces.Error (msg)) | (* includes filename *)
- | Subordinate.Error (msg) -> raise (Subordinate.Error (Paths.wrap (r, msg))) in let _ = if ! Global.chatter >= 3 then msg ("%total " ^ ThmPrint.tDeclToString T ^ ".\n") else () in  () ) | (fileName, (Parser.TerminatesDec lterm, _)) -> ( (* allow re-declaration since safe? *)
+  Cover.Error (msg) -> raise (Cover.Error (Paths.wrap (r, msg))) | (*                     | Cover.Error (msg) => covererror (result1, msg)  disabled -cs Thu Jan 29 16:35:13 2004 *)
+  Reduces.Error (msg) -> raise (Reduces.Error (msg)) | (* includes filename *)
+  Subordinate.Error (msg) -> raise (Subordinate.Error (Paths.wrap (r, msg))) in let _ = if ! Global.chatter >= 3 then msg ("%total " ^ ThmPrint.tDeclToString T ^ ".\n") else () in  () ) | (fileName, (Parser.TerminatesDec lterm, _)) -> ( (* allow re-declaration since safe? *)
 (* Thu Mar 10 13:45:42 2005 -fp *)
 (*
           val _ = ListPair.app (fn ((a, _), r) =>
@@ -609,7 +609,7 @@ let rec appendUniq (l1, l2)  = ( let rec appendUniq' = function (x :: l2) -> if 
  else (sources @ [item], configs) in let rec parseLine (sources, configs) line  = if Substring.isEmpty line(* end of file *)
  then (sources, configs) else ( let line' = Substring.dropl Char.isSpace line in  parseLine' (sources, configs) line' )
 and parseLine' (sources, configs) line  = if Substring.isEmpty line || (* empty line *)
- || Substring.sub (line, 0) = '%'(* comment *)
+  Substring.sub (line, 0) = '%'(* comment *)
  then parseStream (sources, configs) else ( let line' = Substring.string (Substring.takel (not o Char.isSpace) line) in let item = mkRel (configDir, fromUnixPath line') in  parseStream (parseItem (sources, configs) item) )
 and parseStream (sources, configs)  = ( let line = Compat.Substring.full (Compat.inputLine97 instream) in  parseLine (sources, configs) line ) in  parseStream (sources, configs) )) in let pwdir = OS.FileSys.getDir () in  (pwdir, List.map ModFile.create (1 (read' ([], [config]) config)))(*
             handle IO.Io (ioError) => (abortIO (configFile, ioError); raise IO.io (ioError))
@@ -726,33 +726,33 @@ let getDir = OS.FileSys.getDir
 let rec exit ()  = OS.Process.exit (OS.Process.success)
  end
 module Compile : sig
-  optCompSyn.opt
+  type opt = CompSyn.opt
   val optimize : opt ref
 
-end = struct optCompSyn.opt
+end = struct type opt = CompSyn.opt
 let optimize = CompSyn.optimize
  end
 module Recon : sig
-  traceModeReconTerm.traceMode
+  type traceMode = ReconTerm.traceMode
   val trace : bool ref
   val traceMode : traceMode ref
 
-end = struct traceModeReconTerm.traceMode
+end = struct type traceMode = ReconTerm.traceMode
 let trace = ReconTerm.trace
 let traceMode = ReconTerm.traceMode
  end
 module Recon : sig
-  traceModeReconTerm.traceMode
+  type traceMode = ReconTerm.traceMode
   val trace : bool ref
   val traceMode : traceMode ref
 
-end = struct traceModeReconTerm.traceMode
+end = struct type traceMode = ReconTerm.traceMode
 let trace = ReconTerm.trace
 let traceMode = ReconTerm.traceMode
  end
 module Prover : sig
 (* F=Filling, R=Recursion, S=Splitting *)
-  strategyMetaGlobal.strategy
+  type strategy = MetaGlobal.strategy
 (* FRS or RFS *)
   val strategy : strategy ref
 (* FRS, strategy used for_sml %prove *)
@@ -761,7 +761,7 @@ module Prover : sig
   val maxRecurse : int ref
 (* 10, bound on recursion *)
 
-end = struct strategyMetaGlobal.strategy
+end = struct type strategy = MetaGlobal.strategy
 (* FRS or RFS *)
 
 let strategy = MetaGlobal.strategy
@@ -800,7 +800,7 @@ end = Config
 let make = make
 let version = Version.version_string
 module Table : sig
-  strategyTableParam.strategy
+  type strategy = TableParam.strategy
   val strategy : strategy ref
   val strengthen : bool ref
   val resetGlobalTable : unit -> unit

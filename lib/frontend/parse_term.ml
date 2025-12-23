@@ -28,7 +28,8 @@ end
 
 (* Author: Frank Pfenning *)
 
-module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) : Parse_prg.PARSE_TERM = struct
+module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) :
+  Parse_prg.PARSE_TERM = struct
   (*! structure Parsing = Parsing' !*)
 
   module ExtSyn = ExtSyn'
