@@ -63,7 +63,7 @@ module SubTree
     (CPrint : Cprint.CPRINT)
     (Formatter : Formatter.FORMATTER)
     (Names : Names.NAMES)
-    (Cs.CSManager : Cs.Cs_manager.CS_MANAGER) : SUBTREE = struct
+    (CSManager : Cs.Cs_manager.CS_MANAGER) : SUBTREE = struct
   (*!  structure IntSyn = IntSyn' !*)
 
   (*!  structure CompSyn = CompSyn' !*)

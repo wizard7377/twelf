@@ -57,14 +57,14 @@ module type THMSYN = sig
     (string * thDecl) * Paths.region -> ModeSyn.modeSpine
 end
 
-(* signature Thm.THMSYN *)
+(* signature THMSYN *)
 (* Theorems *)
 
 (* Author: Carsten Schuermann *)
 
 (* Modified: Brigitte Pientka *)
 
-module ThmSyn (Abstract : Abstract.ABSTRACT) (Whnf : Whnf.WHNF) (Names' : Names.NAMES) : Thm.THMSYN =
+module ThmSyn (Abstract : Abstract.ABSTRACT) (Whnf : Whnf.WHNF) (Names' : Names.NAMES) : THMSYN =
 struct
   (*! structure IntSyn = IntSyn !*)
 

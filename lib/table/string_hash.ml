@@ -9,7 +9,7 @@ end
 
 (* Author: Frank Pfenning *)
 
-module StringHash : Hash.STRING_HASH = struct
+module StringHash : STRING_HASH = struct
   let rec stringHash s =
     (* sample 4 characters from string *)
     let rec num i = Char.ord (String.sub (s, i)) mod_ 128 in

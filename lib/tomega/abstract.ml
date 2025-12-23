@@ -17,7 +17,7 @@ module type TOMEGAABSTRACT = sig
     IntSyn.dec IntSyn.ctx * (Tomega.for_sml * IntSyn.sub) -> Tomega.for_sml
 end
 
-(* Signature Tomega.TOMEGAABSTRACT *)
+(* Signature TOMEGAABSTRACT *)
 (* Converter from relational representation to a functional
    representation of proof terms *)
 
@@ -25,9 +25,9 @@ end
 
 module TomegaAbstract
     (Global : Global.GLOBAL)
-    (Abstract : Abstract.ABSTRACT)
+    (Abstract : ABSTRACT)
     (Whnf : Whnf.WHNF)
-    (Subordinate : Subordinate.SUBORDINATE) : Tomega.TOMEGAABSTRACT = struct
+    (Subordinate : Subordinate.SUBORDINATE) : TOMEGAABSTRACT = struct
   exception Error of string
 
   module T = Tomega

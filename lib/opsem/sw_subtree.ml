@@ -66,8 +66,8 @@ module type MEMOTABLE = sig
 end
 
 (* signature MemoTable *)
-module SwMemoTable (MemoTable : Subtree.MEMOTABLE) (MemoTableInst : Subtree.MEMOTABLE) :
-  Subtree.MEMOTABLE = struct
+module SwMemoTable (MemoTable : MEMOTABLE) (MemoTableInst : MEMOTABLE) :
+  MEMOTABLE = struct
   (*! structure IntSyn = MemoTable.IntSyn !*)
 
   (*! structure CompSyn = MemoTable.CompSyn !*)

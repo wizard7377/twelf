@@ -21,7 +21,7 @@ end
 
 module FunTypeCheck
     (StateSyn' : Statesyn.State.STATESYN)
-    (Abstract : Abstract.ABSTRACT)
+    (Abstract : ABSTRACT)
     (TypeCheck : Typecheck.TYPECHECK)
     (Conv : Conv.CONV)
     (Whnf : Whnf.WHNF)

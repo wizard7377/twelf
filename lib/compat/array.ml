@@ -9,6 +9,6 @@ end
 
 (* Author: Christopher Richards *)
 
-module CompatArray97 : Compat.COMPAT_ARRAY = struct
+module CompatArray97 : COMPAT_ARRAY = struct
   let rec appi f arr = Array.appi f (arr, 0, None)
 end

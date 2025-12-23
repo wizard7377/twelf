@@ -9,6 +9,6 @@ end
 
 (* Author: Christopher Richards *)
 
-module CompatSubstring97 : Compat.COMPAT_SUBSTRING = struct
+module CompatSubstring97 : COMPAT_SUBSTRING = struct
   let full = Substring.all
 end

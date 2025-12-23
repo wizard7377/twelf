@@ -46,8 +46,8 @@ module MTPAbstract
     (Unify : Unify.UNIFY)
     (Subordinate : Subordinate.SUBORDINATE)
     (TypeCheck : Typecheck.TYPECHECK)
-    (FunTypeCheck : Funtypecheck.FUNTYPECHECK)
-    (Abstract : Abstract.ABSTRACT) : MTPABSTRACT = struct
+    (FunTypeCheck : FUNTYPECHECK)
+    (Abstract : ABSTRACT) : MTPABSTRACT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure FunSyn = FunSyn' !*)

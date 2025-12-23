@@ -34,14 +34,14 @@ module Converter
     (Unify : Unify.UNIFY)
     (Whnf : Whnf.WHNF)
     (Print : Print.PRINT)
-    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
+    (TomegaPrint : TOMEGAPRINT)
     (WorldSyn : Worldsyn.WORLDSYN)
     (Worldify : Worldify.WORLDIFY)
-    (TomegaTypeCheck : Tomega.Typecheck.TOMEGATYPECHECK)
+    (TomegaTypeCheck : TOMEGATYPECHECK)
     (Subordinate : Subordinate.SUBORDINATE)
     (TypeCheck : Typecheck.TYPECHECK)
     (Redundant : Redundant.REDUNDANT)
-    (TomegaAbstract : Tomega.Abstract.TOMEGAABSTRACT) : Conv.CONVERTER = struct
+    (TomegaAbstract : TOMEGAABSTRACT) : Conv.CONVERTER = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

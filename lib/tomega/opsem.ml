@@ -20,8 +20,8 @@ module Opsem
     (Whnf : Whnf.WHNF)
     (Abstract : Abstract.ABSTRACT)
     (Subordinate : Subordinate.SUBORDINATE)
-    (TomegaTypeCheck : Tomega.Typecheck.TOMEGATYPECHECK)
-    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
+    (TomegaTypeCheck : TOMEGATYPECHECK)
+    (TomegaPrint : TOMEGAPRINT)
     (Unify : Unify.UNIFY) : OPSEM = struct
   module T = Tomega
   module I = IntSyn

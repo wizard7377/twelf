@@ -9,6 +9,6 @@ end
 
 (* Author: Christopher Richards *)
 
-module CompatPath97 : Compat.COMPAT_PATH = struct
+module CompatPath97 : COMPAT_PATH = struct
   let rec mkAbsolute { path; relativeTo } = OS.Path.mkAbsolute (path, relativeTo)
 end

@@ -10,7 +10,7 @@ end
 
 (* Author: Christopher Richards *)
 
-module CompatTimer97 : Compat.COMPAT_TIMER = struct
+module CompatTimer97 : COMPAT_TIMER = struct
   let rec checkCPUTimer timer =
     let { usr; sys; gc } = Timer.checkCPUTimer timer in
     { usr; sys }
