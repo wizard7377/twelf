@@ -8,7 +8,7 @@ module CSIneqField
     (Unify : Unify.UNIFY)
     (SparseArray : Sparse_array.SPARSE_ARRAY)
     (SparseArray2 : Sparse_array.Sparse_array2.SPARSE_ARRAY2)
-    (Cs.CSEqField : Cs.Cs_eq_field.CS_EQ_FIELD)
+    (CSEqField : Cs.Cs_eq_field.CS_EQ_FIELD)
     (Compat : Compat.COMPAT) : Cs.CS = struct
   (*! structure Cs.CSManager = Cs.CSManager !*)
 

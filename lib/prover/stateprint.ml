@@ -103,7 +103,7 @@ let rec formatCtx = function (I.Null) -> [] | (I.Decl (I.Null, T.UDec D)) -> if 
        then fmt' is a format describing the state S
     *)
 
-let rec formatState (S.State (W, Psi, P, F, _))  = Fmt.Vbox0 0 1 [Fmt.String "------------------------"; Fmt.Break; Fmt.String "------------------------"; Fmt.Break; TomegaPrint.formatPrg (Psi, P)]
+let rec formatState (S.State (W, Psi, P, F, _))  = Fmt.Vbox0 (0, 1, [Fmt.String "------------------------"; Fmt.Break; Fmt.String "------------------------"; Fmt.Break; TomegaPrint.formatPrg (Psi, P)])
 (* formatState S = S'
 
        Invariant:

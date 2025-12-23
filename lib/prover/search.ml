@@ -36,7 +36,7 @@ module Search
     (CPrint : Cprint.CPRINT)
     (Print : Print.PRINT)
     (Names : Names.NAMES)
-    (Cs.CSManager : Cs.Cs_manager.CS_MANAGER) : SEARCH = struct
+    (CSManager : Cs.Cs_manager.CS_MANAGER) : SEARCH = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

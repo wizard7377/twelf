@@ -9,7 +9,7 @@ module CSIneqIntegers
     (Unify : Unify.UNIFY)
     (SparseArray : Sparse_array.SPARSE_ARRAY)
     (SparseArray2 : Sparse_array.Sparse_array2.SPARSE_ARRAY2)
-    (Cs.CSEqIntegers : Cs.Cs_eq_integers.CS_EQ_INTEGERS)
+    (CSEqIntegers : Cs.Cs_eq_integers.CS_EQ_INTEGERS)
     (Compat : Compat.COMPAT) =
 struct
   (*! structure Cs.CSManager = Cs.CSManager !*)

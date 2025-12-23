@@ -129,9 +129,18 @@ let rec shiftACtx Rl f  = map (fun p -> shiftArg p f) Rl
 
 (* Printing *)
 
-let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
-and fmtOrders = function [] -> [] | (O :: []) -> fmtOrder' O :: [] | (O :: L) -> fmtOrder' O :: F.Break :: fmtOrders L in  fmtOrder' O )
-let rec fmtComparison (G, O, comp, O')  = F.HOVbox0 1 0 1 [fmtOrder (G, O); F.Break; F.String comp; F.Break; fmtOrder (G, O')]
+let rec fmtOrder (G, O)  =
+     let rec fmtOrder' = function
+          | R.Arg (Us, Vs) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"]
+          | R.Lex L -> F.Hbox [F.String "{"; F.HOVbox0 (1, 0, 1, fmtOrders L); F.String "}"]
+          | R.Simul L -> F.Hbox [F.String "["; F.HOVbox0 (1, 0, 1, fmtOrders L); F.String "]"]
+     and fmtOrders = function
+          | [] -> []
+          | [O] -> [fmtOrder' O]
+          | O :: L -> fmtOrder' O :: F.Break :: fmtOrders L
+     in
+     fmtOrder' O
+let rec fmtComparison (G, O, comp, O')  = F.HOVbox0 (1, 0, 1, [fmtOrder (G, O); F.Break; F.String comp; F.Break; fmtOrder (G, O')])
 let rec fmtPredicate' = function (G, Less (O, O')) -> fmtComparison (G, O, "<", O') | (G, Leq (O, O')) -> fmtComparison (G, O, "<=", O') | (G, Eq (O, O')) -> fmtComparison (G, O, "=", O') | (G, Pi (D, P)) -> F.Hbox [F.String "Pi "; fmtPredicate' (I.Decl (G, D), P)]
 let rec fmtPredicate (G, P)  = fmtPredicate' (Names.ctxName G, P)
 let rec fmtRGCtx' = function (G, []) -> "" | (G, [P]) -> F.makestring_fmt (fmtPredicate' (G, P)) | (G, (P :: Rl)) -> F.makestring_fmt (fmtPredicate' (G, P)) ^ " ," ^ fmtRGCtx' (G, Rl)

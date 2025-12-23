@@ -40,9 +40,18 @@ let rec concat = function (G', I.Null) -> G' | (G', I.Decl (G, D)) -> I.Decl (co
 
 (* Printing *)
 
-let rec fmtOrder (G, O)  = ( let rec fmtOrder' = function (R.Arg (Us, Vs)) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"] | (R.Lex L) -> F.Hbox [F.String "{"; F.HOVbox0 1 0 1 (fmtOrders L); F.String "}"] | (R.Simul L) -> F.Hbox [F.String "["; F.HOVbox0 1 0 1 (fmtOrders L); F.String "]"]
-and fmtOrders = function [] -> [] | (O :: []) -> fmtOrder' O :: [] | (O :: L) -> fmtOrder' O :: F.Break :: fmtOrders L in  fmtOrder' O )
-let rec fmtComparison (G, O, comp, O')  = F.HOVbox0 1 0 1 [fmtOrder (G, O); F.Break; F.String comp; F.Break; fmtOrder (G, O')]
+let rec fmtOrder (G, O)  =
+  let rec fmtOrder' = function
+    | R.Arg (Us, Vs) -> F.Hbox [F.String "("; Print.formatExp (G, I.EClo Us); F.String ")"]
+    | R.Lex L -> F.Hbox [F.String "{"; F.HOVbox0 (1, 0, 1, fmtOrders L); F.String "}"]
+    | R.Simul L -> F.Hbox [F.String "["; F.HOVbox0 (1, 0, 1, fmtOrders L); F.String "]"]
+  and fmtOrders = function
+    | [] -> []
+    | [O] -> [fmtOrder' O]
+    | O :: L -> fmtOrder' O :: F.Break :: fmtOrders L
+  in
+  fmtOrder' O
+let rec fmtComparison (G, O, comp, O')  = F.HOVbox0 (1, 0, 1, [fmtOrder (G, O); F.Break; F.String comp; F.Break; fmtOrder (G, O')])
 let rec fmtPredicate = function (G, C.Less (O, O')) -> fmtComparison (G, O, "<", O') | (G, C.Leq (O, O')) -> fmtComparison (G, O, "<=", O') | (G, C.Eq (O, O')) -> fmtComparison (G, O, "=", O') | (G, C.Pi (D, P)) -> F.Hbox [F.String "Pi "; fmtPredicate (I.Decl (G, D), P)]
 let rec rlistToString' = function (G, []) -> "" | (G, [P]) -> F.makestring_fmt (fmtPredicate (G, P)) | (G, (P :: Rl)) -> F.makestring_fmt (fmtPredicate (G, P)) ^ " ," ^ rlistToString' (G, Rl)
 let rec rlistToString (G, Rl)  = rlistToString' (Names.ctxName G, Rl)

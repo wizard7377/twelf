@@ -29,7 +29,7 @@ module Worldify
     (Unify : Unify.UNIFY)
     (Abstract : Abstract.ABSTRACT)
     (Constraints : Constraints.CONSTRAINTS)
-    (Cs.CSManager : Cs.Cs_manager.CS_MANAGER)
+    (CSManager : Cs.Cs_manager.CS_MANAGER)
     (Subordinate : Subordinate.SUBORDINATE)
     (Print : Print.PRINT)
     (IntSet : Intset.INTSET)

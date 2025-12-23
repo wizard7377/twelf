@@ -36,8 +36,14 @@ module Fmt = Formatter
     *)
 
 let rec nameState (S.State (n, (G, B), (IH, OH), d, O, H, F))  = ( let _ = Names.varReset I.Null in let G' = Names.ctxName G in  S.State (n, (G', B), (IH, OH), d, O, H, F) )
-let rec formatOrder = function (G, S.Arg (Us, Vs)) -> [Print.formatExp (G, I.EClo Us); Fmt.String ":"; Print.formatExp (G, I.EClo Vs)] | (G, S.Lex Os) -> [Fmt.String "{"; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "}"] | (G, S.Simul Os) -> [Fmt.String "["; Fmt.HVbox0 1 0 1 (formatOrders (G, Os)); Fmt.String "]"]
-and formatOrders = function (G, []) -> [] | (G, O :: []) -> formatOrder (G, O) | (G, O :: Os) -> formatOrder (G, O) @ [Fmt.String ","; Fmt.Break] @ formatOrders (G, Os)
+let rec formatOrder = function
+    | G, S.Arg (Us, Vs) -> [Print.formatExp (G, I.EClo Us); Fmt.String ":"; Print.formatExp (G, I.EClo Vs)]
+    | G, S.Lex Os -> [Fmt.String "{"; Fmt.HVbox0 (1, 0, 1, (formatOrders (G, Os))); Fmt.String "}"]
+    | G, S.Simul Os -> [Fmt.String "["; Fmt.HVbox0 (1, 0, 1, (formatOrders (G, Os))); Fmt.String "]"]
+and formatOrders = function
+    | G, [] -> []
+    | G, [O] -> formatOrder (G, O)
+    | G, O :: Os -> formatOrder (G, O) @ [Fmt.String ","; Fmt.Break] @ formatOrders (G, Os)
 (* format T = fmt'
 
        Invariant:
@@ -66,7 +72,7 @@ let rec formatCtx = function (I.Null, B) -> [] | (I.Decl (I.Null, D), I.Decl (I.
        then fmt' is a format describing the state S
     *)
 
-let rec formatState (S.State (n, (G, B), (IH, OH), d, O, H, F))  = Fmt.Vbox0 0 1 [Fmt.HVbox0 1 0 1 (formatOrder (G, O)); Fmt.Break; Fmt.String "========================"; Fmt.Break; Fmt.HVbox0 1 0 1 (formatCtx (G, B)); Fmt.Break; Fmt.String "------------------------"; Fmt.Break; FunPrint.formatForBare (G, F)]
+let rec formatState (S.State (n, (G, B), (IH, OH), d, O, H, F))  = Fmt.Vbox0 (0, 1, [Fmt.HVbox0 (1, 0, 1, (formatOrder (G, O))); Fmt.Break; Fmt.String "========================"; Fmt.Break; Fmt.HVbox0 (1, 0, 1, (formatCtx (G, B))); Fmt.Break; Fmt.String "------------------------"; Fmt.Break; FunPrint.formatForBare (G, F)])
 (* formatState S = S'
 
        Invariant:

@@ -58,7 +58,7 @@ let rec popHistory ()  = match (! History) with [] -> raise (Error "History stac
 let rec abort s  = (print ("* " ^ s); raise (Error s))
 let rec reset ()  = (initOpen (); initSolved (); History := []; Menu := None)
 let rec cLToString = function ([]) -> "" | (c :: []) -> (I.conDecName (I.sgnLookup c)) | (c :: L) -> (I.conDecName (I.sgnLookup c)) ^ ", " ^ (cLToString L)
-let rec printFillResult (_, P)  = ( let rec formatTuple (G, P)  = ( let rec formatTuple' = function (F.Unit) -> [] | (F.Inx (M, F.Unit)) -> [Print.formatExp (G, M)] | (F.Inx (M, P')) -> (Print.formatExp (G, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (F.Inx (_, F.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 1 1 1 (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) ) in let S.State (n, (G, B), (IH, OH), d, O, H, F) = current () in  TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n") )
+let rec printFillResult (_, P)  = ( let rec formatTuple (G, P)  = ( let rec formatTuple' = function (F.Unit) -> [] | (F.Inx (M, F.Unit)) -> [Print.formatExp (G, M)] | (F.Inx (M, P')) -> (Print.formatExp (G, M) :: Fmt.String "," :: Fmt.Break :: formatTuple' P') in  match P with (F.Inx (_, F.Unit)) -> Fmt.Hbox (formatTuple' P) | _ -> Fmt.HVbox0 (1, 1, 1, Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"])) ) in let S.State (n, (G, B), (IH, OH), d, O, H, F) = current () in  TextIO.print ("Filling successful with proof term:\n" ^ (Formatter.makestring_fmt (formatTuple (G, P))) ^ "\n") )
 let rec SplittingToMenu = function ([], A) -> A | (O :: L, A) -> SplittingToMenu (L, Splitting O :: A)
 let rec FillingToMenu (O, A)  = Filling O :: A
 let rec RecursionToMenu (O, A)  = Recursion O :: A

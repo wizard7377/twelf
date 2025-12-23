@@ -263,7 +263,7 @@ let rec index (_, Sl)  = List.length Sl
        If   Op = (_, Sl) then Sl' = Sl
     *)
 
-let rec apply (_, Sl)  = map (fun (Active S) -> S | InActive -> raise (Error "Not applicable: leftover constraints")) Sl
+let rec apply (_, Sl)  = map (function Active S -> S | InActive -> raise (Error "Not applicable: leftover constraints")) Sl
 (* menu (Op) = s'
 
        Invariant:

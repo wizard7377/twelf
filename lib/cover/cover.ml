@@ -134,9 +134,11 @@ and abbrevCGoal' = function (G, I.Pi ((D, P), V), ci) -> ( let D' = N.decUName (
 (* other cases are impossible by CGoal invariant *)
 
 let rec formatCGoal (V, p, ci)  = ( let _ = N.varReset I.Null in let (G, V') = abbrevCGoal (I.Null, V, p, ci) in  F.HVbox [Print.formatCtx (I.Null, G); F.Break; F.String "|-"; F.Space; Print.formatExp (G, V')] )
-let rec formatCGoals = function ((V, p) :: [], ci) -> [formatCGoal (V, p, ci)] 
-| ((V, p) :: Vs, ci) -> formatCGoal (V, p, ci) :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
-let rec missingToString (Vs, ci)  = F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (formatCGoals (Vs, ci)); F.String "."])
+let rec formatCGoals = function
+    | ((V, p) :: [], ci) -> [formatCGoal (V, p, ci)]
+    | ((V, p) :: Vs, ci) -> formatCGoal (V, p, ci) :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
+let rec missingToString (Vs, ci)  =
+    F.makestring_fmt (F.Hbox [F.Vbox0 (0, 1, (formatCGoals (Vs, ci))); F.String "."])
 let rec showSplitVar (V, p, k, ci)  = ( let _ = N.varReset I.Null in let (G, V') = abbrevCGoal (I.Null, V, p, ci) in let I.Dec (Some (x), _) = I.ctxLookup (G, k) in  "Split " ^ x ^ " in " ^ Print.expToString (G, V') )
 let rec showPendingGoal (V, p, ci, lab)  = F.makestring_fmt (F.Hbox [F.String (labToString (lab)); F.Space; F.String "?- "; formatCGoal (V, p, ci); F.String "."])
 (*
@@ -807,7 +809,7 @@ let rec isolateSplittable = function (G, V, 0) -> (G, V) | (G, I.Pi ((D, _), V')
     *)
 
 let rec unifyUOutSpine = function (ms, (I.SClo (S1, s1'), s1), Ss2) -> unifyUOutSpine (ms, (S1, I.comp (s1', s1)), Ss2) | (ms, Ss1, (I.SClo (S2, s2'), s2)) -> unifyUOutSpine (ms, Ss1, (S2, I.comp (s2', s2))) | (M.Mnil, (I.Nil, s1), (I.Nil, s2)) -> true | (M.Mapp (M.Marg (M.Minus1, _), ms'), (I.App (U1, S1), s1), (I.App (U2, S2), s2)) -> Unify.unifiable (I.Null, (U1, s1), (U2, s2)) && (* will have effect! *)
- && unifyUOutSpine (ms', (S1, s1), (S2, s2)) | (M.Mapp (_, ms'), (I.App (U1, S1), s1), (I.App (U2, S2), s2)) -> unifyUOutSpine (ms', (S1, s1), (S2, s2))
+  unifyUOutSpine (ms', (S1, s1), (S2, s2)) | (M.Mapp (_, ms'), (I.App (U1, S1), s1), (I.App (U2, S2), s2)) -> unifyUOutSpine (ms', (S1, s1), (S2, s2))
 (* Nil/App or App/Nil cannot occur by invariants *)
 
 (* unifyUOuttype (a @ S1, a @ S2) = true

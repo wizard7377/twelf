@@ -58,7 +58,7 @@ let rec createEVars = function (G, (I.Pi ((I.Dec (_, V), I.Meta), V'), s)) -> ( 
 
     *)
 
-let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type)) else () in let (Xs, (V', s')) = createEVars (G, (V, I.id)) in  try (match UniqueSearch.searchEx (2, Xs, fun [] -> [(Whnf.normalize (V', s'))] | _ -> raise (UniqueSearch.Error "Too many solutions")) with [VF''] -> Some VF'' | [] -> None) with UniqueSearch.Error _ -> None ) | (G, B, V) -> None
+let rec forward = function (G, B, V) -> ( let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (G, (V, I.Uni I.Type)) else () in let (Xs, (V', s')) = createEVars (G, (V, I.id)) in  try (match UniqueSearch.searchEx (2, Xs, function [] -> [(Whnf.normalize (V', s'))] | _ -> raise (UniqueSearch.Error "Too many solutions")) with [VF''] -> Some VF'' | [] -> None) with UniqueSearch.Error _ -> None ) | (G, B, V) -> None
 (* expand' ((G, B), n) = ((Gnew, Bnew), sc)
 
        Invariant:

@@ -28,7 +28,7 @@ let rec makeSpine (G)  = ( let rec makeSpine' = function (I.Null, _, S) -> S | (
 let rec fmtModeDec (cid, mS)  = ( let V = I.constType cid in let rec fmtModeDec' = function (G, _, M.Mnil) -> [F.String "("; P.formatExp (G, I.Root (I.Const (cid), makeSpine G)); F.String ")"] | (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) -> ( let D' = nameDec (D, marg) in let D'' = Names.decEName (G, D') in  [F.String (argToString marg); F.String "{"; P.formatDec (G, D''); F.String "}"; F.Break] @ (fmtModeDec' (I.Decl (G, D''), V', S)) ) in  F.HVbox (fmtModeDec' (I.Null, V, mS)) )
 let rec fmtModeDecs = function ((cid, mS) :: []) -> fmtModeDec (cid, mS) :: [] | ((cid, mS) :: mdecs) -> fmtModeDec (cid, mS) :: F.Break :: fmtModeDecs mdecs
 let rec modeToString cM  = F.makestring_fmt (fmtModeDec cM)
-let rec modesToString mdecs  = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
+let rec modesToString mdecs  = F.makestring_fmt (F.Vbox0 (0, 1, fmtModeDecs mdecs))
 let modeToString = modeToString
 let modesToString = modesToString
 (* local *)
