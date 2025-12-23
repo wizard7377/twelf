@@ -98,7 +98,7 @@ module P = Paths
 type idCase = Upper | Lower | Quoted
 (* '<id>', currently unused *)
 
-type token = EOF | DOT | PATHSEP | COLON | LPAREN | RPAREN | LBRACKET | RBRACKET | LBRACE | RBRACE | BACKARROW | ARROW | TYPE | Eq | ID of idCase * string | UNDERSCORE | INFIX | PREFIX | POSTFIX | NAME | DEFINE | SOLVE | QUERY | FQUERY | COMPILE | QUERYTABLED | MODE | UNIQUE | COVERS | TOTAL | TERMINATES | REDUCES | Table.TABLED | KEEPTABLE | THEOREM | BLOCK | WORLDS | PROVE | ESTABLISH | ASSERT | ABBREV | TRUSTME | FREEZE | THAW | SUBORD | DETERMINISTIC | CLAUSE | SIG | STRUCT | WHERE | INCLUDE | OPEN | USE | STRING of string
+type token = EOF | DOT | PATHSEP | COLON | LPAREN | RPAREN | LBRACKET | RBRACKET | LBRACE | RBRACE | BACKARROW | ARROW | TYPE | Eq | ID of idCase * string | UNDERSCORE | INFIX | PREFIX | POSTFIX | NAME | DEFINE | SOLVE | QUERY | FQUERY | COMPILE | QUERYTABLED | MODE | UNIQUE | COVERS | TOTAL | TERMINATES | REDUCES | TABLED | KEEPTABLE | THEOREM | BLOCK | WORLDS | PROVE | ESTABLISH | ASSERT | ABBREV | TRUSTME | FREEZE | THAW | SUBORD | DETERMINISTIC | CLAUSE | SIG | STRUCT | WHERE | INCLUDE | OPEN | USE | STRING of string
 (* string constants *)
 
 exception Error of string
@@ -135,7 +135,7 @@ let rec stringToToken = function (Lower, "<-", r) -> (BACKARROW, r) | (Lower, "-
      Argument to inputFun is the character position.
   *)
 
-let rec lex (inputFun : int -> string)  = ( (* The remaining functions do not access the state or *)
+let rec lex (inputFun : int -> string)  = assert false (* The remaining functions do not access the state or *)
 (* stream directly, using only functions char and string *)
 (* Quote characters are part of the name *)
 (* Treat quoted lowercase, since they no longer *)
@@ -151,10 +151,13 @@ let rec lex (inputFun : int -> string)  = ( (* The remaining functions do not ac
     *)
 (* local state maintained by the lexer *)
 
-let s = ref "" and left = ref 0 and right = ref 0
+let s = ref "" 
+and left = ref 0 
+and right = ref 0 
+
 (* position after last character in s *)
 
-let _ = P.resetLines ()
+let () = P.resetLines ()
 (* initialize line counter *)
 
 (* neither lexer nor parser should ever try to look beyond EOF *)
@@ -183,7 +186,10 @@ let rec char (i)  = if i >= ! right then (readNext (); char (i)) else String.sub
          Effects: None
       *)
 
-let rec string (i, j)  = String.substring (! s, i - ! left, j - i) in let rec idToToken (idCase, P.Reg (i, j))  = stringToToken (idCase, string (i, j), P.Reg (i, j)) in let rec qidToToken (P.Reg (i, j))  = (ID (Lower, string (i, j + 1)), P.Reg (i, j + 1)) in let rec lexInitial = function (':', i) -> (COLON, P.Reg (i - 1, i)) | ('.', i) -> (DOT, P.Reg (i - 1, i)) | ('(', i) -> (LPAREN, P.Reg (i - 1, i)) | (')', i) -> (RPAREN, P.Reg (i - 1, i)) | ('[', i) -> (LBRACKET, P.Reg (i - 1, i)) | (']', i) -> (RBRACKET, P.Reg (i - 1, i)) | ('{', i) -> (LBRACE, P.Reg (i - 1, i)) | ('}', i) -> (RBRACE, P.Reg (i - 1, i)) | ('%', i) -> lexPercent (char (i), i + 1) | ('_', i) -> lexID (Upper, P.Reg (i - 1, i)) | ('\'', i) -> lexID (Lower, P.Reg (i - 1, i)) | ('\004', i) -> (EOF, P.Reg (i - 1, i - 1)) | ('"', i) -> lexString (P.Reg (i - 1, i)) | (c, i) -> if Char.isSpace (c) then lexInitial (char (i), i + 1) else if Char.isUpper (c) then lexID (Upper, P.Reg (i - 1, i)) else if Char.isDigit (c) then lexID (Lower, P.Reg (i - 1, i)) else if Char.isLower (c) then lexID (Lower, P.Reg (i - 1, i)) else if isSym (c) then lexID (Lower, P.Reg (i - 1, i)) else if isUTF8 (c) then lexID (Lower, P.Reg (i - 1, i)) else error (P.Reg (i - 1, i), "Illegal character " ^ Char.toString (c))
+let rec string (i, j)  = String.substring (! s, i - ! left, j - i) 
+let rec idToToken (idCase, P.Reg (i, j))  = stringToToken (idCase, string (i, j), P.Reg (i, j))
+let rec qidToToken (P.Reg (i, j))  = (ID (Lower, string (i, j + 1)), P.Reg (i, j + 1)) 
+let rec lexInitial = function (':', i) -> (COLON, P.Reg (i - 1, i)) | ('.', i) -> (DOT, P.Reg (i - 1, i)) | ('(', i) -> (LPAREN, P.Reg (i - 1, i)) | (')', i) -> (RPAREN, P.Reg (i - 1, i)) | ('[', i) -> (LBRACKET, P.Reg (i - 1, i)) | (']', i) -> (RBRACKET, P.Reg (i - 1, i)) | ('{', i) -> (LBRACE, P.Reg (i - 1, i)) | ('}', i) -> (RBRACE, P.Reg (i - 1, i)) | ('%', i) -> lexPercent (char (i), i + 1) | ('_', i) -> lexID (Upper, P.Reg (i - 1, i)) | ('\'', i) -> lexID (Lower, P.Reg (i - 1, i)) | ('\004', i) -> (EOF, P.Reg (i - 1, i - 1)) | ('"', i) -> lexString (P.Reg (i - 1, i)) | (c, i) -> if Char.isSpace (c) then lexInitial (char (i), i + 1) else if Char.isUpper (c) then lexID (Upper, P.Reg (i - 1, i)) else if Char.isDigit (c) then lexID (Lower, P.Reg (i - 1, i)) else if Char.isLower (c) then lexID (Lower, P.Reg (i - 1, i)) else if isSym (c) then lexID (Lower, P.Reg (i - 1, i)) else if isUTF8 (c) then lexID (Lower, P.Reg (i - 1, i)) else error (P.Reg (i - 1, i), "Illegal character " ^ Char.toString (c))
 and lexID (idCase, P.Reg (i, j))  = ( let rec lexID' (j)  = if isIdChar (char (j)) then lexID' (j + 1) else idToToken (idCase, P.Reg (i, j)) in  lexID' (j) )
 and lexQUID (P.Reg (i, j))  = if Char.isSpace (char (j)) then error (P.Reg (i, j + 1), "Whitespace in quoted identifier")(* recover by adding implicit quote? *)
 (* qidToToken (i, j) *)
@@ -198,15 +204,16 @@ and lexDCommentPercent = function ('{', l, i) -> lexDComment (char (i), l + 1, i
 and lexDCommentRBrace = function ('%', 1, i) -> lexInitial (char (i), i + 1) | ('%', l, i) -> lexDComment (char (i), l - 1, i + 1) | (c, l, i) -> lexDComment (c, l, i)
 and lexString (P.Reg (i, j))  = (match char (j) with ('"') -> (STRING (string (i, j + 1)), P.Reg (i, j + 1)) | ('\n') -> error (P.Reg (i - 1, i - 1), "Unclosed string constant at end of line")(* recover: (EOL, (i-1,i-1)) *)
  | ('\004') -> error (P.Reg (i - 1, i - 1), "Unclosed string constant at end of file")(* recover: (EOF, (i-1,i-1)) *)
- | _ -> lexString (P.Reg (i, j + 1))) in let rec lexContinue (j)  = Stream.delay (fun () -> lexContinue' (j))
+ | _ -> lexString (P.Reg (i, j + 1)))
+let rec lexContinue (j)  = Stream.delay (fun () -> lexContinue' (j))
 and lexContinue' (j)  = lexContinue'' (lexInitial (char (j), j + 1))
 and lexContinue'' = function (mt) -> Stream.Cons (mt, lexContinueQualId (j)) | (mt) -> Stream.Cons (mt, lexContinue (j))
 and lexContinueQualId (j)  = Stream.delay (fun () -> lexContinueQualId' (j))
-and lexContinueQualId' (j)  = if char (j) = '.' then if isIdChar (char (j + 1)) then Stream.Cons ((Paths.PATHSEP, P.Reg (j, j + 1)), lexContinue (j + 1)) else Stream.Cons ((DOT, P.Reg (j, j + 1)), lexContinue (j + 1)) else lexContinue' (j) in  lexContinue (0) )
+and lexContinueQualId' (j)  = if char (j) = '.' then if isIdChar (char (j + 1)) then Stream.Cons ((Paths.PATHSEP, P.Reg (j, j + 1)), lexContinue (j + 1)) else Stream.Cons ((DOT, P.Reg (j, j + 1)), lexContinue (j + 1)) else lexContinue' (j) ; lexContinue (0) (* TODO: CHECK IF THIS IS CORRECT *) 
 (* fun lex (inputFun) = let ... in ... end *)
 
 let rec lexStream (instream)  = lex (fun i -> Compat.inputLine97 (instream))
-let rec lexTerminal (prompt0, prompt1)  = lex (fun 0 -> (print (prompt0); Compat.inputLine97 (TextIO.stdIn)) | i -> (print (prompt1); Compat.inputLine97 (TextIO.stdIn)))
+let rec lexTerminal (prompt0, prompt1)  = lex (function 0 -> (print (prompt0); Compat.inputLine97 (TextIO.stdIn)) | i -> (print (prompt1); Compat.inputLine97 (TextIO.stdIn)))
 let rec toString' = function (DOT) -> "." | (Paths.PATHSEP) -> "." | (COLON) -> ":" | (LPAREN) -> "(" | (RPAREN) -> ")" | (LBRACKET) -> "[" | (RBRACKET) -> "]" | (LBRACE) -> "{" | (RBRACE) -> "}" | (BACKARROW) -> "<-" | (ARROW) -> "->" | (TYPE) -> "type" | (Eq) -> "=" | (UNDERSCORE) -> "_" | (INFIX) -> "%infix" | (PREFIX) -> "%prefix" | (POSTFIX) -> "%postfix" | (NAME) -> "%name" | (DEFINE) -> "%define" | (Solve.SOLVE) -> "%solve" | (QUERY) -> "%query" | (Fquery.FQUERY) -> "%fquery" | (Compile.COMPILE) -> "%compile" | (QUERYTABLED) -> "%querytabled" | (MODE) -> "%mode" | (Unique.UNIQUE) -> "%unique" | (Cover.COVERS) -> "%covers" | (Total.TOTAL) -> "%total" | (TERMINATES) -> "%terminates" | (BLOCK) -> "%block" | (WORLDS) -> "%worlds" | (Reduces.REDUCES) -> "%reduces" | (Tabled.Table.TABLED) -> "%tabled" | (KEEPTABLE) -> "%keepTable" | (THEOREM) -> "%theorem" | (PROVE) -> "%prove" | (ESTABLISH) -> "%establish" | (ASSERT) -> "%assert" | (ABBREV) -> "%abbrev" | (TRUSTME) -> "%trustme" | (SUBORD) -> "%subord" | (FREEZE) -> "%freeze" | (THAW) -> "%thaw" | (DETERMINISTIC) -> "%deterministic" | (CLAUSE) -> "%clause" | (SIG) -> "%sig" | (STRUCT) -> "%struct" | (WHERE) -> "%where" | (INCLUDE) -> "%include" | (OPEN) -> "%open" | (USE) -> "%use"
 let rec toString = function (ID (_, s)) -> "identifier `" ^ s ^ "'" | (EOF) -> "end of file or `%.'" | (STRING (s)) -> "constant string " ^ s | (token) -> "`" ^ toString' token ^ "'"
 exception NotDigit of char

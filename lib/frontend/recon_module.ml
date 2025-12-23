@@ -32,10 +32,10 @@ module type RECON_MODULE = sig
   type whereclause
   type structDec = StructDec of string option * ModSyn.module_ * whereclause list | StructDef of string option * IntSyn.mid
   val strexpToStrexp : strexp -> IntSyn.mid
-  val sigexpToSigexp : sigexp * ModSyn.module option -> ModSyn.module * whereclause list
-  val sigdefToSigdef : sigdef * ModSyn.module option -> string option * ModSyn.module * whereclause list
-  val structdecToStructDec : structdec * ModSyn.module option -> structDec
-  val moduleWhere : ModSyn.module * whereclause -> ModSyn.module
+  val sigexpToSigexp : sigexp * ModSyn.module_ option -> ModSyn.module_ * whereclause list
+  val sigdefToSigdef : sigdef * ModSyn.module_ option -> string option * ModSyn.module_ * whereclause list
+  val structdecToStructDec : structdec * ModSyn.module_ option -> structDec
+  val moduleWhere : ModSyn.module_ * whereclause -> ModSyn.module_
 
 end
 (* Elaboration for_sml module expressions *)
@@ -61,16 +61,16 @@ let rec coninst ((ids, id, r1), tm, r2) (ns, eqns)  = ( let qid = Names.Qid (ids
 let rec addStructEqn (rEqns, r1, r2, ids, mid1, mid2)  = ( let ns1 = Names.getComponents mid1 in let ns2 = Names.getComponents mid2 in let rec push eqn  = rEqns := eqn :: (! rEqns) in let rec doConst (name, cid1)  = match Names.constLookupIn (ns2, Names.Qid ([], name)) with None -> error (r1, "Instantiating structure lacks component " ^ Names.qidToString (Names.Qid (rev ids, name))) | Some cid2 -> push (cid1, Internal cid2, r2) in let rec doStruct (name, mid1)  = match Names.structLookupIn (ns2, Names.Qid ([], name)) with None -> error (r1, "Instantiating structure lacks component " ^ Names.qidToString (Names.Qid (rev ids, name))) | Some mid2 -> addStructEqn (rEqns, r1, r2, name :: ids, mid1, mid2) in  Names.appConsts doConst ns1; Names.appStructs doStruct ns1 )
 let rec strinst ((ids, id, r1), strexp, r3) (ns, eqns)  = ( let qid = Names.Qid (ids, id) in let mid1 = (match Names.structLookupIn (ns, qid) with None -> error (r1, "Undeclared structure " ^ Names.qidToString (valOf (Names.structUndefIn (ns, qid)))) | Some mid1 -> mid1) in let (mid2, r2) = strexp () in let rEqns = ref eqns in  addStructEqn (rEqns, r2, r3, [], mid1, mid2); ! rEqns )
 type whereclause = Names.namespace -> eqn list
-type sigexp = ModSyn.module option -> ModSyn.module * whereclause list
+type sigexp = ModSyn.module_ option -> ModSyn.module_ * whereclause list
 let rec thesig (Some module_)  = (module_, [])
 let rec sigid (id, r) None  = (match ModSyn.lookupSigDef id with None -> error (r, "Undefined signature " ^ id) | Some module_ -> (module_, []))
 let rec wheresig (sigexp, instList) moduleOpt  = ( let (module_, wherecls) = sigexp moduleOpt in let rec wherecl ns  = foldr (fun (inst, eqns) -> inst (ns, eqns)) [] instList in  (module_, wherecls @ [wherecl]) )
 let rec sigexpToSigexp (sigexp, moduleOpt)  = sigexp moduleOpt
-type sigdef = ModSyn.module option -> string option * ModSyn.module * whereclause list
+type sigdef = ModSyn.module_ option -> string option * ModSyn.module_ * whereclause list
 let rec sigdef (idOpt, sigexp) moduleOpt  = ( let (module_, wherecls) = sigexp moduleOpt in  (idOpt, module_, wherecls) )
 let rec sigdefToSigdef (sigdef, moduleOpt)  = sigdef moduleOpt
-type structDec = StructDec of string option * ModSyn.module * whereclause list | StructDef of string option * IntSyn.mid
-type structdec = ModSyn.module option -> structDec
+type structDec = StructDec of string option * ModSyn.module_ * whereclause list | StructDef of string option * IntSyn.mid
+type structdec = ModSyn.module_ option -> structDec
 let rec structdec (idOpt, sigexp) moduleOpt  = ( let (module_, inst) = sigexp moduleOpt in  StructDec (idOpt, module_, inst) )
 let rec structdef (idOpt, strexp) None  = ( let mid = strexpToStrexp strexp in  StructDef (idOpt, mid) )
 let rec structdecToStructDec (structdec, moduleOpt)  = structdec moduleOpt

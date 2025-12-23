@@ -276,7 +276,7 @@ let rec retrieval = function (Loop, (G', U', s'), sc, (asub, answRef), n) -> if 
 () else (*  new answers available from previous stages
        * resolve current goal with all "new" possible answers
        *)
-retrieve (n, (G', U', s'), (asub, answRef), sc) | (Divergence ((p, s), dp), (G', U', s'), sc, (asub, answRef), n) -> matchAtom ((p, s), dp, (fun pskeleton -> match MT.answerCheck (s', answRef, pskeleton) with T.repeated -> () | T.new_ -> sc pskeleton))
+retrieve (n, (G', U', s'), (asub, answRef), sc) | (Divergence ((p, s), dp), (G', U', s'), sc, (asub, answRef), n) -> matchAtom ((p, s), dp, (fun pskeleton -> match MT.answerCheck (s', answRef, pskeleton) with T.Repeated -> () | T.New_ -> sc pskeleton))
 let rec tableSize ()  = MT.tableSize ()
 let rec suspGoalNo ()  = List.length (! SuspGoals)
 (*  nextStage () = bool

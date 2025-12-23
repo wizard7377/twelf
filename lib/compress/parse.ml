@@ -13,7 +13,8 @@ and vardecToString = function (v, Some t) -> v ^ ":" ^ (termToString t) | (v, No
 let id = maybe (function ID s -> Some s | _ -> None)
 let rec swap (x, y)  = (y, x)
 let rec vardec ()  = id << tick COLON && (wth (( $ ) term) Some) || wth id (fun s -> (s, None))
-and term ()  =
+and term () = assert false (* TODO: Fix this file (SEE ATTACHED) *)
+(* and term ()  =
 	parsefixityadj
 		(alt
 			 [ wth id (Atm o Id);
@@ -29,9 +30,9 @@ and term ()  =
 				 tick BACKARROW return Opr (Infix (Left, 5, Arrow o swap));
 				 tick STAR return (Atm Omit)
 			 ])
-		Left App
-
-(*   and term() = parsefixityadj (
+		Left App *)
+(*
+   and term() = parsefixityadj (
 	       alt[id wth (Atm o Id),
 		   `LPAREN >> $term << `RPAREN wth Atm,
 		   `LPAREN >> $term << `COLON &&

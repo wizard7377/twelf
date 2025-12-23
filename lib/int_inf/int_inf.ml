@@ -284,10 +284,10 @@ let rec  mod_ arg  = 2 (divmod arg)
 let rec  quot arg  = 1 (quotrem arg)
 let rec  rem arg  = 2 (quotrem arg)
 let rec compare = function (BI {sign = NEG; _}, BI {sign = POS; _}) -> Lt | (BI {sign = POS; _}, BI {sign = NEG; _}) -> Gt | (BI {sign = POS; digits = d}, BI {sign = POS; digits = d'}) -> BN.cmp (d, d') | (BI {sign = NEG; digits = d}, BI {sign = NEG; digits = d'}) -> BN.cmp (d', d)
-let rec  < arg  = match compare arg with Lt -> true | _ -> false
-let rec  > arg  = match compare arg with Gt -> true | _ -> false
-let rec  <= arg  = match compare arg with Gt -> false | _ -> true
-let rec  >= arg  = match compare arg with Lt -> false | _ -> true
+let rec (<) arg  = match compare arg with Lt -> true | _ -> false
+let rec  (>) arg  = match compare arg with Gt -> true | _ -> false
+let rec  (<=) arg  = match compare arg with Gt -> false | _ -> true
+let rec  (>=) arg  = match compare arg with Lt -> false | _ -> true
 let rec abs = function (BI {sign = NEG; digits}) -> BI {sign = POS; digits = digits} | i -> i
 let rec max arg  = match compare arg with Gt -> 1 arg | _ -> 2 arg
 let rec min arg  = match compare arg with Lt -> 1 arg | _ -> 2 arg
