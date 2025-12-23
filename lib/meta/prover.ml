@@ -20,7 +20,7 @@ module MTProver
     (MTPGlobal : Global.MTPGLOBAL)
     (StateSyn : Statesyn.State.STATESYN)
     (Order : Order.Order.ORDER)
-    (Mpi.MTPInit : Init.Mpi.MTPINIT)
+    (MTPInit : Init.Mpi.MTPINIT)
     (MTPStrategy : Strategy.MTPSTRATEGY)
     (RelFun : Relfun.RELFUN) : Prover.PROVER = struct
   (*! structure IntSyn = IntSyn' !*)

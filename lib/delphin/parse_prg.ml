@@ -17,7 +17,8 @@ end
 (* Author: Richard Fontana *)
 
 
-module Parse Parserr.argInterface.arg Parserr.posInterface.pos Parserr.resultDextSyn.ast Tokens.tokenParserr.Token.token Tokens.svalueParserr.svalue (DextSyn : Dextsyn.DEXTSYN) (Interface : Interface.INTERFACE) (Parserr : Parser.PARSERR) (Tokens : Delphin_TOKENS) : PARSE = struct module DextSyn = DextSyn
+module Parse (Parserr : PARSERR with type Parserr.arg = Interface.arg with type Parserr.pos = Interface.pos with type Parserr.result = DextSyn.ast) (Tokens : Delphin_TOKENS) (DextSyn : Dextsyn.DEXTSYN) (Interface : Interface.INTERFACE) (Parserr : Parser.PARSERR) : PARSE = struct 
+module DextSyn = DextSyn
 module Interface = Interface
 module Parserr = Parserr
 module Tokens = Tokens

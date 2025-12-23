@@ -15,7 +15,7 @@ end) : Fgnopn.FGN_OPN with type arg = A.t with type result = R.t = struct
   type table = func array
 
   let rec initializeTable tbl =
-    let exception Cs.CSfunNotInstalled of csid in
+    let exception CSfunNotInstalled of csid in
     let maxCSid =
       (*Global.maxCSid*)
       50

@@ -273,10 +273,10 @@ let rec subtNat = function (m, []) -> {sign = POS; digits = m} | ([], n) -> {sig
 let precision = None
 let minInt = None
 let maxInt = None
-let rec ~ = function (i) -> i | (BI {sign = POS; digits}) -> BI {sign = NEG; digits = digits} | (BI {sign = NEG; digits}) -> BI {sign = POS; digits = digits}
-let rec  = function 
-let rec  = function 
-let rec  = function 
+let rec ( ~- ) = function (i) -> i | (BI {sign = POS; digits}) -> BI {sign = NEG; digits = digits} | (BI {sign = NEG; digits}) -> BI {sign = POS; digits = digits}
+let rec ( + ) = assert false
+let rec ( - ) = assert false (* TODO CHECK DEFS *)
+let rec ( / ) = assert false 
 let rec quotrem = function (BI {sign = POS; digits = m}, BI {sign = POS; digits = n}) -> (match BN.divmod (m, n) with (q, r) -> (posi q, posi r)) | (BI {sign = POS; digits = m}, BI {sign = NEG; digits = n}) -> (match BN.divmod (m, n) with (q, r) -> (zneg q, posi r)) | (BI {sign = NEG; digits = m}, BI {sign = POS; digits = n}) -> (match BN.divmod (m, n) with (q, r) -> (zneg q, zneg r)) | (BI {sign = NEG; digits = m}, BI {sign = NEG; digits = n}) -> (match BN.divmod (m, n) with (q, r) -> (posi q, zneg r))
 let rec divmod = function (BI {sign = POS; digits = m}, BI {sign = POS; digits = n}) -> (match BN.divmod (m, n) with (q, r) -> (posi q, posi r)) | (BI {sign = POS; digits = []}, BI {sign = NEG; digits = n}) -> (zero, zero) | (BI {sign = POS; digits = m}, BI {sign = NEG; digits = n}) -> ( let (q, r) = BN.divmod (BN.subtOne m, n) in  (negi (BN.addOne q), zneg (BN.subtOne (BN.subt (n, r)))) ) | (BI {sign = NEG; digits = m}, BI {sign = POS; digits = n}) -> ( let (q, r) = BN.divmod (BN.subtOne m, n) in  (negi (BN.addOne q), posi (BN.subtOne (BN.subt (n, r)))) ) | (BI {sign = NEG; digits = m}, BI {sign = NEG; digits = n}) -> (match BN.divmod (m, n) with (q, r) -> (posi q, zneg r))
 let rec  div arg  = 1 (divmod arg)

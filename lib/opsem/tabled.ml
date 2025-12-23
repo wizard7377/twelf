@@ -217,7 +217,7 @@ let rec solve = function ((C.Atom (p), s), dp, sc) -> if TabledSyn.tabledLookup 
               G' |- s'^k : DAVars, DEVars, G'
                . |- [s'](Pi G'. U')     and  G |- [s'^k]U' = [s]p *)
 let (G', DAVars, DEVars, U', eqn', s') = A.abstractEVarCtx (dp, p, s) in let _ = if solveEqn ((eqn', s'), G') then () else print "\nresidual equation not solvable! -- This should never happen! \n" in  match MT.callCheck (DAVars, DEVars, G', U', eqn', T.Incomplete)(* Side effect: D', G' |- U' added to table *)
- with T.NewEntry (answRef) -> matchAtom ((p, s), dp, (fun pskeleton -> match MT.answerCheck (s', answRef, pskeleton) with T.repeated -> () | T.new_ -> (sc pskeleton))) | T.RepeatedEntry (asub, answRef, T.Incomplete) -> if T.noAnswers answRef then (* loop detected
+ with T.NewEntry (answRef) -> matchAtom ((p, s), dp, (fun pskeleton -> match MT.answerCheck (s', answRef, pskeleton) with T.Repeated -> () | T.New_ -> (sc pskeleton))) | T.RepeatedEntry (asub, answRef, T.Incomplete) -> if T.noAnswers answRef then (* loop detected
                   * NOTE: we might suspend goals more than once.
                   *     example: answer list for_sml goal (p,s) is saturated
                   *              but not the whole table is saturated.

@@ -13,7 +13,7 @@ module type LEXER = sig
   type token =
     | EOF
     | DOT
-    | Paths.PATHSEP
+    | PATHSEP
     | COLON
     | LPAREN
     | RPAREN
@@ -32,20 +32,20 @@ module type LEXER = sig
     | POSTFIX
     | NAME
     | DEFINE
-    | Solve.SOLVE
+    | SOLVE
     | QUERY
-    | Fquery.FQUERY
-    | Compile.COMPILE
+    | FQUERY
+    | COMPILE
     | QUERYTABLED
     | MODE
-    | Unique.UNIQUE
-    | Cover.COVERS
-    | Total.TOTAL
+    | UNIQUE
+    | COVERS
+    | TOTAL
     | TERMINATES
     | BLOCK
     | WORLDS
-    | Reduces.REDUCES
-    | Tabled.Table.TABLED
+    | REDUCES
+    | TABLED
     | KEEPTABLE
     | THEOREM
     | PROVE
@@ -98,7 +98,7 @@ module P = Paths
 type idCase = Upper | Lower | Quoted
 (* '<id>', currently unused *)
 
-type token = EOF | DOT | Paths.PATHSEP | COLON | LPAREN | RPAREN | LBRACKET | RBRACKET | LBRACE | RBRACE | BACKARROW | ARROW | TYPE | Eq | ID of idCase * string | UNDERSCORE | INFIX | PREFIX | POSTFIX | NAME | DEFINE | Solve.SOLVE | QUERY | Fquery.FQUERY | Compile.COMPILE | QUERYTABLED | MODE | Unique.UNIQUE | Cover.COVERS | Total.TOTAL | TERMINATES | Reduces.REDUCES | Tabled.Table.TABLED | KEEPTABLE | THEOREM | BLOCK | WORLDS | PROVE | ESTABLISH | ASSERT | ABBREV | TRUSTME | FREEZE | THAW | SUBORD | DETERMINISTIC | CLAUSE | SIG | STRUCT | WHERE | INCLUDE | OPEN | USE | STRING of string
+type token = EOF | DOT | PATHSEP | COLON | LPAREN | RPAREN | LBRACKET | RBRACKET | LBRACE | RBRACE | BACKARROW | ARROW | TYPE | Eq | ID of idCase * string | UNDERSCORE | INFIX | PREFIX | POSTFIX | NAME | DEFINE | SOLVE | QUERY | FQUERY | COMPILE | QUERYTABLED | MODE | UNIQUE | COVERS | TOTAL | TERMINATES | REDUCES | Table.TABLED | KEEPTABLE | THEOREM | BLOCK | WORLDS | PROVE | ESTABLISH | ASSERT | ABBREV | TRUSTME | FREEZE | THAW | SUBORD | DETERMINISTIC | CLAUSE | SIG | STRUCT | WHERE | INCLUDE | OPEN | USE | STRING of string
 (* string constants *)
 
 exception Error of string

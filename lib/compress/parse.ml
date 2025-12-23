@@ -30,6 +30,23 @@ and term ()  =
 				 tick STAR return (Atm Omit)
 			 ])
 		Left App
+
+(*   and term() = parsefixityadj (
+	       alt[id wth (Atm o Id),
+		   `LPAREN >> $term << `RPAREN wth Atm,
+		   `LPAREN >> $term << `COLON &&
+			   $term << `RPAREN wth (Atm o Ascribe),
+		   `LBRACKET >> $vardec << `RBRACKET && $term wth (Atm o Lam),
+		   `LBRACE >> `STAR >> $vardec << `RBRACE && $term wth (Atm o PiOmit),
+		   `LBRACE >> `PLUS >> $vardec << `RBRACE && $term wth (Atm o PiPlus),
+		   `LBRACE >> $vardec << `RBRACE && $term wth (Atm o PiMinus),
+		   `TYPE return (Atm Type),
+		   `ARROW return Opr(Infix(Right, 5, Arrow)),
+		   `PLUSARROW return Opr(Infix(Right, 5, PlusArrow)),
+		   `BACKARROW return Opr(Infix(Left, 5, Arrow o swap)),
+		   `STAR return (Atm Omit)
+		  ]) Left App
+			 *)
 let condec = wth (opt (tick MINUS)) (not o Option.isSome) && id << tick COLON && ( $ ) term << tick DOT
 let rec parseof x  = Stream.toList (Parsing.transform (( $ ) term) (Parsing.transform (!! tok) (Pos.markstream (StreamUtil.stostream (x ^ "\n%.")))))
  end

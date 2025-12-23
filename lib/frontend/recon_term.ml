@@ -274,7 +274,7 @@ type job = JNothing | JAnd of job * job | JWithCtx of IntSyn.dec IntSyn.ctx * jo
      The idea is that Elim E represents a term U if
        E (s, S) = U[s] @ S *)
 
-type bidi = Elim of IntSyn.sub * IntSyn.spine -> IntSyn.exp | Intro of IntSyn.exp
+type bidi = Elim of ((IntSyn.sub * IntSyn.spine) -> IntSyn.exp) | Intro of IntSyn.exp
 let rec elimSub (E, s)  = (fun (s', S) -> E (comp (s, s'), S))
 let rec elimApp (E, U)  = (fun (s, S) -> E (s, App (EClo (U, s), S)))
 let rec bvarElim (n)  = (fun (s, S) -> (match bvarSub (n, s) with Idx (n') -> Root (BVar n', S) | Exp (U) -> Redex (U, S)))

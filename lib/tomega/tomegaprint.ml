@@ -358,8 +358,7 @@ let Psi1' = psiName (Psi1, s1, Psi, 1) in let F1 = Fmt.HVbox [formatPrg3 callnam
 (*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi1, S) *)
 (*            val fmt = (* formatDecs (0, Psi, Ds, (Psi1', s1)) *)
                 Fmt.Hbox [Fmt.String " ..." , Fmt.Space, Fmt.String "=",  Fmt.Break, F1] *)
-let Psi1' = psiName (Psi1, s1, Psi, 1) in let F1 = Fmt.HVbox [formatPrg3 callname (Psi, P1)] in let S = argsToSpine (s1, 1, T.Nil) in let Fspine = fmtSpine callname (Psi1, S) in let Fpattern = Fmt.HVbox [Fmt.Hbox (Fspine)] in let Fbody = Fmt.HVbox [F1] in let fmt = Fmt.HVbox [Fmt.HVbox [Fmt.String "val"; Fmt.Space; Fpattern; Fmt.Space; Fmt.String "="]; Fmt.Break; Fbody] in  Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Vbox0 2 1 (fmts @ [Fmt.Break; fmt]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (Psi1', P2); Fmt.Break; Fmt.String "end"]) ) | (callname, (Psi, T.Let (D, P1, T.Case (T.Cases L)), [])) -> ( let rec fmtCaseRest = function [] -> [] | ((Psi1, s1, P2) :: L) -> ( let Psi1' = psiName (Psi1, s1, Psi, 1) in let S = argsToSpine (s1, 1, T.Nil) in let Fspine = fmtSpine callname (Psi1, S) in let Fpattern = Fmt.HVbox [Fmt.Hbox (Fspine)] in  [Fmt.HVbox [Fmt.Space; Fmt.String "|"; Fmt.Space; Fpattern; Fmt.Space; Fmt.String "-->"]; Fmt.Spaces 2; Fmt.Vbox0 (0, 1, [formatPrg3 callname (Psi1', P2); Fmt.Break]) ] @ fmtCaseRest (L) ) in let rec fmtCase ((Psi1, s1, P2) :: L)  = ( let Psi1' = psiName (Psi1, s1, Psi, 1) in let S = argsToSpine (s1, 1, T.Nil) in let Fspine = fmtSpine callname (Psi1, S) in let Fpattern = Fmt.HVbox [Fmt.Hbox (Fspine)] in  Fmt.Vbox0 (0, 1, [Fmt.HVbox [Fmt.String "of"; Fmt.Space; Fpattern; Fmt.Space; Fmt.String "-->"]; Fmt.Spaces 2; Fmt.Vbox0 (0, 1, [formatPrg3 callname (Psi1', P2); Fmt.Break]) ] @ fmtCaseRest (L)) ) in let F1 = Fmt.HVbox [formatPrg3 callname (Psi, P1)] in let Fbody = Fmt.HVbox [F1] in let fmt = fmtCase (L) in  Fmt.Vbox0 (0, 1, [Fmt.String "case ("; Fbody; Fmt.Space(* need space since there is one before Fbody *)
-; Fmt.String ")"; Fmt.Break; fmt]) ) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Vbox0 (0, 1, fmts @ [Fmt.Break]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatLet callname (Psi, R, []); Fmt.Break; Fmt.String "end"]) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Break; Fmt.Vbox0 (0, 1, [Fmt.String name; Fmt.Space; Fmt.String "="; formatPrg3 callname (Psi, P1)]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (I.Decl (Psi, D), P2); Fmt.Break; Fmt.String "end"]) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Break; Fmt.Spaces 2; Fmt.Vbox0 (0, 1, [Fmt.String "("; Fmt.String n1; Fmt.String ","; Fmt.Space; Fmt.String n2; Fmt.String ")"; Fmt.Space; Fmt.String "="; Fmt.Space; formatPrg3 callname (Psi, P1)]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (I.Decl (I.Decl (Psi, T.UDec D1), D2), P2); Fmt.Break; Fmt.String "end"]) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Break; Fmt.Spaces 2; Fmt.Vbox0 (0, 1, [Fmt.String "()"; Fmt.Space; Fmt.String "="; Fmt.Space; formatPrg3 callname (Psi, P1)]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (Psi, P2); Fmt.Break; Fmt.String "end"])
+let Psi1' = psiName (Psi1, s1, Psi, 1) in let F1 = Fmt.HVbox [formatPrg3 callname (Psi, P1)] in let S = argsToSpine (s1, 1, T.Nil) in let Fspine = fmtSpine callname (Psi1, S) in let Fpattern = Fmt.HVbox [Fmt.Hbox (Fspine)] in let Fbody = Fmt.HVbox [F1] in let fmt = Fmt.HVbox [Fmt.HVbox [Fmt.String "val"; Fmt.Space; Fpattern; Fmt.Space; Fmt.String "="]; Fmt.Break; Fbody] in  Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Vbox0 (2, 1, fmts @ [Fmt.Break; fmt]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (Psi1', P2); Fmt.Break; Fmt.String "end"]) ) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Vbox0 (0, 1, fmts @ [Fmt.Break]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatLet callname (Psi, R, []); Fmt.Break; Fmt.String "end"]) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Break; Fmt.Vbox0 (0, 1, [Fmt.String name; Fmt.Space; Fmt.String "="; formatPrg3 callname (Psi, P1)]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (I.Decl (Psi, D), P2); Fmt.Break; Fmt.String "end"]) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Break; Fmt.Spaces 2; Fmt.Vbox0 (0, 1, [Fmt.String "("; Fmt.String n1; Fmt.String ","; Fmt.Space; Fmt.String n2; Fmt.String ")"; Fmt.Space; Fmt.String "="; Fmt.Space; formatPrg3 callname (Psi, P1)]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (I.Decl (I.Decl (Psi, T.UDec D1), D2), P2); Fmt.Break; Fmt.String "end"]) | (callname, (Psi, R, fmts)) -> Fmt.Vbox0 (0, 1, [Fmt.String "let"; Fmt.Break; Fmt.Spaces 2; Fmt.Vbox0 (0, 1, [Fmt.String "()"; Fmt.Space; Fmt.String "="; Fmt.Space; formatPrg3 callname (Psi, P1)]); Fmt.Break; Fmt.String "in"; Fmt.Break; Fmt.Spaces 2; formatPrg3 callname (Psi, P2); Fmt.Break; Fmt.String "end"])
 and formatHead callname (name, (max, index), Psi', s, Psi)  = ( (*            val T.PDec (SOME name, _) = I.ctxLookup (Psi, index) *)
 (*            val Fspine =   Print.formatSpine callname (T.coerceCtx Psi', S) *)
 let S = argsToSpine (s, I.ctxLength Psi - max, T.Nil) in let Fspine = fmtSpine callname (Psi', S) in  Fmt.Hbox [Fmt.Space; Fmt.HVbox (Fmt.String name :: Fmt.Break :: Fspine)] )
@@ -371,7 +370,30 @@ let S = argsToSpine (s, I.ctxLength Psi - max, T.Nil) in let Fspine = fmtSpine c
            then fmts' list of pretty print formats of L
         *)
 
-let rec formatPrg2 = function (name, (max, index), Psi, [], callname) -> [] | (name, (max, index), Psi, (Psi', s, P) :: [], callname) -> ( let Psi'' = psiName (Psi', s, Psi, 0) in let fhead = if index = I.ctxLength Psi then "fun" else "and" in  [Fmt.HVbox0 (1, 5, 1, [Fmt.String fhead; formatHead callname (name, (max, index), Psi'', s, Psi); Fmt.Space; Fmt.String "="; Fmt.Break; formatPrg3 callname (Psi'', P)]; Fmt.Break] ) | (name, (max, index), Psi, (Psi', s, P) :: O, callname) -> ( let Psi'' = psiName (Psi', s, Psi, 0) in  formatPrg2 (name, (max, index), Psi, O, callname) @ [Fmt.HVbox0 (1, 5, 1, [Fmt.String "  |"; formatHead callname (name, (max, index), Psi'', s, Psi); Fmt.Space; Fmt.String "="; Fmt.Break; formatPrg3 callname (Psi'', P)]; Fmt.Break] )
+let rec formatPrg2 = function
+  | (name, (max, index), Psi, [], callname) -> []
+  | (name, (max, index), Psi, (Psi', s, P) :: [], callname) ->
+      let Psi'' = psiName (Psi', s, Psi, 0) in
+      let fhead = if index = I.ctxLength Psi then "fun" else "and" in
+      [ Fmt.HVbox0 (1, 5, 1,
+          [ Fmt.String fhead;
+            formatHead callname (name, (max, index), Psi'', s, Psi);
+            Fmt.Space; Fmt.String "="; Fmt.Break;
+            formatPrg3 callname (Psi'', P)
+          ]);
+        Fmt.Break
+      ]
+  | (name, (max, index), Psi, (Psi', s, P) :: O, callname) ->
+      let Psi'' = psiName (Psi', s, Psi, 0) in
+      formatPrg2 (name, (max, index), Psi, O, callname)
+      @ [ Fmt.HVbox0 (1, 5, 1,
+            [ Fmt.String "  |";
+              formatHead callname (name, (max, index), Psi'', s, Psi);
+              Fmt.Space; Fmt.String "="; Fmt.Break;
+              formatPrg3 callname (Psi'', P)
+            ]);
+          Fmt.Break
+        ]
 let rec formatPrg11 = function (name, (max, index), Psi, T.Lam (D, P), callname) -> formatPrg11 (name, (max, index + 1), I.Decl (Psi, decName (T.coerceCtx Psi, D)), P, callname) | (name, (max, index), Psi, T.Case (T.Cases Os), callname) -> formatPrg2 (name, (max, index), Psi, Os, callname)
 (* formatPrg1 ((max, index), Psi, P) = fmts'
 

@@ -38,7 +38,7 @@ end
 (* Modified: Carsten Schuermann, Jeff Polakow, Roberto Virga *)
 
 
-module Solve ReconQuery.queryParser.ExtQuery.query ReconQuery.solveParser.ExtQuery.solve ReconQuery.defineParser.ExtQuery.define (Global : Global.GLOBAL) (Names : Names.NAMES) (Parser : Parse_prg.Parser.PARSER) (ReconQuery : Recon_query.RECON_QUERY) (Timers : Timers.TIMERS) (Compile : Compile.COMPILE) (CPrint : Cprint.CPRINT) (AbsMachine : Absmachine.ABSMACHINE) (AbsMachineSbt : Absmachine.Absmachine_sbt.ABSMACHINESBT) (PtRecon : Ptrecon.PTRECON) (Tabled : Tabled.Table.TABLED) (Print : Print.PRINT) (Msg : Msg.MSG) : SOLVE = struct (*! structure IntSyn = IntSyn' !*)
+module Solve (ReconQuery : RECON_QUERY with type ReconQuery.query = Parser.ExtQuery.query with type ReconQuery.solve = Parser.ExtQuery.solve with type ReconQuery.define = Parser.ExtQuery.define) (Global : Global.GLOBAL) (Names : Names.NAMES) (Parser : Parse_prg.Parser.PARSER) (ReconQuery : Recon_query.RECON_QUERY) (Timers : Timers.TIMERS) (Compile : Compile.COMPILE) (CPrint : Cprint.CPRINT) (AbsMachine : Absmachine.ABSMACHINE) (AbsMachineSbt : Absmachine.Absmachine_sbt.ABSMACHINESBT) (PtRecon : Ptrecon.PTRECON) (Tabled : Tabled.Table.TABLED) (Print : Print.PRINT) (Msg : Msg.MSG) : SOLVE = struct (*! structure IntSyn = IntSyn' !*)
 
 module ExtQuery = ReconQuery
 (*! structure Paths = ReconQuery.Paths !*)

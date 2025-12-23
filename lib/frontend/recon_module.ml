@@ -30,7 +30,7 @@ module type RECON_MODULE = sig
   module ModSyn : Modsyn.MODSYN
   exception Error of string
   type whereclause
-  type structDec = StructDec of string option * ModSyn.module * whereclause list | StructDef of string option * IntSyn.mid
+  type structDec = StructDec of string option * ModSyn.module_ * whereclause list | StructDef of string option * IntSyn.mid
   val strexpToStrexp : strexp -> IntSyn.mid
   val sigexpToSigexp : sigexp * ModSyn.module option -> ModSyn.module * whereclause list
   val sigdefToSigdef : sigdef * ModSyn.module option -> string option * ModSyn.module * whereclause list
