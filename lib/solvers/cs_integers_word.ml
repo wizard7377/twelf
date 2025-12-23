@@ -4,13 +4,13 @@
 (* Author: Roberto Virga *)
 
 
-module CSIntWord (WS : sig val wordSize : int end) (Whnf : WHNF) (Unify : UNIFY) : CS = struct (*! structure CSManager = CSManager !*)
+module CSIntWord (WS : sig val wordSize : int end) (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct (*! structure Cs.CSManager = Cs.CSManager !*)
 
 open IntSyn
 module W = LargeWord
-module FX = CSManagerFixity
+module FX = Cs.CSManagerFixity
 module MS = ModeSyn
-(* CSManager.ModeSyn *)
+(* Cs.CSManager.ModeSyn *)
 
 exception MyFgnCnstrRepPlus of dctx * exp * exp * exp * exp
 (* FgnCnstr Representation: (G, proof, U1, U2, U3) *)
@@ -190,5 +190,5 @@ let rec init (cs, installF)  = (myID := cs; wordID := installF (ConDec ("word" ^
 let solver = {name = "word" ^ Int.toString (wordSize'); keywords = "numbers,equality"; needs = ["Unify"]; fgnConst = Some ({parse = parseAll}); init = init; reset = (fun () -> ()); mark = (fun () -> ()); unwind = (fun () -> ())}
  end
 
-(* functor CSIntWord *)
+(* functor Cs.CSIntWord *)
 

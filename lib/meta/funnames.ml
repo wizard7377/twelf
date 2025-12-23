@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type FUNNAMES = sig
-  (*! structure FunSyn : FUNSYN !*)
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
   exception Error of string
 
   (* Constant names and fixities *)
@@ -14,12 +14,12 @@ module type FUNNAMES = sig
   (* will mark if shadowed *)
 end
 
-(* signature NAMES *)
+(* signature Names.NAMES *)
 (* Names of Constants and Variables *)
 
 (* Author: Carsten Schuermann *)
 
-module FunNames (Global : GLOBAL) : FUNNAMES = struct
+module FunNames (Global : Global.GLOBAL) : FUNNAMES = struct
   (*! structure FunSyn = FunSyn' !*)
 
   exception Error of string

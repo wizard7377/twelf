@@ -3,8 +3,8 @@
 (* Author: Frank Pfenning *)
 
 module type PARSE_FIXITY = sig
-  (*! structure Parsing : PARSING !*)
-  module Names : NAMES
+  (*! structure Parsing : Parsing.PARSING !*)
+  module Names : Names.NAMES
 
   val parseFixity' :
     (Names.qid * Paths.region) * Names.Fixity.fixity Parsing.parser
@@ -13,12 +13,12 @@ module type PARSE_FIXITY = sig
     (Names.qid * Paths.region) * (string list * string list) Parsing.parser
 end
 
-(* signature PARSE_FIXITY *)
+(* signature Parse_prg.PARSE_FIXITY *)
 (* Parsing Fixity and Name Preference Declarations *)
 
 (* Author: Frank Pfenning *)
 
-module ParseFixity (Names' : NAMES) : PARSE_FIXITY = struct
+module ParseFixity (Names' : Names.NAMES) : Parse_prg.PARSE_FIXITY = struct
   (*! structure Parsing = Parsing' !*)
 
   module Names = Names'

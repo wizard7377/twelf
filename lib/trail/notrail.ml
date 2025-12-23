@@ -3,7 +3,7 @@
 (* Author: Roberto Virga *)
 open Trail
 
-module NoTrail : TRAIL = struct
+module NoTrail : Trail.TRAIL = struct
   type 'a trail = unit
 
   let rec trail () = ()

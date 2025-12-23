@@ -3,21 +3,21 @@
 (* Author: Roberto Virga *)
 
 module CSIneqField
-    (OrderedField : ORDERED_FIELD)
-    (Trail : TRAIL)
-    (Unify : UNIFY)
-    (SparseArray : SPARSE_ARRAY)
-    (SparseArray2 : SPARSE_ARRAY2)
-    (CSEqField : CS_EQ_FIELD)
-    (Compat : COMPAT) : CS = struct
-  (*! structure CSManager = CSManager !*)
+    (OrderedField : Ordered_field.Order.Order.ORDERED_FIELD)
+    (Trail : Trail.TRAIL)
+    (Unify : Unify.UNIFY)
+    (SparseArray : Sparse_array.SPARSE_ARRAY)
+    (SparseArray2 : Sparse_array.Sparse_array2.SPARSE_ARRAY2)
+    (Cs.CSEqField : Cs.Cs_eq_field.CS_EQ_FIELD)
+    (Compat : Compat.COMPAT) : Cs.CS = struct
+  (*! structure Cs.CSManager = Cs.CSManager !*)
 
   open IntSyn
   open OrderedField
-  open CSEqField
-  module FX = CSManagerFixity
+  open Cs.CSEqField
+  module FX = Cs.CSManagerFixity
   module MS = ModeSyn
-  (* CSManager.ModeSyn *)
+  (* Cs.CSManager.ModeSyn *)
 
   module Array = SparseArray
   module Array2 = SparseArray2
@@ -1087,14 +1087,14 @@ module CSIneqField
     ({
        name = "inequality/" ^ OrderedField.name ^ "s";
        keywords = "arithmetic,inequality";
-       needs = [ "Unify"; name CSEqField.solver ];
+       needs = [ "Unify"; name Cs.CSEqField.solver ];
        fgnConst = Some { parse = parseGtN };
        init;
        reset;
        mark;
        unwind;
      }
-      : CSManager.solver)
+      : Cs.CSManager.solver)
 end
 
-(* functor CSIneqField *)
+(* functor Cs.CSIneqField *)

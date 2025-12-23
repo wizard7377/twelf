@@ -2,7 +2,7 @@
 
 (* Author: Christopher Richards *)
 
-module Compat : COMPAT =
+module Compat : Compat.COMPAT =
   Compat
     (struct
       module Array = CompatArray97

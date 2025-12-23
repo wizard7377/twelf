@@ -28,10 +28,10 @@ end
 (* Modified: Frank Pfenning, Roberto Virga *)
 
 module ModeCheck
-    (ModeTable : MODETABLE)
-    (Whnf : WHNF)
-    (Index : INDEX)
-    (Origins : ORIGINS) : MODECHECK = struct
+    (ModeTable : Modetable.MODETABLE)
+    (Whnf : Whnf.WHNF)
+    (Index : Index.INDEX)
+    (Origins : Origins.ORIGINS) : MODECHECK = struct
   (*! structure IntSyn = IntSyn !*)
 
   (*! structure ModeSyn = ModeSyn !*)

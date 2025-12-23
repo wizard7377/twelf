@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type INFERENCE = sig
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -22,7 +22,7 @@ end
 (* Author: Carsten Schuermann *)
 
 
-module Inference (MTPGlobal : MTPGLOBAL) (StateSyn' : STATESYN) (Abstract : ABSTRACT) (TypeCheck : TYPECHECK) (FunTypeCheck : FUNTYPECHECK) (UniqueSearch : UNIQUESEARCH) (Print : PRINT) (Whnf : WHNF) : INFERENCE = struct (*! structure FunSyn = FunSyn' !*)
+module Inference (MTPGlobal : Global.MTPGLOBAL) (StateSyn' : Statesyn.State.STATESYN) (Abstract : Abstract.ABSTRACT) (TypeCheck : Typecheck.TYPECHECK) (FunTypeCheck : Funtypecheck.FUNTYPECHECK) (UniqueSearch : Uniquesearch.Unique.UNIQUESEARCH) (Print : Print.PRINT) (Whnf : Whnf.WHNF) : INFERENCE = struct (*! structure FunSyn = FunSyn' !*)
 
 module StateSyn = StateSyn'
 exception Error of string

@@ -8,7 +8,7 @@
 *)
 
 module type EXTSYN = sig
-  (*! structure Paths : PATHS !*)
+  (*! structure Paths : Paths.PATHS !*)
   type term
 
   (* term *)
@@ -69,7 +69,7 @@ end
 *)
 
 module type RECON_TERM = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   include EXTSYN
 
   exception Error of string
@@ -139,7 +139,7 @@ end
 (* ------------------- *)
 
 
-module ReconTerm (Names : NAMES) (Approx : APPROX) (Whnf : WHNF) (Unify : UNIFY) (Abstract : ABSTRACT) (Print : PRINT) (Msg : MSG) : RECON_TERM = struct (*! structure IntSyn = IntSyn' !*)
+module ReconTerm (Names : Names.NAMES) (Approx : Approx.APPROX) (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Abstract : Abstract.ABSTRACT) (Print : Print.PRINT) (Msg : Msg.MSG) : RECON_TERM = struct (*! structure IntSyn = IntSyn' !*)
 
 (*! structure Paths = Paths' !*)
 
@@ -250,12 +250,12 @@ let rec findOmitted (G, qid, r)  = (error (r, "Undeclared identifier " ^ Names.q
 let rec findBVar' = function (Null, name, k) -> None | (Decl (G, Dec (None, _)), name, k) -> findBVar' (G, name, k + 1) | (Decl (G, NDec _), name, k) -> findBVar' (G, name, k + 1) | (Decl (G, Dec (Some (name'), _)), name, k) -> if name = name' then Some (k) else findBVar' (G, name, k + 1)
 let rec findBVar fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (match findBVar' (G, name, 1) with None -> fc (G, qid, r) | Some k -> Bvar (k, r)))
 let rec findConst fc (G, qid, r)  = (match Names.constLookup qid with None -> fc (G, qid, r) | Some cid -> (match IntSyn.sgnLookup cid with IntSyn.ConDec _ -> Constant (IntSyn.Const cid, r) | IntSyn.ConDef _ -> Constant (IntSyn.Def cid, r) | IntSyn.AbbrevDef _ -> Constant (IntSyn.NSDef cid, r) | _ -> (error (r, "Invalid identifier\n" ^ "Identifier `" ^ Names.qidToString qid ^ "' is not a constant, definition or abbreviation"); Omitted (r))))
-let rec findCSConst fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (match CSManager.parse name with None -> fc (G, qid, r) | Some (cs, conDec) -> Constant (IntSyn.FgnConst (cs, conDec), r)))
+let rec findCSConst fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (match Cs.CSManager.parse name with None -> fc (G, qid, r) | Some (cs, conDec) -> Constant (IntSyn.FgnConst (cs, conDec), r)))
 let rec findEFVar fc (G, qid, r)  = (match Names.unqualified qid with None -> fc (G, qid, r) | Some name -> (if ! queryMode then Evar else Fvar) (name, r))
 let rec findLCID x  = findBVar (findConst (findCSConst findOmitted)) x
 let rec findUCID x  = findBVar (findConst (findCSConst (findEFVar findOmitted))) x
 let rec findQUID x  = findConst (findCSConst findOmitted) x
-let rec inferApx = function (G, tm) -> ( let (U', V', L') = exactToApx (U, V) in  (tm, U', V', L') ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findLCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findUCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findQUID (G, qid, r)) ) | (G, tm) -> (match CSManager.parse name with None -> (error (r, "Strings unsupported in current signature"); inferApx (G, Omitted (r))) | Some (cs, conDec) -> inferApx (G, Constant (IntSyn.FgnConst (cs, conDec), r))) | (G, tm) -> ( let cd = headConDec H in let (U', V', L') = exactToApx (IntSyn.Root (H, IntSyn.Nil), IntSyn.conDecType cd) in let rec dropImplicit = function (V, 0) -> V | (Arrow (_, V), i) -> dropImplicit (V, i - 1) in let V'' = dropImplicit (V', IntSyn.conDecImp cd) in  (tm, U', V'', L') ) | (G, tm) -> ( let Dec (_, V) = IntSyn.ctxLookup (G, k) in  (tm, Undefined, V, Type) ) | (G, tm) -> (tm, Undefined, getEVarTypeApx name, Type) | (G, tm) -> (tm, Undefined, getFVarTypeApx name, Type) | (G, tm) -> (tm, Uni Type, Uni Kind, Hyperkind) | (G, Arrow (tm1, tm2)) -> ( let L = newLVar () in let (tm1', V1) = checkApx (G, tm1, Uni Type, Kind, "Left-hand side of arrow must be a type") in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "Right-hand side of arrow must be a type or a kind") in  (Arrow (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, Pi (tm1, tm2)) -> ( let (tm1', D) = inferApxDec (G, tm1) in let L = newLVar () in let (tm2', V2) = checkApx (Decl (G, D), tm2, Uni L, Next L, "Body of pi must be a type or a kind") in  (Pi (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, tm) -> ( let (tm1', D) = inferApxDec (G, tm1) in let (tm2', U2, V2, L2) = inferApx (Decl (G, D), tm2) in  (Lam (tm1', tm2'), U2, Arrow (V1, V2), L2) ) | (G, tm) -> ( (* probably a confusing message if the problem is the level: *)
+let rec inferApx = function (G, tm) -> ( let (U', V', L') = exactToApx (U, V) in  (tm, U', V', L') ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findLCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findUCID (G, qid, r)) ) | (G, tm) -> ( let qid = Names.Qid (ids, name) in  inferApx (G, findQUID (G, qid, r)) ) | (G, tm) -> (match Cs.CSManager.parse name with None -> (error (r, "Strings unsupported in current signature"); inferApx (G, Omitted (r))) | Some (cs, conDec) -> inferApx (G, Constant (IntSyn.FgnConst (cs, conDec), r))) | (G, tm) -> ( let cd = headConDec H in let (U', V', L') = exactToApx (IntSyn.Root (H, IntSyn.Nil), IntSyn.conDecType cd) in let rec dropImplicit = function (V, 0) -> V | (Arrow (_, V), i) -> dropImplicit (V, i - 1) in let V'' = dropImplicit (V', IntSyn.conDecImp cd) in  (tm, U', V'', L') ) | (G, tm) -> ( let Dec (_, V) = IntSyn.ctxLookup (G, k) in  (tm, Undefined, V, Type) ) | (G, tm) -> (tm, Undefined, getEVarTypeApx name, Type) | (G, tm) -> (tm, Undefined, getFVarTypeApx name, Type) | (G, tm) -> (tm, Uni Type, Uni Kind, Hyperkind) | (G, Arrow (tm1, tm2)) -> ( let L = newLVar () in let (tm1', V1) = checkApx (G, tm1, Uni Type, Kind, "Left-hand side of arrow must be a type") in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "Right-hand side of arrow must be a type or a kind") in  (Arrow (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, Pi (tm1, tm2)) -> ( let (tm1', D) = inferApxDec (G, tm1) in let L = newLVar () in let (tm2', V2) = checkApx (Decl (G, D), tm2, Uni L, Next L, "Body of pi must be a type or a kind") in  (Pi (tm1', tm2'), Arrow (V1, V2), Uni L, Next L) ) | (G, tm) -> ( let (tm1', D) = inferApxDec (G, tm1) in let (tm2', U2, V2, L2) = inferApx (Decl (G, D), tm2) in  (Lam (tm1', tm2'), U2, Arrow (V1, V2), L2) ) | (G, tm) -> ( (* probably a confusing message if the problem is the level: *)
 let L = newLVar () in let Va = newCVar () in let Vr = newCVar () in let (tm1', U1) = checkApx (G, tm1, Arrow (Va, Vr), L, "Non-function was applied to an argument") in let (tm2', _) = checkApx (G, tm2, Va, Type, "Argument type did not match function domain type") in  (App (tm1', tm2'), U1, Vr, L) ) | (G, tm) -> ( let L = newLVar () in let (tm2', V2) = checkApx (G, tm2, Uni L, Next L, "Right-hand side of ascription must be a type or a kind") in let (tm1', U1) = checkApx (G, tm1, V2, L, "Ascription did not hold") in let _ = addDelayed (fun () -> filterLevel (tm, L, 2, "Ascription can only be applied to objects and type families")) in  (Hastype (tm1', tm2'), U1, V2, L) ) | (G, Omitted (r)) -> ( (* guaranteed not to be used if L is type *)
 let L = newLVar () in let V = newCVar () in let U = newCVar () in  (Omitapx (U, V, L, r), U, V, L) )
 and checkApx (G, tm, V, L, location_msg)  = ( let (tm', U', V', L') = inferApx (G, tm) in  try (matchUni (L, L'); match_ (V, V'); (tm', U')) with Unify problem_msg -> ( (* just in case *)

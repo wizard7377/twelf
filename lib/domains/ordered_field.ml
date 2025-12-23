@@ -3,7 +3,7 @@
 (* Author: Roberto Virga *)
 
 module type ORDERED_FIELD = sig
-  include FIELD
+  include Field.FIELD
 
   (* Sign operations *)
   val sign : number -> int
@@ -17,4 +17,4 @@ module type ORDERED_FIELD = sig
   val compare : number * number -> order
 end
 
-(* signature ORDERED_FIELD *)
+(* signature Order.Order.ORDERED_FIELD *)

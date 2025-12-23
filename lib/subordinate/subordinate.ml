@@ -5,7 +5,7 @@
 (* Modified: Frank Pfenning *)
 
 module type SUBORDINATE = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of string
 
   val reset : unit -> unit
@@ -56,10 +56,10 @@ end
 (* Reverse subordination order *)
 
 module Subordinate
-    (Global : GLOBAL)
-    (Whnf : WHNF)
-    (Names : NAMES)
-    (IntSet : INTSET) : SUBORDINATE = struct
+    (Global : Global.GLOBAL)
+    (Whnf : Whnf.WHNF)
+    (Names : Names.NAMES)
+    (IntSet : Intset.INTSET) : SUBORDINATE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

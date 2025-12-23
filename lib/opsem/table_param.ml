@@ -3,9 +3,9 @@
 (* Author: Brigitte Pientka *)
 
 module type TABLEPARAM = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
-  (*! structure RBSet : RBSET !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
+  (*! structure RBSet : Red_black_set.RBSET !*)
   exception Error of string
 
   (* Residual equation *)
@@ -65,12 +65,12 @@ module type TABLEPARAM = sig
   val strengthen : bool ref
 end
 
-(* signature TABLEPARAM *)
+(* signature Table.TABLEPARAM *)
 (* Table parameters *)
 
 (* Author: Brigitte Pientka *)
 
-module TableParam (Global : GLOBAL) : TABLEPARAM = struct
+module TableParam (Global : Global.GLOBAL) : Table.TABLEPARAM = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)

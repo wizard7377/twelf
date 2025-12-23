@@ -3,7 +3,7 @@
 (* Author: Richard Fontana, Carsten Schuermann *)
 
 module type TRANS = sig
-  module DextSyn : DEXTSYN
+  module DextSyn : Dextsyn.DEXTSYN
 
   exception Error of string
 
@@ -22,7 +22,7 @@ end
 
 (* Author:  Carsten Schuermann *)
 
-module Trans (DextSyn' : DEXTSYN) = struct
+module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
   module DextSyn = DextSyn'
   module D = DextSyn'
   module L = Lexer

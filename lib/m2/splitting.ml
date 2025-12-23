@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type SPLITTING = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -16,14 +16,14 @@ module type SPLITTING = sig
   val index : operator -> int
 end
 
-(* signature SPLITTING *)
+(* signature Split.SPLITTING *)
 (* Splitting *)
 
 
 (* Author: Carsten Schuermann *)
 
 
-module Splitting (Global : GLOBAL) (MetaSyn' : METASYN) (MetaAbstract : METAABSTRACT) (MetaPrint : METAPRINT) (ModeTable : MODETABLE) (Whnf : WHNF) (Index : INDEX) (Print : PRINT) (Unify : UNIFY) : SPLITTING = struct module MetaSyn = MetaSyn'
+module Splitting (Global : Global.GLOBAL) (MetaSyn' : Metasyn.METASYN) (MetaAbstract : Meta_abstract.METAABSTRACT) (MetaPrint : Meta_print.METAPRINT) (ModeTable : Modetable.MODETABLE) (Whnf : Whnf.WHNF) (Index : Index.INDEX) (Print : Print.PRINT) (Unify : Unify.UNIFY) : Split.SPLITTING = struct module MetaSyn = MetaSyn'
 exception Error of string
 (* Invariant:
      Case analysis generates a list of successor states
@@ -54,7 +54,7 @@ module I = IntSyn
          cases from I
     *)
 
-let rec constCases = function (G, Vs, [], abstract, ops) -> ops | (G, Vs, I.Const c :: Sgn, abstract, ops) -> ( let (U, Vs') = M.createAtomConst (G, I.Const c) in  constCases (G, Vs, Sgn, abstract, CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract (I.conDecName (I.sgnLookup c) ^ "/", U)) :: ops else ops) with MetaAbstract.Error _ -> InActive :: ops)) )
+let rec constCases = function (G, Vs, [], abstract, ops) -> ops | (G, Vs, I.Const c :: Sgn, abstract, ops) -> ( let (U, Vs') = M.createAtomConst (G, I.Const c) in  constCases (G, Vs, Sgn, abstract, Cs.CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract (I.conDecName (I.sgnLookup c) ^ "/", U)) :: ops else ops) with MetaAbstract.Error _ -> InActive :: ops)) )
 (* paramCases (G, (V, s), k, abstract, C) = C'
 
        Invariant:
@@ -66,7 +66,7 @@ let rec constCases = function (G, Vs, [], abstract, ops) -> ops | (G, Vs, I.Cons
          cases introduced by parameters <= k in G
     *)
 
-let rec paramCases = function (G, Vs, 0, abstract, ops) -> ops | (G, Vs, k, abstract, ops) -> ( let (U, Vs') = M.createAtomBVar (G, k) in  paramCases (G, Vs, k - 1, abstract, CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract (Int.toString k ^ "/", U)) :: ops else ops) with MetaAbstract.Error _ -> InActive :: ops)) )
+let rec paramCases = function (G, Vs, 0, abstract, ops) -> ops | (G, Vs, k, abstract, ops) -> ( let (U, Vs') = M.createAtomBVar (G, k) in  paramCases (G, Vs, k - 1, abstract, Cs.CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract (Int.toString k ^ "/", U)) :: ops else ops) with MetaAbstract.Error _ -> InActive :: ops)) )
 (* lowerSplitDest (G, (V, s'), abstract) = C'
 
        Invariant:

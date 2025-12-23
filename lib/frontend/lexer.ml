@@ -4,16 +4,16 @@
 
 module type LEXER = sig
   (* Stream is not memoizing for_sml efficiency *)
-  module Stream : STREAM
+  module Stream : Stream.STREAM
 
-  (*! structure Paths : PATHS !*)
+  (*! structure Paths : Paths.PATHS !*)
   type idCase = Upper | Lower | Quoted
 
   (* '<id>', currently unused *)
   type token =
     | EOF
     | DOT
-    | PATHSEP
+    | Paths.PATHSEP
     | COLON
     | LPAREN
     | RPAREN
@@ -32,20 +32,20 @@ module type LEXER = sig
     | POSTFIX
     | NAME
     | DEFINE
-    | SOLVE
+    | Solve.SOLVE
     | QUERY
-    | FQUERY
-    | COMPILE
+    | Fquery.FQUERY
+    | Compile.COMPILE
     | QUERYTABLED
     | MODE
-    | UNIQUE
-    | COVERS
-    | TOTAL
+    | Unique.UNIQUE
+    | Cover.COVERS
+    | Total.TOTAL
     | TERMINATES
     | BLOCK
     | WORLDS
-    | REDUCES
-    | TABLED
+    | Reduces.REDUCES
+    | Tabled.Table.TABLED
     | KEEPTABLE
     | THEOREM
     | PROVE
@@ -91,14 +91,14 @@ end
 (* Modified: Brigitte Pientka *)
 
 
-module Lexer (Stream' : STREAM) : LEXER = struct module Stream = Stream'
+module Lexer (Stream' : Stream.STREAM) : LEXER = struct module Stream = Stream'
 (*! structure Paths = Paths' !*)
 
 module P = Paths
 type idCase = Upper | Lower | Quoted
 (* '<id>', currently unused *)
 
-type token = EOF | DOT | PATHSEP | COLON | LPAREN | RPAREN | LBRACKET | RBRACKET | LBRACE | RBRACE | BACKARROW | ARROW | TYPE | Eq | ID of idCase * string | UNDERSCORE | INFIX | PREFIX | POSTFIX | NAME | DEFINE | SOLVE | QUERY | FQUERY | COMPILE | QUERYTABLED | MODE | UNIQUE | COVERS | TOTAL | TERMINATES | REDUCES | TABLED | KEEPTABLE | THEOREM | BLOCK | WORLDS | PROVE | ESTABLISH | ASSERT | ABBREV | TRUSTME | FREEZE | THAW | SUBORD | DETERMINISTIC | CLAUSE | SIG | STRUCT | WHERE | INCLUDE | OPEN | USE | STRING of string
+type token = EOF | DOT | Paths.PATHSEP | COLON | LPAREN | RPAREN | LBRACKET | RBRACKET | LBRACE | RBRACE | BACKARROW | ARROW | TYPE | Eq | ID of idCase * string | UNDERSCORE | INFIX | PREFIX | POSTFIX | NAME | DEFINE | Solve.SOLVE | QUERY | Fquery.FQUERY | Compile.COMPILE | QUERYTABLED | MODE | Unique.UNIQUE | Cover.COVERS | Total.TOTAL | TERMINATES | Reduces.REDUCES | Tabled.Table.TABLED | KEEPTABLE | THEOREM | BLOCK | WORLDS | PROVE | ESTABLISH | ASSERT | ABBREV | TRUSTME | FREEZE | THAW | SUBORD | DETERMINISTIC | CLAUSE | SIG | STRUCT | WHERE | INCLUDE | OPEN | USE | STRING of string
 (* string constants *)
 
 exception Error of string
@@ -189,7 +189,7 @@ and lexQUID (P.Reg (i, j))  = if Char.isSpace (char (j)) then error (P.Reg (i, j
 (* qidToToken (i, j) *)
  else if isQuote (char (j)) then qidToToken (P.Reg (i, j)) else lexQUID (P.Reg (i, j + 1))
 and lexPercent = function ('.', i) -> (EOF, P.Reg (i - 2, i)) | ('{', i) -> lexPercentBrace (char (i), i + 1) | ('%', i) -> lexComment ('%', i) | (c, i) -> if isIdChar (c) then lexPragmaKey (lexID (Quoted, P.Reg (i - 1, i))) else if Char.isSpace (c) then lexComment (c, i) else error (P.Reg (i - 1, i), "Comment character `%' not followed by white space")
-and lexPragmaKey = function (ID (_, "infix"), r) -> (INFIX, r) | (ID (_, "prefix"), r) -> (PREFIX, r) | (ID (_, "postfix"), r) -> (POSTFIX, r) | (ID (_, "mode"), r) -> (MODE, r) | (ID (_, "unique"), r) -> (UNIQUE, r) | (ID (_, "terminates"), r) -> (TERMINATES, r) | (ID (_, "block"), r) -> (BLOCK, r) | (ID (_, "worlds"), r) -> (WORLDS, r) | (ID (_, "covers"), r) -> (COVERS, r) | (ID (_, "total"), r) -> (TOTAL, r) | (ID (_, "reduces"), r) -> (REDUCES, r) | (ID (_, "tabled"), r) -> (TABLED, r) | (ID (_, "keepTable"), r) -> (KEEPTABLE, r) | (ID (_, "theorem"), r) -> (THEOREM, r) | (ID (_, "prove"), r) -> (PROVE, r) | (ID (_, "establish"), r) -> (ESTABLISH, r) | (ID (_, "assert"), r) -> (ASSERT, r) | (ID (_, "abbrev"), r) -> (ABBREV, r) | (ID (_, "name"), r) -> (NAME, r) | (ID (_, "define"), r) -> (DEFINE, r) | (ID (_, "solve"), r) -> (SOLVE, r) | (ID (_, "query"), r) -> (QUERY, r) | (ID (_, "fquery"), r) -> (FQUERY, r) | (ID (_, "compile"), r) -> (COMPILE, r) | (ID (_, "querytabled"), r) -> (QUERYTABLED, r) | (ID (_, "trustme"), r) -> (TRUSTME, r) | (ID (_, "subord"), r) -> (SUBORD, r) | (ID (_, "freeze"), r) -> (FREEZE, r) | (ID (_, "thaw"), r) -> (THAW, r) | (ID (_, "deterministic"), r) -> (DETERMINISTIC, r) | (ID (_, "clause"), r) -> (CLAUSE, r) | (ID (_, "sig"), r) -> (SIG, r) | (ID (_, "struct"), r) -> (STRUCT, r) | (ID (_, "where"), r) -> (WHERE, r) | (ID (_, "include"), r) -> (INCLUDE, r) | (ID (_, "open"), r) -> (OPEN, r) | (ID (_, "use"), r) -> (USE, r) | (ID (_, s), r) -> error (r, "Unknown keyword %" ^ s ^ " (single line comment starts with `%<whitespace>' or `%%')")
+and lexPragmaKey = function (ID (_, "infix"), r) -> (INFIX, r) | (ID (_, "prefix"), r) -> (PREFIX, r) | (ID (_, "postfix"), r) -> (POSTFIX, r) | (ID (_, "mode"), r) -> (MODE, r) | (ID (_, "unique"), r) -> (Unique.UNIQUE, r) | (ID (_, "terminates"), r) -> (TERMINATES, r) | (ID (_, "block"), r) -> (BLOCK, r) | (ID (_, "worlds"), r) -> (WORLDS, r) | (ID (_, "covers"), r) -> (Cover.COVERS, r) | (ID (_, "total"), r) -> (Total.TOTAL, r) | (ID (_, "reduces"), r) -> (Reduces.REDUCES, r) | (ID (_, "tabled"), r) -> (Tabled.Table.TABLED, r) | (ID (_, "keepTable"), r) -> (KEEPTABLE, r) | (ID (_, "theorem"), r) -> (THEOREM, r) | (ID (_, "prove"), r) -> (PROVE, r) | (ID (_, "establish"), r) -> (ESTABLISH, r) | (ID (_, "assert"), r) -> (ASSERT, r) | (ID (_, "abbrev"), r) -> (ABBREV, r) | (ID (_, "name"), r) -> (NAME, r) | (ID (_, "define"), r) -> (DEFINE, r) | (ID (_, "solve"), r) -> (Solve.SOLVE, r) | (ID (_, "query"), r) -> (QUERY, r) | (ID (_, "fquery"), r) -> (Fquery.FQUERY, r) | (ID (_, "compile"), r) -> (Compile.COMPILE, r) | (ID (_, "querytabled"), r) -> (QUERYTABLED, r) | (ID (_, "trustme"), r) -> (TRUSTME, r) | (ID (_, "subord"), r) -> (SUBORD, r) | (ID (_, "freeze"), r) -> (FREEZE, r) | (ID (_, "thaw"), r) -> (THAW, r) | (ID (_, "deterministic"), r) -> (DETERMINISTIC, r) | (ID (_, "clause"), r) -> (CLAUSE, r) | (ID (_, "sig"), r) -> (SIG, r) | (ID (_, "struct"), r) -> (STRUCT, r) | (ID (_, "where"), r) -> (WHERE, r) | (ID (_, "include"), r) -> (INCLUDE, r) | (ID (_, "open"), r) -> (OPEN, r) | (ID (_, "use"), r) -> (USE, r) | (ID (_, s), r) -> error (r, "Unknown keyword %" ^ s ^ " (single line comment starts with `%<whitespace>' or `%%')")
 and lexComment = function ('\n', i) -> lexInitial (char (i), i + 1) | ('%', i) -> lexCommentPercent (char (i), i + 1) | ('\004', i) -> error (P.Reg (i - 1, i - 1), "Unclosed single-line comment at end of file") | (c, i) -> lexComment (char (i), i + 1)
 and lexCommentPercent = function ('.', i) -> (EOF, P.Reg (i - 2, i)) | (c, i) -> lexComment (c, i)
 and lexPercentBrace (c, i)  = lexDComment (c, 1, i)
@@ -202,12 +202,12 @@ and lexString (P.Reg (i, j))  = (match char (j) with ('"') -> (STRING (string (i
 and lexContinue' (j)  = lexContinue'' (lexInitial (char (j), j + 1))
 and lexContinue'' = function (mt) -> Stream.Cons (mt, lexContinueQualId (j)) | (mt) -> Stream.Cons (mt, lexContinue (j))
 and lexContinueQualId (j)  = Stream.delay (fun () -> lexContinueQualId' (j))
-and lexContinueQualId' (j)  = if char (j) = '.' then if isIdChar (char (j + 1)) then Stream.Cons ((PATHSEP, P.Reg (j, j + 1)), lexContinue (j + 1)) else Stream.Cons ((DOT, P.Reg (j, j + 1)), lexContinue (j + 1)) else lexContinue' (j) in  lexContinue (0) )
+and lexContinueQualId' (j)  = if char (j) = '.' then if isIdChar (char (j + 1)) then Stream.Cons ((Paths.PATHSEP, P.Reg (j, j + 1)), lexContinue (j + 1)) else Stream.Cons ((DOT, P.Reg (j, j + 1)), lexContinue (j + 1)) else lexContinue' (j) in  lexContinue (0) )
 (* fun lex (inputFun) = let ... in ... end *)
 
 let rec lexStream (instream)  = lex (fun i -> Compat.inputLine97 (instream))
 let rec lexTerminal (prompt0, prompt1)  = lex (fun 0 -> (print (prompt0); Compat.inputLine97 (TextIO.stdIn)) | i -> (print (prompt1); Compat.inputLine97 (TextIO.stdIn)))
-let rec toString' = function (DOT) -> "." | (PATHSEP) -> "." | (COLON) -> ":" | (LPAREN) -> "(" | (RPAREN) -> ")" | (LBRACKET) -> "[" | (RBRACKET) -> "]" | (LBRACE) -> "{" | (RBRACE) -> "}" | (BACKARROW) -> "<-" | (ARROW) -> "->" | (TYPE) -> "type" | (Eq) -> "=" | (UNDERSCORE) -> "_" | (INFIX) -> "%infix" | (PREFIX) -> "%prefix" | (POSTFIX) -> "%postfix" | (NAME) -> "%name" | (DEFINE) -> "%define" | (SOLVE) -> "%solve" | (QUERY) -> "%query" | (FQUERY) -> "%fquery" | (COMPILE) -> "%compile" | (QUERYTABLED) -> "%querytabled" | (MODE) -> "%mode" | (UNIQUE) -> "%unique" | (COVERS) -> "%covers" | (TOTAL) -> "%total" | (TERMINATES) -> "%terminates" | (BLOCK) -> "%block" | (WORLDS) -> "%worlds" | (REDUCES) -> "%reduces" | (TABLED) -> "%tabled" | (KEEPTABLE) -> "%keepTable" | (THEOREM) -> "%theorem" | (PROVE) -> "%prove" | (ESTABLISH) -> "%establish" | (ASSERT) -> "%assert" | (ABBREV) -> "%abbrev" | (TRUSTME) -> "%trustme" | (SUBORD) -> "%subord" | (FREEZE) -> "%freeze" | (THAW) -> "%thaw" | (DETERMINISTIC) -> "%deterministic" | (CLAUSE) -> "%clause" | (SIG) -> "%sig" | (STRUCT) -> "%struct" | (WHERE) -> "%where" | (INCLUDE) -> "%include" | (OPEN) -> "%open" | (USE) -> "%use"
+let rec toString' = function (DOT) -> "." | (Paths.PATHSEP) -> "." | (COLON) -> ":" | (LPAREN) -> "(" | (RPAREN) -> ")" | (LBRACKET) -> "[" | (RBRACKET) -> "]" | (LBRACE) -> "{" | (RBRACE) -> "}" | (BACKARROW) -> "<-" | (ARROW) -> "->" | (TYPE) -> "type" | (Eq) -> "=" | (UNDERSCORE) -> "_" | (INFIX) -> "%infix" | (PREFIX) -> "%prefix" | (POSTFIX) -> "%postfix" | (NAME) -> "%name" | (DEFINE) -> "%define" | (Solve.SOLVE) -> "%solve" | (QUERY) -> "%query" | (Fquery.FQUERY) -> "%fquery" | (Compile.COMPILE) -> "%compile" | (QUERYTABLED) -> "%querytabled" | (MODE) -> "%mode" | (Unique.UNIQUE) -> "%unique" | (Cover.COVERS) -> "%covers" | (Total.TOTAL) -> "%total" | (TERMINATES) -> "%terminates" | (BLOCK) -> "%block" | (WORLDS) -> "%worlds" | (Reduces.REDUCES) -> "%reduces" | (Tabled.Table.TABLED) -> "%tabled" | (KEEPTABLE) -> "%keepTable" | (THEOREM) -> "%theorem" | (PROVE) -> "%prove" | (ESTABLISH) -> "%establish" | (ASSERT) -> "%assert" | (ABBREV) -> "%abbrev" | (TRUSTME) -> "%trustme" | (SUBORD) -> "%subord" | (FREEZE) -> "%freeze" | (THAW) -> "%thaw" | (DETERMINISTIC) -> "%deterministic" | (CLAUSE) -> "%clause" | (SIG) -> "%sig" | (STRUCT) -> "%struct" | (WHERE) -> "%where" | (INCLUDE) -> "%include" | (OPEN) -> "%open" | (USE) -> "%use"
 let rec toString = function (ID (_, s)) -> "identifier `" ^ s ^ "'" | (EOF) -> "end of file or `%.'" | (STRING (s)) -> "constant string " ^ s | (token) -> "`" ^ toString' token ^ "'"
 exception NotDigit of char
 (* charToNat(c) = n converts character c to decimal equivalent *)

@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type PARSE_THM = sig
-  (*! structure Parsing : PARSING !*)
-  module ThmExtSyn : THMEXTSYN
+  (*! structure Parsing : Parsing.PARSING !*)
+  module ThmExtSyn : Recon_thm.Thm.THMEXTSYN
 
   val parseTotal' : ThmExtSyn.tdecl Parsing.parser
 
@@ -27,14 +27,14 @@ module type PARSE_THM = sig
   val parseAssert' : ThmExtSyn.assert_ml Parsing.parser
 end
 
-(* signature PARSE_THM *)
+(* signature Parse_prg.PARSE_THM *)
 (* Parsing Thm Declarations *)
 
 (* Author: Carsten Schuermann *)
 
 (* Modified: Brigitte Pientka *)
 
-module ParseThm (ThmExtSyn' : THMEXTSYN) (ParseTerm : PARSE_TERM) : PARSE_THM =
+module ParseThm (ThmExtSyn' : Recon_thm.Thm.THMEXTSYN) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_THM =
 struct
   (*! structure Parsing = Parsing' !*)
 
@@ -180,7 +180,7 @@ struct
 
   (* parseTotal' "%total tdecl." *)
 
-  let rec parseTotal' (LS.Cons ((L.TOTAL, r), s')) = parseTDecl (LS.expose s')
+  let rec parseTotal' (LS.Cons ((L.Total.TOTAL, r), s')) = parseTDecl (LS.expose s')
   (* ------------------- *)
 
   (* %prove declarations *)
@@ -407,7 +407,7 @@ struct
     (E.rdecl (p, oOut, oIn, E.callpats callpats), f4)
   (* parseReduces' "%reduces thedec. " *)
 
-  let rec parseReduces' (LS.Cons ((L.REDUCES, r), s')) =
+  let rec parseReduces' (LS.Cons ((L.Reduces.REDUCES, r), s')) =
     parseRDecl (LS.expose s')
 
   let rec parseTabledDecl f =
@@ -416,7 +416,7 @@ struct
     | _ -> Parsing.error (r, "Expected .")
   (* parseTabled' "%tabled thedec. " *)
 
-  let rec parseTabled' (LS.Cons ((L.TABLED, r), s')) =
+  let rec parseTabled' (LS.Cons ((L.Tabled.Table.TABLED, r), s')) =
     parseTabledDecl (LS.expose s')
 
   let rec parseKeepTableDecl f =

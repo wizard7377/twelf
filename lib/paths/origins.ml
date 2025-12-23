@@ -3,8 +3,8 @@
 (* Author: Frank Pfenning *)
 
 module type ORIGINS = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Paths : PATHS !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Paths : Paths.PATHS !*)
   val reset : unit -> unit
   val installLinesInfo : string * Paths.linesInfo -> unit
   val linesInfoLookup : string -> Paths.linesInfo option
@@ -17,7 +17,7 @@ end
 
 (* Author: Frank Pfenning *)
 
-module Origins (Global : GLOBAL) : ORIGINS = struct
+module Origins (Global : Global.GLOBAL) : ORIGINS = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Paths = Paths' !*)

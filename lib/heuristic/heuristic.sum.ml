@@ -4,7 +4,7 @@
 (* Author: Carsten Schuermann *)
 
 
-module Heuristic : HEURISTIC = struct type index = <sd: int; (* Splitting depth *)
+module Heuristic : Heuristic.HEURISTIC = struct type index = <sd: int; (* Splitting depth *)
 ; ind: int option; (* Induction variable *)
 ; c: int; (* Number of cases *)
 ; m: int; (* maximal number of cases *)

@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type SKOLEM = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   val install : IntSyn.cid list -> unit
 end
 
@@ -13,15 +13,15 @@ end
 (* Author: Carsten Schuermann *)
 
 module Skolem
-    (Global : GLOBAL)
-    (Whnf : WHNF)
-    (Abstract : ABSTRACT)
-    (IndexSkolem : INDEX)
-    (ModeTable : MODETABLE)
-    (Print : PRINT)
-    (Compile : COMPILE)
-    (Timers : TIMERS)
-    (Names : NAMES) : SKOLEM = struct
+    (Global : Global.GLOBAL)
+    (Whnf : Whnf.WHNF)
+    (Abstract : Abstract.ABSTRACT)
+    (IndexSkolem : Index.INDEX)
+    (ModeTable : Modetable.MODETABLE)
+    (Print : Print.PRINT)
+    (Compile : Compile.COMPILE)
+    (Timers : Timers.TIMERS)
+    (Names : Names.NAMES) : SKOLEM = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

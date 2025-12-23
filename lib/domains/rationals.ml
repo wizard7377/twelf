@@ -3,8 +3,8 @@
 (* Author: Roberto Virga *)
 
 module type RATIONALS = sig
-  include ORDERED_FIELD
-  module Integers : INTEGERS
+  include Ordered_field.Order.Order.ORDERED_FIELD
+  module Integers : Integers.INTEGERS
 
   (* Conversions between rationals and integers *)
   val fromInteger : Integers.int -> number
@@ -21,7 +21,7 @@ end
 
 (* Author: Roberto Virga *)
 
-module Rationals (Integers : INTEGERS) : RATIONALS = struct
+module Rationals (Integers : Integers.INTEGERS) : RATIONALS = struct
   module Integers = Integers
 
   let name = "rational"

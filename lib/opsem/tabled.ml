@@ -3,8 +3,8 @@
 (* Author: Brigitte Pientka     *)
 
 module type TABLED = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
   val solve :
     (CompSyn.goal * IntSyn.sub) * CompSyn.dProg * (CompSyn.pskeleton -> unit) ->
     unit
@@ -18,7 +18,7 @@ module type TABLED = sig
   val suspGoalNo : unit -> int
 end
 
-(* signature TABLED *)
+(* signature Table.TABLED *)
 (* Abstract Machine for_sml tabling*)
 
 
@@ -28,7 +28,7 @@ end
 (* Based on abstract machine in absmachine.fun *)
 
 
-module Tabled (Unify : UNIFY) (TabledSyn : TABLEDSYN) (Assign : ASSIGN) (Index : INDEX) (Queue : QUEUE) (AbstractTabled : ABSTRACTTABLED) (MemoTable : MEMOTABLE) (CPrint : CPRINT) (Print : PRINT) : TABLED = struct (*! structure IntSyn = IntSyn' !*)
+module Tabled (Unify : Unify.UNIFY) (TabledSyn : Table.Tabledsyn.TABLEDSYN) (Assign : Assign.ASSIGN) (Index : Index.INDEX) (Queue : Queue.QUEUE) (AbstractTabled : Abstract.Abstract.ABSTRACTTABLED) (MemoTable : Subtree.Sw_subtree.MEMOTABLE) (CPrint : Cprint.CPRINT) (Print : Print.PRINT) : Table.TABLED = struct (*! structure IntSyn = IntSyn' !*)
 
 (*! structure CompSyn = CompSyn' !*)
 
@@ -151,7 +151,7 @@ let rec fillTable ()  = ( let rec insert = function ([]) -> () | ((DAVars, DEVar
    *)
 
 let rec retrieve' = function ((G, U, s), asub, [], sc) -> () | ((G, U, s), (esub, asub), (((D', s1), O1) :: A), sc) -> ( let s1' = ctxToEVarSub (D', I.Shift (I.ctxLength (D'))(* I.id *)
-) in let scomp = I.comp (s1, s1') in let ss = shift (G, s) in let ss1 = shift (G, scomp) in let a = I.comp (asub, s) in let ass = shift (G, a) in let easub = I.comp (asub, esub) in  CSManager.trail (fun () -> if (unifySub' (G, shift (G, esub), ss) && unifySub' (G, shift (G, I.comp (asub, esub)), ss1)) then (sc O1)(* Succeed *)
+) in let scomp = I.comp (s1, s1') in let ss = shift (G, s) in let ss1 = shift (G, scomp) in let a = I.comp (asub, s) in let ass = shift (G, a) in let easub = I.comp (asub, esub) in  Cs.CSManager.trail (fun () -> if (unifySub' (G, shift (G, esub), ss) && unifySub' (G, shift (G, I.comp (asub, esub)), ss1)) then (sc O1)(* Succeed *)
  else ()); (* Fail *)
 retrieve' ((G, U, s), (esub, asub), A, sc) )
 (* currently not used -- however, it may be better to not use the same retrieval function for_sml
@@ -173,7 +173,7 @@ retrieve' ((G, U, s), (esub, asub), A, sc) )
 
 let rec retrieveV = function ((G, U, s), [], sc) -> () | ((G, U, s), (((DEVars, s1), O1) :: A), sc) -> ( (* for_sml subsumption we must combine it with asumb!!! *)
 let s1' = ctxToEVarSub (DEVars, I.Shift (I.ctxLength (DEVars))(* I.id *)
-) in let scomp = I.comp (s1, s1') in let ss = shift (G, s) in let ss1 = shift (G, scomp) in  CSManager.trail (fun () -> if unifySub' (G, ss, ss1) then (sc O1) else ()); retrieveV ((G, U, s), A, sc) )
+) in let scomp = I.comp (s1, s1') in let ss = shift (G, s) in let ss1 = shift (G, scomp) in  Cs.CSManager.trail (fun () -> if unifySub' (G, ss, ss1) then (sc O1) else ()); retrieveV ((G, U, s), A, sc) )
 let rec retrieveSW ((G, U, s), asub, AnswL, sc)  = retrieve' ((G, U, s), asub, AnswL, sc)
 (* currently not used -- however, it may be better to  not use the same retrieval function for_sml
       subsumption and variant retrieval, and we want to revive this function *)
@@ -254,8 +254,8 @@ and matchAtom (ps', dp, sc)  = ( (* matchSig [c1,...,cn] = ()
            with the most recent one.
         *)
 let rec matchSig = function [] -> () | ((Hc) :: sgn') -> ( let C.SClause (r) = C.sProgLookup (cidFromHead Hc) in  (* trail to undo EVar instantiations *)
-CSManager.trail (fun () -> rSolve (ps', (r, I.id), dp, (fun S -> sc ((C.Pc c) :: S)))); matchSig sgn' ) in let rec matchDProg = function (I.Null, I.Null, _) -> matchSig (Index.lookup (cidFromHead Ha)) | (I.Decl (G, _), I.Decl (dPool', C.Dec (r, s, Ha')), k) -> if eqHead (Ha, Ha') then (* trail to undo EVar instantiations *)
-(CSManager.trail (fun () -> rSolve (ps', (r, I.comp (s, I.Shift (k))), dp, (fun S -> sc ((C.Dc k) :: S)))); matchDProg (G, dPool', k + 1)) else matchDProg (G, dPool', k + 1) | (I.Decl (G, _), I.Decl (dPool', C.Parameter), k) -> matchDProg (G, dPool', k + 1) in let rec matchConstraint (solve, try_)  = ( let succeeded = CSManager.trail (fun () -> match (solve (G, I.SClo (S, s), try_)) with Some (U) -> (sc [C.Csolver U]; true) | None -> false) in  if succeeded then matchConstraint (solve, try_ + 1) else () ) in  match I.constStatus (cidFromHead Ha) with (I.Constraint (cs, solve)) -> matchConstraint (solve, 0) | _ -> matchDProg (G, dPool, 1) )
+Cs.CSManager.trail (fun () -> rSolve (ps', (r, I.id), dp, (fun S -> sc ((C.Pc c) :: S)))); matchSig sgn' ) in let rec matchDProg = function (I.Null, I.Null, _) -> matchSig (Index.lookup (cidFromHead Ha)) | (I.Decl (G, _), I.Decl (dPool', C.Dec (r, s, Ha')), k) -> if eqHead (Ha, Ha') then (* trail to undo EVar instantiations *)
+(Cs.CSManager.trail (fun () -> rSolve (ps', (r, I.comp (s, I.Shift (k))), dp, (fun S -> sc ((C.Dc k) :: S)))); matchDProg (G, dPool', k + 1)) else matchDProg (G, dPool', k + 1) | (I.Decl (G, _), I.Decl (dPool', C.Parameter), k) -> matchDProg (G, dPool', k + 1) in let rec matchConstraint (solve, try_)  = ( let succeeded = Cs.CSManager.trail (fun () -> match (solve (G, I.SClo (S, s), try_)) with Some (U) -> (sc [C.Csolver U]; true) | None -> false) in  if succeeded then matchConstraint (solve, try_ + 1) else () ) in  match I.constStatus (cidFromHead Ha) with (I.Constraint (cs, solve)) -> matchConstraint (solve, 0) | _ -> matchDProg (G, dPool, 1) )
 (* retrieval ((p, s), dp, sc, answRef, n) => ()
      Invariants:
      dp = (G, dPool) where  G ~ dPool  (context G matches dPool)
@@ -283,7 +283,7 @@ let rec suspGoalNo ()  = List.length (! SuspGoals)
      Side effect: advances lookup pointers
    *)
 
-let rec nextStage ()  = ( let rec resume = function [] -> () | (((Susp, s, sc, trail, (asub, answRef), k) :: Goals)) -> (CSManager.trail (fun () -> (Unify.resume trail; retrieval (Susp, s, sc, (asub, answRef), k))); resume (Goals)) in let SG = rev (! SuspGoals) in  if MT.updateTable () then (* table changed during previous stage *)
+let rec nextStage ()  = ( let rec resume = function [] -> () | (((Susp, s, sc, trail, (asub, answRef), k) :: Goals)) -> (Cs.CSManager.trail (fun () -> (Unify.resume trail; retrieval (Susp, s, sc, (asub, answRef), k))); resume (Goals)) in let SG = rev (! SuspGoals) in  if MT.updateTable () then (* table changed during previous stage *)
 (TableParam.stageCtr := (! TableParam.stageCtr) + 1; resume (SG); true) else (* table did not change during previous stage *)
 false )
 let rec reset ()  = (SuspGoals := []; MT.reset (); TableParam.stageCtr := 0)

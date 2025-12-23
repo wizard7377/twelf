@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPRECURSION = sig
-  module StateSyn : STATESYN
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -22,22 +22,22 @@ end
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
 module MTPRecursion
-    (MTPGlobal : MTPGLOBAL)
-    (Global : GLOBAL)
-    (StateSyn' : STATESYN)
-    (Abstract : ABSTRACT)
-    (MTPAbstract : MTPABSTRACT)
-    (FunTypeCheck : FUNTYPECHECK)
-    (MTPrint : MTPRINT)
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Conv : CONV)
-    (Names : NAMES)
-    (Subordinate : SUBORDINATE)
-    (Print : PRINT)
-    (TypeCheck : TYPECHECK)
-    (Formatter : FORMATTER)
-    (FunPrint : FUNPRINT) : MTPRECURSION = struct
+    (MTPGlobal : Global.MTPGLOBAL)
+    (Global : Global.GLOBAL)
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Abstract : Abstract.ABSTRACT)
+    (MTPAbstract : Abstract.MTPABSTRACT)
+    (FunTypeCheck : Funtypecheck.FUNTYPECHECK)
+    (MTPrint : Print.MTPRINT)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Conv : Conv.CONV)
+    (Names : Names.NAMES)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Print : Print.PRINT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Formatter : Formatter.FORMATTER)
+    (FunPrint : Funprint.FUNPRINT) : MTPRECURSION = struct
   module StateSyn = StateSyn'
 
   exception Error of string
@@ -164,7 +164,7 @@ module MTPRecursion
   let rec checkCtx = function
     | G, [], (V2, s) -> false
     | G, D :: G2, (V2, s) ->
-        CSManager.trail (fun () -> Unify.unifiable (G, (V1, I.id), (V2, s)))
+        Cs.CSManager.trail (fun () -> Unify.unifiable (G, (V1, I.id), (V2, s)))
         || checkCtx (I.Decl (G, D), G2, (V2, I.comp (s, I.shift)))
   (* checkLabels ((G', B'), V, ll, l) = lopt'
 
@@ -284,7 +284,7 @@ module MTPRecursion
       | (I.Decl (G, D), I.Decl (B, S.Parameter _)), k, Ds ->
           let D' = I.decSub (D, I.Shift k) in
           let Ds' =
-            CSManager.trail (fun () ->
+            Cs.CSManager.trail (fun () ->
                 if
                   Unify.unifiable (G1, (V, I.id), (V', I.id))
                   && Unify.unifiable
@@ -397,7 +397,7 @@ module MTPRecursion
             Ds' )
 
   and eq ((G, B), (Us, Vs), (Us', Vs'), sc, ac, Ds) =
-    CSManager.trail (fun () ->
+    Cs.CSManager.trail (fun () ->
         if Unify.unifiable (G, Vs, Vs') && Unify.unifiable (G, Us, Us') then
           sc Ds
         else Ds)
@@ -463,7 +463,7 @@ module MTPRecursion
   and ordltLex = function
     | GB, [], [], sc, ac, Ds -> Ds
     | GB, O :: L, O' :: L', sc, ac, Ds ->
-        let Ds' = CSManager.trail (fun () -> ordlt (GB, O, O', sc, ac, Ds)) in
+        let Ds' = Cs.CSManager.trail (fun () -> ordlt (GB, O, O', sc, ac, Ds)) in
         ordeq
           (GB, O, O', fun Ds'' -> (ordltLex (GB, L, L', sc, ac, Ds''), ac, Ds'))
 
@@ -471,7 +471,7 @@ module MTPRecursion
     | GB, [], [], sc, ac, Ds -> Ds
     | GB, O :: L, O' :: L', sc, ac, Ds ->
         let Ds'' =
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               ordlt
                 ( GB,
                   O,
@@ -501,7 +501,7 @@ module MTPRecursion
         ordeq (GB, O, O', fun Ds' -> (ordeqs (GB, L, L', sc, ac, Ds'), ac, Ds))
 
   and ordle (GB, O, O', sc, ac, Ds) =
-    let Ds' = CSManager.trail (fun () -> ordeq (GB, O, O', sc, ac, Ds)) in
+    let Ds' = Cs.CSManager.trail (fun () -> ordeq (GB, O, O', sc, ac, Ds)) in
     ordlt (GB, O, O', sc, ac, Ds')
   (* skolem (n, (du, de), GB, w, F, sc) = (GB', s')
 

@@ -5,9 +5,9 @@
 
 
 module type MODSYN = sig
-(*! structure IntSyn : INTSYN !*)
-  module Names : NAMES
-(*! structure Paths : PATHS !*)
+(*! structure IntSyn : Intsyn.INTSYN !*)
+  module Names : Names.NAMES
+(*! structure Paths : Paths.PATHS !*)
   exception Error of string
   val abbrevify : IntSyn.cid * IntSyn.conDec -> IntSyn.conDec
   val strictify : IntSyn.conDec -> IntSyn.conDec
@@ -39,11 +39,11 @@ end
 (* Author: Kevin Watkins *)
 
 module ModSyn
-    (Global : GLOBAL)
-    (Names' : NAMES)
-    (Origins : ORIGINS)
-    (Whnf : WHNF)
-    (Strict : STRICT) : MODSYN = struct
+    (Global : Global.GLOBAL)
+    (Names' : Names.NAMES)
+    (Origins : Origins.ORIGINS)
+    (Whnf : Whnf.WHNF)
+    (Strict : Strict.STRICT) : MODSYN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module Names = Names'

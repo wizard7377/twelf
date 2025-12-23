@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type MODEPRINT = sig
-  (*! structure ModeSyn : MODESYN !*)
+  (*! structure ModeSyn : Modesyn.MODESYN !*)
   val modeToString : IntSyn.cid * ModeSyn.modeSpine -> string
   val modesToString : IntSyn.cid * ModeSyn.modeSpine list -> string
 end
@@ -15,7 +15,7 @@ end
 (* Author: Carsten Schuermann *)
 
 
-module ModePrint (Names : NAMES) (Formatter : FORMATTER) (Print : PRINT) : MODEPRINT = struct (* structure ModeSyn = ModeSyn' *)
+module ModePrint (Names : Names.NAMES) (Formatter : Formatter.FORMATTER) (Print : Print.PRINT) : MODEPRINT = struct (* structure ModeSyn = ModeSyn' *)
 
 module I = IntSyn
 module M = ModeSyn

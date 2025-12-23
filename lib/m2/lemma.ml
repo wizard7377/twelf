@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type LEMMA = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -15,7 +15,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Lemma (MetaSyn' : METASYN) (MetaAbstract : METAABSTRACT) : LEMMA = struct
+module Lemma (MetaSyn' : Metasyn.METASYN) (MetaAbstract : Meta_abstract.METAABSTRACT) : LEMMA = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string

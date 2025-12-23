@@ -23,7 +23,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module State (Formatter : FORMATTER) : STATE = struct
+module State (Formatter : Formatter.FORMATTER) : STATE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

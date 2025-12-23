@@ -5,7 +5,7 @@
 
 
 module type APPROX = sig
-(*! structure IntSyn : INTSYN !*)
+(*! structure IntSyn : Intsyn.INTSYN !*)
   type uni = Level of int | Next of uni | LVar of uni option ref
   type exp = Uni of uni | Arrow of exp * exp | Const of IntSyn.head | CVar of exp option ref | Undefined
   val Type : uni
@@ -34,7 +34,7 @@ end
 
 (* Author: Kevin Watkins *)
 
-module Approx (Whnf : WHNF) : APPROX = struct
+module Approx (Whnf : Whnf.WHNF) : APPROX = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module I = IntSyn

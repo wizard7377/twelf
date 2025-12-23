@@ -151,7 +151,7 @@ module MTPAbstract =
     end)
 
 module MTPInit =
-  MTPInit
+  Mpi.MTPInit
     (struct
       module MTPGlobal = MTPGlobal
     end)
@@ -480,7 +480,7 @@ module MTProver =
       module MTPrint = MTPrint
     end)
     (struct
-      module MTPInit = MTPInit
+      module MTPInit = Mpi.MTPInit
     end)
     (struct
       module MTPStrategy = MTPStrategy
@@ -525,7 +525,7 @@ module MTPi =
       module MTPrint = MTPrint
     end)
     (struct
-      module MTPInit = MTPInit
+      module MTPInit = Mpi.MTPInit
     end)
     (struct
       module MTPFilling = MTPFilling

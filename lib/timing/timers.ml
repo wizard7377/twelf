@@ -3,7 +3,7 @@
 (* Author: Frank Pfenning *)
 
 module type TIMERS = sig
-  module Timing : TIMING
+  module Timing : Timing.TIMING
 
   (* Programming interface *)
   val parsing : Timing.center
@@ -91,7 +91,7 @@ end
 
 (* Author: Frank Pfenning *)
 
-module Timers (Timing' : TIMING) : TIMERS = struct
+module Timers (Timing' : Timing.TIMING) : TIMERS = struct
   module Timing = Timing'
 
   let parsing = Timing.newCenter "Parsing       "

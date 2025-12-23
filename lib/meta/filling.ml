@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPFILLING = sig
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
   exception TimeOut
@@ -22,13 +22,13 @@ end
 (* Author: Carsten Schuermann *)
 
 module MTPFilling
-    (MTPGlobal : MTPGLOBAL)
-    (StateSyn' : STATESYN)
-    (Abstract : ABSTRACT)
-    (TypeCheck : TYPECHECK)
-    (MTPData : MTPDATA)
-    (Search : MTPSEARCH)
-    (Whnf : WHNF) : MTPFILLING = struct
+    (MTPGlobal : Global.MTPGLOBAL)
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Abstract : Abstract.ABSTRACT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (MTPData : Data.MTPDATA)
+    (Search : Search.MTPSEARCH)
+    (Whnf : Whnf.WHNF) : MTPFILLING = struct
   (*! structure FunSyn = FunSyn' !*)
 
   module StateSyn = StateSyn'

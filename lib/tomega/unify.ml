@@ -3,28 +3,28 @@
 (* Author: Carsten Schuermann *)
 
 module type TOMEGAUNIFY = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
   exception Unify of string
 
   val unifyFor : Tomega.dec IntSyn.ctx * Tomega.for_sml * Tomega.for_sml -> unit
 end
 
-(* Signature TOMEGATYPECHECK *)
+(* Signature Tomega.Typecheck.TOMEGATYPECHECK *)
 (* Unification on Formulas *)
 
 (* Author: Carsten Schuermann *)
 
 module TomegaUnify
-    (Abstract : ABSTRACT)
-    (TypeCheck : TYPECHECK)
-    (Conv : CONV)
-    (Normalize : NORMALIZE)
-    (Whnf : WHNF)
-    (Print : PRINT)
-    (TomegaPrint : TOMEGAPRINT)
-    (Subordinate : SUBORDINATE)
-    (Weaken : WEAKEN) : TOMEGAUNIFY = struct
+    (Abstract : Abstract.ABSTRACT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Conv : Conv.CONV)
+    (Normalize : Normalize.Normalize.NORMALIZE)
+    (Whnf : Whnf.WHNF)
+    (Print : Print.PRINT)
+    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Weaken : Weaken.Weaken.WEAKEN) : Tomega.TOMEGAUNIFY = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

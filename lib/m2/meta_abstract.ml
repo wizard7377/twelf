@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type METAABSTRACT = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -16,18 +16,18 @@ end
 (* Author: Carsten Schuermann *)
 
 module MetaAbstract
-    (Global : GLOBAL)
-    (MetaSyn' : METASYN)
-    (MetaGlobal : METAGLOBAL)
-    (Abstract : ABSTRACT)
-    (ModeTable : MODETABLE)
-    (Whnf : WHNF)
-    (Print : PRINT)
-    (Constraints : CONSTRAINTS)
-    (Unify : UNIFY)
-    (Names : NAMES)
-    (TypeCheck : TYPECHECK)
-    (Subordinate : SUBORDINATE) : METAABSTRACT = struct
+    (Global : Global.GLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (MetaGlobal : Meta_global.METAGLOBAL)
+    (Abstract : Abstract.ABSTRACT)
+    (ModeTable : Modetable.MODETABLE)
+    (Whnf : Whnf.WHNF)
+    (Print : Print.PRINT)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Unify : Unify.UNIFY)
+    (Names : Names.NAMES)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Subordinate : Subordinate.SUBORDINATE) : METAABSTRACT = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string

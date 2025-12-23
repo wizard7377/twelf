@@ -3,7 +3,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
 module type UNIFY = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   type unifTrail
 
   (* suspending and resuming trailing *)
@@ -63,7 +63,7 @@ end
 
 (* Modified: Roberto Virga *)
 
-module Unify (Whnf : WHNF) (Trail : TRAIL) : UNIFY = struct
+module Unify (Whnf : Whnf.WHNF) (Trail : Trail.TRAIL) : UNIFY = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Unify of string

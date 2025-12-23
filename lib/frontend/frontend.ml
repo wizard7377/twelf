@@ -517,10 +517,10 @@ module Twelf =
       module ClausePrintTeX = ClausePrintTeX
     end)
     (struct
-      module CSManager = CSManager
+      module CSManager = Cs.CSManager
     end)
     (struct
-      module CSInstaller = CSInstaller
+      module CSInstaller = Cs.CSInstaller
     end)
     (struct
       module Compat = Compat

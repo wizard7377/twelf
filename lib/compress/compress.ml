@@ -12,7 +12,7 @@ module type COMPRESS = sig
   val set_modes : int * Syntax.mode list -> unit
 end
 
-module Compress (Global : GLOBAL) = struct
+module Compress (Global : Global.GLOBAL) = struct
   module I = IntSyn
   module S = Syntax
   module Sgn = Sgn

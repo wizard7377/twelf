@@ -193,7 +193,7 @@ module AbsMachineSbt =
       module Names = Names
     end)
     (struct
-      module CSManager = CSManager
+      module CSManager = Cs.CSManager
     end)
 
 module TMachine =

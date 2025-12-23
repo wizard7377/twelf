@@ -9,8 +9,8 @@
 (* Modified: Frank Pfenning *)
 
 module type COMPILE = sig
-  (*! structure IntSyn: INTSYN !*)
-  (*! structure CompSyn: COMPSYN !*)
+  (*! structure IntSyn: Intsyn.INTSYN !*)
+  (*! structure CompSyn: Compsyn.COMPSYN !*)
   exception Error of string opt * CompSyn.opt
 
   val optimize : opt ref
@@ -32,12 +32,12 @@ end
              Roberto Virga, Brigitte Pientka *)
 
 module Compile
-    (Whnf : WHNF)
-    (TypeCheck : TYPECHECK)
-    (SubTree : SUBTREE)
-    (CPrint : CPRINT)
-    (Print : PRINT)
-    (Names : NAMES) : COMPILE = struct
+    (Whnf : Whnf.WHNF)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (SubTree : Subtree.SUBTREE)
+    (CPrint : Cprint.CPRINT)
+    (Print : Print.PRINT)
+    (Names : Names.NAMES) : COMPILE = struct
   (* FIX: need to associate errors with occurrences -kw *)
 
   exception Error of string

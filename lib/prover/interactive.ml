@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type INTERACTIVE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  module State : STATE
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
+  module State : State.STATE
 
   exception Error of string
 
@@ -27,19 +27,19 @@ end
 (* Author: Carsten Schuermann *)
 
 module Interactive
-    (Global : GLOBAL)
-    (State' : STATE)
-    (Formatter : FORMATTER)
-    (Trail : TRAIL)
-    (Ring : RING)
-    (Names : NAMES)
-    (Weaken : WEAKEN)
-    (WorldSyn : WORLDSYN)
-    (Introduce : INTRODUCE)
-    (Elim : ELIM)
-    (Split : SPLIT)
-    (FixedPoint : FIXEDPOINT)
-    (Fill : FILL) : INTERACTIVE = struct
+    (Global : Global.GLOBAL)
+    (State' : State.STATE)
+    (Formatter : Formatter.FORMATTER)
+    (Trail : Trail.TRAIL)
+    (Ring : Ring.RING)
+    (Names : Names.NAMES)
+    (Weaken : Weaken.Weaken.WEAKEN)
+    (WorldSyn : Worldsyn.WORLDSYN)
+    (Introduce : Introduce.INTRODUCE)
+    (Elim : Elim.ELIM)
+    (Split : Split.SPLIT)
+    (FixedPoint : Fixedpoint.FIXEDPOINT)
+    (Fill : Fill.FILL) : INTERACTIVE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)
@@ -196,10 +196,10 @@ module Interactive
 
   let rec printmenu () =
     match !Focus with
-    | [] -> abort "QED"
+    | [] -> abort "Qed.QED"
     | S.State (W, Psi, P, F) :: R ->
         print "\n=======================";
-        print "\n= META THEOREM PROVER =\n";
+        print "\n= META THEOREM Prover.PROVER =\n";
         print (TomegaPrint.ctxToString Psi);
         print "\n-----------------------\n";
         print (TomegaPrint.forToString (Psi, F));
@@ -210,7 +210,7 @@ module Interactive
         print "\n=======================\n"
     | S.StateLF X :: R ->
         print "\n=======================";
-        print "\n=== THEOREM PROVER ====\n";
+        print "\n=== THEOREM Prover.PROVER ====\n";
         print (Print.ctxToString (I.Null, G));
         print "\n-----------------------\n";
         print (Print.expToString (G, V));

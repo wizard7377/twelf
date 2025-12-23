@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type METASYN = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   type mode = Bot | Top
 
   (*     | Top                  *)
@@ -33,7 +33,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module MetaSyn (Whnf : WHNF) : METASYN = struct
+module MetaSyn (Whnf : Whnf.WHNF) : METASYN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

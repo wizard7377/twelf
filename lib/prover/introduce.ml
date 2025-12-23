@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type INTRODUCE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  module State : STATE
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
+  module State : State.STATE
 
   exception Error of string
 
@@ -21,7 +21,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Introduce (State' : STATE) (TomegaNames : TOMEGANAMES) : INTRODUCE =
+module Introduce (State' : State.STATE) (TomegaNames : Tomega.Tomeganames.TOMEGANAMES) : INTRODUCE =
 struct
   (*! structure IntSyn = IntSyn' !*)
 

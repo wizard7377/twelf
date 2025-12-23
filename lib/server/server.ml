@@ -6,7 +6,7 @@ end
 (* signature SERVER *)
 
 
-module Server (SigINT : SIGINT) (Timing : TIMING) (Lexer : LEXER) (Twelf : TWELF) : SERVER = struct let globalConfig : Twelf.Config.config option ref = ref None
+module Server (SigINT : Sigint.SIGINT) (Timing : Timing.TIMING) (Lexer : Lexer.LEXER) (Twelf : Twelf.TWELF) : SERVER = struct let globalConfig : Twelf.Config.config option ref = ref None
 (* readLine () = (command, args)
      reads a command and and its arguments from the command line.
   *)

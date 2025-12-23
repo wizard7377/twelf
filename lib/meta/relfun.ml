@@ -4,7 +4,7 @@
 (* Author: Carsten Schuermann *)
 
 module type RELFUN = sig
-  (*! structure FunSyn : FUNSYN !*)
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
   exception Error of string
 
   val convertFor : IntSyn.cid list -> FunSyn.for_sml
@@ -18,15 +18,15 @@ end
 (* Author: Carsten Schuermann *)
 
 module RelFun
-    (Global : GLOBAL)
-    (ModeTable : MODETABLE)
-    (Names : NAMES)
-    (Unify : UNIFY)
-    (Whnf : WHNF)
-    (Weaken : WEAKEN)
-    (TypeCheck : TYPECHECK)
-    (FunWeaken : FUNWEAKEN)
-    (FunNames : FUNNAMES) : RELFUN = struct
+    (Global : Global.GLOBAL)
+    (ModeTable : Modetable.MODETABLE)
+    (Names : Names.NAMES)
+    (Unify : Unify.UNIFY)
+    (Whnf : Whnf.WHNF)
+    (Weaken : Weaken.Weaken.WEAKEN)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (FunWeaken : Funweaken.FUNWEAKEN)
+    (FunNames : Funnames.FUNNAMES) : RELFUN = struct
   (*! structure FunSyn = FunSyn' !*)
 
   exception Error of string

@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type EXTMODES = sig
-  module ExtSyn : EXTSYN
+  module ExtSyn : Recon_term.EXTSYN
 
-  (*! structure Paths : PATHS  !*)
+  (*! structure Paths : Paths.PATHS  !*)
   type mode
 
   val plus : Paths.region -> mode
@@ -37,7 +37,7 @@ end
 (* signature EXTMODES *)
 
 module type RECON_MODE = sig
-  (*! structure ModeSyn : MODESYN !*)
+  (*! structure ModeSyn : Modesyn.MODESYN !*)
   include EXTMODES
 
   exception Error of string
@@ -51,12 +51,12 @@ end
 (* Author: Carsten Schuermann *)
 
 module ReconMode
-    (Global : GLOBAL)
-    (Whnf : WHNF)
-    (Names : NAMES)
-    (ModePrint : MODEPRINT)
-    (ModeDec : MODEDEC)
-    (ReconTerm' : RECON_TERM) : RECON_MODE = struct
+    (Global : Global.GLOBAL)
+    (Whnf : Whnf.WHNF)
+    (Names : Names.NAMES)
+    (ModePrint : Modeprint.MODEPRINT)
+    (ModeDec : Modedec.MODEDEC)
+    (ReconTerm' : Recon_term.RECON_TERM) : RECON_MODE = struct
   (*! structure ModeSyn = ModeSyn' !*)
 
   module ExtSyn = ReconTerm'

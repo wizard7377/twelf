@@ -5,8 +5,8 @@
 
 
 module type MODEXTSYN = sig
-  module ExtSyn : EXTSYN
-(*! structure Paths : PATHS !*)
+  module ExtSyn : Recon_term.EXTSYN
+(*! structure Paths : Paths.PATHS !*)
   type strexp
   val strexp : string list * string * Paths.region -> strexp
   type inst
@@ -27,7 +27,7 @@ end
 
 module type RECON_MODULE = sig
   include MODEXTSYN
-  module ModSyn : MODSYN
+  module ModSyn : Modsyn.MODSYN
   exception Error of string
   type whereclause
   type structDec = StructDec of string option * ModSyn.module * whereclause list | StructDef of string option * IntSyn.mid
@@ -44,7 +44,7 @@ end
 (* Author: Kevin Watkins *)
 
 
-module ReconModule (Global : GLOBAL) (Names : NAMES) (ReconTerm' : RECON_TERM) (ModSyn' : MODSYN) : RECON_MODULE = struct module ExtSyn = ReconTerm'
+module ReconModule (Global : Global.GLOBAL) (Names : Names.NAMES) (ReconTerm' : Recon_term.RECON_TERM) (ModSyn' : Modsyn.MODSYN) : RECON_MODULE = struct module ExtSyn = ReconTerm'
 (*! structure Paths = Paths' !*)
 
 module ModSyn = ModSyn'

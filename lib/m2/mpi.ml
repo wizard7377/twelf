@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type MPI = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -26,19 +26,19 @@ end
 (* Author: Carsten Schuermann *)
 
 module Mpi
-    (MetaGlobal : METAGLOBAL)
-    (MetaSyn' : METASYN)
-    (Init : INIT)
-    (Filling : FILLING)
-    (Splitting : SPLITTING)
-    (Recursion : RECURSION)
-    (Lemma : LEMMA)
-    (Strategy : STRATEGY)
-    (Qed : QED)
-    (MetaPrint : METAPRINT)
-    (Names : NAMES)
-    (Timers : TIMERS)
-    (Ring : RING) : MPI = struct
+    (MetaGlobal : Meta_global.METAGLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (Init : Init.INIT)
+    (Filling : Filling.Fill.FILLING)
+    (Splitting : Splitting.Split.SPLITTING)
+    (Recursion : Recursion.RECURSION)
+    (Lemma : Lemma.LEMMA)
+    (Strategy : Strategy.STRATEGY)
+    (Qed : Qed.QED)
+    (MetaPrint : Meta_print.METAPRINT)
+    (Names : Names.NAMES)
+    (Timers : Timers.TIMERS)
+    (Ring : Ring.RING) : MPI = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string
@@ -168,7 +168,7 @@ module Mpi
   let rec printMenu () =
     if empty () then (
       show ();
-      print "[QED]\n")
+      print "[Qed.QED]\n")
     else
       let S = current () in
       print "\n";

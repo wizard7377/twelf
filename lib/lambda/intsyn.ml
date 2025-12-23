@@ -14,7 +14,7 @@ module type INTSYN = sig
   (* Structure identifier       *)
   type csid = int
 
-  (* CS module identifier       *)
+  (* Cs.CS module identifier       *)
   type fgnExp = exn
 
   (* foreign expression representation *)
@@ -157,20 +157,20 @@ module type INTSYN = sig
   (* standard operations on foreign expressions *)
   module FgnExpStd : sig
     (* convert to internal syntax *)
-    module ToInternal : FGN_OPN with type arg = unit with type result = exp
+    module ToInternal : Fgnopn.FGN_OPN with type arg = unit with type result = exp
 
     (* apply function to subterms *)
-    module Map : FGN_OPN with type arg = exp -> exp with type result = exp
+    module Map : Fgnopn.FGN_OPN with type arg = exp -> exp with type result = exp
 
     (* apply function to subterms, for_sml effect *)
-    module App : FGN_OPN with type arg = exp -> unit with type result = unit
+    module App : Fgnopn.FGN_OPN with type arg = exp -> unit with type result = unit
 
     (* test for_sml equality *)
-    module EqualTo : FGN_OPN with type arg = exp with type result = bool
+    module EqualTo : Fgnopn.FGN_OPN with type arg = exp with type result = bool
 
     (* unify with another term *)
     module UnifyWith :
-      FGN_OPN with type arg = dec ctx * exp with type result = fgnUnify
+      Fgnopn.FGN_OPN with type arg = dec ctx * exp with type result = fgnUnify
 
     (* fold a function over the subterms *)
     val fold : csid * fgnExp -> (exp * 'a -> 'a) -> 'a -> 'a
@@ -180,13 +180,13 @@ module type INTSYN = sig
   module FgnCnstrStd : sig
     (* convert to internal syntax *)
     module ToInternal :
-      FGN_OPN with type arg = unit with type result = dec ctx * exp list
+      Fgnopn.FGN_OPN with type arg = unit with type result = dec ctx * exp list
 
     (* awake *)
-    module Awake : FGN_OPN with type arg = unit with type result = bool
+    module Awake : Fgnopn.FGN_OPN with type arg = unit with type result = bool
 
     (* simplify *)
-    module Simplify : FGN_OPN with type arg = unit with type result = bool
+    module Simplify : Fgnopn.FGN_OPN with type arg = unit with type result = bool
   end
 
   val conDecName : conDec -> string
@@ -297,7 +297,7 @@ end
 
 (* Modified: Roberto Virga *)
 
-module IntSyn (Global : GLOBAL) : INTSYN = struct
+module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   type cid = int
   (* Constant identifier        *)
 
@@ -308,7 +308,7 @@ module IntSyn (Global : GLOBAL) : INTSYN = struct
   (* Structure identifier       *)
 
   type csid = int
-  (* CS module identifier       *)
+  (* Cs.CS module identifier       *)
 
   (* Contexts *)
 

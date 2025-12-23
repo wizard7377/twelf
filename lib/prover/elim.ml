@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type ELIM = sig
-  module State : STATE
+  module State : State.STATE
 
   exception Error of string
 
@@ -22,12 +22,12 @@ end
 (* Date: Thu Mar 16 13:39:26 2006 *)
 
 module Elim
-    (Data : DATA)
-    (State' : STATE)
-    (Abstract : ABSTRACT)
-    (TypeCheck : TYPECHECK)
-    (Whnf : WHNF)
-    (Unify : UNIFY) : ELIM = struct
+    (Data : Data.DATA)
+    (State' : State.STATE)
+    (Abstract : Abstract.ABSTRACT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY) : ELIM = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

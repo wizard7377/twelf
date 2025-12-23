@@ -3,9 +3,9 @@
 (* Author: Brigitte Pientka *)
 
 module type MEMOTABLE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
-  (*! structure TableParam : TABLEPARAM !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
+  (*! structure TableParam : Table_param.Table.TABLEPARAM !*)
   (* call check/insert *)
   (* callCheck (G, D, U, eqn)
    *
@@ -61,10 +61,10 @@ end
 (* Author: Brigitte Pientka *)
 
 module MemoTable
-    (Conv : CONV)
-    (Whnf : WHNF)
-    (AbstractTabled : ABSTRACTTABLED)
-    (Print : PRINT) : MEMOTABLE = struct
+    (Conv : Conv.CONV)
+    (Whnf : Whnf.WHNF)
+    (AbstractTabled : Abstract.Abstract.ABSTRACTTABLED)
+    (Print : Print.PRINT) : Sw_subtree.MEMOTABLE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)

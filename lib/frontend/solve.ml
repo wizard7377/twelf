@@ -3,9 +3,9 @@
 (* Author: Frank Pfenning *)
 
 module type SOLVE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Paths : PATHS !*)
-  module ExtQuery : EXTQUERY
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Paths : Paths.PATHS !*)
+  module ExtQuery : Recon_query.EXTQUERY
 
   exception AbortQuery of string
 
@@ -38,7 +38,7 @@ end
 (* Modified: Carsten Schuermann, Jeff Polakow, Roberto Virga *)
 
 
-module Solve ReconQuery.queryParser.ExtQuery.query ReconQuery.solveParser.ExtQuery.solve ReconQuery.defineParser.ExtQuery.define (Global : GLOBAL) (Names : NAMES) (Parser : PARSER) (ReconQuery : RECON_QUERY) (Timers : TIMERS) (Compile : COMPILE) (CPrint : CPRINT) (AbsMachine : ABSMACHINE) (AbsMachineSbt : ABSMACHINESBT) (PtRecon : PTRECON) (Tabled : TABLED) (Print : PRINT) (Msg : MSG) : SOLVE = struct (*! structure IntSyn = IntSyn' !*)
+module Solve ReconQuery.queryParser.ExtQuery.query ReconQuery.solveParser.ExtQuery.solve ReconQuery.defineParser.ExtQuery.define (Global : Global.GLOBAL) (Names : Names.NAMES) (Parser : Parse_prg.Parser.PARSER) (ReconQuery : Recon_query.RECON_QUERY) (Timers : Timers.TIMERS) (Compile : Compile.COMPILE) (CPrint : Cprint.CPRINT) (AbsMachine : Absmachine.ABSMACHINE) (AbsMachineSbt : Absmachine.Absmachine_sbt.ABSMACHINESBT) (PtRecon : Ptrecon.PTRECON) (Tabled : Tabled.Table.TABLED) (Print : Print.PRINT) (Msg : Msg.MSG) : SOLVE = struct (*! structure IntSyn = IntSyn' !*)
 
 module ExtQuery = ReconQuery
 (*! structure Paths = ReconQuery.Paths !*)
@@ -122,7 +122,7 @@ exception SolutionSkel of CompSyn.pskeleton
 
 let rec solve' (defines, solve, Paths.Loc (fileName, r))  = ( (* echo declaration, according to chatter level *)
 let (A, finish) = (* self timing *)
-ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r)) in let _ = if ! Global.chatter >= 3 then Msg.message ("%solve ") else () in let _ = if ! Global.chatter >= 3 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A) ^ ".\n") else () in let g = (Timers.time Timers.compiling Compile.compileGoal) (IntSyn.Null, A) in let rec search ()  = AbsMachine.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), fun M -> raise (Solution M)) in  CSManager.reset (); try ((* Call to solve raises Solution _ if there is a solution,
+ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r)) in let _ = if ! Global.chatter >= 3 then Msg.message ("%solve ") else () in let _ = if ! Global.chatter >= 3 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A) ^ ".\n") else () in let g = (Timers.time Timers.compiling Compile.compileGoal) (IntSyn.Null, A) in let rec search ()  = AbsMachine.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), fun M -> raise (Solution M)) in  Cs.CSManager.reset (); try ((* Call to solve raises Solution _ if there is a solution,
           returns () if there is none.  It could also not terminate
           *)
 (TimeLimit.timeLimit (! Global.timeLimit) (Timers.time Timers.solving search) ()); raise (AbortQuery ("No solution to %solve found"))) with Solution M -> try (if ! Global.chatter >= 3 then Msg.message (" OK\n") else (); finish M) with TimeLimit.TimeOut -> raise (AbortQuery ("\n----------- TIME OUT ---------------\n")) )
@@ -135,7 +135,7 @@ ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r)) in let _ = if 
 
 let rec solveSbt (defines, solve, Paths.Loc (fileName, r))  = ( (* echo declaration, according to chatter level *)
 let (A, finish) = (* self timing *)
-ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r)) in let _ = if ! Global.chatter >= 3 then Msg.message ("%solve ") else () in let _ = if ! Global.chatter >= 3 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A) ^ ".\n") else () in let g = (Timers.time Timers.compiling Compile.compileGoal) (IntSyn.Null, A) in  CSManager.reset (); try ((* Call to solve raises Solution _ if there is a solution,
+ReconQuery.solveToSolve (defines, solve, Paths.Loc (fileName, r)) in let _ = if ! Global.chatter >= 3 then Msg.message ("%solve ") else () in let _ = if ! Global.chatter >= 3 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A) ^ ".\n") else () in let g = (Timers.time Timers.compiling Compile.compileGoal) (IntSyn.Null, A) in  Cs.CSManager.reset (); try ((* Call to solve raises Solution _ if there is a solution,
           returns () if there is none.  It could also not terminate
           *)
 (TimeLimit.timeLimit (! Global.timeLimit)) (Timers.time Timers.solving AbsMachineSbt.solve) ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), fun Skel -> raise (SolutionSkel Skel)); raise (AbortQuery ("No solution to %solve found"))) with SolutionSkel Skel -> try (if ! Global.chatter >= 2 then Msg.message (" OK\n") else (); try ((Timers.time Timers.ptrecon PtRecon.solve) (Skel, (g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), (fun (Skel, M) -> raise (Solution M))); raise (AbortQuery ("Proof reconstruction for_sml %solve failed"))) with Solution M -> finish (M)) with TimeLimit.TimeOut -> raise (AbortQuery ("\n----------- TIME OUT ---------------\n")) )
@@ -162,9 +162,9 @@ let rec query' ((expected, try_, quy), Paths.Loc (fileName, r))  = ( (* optName 
          to search for_sml further solutions
        *)
 let (A, optName, Xs) = ReconQuery.queryToQuery (quy, Paths.Loc (fileName, r)) in let _ = if ! Global.chatter >= 3 then Msg.message ("%query " ^ boundToString expected ^ " " ^ boundToString try_ ^ "\n") else () in let _ = if ! Global.chatter >= 4 then Msg.message (" ") else () in let _ = if ! Global.chatter >= 3 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A) ^ ".\n") else () in let g = (Timers.time Timers.compiling Compile.compileGoal) (IntSyn.Null, A) in let solutions = ref 0 in let rec scInit M  = (solutions := ! solutions + 1; if ! Global.chatter >= 3 then (Msg.message ("---------- Solution " ^ Int.toString (! solutions) ^ " ----------\n"); Msg.message ((Timers.time Timers.printing evarInstToString) Xs ^ "\n")) else if ! Global.chatter >= 3 then Msg.message "." else (); match optName with None -> () | Some (name) -> if ! Global.chatter >= 3 then Msg.message ((Timers.time Timers.printing evarInstToString) [(M, name)] ^ "\n") else (); if ! Global.chatter >= 3(* Question: should we collect constraints in M? *)
- then match (Timers.time Timers.printing Print.evarCnstrsToStringOpt) Xs with None -> () | Some (str) -> Msg.message ("Remaining constraints:\n" ^ str ^ "\n") else (); if exceeds (Some (! solutions), try_) then raise (Done) else ()) in let rec search ()  = AbsMachine.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit) in  if not (boundEq (try_, Some (0))) then (CSManager.reset (); (* solve query if bound > 0 *)
+ then match (Timers.time Timers.printing Print.evarCnstrsToStringOpt) Xs with None -> () | Some (str) -> Msg.message ("Remaining constraints:\n" ^ str ^ "\n") else (); if exceeds (Some (! solutions), try_) then raise (Done) else ()) in let rec search ()  = AbsMachine.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit) in  if not (boundEq (try_, Some (0))) then (Cs.CSManager.reset (); (* solve query if bound > 0 *)
 try (try (TimeLimit.timeLimit (! Global.timeLimit) (Timers.time Timers.solving search) ()) with Done -> ()(* printing is timed into solving! *)
-) with TimeLimit.TimeOut -> raise (AbortQuery ("\n----------- TIME OUT ---------------\n")); CSManager.reset (); (* in case Done was raised *)
+) with TimeLimit.TimeOut -> raise (AbortQuery ("\n----------- TIME OUT ---------------\n")); Cs.CSManager.reset (); (* in case Done was raised *)
 (* check if number of solutions is correct *)
 checkSolutions (expected, try_, ! solutions)) else if ! Global.chatter >= 3 then Msg.message ("Skipping query (bound = 0)\n") else if ! Global.chatter >= 4 then Msg.message ("skipping") else (); if ! Global.chatter >= 3 then Msg.message "____________________________________________\n\n" else if ! Global.chatter >= 4 then Msg.message (" OK\n") else () )
 (* %query <expected> <try> A or %query <expected> <try> X : A *)
@@ -187,9 +187,9 @@ let rec querySbt ((expected, try_, quy), Paths.Loc (fileName, r))  = ( (* optNam
          to search for_sml further solutions
        *)
 let (A, optName, Xs) = ReconQuery.queryToQuery (quy, Paths.Loc (fileName, r)) in let _ = if ! Global.chatter >= 3 then Msg.message ("%query " ^ boundToString expected ^ " " ^ boundToString try_ ^ "\n") else () in let _ = if ! Global.chatter >= 4 then Msg.message (" ") else () in let _ = if ! Global.chatter >= 3 then Msg.message ("\n" ^ (Timers.time Timers.printing expToString) (IntSyn.Null, A) ^ ".\n") else () in let g = (Timers.time Timers.compiling Compile.compileGoal) (IntSyn.Null, A) in let solutions = ref 0 in let rec scInit M  = (solutions := ! solutions + 1; if ! Global.chatter >= 3 then (Msg.message ("---------- Solution " ^ Int.toString (! solutions) ^ " ----------\n"); Msg.message ((Timers.time Timers.printing evarInstToString) Xs ^ "\n")) else if ! Global.chatter >= 3 then Msg.message "." else (); match optName with None -> () | Some (name) -> (if ! Global.chatter > 3 then (Msg.message ("\n pskeleton \n"); Msg.message ((CompSyn.pskeletonToString M) ^ "\n")) else (); (Timers.time Timers.ptrecon PtRecon.solve) (M, (g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), (fun (pskel, M) -> (if ! Global.chatter >= 3 then Msg.message ((Timers.time Timers.printing evarInstToString) [(M, name)] ^ "\n") else ())))); if ! Global.chatter >= 3(* Question: should we collect constraints in M? *)
- then match (Timers.time Timers.printing Print.evarCnstrsToStringOpt) Xs with None -> () | Some (str) -> Msg.message ("Remaining constraints:\n" ^ str ^ "\n") else (); if exceeds (Some (! solutions), try_) then raise (Done) else ()) in let rec search ()  = AbsMachineSbt.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit) in  if not (boundEq (try_, Some (0))) then (CSManager.reset (); (* solve query if bound > 0 *)
+ then match (Timers.time Timers.printing Print.evarCnstrsToStringOpt) Xs with None -> () | Some (str) -> Msg.message ("Remaining constraints:\n" ^ str ^ "\n") else (); if exceeds (Some (! solutions), try_) then raise (Done) else ()) in let rec search ()  = AbsMachineSbt.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit) in  if not (boundEq (try_, Some (0))) then (Cs.CSManager.reset (); (* solve query if bound > 0 *)
 try (TimeLimit.timeLimit (! Global.timeLimit) (Timers.time Timers.solving search) ()) with Done -> try () with TimeLimit.TimeOut -> raise (AbortQuery ("\n----------- TIME OUT ---------------\n")); (* printing is timed into solving! *)
-CSManager.reset (); (* in case Done was raised *)
+Cs.CSManager.reset (); (* in case Done was raised *)
 (* check if number of solutions is correct *)
 checkSolutions (expected, try_, ! solutions)) else if ! Global.chatter >= 3 then Msg.message ("Skipping query (bound = 0)\n") else if ! Global.chatter >= 4 then Msg.message ("skipping") else (); if ! Global.chatter >= 3 then Msg.message "____________________________________________\n\n" else if ! Global.chatter >= 4 then Msg.message (" OK\n") else () )
 (* %query <expected> <try> A or %query <expected> <try> X : A  *)
@@ -226,13 +226,13 @@ match (Timers.time Timers.printing Print.evarCnstrsToStringOpt) Xs with None -> 
                          * i.e. all solutions have been found
                          * we check for_sml *all* solutions
                          *)
-status := true; raise (Done)) in let _ = Tabled.reset () in let _ = Tabled.fillTable () in let rec tabledSearch ()  = (Tabled.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit); CSManager.reset (); (* in case Done was raised *)
+status := true; raise (Done)) in let _ = Tabled.reset () in let _ = Tabled.fillTable () in let rec tabledSearch ()  = (Tabled.solve ((g, IntSyn.id), CompSyn.DProg (IntSyn.Null, IntSyn.Null), scInit); Cs.CSManager.reset (); (* in case Done was raised *)
 (* next stage until table doesn't change *)
-loop (); checkStages (try_, ! stages)) in  if not (boundEq (try_, Some (0))) then try (CSManager.reset (); (* solve query if bound > 0 *)
+loop (); checkStages (try_, ! stages)) in  if not (boundEq (try_, Some (0))) then try (Cs.CSManager.reset (); (* solve query if bound > 0 *)
 try (TimeLimit.timeLimit (! Global.timeLimit) (Timers.time Timers.solving tabledSearch) ()) with TimeLimit.TimeOut -> (Msg.message "\n----------- TIME OUT ---------------\n"; raise (Done))) with Done -> () else if ! Global.chatter >= 3 then Msg.message ("Skipping query (bound = 0)\n") else if ! Global.chatter >= 2 then Msg.message ("skipping") else (); if ! Global.chatter >= 3 then (Msg.message "\n____________________________________________\n\n"; Msg.message ("number of stages: tried " ^ boundToString try_ ^ " \n" ^ "terminated after " ^ Int.toString (! stages) ^ " stages \n \n"); if (! solExists) then () else Msg.message "\nNO solution exists to query \n\n"; if (! status) then Msg.message "Tabled evaluation COMPLETE \n \n" else Msg.message "Tabled evaluation NOT COMPLETE \n \n"; Msg.message "\n____________________________________________\n\n"; Msg.message "\n Table Indexing parameters: \n"; match (! TableParam.strategy) with TableParam.Variant -> Msg.message "\n       Table Strategy := Variant \n" | TableParam.Subsumption -> Msg.message "\n       Table Strategy := Subsumption \n"; if (! TableParam.strengthen) then Msg.message "\n       Strengthening := true \n" else Msg.message "\n       Strengthening := false \n"; Msg.message ("\nNumber of table indices : " ^ Int.toString (Tabled.tableSize ()) ^ "\n"); Msg.message ("Number of suspended goals : " ^ Int.toString (Tabled.suspGoalNo ()) ^ "\n"); Msg.message "\n____________________________________________\n\n") else (if ! Global.chatter >= 3 then Msg.message (" OK\n") else ()); Tabled.updateGlobalTable (g, ! status) )
 (* Interactive Query Top Level *)
 
-let rec qLoop ()  = qLoops (CSManager.reset (); Parser.parseTerminalQ ("?- ", "   "))
+let rec qLoop ()  = qLoops (Cs.CSManager.reset (); Parser.parseTerminalQ ("?- ", "   "))
 and qLoops (s)  = qLoops' ((Timers.time Timers.parsing S.expose) s)
 and qLoops' = function (S.Empty) -> true | (S.Cons (query, s')) -> ( (* times itself *)
 let (A, optName, Xs) = ReconQuery.queryToQuery (query, Paths.Loc ("stdIn", Paths.Reg (0, 0))) in let g = (Timers.time Timers.compiling Compile.compileGoal) (IntSyn.Null, A) in let rec scInit M  = ((if ! Global.chatter >= 1 then Msg.message ((Timers.time Timers.printing evarInstToString) Xs ^ "\n") else ()); match optName with None -> () | Some (name) -> if ! Global.chatter >= 3 then Msg.message ((Timers.time Timers.printing evarInstToString) [(M, name)] ^ "\n") else (); if ! Global.chatter >= 3(* Question: should we collect constraints from M *)
@@ -241,7 +241,7 @@ Msg.message "No more solutions\n") with Done -> (); (* Ignore s': parse one quer
 qLoop () )
 (* querytabled interactive top loop *)
 
-let rec qLoopT ()  = qLoopsT (CSManager.reset (); Parser.parseTerminalQ ("?- ", "   "))
+let rec qLoopT ()  = qLoopsT (Cs.CSManager.reset (); Parser.parseTerminalQ ("?- ", "   "))
 and qLoopsT (s)  = qLoopsT' ((Timers.time Timers.parsing S.expose) s)
 and qLoopsT' = function (S.Empty) -> true | (S.Cons (query, s')) -> ( (* times itself *)
 (* loops -- scinit will raise exception Done *)

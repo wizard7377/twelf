@@ -5,7 +5,7 @@
 (* Modified: Frank Pfenning *)
 
 module type INDEX = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   val reset : unit -> unit
   val resetFrom : IntSyn.cid -> unit
   val install : IntSyn.conDecForm -> IntSyn.head -> unit
@@ -23,7 +23,7 @@ end
 
 (* Modified: Frank Pfenning *)
 
-module Index (Global : GLOBAL) (Queue : QUEUE) : INDEX = struct
+module Index (Global : Global.GLOBAL) (Queue : Queue.QUEUE) : INDEX = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module I = IntSyn

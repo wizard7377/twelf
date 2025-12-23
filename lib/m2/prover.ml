@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type PROVER = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of string
 
   val init : int * IntSyn.cid list -> unit
@@ -18,17 +18,17 @@ end
 (* Author: Carsten Schuermann *)
 
 module Prover
-    (MetaGlobal : METAGLOBAL)
-    (MetaSyn' : METASYN)
-    (Init : INIT)
-    (Strategy : STRATEGY)
-    (Filling : FILLING)
-    (Splitting : SPLITTING)
-    (Recursion : RECURSION)
-    (Qed : QED)
-    (MetaPrint : METAPRINT)
-    (Names : NAMES)
-    (Timers : TIMERS) : PROVER = struct
+    (MetaGlobal : Meta_global.METAGLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (Init : Init.INIT)
+    (Strategy : Strategy.STRATEGY)
+    (Filling : Filling.Fill.FILLING)
+    (Splitting : Splitting.Split.SPLITTING)
+    (Recursion : Recursion.RECURSION)
+    (Qed : Qed.QED)
+    (MetaPrint : Meta_print.METAPRINT)
+    (Names : Names.NAMES)
+    (Timers : Timers.TIMERS) : PROVER = struct
   (*! structure IntSyn = MetaSyn'.IntSyn !*)
 
   exception Error of string

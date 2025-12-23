@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type FUNSYN = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   (* make abstract *)
   type label = int
   type lemma = int
@@ -81,7 +81,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module FunSyn (Whnf : WHNF) (Conv : CONV) : FUNSYN = struct
+module FunSyn (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : FUNSYN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

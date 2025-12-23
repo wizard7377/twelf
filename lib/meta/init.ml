@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPINIT = sig
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -12,20 +12,20 @@ module type MTPINIT = sig
   val init : FunSyn.for_sml * StateSyn.order -> StateSyn.state list
 end
 
-(* signature MTPINIT *)
+(* signature Mpi.MTPINIT *)
 (* Initialization *)
 
 (* Author: Carsten Schuermann *)
 
 module MTPInit
-    (MTPGlobal : MTPGLOBAL)
-    (MTPData : MTPDATA)
-    (Names : NAMES)
-    (StateSyn' : STATESYN)
-    (Formatter : FORMATTER)
-    (Whnf : WHNF)
-    (Print : PRINT)
-    (FunPrint : FUNPRINT) : MTPINIT = struct
+    (MTPGlobal : Global.MTPGLOBAL)
+    (MTPData : Data.MTPDATA)
+    (Names : Names.NAMES)
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Formatter : Formatter.FORMATTER)
+    (Whnf : Whnf.WHNF)
+    (Print : Print.PRINT)
+    (FunPrint : Funprint.FUNPRINT) : Mpi.MTPINIT = struct
   (*! structure FunSyn = FunSyn' !*)
 
   module StateSyn = StateSyn'

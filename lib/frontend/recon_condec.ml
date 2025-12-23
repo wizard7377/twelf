@@ -3,9 +3,9 @@
 (* Author: Frank Pfenning *)
 
 module type EXTCONDEC = sig
-  module ExtSyn : EXTSYN
+  module ExtSyn : Recon_term.EXTSYN
 
-  (*! structure Paths : PATHS !*)
+  (*! structure Paths : Paths.PATHS !*)
   type condec
 
   (* constant declaration *)
@@ -21,7 +21,7 @@ end
 (* signature EXTCONDEC *)
 
 module type RECON_CONDEC = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   include EXTCONDEC
 
   exception Error of string
@@ -46,16 +46,16 @@ end
 (* Modified: Roberto Virga, Jeff Polakow *)
 
 module ReconConDec
-    (Global : GLOBAL)
-    (Names : NAMES)
-    (Abstract : ABSTRACT)
-    (ReconTerm' : RECON_TERM)
-    (Constraints : CONSTRAINTS)
-    (Strict : STRICT)
-    (TypeCheck : TYPECHECK)
-    (Timers : TIMERS)
-    (Print : PRINT)
-    (Msg : MSG) : RECON_CONDEC = struct
+    (Global : Global.GLOBAL)
+    (Names : Names.NAMES)
+    (Abstract : Abstract.ABSTRACT)
+    (ReconTerm' : Recon_term.RECON_TERM)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Strict : Strict.STRICT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Timers : Timers.TIMERS)
+    (Print : Print.PRINT)
+    (Msg : Msg.MSG) : RECON_CONDEC = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Paths = Paths' !*)

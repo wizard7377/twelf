@@ -6,7 +6,7 @@ module FgnOpnTable (A : sig
   type t
 end) (R : sig
   type t
-end) : FGN_OPN with type arg = A.t with type result = R.t = struct
+end) : Fgnopn.FGN_OPN with type arg = A.t with type result = R.t = struct
   type csid = int
   type rep = exn
   type arg = A.t
@@ -15,12 +15,12 @@ end) : FGN_OPN with type arg = A.t with type result = R.t = struct
   type table = func array
 
   let rec initializeTable tbl =
-    let exception CSfunNotInstalled of csid in
+    let exception Cs.CSfunNotInstalled of csid in
     let maxCSid =
       (*Global.maxCSid*)
       50
     in
-    let rec unimplemented csid = fun _ -> raise (CSfunNotInstalled csid) in
+    let rec unimplemented csid = fun _ -> raise (Cs.CSfunNotInstalled csid) in
     Array.tabulate (maxCSid + 1, unimplemented)
 
   let table : table = initializeTable ()

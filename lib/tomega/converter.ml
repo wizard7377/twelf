@@ -4,8 +4,8 @@
 (* Author: Carsten Schuermann *)
 
 module type CONVERTER = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
   exception Error of string
   exception Error' of Tomega.sub
 
@@ -20,28 +20,28 @@ module type CONVERTER = sig
   val convertGoal : Tomega.dec IntSyn.ctx * IntSyn.exp -> Tomega.prg
 end
 
-(* Signature CONVERTER *)
+(* Signature Conv.CONVERTER *)
 (* Converter from relational representation to a functional
    representation of proof terms *)
 
 (* Author: Carsten Schuermann *)
 
 module Converter
-    (Global : GLOBAL)
-    (Abstract : ABSTRACT)
-    (ModeTable : MODETABLE)
-    (Names : NAMES)
-    (Unify : UNIFY)
-    (Whnf : WHNF)
-    (Print : PRINT)
-    (TomegaPrint : TOMEGAPRINT)
-    (WorldSyn : WORLDSYN)
-    (Worldify : WORLDIFY)
-    (TomegaTypeCheck : TOMEGATYPECHECK)
-    (Subordinate : SUBORDINATE)
-    (TypeCheck : TYPECHECK)
-    (Redundant : REDUNDANT)
-    (TomegaAbstract : TOMEGAABSTRACT) : CONVERTER = struct
+    (Global : Global.GLOBAL)
+    (Abstract : Abstract.ABSTRACT)
+    (ModeTable : Modetable.MODETABLE)
+    (Names : Names.NAMES)
+    (Unify : Unify.UNIFY)
+    (Whnf : Whnf.WHNF)
+    (Print : Print.PRINT)
+    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
+    (WorldSyn : Worldsyn.WORLDSYN)
+    (Worldify : Worldify.WORLDIFY)
+    (TomegaTypeCheck : Tomega.Typecheck.TOMEGATYPECHECK)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Redundant : Redundant.REDUNDANT)
+    (TomegaAbstract : Tomega.Abstract.TOMEGAABSTRACT) : Conv.CONVERTER = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

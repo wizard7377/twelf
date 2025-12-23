@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type QED = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -15,7 +15,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Qed (Global : GLOBAL) (MetaSyn' : METASYN) : QED = struct
+module Qed (Global : Global.GLOBAL) (MetaSyn' : Metasyn.METASYN) : QED = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string

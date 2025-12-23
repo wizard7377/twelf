@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type ORDER = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of string
 
   type 'a order = Arg of 'a | Lex of 'a order list | Simul of 'a order list
@@ -33,14 +33,14 @@ module type ORDER = sig
   val closure : IntSyn.cid -> IntSyn.cid list
 end
 
-(* signature ORDER *)
+(* signature Order.ORDER *)
 (* Terminiation and Reduction Order *)
 
 (* Author: Carsten Schuermann *)
 
 (* Modified: Brigitte Pientka *)
 
-module Order : ORDER = struct
+module Order : Order.ORDER = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

@@ -3,7 +3,7 @@
 (* Author: Frank Pfenning *)
 
 module type TOTAL = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of string
 
   val reset : unit -> unit
@@ -23,18 +23,18 @@ end
 (* Author: Frank Pfenning *)
 
 module Total
-    (Global : GLOBAL)
-    (Whnf : WHNF)
-    (Names : NAMES)
-    (ModeTable : MODETABLE)
-    (ModeCheck : MODECHECK)
-    (Index : INDEX)
-    (Subordinate : SUBORDINATE)
-    (Order : ORDER)
-    (Reduces : REDUCES)
-    (Cover : COVER)
-    (Origins : ORIGINS)
-    (Timers : TIMERS) : TOTAL = struct
+    (Global : Global.GLOBAL)
+    (Whnf : Whnf.WHNF)
+    (Names : Names.NAMES)
+    (ModeTable : Modetable.MODETABLE)
+    (ModeCheck : Modecheck.MODECHECK)
+    (Index : Index.INDEX)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Order : Order.Order.ORDER)
+    (Reduces : Reduces.REDUCES)
+    (Cover : Cover.COVER)
+    (Origins : Origins.ORIGINS)
+    (Timers : Timers.TIMERS) : TOTAL = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

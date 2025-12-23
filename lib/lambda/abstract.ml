@@ -40,7 +40,7 @@ end
 
 (* Modified: Roberto Virga *)
 
-module Abstract (Whnf : WHNF) (Unify : UNIFY) (Constraints : CONSTRAINTS) :
+module Abstract (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Constraints : Constraints.CONSTRAINTS) :
   ABSTRACT = struct
   exception Error of string
 

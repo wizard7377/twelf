@@ -1,7 +1,7 @@
 (* now in cs-manager.fun *)
 
 (*
-structure CSManager = CSManager (structure Global = Global
+structure Cs.CSManager = Cs.CSManager (structure Global = Global
                                  (*! structure IntSyn = IntSyn !*)
                                  structure Unify = UnifyTrail
                                  structure Fixity = Names.Fixity
@@ -9,7 +9,7 @@ structure CSManager = CSManager (structure Global = Global
 *)
 
 module CSEqQ =
-  CSEqField
+  Cs.CSEqField
     (struct
       module Field = Rationals
     end)
@@ -21,7 +21,7 @@ module CSEqQ =
     end)
 
 module CSIneqQ =
-  CSIneqField
+  Cs.CSIneqField
     (struct
       module OrderedField = Rationals
     end)
@@ -38,14 +38,14 @@ module CSIneqQ =
       module SparseArray2 = SparseArray2
     end)
     (struct
-      module CSEqField = CSEqQ
+      module CSEqField = Cs.CSEqQ
     end)
     (struct
       module Compat = Compat
     end)
 
 module CSEqStrings =
-  CSEqStrings
+  Cs.CSEqStrings
     (struct
       module Whnf = Whnf
     end)
@@ -54,7 +54,7 @@ module CSEqStrings =
     end)
 
 module CSEqBools =
-  CSEqBools
+  Cs.CSEqBools
     (struct
       module Whnf = Whnf
     end)
@@ -63,7 +63,7 @@ module CSEqBools =
     end)
 
 module CSEqZ =
-  CSEqIntegers
+  Cs.CSEqIntegers
     (struct
       module Integers = Integers
     end)
@@ -75,7 +75,7 @@ module CSEqZ =
     end)
 
 module CSIneqZ =
-  CSIneqIntegers
+  Cs.CSIneqIntegers
     (struct
       module Integers = Integers
     end)
@@ -95,14 +95,14 @@ module CSIneqZ =
       module SparseArray2 = SparseArray2
     end)
     (struct
-      module CSEqIntegers = CSEqZ
+      module CSEqIntegers = Cs.CSEqZ
     end)
     (struct
       module Compat = Compat
     end)
 
 module CSIntWord32 =
-  CSIntWord
+  Cs.CSIntWord
     (struct
       module Whnf = Whnf
     end)
@@ -118,34 +118,34 @@ end
 
 (* wrapped in structure so it can be tracked by CM *)
 
-module CSInstaller : CS_INSTALLER = struct
+module CSInstaller : Cs.CS_INSTALLER = struct
   let solvers =
     [
-      CSEqQ.solver;
-      CSIneqQ.solver;
-      CSEqStrings.solver;
-      CSEqBools.solver;
-      CSEqZ.solver;
-      CSIneqZ.solver;
-      CSIntWord32.solver;
+      Cs.CSEqQ.solver;
+      Cs.CSIneqQ.solver;
+      Cs.CSEqStrings.solver;
+      Cs.CSEqBools.solver;
+      Cs.CSEqZ.solver;
+      Cs.CSIneqZ.solver;
+      Cs.CSIntWord32.solver;
     ]
 
   let _ =
     List.app
       (fun s ->
-        CSManager.installSolver s;
+        Cs.CSManager.installSolver s;
         ())
       solvers
 
   let version = List.foldr (fun (s, str) -> name s ^ "\n" ^ str) "" solvers
   (*
-  val _ = CSManager.installSolver (CSEqQ.solver)
-  val _ = CSManager.installSolver (CSIneqQ.solver)
-  val _ = CSManager.installSolver (CSEqStrings.solver)
-  val _ = CSManager.installSolver (CSEqBools.solver)
-  val _ = CSManager.installSolver (CSEqZ.solver)
-  val _ = CSManager.installSolver (CSIneqZ.solver)
-  val _ = CSManager.installSolver (CSIntWord32.solver)
+  val _ = Cs.CSManager.installSolver (Cs.CSEqQ.solver)
+  val _ = Cs.CSManager.installSolver (Cs.CSIneqQ.solver)
+  val _ = Cs.CSManager.installSolver (Cs.CSEqStrings.solver)
+  val _ = Cs.CSManager.installSolver (Cs.CSEqBools.solver)
+  val _ = Cs.CSManager.installSolver (Cs.CSEqZ.solver)
+  val _ = Cs.CSManager.installSolver (Cs.CSIneqZ.solver)
+  val _ = Cs.CSManager.installSolver (Cs.CSIntWord32.solver)
   val version = "12/19/2002"
   *)
 end

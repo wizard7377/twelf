@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type THMPRINT = sig
-  module ThmSyn : THMSYN
+  module ThmSyn : Thm.Thmsyn.THMSYN
 
   val tDeclToString : ThmSyn.tDecl -> string
   val callpatsToString : ThmSyn.callpats -> string
@@ -20,14 +20,14 @@ module type THMPRINT = sig
   (* -bp *)
 end
 
-(* signature THMPRINT *)
+(* signature Thm.THMPRINT *)
 (* Printer for_sml Meta Theorems *)
 
 (* Author: Carsten Schuermann *)
 
 (* Modified: Brigitte Pientka *)
 
-module ThmPrint (ThmSyn' : THMSYN) (Formatter : FORMATTER) : THMPRINT = struct
+module ThmPrint (ThmSyn' : Thm.Thmsyn.THMSYN) (Formatter : Formatter.FORMATTER) : Thm.THMPRINT = struct
   module ThmSyn = ThmSyn'
   module L = ThmSyn
   module I = IntSyn

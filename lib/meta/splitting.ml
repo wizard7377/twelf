@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPSPLITTING = sig
-  module StateSyn : STATESYN
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -24,7 +24,7 @@ end
 (* Author: Carsten Schuermann *)
 
 
-module MTPSplitting (MTPGlobal : MTPGLOBAL) (Global : GLOBAL) (StateSyn' : STATESYN) (Heuristic : HEURISTIC) (MTPAbstract : MTPABSTRACT) (MTPrint : MTPRINT) (Names : NAMES) (Conv : CONV) (Whnf : WHNF) (TypeCheck : TYPECHECK) (Subordinate : SUBORDINATE) (FunTypeCheck : FUNTYPECHECK) (Index : INDEX) (Print : PRINT) (Unify : UNIFY) : MTPSPLITTING = struct module StateSyn = StateSyn'
+module MTPSplitting (MTPGlobal : Global.MTPGLOBAL) (Global : Global.GLOBAL) (StateSyn' : Statesyn.State.STATESYN) (Heuristic : Heuristic.HEURISTIC) (MTPAbstract : Abstract.MTPABSTRACT) (MTPrint : Print.MTPRINT) (Names : Names.NAMES) (Conv : Conv.CONV) (Whnf : Whnf.WHNF) (TypeCheck : Typecheck.TYPECHECK) (Subordinate : Subordinate.SUBORDINATE) (FunTypeCheck : Funtypecheck.FUNTYPECHECK) (Index : Index.INDEX) (Print : Print.PRINT) (Unify : Unify.UNIFY) : MTPSPLITTING = struct module StateSyn = StateSyn'
 exception Error of string
 (* Invariant:
      Case analysis generates a list of successor states
@@ -135,7 +135,7 @@ let rec createLemmaTags = function (I.Null) -> I.Null | (I.Decl (G, D)) -> I.Dec
          operators from I
     *)
 
-let rec constCases = function (G, Vs, [], abstract, ops) -> ops | (G, Vs, I.Const c :: Sgn, abstract, ops) -> ( let (U, Vs') = createAtomConst (G, I.Const c) in  constCases (G, Vs, Sgn, abstract, CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract U) :: ops else ops) with MTPAbstract.Error _ -> InActive :: ops)) )
+let rec constCases = function (G, Vs, [], abstract, ops) -> ops | (G, Vs, I.Const c :: Sgn, abstract, ops) -> ( let (U, Vs') = createAtomConst (G, I.Const c) in  constCases (G, Vs, Sgn, abstract, Cs.CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract U) :: ops else ops) with MTPAbstract.Error _ -> InActive :: ops)) )
 (* paramCases (G, (V, s), k, abstract, ops) = ops'
 
        Invariant:
@@ -147,9 +147,9 @@ let rec constCases = function (G, Vs, [], abstract, ops) -> ops | (G, Vs, I.Cons
          operators introduced by parameters <= k in G
     *)
 
-let rec paramCases = function (G, Vs, 0, abstract, ops) -> ops | (G, Vs, k, abstract, ops) -> ( let (U, Vs') = createAtomBVar (G, k) in  paramCases (G, Vs, k - 1, abstract, CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract U) :: ops else ops) with MTPAbstract.Error _ -> InActive :: ops)) )
+let rec paramCases = function (G, Vs, 0, abstract, ops) -> ops | (G, Vs, k, abstract, ops) -> ( let (U, Vs') = createAtomBVar (G, k) in  paramCases (G, Vs, k - 1, abstract, Cs.CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then Active (abstract U) :: ops else ops) with MTPAbstract.Error _ -> InActive :: ops)) )
 let rec constAndParamCases ops0 (c, G, k, (V, s'), abstract)  = constCases (G, (V, s'), Index.lookup c, abstract, paramCases (G, (V, s'), k, abstract, ops0))
-let rec metaCases (d, ops0) (c, G, k, Vs, abstract)  = ( let g = I.ctxLength G in let rec select = function (0, ops) -> ops | (d', ops) -> ( let n = g - d' + 1 in let I.Dec (_, V) = I.ctxDec (G, n) in let ops' = if I.targetFam V = c then ( let (U, Vs') = createAtomBVar (G, n) in  CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then (Active (abstract U) :: ops)(* abstract state *)
+let rec metaCases (d, ops0) (c, G, k, Vs, abstract)  = ( let g = I.ctxLength G in let rec select = function (0, ops) -> ops | (d', ops) -> ( let n = g - d' + 1 in let I.Dec (_, V) = I.ctxDec (G, n) in let ops' = if I.targetFam V = c then ( let (U, Vs') = createAtomBVar (G, n) in  Cs.CSManager.trail (fun () -> try (if Unify.unifiable (G, Vs, Vs') then (Active (abstract U) :: ops)(* abstract state *)
  else ops) with MTPAbstract.Error _ -> InActive :: ops) ) else ops in  select (d' - 1, ops') ) in  select (d, ops0) )
 (* lowerSplitDest (G, k, (V, s'), abstract) = ops'
 

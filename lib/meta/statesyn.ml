@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type STATESYN = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure FunSyn : FUNSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
   type order =
     | Arg of (IntSyn.exp * IntSyn.sub) * (IntSyn.exp * IntSyn.sub)
     | Lex of order list
@@ -40,12 +40,12 @@ module type STATESYN = sig
   val normalizeTag : tag * IntSyn.sub -> tag
 end
 
-(* signature STATESYN *)
+(* signature State.STATESYN *)
 (* State for_sml Proof Search *)
 
 (* Author: Carsten Schuermann *)
 
-module StateSyn (Whnf : WHNF) (Conv : CONV) : STATESYN = struct
+module StateSyn (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : State.STATESYN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure FunSyn = FunSyn' !*)
@@ -161,4 +161,4 @@ module StateSyn (Whnf : WHNF) (Conv : CONV) : STATESYN = struct
   (* local *)
 end
 
-(* signature STATESYN *)
+(* signature State.STATESYN *)

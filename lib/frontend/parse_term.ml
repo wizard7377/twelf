@@ -3,8 +3,8 @@
 (* Author: Frank Pfenning *)
 
 module type PARSE_TERM = sig
-  (*! structure Parsing : PARSING !*)
-  module ExtSyn : EXTSYN
+  (*! structure Parsing : Parsing.PARSING !*)
+  module ExtSyn : Recon_term.EXTSYN
 
   val parseQualId' : string list * Parsing.lexResult Parsing.parser
   val parseQualIds' : string list * string list Parsing.parser
@@ -23,12 +23,12 @@ module type PARSE_TERM = sig
   val parseCtx' : ExtSyn.dec list Parsing.parser
 end
 
-(* signature PARSE_TERM *)
+(* signature Parse_prg.PARSE_TERM *)
 (* Parsing Terms and Variable Declarations *)
 
 (* Author: Frank Pfenning *)
 
-module ParseTerm (ExtSyn' : EXTSYN) (Names : NAMES) : PARSE_TERM = struct
+module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) : Parse_prg.PARSE_TERM = struct
   (*! structure Parsing = Parsing' !*)
 
   module ExtSyn = ExtSyn'
@@ -195,7 +195,7 @@ module ParseTerm (ExtSyn' : EXTSYN) (Names : NAMES) : PARSE_TERM = struct
 
   let rec parseQualId' f =
     match LS.expose s' with
-    | LS.Cons ((L.PATHSEP, _), s'') ->
+    | LS.Cons ((L.Paths.PATHSEP, _), s'') ->
         let (ids, (t, r)), f' = parseQualId' (LS.expose s'') in
         ((id :: ids, (t, r)), f')
     | f' -> (([], (t, r)), f')

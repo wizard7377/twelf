@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type WORLDIFY = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
   exception Error of string
 
   val worldify : IntSyn.cid -> IntSyn.conDec list
@@ -21,19 +21,19 @@ end
 (* Modified: Frank Pfenning *)
 
 module Worldify
-    (Global : GLOBAL)
-    (WorldSyn : WORLDSYN)
-    (Whnf : WHNF)
-    (Index : INDEX)
-    (Names : NAMES)
-    (Unify : UNIFY)
-    (Abstract : ABSTRACT)
-    (Constraints : CONSTRAINTS)
-    (CSManager : CS_MANAGER)
-    (Subordinate : SUBORDINATE)
-    (Print : PRINT)
-    (IntSet : INTSET)
-    (Origins : ORIGINS) : WORLDIFY = struct
+    (Global : Global.GLOBAL)
+    (WorldSyn : Worldsyn.WORLDSYN)
+    (Whnf : Whnf.WHNF)
+    (Index : Index.INDEX)
+    (Names : Names.NAMES)
+    (Unify : Unify.UNIFY)
+    (Abstract : Abstract.ABSTRACT)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Cs.CSManager : Cs.Cs_manager.CS_MANAGER)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Print : Print.PRINT)
+    (IntSet : Intset.INTSET)
+    (Origins : Origins.ORIGINS) : WORLDIFY = struct
   (*! structure IntSyn = IntSyn !*)
 
   (*! structure Tomega = Tomega !*)
@@ -538,11 +538,11 @@ module Worldify
         Trace.missing (G, R);
         ()
     | GVs, Plus (r1, r2), k ->
-        CSManager.trail (fun () -> accR (GVs, r1, k));
+        Cs.CSManager.trail (fun () -> accR (GVs, r1, k));
         accR (GVs, r2, k)
     | GVs, Star One, k -> k GVs
     | GVs, r, k ->
-        CSManager.trail (fun () -> k GVs);
+        Cs.CSManager.trail (fun () -> k GVs);
         accR (GVs, r', fun GVs' -> accR (GVs', r, k))
   (******************************)
 

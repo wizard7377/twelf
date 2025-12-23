@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type FILLING = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
   exception TimeOut
@@ -31,11 +31,11 @@ end
 (* Author: Carsten Schuermann *)
 
 module Filling
-    (MetaSyn' : METASYN)
-    (MetaAbstract : METAABSTRACT)
-    (Search : OLDSEARCH)
-    (Whnf : WHNF)
-    (Print : PRINT) : FILLING = struct
+    (MetaSyn' : Metasyn.METASYN)
+    (MetaAbstract : Meta_abstract.METAABSTRACT)
+    (Search : Search.OLDSEARCH)
+    (Whnf : Whnf.WHNF)
+    (Print : Print.PRINT) : Fill.FILLING = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string

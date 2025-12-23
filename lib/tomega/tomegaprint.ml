@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type TOMEGAPRINT = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA  !*)
-  module Formatter : FORMATTER
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA  !*)
+  module Formatter : Formatter.FORMATTER
 
   exception Error of string
 
@@ -35,14 +35,14 @@ module type TOMEGAPRINT = sig
   (*  val lemmaDecToString : FunSyn.LemmaDec -> string *)
 end
 
-(* signature TOMEGAPRINT *)
+(* signature Tomega.TOMEGAPRINT *)
 (* Printing of functional proof terms *)
 
 
 (* Author: Carsten Schuermann *)
 
 
-module TomegaPrint (Formatter : FORMATTER) (Names : NAMES) (Print : PRINT) : TOMEGAPRINT = struct (*! structure IntSyn = IntSyn' !*)
+module TomegaPrint (Formatter : Formatter.FORMATTER) (Names : Names.NAMES) (Print : Print.PRINT) : Tomega.TOMEGAPRINT = struct (*! structure IntSyn = IntSyn' !*)
 
 (*! structure Tomega = Tomega' !*)
 
@@ -442,5 +442,5 @@ let ctxToString = ctxToString
  end
 
 
-(* signature FUNPRINT *)
+(* signature Funprint.FUNPRINT *)
 

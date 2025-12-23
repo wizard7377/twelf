@@ -5,7 +5,7 @@
 (* Modified: Jeff Polakow *)
 
 module type COMPSYN = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   type opt = No | LinearHeads | Indexing
 
   val optimize : opt ref
@@ -86,7 +86,7 @@ end
 
 (* Modified: Brigitte Pientka *)
 
-module CompSyn (Global : GLOBAL) (Names : NAMES) : COMPSYN = struct
+module CompSyn (Global : Global.GLOBAL) (Names : Names.NAMES) : COMPSYN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   type opt = No | LinearHeads | Indexing

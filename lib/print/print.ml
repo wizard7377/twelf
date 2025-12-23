@@ -5,8 +5,8 @@
 (* Modified: Jeff Polakow *)
 
 module type PRINT = sig
-  (*! structure IntSyn : INTSYN !*)
-  module Formatter : FORMATTER
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  module Formatter : Formatter.FORMATTER
 
   val implicit : bool ref
   val printInfix : bool ref
@@ -50,7 +50,7 @@ end
 (* Modified: Jeff Polakow, Roberto Virga *)
 
 
-module Print (Whnf : WHNF) (Abstract : ABSTRACT) (Constraints : CONSTRAINTS) (Names : NAMES) (Formatter' : FORMATTER) (Symbol : SYMBOL) : PRINT = struct (*! structure IntSyn = IntSyn' !*)
+module Print (Whnf : Whnf.WHNF) (Abstract : Abstract.ABSTRACT) (Constraints : Constraints.CONSTRAINTS) (Names : Names.NAMES) (Formatter' : Formatter.FORMATTER) (Symbol : Symbol.SYMBOL) : PRINT = struct (*! structure IntSyn = IntSyn' !*)
 
 module Formatter = Formatter'
 module Tomega = Tomega

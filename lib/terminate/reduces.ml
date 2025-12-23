@@ -3,7 +3,7 @@
 (* Author: Brigitte Pientka *)
 
 module type REDUCES = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of string
 
   val reset : unit -> unit
@@ -20,11 +20,11 @@ end
 
 (* for_sml termination checking see [Rohwedder,Pfenning ESOP'96]
    for_sml a revised version incorporating reducation checking see
-   tech report CMU-CS-01-115
+   tech report CMU-Cs.CS-01-115
  *)
 
 
-module Reduces (Global : GLOBAL) (Whnf : WHNF) (Names : NAMES) (Index : INDEX) (Subordinate : SUBORDINATE) (Formatter : FORMATTER) (Print : PRINT) (Order : ORDER) (Checking : CHECKING) (Origins : ORIGINS) : REDUCES = struct (*! structure IntSyn = IntSyn' !*)
+module Reduces (Global : Global.GLOBAL) (Whnf : Whnf.WHNF) (Names : Names.NAMES) (Index : Index.INDEX) (Subordinate : Subordinate.SUBORDINATE) (Formatter : Formatter.FORMATTER) (Print : Print.PRINT) (Order : Order.Order.ORDER) (Checking : Checking.CHECKING) (Origins : Origins.ORIGINS) : REDUCES = struct (*! structure IntSyn = IntSyn' !*)
 
 exception Error of string
 module I = IntSyn

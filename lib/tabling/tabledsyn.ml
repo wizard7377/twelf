@@ -3,7 +3,7 @@
 (* Author: Brigitte Pientka *)
 
 module type TABLEDSYN = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of string
 
   val reset : unit -> unit
@@ -13,12 +13,12 @@ module type TABLEDSYN = sig
   val keepTable : IntSyn.cid -> bool
 end
 
-(* signature TABLEDSYN *)
+(* signature Tabled.Table.TABLEDSYN *)
 (* Tabled Syntax *)
 
 (* Author: Brigitte Pientka *)
 
-module TabledSyn (Names : NAMES) (Index : INDEX) : TABLEDSYN = struct
+module TabledSyn (Names : Names.NAMES) (Index : Index.INDEX) : Tabled.Table.TABLEDSYN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

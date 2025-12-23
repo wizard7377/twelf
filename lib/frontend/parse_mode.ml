@@ -3,18 +3,18 @@
 (* Author: Carsten Schuermann *)
 
 module type PARSE_MODE = sig
-  (*! structure Parsing : PARSING !*)
-  module ExtModes : EXTMODES
+  (*! structure Parsing : Parsing.PARSING !*)
+  module ExtModes : Recon_mode.EXTMODES
 
   val parseMode' : ExtModes.modedec list Parsing.parser
 end
 
-(* signature PARSE_MODE *)
+(* signature Parse_prg.PARSE_MODE *)
 (* Parsing Mode Declarations *)
 
 (* Author: Carsten Schuermann *)
 
-module ParseMode (ExtModes' : EXTMODES) (ParseTerm : PARSE_TERM) : PARSE_MODE =
+module ParseMode (ExtModes' : Recon_mode.EXTMODES) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_MODE =
 struct
   (*! structure Parsing = Parsing' !*)
 
@@ -142,8 +142,8 @@ struct
 
   let rec parseMode' = function
     | LS.Cons ((L.MODE, r), s') -> parseMode1 (LS.expose s')
-    | LS.Cons ((L.UNIQUE, r), s') -> parseMode1 (LS.expose s')
-    | LS.Cons ((L.COVERS, r), s') -> parseMode1 (LS.expose s')
+    | LS.Cons ((L.Unique.UNIQUE, r), s') -> parseMode1 (LS.expose s')
+    | LS.Cons ((L.Cover.COVERS, r), s') -> parseMode1 (LS.expose s')
 
   let parseMode' = parseMode'
   (* local *)

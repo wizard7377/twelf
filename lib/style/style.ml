@@ -16,7 +16,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module StyleCheck (Whnf : WHNF) (Index : INDEX) (Origins : ORIGINS) :
+module StyleCheck (Whnf : Whnf.WHNF) (Index : Index.INDEX) (Origins : Origins.ORIGINS) :
   STYLECHECK = struct
   exception Error of string
 

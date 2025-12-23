@@ -3,10 +3,10 @@
 (* Author: Brigitte Pientka *)
 
 module type CHECKING = sig
-  (*! structure IntSyn : INTSYN !*)
-  module Order : ORDER
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  module Order : Order.Order.ORDER
 
-  (*! structure Paths : PATHS !*)
+  (*! structure Paths : Paths.PATHS !*)
   (* If Q marks all parameters in a context G we write   G : Q  *)
   type quantifier = All | Exist | And of Paths.occ
 
@@ -43,7 +43,7 @@ end
 (* for_sml reasoning about orders see [Pientka IJCAR'01] *)
 
 
-module Checking (Global : GLOBAL) (Whnf : WHNF) (Conv : CONV) (Unify : UNIFY) (Names : NAMES) (Index : INDEX) (Subordinate : SUBORDINATE) (Formatter : FORMATTER) (Print : PRINT) (Order : ORDER) (Origins : ORIGINS) : CHECKING = struct (*! structure IntSyn = IntSyn' !*)
+module Checking (Global : Global.GLOBAL) (Whnf : Whnf.WHNF) (Conv : Conv.CONV) (Unify : Unify.UNIFY) (Names : Names.NAMES) (Index : Index.INDEX) (Subordinate : Subordinate.SUBORDINATE) (Formatter : Formatter.FORMATTER) (Print : Print.PRINT) (Order : Order.Order.ORDER) (Origins : Origins.ORIGINS) : CHECKING = struct (*! structure IntSyn = IntSyn' !*)
 
 module Order = Order
 (*! structure Paths = Paths !*)
@@ -215,7 +215,7 @@ let rec eq (G, (Us, Vs), (Us', Vs'))  = Unify.unifiable (G, Vs, Vs') && Unify.un
 
     *)
 
-let rec lookupEq = function (GQ, [], UsVs, UsVs', sc) -> false | (GQ, (Less (_, _) :: D), UsVs, UsVs', sc) -> lookupEq (GQ, D, UsVs, UsVs', sc) | (GQ, (Eq (UsVs1, UsVs1') :: D), UsVs, UsVs', sc) -> CSManager.trail (fun () -> eq (G, UsVs1, UsVs) && eq (G, UsVs1', UsVs') && sc ()) || CSManager.trail (fun () -> eq (G, UsVs1, UsVs') && eq (G, UsVs1', UsVs) && sc ()) || lookupEq (GQ, D, UsVs, UsVs', sc)
+let rec lookupEq = function (GQ, [], UsVs, UsVs', sc) -> false | (GQ, (Less (_, _) :: D), UsVs, UsVs', sc) -> lookupEq (GQ, D, UsVs, UsVs', sc) | (GQ, (Eq (UsVs1, UsVs1') :: D), UsVs, UsVs', sc) -> Cs.CSManager.trail (fun () -> eq (G, UsVs1, UsVs) && eq (G, UsVs1', UsVs') && sc ()) || Cs.CSManager.trail (fun () -> eq (G, UsVs1, UsVs') && eq (G, UsVs1', UsVs) && sc ()) || lookupEq (GQ, D, UsVs, UsVs', sc)
 (* lookupLt (GQ, D, UsVs, UsVs', sc) = B
 
      B holds iff
@@ -235,7 +235,7 @@ let rec lookupEq = function (GQ, [], UsVs, UsVs', sc) -> false | (GQ, (Less (_, 
              all restrictions in sc are satisfied
     *)
 
-let rec lookupLt = function (GQ, [], UsVs, UsVs', sc) -> false | (GQ, (Eq (_, _) :: D), UsVs, UsVs', sc) -> lookupLt (GQ, D, UsVs, UsVs', sc) | (GQ, (Less (UsVs1, UsVs1') :: D), UsVs, UsVs', sc) -> CSManager.trail (fun () -> eq (G, UsVs1, UsVs) && eq (G, UsVs1', UsVs') && sc ()) || lookupLt (GQ, D, UsVs, UsVs', sc)
+let rec lookupLt = function (GQ, [], UsVs, UsVs', sc) -> false | (GQ, (Eq (_, _) :: D), UsVs, UsVs', sc) -> lookupLt (GQ, D, UsVs, UsVs', sc) | (GQ, (Less (UsVs1, UsVs1') :: D), UsVs, UsVs', sc) -> Cs.CSManager.trail (fun () -> eq (G, UsVs1, UsVs) && eq (G, UsVs1', UsVs') && sc ()) || lookupLt (GQ, D, UsVs, UsVs', sc)
 (*  eqAtomic (GQ, D, D', UsVs, UsVs', sc) = B
 
         B iff
@@ -246,10 +246,10 @@ let rec lookupLt = function (GQ, [], UsVs, UsVs', sc) -> false | (GQ, (Eq (_, _)
 
      *)
 
-let rec eqAtomic = function (GQ, [], D', UsVs, UsVs', sc) -> CSManager.trail (fun () -> eq (G, UsVs, UsVs') && sc ()) || lookupEq (GQ, D', UsVs, UsVs', sc) | (GQ, D, D', UsVs, UsVs', sc) -> CSManager.trail (fun () -> eq (G, UsVs, UsVs') && sc ()) || lookupEq (GQ, D, UsVs, UsVs', sc) || lookupEq (GQ, D', UsVs, UsVs', sc) || transEq (GQ, D, D', UsVs, UsVs', sc)
-and transEq = function (GQ, [], D, UsVs, UsVs', sc) -> false | (GQ, (Eq (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || CSManager.trail (fun () -> eq (G, UsVs1, UsVs') && sc () && eqAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic)) || transEq (GQ, D, (Eq (UsVs1, UsVs1') :: D'), UsVs, UsVs', sc) | (GQ, (Less (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> transEq (GQ, D, D', UsVs, UsVs', sc)
+let rec eqAtomic = function (GQ, [], D', UsVs, UsVs', sc) -> Cs.CSManager.trail (fun () -> eq (G, UsVs, UsVs') && sc ()) || lookupEq (GQ, D', UsVs, UsVs', sc) | (GQ, D, D', UsVs, UsVs', sc) -> Cs.CSManager.trail (fun () -> eq (G, UsVs, UsVs') && sc ()) || lookupEq (GQ, D, UsVs, UsVs', sc) || lookupEq (GQ, D', UsVs, UsVs', sc) || transEq (GQ, D, D', UsVs, UsVs', sc)
+and transEq = function (GQ, [], D, UsVs, UsVs', sc) -> false | (GQ, (Eq (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> Cs.CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || Cs.CSManager.trail (fun () -> eq (G, UsVs1, UsVs') && sc () && eqAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic)) || transEq (GQ, D, (Eq (UsVs1, UsVs1') :: D'), UsVs, UsVs', sc) | (GQ, (Less (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> transEq (GQ, D, D', UsVs, UsVs', sc)
 and ltAtomic = function (GQ, [], D', UsVs, UsVs', sc) -> lookupLt (GQ, D', UsVs, UsVs', sc) | (GQ, D, D', UsVs, UsVs', sc) -> lookupLt (GQ, D, UsVs, UsVs', sc) || lookupLt (GQ, D', UsVs, UsVs', sc) || transLt (GQ, D, D', UsVs, UsVs', sc)
-and transLt = function (GQ, [], D, UsVs, UsVs', sc) -> false | (GQ, (Eq (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || CSManager.trail (fun () -> eq (G, UsVs1, UsVs') && sc () && ltAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic)) || transLt (GQ, D, (Eq (UsVs1, UsVs1') :: D'), UsVs, UsVs', sc) | (GQ, (Less (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || transLt (GQ, D, (Less (UsVs1, UsVs1') :: D'), UsVs, UsVs', sc)
+and transLt = function (GQ, [], D, UsVs, UsVs', sc) -> false | (GQ, (Eq (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> Cs.CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || Cs.CSManager.trail (fun () -> eq (G, UsVs1, UsVs') && sc () && ltAtomicR (GQ, (D @ D'), UsVs, UsVs1', sc, atomic)) || transLt (GQ, D, (Eq (UsVs1, UsVs1') :: D'), UsVs, UsVs', sc) | (GQ, (Less (UsVs1, UsVs1') :: D), D', UsVs, UsVs', sc) -> Cs.CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && eqAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || Cs.CSManager.trail (fun () -> eq (G, UsVs1', UsVs') && sc () && ltAtomicR (GQ, (D @ D'), UsVs, UsVs1, sc, atomic)) || transLt (GQ, D, (Less (UsVs1, UsVs1') :: D'), UsVs, UsVs', sc)
 and atomic = function (GQ, D, D', Eq (UsVs, UsVs'), sc) -> eqAtomic (GQ, D, D', UsVs, UsVs', sc) | (GQ, D, D', Less (UsVs, UsVs'), sc) -> ltAtomic (GQ, D, D', UsVs, UsVs', sc)
 and leftInstantiate = function (GQ, [], D', P, sc) -> if atomic (GQ, D', [], P, sc) then (if ! Global.chatter > 4 then print (" Proved: " ^ atomicRCtxToString (G, D') ^ " ---> " ^ atomicPredToString (G, P) ^ "\n") else (); true) else (* should never happen by invariant *)
 false | (GQ, (Less (UsVs, UsVs') :: D), D', P, sc) -> ltInstL (GQ, D, D', UsVs, UsVs', P, sc) | (GQ, (Leq (UsVs, UsVs') :: D), D', P, sc) -> leInstL (GQ, D, D', UsVs, UsVs', P, sc) | (GQ, (Eq (UsVs, UsVs') :: D), D', P, sc) -> eqInstL (GQ, D, D', UsVs, UsVs', P, sc)
@@ -303,7 +303,7 @@ and leRW = function (GQ, D, ((U, s1), (V, s2)), ((I.Lam (I.Dec (_, V1'), U'), s1
 (* enforces that X can only bound to parameter or remain uninstantiated *)
 let X = I.newEVar (G, I.EClo (V1', s1')) in let sc' = fun () -> (isParameter (Q, X) && sc ()) in  leR (GQ, D, ((U, s1), (V, s2)), ((U', I.Dot (I.Exp (X), s1')), (V', I.Dot (I.Exp (X), s2'))), sc', k) ) else if Subordinate.below (I.targetFam V1', I.targetFam V) then ( (* = I.newEVar (I.EClo (V2', s2')) *)
 let X = I.newEVar (G, I.EClo (V1', s1')) in  leR (GQ, D, ((U, s1), (V, s2)), ((U', I.Dot (I.Exp (X), s1')), (V', I.Dot (I.Exp (X), s2'))), sc, k) ) else false | (GQ, D, UsVs, UsVs', sc, k) -> ltR (GQ, D, UsVs, UsVs', sc, k) || eqR (GQ, D, UsVs, UsVs', sc, k)
-and eqR (GQ, D, UsVs, UsVs', sc, k)  = CSManager.trail (fun () -> eq (G, UsVs, UsVs') && sc ()) || eqR' (GQ, D, UsVs, UsVs', sc, k)
+and eqR (GQ, D, UsVs, UsVs', sc, k)  = Cs.CSManager.trail (fun () -> eq (G, UsVs, UsVs') && sc ()) || eqR' (GQ, D, UsVs, UsVs', sc, k)
 and eqR' = function (GQ, D, (Us, Vs), (Us', Vs'), sc, k) -> false | (GQ, D, (Us, Vs), (Us', Vs'), sc, k) -> false | (GQ, D, UsVs, UsVs', sc, k) -> if eqCid (c, c') then eqSpineR (GQ, D, ((S, s), (I.constType c, I.id)), ((S', s'), (I.constType c', I.id)), sc, k) else false | (GQ, D, (Us, Vs), (Us', Vs'), sc, k) -> if isAtomic (GQ, Us') then k (GQ, D, [], Eq ((Us', Vs'), (Us, Vs)), sc)(* either leftInstantiate D or atomic reasoning *)
  else false | (GQ, D, (Us, Vs), (Us', Vs'), sc, k) -> if isAtomic (GQ, Us) then k (GQ, D, [], Eq ((Us, Vs), (Us', Vs')), sc)(* either leftInstantiate D or atomic reasoning *)
  else false | (GQ, D, UsVs, UsVs', sc, k) -> if eqCid (c, c') then eqSpineR (GQ, D, ((S, s), (I.constType c, I.id)), ((S', s'), (I.constType c', I.id)), sc, k) else false | (GQ, D, (Us, Vs), (Us', Vs'), sc, k) -> if isAtomic (GQ, Us') then k (GQ, D, [], Eq ((Us', Vs'), (Us, Vs)), sc)(* either leftInstantiate D or atomic reasoning *)

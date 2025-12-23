@@ -36,7 +36,7 @@ end
 (* signature TRAVERSER *)
 
 module type TRAVERSE = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   module Traverser : TRAVERSER
 
   exception Error of string
@@ -46,7 +46,7 @@ module type TRAVERSE = sig
 end
 
 (* signature TRAVERSE *)
-module Traverse (Whnf : WHNF) (Names : NAMES) (Traverser' : TRAVERSER) :
+module Traverse (Whnf : Whnf.WHNF) (Names : Names.NAMES) (Traverser' : TRAVERSER) :
   TRAVERSE = struct
   (*! structure IntSyn = IntSyn' !*)
 

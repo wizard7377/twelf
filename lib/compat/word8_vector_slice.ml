@@ -28,7 +28,7 @@ module type COMPAT_WORD8_VECTOR_SLICE = sig
   val full : Word8Vector.vector -> Word8VectorSlice.slice
 end
 
-module Word8VectorSlice97 : COMPAT_WORD8_VECTOR_SLICE = struct
+module Word8VectorSlice97 : Compat.COMPAT_WORD8_VECTOR_SLICE = struct
   type vector = Word8Vector.vector
   type slice = Word8VectorSlice.slice
 

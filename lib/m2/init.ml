@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type INIT = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -15,7 +15,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Init (MetaSyn' : METASYN) (MetaAbstract : METAABSTRACT) : INIT = struct
+module Init (MetaSyn' : Metasyn.METASYN) (MetaAbstract : Meta_abstract.METAABSTRACT) : INIT = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string

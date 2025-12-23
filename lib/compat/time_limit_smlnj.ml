@@ -2,7 +2,7 @@
 
 (* Other implementations possible via ALRM signal? *)
 
-module TimeLimit : TIME_LIMIT = struct
+module TimeLimit : Time_limit.TIME_LIMIT = struct
   exception TimeOut
 
   let rec timeLimit = function

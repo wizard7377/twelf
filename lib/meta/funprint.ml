@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type FUNPRINT = sig
-  (*! structure FunSyn : FUNSYN !*)
-  module Formatter : FORMATTER
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module Formatter : Formatter.FORMATTER
 
   val formatForBare : IntSyn.dctx * FunSyn.for_sml -> Formatter.format
 
@@ -18,14 +18,14 @@ module type FUNPRINT = sig
   val lemmaDecToString : FunSyn.lemmaDec -> string
 end
 
-(* signature PRINT *)
+(* signature Print.PRINT *)
 (* Printing of functional proof terms *)
 
 
 (* Author: Carsten Schuermann *)
 
 
-module FunPrint (Formatter : FORMATTER) (Names : NAMES) (Print : PRINT) : FUNPRINT = struct (*! structure FunSyn = FunSyn' !*)
+module FunPrint (Formatter : Formatter.FORMATTER) (Names : Names.NAMES) (Print : Print.PRINT) : FUNPRINT = struct (*! structure FunSyn = FunSyn' !*)
 
 module Formatter = Formatter
 module F = FunSyn

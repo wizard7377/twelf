@@ -3,8 +3,8 @@
 (* Author: Kevin Watkins *)
 
 module type PARSE_MODULE = sig
-  (*! structure Parsing : PARSING !*)
-  module ModExtSyn : MODEXTSYN
+  (*! structure Parsing : Parsing.PARSING !*)
+  module ModExtSyn : Recon_module.MODEXTSYN
 
   (* val parseSigExp' : ModExtSyn.sigexp Parsing.recparser *)
   val parseSigDef' : ModExtSyn.sigdef Parsing.recparser
@@ -18,8 +18,8 @@ end
 
 (* Author: Kevin Watkins *)
 
-module ParseModule (ModExtSyn' : MODEXTSYN) (ParseTerm : PARSE_TERM) :
-  PARSE_MODULE = struct
+module ParseModule (ModExtSyn' : Recon_module.MODEXTSYN) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) :
+  Parse_prg.PARSE_MODULE = struct
   (*! structure Parsing = Parsing' !*)
 
   module ModExtSyn = ModExtSyn'

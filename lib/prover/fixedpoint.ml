@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type FIXEDPOINT = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  module State : STATE
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
+  module State : State.STATE
 
   exception Error of string
 
@@ -21,7 +21,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module FixedPoint (State' : STATE) : FIXEDPOINT = struct
+module FixedPoint (State' : State.STATE) : FIXEDPOINT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

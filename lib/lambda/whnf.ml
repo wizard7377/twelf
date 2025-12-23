@@ -3,7 +3,7 @@
 (* Authors: Frank Pfenning, Carsten Schuermann *)
 
 module type WHNF = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   (* Patterns *)
   val isPatSub : IntSyn.sub -> bool
   val makePatSub : IntSyn.sub -> IntSyn.sub option

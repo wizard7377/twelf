@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type FILL = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  module State : STATE
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
+  module State : State.STATE
 
   exception Error of string
 
@@ -24,13 +24,13 @@ end
 (* Date: Thu Mar 16 13:08:33 2006 *)
 
 module Fill
-    (Data : DATA)
-    (State' : STATE)
-    (Abstract : ABSTRACT)
-    (TypeCheck : TYPECHECK)
-    (Search : SEARCH)
-    (Whnf : WHNF)
-    (Unify : UNIFY) : FILL = struct
+    (Data : Data.DATA)
+    (State' : State.STATE)
+    (Abstract : Abstract.ABSTRACT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Search : Search.SEARCH)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY) : FILL = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)
@@ -74,7 +74,7 @@ module Fill
     let rec try_ = function
       | Vs, Fs, O -> (
           try
-            CSManager.trail (fun () ->
+            Cs.CSManager.trail (fun () ->
                 Unify.unify (G, Vs, (V, I.id));
                 O :: Fs)
           with Unify.Unify _ -> Fs)

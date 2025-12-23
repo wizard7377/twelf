@@ -3,7 +3,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
 module type MATCH = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   (* matching *)
   exception Match of string
 
@@ -37,7 +37,7 @@ end
 
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
-module Match (Whnf : WHNF) (Unify : UNIFY) (Trail : TRAIL) : MATCH = struct
+module Match (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Trail : Trail.TRAIL) : MATCH = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Match of string

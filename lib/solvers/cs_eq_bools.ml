@@ -2,8 +2,8 @@
 
 (* Author: Roberto Virga *)
 
-module CSEqBools (Whnf : WHNF) (Unify : UNIFY) : CS = struct
-  (*! structure CSManager = CSManager !*)
+module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
+  (*! structure Cs.CSManager = Cs.CSManager !*)
 
   (*! structure IntSyn = IntSyn !*)
 
@@ -23,9 +23,9 @@ module CSEqBools (Whnf : WHNF) (Unify : UNIFY) : CS = struct
   *)
 
   open IntSyn
-  module FX = CSManagerFixity
+  module FX = Cs.CSManagerFixity
   module MS = ModeSyn
-  (* CSManager.ModeSyn *)
+  (* Cs.CSManager.ModeSyn *)
 
   exception MyIntsynRep of sum
 
@@ -496,4 +496,4 @@ module CSEqBools (Whnf : WHNF) (Unify : UNIFY) : CS = struct
     }
 end
 
-(* functor CSEqBools *)
+(* functor Cs.CSEqBools *)

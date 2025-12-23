@@ -3,20 +3,20 @@
 (* Author: Frank Pfenning *)
 
 module type PARSE_QUERY = sig
-  (*! structure Parsing : PARSING !*)
-  module ExtQuery : EXTQUERY
+  (*! structure Parsing : Parsing.PARSING !*)
+  module ExtQuery : Recon_query.EXTQUERY
 
   val parseQuery' : ExtQuery.query Parsing.parser
   val parseSolve' : ExtQuery.define list * ExtQuery.solve Parsing.parser
 end
 
-(* signature PARSE_QUERY *)
+(* signature Parse_prg.PARSE_QUERY *)
 (* Parsing Queries *)
 
 (* Author: Frank Pfenning *)
 
-module ParseQuery (ExtQuery' : EXTQUERY) (ParseTerm : PARSE_TERM) :
-  PARSE_QUERY = struct
+module ParseQuery (ExtQuery' : Recon_query.EXTQUERY) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) :
+  Parse_prg.PARSE_QUERY = struct
   (*! structure Parsing = Parsing' !*)
 
   module ExtQuery = ExtQuery'
@@ -101,7 +101,7 @@ module ParseQuery (ExtQuery' : EXTQUERY) (ParseTerm : PARSE_TERM) :
         Parsing.error (r, "Expected identifier or `_', found " ^ L.toString t)
 
   and parseSolve1 = function
-    | defns, LS.Cons ((L.SOLVE, r0), s') -> parseSolve2 (defns, LS.expose s', r0)
+    | defns, LS.Cons ((L.Solve.SOLVE, r0), s') -> parseSolve2 (defns, LS.expose s', r0)
     | defns, LS.Cons ((L.DEFINE, r0), s') ->
         let defn, f' = parseDefine1 (LS.expose s') in
         parseSolve1 (defn :: defns, f')

@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type TOMEGA = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   (* make abstract *)
   type label = int
   type lemma = int
@@ -132,7 +132,7 @@ end
 
 (* Modified: Yu Liao, Adam Poswolsky *)
 
-module Tomega (Whnf : WHNF) (Conv : CONV) : TOMEGA = struct
+module Tomega (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : TOMEGA = struct
   exception Error of string
 
   type label = int

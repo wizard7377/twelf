@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPROVER = sig
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -17,12 +17,12 @@ end
 (* Author: Carsten Schuermann *)
 
 module MTProver
-    (MTPGlobal : MTPGLOBAL)
-    (StateSyn : STATESYN)
-    (Order : ORDER)
-    (MTPInit : MTPINIT)
-    (MTPStrategy : MTPSTRATEGY)
-    (RelFun : RELFUN) : PROVER = struct
+    (MTPGlobal : Global.MTPGLOBAL)
+    (StateSyn : Statesyn.State.STATESYN)
+    (Order : Order.Order.ORDER)
+    (Mpi.MTPInit : Init.Mpi.MTPINIT)
+    (MTPStrategy : Strategy.MTPSTRATEGY)
+    (RelFun : Relfun.RELFUN) : Prover.PROVER = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string
@@ -120,7 +120,7 @@ module MTProver
     let F = RelFun.convertFor cL in
     let O = transformOrder (I.Null, F, map select cL) in
     if equiv (cL, cL') then
-      List.app (fun S -> insertState S) (MTPInit.init (F, O))
+      List.app (fun S -> insertState S) (Mpi.MTPInit.init (F, O))
     else
       raise
         (Error
@@ -159,9 +159,9 @@ end
 (* functor MTProver *)
 
 module CombiProver
-    (MTPGlobal : MTPGLOBAL)
-    (ProverOld : PROVER)
-    (ProverNew : PROVER) : PROVER = struct
+    (MTPGlobal : Global.MTPGLOBAL)
+    (ProverOld : Prover.PROVER)
+    (ProverNew : Prover.PROVER) : Prover.PROVER = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

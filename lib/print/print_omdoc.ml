@@ -10,7 +10,7 @@ module type PRINT_OMDOC = sig
   val printConst : IntSyn.cid -> string
 end
 
-(* signature PRINT_XML *)
+(* signature Print.Print_xml.PRINT_XML *)
 (* Printing *)
 
 (* Author: Frank Pfenning *)
@@ -22,11 +22,11 @@ end
 (* Modified: Florian Rabe *)
 
 module PrintOMDoc
-    (Whnf : WHNF)
-    (Abstract : ABSTRACT)
-    (Constraints : CONSTRAINTS)
-    (Names : NAMES)
-    (Formatter' : FORMATTER) : PRINT_OMDOC = struct
+    (Whnf : Whnf.WHNF)
+    (Abstract : Abstract.ABSTRACT)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Names : Names.NAMES)
+    (Formatter' : Formatter.FORMATTER) : Print.PRINT_OMDOC = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module Formatter = Formatter'

@@ -3,7 +3,7 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
 module type CONV = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   val conv : IntSyn.eclo * IntSyn.eclo -> bool
   val convDec : (IntSyn.dec * IntSyn.sub) * (IntSyn.dec * IntSyn.sub) -> bool
   val convSub : IntSyn.sub * IntSyn.sub -> bool
@@ -14,7 +14,7 @@ end
 
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
-module Conv (Whnf : WHNF) : CONV = struct
+module Conv (Whnf : Whnf.WHNF) : CONV = struct
   (*! structure IntSyn = IntSyn' !*)
 
   open IntSyn

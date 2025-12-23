@@ -27,17 +27,17 @@ end
 (* Modified: Frank Pfenning *)
 
 module WorldSyn
-    (Global : GLOBAL)
-    (Whnf : WHNF)
-    (Index : INDEX)
-    (Names : NAMES)
-    (Unify : UNIFY)
-    (Abstract : ABSTRACT)
-    (Constraints : CONSTRAINTS)
-    (Subordinate : SUBORDINATE)
-    (Print : PRINT)
-    (Origins : ORIGINS)
-    (Timers : TIMERS) : WORLDSYN = struct
+    (Global : Global.GLOBAL)
+    (Whnf : Whnf.WHNF)
+    (Index : Index.INDEX)
+    (Names : Names.NAMES)
+    (Unify : Unify.UNIFY)
+    (Abstract : Abstract.ABSTRACT)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Print : Print.PRINT)
+    (Origins : Origins.ORIGINS)
+    (Timers : Timers.TIMERS) : WORLDSYN = struct
   module I = IntSyn
   module T = Tomega
   module P = Paths
@@ -393,11 +393,11 @@ module WorldSyn
         Trace.missing (G, R);
         ()
     | GL, Plus (r1, r2), b, k ->
-        CSManager.trail (fun () -> accR (GL, r1, b, k));
+        Cs.CSManager.trail (fun () -> accR (GL, r1, b, k));
         accR (GL, r2, b, k)
     | GL, Star One, b, k -> k GL
     | GL, r, b, k ->
-        CSManager.trail (fun () -> k GL);
+        Cs.CSManager.trail (fun () -> k GL);
         accR (GL, r', b, fun GL' -> accR (GL', r, b, k))
   (* checkSubsumedBlock (G, someDecs, piDecs, Rb, b) = ()
        iff block SOME someDecs. PI piDecs is subsumed by Rb

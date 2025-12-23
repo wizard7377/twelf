@@ -1,7 +1,7 @@
 module SwMachine
-    (Trace : TRACE)
-    (AbsMachine : ABSMACHINE)
-    (TMachine : ABSMACHINE) : ABSMACHINE = struct
+    (Trace : Trace.TRACE)
+    (AbsMachine : Absmachine.ABSMACHINE)
+    (TMachine : Absmachine.ABSMACHINE) : Absmachine.ABSMACHINE = struct
   (*! structure IntSyn = AbsMachine.IntSyn !*)
 
   (*! structure CompSyn = AbsMachine.CompSyn !*)

@@ -3,8 +3,8 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
 module type CLAUSEPRINT = sig
-  (*! structure IntSyn : INTSYN !*)
-  module Formatter : FORMATTER
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  module Formatter : Formatter.FORMATTER
 
   val formatClause : IntSyn.dctx * IntSyn.exp -> Formatter.format
   val formatConDec : IntSyn.conDec -> Formatter.format
@@ -24,11 +24,11 @@ end
 *)
 
 module ClausePrint
-    (Whnf : WHNF)
-    (Names : NAMES)
-    (Formatter' : FORMATTER)
-    (Print : PRINT)
-    (Symbol : SYMBOL) : CLAUSEPRINT = struct
+    (Whnf : Whnf.WHNF)
+    (Names : Names.NAMES)
+    (Formatter' : Formatter.FORMATTER)
+    (Print : Print.PRINT)
+    (Symbol : Symbol.SYMBOL) : CLAUSEPRINT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module Formatter = Formatter'

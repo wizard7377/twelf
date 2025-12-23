@@ -5,9 +5,9 @@
 (* Modified: Brigitte Pientka, Frank Pfenning *)
 
 module type THM = sig
-  module ThmSyn : THMSYN
+  module ThmSyn : Thmsyn.THMSYN
 
-  (*! structure Paths : PATHS !*)
+  (*! structure Paths : Paths.PATHS !*)
   exception Error of string
 
   val installTotal :
@@ -37,12 +37,12 @@ end
 (* Modified: Brigitte Pientka *)
 
 module Thm
-    (Global : GLOBAL)
-    (ThmSyn' : THMSYN)
-    (TabledSyn : TABLEDSYN)
-    (ModeTable : MODETABLE)
-    (Order : ORDER)
-    (ThmPrint : THMPRINT) : THM = struct
+    (Global : Global.GLOBAL)
+    (ThmSyn' : Thmsyn.THMSYN)
+    (TabledSyn : Tabled.Table.Tabledsyn.TABLEDSYN)
+    (ModeTable : Modetable.MODETABLE)
+    (Order : Order.Order.ORDER)
+    (ThmPrint : Thmprint.THMPRINT) : THM = struct
   module ThmSyn = ThmSyn'
   (*! structure Paths = Paths' !*)
 

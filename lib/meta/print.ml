@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPRINT = sig
-  module Formatter : FORMATTER
-  module StateSyn : STATESYN
+  module Formatter : Formatter.FORMATTER
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -20,7 +20,7 @@ end
 (* Author: Carsten Schuermann *)
 
 
-module MTPrint (Global : GLOBAL) (Names : NAMES) (StateSyn' : STATESYN) (Formatter' : FORMATTER) (Print : PRINT) (FunPrint : FUNPRINT) : MTPRINT = struct module Formatter = Formatter'
+module MTPrint (Global : Global.GLOBAL) (Names : Names.NAMES) (StateSyn' : Statesyn.State.STATESYN) (Formatter' : Formatter.FORMATTER) (Print : Print.PRINT) (FunPrint : Funprint.FUNPRINT) : MTPRINT = struct module Formatter = Formatter'
 module StateSyn = StateSyn'
 exception Error of string
 module I = IntSyn

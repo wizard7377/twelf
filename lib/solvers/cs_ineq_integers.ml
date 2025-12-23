@@ -3,24 +3,24 @@
 (* Author: Roberto Virga *)
 
 module CSIneqIntegers
-    (Integers : INTEGERS)
-    (Rationals : RATIONALS)
-    (Trail : TRAIL)
-    (Unify : UNIFY)
-    (SparseArray : SPARSE_ARRAY)
-    (SparseArray2 : SPARSE_ARRAY2)
-    (CSEqIntegers : CS_EQ_INTEGERS)
-    (Compat : COMPAT) =
+    (Integers : Integers.INTEGERS)
+    (Rationals : Rationals.RATIONALS)
+    (Trail : Trail.TRAIL)
+    (Unify : Unify.UNIFY)
+    (SparseArray : Sparse_array.SPARSE_ARRAY)
+    (SparseArray2 : Sparse_array.Sparse_array2.SPARSE_ARRAY2)
+    (Cs.CSEqIntegers : Cs.Cs_eq_integers.CS_EQ_INTEGERS)
+    (Compat : Compat.COMPAT) =
 struct
-  (*! structure CSManager = CSManager !*)
+  (*! structure Cs.CSManager = Cs.CSManager !*)
 
   open IntSyn
   open Rationals
-  open CSEqIntegers
-  module CSM = CSManager
-  module FX = CSMFixity
+  open Cs.CSEqIntegers
+  module CSM = Cs.CSManager
+  module FX = Cs.CSMFixity
   module MS = ModeSyn
-  (* CSM.ModeSyn *)
+  (* Cs.CSM.ModeSyn *)
 
   module Array = SparseArray
   module Array2 = SparseArray2
@@ -834,7 +834,7 @@ struct
           let upper = fromInteger (ceiling value) in
           let rec left () = exploreBB (boundLower (G, decomp, lower)) in
           let rec right () = exploreBB (boundUpper (G, decomp, upper)) in
-          match (CSM.trail left, CSM.trail right) with
+          match (Cs.CSM.trail left, Cs.CSM.trail right) with
           | BranchFail, BranchFail -> BranchFail
           | resultL, resultR -> BranchDivide (row, resultL, resultR))
       | None -> BranchSucceed result
@@ -851,8 +851,8 @@ struct
       let upper = one in
       let rec left () = exploreBB (boundLower (G, decomp, lower)) in
       let rec right () = exploreBB (boundUpper (G, decomp, upper)) in
-      if restricted l then CSM.trail right = BranchFail
-      else CSM.trail left = BranchFail && CSM.trail right = BranchFail
+      if restricted l then Cs.CSM.trail right = BranchFail
+      else Cs.CSM.trail left = BranchFail && Cs.CSM.trail right = BranchFail
     in
     let rec killColumn (j, (l : label)) =
       if (not (dead l)) && coeff (row, j) <> zero && zeroColumn (j, l) then (
@@ -1098,14 +1098,14 @@ struct
     ({
        name = "inequality/integers";
        keywords = "arithmetic,inequality";
-       needs = [ "Unify"; name CSEqIntegers.solver ];
+       needs = [ "Unify"; name Cs.CSEqIntegers.solver ];
        fgnConst = Some { parse = parseGeqN };
        init;
        reset;
        mark;
        unwind;
      }
-      : CSManager.solver)
+      : Cs.CSManager.solver)
 end
 
-(* functor CSIneqIntegers *)
+(* functor Cs.CSIneqIntegers *)

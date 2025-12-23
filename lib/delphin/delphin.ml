@@ -14,11 +14,11 @@ end
 (* Author: Carsten Schuermann *)
 
 module Delphin
-    (Parser : PARSER)
-    (DextSyn : DEXTSYN)
-    (Parse : PARSE)
-    (Twelf : TWELF)
-    (Trans : TRANS) : DELPHIN = struct
+    (Parser : Parse_prg.Parser.PARSER)
+    (DextSyn : Dextsyn.DEXTSYN)
+    (Parse : Parse_prg.PARSE)
+    (Twelf : Twelf.TWELF)
+    (Trans : Trans.TRANS) : DELPHIN = struct
   let version = "Delphin, Version 0.5, July 2003"
   let prompt = "> "
 

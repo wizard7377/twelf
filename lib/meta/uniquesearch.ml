@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type UNIQUESEARCH = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -15,24 +15,24 @@ module type UNIQUESEARCH = sig
     int * IntSyn.exp list * (acctype list -> acctype list) -> acctype list
 end
 
-(* signature SEARCH *)
+(* signature Search.SEARCH *)
 (* Search (based on abstract machine ) : Version 1.3 *)
 
 (* Author: Carsten Schuermann *)
 
 module UniqueSearch
-    (Global : GLOBAL)
-    (StateSyn' : STATESYN)
-    (Abstract : ABSTRACT)
-    (MTPGlobal : MTPGLOBAL)
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Assign : ASSIGN)
-    (Index : INDEX)
-    (Compile : COMPILE)
-    (CPrint : CPRINT)
-    (Print : PRINT)
-    (Names : NAMES) : UNIQUESEARCH = struct
+    (Global : Global.GLOBAL)
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Abstract : Abstract.ABSTRACT)
+    (MTPGlobal : Global.MTPGLOBAL)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Assign : Assign.ASSIGN)
+    (Index : Index.INDEX)
+    (Compile : Compile.COMPILE)
+    (CPrint : Cprint.CPRINT)
+    (Print : Print.PRINT)
+    (Names : Names.NAMES) : Unique.UNIQUESEARCH = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure FunSyn = FunSyn' !*)
@@ -292,7 +292,7 @@ module UniqueSearch
           | Hc :: sgn', acc' ->
               let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
               let acc''' =
-                CSManager.trail (fun () ->
+                Cs.CSManager.trail (fun () ->
                     rSolve
                       ( max - 1,
                         depth,
@@ -309,7 +309,7 @@ module UniqueSearch
           | I.Decl (dPool', C.Dec (r, s, Ha')), n, acc' ->
               if eqHead (Ha, Ha') then
                 let acc''' =
-                  CSManager.trail (fun () ->
+                  Cs.CSManager.trail (fun () ->
                       rSolve
                         ( max - 1,
                           depth,

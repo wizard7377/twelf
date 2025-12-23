@@ -69,7 +69,7 @@ module Worldify =
       module Index = Index
     end)
     (struct
-      module CSManager = CSManager
+      module CSManager = Cs.CSManager
     end)
     (struct
       module Subordinate = Subordinate

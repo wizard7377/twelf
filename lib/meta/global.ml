@@ -16,7 +16,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module MTPGlobal (MetaGlobal : METAGLOBAL) : MTPGLOBAL = struct
+module MTPGlobal (MetaGlobal : Meta_global.METAGLOBAL) : MTPGLOBAL = struct
   type proverType = New | Old
 
   let prover = ref New

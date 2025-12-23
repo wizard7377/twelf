@@ -3,7 +3,7 @@
 (* Author: Richard Fontana *)
 
 module type PARSE = sig
-  module DextSyn : DEXTSYN
+  module DextSyn : Dextsyn.DEXTSYN
 
   val fparse : string -> unit
   val gparse : string -> DextSyn.ast
@@ -17,7 +17,7 @@ end
 (* Author: Richard Fontana *)
 
 
-module Parse Parserr.argInterface.arg Parserr.posInterface.pos Parserr.resultDextSyn.ast Tokens.tokenParserr.Token.token Tokens.svalueParserr.svalue (DextSyn : DEXTSYN) (Interface : INTERFACE) (Parserr : PARSERR) (Tokens : Delphin_TOKENS) : PARSE = struct module DextSyn = DextSyn
+module Parse Parserr.argInterface.arg Parserr.posInterface.pos Parserr.resultDextSyn.ast Tokens.tokenParserr.Token.token Tokens.svalueParserr.svalue (DextSyn : Dextsyn.DEXTSYN) (Interface : Interface.INTERFACE) (Parserr : Parser.PARSERR) (Tokens : Delphin_TOKENS) : PARSE = struct module DextSyn = DextSyn
 module Interface = Interface
 module Parserr = Parserr
 module Tokens = Tokens

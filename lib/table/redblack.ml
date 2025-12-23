@@ -6,7 +6,7 @@ module RedBlackTree (K : sig
   type t
 
   val compare : K.t * K.t -> order
-end) : TABLE with type key = K.t = struct
+end) : Table.TABLE with type key = K.t = struct
   type key = K.t
   type 'a entry = key * 'a
 

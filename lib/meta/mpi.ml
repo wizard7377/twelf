@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPI = sig
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -29,7 +29,7 @@ end
 (* Author: Carsten Schuermann *)
 
 
-module MTPi (MTPGlobal : MTPGLOBAL) (StateSyn' : STATESYN) (RelFun : RELFUN) (Formatter : FORMATTER) (Print : PRINT) (FunTypeCheck : FUNTYPECHECK) (MTPData : MTPDATA) (MTPInit : MTPINIT) (MTPFilling : MTPFILLING) (Inference : INFERENCE) (MTPSplitting : MTPSPLITTING) (MTPRecursion : MTPRECURSION) (MTPStrategy : MTPSTRATEGY) (MTPrint : MTPRINT) (Order : ORDER) (Names : NAMES) (Timers : TIMERS) (Ring : RING) : MTPI = struct exception Error of string
+module MTPi (MTPGlobal : Global.MTPGLOBAL) (StateSyn' : Statesyn.State.STATESYN) (RelFun : Relfun.RELFUN) (Formatter : Formatter.FORMATTER) (Print : Print.PRINT) (FunTypeCheck : Funtypecheck.FUNTYPECHECK) (MTPData : Data.MTPDATA) (MTPInit : Init.MTPINIT) (MTPFilling : Filling.MTPFILLING) (Inference : Inference.INFERENCE) (MTPSplitting : Splitting.MTPSPLITTING) (MTPRecursion : Recursion.MTPRECURSION) (MTPStrategy : Strategy.MTPSTRATEGY) (MTPrint : Print.MTPRINT) (Order : Order.Order.ORDER) (Names : Names.NAMES) (Timers : Timers.TIMERS) (Ring : Ring.RING) : MTPI = struct exception Error of string
 (*! structure FunSyn = FunSyn' !*)
 
 module StateSyn = StateSyn'
@@ -66,7 +66,7 @@ let rec InferenceToMenu (O, A)  = Inference O :: A
 let rec menu ()  = if empty () then Menu := None else ( let S = current () in let SplitO = MTPSplitting.expand S in let InfO = Inference.expand S in let RecO = MTPRecursion.expand S in let FillO = MTPFilling.expand S in  Menu := Some (FillingToMenu (FillO, RecursionToMenu (RecO, InferenceToMenu (InfO, SplittingToMenu (SplitO, []))))) )
 let rec format k  = if k < 10 then (Int.toString k) ^ ".  " else (Int.toString k) ^ ". "
 let rec menuToString ()  = ( let rec menuToString' = function (k, [], (None, _)) -> (Some k, "") | (k, [], (kopt', _)) -> (kopt', "") | (k, Splitting O :: M, kOopt') -> ( let kOopt'' = if MTPSplitting.applicable O then (Some k, Some O) else kOopt' in let (kopt, s) = menuToString' (k + 1, M, kOopt'') in  (kopt, if k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O) else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O)) ) | (k, Splitting O :: M, kOopt') -> ( let kOopt'' = if MTPSplitting.applicable O then match MTPSplitting.compare (O, O') with Lt -> (Some k, Some O) | _ -> kOopt' else kOopt' in let (kopt, s) = menuToString' (k + 1, M, kOopt'') in  (kopt, if k = k'' then s ^ "\n* " ^ (format k) ^ (MTPSplitting.menu O) else s ^ "\n  " ^ (format k) ^ (MTPSplitting.menu O)) ) | (k, Filling O :: M, kOopt) -> ( let (kopt, s) = menuToString' (k + 1, M, kOopt) in  (kopt, s ^ "\n  " ^ (format k) ^ (MTPFilling.menu O)) ) | (k, Recursion O :: M, kOopt) -> ( let (kopt, s) = menuToString' (k + 1, M, kOopt) in  (kopt, s ^ "\n  " ^ (format k) ^ (MTPRecursion.menu O)) ) | (k, Inference O :: M, kOopt) -> ( let (kopt, s) = menuToString' (k + 1, M, kOopt) in  (kopt, s ^ "\n  " ^ (format k) ^ (Inference.menu O)) ) in  match ! Menu with None -> raise (Error "Menu is empty") | Some M -> ( let (kopt, s) = menuToString' (1, M, (None, None)) in  s ) )
-let rec printMenu ()  = if empty () then (print "[QED]\n"; print ("Statistics: required Twelf.Prover.maxFill := " ^ (Int.toString (! MTPData.maxFill)) ^ "\n")) else ( let S = current () in let _ = if ! Global.doubleCheck then FunTypeCheck.isState S else () in  (print "\n"; print (MTPrint.stateToString S); print "\nSelect from the following menu:\n"; print (menuToString ()); print "\n") )
+let rec printMenu ()  = if empty () then (print "[Qed.QED]\n"; print ("Statistics: required Twelf.Prover.maxFill := " ^ (Int.toString (! MTPData.maxFill)) ^ "\n")) else ( let S = current () in let _ = if ! Global.doubleCheck then FunTypeCheck.isState S else () in  (print "\n"; print (MTPrint.stateToString S); print "\nSelect from the following menu:\n"; print (menuToString ()); print "\n") )
 let rec contains = function ([], _) -> true | (x :: L, L') -> (List.exists (fun x' -> x = x') L') && contains (L, L')
 let rec equiv (L1, L2)  = contains (L1, L2) && contains (L2, L1)
 let rec transformOrder' = function (G, Order.Arg k) -> ( let k' = (I.ctxLength G) - k + 1 in let I.Dec (_, V) = I.ctxDec (G, k') in  S.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id)) ) | (G, Order.Lex Os) -> S.Lex (map (fun O -> transformOrder' (G, O)) Os) | (G, Order.Simul Os) -> S.Simul (map (fun O -> transformOrder' (G, O)) Os)
@@ -93,5 +93,5 @@ let undo = undo
  end
 
 
-(* functor MPI *)
+(* functor Mpi.MPI *)
 

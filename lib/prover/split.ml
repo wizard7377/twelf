@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type SPLIT = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  module State : STATE
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
+  module State : State.STATE
 
   exception Error of string
 
@@ -22,16 +22,16 @@ end
 (* Author: Carsten Schuermann *)
 
 module Split
-    (Global : GLOBAL)
-    (State' : STATE)
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Constraints : CONSTRAINTS)
-    (Abstract : ABSTRACT)
-    (Index : INDEX)
-    (Print : PRINT)
-    (TypeCheck : TYPECHECK)
-    (Subordinate : SUBORDINATE) : SPLIT = struct
+    (Global : Global.GLOBAL)
+    (State' : State.STATE)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Abstract : Abstract.ABSTRACT)
+    (Index : Index.INDEX)
+    (Print : Print.PRINT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Subordinate : Subordinate.SUBORDINATE) : SPLIT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)
@@ -179,7 +179,7 @@ module Split
     | G, Vs, I.Const c :: sgn', sc ->
         let U, Vs' = createAtomConst (G, I.Const c) in
         let _ =
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               if Unify.unifiable (G, Vs, Vs') then sc U else ())
         in
         constCases (G, Vs, sgn', sc)
@@ -189,7 +189,7 @@ module Split
     | G, Vs, k, sc ->
         let U, Vs' = createAtomBVar (G, k) in
         let _ =
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               if Unify.unifiable (G, Vs, Vs') then sc U else ())
         in
         paramCases (G, Vs, k - 1, sc)
@@ -239,7 +239,7 @@ module Split
         (* so G |- V'[t'] : type *)
         let U, Vs' = createAtomProj (G, I.Proj (lvar, i), (V', t)) in
         let _ =
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               if Unify.unifiable (G, Vs, Vs') then sc U else ())
         in
         let t' = I.Dot (I.Exp (I.Root (I.Proj (lvar, i), I.Nil)), t) in

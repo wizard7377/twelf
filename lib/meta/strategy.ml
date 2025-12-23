@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPSTRATEGY = sig
-  module StateSyn : STATESYN
+  module StateSyn : Statesyn.State.STATESYN
 
   val run : StateSyn.state list -> StateSyn.state list * StateSyn.state list
   (* open cases -> remaining cases * solved cases *)
@@ -15,15 +15,15 @@ end
 (* Author: Carsten Schuermann *)
 
 module MTPStrategy
-    (MTPGlobal : MTPGLOBAL)
-    (StateSyn' : STATESYN)
-    (MTPFilling : MTPFILLING)
-    (MTPData : MTPDATA)
-    (MTPSplitting : MTPSPLITTING)
-    (MTPRecursion : MTPRECURSION)
-    (Inference : INFERENCE)
-    (MTPrint : MTPRINT)
-    (Timers : TIMERS) : MTPSTRATEGY = struct
+    (MTPGlobal : Global.MTPGLOBAL)
+    (StateSyn' : Statesyn.State.STATESYN)
+    (MTPFilling : Filling.MTPFILLING)
+    (MTPData : Data.MTPDATA)
+    (MTPSplitting : Splitting.MTPSPLITTING)
+    (MTPRecursion : Recursion.MTPRECURSION)
+    (Inference : Inference.INFERENCE)
+    (MTPrint : Print.MTPRINT)
+    (Timers : Timers.TIMERS) : MTPSTRATEGY = struct
   module StateSyn = StateSyn'
   module S = StateSyn
 
@@ -53,7 +53,7 @@ module MTPStrategy
   let rec printCloseBracket () = if !Global.chatter > 5 then print "]\n" else ()
 
   let rec printQed () =
-    if !Global.chatter > 3 then print "[QED]\n" else ();
+    if !Global.chatter > 3 then print "[Qed.QED]\n" else ();
     if !Global.chatter > 4 then
       print
         ("Statistics: required Twelf.Prover.maxFill := "

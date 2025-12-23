@@ -9,7 +9,7 @@ module type HASHABLE = sig
   val eq : t * t -> bool
 end
 
-module HashTable (Hash : HASHABLE) : TABLE with type key = Hash.t = struct
+module HashTable (Hash : HASHABLE) : Table.TABLE with type key = Hash.t = struct
   type key = Hash.t
   type 'a entry = key * 'a
   (* A hashtable bucket is a linked list of mutable elements *)
@@ -75,7 +75,7 @@ module type STRING_HASH = sig
   val stringHash : string -> int
 end
 
-module StringHash : STRING_HASH = struct
+module StringHash : String_hash.STRING_HASH = struct
   let rec stringHash s =
     (* sample 4 characters from string *)
     let rec num i = Char.ord (String.sub (s, i)) mod_ 128 in
@@ -91,4 +91,4 @@ end
 
 (* structure StringHash *)
 
-module StringHashTable : TABLE with type key = string = HashTable
+module StringHashTable : Table.TABLE with type key = string = HashTable

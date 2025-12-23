@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type OPSEM = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
   exception NoMatch
 
   val evalPrg : Tomega.prg -> Tomega.prg
@@ -17,12 +17,12 @@ end
 (* Author: Carsten Schuermann, Adam Poswolsky *)
 
 module Opsem
-    (Whnf : WHNF)
-    (Abstract : ABSTRACT)
-    (Subordinate : SUBORDINATE)
-    (TomegaTypeCheck : TOMEGATYPECHECK)
-    (TomegaPrint : TOMEGAPRINT)
-    (Unify : UNIFY) : OPSEM = struct
+    (Whnf : Whnf.WHNF)
+    (Abstract : Abstract.ABSTRACT)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (TomegaTypeCheck : Tomega.Typecheck.TOMEGATYPECHECK)
+    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
+    (Unify : Unify.UNIFY) : OPSEM = struct
   module T = Tomega
   module I = IntSyn
   module S = Subordinate

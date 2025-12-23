@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type FUNTYPECHECK = sig
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -20,15 +20,15 @@ end
 (* Author: Carsten Schuermann *)
 
 module FunTypeCheck
-    (StateSyn' : STATESYN)
-    (Abstract : ABSTRACT)
-    (TypeCheck : TYPECHECK)
-    (Conv : CONV)
-    (Whnf : WHNF)
-    (Print : PRINT)
-    (Subordinate : SUBORDINATE)
-    (Weaken : WEAKEN)
-    (FunPrint : FUNPRINT) : FUNTYPECHECK = struct
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Abstract : Abstract.ABSTRACT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Conv : Conv.CONV)
+    (Whnf : Whnf.WHNF)
+    (Print : Print.PRINT)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Weaken : Weaken.Weaken.WEAKEN)
+    (FunPrint : Funprint.FUNPRINT) : FUNTYPECHECK = struct
   (*! structure FunSyn = FunSyn' !*)
 
   module StateSyn = StateSyn'

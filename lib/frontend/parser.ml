@@ -3,15 +3,15 @@
 (* Author: Frank Pfenning *)
 
 module type PARSER = sig
-  (*! structure Parsing : PARSING !*)
-  module Stream : STREAM
-  module ExtSyn : EXTSYN
-  module Names : NAMES
-  module ExtConDec : EXTCONDEC
-  module ExtQuery : EXTQUERY
-  module ExtModes : EXTMODES
-  module ThmExtSyn : THMEXTSYN
-  module ModExtSyn : MODEXTSYN
+  (*! structure Parsing : Parsing.PARSING !*)
+  module Stream : Stream.STREAM
+  module ExtSyn : Recon_term.EXTSYN
+  module Names : Names.NAMES
+  module ExtConDec : Recon_condec.EXTCONDEC
+  module ExtQuery : Recon_query.EXTQUERY
+  module ExtModes : Recon_mode.EXTMODES
+  module ThmExtSyn : Recon_thm.Thm.THMEXTSYN
+  module ModExtSyn : Recon_module.MODEXTSYN
 
   type fileParseResult =
     | ConDec of ExtConDec.condec
@@ -58,27 +58,27 @@ module type PARSER = sig
   (* reads from std input *)
 end
 
-(* signature PARSER *)
+(* signature Parse_prg.PARSER *)
 (* Top-Level Parser *)
 
 (* Author: Frank Pfenning *)
 
 module Parser
-    (Stream' : STREAM)
-    (ExtSyn' : EXTSYN)
-    (Names' : NAMES)
-    (ExtConDec' : EXTCONDEC)
-    (ExtQuery' : EXTQUERY)
-    (ExtModes' : EXTMODES)
-    (ThmExtSyn' : THMEXTSYN)
-    (ModExtSyn' : MODEXTSYN)
-    (ParseConDec : PARSE_CONDEC)
-    (ParseQuery : PARSE_QUERY)
-    (ParseFixity : PARSE_FIXITY)
-    (ParseMode : PARSE_MODE)
-    (ParseThm : PARSE_THM)
-    (ParseModule : PARSE_MODULE)
-    (ParseTerm : PARSE_TERM) : PARSER = struct
+    (Stream' : Stream.STREAM)
+    (ExtSyn' : Recon_term.EXTSYN)
+    (Names' : Names.NAMES)
+    (ExtConDec' : Recon_condec.EXTCONDEC)
+    (ExtQuery' : Recon_query.EXTQUERY)
+    (ExtModes' : Recon_mode.EXTMODES)
+    (ThmExtSyn' : Recon_thm.Thm.THMEXTSYN)
+    (ModExtSyn' : Recon_module.MODEXTSYN)
+    (ParseConDec : Parse_prg.Parse_condec.PARSE_CONDEC)
+    (ParseQuery : Parse_prg.Parse_query.PARSE_QUERY)
+    (ParseFixity : Parse_prg.Parse_fixity.PARSE_FIXITY)
+    (ParseMode : Parse_prg.Parse_mode.PARSE_MODE)
+    (ParseThm : Parse_prg.Parse_thm.PARSE_THM)
+    (ParseModule : Parse_prg.Parse_module.PARSE_MODULE)
+    (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSER = struct
   (*! structure Parsing = Parsing' !*)
 
   module Stream = Stream'
@@ -204,7 +204,7 @@ module Parser
         let r = Paths.join (r0, r') in
         Stream.Cons
           ((Query (expected, try_, query), r), parseStream (stripDot f3, sc))
-    | LS.Cons ((L.FQUERY, r0), s'), sc ->
+    | LS.Cons ((L.Fquery.FQUERY, r0), s'), sc ->
         let query, f3 = ParseQuery.parseQuery' (LS.expose s') in
         let r = Paths.join (r0, r') in
         Stream.Cons ((FQuery query, r), parseStream (stripDot f3, sc))

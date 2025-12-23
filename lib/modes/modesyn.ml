@@ -5,7 +5,7 @@
 (* Modified: Frank Pfenning, Roberto Virga *)
 
 module type MODESYN = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   type mode = Plus | Star | Minus | Minus1
 
   type modeSpine = Mnil | Mapp of marg * modeSpine

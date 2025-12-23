@@ -11,7 +11,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module MTPData (MTPGlobal : MTPGLOBAL) : MTPDATA = struct
+module MTPData (MTPGlobal : Global.MTPGLOBAL) : MTPDATA = struct
   let maxFill = ref 0
 end
 

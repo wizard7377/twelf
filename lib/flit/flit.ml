@@ -34,13 +34,13 @@ end
 (* Author: Roberto Virga *)
 
 module Flit
-    (Global : GLOBAL)
+    (Global : Global.GLOBAL)
     (Word : WORD)
     (Pack : PACK_WORD)
-    (Whnf : WHNF)
-    (Names : NAMES)
-    (Index : INDEX)
-    (Print : PRINT) : FLIT = struct
+    (Whnf : Whnf.WHNF)
+    (Names : Names.NAMES)
+    (Index : Index.INDEX)
+    (Print : Print.PRINT) : FLIT = struct
   module W = Word
   module I = IntSyn
   module N = Names

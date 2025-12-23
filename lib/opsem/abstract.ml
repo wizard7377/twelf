@@ -3,8 +3,8 @@
 (* Author: Brigitte Pientka *)
 
 module type ABSTRACTTABLED = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure TableParam : TABLEPARAM !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure TableParam : Table_param.Table.TABLEPARAM !*)
   exception Error of string
 
   val abstractEVarCtx :
@@ -20,7 +20,7 @@ module type ABSTRACTTABLED = sig
   val raiseType : IntSyn.dctx * IntSyn.exp -> IntSyn.exp
 end
 
-(* signature ABSTRACTTABLED *)
+(* signature Abstract.ABSTRACTTABLED *)
 (* Abstraction *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)
@@ -28,12 +28,12 @@ end
 (* Modified: Roberto Virga, Brigitte Pientka *)
 
 module AbstractTabled
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Constraints : CONSTRAINTS)
-    (Subordinate : SUBORDINATE)
-    (Print : PRINT)
-    (Conv : CONV) : ABSTRACTTABLED = struct
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Print : Print.PRINT)
+    (Conv : Conv.CONV) : Abstract.ABSTRACTTABLED = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure TableParam = TableParam !*)

@@ -1,4 +1,4 @@
-module SigINT : SIGINT = struct
+module SigINT : Sigint.SIGINT = struct
   let rec interruptLoop (loop : unit -> unit) =
     (* open MLton *)
     let _ =

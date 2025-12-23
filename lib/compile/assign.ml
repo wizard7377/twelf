@@ -5,7 +5,7 @@
 (* Modified: Brigitte Pientka *)
 
 module type ASSIGN = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   (* assignable (Us,ps) assigns the term U[s] to the 
      linear higher-order pattern p[s]; if successfull it
      returns a list of residual equations that have been postponed *)
@@ -29,7 +29,7 @@ end
 
 (* Author: Brigitte Pientka *)
 
-module Assign (Whnf : WHNF) (Unify : UNIFY) (Print : PRINT) : ASSIGN = struct
+module Assign (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Print : Print.PRINT) : ASSIGN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Assignment of string

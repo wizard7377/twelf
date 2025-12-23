@@ -9,8 +9,8 @@
 (* Proof term reconstruction by proof skeleton *)
 
 module type PTRECON = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
   exception Error of string
 
   val solve :
@@ -31,12 +31,12 @@ end
 (* Proof term reconstruction from proof skeleton *)
 
 module PtRecon
-    (Unify : UNIFY)
-    (Assign : ASSIGN)
-    (MemoTable : MEMOTABLE)
-    (Index : INDEX)
-    (CPrint : CPRINT)
-    (Names : NAMES) : PTRECON = struct
+    (Unify : Unify.UNIFY)
+    (Assign : Assign.ASSIGN)
+    (MemoTable : Subtree.Sw_subtree.MEMOTABLE)
+    (Index : Index.INDEX)
+    (CPrint : Cprint.CPRINT)
+    (Names : Names.NAMES) : PTRECON = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)

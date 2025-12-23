@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type RECURSION = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -23,21 +23,21 @@ end
 (* See [Rohwedder,Pfenning ESOP'96] *)
 
 module Recursion
-    (Global : GLOBAL)
-    (MetaSyn' : METASYN)
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Conv : CONV)
-    (Names : NAMES)
-    (Subordinate : SUBORDINATE)
-    (Print : PRINT)
-    (Order : ORDER)
-    (ModeTable : MODETABLE)
-    (Lemma : LEMMA)
-    (Filling : FILLING)
-    (MetaPrint : METAPRINT)
-    (MetaAbstract : METAABSTRACT)
-    (Formatter : FORMATTER) : RECURSION = struct
+    (Global : Global.GLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Conv : Conv.CONV)
+    (Names : Names.NAMES)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Print : Print.PRINT)
+    (Order : Order.Order.ORDER)
+    (ModeTable : Modetable.MODETABLE)
+    (Lemma : Lemma.LEMMA)
+    (Filling : Filling.Fill.FILLING)
+    (MetaPrint : Meta_print.METAPRINT)
+    (MetaAbstract : Meta_abstract.METAABSTRACT)
+    (Formatter : Formatter.FORMATTER) : RECURSION = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string
@@ -118,7 +118,7 @@ module Recursion
       | k', ops' ->
           let D' = I.ctxDec (G, k') in
           let ops'' =
-            CSManager.trail (fun () ->
+            Cs.CSManager.trail (fun () ->
                 if
                   Unify.unifiable (G, (V, I.id), (V', I.id))
                   && Unify.unifiable
@@ -233,7 +233,7 @@ module Recursion
             ops' )
 
   and eq (G, (Us, Vs), (Us', Vs'), sc, ops) =
-    CSManager.trail (fun () ->
+    Cs.CSManager.trail (fun () ->
         if Unify.unifiable (G, Vs, Vs') && Unify.unifiable (G, Us, Us') then
           sc ops
         else ops)
@@ -297,14 +297,14 @@ module Recursion
   and ordltLex = function
     | G, [], [], sc, ops -> ops
     | G, O :: L, O' :: L', sc, ops ->
-        let ops' = CSManager.trail (fun () -> ordlt (G, O, O', sc, ops)) in
+        let ops' = Cs.CSManager.trail (fun () -> ordlt (G, O, O', sc, ops)) in
         ordeq (G, O, O', fun ops'' -> (ordltLex (G, L, L', sc, ops''), ops'))
 
   and ordltSimul = function
     | G, [], [], sc, ops -> ops
     | G, O :: L, O' :: L', sc, ops ->
         let ops'' =
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               ordlt
                 (G, O, O', fun ops' -> (ordleSimul (G, L, L', sc, ops'), ops)))
         in
@@ -329,7 +329,7 @@ module Recursion
         ordeq (G, O, O', fun ops' -> (ordeqs (G, L, L', sc, ops'), ops))
 
   and ordle (G, O, O', sc, ops) =
-    let ops' = CSManager.trail (fun () -> ordeq (G, O, O', sc, ops)) in
+    let ops' = Cs.CSManager.trail (fun () -> ordeq (G, O, O', sc, ops)) in
     ordlt (G, O, O', sc, ops')
   (* createEVars (G, M) = ((G', M'), s')
 

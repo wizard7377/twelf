@@ -3,9 +3,9 @@
 (* Author: Brigitte Pientka *)
 
 module type MEMOTABLE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
-  (*! structure TableParam : TABLEPARAM !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
+  (*! structure TableParam : Table_param.Table.TABLEPARAM !*)
   (* call check/insert *)
   (* callCheck (G, D, U, eqn)
    *
@@ -66,8 +66,8 @@ module type MEMOTABLE = sig
 end
 
 (* signature MemoTable *)
-module SwMemoTable (MemoTable : MEMOTABLE) (MemoTableInst : MEMOTABLE) :
-  MEMOTABLE = struct
+module SwMemoTable (MemoTable : Subtree.MEMOTABLE) (MemoTableInst : Subtree.MEMOTABLE) :
+  Subtree.MEMOTABLE = struct
   (*! structure IntSyn = MemoTable.IntSyn !*)
 
   (*! structure CompSyn = MemoTable.CompSyn !*)

@@ -7,7 +7,7 @@ module type PRINT_TWEGA = sig
   val printSgnToFile : string -> unit
 end
 
-(* signature PRINT_TWEGA *)
+(* signature Print.PRINT_TWEGA *)
 (* Printing *)
 
 (* Author: Frank Pfenning *)
@@ -15,11 +15,11 @@ end
 (* Modified: Jeff Polakow *)
 
 module PrintTwega
-    (Whnf : WHNF)
-    (Abstract : ABSTRACT)
-    (Constraints : CONSTRAINTS)
-    (Names : NAMES)
-    (Formatter' : FORMATTER) : PRINT_TWEGA = struct
+    (Whnf : Whnf.WHNF)
+    (Abstract : Abstract.ABSTRACT)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Names : Names.NAMES)
+    (Formatter' : Formatter.FORMATTER) : Print.PRINT_TWEGA = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module Formatter = Formatter'

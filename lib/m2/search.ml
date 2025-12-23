@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type OLDSEARCH = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   exception Error of string
 
@@ -19,21 +19,21 @@ module type OLDSEARCH = sig
     MetaSyn.state list
 end
 
-(* signature SEARCH *)
+(* signature Search.SEARCH *)
 (* Search (based on abstract machine ) *)
 
 (* Author: Carsten Schuermann *)
 
 module OLDSearch
-    (MetaGlobal : METAGLOBAL)
-    (MetaSyn' : METASYN)
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Index : INDEX)
-    (Compile : COMPILE)
-    (CPrint : CPRINT)
-    (Print : PRINT)
-    (Names : NAMES) : OLDSEARCH = struct
+    (MetaGlobal : Meta_global.METAGLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Index : Index.INDEX)
+    (Compile : Compile.COMPILE)
+    (CPrint : Cprint.CPRINT)
+    (Print : Print.PRINT)
+    (Names : Names.NAMES) : OLDSEARCH = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module MetaSyn = MetaSyn'
@@ -124,7 +124,7 @@ module OLDSearch
         | Hc :: sgn', acc'' ->
             let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
             let acc''' =
-              CSManager.trail (fun () ->
+              Cs.CSManager.trail (fun () ->
                   rSolve
                     ( ps',
                       (r, I.id),
@@ -141,7 +141,7 @@ module OLDSearch
       | I.Decl (dPool', C.Dec (r, s, Ha')), n, acc' ->
           if eqHead (Ha, Ha') then
             let acc'' =
-              CSManager.trail (fun () ->
+              Cs.CSManager.trail (fun () ->
                   rSolve
                     ( ps',
                       (r, I.comp (s, I.Shift n)),

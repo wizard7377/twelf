@@ -26,7 +26,7 @@
  *)
 
 
-module IntInf : INT_INF = struct (* It is not clear what advantage there is to having * a submodule.
+module IntInf : Int_inf_sig.INT_INF = struct (* It is not clear what advantage there is to having * a submodule.
    *)
 
 module NumScan : sig

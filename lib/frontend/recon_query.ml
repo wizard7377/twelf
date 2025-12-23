@@ -3,9 +3,9 @@
 (* Author: Frank Pfenning *)
 
 module type EXTQUERY = sig
-  module ExtSyn : EXTSYN
+  module ExtSyn : Recon_term.EXTSYN
 
-  (*! structure Paths : PATHS !*)
+  (*! structure Paths : Paths.PATHS !*)
   type query
 
   (* query *)
@@ -25,7 +25,7 @@ end
 (* signature EXTQUERY *)
 
 module type RECON_QUERY = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   include EXTQUERY
 
   exception Error of string
@@ -52,7 +52,7 @@ end
 (* Modified: Roberto Virga, Jeff Polakow *)
 
 
-module ReconQuery (Global : GLOBAL) (Names : NAMES) (Abstract : ABSTRACT) (ReconTerm' : RECON_TERM) (TypeCheck : TYPECHECK) (Strict : STRICT) (Timers : TIMERS) (Print : PRINT) : RECON_QUERY = struct (*! structure IntSyn = IntSyn' !*)
+module ReconQuery (Global : Global.GLOBAL) (Names : Names.NAMES) (Abstract : Abstract.ABSTRACT) (ReconTerm' : Recon_term.RECON_TERM) (TypeCheck : Typecheck.TYPECHECK) (Strict : Strict.STRICT) (Timers : Timers.TIMERS) (Print : Print.PRINT) : RECON_QUERY = struct (*! structure IntSyn = IntSyn' !*)
 
 (*! structure Paths = Paths' !*)
 

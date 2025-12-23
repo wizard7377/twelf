@@ -3,9 +3,9 @@
 (* Author: Brigitte Pientka *)
 
 module type SUBTREE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN     !*)
-  (*! structure RBSet : RBSET  !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN     !*)
+  (*! structure RBSet : Red_black_set.RBSET  !*)
   type nvar = int
 
   (* index for_sml normal variables *)
@@ -57,13 +57,13 @@ end
 (* Author: Brigitte Pientka *)
 
 module SubTree
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Print : PRINT)
-    (CPrint : CPRINT)
-    (Formatter : FORMATTER)
-    (Names : NAMES)
-    (CSManager : CS_MANAGER) : SUBTREE = struct
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Print : Print.PRINT)
+    (CPrint : Cprint.CPRINT)
+    (Formatter : Formatter.FORMATTER)
+    (Names : Names.NAMES)
+    (Cs.CSManager : Cs.Cs_manager.CS_MANAGER) : SUBTREE = struct
   (*!  structure IntSyn = IntSyn' !*)
 
   (*!  structure CompSyn = CompSyn' !*)
@@ -789,7 +789,7 @@ module SubTree
                   solveResiduals
                     (Gquery, Gclause, Residuals, assignSub, cnstr', sc)
                 else
-                  CSManager.trail (fun () ->
+                  Cs.CSManager.trail (fun () ->
                       solveResiduals
                         (Gquery, Gclause, Residuals, assignSub, cnstr', sc))
               else raise (Error "Left-over normal substitutions!"))
@@ -890,7 +890,7 @@ module SubTree
             cnstr,
             Gclause,
             Residuals (* CGoals(AuxG, cid, ConjGoals, i) *) ) ->
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               S.forall nsub_left (fun (nv, (l, U)) ->
                   match S.lookup cnstrSub nv with
                   | None -> raise (Error "Left-over nsubstitution")

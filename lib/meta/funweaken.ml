@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type FUNWEAKEN = sig
-  (*! structure FunSyn : FUNSYN !*)
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
   val strengthenPsi : FunSyn.lfctx * IntSyn.sub -> FunSyn.lfctx * IntSyn.sub
 
   val strengthenPsi' :
@@ -15,7 +15,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module FunWeaken (Weaken : WEAKEN) : FUNWEAKEN = struct
+module FunWeaken (Weaken : Weaken.Weaken.WEAKEN) : FUNWEAKEN = struct
   (*! structure FunSyn = FunSyn' !*)
 
   module F = FunSyn

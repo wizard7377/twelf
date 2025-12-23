@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type TYPECHECK = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of string
 
   val check : IntSyn.exp * IntSyn.exp -> unit
@@ -23,7 +23,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module TypeCheck (Conv : CONV) (Whnf : WHNF) (Names : NAMES) (Print : PRINT) :
+module TypeCheck (Conv : Conv.CONV) (Whnf : Whnf.WHNF) (Names : Names.NAMES) (Print : Print.PRINT) :
   TYPECHECK = struct
   (*! structure IntSyn = IntSyn' !*)
 

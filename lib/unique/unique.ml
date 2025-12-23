@@ -15,20 +15,20 @@ end
 (* Author: Frank Pfenning *)
 
 module Unique
-    (Global : GLOBAL)
-    (Whnf : WHNF)
-    (Abstract : ABSTRACT)
-    (Unify : UNIFY)
-    (Constraints : CONSTRAINTS)
-    (UniqueTable : MODETABLE)
-    (UniqueCheck : MODECHECK)
-    (Index : INDEX)
-    (Subordinate : SUBORDINATE)
-    (WorldSyn : WORLDSYN)
-    (Names : NAMES)
-    (Print : PRINT)
-    (TypeCheck : TYPECHECK)
-    (Timers : TIMERS) : UNIQUE = struct
+    (Global : Global.GLOBAL)
+    (Whnf : Whnf.WHNF)
+    (Abstract : Abstract.ABSTRACT)
+    (Unify : Unify.UNIFY)
+    (Constraints : Constraints.CONSTRAINTS)
+    (UniqueTable : Modetable.MODETABLE)
+    (UniqueCheck : Modecheck.MODECHECK)
+    (Index : Index.INDEX)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (WorldSyn : Worldsyn.WORLDSYN)
+    (Names : Names.NAMES)
+    (Print : Print.PRINT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Timers : Timers.TIMERS) : UNIQUE = struct
   exception Error of string
 
   module I = IntSyn
@@ -116,7 +116,7 @@ module Unique
 
   let rec checkNotUnifiableTypes (G, Vs, Vs', ms, (bx, by)) =
     chatter 6 (fun () -> "?- " ^ pName bx ^ " ~ " ^ pName by ^ "\n");
-    CSManager.trail (fun () ->
+    Cs.CSManager.trail (fun () ->
         if unifiableRoots (G, Vs, Vs', ms) then
           raise (Error ("Blocks " ^ pName bx ^ " and " ^ pName by ^ " overlap"))
         else ())
@@ -139,7 +139,7 @@ module Unique
     let Vs = instEVars (I.Null, (I.constType cid, I.id)) in
     let Vs' = instEVars (I.Null, (I.constType cid', I.id)) in
     let _ =
-      CSManager.trail (fun () ->
+      Cs.CSManager.trail (fun () ->
           if unifiableRoots (I.Null, Vs, Vs', ms) then
             raise
               (Error
@@ -244,7 +244,7 @@ module Unique
         in
         let Vs' = instEVars (G, (I.constType cid, I.id)) in
         let _ =
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               if unifiableRoots (G, Vs, Vs', ms) then
                 raise
                   (Error

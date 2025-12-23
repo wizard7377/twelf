@@ -9,12 +9,12 @@
 (* Author: Brigitte Pientka *)
 
 module MemoTableInst
-    (Conv : CONV)
-    (Whnf : WHNF)
-    (Match : MATCH)
-    (Assign : ASSIGN)
-    (AbstractTabled : ABSTRACTTABLED)
-    (Print : PRINT) : MEMOTABLE = struct
+    (Conv : Conv.CONV)
+    (Whnf : Whnf.WHNF)
+    (Match : Match.MATCH)
+    (Assign : Assign.ASSIGN)
+    (AbstractTabled : Abstract.Abstract.ABSTRACTTABLED)
+    (Print : Print.PRINT) : Subtree.Sw_subtree.MEMOTABLE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)

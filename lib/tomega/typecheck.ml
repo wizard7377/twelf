@@ -15,7 +15,7 @@ module type TOMEGATYPECHECK = sig
     Tomega.dec IntSyn.ctx * Tomega.sub * Tomega.dec IntSyn.ctx -> unit
 end
 
-(* Signature TOMEGATYPECHECK *)
+(* Signature Tomega.TOMEGATYPECHECK *)
 (* Type checking for_sml Tomega *)
 
 (* Author: Carsten Schuermann *)
@@ -23,15 +23,15 @@ end
 (* Modified: Yu Liao *)
 
 module TomegaTypeCheck
-    (Abstract : ABSTRACT)
-    (TypeCheck : TYPECHECK)
-    (Conv : CONV)
-    (Whnf : WHNF)
-    (Print : PRINT)
-    (TomegaPrint : TOMEGAPRINT)
-    (Subordinate : SUBORDINATE)
-    (Weaken : WEAKEN)
-    (TomegaAbstract : TOMEGAABSTRACT) : TOMEGATYPECHECK = struct
+    (Abstract : Abstract.ABSTRACT)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (Conv : Conv.CONV)
+    (Whnf : Whnf.WHNF)
+    (Print : Print.PRINT)
+    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (Weaken : Weaken.Weaken.WEAKEN)
+    (TomegaAbstract : Tomega.Abstract.TOMEGAABSTRACT) : Tomega.TOMEGATYPECHECK = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

@@ -5,7 +5,7 @@
 (* Modified: Roberto Virga *)
 
 module type CONSTRAINTS = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   exception Error of IntSyn.cnstr list
 
   val simplify : IntSyn.cnstr list -> IntSyn.cnstr list
@@ -19,7 +19,7 @@ end
 
 (* Modified: Roberto Virga *)
 
-module Constraints (Conv : CONV) : CONSTRAINTS = struct
+module Constraints (Conv : Conv.CONV) : CONSTRAINTS = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of IntSyn.cnstr list

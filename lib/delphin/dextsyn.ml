@@ -1,7 +1,7 @@
 (* Delphin external syntax *)
 
 module type DEXTSYN = sig
-  (* structure Lexer : LEXER *)
+  (* structure Lexer : Lexer.LEXER *)
   type ast = Ast of decs
 
   and decs =
@@ -84,7 +84,7 @@ end
 
 (* Author: Richard Fontana *)
 
-module DextSyn (ExtSyn' : EXTSYN) (Parsing' : PARSING) : DEXTSYN = struct
+module DextSyn (ExtSyn' : Recon_term.EXTSYN) (Parsing' : Parsing.PARSING) : DEXTSYN = struct
   (*  structure Stream = Stream' *)
 
   module ExtSyn = ExtSyn'

@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type NORMALIZE = sig
-  module IntSyn : INTSYN
-  module Tomega : TOMEGA
+  module IntSyn : Intsyn.INTSYN
+  module Tomega : Tomega.TOMEGA
 
   val normalizeFor : Tomega.for_sml * Tomega.sub -> Tomega.for_sml
   val normalizePrg : Tomega.prg * Tomega.sub -> Tomega.prg
@@ -15,8 +15,8 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Normalize (IntSyn' : INTSYN) (Tomega' : TOMEGA) (Whnf : WHNF) :
-  NORMALIZE = struct
+module Normalize (IntSyn' : Intsyn.INTSYN) (Tomega' : Tomega.TOMEGA) (Whnf : Whnf.WHNF) :
+  Normalize.NORMALIZE = struct
   module IntSyn = IntSyn'
   module Tomega = Tomega'
 

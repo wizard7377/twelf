@@ -5,7 +5,7 @@
 (* Modified: Brigitte Pientka *)
 
 module type THMSYN = sig
-  module Names : NAMES
+  module Names : Names.NAMES
 
   exception Error of string
 
@@ -57,14 +57,14 @@ module type THMSYN = sig
     (string * thDecl) * Paths.region -> ModeSyn.modeSpine
 end
 
-(* signature THMSYN *)
+(* signature Thm.THMSYN *)
 (* Theorems *)
 
 (* Author: Carsten Schuermann *)
 
 (* Modified: Brigitte Pientka *)
 
-module ThmSyn (Abstract : ABSTRACT) (Whnf : WHNF) (Names' : NAMES) : THMSYN =
+module ThmSyn (Abstract : Abstract.ABSTRACT) (Whnf : Whnf.WHNF) (Names' : Names.NAMES) : Thm.THMSYN =
 struct
   (*! structure IntSyn = IntSyn !*)
 

@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type THMEXTSYN = sig
-  module ExtSyn : EXTSYN
+  module ExtSyn : Recon_term.EXTSYN
 
-  (*! structure Paths : PATHS  !*)
+  (*! structure Paths : Paths.PATHS  !*)
   type order
 
   val varg : Paths.region * string list -> order
@@ -70,11 +70,11 @@ module type THMEXTSYN = sig
   (*  val wdecl : (decs * decs) list * callpats -> wdecl *)
 end
 
-(* signature THMEXTSYN *)
+(* signature Thm.THMEXTSYN *)
 
 module type RECON_THM = sig
-  module ThmSyn : THMSYN
-  include THMEXTSYN
+  module ThmSyn : Thm.Thmsyn.THMSYN
+  include Thm.THMEXTSYN
 
   exception Error of string
 
@@ -104,13 +104,13 @@ end
 (* Modified: Brigitte Pientka *)
 
 module ReconThm
-    (Global : GLOBAL)
-    (Abstract : ABSTRACT)
-    (Constraints : CONSTRAINTS)
-    (Names : NAMES)
-    (ThmSyn' : THMSYN)
-    (ReconTerm' : RECON_TERM)
-    (Print : PRINT) : RECON_THM = struct
+    (Global : Global.GLOBAL)
+    (Abstract : Abstract.ABSTRACT)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Names : Names.NAMES)
+    (ThmSyn' : Thm.Thmsyn.THMSYN)
+    (ReconTerm' : Recon_term.RECON_TERM)
+    (Print : Print.PRINT) : RECON_THM = struct
   module ThmSyn = ThmSyn'
   (*! structure Paths = Paths' !*)
 

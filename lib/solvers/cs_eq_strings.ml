@@ -2,13 +2,13 @@
 
 (* Author: Roberto Virga *)
 
-module CSEqStrings (Whnf : WHNF) (Unify : UNIFY) : CS = struct
-  (*! structure CSManager = CSManager !*)
+module CSEqStrings (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
+  (*! structure Cs.CSManager = Cs.CSManager !*)
 
   open IntSyn
-  module FX = CSManagerFixity
+  module FX = Cs.CSManagerFixity
   module MS = ModeSyn
-  (* CSManager.ModeSyn *)
+  (* Cs.CSManager.ModeSyn *)
 
   let myID = (ref - 1 : IntSyn.csid ref)
   let stringID = (ref - 1 : IntSyn.cid ref)
@@ -521,7 +521,7 @@ module CSEqStrings (Whnf : WHNF) (Unify : UNIFY) : CS = struct
        mark = (function () -> ());
        unwind = (function () -> ());
      }
-      : CSManager.solver)
+      : Cs.CSManager.solver)
 end
 
-(* functor CSEqStrings *)
+(* functor Cs.CSEqStrings *)

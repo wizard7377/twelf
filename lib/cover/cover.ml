@@ -22,7 +22,7 @@ end
 (* Author: Frank Pfenning *)
 
 
-module Cover (Global : GLOBAL) (Whnf : WHNF) (Conv : CONV) (Abstract : ABSTRACT) (Unify : UNIFY) (Constraints : CONSTRAINTS) (ModeTable : MODETABLE) (UniqueTable : MODETABLE) (Index : INDEX) (Subordinate : SUBORDINATE) (WorldSyn : WORLDSYN) (Names : NAMES) (Print : PRINT) (TypeCheck : TYPECHECK) (Timers : TIMERS) : COVER = struct exception Error of string
+module Cover (Global : Global.GLOBAL) (Whnf : Whnf.WHNF) (Conv : Conv.CONV) (Abstract : Abstract.ABSTRACT) (Unify : Unify.UNIFY) (Constraints : Constraints.CONSTRAINTS) (ModeTable : Modetable.MODETABLE) (UniqueTable : Modetable.MODETABLE) (Index : Index.INDEX) (Subordinate : Subordinate.SUBORDINATE) (WorldSyn : Worldsyn.WORLDSYN) (Names : Names.NAMES) (Print : Print.PRINT) (TypeCheck : Typecheck.TYPECHECK) (Timers : Timers.TIMERS) : COVER = struct exception Error of string
 module I = IntSyn
 module T = Tomega
 module M = ModeSyn
@@ -354,7 +354,7 @@ let X1 = Whnf.newLoweredEVar (G, (V1, s)) in  matchClause (G, ps', (V2, I.Dot (I
        klist <> Covered
     *)
 
-let rec matchSig = function (G, ps', [], ci, klist) -> klist | (G, ps', V :: ccs', ci, klist) -> ( let cands = CSManager.trail (fun () -> matchClause (G, ps', (V, I.id), ci)) in  matchSig' (G, ps', ccs', ci, addKs (cands, klist)) )
+let rec matchSig = function (G, ps', [], ci, klist) -> klist | (G, ps', V :: ccs', ci, klist) -> ( let cands = Cs.CSManager.trail (fun () -> matchClause (G, ps', (V, I.id), ci)) in  matchSig' (G, ps', ccs', ci, addKs (cands, klist)) )
 and matchSig' = function (G, ps', ccs, ci, Covered) -> Covered | (G, ps', ccs, ci, CandList (klist)) -> matchSig (G, ps', ccs, ci, CandList (klist))
 (* matchBlocks (G, s', piDecs, V, k, i, ci, klist) = klist'
        Invariants:
@@ -364,7 +364,7 @@ and matchSig' = function (G, ps', ccs, ci, Covered) -> Covered | (G, ps', ccs, c
        G_k = (Gsome, D1...D(i-1) piDecs)
      *)
 
-let rec matchBlocks = function (G, s', [], V, k, i, ci, klist) -> klist | (G, s', I.Dec (_, V') :: piDecs, V, k, i, ci, klist) -> ( let cands = CSManager.trail (fun () -> matchClause (G, (V, I.id), (V', s'), ci)) in let s'' = I.Dot (I.Exp (I.Root (I.Proj (I.Bidx k, i), I.Nil)), s') in  matchBlocks' (G, s'', piDecs, V, k, i + 1, ci, addKs (cands, klist)) )
+let rec matchBlocks = function (G, s', [], V, k, i, ci, klist) -> klist | (G, s', I.Dec (_, V') :: piDecs, V, k, i, ci, klist) -> ( let cands = Cs.CSManager.trail (fun () -> matchClause (G, (V, I.id), (V', s'), ci)) in let s'' = I.Dot (I.Exp (I.Root (I.Proj (I.Bidx k, i), I.Nil)), s') in  matchBlocks' (G, s'', piDecs, V, k, i + 1, ci, addKs (cands, klist)) )
 and matchBlocks' = function (G, s', piDecs, V, k, i, ci, Covered) -> Covered | (G, s', piDecs, V, k, i, ci, klist) -> matchBlocks (G, s', piDecs, V, k, i, ci, klist)
 (* klist <> Covered *)
 
@@ -381,7 +381,7 @@ let rec matchCtx = function (G, s', I.Null, V, k, ci, klist) -> klist | (G, s', 
               G |- s' : G'', V'
           *)
 (*  G |- ^ o s' : G'' *)
-let s'' = I.comp (I.shift, s') in let cands = CSManager.trail (fun () -> matchClause (G, (V, I.id), (V', s''), ci)) in  matchCtx' (G, s'', G'', V, k + 1, ci, addKs (cands, klist)) ) | (G, s', I.Decl (G'', I.BDec (_, (cid, s))), V, k, ci, klist) -> ( (* G'' |- s : Gsome,
+let s'' = I.comp (I.shift, s') in let cands = Cs.CSManager.trail (fun () -> matchClause (G, (V, I.id), (V', s''), ci)) in  matchCtx' (G, s'', G'', V, k + 1, ci, addKs (cands, klist)) ) | (G, s', I.Decl (G'', I.BDec (_, (cid, s))), V, k, ci, klist) -> ( (* G'' |- s : Gsome,
              G |- s'' : G''
              G |- s o s'' : Gsome
              Gsome |- piDecs : ctx
@@ -515,8 +515,8 @@ let rec createAtomBVar (G, k)  = ( let I.Dec (_, V) = I.ctxDec (G, k) in let (S,
     *)
 
 let rec createAtomProj (G, H, (V, s))  = ( let (S, Vs') = createEVarSpine (G, (V, s)) in  (I.Root (H, S), Vs') )
-let rec constCases = function (G, Vs, [], sc) -> () | (G, Vs, I.Const (c) :: sgn', sc) -> ( let (U, Vs') = createAtomConst (G, I.Const c) in let _ = CSManager.trail (fun () -> if Unify.unifiable (G, Vs, Vs') then sc U else ()) in  constCases (G, Vs, sgn', sc) )
-let rec paramCases = function (G, Vs, 0, sc) -> () | (G, Vs, k, sc) -> ( let (U, Vs') = createAtomBVar (G, k) in let _ = CSManager.trail (fun () -> if Unify.unifiable (G, Vs, Vs') then sc U else ()) in  paramCases (G, Vs, k - 1, sc) )
+let rec constCases = function (G, Vs, [], sc) -> () | (G, Vs, I.Const (c) :: sgn', sc) -> ( let (U, Vs') = createAtomConst (G, I.Const c) in let _ = Cs.CSManager.trail (fun () -> if Unify.unifiable (G, Vs, Vs') then sc U else ()) in  constCases (G, Vs, sgn', sc) )
+let rec paramCases = function (G, Vs, 0, sc) -> () | (G, Vs, k, sc) -> ( let (U, Vs') = createAtomBVar (G, k) in let _ = Cs.CSManager.trail (fun () -> if Unify.unifiable (G, Vs, Vs') then sc U else ()) in  paramCases (G, Vs, k - 1, sc) )
 (* createEVarSub G' = s
 
        Invariant:
@@ -554,7 +554,7 @@ let rec blockCases (G, Vs, cid, (Gsome, piDecs), sc)  = ( (* . |- t : Gsome *)
 let t = createEVarSub Gsome in let sk = I.Shift (I.ctxLength (G)) in let t' = I.comp (t, sk) in let lvar = I.newLVar (sk, (cid, t)) in  blockCases' (G, Vs, (lvar, 1), (t', piDecs), sc) )
 and blockCases' = function (G, Vs, (lvar, i), (t, []), sc) -> () | (G, Vs, (lvar, i), (t, I.Dec (_, V') :: piDecs), sc) -> ( (* G |- t : G' and G' |- ({_:V'},piDecs) decList *)
 (* so G |- V'[t'] : type *)
-let (U, Vs') = createAtomProj (G, I.Proj (lvar, i), (V', t)) in let _ = CSManager.trail (fun () -> if Unify.unifiable (G, Vs, Vs') then sc U else ()) in let t' = I.Dot (I.Exp (I.Root (I.Proj (lvar, i), I.Nil)), t) in  blockCases' (G, Vs, (lvar, i + 1), (t', piDecs), sc) )
+let (U, Vs') = createAtomProj (G, I.Proj (lvar, i), (V', t)) in let _ = Cs.CSManager.trail (fun () -> if Unify.unifiable (G, Vs, Vs') then sc U else ()) in let t' = I.Dot (I.Exp (I.Root (I.Proj (lvar, i), I.Nil)), t) in  blockCases' (G, Vs, (lvar, i + 1), (t', piDecs), sc) )
 let rec worldCases = function (G, Vs, T.Worlds ([]), sc) -> () | (G, Vs, T.Worlds (cid :: cids), sc) -> (blockCases (G, Vs, cid, I.constBlock cid, sc); worldCases (G, Vs, T.Worlds (cids), sc))
 let rec lowerSplitW = function (X, W, sc) -> ( (* will trail *)
 (* will trail *)
@@ -738,7 +738,7 @@ let rec finitary1 (X, k, W, f, cands)  = (resetCount (); chatter 7 (fun () -> "T
        where all ki are finitary with ni possibilities for_sml X(i+k)
     *)
 
-let rec finitarySplits = function ([], k, W, f, cands) -> cands | (None :: Xs, k, W, f, cands) -> finitarySplits (Xs, k + 1, W, f, cands) | (Some (X) :: Xs, k, W, f, cands) -> finitarySplits (Xs, k + 1, W, f, CSManager.trail (fun () -> finitary1 (X, k, W, f, cands)))
+let rec finitarySplits = function ([], k, W, f, cands) -> cands | (None :: Xs, k, W, f, cands) -> finitarySplits (Xs, k + 1, W, f, cands) | (Some (X) :: Xs, k, W, f, cands) -> finitarySplits (Xs, k + 1, W, f, Cs.CSManager.trail (fun () -> finitary1 (X, k, W, f, cands)))
 (* finitary ({{G}} V, p, W) = [(k1,n1),...,(km,nm)]
        where ki are indices of splittable variables in G with ni possibilities
        and |G| = p
@@ -971,7 +971,7 @@ let rec checkCovers (a, ms)  = ( (* convert mode spine to cover instructions *)
 (* world declarations for_sml a; must be defined *)
 (* replace output by new EVars *)
 (* abstract will double-check *)
-let _ = chatter 4 (fun () -> "Input coverage checking family " ^ N.qidToString (N.constQid a) ^ "\n") in let _ = checkNoDef (a) in let _ = try Subordinate.checkNoDef (a) with Subordinate.Error (msg) -> raise (Error ("Coverage checking " ^ N.qidToString (N.constQid a) ^ ":\n" ^ msg)) in let (V0, p) = initCGoal (a) in let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (I.Null, (V0, I.Uni (I.Type))) else () in let _ = CSManager.reset () in let cIn = inCoverInst ms in let cs = Index.lookup a in let ccs = constsToTypes cs in let W = W.lookup a in let V0 = createCoverGoal (I.Null, (V0, I.id), p, ms) in let (V0, p) = abstract (V0, I.id) in let missing = cover (V0, p, (W, cIn), Input (ccs), Top, []) in let _ = match missing with [] -> ()(* all cases covered *)
+let _ = chatter 4 (fun () -> "Input coverage checking family " ^ N.qidToString (N.constQid a) ^ "\n") in let _ = checkNoDef (a) in let _ = try Subordinate.checkNoDef (a) with Subordinate.Error (msg) -> raise (Error ("Coverage checking " ^ N.qidToString (N.constQid a) ^ ":\n" ^ msg)) in let (V0, p) = initCGoal (a) in let _ = if ! Global.doubleCheck then TypeCheck.typeCheck (I.Null, (V0, I.Uni (I.Type))) else () in let _ = Cs.CSManager.reset () in let cIn = inCoverInst ms in let cs = Index.lookup a in let ccs = constsToTypes cs in let W = W.lookup a in let V0 = createCoverGoal (I.Null, (V0, I.id), p, ms) in let (V0, p) = abstract (V0, I.id) in let missing = cover (V0, p, (W, cIn), Input (ccs), Top, []) in let _ = match missing with [] -> ()(* all cases covered *)
  | _ :: _ -> raise (Error ("Coverage error --- missing cases:\n" ^ missingToString (missing, ms) ^ "\n")) in  () )
 (* checkOut (G, (V, s)) = ()
        checks if the most general goal V' is locally output-covered by V
@@ -1047,7 +1047,7 @@ let rec matchClause (CGoal (G, S), (Si, ti))  = ( let cands1 = matchSpine (G, 0,
     *)
 
 let rec matchClauses = function (cg, [], klist) -> klist | (cg, (CClause (Gi, Si) :: ccs), klist) -> ( (* G |- ti : Gi *)
-let ti = newEVarSubst (G, Gi) in let cands = CSManager.trail (fun () -> matchClause (cg, (Si, ti))) in  matchClauses' (cg, ccs, addKs (cands, klist)) )
+let ti = newEVarSubst (G, Gi) in let cands = Cs.CSManager.trail (fun () -> matchClause (cg, (Si, ti))) in  matchClauses' (cg, ccs, addKs (cands, klist)) )
 and matchClauses' = function (cg, ccs, Covered) -> Covered | (cg, ccs, klist) -> matchClauses (cg, ccs, klist)
 (* match (cg, ccs) = klist
        matching coverage goal cg against coverage clauses ccs

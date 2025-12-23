@@ -3,21 +3,21 @@
 (* Author: Frank Pfenning *)
 
 module type PARSE_CONDEC = sig
-  (*! structure Parsing : PARSING !*)
-  module ExtConDec : EXTCONDEC
+  (*! structure Parsing : Parsing.PARSING !*)
+  module ExtConDec : Recon_condec.EXTCONDEC
 
   val parseConDec' : ExtConDec.condec Parsing.parser
   val parseAbbrev' : ExtConDec.condec Parsing.parser
   val parseClause' : ExtConDec.condec Parsing.parser
 end
 
-(* signature PARSE_CONDEC *)
+(* signature Parse_prg.PARSE_CONDEC *)
 (* Parsing Signature Entries *)
 
 (* Author: Frank Pfenning *)
 
-module ParseConDec (ExtConDec' : EXTCONDEC) (ParseTerm : PARSE_TERM) :
-  PARSE_CONDEC = struct
+module ParseConDec (ExtConDec' : Recon_condec.EXTCONDEC) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) :
+  Parse_prg.PARSE_CONDEC = struct
   (*! structure Parsing = Parsing' !*)
 
   module ExtConDec = ExtConDec'

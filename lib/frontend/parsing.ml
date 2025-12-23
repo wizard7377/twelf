@@ -3,10 +3,10 @@
 (* Author: Frank Pfenning *)
 
 module type PARSING = sig
-  module Stream : STREAM
+  module Stream : Stream.STREAM
 
   (*
-  structure Lexer : LEXER
+  structure Lexer : Lexer.LEXER
     sharing Lexer.Stream = Stream
   *)
   type lexResult = Lexer.token * Paths.region
@@ -30,7 +30,7 @@ module type PARSING = sig
 end
 
 (* signature PARSING *)
-module Parsing (Stream' : STREAM) : PARSING = struct
+module Parsing (Stream' : Stream.STREAM) : PARSING = struct
   module Stream = Stream'
   (*! structure Lexer = Lexer' !*)
 

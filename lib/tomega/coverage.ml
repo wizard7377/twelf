@@ -3,23 +3,23 @@
 (* Author: Carsten Schuermann *)
 
 module type TOMEGACOVERAGE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
   exception Error of string
 
   val coverageCheckPrg :
     Tomega.worlds * Tomega.dec IntSyn.ctx * Tomega.prg -> unit
 end
 
-(* Signature TOMEGACOVERAGE *)
+(* Signature Tomega.TOMEGACOVERAGE *)
 (* Coverage checker for_sml programs *)
 
 (* Author: Carsten Schuermann *)
 
 module TomegaCoverage
-    (TomegaPrint : TOMEGAPRINT)
-    (TomegaTypeCheck : TOMEGATYPECHECK)
-    (Cover : COVER) : TOMEGACOVERAGE = struct
+    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT)
+    (TomegaTypeCheck : Tomega.Typecheck.TOMEGATYPECHECK)
+    (Cover : Cover.COVER) : Tomega.TOMEGACOVERAGE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)

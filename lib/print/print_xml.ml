@@ -9,7 +9,7 @@ module type PRINT_XML = sig
   val printSgnToFile : string -> string -> unit
 end
 
-(* signature PRINT_XML *)
+(* signature Print.PRINT_XML *)
 (* Printing *)
 
 (* Author: Frank Pfenning *)
@@ -19,11 +19,11 @@ end
 (* Modified: Carsten Schuermann *)
 
 module PrintXML
-    (Whnf : WHNF)
-    (Abstract : ABSTRACT)
-    (Constraints : CONSTRAINTS)
-    (Names : NAMES)
-    (Formatter' : FORMATTER) : PRINT_XML = struct
+    (Whnf : Whnf.WHNF)
+    (Abstract : Abstract.ABSTRACT)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Names : Names.NAMES)
+    (Formatter' : Formatter.FORMATTER) : Print.PRINT_XML = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module Formatter = Formatter'

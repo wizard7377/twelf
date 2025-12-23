@@ -1,6 +1,6 @@
 module type TRACE = sig
   (* Program interface *)
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   type goalTag
 
   val tagGoal : unit -> goalTag
@@ -45,10 +45,10 @@ end
 
 (* signature TRACE *)
 module Trace
-    (Names : NAMES)
-    (Whnf : WHNF)
-    (Abstract : ABSTRACT)
-    (Print : PRINT) : TRACE = struct
+    (Names : Names.NAMES)
+    (Whnf : Whnf.WHNF)
+    (Abstract : Abstract.ABSTRACT)
+    (Print : Print.PRINT) : TRACE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module I = IntSyn

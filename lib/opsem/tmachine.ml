@@ -5,12 +5,12 @@
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
 module TMachine
-    (Unify : UNIFY)
-    (Assign : ASSIGN)
-    (Index : INDEX)
-    (CPrint : CPRINT)
-    (Names : NAMES)
-    (Trace : TRACE) : ABSMACHINE = struct
+    (Unify : Unify.UNIFY)
+    (Assign : Assign.ASSIGN)
+    (Index : Index.INDEX)
+    (CPrint : Cprint.CPRINT)
+    (Names : Names.NAMES)
+    (Trace : Trace.TRACE) : Absmachine.ABSMACHINE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)
@@ -187,7 +187,7 @@ module TMachine
           let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
           (* trail to undo EVar instantiations *)
           if
-            CSManager.trail (fun () ->
+            Cs.CSManager.trail (fun () ->
                 rSolve
                   ( ps',
                     (r, I.id),
@@ -213,7 +213,7 @@ module TMachine
           (* trail to undo EVar instantiations *)
           try
             if
-              CSManager.trail (fun () ->
+              Cs.CSManager.trail (fun () ->
                   rSolve
                     ( ps',
                       (r, I.id),
@@ -243,7 +243,7 @@ module TMachine
               (
               try
                 if
-                  CSManager.trail (* trail to undo EVar instantiations *)
+                  Cs.CSManager.trail (* trail to undo EVar instantiations *)
                     (fun () ->
                       rSolve
                         ( ps',
@@ -269,7 +269,7 @@ module TMachine
             else (* #succeeds >= 1 -- allows backtracking *)
               (
               if
-                CSManager.trail (fun () ->
+                Cs.CSManager.trail (fun () ->
                     rSolve
                       ( ps',
                         (r, I.comp (s, I.Shift k)),
@@ -290,7 +290,7 @@ module TMachine
     in
     let rec matchConstraint (cnstrSolve, try_) =
       let succeeded =
-        CSManager.trail (fun () ->
+        Cs.CSManager.trail (fun () ->
             match cnstrSolve (G, I.SClo (S, s), try_) with
             | Some U ->
                 sc U;

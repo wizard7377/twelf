@@ -3,8 +3,8 @@
 (* Author: Carsten Schuermann *)
 
 module type STRICT = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Paths : PATHS !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Paths : Paths.PATHS !*)
   exception Error of string
 
   val check : (IntSyn.exp * IntSyn.exp) * Paths.occConDec option -> unit
@@ -16,7 +16,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Strict (Whnf : WHNF) : STRICT = struct
+module Strict (Whnf : Whnf.WHNF) : STRICT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Paths = Paths' !*)

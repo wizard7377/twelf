@@ -3,11 +3,11 @@
 (* Author: Carsten Schuermann *)
 
 module type STATEPRINT = sig
-  module Formatter : FORMATTER
+  module Formatter : Formatter.FORMATTER
 
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure Tomega : TOMEGA !*)
-  module State : STATE
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure Tomega : Tomega.TOMEGA !*)
+  module State : State.STATE
 
   exception Error of string
 
@@ -16,14 +16,14 @@ module type STATEPRINT = sig
   val stateToString : State.state -> string
 end
 
-(* signature STATEPRINT *)
+(* signature State.STATEPRINT *)
 (* Meta Printer Version 1.3 *)
 
 
 (* Author: Carsten Schuermann *)
 
 
-module StatePrint (Global : GLOBAL) (State' : STATE) (Names : NAMES) (Formatter' : FORMATTER) (Print : PRINT) (TomegaPrint : TOMEGAPRINT) : STATEPRINT = struct module Formatter = Formatter'
+module StatePrint (Global : Global.GLOBAL) (State' : State.STATE) (Names : Names.NAMES) (Formatter' : Formatter.FORMATTER) (Print : Print.PRINT) (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT) : State.STATEPRINT = struct module Formatter = Formatter'
 (*! structure IntSyn = IntSyn' !*)
 
 (*! structure Tomega = Tomega' !*)

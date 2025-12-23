@@ -3,10 +3,10 @@
 (* Author: Roberto Virga *)
 
 module type CS_EQ_FIELD = sig
-  include CS
-  module Field : FIELD
+  include Cs.CS
+  module Field : Field.FIELD
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   (* Foreign expressions *)
   type 'a mset = 'a list
 
@@ -29,14 +29,14 @@ module type CS_EQ_FIELD = sig
   val constant : Field.number -> IntSyn.exp
 end
 
-(* signature CS_EQ_FIELD *)
+(* signature Cs.CS_EQ_FIELD *)
 (* Gaussian-Elimination Equation Solver *)
 
 (* Author: Roberto Virga *)
 
-module CSEqField (Field : FIELD) (Whnf : WHNF) (Unify : UNIFY) : CS_EQ_FIELD =
+module CSEqField (Field : Field.FIELD) (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS_EQ_FIELD =
 struct
-  (*! structure CSManager = CSManager !*)
+  (*! structure Cs.CSManager = Cs.CSManager !*)
 
   module Field = Field
   (*! structure IntSyn = IntSyn !*)
@@ -58,9 +58,9 @@ struct
 
   open IntSyn
   open Field
-  module FX = CSManagerFixity
+  module FX = Cs.CSManagerFixity
   module MS = ModeSyn
-  (* CSManager.ModeSyn *)
+  (* Cs.CSManager.ModeSyn *)
 
   exception MyIntsynRep of sum
   (* FgnExp representation for_sml this domain *)
@@ -531,4 +531,4 @@ struct
   (* local *)
 end
 
-(* functor CSEqField *)
+(* functor Cs.CSEqField *)

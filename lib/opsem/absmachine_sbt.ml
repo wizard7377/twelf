@@ -7,8 +7,8 @@
 (* Modified: Frank Pfenning *)
 
 module type ABSMACHINESBT = sig
-  (*! structure IntSyn  : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! structure IntSyn  : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
   val solve :
     (CompSyn.goal * IntSyn.sub)
     * CompSyn.dProg
@@ -16,7 +16,7 @@ module type ABSMACHINESBT = sig
     unit
 end
 
-(* signature ABSMACHINESBT *)
+(* signature Absmachine.ABSMACHINESBT *)
 (* Abstract Machine using substitution trees *)
 
 (* Author: Iliano Cervesato *)
@@ -24,13 +24,13 @@ end
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
 module AbsMachineSbt
-    (Unify : UNIFY)
-    (SubTree : SUBTREE)
-    (Assign : ASSIGN)
-    (Index : INDEX)
-    (CPrint : CPRINT)
-    (Print : PRINT)
-    (Names : NAMES) : ABSMACHINESBT = struct
+    (Unify : Unify.UNIFY)
+    (SubTree : Subtree.SUBTREE)
+    (Assign : Assign.ASSIGN)
+    (Index : Index.INDEX)
+    (CPrint : Cprint.CPRINT)
+    (Print : Print.PRINT)
+    (Names : Names.NAMES) : Absmachine.ABSMACHINESBT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)
@@ -197,7 +197,7 @@ module AbsMachineSbt
       | Hc :: sgn' ->
           let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
           (* trail to undo EVar instantiations *)
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               rSolve (ps', (r, I.id), dp, fun S -> sc (C.Pc c :: S)));
           mSig sgn'
     in
@@ -221,7 +221,7 @@ module AbsMachineSbt
       | I.Null, _ -> !mSig (ps', dp, sc)
       | I.Decl (dPool', C.Dec (r, s, Ha')), k ->
           if eqHead (Ha, Ha') then (
-            CSManager.trail (* trail to undo EVar instantiations *) (fun () ->
+            Cs.CSManager.trail (* trail to undo EVar instantiations *) (fun () ->
                 rSolve
                   ( ps',
                     (r, I.comp (s, I.Shift k)),
@@ -233,7 +233,7 @@ module AbsMachineSbt
     in
     let rec matchConstraint (solve, try_) =
       let succeeded =
-        CSManager.trail (fun () ->
+        Cs.CSManager.trail (fun () ->
             match solve (G, I.SClo (S, s), try_) with
             | Some U ->
                 sc [ C.Csolver U ];

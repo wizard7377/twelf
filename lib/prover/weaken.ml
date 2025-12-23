@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type WEAKEN = sig
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   val strengthenExp : IntSyn.exp * IntSyn.sub -> IntSyn.exp
   val strengthenSpine : IntSyn.spine * IntSyn.sub -> IntSyn.spine
   val strengthenCtx : IntSyn.dctx * IntSyn.sub -> IntSyn.dctx * IntSyn.sub
@@ -16,7 +16,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Weaken (Whnf : WHNF) : WEAKEN = struct
+module Weaken (Whnf : Whnf.WHNF) : Weaken.WEAKEN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module I = IntSyn

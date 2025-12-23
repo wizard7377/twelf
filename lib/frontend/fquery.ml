@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type FQUERY = sig
-  module ExtQuery : EXTQUERY
+  module ExtQuery : Recon_query.EXTQUERY
 
   exception AbortQuery of string
 
@@ -11,17 +11,17 @@ module type FQUERY = sig
   (* may raise AbortQuery(msg) *)
 end
 
-(* signature SOLVE *)
+(* signature Solve.SOLVE *)
 (* fquery: Executing logic programs via functional interpretation *)
 
 (* Author: Carsten Schuermann *)
 
 module Fquery
-    (Global : GLOBAL)
-    (Names : NAMES)
-    (ReconQuery : RECON_QUERY)
-    (Timers : TIMERS)
-    (Print : PRINT) : FQUERY = struct
+    (Global : Global.GLOBAL)
+    (Names : Names.NAMES)
+    (ReconQuery : Recon_query.RECON_QUERY)
+    (Timers : Timers.TIMERS)
+    (Print : Print.PRINT) : FQUERY = struct
   module ExtQuery = ReconQuery
 
   exception AbortQuery of string

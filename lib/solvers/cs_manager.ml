@@ -3,10 +3,10 @@
 (* Author: Roberto Virga *)
 
 module type CS_MANAGER = sig
-  (* structure IntSyn : INTSYN *)
-  module Fixity : FIXITY
+  (* structure IntSyn : Intsyn.INTSYN *)
+  module Fixity : Names.FIXITY
 
-  (*! structure ModeSyn : MODESYN !*)
+  (*! structure ModeSyn : Modesyn.MODESYN !*)
   type sigEntry =
     (* global signature entry *)
     (* constant declaration plus optional precedence and mode information *)
@@ -45,13 +45,13 @@ module type CS_MANAGER = sig
   val trail : (unit -> 'a) -> 'a
 end
 
-(* signature CS_MANAGER *)
+(* signature Cs.CS_MANAGER *)
 (* Constraint Solver Manager *)
 
 (* Author: Roberto Virga *)
 
-module CSManager (Global : GLOBAL) (Unify : UNIFY) (Fixity : FIXITY) :
-  CS_MANAGER = struct
+module CSManager (Global : Global.GLOBAL) (Unify : Unify.UNIFY) (Fixity : Names.FIXITY) :
+  Cs.CS_MANAGER = struct
   module IntSyn = IntSyn
   module Fixity = Fixity
   (* structure ModeSyn = ModeSyn *)
@@ -246,10 +246,10 @@ module CSManager (Global : GLOBAL) (Unify : UNIFY) (Fixity : FIXITY) :
   let trail = trail
 end
 
-(* functor CSManager *)
+(* functor Cs.CSManager *)
 
 module CSManager =
-  CSManager
+  Cs.CSManager
     (struct
       module Global = Global
     end)

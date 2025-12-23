@@ -7,8 +7,8 @@
 (* Modified: Frank Pfenning *)
 
 module type ABSMACHINE = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
   val solve :
     (CompSyn.goal * IntSyn.sub) * CompSyn.dProg * (IntSyn.exp -> unit) -> unit
 end
@@ -21,12 +21,12 @@ end
 (* Modified: Jeff Polakow, Frank Pfenning, Larry Greenfield, Roberto Virga *)
 
 module AbsMachine
-    (Unify : UNIFY)
-    (Assign : ASSIGN)
-    (Index : INDEX)
-    (CPrint : CPRINT)
-    (Print : PRINT)
-    (Names : NAMES) : ABSMACHINE = struct
+    (Unify : Unify.UNIFY)
+    (Assign : Assign.ASSIGN)
+    (Index : Index.INDEX)
+    (CPrint : Cprint.CPRINT)
+    (Print : Print.PRINT)
+    (Names : Names.NAMES) : ABSMACHINE = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure CompSyn = CompSyn' !*)
@@ -159,7 +159,7 @@ module AbsMachine
       | Hc :: sgn' ->
           let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
           (* trail to undo EVar instantiations *)
-          CSManager.trail (fun () ->
+          Cs.CSManager.trail (fun () ->
               rSolve (ps', (r, I.id), dp, fun S -> sc (I.Root (Hc, S))));
           matchSig sgn'
     in
@@ -169,7 +169,7 @@ module AbsMachine
           let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
           (* trail to undo EVar instantiations *)
           try
-            CSManager.trail (fun () ->
+            Cs.CSManager.trail (fun () ->
                 rSolve (ps', (r, I.id), dp, fun S -> raise (SucceedOnce S)));
             matchSigDet sgn'
           with SucceedOnce S -> sc (I.Root (Hc, S)))
@@ -182,7 +182,7 @@ module AbsMachine
           if eqHead (Ha, Ha') then
             if deterministic then (* #succeeds = 1 *)
               try
-                CSManager.trail (* trail to undo EVar instantiations *)
+                Cs.CSManager.trail (* trail to undo EVar instantiations *)
                   (fun () ->
                     rSolve
                       ( ps',
@@ -193,7 +193,7 @@ module AbsMachine
               with SucceedOnce S -> sc (I.Root (I.BVar k, S))
             else (* #succeeds >= 1 -- allows backtracking *)
               (
-              CSManager.trail (* trail to undo EVar instantiations *) (fun () ->
+              Cs.CSManager.trail (* trail to undo EVar instantiations *) (fun () ->
                   rSolve
                     ( ps',
                       (r, I.comp (s, I.Shift k)),
@@ -205,7 +205,7 @@ module AbsMachine
     in
     let rec matchConstraint (cnstrSolve, try_) =
       let succeeded =
-        CSManager.trail (fun () ->
+        Cs.CSManager.trail (fun () ->
             match cnstrSolve (G, I.SClo (S, s), try_) with
             | Some U ->
                 sc U;

@@ -14,9 +14,9 @@ module type NETSERVER = sig
   (* filesystem directory where twelf examples are kept *)
 end
 
-(* signature SERVER *)
+(* signature Server.SERVER *)
 
-module NetServer (Timing : TIMING) (Twelf : TWELF) (Msg : MSG) : NETSERVER =
+module NetServer (Timing : Timing.TIMING) (Twelf : Twelf.TWELF) (Msg : Msg.MSG) : NETSERVER =
 struct
   let rec join = function
     | delim, [] -> ""

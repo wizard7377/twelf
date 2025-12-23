@@ -3,7 +3,7 @@
 (* Author: Christopher Richards *)
 
 module Word8ArraySlice :
-  MONO_ARRAY_SLICE
+  Mono_array_slice.MONO_ARRAY_SLICE
     with type array = Word8Array.array
     with type vector = Word8Array.vector = struct
   type array = Word8Array.array

@@ -3,10 +3,10 @@
 (* Author: Roberto Virga *)
 
 module type CS_EQ_INTEGERS = sig
-  include CS
-  module Integers : INTEGERS
+  include Cs.CS
+  module Integers : Integers.INTEGERS
 
-  (*! structure IntSyn : INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   (* Foreign expressions *)
   type 'a mset = 'a list
 
@@ -29,14 +29,14 @@ module type CS_EQ_INTEGERS = sig
   val constant : Integers.int -> IntSyn.exp
 end
 
-(* signature CS_EQ_FIELD *)
+(* signature Cs.Cs_eq_field.CS_EQ_FIELD *)
 (* Diophantine Equation Solver *)
 
 (* Author: Roberto Virga *)
 
-module CSEqIntegers (Integers : INTEGERS) (Whnf : WHNF) (Unify : UNIFY) :
-  CS_EQ_INTEGERS = struct
-  (*! structure CSManager = CSManager !*)
+module CSEqIntegers (Integers : Integers.INTEGERS) (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) :
+  Cs.CS_EQ_INTEGERS = struct
+  (*! structure Cs.CSManager = Cs.CSManager !*)
 
   module Integers = Integers
   (*! structure IntSyn = IntSyn !*)
@@ -58,9 +58,9 @@ module CSEqIntegers (Integers : INTEGERS) (Whnf : WHNF) (Unify : UNIFY) :
 
   open IntSyn
   open Integers
-  module FX = CSManagerFixity
+  module FX = Cs.CSManagerFixity
   module MS = ModeSyn
-  (* CSManager.ModeSyn *)
+  (* Cs.CSManager.ModeSyn *)
 
   exception MyIntsynRep of sum
 
@@ -587,4 +587,4 @@ module CSEqIntegers (Integers : INTEGERS) (Whnf : WHNF) (Unify : UNIFY) :
   let constant = numberExp
 end
 
-(* functor CSEqIntegers *)
+(* functor Cs.CSEqIntegers *)

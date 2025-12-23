@@ -3,9 +3,9 @@
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
 module type MTPABSTRACT = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure FunSyn : FUNSYN !*)
-  module StateSyn : STATESYN
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure FunSyn : Funsyn.FUNSYN !*)
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -40,14 +40,14 @@ end
 (* Author: Frank Pfenning, Carsten Schuermann *)
 
 module MTPAbstract
-    (StateSyn' : STATESYN)
-    (Whnf : WHNF)
-    (Constraints : CONSTRAINTS)
-    (Unify : UNIFY)
-    (Subordinate : SUBORDINATE)
-    (TypeCheck : TYPECHECK)
-    (FunTypeCheck : FUNTYPECHECK)
-    (Abstract : ABSTRACT) : MTPABSTRACT = struct
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Whnf : Whnf.WHNF)
+    (Constraints : Constraints.CONSTRAINTS)
+    (Unify : Unify.UNIFY)
+    (Subordinate : Subordinate.SUBORDINATE)
+    (TypeCheck : Typecheck.TYPECHECK)
+    (FunTypeCheck : Funtypecheck.FUNTYPECHECK)
+    (Abstract : Abstract.ABSTRACT) : MTPABSTRACT = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure FunSyn = FunSyn' !*)

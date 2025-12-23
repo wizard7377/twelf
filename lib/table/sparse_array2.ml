@@ -20,12 +20,12 @@ module type SPARSE_ARRAY2 = sig
   val modify : traversal -> (int * int * 'a -> 'a) -> 'a region -> unit
 end
 
-(* signature SPARSE_ARRAY2 *)
+(* signature Sparse_array.SPARSE_ARRAY2 *)
 (* Sparse 2-Dimensional Arrays *)
 
 (* Author: Roberto Virga *)
 
-module SparseArray2 : SPARSE_ARRAY2 = struct
+module SparseArray2 : Sparse_array.SPARSE_ARRAY2 = struct
   type 'a array = < default : 'a ; table : 'a IntTable.table >
 
   type 'a region =

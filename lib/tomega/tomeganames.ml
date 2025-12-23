@@ -9,7 +9,7 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module TomegaNames : TOMEGANAMES = struct
+module TomegaNames : Tomega.TOMEGANAMES = struct
   module T = Tomega
   module I = IntSyn
 

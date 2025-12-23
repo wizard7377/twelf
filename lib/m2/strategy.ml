@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type STRATEGY = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   val run : MetaSyn.state list -> MetaSyn.state list * MetaSyn.state list
   (* open cases -> remaining cases * solved cases *)
@@ -15,15 +15,15 @@ end
 (* Author: Carsten Schuermann *)
 
 module StrategyFRS
-    (MetaGlobal : METAGLOBAL)
-    (MetaSyn' : METASYN)
-    (Filling : FILLING)
-    (Splitting : SPLITTING)
-    (Recursion : RECURSION)
-    (Lemma : LEMMA)
-    (Qed : QED)
-    (MetaPrint : METAPRINT)
-    (Timers : TIMERS) : STRATEGY = struct
+    (MetaGlobal : Meta_global.METAGLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (Filling : Filling.Fill.FILLING)
+    (Splitting : Splitting.Split.SPLITTING)
+    (Recursion : Recursion.RECURSION)
+    (Lemma : Lemma.LEMMA)
+    (Qed : Qed.QED)
+    (MetaPrint : Meta_print.METAPRINT)
+    (Timers : Timers.TIMERS) : STRATEGY = struct
   module MetaSyn = MetaSyn'
   module M = MetaSyn
 
@@ -52,7 +52,7 @@ module StrategyFRS
     else ()
 
   let rec printCloseBracket () = if !Global.chatter > 5 then print "]\n" else ()
-  let rec printQed () = if !Global.chatter > 3 then print "[QED]\n" else ()
+  let rec printQed () = if !Global.chatter > 3 then print "[Qed.QED]\n" else ()
   (* findMin L = Sopt
 
        Invariant:
@@ -151,15 +151,15 @@ end
 (* functor StrategyFRS *)
 
 module StrategyRFS
-    (MetaGlobal : METAGLOBAL)
-    (MetaSyn' : METASYN)
-    (Filling : FILLING)
-    (Splitting : SPLITTING)
-    (Recursion : RECURSION)
-    (Lemma : LEMMA)
-    (Qed : QED)
-    (MetaPrint : METAPRINT)
-    (Timers : TIMERS) : STRATEGY = struct
+    (MetaGlobal : Meta_global.METAGLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (Filling : Filling.Fill.FILLING)
+    (Splitting : Splitting.Split.SPLITTING)
+    (Recursion : Recursion.RECURSION)
+    (Lemma : Lemma.LEMMA)
+    (Qed : Qed.QED)
+    (MetaPrint : Meta_print.METAPRINT)
+    (Timers : Timers.TIMERS) : STRATEGY = struct
   module MetaSyn = MetaSyn'
   module M = MetaSyn
 
@@ -188,7 +188,7 @@ module StrategyRFS
     else ()
 
   let rec printCloseBracket () = if !Global.chatter > 5 then print "]\n" else ()
-  let rec printQed () = if !Global.chatter > 3 then print "[QED]\n" else ()
+  let rec printQed () = if !Global.chatter > 3 then print "[Qed.QED]\n" else ()
   (* findMin L = Sopt
 
        Invariant:
@@ -285,8 +285,8 @@ end
 (* functor StrategyRFS *)
 
 module Strategy
-    (MetaGlobal : METAGLOBAL)
-    (MetaSyn' : METASYN)
+    (MetaGlobal : Meta_global.METAGLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
     (StrategyFRS : STRATEGY)
     (StrategyRFS : STRATEGY) : STRATEGY = struct
   module MetaSyn = MetaSyn'

@@ -3,9 +3,9 @@
 (* Author: Carsten Schuermann *)
 
 module type SEARCH = sig
-  (*! structure IntSyn   : INTSYN !*)
-  (*! structure Tomega   : TOMEGA !*)
-  module State : STATE
+  (*! structure IntSyn   : Intsyn.INTSYN !*)
+  (*! structure Tomega   : Tomega.TOMEGA !*)
+  module State : State.STATE
 
   exception Error of string
 
@@ -23,20 +23,20 @@ end
 (* Author: Carsten Schuermann *)
 
 module Search
-    (Global : GLOBAL)
-    (State' : STATE)
-    (Abstract : ABSTRACT)
-    (Data : DATA)
-    (CompSyn' : COMPSYN)
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Assign : ASSIGN)
-    (Index : INDEX)
-    (Compile : COMPILE)
-    (CPrint : CPRINT)
-    (Print : PRINT)
-    (Names : NAMES)
-    (CSManager : CS_MANAGER) : SEARCH = struct
+    (Global : Global.GLOBAL)
+    (State' : State.STATE)
+    (Abstract : Abstract.ABSTRACT)
+    (Data : Data.DATA)
+    (CompSyn' : Compsyn.COMPSYN)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Assign : Assign.ASSIGN)
+    (Index : Index.INDEX)
+    (Compile : Compile.COMPILE)
+    (CPrint : Cprint.CPRINT)
+    (Print : Print.PRINT)
+    (Names : Names.NAMES)
+    (Cs.CSManager : Cs.Cs_manager.CS_MANAGER) : SEARCH = struct
   (*! structure IntSyn = IntSyn' !*)
 
   (*! structure Tomega = Tomega' !*)
@@ -277,7 +277,7 @@ module Search
           | Hc :: sgn' ->
               let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
               let _ =
-                CSManager.trail (fun () ->
+                Cs.CSManager.trail (fun () ->
                     rSolve
                       ( max - 1,
                         depth,
@@ -293,7 +293,7 @@ module Search
           | (r, s, H') :: RGs', (n, i) ->
               if eqHead (Ha, H') then
                 let _ =
-                  CSManager.trail (fun () ->
+                  Cs.CSManager.trail (fun () ->
                       rSolve
                         ( max - 1,
                           depth,
@@ -310,7 +310,7 @@ module Search
           | I.Decl (dPool', C.Dec (r, s, Ha')), n ->
               if eqHead (Ha, Ha') then
                 let _ =
-                  CSManager.trail (fun () ->
+                  Cs.CSManager.trail (fun () ->
                       rSolve
                         ( max - 1,
                           depth,

@@ -9,7 +9,7 @@ end
 (* Author: Adam Poswolsky (ABP) *)
 
 
-module Redundant (Opsem : OPSEM) : REDUNDANT = struct exception Error of string
+module Redundant (Opsem : Opsem.OPSEM) : REDUNDANT = struct exception Error of string
 (*
      convert:  Tomega.Prg -> Tomega.Prg
      Attempts to eliminate *redundant* cases.

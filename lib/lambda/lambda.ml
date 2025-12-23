@@ -15,7 +15,7 @@ structure Conv =
   Conv ((*! structure IntSyn' = IntSyn !*)
 	structure Whnf = Whnf);
 
-structure Tomega : TOMEGA =
+structure Tomega : Tomega.TOMEGA =
    Tomega (structure IntSyn' = IntSyn
 	   structure Whnf = Whnf
 	   structure Conv = Conv)
@@ -43,7 +43,7 @@ module UnifyTrail =
       module Trail = Trail
     end)
 
-(* structure Normalize : NORMALIZE =  
+(* structure Normalize : Normalize.Normalize.NORMALIZE =  
   Normalize ((*! structure IntSyn' = IntSyn !*)
              (*! structure Tomega' = Tomega !*)
              structure Whnf = Whnf)

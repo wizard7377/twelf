@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type METAPRINT = sig
-  module MetaSyn : METASYN
+  module MetaSyn : Metasyn.METASYN
 
   val stateToString : MetaSyn.state -> string
   val sgnToString : MetaSyn.sgn -> string
@@ -17,11 +17,11 @@ end
 (* Author: Carsten Schuermann *)
 
 module MetaPrint
-    (Global : GLOBAL)
-    (MetaSyn' : METASYN)
-    (Formatter : FORMATTER)
-    (Print : PRINT)
-    (ClausePrint : CLAUSEPRINT) : METAPRINT = struct
+    (Global : Global.GLOBAL)
+    (MetaSyn' : Metasyn.METASYN)
+    (Formatter : Formatter.FORMATTER)
+    (Print : Print.PRINT)
+    (ClausePrint : Clause_print.CLAUSEPRINT) : METAPRINT = struct
   module MetaSyn = MetaSyn'
   module M = MetaSyn
   module I = IntSyn

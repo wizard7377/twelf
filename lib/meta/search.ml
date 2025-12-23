@@ -3,7 +3,7 @@
 (* Author: Carsten Schuermann *)
 
 module type MTPSEARCH = sig
-  module StateSyn : STATESYN
+  module StateSyn : Statesyn.State.STATESYN
 
   exception Error of string
 
@@ -12,24 +12,24 @@ module type MTPSEARCH = sig
     unit
 end
 
-(* signature SEARCH *)
+(* signature Search.SEARCH *)
 (* Search (based on abstract machine ) : Version 1.3 *)
 
 (* Author: Carsten Schuermann *)
 
 module MTPSearch
-    (Global : GLOBAL)
-    (Abstract : ABSTRACT)
-    (MTPGlobal : MTPGLOBAL)
-    (StateSyn' : STATESYN)
-    (Whnf : WHNF)
-    (Unify : UNIFY)
-    (Assign : ASSIGN)
-    (Index : INDEX)
-    (Compile : COMPILE)
-    (CPrint : CPRINT)
-    (Print : PRINT)
-    (Names : NAMES) : MTPSEARCH = struct
+    (Global : Global.GLOBAL)
+    (Abstract : Abstract.ABSTRACT)
+    (MTPGlobal : Global.MTPGLOBAL)
+    (StateSyn' : Statesyn.State.STATESYN)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY)
+    (Assign : Assign.ASSIGN)
+    (Index : Index.INDEX)
+    (Compile : Compile.COMPILE)
+    (CPrint : Cprint.CPRINT)
+    (Print : Print.PRINT)
+    (Names : Names.NAMES) : MTPSEARCH = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module StateSyn = StateSyn'
@@ -282,7 +282,7 @@ module MTPSearch
           | Hc :: sgn' ->
               let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
               let _ =
-                CSManager.trail (fun () ->
+                Cs.CSManager.trail (fun () ->
                     rSolve
                       ( max - 1,
                         depth,
@@ -298,7 +298,7 @@ module MTPSearch
           | I.Decl (dPool', C.Dec (r, s, Ha')), n ->
               if eqHead (Ha, Ha') then
                 let _ =
-                  CSManager.trail (fun () ->
+                  Cs.CSManager.trail (fun () ->
                       rSolve
                         ( max - 1,
                           depth,

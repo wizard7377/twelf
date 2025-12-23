@@ -4,7 +4,7 @@
 
 module IntegersMod (P : sig
   val p : int
-end) : FIELD = struct
+end) : Field.FIELD = struct
   let p = P.p
   let name = "integer" ^ Int.toString p
 

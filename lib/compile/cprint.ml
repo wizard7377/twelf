@@ -3,8 +3,8 @@
 (* Author: Iliano Cervesato *)
 
 module type CPRINT = sig
-  (*! structure IntSyn : INTSYN !*)
-  (*! structure CompSyn : COMPSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure CompSyn : Compsyn.COMPSYN !*)
   val goalToString : string -> IntSyn.dctx * CompSyn.goal -> string
   val clauseToString : string -> IntSyn.dctx * CompSyn.resGoal -> string
   val sProgToString : unit -> string
@@ -17,7 +17,7 @@ end
 
 (* Author: Iliano Cervesato *)
 
-module CPrint (Print : PRINT) (Formatter : FORMATTER) (Names : NAMES) : CPRINT =
+module CPrint (Print : Print.PRINT) (Formatter : Formatter.FORMATTER) (Names : Names.NAMES) : CPRINT =
 struct
   (*! structure IntSyn = IntSyn' !*)
 
@@ -31,7 +31,7 @@ struct
   (* goalToString (G, g) where G |- g  goal *)
 
   let rec goalToString = function
-    | t, (G, Atom p) -> t ^ "SOLVE   " ^ Print.expToString (G, p) ^ "\n"
+    | t, (G, Atom p) -> t ^ "Solve.SOLVE   " ^ Print.expToString (G, p) ^ "\n"
     | t, (G, Impl (p, A, _, g)) ->
         t ^ "ASSUME  "
         ^ Print.expToString (G, A)
@@ -50,7 +50,7 @@ struct
   and auxToString = function
     | t, (G, Trivial) -> ""
     | t, (G, UnifyEq (G', p1, N, ga)) ->
-        t ^ "UNIFYEqn  "
+        t ^ "Unify.UNIFYEqn  "
         ^ Print.expToString (compose (G', G), p1)
         ^ " = "
         ^ Print.expToString (compose (G', G), N)
@@ -58,9 +58,9 @@ struct
         ^ auxToString t (G, ga)
 
   and clauseToString = function
-    | t, (G, Eq p) -> t ^ "UNIFY   " ^ Print.expToString (G, p) ^ "\n"
+    | t, (G, Eq p) -> t ^ "Unify.UNIFY   " ^ Print.expToString (G, p) ^ "\n"
     | t, (G, Assign (p, ga)) ->
-        t ^ "ASSIGN  "
+        t ^ "Assign.ASSIGN  "
         ^ (try Print.expToString (G, p) with _ -> "<exc>")
         ^ "\n"
         ^ auxToString t (G, ga)
