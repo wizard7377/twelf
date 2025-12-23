@@ -18,7 +18,7 @@ module type FUNPRINT = sig
   val lemmaDecToString : FunSyn.lemmaDec -> string
 end
 
-(* signature Print.PRINT *)
+(* signature Funprint.FUNPRINT *)
 (* Printing of functional proof terms *)
 
 (* Author: Carsten Schuermann *)

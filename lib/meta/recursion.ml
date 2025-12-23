@@ -28,7 +28,7 @@ module MTPRecursion
     (Abstract : Abstract.ABSTRACT)
     (MTPAbstract : Abstract.MTPABSTRACT)
     (FunTypeCheck : Funtypecheck.FUNTYPECHECK)
-    (MTPrint : Print.MTPRINT)
+    (MTPrint : Mtprint.MTPRINT)
     (Whnf : Whnf.WHNF)
     (Unify : Unify.UNIFY)
     (Conv : Conv.CONV)

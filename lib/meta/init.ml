@@ -12,7 +12,7 @@ module type MTPINIT = sig
   val init : FunSyn.for_sml * StateSyn.order -> StateSyn.state list
 end
 
-(* signature Mpi.MTPINIT *)
+(* signature Init.MTPINIT *)
 (* Initialization *)
 
 (* Author: Carsten Schuermann *)
@@ -25,7 +25,7 @@ module MTPInit
     (Formatter : Formatter.FORMATTER)
     (Whnf : Whnf.WHNF)
     (Print : Print.PRINT)
-    (FunPrint : Funprint.FUNPRINT) : Mpi.MTPINIT = struct
+    (FunPrint : Funprint.FUNPRINT) : MTPINIT = struct
   (*! structure FunSyn = FunSyn' !*)
 
   module StateSyn = StateSyn'

@@ -343,7 +343,7 @@ module Lexer (Stream' : Stream.STREAM) : LEXER = struct
     | ID (_, "abbrev"), r -> (ABBREV, r)
     | ID (_, "name"), r -> (NAME, r)
     | ID (_, "define"), r -> (DEFINE, r)
-    | ID (_, "solve"), r -> (Solve.SOLVE, r)
+    | ID (_, "solve"), r -> (SOLVE, r)
     | ID (_, "query"), r -> (QUERY, r)
     | ID (_, "fquery"), r -> (Fquery.FQUERY, r)
     | ID (_, "compile"), r -> (Compile.COMPILE, r)
@@ -461,7 +461,7 @@ module Lexer (Stream' : Stream.STREAM) : LEXER = struct
     | POSTFIX -> "%postfix"
     | NAME -> "%name"
     | DEFINE -> "%define"
-    | Solve.SOLVE -> "%solve"
+    | SOLVE -> "%solve"
     | QUERY -> "%query"
     | Fquery.FQUERY -> "%fquery"
     | Compile.COMPILE -> "%compile"

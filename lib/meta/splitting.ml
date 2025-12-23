@@ -28,7 +28,7 @@ module MTPSplitting
     (StateSyn' : Statesyn.State.STATESYN)
     (Heuristic : Heuristic.HEURISTIC)
     (MTPAbstract : Abstract.MTPABSTRACT)
-    (MTPrint : Print.MTPRINT)
+    (MTPrint : Mtprint.MTPRINT)
     (Names : Names.NAMES)
     (Conv : Conv.CONV)
     (Whnf : Whnf.WHNF)

@@ -22,7 +22,7 @@ module MTPStrategy
     (MTPSplitting : Splitting.MTPSPLITTING)
     (MTPRecursion : Recursion.MTPRECURSION)
     (Inference : Inference.INFERENCE)
-    (MTPrint : Print.MTPRINT)
+    (MTPrint : Mtprint.MTPRINT)
     (Timers : Timers.TIMERS) : MTPSTRATEGY = struct
   module StateSyn = StateSyn'
   module S = StateSyn

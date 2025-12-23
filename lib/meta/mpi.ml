@@ -41,7 +41,7 @@ module MTPi
     (MTPSplitting : Splitting.MTPSPLITTING)
     (MTPRecursion : Recursion.MTPRECURSION)
     (MTPStrategy : Strategy.MTPSTRATEGY)
-    (MTPrint : Print.MTPRINT)
+    (MTPrint : Mtprint.MTPRINT)
     (Order : Order.Order.ORDER)
     (Names : Names.NAMES)
     (Timers : Timers.TIMERS)

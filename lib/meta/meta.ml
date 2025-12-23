@@ -151,7 +151,7 @@ module MTPAbstract =
     end)
 
 module MTPInit =
-  Mpi.MTPInit
+  Init.MTPInit
     (struct
       module MTPGlobal = MTPGlobal
     end)
@@ -178,7 +178,7 @@ module MTPInit =
     end)
 
 module MTPrint =
-  MTPrint
+  Mtprint.MTPrint
     (struct
       module Global = Global
     end)
