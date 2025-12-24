@@ -1,9 +1,8 @@
 (library
  (name meta)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries
-  compat
-  global
+    global
   trail
   table
   lambda

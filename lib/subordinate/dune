@@ -1,4 +1,4 @@
 (library
  (name subordinate)
-  (wrapped (transition "Make this usage wrapped"))
- (libraries compat global table lambda names))
+ (wrapped false)
+ (libraries global table lambda names))

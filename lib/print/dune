@@ -1,4 +1,4 @@
 (library
  (name print)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries lambda names formatter))

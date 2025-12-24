@@ -1,6 +1,6 @@
 (library
  (name cover)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries
   global
   lambda

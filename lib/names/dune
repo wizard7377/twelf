@@ -1,4 +1,4 @@
 (library
  (name names)
-  (wrapped (transition "Make this usage wrapped"))
- (libraries compat table global lambda))
+ (wrapped false)
+ (libraries table global lambda))

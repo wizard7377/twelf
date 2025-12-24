@@ -1,4 +1,4 @@
 (library
  (name compress)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries global lambda))

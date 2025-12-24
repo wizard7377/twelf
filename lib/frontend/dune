@@ -1,9 +1,8 @@
 (library
  (name frontend)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries
-  compat
-  timing
+    timing
   stream
   global
   table

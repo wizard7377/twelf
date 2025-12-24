@@ -1,4 +1,4 @@
 (library
  (name typecheck)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries lambda print paths names))

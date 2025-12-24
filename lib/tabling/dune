@@ -1,4 +1,4 @@
 (library
  (name tabling)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries table lambda print names paths index))

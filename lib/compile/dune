@@ -1,6 +1,6 @@
 (library
  (name compile)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries
   global
   table

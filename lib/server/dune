@@ -1,4 +1,4 @@
 (library
  (name server)
-  (wrapped (transition "Make this usage wrapped"))
- (libraries compat timing frontend))
+ (wrapped false)
+ (libraries timing frontend))

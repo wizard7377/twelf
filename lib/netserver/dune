@@ -1,4 +1,4 @@
 (library
  (name netserver)
-  (wrapped (transition "Make this usage wrapped"))
- (libraries compat timing frontend msg))
+ (wrapped false)
+ (libraries timing frontend msg))

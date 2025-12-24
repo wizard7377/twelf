@@ -1,4 +1,4 @@
 (library
  (name lambda)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries global trail table))

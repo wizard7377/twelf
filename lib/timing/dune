@@ -1,4 +1,4 @@
 (library
  (name timing)
-  (wrapped (transition "Make this usage wrapped"))
- (libraries compat))
+ (wrapped false)
+ )

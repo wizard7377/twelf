@@ -1,9 +1,8 @@
 (library
  (name solvers)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries
-  compat
-  trail
+    trail
   global
   domains
   lambda

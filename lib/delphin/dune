@@ -1,4 +1,4 @@
 (library
  (name delphin)
-  (wrapped (transition "Make this usage wrapped"))
- (libraries compat frontend stream tomega lambda print names subordinate))
+ (wrapped false)
+ (libraries frontend stream tomega lambda print names subordinate))

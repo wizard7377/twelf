@@ -1,4 +1,4 @@
 (library
  (name index)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries lambda table global))

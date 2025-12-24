@@ -1,4 +1,4 @@
 (library
  (name order)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries table lambda))

@@ -1,4 +1,4 @@
 (library
  (name style)
-  (wrapped (transition "Make this usage wrapped"))
+ (wrapped false)
  (libraries global table lambda formatter print names paths index))

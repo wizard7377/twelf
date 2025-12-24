@@ -56,8 +56,6 @@ module Trail : TRAIL = struct
     trail := unwind' !trail
 
   let rec log (trail, action) = trail := Cons (action, !trail)
-
-
   let trail = trail
   let suspend = suspend
   let resume = resume
