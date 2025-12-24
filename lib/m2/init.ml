@@ -15,7 +15,9 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Init (MetaSyn' : Metasyn.METASYN) (MetaAbstract : Meta_abstract.METAABSTRACT) : INIT = struct
+module Init
+    (MetaSyn' : Metasyn.METASYN)
+    (MetaAbstract : Meta_abstract.METAABSTRACT) : INIT = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string

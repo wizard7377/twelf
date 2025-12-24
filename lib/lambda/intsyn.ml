@@ -157,13 +157,16 @@ module type INTSYN = sig
   (* standard operations on foreign expressions *)
   module FgnExpStd : sig
     (* convert to internal syntax *)
-    module ToInternal : Fgnopn.FGN_OPN with type arg = unit with type result = exp
+    module ToInternal :
+      Fgnopn.FGN_OPN with type arg = unit with type result = exp
 
     (* apply function to subterms *)
-    module Map : Fgnopn.FGN_OPN with type arg = exp -> exp with type result = exp
+    module Map :
+      Fgnopn.FGN_OPN with type arg = exp -> exp with type result = exp
 
     (* apply function to subterms, for_sml effect *)
-    module App : Fgnopn.FGN_OPN with type arg = exp -> unit with type result = unit
+    module App :
+      Fgnopn.FGN_OPN with type arg = exp -> unit with type result = unit
 
     (* test for_sml equality *)
     module EqualTo : Fgnopn.FGN_OPN with type arg = exp with type result = bool
@@ -186,7 +189,8 @@ module type INTSYN = sig
     module Awake : Fgnopn.FGN_OPN with type arg = unit with type result = bool
 
     (* simplify *)
-    module Simplify : Fgnopn.FGN_OPN with type arg = unit with type result = bool
+    module Simplify :
+      Fgnopn.FGN_OPN with type arg = unit with type result = bool
   end
 
   val conDecName : conDec -> string

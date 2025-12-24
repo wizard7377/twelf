@@ -15,7 +15,9 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Lemma (MetaSyn' : Metasyn.METASYN) (MetaAbstract : Meta_abstract.METAABSTRACT) : LEMMA = struct
+module Lemma
+    (MetaSyn' : Metasyn.METASYN)
+    (MetaAbstract : Meta_abstract.METAABSTRACT) : LEMMA = struct
   module MetaSyn = MetaSyn'
 
   exception Error of string

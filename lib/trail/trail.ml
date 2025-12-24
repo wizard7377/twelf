@@ -5,7 +5,7 @@
 module type TRAIL = sig
   type 'a trail
 
-  val trail : unit -> 'a trail
+  val trail : unit -> 'a trail ref
   val suspend : 'a trail * ('a -> 'b) -> 'b trail
   val resume : 'b trail * 'a trail * ('b -> 'a) -> unit
   val reset : 'a trail -> unit
@@ -21,7 +21,6 @@ end
 
 module Trail : TRAIL = struct
   type 'a trail = Cons of 'a * 'a trail | Mark of 'a trail | Nil
-  type 'a trail = 'a trail ref
 
   let rec trail () = ref Nil
   let rec reset trail = trail := Nil
@@ -58,7 +57,6 @@ module Trail : TRAIL = struct
 
   let rec log (trail, action) = trail := Cons (action, !trail)
 
-  type 'a trail = 'a trail
 
   let trail = trail
   let suspend = suspend

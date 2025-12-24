@@ -29,7 +29,8 @@ end
 
 (* Author: Brigitte Pientka *)
 
-module Assign (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Print : Print.PRINT) : ASSIGN = struct
+module Assign (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) (Print : Print.PRINT) :
+  ASSIGN = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Assignment of string

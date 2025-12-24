@@ -34,8 +34,10 @@ end
 
 (* Author: Roberto Virga *)
 
-module CSEqIntegers (Integers : Integers.INTEGERS) (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) :
-  Cs.CS_EQ_INTEGERS = struct
+module CSEqIntegers
+    (Integers : Integers.INTEGERS)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY) : Cs.CS_EQ_INTEGERS = struct
   (*! structure Cs.CSManager = Cs.CSManager !*)
 
   module Integers = Integers

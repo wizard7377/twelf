@@ -4,7 +4,8 @@
 
 (* Modified: Frank Pfenning *)
 
-module IndexSkolem (Global : Global.GLOBAL) (Queue : Queue.QUEUE) : Index.INDEX = struct
+module IndexSkolem (Global : Global.GLOBAL) (Queue : Queue.QUEUE) :
+  Index.INDEX = struct
   (*! structure IntSyn = IntSyn' !*)
 
   module I = IntSyn

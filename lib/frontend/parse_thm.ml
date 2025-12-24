@@ -34,8 +34,9 @@ end
 
 (* Modified: Brigitte Pientka *)
 
-module ParseThm (ThmExtSyn' : Recon_thm.Thm.THMEXTSYN) (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_THM =
-struct
+module ParseThm
+    (ThmExtSyn' : Recon_thm.Thm.THMEXTSYN)
+    (ParseTerm : Parse_prg.Parse_term.PARSE_TERM) : Parse_prg.PARSE_THM = struct
   (*! structure Parsing = Parsing' !*)
 
   module ThmExtSyn = ThmExtSyn'
@@ -180,7 +181,8 @@ struct
 
   (* parseTotal' "%total tdecl." *)
 
-  let rec parseTotal' (LS.Cons ((L.Total.TOTAL, r), s')) = parseTDecl (LS.expose s')
+  let rec parseTotal' (LS.Cons ((L.Total.TOTAL, r), s')) =
+    parseTDecl (LS.expose s')
   (* ------------------- *)
 
   (* %prove declarations *)

@@ -34,8 +34,10 @@ end
 
 (* Author: Roberto Virga *)
 
-module CSEqField (Field : Field.FIELD) (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS_EQ_FIELD =
-struct
+module CSEqField
+    (Field : Field.FIELD)
+    (Whnf : Whnf.WHNF)
+    (Unify : Unify.UNIFY) : Cs.CS_EQ_FIELD = struct
   (*! structure Cs.CSManager = Cs.CSManager !*)
 
   module Field = Field

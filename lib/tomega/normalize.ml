@@ -15,8 +15,10 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module Normalize (IntSyn' : Intsyn.INTSYN) (Tomega' : Tomega.TOMEGA) (Whnf : Whnf.WHNF) :
-  Normalize.NORMALIZE = struct
+module Normalize
+    (IntSyn' : Intsyn.INTSYN)
+    (Tomega' : Tomega.TOMEGA)
+    (Whnf : Whnf.WHNF) : Normalize.NORMALIZE = struct
   module IntSyn = IntSyn'
   module Tomega = Tomega'
 

@@ -16,8 +16,10 @@ end
 
 (* signature Server.SERVER *)
 
-module NetServer (Timing : Timing.TIMING) (Twelf : Twelf.TWELF) (Msg : Msg.MSG) : NETSERVER =
-struct
+module NetServer
+    (Timing : Timing.TIMING)
+    (Twelf : Twelf.TWELF)
+    (Msg : Msg.MSG) : NETSERVER = struct
   let rec join = function
     | delim, [] -> ""
     | delim, [ x ] -> x

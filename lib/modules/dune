@@ -1,4 +1,4 @@
 (library
  (name modules)
- (wrapped false)
+  (wrapped (transition "Make this usage wrapped"))
  (libraries global table lambda names paths typecheck))

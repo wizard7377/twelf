@@ -1,6 +1,6 @@
 (library
  (name solvers)
- (wrapped false)
+  (wrapped (transition "Make this usage wrapped"))
  (libraries
   compat
   trail

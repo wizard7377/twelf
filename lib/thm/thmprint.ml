@@ -27,7 +27,8 @@ end
 
 (* Modified: Brigitte Pientka *)
 
-module ThmPrint (ThmSyn' : Thmsyn.THMSYN) (Formatter : Formatter.FORMATTER) : THMPRINT = struct
+module ThmPrint (ThmSyn' : Thmsyn.THMSYN) (Formatter : Formatter.FORMATTER) :
+  THMPRINT = struct
   module ThmSyn = ThmSyn'
   module L = ThmSyn
   module I = IntSyn

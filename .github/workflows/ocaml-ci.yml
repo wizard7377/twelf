@@ -1,0 +1,49 @@
+name: OCaml CI
+
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+
+permissions: read-all
+
+jobs:
+  build-and-test:
+    permissions:
+      attestations: write
+      id-token: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        ocaml-compiler:
+          - 5
+          - 4
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v6
+
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: opam install . --deps-only --with-test
+
+      - run: opam exec -- dune build
+
+      - run: opam exec -- dune runtest
+      - run: opam exec -- dune build @doc
+
+      - name: Upload the build artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.os }}-${{ matrix.ocaml-compiler }}-doc.html
+          path: _build/default/_doc/_html/index.html

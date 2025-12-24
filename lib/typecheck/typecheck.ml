@@ -23,8 +23,11 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module TypeCheck (Conv : Conv.CONV) (Whnf : Whnf.WHNF) (Names : Names.NAMES) (Print : Print.PRINT) :
-  TYPECHECK = struct
+module TypeCheck
+    (Conv : Conv.CONV)
+    (Whnf : Whnf.WHNF)
+    (Names : Names.NAMES)
+    (Print : Print.PRINT) : TYPECHECK = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

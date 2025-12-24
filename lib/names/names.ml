@@ -151,7 +151,8 @@ end
 
 (* Modified: Jeff Polakow *)
 
-module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) : NAMES = struct
+module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
+  NAMES = struct
   (*! structure IntSyn = IntSyn' !*)
 
   exception Error of string

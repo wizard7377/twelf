@@ -19,23 +19,30 @@ end
 (* signature State.STATEPRINT *)
 (* Meta Printer Version 1.3 *)
 
-
 (* Author: Carsten Schuermann *)
 
+module StatePrint
+    (Global : Global.GLOBAL)
+    (State' : State.STATE)
+    (Names : Names.NAMES)
+    (Formatter' : Formatter.FORMATTER)
+    (Print : Print.PRINT)
+    (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT) : State.STATEPRINT = struct
+  module Formatter = Formatter'
+  (*! structure IntSyn = IntSyn' !*)
 
-module StatePrint (Global : Global.GLOBAL) (State' : State.STATE) (Names : Names.NAMES) (Formatter' : Formatter.FORMATTER) (Print : Print.PRINT) (TomegaPrint : Tomega.Tomegaprint.TOMEGAPRINT) : State.STATEPRINT = struct module Formatter = Formatter'
-(*! structure IntSyn = IntSyn' !*)
+  (*! structure Tomega = Tomega' !*)
 
-(*! structure Tomega = Tomega' !*)
+  module State = State'
 
-module State = State'
-exception Error of string
-module I = IntSyn
-module T = Tomega
-module S = State'
-module N = Names
-module Fmt = Formatter
-(*
+  exception Error of string
+
+  module I = IntSyn
+  module T = Tomega
+  module S = State'
+  module N = Names
+  module Fmt = Formatter
+  (*
     fun nameCtx I.Null = I.Null
       | nameCtx (I.Decl (Psi, T.UDec D)) =
           I.Decl (nameCtx Psi,
@@ -46,8 +53,8 @@ module Fmt = Formatter
 
 *)
 
-let rec nameCtx Psi  = Psi
-(* nameState S = S'
+  let rec nameCtx Psi = Psi
+  (* nameState S = S'
 
        Invariant:
        If   |- S state     and S unnamed
@@ -55,8 +62,8 @@ let rec nameCtx Psi  = Psi
        and  |- S = S' state
     *)
 
-let rec nameState (S)  = S
-(*
+  let rec nameState S = S
+  (*
     fun formatOrder (G, S.Arg (Us, Vs)) =
           [Print.formatExp (G, I.EClo Us), Fmt.String ":",
            Print.formatExp (G, I.EClo Vs)]
@@ -88,36 +95,106 @@ let rec nameState (S)  = S
 
 *)
 
-(* formatCtx (Psi) = fmt'
+  (* formatCtx (Psi) = fmt'
 
        Invariant:
        If   |- Psi ctx       and Psi is already named
        then fmt' is a format describing the context Psi
     *)
 
-let rec formatCtx = function (I.Null) -> [] | (I.Decl (I.Null, T.UDec D)) -> if ! Global.chatter >= 4 then [Fmt.HVbox ([Fmt.Break; Print.formatDec (I.Null, D)])] else [Print.formatDec (I.Null, D)] | (I.Decl (I.Null, T.PDec (Some s, F, _))) -> if ! Global.chatter >= 4 then [Fmt.HVbox ([Fmt.Break; Fmt.String s; Fmt.Space; Fmt.String "::"; Fmt.Space; TomegaPrint.formatFor (I.Null, F)])] else [Fmt.String s; Fmt.Space; Fmt.String "::"; Fmt.Space; TomegaPrint.formatFor (I.Null, F)] | (I.Decl (Psi, T.UDec D)) -> ( let G = T.coerceCtx Psi in  if ! Global.chatter >= 4 then formatCtx Psi @ [Fmt.String ","; Fmt.Break; Fmt.Break] @ [Fmt.HVbox ([Fmt.Break; Print.formatDec (G, D)])] else formatCtx Psi @ [Fmt.String ","; Fmt.Break] @ [Fmt.Break; Print.formatDec (G, D)] ) | (I.Decl (Psi, T.PDec (Some s, F, _))) -> if ! Global.chatter >= 4 then formatCtx Psi @ [Fmt.String ","; Fmt.Break; Fmt.Break] @ [Fmt.HVbox ([Fmt.Break; Fmt.String s; Fmt.Space; Fmt.String "::"; Fmt.Space; TomegaPrint.formatFor (Psi, F)])] else formatCtx Psi @ [Fmt.String ","; Fmt.Break] @ [Fmt.Break; Fmt.String s; Fmt.Space; Fmt.String "::"; Fmt.Space; TomegaPrint.formatFor (Psi, F)]
-(* formatState S = fmt'
+  let rec formatCtx = function
+    | I.Null -> []
+    | I.Decl (I.Null, T.UDec D) ->
+        if !Global.chatter >= 4 then
+          [ Fmt.HVbox [ Fmt.Break; Print.formatDec (I.Null, D) ] ]
+        else [ Print.formatDec (I.Null, D) ]
+    | I.Decl (I.Null, T.PDec (Some s, F, _)) ->
+        if !Global.chatter >= 4 then
+          [
+            Fmt.HVbox
+              [
+                Fmt.Break;
+                Fmt.String s;
+                Fmt.Space;
+                Fmt.String "::";
+                Fmt.Space;
+                TomegaPrint.formatFor (I.Null, F);
+              ];
+          ]
+        else
+          [
+            Fmt.String s;
+            Fmt.Space;
+            Fmt.String "::";
+            Fmt.Space;
+            TomegaPrint.formatFor (I.Null, F);
+          ]
+    | I.Decl (Psi, T.UDec D) ->
+        let G = T.coerceCtx Psi in
+        if !Global.chatter >= 4 then
+          formatCtx Psi
+          @ [ Fmt.String ","; Fmt.Break; Fmt.Break ]
+          @ [ Fmt.HVbox [ Fmt.Break; Print.formatDec (G, D) ] ]
+        else
+          formatCtx Psi
+          @ [ Fmt.String ","; Fmt.Break ]
+          @ [ Fmt.Break; Print.formatDec (G, D) ]
+    | I.Decl (Psi, T.PDec (Some s, F, _)) ->
+        if !Global.chatter >= 4 then
+          formatCtx Psi
+          @ [ Fmt.String ","; Fmt.Break; Fmt.Break ]
+          @ [
+              Fmt.HVbox
+                [
+                  Fmt.Break;
+                  Fmt.String s;
+                  Fmt.Space;
+                  Fmt.String "::";
+                  Fmt.Space;
+                  TomegaPrint.formatFor (Psi, F);
+                ];
+            ]
+        else
+          formatCtx Psi
+          @ [ Fmt.String ","; Fmt.Break ]
+          @ [
+              Fmt.Break;
+              Fmt.String s;
+              Fmt.Space;
+              Fmt.String "::";
+              Fmt.Space;
+              TomegaPrint.formatFor (Psi, F);
+            ]
+  (* formatState S = fmt'
 
        Invariant:
        If   |- S state      and  S named
        then fmt' is a format describing the state S
     *)
 
-let rec formatState (S.State (W, Psi, P, F, _))  = Fmt.Vbox0 (0, 1, [Fmt.String "------------------------"; Fmt.Break; Fmt.String "------------------------"; Fmt.Break; TomegaPrint.formatPrg (Psi, P)])
-(* formatState S = S'
+  let rec formatState (S.State (W, Psi, P, F, _)) =
+    Fmt.Vbox0
+      ( 0,
+        1,
+        [
+          Fmt.String "------------------------";
+          Fmt.Break;
+          Fmt.String "------------------------";
+          Fmt.Break;
+          TomegaPrint.formatPrg (Psi, P);
+        ] )
+  (* formatState S = S'
 
        Invariant:
        If   |- S state      and  S named
        then S' is a string descring state S in plain text
     *)
 
-let rec stateToString S  = (Fmt.makestring_fmt (formatState S))
-let nameState = nameState
-let formatState = formatState
-let stateToString = stateToString
-(* local *)
-
- end
+  let rec stateToString S = Fmt.makestring_fmt (formatState S)
+  let nameState = nameState
+  let formatState = formatState
+  let stateToString = stateToString
+  (* local *)
+end
 
 (* functor MTPrint *)
-

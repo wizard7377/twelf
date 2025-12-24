@@ -193,7 +193,8 @@ module AbsMachine
               with SucceedOnce S -> sc (I.Root (I.BVar k, S))
             else (* #succeeds >= 1 -- allows backtracking *)
               (
-              Cs.CSManager.trail (* trail to undo EVar instantiations *) (fun () ->
+              Cs.CSManager.trail
+                (* trail to undo EVar instantiations *) (fun () ->
                   rSolve
                     ( ps',
                       (r, I.comp (s, I.Shift k)),

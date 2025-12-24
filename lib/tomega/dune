@@ -1,6 +1,6 @@
 (library
  (name tomega)
- (wrapped false)
+  (wrapped (transition "Make this usage wrapped"))
  (libraries
   global
   lambda

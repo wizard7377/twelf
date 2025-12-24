@@ -16,8 +16,10 @@ end
 
 (* Author: Carsten Schuermann *)
 
-module StyleCheck (Whnf : Whnf.WHNF) (Index : Index.INDEX) (Origins : Origins.ORIGINS) :
-  STYLECHECK = struct
+module StyleCheck
+    (Whnf : Whnf.WHNF)
+    (Index : Index.INDEX)
+    (Origins : Origins.ORIGINS) : STYLECHECK = struct
   exception Error of string
 
   module I = IntSyn

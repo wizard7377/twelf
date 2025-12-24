@@ -221,7 +221,8 @@ module AbsMachineSbt
       | I.Null, _ -> !mSig (ps', dp, sc)
       | I.Decl (dPool', C.Dec (r, s, Ha')), k ->
           if eqHead (Ha, Ha') then (
-            Cs.CSManager.trail (* trail to undo EVar instantiations *) (fun () ->
+            Cs.CSManager.trail
+              (* trail to undo EVar instantiations *) (fun () ->
                 rSolve
                   ( ps',
                     (r, I.comp (s, I.Shift k)),

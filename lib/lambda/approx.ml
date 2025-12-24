@@ -1,17 +1,23 @@
 (* Approximate language for_sml term reconstruction *)
 
-
 (* Author: Kevin Watkins *)
 
-
 module type APPROX = sig
-(*! structure IntSyn : Intsyn.INTSYN !*)
+  (*! structure IntSyn : Intsyn.INTSYN !*)
   type uni = Level of int | Next of uni | LVar of uni option ref
-  type exp = Uni of uni | Arrow of exp * exp | Const of IntSyn.head | CVar of exp option ref | Undefined
+
+  type exp =
+    | Uni of uni
+    | Arrow of exp * exp
+    | Const of IntSyn.head
+    | CVar of exp option ref
+    | Undefined
+
   val type_ : uni
   val kind : uni
   val hyperkind : uni
-(* resets names of undetermined type/kind variables chosen for_sml printing *)
+
+  (* resets names of undetermined type/kind variables chosen for_sml printing *)
   val varReset : unit -> unit
   val newLVar : unit -> uni
   val newCVar : unit -> exp
@@ -20,15 +26,18 @@ module type APPROX = sig
   val uniToApx : IntSyn.uni -> uni
   val classToApx : IntSyn.exp -> exp * uni
   val exactToApx : IntSyn.exp * IntSyn.exp -> exp * exp * uni
+
   exception Ambiguous
+
   val apxToUni : uni -> IntSyn.uni
   val apxToClass : IntSyn.dctx * exp * uni * bool -> IntSyn.exp
   val apxToExact : IntSyn.dctx * exp * IntSyn.eclo * bool -> IntSyn.exp
+
   exception Unify of string
+
   val matchUni : uni * uni -> unit
   val match_ : exp * exp -> unit
   val makeGroundUni : uni -> bool
-
 end
 (* Approximate language for_sml term reconstruction *)
 
@@ -266,7 +275,12 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
         let v, l, _ (* Next l *) = findByReplacementName name in
         let (Uni l) = whnf l in
         match whnfUni l with
-        | Level 1 -> I.newEVar (g, I.EClo (I.Root (I.FVar (name, I.Uni (apxToUni l), I.Shift 0), I.Nil), s))
+        | Level 1 ->
+            I.newEVar
+              ( g,
+                I.EClo
+                  ( I.Root (I.FVar (name, I.Uni (apxToUni l), I.Shift 0), I.Nil),
+                    s ) )
         | Level 2 ->
             (* u must be a CVar *)
             (* NOTE: v' differs from vs by a Shift *)
@@ -276,7 +290,12 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
             let v' = apxToClass (I.Null, v, Level 2, allowed) in
             let s' = I.Shift (I.ctxLength g) in
             I.Root (I.FVar (name', v', s'), I.Nil)
-        | _ -> I.newEVar (g, I.EClo (I.Root (I.FVar (name, I.Uni (apxToUni l), I.Shift 0), I.Nil), s)))
+        | _ ->
+            I.newEVar
+              ( g,
+                I.EClo
+                  ( I.Root (I.FVar (name, I.Uni (apxToUni l), I.Shift 0), I.Nil),
+                    s ) ))
     | g, u, vs (* an atomic type, not Def *), allowed -> I.newEVar (g, I.EClo vs)
 
   and apxToExact (g, u, vs, allowed) =
@@ -351,7 +370,8 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
             if d1 = d2 then () else match_ (constDefApx d1, constDefApx d2)
         | I.NSDef d1, _ -> match_ (constDefApx d1, Const h2)
         | _, I.NSDef d2 ->
-            match_ (Const h1, constDefApx d2) (* others cannot occur by invariant *))
+            match_ (Const h1, constDefApx d2)
+            (* others cannot occur by invariant *))
     | Arrow (v1, v2), Arrow (v3, v4) -> (
         try match_ (v1, v3)
         with e ->
