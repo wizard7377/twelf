@@ -1,44 +1,49 @@
-#+TODO: PLAN(f) TODO(t) PROGRESS(p!) | DONE(d!) REMOVED(r@)
-#+TAGS: FEATURE SYNTAX NAME LIBRARY CLEAN
+#+TODO: TODO(t) PROGRESS(p!) | DONE(d!) REMOVED(r@)
+#+TAGS: FEATURE SYNTAX NAME LIBRARY CLEAN DOCS
 
-* [0/3] OCaml Port 
-** TODO [0/2] Tooling
+* TODO [0/3] OCaml Port 
+** TODO [0/2] Tooling [#A]
+Change the tooling as to be suitable for OCaml
+*** TODO ML Yacc to Menhir [#A]                                     :LIBRARY:
+*** TODO ML Lex to OCamllex [#A] :LIBRARY: 
+*** TODO odoc [#A]                                                    :DOCS:
+Convert documentation to odoc style
+**** TODO (Maybe?) Port existing Twelf docs external to sources to odoc [#C]
 
-*** TODO ML Yacc to Menhir [#B]                                     :LIBRARY:
-
-*** TODO odoc [#B]                                                    :CLEAN:
-**** TODO (Maybe?) Port existing Twelf docs external to sources to odoc
-
-
+*** [0/4] Review Libraries [#B]
+Review libraries, replacing old ones as needed 
+**** TODO REPL [#B]
+Give the Twelf server an actual REPL
+**** TODO Pretty Print [#C]
+**** TODO LSP Integration [#C]
+Find a library to integrate Twelf with emacs
+**** TODO Basis [#A]
+Add equivalents to SML basis libraries
 
 
 ** TODO [0/4] Dune [#A]                                             :LIBRARY:
 
 *** TODO Fix wrapping [#B]                                            :CLEAN: 
 
-*** TODO Review module system                                         :CLEAN:
+*** TODO Review module system [#C]                                    :CLEAN:
+Make the module system more OCaml like
 
-*** [0/4] Review Libraries
-**** TODO REPL
-**** TODO Parsing
-**** TODO Lexing
-**** TODO Pretty Print
+*** TODO Get Dune back into producing an executable [#A]
+Currently, it only produces libraries
 
-*** TODO Get Dune back into producing an executable
-
-*** TODO Make makefile better
-
+*** TODO Make makefile better [#C]
+Clean up and make the makefile shorter, cleaner, and more idomatic
 
 
 ** TODO [0/4] General [#B]
 
-*** TODO Make sure that ~let rec~ is not used where ~let~ would suffice
+*** TODO Make sure that ~let rec~ is not used where ~let~ would suffice [#B]
 
-*** TODO Add parenthesis to make the code more readable
+*** TODO Add parenthesis to make the code more readable [#B]
 
-*** TODO Rename entierly identifiers that were changed to not clash with ocaml syntax (ie, ~module~ became ~module_~, but a better name should be found)
+*** TODO Rename entierly identifiers that were changed to not clash with ocaml syntax (ie, ~module~ became ~module_~, but a better name should be found) [#C]
 
-*** TODO Rename types, remove constructor aliases, etc where useful [#B]
-**** PLAN (Maybe?) Convert to OCaml naming convention
+*** TODO Rename types, remove constructor aliases, etc where useful [#C]
+**** TODO Convert to OCaml naming convention [#C]
 
-*** PLAN Follow OCaml style guide
+*** TODO Follow OCaml style guide [#C]

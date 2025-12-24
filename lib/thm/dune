@@ -1,4 +1,4 @@
 (library
  (name thm)
- (wrapped false)
+  (wrapped (transition "Make this usage wrapped"))
  (libraries global lambda names formatter modes paths tabling))

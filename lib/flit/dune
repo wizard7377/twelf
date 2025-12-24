@@ -1,4 +1,4 @@
 (library
  (name flit)
- (wrapped false)
+  (wrapped (transition "Make this usage wrapped"))
  (libraries compat global table lambda names index paths print))
