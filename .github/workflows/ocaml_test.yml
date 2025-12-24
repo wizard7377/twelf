@@ -2,9 +2,10 @@ name: OCaml CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,7 +23,7 @@ jobs:
       run: opam install dune -y
 
     - name: Build with Dune
-      run: opam exec -- dune build
+      run: opam exec -- dune build --profile=sane
 
     - name: Run tests
       run: opam exec -- dune runtest
