@@ -1,7 +1,7 @@
 DUNE ?= dune
 
 SOURCES := $(wildcard lib/**/*.ml lib/**/*.mli)
-.PHONY: build check 
+.PHONY: build check sane test clean doc repl config
 
 build: $(SOURCES)
 	$(DUNE) build --profile release
@@ -17,3 +17,4 @@ doc: $(SOURCES)
 	$(DUNE) build @doc
 repl: $(SOURCES)
 	$(DUNE) utop
+config: sane

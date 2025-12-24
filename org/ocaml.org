@@ -1,0 +1,44 @@
+#+TODO: PLAN(f) TODO(t) PROGRESS(p!) | DONE(d!) REMOVED(r@)
+#+TAGS: FEATURE SYNTAX NAME LIBRARY CLEAN
+
+* [0/3] OCaml Port 
+** TODO [0/2] Tooling
+
+*** TODO ML Yacc to Menhir [#B]                                     :LIBRARY:
+
+*** TODO odoc [#B]                                                    :CLEAN:
+**** TODO (Maybe?) Port existing Twelf docs external to sources to odoc
+
+
+
+
+** TODO [0/4] Dune [#A]                                             :LIBRARY:
+
+*** TODO Fix wrapping [#B]                                            :CLEAN: 
+
+*** TODO Review module system                                         :CLEAN:
+
+*** [0/4] Review Libraries
+**** TODO REPL
+**** TODO Parsing
+**** TODO Lexing
+**** TODO Pretty Print
+
+*** TODO Get Dune back into producing an executable
+
+*** TODO Make makefile better
+
+
+
+** TODO [0/4] General [#B]
+
+*** TODO Make sure that ~let rec~ is not used where ~let~ would suffice
+
+*** TODO Add parenthesis to make the code more readable
+
+*** TODO Rename entierly identifiers that were changed to not clash with ocaml syntax (ie, ~module~ became ~module_~, but a better name should be found)
+
+*** TODO Rename types, remove constructor aliases, etc where useful [#B]
+**** PLAN (Maybe?) Convert to OCaml naming convention
+
+*** PLAN Follow OCaml style guide
