@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Red/Black Trees *)
 
 (* Author: Frank Pfenning *)

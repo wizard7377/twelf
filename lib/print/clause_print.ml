@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Clause Printing *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)

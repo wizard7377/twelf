@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 
 module Rep = struct
   module I = IntSyn

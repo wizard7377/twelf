@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Gaussian-Elimination Equation Solver *)
 
 (* Author: Roberto Virga *)
@@ -254,7 +254,7 @@ module CSEqField
        and  sum' = ~1 * sum
     *)
 
-  let rec unaryMinusSum sum = timesSum (Sum (~one, []), sum)
+  let rec unaryMinusSum sum = timesSum (Sum (-one, []), sum)
   (* minusSum (sum1, sum2) = sum3
 
        Invariant:

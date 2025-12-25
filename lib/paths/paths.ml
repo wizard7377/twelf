@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Paths, Occurrences, and Error Locations *)
 
 (* Author: Frank Pfenning *)

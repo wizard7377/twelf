@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 
 module Reductio = struct
   exception Unimp

@@ -1,6 +1,4 @@
 
-open Prelude
-
 module type TIME = sig
   type t
 

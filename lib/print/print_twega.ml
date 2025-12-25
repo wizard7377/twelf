@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Printing Signatures *)
 
 (* Author: Frank Pfenning *)

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Assignment *)
 
 (* Author: Larry Greenfield *)

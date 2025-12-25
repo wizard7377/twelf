@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Unification on Formulas *)
 
 (* Author: Carsten Schuermann *)

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Meta printer for_sml proof states *)
 
 (* Author: Carsten Schuermann *)

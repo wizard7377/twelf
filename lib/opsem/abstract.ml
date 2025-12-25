@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Abstraction *)
 
 (* Author: Brigitte Pientka *)

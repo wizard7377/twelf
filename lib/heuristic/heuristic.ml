@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Heuristics : Version 1.3 *)
 
 (* Author: Carsten Schuermann *)

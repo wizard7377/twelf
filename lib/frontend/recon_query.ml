@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* External Syntax for_sml queries *)
 
 (* Author: Frank Pfenning *)

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Rings (aka cyclic lists) *)
 
 (* Author: Carsten Schuermann *)

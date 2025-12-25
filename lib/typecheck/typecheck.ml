@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Type Checking *)
 
 (* Author: Carsten Schuermann *)

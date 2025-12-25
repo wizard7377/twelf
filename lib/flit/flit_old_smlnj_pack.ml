@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* cope with nonstandard old smlnj name of PackWord32Little -jcreed 2006.9.15 *)
 
 module Flit =

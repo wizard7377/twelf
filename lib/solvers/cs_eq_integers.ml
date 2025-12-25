@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Gaussian-Elimination Equation Solver *)
 
 (* Author: Roberto Virga *)
@@ -242,7 +242,7 @@ module CSEqIntegers
        and  sum' = ~1 * sum
     *)
 
-  let rec unaryMinusSum sum = timesSum (Sum (~one, []), sum)
+  let rec unaryMinusSum sum = timesSum (Sum (-one, []), sum)
   (* minusSum (sum1, sum2) = sum3
 
        Invariant:
@@ -403,7 +403,7 @@ module CSEqIntegers
     let rec invertMon (G, Mon (n, [ (LHS, s) ]), sum) =
       if Whnf.isPatSub s then
         let ss = Whnf.invert s in
-        let RHS = toFgn (timesSum (Sum (~n, []), sum)) in
+        let RHS = toFgn (timesSum (Sum (-n, []), sum)) in
         if Unify.invertible (G, (RHS, id), ss, r) then Some (G, LHS, RHS, ss)
         else None
       else None

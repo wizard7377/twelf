@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Now in intsyn.fun *)
 
 (*

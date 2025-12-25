@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Mode Table *)
 
 (* Author: Frank Pfenning *)

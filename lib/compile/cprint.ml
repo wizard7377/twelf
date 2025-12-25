@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Printer for_sml Compiled Syntax *)
 
 (* Author: Iliano Cervesato *)

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Hash Tables *)
 
 (* Author: Frank Pfenning *)

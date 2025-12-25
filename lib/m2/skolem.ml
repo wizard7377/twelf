@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Skolem administration *)
 
 (* Author: Carsten Schuermann *)

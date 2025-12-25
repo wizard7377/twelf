@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Type checking for_sml functional proof term calculus *)
 
 (* Author: Carsten Schuermann *)

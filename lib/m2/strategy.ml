@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Strategy *)
 
 (* Author: Carsten Schuermann *)

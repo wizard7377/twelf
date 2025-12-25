@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Data aquired during proof search *)
 
 (* Author: Carsten Schuermann *)

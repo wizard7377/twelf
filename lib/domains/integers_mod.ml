@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Integers Modulo a Prime Number *)
 
 (* Author: Roberto Virga *)

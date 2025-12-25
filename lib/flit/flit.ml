@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Flit DAG generator *)
 
 (* Author: Roberto Virga *)

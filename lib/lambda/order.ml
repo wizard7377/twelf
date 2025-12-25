@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Termination Order *)
 
 (* Author: Carsten Schuermann *)

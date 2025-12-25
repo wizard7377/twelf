@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 
 module Syntax = struct
   exception Syntax of string

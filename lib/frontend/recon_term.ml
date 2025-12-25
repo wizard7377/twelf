@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* External Syntax and Type Reconstruction *)
 
 (* Author: Frank Pfenning *)

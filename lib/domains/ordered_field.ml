@@ -1,9 +1,9 @@
-open Basis
+open Basis ;; 
 (* Ordered Field *)
 
 (* Author: Roberto Virga *)
 
-open Basis
+open Basis ;; 
 
 module type ORDERED_FIELD = sig
   include Field.FIELD

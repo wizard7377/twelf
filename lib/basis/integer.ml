@@ -44,8 +44,8 @@ module Integer : INTEGER = struct
   let ( * ) x y = x * y
   let div x y = x / y
   let modulo x y = x mod y
-  let quot x y = assert false
-  let rem x y = assert false
+  let quot = assert false
+  let rem = assert false
   let compare x y = if x < y then less else if x = y then equal else greater
   let ( < ) x y = x < y
   let ( <= ) x y = x <= y

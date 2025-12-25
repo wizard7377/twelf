@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Queues *)
 
 (* Author: Frank Pfenning *)

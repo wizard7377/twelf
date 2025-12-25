@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 
 module MetaSyn = MetaSyn (struct
   module Whnf = Whnf

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Extensible operation on foreign matter *)
 
 (* Author: Aleksey Kliger *)

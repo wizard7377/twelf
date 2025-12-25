@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Timing utilities based on SML'97 Standard Library *)
 
 (* Author: Frank Pfenning *)
@@ -29,7 +29,7 @@ module type TIMING = sig
 end
 
 (* signature TIMING *)
-open Basis
+open Basis ;; 
 
 module Timing : TIMING = struct
   (* user and system time add up to total CPU time used *)

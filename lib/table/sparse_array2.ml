@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Sparse 2-Dimensional Arrays *)
 
 (* Author: Roberto Virga *)

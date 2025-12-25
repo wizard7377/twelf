@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Internal Syntax *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)

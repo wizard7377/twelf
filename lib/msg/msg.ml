@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 
 module type MSG = sig
   val message : string -> unit

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Solver for_sml linear inequations, based on branch & bound *)
 
 (* Author: Roberto Virga *)
@@ -663,7 +663,7 @@ struct
 
   and insertEqual (G, pos, sum) =
     let m, wposL = decomposeSum (G, sum) in
-    let decomp' = (m, (~one, pos) :: wposL) in
+    let decomp' = (m, (-one, pos) :: wposL) in
     let pos' = insertDecomp (decomp', Exp (G, Sum (zero_int, []))) in
     let decomp'' = unaryMinusDecomp decomp' in
     let tag'' =

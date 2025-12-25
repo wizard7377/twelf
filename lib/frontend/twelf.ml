@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Front End Interface *)
 
 (* Author: Frank Pfenning *)

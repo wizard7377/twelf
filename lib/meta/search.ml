@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Basic search engine: Version 1.3*)
 
 (* Author: Carsten Schuermann *)

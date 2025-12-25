@@ -9,3 +9,4 @@ dune.lock
 *.cmo
 *.cmi
 *.cml
+personal/

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 
 module Version = struct
   let current_version = "1.7.1"

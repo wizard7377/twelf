@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 module type REDUNDANT = sig
   exception Error of string
 

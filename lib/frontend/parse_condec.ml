@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Parsing Signature Entries *)
 
 (* Author: Frank Pfenning *)

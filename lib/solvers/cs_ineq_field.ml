@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Solver for_sml a linearly ordered field, based on the simplex method *)
 
 (* Author: Roberto Virga *)
@@ -713,7 +713,7 @@ module CSIneqField
 
   and insertEqual (G, pos, sum) =
     let m, wposL = decomposeSum (G, sum) in
-    let decomp' = (m, (~one, pos) :: wposL) in
+    let decomp' = (m, (-one, pos) :: wposL) in
     let pos' = insertDecomp (decomp', Exp (G, Sum (zero, []))) in
     let decomp'' = unaryMinusDecomp decomp' in
     let tag'' =

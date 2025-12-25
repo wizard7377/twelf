@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* General basis for_sml parsing modules *)
 
 (* Author: Frank Pfenning *)

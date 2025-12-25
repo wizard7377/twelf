@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Manipulating Constraints *)
 
 (* Author: Jeff Polakow, Frank Pfenning *)

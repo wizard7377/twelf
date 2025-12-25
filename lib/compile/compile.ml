@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Compiler *)
 
 (* Author: Iliano Cervesato *)

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Abstract Machine for_sml Tracing *)
 
 (* Author: Frank Pfenning *)

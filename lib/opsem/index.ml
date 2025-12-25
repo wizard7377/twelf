@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Indexing *)
 
 (* Author: Brigitte Pientka *)

@@ -1,4 +1,4 @@
-open Basis
+open Basis ;; 
 (* Stream Library *)
 
 (* Author: Frank Pfenning *)

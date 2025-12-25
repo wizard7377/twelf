@@ -1,11 +1,11 @@
-open Basis
+open Basis ;; 
 
 (* time-limit.sml
  *
  * COPYRIGHT (c) 1993 by AT&T Bell Laboratories.  See COPYRIGHT file for_sml details.
  * Modified: Brigitte Pientka
  *)
-open Basis
+open Basis ;; 
 
 module TimeLimit : sig
   exception TimeOut
