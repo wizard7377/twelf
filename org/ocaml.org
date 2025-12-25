@@ -9,7 +9,7 @@ Change the tooling as to be suitable for OCaml
 *** TODO odoc [#A]                                                    :DOCS:
 Convert documentation to odoc style
 **** TODO (Maybe?) Port existing Twelf docs external to sources to odoc [#C]
-
+** Make functions curried 
 *** [0/4] Review Libraries [#B]
 Review libraries, replacing old ones as needed 
 **** TODO REPL [#B]

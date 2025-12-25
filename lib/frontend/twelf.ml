@@ -148,7 +148,7 @@ module type TWELF = sig
   val autoFreeze : bool ref
 
   (* false, freezes families in meta-theorems *)
-  val timeLimit : Time.time option ref
+  val timeLimit : Time.t option ref
 
   (* NONEe, allows timeLimit in seconds *)
   type status = OK | ABORT
@@ -1640,7 +1640,7 @@ module Twelf
     val makeModified : mfile -> unit
     val makeUnmodified : mfile -> unit
   end = struct
-    type mfile = string * Time.time option ref
+    type mfile = string * Time.t option ref
 
     let rec create file = (file, ref None)
     let rec fileName (file, _) = file
@@ -1994,7 +1994,7 @@ module Twelf
   let doubleCheck : bool ref = Global.doubleCheck
   let unsafe : bool ref = Global.unsafe
   let autoFreeze : bool ref = Global.autoFreeze
-  let timeLimit : Time.time option ref = Global.timeLimit statusstatus
+  let timeLimit : Time.t option ref = Global.timeLimit statusstatus
   let reset = reset
   let loadFile = loadFile
   let loadString = loadString

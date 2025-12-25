@@ -3,11 +3,11 @@
  * COPYRIGHT (c) 1993 by AT&T Bell Laboratories.  See COPYRIGHT file for_sml details.
  * Modified: Brigitte Pientka
  *)
-
+open Basis 
 module TimeLimit : sig
   exception TimeOut
 
-  val timeLimit : Time.time option -> ('a -> 'b) -> 'a -> 'b
+  val timeLimit : Time.t option -> ('a -> 'b) -> 'a -> 'b
 end = struct
   exception TimeOut
 

@@ -7,7 +7,7 @@
    SML'97 Standard Library structures Time and Timer
 
    In saved heaps in SML of NJ, a global timer must
-   be initialized, otherwise exception Time.Time is raised
+   be initialized, otherwise exception Time.t is raised
    somewhere.
 *)
 
@@ -28,14 +28,14 @@ module type TIMING = sig
 end
 
 (* signature TIMING *)
-
+open Basis
 module Timing : TIMING = struct
   (* user and system time add up to total CPU time used *)
 
   (* gc time is a portion of the total CPU time devoted to garbage collection *)
 
-  type cpuTime = < usr : Time.time ; sys : Time.time ; gc : Time.time >
-  type realTime = Time.time
+  type cpuTime = < usr : Time.t ; sys : Time.t ; gc : Time.t >
+  type realTime = Time.t
 
   let rec init () = ()
 

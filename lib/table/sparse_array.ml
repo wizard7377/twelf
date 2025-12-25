@@ -1,17 +1,17 @@
 (* Sparse 1-Dimensional Arrays *)
 
 (* Author: Roberto Virga *)
-
+open Basis
 module type SPARSE_ARRAY = sig
   type 'a array
 
   val array : 'a -> 'a array
   val sub : 'a array * int -> 'a
   val update : 'a array * int * 'a -> unit
-  val extract : 'a array * int * int -> 'a Vector.vector
+  val extract : 'a array * int * int -> 'a Vector.t
 
   val copyVec :
-    < src : 'a Vector.vector
+    < src : 'a Vector.t
     ; si : int
     ; len : int option
     ; dst : 'a array

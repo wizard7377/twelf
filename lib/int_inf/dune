@@ -1,3 +1,4 @@
 (library
  (name int_inf)
+ (libraries basis)
  (wrapped false))

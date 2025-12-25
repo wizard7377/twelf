@@ -1,3 +1,4 @@
 (library
  (name global)
+ (libraries basis)
  (wrapped false))

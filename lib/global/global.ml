@@ -1,6 +1,7 @@
 (* Global parameters *)
 
 (* Author: Frank Pfenning *)
+open Basis 
 
 module type GLOBAL = sig
   val chatter : int ref
@@ -13,7 +14,7 @@ module type GLOBAL = sig
   val autoFreeze : bool ref
   val chPrint : int -> (unit -> string) -> unit
   val chMessage : int -> (unit -> string) -> (string -> unit) -> unit
-  val timeLimit : Time.time option ref
+  val timeLimit : Time.t option ref
   (* in seconds *)
 end
 
@@ -33,7 +34,7 @@ module Global : GLOBAL = struct
   let autoFreeze = ref true
   (* !!!reconsider later!!! Thu Mar 10 09:42:28 2005 *)
 
-  let timeLimit = ref (None : Time.time option)
+  let timeLimit = ref (None : Time.t option)
   let rec chPrint n s = if !chatter >= n then print (s ()) else ()
   let rec chMessage n s f = if !chatter >= n then f (s ()) else ()
 end
