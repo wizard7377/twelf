@@ -1,7 +1,9 @@
+open Basis
 (* Sparse 1-Dimensional Arrays *)
 
 (* Author: Roberto Virga *)
 open Basis
+
 module type SPARSE_ARRAY = sig
   type 'a array
 

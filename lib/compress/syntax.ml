@@ -1,3 +1,5 @@
+open Basis
+
 module Syntax = struct
   exception Syntax of string
   exception MissingVar

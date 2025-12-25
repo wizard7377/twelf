@@ -1,3 +1,5 @@
+open Basis
+
 module type SERVER = sig
   val server : string * string list -> OS.Process.status
 end

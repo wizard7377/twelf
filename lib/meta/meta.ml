@@ -1,3 +1,5 @@
+open Basis
+
 module MTPGlobal = MTPGlobal (struct
   module MetaGlobal = MetaGlobal
 end)

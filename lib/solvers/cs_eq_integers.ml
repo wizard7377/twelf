@@ -1,3 +1,4 @@
+open Basis
 (* Gaussian-Elimination Equation Solver *)
 
 (* Author: Roberto Virga *)

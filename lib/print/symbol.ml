@@ -1,3 +1,5 @@
+open Basis
+
 module type SYMBOL = sig
   val str : string -> string * int
   val evar : string -> string * int

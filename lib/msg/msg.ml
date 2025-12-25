@@ -1,3 +1,5 @@
+open Basis
+
 module type MSG = sig
   val message : string -> unit
   val setMessageFunc : (string -> unit) -> unit

@@ -1,3 +1,4 @@
+open Basis
 (* Solver for_sml linear inequations, based on branch & bound *)
 
 (* Author: Roberto Virga *)

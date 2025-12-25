@@ -1,3 +1,4 @@
+open Basis
 (* Coverage Checking *)
 
 (* Author: Frank Pfenning *)

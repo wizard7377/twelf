@@ -1,3 +1,4 @@
+open Basis
 (* fquery: Executing logic programs via functional interpretation *)
 
 (* Author: Carsten Schuermann *)

@@ -1,3 +1,4 @@
+open Basis
 (* Solver for_sml machine integers *)
 
 (* Author: Roberto Virga *)

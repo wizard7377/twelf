@@ -1,3 +1,4 @@
+open Basis
 (* Booleans Equation Solver *)
 
 (* Author: Roberto Virga *)

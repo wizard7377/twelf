@@ -1,3 +1,4 @@
+open Basis
 (* Linear Substitution Tree indexing *)
 
 (* Linearity: Any variables occurring inside the substitution tree are linear *)

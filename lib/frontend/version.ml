@@ -1,3 +1,5 @@
+open Basis
+
 module Version = struct
   let current_version = "1.7.1"
   let current_version_revision = "1813"

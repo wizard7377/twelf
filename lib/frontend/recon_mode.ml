@@ -1,3 +1,4 @@
+open Basis
 (* External Syntax of Mode Declarations *)
 
 (* Author: Carsten Schuermann *)

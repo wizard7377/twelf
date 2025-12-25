@@ -1,3 +1,5 @@
+open Basis
+
 module State =
   State
     (struct

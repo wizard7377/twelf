@@ -1,3 +1,4 @@
+open Basis
 (* Timers collecting statistics about Twelf *)
 
 (* Author: Frank Pfenning *)

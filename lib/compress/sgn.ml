@@ -1,3 +1,5 @@
+open Basis
+
 module type SGN = sig
   type sigent
   type def = DEF_NONE | DEF_TERM of Syntax.term | DEF_TYPE of Syntax.tp

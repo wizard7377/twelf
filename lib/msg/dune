@@ -1,3 +1,4 @@
 (library
  (name msg)
+ (libraries basis)
  (wrapped false))

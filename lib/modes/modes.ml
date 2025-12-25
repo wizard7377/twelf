@@ -1,3 +1,4 @@
+open Basis
 (* structure ModeSyn  in modesyn.sml *)
 
 module ModeTable = ModeTable (struct

@@ -1,8 +1,10 @@
+open Basis
 (* Ordered Field *)
 
 (* Author: Roberto Virga *)
 
 open Basis
+
 module type ORDERED_FIELD = sig
   include Field.FIELD
 

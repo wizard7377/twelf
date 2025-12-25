@@ -1,3 +1,5 @@
+open Basis
+
 module type NETSERVER = sig
   (* int argument is which port number to run on *)
   val flashServer : int -> unit

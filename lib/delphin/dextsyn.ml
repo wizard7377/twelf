@@ -1,3 +1,4 @@
+open Basis
 (* Delphin external syntax *)
 
 module type DEXTSYN = sig

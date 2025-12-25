@@ -1,3 +1,5 @@
+open Basis
+
 module Parse = struct
   open Parsing
   open Tok

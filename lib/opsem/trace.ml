@@ -1,3 +1,5 @@
+open Basis
+
 module type TRACE = sig
   (* Program interface *)
   (*! structure IntSyn : Intsyn.INTSYN !*)

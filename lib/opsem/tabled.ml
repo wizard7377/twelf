@@ -1,3 +1,4 @@
+open Basis
 (* Tabled Abstract Machine      *)
 
 (* Author: Brigitte Pientka     *)

@@ -1,3 +1,4 @@
+open Basis
 (* `Compressed' terms with omitted redundant arguments *)
 
 module type COMPRESS = sig

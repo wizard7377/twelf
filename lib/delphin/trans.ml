@@ -1,3 +1,4 @@
+open Basis
 (* Translator from Delphin external syntax to Delphin internal syntax *)
 
 (* Author: Richard Fontana, Carsten Schuermann *)

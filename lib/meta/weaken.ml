@@ -1,3 +1,4 @@
+open Basis
 (* Weakening substitutions *)
 
 (* Author: Carsten Schuermann *)

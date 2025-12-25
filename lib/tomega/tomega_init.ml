@@ -1,3 +1,5 @@
+open Basis
+
 module TomegaAbstract =
   TomegaAbstract
     (struct

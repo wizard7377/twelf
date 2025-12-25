@@ -1,3 +1,4 @@
+open Basis
 (* Persistent red/black trees *)
 
 (* Specialized for_sml subordination *)

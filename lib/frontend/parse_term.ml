@@ -1,3 +1,4 @@
+open Basis
 (* Parsing Terms and Declarations *)
 
 (* Author: Frank Pfenning *)

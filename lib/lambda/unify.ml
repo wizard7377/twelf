@@ -1,3 +1,4 @@
+open Basis
 (* Unification *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)

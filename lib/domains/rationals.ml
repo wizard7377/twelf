@@ -1,3 +1,4 @@
+open Basis
 (* Rational numbers *)
 
 (* Author: Roberto Virga *)

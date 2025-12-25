@@ -1,3 +1,4 @@
+open Basis
 (* Meta Theorem Prover abstraction : Version 1.3 *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)

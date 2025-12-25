@@ -1,4 +1,6 @@
-open Prelude ;;
+
+open Prelude
+
 module type TIME = sig
   type t
 
@@ -57,4 +59,4 @@ module Time : TIME = struct
   let fmt : int -> t -> string = assert false
   let toString : t -> string = assert false
   let fromString : string -> t option = assert false
-end ;;
+end

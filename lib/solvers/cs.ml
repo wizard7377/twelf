@@ -1,3 +1,4 @@
+open Basis
 (* Constraint Solver *)
 
 module type CS = sig

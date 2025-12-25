@@ -1,3 +1,5 @@
+open Basis
+
 module Reductio = struct
   exception Unimp
   exception Error of string

@@ -1,3 +1,4 @@
+open Basis
 (* Parsing modules *)
 
 (* Author: Kevin Watkins *)

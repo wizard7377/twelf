@@ -1,3 +1,5 @@
+open Basis
+
 module SwMachine
     (Trace : Trace.TRACE)
     (AbsMachine : Absmachine.ABSMACHINE)

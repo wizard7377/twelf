@@ -1,3 +1,5 @@
+open Basis
+
 module ModSyn =
   ModSyn
     (struct

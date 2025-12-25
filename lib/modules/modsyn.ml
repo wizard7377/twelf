@@ -1,3 +1,4 @@
+open Basis
 (* Syntax for_sml elaborated modules *)
 
 (* Author: Kevin Watkins *)

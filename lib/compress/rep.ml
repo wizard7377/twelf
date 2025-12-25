@@ -1,3 +1,5 @@
+open Basis
+
 module Rep = struct
   module I = IntSyn
   module S = Syntax

@@ -1,3 +1,4 @@
+open Basis
 (* Reasoning about orders *)
 
 (* Author: Brigitte Pientka *)

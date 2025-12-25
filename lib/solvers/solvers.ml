@@ -1,3 +1,4 @@
+open Basis
 (* now in cs-manager.fun *)
 
 (*

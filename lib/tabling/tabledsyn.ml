@@ -1,3 +1,4 @@
+open Basis
 (* Tabled Syntax *)
 
 (* Author: Brigitte Pientka *)

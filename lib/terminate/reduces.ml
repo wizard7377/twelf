@@ -1,3 +1,4 @@
+open Basis
 (* Reduction and Termination checker *)
 
 (* Author: Brigitte Pientka *)

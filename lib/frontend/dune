@@ -2,7 +2,7 @@
  (name frontend)
  (wrapped false)
  (libraries
-    timing
+  timing
   stream
   global
   table

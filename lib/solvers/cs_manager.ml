@@ -1,3 +1,4 @@
+open Basis
 (* Constraint Solver Manager *)
 
 (* Author: Roberto Virga *)

@@ -2,7 +2,7 @@
  (name opsem)
  (wrapped false)
  (libraries
-    global
+  global
   table
   lambda
   names

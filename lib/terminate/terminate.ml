@@ -1,3 +1,5 @@
+open Basis
+
 module Checking =
   Checking
     (struct

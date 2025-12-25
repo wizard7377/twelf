@@ -1,13 +1,4 @@
 (library
  (name solvers)
  (wrapped false)
- (libraries
-    trail
-  global
-  domains
-  lambda
-  names
-  modes
-  table
-  print
-  formatter))
+ (libraries trail global domains lambda names modes table print formatter))

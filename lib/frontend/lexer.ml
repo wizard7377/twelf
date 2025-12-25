@@ -1,3 +1,4 @@
+open Basis
 (* Lexer *)
 
 (* Author: Frank Pfenning *)

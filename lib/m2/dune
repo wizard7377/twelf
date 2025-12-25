@@ -2,7 +2,7 @@
  (name m2)
  (wrapped false)
  (libraries
-    timing
+  timing
   stream
   global
   lambda

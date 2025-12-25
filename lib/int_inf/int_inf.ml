@@ -1,3 +1,4 @@
+open Basis
 (* int-inf.sml
  *
  * COPYRIGHT (c) 1995 by AT&T Bell Laboratories. See COPYRIGHT file for_sml details.

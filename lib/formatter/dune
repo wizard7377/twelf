@@ -1,3 +1,4 @@
 (library
  (name formatter)
+ (libraries basis)
  (wrapped false))

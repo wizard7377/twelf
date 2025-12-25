@@ -1,3 +1,5 @@
+open Basis
+
 let rec dumpText (tcb, semant, checker, outputSemant, outputChecker) =
   (let _ = Twelf.reset () in
    let _ = Flit.initForText () in

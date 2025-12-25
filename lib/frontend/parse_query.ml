@@ -1,3 +1,4 @@
+open Basis
 (* Parsing Queries *)
 
 (* Author: Frank Pfenning *)

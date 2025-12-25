@@ -1,3 +1,4 @@
+open Basis
 (* Substitution Trees *)
 
 (* Author: Brigitte Pientka *)

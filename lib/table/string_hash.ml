@@ -1,3 +1,4 @@
+open Basis
 (* String Hash Table *)
 
 (* Author: Frank Pfenning *)
