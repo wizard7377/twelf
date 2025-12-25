@@ -32,7 +32,7 @@ end
 (* Author: Roberto Virga *)
 
 module SparseArray : SPARSE_ARRAY = struct
-  type 'a array = < default : 'a ; table : 'a IntTable.table >
+  type 'a array = { default : 'a ; table : 'a IntTable.table }
 
   let size = 29
 

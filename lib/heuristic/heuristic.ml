@@ -19,7 +19,7 @@ end
 
 module Heuristic : HEURISTIC = struct
   type index =
-    < sd : int (* Splitting depth *)
+    { sd : int (* Splitting depth *)
     ; ind : int option (* Induction variable *)
     ; c : int (* Number of cases *)
     ; m : int (* maximal number of cases *)
@@ -27,7 +27,7 @@ module Heuristic : HEURISTIC = struct
         int
         (* 0 = non-recursive
                                            1 = recursive *)
-    ; p : int >
+    ; p : int }
   (* Position (left to right) *)
 
   let rec compare = function

@@ -4,4 +4,5 @@
  (sane (flags (:standard -error-style short -w -A)))
  (check (flags (:standard)))
  (release (flags (:standard)))
+ (_ (flags (:standard -w 33)))
 )

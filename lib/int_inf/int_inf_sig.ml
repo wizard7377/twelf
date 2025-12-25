@@ -10,7 +10,7 @@ open Basis ;;
 open Basis ;; 
 
 module type INT_INF = sig
-  include INTEGER
+  include Integer.INTEGER
 
   val divmod : int * int -> int * int
   val quotrem : int * int -> int * int

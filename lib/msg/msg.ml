@@ -8,6 +8,6 @@ end
 module Msg : MSG = struct
   let default s = print_string s
   let messageFunc = ref default
-  let rec setMessageFunc f = messageFunc := f
-  let rec message s = !messageFunc s
+  let setMessageFunc f = messageFunc := f
+  let message s = !messageFunc s
 end
