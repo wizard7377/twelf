@@ -7,7 +7,7 @@ module IntegersMod (P : sig
   val p : int
 end) : Field.FIELD = struct
   let p = P.p
-  let name = "integer" ^ Int.toString p
+  let name = "integer" ^ Integer.toString p
 
   type number = int
 

@@ -131,7 +131,7 @@ module RelFun
     | k, I.Lam (D, V) -> occursInDec (k, D) || occursInExpN (k + 1, V)
     | k, I.FgnExp csfe ->
         I.FgnExpStd.fold csfe
-          (fun (U, B) -> B || occursInExpN (k, Whnf.normalize (U, I.id)))
+          (fun U B -> B || occursInExpN (k, Whnf.normalize (U, I.id)))
           false
 
   and occursInHead = function
@@ -428,7 +428,7 @@ module RelFun
     *)
 
   let rec transformDec (Ts, (Psi, G0), d, (a, S), w1, w2, t0) =
-    (* raiseExp (G, U, a) = U'
+    (* raiseExp G U a = U'
 
            Invariant:
            If   |- Psi ctx         (for_sml some given Psi)
@@ -436,7 +436,7 @@ module RelFun
            and  Psi, G |- U : V    (for_sml some V)
            then Psi, G |- [[G]] U : {{G}} V     (wrt subordination)
         *)
-    (* raiseType (G, U, a) = U'
+    (* raiseType G U a = U'
 
            Invariant:
            If   |- Psi ctx         (for_sml some given Psi)
@@ -488,7 +488,7 @@ module RelFun
       | I.ConDec (name, _, _, _, V, I.Kind) -> V
       | _ -> raise (Error "Type Constant declaration expected")
     in
-    let rec raiseExp (G, U, a) =
+    let rec raiseExp G U a =
       (* raiseExp G = (w', k)
 
                Invariant:
@@ -511,8 +511,8 @@ module RelFun
       let w, k = raiseExp' G in
       k (Weaken.strengthenExp (U, w))
     in
-    let rec raiseType (G, U, a) =
-      (* raiseType (G, n) = (w', k, S')
+    let rec raiseType G U a =
+      (* raiseType G n = (w', k, S')
 
               Invariant:
               If   |-  Psi ctx
@@ -550,7 +550,7 @@ module RelFun
     in
     let rec transformDec' = function
       | d, (I.Nil, M.Mnil), I.Uni I.Type, (z1, z2), (w, t) ->
-          (w, t, (d, fun (k, Ds) -> (Ds k, fun _ -> F.Empty)))
+          (w, t, (d, fun k Ds -> (Ds k, fun _ -> F.Empty)))
       | ( d,
           (I.App (U, S), M.Mapp (M.Marg (M.Minus, _), mS)),
           I.Pi ((I.Dec (_, V1), DP), V2),
@@ -592,7 +592,7 @@ module RelFun
           in
           ( w'',
             t'',
-            (d', fun (k, Ds) -> (F.App ((k, U'), Dplus (1, Ds)), Dminus)) )
+            (d', fun k Ds -> (F.App ((k, U'), Dplus (1, Ds)), Dminus)) )
     in
     let w'', t'', (d', Dplus, Dminus) =
       transformDec'
@@ -650,7 +650,7 @@ module RelFun
           F.Inx (Weaken.strengthenExp (U, w), transformConc' (S', mS'))
     in
     transformConc' (S, mS)
-  (* traverse (Ts, c) = L'
+  (* traverse Ts c = L'
 
        Invariant:
        If   Ts is a list of type families
@@ -658,7 +658,7 @@ module RelFun
        then L' is a list of cases
     *)
 
-  let rec traverse (Ts, c) =
+  let rec traverse Ts c =
     (* traverseNeg (c'', Psi, (V, v), L) = ([w', d', PQ'], L')    [] means optional
 
            Invariant:
@@ -827,7 +827,7 @@ module RelFun
               | None, L'' -> (None, L'')))
       | c'', Psi, G, (V, v), None, L -> (None, L)
     in
-    let rec traverseSig' (c'', L) =
+    let rec traverseSig' c'' L =
       if c'' = 1 (I.sgnSize ()) then L
       else
         match I.sgnLookup c'' with
@@ -861,7 +861,7 @@ module RelFun
         | Some mS -> mS
       in
       let P = abstract a in
-      P (F.Case (F.Opts (traverse (Ts, a))))
+      P (F.Case (F.Opts (traverse Ts a)))
     in
     let rec convertPro' = function
       | [] -> raise (Error "Cannot convert Empty program")

@@ -417,7 +417,7 @@ module Tomega (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : TOMEGA = struct
   let rec transformTC' = function
     | G, O.Arg k ->
         let k' = I.ctxLength G - k + 1 in
-        let (I.Dec (_, V)) = I.ctxDec (G, k') in
+        let (I.Dec (_, V)) = I.ctxDec G k' in
         O.Arg ((I.Root (I.BVar k', I.Nil), I.id), (V, I.id))
     | G, O.Lex Os -> O.Lex (map (fun O -> transformTC' (G, O)) Os)
     | G, O.Simul Os -> O.Simul (map (fun O -> transformTC' (G, O)) Os)
@@ -613,9 +613,9 @@ module Tomega (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : TOMEGA = struct
         convFor ((F1, t1), (F2, t2));
         convTCOpt (TC1, TC1');
         convTCOpt (TC2, TC2')
-  (* newEVar (G, V) = newEVarCnstr (G, V, nil) *)
+  (* newEVar G V = newEVarCnstr (G, V, nil) *)
 
-  let rec newEVar (Psi, F) =
+  let rec newEVar Psi F =
     EVar (Psi, ref None, F, None, None, I.newEVar (coerceCtx Psi, I.Uni I.Type))
 
   let rec newEVarTC (Psi, F, TC, TC') =
@@ -630,13 +630,13 @@ module Tomega (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : TOMEGA = struct
     | x :: W1, W2 -> exists (x, W2) && subset (W1, W2)
 
   let rec eqWorlds (Worlds W1, Worlds W2) = subset (W1, W2) && subset (W2, W1)
-  (* ctxDec (G, k) = x:V
+  (* ctxDec G k = x:V
      Invariant:
      If      |G| >= k, where |G| is size of G,
      then    G |- k : V  and  G |- V : L
   *)
 
-  let rec ctxDec (G, k) =
+  let rec ctxDec G k =
     (* ctxDec' (G'', k') = x:V
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)
@@ -798,7 +798,7 @@ module Tomega (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : TOMEGA = struct
     | Case (Cases Cs) ->
         Case
           (Cases
-             (flattenCases (map (fun (Psi, s, P) -> (Psi, s, derefPrg P)) Cs)))
+             (flattenCases (map (fun Psi s P -> (Psi, s, derefPrg P)) Cs)))
     | Let (D, P1, P2) -> Let (derefDec D, derefPrg P1, derefPrg P2)
     | LetPairExp (D1, D2, P1, P2) ->
         LetPairExp (D1, derefDec D2, derefPrg P1, derefPrg P2)
@@ -806,7 +806,7 @@ module Tomega (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : TOMEGA = struct
 
   and flattenCases = function
     | (Psi, s, Case (Cases L)) :: Cs ->
-        map (fun (Psi', s', P') -> (Psi', comp (s, s'), P')) (flattenCases L)
+        map (fun Psi' s' P' -> (Psi', comp (s, s'), P')) (flattenCases L)
         @ flattenCases Cs
     | (Psi, s, P) :: Cs -> (Psi, s, P) :: flattenCases Cs
     | [] -> []

@@ -77,7 +77,7 @@ module Converter
 
   let rec chatter chlev f =
     if !Global.chatter >= chlev then print ("[tomega] " ^ f ()) else ()
-  (* strengthenExp (U, s) = U'
+  (* strengthenExp U s = U'
 
        Invariant:
        If   G |- s : G'
@@ -85,8 +85,8 @@ module Converter
        then G' |- U' = U[s^-1] : V [s^-1]
     *)
 
-  let rec strengthenExp (U, s) = Whnf.normalize (Whnf.cloInv (U, s), I.id)
-  let rec strengthenSub (s, t) = Whnf.compInv (s, t)
+  let rec strengthenExp U s = Whnf.normalize (Whnf.cloInv (U, s), I.id)
+  let rec strengthenSub s t = Whnf.compInv (s, t)
   (* strengthenDec (x:V, s) = x:V'
 
        Invariant:
@@ -96,8 +96,8 @@ module Converter
     *)
 
   let rec strengthenDec = function
-    | I.Dec (name, V), s -> I.Dec (name, strengthenExp (V, s))
-    | I.BDec (name, (L, t)), s -> I.BDec (name, (L, strengthenSub (t, s)))
+    | I.Dec (name, V), s -> I.Dec (name, strengthenExp V s)
+    | I.BDec (name, (L, t)), s -> I.BDec (name, (L, strengthenSub t s))
   (* strengthenCtx (G, s) = (G', s')
 
        If   G0 |- G ctx
@@ -134,7 +134,7 @@ module Converter
 
   let rec strengthenOrder = function
     | Order.Arg ((U, s1), (V, s2)), s ->
-        Order.Arg ((U, strengthenSub (s1, s)), (V, strengthenSub (s2, s)))
+        Order.Arg ((U, strengthenSub s1 s), (V, strengthenSub s2 s))
     | Order.Simul Os, s ->
         Order.Simul (map (fun O -> strengthenOrder (O, s)) Os)
     | Order.Lex Os, s -> Order.Lex (map (fun O -> strengthenOrder (O, s)) Os)
@@ -154,7 +154,7 @@ module Converter
 
   let rec strengthenSpine = function
     | I.Nil, t -> I.Nil
-    | I.App (U, S), t -> I.App (strengthenExp (U, t), strengthenSpine (S, t))
+    | I.App (U, S), t -> I.App (strengthenExp U t, strengthenSpine (S, t))
   (* strengthenPsi (Psi, s) = (Psi', s')
 
        If   Psi0 |- Psi ctx
@@ -317,7 +317,7 @@ module Converter
     | k, I.Lam (D, V) -> occursInDec (k, D) || occursInExpN (k + 1, V)
     | k, I.FgnExp csfe ->
         I.FgnExpStd.fold csfe
-          (fun (U, DP) -> DP || occursInExp (k, Whnf.normalize (U, I.id)))
+          (fun U DP -> DP || occursInExp (k, Whnf.normalize (U, I.id)))
           false
 
   and occursInHead = function
@@ -427,7 +427,7 @@ module Converter
     in
     let rec strengthenArgs = function
       | [], s -> []
-      | U :: L, s -> strengthenExp (U, s) :: strengthenArgs (L, s)
+      | U :: L, s -> strengthenExp U s :: strengthenArgs (L, s)
     in
     let rec occursInArgs = function
       | n, [] -> false
@@ -471,7 +471,7 @@ module Converter
       | I.Null, w -> (I.Null, w)
       | I.Decl (G, I.Dec (name, V)), w ->
           let G', w' = blockSub (G, w) in
-          let V' = strengthenExp (V, w') in
+          let V' = strengthenExp V w' in
           (I.Decl (G', I.Dec (name, V')), I.dot1 w')
     in
     let rec strengthen' = function
@@ -480,12 +480,12 @@ module Converter
           if isIdx1 (I.bvarSub (1, w1)) then
             let w1' = dot1inv w1 in
             let Psi1', w', z' = strengthen' (Psi1, LD :: Psi2, L, w1') in
-            let V' = strengthenExp (V, w') in
+            let V' = strengthenExp V w' in
             (I.Decl (Psi1', T.UDec (I.Dec (name, V'))), I.dot1 w', I.dot1 z')
           else if occursInPsi (1, (Psi2, L)) then
             let w1' = strengthenSub (w1, I.shift) in
             let Psi1', w', z' = strengthen' (Psi1, LD :: Psi2, L, w1') in
-            let V' = strengthenExp (V, w') in
+            let V' = strengthenExp V w' in
             ( I.Decl (Psi1', T.UDec (I.Dec (name, V'))),
               I.dot1 w',
               I.comp (z', I.shift) )
@@ -505,14 +505,14 @@ module Converter
           (* blocks are always used! *)
           let w1' = dot1inv w1 in
           let Psi1', w', z' = strengthen' (Psi1, LD :: Psi2, L, w1') in
-          let s' = strengthenSub (s, w') in
+          let s' = strengthenSub s w' in
           ( I.Decl (Psi1', T.UDec (I.BDec (name, (cid, s')))),
             I.dot1 w',
             I.dot1 z' )
     in
     strengthen' (Psi, [], args (S, mS), w)
 
-  let rec lookupIH (Psi, L, a) =
+  let rec lookupIH Psi L a =
     let rec lookupIH' (b :: L, a, k) =
       if a = b then k else lookupIH' (L, a, k - 1)
     in
@@ -528,7 +528,7 @@ module Converter
        then Psi |- t' = m, m+1 ... n. ^n :  Psi0
     *)
 
-  let rec createIHSub (Psi, L) = T.Shift (I.ctxLength Psi - 1 (*List.length L *))
+  let rec createIHSub Psi L = T.Shift (I.ctxLength Psi - 1 (*List.length L *))
   (* transformInit (Psi, (a, S), w1) = (w', s')
 
        Invariant:
@@ -566,13 +566,13 @@ module Converter
       | ( (I.App (U, S), M.Mapp (M.Marg (M.Plus, _), mS)),
           I.Pi ((I.Dec (name, V1), _), V2),
           (w, s) ) ->
-          let V1' = strengthenExp (V1, w) in
+          let V1' = strengthenExp V1 w in
           let w' = I.dot1 w in
-          let U' = strengthenExp (U, w1) in
+          let U' = strengthenExp U w1 in
           let s' = T.dotEta (T.Exp U', s) in
           transformInit' ((S, mS), V2, (w', s'))
     in
-    transformInit' ((S, mS), V, (I.id, createIHSub (Psi, L)))
+    transformInit' ((S, mS), V, (I.id, createIHSub Psi L))
   (* transformConc ((a, S), w) = P
 
        Invariant:
@@ -589,7 +589,7 @@ module Converter
       | I.App (U, S'), M.Mapp (M.Marg (M.Plus, _), mS') ->
           transformConc' (S', mS')
       | I.App (U, S'), M.Mapp (M.Marg (M.Minus, _), mS') ->
-          T.PairExp (strengthenExp (U, w), transformConc' (S', mS'))
+          T.PairExp (strengthenExp U w, transformConc' (S', mS'))
     in
     transformConc' (S, modeSpine a)
   (* renameExp f U = U'
@@ -791,7 +791,7 @@ module Converter
               (* Psi0, G', B' |- U' : V' *)
               (* Psi0, G', B' |- F'' :: for_sml *)
               (* Psi0, G', B' |- S'' : F' [t'] >> F'' *)
-              let U' = strengthenExp (U, w1) in
+              let U' = strengthenExp U w1 in
               let S'', F'' = apply ((S, mS), (F', T.Dot (T.Exp U', t'))) in
               (T.AppExp (U', S''), F'')
               (* Psi0, G', B' |- U' ; S''
@@ -918,12 +918,12 @@ module Converter
       | D :: L, w ->
           if
             List.foldr
-              (fun (a, b) -> b && Subordinate.belowEq (a, I.targetFam V))
+              (fun a b -> b && Subordinate.belowEq (a, I.targetFam V))
               true fams
           then transformList (L, I.comp (w, I.shift))
           else
             let L' = transformList (L, I.dot1 w) in
-            I.Dec (x, strengthenExp (V, w)) :: L'
+            I.Dec (x, strengthenExp V w) :: L'
     in
     let rec transformWorlds' = function
       | [] -> ([], fun c -> raise (Error "World not found"))
@@ -1026,7 +1026,7 @@ module Converter
             family in L into functional form
     *)
 
-  let rec convertPrg (L, projs) =
+  let rec convertPrg L projs =
     let name, F0 = createIH L in
     let D0 = T.PDec (Some name, F0, None, None) in
     let Psi0 = I.Decl (I.Null, D0) in
@@ -1045,7 +1045,7 @@ module Converter
     in
     let W = convertWorlds L in
     let W', wmap = transformWorlds (L, W) in
-    let rec convertOnePrg (a, F) =
+    let rec convertOnePrg a F =
       (* Psi0 |- {x1:V1} ... {xn:Vn} type *)
       (* |- mS : {x1:V1} ... {xn:Vn} > type *)
       (* Sig in LF(reg)   *)
@@ -1088,9 +1088,9 @@ module Converter
     in
     let rec convertPrg' = function
       | [], _ -> raise (Error "Cannot convert Empty program")
-      | [ a ], F -> convertOnePrg (a, F)
+      | [ a ], F -> convertOnePrg a F
       | a :: L', T.And (F1, F2) ->
-          T.PairPrg (convertOnePrg (a, F1), convertPrg' (L', F2))
+          T.PairPrg (convertOnePrg a F1, convertPrg' (L', F2))
     in
     let P = Prec (convertPrg' (L, F0)) in
     P
@@ -1183,7 +1183,7 @@ module Converter
     | 0 -> T.Unit
     | n -> T.PairExp (I.Root (I.BVar n, I.Nil), mkResult (n - 1))
 
-  let rec convertGoal (G, V) =
+  let rec convertGoal G V =
     let a = I.targetFam V in
     let W = WorldSyn.lookup a in
     let W', wmap = transformWorlds ([ a ], W) in
@@ -1199,7 +1199,7 @@ module Converter
     P''
 
   let convertFor = convertFor
-  let convertPrg = fun L -> convertPrg (L, None)
+  let convertPrg = fun L -> convertPrg L None
   let installFor = installFor
   let installPrg = installPrg
   let traverse = traverse

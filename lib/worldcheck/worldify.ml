@@ -48,7 +48,7 @@ module Worldify
   exception Error' of P.occ * string
   (* copied from terminates/reduces.fun *)
 
-  let rec wrapMsg (c, occ, msg) =
+  let rec wrapMsg c occ msg =
     match Origins.originLookup c with
     | fileName, None -> fileName ^ ":" ^ msg
     | fileName, Some occDec ->
@@ -57,7 +57,7 @@ module Worldify
             Origins.linesInfoLookup fileName,
             "Constant " ^ Names.qidToString (Names.constQid c) ^ ":" ^ msg )
 
-  let rec wrapMsgBlock (c, occ, msg) =
+  let rec wrapMsgBlock c occ msg =
     match Origins.originLookup c with
     | fileName, None -> fileName ^ ":" ^ msg
     | fileName, Some occDec ->
@@ -125,11 +125,11 @@ module Worldify
     | G, I.Shift _, Xs -> Xs
   (* other cases impossible by invariants since s is EVarSubst *)
 
-  (* noConstraints (G, s) = true iff there are no remaining constraints in s
+  (* noConstraints G s = true iff there are no remaining constraints in s
        Invariants: s is an EVar substitution X1...Xn.^k
     *)
 
-  let rec noConstraints (G, s) =
+  let rec noConstraints G s =
     match collectConstraints (collectEVars (G, s, [])) with
     | [] -> true
     | _ -> false
@@ -141,7 +141,7 @@ module Worldify
 
   (* Declarations *)
 
-  let rec formatD (G, D) =
+  let rec formatD G D =
     F.Hbox [ F.String "{"; Print.formatDec (G, D); F.String "}" ]
   (* Declaration lists *)
 
@@ -149,11 +149,11 @@ module Worldify
     | G, [], t -> []
     | G, D :: [], t ->
         let D' = I.decSub (D, t) in
-        formatD (G, D') :: [] (* Names.decUName (G, I.decSub(D, t)) *)
+        formatD G D' :: [] (* Names.decUName (G, I.decSub(D, t)) *)
     | G, D :: L, t ->
         (* Names.decUName (G, I.decSub (D, t)) *)
         let D' = I.decSub (D, t) in
-        formatD (G, D') :: F.Break :: formatDList (I.Decl (G, D'), L, I.dot1 t)
+        formatD G D' :: F.Break :: formatDList (I.Decl (G, D'), L, I.dot1 t)
   (*
     fun hypsToDList (I.Root _) = nil
       | hypsToDList (I.Pi ((D, _), V)) =
@@ -178,7 +178,7 @@ module Worldify
     F.makestring_fmt (F.HVbox (formatDList (G, piDecs, t)))
   (* Hypotheses *)
 
-  let rec hypsToString (G, L) =
+  let rec hypsToString G L =
     F.makestring_fmt (F.HVbox (formatDList (G, L, I.id)))
   (* Mismatch between hypothesis and world declaration *)
 
@@ -217,7 +217,7 @@ module Worldify
           "Constraints remain after matching hypotheses against context block\n"
       else ()
 
-    let rec matchBlock (GL, R) =
+    let rec matchBlock GL R =
       (* R = (D1,...,Dn)[t] *)
       if !Global.chatter > 7 then
         print ("Matching:\n" ^ wGoalToString (GL, R) ^ "\n")
@@ -228,13 +228,13 @@ module Worldify
         print ("Unmatched hypotheses:\n" ^ hypsToString GL ^ "\n")
       else ()
 
-    let rec missing (G, R) =
+    let rec missing G R =
       (* R = (D1,...,Dn)[t] *)
       if !Global.chatter > 7 then
         print ("Missing hypotheses:\n" ^ worldToString (G, R) ^ "\n")
       else ()
 
-    let rec mismatch (G, Vs1, Vs2) =
+    let rec mismatch G Vs1 Vs2 =
       if !Global.chatter > 7 then
         print ("Mismatch:\n" ^ mismatchToString (G, Vs1, Vs2) ^ "\n")
       else ()
@@ -242,8 +242,8 @@ module Worldify
     let rec success () = if !Global.chatter > 7 then print "Success\n" else ()
   end
 
-  let rec decUName (G, D) = I.Decl (G, Names.decUName (G, D))
-  let rec decEName (G, D) = I.Decl (G, Names.decEName (G, D))
+  let rec decUName G D = I.Decl (G, Names.decUName G D)
+  let rec decEName G D = I.Decl (G, Names.decEName G D)
   (* ******************** *)
 
   (* World Subsumption    *)
@@ -362,7 +362,7 @@ module Worldify
         Invariant:
         Let  G1, G2 constexts of declarations (as the occur in the some part
                     of a block).
-        B = true if G1 and G2 are equal (modulo renaming of variables)
+        B = true if G1 and G2 are Equal (modulo renaming of variables)
         B = false otherwise
      *)
 
@@ -375,7 +375,7 @@ module Worldify
 
         Invariant:
         Let  L1, L2 lists of declarations (as the occur in a block).
-        B = true if L1 and L2 are equal (modulo renaming of variables)
+        B = true if L1 and L2 are Equal (modulo renaming of variables)
         B = false otherwise
      *)
 
@@ -384,15 +384,15 @@ module Worldify
     | D1 :: L1, D2 :: L2 ->
         Conv.convDec ((D1, I.id), (D2, I.id)) && eqList (L1, L2)
     | _ -> false
-  (* eqBlock (b1, b2) = B
+  (* eqBlock b1 b2 = B
 
         Invariant:
         Let  b1, b2 blocks.
-        B = true if b1 and b2 are equal (modulo renaming of variables)
+        B = true if b1 and b2 are Equal (modulo renaming of variables)
         B = false otherwise
      *)
 
-  let rec eqBlock (b1, b2) =
+  let rec eqBlock b1 b2 =
     let G1, L1 = I.constBlock b1 in
     let G2, L2 = I.constBlock b2 in
     eqCtx (G1, G2) && eqList (L1, L2)
@@ -409,7 +409,7 @@ module Worldify
   let rec subsumedCtx = function
     | I.Null, W -> ()
     | I.Decl (G, I.BDec (_, (b, _))), W ->
-        if List.exists (fun b' -> eqBlock (b, b')) Bs then ()
+        if List.exists (fun b' -> eqBlock b b') Bs then ()
         else raise (Error "Dynamic world subsumption failed");
         subsumedCtx (G, W)
     | I.Decl (G, _), W -> subsumedCtx (G, W)
@@ -432,7 +432,7 @@ module Worldify
         subsumedWorld a W' W;
         subsumedCtx (G, W)
     | W, (G, I.Pi ((D, _), V2), occ) ->
-        checkGoal W (decUName (G, D), V2, P.body occ)
+        checkGoal W (decUName G D, V2, P.body occ)
   (* checkClause (G, V, W, occ) = ()
        iff all subgoals in V satisfy world spec W
        Effect: raises Error' (occ', msg) otherwise
@@ -444,9 +444,9 @@ module Worldify
   let rec checkClause = function
     | W, (G, I.Root (a, S), occ) -> ()
     | W, (G, I.Pi ((D, I.Maybe), V2), occ) ->
-        checkClause W (decEName (G, D), V2, P.body occ)
+        checkClause W (decEName G D, V2, P.body occ)
     | W, (G, I.Pi ((D, I.No), V2), occ) ->
-        checkClause W (decEName (G, D), V2, P.body occ);
+        checkClause W (decEName G D, V2, P.body occ);
         checkGoal W (G, V1, P.label occ)
 
   let rec checkConDec W (I.ConDec (s, m, k, status, V, L)) =
@@ -506,8 +506,8 @@ module Worldify
             ((G, subGoalToDList (Whnf.normalize (V, s))), Seq (1, piDecs, t))
         in
         let k' =
-         fun (G', Vs') ->
-          if noConstraints (G, t) then k (G', Vs')
+         fun G' Vs' ->
+          if noConstraints G t then k (G', Vs')
           else (
             Trace.constraintsRemain ();
             ())
@@ -536,7 +536,7 @@ module Worldify
           ())
     | GVs, Seq (_, [], t), k -> k GVs
     | GVs, R, k ->
-        Trace.missing (G, R);
+        Trace.missing G R;
         ()
     | GVs, Plus (r1, r2), k ->
         Cs.CSManager.trail (fun () -> accR (GVs, r1, k));
@@ -579,12 +579,12 @@ module Worldify
     | G, I.Pi ((D, I.Maybe), V2), W, occ ->
         (*         val W1 = worldifyGoal (G, V1, W, P.label occ) *)
         let _ = print "{" in
-        let W2 = worldifyClause (decEName (G, D), V2, W, P.body occ) in
+        let W2 = worldifyClause (decEName G D, V2, W, P.body occ) in
         let _ = print "}" in
         I.Pi ((I.Dec (x, V1 (* W1*)), I.Maybe), W2)
     | G, I.Pi ((D, I.No), V2), W, occ ->
         let W1 = worldifyGoal (G, V1, W, P.label occ) in
-        let W2 = worldifyClause (decEName (G, D), V2, W, P.body occ) in
+        let W2 = worldifyClause (decEName G D, V2, W, P.body occ) in
         I.Pi ((I.Dec (x, W1), I.No), W2)
   (* worldcheck W a = ()
        iff all subgoals in all clauses defining a satisfy world spec W
@@ -597,7 +597,7 @@ module Worldify
     else ();
     if !Global.chatter > 4 then Trace.clause c else ();
     try I.ConDec (s, m, k, status, worldifyClause (I.Null, V, W, P.top), L)
-    with Error' (occ, msg) -> raise (Error (wrapMsg (c, occ, msg)))
+    with Error' (occ, msg) -> raise (Error (wrapMsg c occ msg))
   (* by invariant, other cases cannot apply *)
 
   let rec worldifyBlock = function
@@ -606,7 +606,7 @@ module Worldify
         let a = I.targetFam V in
         let W' = W.getWorlds a in
         checkClause W' (G, worldifyClause (I.Null, V, W', P.top), P.top);
-        worldifyBlock (decUName (G, D), L)
+        worldifyBlock (decUName G D, L)
 
   let rec worldifyBlocks = function
     | [] -> ()
@@ -638,7 +638,7 @@ module Worldify
       map
         (fun (I.Const c) ->
           try worldifyConDec W (c, I.sgnLookup c)
-          with Error' (occ, s) -> raise (Error (wrapMsg (c, occ, s))))
+          with Error' (occ, s) -> raise (Error (wrapMsg c occ s)))
         (Index.lookup a)
     in
     let _ =
@@ -655,7 +655,7 @@ module Worldify
   let worldify = worldify
 
   let worldifyGoal =
-   fun (G, V) -> worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top)
+   fun G V -> worldifyGoal (G, V, W.getWorlds (I.targetFam V), P.top)
 end
 
 (* functor Worldify *)

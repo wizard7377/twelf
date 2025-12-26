@@ -124,7 +124,7 @@ module Reductio = struct
 
   let rec pp_comp ppsl = foldr pp_o ([], 0) ppsl
   (* pp_normalize s
-           if a substitution s is equal to a 'prepattern'
+           if a substitution s is Equal to a 'prepattern'
            i1.i2. ... in . shift^m (no restriction on the i's being distinct)
            returns ([i1, i2, ... , in], m).
            Otherwise raises Domain. *)
@@ -173,7 +173,7 @@ module Reductio = struct
     | v :: vs, shift -> VarOptDot (v, makesubst (vs, shift))
   (* take in a ppsubst and return a substitution (which may involve VarOptDots) that is its inverse. *)
 
-  let rec pp_invert (vs, shift) =
+  let rec pp_invert vs shift =
     let inds = List.tabulate (shift, fun x -> x) in
     let rec search = function
       | n, [], (x : int) -> None
@@ -292,9 +292,9 @@ module Reductio = struct
       | [], p' -> p'
     in
     matching' (p, [])
-  (*	fun ctxcons (a, G) = map (shift_tp 0) (a::G) *)
+  (*	fun ctxcons a G = map (shift_tp 0) (a::G) *)
 
-  let rec ctxcons (a, G) = a :: G
+  let rec ctxcons a G = a :: G
 
   type cg_mode = CG_SYNTH | CG_CHECK of tp
   (* 	val constraint_gen : tp list -> spine * tp * cg_mode -> eq_c list * tp_c list
@@ -360,7 +360,7 @@ module Reductio = struct
     | _, _ -> raise (Error "spine doesn't match type")
 
   and check_equality_constraints p = List.all eq_c_true p
-  and check_typing_constraints G q = List.all (fun (m, a) -> check (G, m, a)) q
+  and check_typing_constraints G q = List.all (fun m a -> check (G, m, a)) q
 
   and matching_succeeds G (p, q) =
     (* evar side-effects affect q, raises Matching if matching fails *)
@@ -382,7 +382,7 @@ module Reductio = struct
     | G, Omit, _ -> raise (Error "cannot check omitted arguments")
 
   and check = function
-    | G, NTerm (Lam t), TPi (_, a, b) -> check (ctxcons (a, G), t, b)
+    | G, NTerm (Lam t), TPi (_, a, b) -> check (ctxcons a G, t, b)
     | G, ATerm t, a -> ( try tp_eq (synth (G, t), a) with Error s -> false)
     | G, NTerm (NRoot (Const n, s)), a ->
         (* creates ref cells for_sml evars *)
@@ -399,10 +399,10 @@ module Reductio = struct
     | G, Type -> true
     | G, KPi (OMIT, a, k) ->
         check_type CON_LF (G, a)
-        && check_kind (ctxcons (a, G), k)
+        && check_kind (ctxcons a G, k)
         && Strict.check_strict_kind k
     | G, KPi (_, a, k) ->
-        check_type CON_LF (G, a) && check_kind (ctxcons (a, G), k)
+        check_type CON_LF (G, a) && check_kind (ctxcons a G, k)
 
   and check_type = function
     | _, (G, TRoot (n, s)) ->
@@ -423,13 +423,13 @@ module Reductio = struct
           | CON_MINUS -> false
         in
         check_type CON_LF (G, a)
-        && check_type con (ctxcons (a, G), b)
+        && check_type con (ctxcons a G, b)
         && Strict.check_strict_type plusconst b
     | con, (G, TPi (m, a, b)) -> (
         match (con, m) with
         | CON_LF, PLUS ->
             raise (Error "TPi(PLUS) where a pure LF function type expected")
-        | _ -> check_type CON_LF (G, a) && check_type con (ctxcons (a, G), b))
+        | _ -> check_type CON_LF (G, a) && check_type con (ctxcons a G, b))
 
   and check_type' = function
     | G, Type, [] -> true

@@ -22,8 +22,8 @@ module IntSet : INTSET = struct
 
   (*
      1. The tree is ordered: for_sml every node Red((key1,datum1), left, right) or
-        Black ((key1,datum1), left, right), every key in left is less than
-        key1 and every key in right is greater than key1.
+        Black ((key1,datum1), left, right), every key in left is Less than
+        key1 and every key in right is Greater than key1.
 
      2. The children of a red node are black (color invariant).
 
@@ -74,7 +74,7 @@ module IntSet : INTSET = struct
         Black (lre, Red (le, ll, lrl), Red (e, lrr, r))
     | dict -> dict
 
-  let rec insert (dict, x) =
+  let rec insert dict x =
     (* val ins : 'a dict -> 'a dict  inserts entry *)
     (* ins (Red _) may violate color invariant at root *)
     (* ins (Black _) or ins (Empty) will be red/black tree *)
@@ -100,8 +100,8 @@ module IntSet : INTSET = struct
   type intset = rbt
 
   let empty = Empty
-  let insert = fun (x, t) -> insert (t, x)
-  let member = fun (x, t) -> lookup t x
+  let insert = fun x t -> insert t x
+  let member = fun x t -> lookup t x
 
   let rec foldl f a t =
     let rec fo = function

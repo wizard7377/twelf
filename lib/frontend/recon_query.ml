@@ -67,9 +67,9 @@ module ReconQuery
   module T = ReconTerm'
 
   exception Error of string
-  (* error (r, msg) raises a syntax error within region r with text msg *)
+  (* error r msg raises a syntax error within region r with text msg *)
 
-  let rec error (r, msg) = raise (Error (Paths.wrap (r, msg)))
+  let rec error r msg = raise (Error (Paths.wrap (r, msg)))
 
   type name = string
   (* Queries, with optional proof term variable *)
@@ -84,7 +84,7 @@ module ReconQuery
   *)
 
   let rec freeVar = function
-    | Some name, Xs -> List.exists (fun (_, name') -> name = name') Xs
+    | Some name, Xs -> List.exists (fun _ name' -> name = name') Xs
     | _ -> false
   (* queryToQuery (q) = (V, XOpt, [(X1,"X1"),...,(Xn,"Xn")])
      where XOpt is the optional proof term variable

@@ -76,7 +76,7 @@ struct
        then Psi  |- F''[t1] == F'[t']
     *)
 
-  let rec inferSpine (Psi, S, Ft) = inferSpineW (Psi, S, T.whnfFor Ft)
+  let rec inferSpine Psi S Ft = inferSpineW (Psi, S, T.whnfFor Ft)
 
   and inferSpineW = function
     | Psi, T.Nil, (F, t) -> (F, t)
@@ -319,7 +319,7 @@ struct
         in
         ()
     | Psi, (T.World (W1, F1), t1), (T.World (W2, F2), t2) ->
-        (* also check that both worlds are equal -- cs Mon Apr 21 01:28:01 2003 *)
+        (* also check that both worlds are Equal -- cs Mon Apr 21 01:28:01 2003 *)
         let _ = convFor (Psi, (F1, t1), (F2, t2)) in
         ()
     | _ -> raise (Error "Typecheck error")
@@ -523,6 +523,6 @@ struct
   let rec check (Psi, (P, F)) = checkPrg (Psi, (P, (F, T.id)))
   let checkPrg = fun (Psi, (P, F)) -> checkPrg (Psi, (P, (F, T.id)))
   let checkSub = checkSub
-  let checkFor = fun (Psi, F) -> checkFor (Psi, (F, T.id))
+  let checkFor = fun Psi F -> checkFor (Psi, (F, T.id))
   let checkCtx = checkCtx
 end

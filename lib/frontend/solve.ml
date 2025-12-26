@@ -113,7 +113,7 @@ module Solve
 
   (* the expected number, given the bound on the number of tries *)
 
-  let rec checkSolutions (expected, try_, solutions) =
+  let rec checkSolutions expected try_ solutions =
     if boundEq (boundMin (expected, try_), Some solutions) then ()
     else
       raise
@@ -127,7 +127,7 @@ module Solve
 
   (* the expected number, given the bound on the number of tries *)
 
-  let rec checkStages (try_, stages) =
+  let rec checkStages try_ stages =
     if boundEq (try_, Some stages) then ()
     else
       raise
@@ -252,7 +252,7 @@ module Solve
             ( Skel,
               (g, IntSyn.id),
               CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-              fun (Skel, M) -> raise (Solution M) );
+              fun Skel M -> raise (Solution M) );
           raise (AbortQuery "Proof reconstruction for_sml %solve failed")
         with Solution M -> finish M
       with TimeLimit.TimeOut ->
@@ -422,7 +422,7 @@ module Solve
             ( M,
               (g, IntSyn.id),
               CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-              fun (pskel, M) ->
+              fun pskel M ->
                 if !Global.chatter >= 3 then
                   Msg.message
                     ((Timers.time Timers.printing evarInstToString)
@@ -544,7 +544,7 @@ or  %querytabled <expected solutions> <max stages tried>  X : A
             ( O,
               (g, IntSyn.id),
               CompSyn.DProg (IntSyn.Null, IntSyn.Null),
-              fun (O, M) ->
+              fun O M ->
                 if !Global.chatter >= 3 then
                   Msg.message
                     ((Timers.time Timers.printing evarInstToString)

@@ -132,7 +132,7 @@ let strategy = ref Variant
 
 (* Variant *)
 
-(* term abstraction after term depth is greater than 5 *)
+(* term abstraction after term depth is Greater than 5 *)
 
 let termDepth = (ref None : int option ref)
 let ctxDepth = (ref None : int option ref)

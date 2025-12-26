@@ -42,13 +42,13 @@ module SparseArray : SPARSE_ARRAY = struct
   let rec unsafeUpdate ({ table; default }, i, v) = IntTable.insert table (i, v)
   let rec array default = { default; table = IntTable.new_ size }
 
-  let rec sub (array, i) =
+  let rec sub array i =
     if i >= 0 then unsafeSub (array, i) else raise General.Subscript
 
-  let rec update (array, i, v) =
+  let rec update array i v =
     if i >= 0 then unsafeUpdate (array, i, v) else raise General.Subscript
 
-  let rec extract (array, i, len) =
+  let rec extract array i len =
     if i >= 0 && len >= 0 then
       Vector.tabulate (len, fun off -> unsafeSub (array, i + off))
     else raise General.Subscript
@@ -56,7 +56,7 @@ module SparseArray : SPARSE_ARRAY = struct
   let rec copyVec { src; si; len; dst; di } =
     if di >= 0 then
       VectorSlice.appi
-        (fun (i, v) -> unsafeUpdate (dst, i, v))
+        (fun i v -> unsafeUpdate (dst, i, v))
         (VectorSlice.slice (src, si, len))
     else raise General.Subscript
 

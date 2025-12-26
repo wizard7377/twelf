@@ -179,7 +179,7 @@ module Abstract
     | k, I.Lam (D, V) -> or_ (occursInDec (k, D), occursInExp (k + 1, V))
     | k, I.FgnExp csfe ->
         I.FgnExpStd.fold csfe
-          (fun (U, DP) -> or_ (DP, occursInExp (k, Whnf.normalize (U, I.id))))
+          (fun U DP -> or_ (DP, occursInExp (k, Whnf.normalize (U, I.id))))
           I.No
 
   and occursInHead = function
@@ -271,7 +271,7 @@ module Abstract
           let K' = collectExp (I.Null, (V', I.id), K) in
           collectSub (G, s, I.Decl (K', EV X))
     | G, (I.FgnExp csfe, s), K ->
-        I.FgnExpStd.fold csfe (fun (U, K) -> collectExp (G, (U, s), K)) K
+        I.FgnExpStd.fold csfe (fun U K -> collectExp (G, (U, s), K)) K
 
   and collectExp (G, Us, K) = collectExpW (G, Whnf.whnf Us, K)
 
@@ -594,7 +594,7 @@ module Abstract
     let K = collectExp (I.Null, (V, I.id), I.Null) in
     let _ = checkConstraints K in
     (I.ctxLength K, abstractKPi (K, abstractExp (K, 0, (V, I.id))))
-  (* abstractDef  (U, V) = (k', (U', V'))
+  (* abstractDef U V = (k', (U', V'))
 
        Invariant:
        If    . |- V : L
@@ -612,7 +612,7 @@ module Abstract
        and   k' = |K|
     *)
 
-  let rec abstractDef (U, V) =
+  let rec abstractDef U V =
     let K =
       collectExp (I.Null, (U, I.id), collectExp (I.Null, (V, I.id), I.Null))
     in
@@ -621,7 +621,7 @@ module Abstract
       ( abstractKLam (K, abstractExp (K, 0, (U, I.id))),
         abstractKPi (K, abstractExp (K, 0, (V, I.id))) ) )
 
-  let rec abstractSpineExt (S, s) =
+  let rec abstractSpineExt S s =
     let K = collectSpine (I.Null, (S, s), I.Null) in
     let _ = checkConstraints K in
     let G = abstractKCtx K in
@@ -690,7 +690,7 @@ module Abstract
          Xs' extends Xs by new EVars in U[s]
     *)
 
-  let rec collectEVars (G, Us, Xs) = KToEVars (collectExp (G, Us, evarsToK Xs))
+  let rec collectEVars G Us Xs = KToEVars (collectExp (G, Us, evarsToK Xs))
 
   let rec collectEVarsSpine (G, (S, s), Xs) =
     KToEVars (collectSpine (G, (S, s), evarsToK Xs))

@@ -10,10 +10,10 @@ module type FLIT = sig
   (* initForText () *)
   val initForText : unit -> unit
 
-  (* dump (symbol, dag_file) *)
+  (* dump symbol dag_file *)
   val dump : string * string -> int
 
-  (* dumpText (outputSemant, outputChecker) *)
+  (* dumpText outputSemant outputChecker *)
   val dumpText : string * string -> unit
 
   (* setFlag () *)
@@ -357,12 +357,12 @@ module Flit
     match !tcb_table with
     | Some l ->
         List.app
-          (fun (name, idx) ->
+          (fun name idx ->
             Table.insert symTable (clookup name, W.fromInt idx))
           l
     | None -> raise (Error "dump(...) before init(...)")
 
-  let rec dump (name, file) =
+  let rec dump name file =
     let rec dump' cid =
       let _ = out := Some (BinIO.openOut file) in
       let stream = valOf !out in
@@ -418,7 +418,7 @@ module Flit
     | Some cid -> ( try dump' cid with Error msg -> error msg)
     | None -> error "setFlag() has not been called yet\n"
 
-  let rec dumpSymTable (name1, name2, file) =
+  let rec dumpSymTable name1 name2 file =
     let stream = TextIO.openOut file in
     let (F.Strength nonfixLevel) = F.minPrec in
     let rec dumpFixity cid =
@@ -438,7 +438,7 @@ module Flit
               ^ "\t" ^ Int.toString assoc ^ "\n" )
       | None, _ -> ()
     in
-    let rec dumpTable (cid1, cid2) =
+    let rec dumpTable cid1 cid2 =
       if cid1 <= cid2 then (
         dumpEntry cid1;
         dumpTable (cid1 + 1, cid2))
@@ -449,7 +449,7 @@ module Flit
        ( N.constLookup (valOf (N.stringToQid name1)),
          N.constLookup (valOf (N.stringToQid name2)) )
      with
-    | Some cid1, Some cid2 -> dumpTable (cid1, cid2)
+    | Some cid1, Some cid2 -> dumpTable cid1 cid2
     | None, _ -> error (name1 ^ " undefined")
     | _, None -> error (name2 ^ " undefined"));
     TextIO.flushOut stream;
@@ -505,7 +505,7 @@ module Flit
     let _ = SHT.clear shadowTable in
     let changes = ref false in
     let rec processDep rcid cid =
-      let rec handleProblem (currentcid, name) =
+      let rec handleProblem currentcid name =
         match Table.lookup replaceTable cid with
         | Some _ -> ()
         | _ -> (
@@ -536,7 +536,7 @@ module Flit
           if
             cid < valOf !startSemant || cid >= valOf !startClause
             (* problematic shadowing *)
-          then handleProblem (currentcid, name)
+          then handleProblem currentcid name
             (* nonproblematic shadowing - change its name *)
           else
             let newname = "shadowed_" ^ Int.toString !counter in
@@ -580,7 +580,7 @@ module Flit
         k cid
     | Some _ -> ()
 
-  let rec recordDependency (x, y) =
+  let rec recordDependency x y =
     (*        val msg = "DX dep " ^ Int.toString x ^ " on " ^ Int.toString y ^ "\n" *)
     let table =
       match IHT.lookup depTable x with
@@ -726,7 +726,7 @@ module Flit
     TextIO.closeOut streamTcb
   (* DX *)
 
-  let rec dumpText (outputSemant, outputChecker) =
+  let rec dumpText outputSemant outputChecker =
     (* val _ = print ("DX startSemant = " ^ Int.toString(valOf(!startSemant)) ^ "\n") *)
     (* val _ = print ("DX startClause = " ^ Int.toString(valOf(!startClause)) ^ "\n") *)
     let max = 1 (I.sgnSize ()) in

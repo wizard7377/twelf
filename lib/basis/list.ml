@@ -1,6 +1,6 @@
-include Prelude ;;
+open Order
 module type LIST = sig
-    type 'a t
+    type 'a t = 'a list
     val null : 'a t -> bool
     val length : 'a t -> int
     val ( @ ) : 'a t * 'a t -> 'a t
@@ -26,7 +26,7 @@ module type LIST = sig
     val exists : ('a -> bool) -> 'a t -> bool
     val all : ('a -> bool) -> 'a t -> bool
     val tabulate : int * (int -> 'a) -> 'a t
-    val collate : ('a * 'a -> Prelude.order) -> 'a t * 'a t -> Prelude.order
+    val collate : ('a * 'a -> order) -> 'a t * 'a t -> order
 end
 
 module List : LIST = struct
@@ -55,5 +55,5 @@ module List : LIST = struct
     let exists : ('a -> bool) -> 'a t -> bool = assert false (* TODO *)
     let all : ('a -> bool) -> 'a t -> bool = assert false (* TODO *)
     let tabulate : int * (int -> 'a) -> 'a t = assert false (* TODO *)
-    let collate : ('a * 'a -> Prelude.order) -> 'a t * 'a t -> Prelude.order = assert false (* TODO *)
+    let collate : ('a * 'a -> order) -> 'a t * 'a t -> order = assert false (* TODO *)
 end

@@ -131,7 +131,7 @@ module MemoTable
     in
     memb (x, !L)
 
-  let rec insertList (E, L) =
+  let rec insertList E L =
     L := E :: !L;
     L
   (* ctxToEVarSub D = s
@@ -365,7 +365,7 @@ module MemoTable
     | _, _ -> false
   (* ---------------------------------------------------------------*)
 
-  let rec compareCtx (G, G') = equalCtx' (G, G')
+  let rec compareCtx G G' = equalCtx' (G, G')
   (* ---------------------------------------------------------------*)
 
   (* most specific linear common generalization *)
@@ -504,7 +504,7 @@ module MemoTable
     let D_r2 = copy D_u in
     let choose = ref (fun match_ : bool -> ()) in
     let _ =
-      S.forall nsub_u (fun (nv, U) ->
+      S.forall nsub_u (fun nv U ->
           match S.lookup nsub_t nv with
           | Some T -> (
               (* note by invariant Glocal_e ~ Glocal_t *)
@@ -535,7 +535,7 @@ module MemoTable
   (* Dsigma |~ sigma, D_r1 |~ rho_t, D_r1 |~ rho_u *)
   (* ---------------------------------------------------------------------- *)
 
-  let rec mkLeaf (Ds, GR, n) = Leaf (Ds, GR)
+  let rec mkLeaf Ds GR n = Leaf (Ds, GR)
 
   let rec mkNode = function
     | Node (_, Children), Dsigma, Drho1, GR, Drho2 ->
@@ -559,7 +559,7 @@ module MemoTable
     | N, (D_e, nsub_e) -> compatibleSub ((D_t, nsub_t), (D_e, nsub_e))
     | N, (D_e, nsub_e) -> compatibleSub ((D_t, nsub_t), (D_e, nsub_e))
 
-  let rec findAllCandidates (G_r, children, Ds) =
+  let rec findAllCandidates G_r children Ds =
     let rec findAllCands = function
       | G_r, [], (D_u, sub_u), VList, SList -> (VList, SList)
       | G_r, x :: L, (D_u, sub_u), VList, SList -> (
@@ -579,7 +579,7 @@ module MemoTable
     findAllCands (G_r, children, Ds, [], [])
   (* ---------------------------------------------------------------------- *)
 
-  let rec divergingCtx (stage, G, GRlistRef) =
+  let rec divergingCtx stage G GRlistRef =
     let l = I.ctxLength G in
     List.exists
       (fun ((evar, l), G', _, _, stage', _) ->
@@ -614,8 +614,8 @@ module MemoTable
     | _, _ -> false
 
   let rec divergingSub ((Ds, sigma), (Dr1, rho1), (Dr2, rho2)) =
-    S.exists rho2 (fun (n2, t2) ->
-        S.exists sigma (fun (_, t) -> eqTerm (t2, (t, rho1))))
+    S.exists rho2 (fun n2 t2 ->
+        S.exists sigma (fun _ t -> eqTerm (t2, (t, rho1))))
   (* ---------------------------------------------------------------------- *)
 
   (* Insert via variant checking *)
@@ -647,7 +647,7 @@ module MemoTable
           | None ->
               if
                 (* compatible path -- but different ctx! *)
-                !TableParam.divHeuristic && divergingCtx (stage, G_r, GRlistRef)
+                !TableParam.divHeuristic && divergingCtx stage G_r GRlistRef
               then
                 fun (* ctx are diverging --- force suspension *)
                       ()
@@ -727,7 +727,7 @@ module MemoTable
          Sideeffect: update answer list for_sml U
      *)
 
-  let rec answCheckVariant (s', answRef, O) =
+  let rec answCheckVariant s' answRef O =
     let rec member = function
       | (D, sk), [] -> false
       | (D, sk), ((D1, s1), _) :: S ->
@@ -744,7 +744,7 @@ module MemoTable
   let rec reset () =
     nctr := 1;
     Array.modify
-      (fun (n, Tree) ->
+      (fun n Tree ->
         n := 0;
         Tree := !(makeTree ());
         answList := [];
@@ -844,7 +844,7 @@ module MemoTable
         if !Global.chatter >= 5 then print "\t -- Add diverging goal\n" else ();
         T.DivergingEntry answRef
 
-  let rec answCheck (s', answRef, O) = answCheckVariant (s', answRef, O)
+  let rec answCheck s' answRef O = answCheckVariant s' answRef O
 
   let rec updateTable () =
     let rec update = function

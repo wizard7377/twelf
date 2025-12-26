@@ -1,8 +1,8 @@
 
-include Prelude
+open Order
 
 module type INTEGER = sig
-  type t
+  type t = int
 
   val toInt : t -> int
   val fromInt : int -> t
@@ -46,7 +46,7 @@ module Integer : INTEGER = struct
   let modulo x y = x mod y
   let quot = assert false
   let rem = assert false
-  let compare x y = if x < y then less else if x = y then equal else greater
+  let compare x y = if x < y then Less else if x = y then Equal else Greater
   let ( < ) x y = x < y
   let ( <= ) x y = x <= y
   let ( > ) x y = x > y

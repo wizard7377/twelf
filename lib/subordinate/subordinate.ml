@@ -40,7 +40,7 @@ module type SUBORDINATE = sig
   (* respects current subordination? *)
   val respectsN : IntSyn.dctx * IntSyn.exp -> unit
 
-  (* respectsN(G, V), V in nf *)
+  (* respectsN G V, V in nf *)
   val checkNoDef : IntSyn.cid -> unit
 
   (* not involved in type-level definition? *)
@@ -96,7 +96,7 @@ module Subordinate
   (* Includes the node itself (reflexive) *)
 
   let rec appReachable f b =
-    let rec rch (b, visited) =
+    let rec rch b visited =
       if IntSet.member (b, visited) then visited
       else (
         f b;
@@ -107,24 +107,24 @@ module Subordinate
 
   exception Reachable
 
-  let rec reach (b, a, visited) =
-    let rec rch (b, visited) =
+  let rec reach b a visited =
+    let rec rch b visited =
       if IntSet.member (b, visited) then visited
       else
         let adj = adjNodes b in
         if IntSet.member (a, adj) then raise Reachable
         else IntSet.foldl rch (IntSet.insert (b, visited)) adj
     in
-    rch (b, visited)
+    rch b visited
 
-  let rec reachable (b, a) = reach (b, a, IntSet.empty)
+  let rec reachable b a = reach (b, a, IntSet.empty)
   (* b must be new *)
 
   (* this is sometimes violated below, is this a bug? *)
 
   (* Thu Mar 10 13:13:01 2005 -fp *)
 
-  let rec addNewEdge (b, a) =
+  let rec addNewEdge b a =
     memoCounter := !memoCounter + 1;
     memoInsert ((b, a), (true, !memoCounter));
     updateFam (b, IntSet.insert (a, adjNodes b))
@@ -141,7 +141,7 @@ module Subordinate
 
   let rec fGet a = match fLookup a with Some frozen -> frozen | None -> false
 
-  let rec fSet (a, frozen) =
+  let rec fSet a frozen =
     let _ =
       Global.chPrint 5 (fun () ->
           (if frozen then "Freezing " else "Thawing ")
@@ -151,7 +151,7 @@ module Subordinate
     fInsert (a, frozen)
   (* pre: a is not a type definition *)
 
-  let rec checkFreeze (c, a) =
+  let rec checkFreeze c a =
     if fGet a then
       raise
         (Error
@@ -236,7 +236,7 @@ module Subordinate
           (* val _ = print ("L = " ^ (foldl (fn (c,s) => Names.qidToString (Names.constQid c) ^ s) "\n" L)); *)
         in
           List.app (fn a => checkMakeFrozen (a, L)) L;
-          List.app (fn a => fSet (a, true)) L
+          List.app (fn a => fSet a true) L
         end
     *)
 
@@ -257,7 +257,7 @@ module Subordinate
         (fun a ->
           appReachable
             (fun b ->
-              fSet (b, true);
+              fSet b true;
               freezeList := IntSet.insert (b, !freezeList))
             a)
         L'
@@ -274,20 +274,20 @@ module Subordinate
        Invariant: a, b families
     *)
 
-  let rec computeBelow (a, b) =
+  let rec computeBelow a b =
     try
-      reachable (b, a);
+      reachable b a;
       memoInsert ((b, a), (false, !memoCounter));
       false
     with Reachable ->
       memoInsert ((b, a), (true, !memoCounter));
       true
 
-  let rec below (a, b) =
+  let rec below a b =
     match memoLookup (b, a) with
-    | None -> computeBelow (a, b)
+    | None -> computeBelow a b
     | Some (true, c) -> true (* true entries remain valid *)
-    | Some (false, c) -> if c = !memoCounter then false else computeBelow (a, b)
+    | Some (false, c) -> if c = !memoCounter then false else computeBelow a b
   (* false entries are invalidated *)
 
   (* a <* b = true iff a is transitively and reflexively subordinate to b
@@ -295,16 +295,16 @@ module Subordinate
        Invariant: a, b families
     *)
 
-  let rec belowEq (a, b) = a = b || below (a, b)
+  let rec belowEq a b = a = b || below a b
   (* a == b = true iff a and b subordinate each other
 
        Invariant: a, b families
     *)
 
-  let rec equiv (a, b) = belowEq (a, b) && belowEq (b, a)
+  let rec equiv a b = belowEq a b && belowEq b a
 
-  let rec addSubord (a, b) =
-    if below (a, b) then ()
+  let rec addSubord a b =
+    if below a b then ()
     else if fGet b (* if b is frozen and not already b #> a *)
     (* subordination would change; signal error *)
     then
@@ -314,7 +314,7 @@ module Subordinate
            ^ Names.qidToString (Names.constQid b)
            ^ " would depend on "
            ^ Names.qidToString (Names.constQid a)))
-    else addNewEdge (b, a)
+    else addNewEdge b a
   (* Thawing frozen families *)
 
   (* Returns list of families that were thawed *)
@@ -323,15 +323,15 @@ module Subordinate
 
   let rec addIfBelowEq a's =
    fun b ->
-    if List.exists (fun a -> belowEq (a, b)) a's then
+    if List.exists (fun a -> belowEq a b) a's then
       aboveList := b :: !aboveList
     else ()
 
   let rec thaw a's =
     let a's' = map expandFamilyAbbrevs a's in
     let _ = aboveList := [] in
-    let _ = Table.app (fun (b, _) -> addIfBelowEq a's' b) soGraph in
-    let _ = List.app (fun b -> fSet (b, false)) !aboveList in
+    let _ = Table.app (fun b _ -> addIfBelowEq a's' b) soGraph in
+    let _ = List.app (fun b -> fSet b false) !aboveList in
     !aboveList
   (*
        Definition graph
@@ -362,7 +362,7 @@ module Subordinate
 
   let rec occursInDef a =
     match Table.lookup defGraph a with None -> false | Some _ -> true
-  (* insertNewDef (b, a) = ()
+  (* insertNewDef b a = ()
        Effect: update definition graph.
 
        Call this upon seeing a type-level definition
@@ -370,7 +370,7 @@ module Subordinate
        to record a #> b.
     *)
 
-  let rec insertNewDef (b, a) =
+  let rec insertNewDef b a =
     match Table.lookup defGraph a with
     | None -> Table.insert defGraph (a, IntSet.insert (b, IntSet.empty))
     | Some bs -> Table.insert defGraph (a, IntSet.insert (b, bs))
@@ -457,9 +457,9 @@ module Subordinate
         installKindN (V, c)
     | Some a -> (
         match IntSyn.sgnLookup c with
-        | IntSyn.ConDec _ -> checkFreeze (c, a)
+        | IntSyn.ConDec _ -> checkFreeze c a
         | IntSyn.SkoDec _ ->
-            checkFreeze (c, a)
+            checkFreeze c a
             (* FIX: skolem types should probably be created frozen -kw *)
         | _ ->
             ();
@@ -486,12 +486,12 @@ module Subordinate
     List.app (fun D -> installDec D) Ds
   (* Respecting subordination *)
 
-  (* checkBelow (a, b) = () iff a <| b
+  (* checkBelow a b = () iff a <| b
        Effect: raise Error(msg) otherwise
     *)
 
-  let rec checkBelow (a, b) =
-    if not (below (a, b)) then
+  let rec checkBelow a b =
+    if not (below a b) then
       raise
         (Error
            ("Subordination violation: "
@@ -519,7 +519,7 @@ module Subordinate
   and respectsTypeN V = respectsTypeN' (V, I.targetFam V)
 
   let rec respects (G, (V, s)) = respectsTypeN (Whnf.normalize (V, s))
-  let rec respectsN (G, V) = respectsTypeN V
+  let rec respectsN G V = respectsTypeN V
   (* Printing *)
 
   (* Right now, AL is in always reverse order *)
@@ -528,16 +528,16 @@ module Subordinate
 
   (* Right now, Table.app will pick int order -- do not sort *)
 
-  let rec famsToString (bs, msg) =
+  let rec famsToString bs msg =
     IntSet.foldl
-      (fun (a, msg) -> Names.qidToString (Names.constQid a) ^ " " ^ msg)
+      (fun a msg -> Names.qidToString (Names.constQid a) ^ " " ^ msg)
       "\n" bs
   (*
-    fun famsToString (nil, msg) = msg
+    fun famsToString nil msg = msg
       | famsToString (a::AL, msg) = famsToString (AL, Names.qidToString (Names.constQid a) ^ " " ^ msg)
     *)
 
-  let rec showFam (a, bs) =
+  let rec showFam a bs =
     print
       (Names.qidToString (Names.constQid a)
       ^ (if fGet a then " #> " else " |> ")
@@ -603,7 +603,7 @@ module Subordinate
     in
     let _ =
       ArraySlice.appi
-        (fun (h, i) ->
+        (fun h i ->
           print
             (" Height " ^ Int.toString h ^ ": " ^ Int.toString i
            ^ " definitions\n"))

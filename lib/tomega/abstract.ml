@@ -132,7 +132,7 @@ module TomegaAbstract
         let P' = raisePrg (G, (P, t), F) in
         T.PairExp (U', P')
 
-  let rec raiseP (G, P, F) =
+  let rec raiseP G P F =
     (*      val P' = T.normalizePrg (P, s) (* G' |- P' : F' *) *)
     let G', s = T.deblockify G in
     let F' = T.forSub (F, s) in
@@ -144,7 +144,7 @@ module TomegaAbstract
     let F' = raiseFor (G', (F, I.comp (t, T.coerceSub s))) in
     F'
 
-  let raisePrg = fun (G, P, F) -> raisePrg (G, (P, I.id), F)
+  let raisePrg = fun G P F -> raisePrg (G, (P, I.id), F)
   let raiseP = raiseP
   let raiseFor = raiseFor
   let raiseF = raiseF

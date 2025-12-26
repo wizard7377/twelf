@@ -1,5 +1,5 @@
 
-open Prelude
+open Order
 
 module type VECTOR = sig
   type 'a t

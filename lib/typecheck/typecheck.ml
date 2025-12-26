@@ -183,7 +183,7 @@ module TypeCheck
     else
       raise
         (Error
-           ("Terms not equal\n  left: "
+           ("Terms not Equal\n  left: "
            ^ Print.expToString (I.Null, U1)
            ^ "\n  right:"
            ^ Print.expToString (I.Null, U2)))

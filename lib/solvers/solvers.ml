@@ -138,7 +138,7 @@ module CSInstaller : Cs.CS_INSTALLER = struct
         ())
       solvers
 
-  let version = List.foldr (fun (s, str) -> name s ^ "\n" ^ str) "" solvers
+  let version = List.foldr (fun s str -> name s ^ "\n" ^ str) "" solvers
   (*
   val _ = Cs.CSManager.installSolver (Cs.CSEqQ.solver)
   val _ = Cs.CSManager.installSolver (Cs.CSIneqQ.solver)

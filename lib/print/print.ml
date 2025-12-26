@@ -99,21 +99,21 @@ module Print
   let rec (Str0 (s, n)) = F.string0 n s
   let rec sym s = Str0 (Symbol.sym s)
   let rec nameOf = function Some id -> id | None -> "_"
-  (* fmtEVar (G, X) = "X", the name of the EVar X *)
+  (* fmtEVar G X = "X", the name of the EVar X *)
 
   (* Effect: Names.evarName will assign a name if X does not yet have one *)
 
-  let rec fmtEVar (G, X) = Str0 (Symbol.evar (Names.evarName (G, X)))
+  let rec fmtEVar G X = Str0 (Symbol.evar (Names.evarName (G, X)))
   (* should probably be a new Symbol constructor for_sml AVars -kw *)
 
-  let rec fmtAVar (G, X) = Str0 (Symbol.evar (Names.evarName (G, X) ^ "_"))
+  let rec fmtAVar G X = Str0 (Symbol.evar (Names.evarName (G, X) ^ "_"))
   (* isNil S = true iff S == Nil *)
 
   let rec isNil = function
     | I.Nil -> true
     | I.App _ -> false
     | I.SClo (S, _) -> isNil S
-  (* subToSpine (depth, s) = S
+  (* subToSpine depth s = S
      Invariants:
      If  G |- s : G', Gd  with  |Gd| = depth
      then G |- S : {{Gd}} C > C  for_sml any C
@@ -124,7 +124,7 @@ module Print
      Xr is not actually created, just printed using the name of Xl.
   *)
 
-  let rec subToSpine (depth, s) =
+  let rec subToSpine depth s =
     let rec sTS = function
       | I.Shift k, S ->
           if k < depth then sTS (I.Dot (I.Idx (k + 1), I.Shift (k + 1)), S)
@@ -224,11 +224,11 @@ module Print
   let juxPrec = FX.inc FX.maxPrec
   (* infix operator *)
 
-  (* arrow (V1, V2) = oa
+  (* arrow V1 V2 = oa
      where oa is the operator/argument representation of V1 -> V2
   *)
 
-  let rec arrow (V1, V2) =
+  let rec arrow V1 V2 =
     OpArgs
       ( FX.Infix (arrowPrec, FX.Right),
         [ F.Break; sym "->"; F.Space ],
@@ -268,13 +268,13 @@ module Print
   let rec fmtConstPath (f, Names.Qid (ids, id)) =
     F.HVbox
       (foldr
-         (fun (id, fmt) -> Str0 (Symbol.str id) :: sym "." :: fmt)
+         (fun id fmt -> Str0 (Symbol.str id) :: sym "." :: fmt)
          [ Str0 (f id) ]
          ids)
 
   let rec parmDec = function D :: L, 1 -> D | D :: L, j -> parmDec (L, j - 1)
 
-  let rec parmName (cid, i) =
+  let rec parmName cid i =
     let Gsome, Gblock = I.constBlock cid in
     match parmDec (Gblock, i) with
     | I.Dec (Some pname, _) -> pname
@@ -285,8 +285,8 @@ module Print
         (* names should have been assigned by invar
          iant, NONE imppossible *)
         let (I.BDec (Some bname, (cid, t))) = I.ctxLookup (G, k) in
-        bname ^ "_" ^ parmName (cid, i)
-    | G, I.Proj (I.LVar (r, _, (cid, t)), i) -> "_" ^ parmName (cid, i)
+        bname ^ "_" ^ parmName cid i
+    | G, I.Proj (I.LVar (r, _, (cid, t)), i) -> "_" ^ parmName cid i
     | G, I.Proj (I.Inst iota, i) -> "*"
   (* to be fixed --cs *)
 
@@ -339,10 +339,10 @@ module Print
   *)
 
   let rec evarArgs (G, d, X, s) =
-    OpArgs (FX.Nonfix, [ fmtEVar (G, X) ], subToSpine (I.ctxLength G, s))
+    OpArgs (FX.Nonfix, [ fmtEVar G X ], subToSpine (I.ctxLength G, s))
 
   let rec evarArgs' (G, d, X, s) =
-    OpArgs (FX.Nonfix, [ fmtAVar (G, X) ], subToSpine (I.ctxLength G, s))
+    OpArgs (FX.Nonfix, [ fmtAVar G X ], subToSpine (I.ctxLength G, s))
   (* fst (S, s) = U1, the first argument in S[s] *)
 
   let rec fst = function
@@ -357,12 +357,12 @@ module Print
 
   let rec elide l = match !printLength with None -> false | Some l' -> l > l'
   let ldots = sym "..."
-  (* addots (l) = true  iff  l is equal to the optional printLength bound *)
+  (* addots (l) = true  iff  l is Equal to the optional printLength bound *)
 
   let rec addots l = match !printLength with None -> false | Some l' -> l = l'
   (* parens ((fixity', fixity), fmt) = fmt'
      where fmt' contains additional parentheses when the precedence of
-     fixity' is greater or equal to that of fixity, otherwise it is unchanged.
+     fixity' is Greater or Equal to that of fixity, otherwise it is unchanged.
   *)
 
   let rec parens ((fixity', fixity), fmt) =
@@ -465,10 +465,10 @@ module Print
             ctx,
             (brackets (G, d, ((D', U), s)), I.dot1 s) )
     | G, d, ctx, (X, s) ->
-        if !implicit then aa (ctx, F.HVbox (fmtEVar (G, X) :: fmtSub (G, d, s)))
+        if !implicit then aa (ctx, F.HVbox (fmtEVar G X :: fmtSub (G, d, s)))
         else fmtOpArgs (G, d, ctx, evarArgs (G, d, X, s), I.id)
     | G, d, ctx, (X, s) ->
-        if !implicit then aa (ctx, F.HVbox (fmtAVar (G, X) :: fmtSub (G, d, s)))
+        if !implicit then aa (ctx, F.HVbox (fmtAVar G X :: fmtSub (G, d, s)))
         else fmtOpArgs (G, d, ctx, evarArgs' (G, d, X, s), I.id)
     | G, d, ctx, (U, s) ->
         fmtExp (G, d, ctx, (I.FgnExpStd.ToInternal.apply csfe (), s))
@@ -690,7 +690,7 @@ module Print
         :: fmtDecList (I.Decl (G0, D), L)
   (* Assume unique names are already assigned in G0 and G! *)
 
-  let rec fmtCtx (G0, G) = fmtDecList (G0, ctxToDecList (G, []))
+  let rec fmtCtx G0 G = fmtDecList (G0, ctxToDecList (G, []))
 
   let rec fmtBlock = function
     | I.Null, Lblock -> [ sym "block"; F.Break ] @ fmtDecList (I.Null, Lblock)
@@ -925,24 +925,24 @@ module Print
      (b) types need not be well-formed, since they are not used
   *)
 
-  let rec formatDec (G, D) = fmtDec (G, 0, (D, I.id))
-  let rec formatDecList (G, D) = F.HVbox (fmtDecList (G, D))
+  let rec formatDec G D = fmtDec (G, 0, (D, I.id))
+  let rec formatDecList G D = F.HVbox (fmtDecList (G, D))
   let rec formatDecList' (G, (D, s)) = F.HVbox (fmtDecList' (G, (D, s)))
-  let rec formatExp (G, U) = fmtExp (G, 0, noCtxt, (U, I.id))
-  let rec formatSpine (G, S) = fmtSpine (G, 0, 0, (S, I.id))
+  let rec formatExp G U = fmtExp (G, 0, noCtxt, (U, I.id))
+  let rec formatSpine G S = fmtSpine (G, 0, 0, (S, I.id))
   let rec formatConDec condec = fmtConDec (false, condec)
   let rec formatConDecI condec = fmtConDec (true, condec)
   let rec formatCnstr Cnstr = F.Vbox0 (0, 1, fmtCnstr Cnstr)
   let rec formatCnstrs cnstrL = F.Vbox0 (0, 1, fmtCnstrL cnstrL)
-  let rec formatCtx (G0, G) = F.HVbox (fmtCtx (G0, G))
+  let rec formatCtx G0 G = F.HVbox (fmtCtx G0 G)
   (* assumes G0 and G are named *)
 
-  let rec decToString (G, D) = F.makestring_fmt (formatDec (G, D))
-  let rec expToString (G, U) = F.makestring_fmt (formatExp (G, U))
+  let rec decToString G D = F.makestring_fmt (formatDec G D)
+  let rec expToString G U = F.makestring_fmt (formatExp G U)
   let rec conDecToString condec = F.makestring_fmt (formatConDec condec)
   let rec cnstrToString Cnstr = F.makestring_fmt (formatCnstr Cnstr)
   let rec cnstrsToString cnstrL = F.makestring_fmt (formatCnstrs cnstrL)
-  let rec ctxToString (G0, G) = F.makestring_fmt (formatCtx (G0, G))
+  let rec ctxToString G0 G = F.makestring_fmt (formatCtx G0 G)
 
   let rec evarInstToString Xnames =
     F.makestring_fmt (F.Hbox [ F.Vbox0 (0, 1, fmtEVarInst Xnames); Str "." ])

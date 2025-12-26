@@ -11,7 +11,7 @@ module type FIXITY = sig
 
   val maxPrec : precedence
   val minPrec : precedence
-  val less : precedence * precedence -> bool
+  val Less : precedence * precedence -> bool
   val leq : precedence * precedence -> bool
   val compare : precedence * precedence -> order
   val inc : precedence -> precedence
@@ -188,7 +188,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
     let maxPrec = Strength maxPrecInt
     let minPrecInt = 0
     let minPrec = Strength minPrecInt
-    let rec less (Strength p, Strength q) = p < q
+    let rec Less (Strength p, Strength q) = p < q
     let rec leq (Strength p, Strength q) = p <= q
     let rec compare (Strength p, Strength q) = Int.compare (p, q)
     let rec inc (Strength p) = Strength (p + 1)
@@ -302,7 +302,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
   type qid = Qid of string list * string
 
   let rec qidToString (Qid (ids, name)) =
-    List.foldr (fun (id, s) -> id ^ "." ^ s) name ids
+    List.foldr (fun id s -> id ^ "." ^ s) name ids
 
   let rec validateQualName = function
     | [] -> None
@@ -430,7 +430,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
         Array.update (structShadowArray, mid, None);
         Array.update (componentsArray, mid, dummyNamespace)
 
-  let rec resetFrom (mark, markStruct) =
+  let rec resetFrom mark markStruct =
     let limit, limitStruct = IntSyn.sgnSize () in
     let rec ct f (i, j) =
       if j < i then ()
@@ -586,12 +586,12 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
             | None -> Some (Qid (ids, id))
             | Some _ -> None))
 
-  let rec structPath (mid, ids) =
+  let rec structPath mid ids =
     let strdec = IntSyn.sgnStructLookup mid in
     let ids' = IntSyn.strDecName strdec :: ids in
     match IntSyn.strDecParent strdec with
     | None -> ids'
-    | Some mid' -> structPath (mid', ids')
+    | Some mid' -> structPath mid' ids'
 
   let rec maybeShadow = function
     | qid, false -> qid
@@ -621,12 +621,12 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
       | Some mid -> Qid (structPath (mid, []), id)
     in
     maybeShadow (qid, structLookup qid <> Some mid)
-  (* installFixity (cid, fixity) = ()
+  (* installFixity cid fixity = ()
        Effect: install fixity for_sml constant cid,
                possibly print declaration depending on chatter level
     *)
 
-  let rec installFixity (cid, fixity) =
+  let rec installFixity cid fixity =
     let name = qidToString (constQid cid) in
     checkFixity (name, cid, argNumber fixity);
     Array.update (fixityArray, cid, fixity)
@@ -679,7 +679,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
 
   let rec getNamePref cid = Array.sub (namePrefArray, cid)
 
-  let rec installComponents (mid, namespace) =
+  let rec installComponents mid namespace =
     Array.update (componentsArray, mid, namespace)
 
   let rec getComponents mid = Array.sub (componentsArray, mid)
@@ -708,13 +708,13 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
     | role, Some (IntSyn.FVar _) -> namePrefOf'' (role, None)
     | role, Some (IntSyn.NSDef cid) ->
         namePrefOf'' (role, Array.sub (namePrefArray, cid))
-  (* namePrefOf (role, V) = name
+  (* namePrefOf role V = name
        where name is the preferred base name for_sml a variable with type V
 
        V should be a type, but the code is robust, returning the default "X" or "x"
     *)
 
-  let rec namePrefOf (role, V) = namePrefOf' (role, IntSyn.targetHeadOpt V)
+  let rec namePrefOf role V = namePrefOf' (role, IntSyn.targetHeadOpt V)
   (* local ... *)
 
   (******************)
@@ -857,11 +857,11 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
     evarReset ();
     indexClear ();
     varContext := G
-  (* addEVar (X, name) = ()
+  (* addEVar X name = ()
        effect: adds (X, name) to varTable and evarList
        assumes name not already used *)
 
-  let rec addEVar (X, name) =
+  let rec addEVar X name =
     evarInsert (X, name);
     varInsert (name, EVAR X)
 
@@ -877,9 +877,9 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
 
   let rec conDefined name =
     match constLookup (Qid ([], name)) with None -> false | Some _ -> true
-  (* ctxDefined (G, name) = true iff `name' is declared in context G *)
+  (* ctxDefined G name = true iff `name' is declared in context G *)
 
-  let rec ctxDefined (G, name) =
+  let rec ctxDefined G name =
     let rec cdfd = function
       | IntSyn.Null -> false
       | IntSyn.Decl (G', IntSyn.Dec (Some name', _)) -> name = name' || cdfd G'
@@ -888,26 +888,26 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
       | IntSyn.Decl (G', _) -> cdfd G'
     in
     cdfd G
-  (* tryNextName (G, base) = baseN
+  (* tryNextName G base = baseN
        where N is the next suffix such that baseN is unused in
        G, as a variable, a constant.
     *)
 
-  let rec tryNextName (G, base) =
+  let rec tryNextName G base =
     let name = base ^ Int.toString (nextIndex base) in
-    if varDefined name || conDefined name || ctxDefined (G, name) then
-      tryNextName (G, base)
+    if varDefined name || conDefined name || ctxDefined G name then
+      tryNextName G base
     else name
 
-  let rec findNameLocal (G, base, i) =
+  let rec findNameLocal G base i =
     let name = base ^ if i = 0 then "" else Int.toString i in
-    if varDefined name || conDefined name || ctxDefined (G, name) then
+    if varDefined name || conDefined name || ctxDefined G name then
       findNameLocal (G, base, i + 1)
     else name
 
   let rec findName = function
     | G, base, Local -> findNameLocal (G, base, 0)
-    | G, base, Global -> tryNextName (G, base)
+    | G, base, Global -> tryNextName G base
 
   let takeNonDigits = Substring.takel (not o Char.isDigit)
   (* baseOf (name) = name',
@@ -924,7 +924,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
   let rec newEVarName = function
     | G, X ->
         (* use name preferences below *)
-        let name = tryNextName (G, namePrefOf (Exist, V)) in
+        let name = tryNextName (G, namePrefOf Exist V) in
         evarInsert (X, name);
         name
     | G, X ->
@@ -932,20 +932,20 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
         let name = tryNextName (G, namePrefOf' (Exist, None)) in
         evarInsert (X, name);
         name
-  (* evarName (G, X) = name
+  (* evarName G X = name
        where `name' is the print name X.
        If no name has been assigned yet, assign a new one.
        Effect: if a name is assigned, update varTable
     *)
 
-  let rec evarName (G, X) =
+  let rec evarName G X =
     match evarLookup X with
     | None ->
         let name = newEVarName (G, X) in
         varInsert (name, EVAR X);
         name
     | Some name -> name
-  (* bvarName (G, k) = name
+  (* bvarName G k = name
        where `name' is the print name for_sml variable with deBruijn index k.
        Invariant: 1 <= k <= |G|
                   G_k must assign a name
@@ -953,7 +953,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
        way---check decName below instread of IntSyn.Dec
     *)
 
-  let rec bvarName (G, k) =
+  let rec bvarName G k =
     match IntSyn.ctxLookup (G, k) with
     | IntSyn.Dec (Some name, _) -> name
     | IntSyn.ADec (Some name, _) -> name
@@ -970,10 +970,10 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
 
   let rec decName' = function
     | role, (G, IntSyn.Dec (None, V)) ->
-        let name = findName (G, namePrefOf (role, V), extent role) in
+        let name = findName (G, namePrefOf role V, extent role) in
         IntSyn.Dec (Some name, V)
     | role, (G, D) ->
-        if varDefined name || conDefined name || ctxDefined (G, name) then
+        if varDefined name || conDefined name || ctxDefined G name then
           IntSyn.Dec (Some (tryNextName (G, baseOf name)), V)
         else D
     | role, (G, D) ->
@@ -982,14 +982,14 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
         in
         IntSyn.BDec (Some name, b)
     | role, (G, D) ->
-        if varDefined name || conDefined name || ctxDefined (G, name) then
+        if varDefined name || conDefined name || ctxDefined G name then
           IntSyn.BDec (Some (tryNextName (G, baseOf name)), b)
         else D
     | role, (G, IntSyn.ADec (None, d)) ->
         let name = findName (G, namePrefOf' (role, None), extent role) in
         IntSyn.ADec (Some name, d)
     | role, (G, D) ->
-        if varDefined name || conDefined name || ctxDefined (G, name) then
+        if varDefined name || conDefined name || ctxDefined G name then
           IntSyn.ADec (Some (tryNextName (G, baseOf name)), d)
         else D
     | role, (G, D) ->
@@ -997,7 +997,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
         let _ = print name in
         IntSyn.NDec (Some name)
     | role, (G, D) ->
-        if varDefined name || conDefined name || ctxDefined (G, name) then
+        if varDefined name || conDefined name || ctxDefined G name then
           IntSyn.NDec (Some (tryNextName (G, baseOf name)))
         else D
 
@@ -1038,7 +1038,7 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
         IntSyn.Pi ((D', IntSyn.Maybe), pisEName' (IntSyn.Decl (G, D'), i - 1, V))
   (* | pisEName' (G, i, V) = V *)
 
-  let rec pisEName (i, V) = pisEName' (IntSyn.Null, i, V)
+  let rec pisEName i V = pisEName' (IntSyn.Null, i, V)
   (* defEName' (G, i, (U,V)) = (U',V')
        Invariant: G |- U : V  and G |- U' : V' since U == U' and V == V'.
        Assigns name to dependent Pi prefix of V and corresponding lam prefix of U
@@ -1054,11 +1054,11 @@ module Names (Global : Global.GLOBAL) (Constraints : Constraints.CONSTRAINTS) :
         (IntSyn.Lam (D', U'), IntSyn.Pi ((D', P), V'))
   (* | defEName' (G, i, (U, V)) = (U, V) *)
 
-  let rec defEName (imp, UV) = defEName' (IntSyn.Null, imp, UV)
+  let rec defEName imp UV = defEName' (IntSyn.Null, imp, UV)
 
   let rec nameConDec' = function
     | IntSyn.ConDec (name, parent, imp, status, V, L) ->
-        IntSyn.ConDec (name, parent, imp, status, pisEName (imp, V), L)
+        IntSyn.ConDec (name, parent, imp, status, pisEName imp V, L)
     | IntSyn.ConDef (name, parent, imp, U, V, L, Anc) ->
         let U', V' = defEName (imp, (U, V)) in
         IntSyn.ConDef (name, parent, imp, U', V', L, Anc)

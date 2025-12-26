@@ -130,7 +130,7 @@ module Splitting
         lowerSplitDest
           ( I.Decl (G, D'),
             (V, I.dot1 s'),
-            fun (name, U) -> abstract (name, I.Lam (D', U)) )
+            fun name U -> abstract (name, I.Lam (D', U)) )
   (* split ((G, M), (x:D, s), abstract) = C'
 
        Invariant :
@@ -145,7 +145,7 @@ module Splitting
     lowerSplitDest
       ( I.Null,
         (V, s),
-        fun (name', U') ->
+        fun name' U' ->
           abstract (name', M.Prefix (G, M, B), I.Dot (I.Exp U', s)) )
   (* rename to add N prefix? *)
 
@@ -163,7 +163,7 @@ module Splitting
     | k, I.Lam (D, V) -> occursInDec (k, D) || occursInExp (k + 1, V)
     | k, I.FgnExp csfe ->
         I.FgnExpStd.fold csfe
-          (fun (U, B) -> B || occursInExp (k, Whnf.normalize (U, I.id)))
+          (fun U B -> B || occursInExp (k, Whnf.normalize (U, I.id)))
           false
 
   and occursInCon = function
@@ -372,7 +372,7 @@ module Splitting
             (mode, mS, B, k, S, k', S', inheritExp (B, k, U, k', U', Bdd'))
         else inheritSpineMode (mode, mS, B, k, S, k', S', Bdd')
 
-  let rec inheritSplitDepth (S, S') =
+  let rec inheritSplitDepth S S' =
     (* S' *)
     (* current first occurrence depth in V *)
     (* current first occurrence depth in V' *)
@@ -512,14 +512,14 @@ module Splitting
        If   Op = (_, S) then k = |S|
     *)
 
-  let rec index (_, Sl) = List.length Sl
+  let rec index _ Sl = List.length Sl
   (* apply (Op) = Sl'
 
        Invariant:
        If   Op = (_, Sl) then Sl' = Sl
     *)
 
-  let rec apply (_, Sl) =
+  let rec apply _ Sl =
     map
       (function
         | Active S -> S

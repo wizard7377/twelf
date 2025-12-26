@@ -109,7 +109,7 @@ module MTPSplitting
        Might migrate in to conv module  --cs
     *)
 
-  let rec conv (Gs, Gs') =
+  let rec conv Gs Gs' =
     let exception Conv in
     let rec conv = function
       | (I.Null, s), (I.Null, s') -> (s, s')
@@ -120,7 +120,7 @@ module MTPSplitting
       | _ -> raise Conv
     in
     try
-      conv (Gs, Gs');
+      conv Gs Gs';
       true
     with Conv -> false
   (* createEVarSpineW (G, (V, s)) = ((V', s') , S')
@@ -134,7 +134,7 @@ module MTPSplitting
        and  G |- S : V [s] >  V' [s']
     *)
 
-  let rec createEVarSpine (G, Vs) = createEVarSpineW (G, Whnf.whnf Vs)
+  let rec createEVarSpine G Vs = createEVarSpineW (G, Whnf.whnf Vs)
 
   and createEVarSpineW = function
     | G, Vs -> (I.Nil, Vs)
@@ -143,7 +143,7 @@ module MTPSplitting
         let X = I.newEVar (G, I.EClo (V1, s)) in
         let S, Vs = createEVarSpine (G, (V2, I.Dot (I.Exp X, s))) in
         (I.App (X, S), Vs)
-  (* createAtomConst (G, c) = (U', (V', s'))
+  (* createAtomConst G c = (U', (V', s'))
 
        Invariant:
        If   S |- c : Pi {V1 .. Vn}. V
@@ -151,12 +151,12 @@ module MTPSplitting
        and  . |- U' : V' [s']
     *)
 
-  let rec createAtomConst (G, H) =
+  let rec createAtomConst G H =
     let cid = match H with I.Const cid -> cid | I.Skonst cid -> cid in
     let V = I.constType cid in
     let S, Vs = createEVarSpine (G, (V, I.id)) in
     (I.Root (H, S), Vs)
-  (* createAtomBVar (G, k) = (U', (V', s'))
+  (* createAtomBVar G k = (U', (V', s'))
 
        Invariant:
        If   G |- k : Pi {V1 .. Vn}. V
@@ -164,7 +164,7 @@ module MTPSplitting
        and  . |- U' : V' [s']
     *)
 
-  let rec createAtomBVar (G, k) =
+  let rec createAtomBVar G k =
     let (I.Dec (_, V)) = I.ctxDec (G, k) in
     let S, Vs = createEVarSpine (G, (V, I.id)) in
     (I.Root (I.BVar k, S), Vs)
@@ -205,7 +205,7 @@ module MTPSplitting
 
   let rec maxNumberConstCases a = List.length (Index.lookup a)
 
-  let rec maxNumberCases (V, a) =
+  let rec maxNumberCases V a =
     maxNumberParams a + maxNumberLocalParams (V, a) + maxNumberConstCases a
   (* ctxSub (G, s) = G'
 
@@ -267,7 +267,7 @@ module MTPSplitting
   let rec paramCases = function
     | G, Vs, 0, abstract, ops -> ops
     | G, Vs, k, abstract, ops ->
-        let U, Vs' = createAtomBVar (G, k) in
+        let U, Vs' = createAtomBVar G k in
         paramCases
           ( G,
             Vs,
@@ -297,7 +297,7 @@ module MTPSplitting
           let (I.Dec (_, V)) = I.ctxDec (G, n) in
           let ops' =
             if I.targetFam V = c then
-              let U, Vs' = createAtomBVar (G, n) in
+              let U, Vs' = createAtomBVar G n in
               Cs.CSManager.trail (fun () ->
                   try
                     if Unify.unifiable (G, Vs, Vs') then
@@ -359,7 +359,7 @@ module MTPSplitting
     *)
 
   let rec split ((D, T), sc, abstract) =
-    let rec split' (n, cases) =
+    let rec split' n cases =
       if n < 0 then
         (* |- G' = parameter blocks of G  ctx*)
         (* G' |- B' tags *)
@@ -451,7 +451,7 @@ module MTPSplitting
     | k, I.Lam (D, V) -> occursInDec (k, D) || occursInExp (k + 1, V)
     | k, I.FgnExp csfe ->
         I.FgnExpStd.fold csfe
-          (fun (U, B) -> B || occursInExp (k, Whnf.normalize (U, I.id)))
+          (fun U B -> B || occursInExp (k, Whnf.normalize (U, I.id)))
           false
 
   and occursInCon = function
@@ -490,7 +490,7 @@ module MTPSplitting
         (IH, OH),
         d,
         S.orderSub (O, s'),
-        map (fun (i, F') -> (i, F.forSub (F', s'))) H,
+        map (fun i F' -> (i, F.forSub (F', s'))) H,
         F.forSub (F, s') )
   (* abstractCont ((x:V, T), abstract) = abstract'
 
@@ -556,7 +556,7 @@ module MTPSplitting
 
   let rec expand' = function
     | GB, isIndex, abstract, makeAddress, induction ->
-        fun (Gp, Bp) -> (((Gp, Bp), I.Shift (I.ctxLength Gp), GB, false), [])
+        fun Gp Bp -> (((Gp, Bp), I.Shift (I.ctxLength Gp), GB, false), [])
     | GB, isIndex, abstract, makeAddress, induction ->
         let sc, ops =
           expand'
@@ -567,7 +567,7 @@ module MTPSplitting
               inductionCont induction )
         in
         let (I.Dec (xOpt, V)) = D in
-        let rec sc' (Gp, Bp) =
+        let rec sc' Gp Bp =
           (* G' |- X : V[s'] *)
           let (G', B'), s', (G0, B0), p' = sc (Gp, Bp) in
           let X = I.newEVar (G', I.EClo (V, s')) in
@@ -583,7 +583,7 @@ module MTPSplitting
                 K,
                 I.ctxLength G,
                 induction 1,
-                maxNumberCases (V, a),
+                maxNumberCases V a,
                 Subordinate.below (a, a) )
             :: ops
           else ops
@@ -600,7 +600,7 @@ module MTPSplitting
               inductionCont induction )
         in
         let (I.Dec (xOpt, V)) = D in
-        let rec sc' (Gp, Bp) =
+        let rec sc' Gp Bp =
           let (G', B'), s', (G0, B0), p' = sc (Gp, Bp) in
           let X = I.newEVar (G', I.EClo (V, s')) in
           ((G', B'), I.Dot (I.Exp X, s'), (I.Decl (G0, D), I.Decl (B0, T)), p')
@@ -617,7 +617,7 @@ module MTPSplitting
               inductionCont induction )
         in
         let (I.Dec (xOpt, V)) = D in
-        let rec sc' (Gp, Bp) =
+        let rec sc' Gp Bp =
           let (G', B'), s', (G0, B0), p' = sc (Gp, Bp) in
           let X = I.newEVar (G', I.EClo (V, s')) in
           ((G', B'), I.Dot (I.Exp X, s'), (I.Decl (G0, D), I.Decl (B0, T)), p')
@@ -634,7 +634,7 @@ module MTPSplitting
               inductionCont induction )
         in
         let (I.Dec (xOpt, V)) = D in
-        let rec sc' (Gp, Bp) =
+        let rec sc' Gp Bp =
           let (G', B'), s', (G0, B0), _ = sc (Gp, Bp) in
           ( (I.Decl (G', Names.decName (G', I.decSub (D, s'))), I.Decl (B', T)),
             I.dot1 s',

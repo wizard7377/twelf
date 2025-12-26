@@ -88,7 +88,7 @@ module Search
        then  B holds iff r occurs in (the normal form of) U
     *)
 
-  let rec occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
+  let rec occursInExp r Vs = occursInExpW (r, Whnf.whnf Vs)
 
   and occursInExpW = function
     | r, (I.Uni _, _) -> false
@@ -379,7 +379,7 @@ module Search
         fun max ->
           if !Global.chatter > 5 then print "OK]\n" else ();
           let GE' =
-            foldr (fun (X, L) -> Abstract.collectEVars (G, (X, I.id), L)) [] GE
+            foldr (fun X L -> Abstract.collectEVars (G, (X, I.id), L)) [] GE
           in
           let gE' = List.length GE' in
           if gE' > 0 then if it > 0 then searchEx (it - 1, 1) (GE', sc) else ()
@@ -389,7 +389,7 @@ module Search
       );
     if !Global.chatter > 5 then print "FAIL]\n" else ();
     ()
-  (* search (GE, sc) = ()
+  (* search GE sc = ()
 
        Invariant:
        GE is a list of uninstantiated EVars
@@ -401,7 +401,7 @@ module Search
 
   (* Shared contexts of EVars in GE may recompiled many times *)
 
-  let rec search (maxFill, GE, sc) = searchEx (1, maxFill) (GE, sc)
+  let rec search maxFill GE sc = searchEx (1, maxFill) (GE, sc)
   let searchEx = search
   (* local ... *)
 end

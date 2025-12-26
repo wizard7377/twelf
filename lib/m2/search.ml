@@ -75,14 +75,14 @@ module OLDSearch
         solve
           ( (g, I.dot1 s),
             C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Dec (r, s, H))),
-            (fun (M, acck') -> sc (I.Lam (D', M), acck')),
+            (fun M acck' -> sc (I.Lam (D', M), acck')),
             acck )
     | (C.All (D, g), s), C.DProg (G, dPool), sc, acck ->
         let D' = I.decSub (D, s) in
         solve
           ( (g, I.dot1 s),
             C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Parameter)),
-            (fun (M, acck') -> sc (I.Lam (D', M), acck')),
+            (fun M acck' -> sc (I.Lam (D', M), acck')),
             acck )
 
   and rSolve = function
@@ -94,11 +94,11 @@ module OLDSearch
           ( ps',
             (r, I.Dot (I.Exp X, s)),
             dp,
-            (fun (S, acck') ->
+            (fun S acck' ->
               solve
                 ( (g, s),
                   dp,
-                  (fun (M, acck'') ->
+                  (fun M acck'' ->
                     try
                       Unify.unify (G, (X, I.id), (M, I.id));
                       (* why doesn't it always succeed?
@@ -113,7 +113,7 @@ module OLDSearch
           ( ps',
             (r, I.Dot (I.Exp X, s)),
             dp,
-            (fun (S, acck') -> sc (I.App (X, S), acck')),
+            (fun S acck' -> sc (I.App (X, S), acck')),
             acck )
 
   and aSolve ((C.Trivial, s), dp, sc, acc) = sc ()
@@ -130,7 +130,7 @@ module OLDSearch
                     ( ps',
                       (r, I.id),
                       dp,
-                      (fun (S, acck') -> sc (I.Root (Hc, S), acck')),
+                      (fun S acck' -> sc (I.Root (Hc, S), acck')),
                       (acc'', k - 1) ))
             in
             matchSig' (sgn', acc''')
@@ -147,7 +147,7 @@ module OLDSearch
                     ( ps',
                       (r, I.comp (s, I.Shift n)),
                       dp,
-                      (fun (S, acck') -> sc (I.Root (I.BVar n, S), acck')),
+                      (fun S acck' -> sc (I.Root (I.BVar n, S), acck')),
                       (acc', k - 1) ))
             in
             matchDProg (dPool', n + 1, acc'')
@@ -162,7 +162,7 @@ module OLDSearch
        then  B holds iff r occurs in (the normal form of) U
     *)
 
-  let rec occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
+  let rec occursInExp r Vs = occursInExpW (r, Whnf.whnf Vs)
 
   and occursInExpW = function
     | r, (I.Uni _, _) -> false
@@ -173,7 +173,7 @@ module OLDSearch
         occursInDec (r, (D, s)) || occursInExp (r, (V, I.dot1 s))
     | r, (I.EVar (r', _, V', _), s) -> r = r' || occursInExp (r, (V', s))
     | r, (I.FgnExp csfe, s) ->
-        I.FgnExpStd.fold csfe (fun (U, B) -> B || occursInExp (r, (U, s))) false
+        I.FgnExpStd.fold csfe (fun U B -> B || occursInExp (r, (U, s))) false
 
   and occursInSpine = function
     | _, (I.Nil, _) -> false
@@ -209,7 +209,7 @@ module OLDSearch
   let rec selectEVar = function
     | [], _, acc -> acc
     | X :: GE, Vs, acc ->
-        if occursInExp (r, Vs) && nonIndex (r, acc) then
+        if occursInExp r Vs && nonIndex (r, acc) then
           selectEVar (GE, Vs, X :: acc)
         else selectEVar (GE, Vs, acc)
   (* searchEx' max (GE, sc) = acc'
@@ -243,7 +243,7 @@ module OLDSearch
     *)
 
   let rec deepen f P =
-    let rec deepen' (level, acc) =
+    let rec deepen' level acc =
       if level > !MetaGlobal.maxFill then acc
       else (
         if !Global.chatter > 5 then print "#" else ();

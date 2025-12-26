@@ -68,7 +68,7 @@ module Compile
     *)
 
   let rec head = function I.Root (h, _) -> h | I.Pi (_, A) -> head A
-  let rec seen (i, Vars) = List.exists (fun (d, x) -> x = i) Vars
+  let rec seen i Vars = List.exists (fun d x -> x = i) Vars
   (* etaSpine (S, n) = true
 
    iff S is a spine n;n-1;..;1;nil
@@ -262,7 +262,7 @@ module Compile
            (Axists(_ , Axists( _, ....., Axists( _, Assign (E, AuxG)))))
   *)
 
-  let rec compileLinearHead (G, R) =
+  let rec compileLinearHead G R =
     let K, _ = collectExp (R, [], [], 0) in
     let left = List.length K in
     let left', _, R', Eqs =
@@ -292,7 +292,7 @@ module Compile
 
   *)
 
-  let rec compileSbtHead (G, H) =
+  let rec compileSbtHead G H =
     let K, _ = collectExp (H, [], [], 0) in
     let left = List.length K in
     let left', _, H', Eqs =
@@ -345,7 +345,7 @@ module Compile
 
   and compileDClauseN = function
     | fromCS, opt, (G, R) ->
-        if opt && !optimize = C.LinearHeads then compileLinearHead (G, R)
+        if opt && !optimize = C.LinearHeads then compileLinearHead G R
         else if notCS fromCS && isConstraint h then
           raise (Error "Constraint appears in dynamic clause position")
         else C.Eq R
@@ -400,7 +400,7 @@ module Compile
   let rec compileSClauseN = function
     | fromCS, (Stack, G, R) ->
         (* G' |- Sgoals  and G' |- ^d : G *)
-        let G', Head = compileSbtHead (G, R) in
+        let G', Head = compileSbtHead G R in
         let d = I.ctxLength G' - I.ctxLength G in
         let Sgoals = compileSubgoals fromCS G' (d, Stack, G) in
         ((G', Head), Sgoals)
@@ -414,7 +414,7 @@ module Compile
   let rec compileDClause opt (G, A) =
     compileDClauseN I.Ordinary opt (G, Whnf.normalize (A, I.id))
 
-  let rec compileGoal (G, A) =
+  let rec compileGoal G A =
     compileGoalN I.Ordinary (G, Whnf.normalize (A, I.id))
   (* compileCtx G = (G, dPool)
 

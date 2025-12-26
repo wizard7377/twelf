@@ -44,7 +44,7 @@ module AbsMachineSbt
       * CompSyn.dProg
       * (CompSyn.flatterm list -> unit) ->
       unit ref =
-    ref (fun (ps, dp, sc) -> ())
+    ref (fun ps dp sc -> ())
   (* We write
        G |- M : g
      if M is a canonical proof term for_sml goal g which could be found
@@ -79,7 +79,7 @@ module AbsMachineSbt
     | IntSyn.Null, s -> s
     | IntSyn.Decl (G, D), s -> I.dot1 (shift (G, s))
 
-  let rec invShiftN (n, s) =
+  let rec invShiftN n s =
     if n = 0 then I.comp (I.invShift, s)
     else I.comp (I.invShift, invShiftN (n - 1, s))
 
@@ -233,7 +233,7 @@ module AbsMachineSbt
           else matchDProg (dPool', k + 1)
       | I.Decl (dPool', C.Parameter), k -> matchDProg (dPool', k + 1)
     in
-    let rec matchConstraint (solve, try_) =
+    let rec matchConstraint solve try_ =
       let succeeded =
         Cs.CSManager.trail (fun () ->
             match solve (G, I.SClo (S, s), try_) with

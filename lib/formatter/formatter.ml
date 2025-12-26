@@ -124,13 +124,13 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
 \subsubsection{Arithmetic functions}
 *)
 
-  let rec max_val (x, y) = if (x : int) > y then x else y
+  let rec max_val x y = if (x : int) > y then x else y
   let rec sumpair ((a, b), (c, d)) = ((a : int) + c, (b : int) + d)
   (*
 \subsubsection{Pair functions}
 *)
 
-  let rec fst (a, b) = a
+  let rec fst a b = a
   and snd (a, b) = b
   (*
 %*************************************************************************
@@ -259,18 +259,18 @@ then simply starts the auxiliary function
 
   let rec vlistWidth' = function
     | i, [], (totmin, totmax), (tmmin, tmmax) ->
-        (max_val (totmin, tmmin), max_val (totmax, tmmax))
+        (max_val totmin tmmin, max_val totmax tmmax)
     | i, Dbk :: t, (totmin, totmax), (tmmin, tmmax) ->
         vlistWidth'
           ( i,
             t,
-            (max_val (totmin, tmmin), max_val (totmax, tmmax)),
+            (max_val totmin tmmin, max_val totmax tmmax),
             width0 (Vert, unused, i, Dbk) )
     | i, b :: t, (totmin, totmax), (tmmin, tmmax) ->
         vlistWidth'
           ( i,
             t,
-            (max_val (totmin, tmmin), max_val (totmax, tmmax)),
+            (max_val totmin tmmin, max_val totmax tmmax),
             width0 (Vert, unused, i, b) )
     | i, x :: t, (totmin, totmax), (tmmin, tmmax) ->
         vlistWidth'
@@ -279,7 +279,7 @@ then simply starts the auxiliary function
             (totmin, totmax),
             sumpair (width0 (Vert, unused, i, x), (tmmin, tmmax)) )
 
-  let rec vlistWidth (l, indent) = vlistWidth' (indent, l, (0, 0), (0, 0))
+  let rec vlistWidth l indent = vlistWidth' (indent, l, (0, 0), (0, 0))
   (*
 Now to the purely {\bf horizontal boxes}:
 these are pretty easy --- we merely sum up the widths of all entries.
@@ -288,7 +288,7 @@ horizontal tabs at the time, which we need to an argument
 to the {\ml Width0} function.
 *)
 
-  let rec hlistWidth (l, blanks) =
+  let rec hlistWidth l blanks =
     List.foldr
       (fun (fmt, (x, y)) ->
         sumpair (width0 (Hori, blanks, unused, fmt), (x, y)))
@@ -311,9 +311,9 @@ entry (if we have enough space left in the page we will always prefer to
 use horizontal mode over vertical mode).
 *)
 
-  let rec hovlistWidth (l, blanks, indent) =
-    let vmin, vmax = vlistWidth (l, indent)
-    and hmin, hmax = hlistWidth (l, blanks) in
+  let rec hovlistWidth l blanks indent =
+    let vmin, vmax = vlistWidth l indent
+    and hmin, hmax = hlistWidth l blanks in
     let min, mmode = if vmin < hmin then (vmin, Vert) else (hmin, Hori) in
     ((min, hmax), (mmode, Hori))
   (*
@@ -363,9 +363,9 @@ break.  This ensures that the first item is all the others.
   let rec newlines n = Str (0, nl n)
 
   let rec vbox l = Vbx (vlistWidth (l, !indent), !indent, !skip, l)
-  and vbox0 i s l = Vbx (vlistWidth (l, i), i, s, l)
+  and vbox0 i s l = Vbx (vlistWidth l i, i, s, l)
   and hbox l = Hbx (hlistWidth (l, !blanks), !blanks, l)
-  and hbox0 b l = Hbx (hlistWidth (l, b), b, l)
+  and hbox0 b l = Hbx (hlistWidth l b, b, l)
 
   and hvbox l =
     Hvx (hvlistWidth (l, !blanks, !indent), !blanks, !indent, !skip, l)
@@ -375,7 +375,7 @@ break.  This ensures that the first item is all the others.
   and hovbox l =
     Hov (hovlistWidth (l, !blanks, !indent), !blanks, !indent, !skip, l)
 
-  and hovbox0 b i s l = Hov (hovlistWidth (l, b, i), b, i, s, l)
+  and hovbox0 b i s l = Hov (hovlistWidth l b i, b, i, s, l)
 
   let rec newpage () = Str (0, np ())
   (*
@@ -420,7 +420,7 @@ determine the maximum width do not contain breaks, all but the last
 
   let rec summaxwidth l =
     List.foldr
-      (fun (fmt, ysum) ->
+      (fun fmt ysum ->
         let _, y = width0 (Hori, unused, unused, fmt) in
         y + ysum)
       0 l
@@ -542,7 +542,7 @@ We thus get:
 *)
 
   let rec pphv = function
-    | mw, li, bl, is, ss, mp, ch, lb, [], res -> (max_val (mp, ch), res)
+    | mw, li, bl, is, ss, mp, ch, lb, [], res -> (max_val mp ch, res)
     | mw, li, bl, is, ss, mp, ch, lb, (gpwdth, flist, brk) :: t, res ->
         (* Now print the elements of the group using default for_sml horizontal tabs *)
         (* Now print rest of horizontal-vertical box *)
@@ -560,19 +560,19 @@ We thus get:
             (* group will not fit: vertical break.
                     Was last line of maximum width? *)
             let n, s = print'p (mw, li, bl, is, ss, Vert, lb, res) in
-            (n, s, max_val (mp, ch))
+            (n, s, max_val mp ch)
         in
         let n2, s2 = pph (mw, li + ch1, bl, is, ss, flist, 0, s1) in
         pphv (mw, li, bl, is, ss, mp, ch1 + n2, brk, t, s2)
 
   and ppv = function
-    | mw, li, ci, bl, is, ss, max, gw, [], res -> (max_val (max, gw), res)
+    | mw, li, ci, bl, is, ss, max, gw, [], res -> (max_val max gw, res)
     | mw, li, ci, bl, is, ss, max, gw, Dbk :: t, res ->
         let n, s = print'p (mw, li, bl, is, ss, Vert, Dbk, res) in
-        ppv (mw, li, li + n, bl, is, ss, max_val (max, gw), n, t, s)
+        ppv (mw, li, li + n, bl, is, ss, max_val max gw, n, t, s)
     | mw, li, ci, bl, is, ss, max, gw, b :: t, res ->
         let n, s = print'p (mw, li, bl, is, ss, Vert, b, res) in
-        ppv (mw, li, li + n, bl, is, ss, max_val (max, gw), n, t, s)
+        ppv (mw, li, li + n, bl, is, ss, max_val max gw, n, t, s)
     | mw, li, ci, bl, is, ss, max, gw, h :: t, res ->
         let n, s = print'p (mw, ci, bl, is, ss, Vert, h, res) in
         ppv (mw, li, ci + n, bl, is, ss, max, gw + n, t, s)
@@ -694,7 +694,7 @@ Finally we have {\ml print\_fmt} and {\ml makestring\_fmt}
 
   let rec print_fmt fm =
     List.foldr
-      (fun (s, _) -> print s)
+      (fun s _ -> print s)
       ()
       (snd (print'p (!pagewidth, 0, !blanks, !indent, !skip, Hori, fm, [])))
   (*
@@ -712,7 +712,7 @@ make the use of {\tt fmtstreams} on files more convenient.
 
   let rec output_fmt (Formatstream outs, fm) =
     List.foldr
-      (fun (s, _) -> TextIO.output (outs, s))
+      (fun s _ -> TextIO.output (outs, s))
       ()
       (snd (print'p (!pagewidth, 0, !blanks, !indent, !skip, Hori, fm, [])))
   (*

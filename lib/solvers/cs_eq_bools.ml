@@ -54,11 +54,11 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
   let impliesID = (ref - 1 : cid ref)
   let iffID = (ref - 1 : cid ref)
   let rec notExp U = Root (Const !notID, App (U, Nil))
-  let rec xorExp (U, V) = Root (Const !xorID, App (U, App (V, Nil)))
-  let rec andExp (U, V) = Root (Const !andID, App (U, App (V, Nil)))
-  let rec orExp (U, V) = Root (Const !orID, App (U, App (V, Nil)))
-  let rec impliesExp (U, V) = Root (Const !impliesID, App (U, App (V, Nil)))
-  let rec iffExp (U, V) = Root (Const !iffID, App (U, App (V, Nil)))
+  let rec xorExp U V = Root (Const !xorID, App (U, App (V, Nil)))
+  let rec andExp U V = Root (Const !andID, App (U, App (V, Nil)))
+  let rec orExp U V = Root (Const !orID, App (U, App (V, Nil)))
+  let rec impliesExp U V = Root (Const !impliesID, App (U, App (V, Nil)))
+  let rec iffExp U V = Root (Const !iffID, App (U, App (V, Nil)))
   (* member eq (x, L) = true iff there there is a y in L s.t. eq(y, x) *)
 
   let rec member eq (x, L) = List.exists (fun y -> eq (x, y)) L
@@ -68,7 +68,7 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
     let L1' = List.filter (fun x -> not (member eq (x, L2))) L1 in
     let L2' = List.filter (fun x -> not (member eq (x, L1))) L2 in
     L1' @ L2'
-  (* equalSet eq (L1, L2) = true iff L1 is equal to L2 (both sets) *)
+  (* equalSet eq (L1, L2) = true iff L1 is Equal to L2 (both sets) *)
 
   let rec equalSet eq (L1, L2) =
     match differenceSet eq (L1, L2) with [] -> true | _ :: _ -> false
@@ -101,7 +101,7 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
   (* compatibleMon (mon1, mon2) = true only if mon1 = mon2 (as monomials) *)
 
   let rec compatibleMon (Mon UsL1, Mon UsL2) =
-    equalSet (fun (Us1, Us2) -> sameExp (Us1, Us2)) (UsL1, UsL2)
+    equalSet (fun Us1 Us2 -> sameExp (Us1, Us2)) (UsL1, UsL2)
 
   and sameExpW = function
     | Us1, Us2 -> (
@@ -174,7 +174,7 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
     *)
 
   let rec notSum (Sum (m, monL)) = Sum (not m, monL)
-  (* orSum (sum1, sum2) = sum3
+  (* orSum sum1 sum2 = sum3
 
        Invariant:
        If   sum1 normal
@@ -183,8 +183,8 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
        and  sum3 = sum1 or sum2
     *)
 
-  let rec orSum (sum1, sum2) = xorSum (sum1, xorSum (sum2, andSum (sum1, sum2)))
-  (* impliesSum (sum1, sum2) = sum3
+  let rec orSum sum1 sum2 = xorSum (sum1, xorSum (sum2, andSum (sum1, sum2)))
+  (* impliesSum sum1 sum2 = sum3
 
        Invariant:
        If   sum1 normal
@@ -193,8 +193,8 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
        and  sum3 = sum1 implies sum2
     *)
 
-  let rec impliesSum (sum1, sum2) = notSum (xorSum (sum1, andSum (sum1, sum2)))
-  (* iffSum (sum1, sum2) = sum3
+  let rec impliesSum sum1 sum2 = notSum (xorSum (sum1, andSum (sum1, sum2)))
+  (* iffSum sum1 sum2 = sum3
 
        Invariant:
        If   sum1 normal
@@ -203,7 +203,7 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
        and  sum3 = sum1 iff sum2
     *)
 
-  let rec iffSum (sum1, sum2) = notSum (xorSum (sum1, sum2))
+  let rec iffSum sum1 sum2 = notSum (xorSum (sum1, sum2))
   (* fromExpW (U, s) = sum
 
        Invariant:
@@ -253,7 +253,7 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
           | None -> findMon' (monL1, mon :: monL2))
     in
     findMon' (monL, [])
-  (* unifySum (G, sum1, sum2) = result
+  (* unifySum G sum1 sum2 = result
 
        Invariant:
        If   G |- sum1 : number     sum1 normal
@@ -262,7 +262,7 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
        equation sum1 = sum2 by gaussian elimination.
     *)
 
-  let rec unifySum (G, sum1, sum2) =
+  let rec unifySum G sum1 sum2 =
     let rec invertMon = function
       | G, Mon [ (LHS, s) ], sum ->
           if Whnf.isPatSub s then
@@ -380,13 +380,13 @@ module CSEqBools (Whnf : Whnf.WHNF) (Unify : Unify.UNIFY) : Cs.CS = struct
         fun (App (U1, App (U2, Nil))) ->
           opSum (fromExp (U1, id), fromExp (U2, id)) )
 
-  let rec arrow (U, V) = Pi ((Dec (None, U), No), V)
-  (* init (cs, installFunction) = ()
+  let rec arrow U V = Pi ((Dec (None, U), No), V)
+  (* init cs installFunction = ()
        Initialize the constraint solver.
        installFunction is used to add its signature symbols.
     *)
 
-  let rec init (cs, installF) =
+  let rec init cs installF =
     myID := cs;
     boolID :=
       installF

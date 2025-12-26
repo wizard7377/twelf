@@ -107,19 +107,19 @@ module PtRecon
                 ( O,
                   (g, I.Dot (I.Exp X, s)),
                   C.DProg (G, dPool),
-                  fun (O, M) -> sc (O, I.Lam (D', M)) )
+                  fun O M -> sc (O, I.Lam (D', M)) )
           | None ->
               solve'
                 ( O,
                   (g, I.dot1 s),
                   C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Dec (r, s, Ha))),
-                  fun (O, M) -> sc (O, I.Lam (D', M)) )
+                  fun O M -> sc (O, I.Lam (D', M)) )
         else
           solve'
             ( O,
               (g, I.dot1 s),
               C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Dec (r, s, Ha))),
-              fun (O, M) -> sc (O, I.Lam (D', M)) )
+              fun O M -> sc (O, I.Lam (D', M)) )
         (*      solve' (O, (g, I.dot1 s), C.DProg (I.Decl(G, D'), I.Decl (dPool, C.Dec (r, s, Ha))),
                (fn (O,M) => sc (O, (I.Lam (D', M)))))*)
     | O, (C.All (D, g), s), C.DProg (G, dPool), sc ->
@@ -129,7 +129,7 @@ module PtRecon
           ( O,
             (g, I.dot1 s),
             C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Parameter)),
-            fun (O, M) -> sc (O, I.Lam (D', M)) )
+            fun O M -> sc (O, I.Lam (D', M)) )
 
   and rSolve = function
     | O, ps', (C.Eq Q, s), C.DProg (G, dPool), sc ->
@@ -156,8 +156,8 @@ module PtRecon
             ps',
             (r, I.Dot (I.Exp X, s)),
             dp,
-            fun (O, S) ->
-              solve' (O, (g, s), dp, fun (O, M) -> sc (O, I.App (M, S))) )
+            fun O S ->
+              solve' (O, (g, s), dp, fun O M -> sc (O, I.App (M, S))) )
     | O, ps', (C.Exists (I.Dec (_, A), r), s), dp, sc ->
         let X = I.newEVar (G, I.EClo (A, s)) in
         rSolve
@@ -165,7 +165,7 @@ module PtRecon
             ps',
             (r, I.Dot (I.Exp X, s)),
             dp,
-            fun (O, S) -> sc (O, I.App (X, S)) )
+            fun O S -> sc (O, I.App (X, S)) )
     | O, ps', (C.Axists (I.ADec (Some X, d), r), s), dp, sc ->
         let X' = I.newAVar () in
         rSolve (O, ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift ~-d)), s)), dp, sc)
@@ -194,12 +194,12 @@ module PtRecon
       | Hc :: sgn', k ->
           if c = k then
             let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
-            rSolve (O, ps', (r, I.id), dp, fun (O, S) -> sc (O, I.Root (Hc, S)))
+            rSolve (O, ps', (r, I.id), dp, fun O S -> sc (O, I.Root (Hc, S)))
           else matchSig (sgn', k)
       | Hc :: sgn', k ->
           if d = k then
             let (C.SClause r) = C.sProgLookup (cidFromHead Hc) in
-            rSolve (O, ps', (r, I.id), dp, fun (O, S) -> sc (O, I.Root (Hc, S)))
+            rSolve (O, ps', (r, I.id), dp, fun O S -> sc (O, I.Root (Hc, S)))
           else matchSig (sgn', k)
     in
     let rec matchDProg = function
@@ -216,7 +216,7 @@ module PtRecon
                 ps',
                 (r, I.comp (s, I.Shift k)),
                 dp,
-                fun (O, S) -> sc (O, I.Root (I.BVar k, S)) )
+                fun O S -> sc (O, I.Root (I.BVar k, S)) )
           else (* shouldn't happen *)
             raise
               (Error "\n selected dynamic clause does not match current goal!\n")

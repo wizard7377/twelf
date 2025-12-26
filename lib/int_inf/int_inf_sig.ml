@@ -7,15 +7,15 @@ open Basis ;;
  * This package is derived from Andrzej Filinski's bignum package.  It is versy
  * close to the definition of the optional IntInf structure in the SML'97 basis.
  *)
-open Basis ;; 
+
 
 module type INT_INF = sig
-  include Integer.INTEGER
+  include (module type of Integer)
 
   val divmod : int * int -> int * int
   val quotrem : int * int -> int * int
-  val pow : int * Int.int -> int
-  val log2 : int -> Int.int
+  val pow : int * int -> int
+  val log2 : int -> int
 end
 
 (* signature INT_INF *)

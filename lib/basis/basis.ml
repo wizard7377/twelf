@@ -5,14 +5,11 @@
    @author Asher Frost
 *)
 
-(** Order type *)
-type order = Prelude.order
 
-let less = Prelude.less
-let equal = Prelude.equal
-let greater = Prelude.greater
-let rev = Prelude.rev
-let print = Prelude.print
+type order = Order.order
+let print s = print_string s ;;
+let rev lst = Stdlib.List.rev lst ;;
+
 module Array = Array.Array
 module Time = Time.Time
 module Vector = Vector.Vector
@@ -20,4 +17,5 @@ module List = List.List
 module Integer = Integer.Integer
 module Char = Char.Char
 module TextIO = TextIO.TextIO
-               
+module Word8 = Word.Word8
+module Word32 = Word.Word32

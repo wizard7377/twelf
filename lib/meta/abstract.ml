@@ -246,7 +246,7 @@ module MTPAbstract
             )
     | T, d, G, (I.FgnExp csfe, s), K ->
         I.FgnExpStd.fold csfe
-          (fun (U, K') -> collectExp (T, d, G, (U, s), K'))
+          (fun U K' -> collectExp (T, d, G, (U, s), K'))
           K
 
   and collectExp (T, d, G, Us, K) = collectExpW (T, d, G, Whnf.whnf Us, K)
@@ -281,7 +281,7 @@ module MTPAbstract
         if r = r' then (I.BVar (depth + 1), d)
         else abstractEVar (K', depth + 1, X)
     | I.Decl (K', BV _), depth, X -> abstractEVar (K', depth + 1, X)
-  (* lookupBV (A, i) = k'
+  (* lookupBV A i = k'
 
        Invariant:
 
@@ -293,7 +293,7 @@ module MTPAbstract
        and  G x A |- V' [s] = V'' : type
     *)
 
-  let rec lookupBV (K, i) =
+  let rec lookupBV K i =
     (* lookupBV' I.Null cannot occur by invariant *)
     let rec lookupBV' = function
       | I.Decl (K, EV (r, V, _, _)), i, k -> lookupBV' (K, i, k + 1)
@@ -430,7 +430,7 @@ module MTPAbstract
     | K, I.Shift n, B ->
         abstractGlobalSub (K, I.Dot (I.Idx (n + 1), I.Shift (n + 1)), B)
     | K, I.Dot (I.Idx k, s'), I.Decl (B, T) ->
-        I.Dot (I.Idx (lookupBV (K, k)), abstractGlobalSub (K, s', B))
+        I.Dot (I.Idx (lookupBV K k), abstractGlobalSub (K, s', B))
     | K, I.Dot (I.Exp U, s'), I.Decl (B, T) ->
         I.Dot
           (I.Exp (abstractExp (K, 0, (U, I.id))), abstractGlobalSub (K, s', B))
@@ -456,7 +456,7 @@ module MTPAbstract
           ( G0,
             s,
             B,
-            fun (d, K) -> collect (d, collectExp (T, d, G0, (U, I.id), K)) )
+            fun d K -> collect (d, collectExp (T, d, G0, (U, I.id), K)) )
 
   and skip = function
     | G0, 0, s, B, collect -> collectGlobalSub (G0, s, B, collect)
@@ -466,7 +466,7 @@ module MTPAbstract
             n - 1,
             I.invDot1 s,
             B,
-            fun (d, K) -> collect (d + 1, I.Decl (K, BV (D, T))) )
+            fun d K -> collect (d + 1, I.Decl (K, BV (D, T))) )
   (* abstractNew ((G0, B0), s, B) = ((G', B'), s')
 
        Invariant:
@@ -480,7 +480,7 @@ module MTPAbstract
     *)
 
   let rec abstractNew ((G0, B0), s, B) =
-    let cf = collectGlobalSub (G0, s, B, fun (_, K') -> K') in
+    let cf = collectGlobalSub (G0, s, B, fun _ K' -> K') in
     let K = cf (0, I.Null) in
     (abstractCtx K, abstractGlobalSub (K, s, B))
   (* abstractSub (t, B1, (G0, B0), s, B) = ((G', B'), s')
@@ -510,8 +510,8 @@ module MTPAbstract
       | K, (I.Decl (G0, D), I.Decl (B0, T)) ->
           I.Decl (skip'' (K, (G0, B0)), BV (D, T))
     in
-    let collect2 = collectGlobalSub (G0, s, B, fun (_, K') -> K') in
-    let collect0 = collectGlobalSub (I.Null, t, B1, fun (_, K') -> K') in
+    let collect2 = collectGlobalSub (G0, s, B, fun _ K' -> K') in
+    let collect0 = collectGlobalSub (I.Null, t, B1, fun _ K' -> K') in
     let K0 = collect0 (0, I.Null) in
     let K1 = skip'' (K0, (G0, B0)) in
     let d = I.ctxLength G0 in
@@ -655,7 +655,7 @@ module MTPAbstract
         let V''' = Whnf.normalize (raiseType (Gw, V''), I.id) in
         let S''' = S I.Nil in
         let sc' =
-         fun (w', k') ->
+         fun w' k' ->
           (* G0, GA |- w' : G0 *)
           (* G0, GA, G[..] |- s' : G0, G, GF *)
           let s' = sc (w', k') in
@@ -707,7 +707,7 @@ module MTPAbstract
         let V''' = Whnf.normalize (raiseType (Gw, V''), I.id) in
         let S''' = S I.Nil in
         let sc' =
-         fun (w', k') ->
+         fun w' k' ->
           (* G0, GA |- w' : G0 *)
           (* G0, GA, G[..] |- s' : G0, G, GF *)
           let s' = sc (w', k') in
@@ -733,7 +733,7 @@ module MTPAbstract
   let rec makeFor = function
     | K, w, Head (G, (F, s), d) ->
         (*        val _ = if !Global.doubleCheck then checkTags (GK, BK) else () *)
-        let cf = collectGlobalSub (G, s, createEmptyB d, fun (_, K') -> K') in
+        let cf = collectGlobalSub (G, s, createEmptyB d, fun _ K' -> K') in
         let k = I.ctxLength K in
         let K' = cf (I.ctxLength G, K) in
         let k' = I.ctxLength K' in
@@ -750,7 +750,7 @@ module MTPAbstract
         (* BUG *)
         let k = I.ctxLength K in
         let collect =
-          collectGlobalSub (G, t, createEmptyB d, fun (_, K') -> K')
+          collectGlobalSub (G, t, createEmptyB d, fun _ K' -> K')
         in
         let K' = collect (I.ctxLength G, K) in
         let k' = I.ctxLength K' in
@@ -761,7 +761,7 @@ module MTPAbstract
           if !Global.doubleCheck then FunTypeCheck.isFor (GK, F') else ()
         in
         let GK1, GK2 = split (GK, List.length G2) in
-        let F'' = raiseFor (0, GK2, F', I.id, fun (w, _) -> F.dot1n (GK2, w)) in
+        let F'' = raiseFor (0, GK2, F', I.id, fun w _ -> F.dot1n (GK2, w)) in
         let _ =
           if !Global.doubleCheck then FunTypeCheck.isFor (GK1, F'') else ()
         in

@@ -31,8 +31,8 @@ module CSIneqField
   let geqID = (ref - 1 : cid ref)
   (* constructors for_sml the declared types *)
 
-  let rec gt (U, V) = Root (Const !gtID, App (U, App (V, Nil)))
-  let rec geq (U, V) = Root (Const !geqID, App (U, App (V, Nil)))
+  let rec gt U V = Root (Const !gtID, App (U, App (V, Nil)))
+  let rec geq U V = Root (Const !geqID, App (U, App (V, Nil)))
   (* specialized constructors for_sml the declared types *)
 
   let rec gt0 U = gt (U, constant zero)
@@ -51,7 +51,7 @@ module CSIneqField
   let rec geqAdd (U1, U2, V, W) =
     Root (Const !geqAddID, App (U1, App (U2, App (V, App (W, Nil)))))
 
-  let rec gtGeq (U, V, W) = Root (Const !gtGeqID, App (U, App (V, App (W, Nil))))
+  let rec gtGeq U V W = Root (Const !gtGeqID, App (U, App (V, App (W, Nil))))
   let rec geq00 () = Root (Const !geq00ID, Nil)
   (* constant declaration for_sml the proof object d>0 *)
 
@@ -139,7 +139,7 @@ module CSIneqField
 
   let seed = ref 1999.0
 
-  let rec rand (min, size) =
+  let rec rand min size =
     let rec nextrand () =
       let t = (Real).*(a, !seed) in
       seed := (Real).-(t, (Real).*(m, Real.fromInt (Real.floor (t / m))));
@@ -178,7 +178,7 @@ module CSIneqField
   let rec const i = Array.sub (consts tableau, i)
   (* coefficient in row i, column j *)
 
-  let rec coeff (i, j) = Array2.sub (coeffs tableau, i, j)
+  let rec coeff i j = Array2.sub (coeffs tableau, i, j)
   (* number of rows *)
 
   let rec nRows () = !(nrows tableau)
@@ -205,7 +205,7 @@ module CSIneqField
   let rec decrNCols () = ncols tableau := (Int).-(nCols (), 1)
   (* increase by the given amount the element i of the array *)
 
-  let rec incrArray (array, i, value) =
+  let rec incrArray array i value =
     Array.update (array, i, Array.sub (array, i) + value)
   (* increase by the given amount the element (i, j) of the array *)
 
@@ -215,25 +215,25 @@ module CSIneqField
 
   let rec incrArray2Row (array, i, (j, len), f) =
     Compat.Vector.mapi
-      (fun (j, value) -> Array2.update (array, i, j, value + f j))
+      (fun j value -> Array2.update (array, i, j, value + f j))
       (Array2.row (array, i, (j, len)))
   (* increase by f(i') all the elements (i', j), with i <= i' < i+len *)
 
   let rec incrArray2Col (array, j, (i, len), f) =
     Compat.Vector.mapi
-      (fun (i, value) -> Array2.update (array, i, j, value + f i))
+      (fun i value -> Array2.update (array, i, j, value + f i))
       (Array2.column (array, j, (i, len)))
   (* set the given row to zero *)
 
   let rec clearArray2Row (array, i, (j, len)) =
     Compat.Vector.mapi
-      (fun (j, value) -> Array2.update (array, i, j, zero))
+      (fun j value -> Array2.update (array, i, j, zero))
       (Array2.row (array, i, (j, len)))
   (* set the given column to zero *)
 
   let rec clearArray2Col (array, j, (i, len)) =
     Compat.Vector.mapi
-      (fun (i, value) -> Array2.update (array, i, j, zero))
+      (fun i value -> Array2.update (array, i, j, zero))
       (Array2.column (array, j, (i, len)))
   (* return the label at the given position (row or column) *)
 
@@ -250,7 +250,7 @@ module CSIneqField
   let rec dead (l : label) = !(dead l)
   (* set the ownership of the given position *)
 
-  let rec setOwnership (pos, owner, tag) =
+  let rec setOwnership pos owner tag =
     let old = label pos in
     let new_ =
       { owner; tag; restr = ref (restriction old); dead = ref (dead old) }
@@ -350,7 +350,7 @@ module CSIneqField
 
   let rec isConstant row =
     Array.foldl
-      (fun (j, l, rest) -> (dead l || coeff (row, j) = zero) && rest)
+      (fun j l rest -> (dead l || coeff row j = zero) && rest)
       true
       (clabels tableau, 0, nCols ())
   (* return the position of the row/column of the tableau (if any) that makes the
@@ -376,7 +376,7 @@ module CSIneqField
         | j, l, [] -> []
         | j, (l : label), candidates ->
             if not (dead l) then
-              List.filter (fun i -> coeff (i, j) = coeff (row, j)) candidates
+              List.filter (fun i -> coeff i j = coeff row j) candidates
             else candidates
       in
       match Array.foldl filter candidates (clabels tableau, 0, nCols ()) with
@@ -390,7 +390,7 @@ module CSIneqField
           Array.foldl
             (fun (j, (l : label), rest) ->
               if not (dead l) then
-                let value = coeff (row, j) in
+                let value = coeff row j in
                 if value <> zero then (j, value) :: rest else rest
               else rest)
             []
@@ -418,9 +418,9 @@ module CSIneqField
     in
     let rec findPivotCol (j, (l : label), result) =
       (* find the best pivot candidates for_sml the given row and column *)
-      let value = coeff (row, j) in
+      let value = coeff row j in
       let rec findPivotRow sgn (i, (l : label), result) =
-        let value = coeff (i, j) in
+        let value = coeff i j in
         if
           (not (dead l))
           && i <> row && restricted l
@@ -459,8 +459,8 @@ module CSIneqField
         Some (List.nth (champs, rand (0, List.length champs)))
   (* pivot the element at the given coordinates *)
 
-  let rec pivot (row, col) =
-    let pCoeffInverse = inverse (coeff (row, col)) in
+  let rec pivot row col =
+    let pCoeffInverse = inverse (coeff row col) in
     let pRowVector = Array2.row (coeffs tableau, row, (0, nCols ())) in
     let rec pRow j = Vector.sub (pRowVector, j) in
     let pColVector = Array2.column (coeffs tableau, col, (0, nRows ())) in
@@ -469,14 +469,14 @@ module CSIneqField
     let pRLabel = rlabel row in
     let pCLabel = clabel col in
     Array.modify
-      (fun (i, value) ->
+      (fun i value ->
         if i = row then (* same the pivot *)
           ~-(value * pCoeffInverse)
         else (* any other row *)
           value - (pConst * pCol i * pCoeffInverse))
       (consts tableau, 0, nRows ());
     Array2.modify Array2.ColMajor
-      (fun (i, j, value) ->
+      (fun i j value ->
         match (i = row, j = col) with
         | true, true ->
             (* pivot *)
@@ -514,7 +514,7 @@ module CSIneqField
       | Some (i, j) ->
           if i <> row then (
             Trail.log (trail tableau, Pivot (i, j));
-            pivot (i, j);
+            pivot i j;
             maximizeRow row)
           else Unbounded j
       | None -> Maximized value
@@ -529,7 +529,7 @@ module CSIneqField
     if Unify.unifiable (G, (proof, id), (proof', id)) then () else raise Error
   (* unify a sum with a number *)
 
-  let rec unifySum (G, sum, d) =
+  let rec unifySum G sum d =
     if Unify.unifiable (G, (toExp sum, id), (constant d, id)) then ()
     else raise Error
   (* decomposition of an the weighted sum of tableau positions *)
@@ -537,8 +537,8 @@ module CSIneqField
   type decomp = number * number * position list
   (* change sign to the given decomposition *)
 
-  let rec unaryMinusDecomp (d, wposL) =
-    (~-d, List.map (fun (d, pos) -> (~-d, pos)) wposL)
+  let rec unaryMinusDecomp d wposL =
+    (~-d, List.map (fun d pos -> (~-d, pos)) wposL)
   (* decompose a sum in whnf into a weighted sum of tableau positions *)
 
   let rec decomposeSum (G, Sum (m, monL)) =
@@ -564,11 +564,11 @@ module CSIneqField
 
   and insertDecomp (decomp, owner) =
     let new_ = incrNRows () in
-    let rec insertWPos (d, pos) =
+    let rec insertWPos d pos =
       match pos with
       | Row row ->
           incrArray2Row
-            (coeffs tableau, new_, (0, nCols ()), fun j -> d * coeff (row, j));
+            (coeffs tableau, new_, (0, nCols ()), fun j -> d * coeff row j);
           incrArray (consts tableau, new_, d * const row)
       | Col col -> incrArray2 (coeffs tableau, new_, col, d)
     in
@@ -595,12 +595,12 @@ module CSIneqField
     insertDecomp (decomposeSum (G, sum), Exp (G, sum))
 
   and minimize row =
-    (* equate the given column to zero if coeff(row, j) <> zero *)
+    (* equate the given column to zero if coeff row j <> zero *)
     (* find out if the given row has been made trivial by killing some
                columns
             *)
     let rec killColumn (j, (l : label)) =
-      if (not (dead l)) && coeff (row, j) <> zero then (
+      if (not (dead l)) && coeff row j <> zero then (
         (* mark the column dead *)
         Trail.log (trail tableau, Kill (Col j));
         dead (Array.sub (clabels tableau, j)) := true;
@@ -616,7 +616,7 @@ module CSIneqField
     in
     let rec killRow (i, (l : label)) =
       if not (dead l) then
-        if isConstant i then (* row is now constant and equal to n = const(i) *)
+        if isConstant i then (* row is now constant and Equal to n = const(i) *)
           (
           (* mark the row dead *)
           Trail.log (trail tableau, Kill (Row i));
@@ -664,7 +664,7 @@ module CSIneqField
                 Array.foldl
                   (fun (i, (l : label), rest) ->
                     if not (dead l) then
-                      let value = coeff (i, col) in
+                      let value = coeff i col in
                       if value <> zero then i :: rest else rest
                     else rest)
                   []
@@ -676,7 +676,7 @@ module CSIneqField
                                    the column is unrestricted (see Nelson '81)
                                 *)
                   Trail.log (trail tableau, Pivot (row, col));
-                  pivot (row, col);
+                  pivot row col;
                   restrict (Row row, restr)
               | [] ->
                   (* the column is zero at all the active row
@@ -697,7 +697,7 @@ module CSIneqField
                   restr (Array.sub (rlabels tableau, row)) := Some restr;
                   if const row < zero then (
                     Trail.log (trail tableau, Pivot (row, col));
-                    pivot (row, col))
+                    pivot row col)
                   else ()
               | Positive ->
                   (* the tableau is satisfiable and minimal *)
@@ -740,13 +740,13 @@ module CSIneqField
             (* find out why it died *)
             isConstant row
           then
-            (* row is dead because constant and equal to n *)
+            (* row is dead because constant and Equal to n *)
             unifySum (G, sum, const row)
           else (* row is dead because is subsumed by another *)
             match isSubsumed row with Some pos' -> update (G, pos', sum))
       | Col col ->
           (* column is dead because = 0 *)
-          unifySum (G, sum, zero)
+          unifySum G sum zero
     else
       let rec isVar = function
         | Sum (m, [ mon ]) -> if m = zero && n = one then Some mon else None
@@ -766,16 +766,16 @@ module CSIneqField
       | None -> insertEqual (G, pos, sum)
 
   and restrictions pos =
-    let rec member (x, l) = List.exists (fun y -> x = y) l in
+    let rec member x l = List.exists (fun y -> x = y) l in
     let rec test l = restricted l && not (dead l) in
     let rec reachable = function
       | pos :: candidates, tried, closure ->
-          if member (pos, tried) then reachable (candidates, tried, closure)
+          if member pos tried then reachable (candidates, tried, closure)
           else
             let new_candidates =
               Array.foldl
-                (fun (col, _, candidates) ->
-                  if coeff (row, col) <> zero then Col col :: candidates
+                (fun col _ candidates ->
+                  if coeff row col <> zero then Col col :: candidates
                   else candidates)
                 []
                 (clabels tableau, 0, nCols ())
@@ -785,12 +785,12 @@ module CSIneqField
             in
             reachable (new_candidates @ candidates, pos :: tried, closure')
       | pos :: candidates, tried, closure ->
-          if member (pos, tried) then reachable (candidates, tried, closure)
+          if member pos tried then reachable (candidates, tried, closure)
           else
             let candidates' =
               Array.foldl
-                (fun (row, _, candidates) ->
-                  if coeff (row, col) <> zero then Row row :: candidates
+                (fun row _ candidates ->
+                  if coeff row col <> zero then Row row :: candidates
                   else candidates)
                 []
                 (rlabels tableau, 0, nRows ())
@@ -846,10 +846,10 @@ module CSIneqField
         dead (Array.sub (clabels tableau, col)) := true;
         clearArray2Col (coeffs tableau, col, (0, nRows ()));
         decrNCols ()
-    | Pivot (row, col) -> pivot (row, col)
+    | Pivot (row, col) -> pivot row col
     | Kill pos -> dead (label pos) := false
     | Restrict pos -> restr (label pos) := None
-    | UpdateOwner (pos, owner, tag) -> setOwnership (pos, owner, tag)
+    | UpdateOwner (pos, owner, tag) -> setOwnership pos owner tag
   (* reset the internal status of the tableau *)
 
   let rec reset () =
@@ -948,8 +948,8 @@ module CSIneqField
     | G, S, n -> None
   (* constructors for_sml higher-order types *)
 
-  let rec pi (name, U, V) = Pi ((Dec (Some name, U), Maybe), V)
-  let rec arrow (U, V) = Pi ((Dec (None, U), No), V)
+  let rec pi name U V = Pi ((Dec (Some name, U), Maybe), V)
+  let rec arrow U V = Pi ((Dec (None, U), No), V)
 
   let rec installFgnCnstrOps () =
     let csid = !myID in
@@ -977,7 +977,7 @@ module CSIneqField
     ()
   (* install the signature *)
 
-  let rec init (cs, installF) =
+  let rec init cs installF =
     myID := cs;
     gtID :=
       installF

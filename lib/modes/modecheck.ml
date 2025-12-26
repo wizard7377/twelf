@@ -81,7 +81,7 @@ module ModeCheck
 
   (* copied from worldcheck/worldsyn.fun *)
 
-  let rec wrapMsg (c, occ, msg) =
+  let rec wrapMsg c occ msg =
     match Origins.originLookup c with
     | fileName, None -> fileName ^ ":" ^ msg
     | fileName, Some occDec ->
@@ -90,18 +90,18 @@ module ModeCheck
             Origins.linesInfoLookup fileName,
             "Constant " ^ Names.qidToString (Names.constQid c) ^ "\n" ^ msg )
 
-  let rec wrapMsg' (fileName, r, msg) = P.wrapLoc (P.Loc (fileName, r), msg)
+  let rec wrapMsg' fileName r msg = P.wrapLoc (P.Loc (fileName, r), msg)
 
   exception ModeError of P.occ * string
   exception Error' of P.occ * string
-  (* lookup (a, occ) = mSs
+  (* lookup a occ = mSs
 
        Invariant: mS are the argument modes for_sml a
        Raises an error if no mode for_sml a has declared.
        (occ is used in error message)
     *)
 
-  let rec lookup (a, occ) =
+  let rec lookup a occ =
     match ModeTable.mmodeLookup a with
     | [] ->
         raise
@@ -190,7 +190,7 @@ module ModeCheck
         if etaContract (U, 0) = n then etaSpine (S, n - 1) else raise Eta
   (* S[s] should be impossible *)
 
-  (* isPattern (D, k, mS) = B
+  (* isPattern D k mS = B
 
        Invariant:
        B iff k > k' for_sml all k' in mS
@@ -206,7 +206,7 @@ module ModeCheck
           checkPattern (D, k, k' :: args, S)
         else raise Eta
 
-  let rec isPattern (D, k, S) =
+  let rec isPattern D k S =
     try
       checkPattern (D, k, [], S);
       true
@@ -233,7 +233,7 @@ module ModeCheck
     | D, p, I.Root (H, S) -> (
         match H with
         | I.BVar k' ->
-            if k' = p then isPattern (D, k', S)
+            if k' = p then isPattern D k' S
             else if isUniversal (I.ctxLookup (D, k')) then strictSpineN (D, p, S)
             else false
               (* equivalently: isUniversal .. andalso strictSpineN .. *)
@@ -346,7 +346,7 @@ module ModeCheck
   let rec updateExpN = function
     | D, I.Root (I.BVar k, S), u ->
         if isUniversal (I.ctxLookup (D, k)) then updateSpineN (D, S, u)
-        else if isPattern (D, k, S) then updateVarD (D, k, u)
+        else if isPattern D k S then updateVarD (D, k, u)
         else if !checkFree then nonStrictSpineN (nonStrictVarD (D, k), S)
         else D
     | D, I.Root (I.Const c, S), u -> updateSpineN (D, S, u)
@@ -476,7 +476,7 @@ module ModeCheck
         groundExpN (I.Decl (D, Universal), mode, U, P.body occ)
     | D, mode, I.FgnExp csfe, occ ->
         I.FgnExpStd.fold csfe
-          (fun (U, u) ->
+          (fun U u ->
             andUnique (groundExpN (D, mode, Whnf.normalize (U, I.id), occ), u))
           Unique
 
@@ -553,11 +553,11 @@ module ModeCheck
         groundAtom (D, mode, S, mS, (p + 1, occ))
   (* ------------------------------------------- mode checking first phase *)
 
-  (* ctxPush (Ds, m) = Ds'
+  (* ctxPush Ds m = Ds'
        raises the contexts Ds prepending m
     *)
 
-  let rec ctxPush (m, Ds) = List.map (fun D -> I.Decl (D, m)) Ds
+  let rec ctxPush m Ds = List.map (fun D -> I.Decl (D, m)) Ds
   (* ctxPop Ds = Ds'
        lowers the contexts Ds
     *)
@@ -615,7 +615,7 @@ module ModeCheck
               in
               checkSome (k (updateAtom (D, M.Plus, S, a, mS, (1, occ))))
         in
-        checkAll (lookup (a, occ))
+        checkAll (lookup a occ)
     | D, I.Root (I.Def d, S), occ, k ->
         (* for_sml a declaration, all modes must be satisfied *)
         let rec checkAll = function
@@ -635,7 +635,7 @@ module ModeCheck
               in
               checkSome (k (updateAtom (D, M.Plus, S, d, mS, (1, occ))))
         in
-        checkAll (lookup (d, occ))
+        checkAll (lookup d occ)
 
   and checkG1 = function
     | D, I.Pi ((_, I.Maybe), V), occ, k ->
@@ -675,7 +675,7 @@ module ModeCheck
                 k (updateAtom (D, M.Minus, S, a, mS, (1, occ))) @ Ds'
               else Ds'
         in
-        checkList false (lookup (a, occ))
+        checkList false (lookup a occ)
     | D, I.Root (I.Def d, S), occ, k ->
         (* for_sml a goal, at least one mode must be satisfied *)
         let rec checkList = function
@@ -698,8 +698,8 @@ module ModeCheck
                 k (updateAtom (D, M.Minus, S, d, mS, (1, occ))) @ Ds'
               else Ds'
         in
-        checkList false (lookup (d, occ))
-  (* checkDlocal (D, V, occ) = ()
+        checkList false (lookup d occ)
+  (* checkDlocal D V occ = ()
 
        Invariant:
        If   G |- V : L
@@ -709,13 +709,13 @@ module ModeCheck
        otherwise exception ModeError is raised (occ used in error messages)
     *)
 
-  let rec checkDlocal (D, V, occ) =
+  let rec checkDlocal D V occ =
     try checkD1 (D, V, occ, fun D' -> [ D' ])
     with ModeError (occ, msg) -> raise (Error' (occ, msg))
   (* --------------------------------------------------------- mode checking *)
 
   let rec cidFromHead = function I.Const a -> a | I.Def a -> a
-  (* checkD (ConDec, occOpt)  = ()
+  (* checkD ConDec occOpt  = ()
 
        checkD terminates with () if ConDec is mode correct
        otherwise exception Error is raised
@@ -723,7 +723,7 @@ module ModeCheck
        (occOpt is used in error messages)
     *)
 
-  let rec checkD (conDec, fileName, occOpt) =
+  let rec checkD conDec fileName occOpt =
     let _ = checkFree := false in
     let rec checkable = function
       | I.Root (Ha, _) -> (
@@ -752,7 +752,7 @@ module ModeCheck
         else ();
         try checkDlocal (I.Null, I.constType c, P.top)
         with Error' (occ, msg) ->
-          raise (Error (wrapMsg (c, occ, msg)));
+          raise (Error (wrapMsg c occ msg));
           checkAll clist)
     | I.Def d :: clist -> (
         if !Global.chatter > 3 then
@@ -760,10 +760,10 @@ module ModeCheck
         else ();
         try checkDlocal (I.Null, I.constType d, P.top)
         with Error' (occ, msg) ->
-          raise (Error (wrapMsg (d, occ, msg)));
+          raise (Error (wrapMsg d occ msg));
           checkAll clist)
 
-  let rec checkMode (a, ms) =
+  let rec checkMode a ms =
     let _ =
       if !Global.chatter > 3 then
         print
@@ -778,7 +778,7 @@ module ModeCheck
     let _ = if !Global.chatter > 3 then print "\n" else () in
     ()
 
-  let rec checkFreeOut (a, ms) =
+  let rec checkFreeOut a ms =
     let _ =
       if !Global.chatter > 3 then
         print

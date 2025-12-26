@@ -1,5 +1,5 @@
 include Vector ;;
-open Prelude ;;
+open Order ;;
 module type ARRAY = sig
     type 'a array 
     type 'a vector = 'a Vector.t
@@ -26,7 +26,7 @@ module type ARRAY = sig
     val find  : ('a -> bool) -> 'a array -> 'a option
     val exists : ('a -> bool) -> 'a array -> bool
     val all : ('a -> bool) -> 'a array -> bool
-    val collate : ('a * 'a -> Prelude.order) -> 'a array * 'a array -> Prelude.order
+    val collate : ('a * 'a -> order) -> 'a array * 'a array -> order
 end ;;
 
 module Array : ARRAY = struct 

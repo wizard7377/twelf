@@ -182,7 +182,7 @@ module Parser
     | Parsing.Continuation _, LS.Cons ((t, r), _) ->
         Parsing.error (r, "Expected `{', found " ^ L.toString t)
 
-  let rec parseStream (s, sc) =
+  let rec parseStream s sc =
     Stream.delay (fun () -> parseStream' (LS.expose s, sc))
 
   and parseStream' = function
@@ -349,7 +349,7 @@ module Parser
     let qidpairs, f' = ParseTerm.parseSubord' (LS.expose s) in
     let r = Paths.join (r0, r') in
     let qidpairs =
-      map (fun (qid1, qid2) -> (Names.Qid qid1, Names.Qid qid2)) qidpairs
+      map (fun qid1 qid2 -> (Names.Qid qid1, Names.Qid qid2)) qidpairs
     in
     Stream.Cons ((SubordDec qidpairs, r), parseStream (stripDot f', sc))
 
@@ -378,14 +378,14 @@ module Parser
     Stream.Cons ((Compile qids, r), parseStream (stripDot f', sc))
 
   and parseSigDef' (f, sc) =
-    let rec finish (sigdef, f') =
+    let rec finish sigdef f' =
       Stream.Cons
         ((SigDef sigdef, Paths.join (r1, r2)), parseStream (stripDot f', sc))
     in
     recParse' (f, ParseModule.parseSigDef', parseStream, finish)
 
   and parseStructDec' (f, sc) =
-    let rec finish (structdec, f') =
+    let rec finish structdec f' =
       Stream.Cons
         ( (StructDec structdec, Paths.join (r1, r2)),
           parseStream (stripDot f', sc) )
@@ -393,7 +393,7 @@ module Parser
     recParse' (f, ParseModule.parseStructDec', parseStream, finish)
 
   and parseInclude' (f, sc) =
-    let rec finish (sigexp, f') =
+    let rec finish sigexp f' =
       Stream.Cons
         ((Include sigexp, Paths.join (r1, r2)), parseStream (stripDot f', sc))
     in

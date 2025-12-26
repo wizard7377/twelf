@@ -157,7 +157,7 @@ module ModSyn
         with Strict.Error _ -> condec)
     | condec -> condec
 
-  let rec abbrevify (cid, condec) =
+  let rec abbrevify cid condec =
     match condec with
     | I.ConDec (name, parent, i, _, V, L) ->
         let U = Whnf.normalize (I.Root (I.Const cid, I.Nil), I.id) in
@@ -252,7 +252,7 @@ module ModSyn
 
   let rec installStruct (strdec, module_, nsOpt, installAction, isDef) =
     let transformConDec =
-      if isDef then decToDef else fun (_, condec) -> condec
+      if isDef then decToDef else fun _ condec -> condec
     in
     let mid = IntSyn.sgnStructAdd strdec in
     let _ =
@@ -267,11 +267,11 @@ module ModSyn
 
   let rec installSig (module_, nsOpt, installAction, isDef) =
     let transformConDec =
-      if isDef then decToDef else fun (_, condec) -> condec
+      if isDef then decToDef else fun _ condec -> condec
     in
     installModule (module_, None, nsOpt, installAction, transformConDec)
 
-  let rec abstractModule (namespace, topOpt) =
+  let rec abstractModule namespace topOpt =
     let structTable : structInfo IntTree.table = IntTree.new_ 0 in
     let constTable : constInfo IntTree.table = IntTree.new_ 0 in
     let mapParent =
@@ -279,7 +279,7 @@ module ModSyn
       | None -> fun parent -> parent
       | Some mid -> fun Some mid' -> if mid = mid' then None else Some mid'
     in
-    let rec doStruct (_, mid) =
+    let rec doStruct _ mid =
       let strdec = IntSyn.sgnStructLookup mid in
       let strdec' = mapStrDecParent mapParent strdec in
       let ns = Names.getComponents mid in
@@ -300,7 +300,7 @@ module ModSyn
     doNS namespace;
     (structTable, constTable, namespace)
 
-  let rec instantiateModule (module_, transform) =
+  let rec instantiateModule module_ transform =
     let transformConDec = transform namespace in
     let mid = IntSyn.sgnStructAdd (IntSyn.StrDec ("wheresubj", None)) in
     let ns = Names.newNamespace () in
@@ -324,7 +324,7 @@ module ModSyn
     defsClear ()
 
   let rec resetFrom mark =
-    let rec ct (l, i) =
+    let rec ct l i =
       if i <= mark then l
       else
         let (h :: t) = l in
@@ -336,7 +336,7 @@ module ModSyn
 
   let rec sigDefSize () = !defCount
 
-  let rec installSigDef (id, module_) =
+  let rec installSigDef id module_ =
     match defsInsert (id, module_) with
     | None ->
         defList := id :: !defList;

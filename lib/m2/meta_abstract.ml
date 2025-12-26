@@ -240,7 +240,7 @@ module MetaAbstract
             collectSub (lG0, G, lGp', s, mode, Adepth))
     | lGO, G, (I.FgnExp csfe, s), mode, Adepth ->
         I.FgnExpStd.fold csfe
-          (fun (U, Adepth') -> collectExp (lGO, G, (U, s), mode, Adepth'))
+          (fun U Adepth' -> collectExp (lGO, G, (U, s), mode, Adepth'))
           Adepth
 
   and collectSub = function
@@ -434,7 +434,7 @@ module MetaAbstract
 
   (*------------------------------------------------------------*)
 
-  (* lookupEV (A, r) = (k', V')
+  (* lookupEV A r = (k', V')
 
        Invariant:
 
@@ -444,7 +444,7 @@ module MetaAbstract
        and  . |- V' : type
     *)
 
-  let rec lookupEV (A, r) =
+  let rec lookupEV A r =
     (* lookupEV' I.Null cannot occur by invariant *)
     let rec lookupEV' = function
       | I.Decl (A, EV (r, V, _)), r', k ->
@@ -452,7 +452,7 @@ module MetaAbstract
       | I.Decl (A, BV), r', k -> lookupEV' (A, r', k + 1)
     in
     lookupEV' (A, r, 1)
-  (* lookupBV (A, i) = k'
+  (* lookupBV A i = k'
 
        Invariant:
 
@@ -464,7 +464,7 @@ module MetaAbstract
        and  G x A |- V' [s] = V'' : type
     *)
 
-  let rec lookupBV (A, i) =
+  let rec lookupBV A i =
     (* lookupBV' I.Null cannot occur by invariant *)
     let rec lookupBV' = function
       | I.Decl (A, EV (r, V, _)), i, k -> lookupBV' (A, i, k + 1)
@@ -505,7 +505,7 @@ module MetaAbstract
         I.Root (C, abstractSpine (A, G, depth, (S, s)))
     | A, G, depth, (I.EVar (r, _, V, _), s) ->
         (* IMPROVE: remove the raised variable, replace by V -cs ?-fp *)
-        let k, Vraised = lookupEV (A, r) in
+        let k, Vraised = lookupEV A r in
         I.Root
           ( I.BVar (k + depth),
             abstractSub (A, G, depth, (Vraised, I.id), s, I.targetFam V, I.Nil)

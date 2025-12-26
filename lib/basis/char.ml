@@ -1,7 +1,7 @@
-open Prelude 
+open Order
 module type CHAR = sig
-  type char
-  type string
+    type char = Stdlib.Char.t
+    type string = Stdlib.String.t
 
     val minChar : char
     val maxChar : char
@@ -41,8 +41,8 @@ end
 
 module Char : CHAR = struct
     
-    type char
-    type string
+    type char = Stdlib.Char.t
+    type string = Stdlib.String.t
 
     let minChar : char = assert false
     let maxChar : char = assert false

@@ -93,9 +93,9 @@ module CSEqField
   (* * : number -> number -> number *)
 
   let rec unaryMinusExp U = Root (Const !unaryMinusID, App (U, Nil))
-  let rec plusExp (U, V) = Root (Const !plusID, App (U, App (V, Nil)))
-  let rec minusExp (U, V) = Root (Const !minusID, App (U, App (V, Nil)))
-  let rec timesExp (U, V) = Root (Const !timesID, App (U, App (V, Nil)))
+  let rec plusExp U V = Root (Const !plusID, App (U, App (V, Nil)))
+  let rec minusExp U V = Root (Const !minusID, App (U, App (V, Nil)))
+  let rec timesExp U V = Root (Const !timesID, App (U, App (V, Nil)))
   let rec numberConDec d = ConDec (toString d, None, 0, Normal, number (), Type)
   let rec numberExp d = Root (FgnConst (!myID, numberConDec d), Nil)
   (* parseNumber str = SOME(conDec) or NONE
@@ -116,7 +116,7 @@ module CSEqField
        corresponding to the number k to an empty spine
     *)
 
-  let rec solveNumber (G, S, k) = Some (numberExp (fromInt k))
+  let rec solveNumber G S k = Some (numberExp (fromInt k))
   (* findMset eq (x, L) =
          SOME (y, L') if there exists y such that eq (x, y)
                          and L ~ (y :: L') (multiset equality)
@@ -167,7 +167,7 @@ module CSEqField
   (* compatibleMon (mon1, mon2) = true only if mon1 = mon2 (as monomials) *)
 
   let rec compatibleMon (Mon (_, UsL1), Mon (_, UsL2)) =
-    equalMSet (fun (Us1, Us2) -> sameExpW (Us1, Us2)) (UsL1, UsL2)
+    equalMSet (fun Us1 Us2 -> sameExpW (Us1, Us2)) (UsL1, UsL2)
 
   and sameExpW = function
     | Us1, Us2 -> (
@@ -255,7 +255,7 @@ module CSEqField
     *)
 
   let rec unaryMinusSum sum = timesSum (Sum (-one, []), sum)
-  (* minusSum (sum1, sum2) = sum3
+  (* minusSum sum1 sum2 = sum3
 
        Invariant:
        If   sum1 normal
@@ -264,7 +264,7 @@ module CSEqField
        and  sum3 = sum1 - sum2
     *)
 
-  let rec minusSum (sum1, sum2) = plusSum (sum1, unaryMinusSum sum2)
+  let rec minusSum sum1 sum2 = plusSum (sum1, unaryMinusSum sum2)
   (* fromExpW (U, s) = sum
 
        Invariant:
@@ -320,7 +320,7 @@ module CSEqField
           | None -> findMon' (monL1, mon :: monL2))
     in
     findMon' (monL, [])
-  (* unifySum (G, sum1, sum2) = result
+  (* unifySum G sum1 sum2 = result
 
        Invariant:
        If   G |- sum1 : number     sum1 normal
@@ -329,7 +329,7 @@ module CSEqField
        equation sum1 = sum2 by gaussian elimination.
     *)
 
-  let rec unifySum (G, sum1, sum2) =
+  let rec unifySum G sum1 sum2 =
     let rec invertMon = function
       | G, Mon (n, [ (LHS, s) ]), sum ->
           if Whnf.isPatSub s then
@@ -340,7 +340,7 @@ module CSEqField
           else None
       | _ -> None
     in
-    match minusSum (sum2, sum1) with
+    match minusSum sum2 sum1 with
     | Sum (m, []) -> if m = zero then Succeed [] else Fail
     | sum -> (
         match findMon invertMon (G, sum) with
@@ -443,13 +443,13 @@ module CSEqField
         fun (App (U1, App (U2, Nil))) ->
           opSum (fromExp (U1, id), fromExp (U2, id)) )
 
-  let rec arrow (U, V) = Pi ((Dec (None, U), No), V)
-  (* init (cs, installFunction) = ()
+  let rec arrow U V = Pi ((Dec (None, U), No), V)
+  (* init cs installFunction = ()
        Initialize the constraint solver.
        installFunction is used to add its signature symbols.
     *)
 
-  let rec init (cs, installF) =
+  let rec init cs installF =
     myID := cs;
     numberID :=
       installF
@@ -527,9 +527,9 @@ module CSEqField
   let compatibleMon = compatibleMon
   let number = number
   let rec unaryMinus U = toFgn (unaryMinusSum (fromExp (U, id)))
-  let rec plus (U, V) = toFgn (plusSum (fromExp (U, id), fromExp (V, id)))
-  let rec minus (U, V) = toFgn (minusSum (fromExp (U, id), fromExp (V, id)))
-  let rec times (U, V) = toFgn (timesSum (fromExp (U, id), fromExp (V, id)))
+  let rec plus U V = toFgn (plusSum (fromExp (U, id), fromExp (V, id)))
+  let rec minus U V = toFgn (minusSum (fromExp (U, id), fromExp (V, id)))
+  let rec times U V = toFgn (timesSum (fromExp (U, id), fromExp (V, id)))
   let constant = numberExp
   (* local *)
 end

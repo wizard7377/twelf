@@ -57,11 +57,11 @@ module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) :
   let backArrowOp = Infix ((FX.dec FX.minPrec, FX.Left), ExtSyn.backarrow)
   let colonOp = Infix ((FX.dec (FX.dec FX.minPrec), FX.Left), ExtSyn.hastype)
 
-  let rec infixOp (infixity, tm) =
-    Infix (infixity, fun (tm1, tm2) -> ExtSyn.app (ExtSyn.app (tm, tm1), tm2))
+  let rec infixOp infixity tm =
+    Infix (infixity, fun tm1 tm2 -> ExtSyn.app (ExtSyn.app (tm, tm1), tm2))
 
-  let rec prefixOp (prec, tm) = Prefix (prec, fun tm1 -> ExtSyn.app (tm, tm1))
-  let rec postfixOp (prec, tm) = Postfix (prec, fun tm1 -> ExtSyn.app (tm, tm1))
+  let rec prefixOp prec tm = Prefix (prec, fun tm1 -> ExtSyn.app (tm, tm1))
+  let rec postfixOp prec tm = Postfix (prec, fun tm1 -> ExtSyn.app (tm, tm1))
 
   let rec idToTerm = function
     | L.Lower, ids, name, r -> ExtSyn.lcid (ids, name, r)
@@ -261,7 +261,7 @@ module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) :
     | LS.Cons ((t, r), s'), qids ->
         Parsing.error (r, "Expected identifier, found token " ^ L.toString t)
 
-  let rec parseThaw' (f, qids) =
+  let rec parseThaw' f qids =
     (* same %freeze *)
     parseFreeze' (f, qids)
 
@@ -284,7 +284,7 @@ module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) :
   (* val parseExp : (L.token * L.region) LS.stream * <p>
                         -> ExtSyn.term * (L.token * L.region) LS.front *)
 
-  let rec parseExp (s, p) = parseExp' (LS.expose s, p)
+  let rec parseExp s p = parseExp' (LS.expose s, p)
 
   and parseExp' = function
     | f, p -> (
@@ -298,11 +298,11 @@ module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) :
           match Names.fixityLookup (Names.Qid (ids, name)) with
           | FX.Nonfix -> parseExp' (f', P.shiftAtom (tm, p))
           | FX.Infix infixity ->
-              parseExp' (f', P.resolve (r, infixOp (infixity, tm), p))
+              parseExp' (f', P.resolve (r, infixOp infixity tm, p))
           | FX.Prefix prec ->
-              parseExp' (f', P.resolve (r, prefixOp (prec, tm), p))
+              parseExp' (f', P.resolve (r, prefixOp prec tm, p))
           | FX.Postfix prec ->
-              parseExp' (f', P.resolve (r, postfixOp (prec, tm), p)))
+              parseExp' (f', P.resolve (r, postfixOp prec tm, p)))
     | LS.Cons ((L.UNDERSCORE, r), s), p ->
         parseExp (s, P.shiftAtom (ExtSyn.omitted r, p))
     | LS.Cons ((L.TYPE, r), s), p -> parseExp (s, P.shiftAtom (ExtSyn.typ r, p))

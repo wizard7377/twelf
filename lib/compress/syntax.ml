@@ -50,7 +50,7 @@ module Syntax = struct
 
   exception Debugs of subst_result * spinelt list
 
-  let rec curryfoldr sf sl x = foldr (fun (s, x') -> sf s x') x sl
+  let rec curryfoldr sf sl x = foldr (fun s x' -> sf s x') x sl
   (* lower (a, sp)
            supposing we have an evar of (potentially higher-order)
            type a, applied to a spine sp, return the lowered type of
@@ -272,7 +272,7 @@ module Syntax = struct
     | Lam (ATerm t) -> Lam (eroot_elim t)
     | x -> x
 
-  let rec ctxLookup (G, n) = subst_tp (Shift (0, n + 1)) (List.nth (G, n))
+  let rec ctxLookup G n = subst_tp (Shift (0, n + 1)) (List.nth (G, n))
   let rec typeOf (TClass a) = a
   let rec kindOf (KClass k) = k
   let sum = foldl + 0

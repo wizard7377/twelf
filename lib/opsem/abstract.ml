@@ -168,7 +168,7 @@ module AbstractTabled
     | k, I.Lam (D, V) -> or_ (occursInDec (k, D), occursInExp (k + 1, V))
     | k, I.FgnExp csfe ->
         I.FgnExpStd.fold csfe
-          (fun (U, DP) -> or_ (DP, occursInExp (k, Whnf.normalize (U, I.id))))
+          (fun U DP -> or_ (DP, occursInExp (k, Whnf.normalize (U, I.id))))
           I.No
 
   and occursInHead = function
@@ -275,7 +275,7 @@ module AbstractTabled
         collectEVar (Gss, Gl, (X, s), K, DupVars, flag, d)
     | Gss, Gl, (I.FgnExp csfe, s), K, DupVars, flag, d ->
         I.FgnExpStd.fold csfe
-          (fun (U, KD') ->
+          (fun U KD' ->
             let K', Dup = KD' in
             collectExp (Gss, Gl, (U, s), K', Dup, false, d))
           (K, I.Decl (DupVars, FGN d))
@@ -919,7 +919,7 @@ module AbstractTabled
         let DEVars'' = I.Decl (DEVars', I.Dec (None, V'')) in
         DEVars''
 
-  let rec makeAVarCtx (Vars, DupVars) =
+  let rec makeAVarCtx Vars DupVars =
     let rec avarCtx = function
       | Vars, I.Null, k -> I.Null
       | Vars, I.Decl (K', AV (E, d)), k ->
@@ -992,7 +992,7 @@ module AbstractTabled
         let s' = avarsToSub (Vars', s) in
         let X' = I.newAVar () in
         I.Dot (I.Exp (I.EClo (X', I.Shift ~-d)), s')
-  (* abstractEVarCtx (G, p, s) = (G', D', U', s')
+  (* abstractEVarCtx G p s = (G', D', U', s')
 
      if G |- p[s] and s contains free variables X_n .... X_1
      then
@@ -1009,7 +1009,7 @@ module AbstractTabled
        Note: G' and U' are possibly strengthened
    *)
 
-  let rec abstractEVarCtx (dp, p, s) =
+  let rec abstractEVarCtx dp p s =
     (* K ||- G i.e. K contains all EVars in G *)
     (* DupVars' , K' ||- p[s]  i.e. K' contains all EVars in (p,s) and G and
                                          DupVars' contains all duplicate EVars p[s] *)
@@ -1039,7 +1039,7 @@ module AbstractTabled
       abstractExp
         (true, (Gs, ss), (epos', total), Vars', I.Null, total, d, (p, s), eqn)
     in
-    let DAVars = makeAVarCtx (Vars'', DupVars') in
+    let DAVars = makeAVarCtx Vars'' DupVars' in
     let DEVars =
       makeEVarCtx ((Gs, ss), Vars'', I.Null, Vars'', 0 (* depth *))
     in
@@ -1078,7 +1078,7 @@ module AbstractTabled
     let s1' = ctxToEVarSub (DEVars, I.id) in
     (DEVars, s')
 
-  let raiseType = fun (G, U) -> raiseType (G, U)
+  let raiseType = fun G U -> raiseType (G, U)
 end
 
 (* functor AbstractTabled *)

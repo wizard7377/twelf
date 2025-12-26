@@ -193,20 +193,20 @@ module ReconTerm
   let rec chatterOneNewline () =
     if !Global.chatter = 1 && !errorCount = 1 then Msg.message "\n" else ()
 
-  let rec fatalError (r, msg) =
+  let rec fatalError r msg =
     errorCount := !errorCount + 1;
     chatterOneNewline ();
     Msg.message (!errorFileName ^ ":" ^ Paths.wrap (r, msg) ^ "\n");
     die r
 
-  let rec error (r, msg) =
+  let rec error r msg =
     errorCount := !errorCount + 1;
     chatterOneNewline ();
     Msg.message (!errorFileName ^ ":" ^ Paths.wrap (r, msg) ^ "\n");
     if exceeds (!errorCount, !errorThreshold) then die r else ()
 
-  let rec formatExp (G, U) =
-    try Print.formatExp (G, U)
+  let rec formatExp G U =
+    try Print.formatExp G U
     with Names.Unprintable -> F.String "%_unprintable_%"
   (* this is a hack, i know *)
 
@@ -272,7 +272,7 @@ module ReconTerm
         StringTree.insert fvarApxTable (name, V);
         V
 
-  let rec getEVar (name, allowed) =
+  let rec getEVar name allowed =
     match Names.getEVarOpt name with
     | Some X -> (X, raiseType (G, V))
     | None ->
@@ -283,7 +283,7 @@ module ReconTerm
         Names.addEVar (X, name);
         (X, V')
 
-  let rec getFVarType (name, allowed) =
+  let rec getFVarType name allowed =
     match StringTree.lookup fvarTable name with
     | Some V -> V
     | None ->
@@ -316,10 +316,10 @@ module ReconTerm
 
   and dec = Dec of string option * term * Paths.region
 
-  let rec backarrow (tm1, tm2) = Arrow (tm2, tm1)
+  let rec backarrow tm1 tm2 = Arrow (tm2, tm1)
   (* for_sml now *)
 
-  let rec dec0 (nameOpt, r) = Dec (nameOpt, Omitted r, r)
+  let rec dec0 nameOpt r = Dec (nameOpt, Omitted r, r)
 
   type job =
     | JNothing
@@ -410,7 +410,7 @@ module ReconTerm
           ^ " level" )
     else ()
 
-  let rec findOmitted (G, qid, r) =
+  let rec findOmitted G qid r =
     error
       ( r,
         "Undeclared identifier "
@@ -704,7 +704,7 @@ module ReconTerm
         let V', _ = Apx.classToApx V in
         IntSyn.Decl (ctxToApx G, Dec (name, V'))
 
-  let rec inferApxJob' (G, t) = inferApxJob (ctxToApx G, t)
+  let rec inferApxJob' G t = inferApxJob (ctxToApx G, t)
   (* open Apx *)
 
   open IntSyn
@@ -726,19 +726,19 @@ module ReconTerm
     | Elim of (IntSyn.sub * IntSyn.spine -> IntSyn.exp)
     | Intro of IntSyn.exp
 
-  let rec elimSub (E, s) = fun (s', S) -> E (comp (s, s'), S)
-  let rec elimApp (E, U) = fun (s, S) -> E (s, App (EClo (U, s), S))
+  let rec elimSub E s = fun s' S -> E (comp (s, s'), S)
+  let rec elimApp E U = fun s S -> E (s, App (EClo (U, s), S))
 
   let rec bvarElim n =
-   fun (s, S) ->
+   fun s S ->
     match bvarSub (n, s) with
     | Idx n' -> Root (BVar n', S)
     | Exp U -> Redex (U, S)
 
-  let rec fvarElim (name, V, s) =
-   fun (s', S) -> Root (FVar (name, V, comp (s, s')), S)
+  let rec fvarElim name V s =
+   fun s' S -> Root (FVar (name, V, comp (s, s')), S)
 
-  let rec redexElim U = fun (s, S) -> Redex (EClo (U, s), S)
+  let rec redexElim U = fun s S -> Redex (EClo (U, s), S)
   (* headElim (H) = E
      assumes H not Proj _ *)
 
@@ -748,20 +748,20 @@ module ReconTerm
     | NSDef d -> redexElim (constDef d)
     | H -> (
         match conDecStatus (headConDec H) with
-        | Foreign (csid, f) -> fun (s, S) -> f S
-        | _ -> fun (s, S) -> Root (H, S))
+        | Foreign (csid, f) -> fun s S -> f S
+        | _ -> fun s S -> Root (H, S))
   (* although internally EVars are lowered intro forms, externally they're
      raised elim forms.
      this conforms to the external interpretation:
      the type of the returned elim form is ([[G]] V) *)
 
-  let rec evarElim X = fun (s, S) -> EClo (X, Whnf.spineToSub (S, s))
+  let rec evarElim X = fun s S -> EClo (X, Whnf.spineToSub (S, s))
 
   let rec etaExpandW = function
     | E, (Pi ((D, _), Vr), s) ->
         let U1 = etaExpand (bvarElim 1, (Va, comp (s, shift))) in
         let D' = decSub (D, s) in
-        Lam (D', etaExpand (elimApp (elimSub (E, shift), U1), (Vr, dot1 s)))
+        Lam (D', etaExpand (elimApp (elimSub E shift, U1), (Vr, dot1 s)))
     | E, _ -> E (id, Nil)
 
   and etaExpand (E, Vs) = etaExpandW (E, Whnf.whnfExpandDef Vs)
@@ -775,7 +775,7 @@ module ReconTerm
 
   let rec addImplicit1W (G, E, (Pi ((Dec (_, Va), _), Vr), s), i (* >= 1 *)) =
     let X = Whnf.newLoweredEVar (G, (Va, s)) in
-    addImplicit (G, elimApp (E, X), (Vr, Whnf.dotEta (Exp X, s)), i - 1)
+    addImplicit (G, elimApp E X, (Vr, Whnf.dotEta (Exp X, s)), i - 1)
 
   and addImplicit = function
     | G, E, Vs, 0 -> (E, EClo Vs)
@@ -803,8 +803,8 @@ module ReconTerm
         let Xnames =
           List.map (fun X -> (X, Names.evarName (IntSyn.Null, X))) Xs
         in
-        let V1fmt = formatExp (G, V1) in
-        let V2fmt = formatExp (G, V2) in
+        let V1fmt = formatExp G V1 in
+        let V2fmt = formatExp G V2 in
         let diff =
           F.Vbox0
             ( 0,
@@ -831,8 +831,8 @@ module ReconTerm
 
   let rec delayAmbiguous (G, U, r, msg) =
     addDelayed (fun () ->
-        let Ufmt = formatExp (G, U) in
-        let amb = F.HVbox [ F.String "Inferred:"; F.Space; formatExp (G, U) ] in
+        let Ufmt = formatExp G U in
+        let amb = F.HVbox [ F.String "Inferred:"; F.Space; formatExp G U ] in
         error
           (r, "Ambiguous reconstruction\n" ^ F.makestring_fmt amb ^ "\n" ^ msg))
 
@@ -893,7 +893,7 @@ module ReconTerm
         in
         ())
 
-  let rec reportUnify' (G, Vs1, Vs2) =
+  let rec reportUnify' G Vs1 Vs2 =
     let Xs =
       Abstract.collectEVars (G, Vs2, Abstract.collectEVars (G, Vs1, []))
     in
@@ -922,9 +922,9 @@ module ReconTerm
     let _ = reportConstraints Xnames in
     ()
 
-  let rec reportUnify (G, Vs1, Vs2) =
+  let rec reportUnify G Vs1 Vs2 =
     match !traceMode with
-    | Progressive -> reportUnify' (G, Vs1, Vs2)
+    | Progressive -> reportUnify' G Vs1 Vs2
     | Omniscient -> (
         try unifyIdem (G, Vs1, Vs2)
         with e ->
@@ -949,11 +949,11 @@ module ReconTerm
               F.Space;
               F.String "==>";
               F.Space;
-              formatExp (G, U);
+              formatExp G U;
               F.Break;
               F.String ":";
               F.Space;
-              formatExp (G, V);
+              formatExp G V;
             ]
         in
         let _ = Msg.message (F.makestring_fmt omit ^ "\n") in
@@ -974,11 +974,11 @@ module ReconTerm
             [
               F.String "|-";
               F.Space;
-              formatExp (G, U);
+              formatExp G U;
               F.Break;
               F.String ":";
               F.Space;
-              formatExp (G, V);
+              formatExp G V;
             ]
         in
         let _ = Msg.message (F.makestring_fmt judg ^ "\n") in
@@ -1010,9 +1010,9 @@ module ReconTerm
         (* externally EVars are raised elim forms *)
         (* necessary? -kw *)
         let X, V =
-          try getEVar (name, false)
+          try getEVar name false
           with Apx.Ambiguous ->
-            let X, V = getEVar (name, true) in
+            let X, V = getEVar name true in
             delayAmbiguous (G, V, r, "Free variable has ambiguous type");
             (X, V)
         in
@@ -1021,14 +1021,14 @@ module ReconTerm
     | G, tm ->
         (* necessary? -kw *)
         let V =
-          try getFVarType (name, false)
+          try getFVarType name false
           with Apx.Ambiguous ->
-            let V = getFVarType (name, true) in
+            let V = getFVarType name true in
             delayAmbiguous (G, V, r, "Free variable has ambiguous type");
             V
         in
         let s = Shift (ctxLength G) in
-        (tm, Elim (fvarElim (name, V, s)), EClo (V, s))
+        (tm, Elim (fvarElim name V s), EClo (V, s))
     | G, tm -> (tm, Intro (Uni Type), Uni Kind)
     | G, Arrow (tm1, tm2) ->
         let tm1', B1, _ (* Uni Type *) = inferExact (G, tm1) in
@@ -1060,7 +1060,7 @@ module ReconTerm
         in
         let U2 = toIntro (B2, (Va, s)) in
         ( App (tm1', tm2'),
-          Elim (elimApp (E1, U2)),
+          Elim (elimApp E1 U2),
           EClo (Vr, Whnf.dotEta (Exp U2, s)) )
     | G, Hastype (tm1, tm2) ->
         let tm2', B2, L = inferExact (G, tm2) in
@@ -1402,7 +1402,7 @@ module ReconTerm
     recon' j
   (* Invariant, G must be named! *)
 
-  let rec reconWithCtx' (G, j) =
+  let rec reconWithCtx' G j =
     (* we leave it to the context to call Names.varReset
              reason: this code allows reconstructing terms containing
              existing EVars, and future developments might use that *)
@@ -1413,17 +1413,17 @@ module ReconTerm
              errors *)
     let _ = Apx.varReset () in
     let _ = varReset () in
-    let j' = inferApxJob' (G, j) in
+    let j' = inferApxJob' G j in
     let _ = clearDelayed () in
     let j'' = inferExactJob (G, j') in
     let _ = runDelayed () in
     j''
 
-  let rec reconWithCtx (G, j) =
+  let rec reconWithCtx G j =
     queryMode := false;
     reconWithCtx' (G, j)
 
-  let rec reconQueryWithCtx (G, j) =
+  let rec reconQueryWithCtx G j =
     queryMode := true;
     reconWithCtx' (G, j)
 

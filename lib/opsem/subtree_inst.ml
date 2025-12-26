@@ -73,7 +73,7 @@ module MemoTableInst
     in
     memb (x, !L)
 
-  let rec insertList (E, L) = L := E :: !L
+  let rec insertList E L = L := E :: !L
   (* ---------------------------------------------------------------------- *)
 
   (* Substitution Tree *)
@@ -147,7 +147,7 @@ module MemoTableInst
 
   (* for_sml debugging only *)
 
-  let rec expToS (G, U) = try Print.expToString (G, U) with _ -> " <_ >"
+  let rec expToS G U = try Print.expToString (G, U) with _ -> " <_ >"
 
   let rec printSub = function
     | G, I.Shift n -> print ("I.Shift " ^ Int.toString n ^ "\n")
@@ -155,10 +155,10 @@ module MemoTableInst
         print ("Idx " ^ Int.toString n ^ " . ");
         printSub (G, s)
     | G, I.Dot (I.Exp X, s) ->
-        print ("Exp ( EVar " ^ expToS (G, X) ^ ").");
+        print ("Exp ( EVar " ^ expToS G X ^ ").");
         printSub (G, s)
     | G, I.Dot (I.Exp X, s) ->
-        print ("Exp ( EVar  " ^ expToS (G, X) ^ ").");
+        print ("Exp ( EVar  " ^ expToS G X ^ ").");
         printSub (G, s)
     | G, I.Dot (I.Exp (I.AVar _), s) ->
         print "Exp (AVar _ ). ";
@@ -173,7 +173,7 @@ module MemoTableInst
         print ("Exp (EClo " ^ expToS (G, Whnf.normalize (U, s')) ^ ") ");
         printSub (G, s)
     | G, I.Dot (I.Exp E, s) ->
-        print ("Exp ( " ^ expToS (G, E) ^ " ). ");
+        print ("Exp ( " ^ expToS G E ^ " ). ");
         printSub (G, s)
     | G, I.Dot (I.Undef, s) ->
         print "Undef . ";
@@ -609,14 +609,14 @@ module MemoTableInst
 
   (* collect EVars in sub *)
 
-  (* collectEVar (D, sq) = (D_sub, D')
+  (* collectEVar D sq = (D_sub, D')
      if D |- sq where D is a set of free variables
      then Dsq |- sq  and (Dsq u D') = D
           Dsq contains all the free variables occuring in sq
           D' contains all the free variables corresponding to Gsq
    *)
 
-  let rec collectEVar (D, nsub) =
+  let rec collectEVar D nsub =
     let D' = emptyCtx () in
     let rec collectExp = function
       | d, D', D, I.Lam (_, U) -> collectExp (d + 1, D', D, U)
@@ -1143,7 +1143,7 @@ module MemoTableInst
                and Dsq = D since there exists a path s1 ... sn from the root to the Leaf (D,s)
                  s.t. [asub]s1 o s2 o ... sn o s corresponds to original query
              *)
-          let Dsq, D_G = collectEVar (Dq, sq) in
+          let Dsq, D_G = collectEVar Dq sq in
           match
             compatibleCtx (asubst, (D_G, G_r, eqn), !GRlistRef)
             (* compatibleCtx may destructively update asub ! *)
@@ -1247,7 +1247,7 @@ module MemoTableInst
     let D_r2 = copy Dsq in
     let choose = ref (fun match_ : bool -> ()) in
     let _ =
-      S.forall squery (fun (nv, U) ->
+      S.forall squery (fun nv U ->
           match S.lookup nsub_t nv with
           | Some T -> (
               (* note by invariant Glocal_e ~ Glocal_t *)
@@ -1282,7 +1282,7 @@ module MemoTableInst
 
   let rec mkNode = function
     | Node (_, Children), Dsigma, Drho1, GR, Drho2 ->
-        let D_rho2, D_G2 = collectEVar (D2, rho2) in
+        let D_rho2, D_G2 = collectEVar D2 rho2 in
         let GR' = ((evarl, l), D_G2, dp, eqn, answRef, stage, status) in
         let sizeSigma, sizeRho1, sizeRho2 =
           (S.size sigma, S.size rho1, S.size rho2)
@@ -1294,7 +1294,7 @@ module MemoTableInst
               ref (Node (Drho1, Children));
             ] )
     | Leaf (c, GRlist), Dsigma, Drho1, GR2, Drho2 ->
-        let D_rho2, D_G2 = collectEVar (D2, rho2) in
+        let D_rho2, D_G2 = collectEVar D2 rho2 in
         let GR2' = ((evarl, l), D_G2, dp, eqn, answRef, stage, status) in
         Node
           ( Dsigma,
@@ -1308,7 +1308,7 @@ module MemoTableInst
     | N, (D_e, nsub_e) -> compatibleSub ((D_t, nsub_t), (D_e, nsub_e))
     | N, (D_e, nsub_e) -> compatibleSub ((D_t, nsub_t), (D_e, nsub_e))
 
-  let rec findAllCandidates (G_r, children, Ds) =
+  let rec findAllCandidates G_r children Ds =
     let rec findAllCands = function
       | G_r, [], (Dsq, sub_u), VList, SList -> (VList, SList)
       | G_r, x :: L, (Dsq, sub_u), VList, SList -> (
@@ -1328,7 +1328,7 @@ module MemoTableInst
     findAllCands (G_r, children, Ds, [], [])
   (* ---------------------------------------------------------------------- *)
 
-  let rec divergingCtx (stage, G, GRlistRef) =
+  let rec divergingCtx stage G GRlistRef =
     (* this 3 is arbitrary -- lockstep *)
     let l = I.ctxLength G + 3 in
     List.exists
@@ -1387,7 +1387,7 @@ module MemoTableInst
                         D_nsub contains evars occurring only in sq
                         furthermore: D_nsub = D where Leaf((D,s), GRlistRef)
                      *)
-              let D_nsub, D_G = collectEVar (Dsq, sq) in
+              let D_nsub, D_G = collectEVar Dsq sq in
               let GR' = (l, D_G, G_r, eqn, answRef, stage, status) in
               fun () ->
                 ( (GRlistRef := GR' :: !GRlistRef;
@@ -1402,7 +1402,7 @@ module MemoTableInst
           let VariantCand, SplitCand =
             findAllCandidates (G_r, children, (Dsq, sq))
           in
-          let D_nsub, D_G = collectEVar (Dsq, sq) in
+          let D_nsub, D_G = collectEVar Dsq sq in
           let GR' = (l, D_G, G_r, eqn, answRef, stage, status) in
           let rec checkCandidates = function
             | [], [] ->
@@ -1462,7 +1462,7 @@ module MemoTableInst
          Sideeffect: update answer list for_sml U
      *)
 
-  let rec answCheckVariant (s', answRef, O) =
+  let rec answCheckVariant s' answRef O =
     let rec member = function
       | (D, sk), [] -> false
       | (D, sk), ((D1, s1), _) :: S ->
@@ -1480,7 +1480,7 @@ module MemoTableInst
     nctr := 1;
     (* Reset Subsitution Tree *)
     Array.modify
-      (fun (n, Tree) ->
+      (fun n Tree ->
         n := 0;
         Tree := !(makeTree ());
         answList := [];
@@ -1602,7 +1602,7 @@ module MemoTableInst
         added := true;
         T.DivergingEntry (asub, answRef)
 
-  let rec answCheck (s', answRef, O) = answCheckVariant (s', answRef, O)
+  let rec answCheck s' answRef O = answCheckVariant s' answRef O
 
   let rec updateTable () =
     let rec update = function

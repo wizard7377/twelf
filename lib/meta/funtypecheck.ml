@@ -46,7 +46,7 @@ module FunTypeCheck
        Might migrate in to conv module  --cs
     *)
 
-  let rec conv (Gs, Gs') =
+  let rec conv Gs Gs' =
     let exception Conv in
     let rec conv = function
       | (I.Null, s), (I.Null, s') -> (s, s')
@@ -57,7 +57,7 @@ module FunTypeCheck
       | _ -> raise Conv
     in
     try
-      conv (Gs, Gs');
+      conv Gs Gs';
       true
     with Conv -> false
   (* extend (G, L) = G'
@@ -109,7 +109,7 @@ module FunTypeCheck
        then Psi, {G} Psi', l:G|- s' : Psi, l:G, Psi'
     *)
 
-  let rec raiseSub (G, Psi') =
+  let rec raiseSub G Psi' =
     let n = I.ctxLength G in
     let m = I.ctxLength Psi' in
     let rec args = function
@@ -153,7 +153,7 @@ module FunTypeCheck
     let rec raiseType' = function
       | Psi1, [] -> []
       | Psi1, F.Prim D :: Psi1' ->
-          let s = raiseSub (G, Psi1) in
+          let s = raiseSub G Psi1 in
           let Vn = Whnf.normalize (V, s) in
           let a = I.targetFam Vn in
           let D' = I.Dec (x, raiseType'' (G, Vn, a)) in
@@ -373,7 +373,7 @@ module FunTypeCheck
         (* [Psi' strict in  t] <------------------------- omission*)
         checkOpts (Psi, Delta, O, (F', s'))
 
-  let rec checkRec (P, T) = check (I.Null, I.Null, P, (T, I.id))
+  let rec checkRec P T = check (I.Null, I.Null, P, (T, I.id))
 
   let rec isFor = function
     | G, F.All (F.Prim D, F) -> (
@@ -423,7 +423,7 @@ module FunTypeCheck
     if not (Abstract.closedCtx G) then raise (Error "State context not closed!")
     else ();
     map
-      (fun (n', F') ->
+      (fun n' F' ->
         isFor (G, F')
         (* ;          TextIO.print ("Checked: " ^ (FunPrint.Formatter.makestring_fmt (FunPrint.formatForBare (G, F'))) ^ "\n") *))
       H;

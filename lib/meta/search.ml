@@ -91,7 +91,7 @@ module MTPSearch
        then  B holds iff r occurs in (the normal form of) U
     *)
 
-  let rec occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
+  let rec occursInExp r Vs = occursInExpW (r, Whnf.whnf Vs)
 
   and occursInExpW = function
     | r, (I.Uni _, _) -> false
@@ -102,7 +102,7 @@ module MTPSearch
         occursInDec (r, (D, s)) || occursInExp (r, (V, I.dot1 s))
     | r, (I.EVar (r', _, V', _), s) -> r = r' || occursInExp (r, (V', s))
     | r, (I.FgnExp csfe, s) ->
-        I.FgnExpStd.fold csfe (fun (U, B) -> B || occursInExp (r, (U, s))) false
+        I.FgnExpStd.fold csfe (fun U B -> B || occursInExp (r, (U, s))) false
 
   and occursInSpine = function
     | _, (I.Nil, _) -> false
@@ -363,7 +363,7 @@ module MTPSearch
         fun max ->
           if !Global.chatter > 5 then print "OK]\n" else ();
           let GE' =
-            foldr (fun (X, L) -> Abstract.collectEVars (G, (X, I.id), L)) [] GE
+            foldr (fun X L -> Abstract.collectEVars (G, (X, I.id), L)) [] GE
           in
           let gE' = List.length GE' in
           if gE' > 0 then if it > 0 then searchEx (it - 1, 1) (GE', sc) else ()
@@ -373,7 +373,7 @@ module MTPSearch
       );
     if !Global.chatter > 5 then print "FAIL]\n" else ();
     ()
-  (* search (GE, sc) = ()
+  (* search GE sc = ()
 
        Invariant:
        GE is a list of uninstantiated EVars
@@ -385,7 +385,7 @@ module MTPSearch
 
   (* Shared contexts of EVars in GE may recompiled many times *)
 
-  let rec search (maxFill, GE, sc) = searchEx (1, maxFill) (GE, sc)
+  let rec search maxFill GE sc = searchEx (1, maxFill) (GE, sc)
   let searchEx = search
   (* local ... *)
 end

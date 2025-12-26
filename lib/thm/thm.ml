@@ -62,7 +62,7 @@ module Thm
   module P = ThmPrint
   module O = Order
 
-  let rec error (r, msg) = raise (Error (Paths.wrap (r, msg)))
+  let rec error r msg = raise (Error (Paths.wrap (r, msg)))
   (* To check validity of a termination declaration  O C
        we enforce that all variable names which occur in C must be distinct
        and if C = C1 .. Cm then we ensure that for_sml all Varg (X1 .. Xn) in O,
@@ -114,7 +114,7 @@ module Thm
       | k, I.Pi (_, V), P, A -> skip (k - 1, V, P, A)
     in
     skip (I.constImp a, I.constType a, P, A)
-  (* uniqueCallpats (L, rs) = ()
+  (* uniqueCallpats L rs = ()
 
        Invariant:
        If   L is a callpattern
@@ -127,13 +127,13 @@ module Thm
        in order)
     *)
 
-  let rec uniqueCallpats (L, rs) =
+  let rec uniqueCallpats L rs =
     let rec uniqueCallpats' = function
       | ([], []), A -> ()
       | (aP :: L, r :: rs), A -> uniqueCallpats' ((L, rs), unique ((aP, r), A))
     in
     uniqueCallpats' ((L, rs), [])
-  (* wfCallpats (L, C, r) = ()
+  (* wfCallpats L C r = ()
 
        Invariant:
        If   L is a list of variable names of a virtual argument
@@ -145,7 +145,7 @@ module Thm
        (r region information, needed for_sml error messages)
     *)
 
-  let rec wfCallpats (L0, C0, r) =
+  let rec wfCallpats L0 C0 r =
     (* skip (i, x, P, mS)  ignores first i argument in modeSpine mS,
              then returns true iff x occurs in argument list P
              Effect: raises Error if position of x is not input (+).
@@ -206,7 +206,7 @@ module Thm
 
   let rec wf ((O, L.Callpats C), (r, rs)) =
     let rec wfOrder = function
-      | L.Varg L -> wfCallpats (L, C, r)
+      | L.Varg L -> wfCallpats L C r
       | L.Lex L -> wfOrders L
       | L.Simul L -> wfOrders L
     and wfOrders = function
@@ -230,7 +230,7 @@ module Thm
               allModed Cs)
     in
     allModed C;
-    uniqueCallpats (C, rs);
+    uniqueCallpats C rs;
     wfOrder O
   (* argPos (x, L, n) = nOpt
 
@@ -334,7 +334,7 @@ module Thm
 
   let rec installDecl (O, L.Callpats L) =
     installOrder (O, L, []);
-    map (fun (a, _) -> a) L
+    map (fun a _ -> a) L
   (* installTerminates (T, (r,rs)) = L'
 
        Invariant:
@@ -437,14 +437,14 @@ module Thm
 
   let rec installRDecl (R, L.Callpats L) =
     installPredicate (R, L, []);
-    map (fun (a, _) -> a) L
+    map (fun a _ -> a) L
   (* wfRCallpats
        well-formed call pattern in a reduction declaration
        pattern does not need to be moded
        Tue Apr 30 10:32:31 2002 -bp
      *)
 
-  let rec wfRCallpats (L0, C0, r) =
+  let rec wfRCallpats L0 C0 r =
     let rec makestring = function
       | [] -> ""
       | s :: [] -> s
@@ -484,12 +484,12 @@ module Thm
   let rec wfred ((L.RedOrder (Pred, O, O'), L.Callpats C), (r, rs)) =
     let rec wfOrder = function
       | L.Varg L ->
-          wfRCallpats (L, C, r);
+          wfRCallpats L C r;
           Varg
       | L.Lex L -> Lex (wfOrders L)
       | L.Simul L -> Simul (wfOrders L)
     and wfOrders = function [] -> [] | O :: L -> wfOrder O :: wfOrders L in
-    uniqueCallpats (C, rs);
+    uniqueCallpats C rs;
     if wfOrder O = wfOrder O' then ()
     else
       error

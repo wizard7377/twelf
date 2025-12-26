@@ -75,7 +75,7 @@ module ReconModule
 
   exception Error of string
 
-  let rec error (r, msg) = raise (Error (Paths.wrap (r, msg)))
+  let rec error r msg = raise (Error (Paths.wrap (r, msg)))
 
   type strexp = unit -> IntSyn.mid * Paths.region
 
@@ -114,7 +114,7 @@ module ReconModule
     let ns1 = Names.getComponents mid1 in
     let ns2 = Names.getComponents mid2 in
     let rec push eqn = rEqns := eqn :: !rEqns in
-    let rec doConst (name, cid1) =
+    let rec doConst name cid1 =
       match Names.constLookupIn (ns2, Names.Qid ([], name)) with
       | None ->
           error
@@ -123,7 +123,7 @@ module ReconModule
               ^ Names.qidToString (Names.Qid (rev ids, name)) )
       | Some cid2 -> push (cid1, Internal cid2, r2)
     in
-    let rec doStruct (name, mid1) =
+    let rec doStruct name mid1 =
       match Names.structLookupIn (ns2, Names.Qid ([], name)) with
       | None ->
           error
@@ -164,11 +164,11 @@ module ReconModule
   let rec wheresig (sigexp, instList) moduleOpt =
     let module_, wherecls = sigexp moduleOpt in
     let rec wherecl ns =
-      foldr (fun (inst, eqns) -> inst (ns, eqns)) [] instList
+      foldr (fun inst eqns -> inst (ns, eqns)) [] instList
     in
     (module_, wherecls @ [ wherecl ])
 
-  let rec sigexpToSigexp (sigexp, moduleOpt) = sigexp moduleOpt
+  let rec sigexpToSigexp sigexp moduleOpt = sigexp moduleOpt
 
   type sigdef =
     ModSyn.module_ option -> string option * ModSyn.module_ * whereclause list
@@ -177,7 +177,7 @@ module ReconModule
     let module_, wherecls = sigexp moduleOpt in
     (idOpt, module_, wherecls)
 
-  let rec sigdefToSigdef (sigdef, moduleOpt) = sigdef moduleOpt
+  let rec sigdefToSigdef sigdef moduleOpt = sigdef moduleOpt
 
   type structDec =
     | StructDec of string option * ModSyn.module_ * whereclause list
@@ -193,14 +193,14 @@ module ReconModule
     let mid = strexpToStrexp strexp in
     StructDef (idOpt, mid)
 
-  let rec structdecToStructDec (structdec, moduleOpt) = structdec moduleOpt
+  let rec structdecToStructDec structdec moduleOpt = structdec moduleOpt
 
   type eqnTable = inst * Paths.region list ref IntTree.table
 
   let rec applyEqns wherecl namespace =
     let eqns = wherecl namespace in
     let table : eqnTable = IntTree.new_ 0 in
-    let rec add (cid, Inst, r) =
+    let rec add cid Inst r =
       match IntTree.lookup table cid with
       | None -> IntTree.insert table (cid, ref [ (Inst, r) ])
       | Some rl -> rl := (Inst, r) :: !rl
@@ -220,14 +220,14 @@ module ReconModule
       | (External tm, r), condec ->
           ModSyn.strictify (ExtSyn.externalInst (condec, tm, r))
     in
-    let rec transformConDec (cid, condec) =
+    let rec transformConDec cid condec =
       match IntTree.lookup table cid with
       | None -> condec
       | Some { contents = l } -> List.foldr doInst condec l
     in
     transformConDec
 
-  let rec moduleWhere (module_, wherecl) =
+  let rec moduleWhere module_ wherecl =
     (* val _ = IntSyn.resetFrom (mark, markStruct) *)
     let mark, markStruct = IntSyn.sgnSize () in
     let module' = ModSyn.instantiateModule (module_, applyEqns wherecl) in

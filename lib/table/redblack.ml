@@ -21,8 +21,8 @@ end) : Table.TABLE with type key = K.t = struct
 
   (*
      1. The tree is ordered: for_sml every node Red((key1,datum1), left, right) or
-        Black ((key1,datum1), left, right), every key in left is less than
-        key1 and every key in right is greater than key1.
+        Black ((key1,datum1), left, right), every key in left is Less than
+        key1 and every key in right is Greater than key1.
 
      2. The children of a red node are black (color invariant).
 

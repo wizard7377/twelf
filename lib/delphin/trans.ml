@@ -384,7 +384,7 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
     | D.Concat (W1, W2) -> transWorld W1 @ transWorld W2
     | D.Times W -> transWorld W
 
-  let rec transFor' (Psi, D) =
+  let rec transFor' Psi D =
     let G = I.Decl (I.Null, D) in
     let (ReconTerm.JWithCtx (I.Decl (I.Null, D'), ReconTerm.JNothing)) =
       ReconTerm.reconWithCtx (Psi, ReconTerm.jwithctx (G, ReconTerm.jnothing))
@@ -503,7 +503,7 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
     in
     U
 
-  let rec parseDec (Psi, s) =
+  let rec parseDec Psi s =
     let dec', c = transDec s in
     let dec = stringTodec dec' in
     let (ReconTerm.JWithCtx (I.Decl (I.Null, D), ReconTerm.JNothing)) =
@@ -531,7 +531,7 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
     | Psi, D.FormDecl (FormD, Ds), sc, W -> transForDec (Psi, FormD, Ds, sc, W)
     | Psi, D.ValDecl (ValD, Ds), sc, W -> transValDec (Psi, ValD, Ds, sc, W)
     | Psi, D.NewDecl (D, Ds), sc, W ->
-        let D' = T.UDec (parseDec (Psi, D)) in
+        let D' = T.UDec (parseDec Psi D) in
         (*          T.Let (T.PDec (NONE, T.True), T.Lam (D', transDecs (I.Decl (Psi, D'), Ds, sc, W)), T.Unit) *)
         T.Let
           ( T.PDec (None, T.True),
@@ -694,7 +694,7 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
         transDecs
           ( Psi,
             eDs,
-            fun (Psi', W') ->
+            fun Psi' W' ->
               ( transProgI
                   ( Psi',
                     eP,
@@ -702,12 +702,12 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
                     W' ),
                 W ) )
     | Psi, D.Choose (eD, eP), F, W ->
-        let D' = parseDec (Psi, eD) in
+        let D' = parseDec Psi eD in
         let Psi'' = I.Decl (Psi, T.UDec D') in
         T.Choose (T.Lam (T.UDec D', transProgI (Psi'', eP, (F, T.Shift 1), W)))
     | Psi, D.New ([], eP), F, W -> transProgIN (Psi, eP, F, W)
     | Psi, D.New (eD :: eDs, eP), F, W ->
-        let D' = parseDec (Psi, eD) in
+        let D' = parseDec Psi eD in
         let Psi'' = I.Decl (Psi, T.UDec D') in
         T.New
           (T.Lam
@@ -729,12 +729,12 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
         let S, Fs' = transProgS' (Psi, (F, T.id), W, args) in
         (T.Redex (T.Var n, S), Fs')
     | Psi, D.Choose (eD, eP), W, args ->
-        let D' = parseDec (Psi, eD) in
+        let D' = parseDec Psi eD in
         let P, (F, t) = transProgS (I.Decl (Psi, T.UDec D'), eP, W, args) in
         (T.Choose (T.Lam (T.UDec D', P)), (F, t))
     | Psi, D.New ([], eP), W, args -> transProgS (Psi, eP, W, args)
     | Psi, D.New (eD :: eDs, eP), W, args ->
-        let D' = parseDec (Psi, eD) in
+        let D' = parseDec Psi eD in
         let P, (F, t) =
           transProgS (I.Decl (Psi, T.UDec D'), D.New (eDs, eP), W, args)
         in
@@ -851,7 +851,7 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
     *)
 
   let rec transProgram Ds =
-    transDecs (I.Null, Ds, fun (Psi, W) -> (T.Unit, T.Worlds []))
+    transDecs (I.Null, Ds, fun Psi W -> (T.Unit, T.Worlds []))
 
   let transFor =
    fun F ->
@@ -859,7 +859,7 @@ module Trans (DextSyn' : Dextsyn.DEXTSYN) = struct
     F'
   (*    val makePattern = makePattern *)
 
-  (*    val transPro = fn P => let val (P', _) = transProgS ((I.Null, []), P, T.Worlds []) in P' end *)
+  (*    val transPro = fn P => let val P' _ = transProgS ((I.Null, []), P, T.Worlds []) in P' end *)
 
   let transDecs = transProgram
   let internalizeSig = internalizeSig

@@ -364,7 +364,7 @@ module Twelf
 
   (* handleExceptions chlev filename f x = f x
        where standard exceptions are handled and an appropriate error message is
-       issued if chatter level is greater or equal to chlev.
+       issued if chatter level is Greater or Equal to chlev.
        Unrecognized exceptions are re-raised.
     *)
 
@@ -514,7 +514,7 @@ module Twelf
     in
     ()
 
-  let rec includeSig (module_, r, isDef) =
+  let rec includeSig module_ r isDef =
     let rec installAction data =
       installConst IntSyn.Ordinary data;
       if !Global.chatter >= 4 then
@@ -538,7 +538,7 @@ module Twelf
           chmsg 4 (fun () ->
               "Invalidated " ^ msg ^ " properties of families"
               ^ List.foldr
-                  (fun (a, s) -> " " ^ cidToString a ^ s)
+                  (fun a s -> " " ^ cidToString a ^ s)
                   "\n" uninstalledCids)
     in
     ()
@@ -625,7 +625,7 @@ module Twelf
             with Solve.AbortQuery msg ->
               raise (Solve.AbortQuery (Paths.wrap (r, msg)))
           in
-          let rec icd (conDec, ocOpt) =
+          let rec icd conDec ocOpt =
             (* should print here, not in ReconQuery *)
             (* allocate new cid after checking modes! *)
             (* allocate cid after strictness has been checked! *)
@@ -681,7 +681,7 @@ module Twelf
           | Some cid -> cid
         in
         let cidpairs =
-          try List.map (fun (qid1, qid2) -> (toCid qid1, toCid qid2)) qidpairs
+          try List.map (fun qid1 qid2 -> (toCid qid1, toCid qid2)) qidpairs
           with Names.Error msg -> raise (Names.Error (Paths.wrap (r, msg)))
         in
         let _ =
@@ -726,14 +726,14 @@ module Twelf
           msg
             ("%freeze"
             ^ List.foldr
-                (fun (a, s) -> " " ^ Names.qidToString (Names.constQid a) ^ s)
+                (fun a s -> " " ^ Names.qidToString (Names.constQid a) ^ s)
                 ".\n" cids)
         else ();
         if !Global.chatter >= 4 then
           msg
             ("Frozen:"
             ^ List.foldr
-                (fun (a, s) -> " " ^ Names.qidToString (Names.constQid a) ^ s)
+                (fun a s -> " " ^ Names.qidToString (Names.constQid a) ^ s)
                 "\n" frozen)
         else ()
     | fileName, (Parser.ThawDec qids, r) ->
@@ -767,14 +767,14 @@ module Twelf
           if !Global.chatter >= 3 then
             msg
               ("%thaw"
-              ^ List.foldr (fun (a, s) -> " " ^ cidToString a ^ s) ".\n" cids)
+              ^ List.foldr (fun a s -> " " ^ cidToString a ^ s) ".\n" cids)
           else ()
         in
         let _ =
           if !Global.chatter >= 4 then
             msg
               ("Thawed"
-              ^ List.foldr (fun (a, s) -> " " ^ cidToString a ^ s) "\n" thawed)
+              ^ List.foldr (fun a s -> " " ^ cidToString a ^ s) "\n" thawed)
           else ()
         in
         let _ = invalidate WorldSyn.uninstall thawed "world" in
@@ -805,7 +805,7 @@ module Twelf
             ((if !Global.chatter >= 4 then "%" else "")
             ^ "%deterministic"
             ^ List.foldr
-                (fun (a, s) -> " " ^ Names.qidToString (Names.constQid a) ^ s)
+                (fun a s -> " " ^ Names.qidToString (Names.constQid a) ^ s)
                 ".\n" cids)
         else ()
     | fileName, (Parser.Compile qids, r) ->
@@ -850,7 +850,7 @@ module Twelf
               ((if !Global.chatter >= 4 then "%" else "")
               ^ "%compile"
               ^ List.foldr
-                  (fun (a, s) -> " " ^ Names.qidToString (Names.constQid a) ^ s)
+                  (fun a s -> " " ^ Names.qidToString (Names.constQid a) ^ s)
                   ".\n" cids)
           else ()
         in
@@ -891,7 +891,7 @@ module Twelf
         let _ = ReconTerm.checkErrors r in
         let _ =
           List.app
-            (fun (mdec, r) ->
+            (fun mdec r ->
               match ModeTable.modeLookup a with
               | None -> ()
               | Some _ ->
@@ -907,7 +907,7 @@ module Twelf
         in
         let _ =
           List.app
-            (fun (mdec, r) ->
+            (fun mdec r ->
               try
                 match IntSyn.conDecStatus (IntSyn.sgnLookup a) with
                 | IntSyn.Normal -> ModeTable.installMode mdec
@@ -922,7 +922,7 @@ module Twelf
         let _ = List.app (fun mdec -> ModeDec.checkPure mdec) mdecs in
         let _ =
           List.app
-            (fun (mdec, r) ->
+            (fun mdec r ->
               try ModeCheck.checkMode mdec (* exception comes with location *)
               with ModeCheck.Error msg -> raise (ModeCheck.Error msg))
             mdecs
@@ -931,7 +931,7 @@ module Twelf
           if !Global.chatter >= 3 then
             msg
               ("%mode "
-              ^ ModePrint.modesToString (List.map (fun (mdec, r) -> mdec) mdecs)
+              ^ ModePrint.modesToString (List.map (fun mdec r -> mdec) mdecs)
               ^ ".\n")
           else ()
         in
@@ -944,7 +944,7 @@ module Twelf
         let _ = ReconTerm.checkErrors r in
         let _ =
           List.app
-            (fun (mdec, r) ->
+            (fun mdec r ->
               try
                 match IntSyn.conDecStatus (IntSyn.sgnLookup a) with
                 | IntSyn.Normal -> UniqueTable.installMode mdec
@@ -958,7 +958,7 @@ module Twelf
         in
         let _ =
           List.app
-            (fun (mdec, r) ->
+            (fun mdec r ->
               try (Timers.time Timers.coverage Unique.checkUnique) mdec
               with Unique.Error msg ->
                 raise (Unique.Error (Paths.wrap (r, msg))))
@@ -968,7 +968,7 @@ module Twelf
           if !Global.chatter >= 3 then
             msg
               ("%unique "
-              ^ ModePrint.modesToString (List.map (fun (mdec, r) -> mdec) mdecs)
+              ^ ModePrint.modesToString (List.map (fun mdec r -> mdec) mdecs)
               ^ ".\n")
           else ()
         in
@@ -980,7 +980,7 @@ module Twelf
         let _ = List.app (fun mdec -> ModeDec.checkPure mdec) mdecs in
         let _ =
           List.app
-            (fun (mdec, r) ->
+            (fun mdec r ->
               try (Timers.time Timers.coverage Cover.checkCovers) mdec
               with Cover.Error msg ->
                 raise (Cover.Error (Paths.wrap (r, msg))))
@@ -990,7 +990,7 @@ module Twelf
           if !Global.chatter >= 3 then
             msg
               ("%covers "
-              ^ ModePrint.modesToString (List.map (fun (mdec, r) -> mdec) mdecs)
+              ^ ModePrint.modesToString (List.map (fun mdec r -> mdec) mdecs)
               ^ ".\n")
           else ()
         in
@@ -1244,7 +1244,7 @@ module Twelf
           else ()
         in
         let cp, rrs = ReconThm.assertToAssert aterm in
-        let La = map (fun (c, P) -> c) L in
+        let La = map (fun c P -> c) L in
         let _ =
           if !Global.chatter >= 3 then
             msg ("%assert " ^ ThmPrint.callpatsToString cp ^ ".\n")
@@ -1301,7 +1301,7 @@ module Twelf
                [])
         in
         let _ =
-          try List.app (fun (a, _) -> WorldSyn.install (a, W)) cpa
+          try List.app (fun a _ -> WorldSyn.install (a, W)) cpa
           with WorldSyn.Error msg (* error location inaccurate here *) ->
             raise
               (WorldSyn.Error
@@ -1309,7 +1309,7 @@ module Twelf
         in
         let _ =
           if !Global.autoFreeze then (
-            Subordinate.freeze (List.map (fun (a, _) -> a) cpa);
+            Subordinate.freeze (List.map (fun a _ -> a) cpa);
             ())
           else ()
         in
@@ -1322,7 +1322,7 @@ module Twelf
           else ()
         in
         Timers.time Timers.worlds
-          (map (fun (a, _) -> WorldSyn.worldcheck W a))
+          (map (fun a _ -> WorldSyn.worldcheck W a))
           cpa;
         ()
         (*if !Global.doubleCheck
@@ -1348,7 +1348,7 @@ module Twelf
         in
         let module' =
           foldl
-            (fun (inst, module_) -> ReconModule.moduleWhere (module_, inst))
+            (fun inst module_ -> ReconModule.moduleWhere (module_, inst))
             module_ wherecls
         in
         let name =
@@ -1370,7 +1370,7 @@ module Twelf
         | ReconModule.StructDec (idOpt, module_, wherecls) ->
             let module' =
               foldl
-                (fun (inst, module_) -> ReconModule.moduleWhere (module_, inst))
+                (fun inst module_ -> ReconModule.moduleWhere (module_, inst))
                 module_ wherecls
             in
             let name =
@@ -1411,17 +1411,17 @@ module Twelf
         in
         let module' =
           foldl
-            (fun (inst, module_) -> ReconModule.moduleWhere (module_, inst))
+            (fun inst module_ -> ReconModule.moduleWhere (module_, inst))
             module_ wherecls
         in
-        let _ = includeSig (module', r, false) in
+        let _ = includeSig module' r false in
         let _ = if !Global.chatter = 3 then msg "%include { ... }.\n" else () in
         ()
     | fileName, None, (Parser.Open strexp, r) ->
         let mid = ReconModule.strexpToStrexp strexp in
         let ns = Names.getComponents mid in
         let module_ = ModSyn.abstractModule (ns, Some mid) in
-        let _ = includeSig (module_, r, true) in
+        let _ = includeSig module_ r true in
         let _ =
           if !Global.chatter = 3 then
             msg ("%open " ^ Names.qidToString (Names.structQid mid) ^ ".\n")
@@ -1429,7 +1429,7 @@ module Twelf
         in
         ()
 
-  let rec installSubsig (fileName, s) =
+  let rec installSubsig fileName s =
     (* val _ = ModeTable.resetFrom mark *)
     (* val _ = Total.resetFrom mark *)
     (* val _ = Subordinate.resetFrom mark (* ouch! *) *)
@@ -1448,7 +1448,7 @@ module Twelf
     let rec install s = install' ((Timers.time Timers.parsing S.expose) s)
     and install' = function
       | S.Cons ((Parser.BeginSubsig, _), s') ->
-          install (installSubsig (fileName, s'))
+          install (installSubsig fileName s')
       | S.Cons ((Parser.EndSubsig, _), s') -> s'
       | S.Cons (declr, s') ->
           install1 (fileName, declr);
@@ -1488,7 +1488,7 @@ module Twelf
         and install' = function
           | S.Empty -> OK
           | S.Cons ((Parser.BeginSubsig, _), s') ->
-              install (installSubsig (fileName, s'))
+              install (installSubsig fileName s')
           | S.Cons (decl, s') ->
               install1 (fileName, decl);
               install s'
@@ -1530,7 +1530,7 @@ module Twelf
 
   let rec top () = topLoop ()
 
-  let rec installCSMDec (conDec, optFixity, mdecL) =
+  let rec installCSMDec conDec optFixity mdecL =
     (* put a more reasonable region here? -kw *)
     let _ = ModeCheck.checkD (conDec, "%use", None) in
     let cid =
@@ -1644,7 +1644,7 @@ module Twelf
     type mfile = string * Time.t option ref
 
     let rec create file = (file, ref None)
-    let rec fileName (file, _) = file
+    let rec fileName file _ = file
     let rec editName edit (file, mtime) = (edit file, mtime)
 
     let rec modified = function
@@ -1654,9 +1654,9 @@ module Twelf
           | Eq -> false
           | _ -> true)
 
-    let rec makeModified (_, mtime) = mtime := None
+    let rec makeModified _ mtime = mtime := None
 
-    let rec makeUnmodified (file, mtime) =
+    let rec makeUnmodified file mtime =
       mtime := Some (OS.FileSys.modTime file)
   end
   (* config = ["fileName1",...,"fileName<n>"] *)
@@ -1684,13 +1684,13 @@ module Twelf
                absolute, no prefix is added to it.
             *)
 
-    let rec mkRel (prefix, path) =
+    let rec mkRel prefix path =
       OS.Path.mkCanonical
         (if OS.Path.isAbsolute path then path else OS.Path.concat (prefix, path))
     (* more efficient recursive version  Sat 08/26/2002 -rv *)
 
     let rec read config =
-      (* appendUniq (list1, list2) appends list2 to list1, removing all
+      (* appendUniq list1 list2 appends list2 to list1, removing all
                elements of list2 which are already in list1.
             *)
       (* isConfig (item) is true iff item has the suffix of a
@@ -1699,7 +1699,7 @@ module Twelf
       (* fromUnixPath path transforms path (assumed to be in Unix form)
                to the local OS conventions.
             *)
-      let rec appendUniq (l1, l2) =
+      let rec appendUniq l1 l2 =
         let rec appendUniq' = function
           | x :: l2 ->
               if List.exists (fun y -> x = y) l1 then appendUniq' l2
@@ -1764,7 +1764,7 @@ module Twelf
     (* Read a config file s but omit everything that is already in config c
          XXX: naive and inefficient implementation *)
 
-    let rec readWithout (s, c) =
+    let rec readWithout s c =
       let d, fs = read s in
       let d', fs' = c in
       let fns' = map (fun m -> mkRel (d', ModFile.fileName m)) fs' in

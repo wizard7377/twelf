@@ -63,7 +63,7 @@ module Order : Order.ORDER = struct
 
   (* and to                                                           *)
 
-  (*   ih a(i+1) .. the arguments are smaller or equal  *)
+  (*   ih a(i+1) .. the arguments are smaller or Equal  *)
 
   (* then the ones of ai.                                             *)
 

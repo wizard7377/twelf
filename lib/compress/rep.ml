@@ -85,7 +85,7 @@ module Rep = struct
       foldl
       ^ ""
           (map
-             (fun (x, y) -> Int.toString x ^ " " ^ Int.toString y ^ "\n")
+             (fun x y -> Int.toString x ^ " " ^ Int.toString y ^ "\n")
              pairs)
     in
     let f = TextIO.openOut "/tmp/graph" in

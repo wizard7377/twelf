@@ -74,7 +74,7 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
      Note that erasure is always defined on well-typed terms at type
      family or kind level.  Also, if G |- U1 = U2 : V and U1,U2 are at
      type family or kind level, then U1- and U2- are defined and
-     equal.  We can define the approximate typing judgment
+     Equal.  We can define the approximate typing judgment
              
        G |- U ~:~ V
                   
@@ -144,7 +144,7 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
     List.find (fun ((CVar r', _, _), _) -> r = r') !varList
 
   let rec varLookupName name =
-    List.find (fun (_, name') -> name = name') !varList
+    List.find (fun _ name' -> name = name') !varList
 
   let rec varInsert ((u, v, l), name) = varList := ((u, v, l), name) :: !varList
 
@@ -211,10 +211,10 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
     let v', l' = expToApx v in
     let (Uni l'') = whnf l' in
     (v', l'')
-  (* exactToApx (U, V) = (U-, V-)
+  (* exactToApx U V = (U-, V-)
      if G |- U : V *)
 
-  let rec exactToApx (u, v) =
+  let rec exactToApx u v =
     let v', l' = classToApx v in
     match whnfUni l' with
     | Level 1 (* type_ *) -> (Undefined, v', l')
@@ -304,7 +304,7 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
   (* matching for_sml the approximate language *)
 
   exception Unify of string
-  (* occurUni (r, l) = ()
+  (* occurUni r l = ()
        iff r does not occur in l,
        otherwise raises Unify *)
 
@@ -313,8 +313,8 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
     | r, LVar r' -> if r = r' then raise (Unify "Level circularity") else ()
     | r, _ -> ()
 
-  let rec occurUni (r, l) = occurUniW (r, whnfUni l)
-  (* matchUni (l1, l2) = ()
+  let rec occurUni r l = occurUniW (r, whnfUni l)
+  (* matchUni l1 l2 = ()
        iff l1<I> = l2<I> for_sml some most general instantiation I
        effect: applies I
        otherwise raises Unify *)
@@ -336,7 +336,7 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
         occurUniW (r2, l1);
         r2 := Some l1
 
-  let rec matchUni (l1, l2) = matchUniW (whnfUni l1, whnfUni l2)
+  let rec matchUni l1 l2 = matchUniW (whnfUni l1, whnfUni l2)
   (* occur (r, u) = ()
        iff r does not occur in u,
        otherwise raises Unify *)
@@ -356,7 +356,7 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
        otherwise raises Unify *)
 
   let rec matchW = function
-    | Uni l1, Uni l2 -> matchUni (l1, l2)
+    | Uni l1, Uni l2 -> matchUni l1 l2
     | Const h1, Const h2 -> (
         match (h1, h2) with
         | I.Const c1, I.Const c2 ->
@@ -393,7 +393,7 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
 
   and match_ (u1, u2) = matchW (whnf u1, whnf u2)
 
-  let rec matchable (u1, u2) =
+  let rec matchable u1 u2 =
     try
       match_ (u1, u2);
       true

@@ -58,7 +58,7 @@ struct
   let rec parseDefine4 (optName, optT, s) =
     let tm', f' = ParseTerm.parseTerm' (LS.expose s) in
     (ExtQuery.define (optName, tm', optT), f')
-  (* parseDefine3 parses the equal sign in a long form define *)
+  (* parseDefine3 parses the Equal sign in a long form define *)
 
   (* "= U" *)
 

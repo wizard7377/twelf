@@ -247,7 +247,7 @@ module Interactive
         in
         let intro = introMenu (map Introduce.expand F1) in
         let fill =
-          foldr (fun (S, l) -> l @ map (fun O -> Fill O) (Fill.expand S)) [] F2
+          foldr (fun S l -> l @ map (fun O -> Fill O) (Fill.expand S)) [] F2
         in
         let rec elimMenu = function
           | [] -> []
@@ -260,7 +260,7 @@ module Interactive
         let Ys = Abstract.collectEVars (I.Null, (Y, I.id), []) in
         let F2 = map (fun Y -> S.FocusLF Y) Ys in
         let fill =
-          foldr (fun (S, l) -> l @ map (fun O -> Fill O) (Fill.expand S)) [] F2
+          foldr (fun S l -> l @ map (fun O -> Fill O) (Fill.expand S)) [] F2
         in
         Menu := Some fill
 

@@ -13,8 +13,8 @@ test: $(SOURCES)
 	$(DUNE) runtest
 clean:
 	$(DUNE) clean
-doc: $(SOURCES)
-	$(DUNE) build @doc
+docs: $(SOURCES)
+	$(DUNE) build @doc @doc-private
 repl: $(SOURCES)
 	$(DUNE) utop
 config: sane

@@ -108,7 +108,7 @@ module TomegaCoverage
           I.Decl (Psi', T.UDec (I.decSub (D, T.coerceSub s'))),
           T.dot1 s' )
 
-  let rec purify (Psi0, t, Psi) =
+  let rec purify Psi0 t Psi =
     let t', Psi', s' = purifyCtx (t, Psi) in
     let _ = TomegaTypeCheck.checkSub (Psi0, t', Psi') in
     (Psi0, t', Psi')
@@ -149,7 +149,7 @@ module TomegaCoverage
         in
         let Cs' = map purify Cs in
         let Cs'' =
-          map (fun (Psi0, t, _) -> (T.coerceCtx Psi0, T.coerceSub t)) Cs'
+          map (fun Psi0 t _ -> (T.coerceCtx Psi0, T.coerceSub t)) Cs'
         in
         Cover.coverageCheckCases (W, Cs'', T.coerceCtx Psi')
     | W, Psi, (Psi', t, P) :: Omega, Cs ->

@@ -355,7 +355,7 @@ module SubTree
       | _, _, _ -> raise (Generalization "Top-level function symbol not shared")
     in
     try Some (genTop (label, T, U)) with Generalization msg -> None
-  (* compatibleSub(nsub_t, nsub_e) = (sg, rho_t, rho_e) opt
+  (* compatibleSub nsub_t nsub_e = (sg, rho_t, rho_e) opt
 
    if dom(nsub_t) <= dom(nsub_e)
       codom(nsub_t) : linear hop in normal form (may contain normal vars)
@@ -372,7 +372,7 @@ module SubTree
 
    *)
 
-  let rec compatibleSub (nsub_t, nsub_e) =
+  let rec compatibleSub nsub_t nsub_e =
     (* by invariant rho_t = empty, since nsub_t <= nsub_e *)
     let sg, rho_t, rho_e = (nid (), nid (), nid ()) in
     let _ =
@@ -409,7 +409,7 @@ module SubTree
    *)
 
   let rec compareChild (children, (n, child), nsub_t, nsub_e, GR) =
-    match compatibleSub (nsub_t, nsub_e) with
+    match compatibleSub nsub_t nsub_e with
     | None -> S.insert children (n + 1, Leaf (nsub_e, G_clause2, Res_clause2))
     | Some (sg, rho1, rho2) ->
         if isId rho1 then
@@ -421,7 +421,7 @@ module SubTree
 
   and insert = function
     | N, nsub_e, GR -> (
-        match compatibleSub (nsub_t, nsub_e) with
+        match compatibleSub nsub_t nsub_e with
         | None -> raise (Error "Leaf is not compatible substitution r")
         | Some (sg, rho1, rho2) -> mkNode (N, sg, rho1, GR, rho2))
     | N, nsub_e, GR -> (
@@ -651,10 +651,10 @@ module SubTree
       (nsub, nsub_query, assignSub, (nsub_left, cnstrSub), cnstr) =
     let nsub_query' = querySubId () in
     let cref = ref cnstr in
-    let rec assign' (nsub_query, nsub) =
+    let rec assign' nsub_query nsub =
       let nsub_query_left, nsub_left1 =
         S.differenceModulo nsub_query nsub (fun (Glocal_u, (l, U)) ->
-            fun (l', T) ->
+            fun l' T ->
              cref :=
                assign
                  ( l (* = l' *),
@@ -667,25 +667,25 @@ module SubTree
                    !cref ))
       in
       let nsub_left' =
-        S.update nsub_left1 (fun (l, U) -> (l, normalizeNExp (U, cnstrSub)))
+        S.update nsub_left1 (fun l U -> (l, normalizeNExp (U, cnstrSub)))
       in
       Some
         ( S.union nsub_query_left nsub_query',
           (S.union nsub_left nsub_left', cnstrSub),
           !cref )
     in
-    try assign' (nsub_query, nsub) with Assignment msg -> None
+    try assign' nsub_query nsub with Assignment msg -> None
 
   let rec assignableEager (nsub, nsub_query, assignSub, cnstrSub, cnstr) =
     let nsub_query' = querySubId () in
     let cref = ref cnstr in
-    let rec assign' (nsub_query, nsub) =
+    let rec assign' nsub_query nsub =
       (* normalize nsub_left (or require that it is normalized
              collect all left-over nsubs and later combine it with cnstrsub
            *)
       let nsub_query_left, nsub_left =
         S.differenceModulo nsub_query nsub (fun (Glocal_u, (l, U)) ->
-            fun (l', T) ->
+            fun l' T ->
              cref :=
                assign
                  ( l' (* = l *),
@@ -707,7 +707,7 @@ module SubTree
       (* nsub_goal1 = rgoal u nsub_goal'  remaining substitutions to be checked *)
       Some (S.union nsub_query_left nsub_query', cnstrSub, !cref)
     in
-    try assign' (nsub_query, nsub) with Assignment msg -> None
+    try assign' nsub_query nsub with Assignment msg -> None
   (* Unification *)
 
   let rec unifyW = function
@@ -718,11 +718,11 @@ module SubTree
         r := Some (I.EClo Us2)
     | G, Xs1, Us2 -> Unify.unifyW (G, Xs1, Us2)
 
-  let rec unify (G, Xs1, Us2) = unifyW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
+  let rec unify G Xs1 Us2 = unifyW (G, Whnf.whnf Xs1, Whnf.whnf Us2)
 
-  let rec unifiable (G, Us1, Us2) =
+  let rec unifiable G Us1 Us2 =
     try
-      unify (G, Us1, Us2);
+      unify G Us1 Us2;
       true
     with Unify.Unify msg -> false
   (* Convert context G into explicit substitution *)
@@ -803,7 +803,7 @@ module SubTree
           with
           | None -> ()
           | Some (nsub_query', cnstrSub', cnstr') ->
-              S.forall Children (fun (n, Child) ->
+              S.forall Children (fun n Child ->
                   retrieve
                     ( Child,
                       nsub_query',
@@ -817,7 +817,7 @@ module SubTree
     (* s = id *)
     let nsub_query, assignSub = (querySubId (), assignSubId ()) in
     S.insert nsub_query (1, (I.Null, (Body, r)));
-    S.forall Children (fun (_, C) ->
+    S.forall Children (fun _ C ->
         retrieveChild (n, C, nsub_query, assignSub, [], G, sc))
   (*----------------------------------------------------------------------------*)
 
@@ -865,7 +865,7 @@ module SubTree
           with
           | None -> ()
           | Some (nsub_query', (nsub_left', cnstrSub'), cnstr') ->
-              S.forall Children (fun (n, Child) ->
+              S.forall Children (fun n Child ->
                   retrieve
                     ( Child,
                       nsub_query',
@@ -879,7 +879,7 @@ module SubTree
     (* s = id *)
     let nsub_query, assignSub = (querySubId (), assignSubId ()) in
     let candSet = S.new_ () in
-    let rec solveCandidate (i, candSet) =
+    let rec solveCandidate i candSet =
       match S.lookup candSet i with
       | None ->
           (* print "No candidate left anymore\n" ;*)
@@ -900,7 +900,7 @@ module SubTree
           solveCandidate (i + 1, candSet (* sc = (fn S => (O::S)) *))
     in
     S.insert nsub_query (1, (I.Null, (Body, r)));
-    S.forall Children (fun (_, C) ->
+    S.forall Children (fun _ C ->
         retrieveAll (n, C, nsub_query, assignSub, [], candSet));
     (* execute one by one all candidates : here ! *)
     solveCandidate (1, candSet)
@@ -917,7 +917,7 @@ module SubTree
   let rec sProgReset () =
     nctr := 1;
     Array.modify
-      (fun (n, Tree) ->
+      (fun n Tree ->
         n := 0;
         Tree := !(makeTree ());
         (n, Tree))

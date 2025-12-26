@@ -254,7 +254,7 @@ module MTPRecursion
       let Fnew = A.abstractApproxFor AF in
       if
         List.exists
-          (fun (nhist, Fhist) ->
+          (fun nhist Fhist ->
             nih = nhist && F.convFor ((Fnew, I.id), (Fhist, I.id)))
           H
       then Ds
@@ -532,7 +532,7 @@ module MTPRecursion
             GB,
             w,
             F,
-            fun (s, de') ->
+            fun s de' ->
               (* s'  :  GB, Ds |- s : GB   *)
               (* s'  : GB, Ds, G'[...] |- s' : GB, G *)
               (* V'  : maps (GB, Ds, G'[...] |- V type) to (GB, Ds |- {G'[...]} V type) *)
@@ -577,7 +577,7 @@ module MTPRecursion
             (I.Decl (G, D2), I.Decl (B, T2)),
             I.comp (w, I.shift),
             F,
-            fun (s, de') ->
+            fun s de' ->
               (* s   : GB, Ds, D2 |- s : GB *)
               (* s'  : GB, Ds, D2, G'[...] |- s' : GB, G *)
               (* V'  : maps (GB, Ds, D2, G'[...] |- V type) to (GB, Ds, D2 |- {G'[...]} V type) *)
@@ -605,7 +605,7 @@ module MTPRecursion
               (G, B),
               I.id,
               F.forSub (Frl', s),
-              fun (s', _) -> (s', fun V' -> (V', fun F' -> F')) )
+              fun s' _ -> (s', fun V' -> (V', fun F' -> F')) )
         in
         let s'' = I.comp (s, s') in
         updateState
@@ -616,7 +616,7 @@ module MTPRecursion
                 d,
                 S.orderSub (O, s'),
                 (n', F.forSub (Frl', s''))
-                :: map (fun (n', F') -> (n', F.forSub (F', s'))) H,
+                :: map (fun n' F' -> (n', F.forSub (F', s'))) H,
                 F.forSub (F, s') ),
             (L, s'') )
   (* selectFormula (n, G, (G0, F, O), S) = S'

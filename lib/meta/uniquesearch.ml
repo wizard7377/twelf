@@ -86,7 +86,7 @@ module UniqueSearch
        then  B holds iff r occurs in (the normal form of) U
     *)
 
-  let rec occursInExp (r, Vs) = occursInExpW (r, Whnf.whnf Vs)
+  let rec occursInExp r Vs = occursInExpW (r, Whnf.whnf Vs)
 
   and occursInExpW = function
     | r, (I.Uni _, _) -> false
@@ -97,7 +97,7 @@ module UniqueSearch
         occursInDec (r, (D, s)) || occursInExp (r, (V, I.dot1 s))
     | r, (I.EVar (r', _, V', _), s) -> r = r' || occursInExp (r, (V', s))
     | r, (I.FgnExp csfe, s) ->
-        I.FgnExpStd.fold csfe (fun (U, B) -> B || occursInExp (r, (U, s))) false
+        I.FgnExpStd.fold csfe (fun U B -> B || occursInExp (r, (U, s))) false
 
   and occursInSpine = function
     | _, (I.Nil, _) -> false
@@ -177,7 +177,7 @@ module UniqueSearch
             depth + 1,
             (g, I.dot1 s),
             C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Dec (r, s, H))),
-            (fun (M, acc') -> sc (I.Lam (D', M), acc')),
+            (fun M acc' -> sc (I.Lam (D', M), acc')),
             acc )
     | max, depth, (C.All (D, g), s), C.DProg (G, dPool), sc, acc ->
         let D' = I.decSub (D, s) in
@@ -186,7 +186,7 @@ module UniqueSearch
             depth + 1,
             (g, I.dot1 s),
             C.DProg (I.Decl (G, D'), I.Decl (dPool, C.Parameter)),
-            (fun (M, acc') -> sc (I.Lam (D', M), acc')),
+            (fun M acc' -> sc (I.Lam (D', M), acc')),
             acc )
 
   and rSolve = function
@@ -206,13 +206,13 @@ module UniqueSearch
             ps',
             (r, I.Dot (I.Exp X, s)),
             dp,
-            (fun (S, acc') ->
+            (fun S acc' ->
               solve
                 ( max,
                   depth,
                   (g, s),
                   dp,
-                  (fun (M, acc'') -> sc (I.App (M, S), acc'')),
+                  (fun M acc'' -> sc (I.App (M, S), acc'')),
                   acc' )),
             acc )
     | max, depth, ps', (C.In (r, A, g), s), dp, sc, acc ->
@@ -238,7 +238,7 @@ module UniqueSearch
             ps',
             (r, I.Dot (I.Exp X', s)),
             dp,
-            (fun (S, acc') ->
+            (fun S acc' ->
               if isInstantiated X then sc (I.App (X', S), acc')
               else
                 solve
@@ -246,7 +246,7 @@ module UniqueSearch
                     0,
                     (g, s'),
                     C.DProg (G0, dPool0),
-                    (fun (M, acc'') ->
+                    (fun M acc'' ->
                       try
                         Unify.unify (G0, (X, I.id), (M, I.id));
                         sc (I.App (I.EClo (M, w), S), acc'')
@@ -261,7 +261,7 @@ module UniqueSearch
             ps',
             (r, I.Dot (I.Exp X, s)),
             dp,
-            (fun (S, acc') -> sc (I.App (X, S), acc')),
+            (fun S acc' -> sc (I.App (X, S), acc')),
             acc )
     | max, depth, ps', (C.Axists (I.ADec (Some X, d), r), s), dp, sc, acc ->
         let X' = I.newAVar () in
@@ -300,7 +300,7 @@ module UniqueSearch
                         ps',
                         (r, I.id),
                         dp,
-                        (fun (S, acc'') -> sc (I.Root (Hc, S), acc'')),
+                        (fun S acc'' -> sc (I.Root (Hc, S), acc'')),
                         acc' ))
               in
               matchSig' (sgn', acc''')
@@ -317,7 +317,7 @@ module UniqueSearch
                           ps',
                           (r, I.comp (s, I.Shift n)),
                           dp,
-                          (fun (S, acc'') -> sc (I.Root (I.BVar n, S), acc'')),
+                          (fun S acc'' -> sc (I.Root (I.BVar n, S), acc'')),
                           acc' ))
                 in
                 matchDProg (dPool', n + 1, acc''')
@@ -335,7 +335,7 @@ module UniqueSearch
             0,
             (Compile.compileGoal (G, V), I.id),
             Compile.compileCtx false G,
-            (fun (U', acc') ->
+            (fun U' acc' ->
               try
                 Unify.unify (G, (X, I.id), (U', I.id));
                 searchEx' max (GE, sc, acc')
@@ -360,7 +360,7 @@ module UniqueSearch
           ( (if !Global.chatter > 5 then print "OK]\n" else ();
              let GE' =
                foldr
-                 (fun (X, L) -> Abstract.collectEVars (G, (X, I.id), L))
+                 (fun X L -> Abstract.collectEVars (G, (X, I.id), L))
                  [] GE
              in
              let gE' = List.length GE' in
@@ -371,7 +371,7 @@ module UniqueSearch
              (* warning: iterative deepening depth is not propably updated.
                                              possible that it runs into an endless loop ? *)),
             acc ) )
-  (* search (GE, sc) = ()
+  (* search GE sc = ()
 
        Invariant:
        GE is a list of uninstantiated EVars
@@ -383,7 +383,7 @@ module UniqueSearch
 
   (* Shared contexts of EVars in GE may recompiled many times *)
 
-  let rec search (maxFill, GE, sc) = searchEx (1, maxFill) (GE, sc, [])
+  let rec search maxFill GE sc = searchEx (1, maxFill) (GE, sc, [])
   let searchEx = search
   (* local ... *)
 end

@@ -156,7 +156,7 @@ module Inference
           (IH, OH),
           d,
           S.orderSub (O, w'),
-          map (fun (i, F') -> (i, F.forSub (F', w'))) H,
+          map (fun i F' -> (i, F.forSub (F', w'))) H,
           F.forSub (F, w') )
     in
     let _ = if !Global.doubleCheck then FunTypeCheck.isState S' else () in
