@@ -4,7 +4,7 @@ open Order
 
 module type VECTOR_SLICE = sig
   type 'a slice
-  type 'a vector = 'a Vector.vector
+  type 'a vector = 'a Vector.t
 
   val length : 'a slice -> int
   val sub : 'a slice * int -> 'a

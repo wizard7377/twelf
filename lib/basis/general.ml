@@ -20,8 +20,8 @@ module type GENERAL = sig
 
   type order = Order.order
 
-  val ! : 'a ref -> 'a
-  val ( := ) : 'a ref * 'a -> unit
+  val deref : 'a ref -> 'a
+  val assign : 'a ref * 'a -> unit
   val o : ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
   val before : 'a * unit -> 'a
   val ignore : 'a -> unit
@@ -55,8 +55,8 @@ module General : GENERAL = struct
   type order = Order.order
 
   (* Reference operations *)
-  let ( ! ) r = !r
-  let ( := ) (r, v) = r := v
+  let deref r = !r
+  let assign (r, v) = r := v
 
   (* Function composition *)
   let o (f, g) x = f (g x)

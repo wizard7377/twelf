@@ -60,18 +60,18 @@ module Substring : SUBSTRING = struct
   type substring = string * int * int
 
   let sub (s, start, len) =
-    if start < 0 || len < 0 || start + len > String.length s then
+    if start < 0 || len < 0 || start + len > Stdlib.String.length s then
       raise (Invalid_argument "Substring.sub")
     else
       (s, start, len)
 
-  let full s = (s, 0, String.length s)
+  let full s = (s, 0, Stdlib.String.length s)
 
   let string (s, start, len) =
-    String.sub s start len
+    Stdlib.String.sub s start len
 
   let extract (s, start, len_opt) =
-    let slen = String.length s in
+    let slen = Stdlib.String.length s in
     if start < 0 || start > slen then
       raise (Invalid_argument "Substring.extract")
     else
@@ -101,11 +101,11 @@ module Substring : SUBSTRING = struct
 
   let getc (s, start, len) =
     if len = 0 then None
-    else Some (String.get s start, (s, start + 1, len - 1))
+    else Some (Stdlib.String.get s start, (s, start + 1, len - 1))
 
   let first (s, start, len) =
     if len = 0 then None
-    else Some (String.get s start)
+    else Some (Stdlib.String.get s start)
 
   let triml k (s, start, len) =
     if k < 0 then raise (Invalid_argument "Substring.triml")
@@ -122,23 +122,23 @@ module Substring : SUBSTRING = struct
   let explode (s, start, len) =
     let rec loop i acc =
       if i < 0 then acc
-      else loop (i - 1) (String.get s (start + i) :: acc)
+      else loop (i - 1) (Stdlib.String.get s (start + i) :: acc)
     in
     loop (len - 1) []
 
   let isPrefix prefix (s, start, len) =
-    let plen = String.length prefix in
+    let plen = Stdlib.String.length prefix in
     if plen > len then false
     else
       let rec loop i =
         if i >= plen then true
-        else if String.get prefix i <> String.get s (start + i) then false
+        else if Stdlib.String.get prefix i <> Stdlib.String.get s (start + i) then false
         else loop (i + 1)
       in
       loop 0
 
   let isSubstring needle (s, start, len) =
-    let nlen = String.length needle in
+    let nlen = Stdlib.String.length needle in
     if nlen = 0 then true
     else if nlen > len then false
     else
@@ -147,7 +147,7 @@ module Substring : SUBSTRING = struct
         else
           let rec match_from i =
             if i >= nlen then true
-            else if String.get needle i <> String.get s (pos + i) then false
+            else if Stdlib.String.get needle i <> Stdlib.String.get s (pos + i) then false
             else match_from (i + 1)
           in
           if match_from 0 then true
@@ -156,13 +156,13 @@ module Substring : SUBSTRING = struct
       check_at start
 
   let isSuffix suffix (s, start, len) =
-    let slen = String.length suffix in
+    let slen = Stdlib.String.length suffix in
     if slen > len then false
     else
       let offset = start + len - slen in
       let rec loop i =
         if i >= slen then true
-        else if String.get suffix i <> String.get s (offset + i) then false
+        else if Stdlib.String.get suffix i <> Stdlib.String.get s (offset + i) then false
         else loop (i + 1)
       in
       loop 0
@@ -175,8 +175,8 @@ module Substring : SUBSTRING = struct
         else if len1 > len2 then Greater
         else Equal
       else
-        let c1 = String.get s1 (start1 + i) in
-        let c2 = String.get s2 (start2 + i) in
+        let c1 = Stdlib.String.get s1 (start1 + i) in
+        let c2 = Stdlib.String.get s2 (start2 + i) in
         if c1 < c2 then Less
         else if c1 > c2 then Greater
         else loop (i + 1)
@@ -191,8 +191,8 @@ module Substring : SUBSTRING = struct
         else if len1 > len2 then Greater
         else Equal
       else
-        let c1 = String.get s1 (start1 + i) in
-        let c2 = String.get s2 (start2 + i) in
+        let c1 = Stdlib.String.get s1 (start1 + i) in
+        let c2 = Stdlib.String.get s2 (start2 + i) in
         match cmp (c1, c2) with
         | Equal -> loop (i + 1)
         | ord -> ord
@@ -202,7 +202,7 @@ module Substring : SUBSTRING = struct
   let splitl pred (s, start, len) =
     let rec loop i =
       if i >= len then i
-      else if pred (String.get s (start + i)) then loop (i + 1)
+      else if pred (Stdlib.String.get s (start + i)) then loop (i + 1)
       else i
     in
     let n = loop 0 in
@@ -211,7 +211,7 @@ module Substring : SUBSTRING = struct
   let splitr pred (s, start, len) =
     let rec loop i =
       if i < 0 then -1
-      else if pred (String.get s (start + i)) then loop (i - 1)
+      else if pred (Stdlib.String.get s (start + i)) then loop (i - 1)
       else i
     in
     let n = loop (len - 1) in
@@ -240,7 +240,7 @@ module Substring : SUBSTRING = struct
     right
 
   let position needle (s, start, len) =
-    let nlen = String.length needle in
+    let nlen = Stdlib.String.length needle in
     if nlen = 0 then ((s, start, 0), (s, start, len))
     else if nlen > len then ((s, start, len), (s, start + len, 0))
     else
@@ -249,7 +249,7 @@ module Substring : SUBSTRING = struct
         else
           let rec match_from i =
             if i >= nlen then true
-            else if String.get needle i <> String.get s (pos + i) then false
+            else if Stdlib.String.get needle i <> Stdlib.String.get s (pos + i) then false
             else match_from (i + 1)
           in
           if match_from 0 then Some pos
@@ -272,7 +272,7 @@ module Substring : SUBSTRING = struct
   let translate f (s, start, len) =
     let buf = Buffer.create len in
     for i = 0 to len - 1 do
-      Buffer.add_string buf (f (String.get s (start + i)))
+      Buffer.add_string buf (f (Stdlib.String.get s (start + i)))
     done;
     Buffer.contents buf
 
@@ -298,20 +298,20 @@ module Substring : SUBSTRING = struct
 
   let app f (s, start, len) =
     for i = 0 to len - 1 do
-      f (String.get s (start + i))
+      f (Stdlib.String.get s (start + i))
     done
 
   let foldl f init (s, start, len) =
     let rec loop i acc =
       if i >= len then acc
-      else loop (i + 1) (f (String.get s (start + i), acc))
+      else loop (i + 1) (f (Stdlib.String.get s (start + i), acc))
     in
     loop 0 init
 
   let foldr f init (s, start, len) =
     let rec loop i acc =
       if i < 0 then acc
-      else loop (i - 1) (f (String.get s (start + i), acc))
+      else loop (i - 1) (f (Stdlib.String.get s (start + i), acc))
     in
     loop (len - 1) init
 end

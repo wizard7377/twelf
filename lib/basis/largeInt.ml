@@ -7,10 +7,10 @@
 open Order
 
 module type LARGE_INT = sig
-  type int = int
+  type int
 
-  val toInt : int -> int
-  val fromInt : int -> int
+  val toInt : int -> Stdlib.Int.t
+  val fromInt : Stdlib.Int.t -> int
   val precision : int option
   val minInt : int option
   val maxInt : int option
@@ -41,7 +41,7 @@ module type LARGE_INT = sig
 end
 
 module LargeInt : LARGE_INT = struct
-  type int = int
+  type int = Stdlib.Int.t
 
   let toInt x = x
   let fromInt x = x

@@ -4,29 +4,37 @@ module type OS_PATH = sig
   exception Path
   exception InvalidArc
 
+  type path_from_string = {isAbs : bool; vol : string; arcs : string list}
+
   val parentArc : string
   val currentArc : string
 
-  val fromString : string -> {isAbs : bool; vol : string; arcs : string list}
-  val toString : {isAbs : bool; vol : string; arcs : string list} -> string
+  val fromString : string -> path_from_string
+  val toString : path_from_string -> string
+
+  type dir_file = {dir : string; file : string}
 
   val getVolume : string -> string
   val getParent : string -> string
 
-  val splitDirFile : string -> {dir : string; file : string}
-  val joinDirFile : {dir : string; file : string} -> string
+  val splitDirFile : string -> dir_file
+  val joinDirFile : dir_file -> string
   val dir : string -> string
   val file : string -> string
 
-  val splitBaseExt : string -> {base : string; ext : string option}
-  val joinBaseExt : {base : string; ext : string option} -> string
+  type base_ext = {base : string; ext : string option}
+
+  val splitBaseExt : string -> base_ext
+  val joinBaseExt : base_ext -> string
   val base : string -> string
   val ext : string -> string option
 
+  type path_relative = {path : string; relativeTo : string}
+
   val mkCanonical : string -> string
   val isCanonical : string -> bool
-  val mkAbsolute : {path : string; relativeTo : string} -> string
-  val mkRelative : {path : string; relativeTo : string} -> string
+  val mkAbsolute : path_relative -> string
+  val mkRelative : path_relative -> string
   val isAbsolute : string -> bool
   val isRelative : string -> bool
 
@@ -36,6 +44,11 @@ end
 module OSPath : OS_PATH = struct
   exception Path
   exception InvalidArc
+
+  type path_from_string = {isAbs : bool; vol : string; arcs : string list}
+  type dir_file = {dir : string; file : string}
+  type base_ext = {base : string; ext : string option}
+  type path_relative = {path : string; relativeTo : string}
 
   let parentArc = ".."
   let currentArc = "."

@@ -53,24 +53,24 @@ module StringCvt : STRING_CVT = struct
   type ('a, 'b) reader = 'b -> ('a * 'b) option
 
   let padLeft c width s =
-    let len = String.length s in
+    let len = Stdlib.String.length s in
     if len >= width then s
-    else String.make (width - len) c ^ s
+    else Stdlib.String.make (width - len) c ^ s
 
   let padRight c width s =
-    let len = String.length s in
+    let len = Stdlib.String.length s in
     if len >= width then s
-    else s ^ String.make (width - len) c
+    else s ^ Stdlib.String.make (width - len) c
 
   let splitl pred reader state =
     let rec loop acc state =
       match reader state with
-      | None -> (String.concat "" (List.rev acc), state)
+      | None -> (Stdlib.String.concat "" (Stdlib.List.rev acc), state)
       | Some (c, state') ->
           if pred c then
-            loop (String.make 1 c :: acc) state'
+            loop (Stdlib.String.make 1 c :: acc) state'
           else
-            (String.concat "" (List.rev acc), state)
+            (Stdlib.String.concat "" (Stdlib.List.rev acc), state)
     in
     loop [] state
 
@@ -94,8 +94,8 @@ module StringCvt : STRING_CVT = struct
   let scanString scanner str =
     (* Create a reader for strings *)
     let reader pos =
-      if pos >= String.length str then None
-      else Some (String.get str pos, pos + 1)
+      if pos >= Stdlib.String.length str then None
+      else Some (Stdlib.String.get str pos, pos + 1)
     in
     match scanner reader 0 with
     | None -> None

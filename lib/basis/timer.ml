@@ -3,9 +3,10 @@
 module type TIMER = sig
   type cpu_timer
   type real_timer
+  type cpu_time = {usr : Time.Time.time; sys : Time.Time.time}
 
   val startCPUTimer : unit -> cpu_timer
-  val checkCPUTimer : cpu_timer -> {usr : Time.Time.time; sys : Time.Time.time}
+  val checkCPUTimer : cpu_timer -> cpu_time
 
   val startRealTimer : unit -> real_timer
   val checkRealTimer : real_timer -> Time.Time.time
@@ -17,6 +18,7 @@ end
 module Timer : TIMER = struct
   type cpu_timer = float  (* Start time *)
   type real_timer = float (* Start time *)
+  type cpu_time = {usr : Time.Time.time; sys : Time.Time.time}
 
   let startCPUTimer () = Sys.time ()
 

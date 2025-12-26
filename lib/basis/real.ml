@@ -37,9 +37,9 @@ module type REAL = sig
   val ( <= ) : real * real -> bool
   val ( > )  : real * real -> bool
   val ( >= ) : real * real -> bool
-  val == : real * real -> bool
-  val != : real * real -> bool
-  val ?= : real * real -> bool
+  val equal : real * real -> bool
+  val notEqual : real * real -> bool
+  val unordered : real * real -> bool
 
   val isFinite : real -> bool
   val isNan : real -> bool
@@ -99,9 +99,9 @@ module Real : REAL = struct
   let ( <= ) (x, y) = x <= y
   let ( > ) (x, y) = x > y
   let ( >= ) (x, y) = x >= y
-  let ( == ) (x, y) = x = y
-  let ( != ) (x, y) = x <> y
-  let ( ?= ) (x, y) = classify_float x = classify_float y
+  let equal (x, y) = x = y
+  let notEqual (x, y) = x <> y
+  let unordered (x, y) = classify_float x = classify_float y
 
   let isFinite x = classify_float x <> FP_infinite && classify_float x <> FP_nan
   let isNan x = classify_float x = FP_nan

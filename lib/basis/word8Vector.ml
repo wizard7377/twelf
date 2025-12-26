@@ -28,39 +28,39 @@ module Word8Vector : WORD8_VECTOR = struct
   let fromList lst =
     let len = Stdlib.List.length lst in
     let vec = Bytes.create len in
-    Stdlib.List.iteri (fun i v -> Bytes.set vec i (Char.chr v)) lst;
+    Stdlib.List.iteri (fun i v -> Bytes.set vec i (Stdlib.Char.chr v)) lst;
     vec
 
   let tabulate (n, f) =
-    Bytes.init n (fun i -> Char.chr (f i))
+    Bytes.init n (fun i -> Stdlib.Char.chr (f i))
 
   let length = Bytes.length
 
-  let sub (vec, i) = Char.code (Bytes.get vec i)
+  let sub (vec, i) = Stdlib.Char.code (Bytes.get vec i)
 
   let concat vecs = Bytes.concat Bytes.empty vecs
 
   let appi f vec =
     for i = 0 to Bytes.length vec - 1 do
-      f (i, Char.code (Bytes.get vec i))
+      f (i, Stdlib.Char.code (Bytes.get vec i))
     done
 
   let app f vec =
     for i = 0 to Bytes.length vec - 1 do
-      f (Char.code (Bytes.get vec i))
+      f (Stdlib.Char.code (Bytes.get vec i))
     done
 
   let foldli f init vec =
     let rec loop i acc =
       if i >= Bytes.length vec then acc
-      else loop (i + 1) (f (i, Char.code (Bytes.get vec i), acc))
+      else loop (i + 1) (f (i, Stdlib.Char.code (Bytes.get vec i), acc))
     in
     loop 0 init
 
   let foldl f init vec =
     let rec loop i acc =
       if i >= Bytes.length vec then acc
-      else loop (i + 1) (f (Char.code (Bytes.get vec i), acc))
+      else loop (i + 1) (f (Stdlib.Char.code (Bytes.get vec i), acc))
     in
     loop 0 init
 
@@ -68,7 +68,7 @@ module Word8Vector : WORD8_VECTOR = struct
     let rec loop i =
       if i >= Bytes.length vec then None
       else
-        let elem = Char.code (Bytes.get vec i) in
+        let elem = Stdlib.Char.code (Bytes.get vec i) in
         if pred (i, elem) then Some (i, elem)
         else loop (i + 1)
     in
@@ -78,7 +78,7 @@ module Word8Vector : WORD8_VECTOR = struct
     let rec loop i =
       if i >= Bytes.length vec then None
       else
-        let elem = Char.code (Bytes.get vec i) in
+        let elem = Stdlib.Char.code (Bytes.get vec i) in
         if pred elem then Some elem
         else loop (i + 1)
     in

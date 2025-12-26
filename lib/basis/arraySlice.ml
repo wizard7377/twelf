@@ -4,8 +4,8 @@ open Order
 
 module type ARRAY_SLICE = sig
   type 'a slice
-  type 'a array = 'a Array.array
-  type 'a vector = 'a Vector.vector
+  type 'a array
+  type 'a vector = 'a Vector.t
 
   val length : 'a slice -> int
   val sub : 'a slice * int -> 'a

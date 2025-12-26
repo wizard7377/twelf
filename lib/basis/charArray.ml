@@ -86,7 +86,7 @@ module CharArray : MONO_ARRAY = struct
       Bytes.blit src 0 dst di src_len
 
   let copyVec ~src ~dst ~di =
-    let src_len = String.length src in
+    let src_len = Stdlib.String.length src in
     let dst_len = Bytes.length dst in
     if di < 0 || di + src_len > dst_len then
       raise (Invalid_argument "CharArray.copyVec")
