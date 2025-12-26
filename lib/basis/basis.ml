@@ -19,3 +19,4 @@ module Char = Char.Char
 module TextIO = TextIO.TextIO
 module Word8 = Word.Word8
 module Word32 = Word.Word32
+module String = String.String

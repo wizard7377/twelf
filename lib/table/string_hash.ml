@@ -13,7 +13,7 @@ end
 module StringHash : STRING_HASH = struct
   let rec stringHash s =
     (* sample 4 characters from string *)
-    let rec num i = Char.ord (String.sub (s, i)) mod_ 128 in
+    let rec num i = Char.ord (String.sub s i) mod_ 128 in
     let n = String.size s in
     if n = 0 then 0
     else

@@ -104,9 +104,9 @@ module Stream (BasicStream : BASIC_STREAM) : STREAM = struct
 
   let rec filter p s = delay (fun () -> filter' p (expose s))
 
-  and filter' = function
-    | p, Empty -> Empty
-    | p, Cons (x, s) ->
+  and filter' p = function
+    | Empty -> Empty
+    | Cons (x, s) ->
         if p x then Cons (x, filter p s) else filter' p (expose s)
 
   let rec exists p s = exists' p (expose s)

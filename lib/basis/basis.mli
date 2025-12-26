@@ -72,3 +72,4 @@ module TextIO : TextIO.TEXTIO
 
 module Word8 : (Word.WORD with type word = int)
 module Word32 : (Word.WORD with type word = int)
+module String : String.STRING

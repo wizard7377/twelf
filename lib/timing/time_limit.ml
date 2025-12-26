@@ -15,8 +15,8 @@ end = struct
   exception TimeOut
 
   let rec timeLimit = function
-    | None, f, x -> f x
-    | Some t, f, x ->
+    | None -> fun f x -> f x
+    | Some t -> fun f x -> 
         print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n");
         todo_hole
         
