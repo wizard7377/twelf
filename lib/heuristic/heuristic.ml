@@ -34,27 +34,27 @@ module Heuristic : HEURISTIC = struct
     | ( { sd = k1; ind = None; c = c1; m = m1; r = r1; p = p1 },
         { sd = k2; ind = None; c = c2; m = m2; r = r2; p = p2 } ) -> (
         match
-          ( Int.compare (c1 * m2, c2 * m1),
-            Int.compare (k2, k1),
-            Int.compare (r1, r2),
-            Int.compare (p1, p2) )
+          ( Int.compare (c1 * m2) (c2 * m1),
+            Int.compare k2 k1,
+            Int.compare r1 r2,
+            Int.compare p1 p2 )
         with
-        | Eq, Eq, Eq, result -> result
-        | Eq, Eq, result, _ -> result
-        | Eq, result, _, _ -> result
+        | Equal, Equal, Equal, result -> result
+        | Equal, Equal, result, _ -> result
+        | Equal, result, _, _ -> result
         | result, _, _, _ -> result)
     | ( { sd = k1; ind = None; c = c1; m = m1; r = r1; p = p1 },
         { sd = k2; ind = Some i2; c = c2; m = m2; r = r2; p = p2 } ) -> (
-        match Int.compare (c1 * m2, c2 * m1) with
-        | Lt -> Lt
-        | Eq -> Gt
-        | Gt -> Gt)
+        match Int.compare (c1 * m2) (c2 * m1) with
+        | Less -> Less
+        | Equal -> Greater
+        | Greater -> Greater)
     | ( { sd = k1; ind = Some i1; c = c1; m = m1; r = r1; p = p1 },
         { sd = k2; ind = None; c = c2; m = m2; r = r2; p = p2 } ) -> (
         match Int.compare (c1 * m2, c2 * m1) with
-        | Lt -> Lt
-        | Eq -> Lt
-        | Gt -> Gt)
+        | Less -> Less
+        | Equal -> Less
+        | Greater -> Greater)
     | ( { sd = k1; ind = Some i1; c = c1; m = m1; r = r1; p = p1 },
         { sd = k2; ind = Some i2; c = c2; m = m2; r = r2; p = p2 } ) -> (
         match
@@ -64,10 +64,10 @@ module Heuristic : HEURISTIC = struct
             Int.compare (i1, i2),
             Int.compare (p1, p2) )
         with
-        | Eq, Eq, Eq, Eq, result -> result
-        | Eq, Eq, Eq, result, _ -> result
-        | Eq, Eq, result, _, _ -> result
-        | Eq, result, _, _, _ -> result
+        | Equal, Equal, Equal, Equal, result -> result
+        | Equal, Equal, Equal, result, _ -> result
+        | Equal, Equal, result, _, _ -> result
+        | Equal, result, _, _, _ -> result
         | result, _, _, _, _ -> result)
 
   let rec recToString = function 0 -> "non-rec" | 1 -> "rec"

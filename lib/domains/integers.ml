@@ -4,7 +4,7 @@ open Basis ;;
 (* Author: Roberto Virga *)
 
 module type INTEGERS = sig
-  include INTEGER
+  include (module type of Integer)
   val gcd : int * int -> int
   val lcm : int * int -> int
   val solve_gcd : int * int -> int * int

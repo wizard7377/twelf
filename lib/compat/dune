@@ -1,0 +1,4 @@
+(library
+ (name compat)
+ (wrapped true)
+ (libraries mtime basis))
