@@ -1,7 +1,7 @@
 (** VectorSlice module - SML Basis Library VECTOR_SLICE signature *)
 
 open Order
-
+open Vector
 module type VECTOR_SLICE = sig
   type 'a slice
   type 'a vector = 'a Vector.t
@@ -36,8 +36,8 @@ end
 
 module VectorSlice : VECTOR_SLICE = struct
   (* A slice is represented as (vector, start, length) *)
-  type 'a slice = 'a list * int * int  (* vector is a list in our implementation *)
-  type 'a vector = 'a list
+  type 'a slice = 'a vector * int * int (* vector is a list in our implementation *)
+  type 'a vector = 'a Vector.t
 
   let length (_, _, len) = len
 

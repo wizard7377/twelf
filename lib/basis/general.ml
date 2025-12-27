@@ -1,8 +1,7 @@
 (** General module - SML Basis Library GENERAL signature *)
 
 module type GENERAL = sig
-  type unit = unit
-  type exn = exn
+  type unit = Stdlib.Unit.t
 
   exception Bind
   exception Match
@@ -28,8 +27,7 @@ module type GENERAL = sig
 end
 
 module General : GENERAL = struct
-  type unit = unit
-  type exn = exn
+  type unit = Stdlib.Unit.t
 
   (* Standard SML exceptions *)
   exception Bind

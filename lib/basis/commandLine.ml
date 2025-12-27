@@ -9,7 +9,7 @@ module CommandLine : COMMAND_LINE = struct
   let name () =
     (* Get the program name (first element of Sys.argv) *)
     if Stdlib.Array.length Sys.argv > 0 then
-      Sys.argv.(0)
+      Stdlib.Array.get Sys.argv 0
     else
       ""
 

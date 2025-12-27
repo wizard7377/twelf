@@ -1,5 +1,5 @@
 (** Bool module - SML Basis Library BOOL signature *)
-
+open StringCvt
 module type BOOL = sig
   (* OCaml's bool is built-in: type bool = false | true *)
 

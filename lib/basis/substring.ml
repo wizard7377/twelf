@@ -1,7 +1,7 @@
 (** Substring module - SML Basis Library SUBSTRING signature *)
 
 open Order
-
+open List
 module type SUBSTRING = sig
   type substring
 

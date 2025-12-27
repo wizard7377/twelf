@@ -76,7 +76,7 @@ module Real : REAL = struct
   let max (x, y) = if x > y then x else y
 
   let sign x =
-    if x < 0.0 then ~-1
+    if x < 0.0 then -1
     else if x > 0.0 then 1
     else 0
 

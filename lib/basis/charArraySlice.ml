@@ -1,6 +1,7 @@
 (** CharArraySlice module - SML Basis Library MONO_ARRAY_SLICE signature for char *)
 
 open Order
+open CharArray
 
 module type MONO_ARRAY_SLICE = sig
   type elem = char
@@ -42,9 +43,9 @@ end
 
 module CharArraySlice : MONO_ARRAY_SLICE = struct
   type elem = char
-  type array = Bytes.t
-  type slice = Bytes.t * int * int
-  type vector = string
+  type array = CharArray.array
+  type slice = array * int * int
+  type vector = CharArray.vector
   type vector_slice = string * int * int
 
   let length (_, _, len) = len

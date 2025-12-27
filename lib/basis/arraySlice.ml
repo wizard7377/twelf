@@ -1,7 +1,7 @@
 (** ArraySlice module - SML Basis Library ARRAY_SLICE signature *)
 
 open Order
-
+open Vector
 module type ARRAY_SLICE = sig
   type 'a slice
   type 'a array
@@ -39,7 +39,7 @@ module ArraySlice : ARRAY_SLICE = struct
   (* A slice is represented as (array, start, length) *)
   type 'a slice = 'a array * int * int
   type 'a array = 'a Stdlib.Array.t
-  type 'a vector = 'a list  (* Placeholder - should match Vector implementation *)
+  type 'a vector = 'a Vector.t
 
   let length (_, _, len) = len
 
@@ -88,7 +88,7 @@ module ArraySlice : ARRAY_SLICE = struct
   let vector (arr, start, len) =
     (* Convert slice to vector *)
     let rec loop i acc =
-      if i < 0 then acc
+      if i < 0 then Vector.fromList acc
       else loop (i - 1) (Stdlib.Array.get arr (start + i) :: acc)
     in
     loop (len - 1) []
