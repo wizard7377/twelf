@@ -73,3 +73,91 @@ module TextIO : TextIO.TEXTIO
 module Word8 : (Word.WORD with type word = int)
 module Word32 : (Word.WORD with type word = int)
 module String : String.STRING
+
+(** High-priority commonly used modules *)
+
+(** Option type operations compatible with SML Option structure. *)
+module Option : Option.OPTION
+
+(** Operations on pairs of lists compatible with SML ListPair structure. *)
+module ListPair : ListPair.LIST_PAIR
+
+(** Boolean operations compatible with SML Bool structure. *)
+module Bool : Bool.BOOL
+
+(** String conversion utilities compatible with SML StringCvt structure. *)
+module StringCvt : StringCvt.STRING_CVT
+
+(** Substring operations compatible with SML Substring structure. *)
+module Substring : Substring.SUBSTRING
+
+(** General utilities and exceptions compatible with SML General structure. *)
+module General : General.GENERAL
+
+(** Command line argument access compatible with SML CommandLine structure. *)
+module CommandLine : CommandLine.COMMAND_LINE
+
+(** Array and Vector slices *)
+
+(** Array slice operations compatible with SML ArraySlice structure. *)
+module ArraySlice : ArraySlice.ARRAY_SLICE
+
+(** Vector slice operations compatible with SML VectorSlice structure. *)
+module VectorSlice : VectorSlice.VECTOR_SLICE
+
+(** Character array and vector modules *)
+
+(** Monomorphic char arrays compatible with SML CharArray structure. *)
+module CharArray : CharArray.MONO_ARRAY
+
+(** Monomorphic char array slices compatible with SML CharArraySlice structure. *)
+module CharArraySlice : CharArraySlice.MONO_ARRAY_SLICE
+
+(** Monomorphic char vectors compatible with SML CharVector structure. *)
+module CharVector : CharVector.MONO_VECTOR
+
+(** Monomorphic char vector slices compatible with SML CharVectorSlice structure. *)
+module CharVectorSlice : CharVectorSlice.MONO_VECTOR_SLICE
+
+(** Word8 array and vector modules *)
+
+(** Monomorphic Word8 arrays. *)
+module Word8Array : Word8Array.WORD8_ARRAY
+
+(** Monomorphic Word8 vectors. *)
+module Word8Vector : Word8Vector.WORD8_VECTOR
+
+(** Numeric modules *)
+
+(** Real (floating-point) operations compatible with SML Real structure. *)
+module Real : Real.REAL
+
+(** Mathematical functions compatible with SML Math structure. *)
+module Math : Math.MATH
+
+(** Large integer operations compatible with SML LargeInt structure. *)
+module LargeInt : LargeInt.LARGE_INT
+
+(** Date and Time modules *)
+
+(** Date operations compatible with SML Date structure. *)
+module Date : Date.DATE
+
+(** Timer operations compatible with SML Timer structure. *)
+module Timer : Timer.TIMER
+
+(** I/O modules *)
+
+(** I/O exceptions and types compatible with SML IO structure. *)
+module IO : Io.IO
+
+(** Text structure grouping char-related modules. *)
+module Text : Text.TEXT
+
+(** Byte conversions compatible with SML Byte structure. *)
+module Byte : Byte.BYTE
+
+(** OS modules *)
+
+(** Path operations compatible with SML OS.Path structure. *)
+module OS_Path : OsPath.OS_PATH
