@@ -278,10 +278,10 @@ module Substring : SUBSTRING = struct
 
   let tokens pred ss =
     let rec loop acc ss =
-      if isEmpty ss then List.rev acc
+      if isEmpty ss then Stdlib.List.rev acc
       else
         let ss' = dropl pred ss in
-        if isEmpty ss' then List.rev acc
+        if isEmpty ss' then Stdlib.List.rev acc
         else
           let (tok, rest) = splitl (fun c -> not (pred c)) ss' in
           loop (tok :: acc) rest
@@ -291,7 +291,7 @@ module Substring : SUBSTRING = struct
   let fields pred ss =
     let rec loop acc ss =
       let (field, rest) = splitl (fun c -> not (pred c)) ss in
-      if isEmpty rest then List.rev (field :: acc)
+      if isEmpty rest then Stdlib.List.rev (field :: acc)
       else loop (field :: acc) (triml 1 rest)
     in
     loop [] ss
