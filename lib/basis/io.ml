@@ -1,7 +1,7 @@
 (** IO module - SML Basis Library IO signature *)
 
 module type IO = sig
-  type io_error = {name : string; function : string; cause : exn}
+  type io_error = {name : string; function_name : string; cause : exn}
   exception Io of io_error
   exception BlockingNotSupported
   exception NonblockingNotSupported
@@ -13,7 +13,7 @@ module type IO = sig
 end
 
 module IO : IO = struct
-  type io_error = {name : string; function : string; cause : exn}
+  type io_error = {name : string; function_name : string; cause : exn}
   exception Io of io_error
   exception BlockingNotSupported
   exception NonblockingNotSupported

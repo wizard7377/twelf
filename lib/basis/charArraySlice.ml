@@ -5,9 +5,9 @@ open CharArray
 
 module type MONO_ARRAY_SLICE = sig
   type elem = char
-  type array = CharArray.array
+  type array = Bytes.t
   type slice
-  type vector = CharArray.vector
+  type vector = string
   type vector_slice
 
   val length : slice -> int
@@ -43,9 +43,9 @@ end
 
 module CharArraySlice : MONO_ARRAY_SLICE = struct
   type elem = char
-  type array = CharArray.array
+  type array = Bytes.t
   type slice = array * int * int
-  type vector = CharArray.vector
+  type vector = string
   type vector_slice = string * int * int
 
   let length (_, _, len) = len

@@ -57,7 +57,7 @@ module OSPath : OS_PATH = struct
 
   let fromString path =
     (* Simplified Unix-style path parsing *)
-    let isAbs = Stdlib.String.length path > 0 && path.[0] = '/' in
+    let isAbs = Stdlib.String.length path > 0 && Stdlib.String.get path 0 = '/' in
     let arcs = Stdlib.String.split_on_char '/' path |>
                Stdlib.List.filter (fun s -> s <> "") in
     {isAbs; vol = ""; arcs}
