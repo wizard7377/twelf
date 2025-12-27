@@ -1,4 +1,4 @@
-open Basis ;; 
+open Basis
 
 module ModSyn =
   ModSyn

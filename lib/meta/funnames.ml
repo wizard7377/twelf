@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Names of Constants and Variables *)
 
 (* Author: Carsten Schuermann *)

@@ -1,10 +1,12 @@
-open Basis ;; 
+open Basis
+
 (* Integers *)
 
 (* Author: Roberto Virga *)
 
 module type INTEGERS = sig
-  include (module type of Integer)
+  include module type of Integer
+
   val gcd : Integer.t -> Integer.t -> Integer.t
   val lcm : Integer.t -> Integer.t -> Integer.t
   val solve_gcd : Integer.t -> Integer.t -> Integer.t * Integer.t
@@ -16,7 +18,7 @@ end
 (* Author: Roberto Virga *)
 
 module Integers : INTEGERS = struct
-  include Integer ;;
+  include Integer
 
   let zero = fromInt 0
   let one = fromInt 1
@@ -45,7 +47,7 @@ module Integers : INTEGERS = struct
 
   let rec fromString str =
     let rec check = function
-      | ((c :: chars') as chars) ->
+      | c :: chars' as chars ->
           if c = '~' then List.all Char.isDigit chars'
           else List.all Char.isDigit chars
       | [] -> false

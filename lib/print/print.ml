@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Printing *)
 
 (* Author: Frank Pfenning *)

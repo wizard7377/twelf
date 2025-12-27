@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Flit DAG generator *)
 
 (* Author: Roberto Virga *)
@@ -357,8 +358,7 @@ module Flit
     match !tcb_table with
     | Some l ->
         List.app
-          (fun name idx ->
-            Table.insert symTable (clookup name, W.fromInt idx))
+          (fun name idx -> Table.insert symTable (clookup name, W.fromInt idx))
           l
     | None -> raise (Error "dump(...) before init(...)")
 

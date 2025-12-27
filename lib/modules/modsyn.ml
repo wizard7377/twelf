@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Syntax for_sml elaborated modules *)
 
 (* Author: Kevin Watkins *)
@@ -251,9 +252,7 @@ module ModSyn
   let decToDef = strictify o abbrevify
 
   let rec installStruct (strdec, module_, nsOpt, installAction, isDef) =
-    let transformConDec =
-      if isDef then decToDef else fun _ condec -> condec
-    in
+    let transformConDec = if isDef then decToDef else fun _ condec -> condec in
     let mid = IntSyn.sgnStructAdd strdec in
     let _ =
       match nsOpt with
@@ -266,9 +265,7 @@ module ModSyn
     installModule (module_, Some mid, None, installAction, transformConDec)
 
   let rec installSig (module_, nsOpt, installAction, isDef) =
-    let transformConDec =
-      if isDef then decToDef else fun _ condec -> condec
-    in
+    let transformConDec = if isDef then decToDef else fun _ condec -> condec in
     installModule (module_, None, nsOpt, installAction, transformConDec)
 
   let rec abstractModule namespace topOpt =

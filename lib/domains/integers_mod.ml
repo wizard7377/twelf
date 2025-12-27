@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Integers Modulo a Prime Number *)
 
 (* Author: Roberto Virga *)
@@ -11,23 +12,24 @@ end) : Field.FIELD = struct
 
   type number = int
 
-  let rec normalize n = n mod_ p
+  let rec normalize n = n mod p
   let zero = 0
   let one = 1
 
   exception Div
 
-  let rec ( ~- ) n = (Int).-(p, n)
-  let rec ( + ) (m, n) = normalize (Int).+(m, n)
-  let rec ( - ) (m, n) = normalize (Int).-(m, n)
-  let rec ( * ) (m, n) = normalize (Int).*(m, n)
+  let ( ~- ) n = p - n
+  let ( + ) (m, n) = normalize (m + n)
+  let ( - ) (m, n) = normalize (m - n)
+  let ( * ) (m, n) = normalize (m * n)
 
   let rec inverse = function
     | 0 -> raise Div
     | n ->
         (* alternative: compute n^(p-2) *)
         let rec inverse' i =
-          if normalize (Int).*(n, i) = 1 then i else inverse' (Int).+(i, 1)
+          if normalize (( * ) (n, i)) = 1 then i
+          else inverse' (Stdlib.( + ) i 1)
         in
         inverse' 1
 
@@ -36,12 +38,12 @@ end) : Field.FIELD = struct
   let rec fromString str =
     let check = List.all Char.isDigit in
     if check (String.explode str) then
-      match Int.fromString str with
+      match Integer.fromString str with
       | Some n -> if n < p then Some n else None
       | None -> None
     else None
 
-  let toString = Int.toString
+  let toString = Integer.toString
 end
 
 (* functor IntegersMod *)

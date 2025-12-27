@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Meta Abstraction *)
 
 (* Author: Carsten Schuermann *)

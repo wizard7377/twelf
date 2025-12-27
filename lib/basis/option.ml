@@ -23,51 +23,14 @@ module Option : OPTION = struct
 
   exception Option
 
-  let getOpt opt default =
-    match opt with
-    | None -> default
-    | Some v -> v
-
-  let isSome opt =
-    match opt with
-    | None -> false
-    | Some _ -> true
-
-  let valOf opt =
-    match opt with
-    | None -> raise Option
-    | Some v -> v
-
-  let filter pred x =
-    if pred x then Some x else None
-
-  let join opt =
-    match opt with
-    | None -> None
-    | Some inner_opt -> inner_opt
-
-  let app f opt =
-    match opt with
-    | None -> ()
-    | Some v -> f v
-
-  let map f opt =
-    match opt with
-    | None -> None
-    | Some v -> Some (f v)
-
-  let mapPartial f opt =
-    match opt with
-    | None -> None
-    | Some v -> f v
-
-  let compose f g x =
-    match g x with
-    | None -> None
-    | Some v -> Some (f v)
-
-  let composePartial f g x =
-    match g x with
-    | None -> None
-    | Some v -> f v
+  let getOpt opt default = match opt with None -> default | Some v -> v
+  let isSome opt = match opt with None -> false | Some _ -> true
+  let valOf opt = match opt with None -> raise Option | Some v -> v
+  let filter pred x = if pred x then Some x else None
+  let join opt = match opt with None -> None | Some inner_opt -> inner_opt
+  let app f opt = match opt with None -> () | Some v -> f v
+  let map f opt = match opt with None -> None | Some v -> Some (f v)
+  let mapPartial f opt = match opt with None -> None | Some v -> f v
+  let compose f g x = match g x with None -> None | Some v -> Some (f v)
+  let composePartial f g x = match g x with None -> None | Some v -> f v
 end

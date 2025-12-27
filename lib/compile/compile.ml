@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Compiler *)
 
 (* Author: Iliano Cervesato *)
@@ -414,8 +415,7 @@ module Compile
   let rec compileDClause opt (G, A) =
     compileDClauseN I.Ordinary opt (G, Whnf.normalize (A, I.id))
 
-  let rec compileGoal G A =
-    compileGoalN I.Ordinary (G, Whnf.normalize (A, I.id))
+  let rec compileGoal G A = compileGoalN I.Ordinary (G, Whnf.normalize (A, I.id))
   (* compileCtx G = (G, dPool)
 
      Invariants:

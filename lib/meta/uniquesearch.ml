@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Basic search engine: Version 1.3*)
 
 (* Author: Carsten Schuermann *)
@@ -359,9 +360,7 @@ module UniqueSearch
         fun acc' ->
           ( (if !Global.chatter > 5 then print "OK]\n" else ();
              let GE' =
-               foldr
-                 (fun X L -> Abstract.collectEVars (G, (X, I.id), L))
-                 [] GE
+               foldr (fun X L -> Abstract.collectEVars (G, (X, I.id), L)) [] GE
              in
              let gE' = List.length GE' in
              if gE' > 0 then

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Qed *)
 
 (* Author: Carsten Schuermann *)

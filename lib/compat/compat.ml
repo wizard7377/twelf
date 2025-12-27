@@ -1,6 +1,3 @@
-(**
-   Comptability library for the Standard ML of New Jersey (SML/NJ) specifically
-   @author Asher Frost
-*)
-module Cont = Cont.Cont 
-               
+module Cont = Cont.Cont
+(** Comptability library for the Standard ML of New Jersey (SML/NJ) specifically
+    @author Asher Frost *)

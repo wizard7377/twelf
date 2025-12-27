@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Global parameters *)
 
 (* Author: Carsten Schuermann *)

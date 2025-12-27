@@ -1,4 +1,4 @@
-open Basis ;; 
+open Basis
 
 module Rep = struct
   module I = IntSyn
@@ -83,10 +83,7 @@ module Rep = struct
     let pairs = List.tabulate (n + 1, fun x -> (o_cidSize x, cidSize x)) in
     let s =
       foldl
-      ^ ""
-          (map
-             (fun x y -> Int.toString x ^ " " ^ Int.toString y ^ "\n")
-             pairs)
+      ^ "" (map (fun x y -> Int.toString x ^ " " ^ Int.toString y ^ "\n") pairs)
     in
     let f = TextIO.openOut "/tmp/graph" in
     let _ = TextIO.output (f, s) in

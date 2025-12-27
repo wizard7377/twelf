@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Abstract Machine guided by proof skeleton *)
 
 (* Author: Brigitte Pientks *)
@@ -156,16 +157,12 @@ module PtRecon
             ps',
             (r, I.Dot (I.Exp X, s)),
             dp,
-            fun O S ->
-              solve' (O, (g, s), dp, fun O M -> sc (O, I.App (M, S))) )
+            fun O S -> solve' (O, (g, s), dp, fun O M -> sc (O, I.App (M, S)))
+          )
     | O, ps', (C.Exists (I.Dec (_, A), r), s), dp, sc ->
         let X = I.newEVar (G, I.EClo (A, s)) in
         rSolve
-          ( O,
-            ps',
-            (r, I.Dot (I.Exp X, s)),
-            dp,
-            fun O S -> sc (O, I.App (X, S)) )
+          (O, ps', (r, I.Dot (I.Exp X, s)), dp, fun O S -> sc (O, I.App (X, S)))
     | O, ps', (C.Axists (I.ADec (Some X, d), r), s), dp, sc ->
         let X' = I.newAVar () in
         rSolve (O, ps', (r, I.Dot (I.Exp (I.EClo (X', I.Shift ~-d)), s)), dp, sc)

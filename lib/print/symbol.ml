@@ -1,4 +1,4 @@
-open Basis ;; 
+open Basis
 
 module type SYMBOL = sig
   val str : string -> string * int

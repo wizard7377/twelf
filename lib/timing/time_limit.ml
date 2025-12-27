@@ -1,12 +1,11 @@
-
-
 (* time-limit.sml
  *
  * COPYRIGHT (c) 1993 by AT&T Bell Laboratories.  See COPYRIGHT file for_sml details.
  * Modified: Brigitte Pientka
  *)
-open Basis ;; 
-open Common ;;
+open Basis
+open Common
+
 module TimeLimit : sig
   exception TimeOut
 
@@ -16,10 +15,10 @@ end = struct
 
   let rec timeLimit = function
     | None -> fun f x -> f x
-    | Some t -> fun f x -> 
-        print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n");
-        todo_hole
-        
+    | Some t ->
+        fun f x ->
+          print ("TIME LIMIT : " ^ Time.toString t ^ "sec \n");
+          todo_hole
 end
 
 (* TimeLimit *)

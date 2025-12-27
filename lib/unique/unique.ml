@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Uniqueness Checking *)
 
 (* Author: Frank Pfenning *)

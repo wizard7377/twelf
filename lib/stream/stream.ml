@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Stream Library *)
 
 (* Author: Frank Pfenning *)
@@ -82,8 +83,8 @@ module type STREAM = sig
   val tabulate : (int -> 'a) -> 'a stream
 end
 
-module Stream (BasicStream : BASIC_STREAM) : STREAM = struct
-  open BasicStream
+module MakeStream (BasicStream : BASIC_STREAM) : STREAM = struct
+  include BasicStream
 
   exception EmptyStream
   (* functions null, hd, tl, map, filter, exists, take, drop *)
@@ -106,14 +107,10 @@ module Stream (BasicStream : BASIC_STREAM) : STREAM = struct
 
   and filter' p = function
     | Empty -> Empty
-    | Cons (x, s) ->
-        if p x then Cons (x, filter p s) else filter' p (expose s)
+    | Cons (x, s) -> if p x then Cons (x, filter p s) else filter' p (expose s)
 
   let rec exists p s = exists' p (expose s)
-
-  and exists' = function
-    | p, Empty -> false
-    | p, Cons (x, s) -> p x || exists p s
+  and exists' p = function Empty -> false | Cons (x, s) -> p x || exists p s
 
   let rec takePos = function s, 0 -> [] | s, n -> take' (expose s, n)
 
@@ -121,7 +118,7 @@ module Stream (BasicStream : BASIC_STREAM) : STREAM = struct
     | Empty, _ -> []
     | Cons (x, s), n -> x :: takePos (s, n - 1)
 
-  let rec take (s, n) = if n < 0 then raise Subscript else takePos (s, n)
+  let rec take (s, n) = if n < 0 then raise General.Subscript else takePos (s, n)
   let rec fromList = function [] -> empty | x :: l -> cons (x, fromList l)
 
   let rec toList s = toList' (expose s)
@@ -130,7 +127,7 @@ module Stream (BasicStream : BASIC_STREAM) : STREAM = struct
   let rec dropPos = function s, 0 -> s | s, n -> drop' (expose s, n)
   and drop' = function Empty, _ -> empty | Cons (x, s), n -> dropPos (s, n - 1)
 
-  let rec drop (s, n) = if n < 0 then raise Subscript else dropPos (s, n)
+  let rec drop (s, n) = if n < 0 then raise General.Subscript else dropPos (s, n)
 
   let rec tabulate f = delay (fun () -> tabulate' f)
   and tabulate' f = Cons (f 0, tabulate (fun i -> f (i + 1)))
@@ -138,15 +135,11 @@ end
 
 (* structure Stream :> STREAM --- non-memoizing *)
 
-module Stream : STREAM = Stream (struct
-  module BasicStream = BasicStream
-end)
+module Stream : STREAM = MakeStream (BasicStream)
 
 (* structure MStream :> STREAM --- memoizing *)
 
-module MStream : STREAM = Stream (struct
-  module BasicStream = BasicMemoStream
-end)
+module MStream : STREAM = MakeStream (BasicMemoStream)
 
 (*
 structure S = Stream;  (* abbreviation *)

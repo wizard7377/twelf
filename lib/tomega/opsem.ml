@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Operational Semantics for_sml Delphin *)
 
 (* Author: Carsten Schuermann *)

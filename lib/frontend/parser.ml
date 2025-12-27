@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Top-Level Parser *)
 
 (* Author: Frank Pfenning *)

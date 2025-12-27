@@ -14,15 +14,15 @@ module type MONO_VECTOR = sig
   val update : vector -> int -> elem -> vector
   val concat : vector list -> vector
   val appi : (int * elem -> unit) -> vector -> unit
-  val app  : (elem -> unit) -> vector -> unit
+  val app : (elem -> unit) -> vector -> unit
   val mapi : (int * elem -> elem) -> vector -> vector
-  val map  : (elem -> elem) -> vector -> vector
+  val map : (elem -> elem) -> vector -> vector
   val foldli : (int * elem * 'b -> 'b) -> 'b -> vector -> 'b
   val foldri : (int * elem * 'b -> 'b) -> 'b -> vector -> 'b
-  val foldl  : (elem * 'b -> 'b) -> 'b -> vector -> 'b
-  val foldr  : (elem * 'b -> 'b) -> 'b -> vector -> 'b
+  val foldl : (elem * 'b -> 'b) -> 'b -> vector -> 'b
+  val foldr : (elem * 'b -> 'b) -> 'b -> vector -> 'b
   val findi : (int * elem -> bool) -> vector -> (int * elem) option
-  val find  : (elem -> bool) -> vector -> elem option
+  val find : (elem -> bool) -> vector -> elem option
   val exists : (elem -> bool) -> vector -> bool
   val all : (elem -> bool) -> vector -> bool
   val collate : (elem * elem -> order) -> vector -> vector -> order
@@ -36,26 +36,22 @@ module CharVector : MONO_VECTOR = struct
 
   let fromList lst =
     let len = Stdlib.List.length lst in
-    if len > maxLen then
-      raise (Invalid_argument "CharVector.fromList")
+    if len > maxLen then raise (Invalid_argument "CharVector.fromList")
     else
       let buf = Buffer.create len in
       Stdlib.List.iter (Buffer.add_char buf) lst;
       Buffer.contents buf
 
   let tabulate n f =
-    if n < 0 || n > maxLen then
-      raise (Invalid_argument "CharVector.tabulate")
-    else
-      Stdlib.String.init n f
+    if n < 0 || n > maxLen then raise (Invalid_argument "CharVector.tabulate")
+    else Stdlib.String.init n f
 
   let length = Stdlib.String.length
 
   let sub vec i =
     if i < 0 || i >= Stdlib.String.length vec then
       raise (Invalid_argument "CharVector.sub")
-    else
-      Stdlib.String.get vec i
+    else Stdlib.String.get vec i
 
   let update vec i c =
     if i < 0 || i >= Stdlib.String.length vec then
@@ -77,11 +73,8 @@ module CharVector : MONO_VECTOR = struct
       f (Stdlib.String.get vec i)
     done
 
-  let mapi f vec =
-    Stdlib.String.mapi (fun i c -> f (i, c)) vec
-
-  let map f vec =
-    Stdlib.String.map f vec
+  let mapi f vec = Stdlib.String.mapi (fun i c -> f (i, c)) vec
+  let map f vec = Stdlib.String.map f vec
 
   let foldli f init vec =
     let rec loop i acc =
@@ -92,8 +85,7 @@ module CharVector : MONO_VECTOR = struct
 
   let foldri f init vec =
     let rec loop i acc =
-      if i < 0 then acc
-      else loop (i - 1) (f (i, Stdlib.String.get vec i, acc))
+      if i < 0 then acc else loop (i - 1) (f (i, Stdlib.String.get vec i, acc))
     in
     loop (Stdlib.String.length vec - 1) init
 
@@ -106,8 +98,7 @@ module CharVector : MONO_VECTOR = struct
 
   let foldr f init vec =
     let rec loop i acc =
-      if i < 0 then acc
-      else loop (i - 1) (f (Stdlib.String.get vec i, acc))
+      if i < 0 then acc else loop (i - 1) (f (Stdlib.String.get vec i, acc))
     in
     loop (Stdlib.String.length vec - 1) init
 
@@ -116,8 +107,7 @@ module CharVector : MONO_VECTOR = struct
       if i >= Stdlib.String.length vec then None
       else
         let elem = Stdlib.String.get vec i in
-        if pred (i, elem) then Some (i, elem)
-        else loop (i + 1)
+        if pred (i, elem) then Some (i, elem) else loop (i + 1)
     in
     loop 0
 
@@ -126,8 +116,7 @@ module CharVector : MONO_VECTOR = struct
       if i >= Stdlib.String.length vec then None
       else
         let elem = Stdlib.String.get vec i in
-        if pred elem then Some elem
-        else loop (i + 1)
+        if pred elem then Some elem else loop (i + 1)
     in
     loop 0
 
@@ -153,9 +142,7 @@ module CharVector : MONO_VECTOR = struct
     let minlen = min len1 len2 in
     let rec loop i =
       if i >= minlen then
-        if len1 < len2 then Less
-        else if len1 > len2 then Greater
-        else Equal
+        if len1 < len2 then Less else if len1 > len2 then Greater else Equal
       else
         match cmp (Stdlib.String.get vec1 i, Stdlib.String.get vec2 i) with
         | Equal -> loop (i + 1)

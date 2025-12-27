@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Converter from relational representation to a functional
    representation of proof terms *)
 
@@ -590,9 +591,7 @@ module RelFun
           let w'', t'', (d', Dplus, Dminus) =
             transformDec' (d + 1, (S, mS), V2, (z1, z2'), (w', t'))
           in
-          ( w'',
-            t'',
-            (d', fun k Ds -> (F.App ((k, U'), Dplus (1, Ds)), Dminus)) )
+          (w'', t'', (d', fun k Ds -> (F.App ((k, U'), Dplus (1, Ds)), Dminus)))
     in
     let w'', t'', (d', Dplus, Dminus) =
       transformDec'

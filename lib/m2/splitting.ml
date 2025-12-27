@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Splitting *)
 
 (* Author: Carsten Schuermann *)
@@ -145,8 +146,8 @@ module Splitting
     lowerSplitDest
       ( I.Null,
         (V, s),
-        fun name' U' ->
-          abstract (name', M.Prefix (G, M, B), I.Dot (I.Exp U', s)) )
+        fun name' U' -> abstract (name', M.Prefix (G, M, B), I.Dot (I.Exp U', s))
+      )
   (* rename to add N prefix? *)
 
   (* occursIn (k, U) = B,

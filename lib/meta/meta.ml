@@ -1,4 +1,4 @@
-open Basis ;; 
+open Basis
 
 module MTPGlobal = MTPGlobal (struct
   module MetaGlobal = MetaGlobal

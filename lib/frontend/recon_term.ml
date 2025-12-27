@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* External Syntax and Type Reconstruction *)
 
 (* Author: Frank Pfenning *)
@@ -735,9 +736,7 @@ module ReconTerm
     | Idx n' -> Root (BVar n', S)
     | Exp U -> Redex (U, S)
 
-  let rec fvarElim name V s =
-   fun s' S -> Root (FVar (name, V, comp (s, s')), S)
-
+  let rec fvarElim name V s = fun s' S -> Root (FVar (name, V, comp (s, s')), S)
   let rec redexElim U = fun s S -> Redex (EClo (U, s), S)
   (* headElim (H) = E
      assumes H not Proj _ *)

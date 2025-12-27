@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Normalizer for_sml Delphin meta level *)
 
 (* Author: Carsten Schuermann *)

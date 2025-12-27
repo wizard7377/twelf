@@ -1,13 +1,21 @@
-open Basis ;; 
+open Basis
+
 (* Sparse 2-Dimensional Arrays *)
 
 (* Author: Roberto Virga *)
 
+open Table_sig
+
 module type SPARSE_ARRAY2 = sig
   type 'a array
 
-  type 'a region =
-    < base : 'a array ; row : int ; col : int ; nrows : int ; ncols : int >
+  type 'a region = {
+    base : 'a array;
+    row : int;
+    col : int;
+    nrows : int;
+    ncols : int;
+  }
 
   type traversal = RowMajor | ColMajor
 
@@ -21,16 +29,22 @@ module type SPARSE_ARRAY2 = sig
   val modify : traversal -> (int * int * 'a -> 'a) -> 'a region -> unit
 end
 
-(* signature Sparse_array.SPARSE_ARRAY2 *)
+(* signature SPARSE_ARRAY2 *)
 (* Sparse 2-Dimensional Arrays *)
 
 (* Author: Roberto Virga *)
 
-module SparseArray2 : Sparse_array.SPARSE_ARRAY2 = struct
-  type 'a array = < default : 'a ; table : 'a IntTable.table >
+module SparseArray2 (IntTable : TABLE with type key = int) : SPARSE_ARRAY2 =
+struct
+  type 'a array = { default : 'a; table : 'a IntTable.table }
 
-  type 'a region =
-    < base : 'a array ; row : int ; col : int ; nrows : int ; ncols : int >
+  type 'a region = {
+    base : 'a array;
+    row : int;
+    col : int;
+    nrows : int;
+    ncols : int;
+  }
 
   type traversal = RowMajor | ColMajor
 
@@ -38,7 +52,7 @@ module SparseArray2 : Sparse_array.SPARSE_ARRAY2 = struct
 
   let rec fromInt code =
     let rec fromInt' r =
-      let code' = (r + 1) * (r + 2) div 2 in
+      let code' = (r + 1) * (r + 2) / 2 in
       if code < code' then
         let diff = code' - code - 1 in
         (diff, r - diff)
@@ -48,7 +62,7 @@ module SparseArray2 : Sparse_array.SPARSE_ARRAY2 = struct
 
   let rec toInt (m, n) =
     let sum = m + n in
-    (sum * (sum + 1) div 2) + n
+    (sum * (sum + 1) / 2) + n
 
   let rec unsafeSub ({ table; default }, i, j) =
     match IntTable.lookup table (toInt (i, j)) with
@@ -83,6 +97,7 @@ module SparseArray2 : Sparse_array.SPARSE_ARRAY2 = struct
 
   let rec app traversal f region =
     if checkRegion region then
+      let { base; row; col; nrows; ncols } = region in
       let rmax = row + nrows in
       let cmax = col + ncols in
       let rec appR (row', col') =
@@ -108,6 +123,7 @@ module SparseArray2 : Sparse_array.SPARSE_ARRAY2 = struct
 
   let rec fold traversal f init region =
     if checkRegion region then
+      let { base; row; col; nrows; ncols } = region in
       let rmax = row + nrows in
       let cmax = col + ncols in
       let rec foldR (row', col') =
@@ -131,6 +147,7 @@ module SparseArray2 : Sparse_array.SPARSE_ARRAY2 = struct
 
   let rec modify traversal f region =
     if checkRegion region then
+      let { base; row; col; nrows; ncols } = region in
       let rmax = row + nrows in
       let cmax = col + ncols in
       let rec modifyR (row', col') =

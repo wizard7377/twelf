@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Theorem Declarations *)
 
 (* Author: Carsten Schuermann *)

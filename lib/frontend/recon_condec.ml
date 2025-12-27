@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* External Syntax for_sml signature entries *)
 
 (* Author: Frank Pfenning *)

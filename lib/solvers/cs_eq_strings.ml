@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* String Equation Solver *)
 
 (* Author: Roberto Virga *)

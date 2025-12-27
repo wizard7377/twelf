@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Field *)
 
 (* Author: Roberto Virga *)

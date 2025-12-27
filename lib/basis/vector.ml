@@ -1,9 +1,9 @@
-
 open Order
 
 module type VECTOR = sig
   type 'a t
   type 'a vector = 'a t
+
   val maxLen : int
   val fromList : 'a list -> 'a t
   val tabulate : int * (int -> 'a) -> 'a t
@@ -27,8 +27,9 @@ module type VECTOR = sig
 end
 
 module Vector : VECTOR = struct
-    type 'a t = 'a array
-    type 'a vector = 'a t
+  type 'a t = 'a array
+  type 'a vector = 'a t
+
   let maxLen : int = assert false
   let fromList : 'a list -> 'a t = assert false
   let tabulate : int * (int -> 'a) -> 'a t = assert false

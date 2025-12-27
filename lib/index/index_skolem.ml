@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Indexing (Constants and Skolem constants) *)
 
 (* Author: Carsten Schuermann *)

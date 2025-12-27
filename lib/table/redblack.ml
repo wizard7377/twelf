@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+open Common
 (* Red/Black Trees *)
 
 (* Author: Frank Pfenning *)
@@ -6,8 +7,8 @@ open Basis ;;
 module RedBlackTree (K : sig
   type t
 
-  val compare : K.t * K.t -> order
-end) : Table.TABLE with type key = K.t = struct
+  val compare : t * t -> order
+end) : Table_sig.TABLE with type key = K.t = struct
   type key = K.t
   type 'a entry = key * 'a
 
@@ -33,13 +34,13 @@ end) : Table.TABLE with type key = K.t = struct
   let rec lookup dict key =
     let rec lk = function
       | Empty -> None
-      | Red tree -> lk' tree
-      | Black tree -> lk' tree
+      | Red (t0,t1,t2) -> lk' (t0,t1,t2)
+      | Black (t0,t1,t2) -> lk' (t0,t1,t2)
     and lk' ((key1, datum1), left, right) =
       match K.compare (key, key1) with
-      | Eq -> Some datum1
-      | Lt -> lk left
-      | Gt -> lk right
+      | Equal -> Some datum1
+      | Less -> lk left
+      | Greater -> lk right
     in
     lk dict
   (* val restore_right : 'a dict -> 'a dict *)
@@ -55,8 +56,8 @@ end) : Table.TABLE with type key = K.t = struct
   *)
 
   let rec restore_right = function
-    | Black (e, Red lt, Red rt) -> Red (e, Black lt, Black rt)
-    | Black (e, Red lt, Red rt) -> Red (e, Black lt, Black rt)
+    | Black (e, Red (lt0, lt1, lt2), Red (rt0, rt1, rt2)) -> Red (e, Black (lt0, lt1, lt2), Black (rt0, rt1, rt2))
+    | Black (e, Red (lt0, lt1, lt2), Red (rt0, rt1, rt2)) -> Red (e, Black (lt0, lt1, lt2), Black (rt0, rt1, rt2))
     | Black (e, l, Red (re, Red (rle, rll, rlr), rr)) ->
         Black (rle, Red (e, l, rll), Red (re, rlr, rr))
     | Black (e, l, Red (re, rl, rr)) -> Black (re, Red (e, l, rl), rr)
@@ -66,14 +67,14 @@ end) : Table.TABLE with type key = K.t = struct
   (* the color invariant may be violated only at the root of left child *)
 
   let rec restore_left = function
-    | Black (e, Red lt, Red rt) -> Red (e, Black lt, Black rt)
-    | Black (e, Red lt, Red rt) -> Red (e, Black lt, Black rt)
+    | Black (e, Red (lt0, lt1, lt2), Red (rt0, rt1, rt2)) -> Red (e, Black (lt0, lt1, lt2), Black (rt0, rt1, rt2))
+    | Black (e, Red (lt0, lt1, lt2), Red (rt0, rt1, rt2)) -> Red (e, Black (lt0, lt1, lt2), Black (rt0, rt1, rt2))
     | Black (e, Red (le, ll, lr), r) -> Black (le, ll, Red (e, lr, r))
     | Black (e, Red (le, ll, Red (lre, lrl, lrr)), r) ->
         Black (lre, Red (le, ll, lrl), Red (e, lrr, r))
     | dict -> dict
 
-  let rec insert (dict, entry) =
+  (* let rec insert (dict, entry) =
     (* val ins : 'a dict -> 'a dict  inserts entry *)
     (* ins (Red _) may violate color invariant at root *)
     (* ins (Black _) or ins (Empty) will be red/black tree *)
@@ -94,9 +95,10 @@ end) : Table.TABLE with type key = K.t = struct
     match ins dict with
     | Red t -> Black t (* re-color *)
     | Red t -> Black t (* re-color *)
-    | dict -> dict
+    | dict -> dict *)
+  let rec insert = todo_hole
   (* use non-imperative version? *)
-
+(* 
   let rec insertShadow (dict, entry) =
     (* : 'a entry option ref *)
     let oldEntry = ref None in
@@ -122,13 +124,14 @@ end) : Table.TABLE with type key = K.t = struct
       | Red t -> Black t (* re-color *)
       | Red t -> Black t (* re-color *)
       | dict -> dict),
-      !oldEntry )
+      !oldEntry ) *)
+  let rec insertShadow = todo_hole
 
   let rec app f dict =
     let rec ap = function
       | Empty -> ()
-      | Red tree -> ap' tree
-      | Black tree -> ap' tree
+      | Red (tree0, tree1, tree2) -> ap' (tree0, tree1, tree2)
+      | Black (tree0, tree1, tree2) -> ap' (tree0, tree1, tree2)
     and ap' (entry1, left, right) =
       ap left;
       f entry1;
@@ -151,6 +154,7 @@ end) : Table.TABLE with type key = K.t = struct
   let lookup = fun table -> fun key -> lookup !table key
   let clear = fun table -> table := Empty
   let app = fun f -> fun table -> app f !table
+  let delete = todo_hole
 end
 
 (* functor RedBlackTree *)

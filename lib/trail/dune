@@ -1,4 +1,4 @@
 (library
  (name trail)
- (libraries basis)
+ (libraries basis common)
  (wrapped false))

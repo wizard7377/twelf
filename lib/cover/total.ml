@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Total Declarations *)
 
 (* Author: Frank Pfenning *)

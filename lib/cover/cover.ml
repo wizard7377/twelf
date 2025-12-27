@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Coverage Checking *)
 
 (* Author: Frank Pfenning *)
@@ -196,9 +197,7 @@ module Cover
   let rec formatCGoals = function
     | (V, p) :: [], ci -> [ formatCGoal V p ci ]
     | (V, p) :: Vs, ci ->
-        formatCGoal V p ci
-        :: F.String "," :: F.Break
-        :: formatCGoals (Vs, ci)
+        formatCGoal V p ci :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
 
   let rec missingToString Vs ci =
     F.makestring_fmt
@@ -309,8 +308,7 @@ module Cover
   let rec candsToString = function
     | Fail -> "Fail"
     | Cands ks ->
-        "Cands ["
-        ^ List.foldl (fun k str -> Int.toString k ^ "," ^ str) "]" ks
+        "Cands [" ^ List.foldl (fun k str -> Int.toString k ^ "," ^ str) "]" ks
     | Eqns eqns -> "Eqns [\n" ^ eqnsToString eqns ^ "]"
   (* fail () = Fail
        indicate failure without splitting candidates
@@ -349,8 +347,7 @@ module Cover
     | Eqn (G, Us1, Us2) :: es ->
         (match Whnf.makePatSub s2 with
           | None ->
-              unifiable G Us1 Us2
-              (* constraints will be left in this case *)
+              unifiable G Us1 Us2 (* constraints will be left in this case *)
           | Some s2' -> unifiable (G, Us1, (U2, s2')))
         && matchEqns es
   (* resolveCands (cands) = cands'
@@ -1719,8 +1716,7 @@ val _ = pr () *)
           raise
             (Error
                ("Coverage error --- missing cases:\n"
-               ^ missingToString missing ms
-               ^ "\n"))
+              ^ missingToString missing ms ^ "\n"))
     in
     ()
   (* checkOut (G, (V, s)) = ()
@@ -1754,8 +1750,7 @@ val _ = pr () *)
           raise
             (Error
                ("Output coverage error --- missing cases:\n"
-               ^ missingToString missing ms
-               ^ "\n"))
+              ^ missingToString missing ms ^ "\n"))
     in
     ()
   (**********************************************)
@@ -2157,9 +2152,7 @@ val _ = pr () *)
     (* Question: are all the Gi's above named already? *)
     let _ = chatter 4 (fun () -> "[Tomega coverage checker...") in
     let _ = chatter 4 (fun () -> "\n") in
-    let ccs =
-      List.map (fun Gi si -> CClause (Gi, substToSpine si G)) Cs
-    in
+    let ccs = List.map (fun Gi si -> CClause (Gi, substToSpine si G)) Cs in
     let _ = chatter 6 (fun () -> "[Begin covering clauses]\n") in
     let _ =
       List.app (fun cc -> chatter 6 (fun () -> showCClause cc ^ "\n")) ccs

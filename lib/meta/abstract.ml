@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Meta Theorem Prover abstraction : Version 1.3 *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)
@@ -245,9 +246,7 @@ module MTPAbstract
               I.Decl (collectExp (T, d, Gp, (V', I.id), K), EV (r', V', T, d))
             )
     | T, d, G, (I.FgnExp csfe, s), K ->
-        I.FgnExpStd.fold csfe
-          (fun U K' -> collectExp (T, d, G, (U, s), K'))
-          K
+        I.FgnExpStd.fold csfe (fun U K' -> collectExp (T, d, G, (U, s), K')) K
 
   and collectExp (T, d, G, Us, K) = collectExpW (T, d, G, Whnf.whnf Us, K)
 
@@ -453,10 +452,7 @@ module MTPAbstract
         skip (G0, List.length G2, s, B, collect)
     | G0, I.Dot (I.Exp U, s), I.Decl (B, T), collect ->
         collectGlobalSub
-          ( G0,
-            s,
-            B,
-            fun d K -> collect (d, collectExp (T, d, G0, (U, I.id), K)) )
+          (G0, s, B, fun d K -> collect (d, collectExp (T, d, G0, (U, I.id), K)))
 
   and skip = function
     | G0, 0, s, B, collect -> collectGlobalSub (G0, s, B, collect)
@@ -749,9 +745,7 @@ module MTPAbstract
     | K, w, Block ((G, t, d, G2), AF) ->
         (* BUG *)
         let k = I.ctxLength K in
-        let collect =
-          collectGlobalSub (G, t, createEmptyB d, fun _ K' -> K')
-        in
+        let collect = collectGlobalSub (G, t, createEmptyB d, fun _ K' -> K') in
         let K' = collect (I.ctxLength G, K) in
         let k' = I.ctxLength K' in
         let K'' = extend (K', G2) in

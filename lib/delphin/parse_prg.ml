@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* The Parser *)
 
 (* Author: Richard Fontana *)

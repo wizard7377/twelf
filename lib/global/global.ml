@@ -1,8 +1,9 @@
-open Basis ;; 
+open Basis
+
 (* Global parameters *)
 
 (* Author: Frank Pfenning *)
-open Basis ;; 
+open Basis
 
 module type GLOBAL = sig
   val chatter : int ref

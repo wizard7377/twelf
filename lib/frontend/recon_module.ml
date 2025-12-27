@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* External syntax for_sml module expressions *)
 
 (* Author: Kevin Watkins *)
@@ -163,9 +164,7 @@ module ReconModule
 
   let rec wheresig (sigexp, instList) moduleOpt =
     let module_, wherecls = sigexp moduleOpt in
-    let rec wherecl ns =
-      foldr (fun inst eqns -> inst (ns, eqns)) [] instList
-    in
+    let rec wherecl ns = foldr (fun inst eqns -> inst (ns, eqns)) [] instList in
     (module_, wherecls @ [ wherecl ])
 
   let rec sigexpToSigexp sigexp moduleOpt = sigexp moduleOpt

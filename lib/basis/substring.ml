@@ -2,6 +2,7 @@
 
 open Order
 open List
+
 module type SUBSTRING = sig
   type substring
 
@@ -10,7 +11,6 @@ module type SUBSTRING = sig
   val string : substring -> string
   val extract : string * int * int option -> substring
   val slice : substring * int * int option -> substring
-
   val base : substring -> string * int * int
   val isEmpty : substring -> bool
   val getc : substring -> (char * substring) option
@@ -18,38 +18,24 @@ module type SUBSTRING = sig
   val triml : int -> substring -> substring
   val trimr : int -> substring -> substring
   val size : substring -> int
-
   val explode : substring -> char list
   val isPrefix : string -> substring -> bool
   val isSubstring : string -> substring -> bool
   val isSuffix : string -> substring -> bool
-
   val compare : substring * substring -> order
-  val collate : (char * char -> order)
-                -> substring * substring -> order
-
-  val splitl : (char -> bool)
-               -> substring
-               -> substring * substring
-
-  val splitr : (char -> bool)
-               -> substring
-               -> substring * substring
-
+  val collate : (char * char -> order) -> substring * substring -> order
+  val splitl : (char -> bool) -> substring -> substring * substring
+  val splitr : (char -> bool) -> substring -> substring * substring
   val splitAt : substring * int -> substring * substring
   val dropl : (char -> bool) -> substring -> substring
   val dropr : (char -> bool) -> substring -> substring
   val takel : (char -> bool) -> substring -> substring
   val taker : (char -> bool) -> substring -> substring
-
   val position : string -> substring -> substring * substring
-
   val span : substring * substring -> substring
   val translate : (char -> string) -> substring -> string
-
   val tokens : (char -> bool) -> substring -> substring list
   val fields : (char -> bool) -> substring -> substring list
-
   val app : (char -> unit) -> substring -> unit
   val foldl : (char * 'a -> 'a) -> 'a -> substring -> 'a
   val foldr : (char * 'a -> 'a) -> 'a -> substring -> 'a
@@ -62,13 +48,10 @@ module Substring : SUBSTRING = struct
   let sub (s, start, len) =
     if start < 0 || len < 0 || start + len > Stdlib.String.length s then
       raise (Invalid_argument "Substring.sub")
-    else
-      (s, start, len)
+    else (s, start, len)
 
   let full s = (s, 0, Stdlib.String.length s)
-
-  let string (s, start, len) =
-    Stdlib.String.sub s start len
+  let string (s, start, len) = Stdlib.String.sub s start len
 
   let extract (s, start, len_opt) =
     let slen = Stdlib.String.length s in
@@ -80,23 +63,19 @@ module Substring : SUBSTRING = struct
       | Some len ->
           if len < 0 || start + len > slen then
             raise (Invalid_argument "Substring.extract")
-          else
-            (s, start, len)
+          else (s, start, len)
 
   let slice ((s, start, len), i, len_opt) =
-    if i < 0 || i > len then
-      raise (Invalid_argument "Substring.slice")
+    if i < 0 || i > len then raise (Invalid_argument "Substring.slice")
     else
       match len_opt with
       | None -> (s, start + i, len - i)
       | Some n ->
           if n < 0 || i + n > len then
             raise (Invalid_argument "Substring.slice")
-          else
-            (s, start + i, n)
+          else (s, start + i, n)
 
   let base ss = ss
-
   let isEmpty (_, _, len) = len = 0
 
   let getc (s, start, len) =
@@ -104,8 +83,7 @@ module Substring : SUBSTRING = struct
     else Some (Stdlib.String.get s start, (s, start + 1, len - 1))
 
   let first (s, start, len) =
-    if len = 0 then None
-    else Some (Stdlib.String.get s start)
+    if len = 0 then None else Some (Stdlib.String.get s start)
 
   let triml k (s, start, len) =
     if k < 0 then raise (Invalid_argument "Substring.triml")
@@ -132,7 +110,8 @@ module Substring : SUBSTRING = struct
     else
       let rec loop i =
         if i >= plen then true
-        else if Stdlib.String.get prefix i <> Stdlib.String.get s (start + i) then false
+        else if Stdlib.String.get prefix i <> Stdlib.String.get s (start + i)
+        then false
         else loop (i + 1)
       in
       loop 0
@@ -147,11 +126,11 @@ module Substring : SUBSTRING = struct
         else
           let rec match_from i =
             if i >= nlen then true
-            else if Stdlib.String.get needle i <> Stdlib.String.get s (pos + i) then false
+            else if Stdlib.String.get needle i <> Stdlib.String.get s (pos + i)
+            then false
             else match_from (i + 1)
           in
-          if match_from 0 then true
-          else check_at (pos + 1)
+          if match_from 0 then true else check_at (pos + 1)
       in
       check_at start
 
@@ -162,7 +141,8 @@ module Substring : SUBSTRING = struct
       let offset = start + len - slen in
       let rec loop i =
         if i >= slen then true
-        else if Stdlib.String.get suffix i <> Stdlib.String.get s (offset + i) then false
+        else if Stdlib.String.get suffix i <> Stdlib.String.get s (offset + i)
+        then false
         else loop (i + 1)
       in
       loop 0
@@ -171,15 +151,11 @@ module Substring : SUBSTRING = struct
     let minlen = min len1 len2 in
     let rec loop i =
       if i >= minlen then
-        if len1 < len2 then Less
-        else if len1 > len2 then Greater
-        else Equal
+        if len1 < len2 then Less else if len1 > len2 then Greater else Equal
       else
         let c1 = Stdlib.String.get s1 (start1 + i) in
         let c2 = Stdlib.String.get s2 (start2 + i) in
-        if c1 < c2 then Less
-        else if c1 > c2 then Greater
-        else loop (i + 1)
+        if c1 < c2 then Less else if c1 > c2 then Greater else loop (i + 1)
     in
     loop 0
 
@@ -187,15 +163,11 @@ module Substring : SUBSTRING = struct
     let minlen = min len1 len2 in
     let rec loop i =
       if i >= minlen then
-        if len1 < len2 then Less
-        else if len1 > len2 then Greater
-        else Equal
+        if len1 < len2 then Less else if len1 > len2 then Greater else Equal
       else
         let c1 = Stdlib.String.get s1 (start1 + i) in
         let c2 = Stdlib.String.get s2 (start2 + i) in
-        match cmp (c1, c2) with
-        | Equal -> loop (i + 1)
-        | ord -> ord
+        match cmp (c1, c2) with Equal -> loop (i + 1) | ord -> ord
     in
     loop 0
 
@@ -218,25 +190,23 @@ module Substring : SUBSTRING = struct
     ((s, start, n + 1), (s, start + n + 1, len - n - 1))
 
   let splitAt ((s, start, len), i) =
-    if i < 0 || i > len then
-      raise (Invalid_argument "Substring.splitAt")
-    else
-      ((s, start, i), (s, start + i, len - i))
+    if i < 0 || i > len then raise (Invalid_argument "Substring.splitAt")
+    else ((s, start, i), (s, start + i, len - i))
 
   let dropl pred ss =
-    let (_, right) = splitl pred ss in
+    let _, right = splitl pred ss in
     right
 
   let dropr pred ss =
-    let (left, _) = splitr pred ss in
+    let left, _ = splitr pred ss in
     left
 
   let takel pred ss =
-    let (left, _) = splitl pred ss in
+    let left, _ = splitl pred ss in
     left
 
   let taker pred ss =
-    let (_, right) = splitr pred ss in
+    let _, right = splitr pred ss in
     right
 
   let position needle (s, start, len) =
@@ -249,11 +219,11 @@ module Substring : SUBSTRING = struct
         else
           let rec match_from i =
             if i >= nlen then true
-            else if Stdlib.String.get needle i <> Stdlib.String.get s (pos + i) then false
+            else if Stdlib.String.get needle i <> Stdlib.String.get s (pos + i)
+            then false
             else match_from (i + 1)
           in
-          if match_from 0 then Some pos
-          else check_at (pos + 1)
+          if match_from 0 then Some pos else check_at (pos + 1)
       in
       match check_at start with
       | None -> ((s, start, len), (s, start + len, 0))
@@ -283,14 +253,14 @@ module Substring : SUBSTRING = struct
         let ss' = dropl pred ss in
         if isEmpty ss' then Stdlib.List.rev acc
         else
-          let (tok, rest) = splitl (fun c -> not (pred c)) ss' in
+          let tok, rest = splitl (fun c -> not (pred c)) ss' in
           loop (tok :: acc) rest
     in
     loop [] ss
 
   let fields pred ss =
     let rec loop acc ss =
-      let (field, rest) = splitl (fun c -> not (pred c)) ss in
+      let field, rest = splitl (fun c -> not (pred c)) ss in
       if isEmpty rest then Stdlib.List.rev (field :: acc)
       else loop (field :: acc) (triml 1 rest)
     in

@@ -1,4 +1,4 @@
 (library
  (name table)
- (libraries basis)
+ (libraries basis common)
  (wrapped false))

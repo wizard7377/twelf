@@ -2,33 +2,31 @@
 
 open Order
 open Vector
+
 module type VECTOR_SLICE = sig
   type 'a slice
   type 'a vector = 'a array
 
   val length : 'a slice -> int
   val sub : 'a slice * int -> 'a
-
   val full : 'a vector -> 'a slice
   val slice : 'a vector * int * int option -> 'a slice
   val subslice : 'a slice * int * int option -> 'a slice
-
   val base : 'a slice -> 'a vector * int * int
   val vector : 'a slice -> 'a vector
   val concat : 'a slice list -> 'a vector
   val isEmpty : 'a slice -> bool
   val getItem : 'a slice -> ('a * 'a slice) option
-
   val appi : (int * 'a -> unit) -> 'a slice -> unit
-  val app  : ('a -> unit) -> 'a slice -> unit
+  val app : ('a -> unit) -> 'a slice -> unit
   val mapi : (int * 'a -> 'b) -> 'a slice -> 'b vector
-  val map  : ('a -> 'b) -> 'a slice -> 'b vector
+  val map : ('a -> 'b) -> 'a slice -> 'b vector
   val foldli : (int * 'a * 'b -> 'b) -> 'b -> 'a slice -> 'b
   val foldri : (int * 'a * 'b -> 'b) -> 'b -> 'a slice -> 'b
-  val foldl  : ('a * 'b -> 'b) -> 'b -> 'a slice -> 'b
-  val foldr  : ('a * 'b -> 'b) -> 'b -> 'a slice -> 'b
+  val foldl : ('a * 'b -> 'b) -> 'b -> 'a slice -> 'b
+  val foldr : ('a * 'b -> 'b) -> 'b -> 'a slice -> 'b
   val findi : (int * 'a -> bool) -> 'a slice -> (int * 'a) option
-  val find  : ('a -> bool) -> 'a slice -> 'a option
+  val find : ('a -> bool) -> 'a slice -> 'a option
   val exists : ('a -> bool) -> 'a slice -> bool
   val all : ('a -> bool) -> 'a slice -> bool
   val collate : ('a * 'a -> order) -> 'a slice * 'a slice -> order
@@ -36,19 +34,17 @@ end
 
 module VectorSlice : VECTOR_SLICE = struct
   type 'a vector = 'a array
+
   (* A slice is represented as (vector, start, length) *)
   type 'a slice = 'a vector * int * int
 
   let length (_, _, len) = len
 
   let sub ((vec, start, len), i) =
-    if i < 0 || i >= len then
-      raise (Invalid_argument "VectorSlice.sub")
-    else
-      Stdlib.Array.get vec (start + i)
+    if i < 0 || i >= len then raise (Invalid_argument "VectorSlice.sub")
+    else Stdlib.Array.get vec (start + i)
 
-  let full vec =
-    (vec, 0, Stdlib.Array.length vec)
+  let full vec = (vec, 0, Stdlib.Array.length vec)
 
   let slice (vec, start, len_opt) =
     let vlen = Stdlib.Array.length vec in
@@ -60,20 +56,17 @@ module VectorSlice : VECTOR_SLICE = struct
       | Some len ->
           if len < 0 || start + len > vlen then
             raise (Invalid_argument "VectorSlice.slice")
-          else
-            (vec, start, len)
+          else (vec, start, len)
 
   let subslice ((vec, start, len), i, len_opt) =
-    if i < 0 || i > len then
-      raise (Invalid_argument "VectorSlice.subslice")
+    if i < 0 || i > len then raise (Invalid_argument "VectorSlice.subslice")
     else
       match len_opt with
       | None -> (vec, start + i, len - i)
       | Some n ->
           if n < 0 || i + n > len then
             raise (Invalid_argument "VectorSlice.subslice")
-          else
-            (vec, start + i, n)
+          else (vec, start + i, n)
 
   let base sl = sl
 
@@ -141,8 +134,7 @@ module VectorSlice : VECTOR_SLICE = struct
       if i >= len then None
       else
         let elem = Stdlib.Array.get vec (start + i) in
-        if pred (i, elem) then Some (i, elem)
-        else loop (i + 1)
+        if pred (i, elem) then Some (i, elem) else loop (i + 1)
     in
     loop 0
 
@@ -151,8 +143,7 @@ module VectorSlice : VECTOR_SLICE = struct
       if i >= len then None
       else
         let elem = Stdlib.Array.get vec (start + i) in
-        if pred elem then Some elem
-        else loop (i + 1)
+        if pred elem then Some elem else loop (i + 1)
     in
     loop 0
 
@@ -176,12 +167,13 @@ module VectorSlice : VECTOR_SLICE = struct
     let minlen = min len1 len2 in
     let rec loop i =
       if i >= minlen then
-        if len1 < len2 then Less
-        else if len1 > len2 then Greater
-        else Equal
+        if len1 < len2 then Less else if len1 > len2 then Greater else Equal
       else
-        match cmp (Stdlib.Array.get vec1 (start1 + i),
-                   Stdlib.Array.get vec2 (start2 + i)) with
+        match
+          cmp
+            ( Stdlib.Array.get vec1 (start1 + i),
+              Stdlib.Array.get vec2 (start2 + i) )
+        with
         | Equal -> loop (i + 1)
         | ord -> ord
     in

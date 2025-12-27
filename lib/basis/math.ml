@@ -5,7 +5,6 @@ module type MATH = sig
 
   val pi : real
   val e : real
-
   val sqrt : real -> real
   val sin : real -> real
   val cos : real -> real
@@ -14,12 +13,10 @@ module type MATH = sig
   val acos : real -> real
   val atan : real -> real
   val atan2 : real -> real -> real
-
   val exp : real -> real
   val pow : real -> real -> real
   val ln : real -> real
   val log10 : real -> real
-
   val sinh : real -> real
   val cosh : real -> real
   val tanh : real -> real
@@ -30,7 +27,6 @@ module Math : MATH = struct
 
   let pi = 4.0 *. atan 1.0
   let e = exp 1.0
-
   let sqrt = sqrt
   let sin = sin
   let cos = cos
@@ -39,12 +35,10 @@ module Math : MATH = struct
   let acos = acos
   let atan = atan
   let atan2 y x = atan2 y x
-
   let exp = exp
   let pow x y = x ** y
   let ln = log
   let log10 = log10
-
   let sinh = sinh
   let cosh = cosh
   let tanh = tanh

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (*
 % ForML Version 0.6 - 25 January 1993 - er@cs.cmu.edu
 %*********************************************************************
@@ -84,6 +85,7 @@ end
 *)
 
 let sid : 'a -> 'a = fun s -> s
+
 module Formatter : FORMATTER = struct
   (*
 \subsection{Setting default values}
@@ -110,7 +112,11 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
 
   let rec spaces' = function 0 -> sid | n -> fun s -> spaces' (n - 1) (s ^ " ")
   let rec spaces n = if n > 0 then spaces' n "" else ""
-  let rec newlines' = function 0 -> sid | n -> (fun s -> newlines' (n - 1) (s ^ "\n"))
+
+  let rec newlines' = function
+    | 0 -> sid
+    | n -> fun s -> newlines' (n - 1) (s ^ "\n")
+
   let rec newlines n = if n > 0 then newlines' n "" else ""
   let sp = spaces
   (* return a number of spaces *)
@@ -313,8 +319,7 @@ use horizontal mode over vertical mode).
 *)
 
   let rec hovlistWidth l blanks indent =
-    let vmin, vmax = vlistWidth l indent
-    and hmin, hmax = hlistWidth l blanks in
+    let vmin, vmax = vlistWidth l indent and hmin, hmax = hlistWidth l blanks in
     let min, mmode = if vmin < hmin then (vmin, Vert) else (hmin, Hori) in
     ((min, hmax), (mmode, Hori))
   (*
@@ -367,15 +372,9 @@ break.  This ensures that the first item is all the others.
   and vbox0 i s l = Vbx (vlistWidth l i, i, s, l)
   and hbox l = Hbx (hlistWidth l !blanks, !blanks, l)
   and hbox0 b l = Hbx (hlistWidth l b, b, l)
-
-  and hvbox l =
-    Hvx (hvlistWidth l !blanks !indent, !blanks, !indent, !skip, l)
-
+  and hvbox l = Hvx (hvlistWidth l !blanks !indent, !blanks, !indent, !skip, l)
   and hvbox0 b i s l = Hvx (hvlistWidth l b i, b, i, s, l)
-
-  and hovbox l =
-    Hov (hovlistWidth l !blanks !indent, !blanks, !indent, !skip, l)
-
+  and hovbox l = Hov (hovlistWidth l !blanks !indent, !blanks, !indent, !skip, l)
   and hovbox0 b i s l = Hov (hovlistWidth l b i, b, i, s, l)
 
   let rec newpage () = Str (0, np ())

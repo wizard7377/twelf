@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Front End Interface *)
 
 (* Author: Frank Pfenning *)
@@ -1321,9 +1322,7 @@ module Twelf
               ^ ".\n")
           else ()
         in
-        Timers.time Timers.worlds
-          (map (fun a _ -> WorldSyn.worldcheck W a))
-          cpa;
+        Timers.time Timers.worlds (map (fun a _ -> WorldSyn.worldcheck W a)) cpa;
         ()
         (*if !Global.doubleCheck
              then (map (fn (a,_) => Worldify.worldify a) cpa; ())
@@ -1655,9 +1654,7 @@ module Twelf
           | _ -> true)
 
     let rec makeModified _ mtime = mtime := None
-
-    let rec makeUnmodified file mtime =
-      mtime := Some (OS.FileSys.modTime file)
+    let rec makeUnmodified file mtime = mtime := Some (OS.FileSys.modTime file)
   end
   (* config = ["fileName1",...,"fileName<n>"] *)
 

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Converter from relational representation to a functional
    representation of proof terms *)
 

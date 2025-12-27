@@ -1,4 +1,4 @@
-open Basis ;; 
+open Basis
 
 (* int-inf-sig.sml
  *
@@ -8,9 +8,8 @@ open Basis ;;
  * close to the definition of the optional IntInf structure in the SML'97 basis.
  *)
 
-
 module type INT_INF = sig
-  include (module type of Integer)
+  include module type of Integer
 
   val divmod : int * int -> int * int
   val quotrem : int * int -> int * int

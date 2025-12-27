@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Parsing Terms and Declarations *)
 
 (* Author: Frank Pfenning *)
@@ -299,8 +300,7 @@ module ParseTerm (ExtSyn' : Recon_term.EXTSYN) (Names : Names.NAMES) :
           | FX.Nonfix -> parseExp' (f', P.shiftAtom (tm, p))
           | FX.Infix infixity ->
               parseExp' (f', P.resolve (r, infixOp infixity tm, p))
-          | FX.Prefix prec ->
-              parseExp' (f', P.resolve (r, prefixOp prec tm, p))
+          | FX.Prefix prec -> parseExp' (f', P.resolve (r, prefixOp prec tm, p))
           | FX.Postfix prec ->
               parseExp' (f', P.resolve (r, postfixOp prec tm, p)))
     | LS.Cons ((L.UNDERSCORE, r), s), p ->

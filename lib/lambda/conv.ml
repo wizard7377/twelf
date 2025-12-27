@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Convertibility Modulo Beta and Eta *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)

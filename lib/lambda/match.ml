@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Matching *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)

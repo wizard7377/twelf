@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Solve and query declarations, interactive top level *)
 
 (* Author: Frank Pfenning *)

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Parsing Mode Declarations *)
 
 (* Author: Carsten Schuermann *)

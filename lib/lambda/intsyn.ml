@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Internal Syntax *)
 
 (* Author: Frank Pfenning, Carsten Schuermann *)
@@ -302,7 +303,7 @@ end
 
 (* Modified: Roberto Virga *)
 
-module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
+module Make_IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   type cid = int
   (* Constant identifier        *)
 
@@ -324,7 +325,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
      Invariant: G = G',D
   *)
 
-  let rec ctxPop (Decl (G, D)) = G
+  let rec ctxPop (Decl (g, d)) = g
 
   exception Error of string
   (* raised if out of space     *)
@@ -334,21 +335,20 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   *)
 
   let rec ctxLookup = function
-    | Decl (G', D), 1 -> D
-    | Decl (G', _), k' -> ctxLookup (G', k' - 1)
+    | Decl (g', d), 1 -> d
+    | Decl (g', _), k' -> ctxLookup (g', k' - 1)
   (*    | ctxLookup (Null, k') = (print ("Looking up k' = " ^ Int.toString k' ^ "\n"); raise Error "Out of Bounce\n")*)
 
   (* ctxLookup (Null, k')  should not occur by invariant *)
 
   (* ctxLength G = |G|, the number of declarations in G *)
 
-  let rec ctxLength G =
+  let rec ctxLength g =
     let rec ctxLength' = function
       | Null, n -> n
-      | Decl (G, _), n -> ctxLength' (G, n + 1)
+      | Decl (g, _), n -> ctxLength' (g, n + 1)
     in
-    ctxLength' (G, 0)
-
+    ctxLength' (g, 0)
   type fgnExp = exn
   (* foreign expression representation *)
 
@@ -479,7 +479,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   type bclo = block * sub
   (* Bs = B[s]                  *)
 
-  type cnstr = cnstr ref
+  type cnstr' = cnstr ref
   (*  exception Error of string             (* raised if out of space     *) *)
 
   module FgnExpStd = struct
@@ -491,8 +491,8 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
 
     let rec fold csfe f b =
       let r = ref b in
-      let rec g U = r := f (U, !r) in
-      App.apply csfe g;
+      let rec g u = r := f (u, !r) in
+      apply csfe g;
       !r
   end
 
@@ -545,10 +545,10 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   *)
 
   let rec conDecType = function
-    | ConDec (_, _, _, _, V, _) -> V
-    | ConDef (_, _, _, _, V, _, _) -> V
-    | AbbrevDef (_, _, _, _, V, _) -> V
-    | SkoDec (_, _, _, V, _) -> V
+    | ConDec (_, _, _, _, v, _) -> v
+    | ConDef (_, _, _, _, v, _, _) -> v
+    | AbbrevDef (_, _, _, _, v, _) -> v
+    | SkoDec (_, _, _, v, _) -> v
   (* conDecBlock (CD) =  (Gsome, Lpi)
 
      Invariant:
@@ -557,7 +557,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
      and  Lpi is the list of pi variables
   *)
 
-  let rec conDecBlock (BlockDec (_, _, Gsome, Lpi)) = (Gsome, Lpi)
+  let rec conDecBlock (BlockDec (_, _, gsome, lpi)) = (gsome, lpi)
   (* conDecUni (CD) =  L
 
      Invariant:
@@ -567,10 +567,10 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   *)
 
   let rec conDecUni = function
-    | ConDec (_, _, _, _, _, L) -> L
-    | ConDef (_, _, _, _, _, L, _) -> L
-    | AbbrevDef (_, _, _, _, _, L) -> L
-    | SkoDec (_, _, _, _, L) -> L
+    | ConDec (_, _, _, _, _, l) -> l
+    | ConDef (_, _, _, _, _, l, _) -> l
+    | AbbrevDef (_, _, _, _, _, l) -> l
+    | SkoDec (_, _, _, _, l) -> l
 
   let rec strDecName (StrDec (name, _)) = name
   let rec strDecParent (StrDec (_, parent)) = parent
@@ -616,7 +616,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
     if cid > maxCid then
       raise
         (Error
-           ("Global signature size " ^ Int.toString (maxCid + 1) ^ " exceeded"))
+           ("Global signature size " ^ Integer.toString (maxCid + 1) ^ " exceeded"))
     else (
       Array.update (sgnArray, cid, conDec);
       nextCid := cid + 1;
@@ -639,7 +639,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
     if mid > maxMid then
       raise
         (Error
-           ("Global signature size " ^ Int.toString (maxMid + 1) ^ " exceeded"))
+           ("Global signature size " ^ Integer.toString (maxMid + 1) ^ " exceeded"))
     else (
       Array.update (sgnStructArray, mid, strDec);
       nextMid := mid + 1;
@@ -662,8 +662,8 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
 
   let rec constDef d =
     match sgnLookup d with
-    | ConDef (_, _, _, U, _, _, _) -> U
-    | AbbrevDef (_, _, _, U, _, _) -> U
+    | ConDef (_, _, _, u, _, _, _) -> u
+    | AbbrevDef (_, _, _, u, _, _) -> u
 
   let rec constType c = conDecType (sgnLookup c)
   let rec constImp c = conDecImp (sgnLookup c)
@@ -711,27 +711,27 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   let rec comp = function
     | Shift 0, s -> s
     | s, Shift 0 -> s
-    | Shift n, Dot (Ft, s) -> comp (Shift (n - 1), s)
+    | Shift n, Dot (ft, s) -> comp (Shift (n - 1), s)
     | Shift n, Shift m -> Shift (n + m)
-    | Dot (Ft, s), s' -> Dot (frontSub (Ft, s'), comp (s, s'))
+    | Dot (ft, s), s' -> Dot (frontSub (ft, s'), comp (s, s'))
 
   and bvarSub = function
-    | 1, Dot (Ft, s) -> Ft
-    | n, Dot (Ft, s) -> bvarSub (n - 1, s)
+    | 1, Dot (ft, s) -> ft
+    | n, Dot (ft, s) -> bvarSub (n - 1, s)
     | n, Shift k -> Idx (n + k)
 
   and blockSub = function
     | Bidx k, s -> (
-        match bvarSub (k, s) with Idx k' -> Bidx k' | Block B -> B)
-    | LVar ({ contents = Some B }, sk, _), s -> blockSub (B, comp (sk, s))
+        match bvarSub (k, s) with Idx k' -> Bidx k' | Block b -> b)
+    | LVar ({ contents = Some b }, sk, _), s -> blockSub (b, comp (sk, s))
     | LVar (r, sk, (l, t)), s -> LVar (r, comp (sk, s), (l, t))
-    | L, s' -> Inst (map (fun U -> EClo (U, s')) ULs)
+    | l, s' -> Inst (map (fun u -> EClo (u, s')) ULs)
 
   and frontSub = function
     | Idx n, s -> bvarSub (n, s)
-    | Exp U, s -> Exp (EClo (U, s))
+    | Exp u, s -> Exp (EClo (u, s))
     | Undef, s -> Undef
-    | Block B, s -> Block (blockSub (B, s))
+    | Block b, s -> Block (blockSub (b, s))
   (* decSub (x:V, s) = D'
 
      Invariant:
@@ -756,7 +756,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   *)
 
   let rec decSub = function
-    | Dec (x, V), s -> Dec (x, EClo (V, s))
+    | Dec (x, v), s -> Dec (x, EClo (v, s))
     | NDec x, s -> NDec x
     | BDec (n, (l, t)), s -> BDec (n, (l, comp (t, s)))
   (* dot1 (s) = s'
@@ -795,17 +795,17 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
      then    G |- k : V  and  G |- V : L
   *)
 
-  let rec ctxDec (G, k) =
+  let rec ctxDec (g, k) =
     (* ctxDec' (G'', k') = x:V
              where G |- ^(k-k') : G'', 1 <= k' <= k
            *)
     (* ctxDec' (Null, k')  should not occur by invariant *)
     let rec ctxDec' = function
-      | Decl (G', Dec (x, V')), 1 -> Dec (x, EClo (V', Shift k))
-      | Decl (G', BDec (n, (l, s))), 1 -> BDec (n, (l, comp (s, Shift k)))
-      | Decl (G', _), k' -> ctxDec' (G', k' - 1)
+      | Decl (g', Dec (x, v')), 1 -> Dec (x, EClo (v', Shift k))
+      | Decl (g', BDec (n, (l, s))), 1 -> BDec (n, (l, comp (s, Shift k)))
+      | Decl (g', _), k' -> ctxDec' (g', k' - 1)
     in
-    ctxDec' (G, k)
+    ctxDec' (g, k)
   (* blockDec (G, v, i) = V
 
      Invariant:
@@ -815,21 +815,21 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
      then G |- pi (v, i) : V
   *)
 
-  let rec blockDec (G, v, i) =
+  let rec blockDec (g, v, i) =
     (* G |- s : Gsome *)
-    let (BDec (_, (l, s))) = ctxDec (G, k) in
-    let Gsome, Lblock = conDecBlock (sgnLookup l) in
+    let (BDec (_, (l, s))) = ctxDec (g, _) in
+    let gsome, lblock = conDecBlock (sgnLookup l) in
     let rec blockDec' = function
-      | t, D :: L, 1, j -> decSub (D, t)
-      | t, _ :: L, n, j ->
-          blockDec' (Dot (Exp (Root (Proj (v, j), Nil)), t), L, n - 1, j + 1)
+      | t, d :: l, 1, j -> decSub (d, t)
+      | t, _ :: l, n, j ->
+          blockDec' (Dot (Exp (Root (Proj (v, j), Nil)), t), l, n - 1, j + 1)
     in
-    blockDec' (s, Lblock, i, 1)
+    blockDec' (s, lblock, i, 1)
   (* EVar related functions *)
 
   (* newEVar (G, V) = newEVarCnstr (G, V, nil) *)
 
-  let rec newEVar (G, V) = EVar (ref None, G, V, ref [])
+  let rec newEVar (g, v) = EVar (ref None, g , v, ref [])
   (* newAVar G = new AVar (assignable variable) *)
 
   (* AVars carry no type, ctx, or cnstr *)
@@ -839,7 +839,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
      where G |- X : type
   *)
 
-  let rec newTypeVar G = EVar (ref None, G, Uni Type, ref [])
+  let rec newTypeVar g = EVar (ref None, g, Uni Type, ref [])
   (* newLVar (l, s) = (l[s]) *)
 
   let rec newLVar (sk, (cid, t)) = LVar (ref None, sk, (cid, t))
@@ -848,8 +848,8 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   (* headOpt (U) = SOME(H) or NONE, U should be strict, normal *)
 
   let rec headOpt = function
-    | Root (H, _) -> Some H
-    | Lam (_, U) -> headOpt U
+    | Root (h, _) -> Some h
+    | Lam (_, u) -> headOpt u
     | _ -> None
 
   let rec ancestor' = function
@@ -862,7 +862,7 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
     | Some _ -> Anc (None, 0, None)
   (* ancestor(U) = ancestor info for_sml d = U *)
 
-  let rec ancestor U = ancestor' (headOpt U)
+  let rec ancestor u = ancestor' (headOpt u)
   (* defAncestor(d) = ancestor of d, d must be defined *)
 
   let rec defAncestor d =
@@ -878,12 +878,12 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   (* should there possibly be a FgnConst case? also targetFamOpt -kw *)
 
   let rec targetHeadOpt = function
-    | Root (H, _) -> Some H
-    | Pi (_, V) -> targetHeadOpt V
-    | Redex (V, S) -> targetHeadOpt V
-    | Lam (_, V) -> targetHeadOpt V
-    | EVar ({ contents = Some V }, _, _, _) -> targetHeadOpt V
-    | EClo (V, s) -> targetHeadOpt V
+    | Root (h, _) -> Some h
+    | Pi (_, v) -> targetHeadOpt v
+    | Redex (v, s) -> targetHeadOpt v
+    | Lam (_, v) -> targetHeadOpt v
+    | EVar ({ contents = Some v }, _, _, _) -> targetHeadOpt v
+    | EClo (v, s) -> targetHeadOpt v
     | _ -> None
   (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
@@ -903,12 +903,12 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
 
   let rec targetFamOpt = function
     | Root (Const cid, _) -> Some cid
-    | Pi (_, V) -> targetFamOpt V
+    | Pi (_, v) -> targetFamOpt v
     | Root (Def cid, _) -> targetFamOpt (constDef cid)
-    | Redex (V, S) -> targetFamOpt V
-    | Lam (_, V) -> targetFamOpt V
-    | EVar ({ contents = Some V }, _, _, _) -> targetFamOpt V
-    | EClo (V, s) -> targetFamOpt V
+    | Redex (v, s) -> targetFamOpt v
+    | Lam (_, v) -> targetFamOpt v
+    | EVar ({ contents = Some v }, _, _, _) -> targetFamOpt v
+    | EClo (v, s) -> targetFamOpt v
     | _ -> None
   (* Root(Bvar _, _), Root(FVar _, _), Root(FgnConst _, _),
          EVar(ref NONE,..), Uni, FgnExp _
@@ -919,11 +919,11 @@ module IntSyn (Global : Global.GLOBAL) : INTSYN = struct
   (* targetFam (A) = in targetFamOpt, except V must be a valid type
   *)
 
-  let rec targetFam A = valOf (targetFamOpt A)
+  let rec targetFam a = valOf (targetFamOpt a)
 end
 
 (* functor IntSyn *)
 
-module IntSyn : INTSYN = IntSyn (struct
+module IntSyn : INTSYN = Make_IntSyn (struct
   module Global = Global
 end)

@@ -1,4 +1,4 @@
-open Basis ;; 
+open Basis
 
 module Reductio = struct
   exception Unimp
@@ -401,8 +401,7 @@ module Reductio = struct
         check_type CON_LF (G, a)
         && check_kind (ctxcons a G, k)
         && Strict.check_strict_kind k
-    | G, KPi (_, a, k) ->
-        check_type CON_LF (G, a) && check_kind (ctxcons a G, k)
+    | G, KPi (_, a, k) -> check_type CON_LF (G, a) && check_kind (ctxcons a G, k)
 
   and check_type = function
     | _, (G, TRoot (n, s)) ->

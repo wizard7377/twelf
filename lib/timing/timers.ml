@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Timers collecting statistics about Twelf *)
 
 (* Author: Frank Pfenning *)
@@ -143,7 +144,7 @@ module Timers (Timing' : Timing.TIMING) : TIMERS = struct
   let rec reset () = List.app Timing.reset centers
 
   let rec check () =
-    List.app (print o Timing.toString) centers;
+    List.app (fun c -> print (Timing.toString c)) centers;
     print (Timing.sumToString total);
     print "Remember that the success continuation counts into Solving!\n"
 

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Internal syntax for_sml Delphin *)
 
 (* Author: Carsten Schuermann *)
@@ -797,8 +798,7 @@ module Tomega (Whnf : Whnf.WHNF) (Conv : Conv.CONV) : TOMEGA = struct
     | Redex (P, S) -> Redex (derefPrg P, derefSpine S)
     | Case (Cases Cs) ->
         Case
-          (Cases
-             (flattenCases (map (fun Psi s P -> (Psi, s, derefPrg P)) Cs)))
+          (Cases (flattenCases (map (fun Psi s P -> (Psi, s, derefPrg P)) Cs)))
     | Let (D, P1, P2) -> Let (derefDec D, derefPrg P1, derefPrg P2)
     | LetPairExp (D1, D2, P1, P2) ->
         LetPairExp (D1, derefDec D2, derefPrg P1, derefPrg P2)

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Recursion *)
 
 (* Author: Carsten Schuermann *)

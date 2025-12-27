@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Solver for_sml a linearly ordered field, based on the simplex method *)
 
 (* Author: Roberto Virga *)

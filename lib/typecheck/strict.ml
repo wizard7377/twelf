@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Checking Definitions for_sml Strictness *)
 
 (* Author: Carsten Schuermann *)

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Splitting: Version 1.4 *)
 
 (* Author: Carsten Schuermann *)

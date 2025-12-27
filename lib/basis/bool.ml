@@ -1,5 +1,6 @@
-(** Bool module - SML Basis Library BOOL signature *)
 open StringCvt
+(** Bool module - SML Basis Library BOOL signature *)
+
 module type BOOL = sig
   (* OCaml's bool is built-in: type bool = false | true *)
 
@@ -13,14 +14,10 @@ module Bool : BOOL = struct
   (* OCaml's built-in bool type: type bool = false | true *)
 
   let not b = if b then false else true
-
   let toString b = if b then "true" else "false"
 
   let fromString s =
-    match s with
-    | "true" -> Some true
-    | "false" -> Some false
-    | _ -> None
+    match s with "true" -> Some true | "false" -> Some false | _ -> None
 
   (* Note: scan requires StringCvt module, will implement basic version *)
   let scan reader state =

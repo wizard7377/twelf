@@ -12,11 +12,11 @@ module type WORD8_VECTOR = sig
   val sub : vector -> int -> elem
   val concat : vector list -> vector
   val appi : (int * elem -> unit) -> vector -> unit
-  val app  : (elem -> unit) -> vector -> unit
+  val app : (elem -> unit) -> vector -> unit
   val foldli : (int * elem * 'b -> 'b) -> 'b -> vector -> 'b
-  val foldl  : (elem * 'b -> 'b) -> 'b -> vector -> 'b
+  val foldl : (elem * 'b -> 'b) -> 'b -> vector -> 'b
   val findi : (int * elem -> bool) -> vector -> (int * elem) option
-  val find  : (elem -> bool) -> vector -> elem option
+  val find : (elem -> bool) -> vector -> elem option
 end
 
 module Word8Vector : WORD8_VECTOR = struct
@@ -31,13 +31,9 @@ module Word8Vector : WORD8_VECTOR = struct
     Stdlib.List.iteri (fun i v -> Bytes.set vec i (Stdlib.Char.chr v)) lst;
     vec
 
-  let tabulate n f =
-    Bytes.init n (fun i -> Stdlib.Char.chr (f i))
-
+  let tabulate n f = Bytes.init n (fun i -> Stdlib.Char.chr (f i))
   let length = Bytes.length
-
   let sub vec i = Stdlib.Char.code (Bytes.get vec i)
-
   let concat vecs = Bytes.concat Bytes.empty vecs
 
   let appi f vec =
@@ -69,8 +65,7 @@ module Word8Vector : WORD8_VECTOR = struct
       if i >= Bytes.length vec then None
       else
         let elem = Stdlib.Char.code (Bytes.get vec i) in
-        if pred (i, elem) then Some (i, elem)
-        else loop (i + 1)
+        if pred (i, elem) then Some (i, elem) else loop (i + 1)
     in
     loop 0
 
@@ -79,8 +74,7 @@ module Word8Vector : WORD8_VECTOR = struct
       if i >= Bytes.length vec then None
       else
         let elem = Stdlib.Char.code (Bytes.get vec i) in
-        if pred elem then Some elem
-        else loop (i + 1)
+        if pred elem then Some elem else loop (i + 1)
     in
     loop 0
 end

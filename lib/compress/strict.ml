@@ -1,4 +1,4 @@
-open Basis ;; 
+open Basis
 
 module Strict = struct
   open Syntax

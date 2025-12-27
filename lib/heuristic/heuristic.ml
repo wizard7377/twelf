@@ -1,11 +1,18 @@
-open Basis ;; 
+open Basis
+
 (* Heuristics : Version 1.3 *)
 
 (* Author: Carsten Schuermann *)
 
 module type HEURISTIC = sig
-  type index =
-     { sd : int ; ind : int option ; c : int ; m : int ; r : int ; p : int }
+  type index = {
+    sd : int;
+    ind : int option;
+    c : int;
+    m : int;
+    r : int;
+    p : int;
+  }
 
   (* Position (left to right) *)
   val compare : index -> index -> order
@@ -18,20 +25,20 @@ end
 (* Author: Carsten Schuermann *)
 
 module Heuristic : HEURISTIC = struct
-  type index =
-    { sd : int (* Splitting depth *)
-    ; ind : int option (* Induction variable *)
-    ; c : int (* Number of cases *)
-    ; m : int (* maximal number of cases *)
-    ; r :
-        int
+  type index = {
+    sd : int; (* Splitting depth *)
+    ind : int option (* Induction variable *);
+    c : int; (* Number of cases *)
+    m : int; (* maximal number of cases *)
+    r : int;
         (* 0 = non-recursive
                                            1 = recursive *)
-    ; p : int }
+    p : int;
+  }
   (* Position (left to right) *)
 
   let rec compare idx1 idx2 =
-    match idx1, idx2 with
+    match (idx1, idx2) with
     | ( { sd = k1; ind = None; c = c1; m = m1; r = r1; p = p1 },
         { sd = k2; ind = None; c = c2; m = m2; r = r2; p = p2 } ) -> (
         match
@@ -72,29 +79,36 @@ module Heuristic : HEURISTIC = struct
         | result, _, _, _, _ -> result)
 
   let rec recToString = function 0 -> "non-rec" | 1 -> "rec"
-  let rec realFmt r = Real.fmt (StringCvt.FIX (Some 2)) r
-  let rec ratio c m = Real.fromInt c / Real.fromInt m
+  let rec realFmt r = Printf.sprintf "%.2f" r
+  let rec ratio c m = Real.( / ) (Real.fromInt c) (Real.fromInt m)
 
   let rec sum = function
     | { sd = k1; ind = None; c = c1; m = m1; r = r1; p = p1 } ->
-        realFmt (Real.fromInt k1 + ratio m1 c1 + Real.fromInt r1)
+        realFmt
+          (Real.( + )
+             (Real.( + ) (Real.fromInt k1) (ratio m1 c1))
+             (Real.fromInt r1))
     | { sd = k1; ind = Some i1; c = c1; m = m1; r = r1; p = p1 } ->
         realFmt
-          (Real.fromInt k1 + ratio 1 i1 + ratio m1 c1 + Real.fromInt r1)
+          (Real.( + )
+             (Real.( + )
+                (Real.( + ) (Real.fromInt k1) (ratio 1 i1))
+                (ratio m1 c1))
+             (Real.fromInt r1))
 
   let rec indexToString = function
     | { sd = s1; ind = None; c = c1; m = m1; r = r1; p = p1 } ->
-        "(c/m=" ^ Int.toString c1 ^ "/" ^ Int.toString m1 ^ "="
+        "(c/m=" ^ Integer.toString c1 ^ "/" ^ Integer.toString m1 ^ "="
         ^ realFmt (ratio c1 m1)
-        ^ ", ind=., sd=" ^ Int.toString s1 ^ ", " ^ recToString r1 ^ ", p="
-        ^ Int.toString p1 ^ "sum = "
+        ^ ", ind=., sd=" ^ Integer.toString s1 ^ ", " ^ recToString r1 ^ ", p="
+        ^ Integer.toString p1 ^ "sum = "
         ^ sum { sd = s1; ind = None; c = c1; m = m1; r = r1; p = p1 }
         ^ " )"
     | { sd = s1; ind = Some idx; c = c1; m = m1; r = r1; p = p1 } ->
-        "(c/m=" ^ Int.toString c1 ^ "/" ^ Int.toString m1 ^ "="
+        "(c/m=" ^ Integer.toString c1 ^ "/" ^ Integer.toString m1 ^ "="
         ^ realFmt (ratio c1 m1)
-        ^ ", ind=" ^ Int.toString idx ^ ", sd=" ^ Int.toString s1 ^ ", "
-        ^ recToString r1 ^ ", p=" ^ Int.toString p1 ^ " sum = "
+        ^ ", ind=" ^ Integer.toString idx ^ ", sd=" ^ Integer.toString s1 ^ ", "
+        ^ recToString r1 ^ ", p=" ^ Integer.toString p1 ^ " sum = "
         ^ sum { sd = s1; ind = Some idx; c = c1; m = m1; r = r1; p = p1 }
         ^ ")"
 

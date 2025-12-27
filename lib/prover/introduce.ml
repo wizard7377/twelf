@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Introduce: Version 1.4 *)
 
 (* Author: Carsten Schuermann *)

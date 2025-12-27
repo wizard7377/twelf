@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Trailing Abstract Operations *)
 
 (* Author: Roberto Virga *)
@@ -7,12 +8,12 @@ module type TRAIL = sig
   type 'a trail
 
   val trail : unit -> 'a trail ref
-  val suspend : 'a trail * ('a -> 'b) -> 'b trail
-  val resume : 'b trail * 'a trail * ('b -> 'a) -> unit
-  val reset : 'a trail -> unit
-  val mark : 'a trail -> unit
-  val unwind : 'a trail * ('a -> unit) -> unit
-  val log : 'a trail * 'a -> unit
+  val suspend : 'a trail ref * ('a -> 'b) -> 'b trail
+  val resume : 'b trail ref * 'a trail ref * ('b -> 'a) -> unit
+  val reset : 'a trail ref -> unit
+  val mark : 'a trail ref -> unit
+  val unwind : 'a trail ref * ('a -> unit) -> unit
+  val log : 'a trail ref * 'a -> unit
 end
 
 (* signature TRAIL *)
@@ -32,8 +33,7 @@ module Trail : TRAIL = struct
       | Mark trail -> suspend' trail
       | Cons (action, trail) -> Cons (copy action, suspend' trail)
     in
-    let ftrail = suspend' !trail in
-    ref ftrail
+    suspend' !trail
 
   let rec resume (ftrail, trail, reset) =
     let rec resume' = function

@@ -1,20 +1,21 @@
-open Basis ;; 
+open Basis
+
 (* Rational numbers *)
 
 (* Author: Roberto Virga *)
 
 module type RATIONALS = sig
-  include Ordered_field.Order.Order.ORDERED_FIELD
+  include Ordered_field.ORDERED_FIELD
   module Integers : Integers.INTEGERS
 
   (* Conversions between rationals and integers *)
-  val fromInteger : Integers.int -> number
-  val floor : number -> Integers.int
-  val ceiling : number -> Integers.int
+  val fromInteger : Integers.t -> number
+  val floor : number -> Integers.t
+  val ceiling : number -> Integers.t
 
   (* Basic projections *)
-  val numerator : number -> Integers.int
-  val denominator : number -> Integers.int
+  val numerator : number -> Integers.t
+  val denominator : number -> Integers.t
 end
 
 (* signature RATIONALS *)
@@ -31,7 +32,7 @@ module Rationals (Integers : Integers.INTEGERS) : RATIONALS = struct
 
   module I = Integers
 
-  type number = Fract of Int.int * I.int * I.int
+  type number = Fract of int * I.t * I.t
   (* q := Fract (sign, num, denom) *)
 
   let zero = Fract (0, I.fromInt 0, I.fromInt 1)
@@ -45,30 +46,32 @@ module Rationals (Integers : Integers.INTEGERS) : RATIONALS = struct
         let rec gcd (m, n) =
           if m = I.fromInt 0 then n
           else if n = I.fromInt 0 then m
-          else if (I).>(m, n) then gcd (I.mod_ (m, n), n)
-          else gcd (m, I.mod_ (n, m))
+          else if I.( > ) m n then gcd (I.modulo m n, n)
+          else gcd (m, I.modulo n m)
         in
         let g = gcd (n, d) in
-        Fract (s, I.div (n, g), I.div (d, g))
+        Fract (s, I.div n g, I.div d g)
 
-  let ( ~- ) (Fract (s, n, d)) = Fract (Int.( ~- ) s, n, d)
+  let ( ~- ) (Fract (s, n, d)) = Fract (Stdlib.( ~- ) s, n, d)
 
   let rec ( + ) (Fract (s1, n1, d1), Fract (s2, n2, d2)) =
     let n =
-      (I).+(( (I).*((I).*(I.fromInt s1, n1), d2),
-              (I).*((I).*(I.fromInt s2, n2), d1) ))
+      I.( + )
+        (I.( * ) (I.( * ) (I.fromInt s1) n1) d2)
+        (I.( * ) (I.( * ) (I.fromInt s2) n2) d1)
     in
-    normalize (Fract (I.sign n, I.abs n, (I).*(d1, d2)))
+    normalize (Fract (I.sign n, I.abs n, I.( * ) d1 d2))
 
   let rec ( - ) (Fract (s1, n1, d1), Fract (s2, n2, d2)) =
     let n =
-      (I).-(( (I).*((I).*(I.fromInt s1, n1), d2),
-              (I).*((I).*(I.fromInt s2, n2), d1) ))
+      I.( - )
+        (I.( * ) (I.( * ) (I.fromInt s1) n1) d2)
+        (I.( * ) (I.( * ) (I.fromInt s2) n2) d1)
     in
-    normalize (Fract (I.sign n, I.abs n, (I).*(d1, d2)))
+    normalize (Fract (I.sign n, I.abs n, I.( * ) d1 d2))
 
   let rec ( * ) (Fract (s1, n1, d1), Fract (s2, n2, d2)) =
-    normalize (Fract ((Int).*(s1, s2), (I).*(n1, n2), (I).*(d1, d2)))
+    normalize (Fract (Stdlib.( * ) s1 s2, I.( * ) n1 n2, I.( * ) d1 d2))
 
   let rec inverse = function
     | Fract (0, _, _) -> raise Div
@@ -81,19 +84,20 @@ module Rationals (Integers : Integers.INTEGERS) : RATIONALS = struct
 
   let rec compare (Fract (s1, n1, d1), Fract (s2, n2, d2)) =
     I.compare
-      ((I).*((I).*(I.fromInt s1, n1), d2), (I).*((I).*(I.fromInt s2, n2), d1))
+      (I.( * ) (I.( * ) (I.fromInt s1) n1) d2)
+      (I.( * ) (I.( * ) (I.fromInt s2) n2) d1)
 
-  let rec ( > ) (q1, q2) = compare (q1, q2) = Gt
-  let rec ( < ) (q1, q2) = compare (q1, q2) = Lt
-  let rec ( >= ) (q1, q2) = q1 = q2 || q1 > q2
-  let rec ( <= ) (q1, q2) = q1 = q2 || q1 < q2
-  let rec fromInt n = Fract (Int.sign n, I.fromInt (Int.abs n), I.fromInt 1)
+  let rec ( > ) (q1, q2) = compare (q1, q2) = Greater
+  let rec ( < ) (q1, q2) = compare (q1, q2) = Less
+  let rec ( >= ) (q1, q2) = q1 = q2 || ( > ) (q1, q2)
+  let rec ( <= ) (q1, q2) = q1 = q2 || ( < ) (q1, q2)
+  let rec fromInt n = Fract (Integer.sign n, I.fromInt (Int.abs n), I.fromInt 1)
 
   let rec fromString str =
     let rec check_numerator = function
-      | chars ->
+      | c :: chars' ->
           if c = '~' then List.all Char.isDigit chars'
-          else List.all Char.isDigit chars
+          else List.all Char.isDigit (c :: chars')
       | [] -> false
     in
     let rec check_denominator chars = List.all Char.isDigit chars in
@@ -119,20 +123,20 @@ module Rationals (Integers : Integers.INTEGERS) : RATIONALS = struct
     else None
 
   let rec toString (Fract (s, n, d)) =
-    let nStr = I.toString (I).*(I.fromInt s, n) in
+    let nStr = I.toString (I.( * ) (I.fromInt s) n) in
     let dStr = I.toString d in
     if d = I.fromInt 1 then nStr else nStr ^ "/" ^ dStr
 
   let rec fromInteger n = Fract (I.sign n, I.abs n, I.fromInt 1)
 
   let rec floor (Fract (s, n, d) as q) =
-    if (Int).>=(s, 0) then I.quot (n, d) else Integers.( ~- ) (ceiling ~-q)
+    if (>=) (fromInt s, fromInt 0) then I.quot n d else Integers.( ~- ) (ceiling ~-q)
 
   and ceiling (Fract (s, n, d) as q) =
-    if (Int).>=(s, 0) then I.quot ((I).+(n, (I).-(d, I.fromInt 1)), d)
+    if (>=) (fromInt s, fromInt 0) then I.(quot (n + (d - fromInt 1))) d
     else Integers.( ~- ) (floor ~-q)
 
-  type number = number
+  (* type number = Integers.t *)
 
   let zero = zero
   let one = one

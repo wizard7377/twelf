@@ -1,4 +1,5 @@
-open Order ;;
+open Order
+
 module type TIME = sig
   type t
 

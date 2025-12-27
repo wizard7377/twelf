@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Approximate language for_sml term reconstruction *)
 
 (* Author: Kevin Watkins *)
@@ -143,9 +144,7 @@ module Approx (Whnf : Whnf.WHNF) : APPROX = struct
   let rec varLookupRef r =
     List.find (fun ((CVar r', _, _), _) -> r = r') !varList
 
-  let rec varLookupName name =
-    List.find (fun _ name' -> name = name') !varList
-
+  let rec varLookupName name = List.find (fun _ name' -> name = name') !varList
   let rec varInsert ((u, v, l), name) = varList := ((u, v, l), name) :: !varList
 
   exception Ambiguous

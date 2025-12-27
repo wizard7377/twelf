@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Interface for_sml error reporting  syntax *)
 
 (* Author: Richard Fontana *)

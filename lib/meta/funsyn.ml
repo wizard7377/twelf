@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Internal syntax for_sml functional proof term calculus *)
 
 (* Author: Carsten Schuermann *)

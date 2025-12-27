@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Meta Prover Interface *)
 
 (* Author: Carsten Schuermann *)

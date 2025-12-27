@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Compiled Syntax *)
 
 (* Author: Iliano Cervesato *)

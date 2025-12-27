@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Weak Head-Normal Forms *)
 
 (* Authors: Frank Pfenning, Carsten Schuermann *)

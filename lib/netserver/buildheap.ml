@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis;;
+
 NetServer.setExamplesDir "/usr0/stuff/twelf-cvs/examples";;
 
 let rec httpServer _ =

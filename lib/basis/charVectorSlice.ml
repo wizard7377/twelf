@@ -1,4 +1,5 @@
-(** CharVectorSlice module - SML Basis Library MONO_VECTOR_SLICE signature for char *)
+(** CharVectorSlice module - SML Basis Library MONO_VECTOR_SLICE signature for
+    char *)
 
 open Order
 
@@ -9,27 +10,24 @@ module type MONO_VECTOR_SLICE = sig
 
   val length : slice -> int
   val sub : slice * int -> elem
-
   val full : vector -> slice
   val slice : vector -> int -> int option -> slice
   val subslice : slice * int * int option -> slice
-
   val base : slice -> vector * int * int
   val vector : slice -> vector
   val concat : slice list -> vector
   val isEmpty : slice -> bool
   val getItem : slice -> (elem * slice) option
-
   val appi : (int * elem -> unit) -> slice -> unit
-  val app  : (elem -> unit) -> slice -> unit
+  val app : (elem -> unit) -> slice -> unit
   val mapi : (int * elem -> elem) -> slice -> vector
-  val map  : (elem -> elem) -> slice -> vector
+  val map : (elem -> elem) -> slice -> vector
   val foldli : (int * elem * 'b -> 'b) -> 'b -> slice -> 'b
   val foldri : (int * elem * 'b -> 'b) -> 'b -> slice -> 'b
-  val foldl  : (elem * 'b -> 'b) -> 'b -> slice -> 'b
-  val foldr  : (elem * 'b -> 'b) -> 'b -> slice -> 'b
+  val foldl : (elem * 'b -> 'b) -> 'b -> slice -> 'b
+  val foldr : (elem * 'b -> 'b) -> 'b -> slice -> 'b
   val findi : (int * elem -> bool) -> slice -> (int * elem) option
-  val find  : (elem -> bool) -> slice -> elem option
+  val find : (elem -> bool) -> slice -> elem option
   val exists : (elem -> bool) -> slice -> bool
   val all : (elem -> bool) -> slice -> bool
   val collate : (elem * elem -> order) -> slice * slice -> order
@@ -43,13 +41,10 @@ module CharVectorSlice : MONO_VECTOR_SLICE = struct
   let length (_, _, len) = len
 
   let sub ((vec, start, len), i) =
-    if i < 0 || i >= len then
-      raise (Invalid_argument "CharVectorSlice.sub")
-    else
-      Stdlib.String.get vec (start + i)
+    if i < 0 || i >= len then raise (Invalid_argument "CharVectorSlice.sub")
+    else Stdlib.String.get vec (start + i)
 
-  let full vec =
-    (vec, 0, Stdlib.String.length vec)
+  let full vec = (vec, 0, Stdlib.String.length vec)
 
   let slice vec start len_opt =
     let vlen = Stdlib.String.length vec in
@@ -61,25 +56,20 @@ module CharVectorSlice : MONO_VECTOR_SLICE = struct
       | Some len ->
           if len < 0 || start + len > vlen then
             raise (Invalid_argument "CharVectorSlice.slice")
-          else
-            (vec, start, len)
+          else (vec, start, len)
 
   let subslice ((vec, start, len), i, len_opt) =
-    if i < 0 || i > len then
-      raise (Invalid_argument "CharVectorSlice.subslice")
+    if i < 0 || i > len then raise (Invalid_argument "CharVectorSlice.subslice")
     else
       match len_opt with
       | None -> (vec, start + i, len - i)
       | Some n ->
           if n < 0 || i + n > len then
             raise (Invalid_argument "CharVectorSlice.subslice")
-          else
-            (vec, start + i, n)
+          else (vec, start + i, n)
 
   let base sl = sl
-
-  let vector (vec, start, len) =
-    Stdlib.String.sub vec start len
+  let vector (vec, start, len) = Stdlib.String.sub vec start len
 
   let concat slices =
     let strs = Stdlib.List.map vector slices in
@@ -140,8 +130,7 @@ module CharVectorSlice : MONO_VECTOR_SLICE = struct
       if i >= len then None
       else
         let elem = Stdlib.String.get vec (start + i) in
-        if pred (i, elem) then Some (i, elem)
-        else loop (i + 1)
+        if pred (i, elem) then Some (i, elem) else loop (i + 1)
     in
     loop 0
 
@@ -150,8 +139,7 @@ module CharVectorSlice : MONO_VECTOR_SLICE = struct
       if i >= len then None
       else
         let elem = Stdlib.String.get vec (start + i) in
-        if pred elem then Some elem
-        else loop (i + 1)
+        if pred elem then Some elem else loop (i + 1)
     in
     loop 0
 
@@ -175,11 +163,13 @@ module CharVectorSlice : MONO_VECTOR_SLICE = struct
     let minlen = min len1 len2 in
     let rec loop i =
       if i >= minlen then
-        if len1 < len2 then Less
-        else if len1 > len2 then Greater
-        else Equal
+        if len1 < len2 then Less else if len1 > len2 then Greater else Equal
       else
-        match cmp (Stdlib.String.get vec1 (start1 + i), Stdlib.String.get vec2 (start2 + i)) with
+        match
+          cmp
+            ( Stdlib.String.get vec1 (start1 + i),
+              Stdlib.String.get vec2 (start2 + i) )
+        with
         | Equal -> loop (i + 1)
         | ord -> ord
     in

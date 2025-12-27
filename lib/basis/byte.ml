@@ -1,6 +1,8 @@
-(** Byte module - SML Basis Library BYTE signature *)
 open StringCvt
+(** Byte module - SML Basis Library BYTE signature *)
+
 open Substring
+
 module type BYTE = sig
   val byteToChar : int -> char
   val charToByte : char -> int
@@ -13,10 +15,8 @@ end
 
 module Byte : BYTE = struct
   let byteToChar w =
-    if w < 0 || w > 255 then
-      raise (Invalid_argument "Byte.byteToChar")
-    else
-      Stdlib.Char.chr w
+    if w < 0 || w > 255 then raise (Invalid_argument "Byte.byteToChar")
+    else Stdlib.Char.chr w
 
   let charToByte c = Stdlib.Char.code c
 

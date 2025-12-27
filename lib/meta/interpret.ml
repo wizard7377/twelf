@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Operational semantics *)
 
 (* Author: Carsten Schuermann *)

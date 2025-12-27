@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Subordination *)
 
 (* Author: Carsten Schuermann *)
@@ -323,8 +324,7 @@ module Subordinate
 
   let rec addIfBelowEq a's =
    fun b ->
-    if List.exists (fun a -> belowEq a b) a's then
-      aboveList := b :: !aboveList
+    if List.exists (fun a -> belowEq a b) a's then aboveList := b :: !aboveList
     else ()
 
   let rec thaw a's =

@@ -1,4 +1,5 @@
-open Basis ;; 
+open Basis
+
 (* Mode Syntax *)
 
 (* Author: Carsten Schuermann *)

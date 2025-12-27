@@ -1,7 +1,7 @@
 (** Lambda Calculus and Internal Syntax Module.
 
-    This module aggregates the core lambda calculus functionality for the LF logical
-    framework, including:
+    This module aggregates the core lambda calculus functionality for the LF
+    logical framework, including:
 
     - Internal syntax representation (terms, types, contexts)
     - Weak head normal form computation
@@ -11,13 +11,14 @@
     - Abstract operations
     - Constraint solving
 
-    This is one of the foundational modules of the Twelf implementation, providing
-    the core data structures and operations for representing and manipulating LF terms.
+    This is one of the foundational modules of the Twelf implementation,
+    providing the core data structures and operations for representing and
+    manipulating LF terms.
 
-    @see <http://twelf.org> Twelf Project Homepage
-*)
+    @see <http://twelf.org> Twelf Project Homepage *)
 
-open Basis ;;
+open Basis
+
 (* Now in intsyn.fun *)
 
 (*

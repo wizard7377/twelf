@@ -1,4 +1,6 @@
-open Basis ;; 
+open Basis
+open Common
+
 (* Queues *)
 
 (* Author: Frank Pfenning *)
@@ -8,9 +10,9 @@ module type QUEUE = sig
 
   val empty : 'a queue
   val insert : 'a * 'a queue -> 'a queue
-  val delete : 'a queue -> 'a * 'a queue option
+  val delete : 'a queue -> ('a * 'a queue) option
   val insertFront : 'a * 'a queue -> 'a queue
-  val deleteEnd : 'a queue -> 'a * 'a queue option
+  val deleteEnd : 'a queue -> ('a * 'a queue) option
 
   (* If  toList (q) ==> (l, SOME(q')) *)
   (* then q == q' and toList q' is constant time *)
