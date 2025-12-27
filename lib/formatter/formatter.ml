@@ -83,6 +83,7 @@ end
 %************************************************************************
 *)
 
+let sid : 'a -> 'a = fun s -> s
 module Formatter : FORMATTER = struct
   (*
 \subsection{Setting default values}
@@ -107,14 +108,14 @@ places.
 The {\tt Spmod} function is used when {\tt Bailout} is active.
 *)
 
-  let rec spaces' = function 0, s -> s | n, s -> spaces' (n - 1) (s ^ " ")
+  let rec spaces' = function 0 -> sid | n -> fun s -> spaces' (n - 1) (s ^ " ")
   let rec spaces n = if n > 0 then spaces' n "" else ""
-  let rec newlines' = function 0, s -> s | n, s -> newlines' (n - 1) (s ^ "\n")
+  let rec newlines' = function 0 -> sid | n -> (fun s -> newlines' (n - 1) (s ^ "\n"))
   let rec newlines n = if n > 0 then newlines' n "" else ""
   let sp = spaces
   (* return a number of spaces *)
 
-  let rec spmod n = spaces (n mod_ !pagewidth)
+  let rec spmod n = spaces (n mod !pagewidth)
   let nl = newlines
   (* return a number of newlines *)
 
@@ -130,8 +131,8 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
 \subsubsection{Pair functions}
 *)
 
-  let rec fst a b = a
-  and snd (a, b) = b
+  let rec fst (a, _b) = a
+  and snd (_a, b) = b
   (*
 %*************************************************************************
 \subsection{The datatype {\ml format}}
@@ -355,25 +356,25 @@ break.  This ensures that the first item is all the others.
 
   let break = Dbk
   let rec break0 b i = Brk (b, i)
-  let rec string s = Str (size s, s)
+  let rec string s = Str (Stdlib.String.length s, s)
   let rec string0 i s = Str (i, s)
   let space = Str (1, sp 1)
   let rec spaces n = Str (n, sp n)
   let rec newline () = Str (0, nl 1)
   let rec newlines n = Str (0, nl n)
 
-  let rec vbox l = Vbx (vlistWidth (l, !indent), !indent, !skip, l)
+  let rec vbox l = Vbx (vlistWidth l !indent, !indent, !skip, l)
   and vbox0 i s l = Vbx (vlistWidth l i, i, s, l)
-  and hbox l = Hbx (hlistWidth (l, !blanks), !blanks, l)
+  and hbox l = Hbx (hlistWidth l !blanks, !blanks, l)
   and hbox0 b l = Hbx (hlistWidth l b, b, l)
 
   and hvbox l =
-    Hvx (hvlistWidth (l, !blanks, !indent), !blanks, !indent, !skip, l)
+    Hvx (hvlistWidth l !blanks !indent, !blanks, !indent, !skip, l)
 
-  and hvbox0 b i s l = Hvx (hvlistWidth (l, b, i), b, i, s, l)
+  and hvbox0 b i s l = Hvx (hvlistWidth l b i, b, i, s, l)
 
   and hovbox l =
-    Hov (hovlistWidth (l, !blanks, !indent), !blanks, !indent, !skip, l)
+    Hov (hovlistWidth l !blanks !indent, !blanks, !indent, !skip, l)
 
   and hovbox0 b i s l = Hov (hovlistWidth l b i, b, i, s, l)
 
@@ -420,7 +421,7 @@ determine the maximum width do not contain breaks, all but the last
 
   let rec summaxwidth l =
     List.foldr
-      (fun fmt ysum ->
+      (fun (fmt, ysum) ->
         let _, y = width0 (Hori, unused, unused, fmt) in
         y + ysum)
       0 l
@@ -597,7 +598,7 @@ We thus get:
         )
     | mw, id, bl, is, ss, mo, Ebk, res -> (0, res)
     | mw, id, bl, is, ss, mo, Hbx ((min, max), blanks, l), res ->
-        if !bailout && id + min >= mw && id mod_ !pagewidth >= !bailoutSpot then
+        if !bailout && id + min >= mw && id mod !pagewidth >= !bailoutSpot then
           pph
             ( mw + !pagewidth,
               mw + !bailoutIndent,
@@ -609,7 +610,7 @@ We thus get:
               nl ss :: res )
         else pph (mw, id, blanks, is, ss, l, 0, res)
     | mw, id, bl, is, ss, mo, Vbx ((min, max), indent, skip, l), res ->
-        if !bailout && id + min >= mw && id mod_ !pagewidth >= !bailoutSpot then
+        if !bailout && id + min >= mw && id mod !pagewidth >= !bailoutSpot then
           let id = mw + !bailoutIndent in
           ppv (mw + !pagewidth, id, id, bl, indent, skip, 0, 0, l, nl ss :: res)
         else ppv (mw, id, id, bl, indent, skip, 0, 0, l, res)
@@ -622,7 +623,7 @@ We thus get:
         Hvx (((min, max), (nmode, xmode)), blanks, indent, skip, l),
         res ) ->
         let gl = gh ([], l, []) in
-        if !bailout && id + min >= mw && id mod_ !pagewidth >= !bailoutSpot then
+        if !bailout && id + min >= mw && id mod !pagewidth >= !bailoutSpot then
           pphv
             ( mw + !pagewidth,
               mw + !bailoutIndent,
@@ -646,7 +647,7 @@ We thus get:
         if max <= mw - id then
           if xmode = Hori then pph (mw, id, blanks, is, ss, l, 0, res)
           else ppv (mw, id, id, blanks, indent, skip, 0, 0, l, res)
-        else if !bailout && id + min >= mw && id mod_ !pagewidth >= !bailoutSpot
+        else if !bailout && id + min >= mw && id mod !pagewidth >= !bailoutSpot
         then
           if nmode = Hori then
             pph
@@ -694,7 +695,7 @@ Finally we have {\ml print\_fmt} and {\ml makestring\_fmt}
 
   let rec print_fmt fm =
     List.foldr
-      (fun s _ -> print s)
+      (fun (s, _) -> print s)
       ()
       (snd (print'p (!pagewidth, 0, !blanks, !indent, !skip, Hori, fm, [])))
   (*
@@ -712,7 +713,7 @@ make the use of {\tt fmtstreams} on files more convenient.
 
   let rec output_fmt (Formatstream outs, fm) =
     List.foldr
-      (fun s _ -> TextIO.output (outs, s))
+      (fun (s, _) -> TextIO.output (outs, s))
       ()
       (snd (print'p (!pagewidth, 0, !blanks, !indent, !skip, Hori, fm, [])))
   (*

@@ -157,6 +157,7 @@ module Text : Text.TEXT
 (** Byte conversions compatible with SML Byte structure. *)
 module Byte : Byte.BYTE
 
+module TextIO : TextIO.TEXTIO
 (** OS modules *)
 
 (** Path operations compatible with SML OS.Path structure. *)

@@ -59,5 +59,6 @@ module Timer = Timer.Timer
 module IO = Io.IO
 module Text = Text.Text
 module Byte = Byte.Byte
+module TextIO = TextIO.TextIO
 (* OS *)
 module OS_Path = OsPath.OSPath
