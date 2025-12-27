@@ -16,30 +16,30 @@ module Byte : BYTE = struct
     if w < 0 || w > 255 then
       raise (Invalid_argument "Byte.byteToChar")
     else
-      Char.chr w
+      Stdlib.Char.chr w
 
-  let charToByte c = Char.code c
+  let charToByte c = Stdlib.Char.code c
 
   let bytesToString vec =
     (* vec is int list in our representation *)
     let buf = Buffer.create (Stdlib.List.length vec) in
-    Stdlib.List.iter (fun b -> Buffer.add_char buf (Char.chr b)) vec;
+    Stdlib.List.iter (fun b -> Buffer.add_char buf (Stdlib.Char.chr b)) vec;
     Buffer.contents buf
 
   let stringToBytes str =
     (* Returns int list *)
     let rec loop i acc =
       if i < 0 then acc
-      else loop (i - 1) (Char.code (String.get str i) :: acc)
+      else loop (i - 1) (Stdlib.Char.code (Stdlib.String.get str i) :: acc)
     in
-    loop (String.length str - 1) []
+    loop (Stdlib.String.length str - 1) []
 
   let unpackStringVec vec = bytesToString vec
 
   let unpackString arr =
     (* arr is int array *)
     let buf = Buffer.create (Stdlib.Array.length arr) in
-    Stdlib.Array.iter (fun b -> Buffer.add_char buf (Char.chr b)) arr;
+    Stdlib.Array.iter (fun b -> Buffer.add_char buf (Stdlib.Char.chr b)) arr;
     Buffer.contents buf
 
   let packString (arr, offset, ss) =

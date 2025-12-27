@@ -57,14 +57,14 @@ module OSPath : OS_PATH = struct
 
   let fromString path =
     (* Simplified Unix-style path parsing *)
-    let isAbs = String.length path > 0 && path.[0] = '/' in
-    let arcs = String.split_on_char '/' path |>
+    let isAbs = Stdlib.String.length path > 0 && path.[0] = '/' in
+    let arcs = Stdlib.String.split_on_char '/' path |>
                Stdlib.List.filter (fun s -> s <> "") in
     {isAbs; vol = ""; arcs}
 
   let toString {isAbs; vol; arcs} =
     let prefix = if isAbs then "/" else "" in
-    prefix ^ String.concat "/" arcs
+    prefix ^ Stdlib.String.concat "/" arcs
 
   let getVolume _ = ""  (* No volume on Unix *)
 
@@ -86,13 +86,13 @@ module OSPath : OS_PATH = struct
   let splitBaseExt path =
     let base_name = Filename.basename path in
     try
-      let dot_idx = String.rindex base_name '.' in
+      let dot_idx = Stdlib.String.rindex base_name '.' in
       if dot_idx = 0 then
         {base = base_name; ext = None}
       else
-        let base = String.sub base_name 0 dot_idx in
-        let ext = String.sub base_name (dot_idx + 1)
-                    (String.length base_name - dot_idx - 1) in
+        let base = Stdlib.String.sub base_name 0 dot_idx in
+        let ext = Stdlib.String.sub base_name (dot_idx + 1)
+                    (Stdlib.String.length base_name - dot_idx - 1) in
         {base; ext = Some ext}
     with Not_found ->
       {base = base_name; ext = None}
