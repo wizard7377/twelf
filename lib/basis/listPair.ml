@@ -5,8 +5,8 @@ open Order
 module type LIST_PAIR = sig
   exception UnequalLengths
 
-  val zip : 'a list * 'b list -> ('a * 'b) list
-  val zipEq : 'a list * 'b list -> ('a * 'b) list
+  val zip : 'a list -> 'b list -> ('a * 'b) list
+  val zipEq : 'a list -> 'b list -> ('a * 'b) list
   val unzip : ('a * 'b) list -> 'a list * 'b list
   val app : ('a * 'b -> unit) -> 'a list * 'b list -> unit
   val appEq : ('a * 'b -> unit) -> 'a list * 'b list -> unit
@@ -24,17 +24,17 @@ end
 module ListPair : LIST_PAIR = struct
   exception UnequalLengths
 
-  let rec zip (l1, l2) =
+  let rec zip l1 l2 =
     match (l1, l2) with
     | ([], []) -> []
     | ([], _) -> []
     | (_, []) -> []
-    | (x::xs, y::ys) -> (x, y) :: zip (xs, ys)
+    | (x::xs, y::ys) -> (x, y) :: zip xs ys
 
-  let rec zipEq (l1, l2) =
+  let rec zipEq l1 l2 =
     match (l1, l2) with
     | ([], []) -> []
-    | (x::xs, y::ys) -> (x, y) :: zipEq (xs, ys)
+    | (x::xs, y::ys) -> (x, y) :: zipEq xs ys
     | _ -> raise UnequalLengths
 
   let rec unzip pairs =

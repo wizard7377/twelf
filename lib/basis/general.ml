@@ -20,9 +20,9 @@ module type GENERAL = sig
   type order = Order.order
 
   val deref : 'a ref -> 'a
-  val assign : 'a ref * 'a -> unit
-  val o : ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
-  val before : 'a * unit -> 'a
+  val assign : 'a ref -> 'a -> unit
+  val o : ('a -> 'b) -> ('c -> 'a) -> 'c -> 'b
+  val before : 'a -> unit -> 'a
   val ignore : 'a -> unit
 end
 
@@ -54,13 +54,13 @@ module General : GENERAL = struct
 
   (* Reference operations *)
   let deref r = !r
-  let assign (r, v) = r := v
+  let assign r v = r := v
 
   (* Function composition *)
-  let o (f, g) x = f (g x)
+  let o f g x = f (g x)
 
   (* before: evaluate both expressions, return first *)
-  let before (x, _) = x
+  let before x _ = x
 
   (* ignore: discard value *)
   let ignore _ = ()

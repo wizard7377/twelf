@@ -15,31 +15,31 @@ module type REAL = sig
   val posInf : real
   val negInf : real
 
-  val ( + ) : real * real -> real
-  val ( - ) : real * real -> real
-  val ( * ) : real * real -> real
-  val ( / ) : real * real -> real
-  val rem : real * real -> real
+  val ( + ) : real -> real -> real
+  val ( - ) : real -> real -> real
+  val ( * ) : real -> real -> real
+  val ( / ) : real -> real -> real
+  val rem : real -> real -> real
   val ( ~- ) : real -> real
   val abs : real -> real
 
-  val min : real * real -> real
-  val max : real * real -> real
+  val min : real -> real -> real
+  val max : real -> real -> real
 
   val sign : real -> int
   val signBit : real -> bool
-  val sameSign : real * real -> bool
-  val copySign : real * real -> real
+  val sameSign : real -> real -> bool
+  val copySign : real -> real -> real
 
-  val compare : real * real -> order
-  val compareReal : real * real -> order
-  val ( < )  : real * real -> bool
-  val ( <= ) : real * real -> bool
-  val ( > )  : real * real -> bool
-  val ( >= ) : real * real -> bool
-  val equal : real * real -> bool
-  val notEqual : real * real -> bool
-  val unordered : real * real -> bool
+  val compare : real -> real -> order
+  val compareReal : real -> real -> order
+  val ( < )  : real -> real -> bool
+  val ( <= ) : real -> real -> bool
+  val ( > )  : real -> real -> bool
+  val ( >= ) : real -> real -> bool
+  val equal : real -> real -> bool
+  val notEqual : real -> real -> bool
+  val unordered : real -> real -> bool
 
   val isFinite : real -> bool
   val isNan : real -> bool
@@ -64,16 +64,16 @@ module Real : REAL = struct
   let posInf = infinity
   let negInf = neg_infinity
 
-  let ( + ) (x, y) = x +. y
-  let ( - ) (x, y) = x -. y
-  let ( * ) (x, y) = x *. y
-  let ( / ) (x, y) = x /. y
-  let rem (x, y) = mod_float x y
+  let ( + ) x y = x +. y
+  let ( - ) x y = x -. y
+  let ( * ) x y = x *. y
+  let ( / ) x y = x /. y
+  let rem x y = mod_float x y
   let ( ~- ) x = -. x
   let abs = abs_float
 
-  let min (x, y) = if x < y then x else y
-  let max (x, y) = if x > y then x else y
+  let min x y = if x < y then x else y
+  let max x y = if x > y then x else y
 
   let sign x =
     if x < 0.0 then -1
@@ -82,26 +82,26 @@ module Real : REAL = struct
 
   let signBit x = x < 0.0 || (x = 0.0 && 1.0 /. x < 0.0)
 
-  let sameSign (x, y) =
+  let sameSign x y =
     (x < 0.0 && y < 0.0) || (x >= 0.0 && y >= 0.0)
 
-  let copySign (x, y) =
+  let copySign x y =
     if signBit y then -. (abs x) else abs x
 
-  let compare (x, y) =
+  let compare x y =
     if x < y then Less
     else if x > y then Greater
     else Equal
 
   let compareReal = compare
 
-  let ( < ) (x, y) = x < y
-  let ( <= ) (x, y) = x <= y
-  let ( > ) (x, y) = x > y
-  let ( >= ) (x, y) = x >= y
-  let equal (x, y) = x = y
-  let notEqual (x, y) = x <> y
-  let unordered (x, y) = classify_float x = classify_float y
+  let ( < ) x y = x < y
+  let ( <= )x y = x <= y
+  let ( > ) x y = x > y
+  let ( >= ) x y = x >= y
+  let equal x y = x = y
+  let notEqual x y = x <> y
+  let unordered x y = classify_float x = classify_float y
 
   let isFinite x = classify_float x <> FP_infinite && classify_float x <> FP_nan
   let isNan x = classify_float x = FP_nan

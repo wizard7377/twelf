@@ -38,7 +38,7 @@ module type OS_PATH = sig
   val isAbsolute : string -> bool
   val isRelative : string -> bool
 
-  val concat : string * string -> string
+  val concat : string -> string -> string
 end
 
 module OSPath : OS_PATH = struct
@@ -124,5 +124,5 @@ module OSPath : OS_PATH = struct
   let isAbsolute path = Filename.is_implicit path = false
   let isRelative path = Filename.is_relative path
 
-  let concat (p1, p2) = Filename.concat p1 p2
+  let concat p1 p2 = Filename.concat p1 p2
 end

@@ -68,7 +68,7 @@ module Char : Char.CHAR
 
 (** Text I/O operations compatible with SML TextIO structure.
     Provides file and stream I/O operations for text. *)
-module TextIO : TextIO.TEXTIO
+(* module TextIO : TextIO.TEXTIO *)
 
 module Word8 : (Word.WORD with type word = int)
 module Word32 : (Word.WORD with type word = int)

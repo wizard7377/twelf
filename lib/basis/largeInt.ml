@@ -16,25 +16,25 @@ module type LARGE_INT = sig
   val maxInt : int option
 
   val ( ~- ) : int -> int
-  val ( + ) : int * int -> int
-  val ( - ) : int * int -> int
-  val ( * ) : int * int -> int
-  val div : int * int -> int
-  val modulo : int * int -> int
-  val quot : int * int -> int
-  val rem : int * int -> int
+  val ( + ) : int -> int -> int
+  val ( - ) : int -> int -> int
+  val ( * ) : int -> int -> int
+  val div : int -> int -> int
+  val modulo : int -> int -> int
+  val quot : int -> int -> int
+  val rem : int -> int -> int
 
-  val compare : int * int -> order
-  val ( < ) : int * int -> bool
-  val ( <= ) : int * int -> bool
-  val ( > ) : int * int -> bool
-  val ( >= ) : int * int -> bool
+  val compare : int -> int -> order
+  val ( < ) : int -> int -> bool
+  val ( <= ) : int -> int -> bool
+  val ( > ) : int -> int -> bool
+  val ( >= ) : int -> int -> bool
 
   val abs : int -> int
-  val min : int * int -> int
-  val max : int * int -> int
+  val min : int -> int -> int
+  val max : int -> int -> int
   val sign : int -> int
-  val sameSign : int * int -> bool
+  val sameSign : int -> int -> bool
 
   val toString : int -> string
   val fromString : string -> int option
@@ -50,30 +50,30 @@ module LargeInt : LARGE_INT = struct
   let maxInt = Some max_int
 
   let ( ~- ) x = -x
-  let ( + ) (x, y) = x + y
-  let ( - ) (x, y) = x - y
-  let ( * ) (x, y) = x * y
-  let div (x, y) = x / y
-  let modulo (x, y) = x mod y
-  let quot (x, y) = x / y
-  let rem (x, y) = x mod y
+  let ( + ) x y = x + y
+  let ( - ) x y = x - y
+  let ( * ) x y = x * y
+  let div x y = x / y
+  let modulo x y = x mod y
+  let quot x y = x / y
+  let rem x y = x mod y
 
-  let compare (x, y) =
+  let compare x y =
     if x < y then Less
     else if x > y then Greater
     else Equal
 
-  let ( < ) (x, y) = x < y
-  let ( <= ) (x, y) = x <= y
-  let ( > ) (x, y) = x > y
-  let ( >= ) (x, y) = x >= y
+  let ( < ) x y = x < y
+  let ( <= ) x y = x <= y
+  let ( > ) x y = x > y
+  let ( >= ) x y = x >= y
 
-  let abs x = if ( < ) (x, 0) then -x else x
-  let min (x, y) = if ( < ) (x, y) then x else y
-  let max (x, y) = if ( > ) (x, y) then x else y
-  let sign x = if ( < ) (x, 0) then -1 else if x = 0 then 0 else 1
-  let sameSign (x, y) =
-    (( < ) (x, 0) && ( < ) (y, 0)) || (x = 0 && y = 0) || (( > ) (x, 0) && ( > ) (y, 0))
+  let abs x = if ( < ) x 0 then -x else x
+  let min x y = if ( < ) x y then x else y
+  let max x y = if ( > ) x y then x else y
+  let sign x = if ( < ) x 0 then -1 else if x = 0 then 0 else 1
+  let sameSign x y =
+    (( < ) x 0 && ( < ) y 0) || (x = 0 && y = 0) || (( > ) x 0 && ( > ) y 0)
 
   let toString = string_of_int
   let fromString s = try Some (int_of_string s) with Failure _ -> None

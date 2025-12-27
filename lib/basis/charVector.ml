@@ -8,10 +8,10 @@ module type MONO_VECTOR = sig
 
   val maxLen : int
   val fromList : elem list -> vector
-  val tabulate : int * (int -> elem) -> vector
+  val tabulate : int -> (int -> elem) -> vector
   val length : vector -> int
-  val sub : vector * int -> elem
-  val update : vector * int * elem -> vector
+  val sub : vector -> int -> elem
+  val update : vector -> int -> elem -> vector
   val concat : vector list -> vector
   val appi : (int * elem -> unit) -> vector -> unit
   val app  : (elem -> unit) -> vector -> unit
@@ -25,7 +25,7 @@ module type MONO_VECTOR = sig
   val find  : (elem -> bool) -> vector -> elem option
   val exists : (elem -> bool) -> vector -> bool
   val all : (elem -> bool) -> vector -> bool
-  val collate : (elem * elem -> order) -> vector * vector -> order
+  val collate : (elem * elem -> order) -> vector -> vector -> order
 end
 
 module CharVector : MONO_VECTOR = struct
@@ -43,7 +43,7 @@ module CharVector : MONO_VECTOR = struct
       Stdlib.List.iter (Buffer.add_char buf) lst;
       Buffer.contents buf
 
-  let tabulate (n, f) =
+  let tabulate n f =
     if n < 0 || n > maxLen then
       raise (Invalid_argument "CharVector.tabulate")
     else
@@ -51,13 +51,13 @@ module CharVector : MONO_VECTOR = struct
 
   let length = Stdlib.String.length
 
-  let sub (vec, i) =
+  let sub vec i =
     if i < 0 || i >= Stdlib.String.length vec then
       raise (Invalid_argument "CharVector.sub")
     else
       Stdlib.String.get vec i
 
-  let update (vec, i, c) =
+  let update vec i c =
     if i < 0 || i >= Stdlib.String.length vec then
       raise (Invalid_argument "CharVector.update")
     else
@@ -147,7 +147,7 @@ module CharVector : MONO_VECTOR = struct
     in
     loop 0
 
-  let collate cmp (vec1, vec2) =
+  let collate cmp vec1 vec2 =
     let len1 = Stdlib.String.length vec1 in
     let len2 = Stdlib.String.length vec2 in
     let minlen = min len1 len2 in

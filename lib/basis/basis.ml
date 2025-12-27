@@ -12,12 +12,13 @@ let rev lst = Stdlib.List.rev lst ;;
 
 (* Core modules *)
 module Array = Array.Array
+
 module Time = Time.Time
 module Vector = Vector.Vector
 module List = List.List
 module Integer = Integer.Integer
 module Char = Char.Char
-module TextIO = TextIO.TextIO
+(* module TextIO = TextIO.TextIO *)
 module Word8 = Word.Word8
 module Word32 = Word.Word32
 module String = String.String
@@ -58,6 +59,5 @@ module Timer = Timer.Timer
 module IO = Io.IO
 module Text = Text.Text
 module Byte = Byte.Byte
-
 (* OS *)
 module OS_Path = OsPath.OSPath

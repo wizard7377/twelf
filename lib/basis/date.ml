@@ -25,7 +25,7 @@ module type DATE = sig
   val yearDay : date -> int
   val offset : date -> int option
 
-  val compare : date * date -> order
+  val compare : date -> date -> order
   val toString : date -> string
   val fromString : string -> date option
 end
@@ -72,7 +72,7 @@ module Date : DATE = struct
     | May -> 5 | Jun -> 6 | Jul -> 7 | Aug -> 8
     | Sep -> 9 | Oct -> 10 | Nov -> 11 | Dec -> 12
 
-  let compare (d1, d2) =
+  let compare d1 d2 =
     let c = Stdlib.compare d1.year d2.year in
     if c <> 0 then (if c < 0 then Less else Greater)
     else

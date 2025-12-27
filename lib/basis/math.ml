@@ -13,10 +13,10 @@ module type MATH = sig
   val asin : real -> real
   val acos : real -> real
   val atan : real -> real
-  val atan2 : real * real -> real
+  val atan2 : real -> real -> real
 
   val exp : real -> real
-  val pow : real * real -> real
+  val pow : real -> real -> real
   val ln : real -> real
   val log10 : real -> real
 
@@ -38,10 +38,10 @@ module Math : MATH = struct
   let asin = asin
   let acos = acos
   let atan = atan
-  let atan2 (y, x) = atan2 y x
+  let atan2 y x = atan2 y x
 
   let exp = exp
-  let pow (x, y) = x ** y
+  let pow x y = x ** y
   let ln = log
   let log10 = log10
 

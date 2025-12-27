@@ -5,7 +5,7 @@ module type OPTION = sig
 
   exception Option
 
-  val getOpt : 'a option * 'a -> 'a
+  val getOpt : 'a option -> 'a -> 'a
   val isSome : 'a option -> bool
   val valOf : 'a option -> 'a
   val filter : ('a -> bool) -> 'a -> 'a option
@@ -13,8 +13,8 @@ module type OPTION = sig
   val app : ('a -> unit) -> 'a option -> unit
   val map : ('a -> 'b) -> 'a option -> 'b option
   val mapPartial : ('a -> 'b option) -> 'a option -> 'b option
-  val compose : ('a -> 'b) * ('c -> 'a option) -> 'c -> 'b option
-  val composePartial : ('a -> 'b option) * ('c -> 'a option) -> 'c -> 'b option
+  val compose : ('a -> 'b) -> ('c -> 'a option) -> 'c -> 'b option
+  val composePartial : ('a -> 'b option) -> ('c -> 'a option) -> 'c -> 'b option
 end
 
 module Option : OPTION = struct
@@ -23,7 +23,7 @@ module Option : OPTION = struct
 
   exception Option
 
-  let getOpt (opt, default) =
+  let getOpt opt default =
     match opt with
     | None -> default
     | Some v -> v
@@ -61,12 +61,12 @@ module Option : OPTION = struct
     | None -> None
     | Some v -> f v
 
-  let compose (f, g) x =
+  let compose f g x =
     match g x with
     | None -> None
     | Some v -> Some (f v)
 
-  let composePartial (f, g) x =
+  let composePartial f g x =
     match g x with
     | None -> None
     | Some v -> f v

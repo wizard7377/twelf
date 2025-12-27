@@ -8,12 +8,12 @@ module type MONO_ARRAY = sig
   type vector
 
   val maxLen : int
-  val array : int * elem -> array
+  val array : int -> elem -> array
   val fromList : elem list -> array
-  val tabulate : int * (int -> elem) -> array
+  val tabulate : int -> (int -> elem) -> array
   val length : array -> int
-  val sub : array * int -> elem
-  val update : array * int * elem -> unit
+  val sub : array -> int -> elem
+  val update : array -> int -> elem -> unit
   val vector : array -> vector
   val copy : src : array -> dst : array -> di : int -> unit
   val copyVec : src : vector -> dst : array -> di : int -> unit
@@ -39,7 +39,7 @@ module CharArray : MONO_ARRAY = struct
 
   let maxLen = Sys.max_string_length
 
-  let array (n, c) =
+  let array n c =
     if n < 0 || n > maxLen then
       raise (Invalid_argument "CharArray.array")
     else
@@ -54,7 +54,7 @@ module CharArray : MONO_ARRAY = struct
       Stdlib.List.iteri (fun i c -> Bytes.set arr i c) lst;
       arr
 
-  let tabulate (n, f) =
+  let tabulate n f =
     if n < 0 || n > maxLen then
       raise (Invalid_argument "CharArray.tabulate")
     else
@@ -62,13 +62,13 @@ module CharArray : MONO_ARRAY = struct
 
   let length = Bytes.length
 
-  let sub (arr, i) =
+  let sub arr i =
     if i < 0 || i >= Bytes.length arr then
       raise (Invalid_argument "CharArray.sub")
     else
       Bytes.get arr i
 
-  let update (arr, i, c) =
+  let update arr i c =
     if i < 0 || i >= Bytes.length arr then
       raise (Invalid_argument "CharArray.update")
     else

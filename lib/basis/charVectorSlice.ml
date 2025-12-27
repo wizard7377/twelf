@@ -11,7 +11,7 @@ module type MONO_VECTOR_SLICE = sig
   val sub : slice * int -> elem
 
   val full : vector -> slice
-  val slice : vector * int * int option -> slice
+  val slice : vector -> int -> int option -> slice
   val subslice : slice * int * int option -> slice
 
   val base : slice -> vector * int * int
@@ -51,7 +51,7 @@ module CharVectorSlice : MONO_VECTOR_SLICE = struct
   let full vec =
     (vec, 0, Stdlib.String.length vec)
 
-  let slice (vec, start, len_opt) =
+  let slice vec start len_opt =
     let vlen = Stdlib.String.length vec in
     if start < 0 || start > vlen then
       raise (Invalid_argument "CharVectorSlice.slice")

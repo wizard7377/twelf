@@ -8,24 +8,24 @@ module type WORD8_ARRAY = sig
   type vector
 
   val maxLen : int
-  val array : int * elem -> array
+  val array : int -> elem -> array
   val fromList : elem list -> array
-  val tabulate : int * (int -> elem) -> array
+  val tabulate : int -> (int -> elem) -> array
   val length : array -> int
-  val sub : array * int -> elem
-  val update : array * int * elem -> unit
+  val sub : array -> int -> elem
+  val update : array -> int -> elem -> unit
   val vector : array -> vector
   val copy : src : array -> dst : array -> di : int -> unit
   val copyVec : src : vector -> dst : array -> di : int -> unit
-  val appi : (int * elem -> unit) -> array -> unit
+  val appi : (int -> elem -> unit) -> array -> unit
   val app  : (elem -> unit) -> array -> unit
-  val modifyi : (int * elem -> elem) -> array -> unit
+  val modifyi : (int -> elem -> elem) -> array -> unit
   val modify  : (elem -> elem) -> array -> unit
-  val foldli : (int * elem * 'b -> 'b) -> 'b -> array -> 'b
-  val foldri : (int * elem * 'b -> 'b) -> 'b -> array -> 'b
-  val foldl  : (elem * 'b -> 'b) -> 'b -> array -> 'b
-  val foldr  : (elem * 'b -> 'b) -> 'b -> array -> 'b
-  val findi : (int * elem -> bool) -> array -> (int * elem) option
+  val foldli : (int -> elem -> 'b -> 'b) -> 'b -> array -> 'b
+  val foldri : (int -> elem -> 'b -> 'b) -> 'b -> array -> 'b
+  val foldl  : (elem -> 'b -> 'b) -> 'b -> array -> 'b
+  val foldr  : (elem -> 'b -> 'b) -> 'b -> array -> 'b
+  val findi : (int -> elem -> bool) -> array -> (int * elem) option
   val find  : (elem -> bool) -> array -> elem option
   val exists : (elem -> bool) -> array -> bool
   val all : (elem -> bool) -> array -> bool
@@ -39,7 +39,7 @@ module Word8Array : WORD8_ARRAY = struct
 
   let maxLen = Sys.max_array_length
 
-  let array (n, init) =
+  let array n init =
     if n < 0 || n > maxLen then
       raise (Invalid_argument "Word8Array.array")
     else
@@ -56,7 +56,7 @@ module Word8Array : WORD8_ARRAY = struct
       Stdlib.List.iteri (fun i v -> Bigarray.Array1.set arr i v) lst;
       arr
 
-  let tabulate (n, f) =
+  let tabulate n f =
     if n < 0 || n > maxLen then
       raise (Invalid_argument "Word8Array.tabulate")
     else
@@ -68,13 +68,13 @@ module Word8Array : WORD8_ARRAY = struct
 
   let length = Bigarray.Array1.dim
 
-  let sub (arr, i) =
+  let sub arr i =
     if i < 0 || i >= Bigarray.Array1.dim arr then
       raise (Invalid_argument "Word8Array.sub")
     else
       Bigarray.Array1.get arr i
 
-  let update (arr, i, v) =
+  let update arr i v =
     if i < 0 || i >= Bigarray.Array1.dim arr then
       raise (Invalid_argument "Word8Array.update")
     else
@@ -108,7 +108,7 @@ module Word8Array : WORD8_ARRAY = struct
 
   let appi f arr =
     for i = 0 to Bigarray.Array1.dim arr - 1 do
-      f (i, Bigarray.Array1.get arr i)
+      f i (Bigarray.Array1.get arr i)
     done
 
   let app f arr =
@@ -118,7 +118,7 @@ module Word8Array : WORD8_ARRAY = struct
 
   let modifyi f arr =
     for i = 0 to Bigarray.Array1.dim arr - 1 do
-      Bigarray.Array1.set arr i (f (i, Bigarray.Array1.get arr i))
+      Bigarray.Array1.set arr i (f i (Bigarray.Array1.get arr i))
     done
 
   let modify f arr =
@@ -129,28 +129,28 @@ module Word8Array : WORD8_ARRAY = struct
   let foldli f init arr =
     let rec loop i acc =
       if i >= Bigarray.Array1.dim arr then acc
-      else loop (i + 1) (f (i, Bigarray.Array1.get arr i, acc))
+      else loop (i + 1) (f i (Bigarray.Array1.get arr i) acc)
     in
     loop 0 init
 
   let foldri f init arr =
     let rec loop i acc =
       if i < 0 then acc
-      else loop (i - 1) (f (i, Bigarray.Array1.get arr i, acc))
+      else loop (i - 1) (f i (Bigarray.Array1.get arr i) acc)
     in
     loop (Bigarray.Array1.dim arr - 1) init
 
   let foldl f init arr =
     let rec loop i acc =
       if i >= Bigarray.Array1.dim arr then acc
-      else loop (i + 1) (f (Bigarray.Array1.get arr i, acc))
+      else loop (i + 1) (f (Bigarray.Array1.get arr i) acc)
     in
     loop 0 init
 
   let foldr f init arr =
     let rec loop i acc =
       if i < 0 then acc
-      else loop (i - 1) (f (Bigarray.Array1.get arr i, acc))
+      else loop (i - 1) (f (Bigarray.Array1.get arr i) acc)
     in
     loop (Bigarray.Array1.dim arr - 1) init
 
@@ -159,7 +159,7 @@ module Word8Array : WORD8_ARRAY = struct
       if i >= Bigarray.Array1.dim arr then None
       else
         let elem = Bigarray.Array1.get arr i in
-        if pred (i, elem) then Some (i, elem)
+        if pred i elem then Some (i, elem)
         else loop (i + 1)
     in
     loop 0

@@ -1,5 +1,5 @@
 (* TODO: Figure this out later *)
+open StreamIO
 module type TEXTIO = sig
-end
-module TextIO : TEXTIO = struct
+  include STREAMIO
 end

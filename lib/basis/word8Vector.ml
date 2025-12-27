@@ -7,9 +7,9 @@ module type WORD8_VECTOR = sig
 
   val maxLen : int
   val fromList : elem list -> vector
-  val tabulate : int * (int -> elem) -> vector
+  val tabulate : int -> (int -> elem) -> vector
   val length : vector -> int
-  val sub : vector * int -> elem
+  val sub : vector -> int -> elem
   val concat : vector list -> vector
   val appi : (int * elem -> unit) -> vector -> unit
   val app  : (elem -> unit) -> vector -> unit
@@ -31,12 +31,12 @@ module Word8Vector : WORD8_VECTOR = struct
     Stdlib.List.iteri (fun i v -> Bytes.set vec i (Stdlib.Char.chr v)) lst;
     vec
 
-  let tabulate (n, f) =
+  let tabulate n f =
     Bytes.init n (fun i -> Stdlib.Char.chr (f i))
 
   let length = Bytes.length
 
-  let sub (vec, i) = Stdlib.Char.code (Bytes.get vec i)
+  let sub vec i = Stdlib.Char.code (Bytes.get vec i)
 
   let concat vecs = Bytes.concat Bytes.empty vecs
 
