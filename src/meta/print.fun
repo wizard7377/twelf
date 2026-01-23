@@ -48,17 +48,17 @@ struct
 
 
     fun formatOrder (G, S.Arg (Us, Vs)) =
-          [Print.formatExp (G, I.EClo Us), Fmt.String ":",
+          [Print.formatExp (G, I.EClo Us), Fmt.string ":",
            Print.formatExp (G, I.EClo Vs)]
       | formatOrder (G, S.Lex Os) =
-          [Fmt.String "{", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "}"]
+          [Fmt.string "{", Fmt.hvbox0 1 0 1 (formatOrders (G, Os)), Fmt.string "}"]
       | formatOrder (G, S.Simul Os) =
-          [Fmt.String "[", Fmt.HVbox0 1 0 1 (formatOrders (G, Os)), Fmt.String "]"]
+          [Fmt.string "[", Fmt.hvbox0 1 0 1 (formatOrders (G, Os)), Fmt.string "]"]
 
     and formatOrders (G, nil) = nil
       | formatOrders (G, O :: nil) = formatOrder (G, O)
       | formatOrders (G, O :: Os) = formatOrder (G, O) @
-          [Fmt.String ",", Fmt.Break]  @ formatOrders (G, Os)
+          [Fmt.string ",", Fmt.break]  @ formatOrders (G, Os)
 
     (* format T = fmt'
 
@@ -66,15 +66,15 @@ struct
        If   T is a tag
        then fmt' is a a format descibing the tag T
     *)
-    fun formatTag (G, S.Parameter l) = [Fmt.String "<p>"]
-      | formatTag (G, S.Lemma (S.Splits k)) = [Fmt.String "<i",
-                                                 Fmt.String (Int.toString k),
-                                                 Fmt.String ">"]
-      | formatTag (G, S.Lemma (S.RL)) = [Fmt.String "<i >"]
-      | formatTag (G, S.Lemma (S.RLdone)) = [Fmt.String "<i*>"]
-(*      | formatTag (G, S.Assumption k) = [Fmt.String "<a",
-                                         Fmt.String (Int.toString k),
-                                         Fmt.String ">"] *)
+    fun formatTag (G, S.Parameter l) = [Fmt.string "<p>"]
+      | formatTag (G, S.Lemma (S.Splits k)) = [Fmt.string "<i",
+                                                 Fmt.string (Int.toString k),
+                                                 Fmt.string ">"]
+      | formatTag (G, S.Lemma (S.RL)) = [Fmt.string "<i >"]
+      | formatTag (G, S.Lemma (S.RLdone)) = [Fmt.string "<i*>"]
+(*      | formatTag (G, S.Assumption k) = [Fmt.string "<a",
+                                         Fmt.string (Int.toString k),
+                                         Fmt.string ">"] *)
 
 
     (* formatCtx (G, B) = fmt'
@@ -87,16 +87,16 @@ struct
     fun formatCtx (I.Null, B) = []
       | formatCtx (I.Decl (I.Null, D), I.Decl (I.Null, T)) =
         if !Global.chatter >= 4 then
-          [Fmt.HVbox (formatTag (I.Null, T) @ [Fmt.Break, Print.formatDec (I.Null, D)])]
+          [Fmt.hvbox (formatTag (I.Null, T) @ [Fmt.break, Print.formatDec (I.Null, D)])]
         else
           [Print.formatDec (I.Null, D)]
       | formatCtx (I.Decl (G, D), I.Decl (B, T)) =
         if !Global.chatter >= 4 then
-          formatCtx (G, B) @ [Fmt.String ",", Fmt.Break, Fmt.Break] @
-          [Fmt.HVbox (formatTag (G, T) @ [Fmt.Break, Print.formatDec (G, D)])]
+          formatCtx (G, B) @ [Fmt.string ",", Fmt.break, Fmt.break] @
+          [Fmt.hvbox (formatTag (G, T) @ [Fmt.break, Print.formatDec (G, D)])]
         else
-          formatCtx (G, B) @ [Fmt.String ",",  Fmt.Break] @
-         [Fmt.Break, Print.formatDec (G, D)]
+          formatCtx (G, B) @ [Fmt.string ",",  Fmt.break] @
+         [Fmt.break, Print.formatDec (G, D)]
 
 
     (* formatState S = fmt'
@@ -106,11 +106,11 @@ struct
        then fmt' is a format describing the state S
     *)
     fun formatState (S.State (n, (G, B), (IH, OH), d, O, H, F)) =
-          Fmt.Vbox0 0 1
-          [Fmt.HVbox0 1 0 1 (formatOrder (G, O)), Fmt.Break,
-           Fmt.String "========================", Fmt.Break,
-           Fmt.HVbox0 1 0 1 (formatCtx (G, B)), Fmt.Break,
-           Fmt.String "------------------------", Fmt.Break,
+          Fmt.vbox0 0 1
+          [Fmt.hvbox0 1 0 1 (formatOrder (G, O)), Fmt.break,
+           Fmt.string "========================", Fmt.break,
+           Fmt.hvbox0 1 0 1 (formatCtx (G, B)), Fmt.break,
+           Fmt.string "------------------------", Fmt.break,
            FunPrint.formatForBare (G, F)]
 
 

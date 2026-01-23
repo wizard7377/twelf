@@ -23,20 +23,20 @@ local
   (* Shorthands *)
   structure I = IntSyn
   structure F = Formatter
-  val Str = F.String
-  fun Str0 (s, n) = F.String0 n s
-  fun Name (x) = F.String ("\"" ^ x ^ "\"")
-  fun Integer (n) = F.String (Int.toString n)
+  val Str = F.string
+  fun Str0 (s, n) = F.string0 n s
+  fun Name (x) = F.string ("\"" ^ x ^ "\"")
+  fun Integer (n) = F.string (Int.toString n)
 
-  fun sexp (fmts) = F.Hbox [Str "(", F.HVbox fmts, Str ")"]
+  fun sexp (fmts) = F.hbox [Str "(", F.hvbox fmts, Str ")"]
 
   (* fmtCon (c) = "c" where the name is assigned according the the Name table
      maintained in the names module.
      FVar's are printed with a preceding "`" (backquote) character
   *)
-  fun fmtCon (G, I.BVar(n)) = sexp [Str "tw~bvar", F.Break, Integer n]
-    | fmtCon (G, I.Const(cid)) = sexp [Str "tw~const", F.Break, Integer cid]
-    | fmtCon (G, I.Def(cid)) = sexp [Str "tw~def", F.Break, Integer cid]
+  fun fmtCon (G, I.BVar(n)) = sexp [Str "tw~bvar", F.break, Integer n]
+    | fmtCon (G, I.Const(cid)) = sexp [Str "tw~const", F.break, Integer cid]
+    | fmtCon (G, I.Def(cid)) = sexp [Str "tw~def", F.break, Integer cid]
     (* I.Skonst, I.FVar cases should be impossible *)
 
   (* fmtUni (L) = "L" *)
@@ -53,32 +53,32 @@ local
        G'' |- U : V   G' |- s : G''  (so  G' |- U[s] : V[s])
        (U,s) in whnf
   *)
-  fun fmtExpW (G, (I.Uni(L), s)) = sexp [Str "tw~uni", F.Break, fmtUni L]
+  fun fmtExpW (G, (I.Uni(L), s)) = sexp [Str "tw~uni", F.break, fmtUni L]
     | fmtExpW (G, (I.Pi((D as I.Dec(_,V1),P),V2), s)) =
       (case P (* if Pi is dependent but anonymous, invent name here *)
          of I.Maybe => let
                          val D' = Names.decLUName (G, D) (* could sometimes be EName *)
                          val G' = I.Decl (G, D')
                        in
-                         sexp [Str "tw~pi", F.Break, fmtDec (G, (D', s)),
-                               F.Break, Str "tw*maybe", F.Break, fmtExp (G', (V2, I.dot1 s))]
+                         sexp [Str "tw~pi", F.break, fmtDec (G, (D', s)),
+                               F.break, Str "tw*maybe", F.break, fmtExp (G', (V2, I.dot1 s))]
                        end
           | I.No => let
                        val G' = I.Decl (G, D)
                     in
-                      sexp [Str "tw~pi", F.Break, fmtDec (G, (D, s)),
-                            F.Break, Str "tw*no", F.Break, fmtExp (G', (V2, I.dot1 s))]
+                      sexp [Str "tw~pi", F.break, fmtDec (G, (D, s)),
+                            F.break, Str "tw*no", F.break, fmtExp (G', (V2, I.dot1 s))]
                     end)
     | fmtExpW (G, (I.Root (H, S), s)) =
-         sexp [Str "tw~root", F.Break, fmtCon (G, H),
-               F.Break, fmtSpine (G, (S, s))]
+         sexp [Str "tw~root", F.break, fmtCon (G, H),
+               F.break, fmtSpine (G, (S, s))]
     | fmtExpW (G, (I.Lam(D, U), s)) =
       let
         val D' = Names.decLUName (G, D)
         val G' = I.Decl (G, D')
       in
-        sexp [Str "tw~lam", F.Break, fmtDec (G, (D', s)),
-              F.Break, fmtExp (G', (U, I.dot1 s))]
+        sexp [Str "tw~lam", F.break, fmtDec (G, (D', s)),
+              F.break, fmtExp (G', (U, I.dot1 s))]
       end
     (* I.EClo, I.Redex, I.EVar not possible *)
 
@@ -92,13 +92,13 @@ local
     | fmtSpine (G, (I.SClo (S, s'), s)) =
          fmtSpine (G, (S, I.comp(s',s)))
     | fmtSpine (G, (I.App(U, S), s)) =
-         sexp [Str "tw~app", F.Break, fmtExp (G, (U, s)),
-               F.Break, fmtSpine (G, (S, s))]
+         sexp [Str "tw~app", F.break, fmtExp (G, (U, s)),
+               F.break, fmtSpine (G, (S, s))]
 
   and fmtDec (G, (I.Dec (NONE, V), s)) =
-        sexp [Str "tw~decl", F.Break, Str "nil", F.Break, fmtExp (G, (V, s))]
+        sexp [Str "tw~decl", F.break, Str "nil", F.break, fmtExp (G, (V, s))]
     | fmtDec (G, (I.Dec (SOME(x), V), s)) =
-        sexp [Str "tw~decl", F.Break, Name x, F.Break, fmtExp (G, (V, s))]
+        sexp [Str "tw~decl", F.break, Name x, F.break, fmtExp (G, (V, s))]
 
   (* fmtConDec (condec) = fmt
      formats a constant declaration (which must be closed and in normal form)
@@ -109,9 +109,9 @@ local
       let
         val _ = Names.varReset IntSyn.Null
       in
-        sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
-              Integer (imp), F.Break, fmtExp (I.Null, (V, I.id)),
-              F.Break, fmtUni (L)]
+        sexp [Str "tw~defConst", F.space, Name (name), F.break,
+              Integer (imp), F.break, fmtExp (I.Null, (V, I.id)),
+              F.break, fmtUni (L)]
       end
     | fmtConDec (I.SkoDec (name, parent, imp, V, L)) =
       Str ("%% Skipping Skolem constant " ^ name ^ " %%")
@@ -119,24 +119,24 @@ local
       let
         val _ = Names.varReset IntSyn.Null
       in
-        sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
-              Integer (imp), F.Break, fmtExp (I.Null, (U, I.id)),
-              F.Break, fmtExp (I.Null, (V, I.id)),
-              F.Break, fmtUni (L)]
+        sexp [Str "tw~defConst", F.space, Name (name), F.break,
+              Integer (imp), F.break, fmtExp (I.Null, (U, I.id)),
+              F.break, fmtExp (I.Null, (V, I.id)),
+              F.break, fmtUni (L)]
       end
     | fmtConDec (I.AbbrevDef (name, parent, imp, U, V, L)) =
       let
         val _ = Names.varReset IntSyn.Null
       in
-        sexp [Str "tw~defConst", F.Space, Name (name), F.Break,
-              Integer (imp), F.Break, fmtExp (I.Null, (U, I.id)),
-              F.Break, fmtExp (I.Null, (V, I.id)),
-              F.Break, fmtUni (L)]
+        sexp [Str "tw~defConst", F.space, Name (name), F.break,
+              Integer (imp), F.break, fmtExp (I.Null, (U, I.id)),
+              F.break, fmtExp (I.Null, (V, I.id)),
+              F.break, fmtUni (L)]
       end
 
   (* fmtEqn assumes that G is a valid printing context *)
   fun fmtEqn (I.Eqn (G, U1, U2)) = (* print context?? *)
-      sexp [Str "tw*eqn", F.Break, fmtExp (G, (U1, I.id)), F.Break, fmtExp (G, (U2, I.id))]
+      sexp [Str "tw*eqn", F.break, fmtExp (G, (U1, I.id)), F.break, fmtExp (G, (U2, I.id))]
 
   (* fmtEqnName and fmtEqns do not assume that G is a valid printing
      context and will name or rename variables to make it so.

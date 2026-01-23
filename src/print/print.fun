@@ -48,8 +48,8 @@ local
       end
 
 
-  val Str = F.String
-  fun Str0 (s, n) = F.String0 n s
+  val Str = F.string
+  fun Str0 (s, n) = F.string0 n s
   fun sym (s) = Str0 (Symbol.sym s)
 
   fun nameOf (SOME(id)) = id
@@ -180,7 +180,7 @@ local
   *)
   fun arrow (V1, V2) =
          OpArgs(FX.Infix(arrowPrec, FX.Right),
-                [F.Break, sym "->", F.Space],
+                [F.break, sym "->", F.space],
                 I.App (V1, I.App(V2, I.Nil)))
 
   (* Nonfix corresponds to application and therefore has precedence juxPrex (which is maximal) *)
@@ -208,7 +208,7 @@ local
 
   (* FIX: this is certainly not correct -kw *)
   fun fmtConstPath (f, Names.Qid (ids, id)) =
-        F.HVbox (foldr (fn (id, fmt) => Str0 (Symbol.str (id))::sym "."::fmt)
+        F.hvbox (foldr (fn (id, fmt) => Str0 (Symbol.str (id))::sym "."::fmt)
                        [Str0 (f (id))] ids)
 
   fun parmDec (D::L, 1) = D
@@ -244,15 +244,15 @@ local
       then Names.conDecQid (I.sgnLookup cid)
       else Names.constQid cid
 
-    fun cidToFmt (cid) = F.String (Names.qidToString (Names.constQid cid))
+    fun cidToFmt (cid) = F.string (Names.qidToString (Names.constQid cid))
     fun formatCids (nil) = nil
       | formatCids (cid::nil) = [cidToFmt cid]
       | formatCids (cid::cids) = cidToFmt cid
-                                 :: F.Break :: F.String "|" :: F.Space
+                                 :: F.break :: F.string "|" :: F.space
                                  :: formatCids cids
 
     fun formatWorlds (T.Worlds cids) =
-        F.Hbox [F.String "(", F.HVbox (formatCids cids), F.String ")"]
+        F.hbox [F.string "(", F.hvbox (formatCids cids), F.string ")"]
 
 
     fun worldsToString (W) = F.makestring_fmt (formatWorlds W)
@@ -330,7 +330,7 @@ local
   *)
   fun parens ((fixity', fixity), fmt) =
       if FX.leq (FX.prec(fixity), FX.prec(fixity'))
-        then F.Hbox [sym "(", fmt, sym ")"]
+        then F.hbox [sym "(", fmt, sym ")"]
       else fmt
 
   (* eqFix (fixity, fixity') = true iff fixity and fixity' have the same precedence
@@ -353,10 +353,10 @@ local
      for right associative or prefix operators.
   *)
   fun addAccum (fmt, _, nil) = fmt
-    | addAccum (fmt, FX.Infix(_, FX.Left), accum) = F.HVbox ([fmt] @ accum)
-    | addAccum (fmt, FX.Infix(_, FX.Right), accum) = F.HVbox (accum @ [fmt])
-    | addAccum (fmt, FX.Prefix _, accum) = F.HVbox (accum @ [fmt])
-    | addAccum (fmt, FX.Postfix _, accum) = F.HVbox ([fmt] @ accum)
+    | addAccum (fmt, FX.Infix(_, FX.Left), accum) = F.hvbox ([fmt] @ accum)
+    | addAccum (fmt, FX.Infix(_, FX.Right), accum) = F.hvbox (accum @ [fmt])
+    | addAccum (fmt, FX.Prefix _, accum) = F.hvbox (accum @ [fmt])
+    | addAccum (fmt, FX.Postfix _, accum) = F.hvbox ([fmt] @ accum)
     (* FX.Infix(None,_), FX.Nonfix should never arise *)
 
   (* aa (ctx, fmt) = fmt'
@@ -410,7 +410,7 @@ local
       let
 (*      val D' = Names.decLUName (G, D) *)
         val braces = OpArgs(FX.Prefix(binderPrec),
-                            [sym "[" , sym "_", sym "]", F.Break],
+                            [sym "[" , sym "_", sym "]", F.break],
                 IntSyn.App(V2, IntSyn.Nil))
       in
          fmtLevel (I.Decl (G, D), d, ctx, (braces, I.dot1 s))
@@ -428,12 +428,12 @@ local
       end
     | fmtExpW (G, d, ctx, (X as I.EVar _, s)) =
       (* assume dereferenced during whnf *)
-      if !implicit then aa (ctx, F.HVbox (fmtEVar(G,X)::fmtSub(G,d,s)))
+      if !implicit then aa (ctx, F.hvbox (fmtEVar(G,X)::fmtSub(G,d,s)))
       else fmtOpArgs (G, d, ctx, evarArgs (G, d, X, s), I.id)
 
     | fmtExpW (G, d, ctx, (X as I.AVar _, s)) =
       (* assume dereferenced during whnf *)
-      if !implicit then aa (ctx, F.HVbox (fmtAVar(G,X)::fmtSub(G,d,s)))
+      if !implicit then aa (ctx, F.hvbox (fmtAVar(G,X)::fmtSub(G,d,s)))
       else fmtOpArgs (G, d, ctx, evarArgs' (G, d, X, s), I.id)
 
     | fmtExpW (G, d, ctx, (U as I.FgnExp csfe, s)) =
@@ -481,9 +481,9 @@ local
         fun oe (Exact(S')) =
             (case fixity
                of FX.Nonfix => OpArgs (FX.Nonfix, [opFmt], S')
-                | FX.Prefix _ => OpArgs (fixity, [opFmt, F.Break], S')
-                | FX.Postfix _ => OpArgs (fixity, [F.Break, opFmt], S')
-                | FX.Infix _ => OpArgs (fixity, [F.Break, opFmt, F.Space], S'))
+                | FX.Prefix _ => OpArgs (fixity, [opFmt, F.break], S')
+                | FX.Postfix _ => OpArgs (fixity, [F.break, opFmt], S')
+                | FX.Infix _ => OpArgs (fixity, [F.break, opFmt, F.space], S'))
           | oe (TooFew) = EtaLong (Whnf.etaExpandRoot (I.Root R))
           | oe (TooMany (S', S'')) =
             (* extra arguments to infix operator *)
@@ -497,7 +497,7 @@ local
                  could be redundant for prefix or postfix operators, but
                  include anyway to avoid misreading output
               *)
-              OpArgs (FX.Nonfix, [F.Hbox [sym "(", opFmt', sym ")"]], S'')
+              OpArgs (FX.Nonfix, [F.hbox [sym "(", opFmt', sym ")"]], S'')
             end
       in
         oe (dropImp (impCon C, S, argNumber fixity))
@@ -535,10 +535,10 @@ local
   and fmtSub' (G, d, l, s) = if elide l then [ldots] else fmtSub'' (G, d, l, s)
   and fmtSub'' (G, d, l, I.Shift(k)) = [Str ("^" ^ Int.toString k), Str "]"]
     | fmtSub'' (G, d, l, I.Dot(I.Idx(k), s)) =
-        Str (Names.bvarName (G, k)) :: Str "." :: F.Break :: fmtSub' (G, d, l+1, s)
+        Str (Names.bvarName (G, k)) :: Str "." :: F.break :: fmtSub' (G, d, l+1, s)
     | fmtSub'' (G, d, l, I.Dot(I.Exp(U), s)) =
         fmtExp (G, d+1, noCtxt, (U, I.id))
-        :: Str "." :: F.Break :: fmtSub' (G, d, l+1, s)
+        :: Str "." :: F.break :: fmtSub' (G, d, l+1, s)
 
   (* fmtExp (G, d, ctx, (U, s)) = fmt
      format or elide U[s] at printing depth d and add to the left context ctx.
@@ -570,7 +570,7 @@ local
     | fmtSpine' (G, d, l, (I.SClo (S, s'), s)) =
         fmtSpine' (G, d, l, (S, I.comp(s', s)))
     | fmtSpine' (G, d, l, (S, s)) =
-        F.Break :: fmtSpine (G, d, l+1, (S, s))
+        F.break :: fmtSpine (G, d, l+1, (S, s))
 
   (* fmtLevel (G, d, ctx, (oa, s)) = fmt
 
@@ -589,13 +589,13 @@ local
         val atm = fmtSpine (G, d, 0, (S,s))
         (* atm must not be empty, otherwise bug below *)
       in
-        (* F.HVbox doesn't work if last item of HVbox is F.Break *)
-        addAccum (parens ((fixity',fixity), F.HVbox (fmts @ [F.Break] @ atm)),
+        (* F.hvbox doesn't work if last item of HVbox is F.break *)
+        addAccum (parens ((fixity',fixity), F.hvbox (fmts @ [F.break] @ atm)),
                   fixity', accum)
         (* possible improvement along the following lines: *)
         (*
-           if (#2 (F.Width (F.Hbox (fmts)))) < 4
-           then F.Hbox [F.Hbox(fmts), F.HVbox0 1 1 1 atm]
+           if (#2 (F.Width (F.hbox (fmts)))) < 4
+           then F.hbox [F.hbox(fmts), F.hvbox0 1 1 1 atm]
            else ...
         *)
       end
@@ -641,7 +641,7 @@ local
           val rhs = fmtExp (G, d+1, Ctxt (fixity, nil, 0), snd(S, s))
       in
         addAccum (parens ((fixity',fixity),
-                          F.HVbox ([lhs] @ fmts @ [rhs])), fixity', accum)
+                          F.hvbox ([lhs] @ fmts @ [rhs])), fixity', accum)
       end
 
     | fmtLevel (G, d, Ctxt (fixity', accum, l),
@@ -649,7 +649,7 @@ local
       let
           val accMore = eqFix (fixity', fixity)
           val pfx = if accMore andalso elide(l) then []
-                    else if accMore andalso addots(l) then [ldots, F.Break]
+                    else if accMore andalso addots(l) then [ldots, F.break]
                          else fmts
       in
         if accMore
@@ -666,7 +666,7 @@ local
       let
           val accMore = eqFix (fixity', fixity)
           val pfx = if accMore andalso elide(l) then []
-                    else if accMore andalso addots(l) then [F.Break, ldots]
+                    else if accMore andalso addots(l) then [F.break, ldots]
                          else fmts
       in
         if accMore
@@ -689,7 +689,7 @@ local
   *)
   and braces (G, d, ((D,V), s)) =
          OpArgs(FX.Prefix(binderPrec),
-                [sym "{" , fmtDec (G, d, (D,s)), sym "}", F.Break],
+                [sym "{" , fmtDec (G, d, (D,s)), sym "}", F.break],
                 IntSyn.App(V, IntSyn.Nil))
 
   (* brackets (G, d, ((D, U), s)) = oa
@@ -703,7 +703,7 @@ local
   *)
   and brackets (G, d, ((D,U), s)) =
          OpArgs(FX.Prefix(binderPrec),
-                [sym "[" , fmtDec (G, d, (D,s)), sym "]", F.Break],
+                [sym "[" , fmtDec (G, d, (D,s)), sym "]", F.break],
                 IntSyn.App(U, IntSyn.Nil))
 
   (* fmtDec (G, d, (D, s)) = fmt
@@ -713,31 +713,31 @@ local
       G' |- D[s] decl
   *)
   and fmtDec (G, d, (I.Dec (x, V), s)) =
-      F.HVbox [Str0 (Symbol.bvar (nameOf (x))), sym ":", fmtExp (G, d+1, noCtxt, (V,s))]
+      F.hvbox [Str0 (Symbol.bvar (nameOf (x))), sym ":", fmtExp (G, d+1, noCtxt, (V,s))]
       (* alternative with more whitespace *)
-      (* F.HVbox [Str0 (Symbol.bvar (nameOf (x))), F.Space, sym ":", F.Break,
+      (* F.hvbox [Str0 (Symbol.bvar (nameOf (x))), F.space, sym ":", F.break,
                   fmtExp (G, d+1, noCtxt, (V,s))]
       *)
     | fmtDec (G, d, (I.BDec (x, (cid, t)), s)) =
       let
         val (Gsome, Gblock) = I.constBlock cid
       in
-        F.HVbox ([Str0 (Symbol.const (nameOf (x))), sym ":"]
+        F.hvbox ([Str0 (Symbol.const (nameOf (x))), sym ":"]
                  @ fmtDecList' (G, (Gblock, I.comp (t, s))))
       end
     | fmtDec (G, d, (I.ADec (x, _), s)) =
-      F.HVbox [Str0 (Symbol.bvar (nameOf (x))), sym ":_"]
+      F.hvbox [Str0 (Symbol.bvar (nameOf (x))), sym ":_"]
      | fmtDec (G, d, (I.NDec (SOME name), s)) =
-      F.HVbox [ sym name]
+      F.hvbox [ sym name]
      (* alternative with more whitespace *)
-      (* F.HVbox [Str0 (Symbol.bvar (nameOf (x))), F.Space, sym ":", F.Break,
+      (* F.hvbox [Str0 (Symbol.bvar (nameOf (x))), F.space, sym ":", F.break,
                   fmtExp (G, d+1, noCtxt, (V,s))]
       *)
   and fmtDecList' (G0, (nil, s)) = nil
     | fmtDecList' (G0, (D::nil, s)) =
         sym "{" :: fmtDec (G0, 0, (D, s)) :: sym "}" :: nil
     | fmtDecList' (G0, (D::L, s)) =
-        sym "{" :: fmtDec (G0, 0, (D, s)) :: sym "}" :: F.Break
+        sym "{" :: fmtDec (G0, 0, (D, s)) :: sym "}" :: F.break
         :: fmtDecList' (I.Decl (G0, D), (L, I.dot1 s))
 
   fun skipI (0, G, V) = (G, V)
@@ -754,7 +754,7 @@ local
     | fmtDecList (G0, D::nil) =
         sym"{"::fmtDec (G0, 0, (D, I.id))::sym"}"::nil
     | fmtDecList (G0, D::L) =
-        sym"{"::fmtDec (G0, 0, (D, I.id))::sym"}"::F.Break
+        sym"{"::fmtDec (G0, 0, (D, I.id))::sym"}"::F.break
         ::fmtDecList (I.Decl (G0, D), L)
 
   (* Assume unique names are already assigned in G0 and G! *)
@@ -762,11 +762,11 @@ local
 
 
   fun fmtBlock (I.Null, Lblock)=
-        [sym "block", F.Break] @ (fmtDecList (I.Null, Lblock))
+        [sym "block", F.break] @ (fmtDecList (I.Null, Lblock))
     | fmtBlock (Gsome, Lblock) =
-        [F.HVbox ([sym "some", F.Space] @ (fmtCtx (I.Null, Gsome))),
-         F.Break,
-         F.HVbox ([sym "block", F.Space] @ (fmtDecList (Gsome, Lblock)))]
+        [F.hvbox ([sym "some", F.space] @ (fmtCtx (I.Null, Gsome))),
+         F.break,
+         F.hvbox ([sym "block", F.space] @ (fmtDecList (Gsome, Lblock)))]
 
   (* fmtConDec (hide, condec) = fmt
      formats a constant declaration (which must be closed and in normal form)
@@ -780,7 +780,7 @@ local
         val (G, V) = if hide then skipI (imp, I.Null, V) else (I.Null, V)
         val Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
       in
-        F.HVbox [fmtConstPath (Symbol.const, qid), F.Space, sym ":", F.Break, Vfmt, sym "."]
+        F.hvbox [fmtConstPath (Symbol.const, qid), F.space, sym ":", F.break, Vfmt, sym "."]
       end
     | fmtConDec (hide, condec as I.SkoDec (_, _, imp, V, L)) =
       let
@@ -789,24 +789,24 @@ local
         val (G, V) = if hide then skipI (imp, I.Null, V) else (I.Null, V)
         val Vfmt = fmtExp (G, 0, noCtxt, (V, I.id))
       in
-        F.HVbox [sym "%skolem", F.Break, fmtConstPath (Symbol.skonst, qid), F.Space,
-                 sym ":", F.Break, Vfmt, sym "."]
+        F.hvbox [sym "%skolem", F.break, fmtConstPath (Symbol.skonst, qid), F.space,
+                 sym ":", F.break, Vfmt, sym "."]
       end
     | fmtConDec (hide, condec as I.BlockDec (_, _, Gsome, Lblock)) =
       let
         val qid = Names.conDecQid condec
         val _ = Names.varReset IntSyn.Null
       in
-        F.HVbox ([sym "%block", F.Break, fmtConstPath (Symbol.label, qid), F.Space,
-                 sym ":", F.Break] @ (fmtBlock (Gsome, Lblock))  @ [sym "."])
+        F.hvbox ([sym "%block", F.break, fmtConstPath (Symbol.label, qid), F.space,
+                 sym ":", F.break] @ (fmtBlock (Gsome, Lblock))  @ [sym "."])
       end
     | fmtConDec (hide, condec as I.BlockDef (_, _, W)) =
       let
         val qid = Names.conDecQid condec
         val _ = Names.varReset IntSyn.Null
       in
-        F.HVbox ([sym "%block", F.Break, fmtConstPath (Symbol.label, qid), F.Space,
-                 sym "=", F.Break] @ ( formatWorlds (T.Worlds W) :: [sym "."]))
+        F.hvbox ([sym "%block", F.break, fmtConstPath (Symbol.label, qid), F.space,
+                 sym "=", F.break] @ ( formatWorlds (T.Worlds W) :: [sym "."]))
       end
     | fmtConDec (hide, condec as I.ConDef (_, _, imp, U, V, L, _)) =
       (* reset variable names in between to align names of type V and definition U *)
@@ -818,17 +818,17 @@ local
         (* val _ = Names.varReset () *)
         val Ufmt = fmtExp (G, 0, noCtxt, (U, I.id))
       in
-        F.HVbox [fmtConstPath (Symbol.def, qid), F.Space, sym ":", F.Break,
-                         Vfmt, F.Break,
-                         sym "=", F.Space,
+        F.hvbox [fmtConstPath (Symbol.def, qid), F.space, sym ":", F.break,
+                         Vfmt, F.break,
+                         sym "=", F.space,
                          Ufmt, sym "."]
 (* removed, when abbreviations where introduced. -- cs Mon Jun  7 16:03:30 EDT 1999
-        F.Vbox0 0 1 [F.HVbox [Str0 (Symbol.def (name)), F.Space, sym ":", F.Break,
-                         Vfmt, F.Break,
-                         sym "=", F.Space,
+        F.vbox0 0 1 [F.hvbox [Str0 (Symbol.def (name)), F.space, sym ":", F.break,
+                         Vfmt, F.break,
+                         sym "=", F.space,
                          Ufmt, sym "."],
-                F.Break,
-                F.HVbox [sym "%strict ", Str0 (Symbol.def (name)), sym "."]]
+                F.break,
+                F.hvbox [sym "%strict ", Str0 (Symbol.def (name)), sym "."]]
 *)      end
     | fmtConDec (hide, condec as I.AbbrevDef (_, _, imp, U, V, L)) =
       (* reset variable names in between to align names of type V and definition U *)
@@ -840,17 +840,17 @@ local
         (* val _ = Names.varReset () *)
         val Ufmt = fmtExp (G, 0, noCtxt, (U, I.id))
       in
-        F.HVbox [fmtConstPath (Symbol.def, qid), F.Space, sym ":", F.Break,
-                         Vfmt, F.Break,
-                         sym "=", F.Space,
+        F.hvbox [fmtConstPath (Symbol.def, qid), F.space, sym ":", F.break,
+                         Vfmt, F.break,
+                         sym "=", F.space,
                          Ufmt, sym "."]
 (* removed, when abbreviations where introduced. -- cs Mon Jun  7 16:03:30 EDT 1999
-        F.Vbox0 0 1 [F.HVbox [Str0 (Symbol.def (name)), F.Space, sym ":", F.Break,
-                         Vfmt, F.Break,
-                         sym "=", F.Space,
+        F.vbox0 0 1 [F.hvbox [Str0 (Symbol.def (name)), F.space, sym ":", F.break,
+                         Vfmt, F.break,
+                         sym "=", F.space,
                          Ufmt, sym "."],
-                F.Break,
-                F.HVbox [sym "%nonstrict ", Str0 (Symbol.def (name)), sym "."]]
+                F.break,
+                F.hvbox [sym "%nonstrict ", Str0 (Symbol.def (name)), sym "."]]
 *)      end
 
   fun fmtCnstr (I.Solved) = [Str "Solved Constraint"]
@@ -858,8 +858,8 @@ local
         let
           val G' = Names.ctxLUName G
         in
-          [F.HVbox [fmtExp (G', 0, noCtxt, (U1, I.id)),
-                    F.Break, sym "=", F.Space,
+          [F.hvbox [fmtExp (G', 0, noCtxt, (U1, I.id)),
+                    F.break, sym "=", F.space,
                     fmtExp (G', 0, noCtxt, (U2, I.id))]]
         end
     | fmtCnstr (I.FgnCnstr (csfc as (cs, _))) =
@@ -868,7 +868,7 @@ local
             | fmtExpL ((G, U) :: nil) =
                 [fmtExp (Names.ctxLUName G, 0, noCtxt, (U, I.id))]
             | fmtExpL ((G,U) :: expL) =
-                [fmtExp (Names.ctxLUName G, 0, noCtxt, (U, I.id)), Str ";", F.Break] @ fmtExpL expL
+                [fmtExp (Names.ctxLUName G, 0, noCtxt, (U, I.id)), Str ";", F.break] @ fmtExpL expL
         in
           fmtExpL (I.FgnCnstrStd.ToInternal.apply csfc ())
         end
@@ -876,7 +876,7 @@ local
   fun fmtCnstrL (nil) = [Str "Empty Constraint"]
     | fmtCnstrL (ref Cnstr :: nil) = (fmtCnstr Cnstr) @ [Str "."]
     | fmtCnstrL (ref Cnstr :: cnstrL) =
-        (fmtCnstr Cnstr) @ [Str ";", F.Break] @ (fmtCnstrL cnstrL)
+        (fmtCnstr Cnstr) @ [Str ";", F.break] @ (fmtCnstrL cnstrL)
 
 
   (* fmtNamedEVar, fmtEVarInst and evarInstToString are used to print
@@ -893,17 +893,17 @@ local
       let
         val U' = abstractLam (G, U)
       in
-        F.HVbox [Str0 (Symbol.evar (name)), F.Space, sym "=", F.Break,
+        F.hvbox [Str0 (Symbol.evar (name)), F.space, sym "=", F.break,
                  fmtExp (I.Null, 0, noCtxt, (U', I.id))]
       end
     | fmtNamedEVar (U, name) = (* used for proof term variables in queries *)
-      F.HVbox [Str0 (Symbol.evar (name)), F.Space, sym "=", F.Break,
+      F.hvbox [Str0 (Symbol.evar (name)), F.space, sym "=", F.break,
                fmtExp (I.Null, 0, noCtxt, (U, I.id))]
 
   fun fmtEVarInst (nil) = [Str "Empty Substitution"]
     | fmtEVarInst ((U,name)::nil) = [fmtNamedEVar (U, name)]
     | fmtEVarInst ((U,name)::Xs) =
-        fmtNamedEVar (U, name) :: Str ";" :: F.Break :: fmtEVarInst Xs
+        fmtNamedEVar (U, name) :: Str ";" :: F.break :: fmtEVarInst Xs
 
   (* collectEVars and collectConstraints are used to print constraints
      associated with EVars in a instantiation of variables occurring in queries.
@@ -934,15 +934,15 @@ in
      (b) types need not be well-formed, since they are not used
   *)
   fun formatDec (G, D) = fmtDec (G, 0, (D, I.id))
-  fun formatDecList (G, D) = F.HVbox (fmtDecList (G, D))
-  fun formatDecList' (G, (D,s)) = F.HVbox (fmtDecList' (G, (D, s)))
+  fun formatDecList (G, D) = F.hvbox (fmtDecList (G, D))
+  fun formatDecList' (G, (D,s)) = F.hvbox (fmtDecList' (G, (D, s)))
   fun formatExp (G, U) = fmtExp (G, 0, noCtxt, (U, I.id))
   fun formatSpine (G, S) = fmtSpine (G, 0, 0, (S, I.id))
   fun formatConDec (condec) = fmtConDec (false, condec)
   fun formatConDecI (condec) = fmtConDec (true, condec)
-  fun formatCnstr (Cnstr) = F.Vbox0 0 1 (fmtCnstr Cnstr)
-  fun formatCnstrs (cnstrL) = F.Vbox0 0 1 (fmtCnstrL cnstrL)
-  fun formatCtx (G0, G) = F.HVbox (fmtCtx (G0, G))      (* assumes G0 and G are named *)
+  fun formatCnstr (Cnstr) = F.vbox0 0 1 (fmtCnstr Cnstr)
+  fun formatCnstrs (cnstrL) = F.vbox0 0 1 (fmtCnstrL cnstrL)
+  fun formatCtx (G0, G) = F.hvbox (fmtCtx (G0, G))      (* assumes G0 and G are named *)
 
   fun decToString (G, D) = F.makestring_fmt (formatDec (G, D))
   fun expToString (G, U) = F.makestring_fmt (formatExp (G, U))
@@ -952,7 +952,7 @@ in
   fun ctxToString (G0, G) = F.makestring_fmt (formatCtx (G0, G))
 
   fun evarInstToString Xnames =
-        F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (fmtEVarInst Xnames), Str "."])
+        F.makestring_fmt (F.hbox [F.vbox0 0 1 (fmtEVarInst Xnames), Str "."])
 
 
   fun evarCnstrsToStringOpt Xnames =

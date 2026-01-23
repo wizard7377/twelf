@@ -11,7 +11,7 @@ struct
 
   exception Error of string
 
-   type Var = int
+   type var = int
 
   datatype Mode =                       (* Mode                       *)
     Bot                                 (* M ::= Bot                  *)

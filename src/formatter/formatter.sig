@@ -28,27 +28,27 @@ These may may be changed by the user.
 
 
       (* return the minimum/maximum width of a format *)
-      val  Width: format -> (int * int)
+      val  width: format -> (int * int)
 
       (* routines to create a format *)
       (* Note: the xxxx0 functions take extra arguments *)
-      val  Break: format
-      val  Break0: int -> int -> format     (* blanks, indent *)
-      val  String: string -> format
-      val  String0: int -> string -> format (* output width *)
-      val  Space: format
-      val  Spaces: int -> format
-      val  Newline: unit -> format
-      val  Newlines: int -> format
-      val  Newpage: unit -> format
-      val  Vbox: format list -> format
-      val  Vbox0: int -> int -> format list -> format  (* indent, skip *)
-      val  Hbox: format list -> format
-      val  Hbox0: int -> format list -> format         (* blanks *)
-      val  HVbox: format list -> format
-      val  HVbox0: int -> int -> int -> format list -> format  (* blanks, indent, skip *)
-      val  HOVbox: format list -> format
-      val  HOVbox0: int -> int -> int -> format list -> format (* blanks, indent, skip *)
+      val  break: format
+      val  break0: int -> int -> format     (* blanks, indent *)
+      val  string: string -> format
+      val  string0: int -> string -> format (* output width *)
+      val  space: format
+      val  spaces: int -> format
+      val  newline: unit -> format
+      val  newlines: int -> format
+      val  newpage: unit -> format
+      val  vbox: format list -> format
+      val  vbox0: int -> int -> format list -> format  (* indent, skip *)
+      val  hbox: format list -> format
+      val  hbox0: int -> format list -> format         (* blanks *)
+      val  hvbox: format list -> format
+      val  hvbox0: int -> int -> int -> format list -> format  (* blanks, indent, skip *)
+      val  hovbox: format list -> format
+      val  hovbox0: int -> int -> int -> format list -> format (* blanks, indent, skip *)
 (*
 \subsection{Output routines}
 *)

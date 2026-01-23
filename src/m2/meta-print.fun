@@ -31,17 +31,17 @@ struct
           fun fmtPrefix' (M.Prefix (I.Null, I.Null, I.Null), Fmt) = Fmt
             | fmtPrefix' (M.Prefix (I.Decl (I.Null, D), I.Decl (I.Null, mode),
                                     I.Decl (I.Null, b)), Fmt) =
-                [F.String (depthToString b),
-                 F.String (modeToString mode),
+                [F.string (depthToString b),
+                 F.string (modeToString mode),
                  Print.formatDec (I.Null, D)] @ Fmt
             | fmtPrefix' (M.Prefix (I.Decl (G, D), I.Decl (M, mode), I.Decl (B, b)), Fmt) =
                 fmtPrefix' (M.Prefix (G, M, B),
-                            [F.String ",", F.Space, F.Break,
-                             F.String (depthToString b),
-                             F.String (modeToString mode),
+                            [F.string ",", F.space, F.break,
+                             F.string (depthToString b),
+                             F.string (modeToString mode),
                              Print.formatDec (G, D)] @ Fmt)
         in
-          F.HVbox (fmtPrefix' (GM, []))
+          F.hvbox (fmtPrefix' (GM, []))
         end
 
     fun prefixToString GM = F.makestring_fmt (fmtPrefix GM)

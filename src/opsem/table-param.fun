@@ -68,7 +68,7 @@ struct
      | RepeatedEntry of (IntSyn.Sub * IntSyn.Sub) * answer * Status
      | DivergingEntry of (IntSyn.Sub * answer)
 
-   datatype answState = new | repeated
+   datatype answState = New | Repeated
 
 (* ---------------------------------------------------------------------- *)
 (* global search parameters *)

@@ -116,12 +116,12 @@ struct
               [Print.formatExp (G, M)]
               | formatTuple' (F.Inx (M, P')) =
               (Print.formatExp (G, M) ::
-               Fmt.String "," :: Fmt.Break :: formatTuple' P')
+               Fmt.string "," :: Fmt.break :: formatTuple' P')
           in
             case P
-              of (F.Inx (_, F.Unit)) => Fmt.Hbox (formatTuple' P)
-              | _ => Fmt.HVbox0 1 1 1
-                (Fmt.String "(" :: (formatTuple' P @ [Fmt.String ")"]))
+              of (F.Inx (_, F.Unit)) => Fmt.hbox (formatTuple' P)
+              | _ => Fmt.hvbox0 1 1 1
+                (Fmt.string "(" :: (formatTuple' P @ [Fmt.string ")"]))
           end
         val S.State (n, (G, B), (IH, OH), d, O, H, F) = current ()
       in

@@ -81,11 +81,11 @@ local
   end
 
   (* Some original Formatter functions replaced with trivial functions. *)
-  (* val Str  = F.String
-  fun Str0 (s, n) = F.String0 n s
+  (* val Str  = F.string
+  fun Str0 (s, n) = F.string0 n s
   fun Integer (n) = ("\"" ^ Int.toString n ^ "\"") *)
   fun Str (s) = s
-  (* fun sexp (fmts) = F.Hbox [F.HVbox fmts] *)
+  (* fun sexp (fmts) = F.hbox [F.hvbox fmts] *)
   fun sexp (l) = String.concat l
 
   (* This is probably defined elsewhere, too. It's needed to check how many arguments there will be in an om:OMA element *)

@@ -183,16 +183,16 @@ struct
           val _ = N.varReset I.Null
           val (G, V') = abbrevCGoal (I.Null, V, p, ci)
         in
-          F.HVbox [Print.formatCtx (I.Null, G), F.Break, F.String "|-",
-                   F.Space, Print.formatExp (G, V')]
+          F.hvbox [Print.formatCtx (I.Null, G), F.break, F.string "|-",
+                   F.space, Print.formatExp (G, V')]
         end
 
     fun formatCGoals ((V,p)::nil, ci) = [formatCGoal (V, p, ci)]
       | formatCGoals ((V,p)::Vs, ci) =
-          formatCGoal (V, p, ci) :: F.String "," :: F.Break :: formatCGoals (Vs, ci)
+          formatCGoal (V, p, ci) :: F.string "," :: F.break :: formatCGoals (Vs, ci)
 
     fun missingToString (Vs, ci) =
-        F.makestring_fmt (F.Hbox [F.Vbox0 0 1 (formatCGoals (Vs, ci)), F.String "."])
+        F.makestring_fmt (F.hbox [F.vbox0 0 1 (formatCGoals (Vs, ci)), F.string "."])
 
     fun showSplitVar (V, p, k, ci) =
         let
@@ -204,8 +204,8 @@ struct
         end
 
     fun showPendingGoal (V, p, ci, lab) =
-          F.makestring_fmt (F.Hbox [F.String(labToString(lab)), F.Space, F.String "?- ",
-                                    formatCGoal (V, p, ci), F.String "."])
+          F.makestring_fmt (F.hbox [F.string(labToString(lab)), F.space, F.string "?- ",
+                                    formatCGoal (V, p, ci), F.string "."])
 
     (*
        Coverage goals have the form {{G}} {{L}} a @ S
@@ -266,10 +266,10 @@ struct
     fun equationToString (Eqn (G, Us1, Us2)) =
         let val G' = Names.ctxLUName G
           val fmt =
-              F.HVbox [Print.formatCtx (I.Null, G'), F.Break,
-                       F.String "|-", F.Space,
-                       Print.formatExp (G', I.EClo (Us1)), F.Break,
-                       F.String "=", F.Space,
+              F.hvbox [Print.formatCtx (I.Null, G'), F.break,
+                       F.string "|-", F.space,
+                       Print.formatExp (G', I.EClo (Us1)), F.break,
+                       F.string "=", F.space,
                        Print.formatExp (G', I.EClo (Us2))]
         in
           F.makestring_fmt (fmt)
@@ -1767,19 +1767,19 @@ val _ = pr () *)
         let
           val _ = N.varReset I.Null
         in
-          F.HVbox ([Print.formatCtx (I.Null, G), F.Break, F.Break, F.String "|-",
-                    F.Space] @ Print.formatSpine (G, S))
+          F.hvbox ([Print.formatCtx (I.Null, G), F.break, F.break, F.string "|-",
+                    F.space] @ Print.formatSpine (G, S))
         end
 
     fun showPendingCGoal (CGoal (G, S), lab) =
-        F.makestring_fmt (F.Hbox [F.String(labToString(lab)), F.Space, F.String "?- ",
-                                  formatCGoal (CGoal (G, S)), F.String "."])
+        F.makestring_fmt (F.hbox [F.string(labToString(lab)), F.space, F.string "?- ",
+                                  formatCGoal (CGoal (G, S)), F.string "."])
 
     fun showCClause (CClause (G, S)) =
         let
           val _ = N.varReset I.Null
         in
-          F.makestring_fmt (F.HVbox ([F.String "!- "] @ Print.formatSpine (G, S)))
+          F.makestring_fmt (F.hvbox ([F.string "!- "] @ Print.formatSpine (G, S)))
         end
 
     fun showSplitVar (CGoal (G, S), k) =
@@ -1787,7 +1787,7 @@ val _ = pr () *)
           val _ = N.varReset I.Null
           val I.Dec (SOME(x), _) = I.ctxLookup (G, k)
         in
-          "Split " ^ x ^ " in " ^ F.makestring_fmt (F.HVbox (Print.formatSpine (G, S)))
+          "Split " ^ x ^ " in " ^ F.makestring_fmt (F.hvbox (Print.formatSpine (G, S)))
         end
 
     (* newEVarSubst (G, G') = s

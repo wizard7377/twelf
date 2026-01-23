@@ -41,27 +41,27 @@ struct
         let
           val V = I.constType cid
           fun fmtModeDec' (G, _, M.Mnil) =
-                [F.String "(",
+                [F.string "(",
                  P.formatExp (G, I.Root (I.Const (cid), makeSpine G)),
-                 F.String ")"]
+                 F.string ")"]
             | fmtModeDec' (G, I.Pi ((D, _), V'), M.Mapp (marg, S)) =
                 let
                   val D' = nameDec (D, marg)
                   val D'' = Names.decEName (G, D')
                 in
-                  [F.String (argToString marg), F.String "{", P.formatDec (G, D''),
-                   F.String "}", F.Break] @ (fmtModeDec' (I.Decl (G, D''), V', S))
+                  [F.string (argToString marg), F.string "{", P.formatDec (G, D''),
+                   F.string "}", F.break] @ (fmtModeDec' (I.Decl (G, D''), V', S))
                 end
         in
-          F.HVbox (fmtModeDec' (I.Null, V, mS))
+          F.hvbox (fmtModeDec' (I.Null, V, mS))
         end
 
     fun fmtModeDecs ((cid, mS)::nil) = fmtModeDec (cid, mS)::nil
       | fmtModeDecs ((cid, mS)::mdecs) =
-        fmtModeDec (cid, mS)::F.Break::fmtModeDecs mdecs
+        fmtModeDec (cid, mS)::F.break::fmtModeDecs mdecs
 
     fun modeToString cM = F.makestring_fmt (fmtModeDec cM)
-    fun modesToString mdecs = F.makestring_fmt (F.Vbox0 0 1 (fmtModeDecs mdecs))
+    fun modesToString mdecs = F.makestring_fmt (F.vbox0 0 1 (fmtModeDecs mdecs))
   in
     val modeToString = modeToString
     val modesToString = modesToString

@@ -13,7 +13,7 @@ struct
 
   exception Error of string
 
-  datatype Tabled = yes | no
+  datatype Tabled = Yes | No
 
 (*  datatype ModeSpine = Mnil | Mapp of Marg * ModeSpine
   and  Marg = Marg of Mode * string option

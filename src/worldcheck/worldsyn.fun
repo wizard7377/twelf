@@ -103,13 +103,13 @@ struct
             | Seq (dl, s) =>
               Print.formatDecList' (I.Null, (dl, s))
             | Star r =>
-              F.Hbox ([F.String "(", formatReg r, F.String ")*"])
+              F.hbox ([F.string "(", formatReg r, F.string ")*"])
             | Plus (r1, r2) =>
-              F.HVbox ([F.String "(", formatReg r1, F.String ")",
-                        F.Break, F.String "|", F.Space,
-                        F.String "(", formatReg r2, F.String ")"])
+              F.hvbox ([F.string "(", formatReg r1, F.string ")",
+                        F.break, F.string "|", F.space,
+                        F.string "(", formatReg r2, F.string ")"])
             | One =>
-              F.String "1")
+              F.string "1")
 
     (* Format a subsumption failure judgment
        msg: Prefix for the message
@@ -123,15 +123,15 @@ struct
      *)
     fun formatSubsump msg (G, dl, Rb, b) =
         (*
-            F.HVbox ([F.String ((Names.qidToString (Names.constQid b)) ^ ":")])
+            F.hvbox ([F.string ((Names.qidToString (Names.constQid b)) ^ ":")])
         *)
-        F.HVbox ([F.String msg, F.Space, F.String "for family", F.Space,
-                  F.String ((Names.qidToString (Names.constQid b)) ^ ":"),
-                  F.Break, (* F.Newline (), *)
+        F.hvbox ([F.string msg, F.space, F.string "for family", F.space,
+                  F.string ((Names.qidToString (Names.constQid b)) ^ ":"),
+                  F.break, (* F.newline (), *)
                   (* Do not print some-variables; reenable if necessary *)
                   (* June 3, 2009 -fp,cs *)
-                  (* Print.formatCtx(I.Null, G), F.Break, F.String "|-", F.Space, *)
-                  Print.formatDecList (G, dl), F.Break, F.String ("</:"), F.Space,
+                  (* Print.formatCtx(I.Null, G), F.break, F.string "|-", F.space, *)
+                  Print.formatDecList (G, dl), F.break, F.string ("</:"), F.space,
                   formatReg Rb])
 
     (* createEVarSub G G' = s
@@ -188,7 +188,7 @@ struct
 
     (* Declarations *)
     fun formatD (G, D) =
-          F.Hbox (F.String "{" :: Print.formatDec (G, D) :: F.String "}" :: nil)
+          F.hbox (F.string "{" :: Print.formatDec (G, D) :: F.string "}" :: nil)
 
     (* Declaration lists *)
     fun formatDList (G, nil, t) = nil
@@ -202,7 +202,7 @@ struct
         let
           val D' = I.decSub (D, t) (* Names.decUName (G, I.decSub (D, t)) *)
         in
-          formatD (G, D') :: F.Break
+          formatD (G, D') :: F.break
           :: formatDList (I.Decl (G, D'), L, I.dot1 t)
         end
 
@@ -214,22 +214,22 @@ struct
 
     (* Hypotheses and declaration lists *)
     fun wGoalToString ((G, L), Seq (piDecs, t)) =
-        F.makestring_fmt (F.HVbox [F.HVbox (formatDList (G, L, I.id)), F.Break,
-                                   F.String "<|", F.Break,
-                                   F.HVbox (formatDList (G, piDecs, t))])
+        F.makestring_fmt (F.hvbox [F.hvbox (formatDList (G, L, I.id)), F.break,
+                                   F.string "<|", F.break,
+                                   F.hvbox (formatDList (G, piDecs, t))])
 
     (* Declaration list *)
     fun worldToString (G, Seq (piDecs, t)) =
-          F.makestring_fmt (F.HVbox (formatDList (G, piDecs, t)))
+          F.makestring_fmt (F.hvbox (formatDList (G, piDecs, t)))
 
     (* Hypotheses *)
     fun hypsToString (G, L) =
-          F.makestring_fmt (F.HVbox (formatDList (G, L, I.id)))
+          F.makestring_fmt (F.hvbox (formatDList (G, L, I.id)))
 
     (* Mismatch between hypothesis and world declaration *)
     fun mismatchToString (G, (V1, s1), (V2, s2)) =
-        F.makestring_fmt (F.HVbox [Print.formatExp (G, I.EClo (V1, s1)), F.Break,
-                                   F.String "<>", F.Break,
+        F.makestring_fmt (F.hvbox [Print.formatExp (G, I.EClo (V1, s1)), F.break,
+                                   F.string "<>", F.break,
                                    Print.formatExp (G, I.EClo (V2, s2))])
 
     (***********)

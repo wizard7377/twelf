@@ -384,8 +384,8 @@ struct
                  matchAtom ((p,s), dp,
                           (fn pskeleton =>
                            case MT.answerCheck (s', answRef, pskeleton) of
-                             T.repeated => ()
-                           | T.new      => (sc pskeleton)))
+                             T.Repeated => ()
+                           | T.New      => (sc pskeleton)))
 
            | T.RepeatedEntry(asub,answRef, T.Incomplete) =>
                if T.noAnswers answRef then
@@ -636,8 +636,8 @@ struct
       matchAtom ((p, s), dp,
              (fn pskeleton =>
               case MT.answerCheck (s', answRef, pskeleton)
-                of T.repeated => ()
-              | T.new      => sc pskeleton))
+                of T.Repeated => ()
+              | T.New      => sc pskeleton))
 
 
 

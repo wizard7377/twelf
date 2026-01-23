@@ -26,69 +26,69 @@ local
   (* some shorthands *)
   structure I = IntSyn
   structure F = Formatter
-  val Str = F.String
-  fun Str0 (s, n) = F.String0 n s
+  val Str = F.string
+  fun Str0 (s, n) = F.string0 n s
   fun sym (s) = Str0 (Symbol.sym s)
 
-  fun parens (fmt) = F.Hbox [sym "(", fmt, sym ")"]
+  fun parens (fmt) = F.hbox [sym "(", fmt, sym ")"]
 
   (* assumes NF *)
   fun fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
       let
         val D' = Names.decEName (G, D)
       in
-        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
+        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.break
         :: fmtDQuants (I.Decl (G, D'), V2)
       end
     | fmtDQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
         val D' = Names.decEName (G, D)
       in
-        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
+        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.break
         :: fmtDQuants (I.Decl (G, D'), V2)
       end
     | fmtDQuants (G, V as I.Pi _) = (* P = I.No *)
-        [F.HOVbox (fmtDSubGoals (G, V, nil))]
+        [F.hovbox (fmtDSubGoals (G, V, nil))]
     | fmtDQuants (G, V) = (* V = Root _ *)
         [Print.formatExp (G, V)]
   and fmtDSubGoals (G, I.Pi ((D as I.Dec (_, V1), I.No), V2), acc) =
         fmtDSubGoals (I.Decl (G, D), V2,
-                      F.Break :: sym "<-" :: F.Space :: fmtGparens (G, V1)
+                      F.break :: sym "<-" :: F.space :: fmtGparens (G, V1)
                       :: acc)
     | fmtDSubGoals (G, V as I.Pi _, acc) = (* acc <> nil *)
-        parens (F.HVbox (fmtDQuants (G, V))) :: acc
+        parens (F.hvbox (fmtDQuants (G, V))) :: acc
     | fmtDSubGoals (G, V, acc) = (* V = Root _ *)
         Print.formatExp (G, V) :: acc
-  and fmtDparens (G, V as I.Pi _) = parens (F.HVbox (fmtDQuants (G, V)))
+  and fmtDparens (G, V as I.Pi _) = parens (F.hvbox (fmtDQuants (G, V)))
     | fmtDparens (G, V) = (* V = Root _ *)
         Print.formatExp (G, V)
-  and fmtGparens (G, V as I.Pi _) = parens (F.HVbox (fmtGQuants (G, V)))
+  and fmtGparens (G, V as I.Pi _) = parens (F.hvbox (fmtGQuants (G, V)))
     | fmtGparens (G, V) = (* V = Root _ *)
         Print.formatExp (G, V)
   and fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Maybe), V2)) =
       let
         val D' = Names.decLUName (G, D)
       in
-        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
+        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.break
         :: fmtGQuants (I.Decl (G, D'), V2)
       end
     | fmtGQuants (G, I.Pi ((D as I.Dec (_, V1), I.Meta), V2)) =
       let
         val D' = Names.decLUName (G, D)
       in
-        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.Break
+        sym "{" :: Print.formatDec (G, D') :: sym "}" :: F.break
         :: fmtGQuants (I.Decl (G, D'), V2)
       end
     | fmtGQuants (G, V) = (* P = I.No or V = Root _ *)
-        [F.HOVbox (fmtGHyps (G, V))]
+        [F.hovbox (fmtGHyps (G, V))]
   and fmtGHyps (G, I.Pi ((D as I.Dec (_, V1), I.No), V2)) =
-        fmtDparens (G, V1) :: F.Break :: sym "->" :: F.Space :: fmtGHyps (I.Decl (G, D), V2)
+        fmtDparens (G, V1) :: F.break :: sym "->" :: F.space :: fmtGHyps (I.Decl (G, D), V2)
     | fmtGHyps (G, V as I.Pi _) = (* P = I.Maybe *)
-        [F.HVbox (fmtGQuants (G, V))]
+        [F.hvbox (fmtGQuants (G, V))]
     | fmtGHyps (G, V) = (* V = Root _ *)
         [Print.formatExp (G, V)]
 
-  fun fmtClause (G, V) = F.HVbox (fmtDQuants (G, V))
+  fun fmtClause (G, V) = F.hvbox (fmtDQuants (G, V))
 
   fun fmtClauseI (0, G, V) = fmtClause (G, V)
     | fmtClauseI (i, G, I.Pi ((D, _), V)) =
@@ -99,7 +99,7 @@ local
         val _ = Names.varReset IntSyn.Null
         val Vfmt = fmtClauseI (i, I.Null, V)
       in
-        F.HVbox [Str0 (Symbol.const (id)), F.Space, sym ":", F.Break,
+        F.hvbox [Str0 (Symbol.const (id)), F.space, sym ":", F.break,
                  Vfmt, sym "."]
       end
     | fmtConDec (condec) =

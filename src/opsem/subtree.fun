@@ -730,10 +730,10 @@ functor MemoTable ((*! structure IntSyn' : INTSYN !*)
         val (DEVars, sk) = A.abstractAnswSub s'
       in
         if member ((DEVars, sk), T.solutions answRef) then
-          T.repeated
+          T.Repeated
         else
           (T.addSolution (((DEVars, sk), O), answRef);
-          T.new)
+          T.New)
       end
 
     (* ---------------------------------------------------------------------- *)

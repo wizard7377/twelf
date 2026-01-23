@@ -29,17 +29,17 @@ places.
 The {\tt Spmod} function is used when {\tt Bailout} is active.
 *)
       local
-         fun Spaces' 0 s = s
-          |  Spaces' n s = Spaces' (n-1) (s^" ")
-         fun Spaces n = if n>0 then Spaces' n "" else ""
-         fun Newlines' 0 s = s
-          |  Newlines' n s = Newlines' (n-1) (s^"\n")
-         fun Newlines n = if n>0 then Newlines' n "" else ""
+         fun spaces' 0 s = s
+          |  spaces' n s = spaces' (n-1) (s^" ")
+         fun spaces n = if n>0 then spaces' n "" else ""
+         fun newlines' 0 s = s
+          |  newlines' n s = newlines' (n-1) (s^"\n")
+         fun newlines n = if n>0 then newlines' n "" else ""
       in
-        val Sp = Spaces (* return a number of spaces *)
-        fun Spmod n = Spaces (n mod (!Pagewidth))
-        val Nl = Newlines (* return a number of newlines *)
-        fun Np() = "\n\012\n" (* CTRL_L == "\012" *)
+        val sp = spaces (* return a number of spaces *)
+        fun spmod n = spaces (n mod (!Pagewidth))
+        val nl = newlines (* return a number of newlines *)
+        fun np() = "\n\012\n" (* CTRL_L == "\012" *)
       end
 
 
@@ -47,7 +47,7 @@ The {\tt Spmod} function is used when {\tt Bailout} is active.
 (*
 \subsubsection{Arithmetic functions}
 *)
-fun Max(x,y) = if (x:int)>y then x else y
+fun max(x,y) = if (x:int)>y then x else y
 fun sumpair ((a,b),(c,d)) = ((a:int)+c,(b:int)+d)
 
 (*
@@ -87,20 +87,20 @@ The argument {\ml m} is the current mode in effect, {\ml b} is the
 horizontal blanks and {\ml i} is the indent currently in effect.
 These are used to determine the width of breaks and default breaks.
 *)
-fun Width0(m,   b,i, Str(n,_)) = (n,n)
- |  Width0(Hori,b,i, Brk(m,_)) = (m,m)
- |  Width0(Vert,b,i, Brk(_,n)) = (n,n)
- |  Width0(Hori,b,i, Dbk)      = (b,b)
- |  Width0(Vert,b,i, Dbk)      = (i,i)
- |  Width0(m,b,i, Ebk)      = (0,0)
- |  Width0(m,b,i, Vbx((min,max),_,_,_))      = (min,max)
- |  Width0(m,b,i, Hbx((min,max),_,_))        = (min,max)
- |  Width0(m,b,i, Hvx(((min,max),_),_,_,_,_)) = (min,max)
- |  Width0(m,b,i, Hov(((min,max),_),_,_,_,_)) = (min,max)
+fun width0(m,   b,i, Str(n,_)) = (n,n)
+ |  width0(Hori,b,i, Brk(m,_)) = (m,m)
+ |  width0(Vert,b,i, Brk(_,n)) = (n,n)
+ |  width0(Hori,b,i, Dbk)      = (b,b)
+ |  width0(Vert,b,i, Dbk)      = (i,i)
+ |  width0(m,b,i, Ebk)      = (0,0)
+ |  width0(m,b,i, Vbx((min,max),_,_,_))      = (min,max)
+ |  width0(m,b,i, Hbx((min,max),_,_))        = (min,max)
+ |  width0(m,b,i, Hvx(((min,max),_),_,_,_,_)) = (min,max)
+ |  width0(m,b,i, Hov(((min,max),_),_,_,_,_)) = (min,max)
 
-fun Width fmt = Width0(Hori,!Blanks,!Indent,fmt)
+fun width fmt = width0(Hori,!Blanks,!Indent,fmt)
 
-val Unused = ~9999  (* a bad value to mark unused arguments of Width0 *)
+val unused = ~9999  (* a bad value to mark unused arguments of width0 *)
 (*
 {\bf Caution:}
 The function {\ml Width} assumes horizontal mode.
@@ -171,16 +171,16 @@ then simply starts the auxiliary function
 *)
 local
    fun vlistWidth'(i,nil,(totmin,totmax),(tmmin,tmmax)) =
-                  (Max(totmin,tmmin), Max(totmax,tmmax))
+                  (max(totmin,tmmin), max(totmax,tmmax))
     |  vlistWidth'(i,Dbk::t, (totmin,totmax), (tmmin,tmmax)) =
-                    vlistWidth'(i,t, (Max(totmin,tmmin),Max(totmax,tmmax)),
-                                Width0(Vert,Unused,i,Dbk))
+                    vlistWidth'(i,t, (max(totmin,tmmin),max(totmax,tmmax)),
+                                width0(Vert,unused,i,Dbk))
     |  vlistWidth'(i,(b as (Brk(_)))::t, (totmin,totmax), (tmmin,tmmax)) =
-                    vlistWidth'(i,t, (Max(totmin,tmmin),Max(totmax,tmmax)),
-                                Width0(Vert,Unused,i,b))
+                    vlistWidth'(i,t, (max(totmin,tmmin),max(totmax,tmmax)),
+                                width0(Vert,unused,i,b))
     |  vlistWidth'(i,x::t, (totmin,totmax), (tmmin,tmmax)) =
                     vlistWidth'(i,t,(totmin,totmax),
-                                sumpair((Width0(Vert,Unused,i,x)),
+                                sumpair((width0(Vert,unused,i,x)),
                                          (tmmin,tmmax)))
 in
    fun vlistWidth(l,indent) = vlistWidth'(indent,l,(0,0),(0,0))
@@ -194,7 +194,7 @@ to the {\ml Width0} function.
 *)
 fun hlistWidth(l,blanks) =
               List.foldr (fn (fmt,(x,y)) =>
-                        sumpair(Width0(Hori,blanks,Unused,fmt),(x,y)))
+                        sumpair(width0(Hori,blanks,unused,fmt),(x,y)))
                     (0,0) l
 (*
 When we have a box that can be treated as a
@@ -259,28 +259,28 @@ Two notes:
 break.  This ensures that the first item is indented as much as all the others.
 *)
 
-val Break    = Dbk
-fun Break0 b i = Brk(b,i)
-fun String s = Str(size s,s)
-fun String0 i s = Str(i, s)
-val Space    = Str(1, Sp 1)
-fun Spaces n = Str(n, Sp(n))
-fun Newline()  = Str(0, Nl 1)
-fun Newlines n = Str(0, Nl(n))
-fun Vbox l = Vbx( vlistWidth(l,(!Indent)), (!Indent), (!Skip), l)
-and Vbox0  i s l = Vbx( vlistWidth(l,i), i, s, l)
-and Hbox   l = Hbx( hlistWidth(l,(!Blanks)), (!Blanks), l)
-and Hbox0  b l = Hbx( hlistWidth(l,b), b, l)
-and HVbox  l = Hvx( hvlistWidth(l,(!Blanks),(!Indent)),
+val break    = Dbk
+fun break0 b i = Brk(b,i)
+fun string s = Str(size s,s)
+fun string0 i s = Str(i, s)
+val space    = Str(1, sp 1)
+fun spaces n = Str(n, sp(n))
+fun newline()  = Str(0, nl 1)
+fun newlines n = Str(0, nl(n))
+fun vbox l = Vbx( vlistWidth(l,(!Indent)), (!Indent), (!Skip), l)
+and vbox0  i s l = Vbx( vlistWidth(l,i), i, s, l)
+and hbox   l = Hbx( hlistWidth(l,(!Blanks)), (!Blanks), l)
+and hbox0  b l = Hbx( hlistWidth(l,b), b, l)
+and hvbox  l = Hvx( hvlistWidth(l,(!Blanks),(!Indent)),
                        (!Blanks), (!Indent), (!Skip), l)
-and HVbox0 b i s l =
+and hvbox0 b i s l =
                Hvx( hvlistWidth(l,b,i), b, i, s, l)
-and HOVbox l =  Hov( hovlistWidth(l,(!Blanks),(!Indent)),
+and hovbox l =  Hov( hovlistWidth(l,(!Blanks),(!Indent)),
                         (!Blanks), (!Indent), (!Skip), l)
-and HOVbox0 b i s l =
+and hovbox0 b i s l =
                 Hov( hovlistWidth(l,b,i), b, i, s, l)
 
-fun Newpage() = Str(0, Np())
+fun newpage() = Str(0, np())
 
 (*
 %***********************************************************************
@@ -323,7 +323,7 @@ determine the maximum width do not contain breaks, all but the last
 *)
   fun summaxwidth l =
       (List.foldr (fn (fmt,ysum) =>
-              let val (_,y) = Width0(Hori,Unused,Unused,fmt)
+              let val (_,y) = width0(Hori,unused,unused,fmt)
               in y + ysum end)
              0
              l)
@@ -443,12 +443,12 @@ We thus get:
          \end{itemize}
 \end{itemize}
 *)
-fun pphv(mw,li,bl,is,ss,mp,ch,lb,nil,res)= (Max(mp,ch),res)
+fun pphv(mw,li,bl,is,ss,mp,ch,lb,nil,res)= (max(mp,ch),res)
  |  pphv(mw,li,bl,is,ss,mp,ch,lb,((gpwdth,flist,brk)::t),res) =
     let val (ch1,s1,mp) =
         (* horizontal width, string to print, max print width *)
             if (lb=Ebk)
-            orelse ( li+ch+(fst(Width0(Hori,bl,Unused,lb)))+gpwdth
+            orelse ( li+ch+(fst(width0(Hori,bl,unused,lb)))+gpwdth
                      <= mw )
             then (* OK - group fits within page or has to fit:
                     horizontal break *)
@@ -457,7 +457,7 @@ fun pphv(mw,li,bl,is,ss,mp,ch,lb,nil,res)= (Max(mp,ch),res)
             else (* group will not fit: vertical break.
                     Was last line of maximum width? *)
             let val (n,s)=print'p(mw,li,bl,is,ss,Vert,lb,res) in
-                (n,s,Max(mp,ch))
+                (n,s,max(mp,ch))
             end
  (* Now print the elements of the group using default for horizontal tabs *)
        val (n2,s2) = pph(mw,(li+ch1),bl,is,ss,flist,0,s1)
@@ -522,17 +522,17 @@ And this is how the algorithm works:
      \end{itemize}
 \end{itemize}
 *)
-and ppv(mw,li,ci,bl,is,ss,max,gw,nil,res) =
-                          (Max(max,gw),res)
-  | ppv(mw,li,ci,bl,is,ss,max,gw, Dbk::t,res) =
+and ppv(mw,li,ci,bl,is,ss,mx,gw,nil,res) =
+                          (max(mx,gw),res)
+  | ppv(mw,li,ci,bl,is,ss,mx,gw, Dbk::t,res) =
         let val (n,s)   = print'p(mw,li,bl,is,ss,Vert,Dbk,res)
-        in ppv(mw,li,(li+n),bl,is,ss,Max(max,gw), n,t, s) end
-  |  ppv(mw,li,ci,bl,is,ss,max,gw,(b as (Brk(_,_)))::t,res) =
+        in ppv(mw,li,(li+n),bl,is,ss,max(mx,gw), n,t, s) end
+  |  ppv(mw,li,ci,bl,is,ss,mx,gw,(b as (Brk(_,_)))::t,res) =
         let val (n,s)   = print'p(mw,li,bl,is,ss,Vert,b,res)
-        in ppv(mw,li,(li+n),bl,is,ss,Max(max,gw), n,t,s) end
-  |  ppv(mw,li,ci,bl,is,ss,max,gw,h::t,res) =
+        in ppv(mw,li,(li+n),bl,is,ss,max(mx,gw), n,t,s) end
+  |  ppv(mw,li,ci,bl,is,ss,mx,gw,h::t,res) =
           let val (n,s)   = print'p(mw,ci,bl,is,ss,Vert,h,res)
-          in ppv(mw,li,(ci+n),bl,is,ss,max,(gw+n),t,s) end
+          in ppv(mw,li,(ci+n),bl,is,ss,mx,(gw+n),t,s) end
 
 (*
 \subsubsection{Printing a horizontal box}
@@ -637,32 +637,32 @@ $insert~{\tt mod}~ {\tt Pagewidth} \geq BailoutSpot$
 *)
 and print'p(mw,id,bl,is,ss,mo,  Str(n,s),res) = (n,s::res)
  |  print'p(mw,id,bl,is,ss,Hori,Brk(b,i),res) =
-           (b, (if (!Bailout) then Spmod(b) else Sp(b))::res)
+           (b, (if (!Bailout) then spmod(b) else sp(b))::res)
  |  print'p(mw,id,bl,is,ss,Vert, Brk(b,i), res) =
-           (i, (if (!Bailout) then Spmod(id+i) else Sp(id+i))::(Nl(ss))::res)
+           (i, (if (!Bailout) then spmod(id+i) else sp(id+i))::(nl(ss))::res)
  |  print'p(mw,id,bl,is,ss,Hori, Dbk, res) =
-           (bl, (if (!Bailout) then Spmod(bl) else Sp(bl))::res)
+           (bl, (if (!Bailout) then spmod(bl) else sp(bl))::res)
  |  print'p(mw,id,bl,is,ss,Vert, Dbk, res)      =
-           (is,(if (!Bailout) then Spmod(id+is) else Sp(id+is))::(Nl(ss))::res)
+           (is,(if (!Bailout) then spmod(id+is) else sp(id+is))::(nl(ss))::res)
  |  print'p(mw,id,bl,is,ss,mo,   Ebk,res)      = (0,res)
  |  print'p(mw,id,bl,is,ss,mo,   Hbx((min,max),blanks,l),res) =
             if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
             then pph(mw+(!Pagewidth),mw + (!BailoutIndent),
-                        blanks,is,ss,l,0,(Nl(ss))::res)
+                        blanks,is,ss,l,0,(nl(ss))::res)
             else pph(mw,id,blanks,is,ss,l,0,res)
  |  print'p(mw,id,bl,is,ss,mo,   Vbx((min,max),indent,skip,l), res) =
            if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
            then let val id = mw+(!BailoutIndent)
-                in ppv(mw+(!Pagewidth),id,id,bl,indent,skip,0,0,l,(Nl(ss))::res) end
+                in ppv(mw+(!Pagewidth),id,id,bl,indent,skip,0,0,l,(nl(ss))::res) end
            else ppv(mw,id,id,bl,indent,skip,0,0,l,res)
  |  print'p(mw,id,bl,is,ss,mo,   Hvx(((min,max),(nmode,xmode)),blanks,indent,skip,l), res) =
             let val gl=gh(nil,l,nil) in
             if (!Bailout) andalso (id+min) >= mw
                andalso (id mod (!Pagewidth) >= !BailoutSpot)
             then pphv(mw+(!Pagewidth),mw+(!BailoutIndent),
-                          blanks,indent,skip,0,0,Ebk,gl,(Nl(ss))::res)
+                          blanks,indent,skip,0,0,Ebk,gl,(nl(ss))::res)
             else pphv(mw,id,blanks,indent,skip,0,0,Ebk,gl,res)
             end
  |  print'p(mw,id,bl,is,ss,mo,   Hov(((min,max),(nmode,xmode)),blanks,indent,skip,l), res) =
@@ -674,10 +674,10 @@ and print'p(mw,id,bl,is,ss,mo,  Str(n,s),res) = (n,s::res)
                      andalso (id mod (!Pagewidth) >= !BailoutSpot)
                   then if nmode=Hori
                        then pph(mw+(!Pagewidth),mw + (!BailoutIndent),
-                                  blanks,is,ss,l,0,(Nl(ss))::res)
+                                  blanks,is,ss,l,0,(nl(ss))::res)
                        else let val id = mw + (!BailoutIndent)
                             in ppv(mw+(!Pagewidth),id,id,
-                                  blanks,indent,skip,0,0,l,(Nl(ss))::res) end
+                                  blanks,indent,skip,0,0,l,(nl(ss))::res) end
                   else if nmode=Hori
                        then pph(mw,id,blanks,is,ss,l,0,res)
                        else ppv(mw,id,id,blanks,indent,skip,0,0,l,res)
@@ -724,7 +724,7 @@ make the use of {\tt fmtstreams} on files more convenient.
       (*
       fun debug_output_fmt(Formatstream fs, fm) =
                   let val mw = (!Pagewidth)
-                            val (min,max) = Width0(Hori,!Blanks,!Indent,fm)
+                            val (min,max) = width0(Hori,!Blanks,!Indent,fm)
                             val (w,s) = print'p(!Pagewidth,0,!Blanks,!Indent,!Skip,Hori,fm, nil)
                           in
                              output(fs,

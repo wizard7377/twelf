@@ -64,29 +64,29 @@ struct
     fun fmtOrder (G, O) =
         let
           fun fmtOrder' (R.Arg (Us as (U, s), Vs as (V, s'))) =
-                F.Hbox [F.String "(", Print.formatExp (G, I.EClo Us), F.String ")"]
+                F.hbox [F.string "(", Print.formatExp (G, I.EClo Us), F.string ")"]
             | fmtOrder' (R.Lex L) =
-                F.Hbox [F.String "{", F.HOVbox0 1 0 1 (fmtOrders L), F.String "}"]
+                F.hbox [F.string "{", F.hovbox0 1 0 1 (fmtOrders L), F.string "}"]
             | fmtOrder' (R.Simul L) =
-                F.Hbox [F.String "[", F.HOVbox0 1 0 1 (fmtOrders L), F.String "]"]
+                F.hbox [F.string "[", F.hovbox0 1 0 1 (fmtOrders L), F.string "]"]
 
           and fmtOrders [] = []
             | fmtOrders (O :: []) = fmtOrder' O :: []
-            | fmtOrders (O :: L) = fmtOrder' O :: F.Break :: fmtOrders L
+            | fmtOrders (O :: L) = fmtOrder' O :: F.break :: fmtOrders L
         in
           fmtOrder' O
         end
 
     fun fmtComparison (G, O, comp, O') =
-        F.HOVbox0 1 0 1 [fmtOrder (G, O), F.Break, F.String comp,
-                         F.Break, fmtOrder (G, O')]
+        F.hovbox0 1 0 1 [fmtOrder (G, O), F.break, F.string comp,
+                         F.break, fmtOrder (G, O')]
 
 
     fun fmtPredicate (G, C.Less(O, O')) = fmtComparison (G, O, "<", O')
       | fmtPredicate (G, C.Leq(O, O'))  = fmtComparison (G, O, "<=", O')
       | fmtPredicate (G, C.Eq(O, O'))  = fmtComparison (G, O, "=", O')
       | fmtPredicate (G, C.Pi(D, P))  =
-          F.Hbox [F.String "Pi ",
+          F.hbox [F.string "Pi ",
                   fmtPredicate (I.Decl(G, D), P)]
 
     fun rlistToString' (G, nil) = ""

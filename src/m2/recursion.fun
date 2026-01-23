@@ -59,16 +59,16 @@ struct
     fun vectorToString (G, O) =
         let
           fun fmtOrder (Order.Arg (Us, Vs)) =
-              [F.String (Print.expToString (G, I.EClo Us)), F.String ":",
-               F.String (Print.expToString (G, I.EClo Vs))]
-            | fmtOrder (Order.Lex L) = [F.String "{", F.HVbox (fmtOrders L), F.String "}"]
-            | fmtOrder (Order.Simul L) = [F.String "[", F.HVbox (fmtOrders L), F.String "]"]
+              [F.string (Print.expToString (G, I.EClo Us)), F.string ":",
+               F.string (Print.expToString (G, I.EClo Vs))]
+            | fmtOrder (Order.Lex L) = [F.string "{", F.hvbox (fmtOrders L), F.string "}"]
+            | fmtOrder (Order.Simul L) = [F.string "[", F.hvbox (fmtOrders L), F.string "]"]
 
           and fmtOrders nil = nil
             | fmtOrders (O :: nil) = fmtOrder O
-            | fmtOrders (O :: L) = fmtOrder O @ (F.String " " :: fmtOrders L)
+            | fmtOrders (O :: L) = fmtOrder O @ (F.string " " :: fmtOrders L)
         in
-          F.makestring_fmt (F.HVbox (fmtOrder O))
+          F.makestring_fmt (F.hvbox (fmtOrder O))
         end
 
     (* vector (c, (S, s)) = P'

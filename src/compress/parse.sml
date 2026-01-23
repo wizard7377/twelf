@@ -10,9 +10,9 @@ struct
   infixr 1 ||
   val ` = literal
 
-  datatype mode = mMINUS
-		| mPLUS
-		| mOMIT
+  datatype mode = MMINUS
+		| MPLUS
+		| MOMIT
 
   datatype term = Id of string
 		| App of term * term
@@ -24,13 +24,13 @@ struct
 		| Ascribe of term * term
 		| Omit
 
-  fun PiMinus ((s, to), t) = Pi (mMINUS, (s, to), t)
-  fun PiPlus ((s, to), t) = Pi (mPLUS, (s, to), t)
-  fun PiOmit ((s, to), t) = Pi (mOMIT, (s, to), t)
+  fun piMinus ((s, to), t) = Pi (MMINUS, (s, to), t)
+  fun piPlus ((s, to), t) = Pi (MPLUS, (s, to), t)
+  fun piOmit ((s, to), t) = Pi (MOMIT, (s, to), t)
 
-  fun modeToString mMINUS = ""
-    | modeToString mPLUS = "+ "
-    | modeToString mOMIT = "* "
+  fun modeToString MMINUS = ""
+    | modeToString MPLUS = "+ "
+    | modeToString MOMIT = "* "
 
   fun termToString (Id s) = s
     | termToString (App (t, u)) = "(" ^ (termToString t) ^ " " ^ (termToString u) ^ ")"
@@ -56,9 +56,9 @@ struct
 		   `LPAREN >> $term << `COLON &&
 			   $term << `RPAREN wth (Atm o Ascribe),
 		   `LBRACKET >> $vardec << `RBRACKET && $term wth (Atm o Lam),
-		   `LBRACE >> `STAR >> $vardec << `RBRACE && $term wth (Atm o PiOmit),
-		   `LBRACE >> `PLUS >> $vardec << `RBRACE && $term wth (Atm o PiPlus),
-		   `LBRACE >> $vardec << `RBRACE && $term wth (Atm o PiMinus),
+		   `LBRACE >> `STAR >> $vardec << `RBRACE && $term wth (Atm o piOmit),
+		   `LBRACE >> `PLUS >> $vardec << `RBRACE && $term wth (Atm o piPlus),
+		   `LBRACE >> $vardec << `RBRACE && $term wth (Atm o piMinus),
 		   `TYPE return (Atm Type),
 		   `ARROW return Opr(Infix(Right, 5, Arrow)),
 		   `PLUSARROW return Opr(Infix(Right, 5, PlusArrow)),

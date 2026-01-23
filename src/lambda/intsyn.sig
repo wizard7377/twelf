@@ -10,12 +10,12 @@ sig
   type csid = int                       (* CS module identifier       *)
 
 
-  type FgnExp = exn                     (* foreign expression representation *)
-  exception UnexpectedFgnExp of FgnExp
+  type fgn_exp = exn                     (* foreign expression representation *)
+  exception UnexpectedFgnExp of fgn_exp
                                         (* raised by a constraint solver
 					   if passed an incorrect arg *)
-  type FgnCnstr = exn                   (* foreign constraint representation *)
-  exception UnexpectedFgnCnstr of FgnCnstr
+  type fgn_cnstr = exn                   (* foreign constraint representation *)
+  exception UnexpectedFgnCnstr of fgn_cnstr
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
@@ -51,7 +51,7 @@ sig
   | EClo  of Exp * Sub			(*     | U[s]                 *)
   | AVar  of Exp option ref             (*     | A<I>                 *)
 
-  | FgnExp of csid * FgnExp             (*     | (foreign expression) *)
+  | FgnExp of csid * fgn_exp             (*     | (foreign expression) *)
 
   | NVar  of int			(*     | n (linear, 
                                                fully applied variable
@@ -109,7 +109,7 @@ sig
   and Cnstr =				(* Constraint:                *)
     Solved                      	(* Cnstr ::= solved           *)
   | Eqn      of Dec Ctx * Exp * Exp     (*         | G|-(U1 == U2)    *)
-  | FgnCnstr of csid * FgnCnstr         (*         | (foreign)        *)
+  | FgnCnstr of csid * fgn_cnstr         (*         | (foreign)        *)
 
   and Status =                          (* Status of a constant:      *)
     Normal                              (*   inert                    *)
@@ -191,7 +191,7 @@ sig
                                   where type result = FgnUnify
 
     (* fold a function over the subterms *)
-    val fold : (csid * FgnExp) -> (Exp * 'a -> 'a) -> 'a -> 'a
+    val fold : (csid * fgn_exp) -> (Exp * 'a -> 'a) -> 'a -> 'a
   end
 
   (* standard operations on foreign constraints *)

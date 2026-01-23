@@ -44,16 +44,16 @@ struct
 	and evar = (term option ref) * tp
 
         (* special hack for type functions used only in tp_reduce *)
-	datatype tpfn = tpfnType of tp
-		      | tpfnLam of tpfn
+	datatype tpfn = TpfnType of tp
+		      | TpfnLam of tpfn
 
-	fun EVarDotId ev = EVarDot (ev, [], Id)
+	fun evarDotId ev = EVarDot (ev, [], Id)
 
 (*	type decl = string * Parse.term *)
 (*	type ctx = decl list *)
 
-	datatype class = kclass of knd
-			| tclass of tp
+	datatype class = Kclass of knd
+			| Tclass of tp
 
         (* termof elm
         returns the term part of the spine element elm *)
@@ -64,9 +64,9 @@ struct
 
 
 
-	datatype subst_result = srVar of int 
-			      | srTerm of term * tp
-			      | srEVar of evar * subst list
+	datatype subst_result = SrVar of int
+			      | SrTerm of term * tp
+			      | SrEVar of evar * subst list
 
 	exception Debugs of subst_result * spinelt list
 
@@ -98,26 +98,26 @@ struct
         (* substNth (subst, n)
         returns the result of applying the substitution subst
         to the index n *)
-	and substNth (Id,n) = srVar n
-	  | substNth (ZeroDotShift s, n) = if n = 0 then srVar 0 else
+	and substNth (Id,n) = SrVar n
+	  | substNth (ZeroDotShift s, n) = if n = 0 then SrVar 0 else
 					  (case substNth(s, n - 1)
 					    of
-					      srTerm(t, a) => srTerm(shift t, shift_tp 0 a)
-					    | srVar n => srVar (n+1)
-					    | srEVar (ev, sl) => srEVar(ev, (Shift (0,1))::sl))
-	  | substNth (TermDot(m, a, s), n) = if n = 0 then srTerm(m, a) else substNth(s, n-1)
-	  | substNth (EVarDot (ev,sl,s), n) = if n = 0 then srEVar (ev, sl) else substNth(s, n-1)
-	  | substNth (Shift (n, m), n') = if n' >= n then srVar (n' + m) else srVar n'
+					      SrTerm(t, a) => SrTerm(shift t, shift_tp 0 a)
+					    | SrVar n => SrVar (n+1)
+					    | SrEVar (ev, sl) => SrEVar(ev, (Shift (0,1))::sl))
+	  | substNth (TermDot(m, a, s), n) = if n = 0 then SrTerm(m, a) else substNth(s, n-1)
+	  | substNth (EVarDot (ev,sl,s), n) = if n = 0 then SrEVar (ev, sl) else substNth(s, n-1)
+	  | substNth (Shift (n, m), n') = if n' >= n then SrVar (n' + m) else SrVar n'
 	  | substNth (VarOptDot (no, s), n') = if n' = 0 
 					       then case no of
-							SOME n => srVar n
+							SOME n => SrVar n
 						      | NONE => raise MissingVar
 					       else substNth(s, n'-1)
-	  | substNth (Compose [], n) = srVar n
+	  | substNth (Compose [], n) = SrVar n
 	  | substNth (Compose (h::tl), n) = subst_sr h (substNth(Compose tl, n))
-	and subst_sr s (srTerm(t,a)) = srTerm(subst_term s t, subst_tp s a)
-	  | subst_sr s (srVar n) = substNth (s, n)
-	  | subst_sr s (srEVar (ev, sl)) = srEVar(ev, s::sl) (* the type of the evar is understood to be
+	and subst_sr s (SrTerm(t,a)) = SrTerm(subst_term s t, subst_tp s a)
+	  | subst_sr s (SrVar n) = substNth (s, n)
+	  | subst_sr s (SrEVar (ev, sl)) = SrEVar(ev, s::sl) (* the type of the evar is understood to be
 							        affected by the subst as well *)
 	and subst_spinelt Id x = x
 	  | subst_spinelt s (Elt t) = Elt(subst_term s t)
@@ -141,40 +141,40 @@ struct
 	  | subst_tp s (TPi(m,b,b')) = TPi(m,subst_tp s b, subst_tp (ZeroDotShift s) b')
 	and subst_knd s (Type) = Type
 	  | subst_knd s (KPi(m,b,k)) = KPi(m,subst_tp s b, subst_knd (ZeroDotShift s) k)
-	and reduce (srVar n, sp) = ATerm(ARoot(Var n, sp))
-	  | reduce (srTerm(NTerm(Lam n), TPi(_,a,b)), h::sp) = 
+	and reduce (SrVar n, sp) = ATerm(ARoot(Var n, sp))
+	  | reduce (SrTerm(NTerm(Lam n), TPi(_,a,b)), h::sp) = 
 	    let
 		val s = TermDot(termof h,a,Id)
 		val n' = subst_term s n
 		val b' = subst_tp s b
 	    in
-		reduce (srTerm(n', b'), sp)
+		reduce (SrTerm(n', b'), sp)
 	    end
-	  | reduce (srTerm(t as NTerm(NRoot(h,sp)), a), []) = t
-	  | reduce (srTerm(t as ATerm(ARoot(h,sp)), a), []) = t
-	  | reduce (srTerm(ATerm(t as ERoot ((ref (SOME _), _), _)), a), []) = reduce(srTerm(eroot_elim t, a), [])
-	  | reduce (srTerm(ATerm(t as ERoot ((ref NONE, _), _)), a), []) = ATerm t
-	  | reduce (srEVar ((x, a), sl), sp) = 
+	  | reduce (SrTerm(t as NTerm(NRoot(h,sp)), a), []) = t
+	  | reduce (SrTerm(t as ATerm(ARoot(h,sp)), a), []) = t
+	  | reduce (SrTerm(ATerm(t as ERoot ((ref (SOME _), _), _)), a), []) = reduce(SrTerm(eroot_elim t, a), [])
+	  | reduce (SrTerm(ATerm(t as ERoot ((ref NONE, _), _)), a), []) = ATerm t
+	  | reduce (SrEVar ((x, a), sl), sp) = 
 	    let
 		val (a',subst) = lower (substs_comp sl) (a, sp)
 	    in
 		ATerm(ERoot((x,a'),subst))
 	    end
 	  | reduce _ = raise Syntax "simplified-type mismatch in reduction"
-	and reduce_plus (srVar n, sp) = AElt(ARoot(Var n, sp))
-	  | reduce_plus (srTerm(NTerm(Lam n), TPi(_,a,b)), h::sp) = 
+	and reduce_plus (SrVar n, sp) = AElt(ARoot(Var n, sp))
+	  | reduce_plus (SrTerm(NTerm(Lam n), TPi(_,a,b)), h::sp) = 
 	    let
 		val s = TermDot(termof h,a,Id)
 		val n' = subst_term s n
 		val b' = subst_tp s b
 	    in
-		reduce_plus (srTerm(n', b'), sp)
+		reduce_plus (SrTerm(n', b'), sp)
 	    end
-	  | reduce_plus (srTerm(NTerm(t as NRoot(h,sp)), a), []) = Ascribe(t, a)
-	  | reduce_plus (srTerm(ATerm(t as ARoot(h,sp)), a), []) = AElt t
-	  | reduce_plus (srTerm(ATerm(t as ERoot ((ref (SOME _), _), _)), a), []) = reduce_plus(srTerm(eroot_elim t, a), [])
-	  | reduce_plus (srTerm(ATerm(t as ERoot ((ref NONE, _), _)), a), []) = AElt t
-	  | reduce_plus (srEVar ((x, a), sl), sp) = 
+	  | reduce_plus (SrTerm(NTerm(t as NRoot(h,sp)), a), []) = Ascribe(t, a)
+	  | reduce_plus (SrTerm(ATerm(t as ARoot(h,sp)), a), []) = AElt t
+	  | reduce_plus (SrTerm(ATerm(t as ERoot ((ref (SOME _), _), _)), a), []) = reduce_plus(SrTerm(eroot_elim t, a), [])
+	  | reduce_plus (SrTerm(ATerm(t as ERoot ((ref NONE, _), _)), a), []) = AElt t
+	  | reduce_plus (SrEVar ((x, a), sl), sp) = 
 	    let
 		val (a',subst) = lower (substs_comp sl) (a, sp)
 	    in
@@ -192,9 +192,9 @@ struct
 
 	and tp_reduce (a, k, sp) =
 	    let 
-		fun subst_tpfn s (tpfnLam a) = tpfnLam(subst_tpfn (ZeroDotShift s) a)
-		  | subst_tpfn s (tpfnType a) = tpfnType(subst_tp s a)
-		fun tp_reduce'(tpfnLam(a), KPi(_,b,k), h::sp) = 
+		fun subst_tpfn s (TpfnLam a) = TpfnLam(subst_tpfn (ZeroDotShift s) a)
+		  | subst_tpfn s (TpfnType a) = TpfnType(subst_tp s a)
+		fun tp_reduce'(TpfnLam(a), KPi(_,b,k), h::sp) = 
 		    let
 			val s = TermDot(termof h, b, Id)
 			val a' = subst_tpfn s a
@@ -202,10 +202,10 @@ struct
 		    in
 			tp_reduce' (a', k', sp)
 		    end
-		  | tp_reduce' (tpfnType a, Type, []) = a
+		  | tp_reduce' (TpfnType a, Type, []) = a
 		  | tp_reduce' _ = raise Syntax "simplified-kind mismatch in type reduction" 
-		fun wrap (a, KPi(_,b,k)) = tpfnLam (wrap(a,k))
-		  | wrap (a, Type) = tpfnType a
+		fun wrap (a, KPi(_,b,k)) = TpfnLam (wrap(a,k))
+		  | wrap (a, Type) = TpfnType a
 		val aw = wrap (a, k)
 	    in 
 		tp_reduce' (aw, k, sp)
@@ -255,9 +255,9 @@ struct
 		val s'' = subst_compose (s, s')
 	    in
 		case substNth (s,n) of 
-		    srVar n' => VarOptDot(SOME n', s'')
-		  | srTerm (t,a) => TermDot(t, a, s'')
-		  | srEVar (ev,sl) => EVarDot(ev, sl, s'')
+		    SrVar n' => VarOptDot(SOME n', s'')
+		  | SrTerm (t,a) => TermDot(t, a, s'')
+		  | SrEVar (ev,sl) => EVarDot(ev, sl, s'')
 	    end
 	(* val subst_compose : subst * subst -> subst *)
 	and subst_compose (Id, s) = s
@@ -325,8 +325,8 @@ struct
 
 	fun ctxLookup (G, n) = subst_tp (Shift (0, n + 1)) (List.nth (G, n))
 
-	fun typeOf (tclass a) = a
-	fun kindOf (kclass k) = k
+	fun typeOf (Tclass a) = a
+	fun kindOf (Kclass k) = k
 
 	val sum = foldl op+ 0
 	fun size_term (NTerm (Lam t)) = 1 + (size_term t)

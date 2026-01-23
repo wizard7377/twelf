@@ -97,7 +97,7 @@ struct
 
   fun formatExp (G, U) =
       Print.formatExp (G, U)
-      handle Names.Unprintable => F.String "%_unprintable_%"
+      handle Names.Unprintable => F.string "%_unprintable_%"
 
   (* this is a hack, i know *)
   val queryMode = ref false
@@ -726,9 +726,9 @@ struct
         val Xnames = List.map (fn X => (X, Names.evarName (IntSyn.Null, X))) Xs
         val V1fmt = formatExp (G, V1)
         val V2fmt = formatExp (G, V2)
-        val diff = F.Vbox0 0 1
-                   [F.String "Expected:", F.Space, V2fmt, F.Break,
-                    F.String "Inferred:", F.Space, V1fmt]
+        val diff = F.vbox0 0 1
+                   [F.string "Expected:", F.space, V2fmt, F.break,
+                    F.string "Inferred:", F.space, V1fmt]
         val diff = (case Print.evarCnstrsToStringOpt (Xnames)
                       of NONE => F.makestring_fmt diff
                        | SOME(cnstrs) => F.makestring_fmt diff ^
@@ -744,7 +744,7 @@ struct
       addDelayed (fn () =>
       let
         val Ufmt = formatExp (G, U)
-        val amb = F.HVbox [F.String "Inferred:", F.Space, formatExp (G, U)]
+        val amb = F.hvbox [F.string "Inferred:", F.space, formatExp (G, U)]
       in
         error (r, "Ambiguous reconstruction\n"
                   ^ F.makestring_fmt amb ^ "\n"
@@ -789,8 +789,8 @@ struct
         val Xs = Abstract.collectEVars (G, Vs2,
                  Abstract.collectEVars (G, Vs1, nil))
         val Xnames = List.map (fn X => (X, Names.evarName (IntSyn.Null, X))) Xs
-        val eqnsFmt = F.HVbox [F.String "|?", F.Space, formatExp (G, EClo Vs1),
-                               F.Break, F.String "=", F.Space, formatExp (G, EClo Vs2)]
+        val eqnsFmt = F.hvbox [F.string "|?", F.space, formatExp (G, EClo Vs1),
+                               F.break, F.string "=", F.space, formatExp (G, EClo Vs2)]
         val _ = Msg.message (F.makestring_fmt eqnsFmt ^ "\n")
         val _ = reportConstraints Xnames
         val _ = Msg.message ("Failed: " ^ problem_msg ^ "\n"
@@ -804,8 +804,8 @@ struct
         val Xs = Abstract.collectEVars (G, Vs2,
                  Abstract.collectEVars (G, Vs1, nil))
         val Xnames = List.map (fn X => (X, Names.evarName (IntSyn.Null, X))) Xs
-        val eqnsFmt = F.HVbox [F.String "|?", F.Space, formatExp (G, EClo Vs1),
-                               F.Break, F.String "=", F.Space, formatExp (G, EClo Vs2)]
+        val eqnsFmt = F.hvbox [F.string "|?", F.space, formatExp (G, EClo Vs1),
+                               F.break, F.string "=", F.space, formatExp (G, EClo Vs2)]
         val _ = Msg.message (F.makestring_fmt eqnsFmt ^ "\n")
         val _ = unifyIdem (G, Vs1, Vs2)
                 handle e as Unify.Unify msg =>
@@ -832,9 +832,9 @@ struct
         val Xs = Abstract.collectEVars (G, (U, id),
                  Abstract.collectEVars (G, (V, id), nil))
         val Xnames = List.map (fn X => (X, Names.evarName (IntSyn.Null, X))) Xs
-        val omit = F.HVbox [F.String "|-", F.Space, F.String "_", F.Space,
-                            F.String "==>", F.Space, formatExp (G, U), F.Break,
-                            F.String ":", F.Space, formatExp (G, V)]
+        val omit = F.hvbox [F.string "|-", F.space, F.string "_", F.space,
+                            F.string "==>", F.space, formatExp (G, U), F.break,
+                            F.string ":", F.space, formatExp (G, V)]
         val _ = Msg.message (F.makestring_fmt omit ^ "\n")
         val _ = reportConstraints Xnames
       in
@@ -848,8 +848,8 @@ struct
         val Xs = Abstract.collectEVars (G, (U, id),
                  Abstract.collectEVars (G, (V, id), nil))
         val Xnames = List.map (fn X => (X, Names.evarName (IntSyn.Null, X))) Xs
-        val judg = F.HVbox [F.String "|-", F.Space, formatExp (G, U), F.Break,
-                            F.String ":", F.Space, formatExp (G, V)]
+        val judg = F.hvbox [F.string "|-", F.space, formatExp (G, U), F.break,
+                            F.string ":", F.space, formatExp (G, V)]
         val _ = Msg.message (F.makestring_fmt judg ^ "\n")
         val _ = reportConstraints Xnames
       in

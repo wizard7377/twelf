@@ -40,14 +40,14 @@ struct
         ctxLength' (G, 0)
       end
 
-  type FgnExp = exn                     (* foreign expression representation *)
-  exception UnexpectedFgnExp of FgnExp
+  type fgn_exp = exn                     (* foreign expression representation *)
+  exception UnexpectedFgnExp of fgn_exp
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
-  type FgnCnstr = exn                   (* foreign unification constraint
+  type fgn_cnstr = exn                   (* foreign unification constraint
                                            representation *)
-  exception UnexpectedFgnCnstr of FgnCnstr
+  exception UnexpectedFgnCnstr of fgn_cnstr
                                         (* raised by a constraint solver
                                            if passed an incorrect arg *)
 
@@ -76,7 +76,7 @@ struct
   | NVar  of int                        (*     | n (linear, fully applied) *)
                                         (* grafting variable *)
 
-  | FgnExp of csid * FgnExp
+  | FgnExp of csid * fgn_exp
                                         (*     | (foreign expression) *)
 
   and Head =                            (* Heads:                     *)
@@ -123,7 +123,7 @@ struct
   and Cnstr =                           (* Constraint:                *)
     Solved                              (* Cnstr ::= solved           *)
   | Eqn      of Dec Ctx * Exp * Exp     (*         | G|-(U1 == U2)    *)
-  | FgnCnstr of csid * FgnCnstr         (*         | (foreign)        *)
+  | FgnCnstr of csid * fgn_cnstr         (*         | (foreign)        *)
 
   and Status =                          (* Status of a constant:      *)
     Normal                              (*   inert                    *)
